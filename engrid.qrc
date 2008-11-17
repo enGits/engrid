@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="/icons" >
+    <file>resources/icons/viewxminus.png</file>
+    <file>resources/icons/viewxplus.png</file>
+    <file>resources/icons/viewyminus.png</file>
+    <file>resources/icons/viewyplus.png</file>
+    <file>resources/icons/viewzminus.png</file>
+    <file>resources/icons/viewzplus.png</file>
+    <file>resources/icons/smoothvol.png</file>
+    <file>resources/icons/deletevol.png</file>
+    <file>resources/icons/createvol.png</file>
+    <file>resources/icons/createblayer.png</file>
+    <file>resources/icons/divideblayer.png</file>
+    <file>resources/icons/smoothsurf.png</file>
+    <file>resources/icons/G.png</file>
+    <file>resources/icons/aspectratio.png</file>
+    <file>resources/icons/checkorder.png</file>
+    <file>resources/icons/extrusion.png</file>
+    <file>resources/icons/reorder.png</file>
+    <file>resources/icons/setbc.png</file>
+    <file>resources/kde_icons/exit.png</file>
+    <file>resources/kde_icons/fileopen.png</file>
+    <file>resources/kde_icons/filesave.png</file>
+    <file>resources/kde_icons/filesaveas.png</file>
+    <file>resources/kde_icons/reload.png</file>
+    <file>resources/kde_icons/viewmagfit.png</file>
+  </qresource>
+</RCC>
