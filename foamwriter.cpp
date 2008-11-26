@@ -258,9 +258,12 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
     int bc = poly.boundaryCode(i);
     int nFaces = 0;
     int startFace = i;
-    while ((poly.boundaryCode(i) == bc) && (i < poly.numFaces())) {
+    bool loop = (poly.boundaryCode(i) == bc);
+    while (loop) {
       ++nFaces;
       ++i;
+      loop = (i < poly.numFaces());
+      if (loop) loop = (poly.boundaryCode(i) == bc);
     };
     f << "    BC" << bc << "\n";
     f << "    {\n";
