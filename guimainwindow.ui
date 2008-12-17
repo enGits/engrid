@@ -414,7 +414,7 @@
     <addaction name="actionDeletePickedCell" />
     <addaction name="separator" />
     <addaction name="actionNormalExtrusion" />
-    <addaction name="actionCreateSurfaceMesh" />
+    <addaction name="actionFixSTL" />
     <addaction name="actionCreateVolumeMesh" />
     <addaction name="actionDeleteVolumeGrid" />
     <addaction name="actionCreateBoundaryLayer" />
@@ -819,9 +819,9 @@
     <string>delete picked cell</string>
    </property>
   </action>
-  <action name="actionCreateSurfaceMesh" >
+  <action name="actionFixSTL" >
    <property name="text" >
-    <string>create surface mesh</string>
+    <string>fix surface triangulation</string>
    </property>
   </action>
  </widget>

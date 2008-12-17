@@ -37,6 +37,7 @@ void GmshWriter::writeAscii1(vtkUnstructuredGrid *grid)
   for (vtkIdType nodeId = 0; nodeId < grid->GetNumberOfPoints(); ++nodeId) {
     vec3_t x;
     grid->GetPoints()->GetPoint(nodeId, x.data());
+    f.setRealNumberPrecision(16);
     f << nodeId+1 << ' ' << x[0] << ' ' << x[1] << ' ' << x[2] << '\n';
   };
   f << "$ENDNOD\n";

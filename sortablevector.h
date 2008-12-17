@@ -20,38 +20,32 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef swaptriangles_H
-#define swaptriangles_H
+#ifndef sortablevector_H
+#define sortablevector_H
 
-class SwapTriangles;
+class SortableVector;
 
-#include "operation.h"
+#include <QVector>
 
-class SwapTriangles : public Operation
+template <class T>
+class SortableVector : public QVector<T>
 {
   
-private: // types
+public: // methods
   
-  struct stencil_t { 
-    vtkIdType id_cell1;
-    vtkIdType id_cell2;
-    vtkIdType p[4];
-    bool valid;
-  };
+  SortableVector() : QVector<T>() {};
+  SortableVector(int size) : QVector<T>(size) {};
+  SortableVector(int size, const T &value) QVector<T>(size, value) {};
+  SortableVector(const SortableVector<T> &other) : QVector<T>(other) {};
   
-private: // attributes
+  bool operator<(const SortableVector<T> &V) const;
   
-  QVector<bool> marked;
-  
-private: // methods
-  
-  void prepare();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
-    
-protected: // methods
-  
-  virtual void operate();
-  
+};
+
+template <class T>
+bool SortableVector<T>::operator<(const SortableVector<T> &V) const
+{
+  EG_BUG;
 };
 
 #endif

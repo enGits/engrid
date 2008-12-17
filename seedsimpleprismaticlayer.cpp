@@ -154,7 +154,8 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
     };
   };
   QVector<vtkIdType>  bcells;
-  QVector<vtkIdType>  bnodes, _bnodes;
+  QVector<vtkIdType>  bnodes;
+  QVector<int>        _bnodes;
   QVector<QSet<int> > bn2bc;
   getAllSurfaceCells(bcells, new_grid);
   getNodesFromCells(bcells, bnodes, new_grid);

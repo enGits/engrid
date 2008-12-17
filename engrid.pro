@@ -11,16 +11,18 @@ LIBS += -lvtkImaging
 LIBS += -lvtkHybrid 
 LIBS += -lQVTK
 
+
 LIBS += -lng
 
 #DEFINES += QT_NO_DEBUG
 
 !win32 {
   LIBS += -L./netgen_cvs
-  LIBS += -L$(VTKDIR)/lib
-  LIBS += -Wl,-rpath /opt/shared/VTK/lib
+  LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
+  LIBS += -L$(VTKDIR)/lib/vtk-5.2
+  LIBS += -Wl,-rpath
   QMAKE_CXXFLAGS += -Wno-deprecated
-  INCLUDEPATH += $(VTKDIR)/include/vtk-5.0
+  INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
   INCLUDEPATH += ./netgen_cvs/netgen/libsrc/interface
   INCLUDEPATH += ./netgen_cvs/netgen/libsrc/general
 }
@@ -64,7 +66,6 @@ celllayeriterator.h \
 cellneighbouriterator.h \
 containertricks.h \
 correctsurfaceorientation.h \
-createsurfacemesh.h \
 createvolumemesh.h \
 deletecells.h \
 deletetetras.h \
@@ -75,6 +76,7 @@ egvtkobject.h \
 elements.h \
 engrid.h \
 error.h \
+fixstl.h \
 foamreader.h \
 foamwriter.h \
 geometrytools.h \
@@ -93,10 +95,12 @@ polydatareader.h \
 polymesh.h \
 seedsimpleprismaticlayer.h \
 setboundarycode.h \
+sortablevector.h \
 std_connections.h \
 std_includes.h \
 stlreader.h \
 stlwriter.h \
+uniquevector.h \
 swaptriangles.h \
 tvtkoperation.h \
 vtkreader.h \
@@ -125,7 +129,6 @@ main.cpp \
 celllayeriterator.cpp \
 cellneighbouriterator.cpp \
 correctsurfaceorientation.cpp \
-createsurfacemesh.cpp \
 createvolumemesh.cpp \
 deletecells.cpp \
 deletepickedcell.cpp \
@@ -134,6 +137,7 @@ deletevolumegrid.cpp \
 egvtkobject.cpp \
 elements.cpp \
 error.cpp \
+fixstl.cpp \
 foamreader.cpp \
 foamwriter.cpp \
 geometrytools.cpp \

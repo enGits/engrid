@@ -27,7 +27,7 @@ connect(ui.actionSmoothSurface,SIGNAL(activated()),this,SLOT(callSmoothSurface()
 connect(ui.actionCreateBoundaryLayer,SIGNAL(activated()),this,SLOT(callCreateBoundaryLayer()));
 connect(ui.actionDivideBoundaryLayer,SIGNAL(activated()),this,SLOT(callDivideBoundaryLayer()));
 connect(ui.actionDeleteVolumeGrid,SIGNAL(activated()),this,SLOT(callDeleteTetras()));
-connect(ui.actionCreateSurfaceMesh,SIGNAL(activated()),this,SLOT(callCreateSurfaceMesh()));
+connect(ui.actionFixSTL,SIGNAL(activated()),this,SLOT(callFixSTL()));
 connect(ui.actionCreateVolumeMesh,SIGNAL(activated()),this,SLOT(callCreateVolumeMesh()));
 connect(ui.actionSmoothVolumeGrid,SIGNAL(activated()),this,SLOT(callSmoothVolumeGrid()));
 connect(ui.actionFoamReader,SIGNAL(activated()),this,SLOT(callFoamReader()));

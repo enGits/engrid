@@ -370,12 +370,13 @@ public slots:
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); };
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); };
   void callDeleteTetras() { EG_STDSLOT(DeleteTetras); };
-  void callCreateSurfaceMesh() { EG_STDSLOT(CreateSurfaceMesh); };
   void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); };
   void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); };
   void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); };
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
+  
+  void callFixSTL();
   
   void callFoamReader()      { EG_STDREADERSLOT(FoamReader); };
   void callFoamWriter()      { EG_STDINTERSLOT(FoamWriter); };

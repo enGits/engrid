@@ -934,3 +934,12 @@ void GuiMainWindow::viewZM()
   getRenderWindow()->Render();
 };
 
+void GuiMainWindow::callFixSTL()
+{
+  FixSTL *fix;
+  fix = new FixSTL();
+  fix->setGui();
+  (*fix)();
+  updateBoundaryCodes(false);
+  updateActors();
+};

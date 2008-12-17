@@ -20,38 +20,44 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef swaptriangles_H
-#define swaptriangles_H
+#ifndef uniquevector_H
+#define uniquevector_H
 
-class SwapTriangles;
+class uniqueVector;
 
-#include "operation.h"
+#include <QVector>
 
-class SwapTriangles : public Operation
+template <class T>
+class UniqueVector : public QVector<T>
 {
   
-private: // types
+public: // methods
   
-  struct stencil_t { 
-    vtkIdType id_cell1;
-    vtkIdType id_cell2;
-    vtkIdType p[4];
-    bool valid;
+  UniqueVector() : QVector<T>() {};
+  UniqueVector(int size) : QVector<T>(size) {};
+  UniqueVector(int size, const T &value) : QVector<T>(size, value) {};
+  UniqueVector(const UniqueVector<T> &other) : QVector<T>(other) {};
+  
+  bool operator==(const UniqueVector<T> &V) const;
+  
+};
+
+template <class T>
+bool UniqueVector<T>::operator==(const UniqueVector<T> &V) const
+{
+  if (QVector<T>::size() != V.size()) return false;
+  QVector<bool> used(QVector<T>::size(),false);
+  int N = 0;
+  for (int i = 0; i < QVector<T>::size(); ++i) {
+    for (int j = 0; j < QVector<T>::size(); ++j) {
+      if ((V[j] == this->operator[](i)) && !used[j]) {
+        ++N;
+        used[j] = true;
+        break;
+      };
+    };
   };
-  
-private: // attributes
-  
-  QVector<bool> marked;
-  
-private: // methods
-  
-  void prepare();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
-    
-protected: // methods
-  
-  virtual void operate();
-  
+  return N == QVector<T>::size();
 };
 
 #endif

@@ -66,7 +66,8 @@ void vtkEgExtractVolumeCells::ExecuteEg()
   };
   QVector<vtkIdType> cells(ex_cells.size());
   qCopy(ex_cells.begin(), ex_cells.end(), cells.begin());
-  QVector<vtkIdType> nodes, _nodes;
+  QVector<vtkIdType> nodes;
+  QVector<int>       _nodes;
   getNodesFromCells(cells, nodes, input);
   createNodeMapping(nodes, _nodes, input);
   allocateGrid(output, cells.size(), nodes.size());

@@ -48,8 +48,8 @@ void CreateVolumeMesh::prepare()
   DeleteTetras del;
   del.setGrid(grid);
   del();
-  QVector<vtkIdType> cells, _cells;
-  QVector<vtkIdType> nodes, _nodes;
+  QVector<vtkIdType> cells, nodes;
+  QVector<int>       _cells, _nodes;
   QVector<QVector< int > > c2c;
   QVector<QSet<int> > n2c;
   getAllCells(cells, grid);
@@ -277,9 +277,9 @@ void CreateVolumeMesh::prepare()
 void CreateVolumeMesh::computeMeshDensity()
 {
   using namespace nglib;
-  QVector<vtkIdType>      cells;
-  QVector<vtkIdType>      nodes;
-  QVector<vtkIdType>     _nodes;
+  QVector<vtkIdType>  cells;
+  QVector<vtkIdType>  nodes;
+  QVector<int>       _nodes;
   QVector<QVector<int> >  c2c;
   QVector<QSet<int> >     n2n;
   getAllCellsOfType(VTK_TETRA, cells, grid);
@@ -469,7 +469,7 @@ void CreateVolumeMesh::operate()
     // mark all surface nodes coming from NETGEN
     QVector<bool> ng_surf_node(Npoints_ng + 1, false);
     for (int i = 1; i <= Nscells_ng; ++i) {
-      vtkIdType pts[8];
+      int pts[8];
       Ng_Surface_Element_Type ng_type;
       ng_type = Ng_GetSurfaceElement(mesh, i, pts);
       int N = 0;
@@ -523,7 +523,8 @@ void CreateVolumeMesh::operate()
     // add new cells
     vtkIdType id_new_cell;
     for (vtkIdType cellId = 0; cellId < Ncells_ng; ++cellId) {
-      vtkIdType pts[8], new_pts[4];
+      int       pts[8];
+      vtkIdType new_pts[4];
       for (int i = 0; i < 8; ++i) {
         pts[i] = 0;
       };

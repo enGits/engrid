@@ -82,6 +82,9 @@ void GuiDivideBoundaryLayer::bisectF(double &f1, double &f2)
   f = 0.5*(f1+f2);
 };
 
+
+//begin GROSSER MURKS 
+
 void GuiDivideBoundaryLayer::computeF()
 {
   double f1 = 0;
@@ -105,6 +108,8 @@ void GuiDivideBoundaryLayer::computeY()
     C *= f;
   };
 };
+
+//end GROSSER MURKS
 
 void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
 {

@@ -1,3 +1,4 @@
+
 //
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
@@ -24,8 +25,8 @@
 
 void CellLayerIterator::operate()
 {
-  QVector<vtkIdType>           surf_cells;
-  QVector<vtkIdType>           surf_nodes, _surf_nodes;
+  QVector<vtkIdType> surf_cells, surf_nodes;
+  QVector<int>       _surf_nodes;
   
   custom_iteration = true;
   getAllCells(cells, grid);

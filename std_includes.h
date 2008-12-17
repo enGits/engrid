@@ -29,7 +29,6 @@
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
-#include "createsurfacemesh.h"
 #include "createvolumemesh.h"
 #include "gridsmoother.h"
 #include "foamreader.h"
@@ -37,5 +36,6 @@
 #include "polydatareader.h"
 #include "foamwriter.h"
 #include "deletepickedcell.h"
+#include "fixstl.h"
 
 // -------------------------------------------

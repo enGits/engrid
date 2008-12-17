@@ -55,7 +55,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
   QVector<int> _cells, _nodes;
   createNodeMapping(nodes, _nodes, input);
   createCellMapping(cells, _cells, input);
-  QVector<QSet<vtkIdType> > n2c;
+  QVector<QSet<int> > n2c;
   createNodeToCell(cells, nodes, _nodes, n2c, input);
   
   vtkIdType NnewNodes = input->GetNumberOfPoints() + (layer_y.size()-1)*nodes.size();

@@ -20,16 +20,18 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "createsurfacemesh.h"
+#include "fixstl.h"
 #include "deletetetras.h"
+#include "uniquevector.h"
 
 #include <vtkDelaunay3D.h>
+#include <vtkMergePoints.h>
 
-CreateSurfaceMesh::CreateSurfaceMesh()
+FixSTL::FixSTL()
 {
 };
 
-void CreateSurfaceMesh::createTriangles(const QList<QVector<vtkIdType> > &triangles, vtkUnstructuredGrid *tetra_grid)
+void FixSTL::createTriangles(const QList<QVector<vtkIdType> > &triangles, vtkUnstructuredGrid *tetra_grid)
 {
   QVector<vtkIdType> cells, nodes;
   QVector<int> _nodes;
@@ -50,12 +52,32 @@ void CreateSurfaceMesh::createTriangles(const QList<QVector<vtkIdType> > &triang
       ++N_nodes;
     };
   };
-  allocateGrid(grid, triangles.size(), N_nodes)
+  allocateGrid(grid, triangles.size(), N_nodes);
+  cout << triangles.size() << ',' << N_nodes << endl;
+  vtkIdType id_node = 0;
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    if (active[i_nodes]) {
+      vec3_t x;
+      tetra_grid->GetPoint(nodes[i_nodes],x.data());
+      grid->GetPoints()->SetPoint(id_node,x.data());
+      copyNodeData(tetra_grid, nodes[i_nodes], grid, id_node);
+      ++id_node;
+    };
+  };
+  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
+  foreach (QVector<vtkIdType> T, triangles) {
+    vtkIdType pts[3];
+    for (int i_T = 0; i_T < 3; ++i_T) {
+      pts[i_T] = old2new[T[i_T]];
+    };
+    vtkIdType id_cell = grid->InsertNextCell(VTK_TRIANGLE,3,pts);
+    bc->SetValue(id_cell,1);
+  };
 };
 
-void CreateSurfaceMesh::operate()
+void FixSTL::operate()
 {
-  cout << "creating surface mesh from STL input" << endl;
+  cout << "checking and repairing surface triangulation" << endl;
   EG_VTKSP(vtkUnstructuredGrid, pts_grid);
   QVector<vtkIdType> faces, nodes;
   getAllSurfaceCells(faces, grid);
@@ -78,28 +100,31 @@ void CreateSurfaceMesh::operate()
   QList<QVector<vtkIdType> > triangles;
   QVector<vtkIdType> T(3);
   createCellToCell(tetras, t2t, tetra_grid);
+  EG_VTKSP(vtkMergePoints,loc);
+  loc->SetDataSet(pts_grid);
+  loc->BuildLocator();
   for (int i_tetras = 0; i_tetras < tetras.size(); ++i_tetras) {
     vtkIdType id_tetra = tetras[i_tetras];
     vtkIdType *pts, N_pts;
     tetra_grid->GetCellPoints(id_tetra, N_pts, pts);
     // face 0
-    if (t2t[i_tetras][0] > i_tetras) {
+    if (t2t[i_tetras][0] < i_tetras) {
       T[0] = pts[2]; T[1] = pts[1]; T[2] = pts[0];
       triangles.append(T);
     };
     // face 1
-    if (t2t[i_tetras][1] > i_tetras) {
-      T[0] = pts[1]; T[3] = pts[0]; T[2] = pts[0];
+    if (t2t[i_tetras][1] < i_tetras) {
+      T[0] = pts[1]; T[1] = pts[3]; T[2] = pts[0];
       triangles.append(T);
     };
     // face 2
-    if (t2t[i_tetras][2] > i_tetras) {
+    if (t2t[i_tetras][2] < i_tetras) {
       T[0] = pts[3]; T[1] = pts[2]; T[2] = pts[0];
       triangles.append(T);
     };
     // face 3
-    if (t2t[i_tetras][3] > i_tetras) {
-      T[0] = pts[1]; T[1] = pts[1]; T[3] = pts[1];
+    if (t2t[i_tetras][3] < i_tetras) {
+      T[0] = pts[2]; T[1] = pts[3]; T[2] = pts[1];
       triangles.append(T);
     };
   };

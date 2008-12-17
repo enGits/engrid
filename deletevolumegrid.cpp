@@ -25,7 +25,8 @@
 void DeleteVolumeGrid::operate()
 {
   EG_VTKSP(vtkUnstructuredGrid, sgrid);
-  QVector<vtkIdType> scells, snodes, _snodes;
+  QVector<vtkIdType> scells, snodes;
+  QVector<int>       _snodes;
   getAllSurfaceCells(scells, grid);
   getNodesFromCells(scells, snodes, grid);
   createNodeMapping(snodes, _snodes, grid);

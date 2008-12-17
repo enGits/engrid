@@ -20,37 +20,29 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef swaptriangles_H
-#define swaptriangles_H
+#ifndef fixstl_H
+#define fixstl_H
 
-class SwapTriangles;
+class FixSTL;
 
 #include "operation.h"
 
-class SwapTriangles : public Operation
+class FixSTL : public Operation
 {
-  
-private: // types
-  
-  struct stencil_t { 
-    vtkIdType id_cell1;
-    vtkIdType id_cell2;
-    vtkIdType p[4];
-    bool valid;
-  };
   
 private: // attributes
   
-  QVector<bool> marked;
-  
 private: // methods
   
-  void prepare();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
-    
+  void createTriangles(const QList<QVector<vtkIdType> > &triangles, vtkUnstructuredGrid *tetra_grid);
+  
 protected: // methods
   
   virtual void operate();
+  
+public: // methods
+  
+  FixSTL();
   
 };
 

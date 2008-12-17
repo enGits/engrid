@@ -41,13 +41,13 @@ private: // methods
   
   void addToC2C
     (
-      vtkIdType                    cellId,
-      QVector<int>                 &_cells,
-      QVector<QVector<vtkIdType> > &c2c,
-      int                           j,
-      vtkIdList                    *nds,
-      vtkIdList                    *cls,
-      vtkUnstructuredGrid          *grid
+      vtkIdType               id_cell,
+      QVector<int>           &_cells,
+      QVector<QVector<int> > &c2c,
+      int                     j,
+      vtkIdList              *nds,
+      vtkIdList              *cls,
+      vtkUnstructuredGrid    *grid
     );
   
   void addToN2N
@@ -143,7 +143,7 @@ protected: // methods
     (
       QVector<vtkIdType>  &cells,
       QVector<vtkIdType>  &nodes,
-      QVector<vtkIdType>  &_nodes,
+      QVector<int>        &_nodes,
       QVector<QSet<int> > &n2c,
       vtkUnstructuredGrid *grid
     );
@@ -160,7 +160,7 @@ protected: // methods
     (
       QVector<vtkIdType>  &cells,
       QVector<vtkIdType>  &nodes,
-      QVector<vtkIdType>  &_nodes,
+      QVector<int>        &_nodes,
       QVector<QSet<int> > &n2n,
       vtkUnstructuredGrid *grid
     );
@@ -343,6 +343,34 @@ protected: // methods
     );
   
   /**
+   * Create the basic cell fields on a given grid.
+   * Care should be taken with the overwrite parameter; if it is set to <i>false</i>
+   * and the field does not have the correct size it can lead to <i>segmentation faults</i>.
+   * @param Ncells the number of output cells
+   * @param overwrite f set to true existing fields will be re-created
+   */
+  void createBasicCellFields
+    (
+      vtkUnstructuredGrid *grid,
+      vtkIdType            Ncells, 
+      bool                 overwrite = true
+    );
+  
+  /**
+   * Create the basic node fields on a given grid.
+   * Care should be taken with the overwrite parameter; if it is set to <i>false</i>
+   * and the field does not have the correct size it can lead to <i>segmentation faults</i>.
+   * @param Nnodes the number of output nodes
+   * @param overwrite f set to true existing fields will be re-created
+   */
+  void createBasicNodeFields
+    (
+      vtkUnstructuredGrid *grid,
+      vtkIdType            Nnodes,
+      bool                 overwrite = true
+    );
+  
+  /**
    * Allocate memory for a grid. This method will also create the basic
    * attribute fields (e.g. "cell_code").
    * @param grid   the grid for which to allocate memory
@@ -405,12 +433,12 @@ protected: // methods
    */
   int findVolumeCell
     (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            id_surf,
-      const QVector<int>   _nodes,      
-      const QVector<int>   cells,      
-      const QVector<int>   _cells,      
-      QVector<QSet<int> > &n2c
+      vtkUnstructuredGrid     *grid,
+      vtkIdType                id_surf,
+      const QVector<int>      _nodes,      
+      const QVector<vtkIdType> cells,      
+      const QVector<int>      _cells,      
+      QVector<QSet<int> >     &n2c
     );
 
   void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);

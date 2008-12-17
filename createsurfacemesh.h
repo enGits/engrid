@@ -34,6 +34,8 @@ private: // attributes
   
 private: // methods
   
+  void createTriangles(const QList<QVector<vtkIdType> > &triangles, vtkUnstructuredGrid *tetra_grid);
+  
 protected: // methods
   
   virtual void operate();
