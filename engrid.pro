@@ -17,14 +17,14 @@ LIBS += -lng
 #DEFINES += QT_NO_DEBUG
 
 !win32 {
-  LIBS += -L./netgen_cvs
+  LIBS += -L./netgen_svn
   LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
   LIBS += -L$(VTKDIR)/lib/vtk-5.2
   LIBS += -Wl,-rpath
   QMAKE_CXXFLAGS += -Wno-deprecated
   INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
-  INCLUDEPATH += ./netgen_cvs/netgen/libsrc/interface
-  INCLUDEPATH += ./netgen_cvs/netgen/libsrc/general
+  INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
+  INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
 
 win32 {
