@@ -20,29 +20,29 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef elements_H
-#define elements_H
+#ifndef boundarycondition_H
+#define boundarycondition_H
 
-class Elements
+class BoundaryCondition;
+
+#include <QString>
+
+class BoundaryCondition
 {
   
 private: // attributes
   
-  int pri_tet[4][3][4];
-  
-private: // methods
-  
-  void setTet(int i_variant, int i_tetra, int n0, int n1, int n2, int n3);
+  QString name;
+  QString type;
   
 public: // methods
   
-  Elements();
-  int priTet(int i_variant, int i_tetra, int i_node) { return pri_tet[i_variant][i_tetra][i_node]; };
+  BoundaryCondition();
+  BoundaryCondition(QString a_name, QString a_type);
+  
+  QString getName() { return name; };
+  QString getType() { return type; };
   
 };
 
-
-
-
 #endif
-

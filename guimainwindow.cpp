@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008 Oliver Gloth                                          +
+// + Copyright 2008,2009 Oliver Gloth                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -33,6 +33,7 @@
 #include "neutralwriter.h"
 #include "stlwriter.h"
 #include "correctsurfaceorientation.h"
+#include "guieditboundaryconditions.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -66,27 +67,28 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
   ui.menuView->addAction(dock_widget->toggleViewAction());
   
-  connect(ui.actionImportSTL,           SIGNAL(activated()),       this, SLOT(importSTL()));
-  connect(ui.actionImportGmsh1Ascii,    SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
-  connect(ui.actionImportGmsh2Ascii,    SIGNAL(activated()),       this, SLOT(importGmsh2Ascii()));
-  connect(ui.actionExportGmsh1Ascii,    SIGNAL(activated()),       this, SLOT(exportGmsh1Ascii()));
-  connect(ui.actionExportGmsh2Ascii,    SIGNAL(activated()),       this, SLOT(exportGmsh2Ascii()));
-  connect(ui.actionExportNeutral,       SIGNAL(activated()),       this, SLOT(exportNeutral()));
-  connect(ui.actionExportAsciiStl,      SIGNAL(activated()),       this, SLOT(exportAsciiStl()));
-  connect(ui.actionExportBinaryStl,     SIGNAL(activated()),       this, SLOT(exportBinaryStl()));
-  connect(ui.actionExit,                SIGNAL(activated()),       this, SLOT(exit()));
-  connect(ui.actionZoomAll,             SIGNAL(activated()),       this, SLOT(zoomAll()));
-  connect(ui.actionOpen,                SIGNAL(activated()),       this, SLOT(open()));
-  connect(ui.actionSave,                SIGNAL(activated()),       this, SLOT(save()));
-  connect(ui.actionSaveAs,              SIGNAL(activated()),       this, SLOT(saveAs()));
-  connect(ui.actionBoundaryCodes,       SIGNAL(activated()),       this, SLOT(selectBoundaryCodes()));
-  connect(ui.actionNormalExtrusion,     SIGNAL(activated()),       this, SLOT(normalExtrusion()));
-  connect(ui.actionViewAxes,            SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
-  connect(ui.actionChangeOrientation,   SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
-  connect(ui.actionCheckOrientation,    SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
-  connect(ui.actionImproveAspectRatio,  SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
-  connect(ui.actionRedraw,              SIGNAL(activated()),       this, SLOT(updateActors()));
-  connect(ui.actionClearOutputWindow,   SIGNAL(activated()),       this, SLOT(clearOutput()));
+  connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
+  connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
+  connect(ui.actionImportGmsh2Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh2Ascii()));
+  connect(ui.actionExportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(exportGmsh1Ascii()));
+  connect(ui.actionExportGmsh2Ascii,       SIGNAL(activated()),       this, SLOT(exportGmsh2Ascii()));
+  connect(ui.actionExportNeutral,          SIGNAL(activated()),       this, SLOT(exportNeutral()));
+  connect(ui.actionExportAsciiStl,         SIGNAL(activated()),       this, SLOT(exportAsciiStl()));
+  connect(ui.actionExportBinaryStl,        SIGNAL(activated()),       this, SLOT(exportBinaryStl()));
+  connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
+  connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
+  connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
+  connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
+  connect(ui.actionSaveAs,                 SIGNAL(activated()),       this, SLOT(saveAs()));
+  connect(ui.actionBoundaryCodes,          SIGNAL(activated()),       this, SLOT(selectBoundaryCodes()));
+  connect(ui.actionNormalExtrusion,        SIGNAL(activated()),       this, SLOT(normalExtrusion()));
+  connect(ui.actionViewAxes,               SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
+  connect(ui.actionChangeOrientation,      SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
+  connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
+  connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
+  connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
+  connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
+  connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -113,6 +115,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   volume_wire_mapper  = vtkPolyDataMapper::New();
   surface_mapper      = vtkPolyDataMapper::New();
   surface_wire_mapper = vtkPolyDataMapper::New();
+  
+  backface_property = vtkProperty::New();
   
   tetra_actor       = NULL;
   pyramid_actor     = NULL;
@@ -342,9 +346,13 @@ void GuiMainWindow::updateActors()
       surface_mapper->SetInput(boundary_pd);
       surface_wire_mapper->SetInput(boundary_pd);
       surface_actor = vtkActor::New();
+      surface_actor->GetProperty()->SetRepresentationToSurface();
+      surface_actor->GetProperty()->SetColor(0,1,0);
+      surface_actor->SetBackfaceProperty(backface_property);
+      surface_actor->GetBackfaceProperty()->SetColor(1,0,0);
       surface_wire_actor = vtkActor::New();
       surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
-      surface_wire_actor->GetProperty()->SetColor(1,0,0);
+      surface_wire_actor->GetProperty()->SetColor(0,0,1);
       surface_actor->SetMapper(surface_mapper);
       surface_wire_actor->SetMapper(surface_wire_mapper);
       getRenderer()->AddActor(surface_actor);
@@ -572,6 +580,7 @@ void GuiMainWindow::open()
     grid->DeepCopy(vtu->GetOutput());
     createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
     setWindowTitle(current_filename + " - enGrid");  
+    openBC();
     updateBoundaryCodes(true);
     updateActors();
     updateStatusBar();
@@ -585,6 +594,35 @@ void GuiMainWindow::undo()
 
 void GuiMainWindow::redo()
 {
+};
+
+void GuiMainWindow::openBC()
+{
+  QString bc_file = current_filename + ".bcs";
+  QFile file(bc_file);
+  bcmap.clear();
+  if (file.exists()) {
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream f(&file);
+    while (!f.atEnd()) {
+      QString name, type;
+      int i;
+      f >> i >> name >> type;
+      bcmap[i] = BoundaryCondition(name,type);
+    };
+  };
+};
+
+void GuiMainWindow::saveBC()
+{
+  QString bc_file = current_filename + ".bcs";
+  QFile file(bc_file);
+  file.open(QIODevice::WriteOnly | QIODevice::Text);
+  QTextStream f(&file);
+  foreach(int i, all_boundary_codes) {
+    BoundaryCondition bc = bcmap[i];
+    f << i << " " << bc.getName() << " " << bc.getType() << "\n";
+  };
 };
 
 void GuiMainWindow::save()
@@ -604,6 +642,7 @@ void GuiMainWindow::save()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
+    saveBC();
   };
 };
 
@@ -634,6 +673,7 @@ void GuiMainWindow::saveAs()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
+    saveBC();
     setWindowTitle(current_filename + " - enGrid");
   };
 };
@@ -942,4 +982,12 @@ void GuiMainWindow::callFixSTL()
   (*fix)();
   updateBoundaryCodes(false);
   updateActors();
+};
+
+void GuiMainWindow::editBoundaryConditions()
+{
+  GuiEditBoundaryConditions editbcs;
+  editbcs.setBoundaryCodes(all_boundary_codes);
+  editbcs.setMap(&bcmap);
+  editbcs();
 };

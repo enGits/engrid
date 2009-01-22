@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008 Oliver Gloth                                          +
+// + Copyright 2008,2009 Oliver Gloth                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -206,5 +206,7 @@ GRID->GetCellPoints(CELLID, N ## PTS, PTS);
 inline double sqr(double x) { return x*x; };
 
 #define LINE "========================================================================" << endl;
+
+#define USE(X) X=X
 
 #endif

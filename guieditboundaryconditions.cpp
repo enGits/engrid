@@ -20,29 +20,42 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef elements_H
-#define elements_H
+#include "guieditboundaryconditions.h"
 
-class Elements
+GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
-  
-private: // attributes
-  
-  int pri_tet[4][3][4];
-  
-private: // methods
-  
-  void setTet(int i_variant, int i_tetra, int n0, int n1, int n2, int n3);
-  
-public: // methods
-  
-  Elements();
-  int priTet(int i_variant, int i_tetra, int i_node) { return pri_tet[i_variant][i_tetra][i_node]; };
+  bcmap = NULL;
+};
+
+void GuiEditBoundaryConditions::before()
+{
+  if (!bcmap) EG_BUG;
+  while (ui.T->rowCount()) ui.T->removeRow(0);
+  foreach (int i, boundary_codes) {
+    BoundaryCondition bc = (*bcmap)[i];
+    ui.T->insertRow(ui.T->rowCount());
+    int r = ui.T->rowCount()-1;
+    ui.T->setItem(r,0,new QTableWidgetItem());
+    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsSelectable));
+    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsEditable));
+    ui.T->setItem(r,1,new QTableWidgetItem());
+    ui.T->setItem(r,2,new QTableWidgetItem());
+    QString idx;
+    idx.setNum(i);
+    ui.T->item(r,0)->setText(idx);
+    QString name = bc.getName();
+    if (name == "unknown") name = QString("BC") + idx;
+    ui.T->item(r,1)->setText(name);
+    ui.T->item(r,2)->setText(bc.getType());
+  };
   
 };
 
-
-
-
-#endif
+void GuiEditBoundaryConditions::operate()
+{
+  for (int i = 0; i < ui.T->rowCount(); ++i) {
+    BoundaryCondition bc(ui.T->item(i,1)->text(),ui.T->item(i,2)->text());
+    (*bcmap)[ui.T->item(i,0)->text().toInt()] = bc;
+  };
+};
 

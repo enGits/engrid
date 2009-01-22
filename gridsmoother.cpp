@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008 Oliver Gloth                                          +
+// + Copyright 2008,2009 Oliver Gloth                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -47,11 +47,11 @@ GridSmoother::GridSmoother()
   w_A      =  5.0;
   w_skew   =  0.0;
   w_orth   =  0.0;
-  w_sharp1 =  4.0;// 0.5 points
+  w_sharp1 =  8.0;//4// 0.5 points
   e_sharp1 =  1.3;
   w_sharp2 =  3.0;
   e_sharp2 =  1.3;
-  H        =  2.5;
+  H        =  1.5;//2.5
 };
 
 void GridSmoother::markNodes()
@@ -252,7 +252,6 @@ double GridSmoother::func(vec3_t x)
   double f       = 0;
   double f13     = 1.0/3.0;
   double f14     = 0.25;
-  double sr2     = sqrt(2.0);
   
   vec3_t n_node(1,0,0);
   QList<vec3_t> n_pri;
@@ -334,22 +333,23 @@ double GridSmoother::func(vec3_t x)
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        if (h0 > 0.0*L) h0 = max(v0.abs(),h0);
-        if (h1 > 0.0*L) h1 = max(v1.abs(),h1);
-        if (h2 > 0.0*L) h2 = max(v2.abs(),h2);
-        /*
-        double h0 = v0.abs();
-        double h1 = v1.abs();
-        double h2 = v2.abs();
-        */
+        if (h0 > 0.5*L) h0 = max(v0.abs(),h0);
+        if (h1 > 0.5*L) h1 = max(v1.abs(),h1);
+        if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
+
         {
+          
           double e1 = errThickness(h0/L);
           double e2 = errThickness(h1/L);
           double e3 = errThickness(h2/L);
-          f += w_h*f13*e1;
-          f += w_h*f13*e2;
-          f += w_h*f13*e3;
-          err_pria->SetValue(id_cell,f13*(e1+e2+e3));
+          double e  = max(e1,max(e2,e3));
+          //f += w_h*f13*e1;
+          //f += w_h*f13*e2;
+          //f += w_h*f13*e3;
+          //err_pria->SetValue(id_cell,f13*(e1+e2+e3));
+          
+          f += w_h*e;
+          err_pria->SetValue(id_cell,0);
         };
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           v0.normalise();
@@ -424,7 +424,6 @@ double GridSmoother::func(vec3_t x)
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
   {
-    double w = w_sharp1/n_pri.size();
     double f_sharp1 = 0;
     foreach (vec3_t n, n_pri) {
       f_sharp1 += pow(fabs(1-n_node*n), e_sharp1);

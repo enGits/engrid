@@ -20,29 +20,35 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef elements_H
-#define elements_H
+#ifndef guieditboundaryconditions_H
+#define guieditboundaryconditions_H
 
-class Elements
+class GuiEditBoundaryConditions;
+
+#include "boundarycondition.h"
+#include "dialogoperation.h"
+#include "ui_guieditboundaryconditions.h"
+
+class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions>
 {
+  
+  Q_OBJECT;
   
 private: // attributes
   
-  int pri_tet[4][3][4];
+  QMap<int,BoundaryCondition> *bcmap;
   
-private: // methods
+protected: // methods
   
-  void setTet(int i_variant, int i_tetra, int n0, int n1, int n2, int n3);
+  virtual void operate();
   
 public: // methods
   
-  Elements();
-  int priTet(int i_variant, int i_tetra, int i_node) { return pri_tet[i_variant][i_tetra][i_node]; };
+  GuiEditBoundaryConditions();
+  
+  virtual void before();
+  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; };
   
 };
 
-
-
-
 #endif
-

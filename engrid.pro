@@ -1,8 +1,8 @@
-TEMPLATE	= app
-LANGUAGE	= C++
+TEMPLATE = app
+LANGUAGE = C++
 
-CONFIG  += qt release thread
-#CONFIG  += qt debug thread
+#CONFIG  += qt release thread
+CONFIG += qt debug thread
 QT += xml network opengl
 
 LIBS += -lvtkCommon 
@@ -17,41 +17,41 @@ LIBS += -lng
 #DEFINES += QT_NO_DEBUG
 
 !win32 {
-  LIBS += -L./netgen_svn
-  LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
-  LIBS += -L$(VTKDIR)/lib/vtk-5.2
-  LIBS += -Wl,-rpath
-  QMAKE_CXXFLAGS += -Wno-deprecated
-  INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
-  INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-  INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
+    LIBS += -L./netgen_svn
+    LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
+    LIBS += -L$(VTKDIR)/lib/vtk-5.2
+    LIBS += -Wl,-rpath
+    QMAKE_CXXFLAGS += -Wno-deprecated
+    INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
+    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
+    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
 
 win32 {
-  VTK_DIR    = C:\VTK
-  VTK_SRCDIR = C:\VTK\5.0.4
-  LIBS += -L$$VTK_DIR\bin\release
-  LIBS += -lvtkRendering
-  LIBS += -lvtkFiltering
-  LIBS += -lvtkIO
-  LIBS += -lvtkfreetype
-  LIBS += -lvtkftgl
-  LIBS += -lvtkexpat
-  LIBS += -lvtkzlib
-  INCLUDEPATH += $$VTK_SRCDIR\COMMON
-  INCLUDEPATH += $$VTK_SRCDIR\FILTER~1
-  INCLUDEPATH += $$VTK_SRCDIR\GUISUP~1\QT
-  INCLUDEPATH += $$VTK_SRCDIR\GENERI~1
-  INCLUDEPATH += $$VTK_SRCDIR\GRAPHICS
-  INCLUDEPATH += $$VTK_SRCDIR\HYBRID
-  INCLUDEPATH += $$VTK_SRCDIR\IMAGING
-  INCLUDEPATH += $$VTK_SRCDIR\IO
-  INCLUDEPATH += $$VTK_SRCDIR\RENDER~1
-  INCLUDEPATH += $$VTK_DIR
-  INCLUDEPATH += netgen_cvs\netgen\libsrc\interface
-  INCLUDEPATH += netgen_cvs\netgen\libsrc\general
-  LIBS += -Lnetgen_cvs\release
-  DEFINES += _USE_MATH_DEFINES
+    VTK_DIR = C:\VTK
+    VTK_SRCDIR = C:\VTK\5.0.4
+    LIBS += -L$$VTK_DIR\bin\release
+    LIBS += -lvtkRendering
+    LIBS += -lvtkFiltering
+    LIBS += -lvtkIO
+    LIBS += -lvtkfreetype
+    LIBS += -lvtkftgl
+    LIBS += -lvtkexpat
+    LIBS += -lvtkzlib
+    INCLUDEPATH += $$VTK_SRCDIR\COMMON
+    INCLUDEPATH += $$VTK_SRCDIR\FILTER~1
+    INCLUDEPATH += $$VTK_SRCDIR\GUISUP~1\QT
+    INCLUDEPATH += $$VTK_SRCDIR\GENERI~1
+    INCLUDEPATH += $$VTK_SRCDIR\GRAPHICS
+    INCLUDEPATH += $$VTK_SRCDIR\HYBRID
+    INCLUDEPATH += $$VTK_SRCDIR\IMAGING
+    INCLUDEPATH += $$VTK_SRCDIR\IO
+    INCLUDEPATH += $$VTK_SRCDIR\RENDER~1
+    INCLUDEPATH += $$VTK_DIR
+    INCLUDEPATH += netgen_cvs\netgen\libsrc\interface
+    INCLUDEPATH += netgen_cvs\netgen\libsrc\general
+    LIBS += -Lnetgen_cvs\release
+    DEFINES += _USE_MATH_DEFINES
 }
 
 
@@ -62,6 +62,7 @@ INCLUDEPATH += ./nglib
 
 HEADERS = \
 \
+boundarycondition.h \
 celllayeriterator.h \
 cellneighbouriterator.h \
 containertricks.h \
@@ -121,11 +122,13 @@ guinormalextrusion.h \
 guiselectboundarycodes.h \
 guisetboundarycode.h \
 guismoothsurface.h \
+ \
+ guieditboundaryconditions.h
 
-
-SOURCES	= \
+SOURCES = \
 main.cpp \
 \
+boundarycondition.cpp \
 celllayeriterator.cpp \
 cellneighbouriterator.cpp \
 correctsurfaceorientation.cpp \
@@ -177,12 +180,14 @@ guinormalextrusion.cpp \
 guiselectboundarycodes.cpp \
 guisetboundarycode.cpp \
 guismoothsurface.cpp \
-
+ \
+ guieditboundaryconditions.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
 guideletebadaspecttris.ui \
 guidivideboundarylayer.ui \
+guieditboundaryconditions.ui \
 guimainwindow.ui \
 guiimproveaspectratio.ui \
 guinormalextrusion.ui \
@@ -190,7 +195,6 @@ guioutputwindow.ui \
 guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
-
 
 
 

@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008 Oliver Gloth                                          +
+// + Copyright 2008,2009 Oliver Gloth                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -47,6 +47,7 @@ class GuiMainWindow;
 #include "vtkEgBoundaryCodesFilter.h"
 #include "vtkEgExtractVolumeCells.h"
 #include "egvtkobject.h"
+#include "boundarycondition.h"
 
 #include "std_includes.h"
 
@@ -104,6 +105,7 @@ private: // attributes
   vtkActor *pyramid_actor;
   vtkActor *hexa_actor;
   vtkActor *volume_wire_actor;
+  vtkProperty *backface_property;
   
   vtkPolyDataMapper *surface_mapper;
   vtkPolyDataMapper *surface_wire_mapper;
@@ -155,7 +157,7 @@ private: // attributes
     /** A QList with all boundary codes. */
   QSet<int> all_boundary_codes;
   
-/** VTK filter to extract boundary elements with certain codes */
+  /** VTK filter to extract boundary elements with certain codes */
   vtkEgBoundaryCodesFilter *bcodes_filter;
   
   /** VTK picker to pick cells for various user interactions */
@@ -176,6 +178,9 @@ private: // attributes
   QTimer log_timer;
   GuiOutputWindow *output_window;
   QDockWidget *dock_widget;
+  
+  /** mapping between numerical and symbolic boundary codes */
+  QMap<int,BoundaryCondition> bcmap;
   
 private: // static attributes
 
@@ -306,6 +311,9 @@ public slots:
   /** Open an existing grid */
   void open();
   
+  void openBC();
+  void saveBC();
+  
   void undo();
   void redo();
   
@@ -344,6 +352,9 @@ public slots:
   
   /** Write surface elements to a binary STL file. */
   void exportBinaryStl();
+  
+  /** Edit boundary conditions (names and types) */
+  void editBoundaryConditions();
   
   void viewXP();
   void viewXM();

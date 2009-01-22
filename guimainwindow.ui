@@ -423,6 +423,7 @@
     <addaction name="actionSmoothVolumeGrid" />
     <addaction name="separator" />
     <addaction name="actionMeshingOptions" />
+    <addaction name="actionEditBoundaryConditions" />
    </widget>
    <widget class="QMenu" name="menuExport" >
     <property name="title" >
@@ -822,6 +823,11 @@
   <action name="actionFixSTL" >
    <property name="text" >
     <string>fix surface triangulation</string>
+   </property>
+  </action>
+  <action name="actionEditBoundaryConditions" >
+   <property name="text" >
+    <string>edit boundary conditions</string>
    </property>
   </action>
  </widget>

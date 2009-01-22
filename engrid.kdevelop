@@ -78,6 +78,7 @@
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
+      <raiseGDBOnStart>false</raiseGDBOnStart>
     </general>
     <display>
       <staticmembers>false</staticmembers>
@@ -165,8 +166,8 @@
     </run>
     <make>
       <abortonerror>true</abortonerror>
-      <runmultiplejobs>false</runmultiplejobs>
-      <numberofjobs>1</numberofjobs>
+      <runmultiplejobs>true</runmultiplejobs>
+      <numberofjobs>2</numberofjobs>
       <dontact>false</dontact>
       <makebin/>
       <prio>0</prio>
@@ -181,6 +182,9 @@
       <savebehaviour>2</savebehaviour>
       <replacePaths>false</replacePaths>
       <disableDefaultOpts>true</disableDefaultOpts>
+      <enableFilenamesOnly>false</enableFilenamesOnly>
+      <showVariablesInTree>true</showVariablesInTree>
+      <showParseErrors>true</showParseErrors>
     </qmake>
   </kdevtrollproject>
   <cppsupportpart>
