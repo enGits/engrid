@@ -1,35 +1,19 @@
-//
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// +                                                                      +
-// + This file is part of enGrid.                                         +
-// +                                                                      +
-// + Copyright 2008,2009 Oliver Gloth                                     +
-// +                                                                      +
-// + enGrid is free software: you can redistribute it and/or modify       +
-// + it under the terms of the GNU General Public License as published by +
-// + the Free Software Foundation, either version 3 of the License, or    +
-// + (at your option) any later version.                                  +
-// +                                                                      +
-// + enGrid is distributed in the hope that it will be useful,            +
-// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
-// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
-// + GNU General Public License for more details.                         +
-// +                                                                      +
-// + You should have received a copy of the GNU General Public License    +
-// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
-// +                                                                      +
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
 #include <QtGui>
 
 #include "settingsviewer.h"
 #include "settingstab.h"
 
-#include <iostream>
-using namespace std;
+// #include <iostream>
+// using namespace std;
 
 #include <QTextStream>
 #include <stdio.h>
+
+/* Here is how we we get QTextStreams that look like iostreams */
+
+QTextStream cin(stdin, QIODevice::ReadOnly);
+QTextStream cout(stdout, QIODevice::WriteOnly);
+QTextStream cerr(stderr, QIODevice::WriteOnly);
 
 SettingsViewer::SettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
 {
@@ -84,19 +68,51 @@ void SettingsViewer::save()
     QString group=tabWidget.tabText(i);
     cout<<"group="<<group.toLatin1().data()<<endl;
     SettingsTab* ST=(SettingsTab*)(tabWidget.widget(i));
-    QFormLayout* LO=(QFormLayout*)ST->layout();
-
+    ST->spinbox;
+    ST->spinbox_name;
+    int N;
+    
     if(group!="General") settings->beginGroup(group);
-    for(int i=0;i<LO->rowCount();i++)
+    
+    N=(ST->spinbox_name).size();
+    cout<<"N1="<<N<<endl;
+    QString key;
+    for(int i=0;i<N;i++)
     {
-      QLabel* L=(QLabel*)LO->itemAt(i,QFormLayout::LabelRole)->widget();
-      QSpinBox* SB=(QSpinBox*)LO->itemAt(i,QFormLayout::FieldRole)->widget();
-      QString key = L->text();
-      int value = SB->value();
-      cout<<"key="<<key.toLatin1().data()<<endl;
-      cout<<"value="<<value<<endl;
+      settings->beginGroup("int");
+      cout<<"name="<<ST->spinbox_name[i]<<endl;
+      cout<<"value="<<ST->spinbox[i]->value()<<endl;
+      key=ST->spinbox_name[i];
+      int value=ST->spinbox[i]->value();
       settings->setValue(key,value);
+      settings->endGroup();
     }
+    N=(ST->checkbox_name).size();
+    cout<<"N2="<<N<<endl;
+    for(int i=0;i<N;i++)
+    {
+      settings->beginGroup("bool");
+      cout<<"name="<<ST->checkbox_name[i]<<endl;
+      cout<<"value="<<ST->checkbox[i]->checkState()<<endl;
+      cout<<"ST->spinbox_name[i]="<<ST->spinbox_name[i]<<endl;
+      key=ST->checkbox_name[i];
+      Qt::CheckState value=ST->checkbox[i]->checkState();
+      settings->setValue(key,value);
+      settings->endGroup();
+    }
+    N=(ST->lineedit_name).size();
+    cout<<"N3="<<N<<endl;
+    for(int i=0;i<N;i++)
+    {
+      settings->beginGroup("double");
+      cout<<"name="<<ST->lineedit_name[i]<<endl;
+      cout<<"value="<<ST->lineedit[i]->text()<<endl;
+      key=ST->lineedit_name[i];
+      double value=(ST->lineedit[i]->text()).toDouble();
+      settings->setValue(key,value);
+      settings->endGroup();
+    }
+    
     if(group!="General") settings->endGroup();
   }
   cout<<"=============="<<endl;

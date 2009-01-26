@@ -98,7 +98,7 @@
       <designerpluginpaths/>
     </qt>
     <codecompletion>
-      <automaticCodeCompletion>false</automaticCodeCompletion>
+      <automaticCodeCompletion>true</automaticCodeCompletion>
       <automaticArgumentsHint>true</automaticArgumentsHint>
       <automaticHeaderCompletion>true</automaticHeaderCompletion>
       <codeCompletionDelay>250</codeCompletionDelay>
@@ -133,7 +133,9 @@
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
-    <references/>
+    <references>
+      <pcs>Qt4</pcs>
+    </references>
   </kdevcppsupport>
   <kdevfilecreate>
     <useglobaltypes>

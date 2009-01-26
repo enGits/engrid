@@ -47,6 +47,7 @@ class GridSmoother;
 #include "optimisation.h"
 
 #include <vtkCellLocator.h>
+#include <QSettings>
 
 class GridSmoother : public Operation, public Optimisation
 {
@@ -125,10 +126,18 @@ public: // methods
   
   double funcOld() { return F_old; };
   double funcNew() { return F_new; };
+  
+  bool get_smooth_prisms() { return smooth_prisms; };
+  int get_N_iterations() { return N_iterations; };
+  double get_relax() { return relax; };
+  
   double improvement();
   
   void setWSharp1(double w) { w_sharp1 = w; };
   void setWSharp2(double w) { w_sharp2 = w; };
+  bool ReadSettings(QSettings& qset);
+  bool WriteSettings(QSettings& qset);
+  static bool CreateDefaultSettings(QSettings& qset);
   
 };
 

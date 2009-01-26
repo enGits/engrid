@@ -29,29 +29,33 @@
 
 GridSmoother::GridSmoother()
 {
-  N_iterations           = 5;
-  N_relaxations          = 5;
-  N_boundary_corrections = 20;
-  relax                  = 1.0;
-  N_smooth_layers        = 0;
-  N_search               = 10;
-  L_search               = 0.5;
-  smooth_prisms = true;
-  dbg = false;
-  F_old = 0;
-  F_new = 0;
-  w_tet    =  1.0;
-  w_h      =  1.0;
-  w_par    =  3.0;
-  w_n      =  5.0;
-  w_A      =  5.0;
-  w_skew   =  0.0;
-  w_orth   =  0.0;
-  w_sharp1 =  8.0;//4// 0.5 points
-  e_sharp1 =  1.3;
-  w_sharp2 =  3.0;
-  e_sharp2 =  1.3;
-  H        =  1.5;//2.5
+  
+  QSettings* qset=GuiMainWindow::settings();
+  
+  getSet( *qset, "gridsmoother", "Number of iterations", 5, N_iterations );
+  getSet( *qset, "gridsmoother", "N_relaxations", 5, N_relaxations );
+  getSet( *qset, "gridsmoother", "N_boundary_corrections", 20, N_boundary_corrections );
+  getSet( *qset, "gridsmoother", "relax", 1.0, relax );
+  getSet( *qset, "gridsmoother", "N_smooth_layers", 0, N_smooth_layers );
+  getSet( *qset, "gridsmoother", "N_search", 10, N_search );
+  getSet( *qset, "gridsmoother", "L_search", 0.5, L_search );
+  getSet( *qset, "gridsmoother", "smooth prisms ?", true, smooth_prisms );
+  getSet( *qset, "gridsmoother", "dbg", false, dbg );
+  getSet( *qset, "gridsmoother", "F_old", 0, F_old );
+  getSet( *qset, "gridsmoother", "F_new", 0, F_new );
+  getSet( *qset, "gridsmoother", "w_tet", 1.0, w_tet );
+  getSet( *qset, "gridsmoother", "w_h", 1.0, w_h );
+  getSet( *qset, "gridsmoother", "w_par", 3.0, w_par );
+  getSet( *qset, "gridsmoother", "w_n", 5.0, w_n );
+  getSet( *qset, "gridsmoother", "w_A", 5.0, w_A );
+  getSet( *qset, "gridsmoother", "w_skew", 0.0, w_skew );
+  getSet( *qset, "gridsmoother", "w_orth", 0.0, w_orth );
+  getSet( *qset, "gridsmoother", "w_sharp1", 8.0, w_sharp1 );//4// 0.5 points
+  getSet( *qset, "gridsmoother", "e_sharp1", 1.3, e_sharp1 );
+  getSet( *qset, "gridsmoother", "w_sharp2", 3.0, w_sharp2 );
+  getSet( *qset, "gridsmoother", "e_sharp2", 1.3, e_sharp2 );
+  getSet( *qset, "gridsmoother", "H", 1.5, H );//2.5
+  
 };
 
 void GridSmoother::markNodes()
@@ -654,4 +658,63 @@ double GridSmoother::improvement()
 {
   double f_old = max(1e-10,F_old);
   return 1-F_new/f_old;
+};
+
+//deprecated
+bool GridSmoother::ReadSettings(QSettings& qset)
+{
+  cout<<"ReadSettings"<<endl;
+  qset.beginGroup("gridsmoother");
+  
+  N_iterations = (qset.value("int/N_iterations",N_iterations)).toInt();
+  N_relaxations = (qset.value("int/N_relaxations",N_relaxations)).toInt();
+  N_boundary_corrections = (qset.value("int/N_boundary_corrections",N_boundary_corrections)).toInt();
+  N_smooth_layers = (qset.value("int/N_smooth_layers",N_smooth_layers)).toInt();
+  relax = (qset.value("double/relax",relax)).toDouble();
+  smooth_prisms = (qset.value("bool/smooth_prisms",smooth_prisms)).toBool();
+  w_sharp1 = (qset.value("double/w_sharp1",w_sharp1)).toDouble();
+  w_sharp2 = (qset.value("double/w_sharp2",w_sharp2)).toDouble();
+  
+  qset.endGroup();
+  
+  return(true);
+};
+
+//deprecated
+bool GridSmoother::WriteSettings(QSettings& qset)
+{
+  cout<<"WriteSettings"<<endl;
+  qset.beginGroup("gridsmoother");
+  
+  qset.setValue("int/N_iterations",N_iterations);
+  qset.setValue("int/N_relaxations",N_relaxations);
+  qset.setValue("int/N_boundary_corrections",N_boundary_corrections);
+  qset.setValue("int/N_smooth_layers",N_smooth_layers);
+  qset.setValue("double/relax",relax);
+  qset.setValue("bool/smooth_prisms",smooth_prisms);
+  qset.setValue("double/w_sharp1",w_sharp1);
+  qset.setValue("double/w_sharp2",w_sharp2);
+  
+  qset.endGroup();
+  return(true);
+};
+
+//deprecated
+bool GridSmoother::CreateDefaultSettings(QSettings& qset)
+{
+  cout<<"CreateDefaultSettings"<<endl;
+  qset.beginGroup("gridsmoother");
+  
+  if (!qset.contains("int/N_iterations")) qset.setValue("int/N_iterations",5);
+  if (!qset.contains("int/N_relaxations")) qset.setValue("int/N_relaxations",5);
+  if (!qset.contains("int/N_boundary_corrections")) qset.setValue("int/N_boundary_corrections",20);
+  if (!qset.contains("int/N_smooth_layers")) qset.setValue("int/N_smooth_layers",0);
+  if (!qset.contains("double/relax")) qset.setValue("double/relax",1.0);
+  if (!qset.contains("bool/smooth_prisms")) qset.setValue("bool/smooth_prisms",true);
+  if (!qset.contains("double/w_sharp1")) qset.setValue("double/w_sharp1",8.0);
+  if (!qset.contains("double/w_sharp2")) qset.setValue("double/w_sharp2",1.3);
+  
+  qset.endGroup();
+  
+  return(true);
 };

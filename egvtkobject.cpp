@@ -932,3 +932,39 @@ void EgVtkObject::createIndices(vtkUnstructuredGrid *grid)
   };
 };
 
+int EgVtkObject::getSet(QSettings& qset, QString group, QString key, int value, int& variable)
+{
+  QString typed_key = "int/" + key;
+  qset.beginGroup(group);
+    //if key=value pair not found in settings file, write it
+    if (!qset.contains(typed_key)) qset.setValue(typed_key,value);
+    //read key value from settings file and assign it to variable
+    variable = (qset.value(typed_key,variable)).toInt();
+  qset.endGroup();
+  return(variable);
+}
+
+double EgVtkObject::getSet(QSettings& qset, QString group, QString key, double value, double& variable)
+{
+  QString typed_key = "double/" + key;
+  qset.beginGroup(group);
+    //if key=value pair not found in settings file, write it
+  if (!qset.contains(typed_key)) qset.setValue(typed_key,value);
+    //read key value from settings file and assign it to variable
+  variable = (qset.value(typed_key,variable)).toDouble();
+  qset.endGroup();
+  return(variable);
+}
+
+bool EgVtkObject::getSet(QSettings& qset, QString group, QString key, bool value, bool& variable)
+{
+  QString typed_key = "bool/" + key;
+  qset.beginGroup(group);
+  Qt::CheckState state = (Qt::CheckState) ( value ? 2 : 0 );
+    //if key=value pair not found in settings file, write it
+  if (!qset.contains(typed_key)) qset.setValue(typed_key,state);
+    //read key value from settings file and assign it to variable
+  variable = (qset.value(typed_key,variable)).toBool();
+  qset.endGroup();
+  return(variable);
+}
