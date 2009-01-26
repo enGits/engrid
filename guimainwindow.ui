@@ -421,9 +421,6 @@
     <addaction name="actionDivideBoundaryLayer" />
     <addaction name="separator" />
     <addaction name="actionSmoothVolumeGrid" />
-    <addaction name="separator" />
-    <addaction name="actionMeshingOptions" />
-    <addaction name="actionEditBoundaryConditions" />
    </widget>
    <widget class="QMenu" name="menuExport" >
     <property name="title" >
@@ -437,17 +434,32 @@
      <addaction name="actionExportGmsh2Ascii" />
      <addaction name="actionExportGmsh2Binary" />
     </widget>
+    <widget class="QMenu" name="menuOpenFOAM" >
+     <property name="title" >
+      <string>OpenFOAM</string>
+     </property>
+     <addaction name="actionSimpleFoamWriter" />
+     <addaction name="actionFoamWriter" />
+    </widget>
     <addaction name="menuGmsh" />
     <addaction name="actionExportNeutral" />
     <addaction name="actionExportAsciiStl" />
     <addaction name="actionExportBinaryStl" />
-    <addaction name="actionFoamWriter" />
+    <addaction name="menuOpenFOAM" />
+   </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionMeshingOptions" />
+    <addaction name="actionEditBoundaryConditions" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuImport_2" />
    <addaction name="menuExport" />
    <addaction name="menuView" />
    <addaction name="menuMesh" />
+   <addaction name="menuTools" />
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
@@ -464,6 +476,7 @@
    <addaction name="actionOpen" />
    <addaction name="actionSave" />
    <addaction name="actionSaveAs" />
+   <addaction name="actionSimpleFoamWriter" />
    <addaction name="actionExit" />
    <addaction name="separator" />
    <addaction name="actionZoomAll" />
@@ -802,7 +815,7 @@
     <bool>true</bool>
    </property>
    <property name="text" >
-    <string>OpenFOAM</string>
+    <string>OpenFOAM (polyhedral)</string>
    </property>
   </action>
   <action name="actionPolyDataReader" >
@@ -828,6 +841,15 @@
   <action name="actionEditBoundaryConditions" >
    <property name="text" >
     <string>edit boundary conditions</string>
+   </property>
+  </action>
+  <action name="actionSimpleFoamWriter" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
+     <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
+   </property>
+   <property name="text" >
+    <string>OpenFOAM</string>
    </property>
   </action>
  </widget>
