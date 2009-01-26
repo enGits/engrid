@@ -124,8 +124,9 @@ guisetboundarycode.h \
 guismoothsurface.h \
  \
  guieditboundaryconditions.h \
- settingstab.h \
- settingsviewer.h
+ settingsviewer.h \
+ guisettingstab.h \
+ guisettingsviewer.h
 
 SOURCES = \
 main.cpp \
@@ -185,7 +186,8 @@ guismoothsurface.cpp \
  \
  guieditboundaryconditions.cpp \
  settingsviewer.cpp \
- settingstab.cpp
+ guisettingstab.cpp \
+ guisettingsviewer.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -202,3 +204,7 @@ guismoothsurface.ui \
 
 
 
+SOURCES -= settingstab.cpp \
+settingsviewer.cpp
+HEADERS -= settingstab.h \
+settingsviewer.h

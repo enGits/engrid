@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "settingsviewer.h"
-#include "settingstab.h"
+#include "guisettingsviewer.h"
+#include "guisettingstab.h"
 
 // #include <iostream>
 // using namespace std;

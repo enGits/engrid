@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QtGui>
 
-#include "settingstab.h"
+#include "guisettingstab.h"
 
 // class QPushButton;
 // class QSettings;

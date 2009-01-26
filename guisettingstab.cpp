@@ -1,4 +1,4 @@
-#include "settingstab.h"
+#include "guisettingstab.h"
 #include <typeinfo>
 #include <QFormLayout>
 

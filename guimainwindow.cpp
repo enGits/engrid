@@ -46,7 +46,7 @@
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 
-#include "settingsviewer.h"
+#include "guisettingsviewer.h"
 
 GuiOutputWindow::GuiOutputWindow()
 {
