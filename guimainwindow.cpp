@@ -998,35 +998,6 @@ void GuiMainWindow::editBoundaryConditions()
 
 void GuiMainWindow::MeshingOptions()
 {
-  cout<<"GuiMainWindow::MeshingOptions()"<<endl;
-/*  GridSmoother::ReadSettings(qset);
-  GridSmoother::WriteSettings(qset);*/
-  GridSmoother A;
-  GridSmoother::CreateDefaultSettings(qset);
-  
-/*  qset.beginGroup("gridsmoother");
-  qset.setValue();
-  qset.endGroup("gridsmoother");*/
-  
-/*  void setNumIterations         (int N) { N_iterations  = N; };
-  void setNumRelaxations        (int N) { N_relaxations = N; };
-  void setNumBoundaryCorrections(int N) { N_boundary_corrections = N; };
-  void setNumSmoothLayers       (int N) { N_smooth_layers = N; };
-  void setRelaxationFactor(double v) { relax = v; };
-  void prismsOn() { smooth_prisms = true; };
-  void prismsOff() { smooth_prisms = false; };
-  void setWSharp1(double w) { w_sharp1 = w; };
-  void setWSharp2(double w) { w_sharp2 = w; };*/
-  
   SettingsViewer settings(&qset);
   settings.exec();
-  GridSmoother B;
-  cout << "---------------------------------------" << endl;
-  cout << "B.funcOld()=" << B.funcOld()  << endl;
-  cout << "B.funcNew()=" << B.funcNew()  << endl;
-  cout << "B.get_smooth_prisms()=" << B.get_smooth_prisms() << endl;
-  cout << "B.get_N_iterations()=" << B.get_N_iterations() << endl;
-  cout << "B.get_relax()=" << B.get_relax() << endl;
-  cout << "---------------------------------------" << endl;
-  
 };

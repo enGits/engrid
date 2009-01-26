@@ -7,8 +7,11 @@
 #include <QVector>
 
 /**
-	@author Mike Taverne <mtaverne@engits.com>
-*/
+  * Creates a QWidget listing all key/value pairs contained in the group "group" of the QSettings file corresponding to the (org,app) pair.
+  * integers appear in spinboxes
+  * doubles appear in line edit boxes
+  * booleans appear in checkboxes
+  */
 class SettingsTab : public QWidget
 {
 Q_OBJECT
@@ -24,7 +27,13 @@ public:
   
 public:
 	//constructors
-    SettingsTab(QWidget *parent = 0);
+  /**
+   * Constructor using the (org,app) pair to determine QSettings
+   * @param org organization
+   * @param app application
+   * @param group group
+   * @param parent Parent QWidget
+   */
     SettingsTab(QString org,QString app,QString group,QWidget *parent = 0);
 };
 

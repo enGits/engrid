@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 /* Here is how we we get QTextStreams that look like iostreams */
-
 QTextStream cin(stdin, QIODevice::ReadOnly);
 QTextStream cout(stdout, QIODevice::WriteOnly);
 QTextStream cerr(stderr, QIODevice::WriteOnly);
@@ -25,8 +24,6 @@ SettingsViewer::SettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
 
 SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDialog(parent)
 {
-  cout<<"[SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDialog(parent)]"<<endl;
-  
     organization = org;
     application = app;
     settings=new QSettings(org,app);
@@ -62,51 +59,40 @@ void SettingsViewer::CreateViewer()
 
 void SettingsViewer::save()
 {
-  cout<<"=============="<<endl;
   for (int i=0;i<tabWidget.count();i++)
   {
     QString group=tabWidget.tabText(i);
-    cout<<"group="<<group.toLatin1().data()<<endl;
     SettingsTab* ST=(SettingsTab*)(tabWidget.widget(i));
-    ST->spinbox;
-    ST->spinbox_name;
+    
     int N;
+    QString key;
     
     if(group!="General") settings->beginGroup(group);
     
     N=(ST->spinbox_name).size();
-    cout<<"N1="<<N<<endl;
-    QString key;
     for(int i=0;i<N;i++)
     {
       settings->beginGroup("int");
-      cout<<"name="<<ST->spinbox_name[i]<<endl;
-      cout<<"value="<<ST->spinbox[i]->value()<<endl;
       key=ST->spinbox_name[i];
       int value=ST->spinbox[i]->value();
       settings->setValue(key,value);
       settings->endGroup();
     }
+    
     N=(ST->checkbox_name).size();
-    cout<<"N2="<<N<<endl;
     for(int i=0;i<N;i++)
     {
       settings->beginGroup("bool");
-      cout<<"name="<<ST->checkbox_name[i]<<endl;
-      cout<<"value="<<ST->checkbox[i]->checkState()<<endl;
-      cout<<"ST->spinbox_name[i]="<<ST->spinbox_name[i]<<endl;
       key=ST->checkbox_name[i];
       Qt::CheckState value=ST->checkbox[i]->checkState();
       settings->setValue(key,value);
       settings->endGroup();
     }
+    
     N=(ST->lineedit_name).size();
-    cout<<"N3="<<N<<endl;
     for(int i=0;i<N;i++)
     {
       settings->beginGroup("double");
-      cout<<"name="<<ST->lineedit_name[i]<<endl;
-      cout<<"value="<<ST->lineedit[i]->text()<<endl;
       key=ST->lineedit_name[i];
       double value=(ST->lineedit[i]->text()).toDouble();
       settings->setValue(key,value);
@@ -115,7 +101,6 @@ void SettingsViewer::save()
     
     if(group!="General") settings->endGroup();
   }
-  cout<<"=============="<<endl;
 
 }
 
@@ -165,11 +150,7 @@ void SettingsViewer::open()
 
 void SettingsViewer::readSettings()
 {
-//     treeWidget->clear();
     addChildSettings();
-
-/*    treeWidget->sortByColumn(0);
-    treeWidget->setFocus();*/
     setWindowTitle(tr("Settings Viewer - %1 by %2").arg(application).arg(organization));
 }
 
@@ -177,10 +158,8 @@ void SettingsViewer::addChildSettings()
 {
   tabWidget.clear(); //This only removes the tabs, but does not delete them!!! TODO: delete for real
 
-  cout<<"=============="<<endl;
   tabWidget.addTab(new SettingsTab(organization, application, "General"), "General");
   foreach (QString group, settings->childGroups()) {
     tabWidget.addTab(new SettingsTab(organization, application, group), group);
   }
-  cout<<"=============="<<endl;
 }
