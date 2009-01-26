@@ -356,6 +356,9 @@ public slots:
   /** Edit boundary conditions (names and types) */
   void editBoundaryConditions();
   
+    /** Edit meshing options */
+  void MeshingOptions();
+  
   void viewXP();
   void viewXM();
   void viewYP();

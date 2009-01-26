@@ -1,3 +1,25 @@
+//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
 #include <QtGui>
 
 #include "settingsviewer.h"
@@ -14,6 +36,7 @@ SettingsViewer::SettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
   settings = Set;
   organization =Set->organizationName();
   application = Set->applicationName();
+  CreateViewer();
 }
 
 SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDialog(parent)
@@ -23,23 +46,20 @@ SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDia
     organization = org;
     application = app;
     settings=new QSettings(org,app);
-  
-    treeWidget = new QTreeWidget;
-    treeWidget->setColumnCount(2);
-    treeWidget->setHeaderLabels(
-            QStringList() << tr("Key") << tr("Value"));
-    treeWidget->header()->setResizeMode(0, QHeaderView::Stretch);
-    treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
+    CreateViewer();
+}
 
+void SettingsViewer::CreateViewer()
+{
 //     openButton = new QPushButton(tr("&Open..."));
 //     openButton->setDefault(true);
-
-    closeButton = new QPushButton(tr("Close"));
-    saveButton = new QPushButton(tr("Save"));
+  
+  closeButton = new QPushButton(tr("Close"));
+  saveButton = new QPushButton(tr("Save"));
   
 //     connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
+  connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
+  connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
   
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->addStretch();
@@ -52,8 +72,8 @@ SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDia
   mainLayout->addLayout(bottomLayout);
   setLayout(mainLayout);
   
-    setWindowTitle(tr("Settings Viewer"));
-    readSettings();
+  setWindowTitle(tr("Settings Viewer"));
+  readSettings();
 }
 
 void SettingsViewer::save()

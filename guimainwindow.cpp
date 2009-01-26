@@ -46,6 +46,8 @@
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 
+#include "settingsviewer.h"
+
 GuiOutputWindow::GuiOutputWindow()
 {
   ui.setupUi(this);
@@ -89,6 +91,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
   connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
+  connect(ui.actionMeshingOptions,          SIGNAL(activated()),      this, SLOT(MeshingOptions()));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -96,6 +99,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionViewYM, SIGNAL(activated()), this, SLOT(viewYM()));
   connect(ui.actionViewZP, SIGNAL(activated()), this, SLOT(viewZP()));
   connect(ui.actionViewZM, SIGNAL(activated()), this, SLOT(viewZM()));
+  
   
 #include "std_connections.h"
   
@@ -990,4 +994,11 @@ void GuiMainWindow::editBoundaryConditions()
   editbcs.setBoundaryCodes(all_boundary_codes);
   editbcs.setMap(&bcmap);
   editbcs();
+};
+
+void GuiMainWindow::MeshingOptions()
+{
+  cout<<"GuiMainWindow::MeshingOptions()"<<endl;
+  SettingsViewer settings(&qset);
+  settings.exec();
 };
