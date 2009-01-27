@@ -1,7 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-CONFIG  += qt release thread
+CONFIG += qt release thread
 #CONFIG += qt debug thread
 QT += xml network opengl
 
@@ -126,7 +126,8 @@ guisetboundarycode.h \
 guismoothsurface.h \
 guisettingstab.h \
 guisettingsviewer.h \
-
+ \
+ guitransform.h
 
 SOURCES = \
 main.cpp \
@@ -187,7 +188,8 @@ guisetboundarycode.cpp \
 guismoothsurface.cpp \
 guisettingstab.cpp \
 guisettingsviewer.cpp \
-
+ \
+ guitransform.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -201,7 +203,8 @@ guioutputwindow.ui \
 guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
-
+ \
+ guitransform.ui
 
 
 SOURCES -= settingstab.cpp \

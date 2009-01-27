@@ -47,6 +47,7 @@
 #include <QFileSystemWatcher>
 
 #include "guisettingsviewer.h"
+#include "guitransform.h"
 
 GuiOutputWindow::GuiOutputWindow()
 {

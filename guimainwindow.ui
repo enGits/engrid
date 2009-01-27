@@ -413,6 +413,7 @@
     <addaction name="actionDeleteBadAspectTris" />
     <addaction name="actionDeletePickedCell" />
     <addaction name="separator" />
+    <addaction name="actionTransform" />
     <addaction name="actionNormalExtrusion" />
     <addaction name="actionFixSTL" />
     <addaction name="actionCreateVolumeMesh" />
@@ -845,7 +846,7 @@
   </action>
   <action name="actionSimpleFoamWriter" >
    <property name="icon" >
-    <iconset resource="engrid.qrc" >
+    <iconset>
      <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
    </property>
    <property name="text" >
@@ -853,6 +854,11 @@
    </property>
    <property name="toolTip" >
     <string>export to OpenFOAM</string>
+   </property>
+  </action>
+  <action name="actionTransform" >
+   <property name="text" >
+    <string>Transform...</string>
    </property>
   </action>
  </widget>
