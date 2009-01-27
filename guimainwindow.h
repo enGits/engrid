@@ -274,6 +274,8 @@ public: // static methods
    */
   static QSettings* settings() { return &qset; };
   
+  BoundaryCondition getBC(int bc) { return bcmap[bc]; };
+  
   static GuiMainWindow* pointer() { return THIS; };
   static void lock() { mutex.lock(); };
   static void unlock() { mutex.unlock(); };
@@ -356,8 +358,8 @@ public slots:
   /** Edit boundary conditions (names and types) */
   void editBoundaryConditions();
   
-    /** Edit meshing options */
-  void MeshingOptions();
+  /** Edit settings */
+  void configure();
   
   void viewXP();
   void viewXM();
@@ -392,10 +394,11 @@ public slots:
   
   void callFixSTL();
   
-  void callFoamReader()      { EG_STDREADERSLOT(FoamReader); };
-  void callFoamWriter()      { EG_STDINTERSLOT(FoamWriter); };
-  void callVtkReader()       { EG_STDREADERSLOT(VtkReader); };
-  void callPolyDataReader()  { EG_STDREADERSLOT(PolyDataReader); };
+  void callFoamReader()       { EG_STDREADERSLOT(FoamReader); };
+  void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); };
+  void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); };
+  void callVtkReader()        { EG_STDREADERSLOT(VtkReader); };
+  void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); };
   
 };
 

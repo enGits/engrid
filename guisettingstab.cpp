@@ -27,7 +27,7 @@
 #include <iostream>
 using namespace std;
 
-SettingsTab::SettingsTab(QString org,QString app,QString group,QWidget *parent ): QWidget(parent)
+GuiSettingsTab::GuiSettingsTab(QString org, QString app, QString group, QWidget *parent): QWidget(parent)
 {
   
   QFormLayout *permissionsLayout = new QFormLayout;

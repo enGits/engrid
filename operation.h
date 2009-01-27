@@ -107,7 +107,7 @@ public: // methods
   
   Operation();
   virtual ~Operation();
-  void del() { garbage_operations.insert(this); };
+  void del();
     
   void setGrid(vtkUnstructuredGrid *ug) { grid = ug; };
   void setAllCells();

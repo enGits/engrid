@@ -36,7 +36,7 @@ QTextStream cin(stdin, QIODevice::ReadOnly);
 QTextStream cout(stdout, QIODevice::WriteOnly);
 QTextStream cerr(stderr, QIODevice::WriteOnly);
 
-SettingsViewer::SettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
+GuiSettingsViewer::GuiSettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
 {
   settings = Set;
   organization =Set->organizationName();
@@ -44,29 +44,24 @@ SettingsViewer::SettingsViewer(QSettings* Set,QWidget *parent) : QDialog(parent)
   CreateViewer();
 }
 
-SettingsViewer::SettingsViewer(QString org, QString app,QWidget *parent ) : QDialog(parent)
+GuiSettingsViewer::GuiSettingsViewer(QString org, QString app,QWidget *parent ) : QDialog(parent)
 {
-    organization = org;
-    application = app;
-    settings=new QSettings(org,app);
-    CreateViewer();
+  organization = org;
+  application = app;
+  settings=new QSettings(org,app);
+  CreateViewer();
 }
 
-void SettingsViewer::CreateViewer()
+void GuiSettingsViewer::CreateViewer()
 {
-//     openButton = new QPushButton(tr("&Open..."));
-//     openButton->setDefault(true);
-  
   closeButton = new QPushButton(tr("Close"));
   saveButton = new QPushButton(tr("Save"));
   
-//     connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
   connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
   
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->addStretch();
-//   bottomLayout->addWidget(openButton);
   bottomLayout->addWidget(saveButton);
   bottomLayout->addWidget(closeButton);
   
@@ -79,12 +74,12 @@ void SettingsViewer::CreateViewer()
   readSettings();
 }
 
-void SettingsViewer::save()
+void GuiSettingsViewer::save()
 {
   for (int i=0;i<tabWidget.count();i++)
   {
     QString group=tabWidget.tabText(i);
-    SettingsTab* ST=(SettingsTab*)(tabWidget.widget(i));
+    GuiSettingsTab* ST=(GuiSettingsTab*)(tabWidget.widget(i));
     
     int N;
     QString key;
@@ -123,65 +118,65 @@ void SettingsViewer::save()
     
     if(group!="General") settings->endGroup();
   }
-
+  
 }
 
-void SettingsViewer::open()
+void GuiSettingsViewer::open()
 {
-    QDialog dialog(this);
-
-    QLabel *orgLabel = new QLabel(tr("&Organization:"));
-    QLineEdit *orgLineEdit = new QLineEdit(organization);
-    orgLabel->setBuddy(orgLineEdit);
-
-    QLabel *appLabel = new QLabel(tr("&Application:"));
-    QLineEdit *appLineEdit = new QLineEdit(application);
-    appLabel->setBuddy(appLineEdit);
-
-    QPushButton *okButton = new QPushButton(tr("OK"));
-    okButton->setDefault(true);
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-
-    connect(okButton, SIGNAL(clicked()), &dialog, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
-
-    QGridLayout *gridLayout = new QGridLayout;
-    gridLayout->addWidget(orgLabel, 0, 0);
-    gridLayout->addWidget(orgLineEdit, 0, 1);
-    gridLayout->addWidget(appLabel, 1, 0);
-    gridLayout->addWidget(appLineEdit, 1, 1);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(gridLayout);
-    mainLayout->addLayout(buttonLayout);
-    dialog.setLayout(mainLayout);
-
-    dialog.setWindowTitle(tr("Choose Settings"));
-
-    if (dialog.exec()) {
-        organization = orgLineEdit->text();
-        application = appLineEdit->text();
-        readSettings();
-    }
+  QDialog dialog(this);
+  
+  QLabel *orgLabel = new QLabel(tr("&Organization:"));
+  QLineEdit *orgLineEdit = new QLineEdit(organization);
+  orgLabel->setBuddy(orgLineEdit);
+  
+  QLabel *appLabel = new QLabel(tr("&Application:"));
+  QLineEdit *appLineEdit = new QLineEdit(application);
+  appLabel->setBuddy(appLineEdit);
+  
+  QPushButton *okButton = new QPushButton(tr("OK"));
+  okButton->setDefault(true);
+  QPushButton *cancelButton = new QPushButton(tr("Cancel"));
+  
+  connect(okButton, SIGNAL(clicked()), &dialog, SLOT(accept()));
+  connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
+  
+  QHBoxLayout *buttonLayout = new QHBoxLayout;
+  buttonLayout->addStretch();
+  buttonLayout->addWidget(okButton);
+  buttonLayout->addWidget(cancelButton);
+  
+  QGridLayout *gridLayout = new QGridLayout;
+  gridLayout->addWidget(orgLabel, 0, 0);
+  gridLayout->addWidget(orgLineEdit, 0, 1);
+  gridLayout->addWidget(appLabel, 1, 0);
+  gridLayout->addWidget(appLineEdit, 1, 1);
+  
+  QVBoxLayout *mainLayout = new QVBoxLayout;
+  mainLayout->addLayout(gridLayout);
+  mainLayout->addLayout(buttonLayout);
+  dialog.setLayout(mainLayout);
+  
+  dialog.setWindowTitle(tr("Choose Settings"));
+  
+  if (dialog.exec()) {
+    organization = orgLineEdit->text();
+    application = appLineEdit->text();
+    readSettings();
+  }
 }
 
-void SettingsViewer::readSettings()
+void GuiSettingsViewer::readSettings()
 {
-    addChildSettings();
-    setWindowTitle(tr("Settings Viewer - %1 by %2").arg(application).arg(organization));
+  addChildSettings();
+  setWindowTitle(tr("Settings Viewer - %1 by %2").arg(application).arg(organization));
 }
 
-void SettingsViewer::addChildSettings()
+void GuiSettingsViewer::addChildSettings()
 {
   tabWidget.clear(); //This only removes the tabs, but does not delete them!!! TODO: delete for real
-
-  tabWidget.addTab(new SettingsTab(organization, application, "General"), "General");
+  
+  tabWidget.addTab(new GuiSettingsTab(organization, application, "General"), "General");
   foreach (QString group, settings->childGroups()) {
-    tabWidget.addTab(new SettingsTab(organization, application, group), group);
+    tabWidget.addTab(new GuiSettingsTab(organization, application, group), group);
   }
 }

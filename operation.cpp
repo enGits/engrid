@@ -59,6 +59,11 @@ Operation::~Operation()
   };
 };
 
+void Operation::del() 
+{ 
+  garbage_operations.insert(this); 
+};
+
 void OperationThread::run()
 {
   try {

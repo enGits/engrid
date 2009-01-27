@@ -20,47 +20,58 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef SETTINGSTAB_H
-#define SETTINGSTAB_H
+#ifndef simplefoamwriter_H
+#define simplefoamwriter_H
 
-#include <QWidget>
-#include <QString>
-#include <QtGui>
-#include <QVector>
+class SimpleFoamWriter;
+
+#include "iooperation.h"
 
 /**
- * Creates a QWidget listing all key/value pairs contained in the group "group" 
- * of the QSettings file corresponding to the (org,app) pair.
- * integers appear in spinboxes
- * doubles appear in line edit boxes
- * booleans appear in checkboxes
+ * Writer for OpenFOAM grids
  */
-class GuiSettingsTab : public QWidget
+class SimpleFoamWriter : public IOOperation
 {
+
+protected: // data types
   
-  Q_OBJECT;
-    
-public:
+  struct face_t {
+    QVector<vtkIdType> node;
+    vtkIdType owner, neighbour;
+    int bc;
+    int operator[](int i) { while(i<0) i+=node.size(); while(i>=node.size()) i-=node.size(); return node[i]; };
+    bool operator<(const face_t &F) const;
+    vec3_t normal(vtkUnstructuredGrid *grid);
+    face_t() {};
+    face_t(int N, int o, int n, int b=0) { node.resize(N); owner = o; neighbour = n; bc = b; };
+  };
   
-  QVector<QString> spinbox_name;
-  QVector<QSpinBox*> spinbox;
+protected: // attributes
   
-  QVector<QString> checkbox_name;
-  QVector<QCheckBox*> checkbox;
+  QString path;
+  QVector<face_t> faces;
+  QList<face_t> lfaces;
+  vtkIntArray *bc;
+  int Ncells;
+  QVector<int> eg2of;
   
-  QVector<QString> lineedit_name;
-  QVector<QLineEdit*> lineedit;
+protected: // methods
   
-public:
-	//constructors
-  /**
-   * Constructor using the (org,app) pair to determine QSettings
-   * @param org organization
-   * @param app application
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsTab(QString org,QString app,QString group,QWidget *parent = 0);
+  vtkIdType getNeigh(int i_cells, int i_neigh);
+  void addFace(face_t F);
+  void createFaces();
+  void writePoints();
+  void writeFaces();
+  void writeOwner();
+  void writeNeighbour();
+  void writeBoundary();
+  
+  virtual void operate();
+  
+public: // methods
+  
+  SimpleFoamWriter();
+  virtual ~SimpleFoamWriter() {};
   
 };
 

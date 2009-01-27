@@ -35,6 +35,7 @@
 #include "vtkreader.h"
 #include "polydatareader.h"
 #include "foamwriter.h"
+#include "simplefoamwriter.h"
 #include "deletepickedcell.h"
 #include "fixstl.h"
 

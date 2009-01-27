@@ -1,8 +1,8 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-#CONFIG  += qt release thread
-CONFIG += qt debug thread
+CONFIG  += qt release thread
+#CONFIG += qt debug thread
 QT += xml network opengl
 
 LIBS += -lvtkCommon 
@@ -96,6 +96,7 @@ polydatareader.h \
 polymesh.h \
 seedsimpleprismaticlayer.h \
 setboundarycode.h \
+simplefoamwriter.h \
 sortablevector.h \
 std_connections.h \
 std_includes.h \
@@ -116,17 +117,16 @@ vtkEgPolyDataToUnstructuredGridFilter.h \
 guicreateboundarylayer.h \
 guideletebadaspecttris.h \
 guidivideboundarylayer.h \
+guieditboundaryconditions.h \
 guiimproveaspectratio.h \
 guimainwindow.h \
 guinormalextrusion.h \
 guiselectboundarycodes.h \
 guisetboundarycode.h \
 guismoothsurface.h \
- \
- guieditboundaryconditions.h \
- settingsviewer.h \
- guisettingstab.h \
- guisettingsviewer.h
+guisettingstab.h \
+guisettingsviewer.h \
+
 
 SOURCES = \
 main.cpp \
@@ -162,6 +162,7 @@ polydatareader.cpp \
 polymesh.cpp \
 seedsimpleprismaticlayer.cpp \
 setboundarycode.cpp \
+simplefoamwriter.cpp \
 stlreader.cpp \
 stlwriter.cpp \
 swaptriangles.cpp \
@@ -177,17 +178,16 @@ vtkEgPolyDataToUnstructuredGridFilter.cxx \
 guicreateboundarylayer.cpp \
 guideletebadaspecttris.cpp \
 guidivideboundarylayer.cpp \
+guieditboundaryconditions.cpp \
 guiimproveaspectratio.cpp \
 guimainwindow.cpp \
 guinormalextrusion.cpp \
 guiselectboundarycodes.cpp \
 guisetboundarycode.cpp \
 guismoothsurface.cpp \
- \
- guieditboundaryconditions.cpp \
- settingsviewer.cpp \
- guisettingstab.cpp \
- guisettingsviewer.cpp
+guisettingstab.cpp \
+guisettingsviewer.cpp \
+
 
 FORMS = \
 guicreateboundarylayer.ui \

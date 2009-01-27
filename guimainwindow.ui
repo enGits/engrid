@@ -296,7 +296,7 @@
      </widget>
     </item>
     <item rowspan="5" row="0" column="0" >
-     <widget class="QVTKWidget" native="1" name="qvtkWidget" >
+     <widget class="QVTKWidget" name="qvtkWidget" >
       <property name="cursor" >
        <cursorShape>ArrowCursor</cursorShape>
       </property>
@@ -451,7 +451,7 @@
     <property name="title" >
      <string>Tools</string>
     </property>
-    <addaction name="actionMeshingOptions" />
+    <addaction name="actionConfigure" />
     <addaction name="actionEditBoundaryConditions" />
    </widget>
    <addaction name="menuFile" />
@@ -724,9 +724,9 @@
     <string>divide prismatic boundary layer</string>
    </property>
   </action>
-  <action name="actionMeshingOptions" >
+  <action name="actionConfigure" >
    <property name="text" >
-    <string>meshing options</string>
+    <string>configure enGrid</string>
    </property>
   </action>
   <action name="actionSmoothVolumeGrid" >
@@ -812,7 +812,7 @@
   </action>
   <action name="actionFoamWriter" >
    <property name="enabled" >
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text" >
     <string>OpenFOAM (polyhedral)</string>
@@ -850,6 +850,9 @@
    </property>
    <property name="text" >
     <string>OpenFOAM</string>
+   </property>
+   <property name="toolTip" >
+    <string>export to OpenFOAM</string>
    </property>
   </action>
  </widget>

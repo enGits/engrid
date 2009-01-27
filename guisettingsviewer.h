@@ -36,12 +36,13 @@
 /**
   * Creates a QWidget with one tab per main group found in the specified QSettingsm file. each of those tabs is a SettingsTab .
   */
-class SettingsViewer : public QDialog
+class GuiSettingsViewer : public QDialog
 {
     Q_OBJECT
 
 public:
-	//constructors
+    
+  // constructors
   /**
    * Constructor using the (org,app) pair to determine QSettings
    * @param org organization
@@ -49,14 +50,14 @@ public:
    * @param group group
    * @param parent Parent QWidget
    */
-  SettingsViewer(QString org, QString app,QWidget *parent = 0);
+  GuiSettingsViewer(QString org, QString app,QWidget *parent = 0);
   /**
    * Constructor taking a QSettings argument to build the widget.
    * @param Set QSettings to use
    * @param group group
    * @param parent Parent QWidget
    */
-  SettingsViewer(QSettings* Set,QWidget *parent = 0);
+  GuiSettingsViewer(QSettings* Set,QWidget *parent = 0);
   
 private slots:
     void open();
@@ -66,13 +67,13 @@ private slots:
     void addChildSettings();
 
 private:
-//     QTreeWidget *treeWidget;
+
     QPushButton *openButton;
     QPushButton *saveButton;
     QPushButton *closeButton;
 
     QTabWidget tabWidget;
-    QVector<SettingsTab> tabs;  
+    QVector<GuiSettingsTab> tabs;  
   
     QString organization;
     QString application;

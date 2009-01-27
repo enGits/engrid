@@ -91,7 +91,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
   connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
-  connect(ui.actionMeshingOptions,          SIGNAL(activated()),      this, SLOT(MeshingOptions()));
+  connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -175,8 +175,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
   status_label->setText(txt);
   
-  //centralWidget()->layout()->setContentsMargins(0,0,0,0);
-  
   axes = vtkCubeAxesActor2D::New();
   axes->SetCamera(getRenderer()->GetActiveCamera());
   getRenderer()->AddActor(axes);
@@ -208,6 +206,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   log_timer.start(1000);
   
   N_chars = 0;
+  
+    
   
 };
 
@@ -351,9 +351,9 @@ void GuiMainWindow::updateActors()
       surface_wire_mapper->SetInput(boundary_pd);
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
-      surface_actor->GetProperty()->SetColor(0,1,0);
+      surface_actor->GetProperty()->SetColor(0.5,1,0.5);
       surface_actor->SetBackfaceProperty(backface_property);
-      surface_actor->GetBackfaceProperty()->SetColor(1,0,0);
+      surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
       surface_wire_actor = vtkActor::New();
       surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
       surface_wire_actor->GetProperty()->SetColor(0,0,1);
@@ -996,9 +996,13 @@ void GuiMainWindow::editBoundaryConditions()
   editbcs();
 };
 
-void GuiMainWindow::MeshingOptions()
+void GuiMainWindow::configure()
 {
-  GridSmoother A;//Just to create initial GridSmoother entries in the settings file so that the options menu isn't empty at first start.
-  SettingsViewer settings(&qset);
+  {
+    // Just to create initial GridSmoother entries in the settings file 
+    // so that the options menu isn't empty at first start.
+    GridSmoother A;
+  };
+  GuiSettingsViewer settings(&qset);
   settings.exec();
 };

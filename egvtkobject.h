@@ -26,6 +26,8 @@
 class EgVtkObject;
 
 #include "engrid.h"
+#include "boundarycondition.h"
+
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
@@ -296,7 +298,7 @@ protected: // methods
     );
   
   /**
-   * Insert a subset of subset of a grid into a vtkPolyData structure.
+   * Insert a subset of a grid into a vtkPolyData structure.
    * This is can be used in order to make use of many readily available 
    * operations within VTK; one example is smoothing.
    * Cell index and node index arrays will be created and passed to the
@@ -460,6 +462,13 @@ protected: // methods
 
   void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   void createIndices(vtkUnstructuredGrid *grid);
+  
+  /**
+   * Get the boundary condition of a boundary code.
+   * @param bc the boundary code
+   * @return the boundary condition
+   */
+  BoundaryCondition getBC(int bc);
   
   template <class T>
   void writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name);

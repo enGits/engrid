@@ -21,6 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "egvtkobject.h"
+#include "guimainwindow.h"
 
 #include <vtkCellData.h>
 #include <vtkPointData.h>
@@ -930,6 +931,11 @@ void EgVtkObject::createIndices(vtkUnstructuredGrid *grid)
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     node_index->SetValue(id_node, id_node);
   };
+};
+
+BoundaryCondition EgVtkObject::getBC(int bc)
+{
+  return GuiMainWindow::pointer()->getBC(bc);
 };
 
 int EgVtkObject::getSet(QSettings& qset, QString group, QString key, int value, int& variable)
