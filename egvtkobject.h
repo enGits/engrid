@@ -70,17 +70,19 @@ protected: // methods
    * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
    * Version for int variables
    */
-  int getSet(QSettings& qset, QString group, QString key, int value, int& variable);
+  int getSet(QString group, QString key, int value, int& variable);
+  
   /**
    * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
    * Version for double variables
    */
-  double getSet(QSettings& qset, QString group, QString key, double value, double& variable);
-    /**
+  double getSet(QString group, QString key, double value, double& variable);
+  
+  /**
    * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
    * Version for bool variables
    */
-  bool getSet(QSettings& qset, QString group, QString key, bool value, bool& variable);
+  bool getSet(QString group, QString key, bool value, bool& variable);
   
   /**
    * Update the cell index array.

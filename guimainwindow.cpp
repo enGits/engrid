@@ -207,7 +207,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   N_chars = 0;
   
-    
+  bool exp_features;
+  getSet("","enable experimental features",false,exp_features);
+  ui.actionFoamWriter->setEnabled(exp_features);
   
 };
 

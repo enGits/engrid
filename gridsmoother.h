@@ -47,9 +47,7 @@ protected: // attributes
   int     N_iterations;
   int     N_relaxations;
   int     N_boundary_corrections;
-  int     N_smooth_layers;
   int     N_search;
-  double  relax;
   double  L_search;
   double  F_old;
   double  F_new;
@@ -100,9 +98,6 @@ public: // methods
   void setNumIterations         (int N) { N_iterations  = N; };
   void setNumRelaxations        (int N) { N_relaxations = N; };
   void setNumBoundaryCorrections(int N) { N_boundary_corrections = N; };
-  void setNumSmoothLayers       (int N) { N_smooth_layers = N; };
-  
-  void setRelaxationFactor(double v) { relax = v; };
   
   void prismsOn() { smooth_prisms = true; };
   void prismsOff() { smooth_prisms = false; };
@@ -110,17 +105,7 @@ public: // methods
   double funcOld() { return F_old; };
   double funcNew() { return F_new; };
   
-  bool get_smooth_prisms() { return smooth_prisms; };
-  int get_N_iterations() { return N_iterations; };
-  double get_relax() { return relax; };
-  
   double improvement();
-  
-  void setWSharp1(double w) { w_sharp1 = w; };
-  void setWSharp2(double w) { w_sharp2 = w; };
-  bool ReadSettings(QSettings& qset);
-  bool WriteSettings(QSettings& qset);
-  static bool CreateDefaultSettings(QSettings& qset);
   
 };
 

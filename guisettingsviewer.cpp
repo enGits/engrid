@@ -119,6 +119,8 @@ void GuiSettingsViewer::save()
     if(group!="General") settings->endGroup();
   }
   
+  close();
+  
 }
 
 void GuiSettingsViewer::open()
@@ -177,6 +179,8 @@ void GuiSettingsViewer::addChildSettings()
   
   tabWidget.addTab(new GuiSettingsTab(organization, application, "General"), "General");
   foreach (QString group, settings->childGroups()) {
-    tabWidget.addTab(new GuiSettingsTab(organization, application, group), group);
+    if ((group != "int") && (group != "bool") && (group != "double")) {
+      tabWidget.addTab(new GuiSettingsTab(organization, application, group), group);
+    };
   }
 }

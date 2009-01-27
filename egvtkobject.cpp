@@ -666,11 +666,11 @@ void EgVtkObject::addToPolyData
 
 #define EGVTKOBJECT_COPYCELLDATA(FIELD,TYPE) \
 { \
-  if (old_grid->GetCellData()->GetArray(FIELD)) { \
-    EG_VTKDCC(TYPE, var1, old_grid, FIELD); \
-    EG_VTKDCC(TYPE, var2, new_grid, FIELD); \
-    var2->SetValue(newId, var1->GetValue(oldId)); \
-  }; \
+if (old_grid->GetCellData()->GetArray(FIELD)) { \
+EG_VTKDCC(TYPE, var1, old_grid, FIELD); \
+EG_VTKDCC(TYPE, var2, new_grid, FIELD); \
+var2->SetValue(newId, var1->GetValue(oldId)); \
+}; \
 };
 
 void EgVtkObject::copyCellData
@@ -695,11 +695,11 @@ void EgVtkObject::copyCellData
 
 #define EGVTKOBJECT_COPYNODEDATA(FIELD,TYPE) \
 { \
-  if (old_grid->GetPointData()->GetArray(FIELD)) { \
-    EG_VTKDCN(TYPE, var1, old_grid, FIELD); \
-    EG_VTKDCN(TYPE, var2, new_grid, FIELD); \
-    var2->SetValue(newId, var1->GetValue(oldId)); \
-  }; \
+if (old_grid->GetPointData()->GetArray(FIELD)) { \
+EG_VTKDCN(TYPE, var1, old_grid, FIELD); \
+EG_VTKDCN(TYPE, var2, new_grid, FIELD); \
+var2->SetValue(newId, var1->GetValue(oldId)); \
+}; \
 };
 
 void EgVtkObject::copyNodeData
@@ -717,26 +717,26 @@ void EgVtkObject::copyNodeData
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
 if (!grid->GetCellData()->GetArray(FIELD)) { \
-  EG_VTKSP(TYPE, var); \
-  var->SetName(FIELD); \
-  var->SetNumberOfValues(Ncells); \
-  grid->GetCellData()->AddArray(var); \
+EG_VTKSP(TYPE, var); \
+var->SetName(FIELD); \
+var->SetNumberOfValues(Ncells); \
+grid->GetCellData()->AddArray(var); \
 } else if (OW) { \
-  EG_VTKDCC(TYPE, var, grid, FIELD); \
-  var->SetNumberOfValues(Ncells); \
+EG_VTKDCC(TYPE, var, grid, FIELD); \
+var->SetNumberOfValues(Ncells); \
 };
 
 #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW) \
 if (!grid->GetPointData()->GetArray(FIELD)) { \
-  EG_VTKSP(TYPE, var); \
-  var->SetName(FIELD); \
-  var->SetNumberOfValues(Nnodes); \
-  grid->GetPointData()->AddArray(var); \
-  for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
+EG_VTKSP(TYPE, var); \
+var->SetName(FIELD); \
+var->SetNumberOfValues(Nnodes); \
+grid->GetPointData()->AddArray(var); \
+for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
 } else if (OW) { \
-  EG_VTKDCN(TYPE, var, grid, FIELD); \
-  var->SetNumberOfValues(Nnodes); \
-  for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
+EG_VTKDCN(TYPE, var, grid, FIELD); \
+var->SetNumberOfValues(Nnodes); \
+for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
 };
 
 void EgVtkObject::createBasicFields
@@ -938,39 +938,42 @@ BoundaryCondition EgVtkObject::getBC(int bc)
   return GuiMainWindow::pointer()->getBC(bc);
 };
 
-int EgVtkObject::getSet(QSettings& qset, QString group, QString key, int value, int& variable)
+int EgVtkObject::getSet(QString group, QString key, int value, int& variable)
 {
+  QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "int/" + key;
-  qset.beginGroup(group);
-    //if key=value pair not found in settings file, write it
-    if (!qset.contains(typed_key)) qset.setValue(typed_key,value);
-    //read key value from settings file and assign it to variable
-    variable = (qset.value(typed_key,variable)).toInt();
-  qset.endGroup();
+  qset->beginGroup(group);
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key,value);
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key,variable)).toInt();
+  qset->endGroup();
   return(variable);
 }
 
-double EgVtkObject::getSet(QSettings& qset, QString group, QString key, double value, double& variable)
+double EgVtkObject::getSet(QString group, QString key, double value, double& variable)
 {
+  QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "double/" + key;
-  qset.beginGroup(group);
-    //if key=value pair not found in settings file, write it
-  if (!qset.contains(typed_key)) qset.setValue(typed_key,value);
-    //read key value from settings file and assign it to variable
-  variable = (qset.value(typed_key,variable)).toDouble();
-  qset.endGroup();
+  qset->beginGroup(group);
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key,value);
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key,variable)).toDouble();
+  qset->endGroup();
   return(variable);
 }
 
-bool EgVtkObject::getSet(QSettings& qset, QString group, QString key, bool value, bool& variable)
+bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
 {
+  QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "bool/" + key;
-  qset.beginGroup(group);
+  qset->beginGroup(group);
   Qt::CheckState state = (Qt::CheckState) ( value ? 2 : 0 );
-    //if key=value pair not found in settings file, write it
-  if (!qset.contains(typed_key)) qset.setValue(typed_key,state);
-    //read key value from settings file and assign it to variable
-  variable = (qset.value(typed_key,variable)).toBool();
-  qset.endGroup();
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key,state);
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key,variable)).toBool();
+  qset->endGroup();
   return(variable);
 }
