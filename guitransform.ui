@@ -1,0 +1,273 @@
+<ui version="4.0" >
+ <class>GuiTransform</class>
+ <widget class="QDialog" name="GuiTransform" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>392</width>
+    <height>665</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>create prismatic boundary layer</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="engrid.qrc" >
+    <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <layout class="QGridLayout" name="gridLayout" >
+     <item row="2" column="0" >
+      <widget class="QGroupBox" name="groupBox" >
+       <property name="title" >
+        <string>Scaling</string>
+       </property>
+       <widget class="QWidget" name="formLayoutWidget" >
+        <property name="geometry" >
+         <rect>
+          <x>50</x>
+          <y>10</y>
+          <width>160</width>
+          <height>80</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout" >
+         <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_3" >
+           <property name="text" >
+            <string>Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_X" />
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_Y" />
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_Z" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QGroupBox" name="groupBox_2" >
+       <property name="title" >
+        <string>Rotation</string>
+       </property>
+       <widget class="QWidget" name="formLayoutWidget_2" >
+        <property name="geometry" >
+         <rect>
+          <x>40</x>
+          <y>0</y>
+          <width>160</width>
+          <height>113</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_3" >
+         <property name="fieldGrowthPolicy" >
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_4" >
+           <property name="text" >
+            <string>X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_X" />
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_5" >
+           <property name="text" >
+            <string>Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Y" />
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_6" >
+           <property name="text" >
+            <string>Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Z" />
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="label_10" >
+           <property name="text" >
+            <string>Angle=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Angle" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QGroupBox" name="groupBox_3" >
+       <property name="title" >
+        <string>Translation</string>
+       </property>
+       <widget class="QWidget" name="formLayoutWidget_3" >
+        <property name="geometry" >
+         <rect>
+          <x>50</x>
+          <y>10</y>
+          <width>160</width>
+          <height>80</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_4" >
+         <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_7" >
+           <property name="text" >
+            <string>X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_8" >
+           <property name="text" >
+            <string>Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_9" >
+           <property name="text" >
+            <string>Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Translation_X" />
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Translation_Y" />
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Translation_Z" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QPushButton" name="pushButtonHelp" >
+       <property name="text" >
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons" >
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_Translation_X</tabstop>
+  <tabstop>lineEdit_Translation_Y</tabstop>
+  <tabstop>lineEdit_Translation_Z</tabstop>
+  <tabstop>lineEdit_Rotation_X</tabstop>
+  <tabstop>lineEdit_Rotation_Y</tabstop>
+  <tabstop>lineEdit_Rotation_Z</tabstop>
+  <tabstop>lineEdit_Rotation_Angle</tabstop>
+  <tabstop>lineEdit_Scaling_X</tabstop>
+  <tabstop>lineEdit_Scaling_Y</tabstop>
+  <tabstop>lineEdit_Scaling_Z</tabstop>
+  <tabstop>pushButtonHelp</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources>
+  <include location="engrid.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>GuiTransform</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>GuiTransform</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
