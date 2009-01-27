@@ -998,6 +998,7 @@ void GuiMainWindow::editBoundaryConditions()
 
 void GuiMainWindow::MeshingOptions()
 {
+  GridSmoother A;//Just to create initial GridSmoother entries in the settings file so that the options menu isn't empty at first start.
   SettingsViewer settings(&qset);
   settings.exec();
 };

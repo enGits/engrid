@@ -188,6 +188,7 @@
       <showVariablesInTree>true</showVariablesInTree>
       <showParseErrors>true</showParseErrors>
     </qmake>
+    <subclassing/>
   </kdevtrollproject>
   <cppsupportpart>
     <filetemplates>
