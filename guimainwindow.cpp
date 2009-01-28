@@ -94,6 +94,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
+  connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -1017,3 +1018,23 @@ void GuiMainWindow::configure()
   GuiSettingsViewer settings(&qset);
   settings.exec();
 };
+
+void GuiMainWindow::about()
+{
+  QString msg = "";
+  msg += QString("ENGRID version ") + ENGRID_VERSION + "\n\n";
+  msg += "ENGRID is being developed and maintained by:\n";
+  msg += "enGits GmbH\n";
+  msg += "Marie-Curie-Strasse 8\n";
+  msg += "79539 Loerrach\n";
+  msg += "Germany\n\n";
+  msg += "http://www.engits.com\n";
+  msg += "info@engits.com\n\n";
+  msg += "ENGRID is licenced under the GPL version 3.\n";
+  msg += "(see http://www.gnu.org/licenses for details)\n\n";
+  msg += "To submit a bug report, please use the bug\n";
+  msg += "tracker available on Sourceforge (URL below).\n";
+  msg += "http://sourceforge.net/tracker2/?func=add&group_id=245110&atid=1126548";
+  QMessageBox::information(NULL, "about ENGRID", msg);
+};
+

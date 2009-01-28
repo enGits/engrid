@@ -48,9 +48,9 @@ win32 {
     INCLUDEPATH += $$VTK_SRCDIR\IO
     INCLUDEPATH += $$VTK_SRCDIR\RENDER~1
     INCLUDEPATH += $$VTK_DIR
-    INCLUDEPATH += netgen_cvs\netgen\libsrc\interface
-    INCLUDEPATH += netgen_cvs\netgen\libsrc\general
-    LIBS += -Lnetgen_cvs\release
+    INCLUDEPATH += netgen_svn\netgen-mesher\netgen\nglib
+    INCLUDEPATH += netgen_svn\netgen-mesher\netgen\libsrc\general
+    LIBS += -Lnetgen_svn\release
     DEFINES += _USE_MATH_DEFINES
 }
 

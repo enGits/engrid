@@ -3,7 +3,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "enGrid"
-!define PRODUCT_VERSION "20081203"
+!define PRODUCT_VERSION "1.0"
 !define PRODUCT_PUBLISHER "enGits GmbH"
 !define PRODUCT_WEB_SITE "http://www.engits.com"
 !define PRODUCT_DIR_REGKEY "Software\enGits\${PRODUCT_NAME}"

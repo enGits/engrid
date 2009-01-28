@@ -8,9 +8,6 @@ CXXFLAGS    += -gubbel
 
 SOURCES  = \
 netgen-mesher/netgen/nglib/nglib.cpp \
-netgen-mesher/netgen/libsrc/opti/linopt.cpp \
-netgen-mesher/netgen/libsrc/opti/bfgs.cpp \
-netgen-mesher/netgen/libsrc/opti/linsearch.cpp \
 netgen-mesher/netgen/libsrc/meshing/global.cpp \
 netgen-mesher/netgen/libsrc/meshing/bisect.cpp \
 netgen-mesher/netgen/libsrc/meshing/meshtool.cpp \
@@ -50,9 +47,9 @@ netgen-mesher/netgen/libsrc/meshing/msghandler.cpp \
 netgen-mesher/netgen/libsrc/meshing/meshfunc2d.cpp \
 netgen-mesher/netgen/libsrc/meshing/topology.cpp \
 netgen-mesher/netgen/libsrc/meshing/clusters.cpp \
-netgen-mesher/netgen/libsrc/meshing/curvedelems_new.cpp \
 netgen-mesher/netgen/libsrc/meshing/hprefinement.cpp \
 netgen-mesher/netgen/libsrc/meshing/validate.cpp\
+netgen-mesher/netgen/libsrc/meshing/curvedelems.cpp\
 netgen-mesher/netgen/libsrc/gprim/geomtest3d.cpp \
 netgen-mesher/netgen/libsrc/gprim/geom2d.cpp \
 netgen-mesher/netgen/libsrc/gprim/geom3d.cpp \
@@ -62,6 +59,9 @@ netgen-mesher/netgen/libsrc/gprim/geomfuncs.cpp \
 netgen-mesher/netgen/libsrc/linalg/polynomial.cpp \
 netgen-mesher/netgen/libsrc/linalg/densemat.cpp \
 netgen-mesher/netgen/libsrc/linalg/vector.cpp \
+netgen-mesher/netgen/libsrc/linalg/linopt.cpp \
+netgen-mesher/netgen/libsrc/linalg/bfgs.cpp \
+netgen-mesher/netgen/libsrc/linalg/linsearch.cpp \
 netgen-mesher/netgen/libsrc/csg/algprim.cpp \
 netgen-mesher/netgen/libsrc/csg/brick.cpp \
 netgen-mesher/netgen/libsrc/csg/manifold.cpp \

@@ -364,6 +364,9 @@ public slots:
   /** Edit settings */
   void configure();
   
+  /** Display an about message */
+  void about();
+  
   void viewXP();
   void viewXM();
   void viewYP();
