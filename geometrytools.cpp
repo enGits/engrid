@@ -53,7 +53,7 @@ void rotate(vec3_t g1, vec3_t g2,vec3_t g3, vec3_t &b, double theta)
 vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 {
   axis.normalise();
-
+  
   // transposed base of rotate system
   mat3_t g_t;
 
@@ -62,6 +62,10 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 
   // compute first orthogonal vector (first base vector)
   g_t[0] = v-v_axis;
+  
+  //In case of points on the rotation axis, do nothing
+  if(g_t[0].abs()==0) return v;
+  
   g_t[0].normalise();
 
   // second base vector is the normalised axis
