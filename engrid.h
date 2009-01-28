@@ -177,7 +177,7 @@ if (GRID->GetPointData()->GetScalars(NAME)) { \
 OPER *oper = new OPER(); \
 (*oper)(); \
 oper->del(); \
-updateBoundaryCodes(false); \
+if(grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
 updateActors(); \
 
 #define EG_STDSLOT(OPER) \
@@ -185,14 +185,14 @@ OPER *oper = new OPER(); \
 oper->setGui(); \
 (*oper)(); \
 oper->del(); \
-updateBoundaryCodes(false); \
+if(grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
 updateActors(); \
 
 #define EG_STDREADERSLOT(OPER) \
 OPER *oper = new OPER(); \
 (*oper)(); \
 oper->del(); \
-updateBoundaryCodes(true); \
+if(grid->GetNumberOfPoints()) updateBoundaryCodes(true); \
 updateActors(); \
 updateStatusBar(); \
 zoomAll();

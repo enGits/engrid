@@ -28,7 +28,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget" >
        <property name="currentIndex" >
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tab" >
         <attribute name="title" >
@@ -279,13 +279,6 @@
          </item>
         </layout>
        </widget>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="UseLocalAxes" >
-       <property name="text" >
-        <string>Use local coordinate axes?</string>
-       </property>
       </widget>
      </item>
      <item>
