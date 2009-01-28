@@ -339,7 +339,10 @@ public slots:
   
   /** Toggle the visibility of the axes annotation. */
   void setAxesVisibility();
-    
+  
+  /** Toggle orthogonal viewing mode. */
+  void setViewingMode();
+  
   /** Change the orientation of all surface elements */
   void changeSurfaceOrientation();
   

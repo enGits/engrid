@@ -400,6 +400,7 @@
     <addaction name="actionRedraw" />
     <addaction name="actionClearOutputWindow" />
     <addaction name="actionViewAxes" />
+    <addaction name="actionViewOrthogonal" />
    </widget>
    <widget class="QMenu" name="menuMesh" >
     <property name="title" >
@@ -846,7 +847,7 @@
   </action>
   <action name="actionSimpleFoamWriter" >
    <property name="icon" >
-    <iconset>
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
    </property>
    <property name="text" >
@@ -859,6 +860,14 @@
   <action name="actionTransform" >
    <property name="text" >
     <string>Transform...</string>
+   </property>
+  </action>
+  <action name="actionViewOrthogonal" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Orthogonal view</string>
    </property>
   </action>
  </widget>

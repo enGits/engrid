@@ -86,6 +86,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionBoundaryCodes,          SIGNAL(activated()),       this, SLOT(selectBoundaryCodes()));
   connect(ui.actionNormalExtrusion,        SIGNAL(activated()),       this, SLOT(normalExtrusion()));
   connect(ui.actionViewAxes,               SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
+  connect(ui.actionViewOrthogonal,         SIGNAL(changed()),         this, SLOT(setViewingMode()));
   connect(ui.actionChangeOrientation,      SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
   connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
   connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
@@ -811,6 +812,13 @@ void GuiMainWindow::setAxesVisibility()
 {
   if (ui.actionViewAxes->isChecked()) axes->SetVisibility(1);
   else                                axes->SetVisibility(0);
+  getRenderWindow()->Render();
+};
+
+void GuiMainWindow::setViewingMode()
+{
+  if (ui.actionViewOrthogonal->isChecked()) getRenderer()->GetActiveCamera()->ParallelProjectionOn();
+  else getRenderer()->GetActiveCamera()->ParallelProjectionOff();
   getRenderWindow()->Render();
 };
 

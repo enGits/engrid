@@ -28,6 +28,7 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 #include <cmath>
+#include "geometrytools.h"
 
 /** Set default values */
 void GuiTransform::before()
@@ -40,9 +41,12 @@ void GuiTransform::before()
   ui.lineEdit_Translation_Y->setText("0");
   ui.lineEdit_Translation_Z->setText("0");
   
-  ui.lineEdit_Rotation_X->setText("1");
-  ui.lineEdit_Rotation_Y->setText("0");
-  ui.lineEdit_Rotation_Z->setText("0");
+  ui.lineEdit_Rotation_Origin_X->setText("0");
+  ui.lineEdit_Rotation_Origin_Y->setText("0");
+  ui.lineEdit_Rotation_Origin_Z->setText("0");
+  ui.lineEdit_Rotation_Direction_X->setText("1");
+  ui.lineEdit_Rotation_Direction_Y->setText("0");
+  ui.lineEdit_Rotation_Direction_Z->setText("0");
   ui.lineEdit_Rotation_Angle->setText("0");
   
   ui.lineEdit_Scaling_X->setText("1");
@@ -63,9 +67,12 @@ void GuiTransform::operate()
                              ( ui.lineEdit_Translation_Z->text()).toDouble());
   
   //Rotation
-  vec3_t Rotation_Vector( ( ui.lineEdit_Rotation_X->text()).toDouble(),
-                             ( ui.lineEdit_Rotation_Y->text()).toDouble(),
-                             ( ui.lineEdit_Rotation_Z->text()).toDouble());
+  vec3_t Rotation_Origin_Vector( ( ui.lineEdit_Rotation_Origin_X->text()).toDouble(),
+                                 ( ui.lineEdit_Rotation_Origin_Y->text()).toDouble(),
+                                 ( ui.lineEdit_Rotation_Origin_Z->text()).toDouble());
+  vec3_t Rotation_Direction_Vector( ( ui.lineEdit_Rotation_Direction_X->text()).toDouble(),
+                             ( ui.lineEdit_Rotation_Direction_Y->text()).toDouble(),
+                             ( ui.lineEdit_Rotation_Direction_Z->text()).toDouble());
   double Rotation_Angle = ( ui.lineEdit_Rotation_Angle->text()).toDouble();
   
   //Scaling
@@ -75,7 +82,8 @@ void GuiTransform::operate()
   
   cout << "nodes.size()=" << nodes.size() << endl;
   cout << "Translation_Vector=" << Translation_Vector << endl;
-  cout << "Rotation_Vector=" << Rotation_Vector << endl;
+  cout << "Rotation_Origin_Vector=" << Rotation_Origin_Vector << endl;
+  cout << "Rotation_Direction_Vector=" << Rotation_Direction_Vector << endl;
   cout << "Rotation_Angle=" << Rotation_Angle << endl;
   cout << "Scaling_Vector=" << Scaling_Vector << endl;
   
@@ -88,10 +96,12 @@ void GuiTransform::operate()
     x[1]+=Translation_Vector[1];
     x[2]+=Translation_Vector[2];
     
+    Rotation_Direction_Vector.normalise();
+    x = Rotation_Origin_Vector + GeometryTools::rotate(x-Rotation_Origin_Vector,Rotation_Direction_Vector,Rotation_Angle);
+    
     x[0]*=Scaling_Vector[0];
     x[1]*=Scaling_Vector[1];
     x[2]*=Scaling_Vector[2];
-    
     
     grid->GetPoints()->SetPoint(id_node, x.data());
   }

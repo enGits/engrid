@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>665</height>
+    <width>394</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="minimumSize" >
@@ -22,142 +22,39 @@
    <iconset resource="engrid.qrc" >
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
-   <item>
-    <layout class="QGridLayout" name="gridLayout" >
-     <item row="2" column="0" >
-      <widget class="QGroupBox" name="groupBox" >
-       <property name="title" >
-        <string>Scaling</string>
-       </property>
-       <widget class="QWidget" name="formLayoutWidget" >
-        <property name="geometry" >
-         <rect>
-          <x>50</x>
-          <y>10</y>
-          <width>160</width>
-          <height>80</height>
-         </rect>
-        </property>
-        <layout class="QFormLayout" name="formLayout" >
-         <property name="labelAlignment" >
-          <set>Qt::AlignCenter</set>
-         </property>
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label" >
-           <property name="text" >
-            <string>X=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="label_2" >
-           <property name="text" >
-            <string>Y=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="label_3" >
-           <property name="text" >
-            <string>Z=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Scaling_X" />
-         </item>
-         <item row="1" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Scaling_Y" />
-         </item>
-         <item row="2" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Scaling_Z" />
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="1" column="0" >
-      <widget class="QGroupBox" name="groupBox_2" >
-       <property name="title" >
-        <string>Rotation</string>
-       </property>
-       <widget class="QWidget" name="formLayoutWidget_2" >
-        <property name="geometry" >
-         <rect>
-          <x>40</x>
-          <y>0</y>
-          <width>160</width>
-          <height>113</height>
-         </rect>
-        </property>
-        <layout class="QFormLayout" name="formLayout_3" >
-         <property name="fieldGrowthPolicy" >
-          <enum>QFormLayout::ExpandingFieldsGrow</enum>
-         </property>
-         <property name="labelAlignment" >
-          <set>Qt::AlignCenter</set>
-         </property>
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label_4" >
-           <property name="text" >
-            <string>X=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Rotation_X" />
-         </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="label_5" >
-           <property name="text" >
-            <string>Y=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Rotation_Y" />
-         </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="label_6" >
-           <property name="text" >
-            <string>Z=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Rotation_Z" />
-         </item>
-         <item row="3" column="0" >
-          <widget class="QLabel" name="label_10" >
-           <property name="text" >
-            <string>Angle=</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" >
-          <widget class="QLineEdit" name="lineEdit_Rotation_Angle" />
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="0" column="0" >
-      <widget class="QGroupBox" name="groupBox_3" >
-       <property name="title" >
+  <widget class="QWidget" name="verticalLayoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>391</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" >
+    <item>
+     <widget class="QTabWidget" name="tabWidget" >
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
         <string>Translation</string>
-       </property>
+       </attribute>
        <widget class="QWidget" name="formLayoutWidget_3" >
         <property name="geometry" >
          <rect>
-          <x>50</x>
-          <y>10</y>
-          <width>160</width>
-          <height>80</height>
+          <x>110</x>
+          <y>100</y>
+          <width>131</width>
+          <height>79</height>
          </rect>
         </property>
         <layout class="QFormLayout" name="formLayout_4" >
          <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="formAlignment" >
           <set>Qt::AlignCenter</set>
          </property>
          <item row="0" column="0" >
@@ -193,45 +90,198 @@
         </layout>
        </widget>
       </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" >
-     <item>
-      <widget class="QPushButton" name="pushButtonHelp" >
-       <property name="text" >
-        <string>Help</string>
-       </property>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Rotation</string>
+       </attribute>
+       <widget class="QWidget" name="formLayoutWidget_2" >
+        <property name="geometry" >
+         <rect>
+          <x>70</x>
+          <y>40</y>
+          <width>176</width>
+          <height>191</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_3" >
+         <property name="fieldGrowthPolicy" >
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="formAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="label_4" >
+           <property name="text" >
+            <string>Direction X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Direction_X" />
+         </item>
+         <item row="4" column="0" >
+          <widget class="QLabel" name="label_5" >
+           <property name="text" >
+            <string>Direction Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Direction_Y" />
+         </item>
+         <item row="5" column="0" >
+          <widget class="QLabel" name="label_6" >
+           <property name="text" >
+            <string>Direction Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Direction_Z" />
+         </item>
+         <item row="6" column="0" >
+          <widget class="QLabel" name="label_10" >
+           <property name="text" >
+            <string>Angle=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Angle" />
+         </item>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_12" >
+           <property name="text" >
+            <string>Origin X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_13" >
+           <property name="text" >
+            <string>Origin Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_14" >
+           <property name="text" >
+            <string>Origin Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Origin_X" />
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Origin_Y" />
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Rotation_Origin_Z" />
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Scaling</string>
+       </attribute>
+       <widget class="QWidget" name="formLayoutWidget" >
+        <property name="geometry" >
+         <rect>
+          <x>120</x>
+          <y>70</y>
+          <width>131</width>
+          <height>79</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout" >
+         <property name="labelAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="formAlignment" >
+          <set>Qt::AlignCenter</set>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>X=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>Y=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_3" >
+           <property name="text" >
+            <string>Z=</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_X" />
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_Y" />
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLineEdit" name="lineEdit_Scaling_Z" />
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </item>
-    </layout>
-   </item>
-  </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QPushButton" name="pushButtonHelp" >
+        <property name="text" >
+         <string>Help</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDialogButtonBox" name="buttonBox" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="standardButtons" >
+         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <tabstops>
+  <tabstop>pushButtonHelp</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
   <tabstop>lineEdit_Translation_X</tabstop>
   <tabstop>lineEdit_Translation_Y</tabstop>
   <tabstop>lineEdit_Translation_Z</tabstop>
-  <tabstop>lineEdit_Rotation_X</tabstop>
-  <tabstop>lineEdit_Rotation_Y</tabstop>
-  <tabstop>lineEdit_Rotation_Z</tabstop>
+  <tabstop>lineEdit_Rotation_Origin_X</tabstop>
+  <tabstop>lineEdit_Rotation_Origin_Y</tabstop>
+  <tabstop>lineEdit_Rotation_Origin_Z</tabstop>
+  <tabstop>lineEdit_Rotation_Direction_X</tabstop>
+  <tabstop>lineEdit_Rotation_Direction_Y</tabstop>
+  <tabstop>lineEdit_Rotation_Direction_Z</tabstop>
   <tabstop>lineEdit_Rotation_Angle</tabstop>
   <tabstop>lineEdit_Scaling_X</tabstop>
   <tabstop>lineEdit_Scaling_Y</tabstop>
   <tabstop>lineEdit_Scaling_Z</tabstop>
-  <tabstop>pushButtonHelp</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
   <include location="engrid.qrc" />
@@ -244,12 +294,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>258</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>157</x>
-     <y>274</y>
+     <x>196</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
@@ -260,12 +310,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>258</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>286</x>
-     <y>274</y>
+     <x>196</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
