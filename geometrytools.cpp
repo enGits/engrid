@@ -24,8 +24,19 @@
 #include "containertricks.h"
 
 #include <vtkCellType.h>
+#include <cmath>
 
 namespace GeometryTools {
+
+double rad2deg( double rad )
+{
+  return rad/M_PI*180;
+}
+
+double deg2rad( double deg )
+{
+  return deg/180*M_PI;
+}
 
 void rotate(vec3_t g1, vec3_t g2,vec3_t g3, vec3_t &b, double theta)
 {

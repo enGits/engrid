@@ -29,6 +29,7 @@
 #include "deletecells.h"
 #include <cmath>
 #include "geometrytools.h"
+using namespace GeometryTools;
 
 /** Set default values */
 void GuiTransform::before()
@@ -36,6 +37,8 @@ void GuiTransform::before()
   cout<<"======================================"<<endl;
   cout<<"void GuiTransform::before()"<<endl;
   cout<<"======================================"<<endl;
+  
+  ui.tabWidget->setCurrentIndex(0);
   
   ui.lineEdit_Translation_X->setText("0");
   ui.lineEdit_Translation_Y->setText("0");
@@ -48,6 +51,7 @@ void GuiTransform::before()
   ui.lineEdit_Rotation_Direction_Y->setText("0");
   ui.lineEdit_Rotation_Direction_Z->setText("0");
   ui.lineEdit_Rotation_Angle->setText("0");
+  ui.AngleInDegrees->setCheckState(Qt::Checked);
   
   ui.lineEdit_Scaling_X->setText("1");
   ui.lineEdit_Scaling_Y->setText("1");
@@ -74,6 +78,7 @@ void GuiTransform::operate()
                              ( ui.lineEdit_Rotation_Direction_Y->text()).toDouble(),
                              ( ui.lineEdit_Rotation_Direction_Z->text()).toDouble());
   double Rotation_Angle = ( ui.lineEdit_Rotation_Angle->text()).toDouble();
+  if(ui.AngleInDegrees->checkState()) Rotation_Angle=deg2rad(Rotation_Angle);
   
   //Scaling
   vec3_t Scaling_Vector( ( ui.lineEdit_Scaling_X->text()).toDouble(),
@@ -85,6 +90,7 @@ void GuiTransform::operate()
   cout << "Rotation_Origin_Vector=" << Rotation_Origin_Vector << endl;
   cout << "Rotation_Direction_Vector=" << Rotation_Direction_Vector << endl;
   cout << "Rotation_Angle=" << Rotation_Angle << endl;
+  cout << "AngleInDegrees=" << ui.AngleInDegrees->checkState() << endl;
   cout << "Scaling_Vector=" << Scaling_Vector << endl;
   
   foreach(vtkIdType id_node, nodes)
