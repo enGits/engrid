@@ -70,14 +70,14 @@ public: // methods
   bool checkListItem(QListWidget *lw, T item);
   
   /**
-   * Get a set qith all seleceted items from a QListWidget.
+   * Get a set with all seleceted items from a QListWidget.
    * @param lw  The QListWidget.
    * @param sel On return, this will hold all items.
    */
   void getSelectedItems(QListWidget *lw, QSet<int> &sel);
   
   /**
-   * Get a set qith all seleceted items from a QListWidget.
+   * Get a set with all seleceted items from a QListWidget.
    * @param lw  The QListWidget.
    * @param sel On return, this will hold all items.
    */

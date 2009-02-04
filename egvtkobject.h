@@ -463,6 +463,7 @@ protected: // methods
     );
 
   void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+  void makeCopy_noAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
@@ -547,7 +548,10 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
   vtu->Write();
 };
 
-
+  /**
+   * cout vtkUnstructuredGrid
+   */
+int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
 
 #endif
 

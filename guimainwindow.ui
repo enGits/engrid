@@ -411,6 +411,7 @@
     <addaction name="actionCheckOrientation" />
     <addaction name="actionImproveAspectRatio" />
     <addaction name="actionSmoothSurface" />
+    <addaction name="actionSmoothSurface_2" />
     <addaction name="actionDeleteBadAspectTris" />
     <addaction name="actionDeletePickedCell" />
     <addaction name="separator" />
@@ -868,6 +869,11 @@
    </property>
    <property name="text" >
     <string>Orthogonal view</string>
+   </property>
+  </action>
+  <action name="actionSmoothSurface_2" >
+   <property name="text" >
+    <string>smooth surface grid 2</string>
    </property>
   </action>
  </widget>

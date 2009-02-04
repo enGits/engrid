@@ -105,8 +105,14 @@ void GuiNormalExtrusion::operate()
   getSelectedItems(ui.listWidget, bcs);
   extr->SetBoundaryCodes(&bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
+  cout_grid(cout,ug);
   makeCopy(grid, ug);
+  cout_grid(cout,ug);
   extr->SetInput(ug);
+  cout_grid(cout,ug);
   extr->Update();
+  cout_grid(cout,ug);
   makeCopy(extr->GetOutput(), grid);
+  cout_grid(cout,ug);
+  cout_grid(cout,grid);
 };

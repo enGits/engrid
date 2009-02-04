@@ -388,6 +388,7 @@ public slots:
   // void call() { EG_STDSLOT(); };
   
   void callSmoothSurface() { EG_STDSLOT(GuiSmoothSurface); };
+//   void callSmoothSurface_2() { EG_STDSLOT(GuiSmoothSurface_2); };
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); };
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); };
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); };

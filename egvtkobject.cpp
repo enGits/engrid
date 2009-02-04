@@ -28,6 +28,7 @@
 #include <vtkCellLinks.h>
 #include <vtkCellType.h>
 #include <vtkIdList.h>
+#include <vtkCell.h>
 
 void EgVtkObject::computeNormals
 (
@@ -790,6 +791,7 @@ void EgVtkObject::allocateGrid
   vtkIdType            Nnodes
 )
 {
+  cout<<"!!!!!!!!!!allocateGrid!!!!!!!!"<<endl;
   EG_VTKSP(vtkPoints,points);
   points->SetNumberOfPoints(Nnodes);
   grid->SetPoints(points);
@@ -831,6 +833,23 @@ void EgVtkObject::getRestCells(vtkUnstructuredGrid      *grid,
 void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst)
 {
   allocateGrid(dst, src->GetNumberOfCells(), src->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    src->GetPoints()->GetPoint(id_node, x.data());
+    dst->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(src, id_node, dst, id_node);
+  };
+  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = src->GetCellType(id_cell);
+    src->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(src, id_cell, dst, id_new_cell);
+  };
+};
+
+void EgVtkObject::makeCopy_noAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst)
+{
   for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     src->GetPoints()->GetPoint(id_node, x.data());
@@ -976,4 +995,34 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
   variable = (qset->value(typed_key,variable)).toBool();
   qset->endGroup();
   return(variable);
+}
+
+int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
+{
+  stream<<"============="<<endl;
+  if(npoints) stream << "grid->GetNumberOfPoints()=" << grid->GetNumberOfPoints() << endl;
+  if(ncells) stream << "grid->GetNumberOfCells()=" << grid->GetNumberOfCells() << endl;
+  if(points) {
+    for (vtkIdType i = 0; i < grid->GetNumberOfPoints(); ++i) {
+      vec3_t x;
+      grid->GetPoint(i, x.data());
+      stream << "Vertex " << i << " = " << x << endl;
+    };
+  }
+  if(cells) {
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    for (vtkIdType i = 0; i < grid->GetNumberOfCells(); ++i) {
+      vtkCell *C = (vtkCell *) vtkCell::New();
+      C=grid->GetCell(i);
+      vtkIdType npts=C->GetNumberOfPoints();
+      vtkIdType* pts;
+      grid->GetCellPoints(i, npts, pts);
+      stream << "Cell " << i << " = ";
+      for(int j=0;j<npts;j++) stream << pts[j] << " ";
+      stream << "boundary_code=" << cell_code->GetValue(i);
+      stream << endl;
+    };
+  }
+  stream<<"============="<<endl;
+  return 0;
 }
