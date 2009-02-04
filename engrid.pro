@@ -1,8 +1,8 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-#CONFIG += qt release thread
-CONFIG += qt debug thread
+CONFIG += qt release thread
+#CONFIG += qt debug thread
 QT += xml network opengl
 
 LIBS += -lvtkCommon 

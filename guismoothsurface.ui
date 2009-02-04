@@ -13,8 +13,7 @@
    <string>smooth surface</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="engrid.qrc" >
-    <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
+   <iconset resource="engrid.qrc" >:/icons/resources/icons/G.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <item>
@@ -45,12 +44,12 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" >
+       <item row="2" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -70,57 +69,6 @@
           <number>100</number>
          </property>
         </widget>
-       </item>
-       <item row="2" column="1" >
-        <widget class="QComboBox" name="SmoothMethod" >
-         <item>
-          <property name="text" >
-           <string>Method 0</string>
-          </property>
-         </item>
-         <item>
-          <property name="text" >
-           <string>Method 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text" >
-           <string>Method 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text" >
-           <string>Method 3</string>
-          </property>
-         </item>
-         <item>
-          <property name="text" >
-           <string>Method 4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text" >
-           <string>Method 5</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="label_3" >
-         <property name="text" >
-          <string>Method</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="label_4" >
-         <property name="text" >
-          <string>Boundary code</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1" >
-        <widget class="QLineEdit" name="lineEdit_BoundaryCode" />
        </item>
       </layout>
      </item>
@@ -143,7 +91,7 @@
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" >
           <size>
            <width>20</width>
            <height>40</height>
@@ -169,7 +117,7 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" >
         <size>
          <width>40</width>
          <height>20</height>
@@ -183,7 +131,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>

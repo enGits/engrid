@@ -185,8 +185,7 @@ OPER *oper = new OPER(); \
 oper->setGui(); \
 (*oper)(); \
 oper->del(); \
-cout<< "grid->GetNumberOfPoints()=" << grid->GetNumberOfPoints() << endl;\
-updateBoundaryCodes(false); \
+if(grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
 updateActors(); \
 
 #define EG_STDREADERSLOT(OPER) \

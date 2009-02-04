@@ -33,8 +33,6 @@ void Operation::collectGarbage()
   QSet<Operation*> delete_operations;
   foreach (Operation *op, garbage_operations) {
     if (!op->getThread().isRunning()) {
-      op->updateActors();
-//       op->updateBoundaryCodes(false);
       delete_operations.insert(op);
       cout << "deleting Operation " << op << endl;
       delete op;
@@ -88,7 +86,6 @@ void Operation::operator()()
       thread.setOperation(this);
       GuiMainWindow::unlock();
       thread.start(QThread::LowPriority);
-      thread.wait();
     } else {
       QMessageBox::warning(NULL, "not permitted", "Operation is not permitted while background process is running!");
     };

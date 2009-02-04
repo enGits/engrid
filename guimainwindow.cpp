@@ -750,10 +750,6 @@ void GuiMainWindow::updateStatusBar()
     pick_txt += "]";
   };
   txt += pick_txt;
-//   cout << id_cell << endl;
-  QString tmp;
-  tmp.setNum(id_cell);
-  txt += QString(tmp);
   
   status_label->setText(txt);
   unlock();
@@ -772,8 +768,6 @@ void GuiMainWindow::selectBoundaryCodes()
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
-  cout<<"updateBoundaryCodes!!!!!!"<<endl;
-  cout_grid(cout,grid,true,true,true,true);
   try {
     all_boundary_codes.clear();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
