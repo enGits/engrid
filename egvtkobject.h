@@ -462,7 +462,16 @@ protected: // methods
       QVector<QSet<int> >     &n2c
     );
 
+  /**
+   * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".
+   */
   void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+  /**
+   * Copy "src" grid to "dst" grid. DO NOT allocate "dst" so that it fits the data of "src".
+   * Allocation is left for the user to do.
+   */
+  void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+  
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
@@ -547,7 +556,15 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
   vtu->Write();
 };
 
-
+  /**
+   * Utility function that allows printing selected data from an vtkUnstructuredGrid to any ostream (includes ofstream objects)
+   * @param stream ostream object to print to
+   * @param grid vtkUnstructuredGrid you want to print data from
+   * @param npoints print number of points in the grid
+   * @param ncells print number of cells in the grid
+   * @param points print points in the grid
+   * @param cells print cells in the grid
+   */
+int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
 
 #endif
-
