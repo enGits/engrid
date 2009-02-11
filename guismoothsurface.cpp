@@ -47,6 +47,13 @@ QTextStream Qcout(stdout, QIODevice::WriteOnly);
 QTextStream Qcerr(stderr, QIODevice::WriteOnly);
 ///////////////////////////////////////////
 
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
+{
+  vtkIdType x=min(a,b);
+  vtkIdType y=max(a,b);
+  return(pair<vtkIdType,vtkIdType>(x,y));
+}
+
 int cout_vtkWindowedSincPolyDataFilter(vtkWindowedSincPolyDataFilter* smooth)
 {
   cout<<"NumberOfIterations="<<smooth->GetNumberOfIterations()<<endl;
@@ -244,7 +251,7 @@ void GuiSmoothSurface::operate()
           }
           else
           {
-            midpoint_map[pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)]=nodeId; nodeId++;
+            midpoint_map[OrderedPair(id_cell,id_neighbour)]=nodeId; nodeId++;
           }
         }
         if (type_cell == VTK_TRIANGLE)
@@ -306,16 +313,17 @@ void GuiSmoothSurface::operate()
           }
           else
           {
-            if(midpoint_map.contains(pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)))
+            if(midpoint_map.contains(OrderedPair(id_cell,id_neighbour)))
             {
-              cout<<"pt already exists!: i="<<i<<" midpoint_map[pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)]="<<midpoint_map[pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)]<<endl;
-              edgemidpoints[i]=midpoint_map[pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)];
+              //pt already exists!
+/*              cout<<"pt already exists!: i="<<i<<" midpoint_map[OrderedPair(id_cell,id_neighbour)]="<<midpoint_map[OrderedPair(id_cell,id_neighbour)]<<endl;*/
+              edgemidpoints[i]=midpoint_map[OrderedPair(id_cell,id_neighbour)];
             }
             else
             {
               M[i]=0.5*(corner[i]+corner[(i+1)%N_neighbours]);
               addPoint(grid_tmp,nodeId,M[i].data());
-              midpoint_map[pair<vtkIdType,vtkIdType>(id_cell,id_neighbour)]=nodeId;
+              midpoint_map[OrderedPair(id_cell,id_neighbour)]=nodeId;
               edgemidpoints[i]=nodeId;
               nodeId++;
             }
