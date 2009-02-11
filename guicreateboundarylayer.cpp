@@ -28,9 +28,15 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 
+GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
+{
+  getSet("boundary layer", "maximal relative error", 0.01, err_max);
+  getSet("boundary layer", "maximal number of smoothing iterations", 10, max_iter);
+};
+
 void GuiCreateBoundaryLayer::before()
 {
-  populateBoundaryCodes(ui.listWidget, grid);
+  populateBoundaryCodes(ui.listWidget);
 };
 
 void GuiCreateBoundaryLayer::operate()
@@ -87,7 +93,6 @@ void GuiCreateBoundaryLayer::operate()
   DeleteTetras del;
   del.setGrid(grid);
   
-  int N_steps = 20;
   seed_layer.setGrid(grid);
   del();
   vol();
@@ -97,8 +102,8 @@ void GuiCreateBoundaryLayer::operate()
   seed_layer();
   seed_layer.getLayerCells(layer_cells);
   
-  for (int j = 0; j < N_steps; ++j) {
-    cout << "improving prismatic layer -> iteration " << j+1 << "/" << N_steps << endl;
+  for (int j = 0; j < max_iter; ++j) {
+    cout << "improving prismatic layer -> iteration " << j+1 << "/" << max_iter << endl;
     smooth.setAllCells();
     smooth();
     del.setAllCells();
@@ -107,7 +112,7 @@ void GuiCreateBoundaryLayer::operate()
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
-    if (smooth.improvement() < 0.01) break;
+    if (smooth.improvement() < err_max) break;
   };
   //smooth.setAllCells();
   //smooth();

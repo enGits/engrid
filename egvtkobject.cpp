@@ -875,6 +875,7 @@ int EgVtkObject::findVolumeCell
 )
 {
   vtkIdType N_pts, *pts;
+  if (_cells.size()) N_pts = N_pts; // dummy statement to get rid of compiler warning ...
   grid->GetCellPoints(id_surf, N_pts, pts);
   QVector<QSet<int> > inters(N_pts-1);
   setIntersection(n2c[_nodes[pts[0]]], n2c[_nodes[pts[1]]], inters[0]);

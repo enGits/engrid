@@ -39,6 +39,7 @@ private: // attributes
   double f;
   double H;
   int    N_prisms;
+  int    N_hexes;
   int    N_quads;
   bool   y_computed;
   
@@ -48,9 +49,11 @@ private: // attributes
   QVector<int> old2edge;
   QVector<double> x;
   QVector<double> y;
+  QVector<bool> insert_cell;
   
 private: // methods
   
+  void findBoundaryLayer1();
   void findBoundaryLayer();
   void createEdges(vtkUnstructuredGrid *new_grid);
   inline double sech(double x) { return 1.0/cosh(x); };
@@ -60,6 +63,8 @@ private: // methods
   
 protected: // methods
   
+  virtual void before();
+  virtual void operate1();
   virtual void operate();
   
 };

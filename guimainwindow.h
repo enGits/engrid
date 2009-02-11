@@ -280,6 +280,7 @@ public: // static methods
   static void lock() { mutex.lock(); };
   static void unlock() { mutex.unlock(); };
   static bool tryLock() { return mutex.tryLock(); };
+  void getAllBoundaryCodes(QSet<int> &bcs);
   
 public slots:
   

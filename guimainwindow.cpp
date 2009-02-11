@@ -1014,9 +1014,10 @@ void GuiMainWindow::editBoundaryConditions()
 void GuiMainWindow::configure()
 {
   {
-    // Just to create initial GridSmoother entries in the settings file 
+    // Just to create initial entries in the settings file 
     // so that the options menu isn't empty at first start.
-    GridSmoother A;
+    GridSmoother tmp01;
+    GuiCreateBoundaryLayer tmp02;
   };
   GuiSettingsViewer settings(&qset);
   settings.exec();
@@ -1024,26 +1025,16 @@ void GuiMainWindow::configure()
 
 void GuiMainWindow::about()
 {
-//   QString msg = "";
-//   msg += QString("ENGRID version ") + ENGRID_VERSION + "\n\n";
-//   msg += "ENGRID is being developed and maintained by:\n";
-//   msg += "enGits GmbH\n";
-//   msg += "Marie-Curie-Strasse 8\n";
-//   msg += "79539 Loerrach\n";
-//   msg += "Germany\n\n";
-//   msg += "http://www.engits.com\n";
-//   msg += "info@engits.com\n\n";
-//   msg += "ENGRID is licenced under the GPL version 3.\n";
-//   msg += "(see http://www.gnu.org/licenses for details)\n\n";
-//   msg += "To submit a bug report, please use the bug\n";
-//   msg += "tracker available on Sourceforge (URL below).\n";
-//   msg += "http://sourceforge.net/tracker2/?func=add&group_id=245110&atid=1126548";
-//   QMessageBox::information(NULL, "about ENGRID", msg);
-
   QMessageBox box(this);
   
   QString title="ENGRID";
   QString version = QString("version ") + ENGRID_VERSION;
+  if (version == "version CVS") {
+    version += " build on ";
+    version += QString(__DATE__);
+    version += " at ";
+    version += QString(__TIME__);
+  };
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
                        "Marie-Curie-Strasse 8<br/>"
@@ -1071,4 +1062,13 @@ void GuiMainWindow::about()
   box.exec();
   
 };
+
+void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
+{
+  bcs.clear();
+  foreach (int bc, all_boundary_codes) {
+    bcs.insert(bc);
+  };
+};
+
 

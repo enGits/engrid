@@ -4,7 +4,6 @@ CONFIG      += release staticlib warn_off
 INCLUDEPATH += netgen-mesher/netgen/libsrc/include 
 INCLUDEPATH += .
 DEFINES     += NO_PARALLEL_THREADS
-CXXFLAGS    += -gubbel
 
 SOURCES  = \
 netgen-mesher/netgen/nglib/nglib.cpp \

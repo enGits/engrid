@@ -83,13 +83,6 @@ public: // methods
    */
   void getSelectedItems(QListWidget *lw, QSet<QString> &sel);
   
-  /**
-   * Fill a QListWidget with all available boundary codes from a grid.
-   * @param lw   The QListWidget to fill.
-   * @param grid The grid to use.
-   */
-  void populateBoundaryCodes(QListWidget *lw, vtkUnstructuredGrid *grid);
-  
   virtual void before() {};
   virtual void operator()();
   
@@ -153,25 +146,6 @@ void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
       int item = lw->item(i)->text().toInt();
       sel.insert(item);
     };
-  };
-};
-
-template <class UI>
-void DialogOperation<UI>::populateBoundaryCodes(QListWidget *lw, vtkUnstructuredGrid *grid)
-{
-  try {
-    QSet<int> bcodes;
-    EG_VTKDCC(vtkIntArray,cell_code,grid,"cell_code");
-    for (vtkIdType i = 0; i < grid->GetNumberOfCells(); ++i) {
-      int ct = grid->GetCellType(i);
-      if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD)) {
-        bcodes.insert(cell_code->GetValue(i));
-      };
-    };
-    int bc;
-    foreach(bc, bcodes) addListItem(lw, bc, false);
-  } catch (Error err) {
-    err.display();
   };
 };
 

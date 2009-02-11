@@ -44,13 +44,16 @@ private: // attributes
   
 protected: // attributes
   
-  int     N_iterations;
-  int     N_relaxations;
-  int     N_boundary_corrections;
-  int     N_search;
-  double  L_search;
-  double  F_old;
-  double  F_new;
+  int    N_iterations;
+  int    N_relaxations;
+  int    N_boundary_corrections;
+  int    N_search;
+  
+  double L_search;
+  double F_old;
+  double F_new;
+  double F_max_old;
+  double F_max_new;
   
   double w_tet;
   double w_tet_save;
@@ -101,9 +104,6 @@ public: // methods
   
   void prismsOn() { smooth_prisms = true; };
   void prismsOff() { smooth_prisms = false; };
-  
-  double funcOld() { return F_old; };
-  double funcNew() { return F_new; };
   
   double improvement();
   

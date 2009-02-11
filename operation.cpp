@@ -25,7 +25,6 @@
 
 #include <QApplication>
 
-
 QSet<Operation*> Operation::garbage_operations;
 
 void Operation::collectGarbage()
@@ -151,3 +150,19 @@ GuiMainWindow* Operation::mainWindow()
 {
   return GuiMainWindow::pointer();
 };
+
+void Operation::populateBoundaryCodes(QListWidget *lw)
+{
+  QSet<int> bcs;
+  mainWindow()->getAllBoundaryCodes(bcs);
+  foreach(int bc, bcs) {
+    QListWidgetItem *lwi = new QListWidgetItem(lw);
+    lwi->setCheckState(Qt::Unchecked);
+    QString text = "";
+    QTextStream ts(&text);
+    ts << bc;
+    lwi->setText(text);
+    lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+  };
+};
+

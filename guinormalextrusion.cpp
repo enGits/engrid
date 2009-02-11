@@ -26,7 +26,7 @@
 
 void GuiNormalExtrusion::before()
 {
-  populateBoundaryCodes(ui.listWidget, grid);
+  populateBoundaryCodes(ui.listWidget);
 };
 
 void GuiNormalExtrusion::operate()

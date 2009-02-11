@@ -34,6 +34,7 @@ class GuiMainWindow;
 
 #include <QThread>
 #include <QMutex>
+#include <QListWidget>
 
 #include <typeinfo>
 
@@ -121,6 +122,13 @@ public: // methods
   OperationThread& getThread() { return thread; };
   void enableAutoSet() { autoset = true; };
   void disableAutoSet() { autoset = false; };
+  
+  /**
+   * Fill a QListWidget with all available boundary codes from a grid.
+   * @param lw   The QListWidget to fill.
+   * @param grid The grid to use.
+   */
+  void populateBoundaryCodes(QListWidget *lw);
   
   virtual void operator()();
 

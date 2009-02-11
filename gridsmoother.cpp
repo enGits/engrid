@@ -51,6 +51,8 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "sharp features on edges weighting", 3.0, w_sharp2);
   getSet("boundary layer", "sharp features on edges exponent", 1.3, e_sharp2);
   getSet("boundary layer", "relative height of boundary layer", 1.5, H);
+  getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
+  
 };
 
 void GridSmoother::markNodes()
@@ -475,13 +477,16 @@ void GridSmoother::operate()
   };
   
   F_old = 0;
+  F_max_old = 0;
   setPrismWeighting();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (prism_node[i_nodes]) {
       vec3_t x;
       i_nodes_opt = i_nodes;
       grid->GetPoint(nodes[i_nodes], x.data());
-      F_old += func(x);
+      double f = func(x);
+      F_old += f;
+      F_max_old = max(F_max_old,f);
     };
   };
   setAllWeighting();
@@ -631,27 +636,35 @@ void GridSmoother::operate()
     
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
     F_new = 0;
+    F_max_new = 0;
     setPrismWeighting();
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (prism_node[i_nodes]) {
         vec3_t x;
         i_nodes_opt = i_nodes;
         grid->GetPoint(nodes[i_nodes], x.data());
-        F_new += func(x);
+        double f = func(x);
+        F_new += f;
+        F_max_new = max(F_max_new,f);
       };
     };
     setAllWeighting();
     cout << "total prism error (old) = " << F_old << endl;
     cout << "total prism error (new) = " << F_new << endl;
-    double f_old = max(1e-10,F_old);
+    double f_old     = max(1e-10,F_old);
+    double f_max_old = max(1e-10,F_max_old);
     cout << "total prism improvement = " << 100*(1-F_new/f_old) << "%" << endl;
+    cout << "maximal prism improvement = " << 100*(1-F_max_new/f_max_old) << "%" << endl;
   };
   cout << "done" << endl;
 };
 
 double GridSmoother::improvement()
 {
+  double f_max_old = max(1e-10,F_max_old);
+  double i1 = 1-F_max_new/f_max_old;
   double f_old = max(1e-10,F_old);
-  return 1-F_new/f_old;
+  double i2 = 1-F_new/f_old;
+  return max(i1,i2);
 };
 

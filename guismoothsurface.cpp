@@ -26,7 +26,7 @@
 
 void GuiSmoothSurface::before()
 {
-  populateBoundaryCodes(ui.listWidget, grid);
+  populateBoundaryCodes(ui.listWidget);
 };
 
 void GuiSmoothSurface::operate()
