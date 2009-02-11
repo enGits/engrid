@@ -5,69 +5,165 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
-    <height>303</height>
+    <width>603</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>smooth surface</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="engrid.qrc" >:/icons/resources/icons/G.png</iconset>
+   <iconset resource="engrid.qrc" >
+    <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
    <item>
-    <layout class="QHBoxLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <property name="sizeConstraint" >
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
      <item>
-      <layout class="QGridLayout" >
-       <item row="0" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox" >
-         <property name="maximum" >
-          <double>180.000000000000000</double>
-         </property>
-         <property name="value" >
-          <double>45.000000000000000</double>
-         </property>
-        </widget>
+      <layout class="QVBoxLayout" name="verticalLayout" >
+       <item>
+        <layout class="QGridLayout" name="_3" >
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_8" >
+           <property name="text" >
+            <string>Convergence</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="label_11" >
+           <property name="text" >
+            <string>NumberOfIterations</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" >
+          <widget class="QLabel" name="label_12" >
+           <property name="text" >
+            <string>RelaxationFactor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" >
+          <widget class="QLabel" name="label_13" >
+           <property name="text" >
+            <string>FeatureAngle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" >
+          <widget class="QLabel" name="label_15" >
+           <property name="text" >
+            <string>EdgeAngle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1" >
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_FeatureAngle" >
+           <property name="maximum" >
+            <double>180.000000000000000</double>
+           </property>
+           <property name="value" >
+            <double>45.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="QSpinBox" name="spinBox_NumberOfIterations" >
+           <property name="maximum" >
+            <number>2147483647</number>
+           </property>
+           <property name="singleStep" >
+            <number>10</number>
+           </property>
+           <property name="value" >
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" >
+          <widget class="QLineEdit" name="lineEdit_RelaxationFactor" />
+         </item>
+         <item row="6" column="0" colspan="2" >
+          <widget class="QCheckBox" name="checkBox_FeatureEdgeSmoothing" >
+           <property name="text" >
+            <string>FeatureEdgeSmoothing</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1" >
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_EdgeAngle" >
+           <property name="maximum" >
+            <double>180.000000000000000</double>
+           </property>
+           <property name="value" >
+            <double>45.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="2" >
+          <widget class="QCheckBox" name="checkBox_BoundarySmoothing" >
+           <property name="text" >
+            <string>BoundarySmoothing</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2" >
+          <widget class="QCheckBox" name="checkBox_GenerateErrorScalars" >
+           <property name="text" >
+            <string>GenerateErrorScalars</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="2" >
+          <widget class="QCheckBox" name="checkBox_GenerateErrorVectors" >
+           <property name="text" >
+            <string>GenerateErrorVectors</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_Convergence" >
+           <property name="maximum" >
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep" >
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>PassBand</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" >
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_PassBand" >
+           <property name="maximum" >
+            <double>2.000000000000000</double>
+           </property>
+           <property name="singleStep" >
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label" >
-         <property name="text" >
-          <string>feature angle</string>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string>Source</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>iterations</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="1" >
-        <widget class="QSpinBox" name="spinBox" >
-         <property name="maximum" >
-          <number>1000</number>
-         </property>
-         <property name="singleStep" >
-          <number>10</number>
-         </property>
-         <property name="value" >
-          <number>100</number>
-         </property>
+         <layout class="QVBoxLayout" name="_4" >
+          <item>
+           <widget class="QListWidget" name="listWidget_Source" />
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -87,17 +183,54 @@
         </widget>
        </item>
        <item>
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
+        <layout class="QFormLayout" name="formLayout" >
+         <property name="fieldGrowthPolicy" >
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
          </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+         <property name="labelAlignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-        </spacer>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label_3" >
+           <property name="maximumSize" >
+            <size>
+             <width>41</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string>Method :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QComboBox" name="SmoothMethod" >
+           <property name="sizeAdjustPolicy" >
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_4" >
+           <property name="text" >
+            <string>Boundary code for new cells :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineEdit_BoundaryCode" />
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>Number of subdivisions</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QSpinBox" name="spinBox_NumberOfSubdivisions" />
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -117,7 +250,7 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0" >
         <size>
          <width>40</width>
          <height>20</height>
@@ -131,7 +264,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>

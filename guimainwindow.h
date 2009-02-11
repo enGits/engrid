@@ -388,7 +388,7 @@ public slots:
   // the following line can be used as a template:
   // void call() { EG_STDSLOT(); };
   
-  void callSmoothSurface() { EG_STDSLOT(GuiSmoothSurface); };
+  void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); };
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); };
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); };
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); };

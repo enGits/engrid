@@ -752,7 +752,7 @@ void GuiMainWindow::updateStatusBar()
   txt += pick_txt;
   QString tmp;
   tmp.setNum(id_cell);
-  txt += " id_cell=" + QString(tmp);
+  txt += " id_cell=" + tmp;
   
   status_label->setText(txt);
   unlock();

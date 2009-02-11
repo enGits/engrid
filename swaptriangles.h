@@ -30,15 +30,6 @@ class SwapTriangles;
 class SwapTriangles : public Operation
 {
   
-private: // types
-  
-  struct stencil_t { 
-    vtkIdType id_cell1;
-    vtkIdType id_cell2;
-    vtkIdType p[4];
-    bool valid;
-  };
-  
 private: // attributes
   
   QVector<bool> marked;
@@ -46,7 +37,6 @@ private: // attributes
 private: // methods
   
   void prepare();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
     
 protected: // methods
   

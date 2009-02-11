@@ -997,6 +997,7 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
   return(variable);
 }
 
+///////////////////////////////////////////
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
 {
   stream<<"============="<<endl;
@@ -1025,4 +1026,116 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool nce
   }
   stream<<"============="<<endl;
   return 0;
+}
+
+///////////////////////////////////////////
+int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x)
+{
+  a_grid->GetPoints()->SetPoint(index, x.data());
+  return(0);
+}
+
+int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc)
+{
+  vtkIdType npts=3;
+  vtkIdType pts[3];
+  pts[0]=A;
+  pts[1]=B;
+  pts[2]=C;
+  vtkIdType newCellId = a_grid->InsertNextCell(VTK_TRIANGLE,npts,pts);
+  EG_VTKDCC(vtkIntArray, cell_code, a_grid, "cell_code");
+  cell_code->SetValue(newCellId, bc);
+  return(0);
+}
+
+///////////////////////////////////////////
+
+int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
+  vec3_t* x=new vec3_t[N_pts];
+  for(int i=0;i<N_pts;i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
+  int id_minlen=0;
+  double minlen=(x[1]-x[0]).abs();
+  for(int i=1;i<N_pts;i++)
+  {
+    double len=(x[(i+1)%N_pts]-x[i]).abs();
+    if(len<minlen){
+      minlen=len;
+      id_minlen=i;
+    }
+  }
+  delete x;
+  return(id_minlen);
+}
+
+int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
+  vec3_t* x=new vec3_t[N_pts];
+  for(int i=0;i<N_pts;i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
+  int id_maxlen=0;
+  double maxlen=(x[1]-x[0]).abs();
+  cout<<"maxlen="<<maxlen<<endl;
+  for(int i=1;i<N_pts;i++)
+  {
+    double len=(x[(i+1)%N_pts]-x[i]).abs();
+    cout<<"len["<<i<<"]="<<len<<endl;
+    if(len>maxlen){
+      maxlen=len;
+      id_maxlen=i;
+    }
+  }
+  delete x;
+  return(id_maxlen);
+}
+///////////////////////////////////////////
+
+QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells)
+{
+  QSet <int> bcs_complement;
+  EG_VTKDCC(vtkIntArray, bc, a_grid, "cell_code");
+  foreach (vtkIdType id_cell, a_cells) {
+    int code=bc->GetValue(id_cell);
+    if (!bcs.contains(code)) {
+      bcs_complement.insert(code);
+    };
+  }
+  return(bcs_complement);
+}
+
+///////////////////////////////////////////
+
+QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
+{
+  QString tmp;
+  tmp.setNum(id_cell);
+  QString txt = "id_cell=" + tmp;
+  
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  
+  txt += " [";
+  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+    tmp.setNum(pts[i_pts]);
+    txt += tmp;
+    if (i_pts < N_pts-1) {
+      txt += ",";
+    };
+  };
+  txt += "]";
+  return(txt);
+}
+
+
+
+///////////////////////////////////////////
+
+Qt::CheckState int2CheckState(int a)
+{
+  if(a==0) return(Qt::Unchecked);
+//   if(a==1) return(Qt::PartiallyChecked);
+  else return(Qt::Checked);
 }

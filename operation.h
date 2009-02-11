@@ -55,7 +55,13 @@ public:
   
 };
 
-
+struct stencil_t {
+  vtkIdType id_cell1;
+  vtkIdType id_cell2;
+  vtkIdType p[4];
+  bool valid;
+};
+ostream& operator<<(ostream &out, stencil_t S);
 
 /**
  * This is the base class for all mesh operations.
@@ -136,6 +142,7 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
+  stencil_t getStencil(vtkIdType id_cell1, int j1);
   
 };
 
@@ -182,6 +189,5 @@ void Operation::setNodes(const T &nds)
   cell_fixed.fill(cells.size(), false);
   initMapping();
 };
-
 
 #endif

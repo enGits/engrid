@@ -141,7 +141,7 @@ protected: // methods
   
   /**
    * Create a node to boundary condition ("cell_code") mapping.
-   * Onlu non-zero boundary conditions will be considered.
+   * Only non-zero boundary conditions will be considered.
    * @param bcs  On return, this will hold the codes of all boundary elements that are
    *             attached to a node.
    * @param grid The grid to operate on.
@@ -487,7 +487,7 @@ protected: // methods
 public: // methods
   
   void setBoundaryCodes(const QSet<int> &bcs);
-
+  
 };
 
 
@@ -566,5 +566,66 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
    * @param cells print cells in the grid
    */
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
+
+///////////////////////////////////////////
+int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
+int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
+int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
+QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
+Qt::CheckState int2CheckState(int a);
+
+///////////////////////////////////////////
+template <class T>
+ostream &operator<<(ostream &out, QVector<T> & vector)
+{
+  int N=vector.size();
+  out<<"[";
+  for (int i = 0; i < N; ++i) {
+    out<<vector.at(i);
+    if(i!=N-1) out<<",";
+  }
+  out<<"]";
+  return(out);
+}
+
+template <class T>
+ostream &operator<<(ostream &out, QSet<T> & set)
+{
+  out << "[ ";
+  foreach (T value, set) out << value << " ";
+  out << "]";
+  return(out);
+}
+
+template <class T>
+ostream &operator<<(ostream &out, QVector<QSet<T> > & vector)
+{
+  int N=vector.size();
+  out<<"[";
+  for (int i = 0; i < N; ++i) {
+    QSet<T> set=vector.at(i);
+    out<<set;
+    if(i!=N-1) out<<",";
+  }
+  out<<"]";
+  return(out);
+}
+
+template <class T>
+ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
+{
+  int N=vector.size();
+  out<<"[";
+  for (int i = 0; i < N; ++i) {
+    QVector<T> subvector=vector.at(i);
+    out<<subvector;
+    if(i!=N-1) out<<",";
+  }
+  out<<"]";
+  return(out);
+}
+///////////////////////////////////////////
 
 #endif

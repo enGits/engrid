@@ -44,51 +44,6 @@ void SwapTriangles::prepare()
   marked.resize(cells.size());
 };
 
-SwapTriangles::stencil_t SwapTriangles::getStencil(vtkIdType id_cell1, int j1)
-{
-  stencil_t S;
-  S.valid = true;
-  S.id_cell1 = id_cell1;
-  if (c2c[_cells[id_cell1]][j1] != -1) {
-    S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
-    if (grid->GetCellType(S.id_cell2) != VTK_TRIANGLE) {
-      EG_BUG;
-    };
-    vtkIdType N1, N2, *pts1, *pts2;
-    grid->GetCellPoints(S.id_cell1, N1, pts1);
-    grid->GetCellPoints(S.id_cell2, N2, pts2);
-    if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
-    else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
-    bool p2 = false;
-    if (c2c[_cells[S.id_cell2]][0] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][0]] == S.id_cell1) {
-        S.p[2] = pts2[2];
-        p2 = true;
-      };
-    };
-    if (c2c[_cells[S.id_cell2]][1] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][1]] == S.id_cell1) {
-        S.p[2] = pts2[0];
-        p2 = true;
-      };
-    };
-    if (c2c[_cells[S.id_cell2]][2] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][2]] == S.id_cell1) {
-        S.p[2] = pts2[1];
-        p2 = true;
-      };
-    };
-    if (!p2) {
-      EG_BUG;
-    };
-  } else {
-    S.valid = false;
-    S.id_cell2 = -1;
-  };
-  return S;
-};
-
 void SwapTriangles::operate()
 {
   cout << "swapping edges of boundary triangles (Delaunay)" << endl;
