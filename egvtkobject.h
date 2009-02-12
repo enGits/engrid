@@ -203,7 +203,7 @@ protected: // methods
    * Check if a cell is a volume cell.
    * @param cellId The id fof the cell in question
    * @param grid   The grid to operate on
-   * @return true is the cell represents a volume and false if not
+   * @return true if the cell represents a volume and false if not
    */
   bool isVolume
     (
@@ -217,7 +217,7 @@ protected: // methods
    * Check if a cell is a surface cell.
    * @param cellId The id fof the cell in question
    * @param grid   The grid to operate on
-   * @return true is the cell represents a surface and false if not
+   * @return true if the cell represents a surface and false if not
    */
   bool isSurface
     (
@@ -285,6 +285,19 @@ protected: // methods
       vtkUnstructuredGrid *grid
     );
   
+  /**
+   * Get all surface nodes of a grid with a specific boundary condition.
+   * @param bcs   The set of boundary conditions
+   * @param nodes On return this will hold the Ids of the surface nodes.
+   * @param grid  The grid to operate on.
+   */
+  void getSurfaceNodes
+    (
+      QSet<int>           &bcs,
+      QSet <vtkIdType> &SelectedNodes,
+      vtkUnstructuredGrid *grid
+    );
+    
   /**
    * Create a cell neighbourship list for a subset grid. 
    * This has been implemented using VTK's vtkCellLinks structures.

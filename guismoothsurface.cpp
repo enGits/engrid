@@ -47,6 +47,19 @@ QTextStream Qcout(stdout, QIODevice::WriteOnly);
 QTextStream Qcerr(stderr, QIODevice::WriteOnly);
 ///////////////////////////////////////////
 
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > a_c2c, vtkUnstructuredGrid *a_grid)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_cell, N_pts, pts);
+  
+  int i;
+  for(i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_node) break;
+  }
+  return a_c2c[a_cell][i];
+}
+
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
 {
   vtkIdType x=min(a,b);
@@ -93,8 +106,9 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 3: swap triangles");
   ui.SmoothMethod->addItem("Method 4: center subdivision");
   ui.SmoothMethod->addItem("Method 5: boundary refinement");
+  ui.SmoothMethod->addItem("Method 6: Laplacian smoothing");
   
-  ui.SmoothMethod->setCurrentIndex(5);
+  ui.SmoothMethod->setCurrentIndex(6);
   ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
   ui.spinBox_NumberOfSubdivisions->setValue(1);
   
@@ -122,11 +136,11 @@ void GuiSmoothSurface::before()
 
 void GuiSmoothSurface::operate()
 {
+  cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements
   //////////////////////////////////////////////////////////////////////////////////////////////
   if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
   {
-    cout<<"METHOD 6"<<endl;
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     QVector<vtkIdType> cells;
@@ -172,7 +186,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==1)//vtkWindowedSincPolyDataFilter smoothing
   {
-    cout<<"METHOD 7"<<endl;
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     QVector<vtkIdType> cells;
@@ -209,7 +222,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==2)//edge subdivision
   {
-    cout<<"METHOD 10"<<endl;
     cout_grid(cout,grid);
     
     QSet<int> bcs;
@@ -238,7 +250,7 @@ void GuiSmoothSurface::operate()
       int N_newpoints=0;
       int N_newcells=0;
       vtkIdType nodeId = N_points;
-      foreach(int id_cell, SelectedCells)
+      foreach(vtkIdType id_cell, SelectedCells)
       {
         vtkIdType type_cell = grid->GetCellType(id_cell);
         int N_neighbours=c2c[id_cell].size();
@@ -285,7 +297,7 @@ void GuiSmoothSurface::operate()
       midpoint_map.clear();//clear midpoint_map
       nodeId=N_points;//reset nodeId
       
-      foreach(int id_cell, SelectedCells)
+      foreach(vtkIdType id_cell, SelectedCells)
       {
         vtkIdType N_pts, *pts;
         grid->GetCellPoints(id_cell, N_pts, pts);
@@ -403,7 +415,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==3)//swap triangles
   {
-    cout<<"METHOD 11"<<endl;
     cout_grid(cout,grid);
     
     QSet<int> bcs;
@@ -425,7 +436,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==4)//center subdivision
   {
-    cout<<"METHOD 12"<<endl;
     cout_grid(cout,grid);
     
     QSet<int> bcs;
@@ -505,7 +515,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==5)//boundary refinement
   {
-    cout<<"METHOD 13"<<endl;
     cout_grid(cout,grid);
     
     QSet<int> bcs;
@@ -529,7 +538,7 @@ void GuiSmoothSurface::operate()
     
     QMap <int,bool> marked;
 //     marked.resize(SelectedCells.size());
-    foreach(int id_cell, SelectedCells)
+    foreach(vtkIdType id_cell, SelectedCells)
     {
       marked[id_cell] = false;
     }
@@ -543,7 +552,7 @@ void GuiSmoothSurface::operate()
     
     int N_newcells=0;
     int N_newpoints=0;
-    foreach(int id_cell, SelectedCells)
+    foreach(vtkIdType id_cell, SelectedCells)
     {
       cout<<"==>id_cell="<<id_cell<<endl;
       int bc0=cell_code->GetValue(id_cell);
@@ -631,6 +640,93 @@ void GuiSmoothSurface::operate()
     
     makeCopy(grid_tmp,grid);
 //     cout_grid(cout,grid,true,true,true,true);
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==6)
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    
+    QVector<vtkIdType> AllCells;
+    getAllSurfaceCells(AllCells, grid);
+    QVector<vtkIdType> SelectedCells;
+    getSurfaceCells(bcs, SelectedCells, grid);
+    
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    createCellToCell(AllCells, c2c, grid);
+    
+    QSet <vtkIdType> SelectedNodes;
+    QSet <vtkIdType> InternalNodes;
+    QSet <vtkIdType> ExternalNodes;
+    
+    foreach(vtkIdType id_cell, SelectedCells)
+    {
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      for(int i=0;i<N_pts;i++)
+      {
+        QSet <int> bc;
+        foreach(int C, n2c[pts[i]])
+        {
+          bc.insert(cell_code->GetValue(C));
+        }
+        cout<<"pts[i]="<<pts[i]<<" and bc="<<bc<<endl;
+        SelectedNodes.insert(pts[i]);
+        if(bc.size()>1) ExternalNodes.insert(pts[i]);
+        else
+        {
+          vtkIdType point=pts[i];
+          QSet< int > NeighbourCells=n2c[point];
+          vtkIdType start=*(NeighbourCells.begin());
+          vtkIdType current=start;
+          do
+          {
+            vtkIdType next=nextcell(current,point,c2c,grid);
+            current=next;
+          } while (current!=start && current!=-1);
+          if(current==-1) ExternalNodes.insert(point);
+          if(current==start) InternalNodes.insert(point);
+        }
+      }
+    }
+    
+    createNodeToNode(cells, nodes, _nodes, n2n, grid);
+    
+    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+    
+    int N_iter=ui.spinBox_NumberOfIterations->value();
+    for(int i_iter=0;i_iter<N_iter;i_iter++)
+    {
+      cout<<"i_iter="<<i_iter<<endl;
+      makeCopy(grid, grid_tmp);
+      
+      foreach(vtkIdType id_G,InternalNodes)
+      {
+        vec3_t G(0,0,0);
+        foreach(int id_M,n2n[id_G])
+        {
+          vec3_t M;
+          grid->GetPoint(id_M, M.data());
+          G+=M;
+        }
+        G=(1./n2n[id_G].size())*G;
+        grid_tmp->GetPoints()->SetPoint(id_G, G.data());
+      }
+      
+      cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
+      cout << "InternalNodes.size()=" << InternalNodes.size() << endl;
+      cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
+      cout<<"InternalNodes="<<InternalNodes<<endl;
+      
+/*      QSet <vtkIdType> SelectedNodes2;
+      getSurfaceNodes(bcs,SelectedNodes2,grid);
+      cout << "SelectedNodes=" << SelectedNodes << endl;
+      cout << "SelectedNodes2=" << SelectedNodes2 << endl;*/
+      
+      makeCopy(grid_tmp,grid);
+    }
+    cout_grid(cout,grid);
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////

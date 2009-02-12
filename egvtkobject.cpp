@@ -335,6 +335,28 @@ void EgVtkObject::getSurfaceCells
   };
 };
 
+void EgVtkObject::getSurfaceNodes
+(
+  QSet<int>           &bcs,
+  QSet <vtkIdType> &SelectedNodes,
+  vtkUnstructuredGrid *grid
+)
+{
+  QVector<vtkIdType> SelectedCells;
+  getSurfaceCells(bcs, SelectedCells, grid);
+  
+  SelectedNodes.clear();
+  foreach(vtkIdType id_cell, SelectedCells)
+  {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    for(int i=0;i<N_pts;i++)
+    {
+      SelectedNodes.insert(pts[i]);
+    }
+  }
+};
+
 void EgVtkObject::addToC2C
 (
   vtkIdType               id_cell,
