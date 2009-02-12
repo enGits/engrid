@@ -109,7 +109,9 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 6: Laplacian smoothing");
   
   ui.SmoothMethod->setCurrentIndex(6);
-  ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
+  
+  if(ui.listWidget->count()>0) ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
+  else ui.lineEdit_BoundaryCode-> setText("42");
   ui.spinBox_NumberOfSubdivisions->setValue(1);
   
   vtkSmoothPolyDataFilter* smooth=vtkSmoothPolyDataFilter::New();
