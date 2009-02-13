@@ -39,6 +39,7 @@
 #include <vtkIdList.h>
 #include <vtkCell.h>
 #include <cmath>
+#include <vtkCellLocator.h>
 
 ///////////////////////////////////////////
 /* Here is how we we get QTextStreams that look like iostreams */
@@ -696,6 +697,16 @@ void GuiSmoothSurface::operate()
     createNodeToNode(cells, nodes, _nodes, n2n, grid);
     
     EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+    EG_VTKSP(vtkUnstructuredGrid,grid_orig);
+    makeCopy(grid, grid_orig);
+    
+    double closestPoint[3];
+    vtkIdType cellId;
+    int subId;
+    double dist2;
+    vtkCellLocator* terminator=vtkCellLocator::New();
+    terminator->SetDataSet(grid_orig);
+    terminator->BuildLocator();
     
     int N_iter=ui.spinBox_NumberOfIterations->value();
     for(int i_iter=0;i_iter<N_iter;i_iter++)
@@ -713,13 +724,15 @@ void GuiSmoothSurface::operate()
           G+=M;
         }
         G=(1./n2n[id_G].size())*G;
-        grid_tmp->GetPoints()->SetPoint(id_G, G.data());
+        vec3_t P;
+        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+        grid_tmp->GetPoints()->SetPoint(id_G, P.data());
       }
       
       cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
       cout << "InternalNodes.size()=" << InternalNodes.size() << endl;
       cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
-      cout<<"InternalNodes="<<InternalNodes<<endl;
+      cout << "InternalNodes=" << InternalNodes << endl;
       
 /*      QSet <vtkIdType> SelectedNodes2;
       getSurfaceNodes(bcs,SelectedNodes2,grid);
