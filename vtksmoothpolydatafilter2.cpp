@@ -30,7 +30,7 @@
 #include <QString>
 #include <QTextStream>
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter2, "$Revision: 1.1.2.1 $");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter2, "$Revision: 1.1.2.2 $");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter2);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -369,9 +369,11 @@ int vtkSmoothPolyDataFilter2::RequestData(
     for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
     cellId++)
       {
+        cout<<"->cellId="<<cellId<<endl;
       for (i=0; i < npts; i++) 
         {
-        p1 = pts[i];
+          cout<<"-->i="<<i<<endl;
+          p1 = pts[i];
         p2 = pts[(i+1)%npts];
 
         if ( Verts[p1].edges == NULL )
@@ -387,6 +389,7 @@ int vtkSmoothPolyDataFilter2::RequestData(
 
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
+          cout<<"-->numNei="<<numNei<<endl;
 
         edge = VTK_SIMPLE_VERTEX;
         if ( numNei == 0 )

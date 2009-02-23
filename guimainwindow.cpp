@@ -194,7 +194,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   if (qset.contains("tmp_directory")) {
     log_file_name = qset.value("tmp_directory").toString() + "/enGrid_output.txt";
   } else {
-    log_file_name = "/tmp/enGrid_output2.txt";
+    log_file_name = "/tmp/enGrid_output.txt";
   };
   system_stdout = stdout;
   freopen (log_file_name.toAscii().data(), "w", stdout);

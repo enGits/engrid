@@ -1,0 +1,29 @@
+# use glob syntax.
+syntax: glob
+
+*.elc
+*.pyc
+*~
+*.o
+*.bak
+*.cxx
+*.png
+*.geo
+*.xcf
+*.orig
+netgen_svn
+netgen_cvs
+ui_*
+moc_*
+engrid
+
+CVS
+Doxyfile
+Makefile
+math
+resources
+
+# switch to regexp syntax.
+syntax: regexp
+^\.pc/
+^\.#
