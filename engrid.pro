@@ -1,6 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
 
+#test
 #CONFIG += qt release thread
 CONFIG += qt debug thread
 QT += xml network opengl
@@ -127,9 +128,7 @@ guismoothsurface.h \
 guisettingstab.h \
 guisettingsviewer.h \
  \
- guitransform.h \
- vtkpolydataalgorithm2.h \
- vtksmoothpolydatafilter2.h
+ guitransform.h
 
 SOURCES = \
 main.cpp \
@@ -191,9 +190,7 @@ guismoothsurface.cpp \
 guisettingstab.cpp \
 guisettingsviewer.cpp \
  \
- guitransform.cpp \
- vtkpolydataalgorithm2.cpp \
- vtksmoothpolydatafilter2.cpp
+ guitransform.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -212,8 +209,6 @@ guismoothsurface.ui \
 
 
 SOURCES -= settingstab.cpp \
-settingsviewer.cpp \
- vtkpolydataalgorithm2.cpp
+settingsviewer.cpp
 HEADERS -= settingstab.h \
-settingsviewer.h \
- vtkpolydataalgorithm2.h
+settingsviewer.h

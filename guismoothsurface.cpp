@@ -23,6 +23,7 @@
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
 #include <vtkSmoothPolyDataFilter.h>
+#include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 
 #include <vtkLongArray.h>
@@ -40,6 +41,8 @@
 #include <vtkCell.h>
 #include <cmath>
 #include <vtkCellLocator.h>
+#include <vtkFloatArray.h>
+#include <vtkCellArray.h>
 
 ///////////////////////////////////////////
 /* Here is how we we get QTextStreams that look like iostreams */
@@ -48,7 +51,80 @@ QTextStream Qcout(stdout, QIODevice::WriteOnly);
 QTextStream Qcerr(stderr, QIODevice::WriteOnly);
 ///////////////////////////////////////////
 
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > a_c2c, vtkUnstructuredGrid *a_grid)
+//simple_vertices
+//interior_edge_vertices
+//fixed_vertices
+int CreateSpecialMapping(QSet <vtkIdType> &simple_vertices, QSet <vtkIdType> &interior_edge_vertices, QSet <vtkIdType> &fixed_vertices)
+{
+
+  return(0);
+}
+
+//////////////////////////////////////////////
+double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  double avg_density=1./avg_dist;
+  return(avg_density);
+}
+
+double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_dist+=1./node_meshdensity->GetValue(i);
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_density=0;
+  double avg_density=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_density+=node_meshdensity->GetValue(i);
+  }
+  avg_density=total_density/(double)N;
+  return(avg_density);
+}
+//////////////////////////////////////////////
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
 {
   vtkIdType N_pts, *pts;
   a_grid->GetCellPoints(a_cell, N_pts, pts);
@@ -108,8 +184,20 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 4: center subdivision");
   ui.SmoothMethod->addItem("Method 5: boundary refinement");
   ui.SmoothMethod->addItem("Method 6: Laplacian smoothing");
+  ui.SmoothMethod->addItem("Method 7");
+  ui.SmoothMethod->addItem("Method 8");
+  ui.SmoothMethod->addItem("Method 9");
+  ui.SmoothMethod->addItem("Method 10");
+  ui.SmoothMethod->addItem("Method 11");
+  ui.SmoothMethod->addItem("Method 12");
+  ui.SmoothMethod->addItem("Method 13");
+  ui.SmoothMethod->addItem("Method 14");
+  ui.SmoothMethod->addItem("Method 15");
+  ui.SmoothMethod->addItem("Method 16");
+  ui.SmoothMethod->addItem("Method 17");
+  ui.SmoothMethod->addItem("Method 18");
   
-  ui.SmoothMethod->setCurrentIndex(6);
+  ui.SmoothMethod->setCurrentIndex(10);
   
   if(ui.listWidget->count()>0) ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
   else ui.lineEdit_BoundaryCode-> setText("42");
@@ -132,8 +220,10 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_FeatureAngle->setValue(smooth->GetFeatureAngle());
   ui.doubleSpinBox_EdgeAngle->setValue(smooth->GetEdgeAngle());
   ui.checkBox_BoundarySmoothing->setCheckState(int2CheckState(smooth->GetBoundarySmoothing()));
-  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(smooth->GetGenerateErrorScalars()));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));
+/*  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(smooth->GetGenerateErrorScalars()));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));*/
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(1));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(1));
   
 };
 
@@ -177,6 +267,67 @@ void GuiSmoothSurface::operate()
     cout_vtkSmoothPolyDataFilter(smooth);
     
     smooth->Update();
+    
+//     grid->GetPointCells();
+    cout<<"==============="<<endl;
+    int N1,N2;
+    double x1[3], x2[3], x3[3], l1[3], l2[3];
+    double dist;
+    int numPts=0;
+//     int indexArray[10];
+    cout<<"ErrorScalars:"<<endl;
+/*    int idx = output->GetPointData()->AddArray(newScalars);
+    grid->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);*/
+//     grid->GetPointData()->GetAttribute();
+    N1=smooth->GetOutput()->GetPointData()->GetNumberOfArrays();
+    cout<<"nb of arrays="<<N1<<endl;
+//     indexArray=new int[N1];
+    smooth->GetOutput();//vtkPolyData
+    cout<<smooth->GetOutput()->GetPointData()<<endl;//vtkPointData*
+//     cout<<"getting indices"<<endl;
+//     smooth->GetOutput()->GetPointData()->GetAttributeIndices(indexArray);
+//     for(int i=0;i<N1;i++) cout<<"indexArray["<<i<<"]="<<indexArray[i]<<endl;
+//     delete[] indexArray;
+    vtkFloatArray *newScalars = vtkFloatArray::New();
+    newScalars=(vtkFloatArray *)smooth->GetOutput()->GetPointData()->GetArray(1);
+//     newScalars=smooth->GetOutput()->GetPointData()->GetAttribute(vtkDataSetAttributes::SCALARS);
+    N1=newScalars->GetNumberOfComponents();
+    N2=newScalars->GetNumberOfTuples();
+    cout<<"N1="<<N1<<endl;
+    cout<<"N2="<<N2<<endl;
+    for (int i=0; i<N2; i++)
+    {
+      dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
+      cout<<"dist="<<dist<<endl;
+    }
+    
+    cout<<"ErrorVectors:"<<endl;
+    int index;
+    vtkPointData* toto=vtkPointData::New();
+    toto=grid->GetPointData();
+    vtkDataArray* titi=(vtkDataArray* ) vtkDataArray::New();
+    titi=toto->GetVectors();
+//     titi->GetTuple(0,x3);
+    cout<<smooth->GetOutput()->GetPointData()<<endl;
+    cout<<smooth->GetOutput()->GetPoints()<<endl;
+    cout<<smooth->GetOutput()->GetPointData()->GetVectors()<<endl;
+//     cout<<smooth->GetOutput()->GetVectors()<<endl;
+    vec3_t xx;
+    smooth->GetOutput()->GetPoint(0, xx.data());
+    N1=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
+    N2=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
+    cout<<"N1="<<N1<<endl;
+    cout<<"N2="<<N2<<endl;
+    for(vtkIdType i=0;i<N2;i++)
+    {
+      double tuple[4];
+      smooth->GetOutput()->GetPointData()->GetTuple(i,tuple);
+      cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
+    }
+//     ->GetArray(,index);
+    cout<<"index="<<index<<endl;
+    cout<<"==============="<<endl;
+    
     EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
     for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
       vec3_t x;
@@ -742,6 +893,333 @@ void GuiSmoothSurface::operate()
       makeCopy(grid_tmp,grid);
     }
     cout_grid(cout,grid);
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==7)//VertexAvgDist test
+  {
+    cout_grid(cout,grid);
+    
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
+    cout<<"bcs="<<bcs<<endl;
+    cout<<"bcs_complement="<<bcs_complement<<endl;
+    
+    int N_points=grid->GetNumberOfPoints();
+    int N_cells=grid->GetNumberOfCells();
+    
+    QVector<vtkIdType> SelectedCells;
+    getSurfaceCells(bcs, SelectedCells, grid);
+    QVector<vtkIdType> AllCells;
+    getAllSurfaceCells(AllCells,grid);
+    
+    QSet <vtkIdType> SelectedNodes;
+    getSurfaceNodes(bcs,SelectedNodes,grid);
+    createNodeToNode(cells, nodes, _nodes, n2n, grid);
+    
+    foreach(vtkIdType node,SelectedNodes)
+    {
+      cout<<"node="<<node<<" VertexAvgDist="<<CurrentVertexAvgDist(node,n2n,grid)<<endl;
+    }
+    
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==8)//boundary refinement v2
+  {
+    cout_grid(cout,grid);
+    
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
+    cout<<"bcs="<<bcs<<endl;
+    cout<<"bcs_complement="<<bcs_complement<<endl;
+    
+    int N_points=grid->GetNumberOfPoints();
+    int N_cells=grid->GetNumberOfCells();
+    
+    QVector<vtkIdType> SelectedCells;
+    getSurfaceCells(bcs, SelectedCells, grid);
+    QVector<vtkIdType> AllCells;
+    getAllSurfaceCells(AllCells,grid);
+    
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+    
+    QSet <vtkIdType> SelectedNodes;
+    getSurfaceNodes(bcs,SelectedNodes,grid);
+    createNodeToNode(cells, nodes, _nodes, n2n, grid);
+    
+    foreach(vtkIdType node,SelectedNodes)
+    {
+      double L=CurrentVertexAvgDist(node,n2n,grid);
+      double D=1./L;
+      cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+      node_meshdensity->SetValue(node, D);
+    }
+    
+    int N_iter=ui.spinBox_NumberOfIterations->value();
+    for(int i_iter=0;i_iter<N_iter;i_iter++)
+    {
+      foreach(vtkIdType node,SelectedNodes)
+      {
+        double D=DesiredMeshDensity(node,n2n,grid);
+        double L=1./D;
+        cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+        node_meshdensity->SetValue(node, D);
+      }
+    }
+    
+/*    QSet <int> cells_to_split;
+    QVector <stencil_t> StencilVector;
+    
+    QMap <int,bool> marked;
+//     marked.resize(SelectedCells.size());
+    foreach(vtkIdType id_cell, SelectedCells)
+    {
+      marked[id_cell] = false;
+    }
+    createCellToCell(AllCells, c2c, grid);
+    
+    cout<<"AllCells.size()="<<AllCells.size()<<endl;
+    cout<<"SelectedCells.size()="<<SelectedCells.size()<<endl;
+    
+    int N_newcells=0;
+    int N_newpoints=0;
+    foreach(vtkIdType id_cell, SelectedCells)
+    {
+      cout<<"==>id_cell="<<id_cell<<endl;
+      int bc0=cell_code->GetValue(id_cell);
+      if(!marked[id_cell])
+      {
+        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(id_cell, N_pts, pts);
+        int count=0;
+        for(int i=0;i<N_pts;i++)
+        {
+          int bc1=cell_code->GetValue(c2c[id_cell][i]);
+          if(bc0!=bc1) count++;
+        }
+        if(count>0)
+        {
+          int SideToSplit = getLongestSide(id_cell,grid);
+          cout<<"SideToSplit="<<SideToSplit<<endl;
+          cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
+          for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
+          stencil_t S=getStencil(id_cell,SideToSplit);
+          if(!marked[S.id_cell2])
+          {
+            cells_to_split.insert(id_cell);
+            cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
+            cout<<"marked["<<S.id_cell2<<"]=true;"<<endl;
+            marked[S.id_cell1]=true;
+            marked[S.id_cell2]=true;
+            StencilVector.push_back(S);
+            N_newpoints++;
+            if(S.valid) N_newcells+=2;
+            else N_newcells+=1;
+          }
+        }
+      }
+    }
+    
+    cout<<"cells_to_split.size()="<<cells_to_split.size()<<endl;
+    cout<<cells_to_split<<endl;
+    cout<<"StencilVector.size()="<<StencilVector.size()<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+    
+    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+    allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+    makeCopyNoAlloc(grid, grid_tmp);
+    EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
+    
+    vtkIdType nodeId=N_points;
+    foreach(stencil_t S,StencilVector)
+    {
+      cout<<S<<endl;
+      vtkIdType N_pts, *pts;
+      vec3_t A,B;
+      grid_tmp->GetPoint(S.p[1],A.data());
+      grid_tmp->GetPoint(S.p[3],B.data());
+      vec3_t M=0.5*(A+B);
+      addPoint(grid_tmp,nodeId,M.data());
+      
+      vtkIdType pts_triangle[4][3];
+      
+      for(int i=0;i<4;i++)
+      {
+        pts_triangle[i][0]=S.p[i];
+        pts_triangle[i][1]=S.p[(i+1)%4];
+        pts_triangle[i][2]=nodeId;
+      }
+      
+      int bc1=cell_code_tmp->GetValue(S.id_cell1);
+      int bc2=cell_code_tmp->GetValue(S.id_cell2);
+      
+      grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+      cell_code_tmp->SetValue(S.id_cell1, bc1);
+      
+      grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
+      cell_code_tmp->SetValue(S.id_cell2, bc2);
+      
+      vtkIdType newCellId;
+      newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
+      cell_code_tmp->SetValue(newCellId, bc2);
+      newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+      cell_code_tmp->SetValue(newCellId, bc1);
+      
+      nodeId++;
+    }
+    
+    makeCopy(grid_tmp,grid);
+//     cout_grid(cout,grid,true,true,true,true);*/
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==9)//vtkWindowedSincPolyDataFilter smoothing
+  {
+	cout<<"HUHUHHHUHUHUHUH"<<endl;
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QVector<vtkIdType> cells;
+    getSurfaceCells(bcs, cells, grid);
+    EG_VTKSP(vtkPolyData, input);
+    addToPolyData(cells, input, grid);
+
+    EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+    smooth->SetInput(input);
+
+
+  int j, k;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
+
+  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
+
+	cout<<"input->GetVerts()="<<input->GetVerts()<<endl;
+	cout<<"input->GetVerts()->GetSize()="<<input->GetVerts()->GetSize()<<endl;
+inVerts=input->GetVerts();
+inVerts->InitTraversal();
+cout<<"inVerts->GetSize()="<<inVerts->GetSize()<<endl;
+cout<<"inVerts->GetNextCell(npts,pts)="<<inVerts->GetNextCell(npts,pts)<<endl;
+cout<<"inVerts->GetNumberOfCells()="<<inVerts->GetNumberOfCells()<<endl;
+
+cout<<"input->GetVerts()->GetSize()="<<input->GetVerts()->GetSize()<<endl;
+cout<<"input->GetVerts()->GetNextCell(npts,pts)="<<input->GetVerts()->GetNextCell(npts,pts)<<endl;
+cout<<"input->GetVerts()->GetNumberOfCells()="<<input->GetVerts()->GetNumberOfCells()<<endl;
+
+/*inVerts->GetNumberOfTuples();
+inVerts->GetNumberOfComponents();*/
+  // check vertices first. Vertices are never smoothed_--------------
+  for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
+  inVerts->GetNextCell(npts,pts); )
+    {
+	cout<<"npts="<<npts<<endl;
+    for (j=0; j<npts; j++)
+      {
+	cout<<"pts["<<j<<"]="<<pts[j]<<endl;
+//       Verts[pts[j]].type = VTK_FIXED_VERTEX;
+      }
+    }
+
+/*    EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
+    
+    cout_vtkWindowedSincPolyDataFilter(smooth);
+    
+    smooth->SetInput(pdata);
+    
+    smooth->SetNumberOfIterations(ui.spinBox_NumberOfIterations->value());
+    smooth->SetPassBand(ui.doubleSpinBox_PassBand->value());
+    smooth->SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    smooth->SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    smooth->SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    smooth->SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    smooth->SetGenerateErrorScalars(ui.checkBox_GenerateErrorScalars->checkState());
+    smooth->SetGenerateErrorVectors(ui.checkBox_GenerateErrorVectors->checkState());
+    
+    cout_vtkWindowedSincPolyDataFilter(smooth);
+    
+    smooth->Update();
+    EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
+    for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
+      vec3_t x;
+      smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
+      vtkIdType nodeId = node_index->GetValue(i);
+      grid->GetPoints()->SetPoint(nodeId, x.data());
+    };*/
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  if(ui.SmoothMethod->currentIndex()==10)//vtkSmoothPolyDataFilter2 smoothing
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QVector<vtkIdType> cells;
+    getSurfaceCells(bcs, cells, grid);
+    EG_VTKSP(vtkPolyData, pdata);
+    addToPolyData(cells, pdata, grid);
+    EG_VTKSP(vtkSmoothPolyDataFilter2, smooth);
+    
+//     cout_vtkSmoothPolyDataFilter2(smooth);
+    
+    smooth->SetInput(pdata);
+    
+    smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
+    smooth->SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
+    smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    smooth->SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
+    smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    smooth->SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
+    smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    
+    QSet<int> bcs_Source;
+    getSelectedItems(ui.listWidget,bcs_Source);
+    QVector<vtkIdType> cells_Source;
+    getSurfaceCells(bcs_Source, cells_Source, grid);
+    EG_VTKSP(vtkPolyData, pdata_Source);
+    addToPolyData(cells_Source, pdata_Source, grid);
+    smooth->SetSource (pdata_Source);
+    
+//     cout_vtkSmoothPolyDataFilter2(smooth);
+
+    smooth->DebugOn();
+    smooth->Update();
+
+    cout<<"==============="<<endl;
+    int N_components,N_tuples,N_arrays;
+    N_arrays=smooth->GetOutput()->GetPointData()->GetNumberOfArrays();
+    cout<<"N_arrays="<<N_arrays<<endl;
+
+    cout<<"ErrorScalars:"<<endl;
+    vtkFloatArray *newScalars = vtkFloatArray::New();
+    newScalars=(vtkFloatArray *)smooth->GetOutput()->GetPointData()->GetArray(1);
+    N_components=newScalars->GetNumberOfComponents();
+    N_tuples=newScalars->GetNumberOfTuples();
+    cout<<"N_components="<<N_components<<endl;
+    cout<<"N_tuples="<<N_tuples<<endl;
+    for (int i=0; i<N_tuples; i++)
+    {
+      double dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
+      cout<<"dist="<<dist<<endl;
+    }
+    
+    cout<<"ErrorVectors:"<<endl;
+    N_components=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
+    N_tuples=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
+    cout<<"N_components="<<N_components<<endl;
+    cout<<"N_tuples="<<N_tuples<<endl;
+    for(vtkIdType i=0;i<N_tuples;i++)
+    {
+      double tuple[4];
+      smooth->GetOutput()->GetPointData()->GetTuple(i,tuple);
+      cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
+    }
+    cout<<"==============="<<endl;
+
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
