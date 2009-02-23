@@ -133,9 +133,7 @@
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
-    <references>
-      <pcs>Qt4</pcs>
-    </references>
+    <references/>
   </kdevcppsupport>
   <kdevfilecreate>
     <useglobaltypes>
@@ -150,10 +148,10 @@
     </general>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>/data1/home/mtaverne/engrid/src</mainprogram>
+      <mainprogram>.</mainprogram>
       <programargs/>
       <globaldebugarguments/>
-      <globalcwd>/data1/home/mtaverne/engrid/src</globalcwd>
+      <globalcwd>.</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>

@@ -804,6 +804,7 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_status", vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_layer",  vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
 };
 
 void EgVtkObject::allocateGrid
@@ -1161,3 +1162,10 @@ Qt::CheckState int2CheckState(int a)
 //   if(a==1) return(Qt::PartiallyChecked);
   else return(Qt::Checked);
 }
+
+// ///////////////////////////////////////////
+// /* Here is how we we get QTextStreams that look like iostreams */
+// Qcin=QTextStream(stdin, QIODevice::ReadOnly);
+// Qcout=QTextStream(stdout, QIODevice::WriteOnly);
+// Qcerr=QTextStream(stderr, QIODevice::WriteOnly);
+// ///////////////////////////////////////////

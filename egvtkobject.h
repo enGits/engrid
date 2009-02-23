@@ -640,5 +640,11 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
   return(out);
 }
 ///////////////////////////////////////////
+// ///////////////////////////////////////////
+// /* Here is how we we get QTextStreams that look like iostreams */
+// QTextStream Qcin;
+// QTextStream Qcout;
+// QTextStream Qcerr;
+// ///////////////////////////////////////////
 
 #endif
