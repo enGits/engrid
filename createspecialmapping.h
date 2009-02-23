@@ -30,6 +30,11 @@ public:
   QVector<vtkIdType> m_cells;
   vtkUnstructuredGrid* m_grid;
   
+  double SV_value;
+  double FV_value;
+  double FEV_value;
+  double BEV_value;
+  
   void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
   {
     m_bcs=a_bcs;
@@ -45,6 +50,11 @@ public:
   void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
   void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
   void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
+  
+  void Set_SV_value(double V){SV_value=V;};
+  void Set_FV_value(double V){FV_value=V;};
+  void Set_FEV_value(double V){FEV_value=V;};
+  void Set_BEV_value(double V){BEV_value=V;};
   
 };
 

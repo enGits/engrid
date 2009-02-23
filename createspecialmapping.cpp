@@ -412,20 +412,36 @@ int CreateSpecialMapping::Process()
   
   foreach(vtkIdType node,SelectedNodes)
   {
-    double L=CurrentVertexAvgDist(node,n2n,m_grid);
-    double D=1./L;
-    cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-    node_meshdensity->SetValue(node, D);
+    if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
+    else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
+    else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
+    else if(Verts[node].type==VTK_BOUNDARY_EDGE_VERTEX && BEV_value!=-1){node_meshdensity->SetValue(node, BEV_value);}
+    else
+    {
+      double L=CurrentVertexAvgDist(node,n2n,m_grid);
+      double D=1./L;
+      node_meshdensity->SetValue(node, D);
+      cout<<"Verts["<<node<<"].type="<<VertexType(Verts[node].type)<<endl;
+      cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+    }
   }
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     foreach(vtkIdType node,SelectedNodes)
     {
-      double D=DesiredMeshDensity(node,n2n,m_grid);
-      double L=1./D;
-      cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-      node_meshdensity->SetValue(node, D);
+      if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
+      else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
+      else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
+      else if(Verts[node].type==VTK_BOUNDARY_EDGE_VERTEX && BEV_value!=-1){node_meshdensity->SetValue(node, BEV_value);}
+      else
+      {
+        double D=DesiredMeshDensity(node,n2n,m_grid);
+        double L=1./D;
+        cout<<"Verts["<<node<<"].type="<<VertexType(Verts[node].type)<<endl;
+        cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+        node_meshdensity->SetValue(node, D);
+      }
     }
   }
   

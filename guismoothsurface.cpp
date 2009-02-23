@@ -116,7 +116,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 7");
   ui.SmoothMethod->addItem("Method 8: Create mesh density map");
   ui.SmoothMethod->addItem("Method 9");
-  ui.SmoothMethod->addItem("Method 10");
+  ui.SmoothMethod->addItem("Method 10: Create mesh density map");
   ui.SmoothMethod->addItem("Method 11");
   ui.SmoothMethod->addItem("Method 12");
   ui.SmoothMethod->addItem("Method 13");
@@ -140,7 +140,8 @@ void GuiSmoothSurface::before()
   
   ui.doubleSpinBox_Convergence->setValue(smooth->GetConvergence());
 //   ui.spinBox_NumberOfIterations->setValue(smooth->GetNumberOfIterations());
-  ui.spinBox_NumberOfIterations->setValue(1000);
+//   ui.spinBox_NumberOfIterations->setValue(1000);
+  ui.spinBox_NumberOfIterations->setValue(1);
   QString tmp;
   ui.lineEdit_RelaxationFactor->setText(tmp.setNum(smooth->GetRelaxationFactor()));
   ui.doubleSpinBox_PassBand->setValue(smooth2->GetPassBand());
@@ -153,6 +154,11 @@ void GuiSmoothSurface::before()
   ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));*/
   ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(1));
   ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(1));
+  
+  ui.doubleSpinBox_VTK_SIMPLE_VERTEX->setValue(-1);
+  ui.doubleSpinBox_VTK_FIXED_VERTEX->setValue(-1);
+  ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
+  ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);
   
 };
 
@@ -965,6 +971,11 @@ void GuiSmoothSurface::operate()
     toto.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
     toto.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
     toto.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    
+    toto.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
+    toto.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
+    toto.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
+    toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());
     
     toto.Process();
     
