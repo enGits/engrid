@@ -1,14 +1,3 @@
-//
-// C++ Implementation: createspecialmapping
-//
-// Description: 
-//
-//
-// Author: Mike Taverne <mtaverne@engits.com>, (C) 2009
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
 #include "createspecialmapping.h"
 
 #include "vtkCellArray.h"
@@ -55,8 +44,13 @@ CreateSpecialMapping::CreateSpecialMapping()
 {
 }
 
-int CreateSpecialMapping::Process(vtkPolyData* input)
+int CreateSpecialMapping::Process()
 {
+  getSurfaceCells(m_bcs, m_cells, m_grid);
+  EG_VTKSP(vtkPolyData, pdata);
+  addToPolyData(m_cells, pdata, m_grid);
+  input=pdata;
+  
   cout<<"=================="<<endl;
   
   vtkPolyData *source = 0;
@@ -124,6 +118,7 @@ int CreateSpecialMapping::Process(vtkPolyData* input)
   }
   
   inPts = input->GetPoints();
+  conv = this->Convergence * input->GetLength();
   
   // check vertices first. Vertices are never smoothed_--------------
   for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
@@ -406,54 +401,33 @@ int CreateSpecialMapping::Process(vtkPolyData* input)
     }
   }
   
-  cout<<"Beginning smoothing iterations..."<<endl;
-  cout<<"2:numPts="<<numPts<<endl;
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
   
-  // We've setup the topology...now perform Laplacian smoothing
-  //
-  newPts = vtkPoints::New();
-  newPts->SetNumberOfPoints(numPts);
+  QSet <vtkIdType> SelectedNodes;
+  getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
+  getNodesFromCells(m_cells, nodes, m_grid);
+  createNodeMapping(nodes, _nodes, m_grid);
+  createNodeToNode(m_cells, nodes, _nodes, n2n, m_grid);
   
-  factor = this->RelaxationFactor;
-  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0, abortExecute=0; 
-        maxDist > conv && iterationNumber < this->NumberOfIterations && !abortExecute;
-        iterationNumber++ )
+  foreach(vtkIdType node,SelectedNodes)
   {
-    
-    maxDist=0.0;
-// 	cout<<"numPts="<<numPts<<endl;
-    for (i=0; i<numPts; i++)
-    {
-//       	cout<<"Verts["<<i<<"].type="<<(int)Verts[i].type<<endl;
-      if ( Verts[i].type != VTK_FIXED_VERTEX && Verts[i].edges != NULL &&
-           (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
-      {
-        newPts->GetPoint(i, x); //use current points
-        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-        for (j=0; j<npts; j++)
-        {
-          newPts->GetPoint(Verts[i].edges->GetId(j), y);
-          for (k=0; k<3; k++)
-          {
-            deltaX[k] += (y[k] - x[k]) / npts;
-          }
-        }//for all connected points
-        
-        for (k=0;k<3;k++) 
-        {
-          xNew[k] = x[k] + factor * deltaX[k];
-        }
-        
-       newPts->SetPoint(i,xNew);
-        if ( (dist = vtkMath::Norm(deltaX)) > maxDist )
-        {
-          maxDist = dist;
-        }
-      }//if can move point
-    }//for all points
-  } //for not converged or within iteration count
+    double L=CurrentVertexAvgDist(node,n2n,m_grid);
+    double D=1./L;
+    cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+    node_meshdensity->SetValue(node, D);
+  }
   
-  newPts->Delete();
+  for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
+  {
+    foreach(vtkIdType node,SelectedNodes)
+    {
+      double D=DesiredMeshDensity(node,n2n,m_grid);
+      double L=1./D;
+      cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+      node_meshdensity->SetValue(node, D);
+    }
+  }
   
   //free up connectivity storage
   for (i=0; i<numPts; i++)

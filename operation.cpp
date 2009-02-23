@@ -224,3 +224,67 @@ ostream& operator<<(ostream &out, stencil_t S)
   out<<"]";
   return(out);
 }
+
+//////////////////////////////////////////////
+double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  double avg_density=1./avg_dist;
+  return(avg_density);
+}
+
+double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_dist+=1./node_meshdensity->GetValue(i);
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_density=0;
+  double avg_density=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_density+=node_meshdensity->GetValue(i);
+  }
+  avg_density=total_density/(double)N;
+  return(avg_density);
+}
