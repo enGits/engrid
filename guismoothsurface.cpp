@@ -23,6 +23,8 @@
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
 #include "createspecialmapping.h"
+#include "vertexdelegate.h"
+
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
@@ -160,7 +162,86 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);
   
+  ui.tableWidget;
+  int row=0;
+  int column=0;
+  QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
+//   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
+//   newItem->setText("MWAHAHAHAHAHA");
+  ui.tableWidget->setItem(row, column, newItem);
+//   ui.tableWidget->takeItem(row,column);
+  
+  cout<<"ui.tableWidget->rowCount()="<<ui.tableWidget->rowCount()<<endl;
+  cout<<"ui.tableWidget->columnCount()="<<ui.tableWidget->columnCount()<<endl;
+  int Nrow,Ncol;
+  Nrow=ui.tableWidget->rowCount();
+  Ncol=ui.tableWidget->columnCount();
+  
+/*  ui.tableWidget->insertRow(ui.tableWidget->rowCount());
+  ui.tableWidget->removeRow(0);
+  ui.tableWidget->insertRow(ui.tableWidget->rowCount());*/
+  
+  QList<QString> list;
+  list << "VTK_SIMPLE_VERTEX"
+    <<"VTK_FIXED_VERTEX"
+    <<"VTK_FEATURE_EDGE_VERTEX"
+    <<"VTK_BOUNDARY_EDGE_VERTEX";
+    
+  Nrow=ui.tableWidget->rowCount();
+  Ncol=ui.tableWidget->columnCount();
+  for(int i=0;i<Nrow;i++)
+  {
+    for(int j=0;j<Ncol;j++)
+    {
+//       Qcout<<"("<<i<<","<<j<<")="<<ui.tableWidget->item(i,j)->text()<<endl;
+    }
+  }
+  
+//   item0->setCheckState(Qt::Checked);
+  int Nbc=ui.listWidget-> count ();
+  ui.tableWidget->setColumnCount(Nbc+2);
+  ui.tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
+  
+  QStringList L;
+  for(int i=0;i<Nbc;i++)
+  {
+    Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
+    L<<ui.listWidget->item(i)->text();
+    ui.tableWidget->setColumnWidth(i,30);
+  }
+  L<<"Vertex Type";
+  L<<"Mesh Density";
+  ui.tableWidget->setHorizontalHeaderLabels(L);
+  ui.tableWidget->resizeRowsToContents();
+  
+  connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
+  connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
+  
 };
+
+void GuiSmoothSurface::AddSet()
+{
+  cout<<"Adding set"<<endl;
+  int row=ui.tableWidget->rowCount();
+  ui.tableWidget->insertRow(row);
+  
+  int Nbc=ui.listWidget->count();
+  for(int i=0;i<Nbc;i++)
+  {
+    QTableWidgetItem *newBC = new QTableWidgetItem();
+    ui.tableWidget->setItem(row, i, newBC);
+    newBC->setCheckState(Qt::Unchecked);
+    ui.tableWidget->setColumnWidth(i,30);
+  }
+  ui.tableWidget->resizeRowsToContents();
+}
+
+void GuiSmoothSurface::RemoveSet()
+{
+  cout<<"Removing set"<<endl;
+  ui.tableWidget->removeRow(ui.tableWidget->currentRow());
+  ui.tableWidget->resizeRowsToContents();
+}
 
 void GuiSmoothSurface::operate()
 {

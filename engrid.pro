@@ -130,7 +130,9 @@ guisettingsviewer.h \
  guitransform.h \
  vtkpolydataalgorithm2.h \
  vtksmoothpolydatafilter2.h \
- createspecialmapping.h
+ createspecialmapping.h \
+ vertexdelegate.h \
+ vertexmeshdensity.h
 
 SOURCES = \
 main.cpp \
@@ -195,7 +197,9 @@ guisettingsviewer.cpp \
  guitransform.cpp \
  vtkpolydataalgorithm2.cpp \
  vtksmoothpolydatafilter2.cpp \
- createspecialmapping.cpp
+ createspecialmapping.cpp \
+ vertexdelegate.cpp \
+ vertexmeshdensity.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

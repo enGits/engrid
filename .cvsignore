@@ -1,0 +1,10 @@
+*~
+.hg
+Makefile
+engrid
+engrid.kdevelop.pcs
+engrid.kdevses
+moc_*
+qrc_engrid.cpp
+ui_*
+tmp.txt

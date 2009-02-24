@@ -31,6 +31,11 @@ class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
   
   Q_OBJECT;
   
+private slots:
+  
+  void AddSet();
+  void RemoveSet();
+  
 protected: // methods
   
   virtual void before();
