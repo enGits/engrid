@@ -3,6 +3,7 @@
 
 #include <vtkIdList.h>
 #include <QSet>
+#include <QVector>
 
 class VertexMeshDensity{
 public:
@@ -10,8 +11,11 @@ public:
   ~VertexMeshDensity();
 
 public:
-  QSet <vtkIdType> NeighbourSet;
-  char type;
+  QVector < QVector <int> > BClist;
+  QVector <char> type;
+  QVector <double> density;
 };
+
+ostream& operator<<(ostream &out, VertexMeshDensity A);
 
 #endif

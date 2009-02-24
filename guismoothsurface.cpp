@@ -185,7 +185,8 @@ void GuiSmoothSurface::before()
   list << "VTK_SIMPLE_VERTEX"
     <<"VTK_FIXED_VERTEX"
     <<"VTK_FEATURE_EDGE_VERTEX"
-    <<"VTK_BOUNDARY_EDGE_VERTEX";
+    <<"VTK_BOUNDARY_EDGE_VERTEX"
+    <<"any";
     
   Nrow=ui.tableWidget->rowCount();
   Ncol=ui.tableWidget->columnCount();
@@ -198,7 +199,7 @@ void GuiSmoothSurface::before()
   }
   
 //   item0->setCheckState(Qt::Checked);
-  int Nbc=ui.listWidget-> count ();
+  Nbc=ui.listWidget-> count ();
   ui.tableWidget->setColumnCount(Nbc+2);
   ui.tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
   
@@ -216,8 +217,41 @@ void GuiSmoothSurface::before()
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
+  connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
   
 };
+
+void GuiSmoothSurface::TestSet()
+{
+  cout<<"Testing set"<<endl;
+  GetSet();
+}
+
+VertexMeshDensity GuiSmoothSurface::GetSet()
+{
+  cout<<"Getting set"<<endl;
+  VertexMeshDensity VMD;
+  cout<<"VMD:"<<VMD<<endl;
+  
+  int N_VMD=ui.tableWidget->rowCount();
+  VMD.BClist.resize(N_VMD);
+  VMD.type.resize(N_VMD);
+  VMD.density.resize(N_VMD);
+  cout<<"VMD.BClist.size()="<<VMD.BClist.size()<<endl;
+  cout<<"VMD.type.size()="<<VMD.type.size()<<endl;
+  cout<<"VMD.density.size()="<<VMD.density.size()<<endl;
+  for(int i=0;i<N_VMD;i++)
+  {
+    for(int j=0;j<Nbc;j++)
+    {
+      if(ui.tableWidget->item(i,j)->checkState()) VMD.BClist[i].push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
+    }
+    VMD.type[i]=Str2VertexType(ui.tableWidget->item(i,Nbc)->text());
+    VMD.density[i]=ui.tableWidget->item(i,Nbc+1)->text().toDouble();
+  }
+  cout<<"VMD:"<<VMD<<endl;
+  return(VMD);
+}
 
 void GuiSmoothSurface::AddSet()
 {
@@ -233,6 +267,10 @@ void GuiSmoothSurface::AddSet()
     newBC->setCheckState(Qt::Unchecked);
     ui.tableWidget->setColumnWidth(i,30);
   }
+  QTableWidgetItem *newVT = new QTableWidgetItem("any");
+  ui.tableWidget->setItem(row, Nbc, newVT);
+  QTableWidgetItem *newD = new QTableWidgetItem("-1");
+  ui.tableWidget->setItem(row, Nbc+1, newD);
   ui.tableWidget->resizeRowsToContents();
 }
 
@@ -1040,9 +1078,12 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
+    VertexMeshDensity VMD=GetSet();
+    
     CreateSpecialMapping toto;
     
     toto.SetInput(bcs,grid);
+    toto.SetVertexMeshDensity(VMD);
     toto.SetConvergence (ui.doubleSpinBox_Convergence->value());
     toto.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
     toto.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());

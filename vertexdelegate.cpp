@@ -1,6 +1,7 @@
 #include <QtGui>
 
 #include "vertexdelegate.h"
+#include "createspecialmapping.h"
 
 #include <iostream>
 using namespace std;
@@ -34,11 +35,11 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
         const QModelIndex &index) const
 {
     if (index.column() == durationColumn) {
-        QComboBox *timeEdit = new QComboBox(parent);
-	foreach(QString str,list) timeEdit->addItem(str);
-        connect(timeEdit, SIGNAL(editingFinished()),
+        QComboBox *ComboEdit = new QComboBox(parent);
+	foreach(QString str,list) ComboEdit->addItem(str);
+        connect(ComboEdit, SIGNAL(editingFinished()),
                 this, SLOT(commitAndCloseEditor()));
-        return timeEdit;
+        return ComboEdit;
     } else {
         return QItemDelegate::createEditor(parent, option, index);
     }
@@ -47,12 +48,10 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
 void VertexDelegate::setEditorData(QWidget *editor,
                                   const QModelIndex &index) const
 {
-	cout<<"DDD"<<endl;
-
     if (index.column() == durationColumn) {
-        int secs = index.model()->data(index, Qt::DisplayRole).toInt();
-        QComboBox *timeEdit = qobject_cast<QComboBox *>(editor);
-	timeEdit->setCurrentIndex(secs);
+//         int secs = index.model()->data(index, Qt::DisplayRole).toInt();
+        QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
+// 	ComboEdit->setCurrentIndex(secs);
     } else {
         QItemDelegate::setEditorData(editor, index);
     }
@@ -63,8 +62,8 @@ void VertexDelegate::setModelData(QWidget *editor,
                                  const QModelIndex &index) const
 {
     if (index.column() == durationColumn) {
-        QComboBox *timeEdit = qobject_cast<QComboBox *>(editor);
-        model->setData(index, timeEdit->currentText());
+        QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
+        model->setData(index, ComboEdit->currentText());
     } else {
         QItemDelegate::setModelData(editor, model, index);
     }

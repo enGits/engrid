@@ -19,18 +19,22 @@
 #include <iostream>
 using namespace std;
 
-#define VTK_SIMPLE_VERTEX 0
-#define VTK_FIXED_VERTEX 1
-#define VTK_FEATURE_EDGE_VERTEX 2
-#define VTK_BOUNDARY_EDGE_VERTEX 3
-
-const char* VertexType(char T)
+const char* VertexType2Str(char T)
 {
   if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
   if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
   if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
   if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
   else return("Unknown vertex type");
+}
+
+char Str2VertexType(QString S)
+{
+  if(S=="VTK_SIMPLE_VERTEX") return((char)0);
+  if(S=="VTK_FIXED_VERTEX") return((char)1);
+  if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
+  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
+  else return((char)-1);
 }
 
 // Special structure for marking vertices
@@ -391,7 +395,7 @@ int CreateSpecialMapping::Process()
   
   for (i=0; i<numPts; i++) 
   {
-    cout<<"Verts["<<i<<"].type="<<VertexType(Verts[i].type)<<endl;
+    cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
     if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
     {
       for (j=0; j<npts; j++)
@@ -421,7 +425,7 @@ int CreateSpecialMapping::Process()
       double L=CurrentVertexAvgDist(node,n2n,m_grid);
       double D=1./L;
       node_meshdensity->SetValue(node, D);
-      cout<<"Verts["<<node<<"].type="<<VertexType(Verts[node].type)<<endl;
+      cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
       cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
     }
   }
@@ -438,7 +442,7 @@ int CreateSpecialMapping::Process()
       {
         double D=DesiredMeshDensity(node,n2n,m_grid);
         double L=1./D;
-        cout<<"Verts["<<node<<"].type="<<VertexType(Verts[node].type)<<endl;
+        cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
         cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
         node_meshdensity->SetValue(node, D);
       }

@@ -7,6 +7,7 @@
 #include <QVector>
 #include "egvtkobject.h"
 #include "operation.h"
+#include "vertexmeshdensity.h"
 
 class CreateSpecialMapping : public Operation {
 public:
@@ -35,12 +36,15 @@ public:
   double FEV_value;
   double BEV_value;
   
+  VertexMeshDensity VMD;//Vertices of Mass destruction
+  
   void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
   {
     m_bcs=a_bcs;
     m_grid=a_grid;
   };
 
+  void SetVertexMeshDensity(VertexMeshDensity a_VMD){VMD=a_VMD;};
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};
   void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
@@ -57,5 +61,13 @@ public:
   void Set_BEV_value(double V){BEV_value=V;};
   
 };
+
+#define VTK_SIMPLE_VERTEX 0
+#define VTK_FIXED_VERTEX 1
+#define VTK_FEATURE_EDGE_VERTEX 2
+#define VTK_BOUNDARY_EDGE_VERTEX 3
+
+const char* VertexType2Str(char T);
+char Str2VertexType(QString S);
 
 #endif

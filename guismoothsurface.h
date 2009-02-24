@@ -25,6 +25,7 @@
 
 #include "ui_guismoothsurface.h"
 #include "dialogoperation.h"
+#include "vertexmeshdensity.h"
 
 class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
 {
@@ -35,12 +36,17 @@ private slots:
   
   void AddSet();
   void RemoveSet();
+  void TestSet();
   
 protected: // methods
   
   virtual void before();
   virtual void operate();
-  
+
+private:
+  int Nbc;
+public:
+  VertexMeshDensity GetSet();
 };
 
 #endif
