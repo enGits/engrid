@@ -46,7 +46,7 @@ protected: // methods
 private:
   int Nbc;
 public:
-  VertexMeshDensity GetSet();
+  QVector <VertexMeshDensity> GetSet();
 };
 
 #endif

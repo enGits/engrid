@@ -50,9 +50,11 @@ CreateSpecialMapping::CreateSpecialMapping()
 
 int CreateSpecialMapping::Process()
 {
-  getSurfaceCells(m_bcs, m_cells, m_grid);
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKSP(vtkPolyData, pdata);
-  addToPolyData(m_cells, pdata, m_grid);
+//   addToPolyData(m_SelectedCells, pdata, m_grid);
+  addToPolyData(m_AllCells, pdata, m_grid);
   input=pdata;
   
   cout<<"=================="<<endl;
@@ -410,12 +412,15 @@ int CreateSpecialMapping::Process()
   
   QSet <vtkIdType> SelectedNodes;
   getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
-  getNodesFromCells(m_cells, nodes, m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
   createNodeMapping(nodes, _nodes, m_grid);
-  createNodeToNode(m_cells, nodes, _nodes, n2n, m_grid);
+  createNodeToNode(m_AllCells, nodes, _nodes, n2n, m_grid);
   
   foreach(vtkIdType node,SelectedNodes)
   {
+    cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
+    VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
+//     if(Verts[node].type==VMD.type[])
     if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
     else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
     else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
@@ -434,6 +439,7 @@ int CreateSpecialMapping::Process()
   {
     foreach(vtkIdType node,SelectedNodes)
     {
+//       QVector <int> BC=getneighbours(node);
       if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
       else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
       else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
@@ -463,9 +469,31 @@ int CreateSpecialMapping::Process()
   return 1;
 }
 
-
-CreateSpecialMapping::~CreateSpecialMapping()
+VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 {
+  cout<<"================================"<<endl;
+  cout<<"node="<<node<<endl;
+  cout<<"VertexType="<<(int)VertexType<<endl;
+  
+  cout<<"================================"<<endl;
+  VertexMeshDensity VMD;
+  VMD.type=VertexType;
+  VMD.density=0;
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  createNodeMapping(nodes, _nodes, m_grid);
+  createNodeToCell(m_AllCells, nodes, _nodes, n2c, m_grid);
+  
+  QSet <int> bc;
+  foreach(vtkIdType C, n2c[node])
+  {
+    bc.insert(cell_code->GetValue(C));
+  }
+  cout<<"bc="<<bc<<endl;
+  VMD.BClist.resize(bc.size());
+  qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
+  cout<<"pre-sort VMD="<<VMD<<endl;
+  qSort(VMD.BClist.begin(),VMD.BClist.end());
+  cout<<"post-sort VMD="<<VMD<<endl;
+  cout<<"================================"<<endl;
+  return(VMD);
 }
-
-

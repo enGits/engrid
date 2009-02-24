@@ -227,30 +227,26 @@ void GuiSmoothSurface::TestSet()
   GetSet();
 }
 
-VertexMeshDensity GuiSmoothSurface::GetSet()
+QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
 {
   cout<<"Getting set"<<endl;
-  VertexMeshDensity VMD;
-  cout<<"VMD:"<<VMD<<endl;
+  QVector <VertexMeshDensity> VMDvector;
+  cout<<"VMDvector:"<<VMDvector<<endl;
   
   int N_VMD=ui.tableWidget->rowCount();
-  VMD.BClist.resize(N_VMD);
-  VMD.type.resize(N_VMD);
-  VMD.density.resize(N_VMD);
-  cout<<"VMD.BClist.size()="<<VMD.BClist.size()<<endl;
-  cout<<"VMD.type.size()="<<VMD.type.size()<<endl;
-  cout<<"VMD.density.size()="<<VMD.density.size()<<endl;
+  VMDvector.resize(N_VMD);
+  cout<<"VMDvector.size()="<<VMDvector.size()<<endl;
   for(int i=0;i<N_VMD;i++)
   {
     for(int j=0;j<Nbc;j++)
     {
-      if(ui.tableWidget->item(i,j)->checkState()) VMD.BClist[i].push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
+      if(ui.tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
     }
-    VMD.type[i]=Str2VertexType(ui.tableWidget->item(i,Nbc)->text());
-    VMD.density[i]=ui.tableWidget->item(i,Nbc+1)->text().toDouble();
+    VMDvector[i].type=Str2VertexType(ui.tableWidget->item(i,Nbc)->text());
+    VMDvector[i].density=ui.tableWidget->item(i,Nbc+1)->text().toDouble();
   }
-  cout<<"VMD:"<<VMD<<endl;
-  return(VMD);
+  cout<<"VMDvector:"<<VMDvector<<endl;
+  return(VMDvector);
 }
 
 void GuiSmoothSurface::AddSet()
@@ -875,7 +871,7 @@ void GuiSmoothSurface::operate()
       for(int i=0;i<N_pts;i++)
       {
         QSet <int> bc;
-        foreach(int C, n2c[pts[i]])
+        foreach(vtkIdType C, n2c[pts[i]])
         {
           bc.insert(cell_code->GetValue(C));
         }
@@ -1078,12 +1074,12 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    VertexMeshDensity VMD=GetSet();
+    QVector <VertexMeshDensity> VMDvector=GetSet();
     
     CreateSpecialMapping toto;
     
     toto.SetInput(bcs,grid);
-    toto.SetVertexMeshDensity(VMD);
+    toto.SetVertexMeshDensityVector(VMDvector);
     toto.SetConvergence (ui.doubleSpinBox_Convergence->value());
     toto.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
     toto.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());

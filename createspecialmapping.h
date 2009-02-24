@@ -14,7 +14,6 @@ public:
     CreateSpecialMapping();
     int Process();
     void operate(){};
-    ~CreateSpecialMapping();
   
   vtkPolyData* input;
   double Convergence;
@@ -28,7 +27,8 @@ public:
   int GenerateErrorVectors;
 
   QSet<int> m_bcs;
-  QVector<vtkIdType> m_cells;
+  QVector<vtkIdType> m_AllCells;
+  QVector<vtkIdType> m_SelectedCells;
   vtkUnstructuredGrid* m_grid;
   
   double SV_value;
@@ -36,7 +36,7 @@ public:
   double FEV_value;
   double BEV_value;
   
-  VertexMeshDensity VMD;//Vertices of Mass destruction
+  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
   
   void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
   {
@@ -44,7 +44,7 @@ public:
     m_grid=a_grid;
   };
 
-  void SetVertexMeshDensity(VertexMeshDensity a_VMD){VMD=a_VMD;};
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};
   void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
@@ -60,6 +60,8 @@ public:
   void Set_FEV_value(double V){FEV_value=V;};
   void Set_BEV_value(double V){BEV_value=V;};
   
+  VertexMeshDensity getVMD(vtkIdType node, char VertexType);
+
 };
 
 #define VTK_SIMPLE_VERTEX 0
