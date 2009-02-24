@@ -420,8 +420,20 @@ int CreateSpecialMapping::Process()
   {
     cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
     VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
-//     if(Verts[node].type==VMD.type[])
-    if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
+    int idx=VMDvector.indexOf(nodeVMD);
+    cout<<"idx="<<idx<<endl;
+    if(idx!=-1)//specified
+    {
+      node_meshdensity->SetValue(node, VMDvector[idx].density);
+    }
+    else//unspecified
+    {
+      double L=CurrentVertexAvgDist(node,n2n,m_grid);
+      double D=1./L;
+      node_meshdensity->SetValue(node, D);
+    }
+      
+/*    if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
     else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
     else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
     else if(Verts[node].type==VTK_BOUNDARY_EDGE_VERTEX && BEV_value!=-1){node_meshdensity->SetValue(node, BEV_value);}
@@ -432,15 +444,29 @@ int CreateSpecialMapping::Process()
       node_meshdensity->SetValue(node, D);
       cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
       cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-    }
+    }*/
   }
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     foreach(vtkIdType node,SelectedNodes)
     {
-//       QVector <int> BC=getneighbours(node);
-      if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
+      cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
+      VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
+      int idx=VMDvector.indexOf(nodeVMD);
+      cout<<"idx="<<idx<<endl;
+      if(idx!=-1)//specified
+      {
+        node_meshdensity->SetValue(node, VMDvector[idx].density);
+      }
+      else//unspecified
+      {
+        double D=DesiredMeshDensity(node,n2n,m_grid);
+        double L=1./D;
+        node_meshdensity->SetValue(node, D);
+      }
+      
+/*      if(Verts[node].type==VTK_SIMPLE_VERTEX && SV_value!=-1){node_meshdensity->SetValue(node, SV_value);}
       else if(Verts[node].type==VTK_FIXED_VERTEX && FV_value!=-1){node_meshdensity->SetValue(node, FV_value);}
       else if(Verts[node].type==VTK_FEATURE_EDGE_VERTEX && FEV_value!=-1){node_meshdensity->SetValue(node, FEV_value);}
       else if(Verts[node].type==VTK_BOUNDARY_EDGE_VERTEX && BEV_value!=-1){node_meshdensity->SetValue(node, BEV_value);}
@@ -451,7 +477,7 @@ int CreateSpecialMapping::Process()
         cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
         cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
         node_meshdensity->SetValue(node, D);
-      }
+      }*/
     }
   }
   
