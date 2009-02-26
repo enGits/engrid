@@ -47,6 +47,7 @@ private:
   int Nbc;
 public:
   QVector <VertexMeshDensity> GetSet();
+  QSettings* local_qset;
 };
 
 #endif

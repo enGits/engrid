@@ -2,6 +2,32 @@
 #define VERTEXDELEGATE_H
 
 #include <QItemDelegate>
+#include <QTableWidgetItem>
+
+//Thanks to jpnurmi from qt@irc.freenode.net for this class ;)
+class TriStateTableWidgetItem : public QTableWidgetItem
+{
+public:
+  TriStateTableWidgetItem() : QTableWidgetItem()
+  {
+    QTableWidgetItem::setCheckState(Qt::Checked);
+    setData(Qt::CheckStateRole,Qt::Checked);
+  }
+  void setData(int role, const QVariant& value)
+  {
+    QVariant tmp = value;
+    if (role == Qt::CheckStateRole)
+    {
+      if (data(role) == Qt::Unchecked && value == Qt::Checked)
+        tmp = Qt::PartiallyChecked;
+      else if (data(role) == Qt::PartiallyChecked && value == Qt::Checked)
+        tmp = Qt::Checked;
+      else
+        tmp = Qt::Unchecked;
+    }
+    QTableWidgetItem::setData(role, tmp);
+  }
+};
 
 class VertexDelegate : public QItemDelegate
 {

@@ -1,4 +1,7 @@
 #include "vertexmeshdensity.h"
+#include "egvtkobject.h"
+#include <iostream>
+using namespace std;
 
 VertexMeshDensity::VertexMeshDensity()
 {
@@ -9,10 +12,23 @@ VertexMeshDensity::VertexMeshDensity()
 // {
 // }
 
+//this=user defined
+//VMD=VMD of current node
+//This operator is NOT SYMMETRICAL. But it can be used with indexOf.
 bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 {
+/*  cout<<"this->nodeset="<<this->nodeset<<endl;
+  cout<<"VMD.nodeset="<<VMD.nodeset<<endl;*/
+  if(this->nodeset.contains(VMD.CurrentNode) ) return(true);
   if(this->type==VMD.type && this->BClist==VMD.BClist) return(true);
   else return(false);
+}
+
+void VertexMeshDensity::SetNodes(QString str)
+{
+  QStringList L = str.split(",");
+  nodeset.clear();
+  foreach(QString elt,L) nodeset.insert(elt.toInt());
 }
 
 // QVector < QVector <int> > BClist;
@@ -21,14 +37,10 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 
 ostream& operator<<(ostream &out, VertexMeshDensity A)
 {
-  int N=A.BClist.size();
-  out<<"BClist=[";
-  for(int i=0;i<N;i++){
-    out<<A.BClist[i];
-    if(i!=N-1) out<<",";
-  }
-  out<<"]";
-  out<<" type="<<(int)A.type<<" density="<<A.density;
+  out<<" BClist="<<A.BClist;
+  out<<" type="<<(int)A.type;
+  out<<" nodeset="<<A.nodeset;
+  out<<" density="<<A.density;
   return(out);
 }
 

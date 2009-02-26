@@ -105,6 +105,8 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 void GuiSmoothSurface::before()
 {
+  local_qset=new QSettings("enGits","enGrid_smoothsurface");
+  
   populateBoundaryCodes(ui.listWidget);
   populateBoundaryCodes(ui.listWidget_Source);
   
@@ -128,7 +130,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 17");
   ui.SmoothMethod->addItem("Method 18");
   
-  ui.SmoothMethod->setCurrentIndex(10);
+  ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
   
   if(ui.listWidget->count()>0) ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
   else ui.lineEdit_BoundaryCode-> setText("42");
@@ -149,6 +151,7 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_PassBand->setValue(smooth2->GetPassBand());
 //   ui.checkBox_FeatureEdgeSmoothing->setCheckState(int2CheckState(smooth->GetFeatureEdgeSmoothing()));
   ui.checkBox_FeatureEdgeSmoothing->setCheckState(Qt::Checked);
+//   ui.checkBox_FeatureEdgeSmoothing->setFlags(Qt::ItemIsTristate | ui.checkBox_FeatureEdgeSmoothing->flags);
   ui.doubleSpinBox_FeatureAngle->setValue(smooth->GetFeatureAngle());
   ui.doubleSpinBox_EdgeAngle->setValue(smooth->GetEdgeAngle());
   ui.checkBox_BoundarySmoothing->setCheckState(int2CheckState(smooth->GetBoundarySmoothing()));
@@ -188,6 +191,11 @@ void GuiSmoothSurface::before()
     <<"VTK_BOUNDARY_EDGE_VERTEX"
     <<"any";
     
+  QList<QString> list2;
+  list2 << "yes"
+    <<"no"
+    <<"any";
+  
   Nrow=ui.tableWidget->rowCount();
   Ncol=ui.tableWidget->columnCount();
   for(int i=0;i<Nrow;i++)
@@ -200,7 +208,7 @@ void GuiSmoothSurface::before()
   
 //   item0->setCheckState(Qt::Checked);
   Nbc=ui.listWidget-> count ();
-  ui.tableWidget->setColumnCount(Nbc+2);
+  ui.tableWidget->setColumnCount(Nbc+3);
   ui.tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
   
   QStringList L;
@@ -208,12 +216,14 @@ void GuiSmoothSurface::before()
   {
     Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
     L<<ui.listWidget->item(i)->text();
-    ui.tableWidget->setColumnWidth(i,30);
+//     ui.tableWidget->setItemDelegate(new VertexDelegate(i, list2));
+//     ui.tableWidget->setColumnWidth(i,30);
   }
   L<<"Vertex Type";
+  L<<"Nodelist";
   L<<"Mesh Density";
   ui.tableWidget->setHorizontalHeaderLabels(L);
-  ui.tableWidget->resizeRowsToContents();
+  ui.tableWidget->resizeColumnsToContents();
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
@@ -238,12 +248,17 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
   cout<<"VMDvector.size()="<<VMDvector.size()<<endl;
   for(int i=0;i<N_VMD;i++)
   {
+//     VMDvector[i].BClist.resize(Nbc);
     for(int j=0;j<Nbc;j++)
     {
       if(ui.tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
+/*      if(ui.tableWidget->item(i,j)->checkState()) VMDvector[i].BClist[j]=.push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
+      BC=ui.tableWidget->horizontalHeaderItem(j)->text().toInt();
+      value=ui.tableWidget->item(i,j)->checkState()*/
     }
     VMDvector[i].type=Str2VertexType(ui.tableWidget->item(i,Nbc)->text());
-    VMDvector[i].density=ui.tableWidget->item(i,Nbc+1)->text().toDouble();
+    VMDvector[i].SetNodes(ui.tableWidget->item(i,Nbc+1)->text());
+    VMDvector[i].density=ui.tableWidget->item(i,Nbc+2)->text().toDouble();
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
   return(VMDvector);
@@ -258,27 +273,32 @@ void GuiSmoothSurface::AddSet()
   int Nbc=ui.listWidget->count();
   for(int i=0;i<Nbc;i++)
   {
-    QTableWidgetItem *newBC = new QTableWidgetItem();
+    TriStateTableWidgetItem *newBC = new TriStateTableWidgetItem();
+    newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
     ui.tableWidget->setItem(row, i, newBC);
-    newBC->setCheckState(Qt::Unchecked);
-    ui.tableWidget->setColumnWidth(i,30);
   }
-  QTableWidgetItem *newVT = new QTableWidgetItem("any");
-  ui.tableWidget->setItem(row, Nbc, newVT);
-  QTableWidgetItem *newD = new QTableWidgetItem("-1");
-  ui.tableWidget->setItem(row, Nbc+1, newD);
-  ui.tableWidget->resizeRowsToContents();
+  QTableWidgetItem *item;
+  item = new QTableWidgetItem("any");
+  ui.tableWidget->setItem(row, Nbc, item);
+  item = new QTableWidgetItem("");
+  ui.tableWidget->setItem(row, Nbc+1, item);
+  item = new QTableWidgetItem("-1");
+  ui.tableWidget->setItem(row, Nbc+2, item);
+  ui.tableWidget->resizeColumnsToContents();
 }
 
 void GuiSmoothSurface::RemoveSet()
 {
   cout<<"Removing set"<<endl;
   ui.tableWidget->removeRow(ui.tableWidget->currentRow());
-  ui.tableWidget->resizeRowsToContents();
+  ui.tableWidget->resizeColumnsToContents();
 }
 
 void GuiSmoothSurface::operate()
 {
+  local_qset=new QSettings("enGits","enGrid_smoothsurface");
+  local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
+  
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements
   //////////////////////////////////////////////////////////////////////////////////////////////

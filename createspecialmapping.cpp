@@ -505,6 +505,7 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   VertexMeshDensity VMD;
   VMD.type=VertexType;
   VMD.density=0;
+  VMD.CurrentNode=node;
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   createNodeMapping(nodes, _nodes, m_grid);
   createNodeToCell(m_AllCells, nodes, _nodes, n2c, m_grid);

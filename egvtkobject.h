@@ -604,7 +604,7 @@ ostream &operator<<(ostream &out, QVector<T> & vector)
 }
 
 template <class T>
-ostream &operator<<(ostream &out, QSet<T> & set)
+ostream &operator<<(ostream &out, QSet<T> const & set )
 {
   out << "[ ";
   foreach (T value, set) out << value << " ";
