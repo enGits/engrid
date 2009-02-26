@@ -9,6 +9,12 @@
 #include "operation.h"
 #include "vertexmeshdensity.h"
 
+#include "geometrytools.h"
+using namespace GeometryTools;
+
+#include <cmath>
+using namespace std;
+
 class CreateSpecialMapping : public Operation {
 public:
     CreateSpecialMapping();
@@ -62,6 +68,56 @@ public:
   
   VertexMeshDensity getVMD(vtkIdType node, char VertexType);
 
+//utilities
+public:
+  double Um(vtkIdType D) {
+    double ret=0;
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(D, N_pts, pts);
+    for(int i=0;i<N_pts;i++)
+    {
+      vec3_t A,B;
+      grid->GetPoints()->GetPoint(pts[i], A.data());
+      grid->GetPoints()->GetPoint(pts[(i+1)%N_pts], B.data());
+      ret+=(B-A).abs();
+    }
+    return(ret);
+  }
+  double A_U(vtkIdType D) {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(D, N_pts, pts);
+    vec3_t A,B,C;
+    grid->GetPoints()->GetPoint(pts[0], A.data());
+    grid->GetPoints()->GetPoint(pts[1], B.data());
+    grid->GetPoints()->GetPoint(pts[2], C.data());
+    double a=(C-B).abs();
+    double alpha=angle((B-A),(C-A));
+    double R=a/(2*sin(alpha));
+    return(M_PI*R*R);
+  }
+  double A_D(vtkIdType D) {
+    return(cellVA(m_grid,D));
+  }
+  double DN(int i,vtkIdType D) {
+    return(c2c[D][i]);
+  }
+  double nk(vtkIdType P) {
+    return(n2n[P].size());
+  }
+  double G_k(vtkIdType node) {
+    return(CurrentMeshDensity(node,n2n,m_grid));
+  };
+  double DK(int i,vtkIdType D) {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(D, N_pts, pts);
+    return(pts[i]);
+  }
+  double KK(int i,vtkIdType K);
+  double L_k(int i);
+  double Q_L(vtkIdType D);
+  double Q_L1(vtkIdType D);
+  double Q_L2(vtkIdType D);
+  double T_min();
 };
 
 #define VTK_SIMPLE_VERTEX 0

@@ -361,6 +361,20 @@ double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg)
   return 0.0;
 };
 
+double angle(const vec3_t & u, const vec3_t & v)
+{
+  // return the angle w.r.t. another 3-vector
+  double ptot2 = u.abs2()*v.abs2();
+  if(ptot2 <= 0) {
+      return 0.0;
+  } else {
+    double arg = (u*v)/sqrt(ptot2);
+    if(arg >  1.0) arg =  1.0;
+    if(arg < -1.0) arg = -1.0;
+    return acos(arg);
+  }
+}
+
 } // namespace
 
 

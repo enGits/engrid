@@ -90,6 +90,16 @@ inline typename MathVector<V>::scalar_t MathVector<V>::abs() const
   return sqrt(l);
 };
 
+// absolute value squared ((||v||_2)^2 in this case)
+// -------------------------------------------------
+template <class V>
+inline typename MathVector<V>::scalar_t MathVector<V>::abs2() const 
+{
+  scalar_t l = 0;
+  for (uint_t i = 0; i < this->size(); ++i) l += (*this)[i]*(*this)[i];
+  return l;
+};
+
 template <class L, class O, class R>
 inline typename ParseNode<L,O,R>::value_type ParseNode<L,O,R>::abs() const
 {

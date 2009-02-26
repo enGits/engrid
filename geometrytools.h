@@ -94,6 +94,9 @@ inline vec2_t turnLeft(const vec2_t &v)
   return u;
 };
 
+/** return the angle w.r.t. another 3-vector */
+double angle(const vec3_t & u, const vec3_t & v);
+
 };
 
 #endif
