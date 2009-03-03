@@ -213,7 +213,9 @@ guismoothsurface.ui \
 
 SOURCES -= settingstab.cpp \
 settingsviewer.cpp \
- vtkpolydataalgorithm2.cpp
+ vtkpolydataalgorithm2.cpp \
+ vtksmoothpolydatafilter2.cpp
 HEADERS -= settingstab.h \
 settingsviewer.h \
- vtkpolydataalgorithm2.h
+ vtkpolydataalgorithm2.h \
+ vtksmoothpolydatafilter2.h
