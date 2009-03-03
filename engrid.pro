@@ -1,8 +1,8 @@
 TEMPLATE = app
 LANGUAGE = C++
 
-#CONFIG += qt release thread
-CONFIG += qt debug thread
+CONFIG += qt release thread
+#CONFIG += qt debug thread
 QT += xml network opengl
 
 LIBS += -lvtkCommon 
@@ -10,19 +10,16 @@ LIBS += -lvtkGraphics
 LIBS += -lvtkImaging 
 LIBS += -lvtkHybrid 
 LIBS += -lQVTK
-
-
 LIBS += -lng
 
 #DEFINES += QT_NO_DEBUG
 
 !win32 {
     LIBS += -L./netgen_svn
-    LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
-    LIBS += -L$(VTKDIR)/lib/vtk-5.2
+    LIBS += -L$(VTKLIBDIR)
     LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
-    INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
+    INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
@@ -126,10 +123,7 @@ guisetboundarycode.h \
 guismoothsurface.h \
 guisettingstab.h \
 guisettingsviewer.h \
- \
- guitransform.h \
- vtkpolydataalgorithm2.h \
- vtksmoothpolydatafilter2.h
+guitransform.h
 
 SOURCES = \
 main.cpp \
@@ -190,10 +184,7 @@ guisetboundarycode.cpp \
 guismoothsurface.cpp \
 guisettingstab.cpp \
 guisettingsviewer.cpp \
- \
- guitransform.cpp \
- vtkpolydataalgorithm2.cpp \
- vtksmoothpolydatafilter2.cpp
+guitransform.cpp \
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -207,15 +198,4 @@ guioutputwindow.ui \
 guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
- \
- guitransform.ui
-
-
-SOURCES -= settingstab.cpp \
-settingsviewer.cpp \
- vtkpolydataalgorithm2.cpp \
- vtksmoothpolydatafilter2.cpp
-HEADERS -= settingstab.h \
-settingsviewer.h \
- vtkpolydataalgorithm2.h \
- vtksmoothpolydatafilter2.h
+guitransform.ui
