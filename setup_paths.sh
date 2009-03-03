@@ -5,8 +5,15 @@
 if [ $# -ne 1 ]
 then
         echo "usage :"
-        echo "source `basename $0` engits/ubuntu/opensuse"
+        echo "source `basename $0` engits/debian/ubuntu/opensuse"
         exit 0
+fi
+
+#Debian
+if [ $1 = 'debian' ]
+then
+  export VTKLIBDIR=/usr/lib/
+  export VTKINCDIR=/usr/include/vtk-5.0/
 fi
 
 #Ubuntu
