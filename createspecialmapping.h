@@ -105,19 +105,87 @@ public:
     return(n2n[P].size());
   }
   double G_k(vtkIdType node) {
-    return(CurrentMeshDensity(node,n2n,m_grid));
+//     return(CurrentMeshDensity(node,n2n,m_grid));
+    return(CurrentVertexAvgDist(node,n2n,m_grid));
   };
   double DK(int i,vtkIdType D) {
     vtkIdType N_pts, *pts;
     grid->GetCellPoints(D, N_pts, pts);
     return(pts[i]);
   }
-  double KK(int i,vtkIdType K);
-  double L_k(int i);
-  double Q_L(vtkIdType D);
-  double Q_L1(vtkIdType D);
-  double Q_L2(vtkIdType D);
-  double T_min();
+  vtkIdType KK(int i,int j,vtkIdType K) {//i=1 or 2, j=edge nb, K=node
+    if(i==1) return(K);
+    else
+    {
+      QSet <int> S=n2n[K];
+      QVector <int> V;
+      qCopy(S.begin(),S.end(),V.begin());
+      qSort(V.begin(),V.end());
+      return(V[j]);
+    }
+  }
+  double L_k(int j,vtkIdType K)
+  {
+      QSet <int> S=n2n[K];
+      QVector <int> V;
+      qCopy(S.begin(),S.end(),V.begin());
+      qSort(V.begin(),V.end());
+      vec3_t A;
+      vec3_t B;
+      grid->GetPoints()->GetPoint(K, A.data());
+      grid->GetPoints()->GetPoint(V[j], B.data());
+      return((B-A).abs());
+  }
+  double Q_L(vtkIdType D)
+  {
+    // Um(D)/sum(G_k(DK(i,D)),i,1,3)
+    double denom_sum=0;
+    for(int i=0;i<3;i++)
+    {
+      denom_sum += G_k(DK(i,D));
+    }
+    return(Um(D)/denom_sum);
+  }
+  double Q_L1(vtkIdType P)
+  {
+    // [2*sum(L_k(i~),i,1,nk(P))]/[sum(G_k(KK(1,i~))+G_k(KK(2,i~)),i,1,nk(P))]
+    int N=nk(P);
+    double num_sum=0;
+    double denom_sum=0;
+    for(int j=0;j<N;j++)
+    {
+      num_sum += 2*L_k(j,P);
+      denom_sum += G_k(KK(1,j,P))+G_k(KK(2,j,P));
+    }
+    return(num_sum/denom_sum);
+  }
+  double Q_L2(vtkIdType P)
+  {
+    
+    // min([2*L_k(i~)]/[G_k(KK(1,i~))+G_k(KK(2,i~))])
+    int N=nk(P);
+    QVector <double> V(N);
+    double num,denom;
+    for(int j=0;j<N;j++)
+    {
+      num = 2*L_k(j,P);
+      denom = G_k(KK(1,j,P))+G_k(KK(2,j,P));
+      V[j]=num/denom;
+    }
+    qSort(V.begin(),V.end());
+    return(V[0]);
+  }
+  double T_min(int w)
+  {
+    // sum([A_U(i)]/[A_D(i)^w]*[G_k(i)^(2*(w-1))],i,1,Nd)
+    int N_cells=m_grid->GetNumberOfCells();
+    double T=0;
+    for(int i=0;i<N_cells;i++)
+    {
+      T += A_U(i)/pow(A_D(i),w)*pow(G_k(i),2*(w-1));
+    }
+    return(T);
+  }
 };
 
 #define VTK_SIMPLE_VERTEX 0
