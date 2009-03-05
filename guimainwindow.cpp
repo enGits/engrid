@@ -183,12 +183,19 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   getRenderer()->AddActor(axes);
   setAxesVisibility();
   
-  picker = vtkCellPicker::New();
-  getInteractor()->SetPicker(picker);
+  CellPicker = vtkCellPicker::New();
+//   getInteractor()->SetPicker(CellPicker);
+  PointPicker = vtkPointPicker::New();
+//   getInteractor()->SetPicker(PointPicker);
   
+  ui.radioButton_CellPicker->setChecked(true);
+  pick_sphere->SetRadius(0.25);//in case the user starts picking points instead of cells
+
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
-  cbc->SetCallback(pickCallBack);
-  picker->AddObserver(vtkCommand::EndPickEvent, cbc);
+  cbc->SetCallback(pickCellCallBack);
+  CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
+  cbc->SetCallback(pickPointCallBack);
+  PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   cbc->Delete();
   
   if (qset.contains("tmp_directory")) {
@@ -243,7 +250,7 @@ void GuiMainWindow::exit()
 
 vtkRenderWindow* GuiMainWindow::getRenderWindow() 
 {
-  return ui.qvtkWidget->GetRenderWindow(); 
+  return ui.qvtkWidget->GetRenderWindow();
 };
 
 vtkRenderer* GuiMainWindow::getRenderer()
@@ -251,9 +258,9 @@ vtkRenderer* GuiMainWindow::getRenderer()
   return renderer;
 };
 
-QVTKInteractor* GuiMainWindow::getInteractor() 
+QVTKInteractor* GuiMainWindow::getInteractor()
 {
-  return ui.qvtkWidget->GetInteractor(); 
+  return ui.qvtkWidget->GetInteractor();
 };
 
 QString GuiMainWindow::getCwd()
@@ -367,31 +374,62 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_actor);
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
-      vtkIdType cellId = getPickedCell();
-      if (cellId >= 0) {
-        vtkIdType *pts, Npts;
-        grid->GetCellPoints(cellId, Npts, pts);
-        vec3_t x(0,0,0);
-        for (vtkIdType i = 0; i < Npts; ++i) {
-          vec3_t xp;
-          grid->GetPoints()->GetPoint(pts[i], xp.data());
-          x += double(1)/Npts * xp;
-        };
-        pick_sphere->SetCenter(x.data());
-        double R = 1e99;
-        for (vtkIdType i = 0; i < Npts; ++i) {
-          vec3_t xp;
-          grid->GetPoints()->GetPoint(pts[i], xp.data());
-          R = min(R, 0.25*(xp-x).abs());
-        };
-        pick_sphere->SetRadius(R);
-        pick_mapper->SetInput(pick_sphere->GetOutput());
-        pick_actor = vtkActor::New();
-        pick_actor->SetMapper(pick_mapper);
-        pick_actor->GetProperty()->SetRepresentationToSurface();
-        pick_actor->GetProperty()->SetColor(1,0,0);
-        getRenderer()->AddActor(pick_actor);
-      };
+
+      if(ui.radioButton_CellPicker->isChecked())
+      {
+            getInteractor()->SetPicker(CellPicker);
+            vtkIdType cellId = getPickedCell();
+            if (cellId >= 0) {
+              vtkIdType *pts, Npts;
+              grid->GetCellPoints(cellId, Npts, pts);
+              vec3_t x(0,0,0);
+              for (vtkIdType i = 0; i < Npts; ++i) {
+                vec3_t xp;
+                grid->GetPoints()->GetPoint(pts[i], xp.data());
+                x += double(1)/Npts * xp;
+              };
+              pick_sphere->SetCenter(x.data());
+              double R = 1e99;
+              for (vtkIdType i = 0; i < Npts; ++i) {
+                vec3_t xp;
+                grid->GetPoints()->GetPoint(pts[i], xp.data());
+                R = min(R, 0.25*(xp-x).abs());
+              };
+              pick_sphere->SetRadius(R);
+              pick_mapper->SetInput(pick_sphere->GetOutput());
+              pick_actor = vtkActor::New();
+              pick_actor->SetMapper(pick_mapper);
+              pick_actor->GetProperty()->SetRepresentationToSurface();
+              pick_actor->GetProperty()->SetColor(1,0,0);
+              getRenderer()->AddActor(pick_actor);
+            };
+      }
+      else
+      {
+            getInteractor()->SetPicker(PointPicker);
+            vtkIdType nodeId = getPickedPoint();
+      //       vtkIdType nodeId = 0;
+            if (nodeId >= 0) {
+              vec3_t x(0,0,0);
+              grid->GetPoints()->GetPoint(nodeId, x.data());
+              pick_sphere->SetCenter(x.data());
+      //         double R = 1e99;
+//               double R = 0.235702;
+      /*        int Npts=n2n[nodeId].size();
+              foreach (vtkIdType i,n2n[nodeId]) {
+                vec3_t xp;
+                grid->GetPoints()->GetPoint(i, xp.data());
+                R = min(R, 0.25*(xp-x).abs());
+              };*/
+//               pick_sphere->SetRadius(pick_sphere_Radius);
+              pick_mapper->SetInput(pick_sphere->GetOutput());
+              pick_actor = vtkActor::New();
+              pick_actor->SetMapper(pick_mapper);
+              pick_actor->GetProperty()->SetRepresentationToSurface();
+              pick_actor->GetProperty()->SetColor(0,0,1);
+              getRenderer()->AddActor(pick_actor);
+            };
+      }
       
     };
     
@@ -724,35 +762,63 @@ void GuiMainWindow::updateStatusBar()
   num.setNum(Nquads); txt += num + " quads), ";
   num.setNum(Nnodes); txt += num + " nodes";
   
-  QString pick_txt = ", picked cell: ";
-  vtkIdType id_cell = getPickedCell();
-  if (id_cell < 0) {
-    pick_txt += "none";
-  } else {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if      (type_cell == VTK_TRIANGLE)   pick_txt += "triangle";
-    else if (type_cell == VTK_QUAD)       pick_txt += "quad";
-    else if (type_cell == VTK_TETRA)      pick_txt += "tetrahedron";
-    else if (type_cell == VTK_PYRAMID)    pick_txt += "pyramid";
-    else if (type_cell == VTK_WEDGE)      pick_txt += "prism";
-    else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hexahedron";
-    vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    pick_txt += " [";
-    for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-      QString num;
-      num.setNum(pts[i_pts]);
-      pick_txt += num;
-      if (i_pts < N_pts-1) {
-        pick_txt += ",";
+  if(ui.radioButton_CellPicker->isChecked())
+  {
+    QString pick_txt = ", picked cell: ";
+    vtkIdType id_cell = getPickedCell();
+    if (id_cell < 0) {
+      pick_txt += "no cell picked";
+    } else {
+      vtkIdType type_cell = grid->GetCellType(id_cell);
+      if      (type_cell == VTK_TRIANGLE)   pick_txt += "triangle";
+      else if (type_cell == VTK_QUAD)       pick_txt += "quad";
+      else if (type_cell == VTK_TETRA)      pick_txt += "tetrahedron";
+      else if (type_cell == VTK_PYRAMID)    pick_txt += "pyramid";
+      else if (type_cell == VTK_WEDGE)      pick_txt += "prism";
+      else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hexahedron";
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      pick_txt += " [";
+      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+        QString num;
+        num.setNum(pts[i_pts]);
+        pick_txt += num;
+        if (i_pts < N_pts-1) {
+          pick_txt += ",";
+        };
       };
+      pick_txt += "]";
     };
-    pick_txt += "]";
-  };
-  txt += pick_txt;
-  QString tmp;
-  tmp.setNum(id_cell);
-  txt += " id_cell=" + tmp;
+    QString tmp;
+    tmp.setNum(id_cell);
+    pick_txt += " id_cell=" + tmp;
+    txt += pick_txt;
+  }
+  else
+  {
+    QString pick_txt = ", picked node: ";
+    vtkIdType id_node = getPickedPoint();
+    if (id_node < 0) {
+      pick_txt += "no node picked";
+    } else {
+      vec3_t x;
+      grid->GetPoints()->GetPoint(id_node,x.data());
+      pick_txt += " [";
+      for (int i = 0; i < 3; i++) {
+        QString num;
+        num.setNum(x[i]);
+        pick_txt += num;
+        if (i < 2) {
+          pick_txt += ",";
+        };
+      };
+      pick_txt += "]";
+    };
+    QString tmp;
+    tmp.setNum(id_node);
+    pick_txt += " id_node=" + tmp;
+    txt += pick_txt;
+  }
   
   status_label->setText(txt);
   unlock();
@@ -837,7 +903,23 @@ void GuiMainWindow::addVtkTypeInfo()
   grid->GetCellData()->AddArray(vtk_type);
 };
 
-void GuiMainWindow::pickCallBack
+void GuiMainWindow::pickCellCallBack
+(
+  vtkObject *caller, 
+  unsigned long int eid, 
+  void *clientdata, 
+  void *calldata
+)
+{
+  caller = caller;
+  eid = eid;
+  clientdata = clientdata;
+  calldata = calldata;
+  THIS->updateActors();
+  THIS->updateStatusBar();
+};
+
+void GuiMainWindow::pickPointCallBack
 (
   vtkObject *caller, 
   unsigned long int eid, 
@@ -859,7 +941,7 @@ vtkIdType GuiMainWindow::getPickedCell()
   if (THIS->grid->GetNumberOfCells() > 0) {
     THIS->bcodes_filter->Update();
     EG_VTKDCC(vtkLongArray_t, cell_index, THIS->bcodes_filter->GetOutput(), "cell_index");
-    vtkIdType cellId = THIS->picker->GetCellId();
+    vtkIdType cellId = THIS->CellPicker->GetCellId();
     if (cellId >= 0) {
       if (cellId < THIS->bcodes_filter->GetOutput()->GetNumberOfCells()) {
         picked_cell = cell_index->GetValue(cellId);
@@ -867,6 +949,23 @@ vtkIdType GuiMainWindow::getPickedCell()
     };
   };
   return picked_cell;
+};
+
+vtkIdType GuiMainWindow::getPickedPoint()
+{
+  vtkIdType picked_point = -1;
+  if (THIS->grid->GetNumberOfCells() > 0) {
+    THIS->bcodes_filter->Update();
+//     EG_VTKDCN(vtkLongArray_t, node_index, THIS->bcodes_filter->GetOutput(), "node_index");
+    vtkIdType pointId = THIS->PointPicker->GetPointId();
+    if (pointId >= 0) {
+//       picked_point = node_index->GetValue(pointId);
+/*      cout<<"picked_point="<<picked_point<<endl;
+      cout<<"pointId="<<pointId<<endl;*/
+      picked_point = pointId;
+    }
+  };
+  return picked_point;
 };
 
 void GuiMainWindow::changeSurfaceOrientation()
