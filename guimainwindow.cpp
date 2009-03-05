@@ -198,10 +198,13 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   cbc->Delete();
   
+  QString user = QString(getenv("USER"));
+  QString basename="enGrid_output_"+user+".txt";
+
   if (qset.contains("tmp_directory")) {
-    log_file_name = qset.value("tmp_directory").toString() + "/enGrid_output.txt";
+    log_file_name = qset.value("tmp_directory").toString() + "/" + basename;
   } else {
-    log_file_name = "/tmp/enGrid_output.txt";
+    log_file_name = "/tmp/" + basename;
   };
   system_stdout = stdout;
   freopen (log_file_name.toAscii().data(), "w", stdout);
