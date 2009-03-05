@@ -20,9 +20,12 @@ engrid
 CVS
 Doxyfile
 Makefile
-math
 resources
 tmp.txt
+
+math/.#mathvector.h.1.1.1.1.6.2
+math/.#mathvector_methods.h.1.1.1.1.6.2
+qrc_engrid.cpp
 
 # switch to regexp syntax.
 syntax: regexp

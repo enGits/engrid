@@ -18,11 +18,10 @@ LIBS += -lng
 
 !win32 {
     LIBS += -L./netgen_svn
-    LIBS += -L$(VTKDIR)/lib/$(VTKVERSION)
-    LIBS += -L$(VTKDIR)/lib/vtk-5.2
+    LIBS += -L$(VTKLIBDIR)
     LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
-    INCLUDEPATH += $(VTKDIR)/include/$(VTKVERSION)
+    INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
