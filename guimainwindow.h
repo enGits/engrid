@@ -40,6 +40,7 @@ class GuiMainWindow;
 #include <vtkGeometryFilter.h>
 #include <vtkCubeAxesActor2D.h>
 #include <vtkCellPicker.h>
+#include <vtkPointPicker.h>
 #include <vtkSphereSource.h>
 
 #include "ui_guimainwindow.h"
@@ -160,8 +161,11 @@ private: // attributes
   /** VTK filter to extract boundary elements with certain codes */
   vtkEgBoundaryCodesFilter *bcodes_filter;
   
-  /** VTK picker to pick cells for various user interactions */
-  vtkCellPicker *picker;
+  /** VTK CellPicker to pick cells for various user interactions */
+  vtkCellPicker *CellPicker;
+
+  /** VTK PointPicker to pick points for various user interactions */
+  vtkPointPicker *PointPicker;
   
   /** flag to indicate that enGrid is busy with an operation */
   bool busy;
@@ -206,7 +210,10 @@ private: // methods
   void addVtkTypeInfo();
   
   /** callback for cell picking */
-  static void pickCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
+  static void pickCellCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
+
+  /** callback for point picking */
+  static void pickPointCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
   
 public: // methods
   
@@ -268,6 +275,12 @@ public: // static methods
    * @return the picked cell ID or -1 if no cell has been picked
    */
   static vtkIdType getPickedCell();
+
+  /**
+   * Get the currently picked point.
+   * @return the picked point ID or -1 if no point has been picked
+   */
+  static vtkIdType getPickedPoint();
   
   /**
    * Access to the QSettings object/

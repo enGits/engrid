@@ -1089,7 +1089,7 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  if(ui.SmoothMethod->currentIndex()==10)//vtkSmoothPolyDataFilter2 smoothing
+  if(ui.SmoothMethod->currentIndex()==10)// super smoothing
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);

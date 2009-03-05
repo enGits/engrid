@@ -417,6 +417,7 @@ int CreateSpecialMapping::Process()
   getNodesFromCells(m_AllCells, nodes, m_grid);
   createNodeMapping(nodes, _nodes, m_grid);
   createNodeToNode(m_AllCells, nodes, _nodes, n2n, m_grid);
+  createCellToCell(m_AllCells, c2c, m_grid);
   
   foreach(vtkIdType node,SelectedNodes)
   {
@@ -434,11 +435,11 @@ int CreateSpecialMapping::Process()
       double D=1./L;
       node_meshdensity->SetValue(node, D);
     }
-      
   }
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
+    //Phase 1 : define desired mesh density
     foreach(vtkIdType node,SelectedNodes)
     {
       cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
@@ -455,8 +456,43 @@ int CreateSpecialMapping::Process()
         double L=1./D;
         node_meshdensity->SetValue(node, D);
       }
-      
     }
+
+    int N_inserted_FP=0;
+    int N_inserted_EP=0;
+    int N_removed_FP=0;
+    int N_removed_EP=0;
+
+    //Phase 2 : insert field points (loop through cells)
+    foreach(vtkIdType id_cell, m_SelectedCells)
+    {
+      if( insert_fieldpoint(id_cell) )
+      {
+        cout<<"inserting a point in cell "<<id_cell<<endl;
+        N_inserted_FP++;
+      }
+    }
+    //Phase 3 : insert edge points (loop through edges)
+
+    //Phase 4 +5 : remove field points (loop through points) + remove edge points (loop through points)
+    foreach(vtkIdType node,SelectedNodes)
+    {
+      if( remove_fieldpoint(node) )
+      {
+        cout<<"removing field point "<<node<<endl;
+        N_removed_FP++;
+      }
+      if( remove_edgepoint(node) )
+      {
+        cout<<"removing edge point "<<node<<endl;
+        N_removed_FP++;
+      }
+    }
+
+    cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
+    cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
+    cout<<"N_removed_FP="<<N_removed_FP<<endl;
+    cout<<"N_removed_EP="<<N_removed_EP<<endl;
   }
   
   //free up connectivity storage
