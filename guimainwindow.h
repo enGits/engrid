@@ -131,7 +131,7 @@ private: // attributes
   /** VTK filter to extract the surface of the current grid. */
   vtkGeometryFilter *surface_filter;
   
-  /** sphere to mark picked cell */
+  /** sphere to mark picked cell/points */
   vtkSphereSource *pick_sphere;
   
   /** VTK mapper to map pick marker */

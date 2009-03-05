@@ -189,6 +189,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 //   getInteractor()->SetPicker(PointPicker);
   
   ui.radioButton_CellPicker->setChecked(true);
+  pick_sphere->SetRadius(0.25);//in case the user starts picking points instead of cells
 
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(pickCellCallBack);
@@ -413,14 +414,14 @@ void GuiMainWindow::updateActors()
               grid->GetPoints()->GetPoint(nodeId, x.data());
               pick_sphere->SetCenter(x.data());
       //         double R = 1e99;
-              double R = 0.235702;
+//               double R = 0.235702;
       /*        int Npts=n2n[nodeId].size();
               foreach (vtkIdType i,n2n[nodeId]) {
                 vec3_t xp;
                 grid->GetPoints()->GetPoint(i, xp.data());
                 R = min(R, 0.25*(xp-x).abs());
               };*/
-              pick_sphere->SetRadius(R);
+//               pick_sphere->SetRadius(pick_sphere_Radius);
               pick_mapper->SetInput(pick_sphere->GetOutput());
               pick_actor = vtkActor::New();
               pick_actor->SetMapper(pick_mapper);

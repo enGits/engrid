@@ -79,7 +79,6 @@ struct MathVector : public V
   // ------------
   MathVector<V> cross(const MathVector<V> &vec) const;
   scalar_t abs() const;
-  scalar_t abs2() const;
   void normalise();
   scalar_t* c_array() const;
   uint_t dim() { return this->size(); };
