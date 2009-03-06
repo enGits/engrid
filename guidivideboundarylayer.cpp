@@ -49,6 +49,9 @@ void GuiDivideBoundaryLayer::findBoundaryLayer()
             EG_ERR_RETURN("unable to identify boundary layer");
           };
         } else {
+          vec3_t x;
+          grid->GetPoint(pts[0],x.data());
+          cout << x << endl;
           EG_BUG;
         };
       };
