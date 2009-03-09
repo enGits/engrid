@@ -7,3 +7,5 @@ netgen_svn
 qrc_*
 tmp.txt
 *~
+*.kdevelop.pcs
+*.kdevses
