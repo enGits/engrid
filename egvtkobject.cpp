@@ -1169,3 +1169,10 @@ Qt::CheckState int2CheckState(int a)
 // Qcout=QTextStream(stdout, QIODevice::WriteOnly);
 // Qcerr=QTextStream(stderr, QIODevice::WriteOnly);
 // ///////////////////////////////////////////
+
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
+{
+  vtkIdType x=min(a,b);
+  vtkIdType y=max(a,b);
+  return(pair<vtkIdType,vtkIdType>(x,y));
+}

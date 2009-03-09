@@ -647,4 +647,6 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
 // QTextStream Qcerr;
 // ///////////////////////////////////////////
 
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
+
 #endif

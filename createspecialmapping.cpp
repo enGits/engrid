@@ -473,7 +473,17 @@ int CreateSpecialMapping::Process()
       }
     }
     //Phase 3 : insert edge points (loop through edges)
-
+    QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
+    vtkIdType edgeId=0;
+    foreach(vtkIdType node1,SelectedNodes)
+    {
+      foreach(vtkIdType node2,n2n[node1])
+      {
+        edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
+      }
+    }
+    cout<<"edge_map.size()="<<edge_map.size()<<endl;
+    
     //Phase 4 +5 : remove field points (loop through points) + remove edge points (loop through points)
     foreach(vtkIdType node,SelectedNodes)
     {

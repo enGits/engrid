@@ -1,0 +1,9 @@
+*.o
+moc_*
+ui_*
+Makefile
+engrid
+netgen_svn
+qrc_*
+tmp.txt
+*~

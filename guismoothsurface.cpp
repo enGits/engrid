@@ -68,13 +68,6 @@ vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > >
   return a_c2c[a_cell][i];
 }
 
-pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
-{
-  vtkIdType x=min(a,b);
-  vtkIdType y=max(a,b);
-  return(pair<vtkIdType,vtkIdType>(x,y));
-}
-
 int cout_vtkWindowedSincPolyDataFilter(vtkWindowedSincPolyDataFilter* smooth)
 {
   cout<<"NumberOfIterations="<<smooth->GetNumberOfIterations()<<endl;
