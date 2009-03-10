@@ -462,7 +462,12 @@ int CreateSpecialMapping::Process()
     int N_inserted_EP=0;
     int N_removed_FP=0;
     int N_removed_EP=0;
-
+    
+    int N_points=m_grid->GetNumberOfPoints();
+    int N_cells=m_grid->GetNumberOfCells();
+    int N_newpoints=0;
+    int N_newcells=0;
+    
     //Phase 2 : insert field points (loop through cells)
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
@@ -470,6 +475,8 @@ int CreateSpecialMapping::Process()
       {
         cout<<"inserting a field point "<<id_cell<<endl;
         N_inserted_FP++;
+        N_newcells+=2;
+        N_newpoints+=1;
       }
     }
     //Phase 3 : insert edge points (loop through edges)
@@ -488,28 +495,23 @@ int CreateSpecialMapping::Process()
     QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> i(edge_map);
     while (i.hasNext()) {
       i.next();
-      cout << "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
+//       cout << "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
       if( insert_edgepoint(i.key().first,i.key().second) )
       {
         cout<<"inserting an edge point "<< "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
         N_inserted_EP++;
+        if(true)//TODO
+        {
+          N_newcells+=2;
+          N_newpoints+=1;
+        }
+        else
+        {
+          N_newcells+=1;
+          N_newpoints+=1;
+        }
       }
     }
-    
-/*    QMap<vtkIdType, vtkIdType>::const_iterator i = map.constBegin();
-    while (i != map.constEnd()) {
-      cout << i.key() << ": " << i.value() << endl;
-      ++i;
-    }*/
-/*    foreach(pair<vtkIdType,vtkIdType> edge,edge_map)
-    {
-      cout<<"inserting an edge point "<<edge<<endl;
-      if( insert_edgepoint() )
-      {
-        cout<<"inserting an edge point "<<edge<<endl;
-        N_inserted_EP++;
-      }
-    }*/
     
     //Phase 4 +5 : remove field points (loop through points) + remove edge points (loop through points)
     foreach(vtkIdType node,SelectedNodes)
@@ -530,6 +532,12 @@ int CreateSpecialMapping::Process()
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
     cout<<"N_removed_FP="<<N_removed_FP<<endl;
     cout<<"N_removed_EP="<<N_removed_EP<<endl;
+  
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  
   }
   
   //free up connectivity storage

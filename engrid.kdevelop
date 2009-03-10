@@ -172,8 +172,8 @@
       <makebin/>
       <prio>0</prio>
       <envvars>
-        <envvar value="/opt/shared/VTK/lib/vtk-5.2:/opt/shared/Qt/4.4.1/debug/lib:$LD_LIBRARY_PATH" name="LD_LIBRARY_PATH" />
-        <envvar value="/opt/shared/Qt/4.4.1/debug" name="QTDIR" />
+        <envvar value="/opt/shared/VTK/lib/vtk-5.2:/opt/shared/Qt/4.5.0/debug/lib:$LD_LIBRARY_PATH" name="LD_LIBRARY_PATH" />
+        <envvar value="/opt/shared/Qt/4.5.0/debug" name="QTDIR" />
         <envvar value="/opt/shared/VTK/include/vtk-5.2/" name="VTKINCDIR" />
         <envvar value="/opt/shared/VTK/lib/vtk-5.2" name="VTKLIBDIR" />
       </envvars>
