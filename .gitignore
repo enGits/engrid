@@ -9,3 +9,5 @@ tmp.txt
 *~
 *.kdevelop.pcs
 *.kdevses
+.bzr
+.hg

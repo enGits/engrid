@@ -468,7 +468,7 @@ int CreateSpecialMapping::Process()
     {
       if( insert_fieldpoint(id_cell) )
       {
-        cout<<"inserting a point in cell "<<id_cell<<endl;
+        cout<<"inserting a field point "<<id_cell<<endl;
         N_inserted_FP++;
       }
     }
@@ -477,12 +477,39 @@ int CreateSpecialMapping::Process()
     vtkIdType edgeId=0;
     foreach(vtkIdType node1,SelectedNodes)
     {
+//       cout<<"node1="<<node1<<endl;
       foreach(vtkIdType node2,n2n[node1])
       {
         edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
       }
     }
     cout<<"edge_map.size()="<<edge_map.size()<<endl;
+    
+    QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> i(edge_map);
+    while (i.hasNext()) {
+      i.next();
+      cout << "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
+      if( insert_edgepoint(i.key().first,i.key().second) )
+      {
+        cout<<"inserting an edge point "<< "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
+        N_inserted_EP++;
+      }
+    }
+    
+/*    QMap<vtkIdType, vtkIdType>::const_iterator i = map.constBegin();
+    while (i != map.constEnd()) {
+      cout << i.key() << ": " << i.value() << endl;
+      ++i;
+    }*/
+/*    foreach(pair<vtkIdType,vtkIdType> edge,edge_map)
+    {
+      cout<<"inserting an edge point "<<edge<<endl;
+      if( insert_edgepoint() )
+      {
+        cout<<"inserting an edge point "<<edge<<endl;
+        N_inserted_EP++;
+      }
+    }*/
     
     //Phase 4 +5 : remove field points (loop through points) + remove edge points (loop through points)
     foreach(vtkIdType node,SelectedNodes)

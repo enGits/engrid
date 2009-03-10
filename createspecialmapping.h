@@ -116,27 +116,27 @@ public:
     m_grid->GetCellPoints(D, N_pts, pts);
     return(pts[i]);
   }
-  vtkIdType KK(int i,int j,vtkIdType K) {//i=1 or 2, j=edge nb, K=node
+  vtkIdType KK(int i,vtkIdType j,vtkIdType K) {//i=1 or 2, j=node2, K=node1
     if(i==1) return(K);
-    else
-    {
+    else return(j);
+/*    {
       QSet <int> S=n2n[K];
       QVector <int> V(S.size());
       qCopy(S.begin(),S.end(),V.begin());
       qSort(V.begin(),V.end());
       return(V[j]);
-    }
+    }*/
   }
-  double L_k(int j,vtkIdType K)
+  double L_k(vtkIdType j,vtkIdType K)// node1 K, node2 j
   {
-      QSet <int> S=n2n[K];
+/*      QSet <int> S=n2n[K];
       QVector <int> V(S.size());
       qCopy(S.begin(),S.end(),V.begin());
-      qSort(V.begin(),V.end());
+      qSort(V.begin(),V.end());*/
       vec3_t A;
       vec3_t B;
       m_grid->GetPoints()->GetPoint(K, A.data());
-      m_grid->GetPoints()->GetPoint(V[j], B.data());
+      m_grid->GetPoints()->GetPoint(j, B.data());
       return((B-A).abs());
   }
   double Q_L(vtkIdType D)
@@ -155,7 +155,7 @@ public:
     int N=nk(P);
     double num_sum=0;
     double denom_sum=0;
-    for(int j=0;j<N;j++)
+    foreach(vtkIdType j,n2n[P])
     {
       num_sum += 2*L_k(j,P);
       denom_sum += G_k(KK(1,j,P))+G_k(KK(2,j,P));
@@ -167,13 +167,13 @@ public:
     
     // min([2*L_k(i~)]/[G_k(KK(1,i~))+G_k(KK(2,i~))])
     int N=nk(P);
-    QVector <double> V(N);
+    QVector <double> V;
     double num,denom;
-    for(int j=0;j<N;j++)
+    foreach(vtkIdType j,n2n[P])
     {
       num = 2*L_k(j,P);
       denom = G_k(KK(1,j,P))+G_k(KK(2,j,P));
-      V[j]=num/denom;
+      V.push_back(num/denom);
     }
     qSort(V.begin(),V.end());
     return(V[0]);
@@ -203,7 +203,7 @@ public:
     cout<<"total>3*Qmin="<<total<<">"<<3*Qmin<<endl;
     return ( Q_L(D)>1.0/Fred1 && total>3*Qmin );
   }
-  bool insert_edgepoint(int j,vtkIdType K)
+  bool insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
   {
     return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );
   }
