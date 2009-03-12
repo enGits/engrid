@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.4), libgcc1 (>= 1:4.1.1), libgl1-mesa-glx | libgl1, libglu1-mesa | libglu1, libqt4-network (>= 4.4.3), libqt4-opengl (>= 4.4.3), libqt4-xml (>= 4.4.3), libqtcore4 (>= 4.4.3), libqtgui4 (>= 4.4.3), libstdc++6 (>= 4.2.1), libvtk5, libvtk5-qt4
