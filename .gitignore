@@ -11,3 +11,5 @@ tmp.txt
 *.kdevses
 .bzr
 .hg
+*.user
+qtc-gdbmacros
