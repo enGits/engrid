@@ -1,6 +1,13 @@
 TEMPLATE = app
 LANGUAGE = C++
 
+TARGET = engrid
+
+# install
+target.path = /usr/bin
+# target.path =         $$PREFIX/bin
+INSTALLS += target
+
 CONFIG += qt release thread
 #CONFIG += qt debug thread
 QT += xml network opengl
