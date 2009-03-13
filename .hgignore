@@ -30,6 +30,9 @@ qrc_engrid.cpp
 engrid.kdevelop.pcs
 engrid.kdevses
 
+engrid.pro.user
+qtc-gdbmacros
+
 # switch to regexp syntax.
 syntax: regexp
 ^\.pc/

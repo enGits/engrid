@@ -491,7 +491,10 @@ int CreateSpecialMapping::Process()
       }
     }
     cout<<"edge_map.size()="<<edge_map.size()<<endl;
-    
+
+//    EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+//          int bc0=cell_code->GetValue(id_cell);
+
     QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> i(edge_map);
     while (i.hasNext()) {
       i.next();
@@ -500,6 +503,17 @@ int CreateSpecialMapping::Process()
       {
         cout<<"inserting an edge point "<< "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
         N_inserted_EP++;
+
+        vtkIdType node1=i.key().first;
+        vtkIdType node2=i.key().second;
+        
+       QSet <int> tmp;
+/*       tmp.resize(n2c[node1].size());
+       qCopy(n2c[node1].begin(), n2c[node1].end(), tmp.begin());*/
+        tmp=n2c[node1];
+       tmp.intersect(n2c[node2]);
+        cout<<"tmp="<<tmp<<endl;
+
         if(true)//TODO
         {
           N_newcells+=2;
