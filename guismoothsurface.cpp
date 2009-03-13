@@ -753,12 +753,15 @@ void GuiSmoothSurface::operate()
     QSet <int> cells_to_split;
     QVector <stencil_t> StencilVector;
     
-    QMap <int,bool> marked;
+    QMap <vtkIdType,bool> marked;
 //     marked.resize(SelectedCells.size());
-    foreach(vtkIdType id_cell, SelectedCells)
+    //This is not necessary. ;)
+    //TODO: Fix elsewhere
+/*    foreach(vtkIdType id_cell, SelectedCells)
     {
       marked[id_cell] = false;
-    }
+    }*/
+    
     createCellToCell(AllCells, c2c, grid);
 /*    for (int i_cells = 0; i_cells < SelectedCells.size(); ++i_cells) {
       marked[i_cells] = false;

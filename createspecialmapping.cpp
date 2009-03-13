@@ -468,13 +468,23 @@ int CreateSpecialMapping::Process()
     int N_newpoints=0;
     int N_newcells=0;
     
+/*    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+    EG_VTKSP(vtkUnstructuredGrid,grid_orig);
+    makeCopy(grid, grid_orig);*/
+    QMap <vtkIdType,bool> marked_cells;
+    QMap <vtkIdType,bool> marked_nodes;
+      
     //Phase 2 : insert field points (loop through cells)
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
-      if( insert_fieldpoint(id_cell) )
+/*      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
+      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;*/
+      
+      if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
         cout<<"inserting a field point "<<id_cell<<endl;
         N_inserted_FP++;
+        marked_cells[id_cell]=true;
         N_newcells+=2;
         N_newpoints+=1;
       }
@@ -499,27 +509,32 @@ int CreateSpecialMapping::Process()
     while (i.hasNext()) {
       i.next();
 //       cout << "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
-      if( insert_edgepoint(i.key().first,i.key().second) )
+      vtkIdType node1=i.key().first;
+      vtkIdType node2=i.key().second;
+      QSet <int> stencil_cells;
+      stencil_cells=n2c[node1];
+      stencil_cells.intersect(n2c[node2]);
+      cout<<"stencil_cells="<<stencil_cells<<endl;
+      
+      bool stencil_marked=false;
+      foreach(vtkIdType C,stencil_cells)
       {
-        cout<<"inserting an edge point "<< "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
+        if(marked_cells[C]) stencil_marked=true;
+      }
+      
+      
+      if( !stencil_marked && insert_edgepoint(node1,node2) )
+      {
+        cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << i.value() << endl;
         N_inserted_EP++;
-
-        vtkIdType node1=i.key().first;
-        vtkIdType node2=i.key().second;
+        foreach(vtkIdType C,stencil_cells) marked_cells[C]=true;
         
-       QSet <int> tmp;
-/*       tmp.resize(n2c[node1].size());
-       qCopy(n2c[node1].begin(), n2c[node1].end(), tmp.begin());*/
-        tmp=n2c[node1];
-       tmp.intersect(n2c[node2]);
-        cout<<"tmp="<<tmp<<endl;
-
-        if(true)//TODO
+        if(stencil_cells.size()==2)//2 cells around the edge
         {
           N_newcells+=2;
           N_newpoints+=1;
         }
-        else
+        else//1 cell around the edge
         {
           N_newcells+=1;
           N_newpoints+=1;
@@ -530,15 +545,35 @@ int CreateSpecialMapping::Process()
     //Phase 4 +5 : remove field points (loop through points) + remove edge points (loop through points)
     foreach(vtkIdType node,SelectedNodes)
     {
-      if( remove_fieldpoint(node) )
+      bool marked=false;
+      foreach(vtkIdType C,n2c[node])
+      {
+        if(marked_cells[C]) marked=true;
+      }
+      
+      if( !marked && remove_fieldpoint(node) )
       {
         cout<<"removing field point "<<node<<endl;
         N_removed_FP++;
+        foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+        N_newcells-=2;
+        N_newpoints-=1;
       }
-      if( remove_edgepoint(node) )
+      if( !marked && remove_edgepoint(node) )
       {
         cout<<"removing edge point "<<node<<endl;
         N_removed_FP++;
+        foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+        if(n2n[node].size()==4)//4 cells around the edge
+        {
+          N_newcells-=2;
+          N_newpoints-=1;
+        }
+        else//2 cells around the edge
+        {
+          N_newcells-=1;
+          N_newpoints-=1;
+        }
       }
     }
 
