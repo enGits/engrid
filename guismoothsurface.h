@@ -26,6 +26,7 @@
 #include "ui_guismoothsurface.h"
 #include "dialogoperation.h"
 #include "vertexmeshdensity.h"
+#include "settingssheet.h"
 
 class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
 {
@@ -45,6 +46,7 @@ protected: // methods
 
 private:
   int Nbc;
+  SettingsSheet* tableWidget;
 public:
   QVector <VertexMeshDensity> GetSet();
   QSettings* local_qset;

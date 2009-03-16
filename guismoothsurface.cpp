@@ -24,6 +24,7 @@
 #include "swaptriangles.h"
 #include "createspecialmapping.h"
 #include "vertexdelegate.h"
+#include "settingssheet.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtksmoothpolydatafilter2.h>
@@ -99,6 +100,20 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 void GuiSmoothSurface::before()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
+
+  cout<<"ui.tabWidget->count()="<<ui.tabWidget->count()<<endl;
+  ui.tabWidget->widget(2);
+  QPushButton quit("Quit", ui.tabWidget->widget(3));
+  QPushButton* quit2=new QPushButton("Quit2");
+  quit.show();
+  
+  tableWidget=new SettingsSheet();
+//   ui.tabWidget->addTab(toto,"rororo");
+  ui.horizontalLayout_3;
+  ui.verticalLayout_SettingsSheet->addWidget(tableWidget);
+  
+//   QPushButton *newItem = new QTableWidgetItem(tr("%1").arg(4));
+//   tableWidget->setItem(0, 4, newItem);
   
   populateBoundaryCodes(ui.listWidget);
   populateBoundaryCodes(ui.listWidget_Source);
@@ -158,24 +173,24 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);
   
-  ui.tableWidget;
+  tableWidget;
   int row=0;
   int column=0;
   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
 //   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
 //   newItem->setText("MWAHAHAHAHAHA");
-  ui.tableWidget->setItem(row, column, newItem);
-//   ui.tableWidget->takeItem(row,column);
+  tableWidget->setItem(row, column, newItem);
+//   tableWidget->takeItem(row,column);
   
-  cout<<"ui.tableWidget->rowCount()="<<ui.tableWidget->rowCount()<<endl;
-  cout<<"ui.tableWidget->columnCount()="<<ui.tableWidget->columnCount()<<endl;
+  cout<<"tableWidget->rowCount()="<<tableWidget->rowCount()<<endl;
+  cout<<"tableWidget->columnCount()="<<tableWidget->columnCount()<<endl;
   int Nrow,Ncol;
-  Nrow=ui.tableWidget->rowCount();
-  Ncol=ui.tableWidget->columnCount();
+  Nrow=tableWidget->rowCount();
+  Ncol=tableWidget->columnCount();
   
-/*  ui.tableWidget->insertRow(ui.tableWidget->rowCount());
-  ui.tableWidget->removeRow(0);
-  ui.tableWidget->insertRow(ui.tableWidget->rowCount());*/
+/*  tableWidget->insertRow(tableWidget->rowCount());
+  tableWidget->removeRow(0);
+  tableWidget->insertRow(tableWidget->rowCount());*/
   
   QList<QString> list;
   list << "VTK_SIMPLE_VERTEX"
@@ -189,34 +204,34 @@ void GuiSmoothSurface::before()
     <<"no"
     <<"any";
   
-  Nrow=ui.tableWidget->rowCount();
-  Ncol=ui.tableWidget->columnCount();
+  Nrow=tableWidget->rowCount();
+  Ncol=tableWidget->columnCount();
   for(int i=0;i<Nrow;i++)
   {
     for(int j=0;j<Ncol;j++)
     {
-//       Qcout<<"("<<i<<","<<j<<")="<<ui.tableWidget->item(i,j)->text()<<endl;
+//       Qcout<<"("<<i<<","<<j<<")="<<tableWidget->item(i,j)->text()<<endl;
     }
   }
   
 //   item0->setCheckState(Qt::Checked);
   Nbc=ui.listWidget-> count ();
-  ui.tableWidget->setColumnCount(Nbc+3);
-  ui.tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
+  tableWidget->setColumnCount(Nbc+3);
+  tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
   
   QStringList L;
   for(int i=0;i<Nbc;i++)
   {
     Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
     L<<ui.listWidget->item(i)->text();
-//     ui.tableWidget->setItemDelegate(new VertexDelegate(i, list2));
-//     ui.tableWidget->setColumnWidth(i,30);
+//     tableWidget->setItemDelegate(new VertexDelegate(i, list2));
+//     tableWidget->setColumnWidth(i,30);
   }
   L<<"Vertex Type";
   L<<"Nodelist";
   L<<"Mesh Density";
-  ui.tableWidget->setHorizontalHeaderLabels(L);
-  ui.tableWidget->resizeColumnsToContents();
+  tableWidget->setHorizontalHeaderLabels(L);
+  tableWidget->resizeColumnsToContents();
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
@@ -236,7 +251,7 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
   QVector <VertexMeshDensity> VMDvector;
   cout<<"VMDvector:"<<VMDvector<<endl;
   
-  int N_VMD=ui.tableWidget->rowCount();
+  int N_VMD=tableWidget->rowCount();
   VMDvector.resize(N_VMD);
   cout<<"VMDvector.size()="<<VMDvector.size()<<endl;
   for(int i=0;i<N_VMD;i++)
@@ -244,14 +259,14 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
 //     VMDvector[i].BClist.resize(Nbc);
     for(int j=0;j<Nbc;j++)
     {
-      if(ui.tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
-/*      if(ui.tableWidget->item(i,j)->checkState()) VMDvector[i].BClist[j]=.push_back(ui.tableWidget->horizontalHeaderItem(j)->text().toInt());
-      BC=ui.tableWidget->horizontalHeaderItem(j)->text().toInt();
-      value=ui.tableWidget->item(i,j)->checkState()*/
+      if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
+/*      if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist[j]=.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
+      BC=tableWidget->horizontalHeaderItem(j)->text().toInt();
+      value=tableWidget->item(i,j)->checkState()*/
     }
-    VMDvector[i].type=Str2VertexType(ui.tableWidget->item(i,Nbc)->text());
-    VMDvector[i].SetNodes(ui.tableWidget->item(i,Nbc+1)->text());
-    VMDvector[i].density=ui.tableWidget->item(i,Nbc+2)->text().toDouble();
+    VMDvector[i].type=Str2VertexType(tableWidget->item(i,Nbc)->text());
+    VMDvector[i].SetNodes(tableWidget->item(i,Nbc+1)->text());
+    VMDvector[i].density=tableWidget->item(i,Nbc+2)->text().toDouble();
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
   return(VMDvector);
@@ -260,31 +275,31 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
 void GuiSmoothSurface::AddSet()
 {
   cout<<"Adding set"<<endl;
-  int row=ui.tableWidget->rowCount();
-  ui.tableWidget->insertRow(row);
+  int row=tableWidget->rowCount();
+  tableWidget->insertRow(row);
   
   int Nbc=ui.listWidget->count();
   for(int i=0;i<Nbc;i++)
   {
     TriStateTableWidgetItem *newBC = new TriStateTableWidgetItem();
     newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-    ui.tableWidget->setItem(row, i, newBC);
+    tableWidget->setItem(row, i, newBC);
   }
   QTableWidgetItem *item;
   item = new QTableWidgetItem("any");
-  ui.tableWidget->setItem(row, Nbc, item);
+  tableWidget->setItem(row, Nbc, item);
   item = new QTableWidgetItem("");
-  ui.tableWidget->setItem(row, Nbc+1, item);
+  tableWidget->setItem(row, Nbc+1, item);
   item = new QTableWidgetItem("-1");
-  ui.tableWidget->setItem(row, Nbc+2, item);
-  ui.tableWidget->resizeColumnsToContents();
+  tableWidget->setItem(row, Nbc+2, item);
+  tableWidget->resizeColumnsToContents();
 }
 
 void GuiSmoothSurface::RemoveSet()
 {
   cout<<"Removing set"<<endl;
-  ui.tableWidget->removeRow(ui.tableWidget->currentRow());
-  ui.tableWidget->resizeColumnsToContents();
+  tableWidget->removeRow(tableWidget->currentRow());
+  tableWidget->resizeColumnsToContents();
 }
 
 void GuiSmoothSurface::operate()
