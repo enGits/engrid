@@ -588,6 +588,7 @@ int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
 QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
 Qt::CheckState int2CheckState(int a);
+int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
 template <class T>

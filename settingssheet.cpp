@@ -13,7 +13,9 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QtGui>
+#include "egvtkobject.h"
 #include "settingssheet.h"
+#include "vertexdelegate.h"
 #include <iostream>
 using namespace std;
 
@@ -37,7 +39,7 @@ Cell *SettingsSheet::cell(int row, int column) const
   return static_cast<Cell *>(item(row, column));
 }
 
-bool SettingsSheet::readFile(const QString &fileName)
+bool SettingsSheet::readFile(const QString &fileName,int verbose)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
@@ -54,18 +56,9 @@ bool SettingsSheet::readFile(const QString &fileName)
   quint32 magic;
   in >> magic;
   if (magic != MagicNumber) {
-    QMessageBox::warning(this, tr("SettingsSheet"),
-                         tr("The file is not a SettingsSheet file."));
+    QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not a SettingsSheet file."));
     return false;
   }
-  
-//   clear();
-  
-  quint16 row;
-  quint16 column;
-  QString str;
-  
-  QApplication::setOverrideCursor(Qt::WaitCursor);
   
   int RowCount=0;
   int ColumnCount=0;
@@ -75,22 +68,27 @@ bool SettingsSheet::readFile(const QString &fileName)
   cout<<"RowCount="<<RowCount<<endl;
   cout<<"ColumnCount="<<ColumnCount<<endl;
   
+  if(ColumnCount!=this->columnCount()) {
+    if(verbose>0) QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not compatible with the number of boundary codes."));
+    return false;
+  }
+  
+  quint16 row;
+  quint16 column;
+  QString str;
+  
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  
   this->setRowCount(RowCount);
   this->clearContents();
   
+  cout<<"===LOADING==="<<endl;
   while (!in.atEnd()) {
     in >> row >> column >> str;
     Qcout2<<"row="<<row<<"column="<<column<<"str="<<str<<endl;
     setFormula(row, column, str);
   }
-/*  in.resetStatus();
-  in >> magic;
-  while (!in.atEnd()) {
-    in >> row >> column >> str;
-    Qcout2<<"row="<<row<<"column="<<column<<"str="<<str<<endl;
-//     RowCount++;
-    setFormula(row, column, str);
-  }*/
+  cout<<"===LOADING DONE==="<<endl;
   
   QApplication::restoreOverrideCursor();
   return true;
@@ -117,13 +115,15 @@ bool SettingsSheet::writeFile(const QString &fileName)
   int ColumnCount=this->columnCount();
   out << RowCount;
   out << ColumnCount;
+  cout<<"===SAVING==="<<endl;
   for (int row = 0; row < RowCount; ++row) {
     for (int column = 0; column < ColumnCount; ++column) {
       QString str = formula(row, column);
-      if (!str.isEmpty())
-        out << quint16(row) << quint16(column) << str;
+      out << quint16(row) << quint16(column) << str;
+      Qcout2 << quint16(row) <<" "<< quint16(column) <<" "<< str <<endl;
     }
   }
+  cout<<"===SAVING DONE==="<<endl;
   QApplication::restoreOverrideCursor();
   return true;
 }
@@ -133,17 +133,38 @@ void SettingsSheet::setFormula(int row, int column,
 {
   Cell *c = cell(row, column);
   if (!c) {
+    cout<<"    =====WEIRD====="<<endl;
+    Qcout2<<"    (row,column)="<<"("<<row<<","<<column<<")"<<formula<<endl;
     c = new Cell;
     setItem(row, column, c);
   }
-  c->setFormula(formula);
+  cout<<"    =====OK====="<<endl;
+  if(column<this->columnCount()-3){
+    cout<<"    checkbox"<<endl;
+    TriStateTableWidgetItem *newBC = new TriStateTableWidgetItem();
+    newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+    newBC->setCheckState(int2CheckState(formula.toInt()));
+    this->setItem(row, column, newBC);
+    Qcout2<<"    (row,column)="<<"("<<row<<","<<column<<")"<<formula<<endl;
+  }
+  else{
+    cout<<"    string"<<endl;
+    c->setFormula(formula);
+  }
 }
 
 QString SettingsSheet::formula(int row, int column) const
 {
+  int RowCount=this->rowCount();
+  int ColumnCount=this->columnCount();
   Cell *c = cell(row, column);
   if (c) {
-    return c->formula();
+    if(column<ColumnCount-3){//checkbox
+      return QString::number(CheckState2int(c->checkState()));
+    }
+    else{
+      return c->formula();
+    }
   } else {
     return "";
   }

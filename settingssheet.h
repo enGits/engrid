@@ -45,7 +45,7 @@ public:
 
     ~SettingsSheet();
 
-  bool readFile(const QString &fileName);
+  bool readFile(const QString &fileName,int verbose=1);
   bool writeFile(const QString &fileName);
   void setFormula(int row, int column, const QString &formula);
   QString formula(int row, int column) const;

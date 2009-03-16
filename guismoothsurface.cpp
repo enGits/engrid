@@ -100,20 +100,10 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 void GuiSmoothSurface::before()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
-
-/*  cout<<"ui.tabWidget->count()="<<ui.tabWidget->count()<<endl;
-  ui.tabWidget->widget(2);
-  QPushButton quit("Quit", ui.tabWidget->widget(3));
-  QPushButton* quit2=new QPushButton("Quit2");
-  quit.show();*/
+  current_filename=local_qset->value("Filename", "").toString();
   
   tableWidget=new SettingsSheet();
-//   ui.tabWidget->addTab(toto,"rororo");
-//   ui.horizontalLayout_3;
   ui.verticalLayout_SettingsSheet->addWidget(tableWidget);
-  
-//   QPushButton *newItem = new QTableWidgetItem(tr("%1").arg(4));
-//   tableWidget->setItem(0, 4, newItem);
   
   populateBoundaryCodes(ui.listWidget);
   populateBoundaryCodes(ui.listWidget_Source);
@@ -165,8 +155,8 @@ void GuiSmoothSurface::before()
   ui.checkBox_BoundarySmoothing->setCheckState(int2CheckState(smooth->GetBoundarySmoothing()));
 /*  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(smooth->GetGenerateErrorScalars()));
   ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));*/
-  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(1));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(1));
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(2));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(2));
   
   ui.doubleSpinBox_VTK_SIMPLE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_FIXED_VERTEX->setValue(-1);
@@ -177,20 +167,13 @@ void GuiSmoothSurface::before()
   int row=0;
   int column=0;
   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
-//   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
-//   newItem->setText("MWAHAHAHAHAHA");
   tableWidget->setItem(row, column, newItem);
-//   tableWidget->takeItem(row,column);
   
   cout<<"tableWidget->rowCount()="<<tableWidget->rowCount()<<endl;
   cout<<"tableWidget->columnCount()="<<tableWidget->columnCount()<<endl;
   int Nrow,Ncol;
   Nrow=tableWidget->rowCount();
   Ncol=tableWidget->columnCount();
-  
-/*  tableWidget->insertRow(tableWidget->rowCount());
-  tableWidget->removeRow(0);
-  tableWidget->insertRow(tableWidget->rowCount());*/
   
   QList<QString> list;
   list << "VTK_SIMPLE_VERTEX"
@@ -204,17 +187,6 @@ void GuiSmoothSurface::before()
     <<"no"
     <<"any";
   
-  Nrow=tableWidget->rowCount();
-  Ncol=tableWidget->columnCount();
-  for(int i=0;i<Nrow;i++)
-  {
-    for(int j=0;j<Ncol;j++)
-    {
-//       Qcout<<"("<<i<<","<<j<<")="<<tableWidget->item(i,j)->text()<<endl;
-    }
-  }
-  
-//   item0->setCheckState(Qt::Checked);
   Nbc=ui.listWidget-> count ();
   tableWidget->setColumnCount(Nbc+3);
   tableWidget->setItemDelegate(new VertexDelegate(Nbc, list));
@@ -224,8 +196,6 @@ void GuiSmoothSurface::before()
   {
     Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
     L<<ui.listWidget->item(i)->text();
-//     tableWidget->setItemDelegate(new VertexDelegate(i, list2));
-//     tableWidget->setColumnWidth(i,30);
   }
   L<<"Vertex Type";
   L<<"Nodelist";
@@ -233,22 +203,51 @@ void GuiSmoothSurface::before()
   tableWidget->setHorizontalHeaderLabels(L);
   tableWidget->resizeColumnsToContents();
   
-  if (!tableWidget->readFile("totoro.sp")) {
+  if (!current_filename.isEmpty() && !tableWidget->readFile(current_filename,0)) {
     cout<<"Loading failed"<<endl;
   }
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
   connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
-  
+  connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(Load()));
+  connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(Save()));
+  connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+  connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(SelectAll_Source()));
+  connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(ClearAll_Source()));
 };
+
+void GuiSmoothSurface::Load()
+{
+  current_filename = QFileDialog::getOpenFileName(this,tr("Open SettingsSheet"), ".",tr("SettingsSheet files (*.sp)"));
+  if (!current_filename.isEmpty() && !tableWidget->readFile(current_filename)) {
+    cout<<"Loading failed"<<endl;
+  }
+}
+void GuiSmoothSurface::Save()
+{
+  current_filename = QFileDialog::getSaveFileName(this,tr("Save SettingsSheet as..."), ".",tr("SettingsSheet files (*.sp)"));
+  if (!current_filename.isEmpty() && !tableWidget->writeFile(current_filename)) {
+    cout<<"Saving failed"<<endl;
+  }
+}
+void GuiSmoothSurface::SelectAll_BC()
+{
+}
+void GuiSmoothSurface::ClearAll_BC()
+{
+}
+void GuiSmoothSurface::SelectAll_Source()
+{
+}
+void GuiSmoothSurface::ClearAll_Source()
+{
+}
 
 void GuiSmoothSurface::TestSet()
 {
   cout<<"Testing set"<<endl;
-/*  if (!tableWidget->readFile("totoro.sp")) {
-    cout<<"Loading failed"<<endl;
-  }*/
   GetSet();
 }
 
@@ -263,13 +262,9 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
   cout<<"VMDvector.size()="<<VMDvector.size()<<endl;
   for(int i=0;i<N_VMD;i++)
   {
-//     VMDvector[i].BClist.resize(Nbc);
     for(int j=0;j<Nbc;j++)
     {
       if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
-/*      if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist[j]=.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
-      BC=tableWidget->horizontalHeaderItem(j)->text().toInt();
-      value=tableWidget->item(i,j)->checkState()*/
     }
     VMDvector[i].type=Str2VertexType(tableWidget->item(i,Nbc)->text());
     VMDvector[i].SetNodes(tableWidget->item(i,Nbc+1)->text());
@@ -314,7 +309,9 @@ void GuiSmoothSurface::operate()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
-  tableWidget->writeFile("totoro.sp");
+  local_qset->setValue("Filename", current_filename);
+  
+  if(!current_filename.isEmpty()) tableWidget->writeFile(current_filename);
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements

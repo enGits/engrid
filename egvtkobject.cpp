@@ -1159,7 +1159,14 @@ QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
 Qt::CheckState int2CheckState(int a)
 {
   if(a==0) return(Qt::Unchecked);
-//   if(a==1) return(Qt::PartiallyChecked);
+  if(a==1) return(Qt::PartiallyChecked);
+  else return(Qt::Checked);
+}
+
+int CheckState2int(Qt::CheckState a)
+{
+  if(a==Qt::Unchecked) return(0);
+  if(a==Qt::PartiallyChecked) return(1);
   else return(Qt::Checked);
 }
 

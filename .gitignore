@@ -13,3 +13,4 @@ tmp.txt
 .hg
 *.user
 qtc-gdbmacros
+*.sp

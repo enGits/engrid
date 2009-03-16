@@ -38,6 +38,12 @@ private slots:
   void AddSet();
   void RemoveSet();
   void TestSet();
+  void Load();
+  void Save();
+  void SelectAll_BC();
+  void ClearAll_BC();
+  void SelectAll_Source();
+  void ClearAll_Source();
   
 protected: // methods
   
@@ -50,6 +56,8 @@ private:
 public:
   QVector <VertexMeshDensity> GetSet();
   QSettings* local_qset;
+  /** The settings file to load. */
+  QString current_filename;
 };
 
 #endif

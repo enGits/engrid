@@ -27,6 +27,9 @@ public:
     }
     QTableWidgetItem::setData(role, tmp);
   }
+  void setCheckState(Qt::CheckState S){
+    QTableWidgetItem::setData(Qt::CheckStateRole, S);
+  }
 };
 
 class VertexDelegate : public QItemDelegate
