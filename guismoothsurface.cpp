@@ -101,15 +101,15 @@ void GuiSmoothSurface::before()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
 
-  cout<<"ui.tabWidget->count()="<<ui.tabWidget->count()<<endl;
+/*  cout<<"ui.tabWidget->count()="<<ui.tabWidget->count()<<endl;
   ui.tabWidget->widget(2);
   QPushButton quit("Quit", ui.tabWidget->widget(3));
   QPushButton* quit2=new QPushButton("Quit2");
-  quit.show();
+  quit.show();*/
   
   tableWidget=new SettingsSheet();
 //   ui.tabWidget->addTab(toto,"rororo");
-  ui.horizontalLayout_3;
+//   ui.horizontalLayout_3;
   ui.verticalLayout_SettingsSheet->addWidget(tableWidget);
   
 //   QPushButton *newItem = new QTableWidgetItem(tr("%1").arg(4));
@@ -233,6 +233,10 @@ void GuiSmoothSurface::before()
   tableWidget->setHorizontalHeaderLabels(L);
   tableWidget->resizeColumnsToContents();
   
+  if (!tableWidget->readFile("totoro.sp")) {
+    cout<<"Loading failed"<<endl;
+  }
+  
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
   connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
@@ -242,6 +246,9 @@ void GuiSmoothSurface::before()
 void GuiSmoothSurface::TestSet()
 {
   cout<<"Testing set"<<endl;
+/*  if (!tableWidget->readFile("totoro.sp")) {
+    cout<<"Loading failed"<<endl;
+  }*/
   GetSet();
 }
 
@@ -269,6 +276,7 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
     VMDvector[i].density=tableWidget->item(i,Nbc+2)->text().toDouble();
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
+  
   return(VMDvector);
 }
 
@@ -306,6 +314,7 @@ void GuiSmoothSurface::operate()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
+  tableWidget->writeFile("totoro.sp");
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements

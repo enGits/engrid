@@ -14,6 +14,13 @@
 #include <QApplication>
 #include <QtGui>
 #include "settingssheet.h"
+#include <iostream>
+using namespace std;
+
+/* Here is how we we get QTextStreams that look like iostreams */
+QTextStream Qcin2(stdin, QIODevice::ReadOnly);
+QTextStream Qcout2(stdout, QIODevice::WriteOnly);
+QTextStream Qcerr2(stderr, QIODevice::WriteOnly);
 
 SettingsSheet::SettingsSheet(QWidget *parent)
  : QTableWidget(parent)
@@ -52,17 +59,39 @@ bool SettingsSheet::readFile(const QString &fileName)
     return false;
   }
   
-  clear();
+//   clear();
   
   quint16 row;
   quint16 column;
   QString str;
   
   QApplication::setOverrideCursor(Qt::WaitCursor);
+  
+  int RowCount=0;
+  int ColumnCount=0;
+  
+  in >> RowCount;
+  in >> ColumnCount;
+  cout<<"RowCount="<<RowCount<<endl;
+  cout<<"ColumnCount="<<ColumnCount<<endl;
+  
+  this->setRowCount(RowCount);
+  this->clearContents();
+  
   while (!in.atEnd()) {
     in >> row >> column >> str;
+    Qcout2<<"row="<<row<<"column="<<column<<"str="<<str<<endl;
     setFormula(row, column, str);
   }
+/*  in.resetStatus();
+  in >> magic;
+  while (!in.atEnd()) {
+    in >> row >> column >> str;
+    Qcout2<<"row="<<row<<"column="<<column<<"str="<<str<<endl;
+//     RowCount++;
+    setFormula(row, column, str);
+  }*/
+  
   QApplication::restoreOverrideCursor();
   return true;
 }
@@ -86,6 +115,8 @@ bool SettingsSheet::writeFile(const QString &fileName)
   QApplication::setOverrideCursor(Qt::WaitCursor);
   int RowCount=this->rowCount();
   int ColumnCount=this->columnCount();
+  out << RowCount;
+  out << ColumnCount;
   for (int row = 0; row < RowCount; ++row) {
     for (int column = 0; column < ColumnCount; ++column) {
       QString str = formula(row, column);
