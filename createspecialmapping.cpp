@@ -602,10 +602,42 @@ int CreateSpecialMapping::Process()
       if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
         cout<<"inserting a field point "<<id_cell<<endl;
-        N_inserted_FP++;
-        marked_cells[id_cell]=true;
-        N_newcells+=2;
-        N_newpoints+=1;
+        
+/*        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(id_cell, N_pts, pts);
+        vec3_t C(0,0,0);
+        
+        vtkIdType type_cell = grid->GetCellType(id_cell);
+        int N_neighbours=N_pts;
+        cout<<"N_neighbours="<<N_neighbours<<endl;
+        vec3_t corner[4];
+        vtkIdType pts_triangle[4][3];
+        for(int i=0;i<N_neighbours;i++)
+        {
+          grid->GetPoints()->GetPoint(pts[i], corner[i].data());
+          C+=(1/(double)N_neighbours)*corner[i];
+        }
+        addPoint(grid_tmp,nodeId,C.data());
+        vtkIdType intmidpoint=nodeId;
+        nodeId++;
+        
+        for(int i=0;i<N_neighbours;i++)
+        {
+          pts_triangle[i][0]=pts[i];
+          pts_triangle[i][1]=pts[(i+1)%N_neighbours];
+          pts_triangle[i][2]=intmidpoint;
+          if(i==0)
+          {
+            grid_tmp->ReplaceCell(id_cell , 3, pts_triangle[0]);
+            cell_code->SetValue(id_cell, ui.lineEdit_BoundaryCode->text().toInt());
+          }
+          else
+          {
+            vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i]);
+            cell_code->SetValue(newCellId, ui.lineEdit_BoundaryCode->text().toInt());
+          }
+        }*/
+        
       }
     }
     //Phase D2 : insert edge points (loop through edges)
@@ -685,8 +717,23 @@ int CreateSpecialMapping::Process()
     makeCopy(grid_tmp,m_grid);
     
     //Phase E : Delaunay swap
+/*    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    
+    QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
+    cout<<"bcs="<<bcs<<endl;
+    cout<<"bcs_complement="<<bcs_complement<<endl;
+    
+    SwapTriangles swap;
+    swap.setGrid(grid);
+    swap.setBoundaryCodes(bcs_complement);
+    swap();*/
     
     //Phase F : translate points to smooth grid
+    //3 or more possiobilities
+    //vtk smooth 1
+    //vtk smooth 2
+    //laplacian smoothing with projection
     
   }
   

@@ -132,7 +132,8 @@ guisettingsviewer.h \
  createspecialmapping.h \
  vertexdelegate.h \
  vertexmeshdensity.h \
- smoothingutilities.h
+ smoothingutilities.h \
+ settingssheet.h
 
 SOURCES = \
 main.cpp \
@@ -200,7 +201,8 @@ guisettingsviewer.cpp \
  createspecialmapping.cpp \
  vertexdelegate.cpp \
  vertexmeshdensity.cpp \
- smoothingutilities.cpp
+ smoothingutilities.cpp \
+ settingssheet.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

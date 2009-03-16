@@ -951,11 +951,6 @@ void GuiSmoothSurface::operate()
       cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
       cout << "InternalNodes=" << InternalNodes << endl;
       
-/*      QSet <vtkIdType> SelectedNodes2;
-      getSurfaceNodes(bcs,SelectedNodes2,grid);
-      cout << "SelectedNodes=" << SelectedNodes << endl;
-      cout << "SelectedNodes2=" << SelectedNodes2 << endl;*/
-      
       makeCopy(grid_tmp,grid);
     }
     cout_grid(cout,grid);
