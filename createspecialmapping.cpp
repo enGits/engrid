@@ -473,6 +473,7 @@ int CreateSpecialMapping::Process()
     QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
     
     //Phase C : determine cells/points to add/remove
+    cout<<"===Phase C==="<<endl;
     int N_inserted_FP=0;
     int N_inserted_EP=0;
     int N_removed_FP=0;
@@ -487,10 +488,11 @@ int CreateSpecialMapping::Process()
     QMap <vtkIdType,bool> marked_nodes;
       
     //Phase C1 : insert field points (loop through cells)
+    cout<<"===Phase C1==="<<endl;
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
-/*      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
-      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;*/
+      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
+      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;
       
       if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
@@ -503,6 +505,7 @@ int CreateSpecialMapping::Process()
     }
     
     //Phase C2 : insert edge points (loop through edges)
+    cout<<"===Phase C2==="<<endl;
     //rewind the iterator
     edge_map_iter.toFront ();
     //start loop
@@ -543,6 +546,7 @@ int CreateSpecialMapping::Process()
     }
     
     //Phase C3 + C4 : remove field points (loop through points) + remove edge points (loop through points)
+    cout<<"===Phase C3+C4==="<<endl;
     foreach(vtkIdType node,SelectedNodes)
     {
       bool marked=false;
@@ -588,38 +592,48 @@ int CreateSpecialMapping::Process()
     cout<<"N_newcells="<<N_newcells<<endl;
   
     //Phase D : Add/remove points
-
+    cout<<"===Phase D==="<<endl;
+    //unmark cells (TODO: optimize)
+    marked_cells.clear();
+    
     EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
     allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
     makeCopyNoAlloc(m_grid, grid_tmp);
+    EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
+    
+    vtkIdType newNodeId=N_points;
     
     //Phase D1 : insert field points (loop through cells)
+    cout<<"===Phase D1==="<<endl;
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
-/*      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
-      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;*/
+      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
+      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;
       
       if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
         cout<<"inserting a field point "<<id_cell<<endl;
+        vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
+        cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
         
-/*        vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        vtkIdType N_pts, *pts;
+        m_grid->GetCellPoints(id_cell, N_pts, pts);
         vec3_t C(0,0,0);
         
-        vtkIdType type_cell = grid->GetCellType(id_cell);
+        vtkIdType type_cell = m_grid->GetCellType(id_cell);
         int N_neighbours=N_pts;
         cout<<"N_neighbours="<<N_neighbours<<endl;
         vec3_t corner[4];
         vtkIdType pts_triangle[4][3];
         for(int i=0;i<N_neighbours;i++)
         {
-          grid->GetPoints()->GetPoint(pts[i], corner[i].data());
-          C+=(1/(double)N_neighbours)*corner[i];
+          m_grid->GetPoints()->GetPoint(pts[i], corner[i].data());
+          C+=corner[i];
         }
-        addPoint(grid_tmp,nodeId,C.data());
-        vtkIdType intmidpoint=nodeId;
-        nodeId++;
+        C=(1/(double)N_neighbours)*C;
+        addPoint(grid_tmp,newNodeId,C.data());
+        vtkIdType intmidpoint=newNodeId;
+        newNodeId++;
         
         for(int i=0;i<N_neighbours;i++)
         {
@@ -629,18 +643,19 @@ int CreateSpecialMapping::Process()
           if(i==0)
           {
             grid_tmp->ReplaceCell(id_cell , 3, pts_triangle[0]);
-            cell_code->SetValue(id_cell, ui.lineEdit_BoundaryCode->text().toInt());
+            cell_code_tmp->SetValue(id_cell, newBC);
           }
           else
           {
             vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i]);
-            cell_code->SetValue(newCellId, ui.lineEdit_BoundaryCode->text().toInt());
+            cell_code_tmp->SetValue(newCellId, newBC);
           }
-        }*/
+        }
         
       }
     }
     //Phase D2 : insert edge points (loop through edges)
+    cout<<"===Phase D2==="<<endl;
     //rewind the iterator
     edge_map_iter.toFront ();
     //start loop
@@ -681,6 +696,7 @@ int CreateSpecialMapping::Process()
     }
     
     //Phase D3 + D4 : remove field points (loop through points) + remove edge points (loop through points)
+    cout<<"===Phase D3+D4==="<<endl;
     foreach(vtkIdType node,SelectedNodes)
     {
       bool marked=false;
