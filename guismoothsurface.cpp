@@ -773,17 +773,14 @@ void GuiSmoothSurface::operate()
       
       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
       
-      QSet <int> cells_to_split;
+//       QSet <int> cells_to_split;
       QVector <stencil_t> StencilVector;
       
       QMap <vtkIdType,bool> marked;
       
       createCellMapping(AllCells, _cells, grid);
       createCellToCell(AllCells, c2c, grid);
-      
-  /*    for (int i_cells = 0; i_cells < SelectedCells.size(); ++i_cells) {
-        marked[i_cells] = false;
-      };*/
+      setCells(AllCells);
       
       cout<<"AllCells.size()="<<AllCells.size()<<endl;
       cout<<"SelectedCells.size()="<<SelectedCells.size()<<endl;
@@ -814,8 +811,8 @@ void GuiSmoothSurface::operate()
             if(S.valid){//there is a neighbour cell
               if(!marked[S.id_cell2])
               {
-                cells_to_split.insert(S.id_cell1);
-                cells_to_split.insert(S.id_cell2);
+/*                cells_to_split.insert(S.id_cell1);
+                cells_to_split.insert(S.id_cell2);*/
                 cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
                 cout<<"marked["<<S.id_cell2<<"]=true;"<<endl;
                 marked[S.id_cell1]=true;
@@ -826,7 +823,7 @@ void GuiSmoothSurface::operate()
               }
             }
             else{//there is no neighbour cell
-              cells_to_split.insert(S.id_cell1);
+//               cells_to_split.insert(S.id_cell1);
               cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
               marked[S.id_cell1]=true;
               StencilVector.push_back(S);
@@ -837,8 +834,8 @@ void GuiSmoothSurface::operate()
         }
       }
       
-      cout<<"cells_to_split.size()="<<cells_to_split.size()<<endl;
-      cout<<cells_to_split<<endl;
+/*      cout<<"cells_to_split.size()="<<cells_to_split.size()<<endl;
+      cout<<cells_to_split<<endl;*/
       cout<<"StencilVector.size()="<<StencilVector.size()<<endl;
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
