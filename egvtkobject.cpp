@@ -736,6 +736,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_status", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_layer",  vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_index",  vtkLongArray_t);
+  EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
 };
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
