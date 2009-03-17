@@ -15,7 +15,7 @@
     <absoluteprojectpath>false</absoluteprojectpath>
     <description></description>
     <defaultencoding></defaultencoding>
-    <versioncontrol></versioncontrol>
+    <versioncontrol/>
   </general>
   <kdevfileview>
     <groups>
@@ -196,13 +196,13 @@
   </cppsupportpart>
   <kdevdocumentation>
     <projectdoc>
-      <docsystem></docsystem>
-      <docurl></docurl>
-      <usermanualurl></usermanualurl>
+      <docsystem/>
+      <docurl/>
+      <usermanualurl/>
     </projectdoc>
   </kdevdocumentation>
   <ctagspart>
-    <customArguments></customArguments>
+    <customArguments/>
     <customTagfilePath>/data1/home/mtaverne/engrid_src/tags</customTagfilePath>
     <activeTagsFiles/>
   </ctagspart>
