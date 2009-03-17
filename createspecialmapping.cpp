@@ -535,13 +535,13 @@ int CreateSpecialMapping::Process()
         
         if(stencil_cells.size()==2)//2 cells around the edge
         {
-/*          N_newcells+=2;
-          N_newpoints+=1;*/
+          N_newcells+=2;
+          N_newpoints+=1;
         }
         else//1 cell around the edge
         {
-/*          N_newcells+=1;
-          N_newpoints+=1;*/
+          N_newcells+=1;
+          N_newpoints+=1;
         }
       }
     }
@@ -676,7 +676,6 @@ int CreateSpecialMapping::Process()
         if(marked_cells[C]) stencil_marked=true;
       }
       
-      
       if( !stencil_marked && insert_edgepoint(node1,node2) )
       {
         cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
@@ -685,6 +684,7 @@ int CreateSpecialMapping::Process()
         
         if(stencil_cells.size()==2)//2 cells around the edge
         {
+          //TODO:
           N_newcells+=2;
           N_newpoints+=1;
         }

@@ -807,7 +807,7 @@ void GuiSmoothSurface::operate()
           int bc1=cell_code->GetValue(c2c[id_cell][i]);
           if(bc0!=bc1) count++;
         }
-        if(count>0)
+        if(count>0)//cell is near at least one neighbour with different cell code
         {
           int SideToSplit = getLongestSide(id_cell,grid);
           cout<<"SideToSplit="<<SideToSplit<<endl;
@@ -845,38 +845,40 @@ void GuiSmoothSurface::operate()
     foreach(stencil_t S,StencilVector)
     {
       cout<<S<<endl;
-      vtkIdType N_pts, *pts;
-      vec3_t A,B;
-      grid_tmp->GetPoint(S.p[1],A.data());
-      grid_tmp->GetPoint(S.p[3],B.data());
-      vec3_t M=0.5*(A+B);
-      addPoint(grid_tmp,nodeId,M.data());
-      
-      vtkIdType pts_triangle[4][3];
-      
-      for(int i=0;i<4;i++)
-      {
-        pts_triangle[i][0]=S.p[i];
-        pts_triangle[i][1]=S.p[(i+1)%4];
-        pts_triangle[i][2]=nodeId;
+      if(S.valid){
+        vtkIdType N_pts, *pts;
+        vec3_t A,B;
+        grid_tmp->GetPoint(S.p[1],A.data());
+        grid_tmp->GetPoint(S.p[3],B.data());
+        vec3_t M=0.5*(A+B);
+        addPoint(grid_tmp,nodeId,M.data());
+        
+        vtkIdType pts_triangle[4][3];
+        
+        for(int i=0;i<4;i++)
+        {
+          pts_triangle[i][0]=S.p[i];
+          pts_triangle[i][1]=S.p[(i+1)%4];
+          pts_triangle[i][2]=nodeId;
+        }
+        
+        int bc1=cell_code_tmp->GetValue(S.id_cell1);
+        int bc2=cell_code_tmp->GetValue(S.id_cell2);
+        
+        grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+        cell_code_tmp->SetValue(S.id_cell1, bc1);
+        
+        grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
+        cell_code_tmp->SetValue(S.id_cell2, bc2);
+        
+        vtkIdType newCellId;
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
+        cell_code_tmp->SetValue(newCellId, bc2);
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+        cell_code_tmp->SetValue(newCellId, bc1);
+        
+        nodeId++;
       }
-      
-      int bc1=cell_code_tmp->GetValue(S.id_cell1);
-      int bc2=cell_code_tmp->GetValue(S.id_cell2);
-      
-      grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-      cell_code_tmp->SetValue(S.id_cell1, bc1);
-      
-      grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
-      cell_code_tmp->SetValue(S.id_cell2, bc2);
-      
-      vtkIdType newCellId;
-      newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-      cell_code_tmp->SetValue(newCellId, bc2);
-      newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-      cell_code_tmp->SetValue(newCellId, bc1);
-      
-      nodeId++;
     }
     
     makeCopy(grid_tmp,grid);
