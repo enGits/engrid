@@ -207,6 +207,11 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   } else {
     S.valid = false;
     S.id_cell2 = -1;
+    vtkIdType N1, *pts1;
+    grid->GetCellPoints(S.id_cell1, N1, pts1);
+    if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
+    else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
+    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
   };
   return S;
 };

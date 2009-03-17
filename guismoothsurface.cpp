@@ -761,91 +761,97 @@ void GuiSmoothSurface::operate()
     cout<<"bcs="<<bcs<<endl;
     cout<<"bcs_complement="<<bcs_complement<<endl;
     
-    int N_points=grid->GetNumberOfPoints();
-    int N_cells=grid->GetNumberOfCells();
-    
-    QVector<vtkIdType> SelectedCells;
-    getSurfaceCells(bcs, SelectedCells, grid);
-    QVector<vtkIdType> AllCells;
-    getAllSurfaceCells(AllCells,grid);
-    
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    
-    QSet <int> cells_to_split;
-    QVector <stencil_t> StencilVector;
-    
-    QMap <vtkIdType,bool> marked;
-//     marked.resize(SelectedCells.size());
-    //This is not necessary. ;)
-    //TODO: Fix elsewhere
-/*    foreach(vtkIdType id_cell, SelectedCells)
-    {
-      marked[id_cell] = false;
-    }*/
-    
-    createCellToCell(AllCells, c2c, grid);
-/*    for (int i_cells = 0; i_cells < SelectedCells.size(); ++i_cells) {
-      marked[i_cells] = false;
-    };*/
-    
-    cout<<"AllCells.size()="<<AllCells.size()<<endl;
-    cout<<"SelectedCells.size()="<<SelectedCells.size()<<endl;
-    
-    int N_newcells=0;
-    int N_newpoints=0;
-    foreach(vtkIdType id_cell, SelectedCells)
-    {
-      cout<<"==>id_cell="<<id_cell<<endl;
-      int bc0=cell_code->GetValue(id_cell);
-      if(!marked[id_cell])
+    int N_iter=ui.spinBox_NumberOfIterations->value();
+    for(int i_iter=0;i_iter<N_iter;i_iter++){
+      int N_points=grid->GetNumberOfPoints();
+      int N_cells=grid->GetNumberOfCells();
+      
+      QVector<vtkIdType> SelectedCells;
+      getSurfaceCells(bcs, SelectedCells, grid);
+      QVector<vtkIdType> AllCells;
+      getAllSurfaceCells(AllCells,grid);
+      
+      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+      
+      QSet <int> cells_to_split;
+      QVector <stencil_t> StencilVector;
+      
+      QMap <vtkIdType,bool> marked;
+      
+      createCellMapping(AllCells, _cells, grid);
+      createCellToCell(AllCells, c2c, grid);
+      
+  /*    for (int i_cells = 0; i_cells < SelectedCells.size(); ++i_cells) {
+        marked[i_cells] = false;
+      };*/
+      
+      cout<<"AllCells.size()="<<AllCells.size()<<endl;
+      cout<<"SelectedCells.size()="<<SelectedCells.size()<<endl;
+      
+      int N_newcells=0;
+      int N_newpoints=0;
+      foreach(vtkIdType id_cell, SelectedCells)
       {
-        vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
-        int count=0;
-        for(int i=0;i<N_pts;i++)
+        cout<<"==>id_cell="<<id_cell<<endl;
+        int bc0=cell_code->GetValue(id_cell);
+        if(!marked[id_cell])
         {
-          int bc1=cell_code->GetValue(c2c[id_cell][i]);
-          if(bc0!=bc1) count++;
-        }
-        if(count>0)//cell is near at least one neighbour with different cell code
-        {
-          int SideToSplit = getLongestSide(id_cell,grid);
-          cout<<"SideToSplit="<<SideToSplit<<endl;
-          cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
-          for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
-          stencil_t S=getStencil(id_cell,SideToSplit);
-          if(!marked[S.id_cell2])
+          vtkIdType N_pts, *pts;
+          grid->GetCellPoints(id_cell, N_pts, pts);
+          int count=0;
+          for(int i=0;i<N_pts;i++)
           {
-            cells_to_split.insert(id_cell);
-            cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
-            cout<<"marked["<<S.id_cell2<<"]=true;"<<endl;
-            marked[S.id_cell1]=true;
-            marked[S.id_cell2]=true;
-            StencilVector.push_back(S);
-            N_newpoints++;
-            if(S.valid) N_newcells+=2;
-            else N_newcells+=1;
+            int bc1=cell_code->GetValue(c2c[id_cell][i]);
+            if(bc0!=bc1) count++;
+          }
+          if(count>0)//cell is near at least one neighbour with different cell code
+          {
+            int SideToSplit = getLongestSide(id_cell,grid);
+            cout<<"SideToSplit="<<SideToSplit<<endl;
+            cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
+            for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
+            stencil_t S=getStencil(id_cell,SideToSplit);
+            if(S.valid){//there is a neighbour cell
+              if(!marked[S.id_cell2])
+              {
+                cells_to_split.insert(S.id_cell1);
+                cells_to_split.insert(S.id_cell2);
+                cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
+                cout<<"marked["<<S.id_cell2<<"]=true;"<<endl;
+                marked[S.id_cell1]=true;
+                marked[S.id_cell2]=true;
+                StencilVector.push_back(S);
+                N_newpoints++;
+                N_newcells+=2;
+              }
+            }
+            else{//there is no neighbour cell
+              cells_to_split.insert(S.id_cell1);
+              cout<<"marked["<<S.id_cell1<<"]=true;"<<endl;
+              marked[S.id_cell1]=true;
+              StencilVector.push_back(S);
+              N_newpoints++;
+              N_newcells+=1;
+            }
           }
         }
       }
-    }
-    
-    cout<<"cells_to_split.size()="<<cells_to_split.size()<<endl;
-    cout<<cells_to_split<<endl;
-    cout<<"StencilVector.size()="<<StencilVector.size()<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-    
-    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-    allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-    makeCopyNoAlloc(grid, grid_tmp);
-    EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
-    
-    vtkIdType nodeId=N_points;
-    foreach(stencil_t S,StencilVector)
-    {
-      cout<<S<<endl;
-      if(S.valid){
+      
+      cout<<"cells_to_split.size()="<<cells_to_split.size()<<endl;
+      cout<<cells_to_split<<endl;
+      cout<<"StencilVector.size()="<<StencilVector.size()<<endl;
+      cout<<"N_newpoints="<<N_newpoints<<endl;
+      cout<<"N_newcells="<<N_newcells<<endl;
+      
+      EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+      allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+      makeCopyNoAlloc(grid, grid_tmp);
+      EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
+      
+      vtkIdType nodeId=N_points;
+      foreach(stencil_t S,StencilVector)
+      {
+        cout<<S<<endl;
         vtkIdType N_pts, *pts;
         vec3_t A,B;
         grid_tmp->GetPoint(S.p[1],A.data());
@@ -855,33 +861,52 @@ void GuiSmoothSurface::operate()
         
         vtkIdType pts_triangle[4][3];
         
-        for(int i=0;i<4;i++)
-        {
-          pts_triangle[i][0]=S.p[i];
-          pts_triangle[i][1]=S.p[(i+1)%4];
-          pts_triangle[i][2]=nodeId;
+        if(S.valid){//there is a neighbour cell
+          for(int i=0;i<4;i++)
+          {
+            pts_triangle[i][0]=S.p[i];
+            pts_triangle[i][1]=S.p[(i+1)%4];
+            pts_triangle[i][2]=nodeId;
+          }
+          
+          int bc1=cell_code_tmp->GetValue(S.id_cell1);
+          int bc2=cell_code_tmp->GetValue(S.id_cell2);
+          
+          grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+          cell_code_tmp->SetValue(S.id_cell1, bc1);
+          
+          grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
+          cell_code_tmp->SetValue(S.id_cell2, bc2);
+          
+          vtkIdType newCellId;
+          newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
+          cell_code_tmp->SetValue(newCellId, bc2);
+          newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+          cell_code_tmp->SetValue(newCellId, bc1);
         }
-        
-        int bc1=cell_code_tmp->GetValue(S.id_cell1);
-        int bc2=cell_code_tmp->GetValue(S.id_cell2);
-        
-        grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-        cell_code_tmp->SetValue(S.id_cell1, bc1);
-        
-        grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
-        cell_code_tmp->SetValue(S.id_cell2, bc2);
-        
-        vtkIdType newCellId;
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-        cell_code_tmp->SetValue(newCellId, bc2);
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-        cell_code_tmp->SetValue(newCellId, bc1);
+        else{//there is no neighbour cell
+          pts_triangle[0][0]=S.p[0];
+          pts_triangle[0][1]=S.p[1];
+          pts_triangle[0][2]=nodeId;
+          pts_triangle[3][0]=S.p[3];
+          pts_triangle[3][1]=S.p[0];
+          pts_triangle[3][2]=nodeId;
+          
+          int bc1=cell_code_tmp->GetValue(S.id_cell1);
+          
+          grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+          cell_code_tmp->SetValue(S.id_cell1, bc1);
+          
+          vtkIdType newCellId;
+          newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+          cell_code_tmp->SetValue(newCellId, bc1);
+        }
         
         nodeId++;
       }
-    }
-    
-    makeCopy(grid_tmp,grid);
+      
+      makeCopy(grid_tmp,grid);
+    }//end of i_iter loop
 //     cout_grid(cout,grid,true,true,true,true);
     updateActors();
   }
