@@ -1115,6 +1115,28 @@ int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
   delete x;
   return(id_maxlen);
 }
+
+//get number of the edge corresponding to node1-node2
+int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
+  QVector <vtkIdType> edge(2);
+  
+  int n=0;
+  for(int i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_id_node1) { edge[0]=i;n++;}
+    if(pts[i]==a_id_node2) { edge[1]=i;n++;}
+  }
+  if(n!=2){
+    EG_BUG;
+    return(-1);
+  }
+  qSort(edge.begin(),edge.end());
+  if(edge[0]==0 && edge[1]==N_pts-1) return(N_pts-1);
+  else return(edge[0]);
+}
 ///////////////////////////////////////////
 
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells)
