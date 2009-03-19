@@ -63,7 +63,8 @@ private: // methods
 protected: // attributes
   
   QSet<int> boundary_codes;
-      
+  int DebugLevel;
+  
 protected: // methods
   
   /**
@@ -500,6 +501,9 @@ protected: // methods
 public: // methods
   
   void setBoundaryCodes(const QSet<int> &bcs);
+  EgVtkObject(){
+    DebugLevel=0;
+  };
   
 };
 

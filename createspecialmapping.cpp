@@ -18,6 +18,8 @@
 
 #include "smoothingutilities.h"
 
+#include "swaptriangles.h"
+
 #include <iostream>
 using namespace std;
 
@@ -446,42 +448,64 @@ int CreateSpecialMapping::Process()
       }
     }
   
+    DebugLevel=0;
     //Phase B : define desired mesh density
     double diff=Convergence_meshdensity+1;
+    cout<<"before loop: diff="<<diff<<endl;
     bool first=true;
 /*    int iter=0;
     int maxiter=100;*/
     do {
-      cout<<"diff="<<diff<<endl;
+      if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
+      first=true;
       foreach(vtkIdType node,SelectedNodes)
       {
-        cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
+        if(DebugLevel>2) cout<<"======>"<<endl;
+        if(DebugLevel>2) cout<<"------>Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
         VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
         int idx=VMDvector.indexOf(nodeVMD);
-        cout<<"idx="<<idx<<endl;
+        if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
         if(idx!=-1)//specified
         {
-          cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
+          if(DebugLevel>2) cout<<"------>node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
           node_meshdensity->SetValue(node, VMDvector[idx].density);
         }
         else//unspecified
         {
           double D=DesiredMeshDensity(node,n2n,m_grid);
           double L=1./D;
-          cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
           if(first) {
+            if(DebugLevel>2) {
+              cout<<"------>FIRST:"<<endl;
+              cout<<"------>D="<<D<<endl;
+              cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
+              cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
+              cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
+            }
             diff=abs(D-node_meshdensity->GetValue(node));
             first=false;
           }
           else {
+            if(DebugLevel>2) {
+              cout<<"------>NOT FIRST:"<<endl;
+              cout<<"------>D="<<D<<endl;
+              cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
+              cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
+              cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
+              cout<<"------>diff="<<diff<<endl;
+              cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
+            }
             diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
           }
+          if(DebugLevel>2) cout<<"------>node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
           node_meshdensity->SetValue(node, D);
         }
+        if(DebugLevel>2) cout<<"======>"<<endl;
       }
 //       iter++;
     } while(diff>Convergence_meshdensity && !first /*&& iter<maxiter*/);// if first=true, it means no new mesh density has been defined (all densities specified)
 //     cout<<"iter="<<iter<<endl;
+//     if(iter>=maxiter) EG_BUG;
     
     //Phase C: Prepare edge_map
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
@@ -804,17 +828,15 @@ int CreateSpecialMapping::Process()
     makeCopy(grid_tmp,m_grid);
     
     //Phase F : Delaunay swap
-/*    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
     
-    QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
-    cout<<"bcs="<<bcs<<endl;
+    QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
+    cout<<"m_bcs="<<m_bcs<<endl;
     cout<<"bcs_complement="<<bcs_complement<<endl;
     
     SwapTriangles swap;
-    swap.setGrid(grid);
+    swap.setGrid(m_grid);
     swap.setBoundaryCodes(bcs_complement);
-    swap();*/
+    swap();
     
     //Phase G : translate points to smooth grid
     //3 or more possiobilities
@@ -840,11 +862,11 @@ int CreateSpecialMapping::Process()
 
 VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 {
-  cout<<"================================"<<endl;
-  cout<<"node="<<node<<endl;
-  cout<<"VertexType="<<(int)VertexType<<endl;
+//   cout<<"================================"<<endl;
+//   cout<<"node="<<node<<endl;
+//   cout<<"VertexType="<<(int)VertexType<<endl;
   
-  cout<<"================================"<<endl;
+//   cout<<"================================"<<endl;
   VertexMeshDensity VMD;
   VMD.type=VertexType;
   VMD.density=0;
@@ -858,12 +880,12 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   {
     bc.insert(cell_code->GetValue(C));
   }
-  cout<<"bc="<<bc<<endl;
+//   cout<<"bc="<<bc<<endl;
   VMD.BClist.resize(bc.size());
   qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
-  cout<<"pre-sort VMD="<<VMD<<endl;
+//   cout<<"pre-sort VMD="<<VMD<<endl;
   qSort(VMD.BClist.begin(),VMD.BClist.end());
-  cout<<"post-sort VMD="<<VMD<<endl;
-  cout<<"================================"<<endl;
+//   cout<<"post-sort VMD="<<VMD<<endl;
+//   cout<<"================================"<<endl;
   return(VMD);
 }
