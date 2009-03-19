@@ -32,6 +32,8 @@ class CreateSpecialMapping : public Operation {
     int GenerateErrorScalars;
     int GenerateErrorVectors;
   
+    double Convergence_meshdensity;
+  
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
     QVector<vtkIdType> m_SelectedCells;
@@ -65,7 +67,9 @@ class CreateSpecialMapping : public Operation {
     void Set_FV_value(double V){FV_value=V;};
     void Set_FEV_value(double V){FEV_value=V;};
     void Set_BEV_value(double V){BEV_value=V;};
-    
+  
+    void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
+  
     VertexMeshDensity getVMD(vtkIdType node, char VertexType);
   
   //utilities
@@ -191,6 +195,12 @@ class CreateSpecialMapping : public Operation {
     }
     bool insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
     {
+      cout<<"j="<<j<<endl;
+      cout<<"K="<<K<<endl;
+      cout<<"0.5*G_k(K)="<<0.5*G_k(K)<<endl;
+      cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
+      cout<<"1*G_k(K)="<<1*G_k(K)<<endl;
+      cout<<"return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );"<<endl;
       return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );
     }
     bool remove_fieldpoint(vtkIdType P)

@@ -425,6 +425,7 @@ int CreateSpecialMapping::Process()
     setGrid(m_grid);
     setCells(m_AllCells);
     
+    //Phase A : Calculate current mesh density
     foreach(vtkIdType node,SelectedNodes)
     {
       cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
@@ -433,50 +434,68 @@ int CreateSpecialMapping::Process()
       cout<<"idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
+        cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
         node_meshdensity->SetValue(node, VMDvector[idx].density);
       }
       else//unspecified
       {
         double L=CurrentVertexAvgDist(node,n2n,m_grid);
         double D=1./L;
+        cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
         node_meshdensity->SetValue(node, D);
       }
     }
   
-    //Phase A : define desired mesh density
-    foreach(vtkIdType node,SelectedNodes)
+    //Phase B : define desired mesh density
+    double diff=Convergence_meshdensity+1;
+    bool first=true;
+    while(diff>Convergence_meshdensity)
     {
-      cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
-      VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
-      int idx=VMDvector.indexOf(nodeVMD);
-      cout<<"idx="<<idx<<endl;
-      if(idx!=-1)//specified
+      cout<<"diff="<<diff<<endl;
+      foreach(vtkIdType node,SelectedNodes)
       {
-        node_meshdensity->SetValue(node, VMDvector[idx].density);
-      }
-      else//unspecified
-      {
-        double D=DesiredMeshDensity(node,n2n,m_grid);
-        double L=1./D;
-        node_meshdensity->SetValue(node, D);
+        cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
+        VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
+        int idx=VMDvector.indexOf(nodeVMD);
+        cout<<"idx="<<idx<<endl;
+        if(idx!=-1)//specified
+        {
+          cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
+          node_meshdensity->SetValue(node, VMDvector[idx].density);
+        }
+        else//unspecified
+        {
+          double D=DesiredMeshDensity(node,n2n,m_grid);
+          double L=1./D;
+          cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
+          if(first) {
+            diff=abs(D-node_meshdensity->GetValue(node));
+          }
+          else {
+            diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
+          }
+          node_meshdensity->SetValue(node, D);
+        }
       }
     }
-
-    //Phase B: Prepare edge_map
+    
+    //Phase C: Prepare edge_map
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
-    vtkIdType edgeId=0;
+    vtkIdType edgeId=1;
     foreach(vtkIdType node1,SelectedNodes)
     {
 //       cout<<"node1="<<node1<<endl;
       foreach(vtkIdType node2,n2n[node1])
       {
-        edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
+        if(edge_map[OrderedPair(node1,node2)]==0) { //this edge hasn't been numbered yet
+          edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
+        }
       }
     }
     cout<<"edge_map.size()="<<edge_map.size()<<endl;
     QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
     
-    //Phase C : determine cells/points to add/remove
+    //Phase D : determine cells/points to add/remove
     cout<<"===Phase C==="<<endl;
     int N_inserted_FP=0;
     int N_inserted_EP=0;
@@ -491,12 +510,12 @@ int CreateSpecialMapping::Process()
     QMap <vtkIdType,bool> marked_cells;
     QMap <vtkIdType,bool> marked_nodes;
       
-    //Phase C1 : insert field points (loop through cells)
+    //Phase D1 : insert field points (loop through cells)
     cout<<"===Phase C1==="<<endl;
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
-      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
-      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;
+      if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
+      else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;
       
       if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
@@ -508,7 +527,7 @@ int CreateSpecialMapping::Process()
       }
     }
     
-    //Phase C2 : insert edge points (loop through edges)
+    //Phase D2 : insert edge points (loop through edges)
     cout<<"===Phase C2==="<<endl;
     QVector <stencil_t> StencilVector;
     
@@ -517,9 +536,9 @@ int CreateSpecialMapping::Process()
     //start loop
     while (edge_map_iter.hasNext()) {
       edge_map_iter.next();
-//       cout << "(" << i.key().first << "," << i.key().second << ")" << ": " << i.value() << endl;
       vtkIdType node1=edge_map_iter.key().first;
       vtkIdType node2=edge_map_iter.key().second;
+      cout << "--->(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
       QSet <int> stencil_cells_set;
       QVector <int> stencil_cells_vector;
       stencil_cells_set=n2c[node1];
@@ -542,8 +561,9 @@ int CreateSpecialMapping::Process()
       {
         if(marked_cells[C]) stencil_marked=true;
       }
-      
-      
+      cout<<"stencil_marked="<<stencil_marked<<endl;
+      cout<<"insert_edgepoint(node1,node2)="<<insert_edgepoint(node1,node2)<<endl;
+
       if( !stencil_marked && insert_edgepoint(node1,node2) )
       {
         cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
@@ -562,9 +582,10 @@ int CreateSpecialMapping::Process()
           N_newpoints+=1;
         }
       }
+      cout <<"--->end of edge processing"<<endl;
     }
     
-    //Phase C3 + C4 : remove field points (loop through points) + remove edge points (loop through points)
+    //Phase D3 + D4 : remove field points (loop through points) + remove edge points (loop through points)
     cout<<"===Phase C3+C4==="<<endl;
     foreach(vtkIdType node,SelectedNodes)
     {
@@ -610,7 +631,7 @@ int CreateSpecialMapping::Process()
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   
-    //Phase D : Add/remove points
+    //Phase E : Add/remove points
     cout<<"===Phase D==="<<endl;
     //unmark cells (TODO: optimize)
     marked_cells.clear();
@@ -623,12 +644,12 @@ int CreateSpecialMapping::Process()
     //initialize new node counter
     vtkIdType newNodeId=N_points;
     
-    //Phase D1 : insert field points (loop through cells)
+    //Phase E1 : insert field points (loop through cells)
     cout<<"===Phase D1==="<<endl;
     foreach(vtkIdType id_cell, m_SelectedCells)
     {
-      if(marked_cells[id_cell]) cout<<"--->marked_cells[id_cell]=TRUE"<<endl;
-      else cout<<"--->marked_cells[id_cell]=FALSE"<<endl;
+      if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
+      else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;
       
       if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
       {
@@ -674,7 +695,7 @@ int CreateSpecialMapping::Process()
         
       }
     }
-    //Phase D2 : insert edge points (loop through edges)
+    //Phase E2 : insert edge points (loop through edges)
     cout<<"===Phase D2==="<<endl;
     cout<<"!!!!!!!!PINKY->!!!!!!!!StencilVector.size()="<<StencilVector.size()<<endl;
     
@@ -741,7 +762,7 @@ int CreateSpecialMapping::Process()
       newNodeId++;
     }
     
-    //Phase D3 + D4 : remove field points (loop through points) + remove edge points (loop through points)
+    //Phase E3 + E4 : remove field points (loop through points) + remove edge points (loop through points)
     cout<<"===Phase D3+D4==="<<endl;
     foreach(vtkIdType node,SelectedNodes)
     {
@@ -778,7 +799,7 @@ int CreateSpecialMapping::Process()
     }
     makeCopy(grid_tmp,m_grid);
     
-    //Phase E : Delaunay swap
+    //Phase F : Delaunay swap
 /*    QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
@@ -791,7 +812,7 @@ int CreateSpecialMapping::Process()
     swap.setBoundaryCodes(bcs_complement);
     swap();*/
     
-    //Phase F : translate points to smooth grid
+    //Phase G : translate points to smooth grid
     //3 or more possiobilities
     //vtk smooth 1
     //vtk smooth 2

@@ -103,6 +103,7 @@ int GuiSmoothSurface::readSettings()
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   current_filename=local_qset->value("Filename", "").toString();
   ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
+  ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
   if(local_qset->value("DensityUnit_is_length", false).toBool()){
     ui.radioButton_length->toggle();
   }
@@ -116,6 +117,7 @@ int GuiSmoothSurface::writeSettings()
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   local_qset->setValue("Filename", current_filename);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
+  local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
   local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
   return(0);
 }
@@ -187,7 +189,6 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);
   
-  tableWidget;
   int row=0;
   int column=0;
   QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg((row+1)*(column+1)));
@@ -1183,6 +1184,8 @@ void GuiSmoothSurface::operate()
     toto.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
     toto.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
     toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());
+    
+    toto.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
     toto.Process();
     

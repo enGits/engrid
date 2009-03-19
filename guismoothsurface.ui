@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -334,6 +334,23 @@
             <widget class="QDoubleSpinBox" name="doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX" >
              <property name="minimum" >
               <double>-1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" >
+            <widget class="QLabel" name="label_10" >
+             <property name="text" >
+              <string>Convergence_meshdensity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1" >
+            <widget class="QDoubleSpinBox" name="doubleSpinBox_Convergence_meshdensity" >
+             <property name="decimals" >
+              <number>6</number>
+             </property>
+             <property name="singleStep" >
+              <double>0.010000000000000</double>
              </property>
             </widget>
            </item>
