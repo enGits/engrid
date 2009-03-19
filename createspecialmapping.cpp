@@ -620,6 +620,7 @@ int CreateSpecialMapping::Process()
     makeCopyNoAlloc(m_grid, grid_tmp);
     EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
     
+    //initialize new node counter
     vtkIdType newNodeId=N_points;
     
     //Phase D1 : insert field points (loop through cells)
@@ -675,7 +676,75 @@ int CreateSpecialMapping::Process()
     }
     //Phase D2 : insert edge points (loop through edges)
     cout<<"===Phase D2==="<<endl;
-    //rewind the iterator
+    cout<<"!!!!!!!!PINKY->!!!!!!!!StencilVector.size()="<<StencilVector.size()<<endl;
+    
+    foreach(stencil_t S,StencilVector)
+    {
+      cout<<"S="<<S<<endl;
+      vec3_t A,B;
+      grid_tmp->GetPoint(S.p[1],A.data());
+      grid_tmp->GetPoint(S.p[3],B.data());
+      vec3_t M=0.5*(A+B);
+      addPoint(grid_tmp,newNodeId,M.data());
+      
+      vtkIdType pts_triangle[4][3];
+      
+      if(S.valid){//there is a neighbour cell
+        cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
+        cout<<"marked_cells["<<S.id_cell2<<"]=true;"<<endl;
+        marked_cells[S.id_cell1]=true;
+        marked_cells[S.id_cell2]=true;
+        
+        for(int i=0;i<4;i++)
+        {
+          pts_triangle[i][0]=S.p[i];
+          pts_triangle[i][1]=S.p[(i+1)%4];
+          pts_triangle[i][2]=newNodeId;
+        }
+        
+        int bc1=cell_code_tmp->GetValue(S.id_cell1);
+        int bc2=cell_code_tmp->GetValue(S.id_cell2);
+        
+        grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+        cell_code_tmp->SetValue(S.id_cell1, bc1);
+        
+        grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
+        cell_code_tmp->SetValue(S.id_cell2, bc2);
+        
+        vtkIdType newCellId;
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
+        cell_code_tmp->SetValue(newCellId, bc2);
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+        cell_code_tmp->SetValue(newCellId, bc1);
+      }
+      else{//there is no neighbour cell
+        cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
+        marked_cells[S.id_cell1]=true;
+        
+        pts_triangle[0][0]=S.p[0];
+        pts_triangle[0][1]=S.p[1];
+        pts_triangle[0][2]=newNodeId;
+        pts_triangle[3][0]=S.p[3];
+        pts_triangle[3][1]=S.p[0];
+        pts_triangle[3][2]=newNodeId;
+        
+        int bc1=cell_code_tmp->GetValue(S.id_cell1);
+        
+        grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+        cell_code_tmp->SetValue(S.id_cell1, bc1);
+        
+        vtkIdType newCellId;
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+        cell_code_tmp->SetValue(newCellId, bc1);
+      }
+      
+      newNodeId++;
+    }
+    
+    
+    
+    //===================
+/*    //rewind the iterator
     edge_map_iter.toFront ();
     //start loop
     while (edge_map_iter.hasNext()) {
@@ -713,47 +782,6 @@ int CreateSpecialMapping::Process()
         
         //========================================
         
-        
-        
-/*          int N_points=grid->GetNumberOfPoints();
-          int N_cells=grid->GetNumberOfCells();
-          
-          QVector<vtkIdType> SelectedCells;
-          getSurfaceCells(m_bcs, SelectedCells, grid);
-          QVector<vtkIdType> AllCells;
-          getAllSurfaceCells(AllCells,grid);
-          
-          EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-          
-          QVector <stencil_t> StencilVector;
-          
-          QMap <vtkIdType,bool> marked;
-          
-          createCellMapping(AllCells, _cells, grid);
-          createCellToCell(AllCells, c2c, grid);
-          setCells(AllCells);
-          
-          cout<<"AllCells.size()="<<AllCells.size()<<endl;
-          cout<<"SelectedCells.size()="<<SelectedCells.size()<<endl;
-          
-          int N_newcells=0;
-          int N_newpoints=0;
-          foreach(vtkIdType id_cell, SelectedCells)
-          {
-            cout<<"==>id_cell="<<id_cell<<endl;
-            int bc0=cell_code->GetValue(id_cell);
-            if(!marked[id_cell])
-            {
-              vtkIdType N_pts, *pts;
-              grid->GetCellPoints(id_cell, N_pts, pts);
-              int count=0;
-              for(int i=0;i<N_pts;i++)
-              {
-                int bc1=cell_code->GetValue(c2c[id_cell][i]);
-                if(bc0!=bc1) count++;
-              }
-            }
-          }*/
           
           cout<<"StencilVector.size()="<<StencilVector.size()<<endl;
           cout<<"N_newpoints="<<N_newpoints<<endl;
@@ -765,61 +793,6 @@ int CreateSpecialMapping::Process()
           EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
           
           vtkIdType nodeId=N_points;
-          foreach(stencil_t S,StencilVector)
-          {
-            cout<<S<<endl;
-            vtkIdType N_pts, *pts;
-            vec3_t A,B;
-            grid_tmp->GetPoint(S.p[1],A.data());
-            grid_tmp->GetPoint(S.p[3],B.data());
-            vec3_t M=0.5*(A+B);
-            addPoint(grid_tmp,nodeId,M.data());
-            
-            vtkIdType pts_triangle[4][3];
-            
-            if(S.valid){//there is a neighbour cell
-              for(int i=0;i<4;i++)
-              {
-                pts_triangle[i][0]=S.p[i];
-                pts_triangle[i][1]=S.p[(i+1)%4];
-                pts_triangle[i][2]=nodeId;
-              }
-              
-              int bc1=cell_code_tmp->GetValue(S.id_cell1);
-              int bc2=cell_code_tmp->GetValue(S.id_cell2);
-              
-              grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-              cell_code_tmp->SetValue(S.id_cell1, bc1);
-              
-              grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
-              cell_code_tmp->SetValue(S.id_cell2, bc2);
-              
-              vtkIdType newCellId;
-              newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-              cell_code_tmp->SetValue(newCellId, bc2);
-              newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-              cell_code_tmp->SetValue(newCellId, bc1);
-            }
-            else{//there is no neighbour cell
-              pts_triangle[0][0]=S.p[0];
-              pts_triangle[0][1]=S.p[1];
-              pts_triangle[0][2]=nodeId;
-              pts_triangle[3][0]=S.p[3];
-              pts_triangle[3][1]=S.p[0];
-              pts_triangle[3][2]=nodeId;
-              
-              int bc1=cell_code_tmp->GetValue(S.id_cell1);
-              
-              grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-              cell_code_tmp->SetValue(S.id_cell1, bc1);
-              
-              vtkIdType newCellId;
-              newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-              cell_code_tmp->SetValue(newCellId, bc1);
-            }
-            
-            nodeId++;
-          }
           
         
         
@@ -844,7 +817,8 @@ int CreateSpecialMapping::Process()
           N_newpoints+=1;
         }
       }
-    }
+    }*/
+    //end of while (edge_map_iter.hasNext()) loop
     
     //Phase D3 + D4 : remove field points (loop through points) + remove edge points (loop through points)
     cout<<"===Phase D3+D4==="<<endl;
