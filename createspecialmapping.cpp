@@ -449,8 +449,9 @@ int CreateSpecialMapping::Process()
     //Phase B : define desired mesh density
     double diff=Convergence_meshdensity+1;
     bool first=true;
-    while(diff>Convergence_meshdensity)
-    {
+/*    int iter=0;
+    int maxiter=100;*/
+    do {
       cout<<"diff="<<diff<<endl;
       foreach(vtkIdType node,SelectedNodes)
       {
@@ -470,6 +471,7 @@ int CreateSpecialMapping::Process()
           cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
           if(first) {
             diff=abs(D-node_meshdensity->GetValue(node));
+            first=false;
           }
           else {
             diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
@@ -477,7 +479,9 @@ int CreateSpecialMapping::Process()
           node_meshdensity->SetValue(node, D);
         }
       }
-    }
+//       iter++;
+    } while(diff>Convergence_meshdensity && !first /*&& iter<maxiter*/);// if first=true, it means no new mesh density has been defined (all densities specified)
+//     cout<<"iter="<<iter<<endl;
     
     //Phase C: Prepare edge_map
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
