@@ -352,6 +352,24 @@
         <layout class="QVBoxLayout" name="verticalLayout_SettingsSheet" />
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4" >
+         <item>
+          <widget class="QRadioButton" name="radioButton_length" >
+           <property name="text" >
+            <string>Mesh density in length units</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_density" >
+           <property name="text" >
+            <string>Mesh density in length^(-1) units</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3" >
          <item>
           <widget class="QPushButton" name="pushButton_RemoveSet" >

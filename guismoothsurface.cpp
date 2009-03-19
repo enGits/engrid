@@ -95,12 +95,35 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
   cout<<"GetGenerateErrorVectors="<<smooth->GetGenerateErrorVectors()<<endl;
   return(0);
 }
+
+///////////////////////////////////////////
+
+int GuiSmoothSurface::readSettings()
+{
+  local_qset=new QSettings("enGits","enGrid_smoothsurface");
+  current_filename=local_qset->value("Filename", "").toString();
+  ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
+  if(local_qset->value("DensityUnit_is_length", false).toBool()){
+    ui.radioButton_length->toggle();
+  }
+  else{
+    ui.radioButton_density->toggle();
+  }
+  return(0);
+}
+int GuiSmoothSurface::writeSettings()
+{
+  local_qset=new QSettings("enGits","enGrid_smoothsurface");
+  local_qset->setValue("Filename", current_filename);
+  local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
+  local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
+  return(0);
+}
+
 ///////////////////////////////////////////
 
 void GuiSmoothSurface::before()
 {
-  local_qset=new QSettings("enGits","enGrid_smoothsurface");
-  current_filename=local_qset->value("Filename", "").toString();
   
   tableWidget=new SettingsSheet();
   ui.verticalLayout_SettingsSheet->addWidget(tableWidget);
@@ -115,10 +138,10 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 4: center subdivision");
   ui.SmoothMethod->addItem("Method 5: boundary refinement");
   ui.SmoothMethod->addItem("Method 6: Laplacian smoothing");
-  ui.SmoothMethod->addItem("Method 7");
+  ui.SmoothMethod->addItem("Method 7: VertexAvgDist test");
   ui.SmoothMethod->addItem("Method 8: Create mesh density map");
-  ui.SmoothMethod->addItem("Method 9");
-  ui.SmoothMethod->addItem("Method 10: Create mesh density map");
+  ui.SmoothMethod->addItem("Method 9: vtkWindowedSincPolyDataFilter smoothing");
+  ui.SmoothMethod->addItem("Method 10: Super smoothing :)");
   ui.SmoothMethod->addItem("Method 11");
   ui.SmoothMethod->addItem("Method 12");
   ui.SmoothMethod->addItem("Method 13");
@@ -128,7 +151,8 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 17");
   ui.SmoothMethod->addItem("Method 18");
   
-  ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
+  //Load settings
+  readSettings();
   
   if(ui.listWidget->count()>0) ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
   else ui.lineEdit_BoundaryCode-> setText("42");
@@ -212,10 +236,10 @@ void GuiSmoothSurface::before()
   connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
   connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(Load()));
   connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(Save()));
-  connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
-  connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
-  connect(ui.pushButton_Load, SIGNAL(clicked()), this, SLOT(SelectAll_Source()));
-  connect(ui.pushButton_Save, SIGNAL(clicked()), this, SLOT(ClearAll_Source()));
+  connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+  connect(ui.pushButton_SelectAll_Source, SIGNAL(clicked()), this, SLOT(SelectAll_Source()));
+  connect(ui.pushButton_ClearAll_Source, SIGNAL(clicked()), this, SLOT(ClearAll_Source()));
 };
 
 void GuiSmoothSurface::Load()
@@ -234,9 +258,12 @@ void GuiSmoothSurface::Save()
 }
 void GuiSmoothSurface::SelectAll_BC()
 {
+  cout<<"TOGGLING"<<endl;
+    ui.radioButton_density->toggle();
 }
 void GuiSmoothSurface::ClearAll_BC()
 {
+  ui.radioButton_length->toggle();
 }
 void GuiSmoothSurface::SelectAll_Source()
 {
@@ -251,6 +278,7 @@ void GuiSmoothSurface::TestSet()
   GetSet();
 }
 
+//This is where we get the user defined mesh densities
 QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
 {
   cout<<"Getting set"<<endl;
@@ -268,7 +296,13 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
     }
     VMDvector[i].type=Str2VertexType(tableWidget->item(i,Nbc)->text());
     VMDvector[i].SetNodes(tableWidget->item(i,Nbc+1)->text());
-    VMDvector[i].density=tableWidget->item(i,Nbc+2)->text().toDouble();
+    if(ui.radioButton_density->isChecked()){
+      VMDvector[i].density=tableWidget->item(i,Nbc+2)->text().toDouble();
+    }
+    else{
+      cout<<"ze_density="<<1.0/(tableWidget->item(i,Nbc+2)->text().toDouble())<<endl;
+      VMDvector[i].density=1.0/(tableWidget->item(i,Nbc+2)->text().toDouble());
+    }
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
   
@@ -307,9 +341,8 @@ void GuiSmoothSurface::RemoveSet()
 
 void GuiSmoothSurface::operate()
 {
-  local_qset=new QSettings("enGits","enGrid_smoothsurface");
-  local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
-  local_qset->setValue("Filename", current_filename);
+  //Save settings
+  writeSettings();
   
   if(!current_filename.isEmpty()) tableWidget->writeFile(current_filename);
   

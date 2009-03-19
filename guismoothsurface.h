@@ -58,6 +58,8 @@ public:
   QSettings* local_qset;
   /** The settings file to load. */
   QString current_filename;
+  int readSettings();
+  int writeSettings();
 };
 
 #endif
