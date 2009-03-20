@@ -239,7 +239,7 @@
             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
            </property>
            <property name="labelAlignment" >
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
            <item row="0" column="0" >
             <widget class="QLabel" name="label_3" >
@@ -280,7 +280,7 @@
            <item row="2" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
-              <string>Number of subdivisions</string>
+              <string>Number of subdivisions :</string>
              </property>
             </widget>
            </item>
@@ -290,7 +290,7 @@
            <item row="3" column="0" >
             <widget class="QLabel" name="label_5" >
              <property name="text" >
-              <string>VTK_SIMPLE_VERTEX</string>
+              <string>VTK_SIMPLE_VERTEX :</string>
              </property>
             </widget>
            </item>
@@ -304,21 +304,21 @@
            <item row="4" column="0" >
             <widget class="QLabel" name="label_6" >
              <property name="text" >
-              <string>VTK_FIXED_VERTEX</string>
+              <string>VTK_FIXED_VERTEX :</string>
              </property>
             </widget>
            </item>
            <item row="5" column="0" >
             <widget class="QLabel" name="label_7" >
              <property name="text" >
-              <string>VTK_FEATURE_EDGE_VERTEX</string>
+              <string>VTK_FEATURE_EDGE_VERTEX :</string>
              </property>
             </widget>
            </item>
            <item row="6" column="0" >
             <widget class="QLabel" name="label_9" >
              <property name="text" >
-              <string>VTK_BOUNDARY_EDGE_VERTEX</string>
+              <string>VTK_BOUNDARY_EDGE_VERTEX :</string>
              </property>
             </widget>
            </item>
@@ -346,7 +346,7 @@
            <item row="7" column="0" >
             <widget class="QLabel" name="label_10" >
              <property name="text" >
-              <string>Convergence_meshdensity</string>
+              <string>Convergence_meshdensity :</string>
              </property>
             </widget>
            </item>
@@ -357,6 +357,40 @@
              </property>
              <property name="singleStep" >
               <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0" >
+            <widget class="QCheckBox" name="checkBox_insert_FP" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text" >
+              <string>Insert field points</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0" >
+            <widget class="QCheckBox" name="checkBox_remove_FP" >
+             <property name="text" >
+              <string>Remove field points</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1" >
+            <widget class="QCheckBox" name="checkBox_insert_EP" >
+             <property name="text" >
+              <string>Insert edge points</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1" >
+            <widget class="QCheckBox" name="checkBox_remove_EP" >
+             <property name="text" >
+              <string>Remove edge points</string>
              </property>
             </widget>
            </item>

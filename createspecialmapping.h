@@ -34,6 +34,11 @@ class CreateSpecialMapping : public Operation {
   
     double Convergence_meshdensity;
   
+    bool insert_FP;
+    bool insert_EP;
+    bool remove_FP;
+    bool remove_EP;
+  
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
     QVector<vtkIdType> m_SelectedCells;
@@ -69,6 +74,10 @@ class CreateSpecialMapping : public Operation {
     void Set_BEV_value(double V){BEV_value=V;};
   
     void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
+    void Set_insert_FP(bool B){insert_FP=B;};
+    void Set_insert_EP(bool B){insert_EP=B;};
+    void Set_remove_FP(bool B){remove_FP=B;};
+    void Set_remove_EP(bool B){remove_EP=B;};
   
     VertexMeshDensity getVMD(vtkIdType node, char VertexType);
   

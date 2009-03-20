@@ -104,6 +104,10 @@ int GuiSmoothSurface::readSettings()
   current_filename=local_qset->value("Filename", "").toString();
   ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
   ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
+  ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset->value("insert_FP", 2).toInt()));
+  ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
+  ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset->value("remove_FP", 2).toInt()));
+  ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset->value("remove_EP", 2).toInt()));
   if(local_qset->value("DensityUnit_is_length", false).toBool()){
     ui.radioButton_length->toggle();
   }
@@ -118,6 +122,10 @@ int GuiSmoothSurface::writeSettings()
   local_qset->setValue("Filename", current_filename);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
   local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
+  local_qset->setValue("insert_FP", ui.checkBox_insert_FP->checkState());
+  local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
+  local_qset->setValue("remove_FP", ui.checkBox_remove_FP->checkState());
+  local_qset->setValue("remove_EP", ui.checkBox_remove_EP->checkState());
   local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
   return(0);
 }
@@ -1186,6 +1194,11 @@ void GuiSmoothSurface::operate()
     toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());
     
     toto.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
+    
+    toto.Set_insert_FP(ui.checkBox_insert_FP->checkState());
+    toto.Set_insert_EP(ui.checkBox_insert_EP->checkState());
+    toto.Set_remove_FP(ui.checkBox_remove_FP->checkState());
+    toto.Set_remove_EP(ui.checkBox_remove_EP->checkState());
     
     toto.Process();
     
