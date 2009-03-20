@@ -634,7 +634,7 @@ int CreateSpecialMapping::Process()
       if( !marked && remove_edgepoint(node) )
       {
         cout<<"removing edge point "<<node<<endl;
-        N_removed_FP++;
+        N_removed_EP++;
         foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
         if(n2n[node].size()==4)//4 cells around the edge
         {
@@ -803,25 +803,25 @@ int CreateSpecialMapping::Process()
       if( !marked && remove_fieldpoint(node) )
       {
         cout<<"removing field point "<<node<<endl;
-        N_removed_FP++;
+/*        N_removed_FP++;
         foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
         N_newcells-=2;
-        N_newpoints-=1;
+        N_newpoints-=1;*/
       }
       if( !marked && remove_edgepoint(node) )
       {
         cout<<"removing edge point "<<node<<endl;
-        N_removed_FP++;
+//         N_removed_EP++;
         foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
         if(n2n[node].size()==4)//4 cells around the edge
         {
-          N_newcells-=2;
-          N_newpoints-=1;
+/*          N_newcells-=2;
+          N_newpoints-=1;*/
         }
         else//2 cells around the edge
         {
-          N_newcells-=1;
-          N_newpoints-=1;
+/*          N_newcells-=1;
+          N_newpoints-=1;*/
         }
       }
     }
@@ -855,6 +855,19 @@ int CreateSpecialMapping::Process()
       }
     }
     delete [] Verts;
+    
+    cout<<"===Summary==="<<endl;
+    cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
+    cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
+    cout<<"N_removed_FP="<<N_removed_FP<<endl;
+    cout<<"N_removed_EP="<<N_removed_EP<<endl;
+    
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+    cout<<"============"<<endl;
+    
   }
   
   return 1;
