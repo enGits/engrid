@@ -69,7 +69,7 @@ SimpleFoamWriter::SimpleFoamWriter()
 {
   setFormat("Foam boundary files(boundary)");
   setExtension("");
-};
+}
 
 vtkIdType SimpleFoamWriter::getNeigh(int i_cells, int i_neigh) 
 { 
@@ -373,6 +373,8 @@ void SimpleFoamWriter::writeBoundary()
     };
   };
   f << bcs.size() << "\n(\n";
+  QVector<patch_t> patch(bcs.size());
+  int N_bc = 0;
   foreach (int bc, bcs) {
     int nFaces = 0;
     int startFace = -1;
@@ -386,13 +388,22 @@ void SimpleFoamWriter::writeBoundary()
     };
     if (startFace == -1) {
       EG_BUG;
-    };
-    BoundaryCondition BC = getBC(bc);
+    }
+    patch_t P;
+    P.bc = bc;
+    P.startFace = startFace;
+    P.nFaces = nFaces;
+    patch[N_bc] = P;
+    ++N_bc;
+  }
+  qSort(patch);
+  foreach (patch_t P, patch) {
+    BoundaryCondition BC = getBC(P.bc);
     f << "    " << BC.getName() << "\n";
     f << "    {\n";
     f << "        type        " << BC.getType() << ";\n";
-    f << "        nFaces      " << nFaces << ";\n";
-    f << "        startFace   " << startFace << ";\n";
+    f << "        nFaces      " << P.nFaces << ";\n";
+    f << "        startFace   " << P.startFace << ";\n";
     f << "    }\n";
   };
   f << ")\n\n";

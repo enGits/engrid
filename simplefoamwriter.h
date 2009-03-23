@@ -39,11 +39,16 @@ protected: // data types
     QVector<vtkIdType> node;
     vtkIdType owner, neighbour;
     int bc;
-    int operator[](int i) { while(i<0) i+=node.size(); while(i>=node.size()) i-=node.size(); return node[i]; };
+    int operator[](int i) { while(i<0) i+=node.size(); while(i>=node.size()) i-=node.size(); return node[i]; }
     bool operator<(const face_t &F) const;
     vec3_t normal(vtkUnstructuredGrid *grid);
-    face_t() {};
-    face_t(int N, int o, int n, int b=0) { node.resize(N); owner = o; neighbour = n; bc = b; };
+    face_t() {}
+    face_t(int N, int o, int n, int b=0) { node.resize(N); owner = o; neighbour = n; bc = b; }
+  };
+
+  struct patch_t {
+    int bc, startFace, nFaces;
+    bool operator<(const patch_t &P) const { return startFace < P.startFace; }
   };
   
 protected: // attributes
@@ -71,7 +76,7 @@ protected: // methods
 public: // methods
   
   SimpleFoamWriter();
-  virtual ~SimpleFoamWriter() {};
+  virtual ~SimpleFoamWriter() {}
   
 };
 
