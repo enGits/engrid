@@ -19,6 +19,7 @@
 #include "smoothingutilities.h"
 
 #include "swaptriangles.h"
+#include "laplacesmoother.h"
 
 #include <iostream>
 using namespace std;
@@ -867,6 +868,12 @@ int CreateSpecialMapping::Process()
     //laplacian smoothing with projection
     //Roland smoothing with projection
   
+    //laplacian smoothing with projection
+    LaplaceSmoother Lap;
+    Lap.SetInput(m_bcs,m_grid);
+    Lap.SetNumberOfIterations(N_SmoothIterations);
+    Lap();
+    
     //free up connectivity storage
     for (i=0; i<numPts; i++)
     {

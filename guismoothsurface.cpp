@@ -95,6 +95,7 @@ int GuiSmoothSurface::readSettings()
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   current_filename=local_qset->value("Filename", "").toString();
   ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
+  ui.spinBox_NumberOfSmoothIterations->setValue(local_qset->value("NumberOfSmoothIterations", 20).toInt());
   ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
   ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset->value("insert_FP", 2).toInt()));
   ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
@@ -113,6 +114,7 @@ int GuiSmoothSurface::writeSettings()
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   local_qset->setValue("Filename", current_filename);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
+  local_qset->setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
   local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
   local_qset->setValue("insert_FP", ui.checkBox_insert_FP->checkState());
   local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
@@ -1128,6 +1130,8 @@ void GuiSmoothSurface::operate()
     toto.Set_insert_EP(ui.checkBox_insert_EP->checkState());
     toto.Set_remove_FP(ui.checkBox_remove_FP->checkState());
     toto.Set_remove_EP(ui.checkBox_remove_EP->checkState());
+    
+    toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
     
     toto.Process();
     

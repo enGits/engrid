@@ -32,6 +32,8 @@ class CreateSpecialMapping : public Operation {
     int GenerateErrorScalars;
     int GenerateErrorVectors;
   
+    int N_SmoothIterations;
+  
     double Convergence_meshdensity;
   
     bool insert_FP;
