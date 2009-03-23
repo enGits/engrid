@@ -1206,3 +1206,16 @@ pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
   vtkIdType y=max(a,b);
   return(pair<vtkIdType,vtkIdType>(x,y));
 }
+
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_cell, N_pts, pts);
+  
+  int i;
+  for(i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_node) break;
+  }
+  return a_c2c[a_cell][i];
+}

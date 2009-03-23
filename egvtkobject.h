@@ -655,4 +655,6 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
 
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
 
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid);
+
 #endif

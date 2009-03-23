@@ -25,6 +25,7 @@
 #include "createspecialmapping.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
+#include "laplacesmoother.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtksmoothpolydatafilter2.h>
@@ -48,6 +49,9 @@
 #include <vtkFloatArray.h>
 #include <vtkCellArray.h>
 
+#include "vtkeggridsmoothpolydatafilter.h"
+#include "vtkeggridwindowedsincpolydatafilter.h"
+
 ///////////////////////////////////////////
 /* Here is how we we get QTextStreams that look like iostreams */
 QTextStream Qcin(stdin, QIODevice::ReadOnly);
@@ -56,18 +60,6 @@ QTextStream Qcerr(stderr, QIODevice::WriteOnly);
 ///////////////////////////////////////////
 
 //////////////////////////////////////////////
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_cell, N_pts, pts);
-  
-  int i;
-  for(i=0;i<N_pts;i++)
-  {
-    if(pts[i]==a_node) break;
-  }
-  return a_c2c[a_cell][i];
-}
 
 int cout_vtkWindowedSincPolyDataFilter(vtkWindowedSincPolyDataFilter* smooth)
 {
@@ -419,54 +411,6 @@ void GuiSmoothSurface::operate()
   if(!current_filename.isEmpty()) tableWidget->writeFile(current_filename);
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
-  
-  
-/*  if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
-  {
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    QVector<vtkIdType> cells;
-    getSurfaceCells(bcs, cells, grid);
-    EG_VTKSP(vtkPolyData, pdata);
-    addToPolyData(cells, pdata, grid);
-    EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
-    
-    cout_vtkSmoothPolyDataFilter(smooth);
-    
-    smooth->SetInput(pdata);
-    
-    smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
-    smooth->SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
-    smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
-    smooth->SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
-    smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-    smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-    smooth->SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-    smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
-    
-    QSet<int> bcs_Source;
-    getSelectedItems(ui.listWidget,bcs_Source);
-    QVector<vtkIdType> cells_Source;
-    getSurfaceCells(bcs_Source, cells_Source, grid);
-    EG_VTKSP(vtkPolyData, pdata_Source);
-    addToPolyData(cells_Source, pdata_Source, grid);
-    smooth->SetSource (pdata_Source);
-    
-    cout_vtkSmoothPolyDataFilter(smooth);
-    
-    smooth->Update();
-    EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
-    for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
-      vec3_t x;
-      smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
-      vtkIdType nodeId = node_index->GetValue(i);
-      grid->GetPoints()->SetPoint(nodeId, x.data());
-    };
-    updateActors();
-  }*/
-  
-  
   //can't use switch case because dynamic variables seem to be forbidden inside case statements
   //////////////////////////////////////////////////////////////////////////////////////////////
   if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
@@ -479,6 +423,9 @@ void GuiSmoothSurface::operate()
     EG_VTKSP(vtkPolyData, pdata);
     addToPolyData(cells, pdata, grid);
     EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+    
+//     EG_VTKSP(vtkEgGridSmoothPolyDataFilter, smooth2);
+//     vtkSmartPointer<vtkEgGridSmoothPolyDataFilter> smooth2 = vtkSmartPointer<vtkEgGridSmoothPolyDataFilter>::New();
     
     cout_vtkSmoothPolyDataFilter(smooth);
     
@@ -1012,97 +959,17 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==6)
+  else if(ui.SmoothMethod->currentIndex()==6)//Laplacian smoothing
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    QVector<vtkIdType> AllCells;
-    getAllSurfaceCells(AllCells, grid);
-    QVector<vtkIdType> SelectedCells;
-    getSurfaceCells(bcs, SelectedCells, grid);
+    LaplaceSmoother toto;
+    toto.SetInput(bcs,grid);
+    toto.SetNumberOfIterations(ui.spinBox_NumberOfIterations->value());
     
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    createCellToCell(AllCells, c2c, grid);
+    toto();
     
-    QSet <vtkIdType> SelectedNodes;
-    QSet <vtkIdType> InternalNodes;
-    QSet <vtkIdType> ExternalNodes;
-    
-    foreach(vtkIdType id_cell, SelectedCells)
-    {
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      for(int i=0;i<N_pts;i++)
-      {
-        QSet <int> bc;
-        foreach(vtkIdType C, n2c[pts[i]])
-        {
-          bc.insert(cell_code->GetValue(C));
-        }
-        cout<<"pts[i]="<<pts[i]<<" and bc="<<bc<<endl;
-        SelectedNodes.insert(pts[i]);
-        if(bc.size()>1) ExternalNodes.insert(pts[i]);
-        else
-        {
-          vtkIdType point=pts[i];
-          QSet< int > NeighbourCells=n2c[point];
-          vtkIdType start=*(NeighbourCells.begin());
-          vtkIdType current=start;
-          do
-          {
-            vtkIdType next=nextcell(current,point,c2c,grid);
-            current=next;
-          } while (current!=start && current!=-1);
-          if(current==-1) ExternalNodes.insert(point);
-          if(current==start) InternalNodes.insert(point);
-        }
-      }
-    }
-    
-    createNodeToNode(cells, nodes, _nodes, n2n, grid);
-    
-    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-    EG_VTKSP(vtkUnstructuredGrid,grid_orig);
-    makeCopy(grid, grid_orig);
-    
-    double closestPoint[3];
-    vtkIdType cellId;
-    int subId;
-    double dist2;
-    vtkCellLocator* terminator=vtkCellLocator::New();
-    terminator->SetDataSet(grid_orig);
-    terminator->BuildLocator();
-    
-    int N_iter=ui.spinBox_NumberOfIterations->value();
-    for(int i_iter=0;i_iter<N_iter;i_iter++)
-    {
-      cout<<"i_iter="<<i_iter<<endl;
-      makeCopy(grid, grid_tmp);
-      
-      foreach(vtkIdType id_G,InternalNodes)
-      {
-        vec3_t G(0,0,0);
-        foreach(int id_M,n2n[id_G])
-        {
-          vec3_t M;
-          grid->GetPoint(id_M, M.data());
-          G+=M;
-        }
-        G=(1./n2n[id_G].size())*G;
-        vec3_t P;
-        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
-        grid_tmp->GetPoints()->SetPoint(id_G, P.data());
-      }
-      
-      cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
-      cout << "InternalNodes.size()=" << InternalNodes.size() << endl;
-      cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
-      cout << "InternalNodes=" << InternalNodes << endl;
-      
-      makeCopy(grid_tmp,grid);
-    }
-    cout_grid(cout,grid);
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////

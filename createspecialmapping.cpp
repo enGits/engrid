@@ -861,11 +861,11 @@ int CreateSpecialMapping::Process()
     swap();
     
     //Phase G : translate points to smooth grid
-    //3 or more possiobilities
+    //4 possibilities
     //vtk smooth 1
     //vtk smooth 2
     //laplacian smoothing with projection
-    
+    //Roland smoothing with projection
   
     //free up connectivity storage
     for (i=0; i<numPts; i++)
