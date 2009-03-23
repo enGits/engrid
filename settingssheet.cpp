@@ -133,12 +133,10 @@ void SettingsSheet::setFormula(int row, int column,
 {
   Cell *c = cell(row, column);
   if (!c) {
-    cout<<"    =====WEIRD====="<<endl;
     Qcout2<<"    (row,column)="<<"("<<row<<","<<column<<")"<<formula<<endl;
     c = new Cell;
     setItem(row, column, c);
   }
-  cout<<"    =====OK====="<<endl;
   if(column<this->columnCount()-3){
     cout<<"    checkbox"<<endl;
     TriStateTableWidgetItem *newBC = new TriStateTableWidgetItem();

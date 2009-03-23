@@ -28,6 +28,8 @@
 #include "vertexmeshdensity.h"
 #include "settingssheet.h"
 
+#include <vtkPolyDataAlgorithm.h>
+
 class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
 {
   
@@ -60,6 +62,8 @@ public:
   QString current_filename;
   int readSettings();
   int writeSettings();
+  int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
+    
 };
 
 #endif

@@ -348,6 +348,62 @@ void GuiSmoothSurface::RemoveSet()
   tableWidget->resizeColumnsToContents();
 }
 
+int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
+{
+
+  cout<<"==============="<<endl;
+  int N1,N2;
+  double x1[3], x2[3], x3[3], l1[3], l2[3];
+  double dist;
+  int numPts=0;
+  cout<<"ErrorScalars:"<<endl;
+  N1=algo->GetOutput()->GetPointData()->GetNumberOfArrays();
+  cout<<"nb of arrays="<<N1<<endl;
+  algo->GetOutput();//vtkPolyData
+  cout<<algo->GetOutput()->GetPointData()<<endl;//vtkPointData*
+  vtkFloatArray *newScalars = vtkFloatArray::New();
+  newScalars=(vtkFloatArray *)algo->GetOutput()->GetPointData()->GetArray(1);
+  N1=newScalars->GetNumberOfComponents();
+  N2=newScalars->GetNumberOfTuples();
+  cout<<"N1="<<N1<<endl;
+  cout<<"N2="<<N2<<endl;
+  for (int i=0; i<N2; i++)
+  {
+    dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
+    cout<<"dist="<<dist<<endl;
+  }
+  
+  cout<<"==============="<<endl;
+}
+
+// int GuiSmoothSurface::DisplayErrorVectors()
+// {
+//   cout<<"==============="<<endl;
+//   cout<<"ErrorVectors:"<<endl;
+//   int index;
+//   vtkPointData* toto=vtkPointData::New();
+//   toto=grid->GetPointData();
+//   vtkDataArray* titi=(vtkDataArray* ) vtkDataArray::New();
+//   titi=toto->GetVectors();
+//   cout<<smooth->GetOutput()->GetPointData()<<endl;
+//   cout<<smooth->GetOutput()->GetPoints()<<endl;
+//   cout<<smooth->GetOutput()->GetPointData()->GetVectors()<<endl;
+//   vec3_t xx;
+//   smooth->GetOutput()->GetPoint(0, xx.data());
+//   N1=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
+//   N2=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
+//   cout<<"N1="<<N1<<endl;
+//   cout<<"N2="<<N2<<endl;
+//   for(vtkIdType i=0;i<N2;i++)
+//   {
+//     double tuple[4];
+//     smooth->GetOutput()->GetPointData()->GetTuple(i,tuple);
+//     cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
+//   }
+//   cout<<"index="<<index<<endl;
+//   cout<<"==============="<<endl;
+// }
+
 void GuiSmoothSurface::operate()
 {
   //Save settings
@@ -356,9 +412,9 @@ void GuiSmoothSurface::operate()
   if(!current_filename.isEmpty()) tableWidget->writeFile(current_filename);
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
-  //can't use switch case because dynamic variables seem to be forbidden inside case statements
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
+  
+  
+/*  if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
@@ -393,67 +449,61 @@ void GuiSmoothSurface::operate()
     cout_vtkSmoothPolyDataFilter(smooth);
     
     smooth->Update();
+    EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
+    for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
+      vec3_t x;
+      smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
+      vtkIdType nodeId = node_index->GetValue(i);
+      grid->GetPoints()->SetPoint(nodeId, x.data());
+    };
+    updateActors();
+  }*/
+  
+  
+  //can't use switch case because dynamic variables seem to be forbidden inside case statements
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  if(ui.SmoothMethod->currentIndex()==0)//vtkSmoothPolyDataFilter smoothing
+  {
+    //preparations
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QVector<vtkIdType> cells;
+    getSurfaceCells(bcs, cells, grid);
+    EG_VTKSP(vtkPolyData, pdata);
+    addToPolyData(cells, pdata, grid);
+    EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
     
-//     grid->GetPointCells();
-    cout<<"==============="<<endl;
-    int N1,N2;
-    double x1[3], x2[3], x3[3], l1[3], l2[3];
-    double dist;
-    int numPts=0;
-//     int indexArray[10];
-    cout<<"ErrorScalars:"<<endl;
-/*    int idx = output->GetPointData()->AddArray(newScalars);
-    grid->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);*/
-//     grid->GetPointData()->GetAttribute();
-    N1=smooth->GetOutput()->GetPointData()->GetNumberOfArrays();
-    cout<<"nb of arrays="<<N1<<endl;
-//     indexArray=new int[N1];
-    smooth->GetOutput();//vtkPolyData
-    cout<<smooth->GetOutput()->GetPointData()<<endl;//vtkPointData*
-//     cout<<"getting indices"<<endl;
-//     smooth->GetOutput()->GetPointData()->GetAttributeIndices(indexArray);
-//     for(int i=0;i<N1;i++) cout<<"indexArray["<<i<<"]="<<indexArray[i]<<endl;
-//     delete[] indexArray;
-    vtkFloatArray *newScalars = vtkFloatArray::New();
-    newScalars=(vtkFloatArray *)smooth->GetOutput()->GetPointData()->GetArray(1);
-//     newScalars=smooth->GetOutput()->GetPointData()->GetAttribute(vtkDataSetAttributes::SCALARS);
-    N1=newScalars->GetNumberOfComponents();
-    N2=newScalars->GetNumberOfTuples();
-    cout<<"N1="<<N1<<endl;
-    cout<<"N2="<<N2<<endl;
-    for (int i=0; i<N2; i++)
-    {
-      dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
-      cout<<"dist="<<dist<<endl;
-    }
+    cout_vtkSmoothPolyDataFilter(smooth);
     
-    cout<<"ErrorVectors:"<<endl;
-    int index;
-    vtkPointData* toto=vtkPointData::New();
-    toto=grid->GetPointData();
-    vtkDataArray* titi=(vtkDataArray* ) vtkDataArray::New();
-    titi=toto->GetVectors();
-//     titi->GetTuple(0,x3);
-    cout<<smooth->GetOutput()->GetPointData()<<endl;
-    cout<<smooth->GetOutput()->GetPoints()<<endl;
-    cout<<smooth->GetOutput()->GetPointData()->GetVectors()<<endl;
-//     cout<<smooth->GetOutput()->GetVectors()<<endl;
-    vec3_t xx;
-    smooth->GetOutput()->GetPoint(0, xx.data());
-    N1=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
-    N2=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
-    cout<<"N1="<<N1<<endl;
-    cout<<"N2="<<N2<<endl;
-    for(vtkIdType i=0;i<N2;i++)
-    {
-      double tuple[4];
-      smooth->GetOutput()->GetPointData()->GetTuple(i,tuple);
-      cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
-    }
-//     ->GetArray(,index);
-    cout<<"index="<<index<<endl;
-    cout<<"==============="<<endl;
+    //configure vtkSmoothPolyDataFilter
+    smooth->SetInput(pdata);
     
+    smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
+    smooth->SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
+    smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    smooth->SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
+    smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    smooth->SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
+    smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    
+    QSet<int> bcs_Source;
+    getSelectedItems(ui.listWidget,bcs_Source);
+    QVector<vtkIdType> cells_Source;
+    getSurfaceCells(bcs_Source, cells_Source, grid);
+    EG_VTKSP(vtkPolyData, pdata_Source);
+    addToPolyData(cells_Source, pdata_Source, grid);
+    smooth->SetSource (pdata_Source);
+    
+    cout_vtkSmoothPolyDataFilter(smooth);
+    
+    //smooth
+    smooth->Update();
+    
+    DisplayErrorScalars(vtkSmoothPolyDataFilter* smooth,1,1);
+    
+    //copy smoothed grid to main grid
     EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
     for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
       vec3_t x;
