@@ -63,7 +63,8 @@ public:
   int readSettings();
   int writeSettings();
   int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
-    
+  int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
+  
 };
 
 #endif

@@ -352,57 +352,64 @@ int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
 {
 
   cout<<"==============="<<endl;
+  cout<<"ErrorScalars:"<<endl;
   int N1,N2;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double dist;
   int numPts=0;
-  cout<<"ErrorScalars:"<<endl;
   N1=algo->GetOutput()->GetPointData()->GetNumberOfArrays();
-  cout<<"nb of arrays="<<N1<<endl;
+//   cout<<"nb of arrays="<<N1<<endl;
   algo->GetOutput();//vtkPolyData
-  cout<<algo->GetOutput()->GetPointData()<<endl;//vtkPointData*
+//   cout<<algo->GetOutput()->GetPointData()<<endl;//vtkPointData*
   vtkFloatArray *newScalars = vtkFloatArray::New();
   newScalars=(vtkFloatArray *)algo->GetOutput()->GetPointData()->GetArray(1);
   N1=newScalars->GetNumberOfComponents();
   N2=newScalars->GetNumberOfTuples();
-  cout<<"N1="<<N1<<endl;
-  cout<<"N2="<<N2<<endl;
+  cout<<"Number of components=N1="<<N1<<endl;
+  cout<<"Number of tuples=N2="<<N2<<endl;
   for (int i=0; i<N2; i++)
   {
     dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
-    cout<<"dist="<<dist<<endl;
+    cout<<"dist["<<i<<"]="<<dist<<endl;
   }
   
   cout<<"==============="<<endl;
+  return(0);
 }
 
-// int GuiSmoothSurface::DisplayErrorVectors()
-// {
-//   cout<<"==============="<<endl;
-//   cout<<"ErrorVectors:"<<endl;
-//   int index;
-//   vtkPointData* toto=vtkPointData::New();
-//   toto=grid->GetPointData();
-//   vtkDataArray* titi=(vtkDataArray* ) vtkDataArray::New();
-//   titi=toto->GetVectors();
-//   cout<<smooth->GetOutput()->GetPointData()<<endl;
-//   cout<<smooth->GetOutput()->GetPoints()<<endl;
-//   cout<<smooth->GetOutput()->GetPointData()->GetVectors()<<endl;
-//   vec3_t xx;
-//   smooth->GetOutput()->GetPoint(0, xx.data());
-//   N1=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
-//   N2=smooth->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
-//   cout<<"N1="<<N1<<endl;
-//   cout<<"N2="<<N2<<endl;
-//   for(vtkIdType i=0;i<N2;i++)
-//   {
-//     double tuple[4];
-//     smooth->GetOutput()->GetPointData()->GetTuple(i,tuple);
-//     cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
-//   }
-//   cout<<"index="<<index<<endl;
-//   cout<<"==============="<<endl;
-// }
+int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
+{
+  cout<<"==============="<<endl;
+  cout<<"ErrorVectors:"<<endl;
+//   int N1,N2;
+/*  vec3_t xx;
+  algo->GetOutput()->GetPoint(0, xx.data());*/
+  int N1=algo->GetOutput()->GetPointData()->GetVectors()->GetNumberOfComponents();
+  int N2=algo->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
+  cout<<"Number of components=N1="<<N1<<endl;
+  cout<<"Number of tuples=N2="<<N2<<endl;
+/*  vtkPointData* newPointData = vtkPointData::New();
+  newPointData=algo->GetOutput()->GetPointData();
+  cout<<"Are you aware?:"<<newPointData->IsA("vtkDataArray")<<endl;*/
+  
+/*  void vtkFieldData::GetTuple  	(  	const vtkIdType   	 i,
+                               	   	double *  	tuple	 
+                               	) 			
+    Copy the ith tuple value into a user provided tuple array. Make sure that you've allocated enough space for the copy.
+      Deprecated:
+      as of VTK 5.2. Using this method for FieldData having arrays that are not subclasses of vtkDataArray may yield unexpected results. */
+  //Yes, indeed, very unexpected... And what should we do instead?
+  
+  for(vtkIdType i=0;i<N2;i++)
+  {
+    cout<<"WTF!"<<endl;
+    double tuple[4];
+    algo->GetOutput()->GetPointData()->GetTuple(i,tuple);
+    cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;//TODO: This works, but seems incorrect
+  }
+  cout<<"==============="<<endl;
+  return(0);
+}
 
 void GuiSmoothSurface::operate()
 {
@@ -501,7 +508,8 @@ void GuiSmoothSurface::operate()
     //smooth
     smooth->Update();
     
-    DisplayErrorScalars(vtkSmoothPolyDataFilter* smooth,1,1);
+    if(ui.checkBox_GenerateErrorScalars->checkState()) DisplayErrorScalars(smooth);
+    if(ui.checkBox_GenerateErrorVectors->checkState()) DisplayErrorVectors(smooth);
     
     //copy smoothed grid to main grid
     EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
@@ -540,6 +548,10 @@ void GuiSmoothSurface::operate()
     cout_vtkWindowedSincPolyDataFilter(smooth);
     
     smooth->Update();
+    
+    if(ui.checkBox_GenerateErrorScalars->checkState()) DisplayErrorScalars(smooth);
+    if(ui.checkBox_GenerateErrorVectors->checkState()) DisplayErrorVectors(smooth);
+    
     EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
     for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
       vec3_t x;
