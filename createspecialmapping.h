@@ -41,6 +41,14 @@ class CreateSpecialMapping : public Operation {
     bool remove_FP;
     bool remove_EP;
   
+    int N_inserted_FP;
+    int N_inserted_EP;
+    int N_removed_FP;
+    int N_removed_EP;
+  
+    int N_newpoints;
+    int N_newcells;
+  
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
     QVector<vtkIdType> m_SelectedCells;
@@ -53,6 +61,9 @@ class CreateSpecialMapping : public Operation {
     
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     
+    QMap <vtkIdType,bool> marked_cells;
+    QMap <vtkIdType,bool> marked_nodes;
+  
     void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
     {
       m_bcs=a_bcs;
@@ -226,6 +237,15 @@ class CreateSpecialMapping : public Operation {
     {
       return ( 0.5*G_k(P)<CurrentVertexAvgDist(P,n2n,m_grid) && CurrentVertexAvgDist(P,n2n,m_grid)<1*G_k(P) );
     }
+    int insert_FP_counter();
+    int insert_EP_counter();
+    int remove_FP_counter();
+    int remove_EP_counter();
+    
+    int insert_FP_actor();
+    int insert_EP_actor();
+    int remove_FP_actor();
+    int remove_EP_actor();
 };
 //end of CreateSpecialMapping class
 
