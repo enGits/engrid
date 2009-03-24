@@ -224,13 +224,21 @@ class CreateSpecialMapping : public Operation {
     }
     bool insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
     {
-      cout<<"j="<<j<<endl;
+/*      cout<<"j="<<j<<endl;
       cout<<"K="<<K<<endl;
       cout<<"0.5*G_k(K)="<<0.5*G_k(K)<<endl;
       cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
       cout<<"1*G_k(K)="<<1*G_k(K)<<endl;
       cout<<"return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );"<<endl;
-      return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );
+      return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );*/
+      
+      cout<<"j="<<j<<endl;
+      cout<<"K="<<K<<endl;
+      cout<<"G_k(j)="<<G_k(j)<<endl;
+      cout<<"G_k(K)="<<G_k(K)<<endl;
+      cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
+      cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
+      return ( L_k(j,K)>0.5*(G_k(j)+G_k(K)) );
     }
     bool remove_fieldpoint(vtkIdType P)
     {

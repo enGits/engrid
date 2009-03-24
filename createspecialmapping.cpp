@@ -538,12 +538,12 @@ int CreateSpecialMapping::Process()
     N_removed_FP=0;
     N_removed_EP=0;
     
-//     FullEdit();
+    FullEdit();
     
-    if(insert_FP) insert_FP_all();
+/*    if(insert_FP) insert_FP_all();
     if(insert_EP) insert_EP_all();
     if(remove_FP) remove_FP_all();
-    if(remove_EP) remove_EP_all();
+    if(remove_EP) remove_EP_all();*/
     
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
