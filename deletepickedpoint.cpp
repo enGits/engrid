@@ -21,23 +21,10 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "guismoothsurface.h"
-#include "guicreateboundarylayer.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
 #include "deletepickedpoint.h"
-#include "fixstl.h"
 
-// -------------------------------------------
+void DeletePickedPoint::operate()
+{
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  makeCopy(new_grid, grid);
+};

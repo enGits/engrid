@@ -20,24 +20,20 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef deletepickedpoint_H
+#define deletepickedpoint_H
 
-#include "guismoothsurface.h"
-#include "guicreateboundarylayer.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
+class DeletePickedPoint;
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "fixstl.h"
+#include "operation.h"
 
-// -------------------------------------------
+class DeletePickedPoint : public Operation
+{
+
+protected: // methods
+  
+  virtual void operate();
+  
+};
+
+#endif

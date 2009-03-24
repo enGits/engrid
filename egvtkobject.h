@@ -486,6 +486,15 @@ protected: // methods
    */
   void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   
+  /**
+  * Copy "src" grid to "dst" grid. DO NOT allocate "dst" so that it fits the data of "src".
+  * Allocation is left for the user to do.
+  * Filter is a vector specifying whether a node should be removed or not.
+  * false: don't remove
+  * true: remove
+  */
+  void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
+  
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**

@@ -435,6 +435,7 @@
     <addaction name="actionImproveAspectRatio" />
     <addaction name="actionSmoothSurface" />
     <addaction name="actionDeleteBadAspectTris" />
+    <addaction name="actionDeletePickedPoint" />
     <addaction name="actionDeletePickedCell" />
     <addaction name="separator" />
     <addaction name="actionTransform" />
@@ -891,6 +892,11 @@
    </property>
    <property name="text" >
     <string>Orthogonal view</string>
+   </property>
+  </action>
+  <action name="actionDeletePickedPoint" >
+   <property name="text" >
+    <string>delete picked point</string>
    </property>
   </action>
  </widget>

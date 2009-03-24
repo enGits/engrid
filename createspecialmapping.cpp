@@ -719,6 +719,7 @@ int CreateSpecialMapping::remove_FP_counter()
     {
       cout<<"removing field point "<<node<<endl;
       N_removed_FP++;
+      hitlist[node]=1;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
       N_newcells-=2;
       N_newpoints-=1;
@@ -740,6 +741,7 @@ int CreateSpecialMapping::remove_EP_counter()
     {
       cout<<"removing edge point "<<node<<endl;
       N_removed_EP++;
+      hitlist[node]=2;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
       if(n2n[node].size()==4)//4 cells around the edge
       {
@@ -883,6 +885,10 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   foreach(vtkIdType node,m_SelectedNodes)
   {
+    if(hitlist[node]==1)
+    {
+    
+    }
     bool marked=false;
     foreach(vtkIdType C,n2c[node])
     {
@@ -892,6 +898,7 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
     {
       cout<<"removing field point "<<node<<endl;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+      //TODO: Special copy function, leaving out nodes to remove
     }
   }
   return(0);
@@ -988,6 +995,9 @@ int CreateSpecialMapping::remove_FP_all()
   N_newpoints=0;
   N_newcells=0;
   
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
   marked_cells.clear();
   marked_nodes.clear();
   
@@ -1016,6 +1026,9 @@ int CreateSpecialMapping::remove_EP_all()
   N_cells=m_grid->GetNumberOfCells();
   N_newpoints=0;
   N_newcells=0;
+  
+  hitlist.resize(N_points);
+  offset.resize(N_points);
   
   marked_cells.clear();
   marked_nodes.clear();
@@ -1048,6 +1061,9 @@ int CreateSpecialMapping::FullEdit()
   N_cells=m_grid->GetNumberOfCells();
   N_newpoints=0;
   N_newcells=0;
+  
+  hitlist.resize(N_points);
+  offset.resize(N_points);
   
   marked_cells.clear();
   marked_nodes.clear();

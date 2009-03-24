@@ -411,6 +411,7 @@ public slots:
   void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); };
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
+  void callDeletePickedPoint() { EG_STDSLOT(DeletePickedPoint); };
   void callTransform() { EG_STDINTERSLOT(GuiTransform); };
   
   void callFixSTL();

@@ -61,6 +61,9 @@ class CreateSpecialMapping : public Operation {
     QVector <stencil_t> StencilVector;
     QSet <vtkIdType> m_SelectedNodes;
   
+    QVector <int> hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
+    QVector <int> offset;//offset caused by terminated elements
+  
     double SV_value;
     double FV_value;
     double FEV_value;

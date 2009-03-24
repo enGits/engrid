@@ -888,6 +888,34 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
   };
 };
 
+void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode)
+{
+  for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+    if(!DeadNode[id_node])
+    {
+      vec3_t x;
+      src->GetPoints()->GetPoint(id_node, x.data());
+      dst->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(src, id_node, dst, id_node);
+    }
+  };
+  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = src->GetCellType(id_cell);
+    src->GetCellPoints(id_cell, N_pts, pts);
+    bool DeadCell=false;
+    for(int i=0;i<N_pts;i++)
+    {
+      if(DeadNode[pts[i]]) {DeadCell=true;break;}
+    }
+    if(!DeadCell)
+    {
+      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+      copyCellData(src, id_cell, dst, id_new_cell);
+    }
+  };
+}
+
 int EgVtkObject::findVolumeCell
 (
   vtkUnstructuredGrid      *grid,
