@@ -56,6 +56,7 @@ class CreateSpecialMapping : public Operation {
     
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
     QVector <stencil_t> StencilVector;
+    QSet <vtkIdType> m_SelectedNodes;
   
     double SV_value;
     double FV_value;

@@ -418,8 +418,9 @@ int CreateSpecialMapping::Process()
     EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
     
-    QSet <vtkIdType> SelectedNodes;
-    getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
+    m_SelectedNodes.clear();
+    
+    getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
     getNodesFromCells(m_AllCells, nodes, m_grid);
 /*    createNodeMapping(nodes, _nodes, m_grid);
     createNodeMapping(nodes, _nodes, m_grid);
@@ -431,7 +432,7 @@ int CreateSpecialMapping::Process()
     //Phase A : Calculate current mesh density
     cout<<"===Phase A==="<<endl;
     
-    foreach(vtkIdType node,SelectedNodes)
+    foreach(vtkIdType node,m_SelectedNodes)
     {
       cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
       VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
@@ -462,7 +463,7 @@ int CreateSpecialMapping::Process()
     do {
       if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
       first=true;
-      foreach(vtkIdType node,SelectedNodes)
+      foreach(vtkIdType node,m_SelectedNodes)
       {
         if(DebugLevel>2) cout<<"======>"<<endl;
         if(DebugLevel>2) cout<<"------>Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
@@ -515,7 +516,7 @@ int CreateSpecialMapping::Process()
     cout<<"===Phase C==="<<endl;
     edge_map.clear();
     vtkIdType edgeId=1;
-    foreach(vtkIdType node1,SelectedNodes)
+    foreach(vtkIdType node1,m_SelectedNodes)
     {
 //       cout<<"node1="<<node1<<endl;
       foreach(vtkIdType node2,n2n[node1])
@@ -730,7 +731,26 @@ int CreateSpecialMapping::insert_EP_counter()
   }
 }
 
-int CreateSpecialMapping::remove_FP_counter(){}
+int CreateSpecialMapping::remove_FP_counter()
+{
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    bool marked=false;
+    foreach(vtkIdType C,n2c[node])
+    {
+      if(marked_cells[C]) marked=true;
+    }
+    if( !marked && remove_fieldpoint(node) )
+    {
+      cout<<"removing field point "<<node<<endl;
+      N_removed_FP++;
+      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+      N_newcells-=2;
+      N_newpoints-=1;
+    }
+  }
+}
+
 int CreateSpecialMapping::remove_EP_counter(){}
 
 int CreateSpecialMapping::insert_FP_actor(){}
