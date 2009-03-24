@@ -528,56 +528,21 @@ int CreateSpecialMapping::Process()
     }
     cout<<"edge_map.size()="<<edge_map.size()<<endl;
     
-    //Phase D : determine cells/points to add/remove
+    //Phase D: edit points
     cout<<"===Phase D==="<<endl;
-    N_inserted_FP=0;
-    N_inserted_EP=0;
-    N_removed_FP=0;
-    N_removed_EP=0;
-    
-    int N_points=m_grid->GetNumberOfPoints();
-    int N_cells=m_grid->GetNumberOfCells();
-    N_newpoints=0;
-    N_newcells=0;
-    
-    marked_cells.clear();
-    marked_nodes.clear();
-    
-    if(insert_FP) insert_FP_counter();
-    if(insert_EP) insert_EP_counter();
-    if(remove_FP) remove_FP_counter();
-    if(remove_EP) remove_EP_counter();
+    FullEdit();
     
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
     cout<<"N_removed_FP="<<N_removed_FP<<endl;
     cout<<"N_removed_EP="<<N_removed_EP<<endl;
-  
+    
     cout<<"N_points="<<N_points<<endl;
     cout<<"N_cells="<<N_cells<<endl;
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
-  
-    //Phase E : Add/remove points for real
-    cout<<"===Phase E==="<<endl;
-    //unmark cells (TODO: optimize)
-    marked_cells.clear();
     
-    EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-    allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-    makeCopyNoAlloc(m_grid, grid_tmp);
-    
-    //initialize new node counter
-    m_newNodeId=N_points;
-    
-    if(insert_FP) insert_FP_actor(grid_tmp);
-    if(insert_EP) insert_EP_actor(grid_tmp);
-    if(remove_FP) remove_FP_actor(grid_tmp);
-    if(remove_EP) remove_EP_actor(grid_tmp);
-    
-    makeCopy(grid_tmp,m_grid);
-    
-    //Phase F : Delaunay swap
+    //Phase E : Delaunay swap
     QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
     cout<<"m_bcs="<<m_bcs<<endl;
     cout<<"bcs_complement="<<bcs_complement<<endl;
@@ -587,7 +552,7 @@ int CreateSpecialMapping::Process()
     swap.setBoundaryCodes(bcs_complement);
     swap();
     
-    //Phase G : translate points to smooth grid
+    //Phase F : translate points to smooth grid
     //4 possibilities
     //vtk smooth 1
     //vtk smooth 2
@@ -630,11 +595,6 @@ int CreateSpecialMapping::Process()
 
 VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 {
-//   cout<<"================================"<<endl;
-//   cout<<"node="<<node<<endl;
-//   cout<<"VertexType="<<(int)VertexType<<endl;
-  
-//   cout<<"================================"<<endl;
   VertexMeshDensity VMD;
   VMD.type=VertexType;
   VMD.density=0;
@@ -648,13 +608,9 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   {
     bc.insert(cell_code->GetValue(C));
   }
-//   cout<<"bc="<<bc<<endl;
   VMD.BClist.resize(bc.size());
   qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
-//   cout<<"pre-sort VMD="<<VMD<<endl;
   qSort(VMD.BClist.begin(),VMD.BClist.end());
-//   cout<<"post-sort VMD="<<VMD<<endl;
-//   cout<<"================================"<<endl;
   return(VMD);
 }
 
@@ -674,11 +630,11 @@ int CreateSpecialMapping::insert_FP_counter()
       N_newpoints+=1;
     }
   }
+  return(0);
 }
 
 int CreateSpecialMapping::insert_EP_counter()
 {
-  cout<<"===Phase D2==="<<endl;
   StencilVector.clear();
   QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
       //rewind the iterator
@@ -734,6 +690,7 @@ int CreateSpecialMapping::insert_EP_counter()
     }
     cout <<"--->end of edge processing"<<endl;
   }
+  return(0);
 }
 
 int CreateSpecialMapping::remove_FP_counter()
@@ -754,6 +711,7 @@ int CreateSpecialMapping::remove_FP_counter()
       N_newpoints-=1;
     }
   }
+  return(0);
 }
 
 int CreateSpecialMapping::remove_EP_counter()
@@ -782,6 +740,7 @@ int CreateSpecialMapping::remove_EP_counter()
       }
     }
   }
+  return(0);
 }
 
 int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -836,6 +795,7 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
     }
   }
+  return(0);
 }
 
 int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -903,6 +863,7 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     
     m_newNodeId++;
   }
+  return(0);
 }
 
 int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -917,12 +878,10 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
     if( !marked && remove_fieldpoint(node) )
     {
       cout<<"removing field point "<<node<<endl;
-      N_removed_FP++;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
-      N_newcells-=2;
-      N_newpoints-=1;
     }
   }
+  return(0);
 }
 
 int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -937,18 +896,168 @@ int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
     if( !marked && remove_edgepoint(node) )
     {
       cout<<"removing edge point "<<node<<endl;
-      N_removed_EP++;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
       if(n2n[node].size()==4)//4 cells around the edge
       {
-        N_newcells-=2;
-        N_newpoints-=1;
       }
       else//2 cells around the edge
       {
-        N_newcells-=1;
-        N_newpoints-=1;
       }
     }
   }
+  return(0);
+}
+
+int CreateSpecialMapping::insert_FP_all()
+{
+  N_inserted_FP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  insert_FP_counter();
+  
+    //unmark cells (TODO: optimize)
+  marked_cells.clear();
+    //init grid_tmp
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAlloc(m_grid, grid_tmp);
+    //initialize new node counter
+  m_newNodeId=N_points;
+  
+  insert_FP_actor(grid_tmp);
+  
+  makeCopy(grid_tmp,m_grid);
+  return(0);
+}
+
+int CreateSpecialMapping::insert_EP_all()
+{
+  N_inserted_EP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  insert_EP_counter();
+  
+    //unmark cells (TODO: optimize)
+  marked_cells.clear();
+    //init grid_tmp
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAlloc(m_grid, grid_tmp);
+    //initialize new node counter
+  m_newNodeId=N_points;
+  
+  insert_EP_actor(grid_tmp);
+  
+  makeCopy(grid_tmp,m_grid);
+  return(0);
+}
+
+int CreateSpecialMapping::remove_FP_all()
+{
+  N_removed_FP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_FP_counter();
+  
+    //unmark cells (TODO: optimize)
+  marked_cells.clear();
+    //init grid_tmp
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAlloc(m_grid, grid_tmp);
+    //initialize new node counter
+  m_newNodeId=N_points;
+  
+  remove_FP_actor(grid_tmp);
+  
+  makeCopy(grid_tmp,m_grid);
+  return(0);
+}
+
+int CreateSpecialMapping::remove_EP_all()
+{
+  N_removed_EP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_EP_counter();
+  
+    //unmark cells (TODO: optimize)
+  marked_cells.clear();
+    //init grid_tmp
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAlloc(m_grid, grid_tmp);
+    //initialize new node counter
+  m_newNodeId=N_points;
+  
+  remove_EP_actor(grid_tmp);
+  
+  makeCopy(grid_tmp,m_grid);
+  return(0);
+}
+
+int CreateSpecialMapping::FullEdit()
+{
+  N_inserted_FP=0;
+  N_inserted_EP=0;
+  N_removed_FP=0;
+  N_removed_EP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  if(insert_FP) insert_FP_counter();
+  if(insert_EP) insert_EP_counter();
+  if(remove_FP) remove_FP_counter();
+  if(remove_EP) remove_EP_counter();
+  
+    //unmark cells (TODO: optimize)
+  marked_cells.clear();
+    //init grid_tmp
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAlloc(m_grid, grid_tmp);
+    //initialize new node counter
+  m_newNodeId=N_points;
+  
+  if(insert_FP) insert_FP_actor(grid_tmp);
+  if(insert_EP) insert_EP_actor(grid_tmp);
+  if(remove_FP) remove_FP_actor(grid_tmp);
+  if(remove_EP) remove_EP_actor(grid_tmp);
+  
+  makeCopy(grid_tmp,m_grid);
+  return(0);
 }

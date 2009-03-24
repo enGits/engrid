@@ -48,6 +48,8 @@ class CreateSpecialMapping : public Operation {
   
     int N_newpoints;
     int N_newcells;
+    int N_points;
+    int N_cells;
   
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
@@ -251,6 +253,14 @@ class CreateSpecialMapping : public Operation {
     int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
     int remove_FP_actor(vtkUnstructuredGrid* grid_tmp);
     int remove_EP_actor(vtkUnstructuredGrid* grid_tmp);
+
+    int insert_FP_all();
+    int insert_EP_all();
+    int remove_FP_all();
+    int remove_EP_all();
+  
+    int FullEdit();
+  
 };
 //end of CreateSpecialMapping class
 
