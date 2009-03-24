@@ -55,6 +55,7 @@ CreateSpecialMapping::CreateSpecialMapping()
 
 int CreateSpecialMapping::Process()
 {
+  DebugLevel=0;
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
@@ -103,17 +104,18 @@ int CreateSpecialMapping::Process()
       cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
     CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
     
-    cout<<"Smoothing " << numPts << " vertices, " << numCells 
-                  << " cells with:\n"
-                  << "\tConvergence= " << this->Convergence << "\n"
-                  << "\tIterations= " << this->NumberOfIterations << "\n"
-                  << "\tRelaxation Factor= " << this->RelaxationFactor << "\n"
-                  << "\tEdge Angle= " << this->EdgeAngle << "\n"
-                  << "\tBoundary Smoothing " << (this->BoundarySmoothing ? "On\n" : "Off\n")
-                  << "\tFeature Edge Smoothing " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
-                  << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
-                  << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n")<<endl;
-    
+    if(DebugLevel>5) {
+      cout<<"Smoothing " << numPts << " vertices, " << numCells 
+                    << " cells with:\n"
+                    << "\tConvergence= " << this->Convergence << "\n"
+                    << "\tIterations= " << this->NumberOfIterations << "\n"
+                    << "\tRelaxation Factor= " << this->RelaxationFactor << "\n"
+                    << "\tEdge Angle= " << this->EdgeAngle << "\n"
+                    << "\tBoundary Smoothing " << (this->BoundarySmoothing ? "On\n" : "Off\n")
+                    << "\tFeature Edge Smoothing " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
+                    << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
+                    << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n")<<endl;
+    }
     // Peform topological analysis. What we're gonna do is build a connectivity
     // array of connected vertices. The outcome will be one of three
     // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
@@ -121,12 +123,12 @@ int CreateSpecialMapping::Process()
     // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
     // using a subset of the attached vertices.
     //
-    cout<<"Analyzing topology..."<<endl;
+    if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
     cout<<"0:numPts="<<numPts<<endl;
     Verts = new vtkMeshVertex[numPts];
     for (i=0; i<numPts; i++)
     {
-      cout<<"0:VTK_SIMPLE_VERTEX"<<endl;
+      if(DebugLevel>5) cout<<"0:VTK_SIMPLE_VERTEX"<<endl;
       Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
       Verts[i].edges = NULL;
     }
@@ -140,7 +142,7 @@ int CreateSpecialMapping::Process()
     {
       for (j=0; j<npts; j++)
       {
-        cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX"<<endl;
+        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX"<<endl;
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
       }
     }
@@ -151,24 +153,24 @@ int CreateSpecialMapping::Process()
     {
       for (j=0; j<npts; j++)
       {
-        cout<<"pts[j]="<<pts[j]<<"->lines"<<endl;
+        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->lines"<<endl;
         if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
         {
           if ( j == (npts-1) ) //end-of-line marked FIXED
           {
-            cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX"<<endl;
+            if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX"<<endl;
             Verts[pts[j]].type = VTK_FIXED_VERTEX;
           }
           else if ( j == 0 ) //beginning-of-line marked FIXED
           {
-            cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX"<<endl;
+            if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX"<<endl;
             Verts[pts[0]].type = VTK_FIXED_VERTEX;
             inPts->GetPoint(pts[0],x2);
             inPts->GetPoint(pts[1],x3);
           }
           else //is edge vertex (unless already edge vertex!)
           {
-            cout<<"pts[j]="<<pts[j]<<"4:VTK_FEATURE_EDGE_VERTEX"<<endl;
+            if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"4:VTK_FEATURE_EDGE_VERTEX"<<endl;
             Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
             Verts[pts[j]].edges = vtkIdList::New();
             Verts[pts[j]].edges->SetNumberOfIds(2);
@@ -179,7 +181,7 @@ int CreateSpecialMapping::Process()
         
         else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
         { //multiply connected, becomes fixed!
-          cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX"<<endl;
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX"<<endl;
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
           Verts[pts[j]].edges->Delete();
           Verts[pts[j]].edges = NULL;
@@ -194,8 +196,8 @@ int CreateSpecialMapping::Process()
     inStrips=input->GetStrips();
     numStrips = inStrips->GetNumberOfCells();
     
-    cout<<"numPolys="<<numPolys<<endl;
-    cout<<"numStrips="<<numStrips<<endl;
+    if(DebugLevel>5) cout<<"numPolys="<<numPolys<<endl;
+    if(DebugLevel>5) cout<<"numStrips="<<numStrips<<endl;
     
     
     if ( numPolys > 0 || numStrips > 0 )
@@ -231,10 +233,10 @@ int CreateSpecialMapping::Process()
       for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
           cellId++)
       {
-        cout<<"->cellId="<<cellId<<endl;
+        if(DebugLevel>5) cout<<"->cellId="<<cellId<<endl;
         for (i=0; i < npts; i++) 
         {
-          cout<<"-->i="<<i<<endl;
+          if(DebugLevel>5) cout<<"-->i="<<i<<endl;
           p1 = pts[i];
           p2 = pts[(i+1)%npts];
           
@@ -251,7 +253,7 @@ int CreateSpecialMapping::Process()
           
           Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
           numNei = neighbors->GetNumberOfIds();
-          cout<<"-->numNei="<<numNei<<endl;
+          if(DebugLevel>5) cout<<"-->numNei="<<numNei<<endl;
           
           edge = VTK_SIMPLE_VERTEX;
           if ( numNei == 0 )
@@ -397,20 +399,22 @@ int CreateSpecialMapping::Process()
       }//if edge vertex
     }//for all points
     
-    cout<<"Found\n\t" << numSimple << " simple vertices\n\t"
+    if(DebugLevel>5) {
+      cout<<"Found\n\t" << numSimple << " simple vertices\n\t"
       << numFEdges << " feature edge vertices\n\t"
       << numBEdges << " boundary edge vertices\n\t"
       << numFixed << " fixed vertices\n\t"<<endl;
-    cout<<"1:numPts="<<numPts<<endl;
+      cout<<"1:numPts="<<numPts<<endl;
+    }
     
     for (i=0; i<numPts; i++) 
     {
-      cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
+      if(DebugLevel>5) cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
       if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
       {
         for (j=0; j<npts; j++)
         {
-          cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
+          if(DebugLevel>5) cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
         }//for all connected points
       }
     }
@@ -434,29 +438,28 @@ int CreateSpecialMapping::Process()
     
     foreach(vtkIdType node,m_SelectedNodes)
     {
-      cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
+      if(DebugLevel>3) cout<<"Verts["<<node<<"].type="<<(int)Verts[node].type<<endl;
       VertexMeshDensity nodeVMD = getVMD(node,Verts[node].type);
       int idx=VMDvector.indexOf(nodeVMD);
-      cout<<"idx="<<idx<<endl;
+      if(DebugLevel>3) cout<<"idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
-        cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
+        if(DebugLevel>3) cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
         node_meshdensity->SetValue(node, VMDvector[idx].density);
       }
       else//unspecified
       {
         double L=CurrentVertexAvgDist(node,n2n,m_grid);
         double D=1./L;
-        cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
+        if(DebugLevel>3) cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
         node_meshdensity->SetValue(node, D);
       }
     }
   
-    DebugLevel=0;
     //Phase B : define desired mesh density
     cout<<"===Phase B==="<<endl;
     double diff=Convergence_meshdensity+1;
-    cout<<"before loop: diff="<<diff<<endl;
+    if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
     bool first=true;
 /*    int iter=0;
     int maxiter=100;*/
@@ -530,7 +533,17 @@ int CreateSpecialMapping::Process()
     
     //Phase D: edit points
     cout<<"===Phase D==="<<endl;
-    FullEdit();
+    N_inserted_FP=0;
+    N_inserted_EP=0;
+    N_removed_FP=0;
+    N_removed_EP=0;
+    
+//     FullEdit();
+    
+    if(insert_FP) insert_FP_all();
+    if(insert_EP) insert_EP_all();
+    if(remove_FP) remove_FP_all();
+    if(remove_EP) remove_EP_all();
     
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;

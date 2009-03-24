@@ -221,7 +221,7 @@ void GuiSmoothSurface::before()
   QStringList L;
   for(int i=0;i<Nbc;i++)
   {
-    Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
+//     Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
     L<<ui.listWidget->item(i)->text();
   }
   L<<"Vertex Type";
