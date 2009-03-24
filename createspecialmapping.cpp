@@ -513,7 +513,7 @@ int CreateSpecialMapping::Process()
     
     //Phase C: Prepare edge_map
     cout<<"===Phase C==="<<endl;
-    QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
+    edge_map.clear();
     vtkIdType edgeId=1;
     foreach(vtkIdType node1,SelectedNodes)
     {
@@ -526,7 +526,6 @@ int CreateSpecialMapping::Process()
       }
     }
     cout<<"edge_map.size()="<<edge_map.size()<<endl;
-    QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
     
     //Phase D : determine cells/points to add/remove
     cout<<"===Phase D==="<<endl;
@@ -671,7 +670,66 @@ int CreateSpecialMapping::insert_FP_counter()
   }
 }
 
-int CreateSpecialMapping::insert_EP_counter(){}
+int CreateSpecialMapping::insert_EP_counter()
+{
+  cout<<"===Phase D2==="<<endl;
+  StencilVector.clear();
+  QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
+      //rewind the iterator
+  edge_map_iter.toFront ();
+      //start loop
+  while (edge_map_iter.hasNext()) {
+    edge_map_iter.next();
+    vtkIdType node1=edge_map_iter.key().first;
+    vtkIdType node2=edge_map_iter.key().second;
+    cout << "--->(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
+    QSet <int> stencil_cells_set;
+    QVector <int> stencil_cells_vector;
+    stencil_cells_set=n2c[node1];
+    stencil_cells_set.intersect(n2c[node2]);
+    cout<<"stencil_cells_set="<<stencil_cells_set<<endl;
+    
+    stencil_cells_vector.resize(stencil_cells_set.size());
+    qCopy(stencil_cells_set.begin(),stencil_cells_set.end(),stencil_cells_vector.begin());
+    cout<<"stencil_cells_vector="<<stencil_cells_vector<<endl;
+    
+    vtkIdType id_cell=stencil_cells_vector[0];
+    int SideToSplit = getSide(id_cell,m_grid,node1,node2);
+    cout<<"SideToSplit="<<SideToSplit<<endl;
+    cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
+    for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
+    stencil_t S=getStencil(id_cell,SideToSplit);
+    
+    bool stencil_marked=false;
+    foreach(vtkIdType C,stencil_cells_vector)
+    {
+      if(marked_cells[C]) stencil_marked=true;
+    }
+    cout<<"stencil_marked="<<stencil_marked<<endl;
+    cout<<"insert_edgepoint(node1,node2)="<<insert_edgepoint(node1,node2)<<endl;
+    
+    if( !stencil_marked && insert_edgepoint(node1,node2) )
+    {
+      cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
+      N_inserted_EP++;
+      foreach(vtkIdType C,stencil_cells_vector) marked_cells[C]=true;
+      StencilVector.push_back(S);
+      
+      if(stencil_cells_vector.size()==2)//2 cells around the edge
+      {
+        N_newcells+=2;
+        N_newpoints+=1;
+      }
+      else//1 cell around the edge
+      {
+        N_newcells+=1;
+        N_newpoints+=1;
+      }
+    }
+    cout <<"--->end of edge processing"<<endl;
+  }
+}
+
 int CreateSpecialMapping::remove_FP_counter(){}
 int CreateSpecialMapping::remove_EP_counter(){}
 

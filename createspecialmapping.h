@@ -54,6 +54,9 @@ class CreateSpecialMapping : public Operation {
     QVector<vtkIdType> m_SelectedCells;
     vtkUnstructuredGrid* m_grid;
     
+    QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
+    QVector <stencil_t> StencilVector;
+  
     double SV_value;
     double FV_value;
     double FEV_value;
