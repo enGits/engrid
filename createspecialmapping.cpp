@@ -759,24 +759,20 @@ int CreateSpecialMapping::remove_EP_counter()
     {
       if(marked_cells[C]) marked=true;
     }
-    
-    if(remove_EP)
+    if( !marked && remove_edgepoint(node) )
     {
-      if( !marked && remove_edgepoint(node) )
+      cout<<"removing edge point "<<node<<endl;
+      N_removed_EP++;
+      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+      if(n2n[node].size()==4)//4 cells around the edge
       {
-        cout<<"removing edge point "<<node<<endl;
-        N_removed_EP++;
-        foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
-        if(n2n[node].size()==4)//4 cells around the edge
-        {
-          N_newcells-=2;
-          N_newpoints-=1;
-        }
-        else//2 cells around the edge
-        {
-          N_newcells-=1;
-          N_newpoints-=1;
-        }
+        N_newcells-=2;
+        N_newpoints-=1;
+      }
+      else//2 cells around the edge
+      {
+        N_newcells-=1;
+        N_newpoints-=1;
       }
     }
   }
@@ -903,5 +899,24 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   }
 }
 
-int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp){}
+int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
+{
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    bool marked=false;
+    foreach(vtkIdType C,n2c[node])
+    {
+      if(marked_cells[C]) marked=true;
+    }
+    if( !marked && remove_fieldpoint(node) )
+    {
+      cout<<"removing field point "<<node<<endl;
+      N_removed_FP++;
+      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+      N_newcells-=2;
+      N_newpoints-=1;
+    }
+  }
+}
+
 int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp){}
