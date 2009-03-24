@@ -919,4 +919,30 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
   }
 }
 
-int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp){}
+int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
+{
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    bool marked=false;
+    foreach(vtkIdType C,n2c[node])
+    {
+      if(marked_cells[C]) marked=true;
+    }
+    if( !marked && remove_edgepoint(node) )
+    {
+      cout<<"removing edge point "<<node<<endl;
+      N_removed_EP++;
+      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+      if(n2n[node].size()==4)//4 cells around the edge
+      {
+        N_newcells-=2;
+        N_newpoints-=1;
+      }
+      else//2 cells around the edge
+      {
+        N_newcells-=1;
+        N_newpoints-=1;
+      }
+    }
+  }
+}
