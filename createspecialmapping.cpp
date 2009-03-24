@@ -543,8 +543,11 @@ int CreateSpecialMapping::Process()
     marked_cells.clear();
     marked_nodes.clear();
     
-    //TODO:
-
+    if(insert_FP) insert_FP_counter();
+    if(insert_EP) insert_EP_counter();
+    if(remove_FP) remove_FP_counter();
+    if(remove_EP) remove_EP_counter();
+    
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
     cout<<"N_removed_FP="<<N_removed_FP<<endl;
@@ -567,7 +570,10 @@ int CreateSpecialMapping::Process()
     //initialize new node counter
     m_newNodeId=N_points;
     
-    //TODO:
+    if(insert_FP) insert_FP_actor(grid_tmp);
+    if(insert_EP) insert_EP_actor(grid_tmp);
+    if(remove_FP) remove_FP_actor(grid_tmp);
+    if(remove_EP) remove_EP_actor(grid_tmp);
     
     makeCopy(grid_tmp,m_grid);
     
