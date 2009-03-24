@@ -53,6 +53,7 @@ class CreateSpecialMapping : public Operation {
     QVector<vtkIdType> m_AllCells;
     QVector<vtkIdType> m_SelectedCells;
     vtkUnstructuredGrid* m_grid;
+    vtkIdType m_newNodeId;
     
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
     QVector <stencil_t> StencilVector;
@@ -246,10 +247,10 @@ class CreateSpecialMapping : public Operation {
     int remove_FP_counter();
     int remove_EP_counter();
     
-    int insert_FP_actor();
-    int insert_EP_actor();
-    int remove_FP_actor();
-    int remove_EP_actor();
+    int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
+    int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
+    int remove_FP_actor(vtkUnstructuredGrid* grid_tmp);
+    int remove_EP_actor(vtkUnstructuredGrid* grid_tmp);
 };
 //end of CreateSpecialMapping class
 

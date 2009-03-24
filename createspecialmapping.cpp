@@ -563,10 +563,9 @@ int CreateSpecialMapping::Process()
     EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
     allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
     makeCopyNoAlloc(m_grid, grid_tmp);
-    EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
     
     //initialize new node counter
-    vtkIdType newNodeId=N_points;
+    m_newNodeId=N_points;
     
     //TODO:
     
@@ -783,7 +782,60 @@ int CreateSpecialMapping::remove_EP_counter()
   }
 }
 
-int CreateSpecialMapping::insert_FP_actor(){}
-int CreateSpecialMapping::insert_EP_actor(){}
-int CreateSpecialMapping::remove_FP_actor(){}
-int CreateSpecialMapping::remove_EP_actor(){}
+int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
+{
+  EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
+  foreach(vtkIdType id_cell, m_SelectedCells)
+  {
+    if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
+    else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;
+    
+    if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
+    {
+      cout<<"inserting a field point "<<id_cell<<endl;
+      vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
+      cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
+      
+      vtkIdType N_pts, *pts;
+      m_grid->GetCellPoints(id_cell, N_pts, pts);
+      vec3_t C(0,0,0);
+      
+      vtkIdType type_cell = m_grid->GetCellType(id_cell);
+      int N_neighbours=N_pts;
+      cout<<"N_neighbours="<<N_neighbours<<endl;
+      vec3_t corner[4];
+      vtkIdType pts_triangle[4][3];
+      for(int i=0;i<N_neighbours;i++)
+      {
+        m_grid->GetPoints()->GetPoint(pts[i], corner[i].data());
+        C+=corner[i];
+      }
+      C=(1/(double)N_neighbours)*C;
+      addPoint(grid_tmp,m_newNodeId,C.data());
+      vtkIdType intmidpoint=m_newNodeId;
+      m_newNodeId++;
+      
+      for(int i=0;i<N_neighbours;i++)
+      {
+        pts_triangle[i][0]=pts[i];
+        pts_triangle[i][1]=pts[(i+1)%N_neighbours];
+        pts_triangle[i][2]=intmidpoint;
+        if(i==0)
+        {
+          grid_tmp->ReplaceCell(id_cell , 3, pts_triangle[0]);
+          cell_code_tmp->SetValue(id_cell, newBC);
+        }
+        else
+        {
+          vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i]);
+          cell_code_tmp->SetValue(newCellId, newBC);
+        }
+      }
+      
+    }
+  }
+}
+
+int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp){}
+int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp){}
+int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp){}
