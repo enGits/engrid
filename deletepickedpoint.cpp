@@ -22,9 +22,38 @@
 //
 
 #include "deletepickedpoint.h"
+#include "guimainwindow.h"
 
 void DeletePickedPoint::operate()
 {
-  EG_VTKSP(vtkUnstructuredGrid, new_grid);
-  makeCopy(new_grid, grid);
+/*  vtkPointPicker *PointPicker = GuiMainWindow::pointer()->getPointPicker();
+  GuiMainWindow::pointer()->getInteractor()->SetPicker(PointPicker);*/
+  vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
+  cout<<"You picked "<<nodeId<<endl;
+  
+  int N_points=grid->GetNumberOfPoints();
+  int N_cells=grid->GetNumberOfCells();
+  vector <bool> hitlist(N_points);
+  vector <vtkIdType> offset(N_points);
+  hitlist[nodeId]=true;
+  int N_newpoints=-1;
+  int N_newcells=0;
+  map <vtkIdType,bool> marked;
+  foreach(vtkIdType C, n2c[nodeId])
+  {
+    if(!marked[C]){
+      N_newcells-=1;
+      marked[C]=true;
+    }
+  }
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  EG_VTKSP(vtkUnstructuredGrid, grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  makeCopyNoAllocFiltered(grid,grid_tmp,hitlist);
+  cout_grid(cout,grid_tmp,true,true,true,true);
+  makeCopy(grid_tmp, grid);
 };

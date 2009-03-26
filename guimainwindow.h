@@ -293,7 +293,8 @@ public: // static methods
   static void lock() { mutex.lock(); };
   static void unlock() { mutex.unlock(); };
   static bool tryLock() { return mutex.tryLock(); };
-  void getAllBoundaryCodes(QSet<int> &bcs);
+  void getAllBoundaryCodes(QSet<int> &bcs);\
+  vtkPointPicker* getPointPicker(){return(PointPicker);};
   
 public slots:
   
@@ -411,7 +412,7 @@ public slots:
   void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); };
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
-  void callDeletePickedPoint() { EG_STDSLOT(DeletePickedPoint); };
+  void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); };
   void callTransform() { EG_STDINTERSLOT(GuiTransform); };
   
   void callFixSTL();

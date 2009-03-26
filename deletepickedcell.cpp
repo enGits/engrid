@@ -22,9 +22,13 @@
 //
 
 #include "deletepickedcell.h"
+#include "guimainwindow.h"
 
 void DeletePickedCell::operate()
 {
-  EG_VTKSP(vtkUnstructuredGrid, new_grid);
-  makeCopy(new_grid, grid);
+  vtkIdType cellId = GuiMainWindow::pointer()->getPickedCell();
+  cout<<"You picked "<<cellId<<endl;
+  
+/*  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  makeCopy(new_grid, grid);*/
 };

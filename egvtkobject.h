@@ -494,7 +494,7 @@ protected: // methods
   * true: remove
   */
   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
-  
+
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
