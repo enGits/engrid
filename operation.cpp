@@ -293,3 +293,44 @@ double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnst
   avg_density=total_density/(double)N;
   return(avg_density);
 }
+
+///////////////////////////////////////////
+vtkIdType Operation::getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+{
+  vec3_t C;
+  a_grid->GetPoint(a_id_node,C.data());
+  vtkIdType id_minlen=-1;
+  double minlen=-1;
+  foreach(vtkIdType neighbour,n2n[a_id_node])
+  {
+    vec3_t M;
+    a_grid->GetPoint(neighbour,M.data());
+    double len=(M-C).abs();
+    if(minlen<0 or len<minlen)
+    {
+      minlen=len;
+      id_minlen=neighbour;
+    }
+  }
+  return(id_minlen);
+}
+
+vtkIdType Operation::getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+{
+  vec3_t C;
+  a_grid->GetPoint(a_id_node,C.data());
+  vtkIdType id_maxlen=-1;
+  double maxlen=-1;
+  foreach(vtkIdType neighbour,n2n[a_id_node])
+  {
+    vec3_t M;
+    a_grid->GetPoint(neighbour,M.data());
+    double len=(M-C).abs();
+    if(maxlen<0 or len>maxlen)
+    {
+      maxlen=len;
+      id_maxlen=neighbour;
+    }
+  }
+  return(id_maxlen);
+}

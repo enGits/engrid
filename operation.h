@@ -144,6 +144,8 @@ public: // methods
   static void collectGarbage();
   stencil_t getStencil(vtkIdType id_cell1, int j1);
   
+  vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
 };
 
 template <class T>

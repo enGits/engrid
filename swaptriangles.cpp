@@ -76,7 +76,7 @@ void SwapTriangles::operate()
               vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
               n1.normalise();
               n2.normalise();
-              if (n1*n2 > 0.8) {
+              if ( (n1*n2) > 0.8) {
                 vec3_t n = n1 + n2;
                 n.normalise();
                 vec3_t ex = orthogonalVector(n);

@@ -293,7 +293,7 @@ public: // static methods
   static void lock() { mutex.lock(); };
   static void unlock() { mutex.unlock(); };
   static bool tryLock() { return mutex.tryLock(); };
-  void getAllBoundaryCodes(QSet<int> &bcs);\
+  void getAllBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker(){return(PointPicker);};
   
 public slots:

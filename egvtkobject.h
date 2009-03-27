@@ -36,6 +36,8 @@ class EgVtkObject;
 #include <vtkDoubleArray.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <QSettings>
+#include <QSet>
+#include <QVector>
 
 class EgVtkObject
 {
@@ -494,7 +496,8 @@ protected: // methods
   * true: remove
   */
   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
-
+//   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells);
+  
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
@@ -596,9 +599,12 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, boo
 ///////////////////////////////////////////
 int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
+
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
+
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
 QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
 Qt::CheckState int2CheckState(int a);

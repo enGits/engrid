@@ -888,6 +888,7 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
   };
 };
 
+// void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells)
 void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode)
 {
   vtkIdType src_N_points=src->GetNumberOfPoints();
@@ -902,6 +903,10 @@ void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructu
       copyNodeData(src, src_id_node, dst, dst_id_node);
       OffSet[src_id_node]=src_id_node-dst_id_node;
       dst_id_node++;
+    }
+    else
+    {
+      //search closest node
     }
   };
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
@@ -1106,6 +1111,7 @@ int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, 
   cell_code->SetValue(newCellId, bc);
   return(0);
 }
+
 
 ///////////////////////////////////////////
 

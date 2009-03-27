@@ -33,6 +33,7 @@ class DeletePickedPoint : public Operation
 protected: // methods
   
   virtual void operate();
+  void foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
   
 };
 
