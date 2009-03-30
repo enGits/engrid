@@ -31,5 +31,8 @@ void DeletePickedCell::operate()
 {
   vtkIdType cellId = GuiMainWindow::pointer()->getPickedCell();
   cout<<"You picked "<<cellId<<endl;
-  quad2triangle(grid,cellId);
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(cellId, N_pts, pts);
+  quad2triangle(grid,cellId,pts[3]);
+//   quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint)
 };

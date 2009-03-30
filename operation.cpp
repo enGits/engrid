@@ -462,3 +462,67 @@ void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell)
     makeCopy(dst, src);
   }//end of if quad
 }
+
+void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint)
+{
+  vtkIdType type_cell = grid->GetCellType(quadcell);
+  cout<<"It's a "<<type_cell<<endl;
+  if(type_cell==VTK_QUAD)
+  {
+    cout_grid(cout,src,true,true,true,true);
+    EG_VTKSP(vtkUnstructuredGrid, dst);
+    //src grid info
+    int N_points=src->GetNumberOfPoints();
+    int N_cells=src->GetNumberOfCells();
+    allocateGrid(dst,N_cells+1,N_points);
+    
+    for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      src->GetPoints()->GetPoint(id_node, x.data());
+      dst->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(src, id_node, dst, id_node);
+    };
+    for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      vtkIdType id_new_cell;
+      vtkIdType id_new_cell1;
+      vtkIdType id_new_cell2;
+      if(id_cell!=quadcell)
+      {
+        id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+        copyCellData(src, id_cell, dst, id_new_cell);
+      }
+      else
+      {
+        vtkIdType triangle1[3];
+        vtkIdType triangle2[3];
+        if(MovingPoint==pts[0] || MovingPoint==pts[2])
+        {
+          triangle1[0]=pts[1];
+          triangle1[1]=pts[3];
+          triangle1[2]=pts[0];
+          triangle2[0]=pts[3];
+          triangle2[1]=pts[1];
+          triangle2[2]=pts[2];
+        }
+        else
+        {
+          triangle1[0]=pts[2];
+          triangle1[1]=pts[0];
+          triangle1[2]=pts[1];
+          triangle2[0]=pts[0];
+          triangle2[1]=pts[2];
+          triangle2[2]=pts[3];
+        }
+        id_new_cell1 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle1);
+        copyCellData(src, id_cell, dst, id_new_cell1);
+        id_new_cell2 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
+        copyCellData(src, id_cell, dst, id_new_cell2);
+      }
+    };
+    cout_grid(cout,dst,true,true,true,true);
+    makeCopy(dst, src);
+  }//end of if quad
+}

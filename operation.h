@@ -149,6 +149,7 @@ public: // methods
   
   bool SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
+  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
 };
 
