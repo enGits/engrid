@@ -146,6 +146,10 @@ public: // methods
   
   vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  
+  bool SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S);
+  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
+  
 };
 
 template <class T>
