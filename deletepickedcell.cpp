@@ -29,15 +29,14 @@ using namespace GeometryTools;
 #include <vtkCell.h>
 #include <vtkGenericCell.h>
 
-stencil_t DeletePickedCell::SwapCell(vtkIdType id_cell,int j)
+bool DeletePickedCell::SwapCell(vtkUnstructuredGrid* a_grid, stencil_t S)
 {
   bool swap = false;
-  stencil_t S = getStencil(id_cell, j);
   if (S.valid) {
     vec3_t x3[4], x3_0(0,0,0);
     vec2_t x[4];
     for (int k = 0; k < 4; ++k) {
-      grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
+      a_grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
       x3_0 += x3[k];
     };
     vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
@@ -88,86 +87,76 @@ stencil_t DeletePickedCell::SwapCell(vtkIdType id_cell,int j)
     new_pts2[0] = S.p[2];
     new_pts2[1] = S.p[3];
     new_pts2[2] = S.p[0];
-    grid->ReplaceCell(S.id_cell1, 3, new_pts1);
-    grid->ReplaceCell(S.id_cell2, 3, new_pts2);
+    a_grid->ReplaceCell(S.id_cell1, 3, new_pts1);
+    a_grid->ReplaceCell(S.id_cell2, 3, new_pts2);
   };
-  return(S);
+  return(swap);
 }
 
-void DeletePickedCell::foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vtkIdType quadcell)
+void DeletePickedCell::foobar(vtkUnstructuredGrid* src,vtkIdType quadcell)
 {
-  //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
-  allocateGrid(dst,N_cells+1,N_points);
-//   makeCopyNoAlloc(src, dst);
-  
-  for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
-    vec3_t x;
-    src->GetPoints()->GetPoint(id_node, x.data());
-    dst->GetPoints()->SetPoint(id_node, x.data());
-    copyNodeData(src, id_node, dst, id_node);
-  };
-  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell;
-    if(id_cell!=quadcell)
-    {
-      id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
-      copyCellData(src, id_cell, dst, id_new_cell);
-    }
-    else
-    {
-      vtkIdType triangle1[3];
-      vtkIdType triangle2[3];
-      triangle1[0]=pts[2];
-      triangle1[1]=pts[0];
-      triangle1[2]=pts[1];
-      triangle2[0]=pts[0];
-      triangle2[1]=pts[2];
-      triangle2[2]=pts[3];
-      id_new_cell = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle1);
-      copyCellData(src, id_cell, dst, id_new_cell);
-      id_new_cell = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
-      copyCellData(src, id_cell, dst, id_new_cell);
-    }
-  };
-  
-    
-/*  EG_VTKDCC(vtkIntArray, var2, dst, "vtk_type");
-  var2->SetValue(id_cell, VTK_TRIANGLE);*/
-//   vtkGenericCell* pepe=vtkGenericCell::New();
-/*  vtkGenericCell* pepe=(vtkGenericCell*)dst->GetCell(id_cell);
-//   dst->GetCell(id_cell, pepe);
-//   pepe->SetCellType(VTK_TRIANGLE);
-  pepe->SetCellTypeToTriangle();
-  
-  vtkIdType type_cell = dst->GetCellType(id_cell);
+  vtkIdType type_cell = grid->GetCellType(quadcell);
   cout<<"It's a "<<type_cell<<endl;
-  
-  
-  dst->ReplaceCell(id_cell, 3, triangle1);
-  vtkIdType id_new_cell = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
-  copyCellData(src, id_cell, dst, id_new_cell);*/
-//   var2->SetValue(id_new_cell, VTK_TRIANGLE);
-//   grid->GetCell(id_cell)->SetCellType(VTK_TRIANGLE);
+  if(type_cell==VTK_QUAD)
+  {
+    cout_grid(cout,src,true,true,true,true);
+    EG_VTKSP(vtkUnstructuredGrid, dst);
+    //src grid info
+    int N_points=src->GetNumberOfPoints();
+    int N_cells=src->GetNumberOfCells();
+    allocateGrid(dst,N_cells+1,N_points);
+    
+    for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      src->GetPoints()->GetPoint(id_node, x.data());
+      dst->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(src, id_node, dst, id_node);
+    };
+    for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      src->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType id_new_cell;
+      vtkIdType id_new_cell1;
+      vtkIdType id_new_cell2;
+      if(id_cell!=quadcell)
+      {
+        id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+        copyCellData(src, id_cell, dst, id_new_cell);
+      }
+      else
+      {
+        vtkIdType triangle1[3];
+        vtkIdType triangle2[3];
+        triangle1[0]=pts[1];
+        triangle1[1]=pts[3];
+        triangle1[2]=pts[0];
+        triangle2[0]=pts[3];
+        triangle2[1]=pts[1];
+        triangle2[2]=pts[2];
+        id_new_cell1 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle1);
+        copyCellData(src, id_cell, dst, id_new_cell1);
+        id_new_cell2 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
+        copyCellData(src, id_cell, dst, id_new_cell2);
+        stencil_t S;
+        S.id_cell1=id_new_cell1;
+        S.id_cell2=id_new_cell2;
+        S.p[0]=pts[0];
+        S.p[1]=pts[1];
+        S.p[2]=pts[2];
+        S.p[3]=pts[3];
+        S.valid=true;
+        SwapCell(dst,S);
+      }
+    };
+    cout_grid(cout,dst,true,true,true,true);
+    makeCopy(dst, src);
+  }//end of if quad
 }
 
 void DeletePickedCell::operate()
 {
   vtkIdType cellId = GuiMainWindow::pointer()->getPickedCell();
   cout<<"You picked "<<cellId<<endl;
-  vtkIdType type_cell = grid->GetCellType(cellId);
-  cout<<"It's a "<<type_cell<<endl;
-  if(type_cell==VTK_QUAD)
-  {
-    cout_grid(cout,grid,true,true,true,true);
-    
-    EG_VTKSP(vtkUnstructuredGrid, grid_tmp);
-    foobar(grid,grid_tmp,cellId);
-    cout_grid(cout,grid_tmp,true,true,true,true);
-    makeCopy(grid_tmp, grid);
-  }
+  foobar(grid,cellId);
 };
