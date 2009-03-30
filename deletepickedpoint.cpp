@@ -118,19 +118,14 @@ void DeletePickedPoint::foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *ds
       {
         if(type_cell==VTK_QUAD) type_cell==VTK_TRIANGLE;
         else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
-        //locate points to merge
-/*        for(int i=0;i<N_pts;i++)
-        {
-          if(src_pts[i]==DeadNode) ;
-          if(src_pts[i]==SnapPoint) ;
-        }
         //merge points
-        for(int i=0;i<N_pts-1;i++)
+        int j=0;
+        for(int i=0;i<N_pts;i++)
         {
-          if(src_pts[i]==DeadNode) ;
-          if(src_pts[i]==SnapPoint) ;
+          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
+          else if(src_pts[i]!=DeadNode) { dst_pts[j]=src_pts[i]-OffSet[src_pts[i]];j++; }//pre-snap/dead + post-snap/dead
+          //do nothing in case of DeadNode
         }
-        dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];//*/
       }
       else//normal cell
       {

@@ -33,7 +33,8 @@ class DeletePickedCell : public Operation
 protected: // methods
   
   virtual void operate();
-  
+  void foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vtkIdType cellId);
+  stencil_t SwapCell(vtkIdType id_cell,int j);
 };
 
 #endif
