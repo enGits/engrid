@@ -30,12 +30,12 @@ class DeletePickedPoint;
 class DeletePickedPoint : public Operation
 {
 
-protected: // methods
+  protected: // methods
   
-  virtual void operate();
-//   void foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
-  void foobar(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vtkIdType DeadNode);
-    
+    virtual void operate();
+//   void DeletePoint(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
+  public:
+    bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
 };
 
 #endif

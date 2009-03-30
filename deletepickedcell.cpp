@@ -23,6 +23,7 @@
 
 #include "deletepickedcell.h"
 #include "guimainwindow.h"
+#include "deletepickedpoint.h"
 
 #include <vtkCell.h>
 #include <vtkGenericCell.h>
@@ -33,6 +34,16 @@ void DeletePickedCell::operate()
   cout<<"You picked "<<cellId<<endl;
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(cellId, N_pts, pts);
-  quad2triangle(grid,cellId,pts[3]);
+//   quad2triangle(grid,cellId,pts[3]);
+  DeletePickedPoint toto;
+  toto.DeletePoint(grid,0);
+  
+/*  foobar(grid, vtkUnstructuredGrid *dst, vtkIdType DeadNode);
+  
+  EG_VTKSP(vtkUnstructuredGrid, grid_tmp);
+  foobar(grid,grid_tmp,nodeId);
+  cout_grid(cout,grid_tmp,true,true,true,true);
+  makeCopy(grid_tmp, grid);*/
+  
 //   quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint)
 };

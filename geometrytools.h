@@ -100,8 +100,3 @@ double angle(const vec3_t & u, const vec3_t & v);
 };
 
 #endif
-
-
-
-
-
