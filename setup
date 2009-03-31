@@ -1,0 +1,6 @@
+#!/bin/bash
+export TAR_DIR=$PWD
+cd /opt
+tar xvf $TAR_DIR/enGrid_bin.tar.gz
+cp /opt/enGrid/start_engrid /usr/local/bin
+
