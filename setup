@@ -1,13 +1,18 @@
 #!/bin/bash
 
+ORIG_WD=$(pwd)
+
 INSTALLDIR=/opt
 BINDIR=/usr/local/bin
 
-if [ $# -ge 1 ];then INSTALLDIR=$1;fi;
-if [ $# -ge 2 ];then BINDIR=$2;fi;
+if [ $# -ge 1 ];then INSTALLDIR=$(readlink -f $1);fi;
+if [ $# -ge 2 ];then BINDIR=$(readlink -f $2);fi;
 
 echo "INSTALLDIR=$INSTALLDIR"
 echo "BINDIR=$BINDIR"
+
+mkdir -p $INSTALLDIR
+mkdir -p $BINDIR
 
 saferemove()
 {
@@ -51,5 +56,5 @@ _EOF_
 TAR_DIR=$PWD
 cd $INSTALLDIR
 tar xzvf $TAR_DIR/enGrid_bin.tar.gz
-cp -v $INSTALLDIR/enGrid/start_engrid $BINDIR
+cp -v $ORIG_WD/start_engrid $BINDIR
 chmod 755 $BINDIR/start_engrid
