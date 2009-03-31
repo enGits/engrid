@@ -1,3 +1,0 @@
-#!/bin/bash
-export LD_LIBRARY_PATH=/opt/enGrid
-~ogloth/Projects/PN-501-ITI-OSS-MeshGeneration/src/engrid

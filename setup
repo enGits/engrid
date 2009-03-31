@@ -1,6 +1,54 @@
 #!/bin/bash
-export TAR_DIR=$PWD
-cd /opt
-tar xvf $TAR_DIR/enGrid_bin.tar.gz
-cp /opt/enGrid/start_engrid /usr/local/bin
 
+INSTALLDIR=/opt
+BINDIR=/usr/local/bin
+
+if [ $# -ge 1 ];then INSTALLDIR=$1;fi;
+if [ $# -ge 2 ];then BINDIR=$2;fi;
+
+echo "INSTALLDIR=$INSTALLDIR"
+echo "BINDIR=$BINDIR"
+
+saferemove()
+{
+	if [ -e $1 ]
+	then
+	        echo "$1 already exists."
+	        echo "rm -v $1 ?(y/n/q)"
+		read ans
+		case $ans in
+		  y|Y|yes) rm -v $1;;
+		  q) exit 0;;
+		  *) echo "proceeding without removing";;
+		esac
+	fi
+}
+
+saferemove_recursive()
+{
+	if [ -e $1 ]
+	then
+	        echo "$1 already exists."
+	        echo "rm -rfv $1 ?(y/n/q)"
+		read ans
+		case $ans in
+		  y|Y|yes) rm -rfv $1;;
+		  q) exit 0;;
+		  *) echo "proceeding without removing";;
+		esac
+	fi
+}
+
+saferemove_recursive $INSTALLDIR/enGrid
+saferemove $BINDIR/start_engrid
+
+cat <<EOF >>start_engrid
+#!/bin/bash
+export LD_LIBRARY_PATH=$INSTALLDIR/enGrid
+$INSTALLDIR/enGrid/engrid
+EOF
+
+TAR_DIR=$PWD
+cd $INSTALLDIR
+tar xzvf $TAR_DIR/enGrid_bin.tar.gz
+cp -v $INSTALLDIR/enGrid/start_engrid $BINDIR
