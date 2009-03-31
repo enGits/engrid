@@ -42,13 +42,14 @@ saferemove_recursive()
 saferemove_recursive $INSTALLDIR/enGrid
 saferemove $BINDIR/start_engrid
 
-cat <<EOF >>start_engrid
+cat <<_EOF_ >start_engrid
 #!/bin/bash
 export LD_LIBRARY_PATH=$INSTALLDIR/enGrid
 $INSTALLDIR/enGrid/engrid
-EOF
+_EOF_
 
 TAR_DIR=$PWD
 cd $INSTALLDIR
 tar xzvf $TAR_DIR/enGrid_bin.tar.gz
 cp -v $INSTALLDIR/enGrid/start_engrid $BINDIR
+chmod 755 $BINDIR/start_engrid
