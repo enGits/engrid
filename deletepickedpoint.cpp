@@ -116,11 +116,22 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
       cout<<"scal="<<scal<<endl;
       cout<<"cross="<<cross<<endl;
       
-      if(NewArea<OldArea*1./100.)
+      if(Old_N*New_N<Old_N*Old_N*1./100.)
       {
         cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
         return(false);
       }
+/*      if(NewArea<OldArea*1./100.)
+      {
+        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
+        return(false);
+      }
+      
+      if(abs(cross)>10e-4)
+      {
+        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
+        return(false);
+      }*/
       
       //mutated cell
       MutatedCells.insert(C);
