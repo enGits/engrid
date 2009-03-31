@@ -17,3 +17,4 @@ qtc-gdbmacros
 engrid.kdevelop.ignore_pcs
 *.vtu
 *.out
+*.orig
