@@ -13,3 +13,7 @@ tmp.txt
 .hg
 *.user
 qtc-gdbmacros
+*.sp
+engrid.kdevelop.ignore_pcs
+*.vtu
+*.out
