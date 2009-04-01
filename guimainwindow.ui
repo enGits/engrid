@@ -424,6 +424,8 @@
     <addaction name="actionClearOutputWindow" />
     <addaction name="actionViewAxes" />
     <addaction name="actionViewOrthogonal" />
+    <addaction name="actionViewNodeIDs" />
+    <addaction name="actionViewCellIDs" />
    </widget>
    <widget class="QMenu" name="menuMesh" >
     <property name="title" >
@@ -897,6 +899,22 @@
   <action name="actionDeletePickedPoint" >
    <property name="text" >
     <string>delete picked point</string>
+   </property>
+  </action>
+  <action name="actionViewNodeIDs" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Node IDs</string>
+   </property>
+  </action>
+  <action name="actionViewCellIDs" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Cell IDs</string>
    </property>
   </action>
  </widget>

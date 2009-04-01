@@ -358,6 +358,12 @@ public slots:
   /** Toggle orthogonal viewing mode. */
   void setViewingMode();
   
+  /** Toggle node ID viewing mode. */
+  void ViewNodeIDs();
+  
+  /** Toggle cell ID viewing mode. */
+  void ViewCellIDs();
+  
   /** Change the orientation of all surface elements */
   void changeSurfaceOrientation();
   

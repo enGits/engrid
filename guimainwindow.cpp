@@ -88,6 +88,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionNormalExtrusion,        SIGNAL(activated()),       this, SLOT(normalExtrusion()));
   connect(ui.actionViewAxes,               SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
   connect(ui.actionViewOrthogonal,         SIGNAL(changed()),         this, SLOT(setViewingMode()));
+  connect(ui.actionViewNodeIDs,            SIGNAL(changed()),         this, SLOT(ViewNodeIDs()));
+  connect(ui.actionViewCellIDs,            SIGNAL(changed()),         this, SLOT(ViewCellIDs()));
   connect(ui.actionChangeOrientation,      SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
   connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
   connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
@@ -902,6 +904,20 @@ void GuiMainWindow::setViewingMode()
 {
   if (ui.actionViewOrthogonal->isChecked()) getRenderer()->GetActiveCamera()->ParallelProjectionOn();
   else getRenderer()->GetActiveCamera()->ParallelProjectionOff();
+  getRenderWindow()->Render();
+};
+
+void GuiMainWindow::ViewNodeIDs()
+{
+  if (ui.actionViewNodeIDs->isChecked()) cout<<"Activating node ID view"<<endl;
+  else cout<<"Deactivating node ID view"<<endl;
+  getRenderWindow()->Render();
+};
+
+void GuiMainWindow::ViewCellIDs()
+{
+  if (ui.actionViewCellIDs->isChecked()) cout<<"Activating cell ID view"<<endl;
+  else cout<<"Deactivating cell ID view"<<endl;
   getRenderWindow()->Render();
 };
 
