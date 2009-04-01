@@ -18,3 +18,4 @@ engrid.kdevelop.ignore_pcs
 *.vtu
 *.out
 *.orig
+*.tar.gz
