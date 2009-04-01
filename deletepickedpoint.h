@@ -31,11 +31,12 @@ class DeletePickedPoint : public Operation
 {
 
   protected: // methods
-  
     virtual void operate();
+  
   public:
     bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
     int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+    vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
 };
 
 #endif

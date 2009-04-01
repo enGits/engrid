@@ -72,136 +72,161 @@ int DeletePickedPoint::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bo
   return(N);
 }
 
+vtkIdType DeletePickedPoint::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+{
+
+}
+
 bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
 {
   EG_VTKSP(vtkUnstructuredGrid, dst);
   
-  //Find closest point to DeadNode
-  vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
-  cout<<"====>SnapPoint="<<SnapPoint<<endl;
-  bool IsTetra=true;
-  if(NumberOfCommonPoints(DeadNode,SnapPoint,IsTetra)>2)//common point check
-  {
-    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-    return(false);
-  }
-  if(IsTetra)//tetra check
-  {
-    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-    return(false);
-  }
-  
-  //src grid info
+    //src grid info
   int N_points=src->GetNumberOfPoints();
   int N_cells=src->GetNumberOfCells();
-  
-  //vector used to redefine the new point IDs
-  QVector <vtkIdType> OffSet(N_points);
-  
-  //count number of points and cells to remove + analyse cell transformations
   int N_newpoints=-1;
   int N_newcells=0;
+  
   QSet <vtkIdType> DeadCells;
   QSet <vtkIdType> MutatedCells;
   QSet <vtkIdType> MutilatedCells;
-  foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
+  
+  vtkIdType SnapPoint=-1;
+  //Find closest point to DeadNode
+//   vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
+  
+  foreach(vtkIdType PSP, n2n[DeadNode])
   {
-    //get points around cell
-    vtkIdType N_pts, *pts;
-    src->GetCellPoints(C, N_pts, pts);
+    bool IsValidSnapPoint=true;
     
-    bool ContainsSnapPoint=false;
-    for(int i=0;i<N_pts;i++)
+    cout<<"====>PSP="<<PSP<<endl;
+    bool IsTetra=true;
+    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
     {
-      cout<<"pts["<<i<<"]="<<pts[i]<<" and SnapPoint="<<SnapPoint<<endl;
-      if(pts[i]==SnapPoint) {ContainsSnapPoint=true;break;}
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
     }
-    if(ContainsSnapPoint)
+    if(IsTetra)//tetra check
     {
-      if(N_pts==3)//dead cell
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    //count number of points and cells to remove + analyse cell transformations
+    N_newpoints=-1;
+    N_newcells=0;
+    DeadCells.clear();
+    MutatedCells.clear();
+    MutilatedCells.clear();
+    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
+    {
+      //get points around cell
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(C, N_pts, pts);
+      
+      bool ContainsSnapPoint=false;
+      for(int i=0;i<N_pts;i++)
       {
-        DeadCells.insert(C);
-        N_newcells-=1;
-        cout<<"cell "<<C<<" has been pwned!"<<endl;
+        cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
+        if(pts[i]==PSP) {ContainsSnapPoint=true;break;}
+//         if(n2c[pts[i]]<=1) invincible=true;
       }
-/*      else if(N_pts==4)//mutilated cell
+      if(ContainsSnapPoint)
       {
-        MutilatedCells.insert(C);
-        cout<<"cell "<<C<<" has lost a limb!"<<endl;
-      }*/
+        if(N_pts==3)//dead cell
+        {
+          //TODO: Check that empty lines aren't left behind when a cell is killed
+//           if(invincible)
+          DeadCells.insert(C);
+          N_newcells-=1;
+          cout<<"cell "<<C<<" has been pwned!"<<endl;
+        }
+  /*      else if(N_pts==4)//mutilated cell
+        {
+          MutilatedCells.insert(C);
+          cout<<"cell "<<C<<" has lost a limb!"<<endl;
+        }*/
+        else
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+      }
       else
       {
-        cout<<"RED ALERT: Xenomorph detected!"<<endl;
-        EG_BUG;
+        vtkIdType src_N_pts, *src_pts;
+        src->GetCellPoints(C, src_N_pts, src_pts);
+        
+        if(src_N_pts!=3)
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+        
+        vtkIdType OldTriangle[3];
+        vtkIdType NewTriangle[3];
+        
+        for(int i=0;i<src_N_pts;i++)
+        {
+          OldTriangle[i]=src_pts[i];
+          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
+        }
+        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        double OldArea=Old_N.abs();
+        double NewArea=New_N.abs();
+        double scal=Old_N*New_N;
+        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
+        
+        cout<<"OldArea="<<OldArea<<endl;
+        cout<<"NewArea="<<NewArea<<endl;
+        cout<<"scal="<<scal<<endl;
+        cout<<"cross="<<cross<<endl;
+        
+        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+  /*      if(NewArea<OldArea*1./100.)
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+        if(abs(cross)>10e-4)
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }*/
+        
+        //mutated cell
+        MutatedCells.insert(C);
+        cout<<"cell "<<C<<" has been infected!"<<endl;
       }
     }
-    else
-    {//TODO: check area + orientation of the new cell
-      vtkIdType src_N_pts, *src_pts;
-      src->GetCellPoints(C, src_N_pts, src_pts);
-      
-      if(src_N_pts!=3)
-      {
-        cout<<"RED ALERT: Xenomorph detected!"<<endl;
-        EG_BUG;
-      }
-      
-      vtkIdType OldTriangle[3];
-      vtkIdType NewTriangle[3];
-      
-      for(int i=0;i<src_N_pts;i++)
-      {
-        OldTriangle[i]=src_pts[i];
-        NewTriangle[i]=( (src_pts[i]==DeadNode) ? SnapPoint : src_pts[i] );
-      }
-      vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
-      vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
-      double OldArea=Old_N.abs();
-      double NewArea=New_N.abs();
-      double scal=Old_N*New_N;
-      double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
-      
-      cout<<"OldArea="<<OldArea<<endl;
-      cout<<"NewArea="<<NewArea<<endl;
-      cout<<"scal="<<scal<<endl;
-      cout<<"cross="<<cross<<endl;
-      
-      if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
-      {
-        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-        return(false);
-      }
-      
-/*      if(NewArea<OldArea*1./100.)
-      {
-        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-        return(false);
-      }
-      
-      if(abs(cross)>10e-4)
-      {
-        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-        return(false);
-      }*/
-      
-      //mutated cell
-      MutatedCells.insert(C);
-      cout<<"cell "<<C<<" has been infected!"<<endl;
+    
+    if(N_cells+N_newcells<=0)//survivor check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
     }
-  }
+    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
+  }//end of loop through potential SnapPoints
+  
+  cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
+  if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
+  
+  //allocate
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
-  
-  if(N_cells+N_newcells<=0)//survivor check
-  {
-    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
-    return(false);
-  }
-  
-  //allocate
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
+  
+  //vector used to redefine the new point IDs
+  QVector <vtkIdType> OffSet(N_points);
   
   //copy undead points
   vtkIdType dst_id_node=0;
