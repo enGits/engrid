@@ -33,9 +33,9 @@ class DeletePickedPoint : public Operation
   protected: // methods
   
     virtual void operate();
-//   void DeletePoint(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
   public:
     bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+    int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2);
 };
 
 #endif

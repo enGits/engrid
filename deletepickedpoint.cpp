@@ -33,6 +33,15 @@ using namespace GeometryTools;
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
+int DeletePickedPoint::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2)
+{
+//   QVector< QSet< int > > 	n2n
+  QSet <int> node1_neighbours=n2n[node1];
+  QSet <int> node2_neighbours=n2n[node2];
+  int N=(node1_neighbours.intersect(node2_neighbours)).size();
+  return(N);
+}
+
 bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
 {
   EG_VTKSP(vtkUnstructuredGrid, dst);
@@ -40,6 +49,11 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
   //Find closest point to DeadNode
   vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
   cout<<"SnapPoint="<<SnapPoint<<endl;
+  if(NumberOfCommonPoints(DeadNode,SnapPoint)>2)//common point check
+  {
+    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
+    return(false);
+  }
   
   //src grid info
   int N_points=src->GetNumberOfPoints();
@@ -68,17 +82,17 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
     }
     if(ContainsSnapPoint)
     {
-      if(N_pts<=3)//dead cell
+      if(N_pts==3)//dead cell
       {
         DeadCells.insert(C);
         N_newcells-=1;
         cout<<"cell "<<C<<" has been pwned!"<<endl;
       }
-      else if(N_pts==4)//mutilated cell
+/*      else if(N_pts==4)//mutilated cell
       {
         MutilatedCells.insert(C);
         cout<<"cell "<<C<<" has lost a limb!"<<endl;
-      }
+      }*/
       else
       {
         cout<<"RED ALERT: Xenomorph detected!"<<endl;
@@ -116,11 +130,12 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
       cout<<"scal="<<scal<<endl;
       cout<<"cross="<<cross<<endl;
       
-      if(Old_N*New_N<Old_N*Old_N*1./100.)
+      if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
       {
         cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
         return(false);
       }
+      
 /*      if(NewArea<OldArea*1./100.)
       {
         cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
@@ -142,6 +157,12 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  
+  if(N_cells+N_newcells<=0)//survivor check
+  {
+    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
+    return(false);
+  }
   
   //allocate
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
