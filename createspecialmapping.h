@@ -272,7 +272,7 @@ class CreateSpecialMapping : public Operation {
   
     int FullEdit();
     int UpdateMeshDensity();
-    
+    int UpdateNodeType();
 };
 //end of CreateSpecialMapping class
 

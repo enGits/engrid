@@ -826,6 +826,9 @@ void GuiMainWindow::updateStatusBar()
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
     tmp.setNum(node_meshdensity_current->GetValue(id_node));
     pick_txt += " current density=" + tmp;
+    EG_VTKDCN(vtkIntArray, node_type, grid, "node_type");
+    tmp.setNum(node_type->GetValue(id_node));
+    pick_txt += " type=" + tmp;
     
     txt += pick_txt;
   }

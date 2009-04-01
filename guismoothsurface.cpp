@@ -1138,8 +1138,15 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  if(ui.SmoothMethod->currentIndex()==11)// point removal test
+  if(ui.SmoothMethod->currentIndex()==11)// Update node info
   {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    CreateSpecialMapping toto;
+    toto.SetInput(bcs,grid);
+    toto.UpdateMeshDensity();
+    toto.UpdateNodeType();
+    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else
