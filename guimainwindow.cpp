@@ -43,6 +43,7 @@
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkCharArray.h>
+#include <vtkTextActor.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
@@ -909,8 +910,26 @@ void GuiMainWindow::setViewingMode()
 
 void GuiMainWindow::ViewNodeIDs()
 {
-  if (ui.actionViewNodeIDs->isChecked()) cout<<"Activating node ID view"<<endl;
-  else cout<<"Deactivating node ID view"<<endl;
+  
+  if (ui.actionViewNodeIDs->isChecked()) {
+    cout<<"Activating node ID view"<<endl;
+    for(int i=0;i<3;i++) {
+      textActor[i]=vtkTextActor::New();
+      textActor[i]->ScaledTextOn();
+      textActor[i]->SetDisplayPosition(50*i,50*i);
+      textActor[i]->SetInput("This is a sphere");
+      getRenderer()->AddActor2D(textActor[i]);
+    }
+  }
+  
+  else {
+    cout<<"Deactivating node ID view"<<endl;
+    for(int i=0;i<3;i++) {
+      getRenderer()->RemoveActor(textActor[i]);
+      textActor[i]->Delete();
+    }
+  }
+  
   getRenderWindow()->Render();
 };
 

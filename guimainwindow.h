@@ -42,6 +42,7 @@ class GuiMainWindow;
 #include <vtkCellPicker.h>
 #include <vtkPointPicker.h>
 #include <vtkSphereSource.h>
+#include <vtkTextActor.h>
 
 #include "ui_guimainwindow.h"
 #include "ui_guioutputwindow.h"
@@ -133,6 +134,14 @@ private: // attributes
   
   /** sphere to mark picked cell/points */
   vtkSphereSource *pick_sphere;
+  
+  /** Text actor to display node IDs */
+  vector <vtkTextActor*> NodeText;
+  
+  /** Text actor to display cell IDs */
+  vector <vtkTextActor*> CellText;
+  
+  vtkTextActor* textActor[3];
   
   /** VTK mapper to map pick marker */
   vtkPolyDataMapper *pick_mapper;
