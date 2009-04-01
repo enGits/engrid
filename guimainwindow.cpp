@@ -44,6 +44,8 @@
 #include <vtkCamera.h>
 #include <vtkCharArray.h>
 #include <vtkTextActor.h>
+#include <vtkVectorText.h>
+#include <vtkFollower.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
@@ -918,7 +920,7 @@ void GuiMainWindow::ViewNodeIDs()
       textActor[i]->ScaledTextOn();
       textActor[i]->SetDisplayPosition(50*i,50*i);
       textActor[i]->SetInput("This is a sphere");
-      getRenderer()->AddActor2D(textActor[i]);
+      getRenderer()->AddActor(textActor[i]);
     }
   }
   
@@ -937,6 +939,17 @@ void GuiMainWindow::ViewCellIDs()
 {
   if (ui.actionViewCellIDs->isChecked()) cout<<"Activating cell ID view"<<endl;
   else cout<<"Deactivating cell ID view"<<endl;
+  
+  vtkVectorText* atext=vtkVectorText::New();
+  atext->SetText("Origin");
+  vtkPolyDataMapper* textMapper=vtkPolyDataMapper::New();
+  textMapper->SetInputConnection(atext->GetOutputPort());
+  vtkFollower* textActor=vtkFollower::New();
+  textActor->SetMapper(textMapper);
+  textActor->SetScale(0.2,0.2,0.2);
+  textActor->AddPosition(0,-0.1,0);
+  textActor->SetCamera(getRenderer()->GetActiveCamera());
+  getRenderer()->AddActor(textActor);
   getRenderWindow()->Render();
 };
 
