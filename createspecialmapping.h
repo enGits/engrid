@@ -276,12 +276,9 @@ class CreateSpecialMapping : public Operation {
 };
 //end of CreateSpecialMapping class
 
-#define VTK_SIMPLE_VERTEX 0
-#define VTK_FIXED_VERTEX 1
-#define VTK_FEATURE_EDGE_VERTEX 2
-#define VTK_BOUNDARY_EDGE_VERTEX 3
-
-const char* VertexType2Str(char T);
-char Str2VertexType(QString S);
+// #define VTK_SIMPLE_VERTEX 0
+// #define VTK_FIXED_VERTEX 1
+// #define VTK_FEATURE_EDGE_VERTEX 2
+// #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 #endif

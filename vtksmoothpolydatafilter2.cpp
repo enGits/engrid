@@ -29,6 +29,7 @@
 #include "vtkTriangleFilter.h"
 #include <QString>
 #include <QTextStream>
+#include "egvtkobject.h"
 
 vtkCxxRevisionMacro(vtkSmoothPolyDataFilter2, "$Revision: 1.1.2.2 $");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter2);
@@ -151,19 +152,10 @@ vtkPolyData *vtkSmoothPolyDataFilter2::GetSource()
     this->GetExecutive()->GetInputData(1, 0));
 }
 
-#define VTK_SIMPLE_VERTEX 0
-#define VTK_FIXED_VERTEX 1
-#define VTK_FEATURE_EDGE_VERTEX 2
-#define VTK_BOUNDARY_EDGE_VERTEX 3
-
-const char* vertex_type(char T)
-{
-	if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
-	if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
-	if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
-	if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
-	else return("Unknown vertex type");
-}
+// #define VTK_SIMPLE_VERTEX 0
+// #define VTK_FIXED_VERTEX 1
+// #define VTK_FEATURE_EDGE_VERTEX 2
+// #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex 

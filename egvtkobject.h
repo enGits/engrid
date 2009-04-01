@@ -39,6 +39,11 @@ class EgVtkObject;
 #include <QSet>
 #include <QVector>
 
+#define VTK_SIMPLE_VERTEX 0
+#define VTK_FIXED_VERTEX 1
+#define VTK_FEATURE_EDGE_VERTEX 2
+#define VTK_BOUNDARY_EDGE_VERTEX 3
+
 class EgVtkObject
 {
   
@@ -671,5 +676,9 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
 
 vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid);
+
+const char* VertexType2Str(char T);
+char Str2VertexType(QString S);
+const char* vertex_type(char T);
 
 #endif

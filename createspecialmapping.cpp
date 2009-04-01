@@ -1,5 +1,6 @@
 #include "createspecialmapping.h"
 
+#include <vtkCharArray.h>
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellLocator.h"
@@ -23,24 +24,6 @@
 
 #include <iostream>
 using namespace std;
-
-const char* VertexType2Str(char T)
-{
-  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
-  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
-  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
-  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
-  else return("Unknown vertex type");
-}
-
-char Str2VertexType(QString S)
-{
-  if(S=="VTK_SIMPLE_VERTEX") return((char)0);
-  if(S=="VTK_FIXED_VERTEX") return((char)1);
-  if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
-  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
-  else return((char)-1);
-}
 
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex 
@@ -1128,7 +1111,7 @@ int CreateSpecialMapping::UpdateNodeType()
   }
   
   //Copy node type info from Verts
-  EG_VTKDCN(vtkIntArray, node_type, m_grid, "node_type");
+  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;

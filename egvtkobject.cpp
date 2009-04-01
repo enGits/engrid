@@ -29,6 +29,7 @@
 #include <vtkCellType.h>
 #include <vtkIdList.h>
 #include <vtkCell.h>
+#include <vtkCharArray.h>
 
 void EgVtkObject::computeNormals
 (
@@ -738,7 +739,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_index",  vtkLongArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
-  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkIntArray);
+  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
 };
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
@@ -809,7 +810,7 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);
 };
 
 void EgVtkObject::allocateGrid
@@ -1263,4 +1264,31 @@ vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > >
     if(pts[i]==a_node) break;
   }
   return a_c2c[a_cell][i];
+}
+
+const char* VertexType2Str(char T)
+{
+  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
+  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
+  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
+  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  else return("Unknown vertex type");
+}
+
+char Str2VertexType(QString S)
+{
+  if(S=="VTK_SIMPLE_VERTEX") return((char)0);
+  if(S=="VTK_FIXED_VERTEX") return((char)1);
+  if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
+  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
+  else return((char)-1);
+}
+
+const char* vertex_type(char T)
+{
+  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
+  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
+  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
+  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  else return("Unknown vertex type");
 }

@@ -42,6 +42,7 @@
 #include <vtkProperty.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
+#include <vtkCharArray.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
@@ -826,9 +827,8 @@ void GuiMainWindow::updateStatusBar()
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
     tmp.setNum(node_meshdensity_current->GetValue(id_node));
     pick_txt += " current density=" + tmp;
-    EG_VTKDCN(vtkIntArray, node_type, grid, "node_type");
-    tmp.setNum(node_type->GetValue(id_node));
-    pick_txt += " type=" + tmp;
+    EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+    pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
     
     txt += pick_txt;
   }
