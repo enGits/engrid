@@ -845,12 +845,12 @@ int CreateSpecialMapping::UpdateNodeType()
   {
     for (j=0; j<npts; j++)
     {
-      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX"<<endl;
+      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX 0"<<endl;
       Verts[pts[j]].type = VTK_FIXED_VERTEX;
     }
   }
   
-  cout<<"==check lines=="<<endl;
+  if(DebugLevel>5) cout<<"==check lines=="<<endl;
     // now check lines. Only manifold lines can be smoothed------------
   for (inLines=input->GetLines(), inLines->InitTraversal(); 
        inLines->GetNextCell(npts,pts); )
@@ -862,12 +862,12 @@ int CreateSpecialMapping::UpdateNodeType()
       {
         if ( j == (npts-1) ) //end-of-line marked FIXED
         {
-          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX"<<endl;
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX 1"<<endl;
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
         }
         else if ( j == 0 ) //beginning-of-line marked FIXED
         {
-          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX"<<endl;
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX 2"<<endl;
           Verts[pts[0]].type = VTK_FIXED_VERTEX;
           inPts->GetPoint(pts[0],x2);
           inPts->GetPoint(pts[1],x3);
@@ -885,7 +885,7 @@ int CreateSpecialMapping::UpdateNodeType()
       
       else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
       { //multiply connected, becomes fixed!
-        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX"<<endl;
+        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX 3"<<endl;
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
         Verts[pts[j]].edges = NULL;
@@ -1061,12 +1061,14 @@ int CreateSpecialMapping::UpdateNodeType()
       if ( !this->BoundarySmoothing && 
            Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
       {
+        cout<<"Verts[i].type = VTK_FIXED_VERTEX; 4"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numBEdges++;
       }
       
       else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
       {
+        cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 5"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
       }
@@ -1086,8 +1088,9 @@ int CreateSpecialMapping::UpdateNodeType()
              vtkMath::Normalize(l2) >= 0.0 &&
              vtkMath::Dot(l1,l2) < CosEdgeAngle)
         {
-          numFixed++;
+          cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 6"<<endl;
           Verts[i].type = VTK_FIXED_VERTEX;
+          numFixed++;
         }
         else
         {
@@ -1126,9 +1129,12 @@ int CreateSpecialMapping::UpdateNodeType()
   
   //Copy node type info from Verts
   EG_VTKDCN(vtkIntArray, node_type, m_grid, "node_type");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    cout<<"Verts["<<node<<"].type="<<Verts[node].type<<endl;
+    cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     node_type->SetValue(node,Verts[node].type);
   }
   
