@@ -820,6 +820,13 @@ void GuiMainWindow::updateStatusBar()
     QString tmp;
     tmp.setNum(id_node);
     pick_txt += " id_node=" + tmp;
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+    tmp.setNum(node_meshdensity->GetValue(id_node));
+    pick_txt += " wanted density=" + tmp;
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
+    tmp.setNum(node_meshdensity_current->GetValue(id_node));
+    pick_txt += " current density=" + tmp;
+    
     txt += pick_txt;
   }
   

@@ -271,7 +271,8 @@ class CreateSpecialMapping : public Operation {
     int remove_EP_all();
   
     int FullEdit();
-  
+    int UpdateMeshDensity();
+    
 };
 //end of CreateSpecialMapping class
 

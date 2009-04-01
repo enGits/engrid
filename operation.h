@@ -151,6 +151,10 @@ public: // methods
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
+  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  
 };
 
 template <class T>

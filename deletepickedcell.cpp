@@ -35,9 +35,9 @@ void DeletePickedCell::operate()
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(cellId, N_pts, pts);
 //   quad2triangle(grid,cellId,pts[3]);
-  DeletePickedPoint toto;
-  toto.DeletePoint(grid,0);
-  
+/*  DeletePickedPoint toto;
+  toto.DeletePoint(grid,0);*/
+  for(int i=0;i<N_pts;i++) DeletePoint(grid,pts[i]);
 /*  foobar(grid, vtkUnstructuredGrid *dst, vtkIdType DeadNode);
   
   EG_VTKSP(vtkUnstructuredGrid, grid_tmp);

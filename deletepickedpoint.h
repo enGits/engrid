@@ -34,9 +34,6 @@ class DeletePickedPoint : public Operation
     virtual void operate();
   
   public:
-    bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-    int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
-    vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
 };
 
 #endif

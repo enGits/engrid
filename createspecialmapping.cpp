@@ -444,14 +444,12 @@ int CreateSpecialMapping::Process()
       if(DebugLevel>3) cout<<"idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
-        if(DebugLevel>3) cout<<"node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
         node_meshdensity->SetValue(node, VMDvector[idx].density);
       }
       else//unspecified
       {
         double L=CurrentVertexAvgDist(node,n2n,m_grid);
         double D=1./L;
-        if(DebugLevel>3) cout<<"node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
         node_meshdensity->SetValue(node, D);
       }
     }
@@ -475,7 +473,6 @@ int CreateSpecialMapping::Process()
         if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
         if(idx!=-1)//specified
         {
-          if(DebugLevel>2) cout<<"------>node_meshdensity->SetValue(node, VMDvector[idx].density)="<<"node_meshdensity->SetValue("<<node<<","<<VMDvector[idx].density<<")"<<endl;
           node_meshdensity->SetValue(node, VMDvector[idx].density);
         }
         else//unspecified
@@ -505,7 +502,6 @@ int CreateSpecialMapping::Process()
             }
             diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
           }
-          if(DebugLevel>2) cout<<"------>node_meshdensity->SetValue(node, D)="<<"node_meshdensity->SetValue("<<node<<","<<D<<")"<<endl;
           node_meshdensity->SetValue(node, D);
         }
         if(DebugLevel>2) cout<<"======>"<<endl;
@@ -603,8 +599,10 @@ int CreateSpecialMapping::Process()
     
   }
   
+  UpdateMeshDensity();
   return 1;
 }
+//end of process
 
 VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 {
@@ -1089,4 +1087,15 @@ int CreateSpecialMapping::FullEdit()
   
   makeCopy(grid_tmp,m_grid);
   return(0);
+}
+
+int CreateSpecialMapping::UpdateMeshDensity()
+{
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    double L=CurrentVertexAvgDist(node,n2n,m_grid);
+    double D=1./L;
+    node_meshdensity_current->SetValue(node, D);
+  }
 }
