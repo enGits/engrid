@@ -627,11 +627,9 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 
 int CreateSpecialMapping::insert_FP_counter()
 {
+  cout<<"===insert_FP_counter()==="<<endl;
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
-    if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
-    else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;
-    
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
       cout<<"inserting a field point "<<id_cell<<endl;
@@ -646,6 +644,7 @@ int CreateSpecialMapping::insert_FP_counter()
 
 int CreateSpecialMapping::insert_EP_counter()
 {
+  cout<<"===insert_EP_counter()==="<<endl;
   StencilVector.clear();
   QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
       //rewind the iterator
@@ -706,6 +705,8 @@ int CreateSpecialMapping::insert_EP_counter()
 
 int CreateSpecialMapping::remove_FP_counter()
 {
+  cout<<"===remove_FP_counter()==="<<endl;
+  
   foreach(vtkIdType node,m_SelectedNodes)
   {
     bool marked=false;
@@ -728,6 +729,7 @@ int CreateSpecialMapping::remove_FP_counter()
 
 int CreateSpecialMapping::remove_EP_counter()
 {
+  cout<<"===remove_EP_counter()==="<<endl;
   foreach(vtkIdType node,m_SelectedNodes)
   {
     bool marked=false;
@@ -758,6 +760,8 @@ int CreateSpecialMapping::remove_EP_counter()
 
 int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
+  cout<<"===insert_FP_actor==="<<endl;
+  
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
@@ -813,6 +817,8 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 
 int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
+  cout<<"===insert_EP_actor==="<<endl;
+  
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(stencil_t S,StencilVector)
   {
@@ -881,6 +887,8 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 
 int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
+  cout<<"===remove_FP_actor==="<<endl;
+  
   foreach(vtkIdType node,m_SelectedNodes)
   {
     if(hitlist[node]==1)
@@ -904,6 +912,8 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 
 int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
+  cout<<"===remove_EP_actor==="<<endl;
+  
   foreach(vtkIdType node,m_SelectedNodes)
   {
     bool marked=false;
@@ -1098,4 +1108,5 @@ int CreateSpecialMapping::UpdateMeshDensity()
     double D=1./L;
     node_meshdensity_current->SetValue(node, D);
   }
+  return(0);
 }
