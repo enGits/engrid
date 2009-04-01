@@ -64,18 +64,12 @@ int CreateSpecialMapping::Process()
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
     getAllSurfaceCells(m_AllCells,m_grid);
     getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
-    EG_VTKSP(vtkPolyData, pdata);
-  //   addToPolyData(m_SelectedCells, pdata, m_grid);
-    addToPolyData(m_AllCells, pdata, m_grid);
-    input=pdata;
-    
-    UpdateNodeType();
+    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
     
     EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
     
     m_SelectedNodes.clear();
-    
     getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
     getNodesFromCells(m_AllCells, nodes, m_grid);
 /*    createNodeMapping(nodes, _nodes, m_grid);
@@ -84,6 +78,10 @@ int CreateSpecialMapping::Process()
     createCellToCell(m_AllCells, c2c, m_grid);*/
     setGrid(m_grid);
     setCells(m_AllCells);
+    
+    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+    
+    UpdateNodeType();
     
     //Phase A : Calculate current mesh density
     cout<<"===Phase A==="<<endl;
@@ -760,8 +758,17 @@ int CreateSpecialMapping::UpdateMeshDensity()
 
 int CreateSpecialMapping::UpdateNodeType()
 {
+  cout<<"===UpdateNodeType==="<<endl;
+  DebugLevel=6;
   
-  cout<<"=================="<<endl;
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  EG_VTKSP(vtkPolyData, pdata);
+  //   addToPolyData(m_SelectedCells, pdata, m_grid);
+  addToPolyData(m_AllCells, pdata, m_grid);
+  input=pdata;
   
   vtkPolyData *source = 0;
   
@@ -818,6 +825,7 @@ int CreateSpecialMapping::UpdateNodeType()
     // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
     // using a subset of the attached vertices.
     //
+  cout<<"===>Analyze topology==="<<endl;
   if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
   cout<<"0:numPts="<<numPts<<endl;
   Verts = new vtkMeshVertex[numPts];
@@ -842,6 +850,7 @@ int CreateSpecialMapping::UpdateNodeType()
     }
   }
   
+  cout<<"==check lines=="<<endl;
     // now check lines. Only manifold lines can be smoothed------------
   for (inLines=input->GetLines(), inLines->InitTraversal(); 
        inLines->GetNextCell(npts,pts); )
@@ -885,6 +894,7 @@ int CreateSpecialMapping::UpdateNodeType()
     } //for all points in this line
   } //for all lines
   
+  cout<<"==polygons and triangle strips=="<<endl;
     // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
@@ -1114,7 +1124,15 @@ int CreateSpecialMapping::UpdateNodeType()
     }
   }
   
-      //free up connectivity storage
+  //Copy node type info from Verts
+  EG_VTKDCN(vtkIntArray, node_type, m_grid, "node_type");
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    cout<<"Verts["<<node<<"].type="<<Verts[node].type<<endl;
+    node_type->SetValue(node,Verts[node].type);
+  }
+  
+  //free up connectivity storage
   for (int i=0; i<numPts; i++)
   {
     if ( Verts[i].edges != NULL )
@@ -1125,11 +1143,5 @@ int CreateSpecialMapping::UpdateNodeType()
   }
   delete [] Verts;
   
-  EG_VTKDCN(vtkIntArray, node_type, m_grid, "node_type");
-  foreach(vtkIdType node,m_SelectedNodes)
-  {
-  
-  
-  }
   return(0);
 }
