@@ -33,12 +33,42 @@ using namespace GeometryTools;
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
-int DeletePickedPoint::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2)
+int DeletePickedPoint::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra)
 {
 //   QVector< QSet< int > > 	n2n
   QSet <int> node1_neighbours=n2n[node1];
   QSet <int> node2_neighbours=n2n[node2];
-  int N=(node1_neighbours.intersect(node2_neighbours)).size();
+  QSet <int> intersection=node1_neighbours.intersect(node2_neighbours);
+  int N=intersection.size();
+  IsTetra=false;
+  if(N==2)
+  {
+    QSet<int>::const_iterator p1=intersection.begin();
+    QSet<int>::const_iterator p2=p1+1;
+    cout<<"*p1="<<*p1<<endl;
+    cout<<"*p2="<<*p2<<endl;
+    vtkIdType intersection1=_nodes[*p1];
+    vtkIdType intersection2=_nodes[*p2];
+    if(n2n[intersection1].contains(intersection2))//if there's an edge between intersection1 and intersection2
+    {
+      //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
+  //     QVector< QSet< int > > 	n2c
+      QSet< int > S1=n2c[intersection1];
+      QSet< int > S2=n2c[intersection2];
+      QSet< int > Si=S1.intersect(S2);
+      int counter=0;
+      foreach(vtkIdType C,Si){
+        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(C, N_pts, pts);
+        for(int i=0;i<N_pts;i++)
+        {
+          if(pts[i]==node1 || pts[i]==node2) counter++;
+        }
+      }
+      cout<<"counter="<<counter<<endl;
+      if(counter>=2) IsTetra=true;
+    }
+  }
   return(N);
 }
 
@@ -48,8 +78,14 @@ bool DeletePickedPoint::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode
   
   //Find closest point to DeadNode
   vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
-  cout<<"SnapPoint="<<SnapPoint<<endl;
-  if(NumberOfCommonPoints(DeadNode,SnapPoint)>2)//common point check
+  cout<<"====>SnapPoint="<<SnapPoint<<endl;
+  bool IsTetra=true;
+  if(NumberOfCommonPoints(DeadNode,SnapPoint,IsTetra)>2)//common point check
+  {
+    cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
+    return(false);
+  }
+  if(IsTetra)//tetra check
   {
     cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<SnapPoint<<"."<<endl;
     return(false);
@@ -264,6 +300,6 @@ void DeletePickedPoint::operate()
 {
   vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
   cout<<"You picked "<<nodeId<<endl;
-  
+
   DeletePoint(grid,nodeId);
 };

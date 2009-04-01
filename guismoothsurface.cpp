@@ -1145,5 +1145,20 @@ void GuiSmoothSurface::operate()
   else
   {
     cout<<"UNKNOWN METHOD"<<endl;
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    QVector<vtkIdType> cells;
+    getSurfaceCells(bcs, cells, grid);
+    setCells(cells);
+    cout<<"cells="<<cells<<endl;
+    cout<<"_cells="<<_cells<<endl;
+    cout<<"nodes="<<nodes<<endl;
+    cout<<"_nodes="<<_nodes<<endl;
+/*    QVector< QSet< int > > 	n2c;
+    QVector< QSet< int > > 	n2n;
+    QVector< QVector< int > > 	c2c;*/
+    cout<<"n2c="<<n2c<<endl;
+    cout<<"n2n="<<n2n<<endl;
+    cout<<"c2c="<<c2c<<endl;
   }
 };
