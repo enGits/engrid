@@ -43,6 +43,8 @@ class GuiMainWindow;
 #include <vtkPointPicker.h>
 #include <vtkSphereSource.h>
 #include <vtkTextActor.h>
+#include <vtkVectorText.h>
+#include <vtkFollower.h>
 
 #include "ui_guimainwindow.h"
 #include "ui_guioutputwindow.h"
@@ -142,6 +144,9 @@ private: // attributes
   vector <vtkTextActor*> CellText;
   
   vtkTextActor* textActor[3];
+  vtkVectorText* atext[3];
+  vtkPolyDataMapper* textMapper[3];
+  vtkFollower* textActor2[3];
   
   /** VTK mapper to map pick marker */
   vtkPolyDataMapper *pick_mapper;

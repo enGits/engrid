@@ -937,19 +937,31 @@ void GuiMainWindow::ViewNodeIDs()
 
 void GuiMainWindow::ViewCellIDs()
 {
-  if (ui.actionViewCellIDs->isChecked()) cout<<"Activating cell ID view"<<endl;
-  else cout<<"Deactivating cell ID view"<<endl;
+  if (ui.actionViewCellIDs->isChecked()) {
+    cout<<"Activating cell ID view"<<endl;
+    for(int i=0;i<3;i++){
+      atext[i]=vtkVectorText::New();
+      atext[i]->SetText("M");
+      textMapper[i]=vtkPolyDataMapper::New();
+      textMapper[i]->SetInputConnection(atext[i]->GetOutputPort());
+      textActor2[i]=vtkFollower::New();
+      textActor2[i]->SetMapper(textMapper[i]);
+      textActor2[i]->SetScale(0.2,0.2,0.2);
+      textActor2[i]->AddPosition(i,i,i);
+      textActor2[i]->SetCamera(getRenderer()->GetActiveCamera());
+      getRenderer()->AddActor(textActor2[i]);
+    }
+  }
+  else {
+    cout<<"Deactivating cell ID view"<<endl;
+    for(int i=0;i<3;i++){
+      getRenderer()->RemoveActor(textActor2[i]);
+      textActor2[i]->Delete();
+      textMapper[i]->Delete();
+      atext[i]->Delete();
+    }
+  }
   
-  vtkVectorText* atext=vtkVectorText::New();
-  atext->SetText("Origin");
-  vtkPolyDataMapper* textMapper=vtkPolyDataMapper::New();
-  textMapper->SetInputConnection(atext->GetOutputPort());
-  vtkFollower* textActor=vtkFollower::New();
-  textActor->SetMapper(textMapper);
-  textActor->SetScale(0.2,0.2,0.2);
-  textActor->AddPosition(0,-0.1,0);
-  textActor->SetCamera(getRenderer()->GetActiveCamera());
-  getRenderer()->AddActor(textActor);
   getRenderWindow()->Render();
 };
 
