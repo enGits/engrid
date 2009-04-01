@@ -1081,17 +1081,25 @@ int CreateSpecialMapping::FullEdit()
   if(remove_FP) remove_FP_counter();
   if(remove_EP) remove_EP_counter();
   
+  cout<<"================="<<endl;
+  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"================="<<endl;
+  
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  makeCopyNoAlloc(m_grid, grid_tmp);
+  makeCopyNoAlloc(m_grid, grid_tmp);//TODO: This will not work if the size of the grid is reduced!
     //initialize new node counter
   m_newNodeId=N_points;
   
   if(insert_FP) insert_FP_actor(grid_tmp);
   if(insert_EP) insert_EP_actor(grid_tmp);
+  
+  cout<<"================="<<endl;
+  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"================="<<endl;
   if(remove_FP) remove_FP_actor(grid_tmp);
   if(remove_EP) remove_EP_actor(grid_tmp);
   

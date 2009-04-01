@@ -738,6 +738,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_index",  vtkLongArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
+  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkDoubleArray);
 };
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
@@ -808,6 +809,7 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkDoubleArray, overwrite);
 };
 
 void EgVtkObject::allocateGrid
