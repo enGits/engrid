@@ -52,6 +52,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "geometrytools.h"
+using namespace GeometryTools;
+
 #include "guisettingsviewer.h"
 #include "guitransform.h"
 
@@ -941,7 +944,7 @@ void GuiMainWindow::ViewNodeIDs()
   }
   else {
     cout<<"Deactivating node ID view"<<endl;
-    for(int i=0;i<N;i++){
+    for(unsigned int i=0;i<NodeText_Follower.size();i++){
       getRenderer()->RemoveActor(NodeText_Follower[i]);
       NodeText_Follower[i]->Delete();
       NodeText_PolyDataMapper[i]->Delete();
@@ -983,8 +986,9 @@ void GuiMainWindow::ViewCellIDs()
         grid->GetPoint(pts[p],M.data());
         Center+=M.data();
       }
-      Center=1.0/(double)N_pts*Center;
-      CellText_Follower[i]->AddPosition(Center[0],Center[1],Center[2]+0.1);
+      vec3_t OffSet=0.1*triNormal(grid,pts[0],pts[1],pts[2]).normalise();
+      Center=1.0/(double)N_pts*Center+OffSet;
+      CellText_Follower[i]->AddPosition(Center[0],Center[1],Center[2]);
       CellText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
       CellText_Follower[i]->GetProperty()->SetColor(1,0,0);
       getRenderer()->AddActor(CellText_Follower[i]);
@@ -992,7 +996,7 @@ void GuiMainWindow::ViewCellIDs()
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(int i=0;i<N;i++){
+    for(unsigned int i=0;i<CellText_Follower.size();i++){
       getRenderer()->RemoveActor(CellText_Follower[i]);
       CellText_Follower[i]->Delete();
       CellText_PolyDataMapper[i]->Delete();
