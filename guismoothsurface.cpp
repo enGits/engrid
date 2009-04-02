@@ -1098,7 +1098,7 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  if(ui.SmoothMethod->currentIndex()==10)// super smoothing
+  else if(ui.SmoothMethod->currentIndex()==10)// super smoothing
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
@@ -1138,7 +1138,7 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  if(ui.SmoothMethod->currentIndex()==11)// Update node info
+  else if(ui.SmoothMethod->currentIndex()==11)// Update node info
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);

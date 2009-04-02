@@ -38,9 +38,6 @@ CreateSpecialMapping::CreateSpecialMapping()
 
 int CreateSpecialMapping::Process()
 {
-//   vtkMeshVertexPtr Verts;
-  EG_VTKDCN(vtkIntArray, node_type, m_grid, "node_type");
-  
   DebugLevel=0;
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
@@ -65,6 +62,7 @@ int CreateSpecialMapping::Process()
     cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
     
     UpdateNodeType();
+    EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
     
     //Phase A : Calculate current mesh density
     cout<<"===Phase A==="<<endl;
@@ -165,12 +163,12 @@ int CreateSpecialMapping::Process()
     N_removed_FP=0;
     N_removed_EP=0;
     
-    FullEdit();
+//     FullEdit();
     
-/*    if(insert_FP) insert_FP_all();
+    if(insert_FP) insert_FP_all();
     if(insert_EP) insert_EP_all();
     if(remove_FP) remove_FP_all();
-    if(remove_EP) remove_EP_all();*/
+    if(remove_EP) remove_EP_all();
     
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
     cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
@@ -742,11 +740,11 @@ int CreateSpecialMapping::UpdateMeshDensity()
 int CreateSpecialMapping::UpdateNodeType()
 {
   cout<<"===UpdateNodeType==="<<endl;
-  DebugLevel=6;
+  DebugLevel=0;
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
-  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  if(DebugLevel>5) cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
   EG_VTKSP(vtkPolyData, pdata);
   //   addToPolyData(m_SelectedCells, pdata, m_grid);
@@ -808,9 +806,9 @@ int CreateSpecialMapping::UpdateNodeType()
     // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
     // using a subset of the attached vertices.
     //
-  cout<<"===>Analyze topology==="<<endl;
+  if(DebugLevel>5) cout<<"===>Analyze topology==="<<endl;
   if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
-  cout<<"0:numPts="<<numPts<<endl;
+  if(DebugLevel>5) cout<<"0:numPts="<<numPts<<endl;
   Verts = new vtkMeshVertex[numPts];
   for (i=0; i<numPts; i++)
   {
@@ -877,7 +875,7 @@ int CreateSpecialMapping::UpdateNodeType()
     } //for all points in this line
   } //for all lines
   
-  cout<<"==polygons and triangle strips=="<<endl;
+  if(DebugLevel>5) cout<<"==polygons and triangle strips=="<<endl;
     // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
@@ -1044,14 +1042,14 @@ int CreateSpecialMapping::UpdateNodeType()
       if ( !this->BoundarySmoothing && 
            Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
       {
-        cout<<"Verts[i].type = VTK_FIXED_VERTEX; 4"<<endl;
+        if(DebugLevel>5) cout<<"Verts[i].type = VTK_FIXED_VERTEX; 4"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numBEdges++;
       }
       
       else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
       {
-        cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 5"<<endl;
+        if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 5"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
       }
@@ -1071,7 +1069,7 @@ int CreateSpecialMapping::UpdateNodeType()
              vtkMath::Normalize(l2) >= 0.0 &&
              vtkMath::Dot(l1,l2) < CosEdgeAngle)
         {
-          cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 6"<<endl;
+          if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 6"<<endl;
           Verts[i].type = VTK_FIXED_VERTEX;
           numFixed++;
         }
@@ -1114,10 +1112,10 @@ int CreateSpecialMapping::UpdateNodeType()
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
-  cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;
+  if(DebugLevel>5) cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
+    if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     node_type->SetValue(node,Verts[node].type);
   }
   

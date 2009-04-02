@@ -12,7 +12,8 @@ LaplaceSmoother::~LaplaceSmoother()
 
 void LaplaceSmoother::operate()
 {
-  cout<<"LaplaceSmoother reporting in."<<endl;
+  DebugLevel=0;
+  if(DebugLevel>10) cout<<"LaplaceSmoother reporting in."<<endl;
   
   QVector<vtkIdType> AllCells;
   getAllSurfaceCells(AllCells, m_grid);
@@ -37,7 +38,7 @@ void LaplaceSmoother::operate()
       {
         bc.insert(cell_code->GetValue(C));
       }
-      cout<<"pts[i]="<<pts[i]<<" and bc="<<bc<<endl;
+      if(DebugLevel>10) cout<<"pts[i]="<<pts[i]<<" and bc="<<bc<<endl;
       SelectedNodes.insert(pts[i]);
       if(bc.size()>1) ExternalNodes.insert(pts[i]);
       else
@@ -73,7 +74,7 @@ void LaplaceSmoother::operate()
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
-    cout<<"i_iter="<<i_iter<<endl;
+    if(DebugLevel>10) cout<<"i_iter="<<i_iter<<endl;
     makeCopy(m_grid, grid_tmp);
     
     foreach(vtkIdType id_G,InternalNodes)
@@ -91,13 +92,13 @@ void LaplaceSmoother::operate()
       grid_tmp->GetPoints()->SetPoint(id_G, P.data());
     }
     
-    cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
-    cout << "InternalNodes.size()=" << InternalNodes.size() << endl;
-    cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
-    cout << "InternalNodes=" << InternalNodes << endl;
+    if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
+    if(DebugLevel>10) cout << "InternalNodes.size()=" << InternalNodes.size() << endl;
+    if(DebugLevel>10) cout << "ExternalNodes.size()=" << ExternalNodes.size() << endl;
+    if(DebugLevel>10) cout << "InternalNodes=" << InternalNodes << endl;
     
     makeCopy(grid_tmp,m_grid);
   }
-  cout_grid(cout,m_grid);
+  if(DebugLevel>10) cout_grid(cout,m_grid);
   
 }
