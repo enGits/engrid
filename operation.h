@@ -154,6 +154,7 @@ public: // methods
   bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
   
 };
 

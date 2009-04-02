@@ -273,6 +273,9 @@ class CreateSpecialMapping : public Operation {
     int FullEdit();
     int UpdateMeshDensity();
     int UpdateNodeType();
+    bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  
+    int remove_EP_all_2();
 };
 //end of CreateSpecialMapping class
 

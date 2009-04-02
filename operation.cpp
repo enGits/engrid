@@ -706,6 +706,11 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
       cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
+/*    if(EmptyVolume(DeadNode,PSP))//simplified volume check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }*/
     if(IsValidSnapPoint) {SnapPoint=PSP; break;}
   }//end of loop through potential SnapPoints
   
@@ -812,5 +817,12 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
   };
 //   cout_grid(cout,dst,true,true,true,true);
   makeCopy(dst, src);
+  return(true);
+}
+
+bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
+{
+  c2c[DeadNode];
+  c2c[PSP];
   return(true);
 }
