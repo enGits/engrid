@@ -49,6 +49,8 @@
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "guisettingsviewer.h"
 #include "guitransform.h"
@@ -912,24 +914,29 @@ void GuiMainWindow::setViewingMode()
 
 void GuiMainWindow::ViewNodeIDs()
 {
-  
+  int N=grid->GetNumberOfPoints();
+  cout<<"N="<<N<<endl;
   if (ui.actionViewNodeIDs->isChecked()) {
     cout<<"Activating node ID view"<<endl;
-    for(int i=0;i<3;i++) {
-      textActor[i]=vtkTextActor::New();
-      textActor[i]->ScaledTextOn();
-      textActor[i]->SetDisplayPosition(50*i,50*i);
-      textActor[i]->SetInput("This is a sphere");
-      getRenderer()->AddActor(textActor[i]);
+    NodeText.resize(N);
+    for(int i=0;i<N;i++) {
+      NodeText[i]=vtkTextActor::New();
+      NodeText[i]->ScaledTextOn();
+      NodeText[i]->SetDisplayPosition(50*i,50*i);
+      QString tmp;
+      tmp.setNum(i);
+      NodeText[i]->SetInput(tmp.toLatin1().data());
+      getRenderer()->AddActor(NodeText[i]);
     }
   }
   
   else {
     cout<<"Deactivating node ID view"<<endl;
-    for(int i=0;i<3;i++) {
-      getRenderer()->RemoveActor(textActor[i]);
-      textActor[i]->Delete();
+    for(int i=0;i<N;i++) {
+      getRenderer()->RemoveActor(NodeText[i]);
+      NodeText[i]->Delete();
     }
+    NodeText.clear();
   }
   
   getRenderWindow()->Render();
@@ -937,29 +944,50 @@ void GuiMainWindow::ViewNodeIDs()
 
 void GuiMainWindow::ViewCellIDs()
 {
+  int N=grid->GetNumberOfCells();
+  cout<<"N="<<N<<endl;
   if (ui.actionViewCellIDs->isChecked()) {
     cout<<"Activating cell ID view"<<endl;
-    for(int i=0;i<3;i++){
-      atext[i]=vtkVectorText::New();
-      atext[i]->SetText("M");
-      textMapper[i]=vtkPolyDataMapper::New();
-      textMapper[i]->SetInputConnection(atext[i]->GetOutputPort());
-      textActor2[i]=vtkFollower::New();
-      textActor2[i]->SetMapper(textMapper[i]);
-      textActor2[i]->SetScale(0.2,0.2,0.2);
-      textActor2[i]->AddPosition(i,i,i);
-      textActor2[i]->SetCamera(getRenderer()->GetActiveCamera());
-      getRenderer()->AddActor(textActor2[i]);
+    CellText_VectorText.resize(N);
+    CellText_PolyDataMapper.resize(N);
+    CellText_Follower.resize(N);
+    for(int i=0;i<N;i++){
+      CellText_VectorText[i]=vtkVectorText::New();
+      QString tmp;
+      tmp.setNum(i);
+      CellText_VectorText[i]->SetText(tmp.toLatin1().data());
+      CellText_PolyDataMapper[i]=vtkPolyDataMapper::New();
+      CellText_PolyDataMapper[i]->SetInputConnection(CellText_VectorText[i]->GetOutputPort());
+      CellText_Follower[i]=vtkFollower::New();
+      CellText_Follower[i]->SetMapper(CellText_PolyDataMapper[i]);
+      CellText_Follower[i]->SetScale(0.2,0.2,0.2);
+      vtkIdType N_pts,*pts;
+      grid->GetCellPoints(i,N_pts,pts);
+      vec3_t Center(0,0,0);
+      for(int p=0;p<N_pts;p++)
+      {
+        vec3_t M;
+        grid->GetPoint(pts[p],M.data());
+        Center+=M.data();
+      }
+      Center=1.0/(double)N_pts*Center;
+      CellText_Follower[i]->AddPosition(Center[0],Center[1],Center[2]+0.1);
+      CellText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
+      CellText_Follower[i]->GetProperty()->SetColor(1,0,0);
+      getRenderer()->AddActor(CellText_Follower[i]);
     }
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(int i=0;i<3;i++){
-      getRenderer()->RemoveActor(textActor2[i]);
-      textActor2[i]->Delete();
-      textMapper[i]->Delete();
-      atext[i]->Delete();
+    for(int i=0;i<N;i++){
+      getRenderer()->RemoveActor(CellText_Follower[i]);
+      CellText_Follower[i]->Delete();
+      CellText_PolyDataMapper[i]->Delete();
+      CellText_VectorText[i]->Delete();
     }
+    CellText_Follower.clear();
+    CellText_PolyDataMapper.clear();
+    CellText_VectorText.clear();
   }
   
   getRenderWindow()->Render();

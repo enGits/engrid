@@ -138,7 +138,8 @@ guisettingsviewer.h \
  vtkeggridsmoothpolydatafilter.h \
  vtkeggridwindowedsincpolydatafilter.h \
  laplacesmoother.h \
- deletepickedpoint.h
+ deletepickedpoint.h \
+ text3d.h
 
 SOURCES = \
 main.cpp \
@@ -212,7 +213,8 @@ guisettingsviewer.cpp \
  vtkeggridsmoothpolydatafilter.cpp \
  vtkeggridwindowedsincpolydatafilter.cpp \
  laplacesmoother.cpp \
- deletepickedpoint.cpp
+ deletepickedpoint.cpp \
+ text3d.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

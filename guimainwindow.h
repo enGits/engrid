@@ -137,13 +137,24 @@ private: // attributes
   /** sphere to mark picked cell/points */
   vtkSphereSource *pick_sphere;
   
-  /** Text actor to display node IDs */
+  /** 2D Text actor to display node IDs */
   vector <vtkTextActor*> NodeText;
   
-  /** Text actor to display cell IDs */
+  /** 2D Text actor to display cell IDs */
   vector <vtkTextActor*> CellText;
   
+  /** 3D Text actor to display node IDs */
+  vector <vtkVectorText*> NodeText_VectorText;
+  vector <vtkPolyDataMapper*> NodeText_PolyDataMapper;
+  vector <vtkFollower*> NodeText_Follower;
+  
+  /** 3D Text actor to display cell IDs */
+  vector <vtkVectorText*> CellText_VectorText;
+  vector <vtkPolyDataMapper*> CellText_PolyDataMapper;
+  vector <vtkFollower*> CellText_Follower;
+  
   vtkTextActor* textActor[3];
+  
   vtkVectorText* atext[3];
   vtkPolyDataMapper* textMapper[3];
   vtkFollower* textActor2[3];
