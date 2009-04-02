@@ -918,25 +918,38 @@ void GuiMainWindow::ViewNodeIDs()
   cout<<"N="<<N<<endl;
   if (ui.actionViewNodeIDs->isChecked()) {
     cout<<"Activating node ID view"<<endl;
-    NodeText.resize(N);
-    for(int i=0;i<N;i++) {
-      NodeText[i]=vtkTextActor::New();
-      NodeText[i]->ScaledTextOn();
-      NodeText[i]->SetDisplayPosition(50*i,50*i);
+    NodeText_VectorText.resize(N);
+    NodeText_PolyDataMapper.resize(N);
+    NodeText_Follower.resize(N);
+    for(int i=0;i<N;i++){
+      NodeText_VectorText[i]=vtkVectorText::New();
       QString tmp;
       tmp.setNum(i);
-      NodeText[i]->SetInput(tmp.toLatin1().data());
-      getRenderer()->AddActor(NodeText[i]);
+      NodeText_VectorText[i]->SetText(tmp.toLatin1().data());
+      NodeText_PolyDataMapper[i]=vtkPolyDataMapper::New();
+      NodeText_PolyDataMapper[i]->SetInputConnection(NodeText_VectorText[i]->GetOutputPort());
+      NodeText_Follower[i]=vtkFollower::New();
+      NodeText_Follower[i]->SetMapper(NodeText_PolyDataMapper[i]);
+      NodeText_Follower[i]->SetScale(0.2,0.2,0.2);
+      vec3_t M;
+      grid->GetPoint(i,M.data());
+      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]+0.1);
+      NodeText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
+      NodeText_Follower[i]->GetProperty()->SetColor(0,0,1);
+      getRenderer()->AddActor(NodeText_Follower[i]);
     }
   }
-  
   else {
     cout<<"Deactivating node ID view"<<endl;
-    for(int i=0;i<N;i++) {
-      getRenderer()->RemoveActor(NodeText[i]);
-      NodeText[i]->Delete();
+    for(int i=0;i<N;i++){
+      getRenderer()->RemoveActor(NodeText_Follower[i]);
+      NodeText_Follower[i]->Delete();
+      NodeText_PolyDataMapper[i]->Delete();
+      NodeText_VectorText[i]->Delete();
     }
-    NodeText.clear();
+    NodeText_Follower.clear();
+    NodeText_PolyDataMapper.clear();
+    NodeText_VectorText.clear();
   }
   
   getRenderWindow()->Render();
