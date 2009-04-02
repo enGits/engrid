@@ -169,6 +169,9 @@ int CreateSpecialMapping::Process()
     if(remove_EP) remove_EP_all();*/
     
     //Method 3
+    if(insert_FP) insert_FP_all();
+    if(insert_EP) insert_EP_all();
+    if(remove_FP) remove_FP_all_2();
     if(remove_EP) remove_EP_all_2();
     
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
@@ -1353,24 +1356,28 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   QSet <vtkIdType> MutatedCells;
   QSet <vtkIdType> MutilatedCells;
   
-  cout<<"BEFORE FINDSNAPPOINT"<<endl;
-  cout<<"N_points="<<N_points<<endl;
-  cout<<"N_cells="<<N_cells<<endl;
-  cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"N_newcells="<<N_newcells<<endl;
+  if(DebugLevel>10) {
+    cout<<"BEFORE FINDSNAPPOINT"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
   vtkIdType SnapPoint=FindSnapPoint(src,DeadNode,DeadCells,MutatedCells,MutilatedCells);
   
   
   
-  cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
+  if(DebugLevel>10) cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
   if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
   
   //allocate
-  cout<<"BEFORE ALLOCATION"<<endl;
-  cout<<"N_points="<<N_points<<endl;
-  cout<<"N_cells="<<N_cells<<endl;
-  cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"N_newcells="<<N_newcells<<endl;
+  if(DebugLevel>10) {
+    cout<<"BEFORE ALLOCATION"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
   EG_VTKSP(vtkUnstructuredGrid, dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
   
@@ -1390,11 +1397,11 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       dst_id_node++;
     }
   };
-  
-  cout<<"DeadCells="<<DeadCells<<endl;
-  cout<<"MutatedCells="<<MutatedCells<<endl;
-  cout<<"MutilatedCells="<<MutilatedCells<<endl;
-  
+  if(DebugLevel>10) {
+    cout<<"DeadCells="<<DeadCells<<endl;
+    cout<<"MutatedCells="<<MutatedCells<<endl;
+    cout<<"MutilatedCells="<<MutilatedCells<<endl;
+  }
   //Copy undead cells
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {//loop through src cells
     if(!DeadCells.contains(id_cell))//if the cell isn't dead
@@ -1404,31 +1411,33 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       src->GetCellPoints(id_cell, src_N_pts, src_pts);
       
       vtkIdType type_cell = src->GetCellType(id_cell);
-      cout<<"-->id_cell="<<id_cell<<endl;
-      for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+      if(DebugLevel>10) cout<<"-->id_cell="<<id_cell<<endl;
+      if(DebugLevel>10) for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
 //       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
       dst_N_pts=src_N_pts;
       dst_pts=new vtkIdType[dst_N_pts];
       if(MutatedCells.contains(id_cell))//mutated cell
       {
-        cout<<"processing mutated cell "<<id_cell<<endl;
+        if(DebugLevel>10) cout<<"processing mutated cell "<<id_cell<<endl;
         for(int i=0;i<src_N_pts;i++)
         {
           if(src_pts[i]==DeadNode) {
-            cout<<"SnapPoint="<<SnapPoint<<endl;
-            cout<<"OffSet[SnapPoint]="<<OffSet[SnapPoint]<<endl;
-            cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+            if(DebugLevel>10) {
+              cout<<"SnapPoint="<<SnapPoint<<endl;
+              cout<<"OffSet[SnapPoint]="<<OffSet[SnapPoint]<<endl;
+              cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+            }
             dst_pts[i]=SnapPoint-OffSet[SnapPoint];
           }
           else dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
         }
-        cout<<"--->dst_pts:"<<endl;
-        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+        if(DebugLevel>10) cout<<"--->dst_pts:"<<endl;
+        if(DebugLevel>10) for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
         
       }
       else if(MutilatedCells.contains(id_cell))//mutilated cell
       {
-        cout<<"processing mutilated cell "<<id_cell<<endl;
+        if(DebugLevel>10) cout<<"processing mutilated cell "<<id_cell<<endl;
         
         if(type_cell==VTK_QUAD) {
           type_cell=VTK_TRIANGLE;
@@ -1446,7 +1455,7 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       }
       else//normal cell
       {
-        cout<<"processing normal cell "<<id_cell<<endl;
+        if(DebugLevel>10) cout<<"processing normal cell "<<id_cell<<endl;
         for(int i=0;i<src_N_pts;i++)
         {
           dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
@@ -1455,13 +1464,15 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       //copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
       copyCellData(src, id_cell, dst, id_new_cell);
-      cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
-      cout<<"src_pts:"<<endl;
-      for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
-      cout<<"dst_pts:"<<endl;
-      for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
-      cout<<"OffSet="<<OffSet<<endl;
-      cout<<"===Copying cell end==="<<endl;
+      if(DebugLevel>10) {
+        cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
+        cout<<"src_pts:"<<endl;
+        for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+        cout<<"dst_pts:"<<endl;
+        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+        cout<<"OffSet="<<OffSet<<endl;
+        cout<<"===Copying cell end==="<<endl;
+      }
       delete dst_pts;
     }
   };
@@ -1490,6 +1501,8 @@ int CreateSpecialMapping::remove_EP_all_2()
   N_newpoints=0;
   N_newcells=0;
   
+  hitlist.clear();
+  offset.clear();
   hitlist.resize(N_points);
   offset.resize(N_points);
   
@@ -1516,6 +1529,63 @@ int CreateSpecialMapping::remove_EP_all_2()
       else
       {
         cout<<"Kill failed"<<endl;
+        N_removed_EP--;
+      }
+    }
+  }
+  cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  return(0);
+}
+
+int CreateSpecialMapping::remove_FP_all_2()
+{
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  N_removed_FP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  hitlist.clear();
+  offset.clear();
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_FP_counter();
+  cout<<"================="<<endl;
+  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"================="<<endl;
+  
+  int kills=0;
+  int contracts=0;
+  for(int i=0;i<hitlist.size();i++)
+  {
+    if(hitlist[i]==2){
+      contracts++;
+      cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      if(DeletePoint_2(m_grid,i-kills))
+      {
+        kills++;
+        cout<<"Kill successful"<<endl;
+      }
+      else
+      {
+        cout<<"Kill failed"<<endl;
+        N_removed_FP--;
       }
     }
   }
