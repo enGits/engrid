@@ -1196,7 +1196,8 @@ int CreateSpecialMapping::UpdateNodeType()
   return(0);
 }
 
-bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+// vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells)
 {
   getAllSurfaceCells(m_AllCells,src);
   getSurfaceCells(m_bcs, m_SelectedCells, src);
@@ -1208,21 +1209,13 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   
   UpdateNodeType();
   
-  EG_VTKSP(vtkUnstructuredGrid, dst);
-  
     //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
-  int N_newpoints=-1;
-  int N_newcells=0;
-  
-  QSet <vtkIdType> DeadCells;
-  QSet <vtkIdType> MutatedCells;
-  QSet <vtkIdType> MutilatedCells;
+  N_points=src->GetNumberOfPoints();
+  N_cells=src->GetNumberOfCells();
+  N_newpoints=-1;
+  N_newcells=0;
   
   vtkIdType SnapPoint=-1;
-  //Find closest point to DeadNode
-//   vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
   
   foreach(vtkIdType PSP, n2n[DeadNode])
   {
@@ -1258,23 +1251,15 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       {
         cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
         if(pts[i]==PSP) {ContainsSnapPoint=true;break;}
-//         if(n2c[pts[i]]<=1) invincible=true;
       }
       if(ContainsSnapPoint)
       {
         if(N_pts==3)//dead cell
         {
-          //TODO: Check that empty lines aren't left behind when a cell is killed
-//           if(invincible)
           DeadCells.insert(C);
           N_newcells-=1;
           cout<<"cell "<<C<<" has been pwned!"<<endl;
         }
-  /*      else if(N_pts==4)//mutilated cell
-        {
-          MutilatedCells.insert(C);
-          cout<<"cell "<<C<<" has lost a limb!"<<endl;
-        }*/
         else
         {
           cout<<"RED ALERT: Xenomorph detected!"<<endl;
@@ -1318,18 +1303,6 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
           IsValidSnapPoint=false;
         }
         
-  /*      if(NewArea<OldArea*1./100.)
-        {
-          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-          IsValidSnapPoint=false;
-        }
-        
-        if(abs(cross)>10e-4)
-        {
-          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-          IsValidSnapPoint=false;
-        }*/
-        
         //mutated cell
         MutatedCells.insert(C);
         cout<<"cell "<<C<<" has been infected!"<<endl;
@@ -1341,22 +1314,51 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
-/*    if(EmptyVolume(DeadNode,PSP))//simplified volume check
-    {
-      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }*/
     if(IsValidSnapPoint) {SnapPoint=PSP; break;}
   }//end of loop through potential SnapPoints
+  
+  cout<<"AT FINDSNAPPOINT EXIT"<<endl;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  return(SnapPoint);
+}
+
+bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+{
+  getAllSurfaceCells(m_AllCells,src);
+  getSurfaceCells(m_bcs, m_SelectedCells, src);
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,src);
+  getNodesFromCells(m_AllCells, nodes, src);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  
+  QSet <vtkIdType> DeadCells;
+  QSet <vtkIdType> MutatedCells;
+  QSet <vtkIdType> MutilatedCells;
+  
+  cout<<"BEFORE FINDSNAPPOINT"<<endl;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  vtkIdType SnapPoint=FindSnapPoint(src,DeadNode,DeadCells,MutatedCells,MutilatedCells);
+  
+  
   
   cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
   if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
   
   //allocate
+  cout<<"BEFORE ALLOCATION"<<endl;
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid, dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
   
   //vector used to redefine the new point IDs
