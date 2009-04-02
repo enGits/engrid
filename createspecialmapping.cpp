@@ -1209,6 +1209,13 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
   
   UpdateNodeType();
   
+  EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
+  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX)
+  {
+    cout<<"Sorry, unable to remove fixed vertex."<<endl;
+    return(-1);
+  }
+  
     //src grid info
   N_points=src->GetNumberOfPoints();
   N_cells=src->GetNumberOfCells();
@@ -1314,6 +1321,12 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
       cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
     if(IsValidSnapPoint) {SnapPoint=PSP; break;}
   }//end of loop through potential SnapPoints
   
