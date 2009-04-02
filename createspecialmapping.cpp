@@ -52,10 +52,6 @@ int CreateSpecialMapping::Process()
     m_SelectedNodes.clear();
     getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
     getNodesFromCells(m_AllCells, nodes, m_grid);
-/*    createNodeMapping(nodes, _nodes, m_grid);
-    createNodeMapping(nodes, _nodes, m_grid);
-    createNodeToNode(m_AllCells, nodes, _nodes, n2n, m_grid);
-    createCellToCell(m_AllCells, c2c, m_grid);*/
     setGrid(m_grid);
     setCells(m_AllCells);
     
@@ -89,8 +85,8 @@ int CreateSpecialMapping::Process()
     double diff=Convergence_meshdensity+1;
     if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
     bool first=true;
-/*    int iter=0;
-    int maxiter=100;*/
+    int iter=0;
+    int maxiter=100;
     do {
       if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
       first=true;
@@ -135,10 +131,10 @@ int CreateSpecialMapping::Process()
         }
         if(DebugLevel>2) cout<<"======>"<<endl;
       }
-//       iter++;
-    } while(diff>Convergence_meshdensity && !first /*&& iter<maxiter*/);// if first=true, it means no new mesh density has been defined (all densities specified)
-//     cout<<"iter="<<iter<<endl;
-//     if(iter>=maxiter) EG_BUG;
+      iter++;
+    } while(diff>Convergence_meshdensity && !first && iter<maxiter);// if first=true, it means no new mesh density has been defined (all densities specified)
+    cout<<"iter="<<iter<<endl;
+    if(iter>=maxiter) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
     
     //Phase C: Prepare edge_map
     cout<<"===Phase C==="<<endl;
@@ -229,8 +225,8 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   VMD.density=0;
   VMD.CurrentNode=node;
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  createNodeMapping(nodes, _nodes, m_grid);
-  createNodeToCell(m_AllCells, nodes, _nodes, n2c, m_grid);
+/*  createNodeMapping(nodes, _nodes, m_grid);
+  createNodeToCell(m_AllCells, nodes, _nodes, n2c, m_grid);*/
   
   QSet <int> bc;
   foreach(vtkIdType C, n2c[node])
@@ -556,6 +552,17 @@ int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 
 int CreateSpecialMapping::insert_FP_all()
 {
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
   N_inserted_FP=0;
   
   N_points=m_grid->GetNumberOfPoints();
@@ -585,6 +592,17 @@ int CreateSpecialMapping::insert_FP_all()
 
 int CreateSpecialMapping::insert_EP_all()
 {
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
   N_inserted_EP=0;
   
   N_points=m_grid->GetNumberOfPoints();
@@ -614,6 +632,17 @@ int CreateSpecialMapping::insert_EP_all()
 
 int CreateSpecialMapping::remove_FP_all()
 {
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
   N_removed_FP=0;
   
   N_points=m_grid->GetNumberOfPoints();
@@ -646,6 +675,17 @@ int CreateSpecialMapping::remove_FP_all()
 
 int CreateSpecialMapping::remove_EP_all()
 {
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
   N_removed_EP=0;
   
   N_points=m_grid->GetNumberOfPoints();
@@ -727,6 +767,22 @@ int CreateSpecialMapping::FullEdit()
 
 int CreateSpecialMapping::UpdateMeshDensity()
 {
+  cout<<"===UpdateMeshDensity==="<<endl;
+  DebugLevel=0;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  
+  if(DebugLevel>5) cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  if(DebugLevel>5) cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;
+  
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_grid, "node_meshdensity_current");
   foreach(vtkIdType node,m_SelectedNodes)
   {
