@@ -235,6 +235,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   getSet("","enable experimental features",false,exp_features);
   ui.actionFoamWriter->setEnabled(exp_features);
   
+  ReferenceSize=0.2;
 };
 
 GuiMainWindow::~GuiMainWindow()
@@ -409,6 +410,7 @@ void GuiMainWindow::updateActors()
                 grid->GetPoints()->GetPoint(pts[i], xp.data());
                 R = min(R, 0.25*(xp-x).abs());
               };
+              ReferenceSize=R;//Used for text annotations too!
               pick_sphere->SetRadius(R);
               pick_mapper->SetInput(pick_sphere->GetOutput());
               pick_actor = vtkActor::New();
@@ -422,20 +424,10 @@ void GuiMainWindow::updateActors()
       {
             getInteractor()->SetPicker(PointPicker);
             vtkIdType nodeId = getPickedPoint();
-      //       vtkIdType nodeId = 0;
             if (nodeId >= 0) {
               vec3_t x(0,0,0);
               grid->GetPoints()->GetPoint(nodeId, x.data());
               pick_sphere->SetCenter(x.data());
-      //         double R = 1e99;
-//               double R = 0.235702;
-      /*        int Npts=n2n[nodeId].size();
-              foreach (vtkIdType i,n2n[nodeId]) {
-                vec3_t xp;
-                grid->GetPoints()->GetPoint(i, xp.data());
-                R = min(R, 0.25*(xp-x).abs());
-              };*/
-//               pick_sphere->SetRadius(pick_sphere_Radius);
               pick_mapper->SetInput(pick_sphere->GetOutput());
               pick_actor = vtkActor::New();
               pick_actor->SetMapper(pick_mapper);
@@ -933,7 +925,7 @@ void GuiMainWindow::ViewNodeIDs()
       NodeText_PolyDataMapper[i]->SetInputConnection(NodeText_VectorText[i]->GetOutputPort());
       NodeText_Follower[i]=vtkFollower::New();
       NodeText_Follower[i]->SetMapper(NodeText_PolyDataMapper[i]);
-      NodeText_Follower[i]->SetScale(0.2,0.2,0.2);
+      NodeText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
       vec3_t M;
       grid->GetPoint(i,M.data());
       NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]+0.1);
@@ -976,7 +968,7 @@ void GuiMainWindow::ViewCellIDs()
       CellText_PolyDataMapper[i]->SetInputConnection(CellText_VectorText[i]->GetOutputPort());
       CellText_Follower[i]=vtkFollower::New();
       CellText_Follower[i]->SetMapper(CellText_PolyDataMapper[i]);
-      CellText_Follower[i]->SetScale(0.2,0.2,0.2);
+      CellText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
       vtkIdType N_pts,*pts;
       grid->GetCellPoints(i,N_pts,pts);
       vec3_t Center(0,0,0);

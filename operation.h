@@ -156,6 +156,7 @@ public: // methods
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
   bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
   
+  vec3_t GetCenter(vtkIdType cellId, double& R);
 };
 
 template <class T>

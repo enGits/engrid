@@ -840,3 +840,25 @@ bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
   c2c[PSP];
   return(true);
 }
+
+vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
+{
+  vtkIdType *pts, Npts;
+  grid->GetCellPoints(cellId, Npts, pts);
+  
+  vec3_t x(0,0,0);
+  for (vtkIdType i = 0; i < Npts; ++i) {
+    vec3_t xp;
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    x += double(1)/Npts * xp;
+  };
+  
+  R = 1e99;
+  for (vtkIdType i = 0; i < Npts; ++i) {
+    vec3_t xp;
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    R = min(R, 0.25*(xp-x).abs());
+  };
+  
+  return(x);
+}

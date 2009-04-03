@@ -137,6 +137,9 @@ private: // attributes
   /** sphere to mark picked cell/points */
   vtkSphereSource *pick_sphere;
   
+  /** Size to use for picker objects and annotations */
+  double ReferenceSize;
+  
   /** 2D Text actor to display node IDs */
   vector <vtkTextActor*> NodeText;
   
