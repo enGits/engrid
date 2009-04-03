@@ -259,20 +259,30 @@ void GuiSmoothSurface::Save()
     cout<<"Saving failed"<<endl;
   }
 }
+
 void GuiSmoothSurface::SelectAll_BC()
 {
-  cout<<"TOGGLING"<<endl;
-    ui.radioButton_density->toggle();
+  for (int i = 0; i < ui.listWidget->count(); ++i) {
+    ui.listWidget->item(i)->setCheckState(Qt::Checked);
+  };
 }
 void GuiSmoothSurface::ClearAll_BC()
 {
-  ui.radioButton_length->toggle();
+  for (int i = 0; i < ui.listWidget->count(); ++i) {
+    ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+  };
 }
 void GuiSmoothSurface::SelectAll_Source()
 {
+  for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
+    ui.listWidget_Source->item(i)->setCheckState(Qt::Checked);
+  };
 }
 void GuiSmoothSurface::ClearAll_Source()
 {
+  for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
+    ui.listWidget_Source->item(i)->setCheckState(Qt::Unchecked);
+  };
 }
 
 void GuiSmoothSurface::TestSet()

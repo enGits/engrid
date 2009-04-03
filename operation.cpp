@@ -642,9 +642,12 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
             cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
             IsValidSnapPoint=false;
           }
-          DeadCells.insert(C);
-          N_newcells-=1;
-          cout<<"cell "<<C<<" has been pwned!"<<endl;
+          else
+          {
+            DeadCells.insert(C);
+            N_newcells-=1;
+            cout<<"cell "<<C<<" has been pwned!"<<endl;
+          }
         }
   /*      else if(N_pts==4)//mutilated cell
         {

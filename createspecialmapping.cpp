@@ -1268,18 +1268,28 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
       src->GetCellPoints(C, N_pts, pts);
       
       bool ContainsSnapPoint=false;
+      bool invincible=false;
       for(int i=0;i<N_pts;i++)
       {
         cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
-        if(pts[i]==PSP) {ContainsSnapPoint=true;break;}
+        if(pts[i]==PSP) {ContainsSnapPoint=true;}
+        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
       }
       if(ContainsSnapPoint)
       {
         if(N_pts==3)//dead cell
         {
-          DeadCells.insert(C);
-          N_newcells-=1;
-          cout<<"cell "<<C<<" has been pwned!"<<endl;
+          if(invincible)//Check that empty lines aren't left behind when a cell is killed
+          {
+            cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+            IsValidSnapPoint=false;
+          }
+          else
+          {
+            DeadCells.insert(C);
+            N_newcells-=1;
+            cout<<"cell "<<C<<" has been pwned!"<<endl;
+          }
         }
         else
         {
