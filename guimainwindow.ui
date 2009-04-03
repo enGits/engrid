@@ -481,6 +481,7 @@
     </property>
     <addaction name="actionConfigure" />
     <addaction name="actionEditBoundaryConditions" />
+    <addaction name="actionPick_cell_point" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuImport_2" />
@@ -917,6 +918,16 @@
    </property>
    <property name="text" >
     <string>Cell IDs</string>
+   </property>
+  </action>
+  <action name="actionPick_cell_point" >
+   <property name="text" >
+    <string>Pick point/cell</string>
+   </property>
+  </action>
+  <action name="actionPick_cell_2" >
+   <property name="text" >
+    <string>Pick cell</string>
    </property>
   </action>
  </widget>

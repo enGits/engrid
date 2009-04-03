@@ -20,25 +20,23 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef guipick_H
+#define guipick_H
 
-#include "guismoothsurface.h"
-#include "guicreateboundarylayer.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
+class GuiPick;
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "fixstl.h"
+#include "dialogoperation.h"
+#include "ui_guipick.h"
 
-// -------------------------------------------
+class GuiPick : public DialogOperation<Ui::GuiPick>
+{
+  
+  Q_OBJECT;
+  
+protected: // methods
+  
+  virtual void operate();
+  
+};
+
+#endif

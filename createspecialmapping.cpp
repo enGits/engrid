@@ -44,8 +44,8 @@ int CreateSpecialMapping::Process()
   {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
     
-    total_N_newpoints=0;
-    total_N_newcells=0;
+    m_total_N_newpoints=0;
+    m_total_N_newcells=0;
     
     getAllSurfaceCells(m_AllCells,m_grid);
     getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -108,7 +108,6 @@ int CreateSpecialMapping::Process()
         else//unspecified
         {
           double D=DesiredMeshDensity(node,n2n,m_grid);
-          double L=1./D;
           if(first) {
             if(DebugLevel>2) {
               cout<<"------>FIRST:"<<endl;
@@ -210,11 +209,11 @@ int CreateSpecialMapping::Process()
     
     cout<<"N_points="<<N_points<<endl;
     cout<<"N_cells="<<N_cells<<endl;
-    cout<<"total_N_newpoints="<<total_N_newpoints<<endl;
-    cout<<"total_N_newcells="<<total_N_newcells<<endl;
+    cout<<"m_total_N_newpoints="<<m_total_N_newpoints<<endl;
+    cout<<"m_total_N_newcells="<<m_total_N_newcells<<endl;
     cout<<"============"<<endl;
     
-    if(total_N_newpoints==0 && total_N_newcells==0) break;
+    if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
     
   }
   
@@ -418,7 +417,6 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       m_grid->GetCellPoints(id_cell, N_pts, pts);
       vec3_t C(0,0,0);
       
-      vtkIdType type_cell = m_grid->GetCellType(id_cell);
       int N_neighbours=N_pts;
       cout<<"N_neighbours="<<N_neighbours<<endl;
       vec3_t corner[4];
@@ -612,13 +610,15 @@ int CreateSpecialMapping::insert_FP_all()
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -661,13 +661,15 @@ int CreateSpecialMapping::insert_EP_all()
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -714,13 +716,15 @@ int CreateSpecialMapping::remove_FP_all()
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -767,13 +771,15 @@ int CreateSpecialMapping::remove_EP_all()
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -819,13 +825,15 @@ int CreateSpecialMapping::FullEdit()
     //unmark cells (TODO: optimize)
   marked_cells.clear();
     //init grid_tmp
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   makeCopyNoAlloc(m_grid, grid_tmp);//TODO: This will not work if the size of the grid is reduced!
     //initialize new node counter
@@ -1477,13 +1485,15 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-  EG_VTKSP(vtkUnstructuredGrid, dst);
-  allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
-  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,dst);
+  allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
+  m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
   
   //vector used to redefine the new point IDs
   QVector <vtkIdType> OffSet(N_points);

@@ -40,18 +40,18 @@ class CreateSpecialMapping : public Operation {
     bool insert_EP;
     bool remove_FP;
     bool remove_EP;
-  
+    
     int N_inserted_FP;
     int N_inserted_EP;
     int N_removed_FP;
     int N_removed_EP;
-  
+    
     int N_points;
     int N_cells;
     int N_newpoints;
     int N_newcells;
-    int total_N_newpoints;
-    int total_N_newcells;
+    int m_total_N_newpoints;
+    int m_total_N_newcells;
   
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
@@ -178,7 +178,6 @@ class CreateSpecialMapping : public Operation {
     double Q_L1(vtkIdType P)
     {
       // [2*sum(L_k(i~),i,1,nk(P))]/[sum(G_k(KK(1,i~))+G_k(KK(2,i~)),i,1,nk(P))]
-      int N=nk(P);
       double num_sum=0;
       double denom_sum=0;
       foreach(vtkIdType j,n2n[P])
@@ -192,7 +191,6 @@ class CreateSpecialMapping : public Operation {
     {
       
       // min([2*L_k(i~)]/[G_k(KK(1,i~))+G_k(KK(2,i~))])
-      int N=nk(P);
       QVector <double> V;
       double num,denom;
       foreach(vtkIdType j,n2n[P])

@@ -25,6 +25,7 @@
 #include "guiimproveaspectratio.h"
 #include "guinormalextrusion.h"
 #include "guisetboundarycode.h"
+#include "guipick.h"
 
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include "stlreader.h"

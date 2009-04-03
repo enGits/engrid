@@ -447,6 +447,7 @@ public slots:
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); };
+  void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); };
   void callTransform() { EG_STDINTERSLOT(GuiTransform); };
   
   void callFixSTL();

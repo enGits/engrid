@@ -139,7 +139,9 @@ guisettingsviewer.h \
  vtkeggridwindowedsincpolydatafilter.h \
  laplacesmoother.h \
  deletepickedpoint.h \
- text3d.h
+ text3d.h \
+ pick_cell_point.h \
+ guipick.h
 
 SOURCES = \
 main.cpp \
@@ -214,7 +216,9 @@ guisettingsviewer.cpp \
  vtkeggridwindowedsincpolydatafilter.cpp \
  laplacesmoother.cpp \
  deletepickedpoint.cpp \
- text3d.cpp
+ text3d.cpp \
+ pick_cell_point.cpp \
+ guipick.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -229,12 +233,15 @@ guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
  \
- guitransform.ui
+ guitransform.ui \
+ guipick.ui
 
 
 SOURCES -= settingstab.cpp \
 settingsviewer.cpp \
- vtkpolydataalgorithm2.cpp
+ vtkpolydataalgorithm2.cpp \
+ pick_cell_point.cpp
 HEADERS -= settingstab.h \
 settingsviewer.h \
- vtkpolydataalgorithm2.h
+ vtkpolydataalgorithm2.h \
+ pick_cell_point.h
