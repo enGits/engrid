@@ -107,6 +107,29 @@ int GuiSmoothSurface::readSettings()
   else{
     ui.radioButton_density->toggle();
   }
+  
+  int size;
+  size = local_qset->beginReadArray("list_BC");
+  if(ui.listWidget->count()==size)
+  {
+    for (int i = 0; i < size; ++i) {
+      local_qset->setArrayIndex(i);
+      Qt::CheckState x=int2CheckState(local_qset->value("state").toInt());
+      ui.listWidget->item(i)->setCheckState(x);
+    }
+    local_qset->endArray();
+  }
+  
+  size = local_qset->beginReadArray("list_BC_Source");
+  if(ui.listWidget_Source->count()==size)
+  {
+    for (int i = 0; i < size; ++i) {
+      local_qset->setArrayIndex(i);
+      Qt::CheckState x=int2CheckState(local_qset->value("state").toInt());
+      ui.listWidget_Source->item(i)->setCheckState(x);
+    }
+    local_qset->endArray();
+  }
   return(0);
 }
 int GuiSmoothSurface::writeSettings()
@@ -121,6 +144,30 @@ int GuiSmoothSurface::writeSettings()
   local_qset->setValue("remove_FP", ui.checkBox_remove_FP->checkState());
   local_qset->setValue("remove_EP", ui.checkBox_remove_EP->checkState());
   local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
+  
+  QList<Qt::CheckState> list;
+  
+  for (int i = 0; i < ui.listWidget->count(); ++i) {
+    list << ui.listWidget->item(i)->checkState();
+  };
+  local_qset->beginWriteArray("list_BC");
+  for (int i = 0; i < list.size(); ++i) {
+    local_qset->setArrayIndex(i);
+    local_qset->setValue("state", list.at(i));
+  }
+  local_qset->endArray();
+  
+  list.clear();
+  for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
+    list << ui.listWidget_Source->item(i)->checkState();
+  };
+  local_qset->beginWriteArray("list_BC_Source");
+  for (int i = 0; i < list.size(); ++i) {
+    local_qset->setArrayIndex(i);
+    local_qset->setValue("state", list.at(i));
+  }
+  local_qset->endArray();
+  
   return(0);
 }
 
@@ -146,7 +193,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 8: Create mesh density map");
   ui.SmoothMethod->addItem("Method 9: vtkWindowedSincPolyDataFilter smoothing");
   ui.SmoothMethod->addItem("Method 10: Super smoothing :)");
-  ui.SmoothMethod->addItem("Method 11");
+  ui.SmoothMethod->addItem("Method 11: Update current mesh density + node types");
   ui.SmoothMethod->addItem("Method 12");
   ui.SmoothMethod->addItem("Method 13");
   ui.SmoothMethod->addItem("Method 14");
@@ -1148,23 +1195,14 @@ void GuiSmoothSurface::operate()
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==11)// Update node info
+  else if(ui.SmoothMethod->currentIndex()==11)// Update current mesh density + node types
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     CreateSpecialMapping toto;
     toto.SetInput(bcs,grid);
-    
-/*    toto.SetConvergence (ui.doubleSpinBox_Convergence->value());
-    toto.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());*/
-//     toto.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
-//     toto.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
     toto.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
     toto.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-//     toto.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-/*    toto.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    toto.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());*/
-    
     toto.UpdateMeshDensity();
     toto.UpdateNodeType();
     updateActors();
