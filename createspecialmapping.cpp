@@ -43,6 +43,10 @@ int CreateSpecialMapping::Process()
   for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
+    
+    total_N_newpoints=0;
+    total_N_newcells=0;
+    
     getAllSurfaceCells(m_AllCells,m_grid);
     getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
     cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
@@ -175,16 +179,6 @@ int CreateSpecialMapping::Process()
     if(remove_FP) remove_FP_all_2();
     if(remove_EP) remove_EP_all_2();
     
-    cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
-    cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
-    cout<<"N_removed_FP="<<N_removed_FP<<endl;
-    cout<<"N_removed_EP="<<N_removed_EP<<endl;
-    
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-    
     //Phase E : Delaunay swap
     QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
     cout<<"m_bcs="<<m_bcs<<endl;
@@ -216,11 +210,11 @@ int CreateSpecialMapping::Process()
     
     cout<<"N_points="<<N_points<<endl;
     cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
+    cout<<"total_N_newpoints="<<total_N_newpoints<<endl;
+    cout<<"total_N_newcells="<<total_N_newcells<<endl;
     cout<<"============"<<endl;
     
-    if(N_newcells==0 && N_newpoints==0) break;
+    if(total_N_newpoints==0 && total_N_newcells==0) break;
     
   }
   
@@ -331,63 +325,74 @@ int CreateSpecialMapping::insert_EP_counter()
 
 int CreateSpecialMapping::remove_FP_counter()
 {
-  cout<<"===remove_FP_counter()==="<<endl;
-  
+  cout<<"===remove_FP_counter() START==="<<endl;
+  UpdateNodeType();
+  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    bool marked=false;
-    foreach(vtkIdType C,n2c[node])
+    if(node_type->GetValue(node)==VTK_SIMPLE_VERTEX)
     {
-      if(marked_cells[C]) marked=true;
-    }
-    
-    QSet <vtkIdType> DeadCells;
-    QSet <vtkIdType> MutatedCells;
-    QSet <vtkIdType> MutilatedCells;
-    if( !marked && remove_fieldpoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
-    {
-      cout<<"removing field point "<<node<<endl;
-      N_removed_FP++;
-      hitlist[node]=1;
-      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
-      N_newcells-=2;
-      N_newpoints-=1;
+      bool marked=false;
+      foreach(vtkIdType C,n2c[node])
+      {
+        if(marked_cells[C]) marked=true;
+      }
+      
+      QSet <vtkIdType> DeadCells;
+      QSet <vtkIdType> MutatedCells;
+      QSet <vtkIdType> MutilatedCells;
+      if( !marked && remove_fieldpoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
+      {
+        cout<<"removing field point "<<node<<endl;
+        N_removed_FP++;
+        hitlist[node]=1;
+        foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+        N_newcells-=2;
+        N_newpoints-=1;
+      }
     }
   }
+  cout<<"===remove_FP_counter() END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_EP_counter()
 {
-  cout<<"===remove_EP_counter()==="<<endl;
+  cout<<"===remove_EP_counter() START==="<<endl;
+  UpdateNodeType();
+  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    bool marked=false;
-    foreach(vtkIdType C,n2c[node])
+    if(node_type->GetValue(node)==VTK_BOUNDARY_EDGE_VERTEX)
     {
-      if(marked_cells[C]) marked=true;
-    }
-    QSet <vtkIdType> DeadCells;
-    QSet <vtkIdType> MutatedCells;
-    QSet <vtkIdType> MutilatedCells;
-    if( !marked && remove_edgepoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
-    {
-      cout<<"removing edge point "<<node<<endl;
-      N_removed_EP++;
-      hitlist[node]=2;
-      foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
-      if(n2n[node].size()==4)//4 cells around the edge
+      bool marked=false;
+      foreach(vtkIdType C,n2c[node])
       {
-        N_newcells-=2;
-        N_newpoints-=1;
+        if(marked_cells[C]) marked=true;
       }
-      else//2 cells around the edge
+      QSet <vtkIdType> DeadCells;
+      QSet <vtkIdType> MutatedCells;
+      QSet <vtkIdType> MutilatedCells;
+      if( !marked && remove_edgepoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
       {
-        N_newcells-=1;
-        N_newpoints-=1;
+        cout<<"removing edge point "<<node<<endl;
+        N_removed_EP++;
+        hitlist[node]=2;
+        foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
+        if(n2n[node].size()==4)//4 cells around the edge
+        {
+          N_newcells-=2;
+          N_newpoints-=1;
+        }
+        else//2 cells around the edge
+        {
+          N_newcells-=1;
+          N_newpoints-=1;
+        }
       }
     }
   }
+  cout<<"===remove_EP_counter() END==="<<endl;
   return(0);
 }
 
@@ -601,6 +606,8 @@ int CreateSpecialMapping::insert_FP_all()
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
   m_newNodeId=N_points;
@@ -641,6 +648,8 @@ int CreateSpecialMapping::insert_EP_all()
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
   m_newNodeId=N_points;
@@ -684,6 +693,8 @@ int CreateSpecialMapping::remove_FP_all()
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
   m_newNodeId=N_points;
@@ -727,6 +738,8 @@ int CreateSpecialMapping::remove_EP_all()
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
   m_newNodeId=N_points;
@@ -769,6 +782,8 @@ int CreateSpecialMapping::FullEdit()
     //init grid_tmp
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  
   makeCopyNoAlloc(m_grid, grid_tmp);//TODO: This will not work if the size of the grid is reduced!
     //initialize new node counter
   m_newNodeId=N_points;
@@ -1413,6 +1428,7 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   }
   EG_VTKSP(vtkUnstructuredGrid, dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
+  total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
   
   //vector used to redefine the new point IDs
   QVector <vtkIdType> OffSet(N_points);
@@ -1516,6 +1532,7 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
 
 int CreateSpecialMapping::remove_EP_all_2()
 {
+  cout<<"===remove_EP_all_2 START==="<<endl;
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -1568,11 +1585,13 @@ int CreateSpecialMapping::remove_EP_all_2()
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_EP_all_2 END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_FP_all_2()
 {
+  cout<<"===remove_FP_all_2 START==="<<endl;
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -1608,7 +1627,7 @@ int CreateSpecialMapping::remove_FP_all_2()
   int contracts=0;
   for(int i=0;i<hitlist.size();i++)
   {
-    if(hitlist[i]==2){
+    if(hitlist[i]==1){
       contracts++;
       cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
       if(DeletePoint_2(m_grid,i-kills))
@@ -1625,5 +1644,6 @@ int CreateSpecialMapping::remove_FP_all_2()
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_FP_all_2 END==="<<endl;
   return(0);
 }

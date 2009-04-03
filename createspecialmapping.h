@@ -46,10 +46,12 @@ class CreateSpecialMapping : public Operation {
     int N_removed_FP;
     int N_removed_EP;
   
-    int N_newpoints;
-    int N_newcells;
     int N_points;
     int N_cells;
+    int N_newpoints;
+    int N_newcells;
+    int total_N_newpoints;
+    int total_N_newcells;
   
     QSet<int> m_bcs;
     QVector<vtkIdType> m_AllCells;
@@ -169,6 +171,8 @@ class CreateSpecialMapping : public Operation {
       {
         denom_sum += G_k(DK(i,D));
       }
+/*      DebugLevel=1;
+      if(DebugLevel>0) cout<<"D="<<D<<" Um(D)="<<Um(D)<<" denom_sum="<<denom_sum<<endl;*/
       return(Um(D)/denom_sum);
     }
     double Q_L1(vtkIdType P)

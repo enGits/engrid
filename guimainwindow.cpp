@@ -928,7 +928,7 @@ void GuiMainWindow::ViewNodeIDs()
       NodeText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
       vec3_t M;
       grid->GetPoint(i,M.data());
-      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]+0.1);
+      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]+ReferenceSize);
       NodeText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
       NodeText_Follower[i]->GetProperty()->SetColor(0,0,1);
       getRenderer()->AddActor(NodeText_Follower[i]);
@@ -978,7 +978,7 @@ void GuiMainWindow::ViewCellIDs()
         grid->GetPoint(pts[p],M.data());
         Center+=M.data();
       }
-      vec3_t OffSet=0.1*triNormal(grid,pts[0],pts[1],pts[2]).normalise();
+      vec3_t OffSet=ReferenceSize*triNormal(grid,pts[0],pts[1],pts[2]).normalise();
       Center=1.0/(double)N_pts*Center+OffSet;
       CellText_Follower[i]->AddPosition(Center[0],Center[1],Center[2]);
       CellText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
