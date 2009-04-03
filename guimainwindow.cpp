@@ -391,53 +391,30 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-      if(ui.radioButton_CellPicker->isChecked())
+/*      if(ui.radioButton_CellPicker->isChecked())
       {
+//         CellPicker->Pick(0,0,0, getRenderer());
             getInteractor()->SetPicker(CellPicker);
-            vtkIdType cellId = getPickedCell();
-            if (cellId >= 0) {
-              vtkIdType *pts, Npts;
-              grid->GetCellPoints(cellId, Npts, pts);
-              vec3_t x(0,0,0);
-              for (vtkIdType i = 0; i < Npts; ++i) {
-                vec3_t xp;
-                grid->GetPoints()->GetPoint(pts[i], xp.data());
-                x += double(1)/Npts * xp;
-              };
-              pick_sphere->SetCenter(x.data());
-              double R = 1e99;
-              for (vtkIdType i = 0; i < Npts; ++i) {
-                vec3_t xp;
-                grid->GetPoints()->GetPoint(pts[i], xp.data());
-                R = min(R, 0.25*(xp-x).abs());
-              };
-              ReferenceSize=R;//Used for text annotations too!
-              pick_sphere->SetRadius(R);
-              pick_mapper->SetInput(pick_sphere->GetOutput());
-              pick_actor = vtkActor::New();
-              pick_actor->SetMapper(pick_mapper);
-              pick_actor->GetProperty()->SetRepresentationToSurface();
-              pick_actor->GetProperty()->SetColor(1,0,0);
-              getRenderer()->AddActor(pick_actor);
-            };
+//         CellPicker->Pick(0,0,0, getRenderer());
+        vtkIdType cellId = getPickedCell();
+        pickCell(cellId);
       }
       else
       {
             getInteractor()->SetPicker(PointPicker);
             vtkIdType nodeId = getPickedPoint();
-            if (nodeId >= 0) {
-              vec3_t x(0,0,0);
-              grid->GetPoints()->GetPoint(nodeId, x.data());
-              pick_sphere->SetCenter(x.data());
-              pick_mapper->SetInput(pick_sphere->GetOutput());
-              pick_actor = vtkActor::New();
-              pick_actor->SetMapper(pick_mapper);
-              pick_actor->GetProperty()->SetRepresentationToSurface();
-              pick_actor->GetProperty()->SetColor(0,0,1);
-              getRenderer()->AddActor(pick_actor);
-            };
-      }
+            pickPoint(nodeId);
+      }*/
       
+/*        getInteractor()->SetPicker(CellPicker);
+        vtkIdType cellId = getPickedCell();
+        pickCell(cellId);
+        getInteractor()->SetPicker(PointPicker);
+        vtkIdType nodeId = getPickedPoint();
+        pickPoint(nodeId);*/
+      if(ui.radioButton_CellPicker->isChecked()) pickCell(0);
+      else pickPoint(0);
+        
     };
     
     vec3_t x, n;
@@ -558,6 +535,54 @@ void GuiMainWindow::updateActors()
   };
   unlock();
 };
+
+bool GuiMainWindow::pickPoint(vtkIdType nodeId)
+{
+  if (nodeId >= 0) {
+    vec3_t x(0,0,0);
+    grid->GetPoints()->GetPoint(nodeId, x.data());
+    pick_sphere->SetCenter(x.data());
+    pick_mapper->SetInput(pick_sphere->GetOutput());
+    pick_actor = vtkActor::New();
+    pick_actor->SetMapper(pick_mapper);
+    pick_actor->GetProperty()->SetRepresentationToSurface();
+    pick_actor->GetProperty()->SetColor(0,0,1);
+    getRenderer()->AddActor(pick_actor);
+    return(true);
+  }
+  else return(false);
+}
+
+bool GuiMainWindow::pickCell(vtkIdType cellId)
+{
+  if (cellId >= 0) {
+    vtkIdType *pts, Npts;
+    grid->GetCellPoints(cellId, Npts, pts);
+    vec3_t x(0,0,0);
+    for (vtkIdType i = 0; i < Npts; ++i) {
+      vec3_t xp;
+      grid->GetPoints()->GetPoint(pts[i], xp.data());
+      x += double(1)/Npts * xp;
+    };
+    pick_sphere->SetCenter(x.data());
+    double R = 1e99;
+    for (vtkIdType i = 0; i < Npts; ++i) {
+      vec3_t xp;
+      grid->GetPoints()->GetPoint(pts[i], xp.data());
+      R = min(R, 0.25*(xp-x).abs());
+    };
+    ReferenceSize=R;//Used for text annotations too!
+    pick_sphere->SetRadius(R);
+    pick_mapper->SetInput(pick_sphere->GetOutput());
+    pick_actor = vtkActor::New();
+    pick_actor->SetMapper(pick_mapper);
+    pick_actor->GetProperty()->SetRepresentationToSurface();
+    pick_actor->GetProperty()->SetColor(1,0,0);
+    getRenderer()->AddActor(pick_actor);
+    return(true);
+  }
+  else return(false);
+}
 
 void GuiMainWindow::importSTL()
 {

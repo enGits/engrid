@@ -323,6 +323,9 @@ public: // static methods
   static bool tryLock() { return mutex.tryLock(); };
   void getAllBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker(){return(PointPicker);};
+  vtkSphereSource* getPickSphere(){return(pick_sphere);};
+  bool pickPoint(vtkIdType Point);
+  bool pickCell(vtkIdType cellId);
   
 public slots:
   

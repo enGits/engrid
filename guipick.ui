@@ -39,24 +39,24 @@
    </property>
    <layout class="QFormLayout" name="formLayout" >
     <item row="0" column="0" >
-     <widget class="QRadioButton" name="radioButton" >
+     <widget class="QRadioButton" name="radioButton_Point" >
       <property name="text" >
        <string>Point</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1" >
-     <widget class="QSpinBox" name="spinBox" />
+     <widget class="QSpinBox" name="spinBox_Point" />
     </item>
     <item row="1" column="0" >
-     <widget class="QRadioButton" name="radioButton_2" >
+     <widget class="QRadioButton" name="radioButton_Cell" >
       <property name="text" >
        <string>Cell</string>
       </property>
      </widget>
     </item>
     <item row="1" column="1" >
-     <widget class="QSpinBox" name="spinBox_2" />
+     <widget class="QSpinBox" name="spinBox_Cell" />
     </item>
    </layout>
   </widget>

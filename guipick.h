@@ -34,7 +34,7 @@ class GuiPick : public DialogOperation<Ui::GuiPick>
   Q_OBJECT;
   
 protected: // methods
-  
+  virtual void before();
   virtual void operate();
   
 };
