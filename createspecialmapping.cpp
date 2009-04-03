@@ -39,7 +39,8 @@ CreateSpecialMapping::CreateSpecialMapping()
 int CreateSpecialMapping::Process()
 {
   DebugLevel=0;
-  for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
+  int i_iter=0;
+  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
     getAllSurfaceCells(m_AllCells,m_grid);
@@ -219,8 +220,11 @@ int CreateSpecialMapping::Process()
     cout<<"N_newcells="<<N_newcells<<endl;
     cout<<"============"<<endl;
     
+    if(N_newcells==0 && N_newpoints==0) break;
+    
   }
   
+  cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
   UpdateMeshDensity();
   return 1;
 }
@@ -336,7 +340,11 @@ int CreateSpecialMapping::remove_FP_counter()
     {
       if(marked_cells[C]) marked=true;
     }
-    if( !marked && remove_fieldpoint(node) )
+    
+    QSet <vtkIdType> DeadCells;
+    QSet <vtkIdType> MutatedCells;
+    QSet <vtkIdType> MutilatedCells;
+    if( !marked && remove_fieldpoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
     {
       cout<<"removing field point "<<node<<endl;
       N_removed_FP++;
@@ -359,7 +367,10 @@ int CreateSpecialMapping::remove_EP_counter()
     {
       if(marked_cells[C]) marked=true;
     }
-    if( !marked && remove_edgepoint(node) )
+    QSet <vtkIdType> DeadCells;
+    QSet <vtkIdType> MutatedCells;
+    QSet <vtkIdType> MutilatedCells;
+    if( !marked && remove_edgepoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
     {
       cout<<"removing edge point "<<node<<endl;
       N_removed_EP++;
@@ -1352,6 +1363,18 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   setGrid(m_grid);
   setCells(m_AllCells);
   
+  //src grid info
+  N_points=src->GetNumberOfPoints();
+  N_cells=src->GetNumberOfCells();
+  N_newpoints=-1;
+  N_newcells=0;
+  
+  if(DeadNode<0 || DeadNode>=N_points)
+  {
+    cout<<"Warning: Point out of range: DeadNode="<<DeadNode<<" N_points="<<N_points<<endl;
+    return(false);
+  }
+  
   QSet <vtkIdType> DeadCells;
   QSet <vtkIdType> MutatedCells;
   QSet <vtkIdType> MutilatedCells;
@@ -1534,6 +1557,7 @@ int CreateSpecialMapping::remove_EP_all_2()
     }
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
   return(0);
 }
 
@@ -1590,5 +1614,6 @@ int CreateSpecialMapping::remove_FP_all_2()
     }
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
   return(0);
 }

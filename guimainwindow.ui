@@ -527,6 +527,8 @@
    <addaction name="actionViewXP" />
    <addaction name="actionViewYP" />
    <addaction name="actionViewYM" />
+   <addaction name="actionDeletePickedPoint" />
+   <addaction name="actionSmoothSurface" />
   </widget>
   <action name="actionExit" >
    <property name="icon" >

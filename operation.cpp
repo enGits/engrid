@@ -581,6 +581,12 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
   int N_newpoints=-1;
   int N_newcells=0;
   
+  if(DeadNode<0 || DeadNode>=N_points)
+  {
+    cout<<"Warning: Point out of range: DeadNode="<<DeadNode<<" N_points="<<N_points<<endl;
+    return(false);
+  }
+  
   QSet <vtkIdType> DeadCells;
   QSet <vtkIdType> MutatedCells;
   QSet <vtkIdType> MutilatedCells;
@@ -614,23 +620,28 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
     MutilatedCells.clear();
     foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
     {
+      cout<<"C="<<C<<endl;
       //get points around cell
       vtkIdType N_pts, *pts;
       src->GetCellPoints(C, N_pts, pts);
       
       bool ContainsSnapPoint=false;
+      bool invincible=false;
       for(int i=0;i<N_pts;i++)
       {
         cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
-        if(pts[i]==PSP) {ContainsSnapPoint=true;break;}
-//         if(n2c[pts[i]]<=1) invincible=true;
+        if(pts[i]==PSP) {ContainsSnapPoint=true;}
+        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
       }
       if(ContainsSnapPoint)
       {
         if(N_pts==3)//dead cell
         {
-          //TODO: Check that empty lines aren't left behind when a cell is killed
-//           if(invincible)
+          if(invincible)//Check that empty lines aren't left behind when a cell is killed
+          {
+            cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+            IsValidSnapPoint=false;
+          }
           DeadCells.insert(C);
           N_newcells-=1;
           cout<<"cell "<<C<<" has been pwned!"<<endl;
