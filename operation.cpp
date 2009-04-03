@@ -539,8 +539,6 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   {
     QSet<int>::const_iterator p1=intersection.begin();
     QSet<int>::const_iterator p2=p1+1;
-    cout<<"*p1="<<*p1<<endl;
-    cout<<"*p2="<<*p2<<endl;
     vtkIdType intersection1=_nodes[*p1];
     vtkIdType intersection2=_nodes[*p2];
     if(n2n[intersection1].contains(intersection2))//if there's an edge between intersection1 and intersection2
@@ -559,7 +557,6 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
           if(pts[i]==node1 || pts[i]==node2) counter++;
         }
       }
-      cout<<"counter="<<counter<<endl;
       if(counter>=2) IsTetra=true;
     }
   }

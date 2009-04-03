@@ -247,7 +247,7 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 
 int CreateSpecialMapping::insert_FP_counter()
 {
-  cout<<"===insert_FP_counter()==="<<endl;
+  cout<<"===insert_FP_counter() START==="<<endl;
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
@@ -259,12 +259,13 @@ int CreateSpecialMapping::insert_FP_counter()
       N_newpoints+=1;
     }
   }
+  cout<<"===insert_FP_counter() END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::insert_EP_counter()
 {
-  cout<<"===insert_EP_counter()==="<<endl;
+  cout<<"===insert_EP_counter() START==="<<endl;
   StencilVector.clear();
   QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
       //rewind the iterator
@@ -274,22 +275,22 @@ int CreateSpecialMapping::insert_EP_counter()
     edge_map_iter.next();
     vtkIdType node1=edge_map_iter.key().first;
     vtkIdType node2=edge_map_iter.key().second;
-    cout << "--->(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
+    if(DebugLevel>10) cout << "--->(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
     QSet <int> stencil_cells_set;
     QVector <int> stencil_cells_vector;
     stencil_cells_set=n2c[node1];
     stencil_cells_set.intersect(n2c[node2]);
-    cout<<"stencil_cells_set="<<stencil_cells_set<<endl;
+    if(DebugLevel>10) cout<<"stencil_cells_set="<<stencil_cells_set<<endl;
     
     stencil_cells_vector.resize(stencil_cells_set.size());
     qCopy(stencil_cells_set.begin(),stencil_cells_set.end(),stencil_cells_vector.begin());
-    cout<<"stencil_cells_vector="<<stencil_cells_vector<<endl;
+    if(DebugLevel>10) cout<<"stencil_cells_vector="<<stencil_cells_vector<<endl;
     
     vtkIdType id_cell=stencil_cells_vector[0];
     int SideToSplit = getSide(id_cell,m_grid,node1,node2);
-    cout<<"SideToSplit="<<SideToSplit<<endl;
-    cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
-    for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
+    if(DebugLevel>10) cout<<"SideToSplit="<<SideToSplit<<endl;
+    if(DebugLevel>10) cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
+    if(DebugLevel>10) for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
     stencil_t S=getStencil(id_cell,SideToSplit);
     
     bool stencil_marked=false;
@@ -297,12 +298,12 @@ int CreateSpecialMapping::insert_EP_counter()
     {
       if(marked_cells[C]) stencil_marked=true;
     }
-    cout<<"stencil_marked="<<stencil_marked<<endl;
-    cout<<"insert_edgepoint(node1,node2)="<<insert_edgepoint(node1,node2)<<endl;
+    if(DebugLevel>10) cout<<"stencil_marked="<<stencil_marked<<endl;
+    if(DebugLevel>10) cout<<"insert_edgepoint(node1,node2)="<<insert_edgepoint(node1,node2)<<endl;
     
     if( !stencil_marked && insert_edgepoint(node1,node2) )
     {
-      cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
+      if(DebugLevel>1) cout<<"inserting an edge point "<< "(" << node1 << "," << node2 << ")" << ": " << edge_map_iter.value() << endl;
       N_inserted_EP++;
       foreach(vtkIdType C,stencil_cells_vector) marked_cells[C]=true;
       StencilVector.push_back(S);
@@ -318,8 +319,9 @@ int CreateSpecialMapping::insert_EP_counter()
         N_newpoints+=1;
       }
     }
-    cout <<"--->end of edge processing"<<endl;
+    if(DebugLevel>10) cout <<"--->end of edge processing"<<endl;
   }
+  cout<<"===insert_EP_counter() END==="<<endl;
   return(0);
 }
 
@@ -343,7 +345,7 @@ int CreateSpecialMapping::remove_FP_counter()
       QSet <vtkIdType> MutilatedCells;
       if( !marked && remove_fieldpoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells)!=-1)
       {
-        cout<<"removing field point "<<node<<endl;
+        if(DebugLevel>1) cout<<"removing field point "<<node<<endl;
         N_removed_FP++;
         hitlist[node]=1;
         foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
@@ -398,13 +400,13 @@ int CreateSpecialMapping::remove_EP_counter()
 
 int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
-  cout<<"===insert_FP_actor==="<<endl;
+  cout<<"===insert_FP_actor START==="<<endl;
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
-    if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
-    else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;
+/*    if(marked_cells[id_cell]) cout<<"--->marked_cells["<<id_cell<<"]=TRUE"<<endl;
+    else cout<<"--->marked_cells["<<id_cell<<"]=FALSE"<<endl;*/
     
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
@@ -450,17 +452,18 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
     }
   }
+  cout<<"===insert_FP_actor END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
-  cout<<"===insert_EP_actor==="<<endl;
+  cout<<"===insert_EP_actor START==="<<endl;
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(stencil_t S,StencilVector)
   {
-    cout<<"S="<<S<<endl;
+    if(DebugLevel>10) cout<<"S="<<S<<endl;
     vec3_t A,B;
     grid_tmp->GetPoint(S.p[1],A.data());
     grid_tmp->GetPoint(S.p[3],B.data());
@@ -470,8 +473,8 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     vtkIdType pts_triangle[4][3];
     
     if(S.valid){//there is a neighbour cell
-      cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
-      cout<<"marked_cells["<<S.id_cell2<<"]=true;"<<endl;
+      if(DebugLevel>10) cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
+      if(DebugLevel>10) cout<<"marked_cells["<<S.id_cell2<<"]=true;"<<endl;
       marked_cells[S.id_cell1]=true;
       marked_cells[S.id_cell2]=true;
       
@@ -498,7 +501,7 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
       cell_code_tmp->SetValue(newCellId, bc1);
     }
     else{//there is no neighbour cell
-      cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
+      if(DebugLevel>10) cout<<"marked_cells["<<S.id_cell1<<"]=true;"<<endl;
       marked_cells[S.id_cell1]=true;
       
       pts_triangle[0][0]=S.p[0];
@@ -520,12 +523,13 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     
     m_newNodeId++;
   }
+  cout<<"===insert_EP_actor END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
-  cout<<"===remove_FP_actor==="<<endl;
+  cout<<"===remove_FP_actor START==="<<endl;
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -540,17 +544,18 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
     }
     if( !marked && remove_fieldpoint(node) )
     {
-      cout<<"removing field point "<<node<<endl;
+      if(DebugLevel>1) cout<<"removing field point "<<node<<endl;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
       //TODO: Special copy function, leaving out nodes to remove
     }
   }
+  cout<<"===remove_FP_actor END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
-  cout<<"===remove_EP_actor==="<<endl;
+  cout<<"===remove_EP_actor START==="<<endl;
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -573,11 +578,14 @@ int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
       }
     }
   }
+  cout<<"===remove_EP_actor END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::insert_FP_all()
 {
+  cout<<"===insert_FP_all START==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -607,6 +615,10 @@ int CreateSpecialMapping::insert_FP_all()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -615,11 +627,14 @@ int CreateSpecialMapping::insert_FP_all()
   insert_FP_actor(grid_tmp);
   
   makeCopy(grid_tmp,m_grid);
+  cout<<"===insert_FP_all END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::insert_EP_all()
 {
+  cout<<"===insert_EP_all START==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -649,6 +664,10 @@ int CreateSpecialMapping::insert_EP_all()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -657,11 +676,15 @@ int CreateSpecialMapping::insert_EP_all()
   insert_EP_actor(grid_tmp);
   
   makeCopy(grid_tmp,m_grid);
+  
+  cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_FP_all()
 {
+  cout<<"===remove_FP_all START==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -694,6 +717,10 @@ int CreateSpecialMapping::remove_FP_all()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -702,11 +729,15 @@ int CreateSpecialMapping::remove_FP_all()
   remove_FP_actor(grid_tmp);
   
   makeCopy(grid_tmp,m_grid);
+  
+  cout<<"===remove_FP_all END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::remove_EP_all()
 {
+  cout<<"===remove_EP_all START==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -739,6 +770,10 @@ int CreateSpecialMapping::remove_EP_all()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   makeCopyNoAlloc(m_grid, grid_tmp);
     //initialize new node counter
@@ -747,11 +782,15 @@ int CreateSpecialMapping::remove_EP_all()
   remove_EP_actor(grid_tmp);
   
   makeCopy(grid_tmp,m_grid);
+  
+  cout<<"===remove_EP_all END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::FullEdit()
 {
+  cout<<"===FullEdit START==="<<endl;
+  
   N_inserted_FP=0;
   N_inserted_EP=0;
   N_removed_FP=0;
@@ -783,6 +822,10 @@ int CreateSpecialMapping::FullEdit()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   makeCopyNoAlloc(m_grid, grid_tmp);//TODO: This will not work if the size of the grid is reduced!
     //initialize new node counter
@@ -799,11 +842,14 @@ int CreateSpecialMapping::FullEdit()
   
   makeCopy(grid_tmp,m_grid);
   return(0);
+  
+  cout<<"===FullEdit END==="<<endl;
 }
 
 int CreateSpecialMapping::UpdateMeshDensity()
 {
-  cout<<"===UpdateMeshDensity==="<<endl;
+  cout<<"===UpdateMeshDensity START==="<<endl;
+  
   DebugLevel=0;
   
   getAllSurfaceCells(m_AllCells,m_grid);
@@ -826,12 +872,13 @@ int CreateSpecialMapping::UpdateMeshDensity()
     double D=1./L;
     node_meshdensity_current->SetValue(node, D);
   }
+  cout<<"===UpdateMeshDensity END==="<<endl;
   return(0);
 }
 
 int CreateSpecialMapping::UpdateNodeType()
 {
-  cout<<"===UpdateNodeType==="<<endl;
+//   cout<<"===UpdateNodeType START==="<<endl;
   DebugLevel=0;
   
   getAllSurfaceCells(m_AllCells,m_grid);
@@ -1257,16 +1304,16 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
   {
     bool IsValidSnapPoint=true;
     
-    cout<<"====>PSP="<<PSP<<endl;
+    if(DebugLevel>10) cout<<"====>PSP="<<PSP<<endl;
     bool IsTetra=true;
     if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
     {
-      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
     if(IsTetra)//tetra check
     {
-      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
     
@@ -1286,7 +1333,7 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
       bool invincible=false;
       for(int i=0;i<N_pts;i++)
       {
-        cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
+        if(DebugLevel>10) cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
         if(pts[i]==PSP) {ContainsSnapPoint=true;}
         if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
       }
@@ -1296,14 +1343,14 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
         {
           if(invincible)//Check that empty lines aren't left behind when a cell is killed
           {
-            cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+            if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
             IsValidSnapPoint=false;
           }
           else
           {
             DeadCells.insert(C);
             N_newcells-=1;
-            cout<<"cell "<<C<<" has been pwned!"<<endl;
+            if(DebugLevel>10) cout<<"cell "<<C<<" has been pwned!"<<endl;
           }
         }
         else
@@ -1338,43 +1385,47 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
         double scal=Old_N*New_N;
         double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
         
-        cout<<"OldArea="<<OldArea<<endl;
-        cout<<"NewArea="<<NewArea<<endl;
-        cout<<"scal="<<scal<<endl;
-        cout<<"cross="<<cross<<endl;
+        if(DebugLevel>10) {
+          cout<<"OldArea="<<OldArea<<endl;
+          cout<<"NewArea="<<NewArea<<endl;
+          cout<<"scal="<<scal<<endl;
+          cout<<"cross="<<cross<<endl;
+        }
         
         if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
         {
-          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
           IsValidSnapPoint=false;
         }
         
         //mutated cell
         MutatedCells.insert(C);
-        cout<<"cell "<<C<<" has been infected!"<<endl;
+        if(DebugLevel>10) cout<<"cell "<<C<<" has been infected!"<<endl;
       }
     }
     
     if(N_cells+N_newcells<=0)//survivor check
     {
-      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
     if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
     {
-      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
     
     if(IsValidSnapPoint) {SnapPoint=PSP; break;}
   }//end of loop through potential SnapPoints
   
-  cout<<"AT FINDSNAPPOINT EXIT"<<endl;
-  cout<<"N_points="<<N_points<<endl;
-  cout<<"N_cells="<<N_cells<<endl;
-  cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"N_newcells="<<N_newcells<<endl;
-  
+  if(DebugLevel>10)
+  {
+    cout<<"AT FINDSNAPPOINT EXIT"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
   return(SnapPoint);
 }
 
@@ -1429,6 +1480,10 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   EG_VTKSP(vtkUnstructuredGrid, dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
   total_N_newpoints+=N_newpoints; total_N_newcells+=N_newcells;
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
   
   //vector used to redefine the new point IDs
   QVector <vtkIdType> OffSet(N_points);
