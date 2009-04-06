@@ -563,10 +563,10 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   return(N);
 }
 
-vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
-{
-  return(0);
-}
+// vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+// {
+//   return(0);
+// }
 
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
 {

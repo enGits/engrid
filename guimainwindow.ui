@@ -937,6 +937,11 @@
     <string>Pick cell</string>
    </property>
   </action>
+  <action name="actionUseVTKInteractor" >
+   <property name="text" >
+    <string>UseVTKInteractor</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9" />
  <customwidgets>
@@ -963,6 +968,22 @@
     <hint type="destinationlabel" >
      <x>-1</x>
      <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_UseVTKInteractor</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>actionUseVTKInteractor</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>753</x>
+     <y>619</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>753</x>
+     <y>619</y>
     </hint>
    </hints>
   </connection>

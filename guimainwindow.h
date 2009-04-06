@@ -333,11 +333,12 @@ public: // static methods
   void getAllBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker(){return(PointPicker);};
   vtkSphereSource* getPickSphere(){return(pick_sphere);};
-  void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   
 public slots:
+  void setUseVTKInteractor(int a_UseVTKInteractor);
+  void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   
   /** Exit the application */
   void exit();

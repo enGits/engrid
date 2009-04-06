@@ -110,7 +110,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
   connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
-//   connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged()),         this, SLOT(setPickMode(ui.checkBox_UseVTKInteractor->isChecked(),ui.radioButton_CellPicker->isChecked())));
+  
+  connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -204,7 +205,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   PointPicker = vtkPointPicker::New();
 //   getInteractor()->SetPicker(PointPicker);
   
-  ui.radioButton_CellPicker->setChecked(true);
   pick_sphere->SetRadius(0.25);//in case the user starts picking points instead of cells
 
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
@@ -242,7 +242,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   ReferenceSize=0.2;
   
-  ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+//   ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+//   ui.radioButton_CellPicker->setChecked(true);
   setPickMode(true,true);
   PickedPoint=-1;
   PickedCell=-1;
@@ -400,7 +401,7 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-      if(ui.checkBox_UseVTKInteractor->isChecked())
+      if(m_UseVTKInteractor)
       {
         if(ui.radioButton_CellPicker->isChecked())
         {
@@ -557,7 +558,13 @@ void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
   else ui.checkBox_UseVTKInteractor->setCheckState(Qt::Unchecked);
   if(a_CellPickerMode) ui.radioButton_CellPicker->toggle();
   else ui.radioButton_PointPicker->toggle();
-  cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
+//   cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
+}
+
+void GuiMainWindow::setUseVTKInteractor(int a_UseVTKInteractor)
+{
+  m_UseVTKInteractor=a_UseVTKInteractor;
+//   cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
 }
 
 bool GuiMainWindow::pickPoint(vtkIdType nodeId)
