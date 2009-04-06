@@ -18,6 +18,102 @@ CreateSpecialMapping::CreateSpecialMapping()
   DebugLevel=1;
 }
 
+int CreateSpecialMapping::UpdateDesiredMeshDensity()
+{
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  UpdateNodeType();
+  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  
+  //Phase A : Calculate current mesh density
+  cout<<"===Phase A==="<<endl;
+  
+  foreach(vtkIdType node,m_SelectedNodes)
+  {
+    VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+    int idx=VMDvector.indexOf(nodeVMD);
+    if(DebugLevel>3) cout<<"idx="<<idx<<endl;
+    if(idx!=-1)//specified
+    {
+      node_meshdensity->SetValue(node, VMDvector[idx].density);
+    }
+    else//unspecified
+    {
+      double L=CurrentVertexAvgDist(node,n2n,m_grid);
+      double D=1./L;
+      node_meshdensity->SetValue(node, D);
+    }
+  }
+  
+    //Phase B : define desired mesh density
+  cout<<"===Phase B==="<<endl;
+  double diff=Convergence_meshdensity+1;
+  if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
+  bool first=true;
+  int iter=0;
+  int maxiter=100;
+  do {
+    if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
+    first=true;
+    foreach(vtkIdType node,m_SelectedNodes)
+    {
+      if(DebugLevel>2) cout<<"======>"<<endl;
+      VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+      int idx=VMDvector.indexOf(nodeVMD);
+      if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
+      if(idx!=-1)//specified
+      {
+        node_meshdensity->SetValue(node, VMDvector[idx].density);
+      }
+      else//unspecified
+      {
+        double D=DesiredMeshDensity(node,n2n,m_grid);
+        if(first) {
+          if(DebugLevel>2) {
+            cout<<"------>FIRST:"<<endl;
+            cout<<"------>D="<<D<<endl;
+            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
+            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
+            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
+          }
+          diff=abs(D-node_meshdensity->GetValue(node));
+          first=false;
+        }
+        else {
+          if(DebugLevel>2) {
+            cout<<"------>NOT FIRST:"<<endl;
+            cout<<"------>D="<<D<<endl;
+            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
+            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
+            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
+            cout<<"------>diff="<<diff<<endl;
+            cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
+          }
+          diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
+        }
+        node_meshdensity->SetValue(node, D);
+      }
+      if(DebugLevel>2) cout<<"======>"<<endl;
+    }
+    iter++;
+  } while(diff>Convergence_meshdensity && !first && iter<maxiter);// if first=true, it means no new mesh density has been defined (all densities specified)
+  cout<<"iter="<<iter<<endl;
+  if(iter>=maxiter) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
+}
+
 int CreateSpecialMapping::Process()
 {
   int i_iter=0;
@@ -33,7 +129,6 @@ int CreateSpecialMapping::Process()
     cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
     
     EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
     
     m_SelectedNodes.clear();
     getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
@@ -42,84 +137,6 @@ int CreateSpecialMapping::Process()
     setCells(m_AllCells);
     
     cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-    
-    UpdateNodeType();
-    EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
-    
-    //Phase A : Calculate current mesh density
-    cout<<"===Phase A==="<<endl;
-    
-    foreach(vtkIdType node,m_SelectedNodes)
-    {
-      VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
-      int idx=VMDvector.indexOf(nodeVMD);
-      if(DebugLevel>3) cout<<"idx="<<idx<<endl;
-      if(idx!=-1)//specified
-      {
-        node_meshdensity->SetValue(node, VMDvector[idx].density);
-      }
-      else//unspecified
-      {
-        double L=CurrentVertexAvgDist(node,n2n,m_grid);
-        double D=1./L;
-        node_meshdensity->SetValue(node, D);
-      }
-    }
-  
-    //Phase B : define desired mesh density
-    cout<<"===Phase B==="<<endl;
-    double diff=Convergence_meshdensity+1;
-    if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
-    bool first=true;
-    int iter=0;
-    int maxiter=100;
-    do {
-      if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
-      first=true;
-      foreach(vtkIdType node,m_SelectedNodes)
-      {
-        if(DebugLevel>2) cout<<"======>"<<endl;
-        VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
-        int idx=VMDvector.indexOf(nodeVMD);
-        if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
-        if(idx!=-1)//specified
-        {
-          node_meshdensity->SetValue(node, VMDvector[idx].density);
-        }
-        else//unspecified
-        {
-          double D=DesiredMeshDensity(node,n2n,m_grid);
-          if(first) {
-            if(DebugLevel>2) {
-              cout<<"------>FIRST:"<<endl;
-              cout<<"------>D="<<D<<endl;
-              cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-              cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-              cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-            }
-            diff=abs(D-node_meshdensity->GetValue(node));
-            first=false;
-          }
-          else {
-            if(DebugLevel>2) {
-              cout<<"------>NOT FIRST:"<<endl;
-              cout<<"------>D="<<D<<endl;
-              cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-              cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-              cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-              cout<<"------>diff="<<diff<<endl;
-              cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
-            }
-            diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
-          }
-          node_meshdensity->SetValue(node, D);
-        }
-        if(DebugLevel>2) cout<<"======>"<<endl;
-      }
-      iter++;
-    } while(diff>Convergence_meshdensity && !first && iter<maxiter);// if first=true, it means no new mesh density has been defined (all densities specified)
-    cout<<"iter="<<iter<<endl;
-    if(iter>=maxiter) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
     
     //Phase C: Prepare edge_map
     cout<<"===Phase C==="<<endl;
@@ -155,21 +172,25 @@ int CreateSpecialMapping::Process()
     
     //Method 3
     if(insert_FP) {
+      UpdateDesiredMeshDensity();
       insert_FP_all();
       DualSave("file1");
     }
     
     if(insert_EP) {
+      UpdateDesiredMeshDensity();
       insert_EP_all();
       DualSave("file2");
     }
     
     if(remove_FP) {
+      UpdateDesiredMeshDensity();
       remove_FP_all_2();
       DualSave("file3");
     }
     
     if(remove_EP) {
+      UpdateDesiredMeshDensity();
       remove_EP_all_2();
       DualSave("file4");
     }
@@ -327,6 +348,12 @@ int CreateSpecialMapping::insert_EP_counter()
 int CreateSpecialMapping::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
+  cout<<"marked_cells="<<marked_cells<<endl;
+  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_removed_FP="<<N_removed_FP<<endl;
+  
   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)

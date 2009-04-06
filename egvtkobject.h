@@ -665,6 +665,19 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
   out<<"]";
   return(out);
 }
+
+template <class T>
+ostream &operator<<(ostream &out, QMap<T,bool> & map)
+{
+  QMapIterator<T, bool> i(map);
+  out<<"[";
+  while (i.hasNext()) {
+    i.next();
+    out << " [" << i.key() << ": " << i.value() << "]";
+  }
+  out<<"]";
+  return(out);
+}
 ///////////////////////////////////////////
 // ///////////////////////////////////////////
 // /* Here is how we we get QTextStreams that look like iostreams */
