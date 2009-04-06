@@ -19,3 +19,6 @@ engrid.kdevelop.ignore_pcs
 *.out
 *.orig
 *.tar.gz
+*.vtu
+*.txt
+*.bcs
