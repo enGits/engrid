@@ -154,8 +154,7 @@ class CreateSpecialMapping : public Operation {
       {
         denom_sum += G_k(DK(i,D));
       }
-/*      DebugLevel=1;
-      if(DebugLevel>0) cout<<"D="<<D<<" Um(D)="<<Um(D)<<" denom_sum="<<denom_sum<<endl;*/
+      /*if(DebugLevel>0) cout<<"D="<<D<<" Um(D)="<<Um(D)<<" denom_sum="<<denom_sum<<endl;*/
       return(Um(D)/denom_sum);
     }
     double Q_L1(vtkIdType P)

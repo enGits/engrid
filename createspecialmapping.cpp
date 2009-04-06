@@ -15,7 +15,7 @@ using namespace std;
 
 CreateSpecialMapping::CreateSpecialMapping()
 {
-  DebugLevel=1;
+  DebugLevel=0;
 }
 
 int CreateSpecialMapping::UpdateDesiredMeshDensity()
@@ -174,25 +174,25 @@ int CreateSpecialMapping::Process()
     if(insert_FP) {
       UpdateDesiredMeshDensity();
       insert_FP_all();
-      DualSave("file1");
+//       DualSave("file1");
     }
     
     if(insert_EP) {
       UpdateDesiredMeshDensity();
       insert_EP_all();
-      DualSave("file2");
+//       DualSave("file2");
     }
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
       remove_FP_all_2();
-      DualSave("file3");
+//       DualSave("file3");
     }
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
       remove_EP_all_2();
-      DualSave("file4");
+//       DualSave("file4");
     }
     
     //Phase E : Delaunay swap
@@ -954,9 +954,9 @@ int CreateSpecialMapping::remove_EP_all_2()
 int CreateSpecialMapping::remove_FP_all_2()
 {
   cout<<"===remove_FP_all_2 START==="<<endl;
-  cout<<"+++++++"<<endl;
+/*  cout<<"+++++++"<<endl;
   cout_grid(cout,m_grid,true,true,true,true);
-  cout<<"+++++++"<<endl;
+  cout<<"+++++++"<<endl;*/
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -984,11 +984,11 @@ int CreateSpecialMapping::remove_FP_all_2()
   marked_cells.clear();
   marked_nodes.clear();
   
-  DualSave("pre-counter");
+//   DualSave("pre-counter");
   remove_FP_counter();
-  DualSave("post-counter");
+//   DualSave("post-counter");
   
-  cout_grid(cout,m_grid);
+//   cout_grid(cout,m_grid);
   cout<<"================="<<endl;
   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;

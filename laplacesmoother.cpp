@@ -3,8 +3,8 @@
 
 LaplaceSmoother::LaplaceSmoother()
 {
+  DebugLevel=0;
 }
-
 
 LaplaceSmoother::~LaplaceSmoother()
 {
@@ -12,7 +12,6 @@ LaplaceSmoother::~LaplaceSmoother()
 
 void LaplaceSmoother::operate()
 {
-  DebugLevel=0;
   if(DebugLevel>10) cout<<"LaplaceSmoother reporting in."<<endl;
   
   QVector<vtkIdType> AllCells;
