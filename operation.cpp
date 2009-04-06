@@ -1512,6 +1512,7 @@ bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int&
   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
+  UpdateNodeType();
   
   //src grid info
   int N_points=src->GetNumberOfPoints();

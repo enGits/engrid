@@ -176,6 +176,17 @@ public: // methods
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
  
+  //Special for UpdateNodeType
+  void SetConvergence(double C){Convergence=C;};
+  void SetNumberOfIterations(int N){NumberOfIterations=N;};
+  void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
+  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;};
+  void SetFeatureAngle(double FA){FeatureAngle=FA;};
+  void SetEdgeAngle(double EA){EdgeAngle=EA;};
+  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
+  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
+  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
+  
 };
 //End of class Operation
 

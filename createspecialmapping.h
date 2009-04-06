@@ -75,15 +75,6 @@ class CreateSpecialMapping : public Operation {
     };
   
     void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
-    void SetConvergence(double C){Convergence=C;};
-    void SetNumberOfIterations(int N){NumberOfIterations=N;};
-    void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
-    void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;};
-    void SetFeatureAngle(double FA){FeatureAngle=FA;};
-    void SetEdgeAngle(double EA){EdgeAngle=EA;};
-    void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
-    void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
-    void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
     
     void Set_SV_value(double V){SV_value=V;};
     void Set_FV_value(double V){FV_value=V;};
