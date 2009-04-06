@@ -153,35 +153,29 @@ int CreateSpecialMapping::Process()
     if(remove_FP) remove_FP_all();
     if(remove_EP) remove_EP_all();*/
     
-    ofstream file1,file2,file3,file4;
-    
     //Method 3
     if(insert_FP) {
       insert_FP_all();
-/*      file1.open ("file1.txt");
-      cout_grid(file1,m_grid,true,true,true,true);
-      file1.close();*/
+      TxtSave("file1.txt");
+      GuiMainWindow::pointer()->QuickSave("file1.vtu");
     }
     
     if(insert_EP) {
       insert_EP_all();
-/*      file2.open ("file2.txt");
-      cout_grid(file2,m_grid,true,true,true,true);
-      file2.close();*/
+      TxtSave("file2.txt");
+      GuiMainWindow::pointer()->QuickSave("file2.vtu");
     }
     
     if(remove_FP) {
       remove_FP_all_2();
-/*      file3.open ("file3.txt");
-      cout_grid(file3,m_grid,true,true,true,true);
-      file3.close();*/
+      TxtSave("file3.txt");
+      GuiMainWindow::pointer()->QuickSave("file3.vtu");
     }
     
     if(remove_EP) {
       remove_EP_all_2();
-/*      file4.open ("file4.txt");
-      cout_grid(file4,m_grid,true,true,true,true);
-      file4.close();*/
+      TxtSave("file4.txt");
+      GuiMainWindow::pointer()->QuickSave("file4.vtu");
     }
     
     //Phase E : Delaunay swap
@@ -908,7 +902,7 @@ int CreateSpecialMapping::remove_EP_all_2()
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
-      GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
+//       GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
       
       bool DelResult=DeletePoint_2(m_grid,i-kills,N_newpoints,N_newcells);
       m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
@@ -924,7 +918,7 @@ int CreateSpecialMapping::remove_EP_all_2()
         N_removed_EP--;
       }
       
-      GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
+//       GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
       
     }
   }
@@ -967,7 +961,10 @@ int CreateSpecialMapping::remove_FP_all_2()
   marked_cells.clear();
   marked_nodes.clear();
   
+  GuiMainWindow::pointer()->QuickSave("pre-counter.vtu");
   remove_FP_counter();
+  GuiMainWindow::pointer()->QuickSave("post-counter.vtu");
+  
   cout_grid(cout,m_grid);
   cout<<"================="<<endl;
   cout<<"hitlist="<<hitlist<<endl;
@@ -983,7 +980,7 @@ int CreateSpecialMapping::remove_FP_all_2()
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
-      GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
+//       GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
       
       bool DelResult=DeletePoint_2(m_grid,i-kills,N_newpoints,N_newcells);
       m_total_N_newpoints+=N_newpoints; m_total_N_newcells+=N_newcells;
@@ -999,7 +996,7 @@ int CreateSpecialMapping::remove_FP_all_2()
         N_removed_FP--;
       }
       
-      GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
+//       GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
       
     }
   }

@@ -177,6 +177,8 @@ public: // methods
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
  
+  void TxtSave(QString a_filename);
+  
   //Special for UpdateNodeType
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};

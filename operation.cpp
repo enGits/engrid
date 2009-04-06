@@ -1678,3 +1678,12 @@ bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int&
   return(true);
 }
 //End of DeletePoint_2
+
+void Operation::TxtSave(QString a_filename)
+{
+  cout << a_filename.toAscii().data() << endl;
+  ofstream file;
+  file.open(a_filename.toAscii().data());
+  cout_grid(file,grid,true,true,true,true);
+  file.close();
+}

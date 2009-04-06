@@ -793,6 +793,7 @@ void GuiMainWindow::saveAs()
 void GuiMainWindow::QuickSave(QString a_filename)
 {
   cout << a_filename.toAscii().data() << endl;
+  
   EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
   for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
     cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
