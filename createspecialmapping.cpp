@@ -156,26 +156,22 @@ int CreateSpecialMapping::Process()
     //Method 3
     if(insert_FP) {
       insert_FP_all();
-      TxtSave("file1.txt");
-      GuiMainWindow::pointer()->QuickSave("file1.vtu");
+      DualSave("file1");
     }
     
     if(insert_EP) {
       insert_EP_all();
-      TxtSave("file2.txt");
-      GuiMainWindow::pointer()->QuickSave("file2.vtu");
+      DualSave("file2");
     }
     
     if(remove_FP) {
       remove_FP_all_2();
-      TxtSave("file3.txt");
-      GuiMainWindow::pointer()->QuickSave("file3.vtu");
+      DualSave("file3");
     }
     
     if(remove_EP) {
       remove_EP_all_2();
-      TxtSave("file4.txt");
-      GuiMainWindow::pointer()->QuickSave("file4.vtu");
+      DualSave("file4");
     }
     
     //Phase E : Delaunay swap
@@ -961,9 +957,9 @@ int CreateSpecialMapping::remove_FP_all_2()
   marked_cells.clear();
   marked_nodes.clear();
   
-  GuiMainWindow::pointer()->QuickSave("pre-counter.vtu");
+  DualSave("pre-counter");
   remove_FP_counter();
-  GuiMainWindow::pointer()->QuickSave("post-counter.vtu");
+  DualSave("post-counter");
   
   cout_grid(cout,m_grid);
   cout<<"================="<<endl;

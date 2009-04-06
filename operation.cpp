@@ -1687,3 +1687,9 @@ void Operation::TxtSave(QString a_filename)
   cout_grid(file,grid,true,true,true,true);
   file.close();
 }
+
+void Operation::DualSave(QString a_filename)
+{
+  TxtSave(a_filename+".txt");
+  GuiMainWindow::pointer()->QuickSave(a_filename+".vtu");
+}

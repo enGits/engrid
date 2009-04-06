@@ -178,7 +178,8 @@ public: // methods
   bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
  
   void TxtSave(QString a_filename);
-  
+  void DualSave(QString a_filename);
+    
   //Special for UpdateNodeType
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};
