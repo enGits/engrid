@@ -276,7 +276,7 @@ class CreateSpecialMapping : public Operation {
     int remove_EP_all();
   
     int FullEdit();
-    int UpdateMeshDensity();
+//     int UpdateMeshDensity();
     int UpdateNodeType();
     bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode);
     vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells);

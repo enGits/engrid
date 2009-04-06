@@ -21,6 +21,7 @@
 
 #include "swaptriangles.h"
 #include "laplacesmoother.h"
+#include "guimainwindow.h"
 
 #include <iostream>
 using namespace std;
@@ -883,34 +884,6 @@ int CreateSpecialMapping::FullEdit()
   return(0);
 }
 
-int CreateSpecialMapping::UpdateMeshDensity()
-{
-  cout<<"===UpdateMeshDensity START==="<<endl;
-  
-  getAllSurfaceCells(m_AllCells,m_grid);
-  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
-  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
-  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
-  getNodesFromCells(m_AllCells, nodes, m_grid);
-  setGrid(m_grid);
-  setCells(m_AllCells);
-  
-  if(DebugLevel>5) cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-  if(DebugLevel>5) cout<<"m_SelectedNodes.size()="<<m_SelectedNodes.size()<<endl;
-  
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_grid, "node_meshdensity_current");
-  foreach(vtkIdType node,m_SelectedNodes)
-  {
-    double L=CurrentVertexAvgDist(node,n2n,m_grid);
-    double D=1./L;
-    node_meshdensity_current->SetValue(node, D);
-  }
-  cout<<"===UpdateMeshDensity END==="<<endl;
-  return(0);
-}
-
 int CreateSpecialMapping::UpdateNodeType()
 {
 //   cout<<"===UpdateNodeType START==="<<endl;
@@ -1664,6 +1637,11 @@ int CreateSpecialMapping::remove_EP_all_2()
     if(hitlist[i]==2){
       contracts++;
       cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      
+      QString num1;num1.setNum(i);
+      QString num2;num2.setNum(i-kills);
+      GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
+      
       if(DeletePoint_2(m_grid,i-kills))
       {
         kills++;
@@ -1674,6 +1652,9 @@ int CreateSpecialMapping::remove_EP_all_2()
         cout<<"Kill failed"<<endl;
         N_removed_EP--;
       }
+      
+      GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
+      
     }
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
@@ -1728,6 +1709,11 @@ int CreateSpecialMapping::remove_FP_all_2()
     if(hitlist[i]==1){
       contracts++;
       cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      
+      QString num1;num1.setNum(i);
+      QString num2;num2.setNum(i-kills);
+      GuiMainWindow::pointer()->QuickSave("pre-deleting_"+num1+"_"+num2+".vtu");
+      
       if(DeletePoint_2(m_grid,i-kills))
       {
         kills++;
@@ -1738,6 +1724,9 @@ int CreateSpecialMapping::remove_FP_all_2()
         cout<<"Kill failed"<<endl;
         N_removed_FP--;
       }
+      
+      GuiMainWindow::pointer()->QuickSave("post-deleting_"+num1+"_"+num2+".vtu");
+      
     }
   }
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;

@@ -38,5 +38,10 @@ void DeletePickedPoint::operate()
   vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
   cout<<"You picked "<<nodeId<<endl;
 
-  DeletePoint(grid,nodeId);
+//   DeletePoint(grid,nodeId);
+  vtkIdType Boss, Peon1, Peon2;
+  int BC=0;
+  Boss=nodeId;
+  getNeighbours(Boss,Peon1,Peon2,BC);
+  cout<<"Boss="<<Boss<<" Peon1="<<Peon1<<" Peon2="<<Peon2<<" BC="<<BC<<endl;
 };

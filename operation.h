@@ -157,7 +157,13 @@ public: // methods
   bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
   
   vec3_t GetCenter(vtkIdType cellId, double& R);
+  
+  bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
+  
+  int UpdateMeshDensity();
+  
 };
+//End of class Operation
 
 template <class T>
 void Operation::setCells(const T &cls)

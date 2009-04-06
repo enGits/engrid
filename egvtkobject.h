@@ -523,7 +523,7 @@ public: // methods
   };
   
 };
-
+//End of class EgVtkObject
 
 template <class T>
 void EgVtkObject::setIntersection(const QSet<T> &set1,

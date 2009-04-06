@@ -1210,7 +1210,7 @@ void GuiSmoothSurface::operate()
     toto.SetInput(bcs,grid);
     toto.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
     toto.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-    toto.UpdateMeshDensity();
+    UpdateMeshDensity();
     toto.UpdateNodeType();
     updateActors();
   }

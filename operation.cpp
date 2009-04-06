@@ -859,3 +859,74 @@ vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
   
   return(x);
 }
+
+bool Operation::getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC)
+{
+  QVector <vtkIdType> Peons;
+  
+  QSet <int> S1=n2c[Boss];
+  cout<<"S1="<<S1<<endl;
+  foreach(vtkIdType PN,n2n[Boss])
+  {
+    cout<<"PN="<<PN<<endl;
+    QSet <int> S2=n2c[PN];
+    cout<<"S2="<<S2<<endl;
+    QSet <int> Si=S2.intersect(S1);
+    cout<<"PN="<<PN<<" Si="<<Si<<endl;
+    if(Si.size()<2)//only one common cell
+    {
+      Peons.push_back(PN);
+    }
+    else
+    {
+      QSet <int> bc_set;
+      foreach(vtkIdType C,Si)
+      {
+        EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+        int bc=cell_code->GetValue(C);
+        cout<<"C="<<C<<" bc="<<bc<<endl;
+        bc_set.insert(bc);
+      }
+      if(bc_set.size()>1)//2 different boundary codes
+      {
+        Peons.push_back(PN);
+      }
+    }
+  }
+  if(Peons.size()==2)
+  {
+    Peon1=Peons[0];
+    Peon2=Peons[1];
+    return(true);
+  }
+  else
+  {
+    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
+    EG_BUG;
+  }
+  return(false);
+}
+
+int Operation::UpdateMeshDensity()
+{
+  cout<<"===UpdateMeshDensity START==="<<endl;
+  
+  getAllSurfaceCells(cells,grid);
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  getNodesFromCells(cells, nodes, grid);
+  setGrid(grid);
+  setCells(cells);
+  
+  if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
+  
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
+  foreach(vtkIdType node,nodes)
+  {
+    double L=CurrentVertexAvgDist(node,n2n,grid);
+    double D=1./L;
+    node_meshdensity_current->SetValue(node, D);
+  }
+  cout<<"===UpdateMeshDensity END==="<<endl;
+  return(0);
+}
