@@ -68,6 +68,9 @@ QString GuiMainWindow::cwd = ".";
 QSettings GuiMainWindow::qset("enGits","enGrid");
 GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::mutex;
+vtkIdType GuiMainWindow::PickedPoint;
+vtkIdType GuiMainWindow::PickedCell;
+bool GuiMainWindow::m_UseVTKInteractor;
 
 GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
@@ -107,6 +110,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
   connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
+//   connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged()),         this, SLOT(setPickMode(ui.checkBox_UseVTKInteractor->isChecked(),ui.radioButton_CellPicker->isChecked())));
   
   connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
   connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
@@ -237,6 +241,11 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.actionFoamWriter->setEnabled(exp_features);
   
   ReferenceSize=0.2;
+  
+  ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+  setPickMode(true,true);
+  PickedPoint=-1;
+  PickedCell=-1;
 };
 
 GuiMainWindow::~GuiMainWindow()
@@ -391,29 +400,34 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-/*      if(ui.radioButton_CellPicker->isChecked())
+      if(ui.checkBox_UseVTKInteractor->isChecked())
       {
-//         CellPicker->Pick(0,0,0, getRenderer());
-            getInteractor()->SetPicker(CellPicker);
-//         CellPicker->Pick(0,0,0, getRenderer());
-        vtkIdType cellId = getPickedCell();
-        pickCell(cellId);
+        if(ui.radioButton_CellPicker->isChecked())
+        {
+  //         CellPicker->Pick(0,0,0, getRenderer());
+          getInteractor()->SetPicker(CellPicker);
+  //         CellPicker->Pick(0,0,0, getRenderer());
+          vtkIdType cellId = getPickedCell();
+          pickCell(cellId);
+        }
+        else
+        {
+          getInteractor()->SetPicker(PointPicker);
+          vtkIdType nodeId = getPickedPoint();
+          pickPoint(nodeId);
+        }
       }
       else
       {
-            getInteractor()->SetPicker(PointPicker);
-            vtkIdType nodeId = getPickedPoint();
-            pickPoint(nodeId);
-      }*/
-      
+        if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
+        else pickPoint(PickedPoint);
+      }
 /*        getInteractor()->SetPicker(CellPicker);
         vtkIdType cellId = getPickedCell();
         pickCell(cellId);
         getInteractor()->SetPicker(PointPicker);
         vtkIdType nodeId = getPickedPoint();
         pickPoint(nodeId);*/
-      if(ui.radioButton_CellPicker->isChecked()) pickCell(0);
-      else pickPoint(0);
         
     };
     
@@ -536,9 +550,19 @@ void GuiMainWindow::updateActors()
   unlock();
 };
 
+void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
+{
+  m_UseVTKInteractor=a_UseVTKInteractor;
+  if(a_UseVTKInteractor) ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+  else ui.checkBox_UseVTKInteractor->setCheckState(Qt::Unchecked);
+  if(a_CellPickerMode) ui.radioButton_CellPicker->toggle();
+  else ui.radioButton_PointPicker->toggle();
+  cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
+}
+
 bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 {
-  if (nodeId >= 0) {
+  if (nodeId >= 0 && nodeId<grid->GetNumberOfPoints()) {
     vec3_t x(0,0,0);
     grid->GetPoints()->GetPoint(nodeId, x.data());
     pick_sphere->SetCenter(x.data());
@@ -548,6 +572,7 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(0,0,1);
     getRenderer()->AddActor(pick_actor);
+    PickedPoint=nodeId;
     return(true);
   }
   else return(false);
@@ -555,7 +580,7 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 
 bool GuiMainWindow::pickCell(vtkIdType cellId)
 {
-  if (cellId >= 0) {
+  if (cellId >= 0 && cellId<grid->GetNumberOfCells()) {
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
     vec3_t x(0,0,0);
@@ -579,6 +604,7 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(1,0,0);
     getRenderer()->AddActor(pick_actor);
+    PickedCell=cellId;
     return(true);
   }
   else return(false);
@@ -820,10 +846,10 @@ void GuiMainWindow::updateStatusBar()
         };
       };
       pick_txt += "]";
+      QString tmp;
+      tmp.setNum(id_cell);
+      pick_txt += " id_cell=" + tmp;
     };
-    QString tmp;
-    tmp.setNum(id_cell);
-    pick_txt += " id_cell=" + tmp;
     txt += pick_txt;
   }
   else
@@ -845,18 +871,18 @@ void GuiMainWindow::updateStatusBar()
         };
       };
       pick_txt += "]";
+      QString tmp;
+      tmp.setNum(id_node);
+      pick_txt += " id_node=" + tmp;
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+      tmp.setNum(node_meshdensity->GetValue(id_node));
+      pick_txt += " wanted density=" + tmp;
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
+      tmp.setNum(node_meshdensity_current->GetValue(id_node));
+      pick_txt += " current density=" + tmp;
+      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+      pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
     };
-    QString tmp;
-    tmp.setNum(id_node);
-    pick_txt += " id_node=" + tmp;
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
-    tmp.setNum(node_meshdensity->GetValue(id_node));
-    pick_txt += " wanted density=" + tmp;
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
-    tmp.setNum(node_meshdensity_current->GetValue(id_node));
-    pick_txt += " current density=" + tmp;
-    EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-    pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
     
     txt += pick_txt;
   }
@@ -1077,7 +1103,11 @@ vtkIdType GuiMainWindow::getPickedCell()
   if (THIS->grid->GetNumberOfCells() > 0) {
     THIS->bcodes_filter->Update();
     EG_VTKDCC(vtkLongArray_t, cell_index, THIS->bcodes_filter->GetOutput(), "cell_index");
-    vtkIdType cellId = THIS->CellPicker->GetCellId();
+    
+    vtkIdType cellId;
+    if(m_UseVTKInteractor) cellId = THIS->CellPicker->GetCellId();
+    else cellId = PickedCell;
+    
     if (cellId >= 0) {
       if (cellId < THIS->bcodes_filter->GetOutput()->GetNumberOfCells()) {
         picked_cell = cell_index->GetValue(cellId);
@@ -1092,12 +1122,12 @@ vtkIdType GuiMainWindow::getPickedPoint()
   vtkIdType picked_point = -1;
   if (THIS->grid->GetNumberOfCells() > 0) {
     THIS->bcodes_filter->Update();
-//     EG_VTKDCN(vtkLongArray_t, node_index, THIS->bcodes_filter->GetOutput(), "node_index");
-    vtkIdType pointId = THIS->PointPicker->GetPointId();
+    
+    vtkIdType pointId;
+    if(m_UseVTKInteractor) pointId = THIS->PointPicker->GetPointId();
+    else pointId = PickedPoint;
+    
     if (pointId >= 0) {
-//       picked_point = node_index->GetValue(pointId);
-/*      cout<<"picked_point="<<picked_point<<endl;
-      cout<<"pointId="<<pointId<<endl;*/
       picked_point = pointId;
     }
   };

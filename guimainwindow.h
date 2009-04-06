@@ -156,11 +156,20 @@ private: // attributes
   vector <vtkPolyDataMapper*> CellText_PolyDataMapper;
   vector <vtkFollower*> CellText_Follower;
   
-  vtkTextActor* textActor[3];
+  /** Picked point */
+  static vtkIdType PickedPoint;
+  
+  /** Picked cell */
+  static vtkIdType PickedCell;
+  
+  /** Boolean value specifying wether the VTK Interactor should be used or not to determine picked points/cells */
+  static bool m_UseVTKInteractor;
+  
+/*  vtkTextActor* textActor[3];
   
   vtkVectorText* atext[3];
   vtkPolyDataMapper* textMapper[3];
-  vtkFollower* textActor2[3];
+  vtkFollower* textActor2[3];*/
   
   /** VTK mapper to map pick marker */
   vtkPolyDataMapper *pick_mapper;
@@ -324,6 +333,7 @@ public: // static methods
   void getAllBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker(){return(PointPicker);};
   vtkSphereSource* getPickSphere(){return(pick_sphere);};
+  void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   

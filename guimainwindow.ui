@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>1006</width>
-    <height>685</height>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -351,6 +351,13 @@
         <widget class="QRadioButton" name="radioButton_PointPicker" >
          <property name="text" >
           <string>PointPicker</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_UseVTKInteractor" >
+         <property name="text" >
+          <string>Use VTK Interactor</string>
          </property>
         </widget>
        </item>

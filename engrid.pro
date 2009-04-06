@@ -141,7 +141,8 @@ guisettingsviewer.h \
  deletepickedpoint.h \
  text3d.h \
  pick_cell_point.h \
- guipick.h
+ guipick.h \
+ egvtkinteractorstyle.h
 
 SOURCES = \
 main.cpp \
@@ -218,7 +219,8 @@ guisettingsviewer.cpp \
  deletepickedpoint.cpp \
  text3d.cpp \
  pick_cell_point.cpp \
- guipick.cpp
+ guipick.cpp \
+ egvtkinteractorstyle.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
