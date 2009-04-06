@@ -1208,8 +1208,13 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     CreateSpecialMapping toto;
     toto.SetInput(bcs,grid);
-    SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-    SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    
+    SetConvergence(ui.doubleSpinBox_Convergence->value());
+    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    
     UpdateMeshDensity();
     UpdateNodeType();
     updateActors();

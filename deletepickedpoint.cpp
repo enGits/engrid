@@ -35,9 +35,13 @@ void DeletePickedPoint::operate()
   int N_newpoints;
   int N_newcells;
   
-  SetFeatureAngle(45);
-  SetEdgeAngle(15);
+  SetConvergence(0.0);
+  SetFeatureEdgeSmoothing(1);
+  SetFeatureAngle(45.0);
+  SetEdgeAngle(15.0);
+  SetBoundarySmoothing(1);
   DeletePoint_2(grid,nodeId,N_newpoints,N_newcells);
+  
 /*  vtkIdType Boss, Peon1, Peon2;
   int BC=0;
   Boss=nodeId;

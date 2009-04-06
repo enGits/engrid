@@ -954,6 +954,8 @@ typedef struct _vtkMeshVertex
 
 int Operation::UpdateNodeType()
 {
+  cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
+  cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
 //   cout<<"===UpdateNodeType START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
