@@ -103,6 +103,17 @@ protected: // attributes
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
   
+  //Special attributes for UpdateNodeType function
+  double Convergence;
+  int NumberOfIterations;
+  double RelaxationFactor;
+  int FeatureEdgeSmoothing;
+  double FeatureAngle;
+  double EdgeAngle;
+  int BoundarySmoothing;
+  int GenerateErrorScalars;
+  int GenerateErrorVectors;
+  
 protected: // methods
   
   void checkGrid();
@@ -161,7 +172,8 @@ public: // methods
   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
   
   int UpdateMeshDensity();
-  
+  int UpdateNodeType();
+    
 };
 //End of class Operation
 

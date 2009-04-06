@@ -20,17 +20,6 @@ class CreateSpecialMapping : public Operation {
     CreateSpecialMapping();
     int Process();
     void operate(){};
-    
-    vtkPolyData* input;
-    double Convergence;
-    int NumberOfIterations;
-    double RelaxationFactor;
-    int FeatureEdgeSmoothing;
-    double FeatureAngle;
-    double EdgeAngle;
-    int BoundarySmoothing;
-    int GenerateErrorScalars;
-    int GenerateErrorVectors;
   
     int N_SmoothIterations;
   
@@ -277,7 +266,7 @@ class CreateSpecialMapping : public Operation {
   
     int FullEdit();
 //     int UpdateMeshDensity();
-    int UpdateNodeType();
+//     int UpdateNodeType();
     bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode);
     vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells);
   
