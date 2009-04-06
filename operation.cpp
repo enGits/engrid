@@ -874,9 +874,9 @@ vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
   return(x);
 }
 
-bool Operation::getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC)
+bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC)
 {
-  QVector <vtkIdType> Peons;
+//   QVector <vtkIdType> Peons;
   
   QSet <int> S1=n2c[Boss];
   cout<<"S1="<<S1<<endl;
@@ -909,8 +909,8 @@ bool Operation::getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2
   }
   if(Peons.size()==2)
   {
-    Peon1=Peons[0];
-    Peon2=Peons[1];
+/*    Peon1=Peons[0];
+    Peon2=Peons[1];*/
     return(true);
   }
   else
@@ -1487,10 +1487,23 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
       if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
+    
     if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
     {
       if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
     }
     
     if(IsValidSnapPoint) {SnapPoint=PSP; break;}

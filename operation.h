@@ -169,8 +169,9 @@ public: // methods
   
   vec3_t GetCenter(vtkIdType cellId, double& R);
   
-  bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
-  
+//   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
+  bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
+    
   int UpdateMeshDensity();
   int UpdateNodeType();
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
