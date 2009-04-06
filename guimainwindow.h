@@ -382,6 +382,9 @@ public slots:
   /** Save the current grid -- using a different file name */
   void saveAs();
   
+  /** Save the current grid as a_filename */
+  void QuickSave(QString a_filename);
+  
   /** Update the status bar */
   void updateStatusBar();
   

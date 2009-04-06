@@ -101,6 +101,9 @@ int GuiSmoothSurface::readSettings()
   ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
   ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset->value("remove_FP", 2).toInt()));
   ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset->value("remove_EP", 2).toInt()));
+  ui.checkBox_Swap->setCheckState(int2CheckState(local_qset->value("DoSwap", 2).toInt()));
+  ui.checkBox_LaplaceSmoothing->setCheckState(int2CheckState(local_qset->value("DoLaplaceSmoothing", 2).toInt()));
+  
   if(local_qset->value("DensityUnit_is_length", false).toBool()){
     ui.radioButton_length->toggle();
   }
@@ -143,6 +146,8 @@ int GuiSmoothSurface::writeSettings()
   local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
   local_qset->setValue("remove_FP", ui.checkBox_remove_FP->checkState());
   local_qset->setValue("remove_EP", ui.checkBox_remove_EP->checkState());
+  local_qset->setValue("DoSwap", ui.checkBox_Swap->checkState());
+  local_qset->setValue("DoLaplaceSmoothing", ui.checkBox_LaplaceSmoothing->checkState());
   local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
   
   QList<Qt::CheckState> list;
@@ -1187,6 +1192,8 @@ void GuiSmoothSurface::operate()
     toto.Set_insert_EP(ui.checkBox_insert_EP->checkState());
     toto.Set_remove_FP(ui.checkBox_remove_FP->checkState());
     toto.Set_remove_EP(ui.checkBox_remove_EP->checkState());
+    toto.DoSwap=ui.checkBox_Swap->checkState();
+    toto.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
     
     toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
     

@@ -790,6 +790,24 @@ void GuiMainWindow::saveAs()
   };
 };
 
+void GuiMainWindow::QuickSave(QString a_filename)
+{
+  cout << a_filename.toAscii().data() << endl;
+  EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
+  for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
+    cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
+  };
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  addVtkTypeInfo();
+  createIndices(grid);
+  vtu->SetFileName(a_filename.toAscii().data());
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(grid);
+  vtu->Write();
+  saveBC();
+};
+
+
 void GuiMainWindow::updateStatusBar()
 {
   QString num, txt = "enGrid is currently busy with an operation ...";

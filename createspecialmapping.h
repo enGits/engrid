@@ -40,6 +40,9 @@ class CreateSpecialMapping : public Operation {
     bool insert_EP;
     bool remove_FP;
     bool remove_EP;
+  
+    bool DoSwap;
+    bool DoLaplaceSmoothing;
     
     int N_inserted_FP;
     int N_inserted_EP;

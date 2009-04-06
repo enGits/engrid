@@ -34,11 +34,11 @@ typedef struct _vtkMeshVertex
 
 CreateSpecialMapping::CreateSpecialMapping()
 {
+  DebugLevel=1;
 }
 
 int CreateSpecialMapping::Process()
 {
-  DebugLevel=0;
   int i_iter=0;
   for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
@@ -172,34 +172,63 @@ int CreateSpecialMapping::Process()
     if(remove_FP) remove_FP_all();
     if(remove_EP) remove_EP_all();*/
     
+    ofstream file1,file2,file3,file4;
+    
     //Method 3
-    if(insert_FP) insert_FP_all();
-    if(insert_EP) insert_EP_all();
-    if(remove_FP) remove_FP_all_2();
-    if(remove_EP) remove_EP_all_2();
+    if(insert_FP) {
+      insert_FP_all();
+/*      file1.open ("file1.txt");
+      cout_grid(file1,m_grid,true,true,true,true);
+      file1.close();*/
+    }
+    
+    if(insert_EP) {
+      insert_EP_all();
+/*      file2.open ("file2.txt");
+      cout_grid(file2,m_grid,true,true,true,true);
+      file2.close();*/
+    }
+    
+    if(remove_FP) {
+      remove_FP_all_2();
+/*      file3.open ("file3.txt");
+      cout_grid(file3,m_grid,true,true,true,true);
+      file3.close();*/
+    }
+    
+    if(remove_EP) {
+      remove_EP_all_2();
+/*      file4.open ("file4.txt");
+      cout_grid(file4,m_grid,true,true,true,true);
+      file4.close();*/
+    }
     
     //Phase E : Delaunay swap
-    QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
-    cout<<"m_bcs="<<m_bcs<<endl;
-    cout<<"bcs_complement="<<bcs_complement<<endl;
+    if(DoSwap) {
+      QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
+      cout<<"m_bcs="<<m_bcs<<endl;
+      cout<<"bcs_complement="<<bcs_complement<<endl;
+      
+      SwapTriangles swap;
+      swap.setGrid(m_grid);
+      swap.setBoundaryCodes(bcs_complement);
+      swap();
+    }
     
-    SwapTriangles swap;
-    swap.setGrid(m_grid);
-    swap.setBoundaryCodes(bcs_complement);
-    swap();
+      //Phase F : translate points to smooth grid
+      //4 possibilities
+      //vtk smooth 1
+      //vtk smooth 2
+      //laplacian smoothing with projection
+      //Roland smoothing with projection
     
-    //Phase F : translate points to smooth grid
-    //4 possibilities
-    //vtk smooth 1
-    //vtk smooth 2
-    //laplacian smoothing with projection
-    //Roland smoothing with projection
-  
-    //laplacian smoothing with projection
-    LaplaceSmoother Lap;
-    Lap.SetInput(m_bcs,m_grid);
-    Lap.SetNumberOfIterations(N_SmoothIterations);
-    Lap();
+      //laplacian smoothing with projection
+    if(DoLaplaceSmoothing) {
+      LaplaceSmoother Lap;
+      Lap.SetInput(m_bcs,m_grid);
+      Lap.SetNumberOfIterations(N_SmoothIterations);
+      Lap();
+    }
     
     cout<<"===Summary==="<<endl;
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
@@ -849,16 +878,14 @@ int CreateSpecialMapping::FullEdit()
   if(remove_EP) remove_EP_actor(grid_tmp);
   
   makeCopy(grid_tmp,m_grid);
-  return(0);
   
   cout<<"===FullEdit END==="<<endl;
+  return(0);
 }
 
 int CreateSpecialMapping::UpdateMeshDensity()
 {
   cout<<"===UpdateMeshDensity START==="<<endl;
-  
-  DebugLevel=0;
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -887,7 +914,6 @@ int CreateSpecialMapping::UpdateMeshDensity()
 int CreateSpecialMapping::UpdateNodeType()
 {
 //   cout<<"===UpdateNodeType START==="<<endl;
-  DebugLevel=0;
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -1288,7 +1314,7 @@ vtkIdType CreateSpecialMapping::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdTyp
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,src);
   getNodesFromCells(m_AllCells, nodes, src);
-  setGrid(m_grid);
+  setGrid(src);
   setCells(m_AllCells);
   
   UpdateNodeType();
@@ -1444,7 +1470,7 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,src);
   getNodesFromCells(m_AllCells, nodes, src);
-  setGrid(m_grid);
+  setGrid(src);
   setCells(m_AllCells);
   
   //src grid info
@@ -1472,9 +1498,7 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
   }
   vtkIdType SnapPoint=FindSnapPoint(src,DeadNode,DeadCells,MutatedCells,MutilatedCells);
   
-  
-  
-  if(DebugLevel>10) cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
+  if(DebugLevel>0) cout<<"===>DeadNode="<<DeadNode<<" moving to SNAPPOINT="<<SnapPoint<<" DebugLevel="<<DebugLevel<<endl;
   if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
   
   //allocate
@@ -1485,8 +1509,8 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-  N_points=m_grid->GetNumberOfPoints();
-  N_cells=m_grid->GetNumberOfCells();
+  N_points=src->GetNumberOfPoints();
+  N_cells=src->GetNumberOfCells();
   cout<<"N_points="<<N_points<<endl;
   cout<<"N_cells="<<N_cells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
@@ -1509,6 +1533,10 @@ bool CreateSpecialMapping::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType Dea
       copyNodeData(src, src_id_node, dst, dst_id_node);
       OffSet[src_id_node]=src_id_node-dst_id_node;
       dst_id_node++;
+    }
+    else
+    {
+      if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
     }
   };
   if(DebugLevel>10) {
@@ -1657,6 +1685,10 @@ int CreateSpecialMapping::remove_EP_all_2()
 int CreateSpecialMapping::remove_FP_all_2()
 {
   cout<<"===remove_FP_all_2 START==="<<endl;
+  cout<<"+++++++"<<endl;
+  cout_grid(cout,m_grid,true,true,true,true);
+  cout<<"+++++++"<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
@@ -1684,6 +1716,7 @@ int CreateSpecialMapping::remove_FP_all_2()
   marked_nodes.clear();
   
   remove_FP_counter();
+  cout_grid(cout,m_grid);
   cout<<"================="<<endl;
   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
