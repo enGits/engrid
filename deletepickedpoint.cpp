@@ -27,12 +27,6 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
-// DEFINITIONS:
-// Normal cell: nothing has changed
-// Dead cell: the cell does not exist anymore
-// Mutated cell: the cell's form has changed
-// Mutilated cell: the cell has less points than before
-
 void DeletePickedPoint::operate()
 {
   vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();

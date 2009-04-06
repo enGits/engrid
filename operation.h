@@ -173,6 +173,7 @@ public: // methods
   
   int UpdateMeshDensity();
   int UpdateNodeType();
+  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
     
 };
 //End of class Operation
