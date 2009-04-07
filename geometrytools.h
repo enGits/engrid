@@ -97,6 +97,12 @@ inline vec2_t turnLeft(const vec2_t &v)
 /** return the angle w.r.t. another 3-vector */
 double angle(const vec3_t & u, const vec3_t & v);
 
+/** return the deviation p1->p2->p3 (angle(p2-p1,p3-p2)) */
+double deviation(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
+
+/** return the angle p1,p2,p3 (angle(p1-p2,p3-p2)) */
+double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
+
 };
 
 #endif

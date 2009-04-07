@@ -915,8 +915,46 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
   }
   else
   {
-    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
-    EG_BUG;
+    int N=n2n[Boss].size();
+    QVector <vtkIdType> neighbours(N);
+    qCopy(n2n[Boss].begin(), n2n[Boss].end(), neighbours.begin());
+    
+    double alphamin_value;
+    vtkIdType alphamin_i;
+    vtkIdType alphamin_j;
+    bool first=true;
+    
+    for(int i=0;i<N;i++)
+    {
+      for(int j=i+1;j<N;j++)
+      {
+        double alpha=deviation(grid,neighbours[i],Boss,neighbours[j]);
+//         cout<<"alpha("<<neighbours[i]<<","<<Boss<<","<<neighbours[j]<<")="<<alpha<<endl;
+        if(first) {
+          alphamin_value=alpha;
+          alphamin_i=i;
+          alphamin_j=j;
+          first=false;
+        }
+        else
+        {
+          if(alpha<alphamin_value)
+          {
+            alphamin_value=alpha;
+            alphamin_i=i;
+            alphamin_j=j;
+          }
+        }
+      }
+    }
+//     cout<<"alphamin_value="<<alphamin_value<<endl;
+    
+    Peons.resize(2);
+    Peons[0]=neighbours[alphamin_i];
+    Peons[1]=neighbours[alphamin_j];
+    return(true);
+/*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
+    EG_BUG;*/
   }
   return(false);
 }
@@ -1495,6 +1533,24 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     }
     
     if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
     {
       int BC=0;
       QVector <vtkIdType> Peons;

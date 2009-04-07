@@ -375,8 +375,26 @@ double angle(const vec3_t & u, const vec3_t & v)
   }
 }
 
+double deviation(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3)
+{
+  vec3_t x1, x2, x3;
+  grid->GetPoint(p1,x1.data());
+  grid->GetPoint(p2,x2.data());
+  grid->GetPoint(p3,x3.data());
+  vec3_t u=x2-x1;
+  vec3_t v=x3-x2;
+  return angle(u,v);
+}
+
+double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3)
+{
+  vec3_t x1, x2, x3;
+  grid->GetPoint(p1,x1.data());
+  grid->GetPoint(p2,x2.data());
+  grid->GetPoint(p3,x3.data());
+  vec3_t u=x1-x2;
+  vec3_t v=x3-x2;
+  return angle(u,v);
+}
+
 } // namespace
-
-
-
-

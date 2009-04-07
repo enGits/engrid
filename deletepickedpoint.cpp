@@ -22,6 +22,10 @@
 //
 
 #include "deletepickedpoint.h"
+
+#include <QObject>
+#include <QVector>
+
 #include "guimainwindow.h"
 #include "egvtkobject.h"
 #include "geometrytools.h"
@@ -40,11 +44,29 @@ void DeletePickedPoint::operate()
   SetFeatureAngle(45.0);
   SetEdgeAngle(15.0);
   SetBoundarySmoothing(1);
-  DeletePoint_2(grid,nodeId,N_newpoints,N_newcells);
   
-/*  vtkIdType Boss, Peon1, Peon2;
+//   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
+  QVector <vtkIdType> Peons;
+  vtkIdType Boss;
   int BC=0;
-  Boss=nodeId;
-  getNeighbours(Boss,Peon1,Peon2,BC);
-  cout<<"Boss="<<Boss<<" Peon1="<<Peon1<<" Peon2="<<Peon2<<" BC="<<BC<<endl;*/
+  
+  QMessageBox msgBox;
+  msgBox.setText("Delete point?");
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+  switch (msgBox.exec()) {
+  case QMessageBox::Yes:
+    cout<<"yes was clicked"<<endl;
+    DeletePoint_2(grid,nodeId,N_newpoints,N_newcells);
+    break;
+  case QMessageBox::No:
+    cout<<"no was clicked"<<endl;
+    Boss=nodeId;
+    getNeighbours(Boss,Peons,BC);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<" BC="<<BC<<endl;
+    break;
+  default:
+     // should never be reached
+    break;
+  }
+  
 };
