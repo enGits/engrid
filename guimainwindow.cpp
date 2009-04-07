@@ -1006,7 +1006,10 @@ void GuiMainWindow::ViewNodeIDs()
       NodeText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
       vec3_t M;
       grid->GetPoint(i,M.data());
-      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]+ReferenceSize);
+      vec3_t tmp_M=M;
+      vec3_t OffSet=ReferenceSize*tmp_M.normalise();
+      M=M+OffSet;
+      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]);
       NodeText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
       NodeText_Follower[i]->GetProperty()->SetColor(0,0,1);
       getRenderer()->AddActor(NodeText_Follower[i]);
