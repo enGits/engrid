@@ -43,10 +43,7 @@ bool SettingsSheet::readFile(const QString &fileName,int verbose)
 {
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly)) {
-    QMessageBox::warning(this, tr("SettingsSheet"),
-                         tr("Cannot read file %1:\n%2.")
-                         .arg(file.fileName())
-                         .arg(file.errorString()));
+    if(verbose>0) QMessageBox::warning(this, tr("SettingsSheet"),tr("Cannot read file %1:\n%2.").arg(file.fileName()).arg(file.errorString()));
     return false;
   }
   

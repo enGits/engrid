@@ -58,8 +58,13 @@ private:
 public:
   QVector <VertexMeshDensity> GetSet();
   QSettings* local_qset;
-  /** The settings file to load. */
+  
+  /** The currently loaded grid file. */
   QString current_filename;
+  
+  //  /** The settings file to load. */
+  //QString current_settingssheet_name;
+  
   int readSettings();
   int writeSettings();
   int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);

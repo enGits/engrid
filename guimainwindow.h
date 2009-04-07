@@ -336,6 +336,8 @@ public: // static methods
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   
+  QString GetFilename() {return(current_filename);};
+  
 public slots:
   void setUseVTKInteractor(int a_UseVTKInteractor);
   void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);

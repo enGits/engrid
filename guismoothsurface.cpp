@@ -27,6 +27,8 @@
 #include "settingssheet.h"
 #include "laplacesmoother.h"
 
+#include "guimainwindow.h"
+
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
@@ -93,7 +95,7 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 int GuiSmoothSurface::readSettings()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
-  current_filename=local_qset->value("Filename", "").toString();
+//   current_settingssheet_name=local_qset->value("Filename", "").toString();
   ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
   ui.spinBox_NumberOfSmoothIterations->setValue(local_qset->value("NumberOfSmoothIterations", 20).toInt());
   ui.spinBox_maxiter_density->setValue(local_qset->value("maxiter_density", 1000).toInt());
@@ -143,7 +145,7 @@ int GuiSmoothSurface::readSettings()
 int GuiSmoothSurface::writeSettings()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
-  local_qset->setValue("Filename", current_filename);
+//   local_qset->setValue("Filename", current_settingssheet_name);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
   local_qset->setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
   local_qset->setValue("NumberOfIterations", ui.spinBox_NumberOfIterations->value());
@@ -290,9 +292,17 @@ void GuiSmoothSurface::before()
   tableWidget->setHorizontalHeaderLabels(L);
   tableWidget->resizeColumnsToContents();
   
-  if (!current_filename.isEmpty() && !tableWidget->readFile(current_filename,0)) {
-    cout<<"Loading failed"<<endl;
+  
+  current_filename= GuiMainWindow::pointer()->GetFilename();
+  Qcout<<"current_filename="<<current_filename<<endl;
+  Qcout<<"Loading settings from "+current_filename+".sp..."<<endl;
+  
+  if (!tableWidget->readFile(current_filename+".sp",0)) {
+    cout<<"Loading settingssheet failed"<<endl;
   }
+/*  if (!current_settingssheet_name.isEmpty() && !tableWidget->readFile(current_settingssheet_name,0)) {
+    cout<<"Loading failed"<<endl;
+  }*/
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
@@ -307,15 +317,15 @@ void GuiSmoothSurface::before()
 
 void GuiSmoothSurface::Load()
 {
-  current_filename = QFileDialog::getOpenFileName(this,tr("Open SettingsSheet"), ".",tr("SettingsSheet files (*.sp)"));
-  if (!current_filename.isEmpty() && !tableWidget->readFile(current_filename)) {
+  QString current_settingssheet_name = QFileDialog::getOpenFileName(this,tr("Open SettingsSheet"), ".",tr("SettingsSheet files (*.sp)"));
+  if (!current_settingssheet_name.isEmpty() && !tableWidget->readFile(current_settingssheet_name)) {
     cout<<"Loading failed"<<endl;
   }
 }
 void GuiSmoothSurface::Save()
 {
-  current_filename = QFileDialog::getSaveFileName(this,tr("Save SettingsSheet as..."), ".",tr("SettingsSheet files (*.sp)"));
-  if (!current_filename.isEmpty() && !tableWidget->writeFile(current_filename)) {
+  QString current_settingssheet_name = QFileDialog::getSaveFileName(this,tr("Save SettingsSheet as..."), ".",tr("SettingsSheet files (*.sp)"));
+  if (!current_settingssheet_name.isEmpty() && !tableWidget->writeFile(current_settingssheet_name)) {
     cout<<"Saving failed"<<endl;
   }
 }
@@ -477,10 +487,14 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
 
 void GuiSmoothSurface::operate()
 {
+  cout<<"Saving settings..."<<endl;
   //Save settings
   writeSettings();
   
-  if(!current_filename.isEmpty()) tableWidget->writeFile(current_filename);
+  Qcout<<"current_filename="<<current_filename<<endl;
+  Qcout<<"Saving settings as "+current_filename+".sp..."<<endl;
+//   if(!current_settingssheet_name.isEmpty()) tableWidget->writeFile(current_settingssheet_name);
+  if(!tableWidget->writeFile(current_filename+".sp")) cout<<"Saving settingssheet failed."<<endl;
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements
@@ -1108,7 +1122,7 @@ void GuiSmoothSurface::operate()
       node_meshdensity->SetValue(node, D);
     }
     
-    int N_iter=ui.spinBox_NumberOfIterations->value();
+    int N_iter=ui.spinBox_maxiter_density->value();
     for(int i_iter=0;i_iter<N_iter;i_iter++)
     {
       foreach(vtkIdType node,SelectedNodes)
