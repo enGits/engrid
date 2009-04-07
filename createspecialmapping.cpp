@@ -102,12 +102,14 @@ int CreateSpecialMapping::Process()
     cout<<"m_total_N_newcells="<<m_total_N_newcells<<endl;
     cout<<"============"<<endl;
     
-    if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
-    
+//     if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
+    if(N_inserted_FP==0 && N_inserted_EP==0 && N_removed_FP==0 && N_removed_EP==0) break;
   }
   
   cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
+  UpdateDesiredMeshDensity();
   UpdateMeshDensity();
+  if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
   return 1;
 }
 //end of process
@@ -132,7 +134,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
   
-  //Phase A : Calculate current mesh density
+/*  //Phase A : Calculate current mesh density
   cout<<"===Phase A==="<<endl;
   
   foreach(vtkIdType node,m_SelectedNodes)
@@ -150,7 +152,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
       double D=1./L;
       node_meshdensity->SetValue(node, D);
     }
-  }
+  }*/
   
     //Phase B : define desired mesh density
   cout<<"===Phase B==="<<endl;
@@ -158,7 +160,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
   bool first=true;
   int iter=0;
-  int maxiter=100;
+  int maxiter=1000;
   do {
     if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
     first=true;
