@@ -98,6 +98,7 @@ int GuiSmoothSurface::readSettings()
   ui.spinBox_NumberOfSmoothIterations->setValue(local_qset->value("NumberOfSmoothIterations", 20).toInt());
   ui.spinBox_maxiter_density->setValue(local_qset->value("maxiter_density", 1000).toInt());
   ui.spinBox_DebugLevel->setValue(local_qset->value("DebugLevel", 0).toInt());
+  ui.spinBox_NumberOfIterations->setValue(local_qset->value("NumberOfIterations", 1).toInt());
   
   ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
   ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset->value("insert_FP", 2).toInt()));
@@ -145,6 +146,7 @@ int GuiSmoothSurface::writeSettings()
   local_qset->setValue("Filename", current_filename);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
   local_qset->setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
+  local_qset->setValue("NumberOfIterations", ui.spinBox_NumberOfIterations->value());
   local_qset->setValue("maxiter_density", ui.spinBox_maxiter_density->value());
   local_qset->setValue("DebugLevel", ui.spinBox_DebugLevel->value());
   local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
@@ -213,9 +215,6 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 17");
   ui.SmoothMethod->addItem("Method 18");
   
-  //Load settings
-  readSettings();
-  
   if(ui.listWidget->count()>0) ui.lineEdit_BoundaryCode-> setText(ui.listWidget->item(0)->text());
   else ui.lineEdit_BoundaryCode-> setText("42");
   ui.spinBox_NumberOfSubdivisions->setValue(1);
@@ -229,7 +228,7 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_Convergence->setValue(smooth->GetConvergence());
 //   ui.spinBox_NumberOfIterations->setValue(smooth->GetNumberOfIterations());
 //   ui.spinBox_NumberOfIterations->setValue(1000);
-  ui.spinBox_NumberOfIterations->setValue(1);
+//   ui.spinBox_NumberOfIterations->setValue(1);
   QString tmp;
   ui.lineEdit_RelaxationFactor->setText(tmp.setNum(smooth->GetRelaxationFactor()));
   ui.doubleSpinBox_PassBand->setValue(smooth2->GetPassBand());
@@ -248,6 +247,9 @@ void GuiSmoothSurface::before()
   ui.doubleSpinBox_VTK_FIXED_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);*/
+  
+  //Load settings
+  readSettings();
   
   int row=0;
   int column=0;
