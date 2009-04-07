@@ -288,69 +288,13 @@
             <widget class="QSpinBox" name="spinBox_NumberOfSubdivisions" />
            </item>
            <item row="3" column="0" >
-            <widget class="QLabel" name="label_5" >
-             <property name="text" >
-              <string>VTK_SIMPLE_VERTEX :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1" >
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_VTK_SIMPLE_VERTEX" >
-             <property name="minimum" >
-              <double>-1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" >
-            <widget class="QLabel" name="label_6" >
-             <property name="text" >
-              <string>VTK_FIXED_VERTEX :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" >
-            <widget class="QLabel" name="label_7" >
-             <property name="text" >
-              <string>VTK_FEATURE_EDGE_VERTEX :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0" >
-            <widget class="QLabel" name="label_9" >
-             <property name="text" >
-              <string>VTK_BOUNDARY_EDGE_VERTEX :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1" >
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_VTK_FIXED_VERTEX" >
-             <property name="minimum" >
-              <double>-1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1" >
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_VTK_FEATURE_EDGE_VERTEX" >
-             <property name="minimum" >
-              <double>-1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1" >
-            <widget class="QDoubleSpinBox" name="doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX" >
-             <property name="minimum" >
-              <double>-1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0" >
             <widget class="QLabel" name="label_10" >
              <property name="text" >
               <string>Convergence_meshdensity :</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1" >
+           <item row="3" column="1" >
             <widget class="QDoubleSpinBox" name="doubleSpinBox_Convergence_meshdensity" >
              <property name="decimals" >
               <number>6</number>
@@ -360,7 +304,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="0" >
+           <item row="4" column="0" >
             <widget class="QCheckBox" name="checkBox_insert_FP" >
              <property name="sizePolicy" >
               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
@@ -373,48 +317,72 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="0" >
-            <widget class="QCheckBox" name="checkBox_remove_FP" >
-             <property name="text" >
-              <string>Remove field points</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="1" >
+           <item row="4" column="1" >
             <widget class="QCheckBox" name="checkBox_insert_EP" >
              <property name="text" >
               <string>Insert edge points</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1" >
+           <item row="5" column="0" >
+            <widget class="QCheckBox" name="checkBox_remove_FP" >
+             <property name="text" >
+              <string>Remove field points</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1" >
             <widget class="QCheckBox" name="checkBox_remove_EP" >
              <property name="text" >
               <string>Remove edge points</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="0" >
+           <item row="6" column="0" >
             <widget class="QLabel" name="label_14" >
              <property name="text" >
               <string>NumberOfSmoothIterations :</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="1" >
+           <item row="6" column="1" >
             <widget class="QSpinBox" name="spinBox_NumberOfSmoothIterations" />
            </item>
-           <item row="11" column="0" >
+           <item row="7" column="0" >
             <widget class="QCheckBox" name="checkBox_Swap" >
              <property name="text" >
               <string>Swap</string>
              </property>
             </widget>
            </item>
-           <item row="11" column="1" >
+           <item row="7" column="1" >
             <widget class="QCheckBox" name="checkBox_LaplaceSmoothing" >
              <property name="text" >
               <string>Laplace smoothing</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0" >
+            <widget class="QLabel" name="label_16" >
+             <property name="text" >
+              <string>DebugLevel :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1" >
+            <widget class="QSpinBox" name="spinBox_DebugLevel" />
+           </item>
+           <item row="9" column="0" >
+            <widget class="QLabel" name="label_5" >
+             <property name="text" >
+              <string>Maxiter for density calculation :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1" >
+            <widget class="QSpinBox" name="spinBox_maxiter_density" >
+             <property name="maximum" >
+              <number>1000</number>
              </property>
             </widget>
            </item>

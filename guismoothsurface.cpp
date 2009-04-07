@@ -96,6 +96,9 @@ int GuiSmoothSurface::readSettings()
   current_filename=local_qset->value("Filename", "").toString();
   ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
   ui.spinBox_NumberOfSmoothIterations->setValue(local_qset->value("NumberOfSmoothIterations", 20).toInt());
+  ui.spinBox_maxiter_density->setValue(local_qset->value("maxiter_density", 1000).toInt());
+  ui.spinBox_DebugLevel->setValue(local_qset->value("DebugLevel", 0).toInt());
+  
   ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
   ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset->value("insert_FP", 2).toInt()));
   ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
@@ -135,12 +138,15 @@ int GuiSmoothSurface::readSettings()
   }
   return(0);
 }
+
 int GuiSmoothSurface::writeSettings()
 {
   local_qset=new QSettings("enGits","enGrid_smoothsurface");
   local_qset->setValue("Filename", current_filename);
   local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
   local_qset->setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
+  local_qset->setValue("maxiter_density", ui.spinBox_maxiter_density->value());
+  local_qset->setValue("DebugLevel", ui.spinBox_DebugLevel->value());
   local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
   local_qset->setValue("insert_FP", ui.checkBox_insert_FP->checkState());
   local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
@@ -238,10 +244,10 @@ void GuiSmoothSurface::before()
   ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(2));
   ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(2));
   
-  ui.doubleSpinBox_VTK_SIMPLE_VERTEX->setValue(-1);
+/*  ui.doubleSpinBox_VTK_SIMPLE_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_FIXED_VERTEX->setValue(-1);
   ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
-  ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);
+  ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);*/
   
   int row=0;
   int column=0;
@@ -1181,10 +1187,10 @@ void GuiSmoothSurface::operate()
     toto.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
     toto.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
-    toto.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
+/*    toto.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
     toto.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
     toto.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
-    toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());
+    toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());*/
     
     toto.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
@@ -1196,6 +1202,8 @@ void GuiSmoothSurface::operate()
     toto.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
     
     toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
+    toto.maxiter_density=ui.spinBox_maxiter_density->value();
+    DebugLevel=ui.spinBox_DebugLevel->value();
     
     toto.Process();
     

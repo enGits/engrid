@@ -160,7 +160,6 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
   bool first=true;
   int iter=0;
-  int maxiter=1000;
   do {
     if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
     first=true;
@@ -205,9 +204,9 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
       if(DebugLevel>2) cout<<"======>"<<endl;
     }
     iter++;
-  } while(diff>Convergence_meshdensity && !first && iter<maxiter);// if first=true, it means no new mesh density has been defined (all densities specified)
+  } while(diff>Convergence_meshdensity && !first && iter<maxiter_density);// if first=true, it means no new mesh density has been defined (all densities specified)
   cout<<"iter="<<iter<<endl;
-  if(iter>=maxiter) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
+  if(iter>=maxiter_density) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
   return(0);
 }
 

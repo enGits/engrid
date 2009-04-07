@@ -22,7 +22,8 @@ class CreateSpecialMapping : public Operation {
     void operate(){};
   
     int N_SmoothIterations;
-  
+    int maxiter_density;
+
     double Convergence_meshdensity;
   
     bool insert_FP;
@@ -58,10 +59,10 @@ class CreateSpecialMapping : public Operation {
     QVector <int> hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
     QVector <int> offset;//offset caused by terminated elements
   
-    double SV_value;
+/*    double SV_value;
     double FV_value;
     double FEV_value;
-    double BEV_value;
+    double BEV_value;*/
     
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     
@@ -76,10 +77,10 @@ class CreateSpecialMapping : public Operation {
   
     void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
     
-    void Set_SV_value(double V){SV_value=V;};
+/*    void Set_SV_value(double V){SV_value=V;};
     void Set_FV_value(double V){FV_value=V;};
     void Set_FEV_value(double V){FEV_value=V;};
-    void Set_BEV_value(double V){BEV_value=V;};
+    void Set_BEV_value(double V){BEV_value=V;};*/
   
     void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
     void Set_insert_FP(bool B){insert_FP=B;};
