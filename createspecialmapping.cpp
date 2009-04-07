@@ -18,6 +18,100 @@ CreateSpecialMapping::CreateSpecialMapping()
   DebugLevel=0;
 }
 
+int CreateSpecialMapping::Process()
+{
+  int i_iter=0;
+  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
+  {
+    cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
+    
+    m_total_N_newpoints=0;
+    m_total_N_newcells=0;
+    
+    getAllSurfaceCells(m_AllCells,m_grid);
+    getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+    
+    EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+    
+    m_SelectedNodes.clear();
+    getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+    getNodesFromCells(m_AllCells, nodes, m_grid);
+    setGrid(m_grid);
+    setCells(m_AllCells);
+    
+    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+    
+    //Phase D: edit points
+    cout<<"===Phase D==="<<endl;
+    N_inserted_FP=0;
+    N_inserted_EP=0;
+    N_removed_FP=0;
+    N_removed_EP=0;
+    
+    //Method 1
+//     FullEdit();
+    
+    //Method 2
+/*    if(insert_FP) insert_FP_all();
+    if(insert_EP) insert_EP_all();
+    if(remove_FP) remove_FP_all();
+    if(remove_EP) remove_EP_all();*/
+    
+    //Method 3
+    if(insert_FP) {
+      UpdateDesiredMeshDensity();
+      insert_FP_all();
+      if(DoSwap) SwapFunction();
+      if(DoLaplaceSmoothing) SmoothFunction();
+    }
+    
+    if(insert_EP) {
+      UpdateDesiredMeshDensity();
+      insert_EP_all();
+      if(DoSwap) SwapFunction();
+      if(DoLaplaceSmoothing) SmoothFunction();
+    }
+    
+    if(remove_FP) {
+      UpdateDesiredMeshDensity();
+      remove_FP_all_2();
+      if(DoSwap) SwapFunction();
+      if(DoLaplaceSmoothing) SmoothFunction();
+    }
+    
+    if(remove_EP) {
+      UpdateDesiredMeshDensity();
+      remove_EP_all_2();
+      if(DoSwap) SwapFunction();
+      if(DoLaplaceSmoothing) SmoothFunction();
+    }
+    
+/*    if(DoSwap) SwapFunction();
+    if(DoLaplaceSmoothing) SmoothFunction();*/
+    
+    cout<<"===Summary==="<<endl;
+    cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
+    cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
+    cout<<"N_removed_FP="<<N_removed_FP<<endl;
+    cout<<"N_removed_EP="<<N_removed_EP<<endl;
+    
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"m_total_N_newpoints="<<m_total_N_newpoints<<endl;
+    cout<<"m_total_N_newcells="<<m_total_N_newcells<<endl;
+    cout<<"============"<<endl;
+    
+    if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
+    
+  }
+  
+  cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
+  UpdateMeshDensity();
+  return 1;
+}
+//end of process
+
 int CreateSpecialMapping::UpdateDesiredMeshDensity()
 {
   getAllSurfaceCells(m_AllCells,m_grid);
@@ -112,137 +206,39 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   } while(diff>Convergence_meshdensity && !first && iter<maxiter);// if first=true, it means no new mesh density has been defined (all densities specified)
   cout<<"iter="<<iter<<endl;
   if(iter>=maxiter) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
+  return(0);
 }
 
-int CreateSpecialMapping::Process()
+int CreateSpecialMapping::SwapFunction()
 {
-  int i_iter=0;
-  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
-  {
-    cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
-    
-    m_total_N_newpoints=0;
-    m_total_N_newcells=0;
-    
-    getAllSurfaceCells(m_AllCells,m_grid);
-    getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
-    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-    
-    EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-    
-    m_SelectedNodes.clear();
-    getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
-    getNodesFromCells(m_AllCells, nodes, m_grid);
-    setGrid(m_grid);
-    setCells(m_AllCells);
-    
-    cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-    
-    //Phase C: Prepare edge_map
-    cout<<"===Phase C==="<<endl;
-    edge_map.clear();
-    vtkIdType edgeId=1;
-    foreach(vtkIdType node1,m_SelectedNodes)
-    {
-//       cout<<"node1="<<node1<<endl;
-      foreach(vtkIdType node2,n2n[node1])
-      {
-        if(edge_map[OrderedPair(node1,node2)]==0) { //this edge hasn't been numbered yet
-          edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
-        }
-      }
-    }
-    cout<<"edge_map.size()="<<edge_map.size()<<endl;
-    
-    //Phase D: edit points
-    cout<<"===Phase D==="<<endl;
-    N_inserted_FP=0;
-    N_inserted_EP=0;
-    N_removed_FP=0;
-    N_removed_EP=0;
-    
-    //Method 1
-//     FullEdit();
-    
-    //Method 2
-/*    if(insert_FP) insert_FP_all();
-    if(insert_EP) insert_EP_all();
-    if(remove_FP) remove_FP_all();
-    if(remove_EP) remove_EP_all();*/
-    
-    //Method 3
-    if(insert_FP) {
-      UpdateDesiredMeshDensity();
-      insert_FP_all();
-//       DualSave("file1");
-    }
-    
-    if(insert_EP) {
-      UpdateDesiredMeshDensity();
-      insert_EP_all();
-//       DualSave("file2");
-    }
-    
-    if(remove_FP) {
-      UpdateDesiredMeshDensity();
-      remove_FP_all_2();
-//       DualSave("file3");
-    }
-    
-    if(remove_EP) {
-      UpdateDesiredMeshDensity();
-      remove_EP_all_2();
-//       DualSave("file4");
-    }
-    
-    //Phase E : Delaunay swap
-    if(DoSwap) {
-      QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
-      cout<<"m_bcs="<<m_bcs<<endl;
-      cout<<"bcs_complement="<<bcs_complement<<endl;
-      
-      SwapTriangles swap;
-      swap.setGrid(m_grid);
-      swap.setBoundaryCodes(bcs_complement);
-      swap();
-    }
-    
-      //Phase F : translate points to smooth grid
-      //4 possibilities
-      //vtk smooth 1
-      //vtk smooth 2
-      //laplacian smoothing with projection
-      //Roland smoothing with projection
-    
-      //laplacian smoothing with projection
-    if(DoLaplaceSmoothing) {
-      LaplaceSmoother Lap;
-      Lap.SetInput(m_bcs,m_grid);
-      Lap.SetNumberOfIterations(N_SmoothIterations);
-      Lap();
-    }
-    
-    cout<<"===Summary==="<<endl;
-    cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
-    cout<<"N_inserted_EP="<<N_inserted_EP<<endl;
-    cout<<"N_removed_FP="<<N_removed_FP<<endl;
-    cout<<"N_removed_EP="<<N_removed_EP<<endl;
-    
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"m_total_N_newpoints="<<m_total_N_newpoints<<endl;
-    cout<<"m_total_N_newcells="<<m_total_N_newcells<<endl;
-    cout<<"============"<<endl;
-    
-    if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
-    
-  }
+  //Phase E : Delaunay swap
+  QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
+  cout<<"m_bcs="<<m_bcs<<endl;
+  cout<<"bcs_complement="<<bcs_complement<<endl;
   
-  cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
-  UpdateMeshDensity();
-  return 1;
+  SwapTriangles swap;
+  swap.setGrid(m_grid);
+  swap.setBoundaryCodes(bcs_complement);
+  swap();
+  return(0);
 }
-//end of process
+
+int CreateSpecialMapping::SmoothFunction()
+{
+  //Phase F : translate points to smooth grid
+  //4 possibilities
+  //vtk smooth 1
+  //vtk smooth 2
+  //laplacian smoothing with projection
+  //Roland smoothing with projection
+
+  //laplacian smoothing with projection
+  LaplaceSmoother Lap;
+  Lap.SetInput(m_bcs,m_grid);
+  Lap.SetNumberOfIterations(N_SmoothIterations);
+  Lap();
+  return(0);
+}
 
 VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
 {
@@ -286,6 +282,23 @@ int CreateSpecialMapping::insert_FP_counter()
 int CreateSpecialMapping::insert_EP_counter()
 {
   cout<<"===insert_EP_counter() START==="<<endl;
+  
+  //Phase C: Prepare edge_map
+  cout<<"===Phase C==="<<endl;
+  edge_map.clear();
+  vtkIdType edgeId=1;
+  foreach(vtkIdType node1,m_SelectedNodes)
+  {
+//       cout<<"node1="<<node1<<endl;
+    foreach(vtkIdType node2,n2n[node1])
+    {
+      if(edge_map[OrderedPair(node1,node2)]==0) { //this edge hasn't been numbered yet
+        edge_map[OrderedPair(node1,node2)]=edgeId;edgeId++;
+      }
+    }
+  }
+  cout<<"edge_map.size()="<<edge_map.size()<<endl;
+  
   StencilVector.clear();
   QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map_iter(edge_map);
       //rewind the iterator
