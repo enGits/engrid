@@ -47,6 +47,8 @@
 #include <vtkTextActor.h>
 #include <vtkVectorText.h>
 #include <vtkFollower.h>
+#include <vtkLookupTable.h>
+#include <vtkScalarBarActor.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
@@ -381,21 +383,92 @@ void GuiMainWindow::updateActors()
     
     if (ui.checkBoxSurface->isChecked()) {
       bcodes_filter->SetBoundaryCodes(&display_boundary_codes);
+      
       bcodes_filter->SetInput(grid);
+      
       surface_filter->SetInput(bcodes_filter->GetOutput());
+      
       surface_filter->Update();
+      
       boundary_pd->DeepCopy(surface_filter->GetOutput());
+      
       surface_mapper->SetInput(boundary_pd);
+      
       surface_wire_mapper->SetInput(boundary_pd);
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
-      surface_actor->GetProperty()->SetColor(0.5,1,0.5);
+//       surface_actor->GetProperty()->SetColor(0.5,1,0.5);
+      
+      vtkLookupTable* lut=vtkLookupTable::New();
+      lut->SetNumberOfColors(64);
+      lut->SetHueRange(0.0,0.667);
+      lut->Build();
+/*      for(int i=0;i<16;i++){
+        lut->SetTableValue(i*16+0,1,0,0,1);
+        lut->SetTableValue(i*16+1,0,1,0,1);
+        lut->SetTableValue(i*16+2,0,0,1,1);
+        lut->SetTableValue(i*16+3,0,0,0,1);
+      }*/
+      
+      vtkPolyDataMapper* planeMapper=vtkPolyDataMapper::New();
+      planeMapper->SetLookupTable(lut);
+      planeMapper->SetInput(boundary_pd);
+//       planeMapper->SetInputConnection(surface_filter->GetOutputPort());
+//       planeMapper->SetInputConnection(bcodes_filter->GetOutputPort());
+      planeMapper->SetColorModeToMapScalars();
+      planeMapper->SetScalarModeToUsePointFieldData();
+      planeMapper->ColorByArrayComponent("node_meshdensity_current",0);
+      planeMapper->SetScalarRange(0,20);
+//       vtkActor* planeActor=vtkActor::New();
+//       planeActor->SetMapper(planeMapper);
+      
       surface_actor->SetBackfaceProperty(backface_property);
-      surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
+//       surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
+      
+//       surface_actor->SetMapper(surface_mapper);
+      surface_actor->SetMapper(planeMapper);
+      
+      int N1=boundary_pd->GetPointData()->GetNumberOfArrays();
+      cout<<"N1="<<N1<<endl;
+      vtkDoubleArray *newScalars = vtkDoubleArray::New();\
+      int index;
+      newScalars=(vtkDoubleArray *)boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
+      cout<<"index="<<index<<endl;
+      
+      cout<<"=========="<<endl;
+      boundary_pd->GetPointData()->GetArray("node_status",index);
+      cout<<"index="<<index<<endl;
+      boundary_pd->GetPointData()->GetArray("node_layer",index);
+      cout<<"index="<<index<<endl;
+      boundary_pd->GetPointData()->GetArray("node_index",index);
+      cout<<"index="<<index<<endl;
+      boundary_pd->GetPointData()->GetArray("node_meshdensity",index);
+      cout<<"index="<<index<<endl;
+      boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
+      cout<<"index="<<index<<endl;
+      boundary_pd->GetPointData()->GetArray("node_type",index);
+      cout<<"index="<<index<<endl;
+      cout<<"=========="<<endl;
+      
+      int N2=newScalars->GetNumberOfComponents();
+      int N3=newScalars->GetNumberOfTuples();
+      cout<<"Number of components=N2="<<N2<<endl;
+      cout<<"Number of tuples=N3="<<N3<<endl;
+      
+      for (int i=0; i<N3; i++)
+      {
+        double D=newScalars->GetComponent(i,0);//strange, but works. O.o
+        cout<<"D["<<i<<"]="<<D<<endl;
+      }
+      
+      vtkScalarBarActor* iamlegend = vtkScalarBarActor::New();
+      iamlegend->SetLookupTable (lut);
+      getRenderer()->AddActor(iamlegend);
+      
       surface_wire_actor = vtkActor::New();
       surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
       surface_wire_actor->GetProperty()->SetColor(0,0,1);
-      surface_actor->SetMapper(surface_mapper);
+      
       surface_wire_actor->SetMapper(surface_wire_mapper);
       getRenderer()->AddActor(surface_actor);
       getRenderer()->AddActor(surface_wire_actor);
