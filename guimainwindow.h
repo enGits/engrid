@@ -45,6 +45,8 @@ class GuiMainWindow;
 #include <vtkTextActor.h>
 #include <vtkVectorText.h>
 #include <vtkFollower.h>
+#include <vtkScalarBarActor.h>
+#include <vtkLookupTable.h>
 
 #include "ui_guimainwindow.h"
 #include "ui_guioutputwindow.h"
@@ -111,6 +113,10 @@ private: // attributes
   vtkActor *volume_wire_actor;
   vtkProperty *backface_property;
   
+  vtkLookupTable *lut;
+  vtkScalarBarActor *iamlegend_actor;
+  
+  vtkPolyDataMapper *field_mapper;
   vtkPolyDataMapper *surface_mapper;
   vtkPolyDataMapper *surface_wire_mapper;
   vtkPolyDataMapper *tetra_mapper;

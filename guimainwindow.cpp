@@ -149,6 +149,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   wedge_actor       = NULL;
   hexa_actor        = NULL;
   volume_wire_actor = NULL;
+  iamlegend_actor = NULL;
+  lut = NULL;
+  field_mapper = NULL;
   
   surface_filter = vtkGeometryFilter::New();
   bcodes_filter = vtkEgBoundaryCodesFilter::New();
@@ -380,6 +383,19 @@ void GuiMainWindow::updateActors()
       pick_actor->Delete();
       pick_actor = NULL;
     };
+    if (iamlegend_actor) {
+      getRenderer()->RemoveActor(iamlegend_actor);
+      iamlegend_actor->Delete();
+      iamlegend_actor = NULL;
+    };
+    if (lut) {
+      lut->Delete();
+      lut = NULL;
+    };
+    if (field_mapper) {
+      field_mapper->Delete();
+      field_mapper = NULL;
+    };
     
     if (ui.checkBoxSurface->isChecked()) {
       bcodes_filter->SetBoundaryCodes(&display_boundary_codes);
@@ -397,40 +413,48 @@ void GuiMainWindow::updateActors()
       surface_wire_mapper->SetInput(boundary_pd);
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
-//       surface_actor->GetProperty()->SetColor(0.5,1,0.5);
       
-      vtkLookupTable* lut=vtkLookupTable::New();
-      lut->SetNumberOfColors(64);
-      lut->SetHueRange(0.0,0.667);
-      lut->Build();
-/*      for(int i=0;i<16;i++){
-        lut->SetTableValue(i*16+0,1,0,0,1);
-        lut->SetTableValue(i*16+1,0,1,0,1);
-        lut->SetTableValue(i*16+2,0,0,1,1);
-        lut->SetTableValue(i*16+3,0,0,0,1);
-      }*/
+      int current_field=ui.comboBox_Field->currentIndex();
+      ui.comboBox_Field->clear();
+      ui.comboBox_Field->addItem("None");
+      int N_Arrays=boundary_pd->GetPointData()->GetNumberOfArrays();
+      cout<<"N_Arrays="<<N_Arrays<<endl;
+      for (int i=0; i<N_Arrays; i++)
+      {
+        ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
+      }
+      ui.comboBox_Field->setCurrentIndex(current_field);
+      cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
+      cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
       
-      vtkPolyDataMapper* planeMapper=vtkPolyDataMapper::New();
-      planeMapper->SetLookupTable(lut);
-      planeMapper->SetInput(boundary_pd);
-//       planeMapper->SetInputConnection(surface_filter->GetOutputPort());
-//       planeMapper->SetInputConnection(bcodes_filter->GetOutputPort());
-      planeMapper->SetColorModeToMapScalars();
-      planeMapper->SetScalarModeToUsePointFieldData();
-      planeMapper->ColorByArrayComponent("node_meshdensity_current",0);
-      planeMapper->SetScalarRange(0,20);
-//       vtkActor* planeActor=vtkActor::New();
-//       planeActor->SetMapper(planeMapper);
+      if(ui.comboBox_Field->currentIndex()<=0) {
+        surface_actor->SetBackfaceProperty(backface_property);
+        surface_actor->GetProperty()->SetColor(0.5,1,0.5);
+        surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
+        surface_actor->SetMapper(surface_mapper);
+      }
+      else {
+        lut=vtkLookupTable::New();
+        lut->SetNumberOfColors(256);
+        lut->SetHueRange(0.0,0.667);
+        lut->Build();
+        field_mapper=vtkPolyDataMapper::New();
+        field_mapper->SetLookupTable(lut);
+        field_mapper->SetInput(boundary_pd);
+        field_mapper->SetColorModeToMapScalars();
+        field_mapper->SetScalarModeToUsePointFieldData();
+        field_mapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
+        field_mapper->SetScalarRange(0,20);
+        surface_actor->SetMapper(field_mapper);
+        
+        if(ui.checkBox_Legend->checkState()) {
+          iamlegend_actor = vtkScalarBarActor::New();
+          iamlegend_actor->SetLookupTable (lut);
+          getRenderer()->AddActor(iamlegend_actor);
+        }
+      }
       
-      surface_actor->SetBackfaceProperty(backface_property);
-//       surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
-      
-//       surface_actor->SetMapper(surface_mapper);
-      surface_actor->SetMapper(planeMapper);
-      
-      int N1=boundary_pd->GetPointData()->GetNumberOfArrays();
-      cout<<"N1="<<N1<<endl;
-      vtkDoubleArray *newScalars = vtkDoubleArray::New();\
+      vtkDoubleArray *newScalars = vtkDoubleArray::New();
       int index;
       newScalars=(vtkDoubleArray *)boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
       cout<<"index="<<index<<endl;
@@ -455,15 +479,12 @@ void GuiMainWindow::updateActors()
       cout<<"Number of components=N2="<<N2<<endl;
       cout<<"Number of tuples=N3="<<N3<<endl;
       
-      for (int i=0; i<N3; i++)
+      
+/*      for (int i=0; i<N3; i++)
       {
         double D=newScalars->GetComponent(i,0);//strange, but works. O.o
         cout<<"D["<<i<<"]="<<D<<endl;
-      }
-      
-      vtkScalarBarActor* iamlegend = vtkScalarBarActor::New();
-      iamlegend->SetLookupTable (lut);
-      getRenderer()->AddActor(iamlegend);
+      }*/
       
       surface_wire_actor = vtkActor::New();
       surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
