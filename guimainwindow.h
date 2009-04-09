@@ -372,6 +372,9 @@ public slots:
   /** Update the VTK output */
   void updateActors();
   
+  /** Scale to data */
+  void ScaleToData();
+  
   /** Move the camera in order to show everything on the screen */
   void zoomAll();
   

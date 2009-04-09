@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>1012</width>
-    <height>866</height>
+    <height>922</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -403,14 +403,48 @@
        <item row="2" column="0" >
         <widget class="QLabel" name="label_5" >
          <property name="text" >
-          <string>Min</string>
+          <string>DataMin</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0" >
         <widget class="QLabel" name="label_6" >
          <property name="text" >
-          <string>Max</string>
+          <string>DataMax</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <widget class="QLabel" name="label_7" >
+         <property name="text" >
+          <string>HueMin</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" >
+        <widget class="QLabel" name="label_8" >
+         <property name="text" >
+          <string>HueMax</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" >
+        <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMin" >
+         <property name="maximum" >
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep" >
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1" >
+        <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMax" >
+         <property name="maximum" >
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep" >
+          <double>0.010000000000000</double>
          </property>
         </widget>
        </item>
@@ -995,6 +1029,11 @@
     <string>UseVTKInteractor</string>
    </property>
   </action>
+  <action name="actionScaleToData" >
+   <property name="text" >
+    <string>ScaleToData</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9" />
  <customwidgets>
@@ -1033,6 +1072,22 @@
     <hint type="sourcelabel" >
      <x>753</x>
      <y>619</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_ScaleToData</sender>
+   <signal>clicked()</signal>
+   <receiver>actionScaleToData</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>635</x>
+     <y>718</y>
     </hint>
     <hint type="destinationlabel" >
      <x>-1</x>

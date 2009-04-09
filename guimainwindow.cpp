@@ -108,6 +108,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
   connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
   connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
+  connect(ui.actionScaleToData,            SIGNAL(activated()),       this, SLOT(ScaleToData()));
   connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
@@ -252,6 +253,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   setPickMode(true,true);
   PickedPoint=-1;
   PickedCell=-1;
+  
+  ui.doubleSpinBox_HueMin->setValue(0.667);
+  ui.doubleSpinBox_HueMax->setValue(0);
 };
 
 GuiMainWindow::~GuiMainWindow()
@@ -304,6 +308,23 @@ void GuiMainWindow::setCwd(QString dir)
   cwd = dir;
   qset.setValue("working_directory",dir);
 };
+
+void GuiMainWindow::ScaleToData()
+{
+  int current_field=ui.comboBox_Field->currentIndex();
+  if(current_field>0)
+  {
+    double range[2];
+    boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
+    cout<<"current_field="<<current_field<<endl;
+    cout<<"range[0]="<<range[0]<<endl;
+    cout<<"range[1]="<<range[1]<<endl;
+    ui.doubleSpinBox_FieldMin->setRange(range[0],range[1]);
+    ui.doubleSpinBox_FieldMax->setRange(range[0],range[1]);
+    ui.doubleSpinBox_FieldMin->setValue(range[0]);
+    ui.doubleSpinBox_FieldMax->setValue(range[1]);
+  }
+}
 
 void GuiMainWindow::updateActors()
 {
@@ -423,9 +444,24 @@ void GuiMainWindow::updateActors()
       {
         ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
       }
-      ui.comboBox_Field->setCurrentIndex(current_field);
+      
+      if(current_field==-1) ui.comboBox_Field->setCurrentIndex(0);
+      else ui.comboBox_Field->setCurrentIndex(current_field);
+      
       cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
       cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
+      
+      current_field=ui.comboBox_Field->currentIndex();
+      if(current_field>0)
+      {
+        double range[2];
+        boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
+        cout<<"current_field="<<current_field<<endl;
+        cout<<"range[0]="<<range[0]<<endl;
+        cout<<"range[1]="<<range[1]<<endl;
+        ui.doubleSpinBox_FieldMin->setRange(range[0],range[1]);
+        ui.doubleSpinBox_FieldMax->setRange(range[0],range[1]);
+      }
       
       if(ui.comboBox_Field->currentIndex()<=0) {
         surface_actor->SetBackfaceProperty(backface_property);
@@ -436,7 +472,7 @@ void GuiMainWindow::updateActors()
       else {
         lut=vtkLookupTable::New();
         lut->SetNumberOfColors(256);
-        lut->SetHueRange(0.0,0.667);
+        lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
         lut->Build();
         field_mapper=vtkPolyDataMapper::New();
         field_mapper->SetLookupTable(lut);
@@ -444,7 +480,7 @@ void GuiMainWindow::updateActors()
         field_mapper->SetColorModeToMapScalars();
         field_mapper->SetScalarModeToUsePointFieldData();
         field_mapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
-        field_mapper->SetScalarRange(0,20);
+        field_mapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
         surface_actor->SetMapper(field_mapper);
         
         if(ui.checkBox_Legend->checkState()) {
