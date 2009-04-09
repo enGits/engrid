@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1012</width>
-    <height>922</height>
+    <width>1072</width>
+    <height>1009</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -18,437 +18,17 @@
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QGridLayout" name="gridLayout" >
-    <property name="leftMargin" >
-     <number>0</number>
-    </property>
-    <property name="topMargin" >
-     <number>0</number>
-    </property>
-    <property name="rightMargin" >
-     <number>2</number>
-    </property>
-    <property name="bottomMargin" >
-     <number>0</number>
-    </property>
-    <property name="horizontalSpacing" >
-     <number>3</number>
-    </property>
-    <property name="verticalSpacing" >
-     <number>-1</number>
-    </property>
-    <item row="0" column="1" >
-     <widget class="QGroupBox" name="groupBox" >
-      <property name="title" >
-       <string>clipping</string>
-      </property>
-      <layout class="QGridLayout" >
-       <item row="0" column="1" >
-        <widget class="QLineEdit" name="lineEditClipX" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="label" >
-         <property name="text" >
-          <string>centre</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" >
-        <widget class="QLineEdit" name="lineEditClipY" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" >
-        <widget class="QLineEdit" name="lineEditClipZ" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" >
-        <widget class="QLineEdit" name="lineEditClipNX" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>1</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>normal</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1" >
-        <widget class="QLineEdit" name="lineEditClipNY" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1" >
-        <widget class="QLineEdit" name="lineEditClipNZ" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1" >
-        <widget class="Line" name="line" >
-         <property name="lineWidth" >
-          <number>0</number>
-         </property>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1" >
-        <widget class="Line" name="line_2" >
-         <property name="lineWidth" >
-          <number>0</number>
-         </property>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1" >
-        <widget class="QCheckBox" name="checkBoxClip" >
-         <property name="text" >
-          <string>enable</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1" >
-        <widget class="QLineEdit" name="lineEditOffset" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text" >
-          <string>0</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" >
-        <widget class="QLabel" name="label_3" >
-         <property name="text" >
-          <string>offset</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="6" column="1" >
-     <widget class="QPushButton" name="pushButtonRedraw" >
-      <property name="text" >
-       <string>   redraw</string>
-      </property>
-      <property name="icon" >
-       <iconset resource="engrid.qrc" >
-        <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1" >
-     <widget class="QGroupBox" name="groupBox_3" >
-      <property name="title" >
-       <string>volume elements</string>
-      </property>
-      <layout class="QVBoxLayout" >
-       <item>
-        <widget class="QCheckBox" name="checkBoxTetra" >
-         <property name="text" >
-          <string>tetras</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBoxPyramid" >
-         <property name="text" >
-          <string>pyramids</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBoxWedge" >
-         <property name="text" >
-          <string>wedges</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBoxHexa" >
-         <property name="text" >
-          <string>hexas</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item rowspan="7" row="0" column="0" >
+    <item row="0" column="0" >
      <widget class="QVTKWidget" name="qvtkWidget" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="cursor" >
        <cursorShape>ArrowCursor</cursorShape>
       </property>
-     </widget>
-    </item>
-    <item row="1" column="1" >
-     <widget class="QGroupBox" name="groupBox_2" >
-      <property name="title" >
-       <string>surface elements</string>
-      </property>
-      <layout class="QVBoxLayout" >
-       <item>
-        <widget class="QCheckBox" name="checkBoxSurface" >
-         <property name="text" >
-          <string>enable</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="5" column="1" >
-     <spacer name="verticalSpacer" >
-      <property name="orientation" >
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0" >
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="3" column="1" >
-     <widget class="QGroupBox" name="groupBox_4" >
-      <property name="title" >
-       <string>Picker</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout" >
-       <item>
-        <widget class="QRadioButton" name="radioButton_CellPicker" >
-         <property name="text" >
-          <string>CellPicker</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="radioButton_PointPicker" >
-         <property name="text" >
-          <string>PointPicker</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBox_UseVTKInteractor" >
-         <property name="text" >
-          <string>Use VTK Interactor</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="4" column="1" >
-     <widget class="QGroupBox" name="groupBox_5" >
-      <property name="title" >
-       <string>Fields</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="comboBox_Field" />
-       </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_4" >
-         <property name="text" >
-          <string>Field</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" >
-        <widget class="QCheckBox" name="checkBox_Legend" >
-         <property name="text" >
-          <string>Show legend</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QPushButton" name="pushButton_ScaleToData" >
-         <property name="text" >
-          <string>Scale to data</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMin" />
-       </item>
-       <item row="3" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMax" />
-       </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="label_5" >
-         <property name="text" >
-          <string>DataMin</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" >
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
-          <string>DataMax</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" >
-        <widget class="QLabel" name="label_7" >
-         <property name="text" >
-          <string>HueMin</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" >
-        <widget class="QLabel" name="label_8" >
-         <property name="text" >
-          <string>HueMax</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMin" >
-         <property name="maximum" >
-          <double>1.000000000000000</double>
-         </property>
-         <property name="singleStep" >
-          <double>0.010000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMax" >
-         <property name="maximum" >
-          <double>1.000000000000000</double>
-         </property>
-         <property name="singleStep" >
-          <double>0.010000000000000</double>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>
@@ -458,7 +38,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1012</width>
+     <width>1072</width>
      <height>27</height>
     </rect>
    </property>
@@ -520,6 +100,7 @@
     <addaction name="actionViewOrthogonal" />
     <addaction name="actionViewNodeIDs" />
     <addaction name="actionViewCellIDs" />
+    <addaction name="actionShow_display_options" />
    </widget>
    <widget class="QMenu" name="menuMesh" >
     <property name="title" >
@@ -624,6 +205,418 @@
    <addaction name="actionViewYM" />
    <addaction name="actionDeletePickedPoint" />
    <addaction name="actionSmoothSurface" />
+  </widget>
+  <widget class="QDockWidget" name="dockWidget" >
+   <property name="floating" >
+    <bool>true</bool>
+   </property>
+   <attribute name="dockWidgetArea" >
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents" >
+    <layout class="QGridLayout" name="gridLayout_3" >
+     <item row="0" column="0" >
+      <widget class="QGroupBox" name="groupBox" >
+       <property name="title" >
+        <string>clipping</string>
+       </property>
+       <layout class="QGridLayout" >
+        <item row="0" column="1" >
+         <widget class="QLineEdit" name="lineEditClipX" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>centre</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLineEdit" name="lineEditClipY" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QLineEdit" name="lineEditClipZ" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" >
+         <widget class="QLineEdit" name="lineEditClipNX" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>1</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" >
+         <widget class="QLabel" name="label_2" >
+          <property name="text" >
+           <string>normal</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" >
+         <widget class="QLineEdit" name="lineEditClipNY" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1" >
+         <widget class="QLineEdit" name="lineEditClipNZ" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" >
+         <widget class="Line" name="line" >
+          <property name="lineWidth" >
+           <number>0</number>
+          </property>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1" >
+         <widget class="Line" name="line_2" >
+          <property name="lineWidth" >
+           <number>0</number>
+          </property>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1" >
+         <widget class="QCheckBox" name="checkBoxClip" >
+          <property name="text" >
+           <string>enable</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1" >
+         <widget class="QLineEdit" name="lineEditOffset" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>0</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>offset</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QGroupBox" name="groupBox_2" >
+       <property name="title" >
+        <string>surface elements</string>
+       </property>
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QCheckBox" name="checkBoxSurface" >
+          <property name="text" >
+           <string>enable</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0" >
+      <widget class="QGroupBox" name="groupBox_3" >
+       <property name="title" >
+        <string>volume elements</string>
+       </property>
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QCheckBox" name="checkBoxTetra" >
+          <property name="text" >
+           <string>tetras</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxPyramid" >
+          <property name="text" >
+           <string>pyramids</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxWedge" >
+          <property name="text" >
+           <string>wedges</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxHexa" >
+          <property name="text" >
+           <string>hexas</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+       <zorder>checkBoxTetra</zorder>
+       <zorder>checkBoxPyramid</zorder>
+       <zorder>checkBoxHexa</zorder>
+       <zorder>checkBoxWedge</zorder>
+       <zorder>groupBox_4</zorder>
+      </widget>
+     </item>
+     <item row="3" column="0" >
+      <widget class="QGroupBox" name="groupBox_4" >
+       <property name="title" >
+        <string>Picker</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout" >
+        <item>
+         <widget class="QRadioButton" name="radioButton_CellPicker" >
+          <property name="text" >
+           <string>CellPicker</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_PointPicker" >
+          <property name="text" >
+           <string>PointPicker</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_UseVTKInteractor" >
+          <property name="text" >
+           <string>Use VTK Interactor</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="4" column="0" >
+      <widget class="QGroupBox" name="groupBox_5" >
+       <property name="title" >
+        <string>Fields</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <item row="0" column="1" >
+         <widget class="QComboBox" name="comboBox_Field" />
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label_4" >
+          <property name="text" >
+           <string>Field</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QCheckBox" name="checkBox_Legend" >
+          <property name="text" >
+           <string>Show legend</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QPushButton" name="pushButton_ScaleToData" >
+          <property name="text" >
+           <string>Scale to data</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMin" />
+        </item>
+        <item row="3" column="1" >
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMax" />
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_5" >
+          <property name="text" >
+           <string>DataMin</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>DataMax</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" >
+         <widget class="QLabel" name="label_7" >
+          <property name="text" >
+           <string>HueMin</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" >
+         <widget class="QLabel" name="label_8" >
+          <property name="text" >
+           <string>HueMax</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" >
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMin" >
+          <property name="maximum" >
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep" >
+           <double>0.010000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" >
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMax" >
+          <property name="maximum" >
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep" >
+           <double>0.010000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="5" column="0" >
+      <widget class="QPushButton" name="pushButtonRedraw" >
+       <property name="text" >
+        <string>   redraw</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="engrid.qrc" >
+         <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="actionExit" >
    <property name="icon" >
@@ -1034,6 +1027,14 @@
     <string>ScaleToData</string>
    </property>
   </action>
+  <action name="actionShow_display_options" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Show display options</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9" />
  <customwidgets>
@@ -1088,6 +1089,38 @@
     <hint type="sourcelabel" >
      <x>635</x>
      <y>718</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionShow_display_options</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dockWidget</receiver>
+   <slot>setShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>404</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>404</x>
+     <y>198</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidget</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionShow_display_options</receiver>
+   <slot>setOn(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>404</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel" >
      <x>-1</x>
