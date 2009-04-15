@@ -176,7 +176,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
             vec3_t x_old;
             grid->GetPoint(nodes[i_nodes],x_old.data());
             vec3_t x_new = x_old + Dx - x0;
-            if (n*x_new <= 0) {
+            if ( (n*x_new) <= 0 ) {
               x_new -= (x_new*n)*n;
               x_new += 1e-4*L*n;
               x_new += x0;

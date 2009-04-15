@@ -20,56 +20,53 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef guismoothsurface_H
-#define guismoothsurface_H
 
-#include "ui_guismoothsurface.h"
-#include "dialogoperation.h"
-#include "vertexmeshdensity.h"
-#include "settingssheet.h"
+#include "deletepickedpoint.h"
 
-#include <vtkPolyDataAlgorithm.h>
+#include <QObject>
+#include <QVector>
 
-class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
+#include "guimainwindow.h"
+#include "egvtkobject.h"
+#include "geometrytools.h"
+using namespace GeometryTools;
+
+void DeletePickedPoint::operate()
 {
-  
-  Q_OBJECT;
-  
-private slots:
-  
-  void AddSet();
-  void RemoveSet();
-  void TestSet();
-  void Load();
-  void Save();
-  void SelectAll_BC();
-  void ClearAll_BC();
-  void SelectAll_Source();
-  void ClearAll_Source();
-  
-protected: // methods
-  
-  virtual void before();
-  virtual void operate();
+  vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
+  cout<<"You picked "<<nodeId<<endl;
 
-private:
-  int Nbc;
-  SettingsSheet* tableWidget;
-public:
-  QVector <VertexMeshDensity> GetSet();
-  QSettings* local_qset;
+  int N_newpoints;
+  int N_newcells;
   
-  /** The currently loaded grid file. */
-  QString current_filename;
+  SetConvergence(0.0);
+  SetFeatureEdgeSmoothing(1);
+  SetFeatureAngle(45.0);
+  SetEdgeAngle(15.0);
+  SetBoundarySmoothing(1);
   
-  //  /** The settings file to load. */
-  //QString current_settingssheet_name;
+//   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
+  QVector <vtkIdType> Peons;
+  vtkIdType Boss;
+  int BC=0;
   
-  int readSettings();
-  int writeSettings();
-  int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
-  int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
+  QMessageBox msgBox;
+  msgBox.setText("Delete point?");
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+  switch (msgBox.exec()) {
+  case QMessageBox::Yes:
+    cout<<"yes was clicked"<<endl;
+    DeletePoint_2(grid,nodeId,N_newpoints,N_newcells);
+    break;
+  case QMessageBox::No:
+    cout<<"no was clicked"<<endl;
+    Boss=nodeId;
+    getNeighbours(Boss,Peons,BC);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<" BC="<<BC<<endl;
+    break;
+  default:
+     // should never be reached
+    break;
+  }
   
 };
-
-#endif

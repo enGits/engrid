@@ -207,6 +207,31 @@ GRID->GetCellPoints(CELLID, N ## PTS, PTS);
 
 inline double sqr(double x) { return x*x; };
 
+inline int factorial_rec(int num)
+{
+  if (num<=1)
+    return 1;
+  return factorial_rec(num-1)*num; // recursive call
+}
+
+inline int factorial_it(int num)
+{
+  int result=1;
+  for (int i=1; i<=num; ++i)
+    result=result*i;
+  return result;
+}
+
+inline int N_Combinations(int N,int k)
+{
+  return(factorial_rec(N)/(factorial_rec(N-k)*factorial_rec(k)));
+}
+
+inline int N_Permutations(int N,int k)
+{
+  return(factorial_rec(N)/(factorial_rec(N-k)));
+}
+
 #define LINE "========================================================================" << endl;
 
 #define USE(X) X=X

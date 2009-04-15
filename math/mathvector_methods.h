@@ -119,10 +119,11 @@ inline typename ParseNode<double,O,R>::value_type ParseNode<double,O,R>::abs() c
 // norm the vector to a length of 1 (according to ||v||_2)
 // -------------------------------------------------------
 template <class V>
-inline void MathVector<V>::normalise() 
+inline MathVector<V> MathVector<V>::normalise()
 {
   scalar_t l = abs();
   for (uint_t i = 0; i < this->size(); ++i) (*this)[i] /= l;
+  return(*this);
 };
 
 // create a C-style array

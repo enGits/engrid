@@ -42,6 +42,11 @@ class GuiMainWindow;
 #include <vtkCellPicker.h>
 #include <vtkPointPicker.h>
 #include <vtkSphereSource.h>
+#include <vtkTextActor.h>
+#include <vtkVectorText.h>
+#include <vtkFollower.h>
+#include <vtkScalarBarActor.h>
+#include <vtkLookupTable.h>
 
 #include "ui_guimainwindow.h"
 #include "ui_guioutputwindow.h"
@@ -53,22 +58,22 @@ class GuiMainWindow;
 #include "std_includes.h"
 #include "guitransform.h"
 
-class GuiOutputWindow : public QWidget
-{
-  
-  friend class GuiMainWindow;
-  
-  Q_OBJECT;
-  
-private: // attributes
-  
-  Ui::GuiOutputWindow ui;
-  
-public: // methods
-  
-  GuiOutputWindow();
-  
-};
+// class GuiOutputWindow : public QWidget
+// {
+//   
+//   friend class GuiMainWindow;
+//   
+//   Q_OBJECT;
+//   
+// private: // attributes
+//   
+//   Ui::GuiOutputWindow ui;
+//   
+// public: // methods
+//   
+//   GuiOutputWindow();
+//   
+// };
 
 
   
@@ -108,6 +113,10 @@ private: // attributes
   vtkActor *volume_wire_actor;
   vtkProperty *backface_property;
   
+  vtkLookupTable *lut;
+  vtkScalarBarActor *iamlegend_actor;
+  
+  vtkPolyDataMapper *field_mapper;
   vtkPolyDataMapper *surface_mapper;
   vtkPolyDataMapper *surface_wire_mapper;
   vtkPolyDataMapper *tetra_mapper;
@@ -133,6 +142,40 @@ private: // attributes
   
   /** sphere to mark picked cell/points */
   vtkSphereSource *pick_sphere;
+  
+  /** Size to use for picker objects and annotations */
+  double ReferenceSize;
+  
+  /** 2D Text actor to display node IDs */
+  vector <vtkTextActor*> NodeText;
+  
+  /** 2D Text actor to display cell IDs */
+  vector <vtkTextActor*> CellText;
+  
+  /** 3D Text actor to display node IDs */
+  vector <vtkVectorText*> NodeText_VectorText;
+  vector <vtkPolyDataMapper*> NodeText_PolyDataMapper;
+  vector <vtkFollower*> NodeText_Follower;
+  
+  /** 3D Text actor to display cell IDs */
+  vector <vtkVectorText*> CellText_VectorText;
+  vector <vtkPolyDataMapper*> CellText_PolyDataMapper;
+  vector <vtkFollower*> CellText_Follower;
+  
+  /** Picked point */
+  static vtkIdType PickedPoint;
+  
+  /** Picked cell */
+  static vtkIdType PickedCell;
+  
+  /** Boolean value specifying wether the VTK Interactor should be used or not to determine picked points/cells */
+  static bool m_UseVTKInteractor;
+  
+/*  vtkTextActor* textActor[3];
+  
+  vtkVectorText* atext[3];
+  vtkPolyDataMapper* textMapper[3];
+  vtkFollower* textActor2[3];*/
   
   /** VTK mapper to map pick marker */
   vtkPolyDataMapper *pick_mapper;
@@ -180,7 +223,7 @@ private: // attributes
   static QMutex mutex;
   QTimer garbage_timer;
   QTimer log_timer;
-  GuiOutputWindow *output_window;
+//   GuiOutputWindow *output_window;
   QDockWidget *dock_widget;
   
   /** mapping between numerical and symbolic boundary codes */
@@ -294,8 +337,16 @@ public: // static methods
   static void unlock() { mutex.unlock(); };
   static bool tryLock() { return mutex.tryLock(); };
   void getAllBoundaryCodes(QSet<int> &bcs);
+  vtkPointPicker* getPointPicker(){return(PointPicker);};
+  vtkSphereSource* getPickSphere(){return(pick_sphere);};
+  bool pickPoint(vtkIdType Point);
+  bool pickCell(vtkIdType cellId);
+  
+  QString GetFilename() {return(current_filename);};
   
 public slots:
+  void setUseVTKInteractor(int a_UseVTKInteractor);
+  void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   
   /** Exit the application */
   void exit();
@@ -321,6 +372,9 @@ public slots:
   /** Update the VTK output */
   void updateActors();
   
+  /** Scale to data */
+  void ScaleToData();
+  
   /** Move the camera in order to show everything on the screen */
   void zoomAll();
   
@@ -339,6 +393,9 @@ public slots:
   /** Save the current grid -- using a different file name */
   void saveAs();
   
+  /** Save the current grid as a_filename */
+  void QuickSave(QString a_filename);
+  
   /** Update the status bar */
   void updateStatusBar();
   
@@ -356,6 +413,12 @@ public slots:
   
   /** Toggle orthogonal viewing mode. */
   void setViewingMode();
+  
+  /** Toggle node ID viewing mode. */
+  void ViewNodeIDs();
+  
+  /** Toggle cell ID viewing mode. */
+  void ViewCellIDs();
   
   /** Change the orientation of all surface elements */
   void changeSurfaceOrientation();
@@ -388,8 +451,8 @@ public slots:
   void viewZP();
   void viewZM();
   
-  void appendOutput(QString txt) { output_window->ui.textEditOutput->append(txt); };
-  void clearOutput() { output_window->ui.textEditOutput->clear(); };
+  void appendOutput(QString txt) { ui.textEditOutput->append(txt); };
+  void clearOutput() { ui.textEditOutput->clear(); };
   void updateOutput();
   void periodicUpdate();
     
@@ -411,6 +474,8 @@ public slots:
   void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); };
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
+  void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); };
+  void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); };
   void callTransform() { EG_STDINTERSLOT(GuiTransform); };
   
   void callFixSTL();

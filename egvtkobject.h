@@ -36,6 +36,13 @@ class EgVtkObject;
 #include <vtkDoubleArray.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <QSettings>
+#include <QSet>
+#include <QVector>
+
+#define VTK_SIMPLE_VERTEX 0
+#define VTK_FIXED_VERTEX 1
+#define VTK_FEATURE_EDGE_VERTEX 2
+#define VTK_BOUNDARY_EDGE_VERTEX 3
 
 class EgVtkObject
 {
@@ -63,7 +70,8 @@ private: // methods
 protected: // attributes
   
   QSet<int> boundary_codes;
-      
+  int DebugLevel;
+  
 protected: // methods
   
   /**
@@ -485,6 +493,16 @@ protected: // methods
    */
   void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   
+  /**
+  * Copy "src" grid to "dst" grid. DO NOT allocate "dst" so that it fits the data of "src".
+  * Allocation is left for the user to do.
+  * Filter is a vector specifying whether a node should be removed or not.
+  * false: don't remove
+  * true: remove
+  */
+  void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
+//   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells);
+  
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
@@ -500,9 +518,13 @@ protected: // methods
 public: // methods
   
   void setBoundaryCodes(const QSet<int> &bcs);
+  EgVtkObject(){
+      DebugLevel=0;
+  };
+  void setDebugLevel(int a_DebugLevel){DebugLevel=a_DebugLevel;};
   
 };
-
+//End of class EgVtkObject
 
 template <class T>
 void EgVtkObject::setIntersection(const QSet<T> &set1,
@@ -583,11 +605,16 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, boo
 ///////////////////////////////////////////
 int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
+
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+
+int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
+
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
 QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
 Qt::CheckState int2CheckState(int a);
+int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
 template <class T>
@@ -604,7 +631,7 @@ ostream &operator<<(ostream &out, QVector<T> & vector)
 }
 
 template <class T>
-ostream &operator<<(ostream &out, QSet<T> & set)
+ostream &operator<<(ostream &out, QSet<T> const & set )
 {
   out << "[ ";
   foreach (T value, set) out << value << " ";
@@ -639,6 +666,33 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
   out<<"]";
   return(out);
 }
+
+template <class T>
+ostream &operator<<(ostream &out, QMap<T,bool> & map)
+{
+  QMapIterator<T, bool> i(map);
+  out<<"[";
+  while (i.hasNext()) {
+    i.next();
+    out << " [" << i.key() << ": " << i.value() << "]";
+  }
+  out<<"]";
+  return(out);
+}
 ///////////////////////////////////////////
+// ///////////////////////////////////////////
+// /* Here is how we we get QTextStreams that look like iostreams */
+// QTextStream Qcin;
+// QTextStream Qcout;
+// QTextStream Qcerr;
+// ///////////////////////////////////////////
+
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
+
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid);
+
+const char* VertexType2Str(char T);
+char Str2VertexType(QString S);
+const char* vertex_type(char T);
 
 #endif

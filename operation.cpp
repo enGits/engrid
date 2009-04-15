@@ -22,6 +22,23 @@
 //
 #include "operation.h"
 #include "guimainwindow.h"
+#include "vtkTriangleFilter.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCellLocator.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include <vtkCharArray.h>
+
+#include "geometrytools.h"
+using namespace GeometryTools;
 
 #include <QApplication>
 
@@ -207,6 +224,11 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   } else {
     S.valid = false;
     S.id_cell2 = -1;
+    vtkIdType N1, *pts1;
+    grid->GetCellPoints(S.id_cell1, N1, pts1);
+    if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
+    else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
+    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
   };
   return S;
 };
@@ -223,4 +245,1507 @@ ostream& operator<<(ostream &out, stencil_t S)
   }
   out<<"]";
   return(out);
+}
+
+//////////////////////////////////////////////
+double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n[a_vertex].size();
+  vec3_t C;
+  a_grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n[a_vertex])
+  {
+    vec3_t M;
+    a_grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=total_dist/(double)N;
+  double avg_density=1./avg_dist;
+  return(avg_density);
+}
+
+double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_dist+=1./node_meshdensity->GetValue(i);
+  }
+  avg_dist=total_dist/(double)N;
+  return(avg_dist);
+}
+
+double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid)
+{
+  double total_density=0;
+  double avg_density=0;
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, a_grid, "node_meshdensity");
+  int N=n2n[a_vertex].size();
+  foreach(int i,n2n[a_vertex])
+  {
+    total_density+=node_meshdensity->GetValue(i);
+  }
+  avg_density=total_density/(double)N;
+  return(avg_density);
+}
+
+///////////////////////////////////////////
+vtkIdType Operation::getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+{
+  vec3_t C;
+  a_grid->GetPoint(a_id_node,C.data());
+  vtkIdType id_minlen=-1;
+  double minlen=-1;
+  foreach(vtkIdType neighbour,n2n[a_id_node])
+  {
+    vec3_t M;
+    a_grid->GetPoint(neighbour,M.data());
+    double len=(M-C).abs();
+    if(minlen<0 or len<minlen)
+    {
+      minlen=len;
+      id_minlen=neighbour;
+    }
+  }
+  return(id_minlen);
+}
+
+vtkIdType Operation::getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+{
+  vec3_t C;
+  a_grid->GetPoint(a_id_node,C.data());
+  vtkIdType id_maxlen=-1;
+  double maxlen=-1;
+  foreach(vtkIdType neighbour,n2n[a_id_node])
+  {
+    vec3_t M;
+    a_grid->GetPoint(neighbour,M.data());
+    double len=(M-C).abs();
+    if(maxlen<0 or len>maxlen)
+    {
+      maxlen=len;
+      id_maxlen=neighbour;
+    }
+  }
+  return(id_maxlen);
+}
+
+bool Operation::SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S)
+{
+  bool swap = false;
+  if (S.valid) {
+    vec3_t x3[4], x3_0(0,0,0);
+    vec2_t x[4];
+    for (int k = 0; k < 4; ++k) {
+      a_grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
+      x3_0 += x3[k];
+    };
+    vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
+    vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
+    n1.normalise();
+    n2.normalise();
+    if ( (n1*n2) > 0.8) {
+      vec3_t n = n1 + n2;
+      n.normalise();
+      vec3_t ex = orthogonalVector(n);
+      vec3_t ey = ex.cross(n);
+      for (int k = 0; k < 4; ++k) {
+        x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
+      };
+      vec2_t r1, r2, r3, u1, u2, u3;
+      r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
+      r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
+      r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
+      double k, l;
+      vec2_t xm1, xm2;
+      bool ok = true;
+      if (intersection(k, l, r1, u1, r3, u3)) {
+        xm1 = r1 + k*u1;
+        if (intersection(k, l, r2, u2, r3, u3)) {
+          xm2 = r2 + k*u2;
+        } else {
+          ok = false;
+        };
+      } else {
+        ok = false;
+        swap = true;
+      };
+      if (ok) {
+        if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
+          swap = true;
+        };
+        if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
+          swap = true;
+        };
+      };
+    };
+  };
+  if (swap) {
+    vtkIdType new_pts1[3], new_pts2[3];
+    new_pts1[0] = S.p[1];
+    new_pts1[1] = S.p[2];
+    new_pts1[2] = S.p[0];
+    new_pts2[0] = S.p[2];
+    new_pts2[1] = S.p[3];
+    new_pts2[2] = S.p[0];
+    a_grid->ReplaceCell(S.id_cell1, 3, new_pts1);
+    a_grid->ReplaceCell(S.id_cell2, 3, new_pts2);
+  };
+  return(swap);
+}
+
+void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell)
+{
+  vtkIdType type_cell = grid->GetCellType(quadcell);
+  cout<<"It's a "<<type_cell<<endl;
+  if(type_cell==VTK_QUAD)
+  {
+    cout_grid(cout,src,true,true,true,true);
+    EG_VTKSP(vtkUnstructuredGrid, dst);
+    //src grid info
+    int N_points=src->GetNumberOfPoints();
+    int N_cells=src->GetNumberOfCells();
+    allocateGrid(dst,N_cells+1,N_points);
+    
+    for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      src->GetPoints()->GetPoint(id_node, x.data());
+      dst->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(src, id_node, dst, id_node);
+    };
+    for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      src->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType id_new_cell;
+      vtkIdType id_new_cell1;
+      vtkIdType id_new_cell2;
+      if(id_cell!=quadcell)
+      {
+        id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+        copyCellData(src, id_cell, dst, id_new_cell);
+      }
+      else
+      {
+        vtkIdType triangle1[3];
+        vtkIdType triangle2[3];
+        triangle1[0]=pts[1];
+        triangle1[1]=pts[3];
+        triangle1[2]=pts[0];
+        triangle2[0]=pts[3];
+        triangle2[1]=pts[1];
+        triangle2[2]=pts[2];
+        id_new_cell1 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle1);
+        copyCellData(src, id_cell, dst, id_new_cell1);
+        id_new_cell2 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
+        copyCellData(src, id_cell, dst, id_new_cell2);
+        stencil_t S;
+        S.id_cell1=id_new_cell1;
+        S.id_cell2=id_new_cell2;
+        S.p[0]=pts[0];
+        S.p[1]=pts[1];
+        S.p[2]=pts[2];
+        S.p[3]=pts[3];
+        S.valid=true;
+        SwapCells(dst,S);
+      }
+    };
+    cout_grid(cout,dst,true,true,true,true);
+    makeCopy(dst, src);
+  }//end of if quad
+}
+
+void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint)
+{
+  vtkIdType type_cell = grid->GetCellType(quadcell);
+  cout<<"It's a "<<type_cell<<endl;
+  if(type_cell==VTK_QUAD)
+  {
+    cout_grid(cout,src,true,true,true,true);
+    EG_VTKSP(vtkUnstructuredGrid, dst);
+    //src grid info
+    int N_points=src->GetNumberOfPoints();
+    int N_cells=src->GetNumberOfCells();
+    allocateGrid(dst,N_cells+1,N_points);
+    
+    for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      src->GetPoints()->GetPoint(id_node, x.data());
+      dst->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(src, id_node, dst, id_node);
+    };
+    for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      vtkIdType id_new_cell;
+      vtkIdType id_new_cell1;
+      vtkIdType id_new_cell2;
+      if(id_cell!=quadcell)
+      {
+        id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+        copyCellData(src, id_cell, dst, id_new_cell);
+      }
+      else
+      {
+        vtkIdType triangle1[3];
+        vtkIdType triangle2[3];
+        if(MovingPoint==pts[0] || MovingPoint==pts[2])
+        {
+          triangle1[0]=pts[1];
+          triangle1[1]=pts[3];
+          triangle1[2]=pts[0];
+          triangle2[0]=pts[3];
+          triangle2[1]=pts[1];
+          triangle2[2]=pts[2];
+        }
+        else
+        {
+          triangle1[0]=pts[2];
+          triangle1[1]=pts[0];
+          triangle1[2]=pts[1];
+          triangle2[0]=pts[0];
+          triangle2[1]=pts[2];
+          triangle2[2]=pts[3];
+        }
+        id_new_cell1 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle1);
+        copyCellData(src, id_cell, dst, id_new_cell1);
+        id_new_cell2 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
+        copyCellData(src, id_cell, dst, id_new_cell2);
+      }
+    };
+    cout_grid(cout,dst,true,true,true,true);
+    makeCopy(dst, src);
+  }//end of if quad
+}
+
+int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra)
+{
+//   QVector< QSet< int > > 	n2n
+  QSet <int> node1_neighbours=n2n[node1];
+  QSet <int> node2_neighbours=n2n[node2];
+  QSet <int> intersection=node1_neighbours.intersect(node2_neighbours);
+  int N=intersection.size();
+  IsTetra=false;
+  if(N==2)
+  {
+    QSet<int>::const_iterator p1=intersection.begin();
+    QSet<int>::const_iterator p2=p1+1;
+    vtkIdType intersection1=_nodes[*p1];
+    vtkIdType intersection2=_nodes[*p2];
+    if(n2n[intersection1].contains(intersection2))//if there's an edge between intersection1 and intersection2
+    {
+      //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
+  //     QVector< QSet< int > > 	n2c
+      QSet< int > S1=n2c[intersection1];
+      QSet< int > S2=n2c[intersection2];
+      QSet< int > Si=S1.intersect(S2);
+      int counter=0;
+      foreach(vtkIdType C,Si){
+        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(C, N_pts, pts);
+        for(int i=0;i<N_pts;i++)
+        {
+          if(pts[i]==node1 || pts[i]==node2) counter++;
+        }
+      }
+      if(counter>=2) IsTetra=true;
+    }
+  }
+  return(N);
+}
+
+// vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+// {
+//   return(0);
+// }
+
+bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode)
+{
+  EG_VTKSP(vtkUnstructuredGrid, dst);
+  
+    //src grid info
+  int N_points=src->GetNumberOfPoints();
+  int N_cells=src->GetNumberOfCells();
+  int N_newpoints=-1;
+  int N_newcells=0;
+  
+  if(DeadNode<0 || DeadNode>=N_points)
+  {
+    cout<<"Warning: Point out of range: DeadNode="<<DeadNode<<" N_points="<<N_points<<endl;
+    return(false);
+  }
+  
+  QSet <vtkIdType> DeadCells;
+  QSet <vtkIdType> MutatedCells;
+  QSet <vtkIdType> MutilatedCells;
+  
+  vtkIdType SnapPoint=-1;
+  //Find closest point to DeadNode
+//   vtkIdType SnapPoint = getClosestNode(DeadNode,src);//DeadNode moves to SnapPoint
+  
+  foreach(vtkIdType PSP, n2n[DeadNode])
+  {
+    bool IsValidSnapPoint=true;
+    
+    cout<<"====>PSP="<<PSP<<endl;
+    bool IsTetra=true;
+    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    if(IsTetra)//tetra check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    //count number of points and cells to remove + analyse cell transformations
+    N_newpoints=-1;
+    N_newcells=0;
+    DeadCells.clear();
+    MutatedCells.clear();
+    MutilatedCells.clear();
+    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
+    {
+      cout<<"C="<<C<<endl;
+      //get points around cell
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(C, N_pts, pts);
+      
+      bool ContainsSnapPoint=false;
+      bool invincible=false;
+      for(int i=0;i<N_pts;i++)
+      {
+        cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
+        if(pts[i]==PSP) {ContainsSnapPoint=true;}
+        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
+      }
+      if(ContainsSnapPoint)
+      {
+        if(N_pts==3)//dead cell
+        {
+          if(invincible)//Check that empty lines aren't left behind when a cell is killed
+          {
+            cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+            IsValidSnapPoint=false;
+          }
+          else
+          {
+            DeadCells.insert(C);
+            N_newcells-=1;
+            cout<<"cell "<<C<<" has been pwned!"<<endl;
+          }
+        }
+  /*      else if(N_pts==4)//mutilated cell
+        {
+          MutilatedCells.insert(C);
+          cout<<"cell "<<C<<" has lost a limb!"<<endl;
+        }*/
+        else
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+      }
+      else
+      {
+        vtkIdType src_N_pts, *src_pts;
+        src->GetCellPoints(C, src_N_pts, src_pts);
+        
+        if(src_N_pts!=3)
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+        
+        vtkIdType OldTriangle[3];
+        vtkIdType NewTriangle[3];
+        
+        for(int i=0;i<src_N_pts;i++)
+        {
+          OldTriangle[i]=src_pts[i];
+          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
+        }
+        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        double OldArea=Old_N.abs();
+        double NewArea=New_N.abs();
+        double scal=Old_N*New_N;
+        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
+        
+        cout<<"OldArea="<<OldArea<<endl;
+        cout<<"NewArea="<<NewArea<<endl;
+        cout<<"scal="<<scal<<endl;
+        cout<<"cross="<<cross<<endl;
+        
+        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+  /*      if(NewArea<OldArea*1./100.)
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+        if(abs(cross)>10e-4)
+        {
+          cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }*/
+        
+        //mutated cell
+        MutatedCells.insert(C);
+        cout<<"cell "<<C<<" has been infected!"<<endl;
+      }
+    }
+    
+    if(N_cells+N_newcells<=0)//survivor check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+/*    if(EmptyVolume(DeadNode,PSP))//simplified volume check
+    {
+      cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }*/
+    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
+  }//end of loop through potential SnapPoints
+  
+  cout<<"===>SNAPPOINT="<<SnapPoint<<endl;
+  if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
+  
+  //allocate
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
+  
+  //vector used to redefine the new point IDs
+  QVector <vtkIdType> OffSet(N_points);
+  
+  //copy undead points
+  vtkIdType dst_id_node=0;
+  for (vtkIdType src_id_node = 0; src_id_node < N_points; src_id_node++) {//loop through src points
+    if(src_id_node!=DeadNode)//if the node isn't dead, copy it
+    {
+      vec3_t x;
+      src->GetPoints()->GetPoint(src_id_node, x.data());
+      dst->GetPoints()->SetPoint(dst_id_node, x.data());
+      copyNodeData(src, src_id_node, dst, dst_id_node);
+      OffSet[src_id_node]=src_id_node-dst_id_node;
+      dst_id_node++;
+    }
+  };
+  
+  cout<<"DeadCells="<<DeadCells<<endl;
+  cout<<"MutatedCells="<<MutatedCells<<endl;
+  cout<<"MutilatedCells="<<MutilatedCells<<endl;
+  
+  //Copy undead cells
+  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {//loop through src cells
+    if(!DeadCells.contains(id_cell))//if the cell isn't dead
+    {
+      vtkIdType src_N_pts, *src_pts;
+      vtkIdType dst_N_pts, *dst_pts;
+      src->GetCellPoints(id_cell, src_N_pts, src_pts);
+      
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      cout<<"-->id_cell="<<id_cell<<endl;
+      for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+//       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
+      dst_N_pts=src_N_pts;
+      dst_pts=new vtkIdType[dst_N_pts];
+      if(MutatedCells.contains(id_cell))//mutated cell
+      {
+        cout<<"processing mutated cell "<<id_cell<<endl;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          if(src_pts[i]==DeadNode) {
+            cout<<"SnapPoint="<<SnapPoint<<endl;
+            cout<<"OffSet[SnapPoint]="<<OffSet[SnapPoint]<<endl;
+            cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+            dst_pts[i]=SnapPoint-OffSet[SnapPoint];
+          }
+          else dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+        }
+        cout<<"--->dst_pts:"<<endl;
+        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+        
+      }
+      else if(MutilatedCells.contains(id_cell))//mutilated cell
+      {
+        cout<<"processing mutilated cell "<<id_cell<<endl;
+        
+        if(type_cell==VTK_QUAD) {
+          type_cell=VTK_TRIANGLE;
+          dst_N_pts-=1;
+        }
+        else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
+        //merge points
+        int j=0;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
+          else if(src_pts[i]!=DeadNode) { dst_pts[j]=src_pts[i]-OffSet[src_pts[i]];j++; }//pre-snap/dead + post-snap/dead
+          //do nothing in case of DeadNode
+        }
+      }
+      else//normal cell
+      {
+        cout<<"processing normal cell "<<id_cell<<endl;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+        }
+      }
+      //copy the cell
+      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
+      copyCellData(src, id_cell, dst, id_new_cell);
+      cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
+      cout<<"src_pts:"<<endl;
+      for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+      cout<<"dst_pts:"<<endl;
+      for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+      cout<<"OffSet="<<OffSet<<endl;
+      cout<<"===Copying cell end==="<<endl;
+      delete dst_pts;
+    }
+  };
+//   cout_grid(cout,dst,true,true,true,true);
+  makeCopy(dst, src);
+  return(true);
+}
+
+bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
+{
+  c2c[DeadNode];
+  c2c[PSP];
+  return(true);
+}
+
+vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
+{
+  vtkIdType *pts, Npts;
+  grid->GetCellPoints(cellId, Npts, pts);
+  
+  vec3_t x(0,0,0);
+  for (vtkIdType i = 0; i < Npts; ++i) {
+    vec3_t xp;
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    x += double(1)/Npts * xp;
+  };
+  
+  R = 1e99;
+  for (vtkIdType i = 0; i < Npts; ++i) {
+    vec3_t xp;
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    R = min(R, 0.25*(xp-x).abs());
+  };
+  
+  return(x);
+}
+
+bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC)
+{
+//   QVector <vtkIdType> Peons;
+  
+  QSet <int> S1=n2c[Boss];
+  cout<<"S1="<<S1<<endl;
+  foreach(vtkIdType PN,n2n[Boss])
+  {
+    cout<<"PN="<<PN<<endl;
+    QSet <int> S2=n2c[PN];
+    cout<<"S2="<<S2<<endl;
+    QSet <int> Si=S2.intersect(S1);
+    cout<<"PN="<<PN<<" Si="<<Si<<endl;
+    if(Si.size()<2)//only one common cell
+    {
+      Peons.push_back(PN);
+    }
+    else
+    {
+      QSet <int> bc_set;
+      foreach(vtkIdType C,Si)
+      {
+        EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+        int bc=cell_code->GetValue(C);
+        cout<<"C="<<C<<" bc="<<bc<<endl;
+        bc_set.insert(bc);
+      }
+      if(bc_set.size()>1)//2 different boundary codes
+      {
+        Peons.push_back(PN);
+      }
+    }
+  }
+  if(Peons.size()==2)
+  {
+/*    Peon1=Peons[0];
+    Peon2=Peons[1];*/
+    return(true);
+  }
+  else
+  {
+    int N=n2n[Boss].size();
+    QVector <vtkIdType> neighbours(N);
+    qCopy(n2n[Boss].begin(), n2n[Boss].end(), neighbours.begin());
+    
+    double alphamin_value;
+    vtkIdType alphamin_i;
+    vtkIdType alphamin_j;
+    bool first=true;
+    
+    for(int i=0;i<N;i++)
+    {
+      for(int j=i+1;j<N;j++)
+      {
+        double alpha=deviation(grid,neighbours[i],Boss,neighbours[j]);
+//         cout<<"alpha("<<neighbours[i]<<","<<Boss<<","<<neighbours[j]<<")="<<alpha<<endl;
+        if(first) {
+          alphamin_value=alpha;
+          alphamin_i=i;
+          alphamin_j=j;
+          first=false;
+        }
+        else
+        {
+          if(alpha<alphamin_value)
+          {
+            alphamin_value=alpha;
+            alphamin_i=i;
+            alphamin_j=j;
+          }
+        }
+      }
+    }
+//     cout<<"alphamin_value="<<alphamin_value<<endl;
+    
+    Peons.resize(2);
+    Peons[0]=neighbours[alphamin_i];
+    Peons[1]=neighbours[alphamin_j];
+    return(true);
+/*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
+    EG_BUG;*/
+  }
+  return(false);
+}
+
+int Operation::UpdateMeshDensity()
+{
+  cout<<"===UpdateMeshDensity START==="<<endl;
+  
+  getAllSurfaceCells(cells,grid);
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  getNodesFromCells(cells, nodes, grid);
+  setGrid(grid);
+  setCells(cells);
+  
+  if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
+  
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
+  foreach(vtkIdType node,nodes)
+  {
+    double L=CurrentVertexAvgDist(node,n2n,grid);
+    double D=1./L;
+    node_meshdensity_current->SetValue(node, D);
+  }
+  cout<<"===UpdateMeshDensity END==="<<endl;
+  return(0);
+}
+
+// Special structure for marking vertices
+typedef struct _vtkMeshVertex 
+{
+  char      type;
+  vtkIdList *edges; // connected edges (list of connected point ids)
+} vtkMeshVertex, *vtkMeshVertexPtr;
+
+int Operation::UpdateNodeType()
+{
+  cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
+  cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
+//   cout<<"===UpdateNodeType START==="<<endl;
+  
+  getAllSurfaceCells(cells,grid);
+  if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
+  
+  EG_VTKSP(vtkPolyData, pdata);
+  //   addToPolyData(m_SelectedCells, pdata, grid);
+  addToPolyData(cells, pdata, grid);
+  
+  vtkPolyData* input=pdata;
+  
+  vtkPolyData *source = 0;
+  
+  vtkIdType numPts, numCells, i, numPolys, numStrips;
+  int j, k;
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
+  vtkIdType p1, p2;
+  double x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  double x1[3], x2[3], x3[3], l1[3], l2[3];
+  double CosFeatureAngle; //Cosine of angle between adjacent polys
+  double CosEdgeAngle; // Cosine of angle between adjacent edges
+  double closestPt[3], dist2, *w = NULL;
+  int iterationNumber, abortExecute;
+  vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
+  vtkPolyData *inMesh, *Mesh;
+  vtkPoints *inPts;
+  vtkTriangleFilter *toTris=NULL;
+  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
+  vtkPoints *newPts;
+  vtkMeshVertexPtr Verts;
+  vtkCellLocator *cellLocator=NULL;
+  
+    // Check input
+    //
+  numPts=input->GetNumberOfPoints();
+  numCells=input->GetNumberOfCells();
+  if (numPts < 1 || numCells < 1)
+  {
+    cout<<"No data to smooth!"<<endl;
+    return 1;
+  }
+  
+  CosFeatureAngle = 
+    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  
+  if(DebugLevel>5) {
+    cout<<"Smoothing " << numPts << " vertices, " << numCells 
+      << " cells with:\n"
+      << "\tConvergence= " << this->Convergence << "\n"
+      << "\tIterations= " << this->NumberOfIterations << "\n"
+      << "\tRelaxation Factor= " << this->RelaxationFactor << "\n"
+      << "\tEdge Angle= " << this->EdgeAngle << "\n"
+      << "\tBoundary Smoothing " << (this->BoundarySmoothing ? "On\n" : "Off\n")
+      << "\tFeature Edge Smoothing " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
+      << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
+      << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n")<<endl;
+  }
+    // Peform topological analysis. What we're gonna do is build a connectivity
+    // array of connected vertices. The outcome will be one of three
+    // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
+    // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected 
+    // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
+    // using a subset of the attached vertices.
+    //
+  if(DebugLevel>5) cout<<"===>Analyze topology==="<<endl;
+  if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
+  if(DebugLevel>5) cout<<"0:numPts="<<numPts<<endl;
+  Verts = new vtkMeshVertex[numPts];
+  for (i=0; i<numPts; i++)
+  {
+    if(DebugLevel>5) cout<<"0:VTK_SIMPLE_VERTEX"<<endl;
+    Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
+    Verts[i].edges = NULL;
+  }
+  
+  inPts = input->GetPoints();
+  conv = this->Convergence * input->GetLength();
+  
+    // check vertices first. Vertices are never smoothed_--------------
+  for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
+       inVerts->GetNextCell(npts,pts); )
+  {
+    for (j=0; j<npts; j++)
+    {
+      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX 0"<<endl;
+      Verts[pts[j]].type = VTK_FIXED_VERTEX;
+    }
+  }
+  
+  if(DebugLevel>5) cout<<"==check lines=="<<endl;
+    // now check lines. Only manifold lines can be smoothed------------
+  for (inLines=input->GetLines(), inLines->InitTraversal(); 
+       inLines->GetNextCell(npts,pts); )
+  {
+    for (j=0; j<npts; j++)
+    {
+      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->lines"<<endl;
+      if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
+      {
+        if ( j == (npts-1) ) //end-of-line marked FIXED
+        {
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX 1"<<endl;
+          Verts[pts[j]].type = VTK_FIXED_VERTEX;
+        }
+        else if ( j == 0 ) //beginning-of-line marked FIXED
+        {
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX 2"<<endl;
+          Verts[pts[0]].type = VTK_FIXED_VERTEX;
+          inPts->GetPoint(pts[0],x2);
+          inPts->GetPoint(pts[1],x3);
+        }
+        else //is edge vertex (unless already edge vertex!)
+        {
+          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"4:VTK_FEATURE_EDGE_VERTEX"<<endl;
+          Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
+          Verts[pts[j]].edges = vtkIdList::New();
+          Verts[pts[j]].edges->SetNumberOfIds(2);
+          Verts[pts[j]].edges->SetId(0,pts[j-1]);
+          Verts[pts[j]].edges->SetId(1,pts[j+1]);
+        }
+      } //if simple vertex
+      
+      else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
+      { //multiply connected, becomes fixed!
+        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX 3"<<endl;
+        Verts[pts[j]].type = VTK_FIXED_VERTEX;
+        Verts[pts[j]].edges->Delete();
+        Verts[pts[j]].edges = NULL;
+      }
+      
+    } //for all points in this line
+  } //for all lines
+  
+  if(DebugLevel>5) cout<<"==polygons and triangle strips=="<<endl;
+    // now polygons and triangle strips-------------------------------
+  inPolys=input->GetPolys();
+  numPolys = inPolys->GetNumberOfCells();
+  inStrips=input->GetStrips();
+  numStrips = inStrips->GetNumberOfCells();
+  
+  if(DebugLevel>5) cout<<"numPolys="<<numPolys<<endl;
+  if(DebugLevel>5) cout<<"numStrips="<<numStrips<<endl;
+  
+  
+  if ( numPolys > 0 || numStrips > 0 )
+  { //build cell structure
+    vtkCellArray *polys;
+    vtkIdType cellId;
+    int numNei, nei, edge;
+    vtkIdType numNeiPts;
+    vtkIdType *neiPts;
+    double normal[3], neiNormal[3];
+    vtkIdList *neighbors;
+    
+    neighbors = vtkIdList::New();
+    neighbors->Allocate(VTK_CELL_SIZE);
+    
+    inMesh = vtkPolyData::New();
+    inMesh->SetPoints(inPts);
+    inMesh->SetPolys(inPolys);
+    Mesh = inMesh;
+    
+    if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
+    { // convert data to triangles
+      inMesh->SetStrips(inStrips);
+      toTris = vtkTriangleFilter::New();
+      toTris->SetInput(inMesh);
+      toTris->Update();
+      Mesh = toTris->GetOutput();
+    }
+    
+    Mesh->BuildLinks(); //to do neighborhood searching
+    polys = Mesh->GetPolys();
+    
+    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
+         cellId++)
+    {
+      if(DebugLevel>5) cout<<"->cellId="<<cellId<<endl;
+      for (i=0; i < npts; i++) 
+      {
+        if(DebugLevel>5) cout<<"-->i="<<i<<endl;
+        p1 = pts[i];
+        p2 = pts[(i+1)%npts];
+        
+        if ( Verts[p1].edges == NULL )
+        {
+          Verts[p1].edges = vtkIdList::New();
+          Verts[p1].edges->Allocate(16,6);
+        }
+        if ( Verts[p2].edges == NULL )
+        {
+          Verts[p2].edges = vtkIdList::New();
+          Verts[p2].edges->Allocate(16,6);
+        }
+        
+        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
+        numNei = neighbors->GetNumberOfIds();
+        if(DebugLevel>5) cout<<"-->numNei="<<numNei<<endl;
+        
+        edge = VTK_SIMPLE_VERTEX;
+        if ( numNei == 0 )
+        {
+          edge = VTK_BOUNDARY_EDGE_VERTEX;
+        }
+        
+        else if ( numNei >= 2 )
+        {
+            // check to make sure that this edge hasn't been marked already
+          for (j=0; j < numNei; j++)
+          {
+            if ( neighbors->GetId(j) < cellId )
+            {
+              break;
+            }
+          }
+          if ( j >= numNei )
+          {
+            edge = VTK_FEATURE_EDGE_VERTEX;
+          }
+        }
+        
+        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
+        {
+          vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
+          Mesh->GetCellPoints(nei,numNeiPts,neiPts);
+          vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+          
+          if ( this->FeatureEdgeSmoothing &&
+               vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+          {
+            edge = VTK_FEATURE_EDGE_VERTEX;
+          }
+        }
+        else // a visited edge; skip rest of analysis
+        {
+          continue;
+        }
+        
+        if ( edge && Verts[p1].type == VTK_SIMPLE_VERTEX )
+        {
+          Verts[p1].edges->Reset();
+          Verts[p1].edges->InsertNextId(p2);
+          Verts[p1].type = edge;
+        }
+        else if ( (edge && Verts[p1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
+                  (edge && Verts[p1].type == VTK_FEATURE_EDGE_VERTEX) ||
+                  (!edge && Verts[p1].type == VTK_SIMPLE_VERTEX ) )
+        {
+          Verts[p1].edges->InsertNextId(p2);
+          if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          {
+            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+          }
+        }
+        
+        if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
+        {
+          Verts[p2].edges->Reset();
+          Verts[p2].edges->InsertNextId(p1);
+          Verts[p2].type = edge;
+        }
+        else if ( (edge && Verts[p2].type == VTK_BOUNDARY_EDGE_VERTEX ) ||
+                  (edge && Verts[p2].type == VTK_FEATURE_EDGE_VERTEX) ||
+                  (!edge && Verts[p2].type == VTK_SIMPLE_VERTEX ) )
+        {
+          Verts[p2].edges->InsertNextId(p1);
+          if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          {
+            Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+          }
+        }
+      }
+    }
+    
+    inMesh->Delete();
+    if (toTris) {toTris->Delete();}
+    
+    neighbors->Delete();
+  }//if strips or polys
+  
+    //post-process edge vertices to make sure we can smooth them
+  for (i=0; i<numPts; i++)
+  {
+    if ( Verts[i].type == VTK_SIMPLE_VERTEX )
+    {
+      numSimple++;
+    }
+    
+    else if ( Verts[i].type == VTK_FIXED_VERTEX )
+    {
+      numFixed++;
+    }
+    
+    else if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ||
+              Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
+    { //see how many edges; if two, what the angle is
+      
+      if ( !this->BoundarySmoothing && 
+           Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
+      {
+        if(DebugLevel>5) cout<<"Verts[i].type = VTK_FIXED_VERTEX; 4"<<endl;
+        Verts[i].type = VTK_FIXED_VERTEX;
+        numBEdges++;
+      }
+      
+      else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
+      {
+        if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 5"<<endl;
+        Verts[i].type = VTK_FIXED_VERTEX;
+        numFixed++;
+      }
+      
+      else //check angle between edges
+      {
+        inPts->GetPoint(Verts[i].edges->GetId(0),x1);
+        inPts->GetPoint(i,x2);
+        inPts->GetPoint(Verts[i].edges->GetId(1),x3);
+        
+        for (k=0; k<3; k++)
+        {
+          l1[k] = x2[k] - x1[k];
+          l2[k] = x3[k] - x2[k];
+        }
+        if ( vtkMath::Normalize(l1) >= 0.0 &&
+             vtkMath::Normalize(l2) >= 0.0 &&
+             vtkMath::Dot(l1,l2) < CosEdgeAngle)
+        {
+          if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 6"<<endl;
+          Verts[i].type = VTK_FIXED_VERTEX;
+          numFixed++;
+        }
+        else
+        {
+          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
+          {
+            numFEdges++;
+          }
+          else
+          {
+            numBEdges++;
+          }
+        }
+      }//if along edge
+    }//if edge vertex
+  }//for all points
+  
+  if(DebugLevel>5) {
+    cout<<"Found\n\t" << numSimple << " simple vertices\n\t"
+      << numFEdges << " feature edge vertices\n\t"
+      << numBEdges << " boundary edge vertices\n\t"
+      << numFixed << " fixed vertices\n\t"<<endl;
+    cout<<"1:numPts="<<numPts<<endl;
+  }
+  
+  for (i=0; i<numPts; i++) 
+  {
+    if(DebugLevel>5) cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
+    if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
+    {
+      for (j=0; j<npts; j++)
+      {
+        if(DebugLevel>5) cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
+      }//for all connected points
+    }
+  }
+  
+  //Copy node type info from Verts
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  if(DebugLevel>5) cout<<"nodes.size()="<<nodes.size()<<endl;
+  foreach(vtkIdType node,nodes)
+  {
+    if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
+    node_type->SetValue(node,Verts[node].type);
+  }
+  
+  //free up connectivity storage
+  for (int i=0; i<numPts; i++)
+  {
+    if ( Verts[i].edges != NULL )
+    {
+      Verts[i].edges->Delete();
+      Verts[i].edges = NULL;
+    }
+  }
+  delete [] Verts;
+  
+  return(0);
+}
+//End of UpdateNodeType
+
+// DEFINITIONS:
+// Normal cell: nothing has changed
+// Dead cell: the cell does not exist anymore
+// Mutated cell: the cell's form has changed
+// Mutilated cell: the cell has less points than before
+
+vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
+{
+  getAllSurfaceCells(cells,src);
+  getNodesFromCells(cells, nodes, src);
+  setGrid(src);
+  setCells(cells);
+  
+  UpdateNodeType();
+  
+  EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
+  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX)
+  {
+    cout<<"Sorry, unable to remove fixed vertex."<<endl;
+    return(-1);
+  }
+  
+    //src grid info
+  int N_points=src->GetNumberOfPoints();
+  int N_cells=src->GetNumberOfCells();
+  N_newpoints=-1;
+  N_newcells=0;
+  
+  vtkIdType SnapPoint=-1;
+  
+  foreach(vtkIdType PSP, n2n[DeadNode])
+  {
+    bool IsValidSnapPoint=true;
+    
+    if(DebugLevel>10) cout<<"====>PSP="<<PSP<<endl;
+    bool IsTetra=true;
+    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    if(IsTetra)//tetra check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    //count number of points and cells to remove + analyse cell transformations
+    N_newpoints=-1;
+    N_newcells=0;
+    DeadCells.clear();
+    MutatedCells.clear();
+    MutilatedCells.clear();
+    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
+    {
+      //get points around cell
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(C, N_pts, pts);
+      
+      bool ContainsSnapPoint=false;
+      bool invincible=false;
+      for(int i=0;i<N_pts;i++)
+      {
+        if(DebugLevel>10) cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
+        if(pts[i]==PSP) {ContainsSnapPoint=true;}
+        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
+      }
+      if(ContainsSnapPoint)
+      {
+        if(N_pts==3)//dead cell
+        {
+          if(invincible)//Check that empty lines aren't left behind when a cell is killed
+          {
+            if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+            IsValidSnapPoint=false;
+          }
+          else
+          {
+            DeadCells.insert(C);
+            N_newcells-=1;
+            if(DebugLevel>10) cout<<"cell "<<C<<" has been pwned!"<<endl;
+          }
+        }
+        else
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+      }
+      else
+      {
+        vtkIdType src_N_pts, *src_pts;
+        src->GetCellPoints(C, src_N_pts, src_pts);
+        
+        if(src_N_pts!=3)
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+        
+        vtkIdType OldTriangle[3];
+        vtkIdType NewTriangle[3];
+        
+        for(int i=0;i<src_N_pts;i++)
+        {
+          OldTriangle[i]=src_pts[i];
+          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
+        }
+        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        double OldArea=Old_N.abs();
+        double NewArea=New_N.abs();
+        double scal=Old_N*New_N;
+        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
+        
+        if(DebugLevel>10) {
+          cout<<"OldArea="<<OldArea<<endl;
+          cout<<"NewArea="<<NewArea<<endl;
+          cout<<"scal="<<scal<<endl;
+          cout<<"cross="<<cross<<endl;
+        }
+        
+        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
+        {
+          if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+        //mutated cell
+        MutatedCells.insert(C);
+        if(DebugLevel>10) cout<<"cell "<<C<<" has been infected!"<<endl;
+      }
+    }
+    
+    if(N_cells+N_newcells<=0)//survivor check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
+  }//end of loop through potential SnapPoints
+  
+  if(DebugLevel>10)
+  {
+    cout<<"AT FINDSNAPPOINT EXIT"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
+  return(SnapPoint);
+}
+//End of FindSnapPoint
+
+bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
+{
+  getAllSurfaceCells(cells,src);
+  getNodesFromCells(cells, nodes, src);
+  setGrid(src);
+  setCells(cells);
+  UpdateNodeType();
+  
+  //src grid info
+  int N_points=src->GetNumberOfPoints();
+  int N_cells=src->GetNumberOfCells();
+  N_newpoints=-1;
+  N_newcells=0;
+  
+  if(DeadNode<0 || DeadNode>=N_points)
+  {
+    cout<<"Warning: Point out of range: DeadNode="<<DeadNode<<" N_points="<<N_points<<endl;
+    return(false);
+  }
+  
+  QSet <vtkIdType> DeadCells;
+  QSet <vtkIdType> MutatedCells;
+  QSet <vtkIdType> MutilatedCells;
+  
+  if(DebugLevel>10) {
+    cout<<"BEFORE FINDSNAPPOINT"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
+  vtkIdType SnapPoint=FindSnapPoint(src,DeadNode,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells);
+  
+  if(DebugLevel>0) cout<<"===>DeadNode="<<DeadNode<<" moving to SNAPPOINT="<<SnapPoint<<" DebugLevel="<<DebugLevel<<endl;
+  if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
+  
+  //allocate
+  if(DebugLevel>10) {
+    cout<<"BEFORE ALLOCATION"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
+  N_points=src->GetNumberOfPoints();
+  N_cells=src->GetNumberOfCells();
+  cout<<"N_points="<<N_points<<endl;
+  cout<<"N_cells="<<N_cells<<endl;
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  EG_VTKSP(vtkUnstructuredGrid,dst);
+  allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
+  
+  //vector used to redefine the new point IDs
+  QVector <vtkIdType> OffSet(N_points);
+  
+  //copy undead points
+  vtkIdType dst_id_node=0;
+  for (vtkIdType src_id_node = 0; src_id_node < N_points; src_id_node++) {//loop through src points
+    if(src_id_node!=DeadNode)//if the node isn't dead, copy it
+    {
+      vec3_t x;
+      src->GetPoints()->GetPoint(src_id_node, x.data());
+      dst->GetPoints()->SetPoint(dst_id_node, x.data());
+      copyNodeData(src, src_id_node, dst, dst_id_node);
+      OffSet[src_id_node]=src_id_node-dst_id_node;
+      dst_id_node++;
+    }
+    else
+    {
+      if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
+    }
+  };
+  if(DebugLevel>10) {
+    cout<<"DeadCells="<<DeadCells<<endl;
+    cout<<"MutatedCells="<<MutatedCells<<endl;
+    cout<<"MutilatedCells="<<MutilatedCells<<endl;
+  }
+  //Copy undead cells
+  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {//loop through src cells
+    if(!DeadCells.contains(id_cell))//if the cell isn't dead
+    {
+      vtkIdType src_N_pts, *src_pts;
+      vtkIdType dst_N_pts, *dst_pts;
+      src->GetCellPoints(id_cell, src_N_pts, src_pts);
+      
+      vtkIdType type_cell = src->GetCellType(id_cell);
+      if(DebugLevel>10) cout<<"-->id_cell="<<id_cell<<endl;
+      if(DebugLevel>10) for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+//       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
+      dst_N_pts=src_N_pts;
+      dst_pts=new vtkIdType[dst_N_pts];
+      if(MutatedCells.contains(id_cell))//mutated cell
+      {
+        if(DebugLevel>10) cout<<"processing mutated cell "<<id_cell<<endl;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          if(src_pts[i]==DeadNode) {
+            if(DebugLevel>10) {
+              cout<<"SnapPoint="<<SnapPoint<<endl;
+              cout<<"OffSet[SnapPoint]="<<OffSet[SnapPoint]<<endl;
+              cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+            }
+            dst_pts[i]=SnapPoint-OffSet[SnapPoint];
+          }
+          else dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+        }
+        if(DebugLevel>10) cout<<"--->dst_pts:"<<endl;
+        if(DebugLevel>10) for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+        
+      }
+      else if(MutilatedCells.contains(id_cell))//mutilated cell
+      {
+        if(DebugLevel>10) cout<<"processing mutilated cell "<<id_cell<<endl;
+        
+        if(type_cell==VTK_QUAD) {
+          type_cell=VTK_TRIANGLE;
+          dst_N_pts-=1;
+        }
+        else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
+        //merge points
+        int j=0;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
+          else if(src_pts[i]!=DeadNode) { dst_pts[j]=src_pts[i]-OffSet[src_pts[i]];j++; }//pre-snap/dead + post-snap/dead
+          //do nothing in case of DeadNode
+        }
+      }
+      else//normal cell
+      {
+        if(DebugLevel>10) cout<<"processing normal cell "<<id_cell<<endl;
+        for(int i=0;i<src_N_pts;i++)
+        {
+          dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+        }
+      }
+      //copy the cell
+      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
+      copyCellData(src, id_cell, dst, id_new_cell);
+      if(DebugLevel>10) {
+        cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
+        cout<<"src_pts:"<<endl;
+        for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
+        cout<<"dst_pts:"<<endl;
+        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
+        cout<<"OffSet="<<OffSet<<endl;
+        cout<<"===Copying cell end==="<<endl;
+      }
+      delete dst_pts;
+    }
+  };
+//   cout_grid(cout,dst,true,true,true,true);
+  makeCopy(dst, src);
+  return(true);
+}
+//End of DeletePoint_2
+
+void Operation::TxtSave(QString a_filename)
+{
+  cout << a_filename.toAscii().data() << endl;
+  ofstream file;
+  file.open(a_filename.toAscii().data());
+  cout_grid(file,grid,true,true,true,true);
+  file.close();
+}
+
+void Operation::DualSave(QString a_filename)
+{
+  TxtSave(a_filename+".txt");
+  GuiMainWindow::pointer()->QuickSave(a_filename+".vtu");
 }

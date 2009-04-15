@@ -38,6 +38,8 @@ connect(ui.actionFoamWriter,SIGNAL(activated()),this,SLOT(callFoamWriter()));
 connect(ui.actionSimpleFoamWriter,SIGNAL(activated()),this,SLOT(callSimpleFoamWriter()));
 connect(ui.actionDeleteBadAspectTris,SIGNAL(activated()),this,SLOT(callDeleteBadAspectTris()));
 connect(ui.actionDeletePickedCell,SIGNAL(activated()),this,SLOT(callDeletePickedCell()));
+connect(ui.actionDeletePickedPoint,SIGNAL(activated()),this,SLOT(callDeletePickedPoint()));
+connect(ui.actionPick_cell_point,SIGNAL(activated()),this,SLOT(callPick_cell_point()));
 connect(ui.actionTransform, SIGNAL(activated()), this, SLOT(callTransform()));
 
 // -------------------------------------------

@@ -33,7 +33,6 @@ class DeletePickedCell : public Operation
 protected: // methods
   
   virtual void operate();
-  
 };
 
 #endif

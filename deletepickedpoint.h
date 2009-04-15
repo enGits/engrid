@@ -20,56 +20,20 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef guismoothsurface_H
-#define guismoothsurface_H
+#ifndef deletepickedpoint_H
+#define deletepickedpoint_H
 
-#include "ui_guismoothsurface.h"
-#include "dialogoperation.h"
-#include "vertexmeshdensity.h"
-#include "settingssheet.h"
+class DeletePickedPoint;
 
-#include <vtkPolyDataAlgorithm.h>
+#include "operation.h"
 
-class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
+class DeletePickedPoint : public Operation
 {
-  
-  Q_OBJECT;
-  
-private slots:
-  
-  void AddSet();
-  void RemoveSet();
-  void TestSet();
-  void Load();
-  void Save();
-  void SelectAll_BC();
-  void ClearAll_BC();
-  void SelectAll_Source();
-  void ClearAll_Source();
-  
-protected: // methods
-  
-  virtual void before();
-  virtual void operate();
 
-private:
-  int Nbc;
-  SettingsSheet* tableWidget;
-public:
-  QVector <VertexMeshDensity> GetSet();
-  QSettings* local_qset;
+  protected: // methods
+    virtual void operate();
   
-  /** The currently loaded grid file. */
-  QString current_filename;
-  
-  //  /** The settings file to load. */
-  //QString current_settingssheet_name;
-  
-  int readSettings();
-  int writeSettings();
-  int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
-  int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
-  
+  public:
 };
 
 #endif

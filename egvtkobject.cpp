@@ -29,6 +29,7 @@
 #include <vtkCellType.h>
 #include <vtkIdList.h>
 #include <vtkCell.h>
+#include <vtkCharArray.h>
 
 void EgVtkObject::computeNormals
 (
@@ -736,6 +737,9 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_status", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_layer",  vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_index",  vtkLongArray_t);
+  EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
+  EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
+  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
 };
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
@@ -804,6 +808,9 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_status", vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_layer",  vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);
 };
 
 void EgVtkObject::allocateGrid
@@ -885,6 +892,46 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
     copyCellData(src, id_cell, dst, id_new_cell);
   };
 };
+
+// void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells)
+void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode)
+{
+  vtkIdType src_N_points=src->GetNumberOfPoints();
+  vector <vtkIdType> OffSet(src_N_points);
+  vtkIdType dst_id_node=0;
+  for (vtkIdType src_id_node = 0; src_id_node < src_N_points; ++src_id_node) {
+    if(!DeadNode[src_id_node])
+    {
+      vec3_t x;
+      src->GetPoints()->GetPoint(src_id_node, x.data());
+      dst->GetPoints()->SetPoint(dst_id_node, x.data());
+      copyNodeData(src, src_id_node, dst, dst_id_node);
+      OffSet[src_id_node]=src_id_node-dst_id_node;
+      dst_id_node++;
+    }
+    else
+    {
+      //search closest node
+    }
+  };
+  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *src_pts, *dst_pts;
+    vtkIdType type_cell = src->GetCellType(id_cell);
+    src->GetCellPoints(id_cell, N_pts, src_pts);
+    src->GetCellPoints(id_cell, N_pts, dst_pts);
+    bool DeadCell=false;
+    for(int i=0;i<N_pts;i++)
+    {
+      if(DeadNode[src_pts[i]]) {DeadCell=true;}
+      dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+    }
+    if(!DeadCell)
+    {
+      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, dst_pts);
+      copyCellData(src, id_cell, dst, id_new_cell);
+    }
+  };
+}
 
 int EgVtkObject::findVolumeCell
 (
@@ -1070,6 +1117,7 @@ int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, 
   return(0);
 }
 
+
 ///////////////////////////////////////////
 
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
@@ -1112,6 +1160,28 @@ int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
   }
   delete x;
   return(id_maxlen);
+}
+
+//get number of the edge corresponding to node1-node2
+int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
+  QVector <vtkIdType> edge(2);
+  
+  int n=0;
+  for(int i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_id_node1) { edge[0]=i;n++;}
+    if(pts[i]==a_id_node2) { edge[1]=i;n++;}
+  }
+  if(n!=2){
+    EG_BUG;
+    return(-1);
+  }
+  qSort(edge.begin(),edge.end());
+  if(edge[0]==0 && edge[1]==N_pts-1) return(N_pts-1);
+  else return(edge[0]);
 }
 ///////////////////////////////////////////
 
@@ -1158,6 +1228,67 @@ QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
 Qt::CheckState int2CheckState(int a)
 {
   if(a==0) return(Qt::Unchecked);
-//   if(a==1) return(Qt::PartiallyChecked);
+  if(a==1) return(Qt::PartiallyChecked);
   else return(Qt::Checked);
+}
+
+int CheckState2int(Qt::CheckState a)
+{
+  if(a==Qt::Unchecked) return(0);
+  if(a==Qt::PartiallyChecked) return(1);
+  else return(Qt::Checked);
+}
+
+// ///////////////////////////////////////////
+// /* Here is how we we get QTextStreams that look like iostreams */
+// Qcin=QTextStream(stdin, QIODevice::ReadOnly);
+// Qcout=QTextStream(stdout, QIODevice::WriteOnly);
+// Qcerr=QTextStream(stderr, QIODevice::WriteOnly);
+// ///////////////////////////////////////////
+
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
+{
+  vtkIdType x=min(a,b);
+  vtkIdType y=max(a,b);
+  return(pair<vtkIdType,vtkIdType>(x,y));
+}
+
+vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
+{
+  vtkIdType N_pts, *pts;
+  a_grid->GetCellPoints(a_cell, N_pts, pts);
+  
+  int i;
+  for(i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_node) break;
+  }
+  return a_c2c[a_cell][i];
+}
+
+const char* VertexType2Str(char T)
+{
+  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
+  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
+  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
+  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  else return("Unknown vertex type");
+}
+
+char Str2VertexType(QString S)
+{
+  if(S=="VTK_SIMPLE_VERTEX") return((char)0);
+  if(S=="VTK_FIXED_VERTEX") return((char)1);
+  if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
+  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
+  else return((char)-1);
+}
+
+const char* vertex_type(char T)
+{
+  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
+  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
+  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
+  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  else return("Unknown vertex type");
 }

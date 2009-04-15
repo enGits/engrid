@@ -41,6 +41,7 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
     double x[3];
     input->GetPoints()->GetPoint(vertId,x);
     output->GetPoints()->SetPoint(vertId,x);
+    copyNodeData(input, vertId, output, vertId);
   };
   
   EG_VTKDCC(vtkIntArray,cell_code,input,"cell_code");

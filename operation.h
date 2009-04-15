@@ -103,6 +103,17 @@ protected: // attributes
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
   
+  //Special attributes for UpdateNodeType function
+  double Convergence;
+  int NumberOfIterations;
+  double RelaxationFactor;
+  int FeatureEdgeSmoothing;
+  double FeatureAngle;
+  double EdgeAngle;
+  int BoundarySmoothing;
+  int GenerateErrorScalars;
+  int GenerateErrorVectors;
+  
 protected: // methods
   
   void checkGrid();
@@ -144,7 +155,44 @@ public: // methods
   static void collectGarbage();
   stencil_t getStencil(vtkIdType id_cell1, int j1);
   
+  vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  
+  bool SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S);
+  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
+  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
+  
+  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+//   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
+  bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
+  
+  vec3_t GetCenter(vtkIdType cellId, double& R);
+  
+//   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
+  bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
+    
+  int UpdateMeshDensity();
+  int UpdateNodeType();
+  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
+  bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
+ 
+  void TxtSave(QString a_filename);
+  void DualSave(QString a_filename);
+    
+  //Special for UpdateNodeType
+  void SetConvergence(double C){Convergence=C;};
+  void SetNumberOfIterations(int N){NumberOfIterations=N;};
+  void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
+  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;};
+  void SetFeatureAngle(double FA){FeatureAngle=FA;};
+  void SetEdgeAngle(double EA){EdgeAngle=EA;};
+  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
+  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
+  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
+  
 };
+//End of class Operation
 
 template <class T>
 void Operation::setCells(const T &cls)
@@ -189,5 +237,11 @@ void Operation::setNodes(const T &nds)
   cell_fixed.fill(cells.size(), false);
   initMapping();
 };
+
+//////////////////////////////////////////////
+double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
+double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
+double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
+double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
 
 #endif

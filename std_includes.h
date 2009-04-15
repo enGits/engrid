@@ -26,6 +26,7 @@
 #include "guidivideboundarylayer.h"
 #include "guisetboundarycode.h"
 #include "guideletebadaspecttris.h"
+#include "guipick.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
@@ -37,6 +38,7 @@
 #include "foamwriter.h"
 #include "simplefoamwriter.h"
 #include "deletepickedcell.h"
+#include "deletepickedpoint.h"
 #include "fixstl.h"
 
 // -------------------------------------------

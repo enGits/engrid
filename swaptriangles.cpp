@@ -55,6 +55,7 @@ void SwapTriangles::operate()
   do {
     N_swaps = 0;
     createCellToCell(cells, c2c, grid);
+    //NOTE: This for loop can eventually be removed because if undefined, it's probably false.
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       marked[i_cells] = false;
     };
@@ -75,7 +76,7 @@ void SwapTriangles::operate()
               vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
               n1.normalise();
               n2.normalise();
-              if (n1*n2 > 0.8) {
+              if ( (n1*n2) > 0.8) {
                 vec3_t n = n1 + n2;
                 n.normalise();
                 vec3_t ex = orthogonalVector(n);
