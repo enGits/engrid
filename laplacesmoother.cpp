@@ -3,7 +3,7 @@
 
 LaplaceSmoother::LaplaceSmoother()
 {
-  DebugLevel=0;
+   DebugLevel=0;
 }
 
 LaplaceSmoother::~LaplaceSmoother()

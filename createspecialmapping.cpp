@@ -15,7 +15,7 @@ using namespace std;
 
 CreateSpecialMapping::CreateSpecialMapping()
 {
-  DebugLevel=0;
+   DebugLevel=0;
 }
 
 int CreateSpecialMapping::Process()
@@ -508,6 +508,7 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     grid_tmp->GetPoint(S.p[3],B.data());
     vec3_t M=0.5*(A+B);
     addPoint(grid_tmp,m_newNodeId,M.data());
+    if(DebugLevel>0) cout<<"NEW EDGE POINT: "<<m_newNodeId<<endl;
     
     vtkIdType pts_triangle[4][3];
     
@@ -569,6 +570,7 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_FP_actor START==="<<endl;
+  abort();
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -595,6 +597,7 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_EP_actor START==="<<endl;
+  abort();
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -605,7 +608,7 @@ int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
     }
     if( !marked && remove_edgepoint(node) )
     {
-      cout<<"removing edge point "<<node<<endl;
+      if(DebugLevel>1) cout<<"removing edge point "<<node<<endl;
       foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;
       if(n2n[node].size()==4)//4 cells around the edge
       {

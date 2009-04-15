@@ -1219,7 +1219,7 @@ void GuiSmoothSurface::operate()
     
     toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
     toto.maxiter_density=ui.spinBox_maxiter_density->value();
-    DebugLevel=ui.spinBox_DebugLevel->value();
+    toto.setDebugLevel(ui.spinBox_DebugLevel->value());
     
     toto.Process();
     

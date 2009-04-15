@@ -519,8 +519,9 @@ public: // methods
   
   void setBoundaryCodes(const QSet<int> &bcs);
   EgVtkObject(){
-    DebugLevel=0;
+      DebugLevel=0;
   };
+  void setDebugLevel(int a_DebugLevel){DebugLevel=a_DebugLevel;};
   
 };
 //End of class EgVtkObject
