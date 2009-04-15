@@ -153,7 +153,6 @@ guisettingstab.h \
 guisettingsviewer.h \
  \
  guitransform.h \
- vtkpolydataalgorithm2.h \
  vtksmoothpolydatafilter2.h \
  createspecialmapping.h \
  vertexdelegate.h \
@@ -166,7 +165,6 @@ guisettingsviewer.h \
  laplacesmoother.h \
  deletepickedpoint.h \
  text3d.h \
- pick_cell_point.h \
  guipick.h \
  egvtkinteractorstyle.h
 
@@ -231,7 +229,6 @@ guisettingstab.cpp \
 guisettingsviewer.cpp \
  \
  guitransform.cpp \
- vtkpolydataalgorithm2.cpp \
  vtksmoothpolydatafilter2.cpp \
  createspecialmapping.cpp \
  vertexdelegate.cpp \
@@ -244,7 +241,6 @@ guisettingsviewer.cpp \
  laplacesmoother.cpp \
  deletepickedpoint.cpp \
  text3d.cpp \
- pick_cell_point.cpp \
  guipick.cpp \
  egvtkinteractorstyle.cpp
 
