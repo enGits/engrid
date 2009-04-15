@@ -1,0 +1,14 @@
+INSTALLATION:
+=============
+Choose one of the following:
+./setup
+./setup INSTALLDIR
+./setup INSTALLDIR BINDIR
+
+Defaults:
+INSTALLDIR=/opt
+BINDIR=/usr/local/bin
+
+RUNNING:
+========
+start_engrid

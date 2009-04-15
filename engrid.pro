@@ -7,23 +7,43 @@ target.path = /usr/bin
 
 # target.path = $$PREFIX/bin
 INSTALLS += target
-CONFIG += qt \
-    release \
-    thread
-
+CONFIG += qt release thread 
 # CONFIG += qt debug thread
-QT += xml \
-    network \
-    opengl
-LIBS += -lvtkCommon
-LIBS += -lvtkGraphics
-LIBS += -lvtkImaging
-LIBS += -lvtkHybrid
-LIBS += -lQVTK
-LIBS += -lng
-
 DEFINES += QT_NO_DEBUG
 
+QT += xml network opengl
+
+#VTK libs
+LIBS += -lQVTK
+LIBS += -lvtkCommon
+LIBS += -lvtkDICOMParser
+LIBS += -lvtkexoIIc
+LIBS += -lvtkexpat
+LIBS += -lvtkFiltering
+LIBS += -lvtkfreetype
+LIBS += -lvtkftgl
+LIBS += -lvtkGenericFiltering
+LIBS += -lvtkGraphics
+LIBS += -lvtkHybrid
+LIBS += -lvtkImaging
+LIBS += -lvtkInfovis
+LIBS += -lvtkIO
+LIBS += -lvtkjpeg
+LIBS += -lvtklibxml2
+LIBS += -lvtkmetaio
+LIBS += -lvtkNetCDF
+LIBS += -lvtkpng
+LIBS += -lvtkRendering
+LIBS += -lvtksqlite
+LIBS += -lvtksys
+LIBS += -lvtktiff
+LIBS += -lvtkViews
+LIBS += -lvtkVolumeRendering
+LIBS += -lvtkWidgets
+LIBS += -lvtkzlib
+
+#netgen lib
+LIBS += -lng
 
 !win32 { 
     LIBS += -L./netgen_svn
