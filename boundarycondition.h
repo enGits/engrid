@@ -40,8 +40,8 @@ public: // methods
   BoundaryCondition();
   BoundaryCondition(QString a_name, QString a_type);
   
-  QString getName() { return name; };
-  QString getType() { return type; };
+  QString getName() { return name; }
+  QString getType() { return type; }
   
 };
 

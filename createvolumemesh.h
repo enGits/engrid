@@ -71,7 +71,7 @@ protected: // methods
 public: // methods
   
   CreateVolumeMesh();
-  void setMaxH(double h) { maxh = h; };
+  void setMaxH(double h) { maxh = h; }
   void setTraceCells(const QVector<vtkIdType> &cells);
   void getTraceCells(QVector<vtkIdType> &cells);
   
