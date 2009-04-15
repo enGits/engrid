@@ -61,10 +61,10 @@ using namespace GeometryTools;
 #include "guisettingsviewer.h"
 #include "guitransform.h"
 
-GuiOutputWindow::GuiOutputWindow()
-{
-  ui.setupUi(this);
-};
+// GuiOutputWindow::GuiOutputWindow()
+// {
+//   ui.setupUi(this);
+// };
 
 QString GuiMainWindow::cwd = ".";
 QSettings GuiMainWindow::qset("enGits","enGrid");
@@ -78,12 +78,12 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
   ui.setupUi(this);
   THIS = this;
-  dock_widget = new QDockWidget(tr("output"), this);
-  dock_widget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-  output_window = new GuiOutputWindow();
-  dock_widget->setWidget(output_window);
-  addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
-  ui.menuView->addAction(dock_widget->toggleViewAction());
+//   dock_widget = new QDockWidget(tr("output"), this);
+//   dock_widget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+//   output_window = new GuiOutputWindow();
+//   dock_widget->setWidget(output_window);
+//   addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
+//   ui.menuView->addAction(dock_widget->toggleViewAction());
   
   connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
   connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
@@ -274,7 +274,7 @@ void GuiMainWindow::updateOutput()
     if (txt.right(1) == "\n") {
       txt = txt.left(txt.size()-1);
     };
-    output_window->ui.textEditOutput->append(txt);
+    ui.textEditOutput->append(txt);
   };
 };
 

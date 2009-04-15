@@ -230,7 +230,6 @@ guieditboundaryconditions.ui \
 guimainwindow.ui \
 guiimproveaspectratio.ui \
 guinormalextrusion.ui \
-guioutputwindow.ui \
 guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
@@ -247,3 +246,5 @@ HEADERS -= settingstab.h \
 settingsviewer.h \
  vtkpolydataalgorithm2.h \
  pick_cell_point.h
+FORMS -= guioutputwindow.ui
+

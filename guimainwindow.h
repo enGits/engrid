@@ -58,22 +58,22 @@ class GuiMainWindow;
 #include "std_includes.h"
 #include "guitransform.h"
 
-class GuiOutputWindow : public QWidget
-{
-  
-  friend class GuiMainWindow;
-  
-  Q_OBJECT;
-  
-private: // attributes
-  
-  Ui::GuiOutputWindow ui;
-  
-public: // methods
-  
-  GuiOutputWindow();
-  
-};
+// class GuiOutputWindow : public QWidget
+// {
+//   
+//   friend class GuiMainWindow;
+//   
+//   Q_OBJECT;
+//   
+// private: // attributes
+//   
+//   Ui::GuiOutputWindow ui;
+//   
+// public: // methods
+//   
+//   GuiOutputWindow();
+//   
+// };
 
 
   
@@ -223,7 +223,7 @@ private: // attributes
   static QMutex mutex;
   QTimer garbage_timer;
   QTimer log_timer;
-  GuiOutputWindow *output_window;
+//   GuiOutputWindow *output_window;
   QDockWidget *dock_widget;
   
   /** mapping between numerical and symbolic boundary codes */
@@ -451,8 +451,8 @@ public slots:
   void viewZP();
   void viewZM();
   
-  void appendOutput(QString txt) { output_window->ui.textEditOutput->append(txt); };
-  void clearOutput() { output_window->ui.textEditOutput->clear(); };
+  void appendOutput(QString txt) { ui.textEditOutput->append(txt); };
+  void clearOutput() { ui.textEditOutput->clear(); };
   void updateOutput();
   void periodicUpdate();
     
