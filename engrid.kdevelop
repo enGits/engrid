@@ -71,11 +71,11 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <dbgshell/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -122,7 +122,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -134,14 +134,10 @@
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
-<<<<<<< HEAD:engrid.kdevelop
-    <references/>
-=======
     <references>
       <pcs>Qt4</pcs>
       <pcs>engrid</pcs>
     </references>
->>>>>>> surface_smoothing_ADD_BRANCH:engrid.kdevelop
   </kdevcppsupport>
   <kdevfilecreate>
     <filetypes/>
@@ -158,13 +154,8 @@
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>/data1/home/mtaverne/engrid_src/.</mainprogram>
-<<<<<<< HEAD:engrid.kdevelop
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
-=======
       <programargs/>
       <globaldebugarguments/>
->>>>>>> surface_smoothing_ADD_BRANCH:engrid.kdevelop
       <globalcwd>.</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
@@ -183,7 +174,7 @@
       <runmultiplejobs>true</runmultiplejobs>
       <numberofjobs>2</numberofjobs>
       <dontact>false</dontact>
-      <makebin></makebin>
+      <makebin/>
       <prio>0</prio>
       <envvars>
         <envvar value="/opt/shared/VTK/lib/vtk-5.2:/opt/shared/Qt/4.5.0/debug/lib:$LD_LIBRARY_PATH" name="LD_LIBRARY_PATH" />
