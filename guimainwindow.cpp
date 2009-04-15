@@ -498,12 +498,12 @@ void GuiMainWindow::updateActors()
         }
       }
       
-      vtkDoubleArray *newScalars = vtkDoubleArray::New();
+/*      vtkDoubleArray *newScalars = vtkDoubleArray::New();
       int index;
       newScalars=(vtkDoubleArray *)boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
-      cout<<"index="<<index<<endl;
+      cout<<"index="<<index<<endl;*/
       
-      cout<<"=========="<<endl;
+/*      cout<<"=========="<<endl;
       boundary_pd->GetPointData()->GetArray("node_status",index);
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_layer",index);
@@ -516,12 +516,12 @@ void GuiMainWindow::updateActors()
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_type",index);
       cout<<"index="<<index<<endl;
-      cout<<"=========="<<endl;
+      cout<<"=========="<<endl;*/
       
-      int N2=newScalars->GetNumberOfComponents();
+/*      int N2=newScalars->GetNumberOfComponents();
       int N3=newScalars->GetNumberOfTuples();
       cout<<"Number of components=N2="<<N2<<endl;
-      cout<<"Number of tuples=N3="<<N3<<endl;
+      cout<<"Number of tuples=N3="<<N3<<endl;*/
       
       
 /*      for (int i=0; i<N3; i++)
