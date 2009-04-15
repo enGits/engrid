@@ -78,6 +78,12 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
   ui.setupUi(this);
   THIS = this;
+  
+  QPoint pos = qset.value("pos", QPoint(200, 200)).toPoint();
+  QSize size = qset.value("size", QSize(400, 400)).toSize();
+  resize(size);
+  move(pos);
+  
 //   dock_widget = new QDockWidget(tr("output"), this);
 //   dock_widget->setFeatures(QDockWidget::AllDockWidgetFeatures);
 //   output_window = new GuiOutputWindow();
@@ -260,6 +266,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
+  qset.setValue("pos", pos());
+  qset.setValue("size", size());
 };
 
 void GuiMainWindow::updateOutput()
