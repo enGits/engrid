@@ -852,7 +852,7 @@ void GuiSmoothSurface::operate()
         
         vtkIdType type_cell = grid->GetCellType(id_cell);
         int N_neighbours=N_pts;
-        cout<<"N_neighbours="<<N_neighbours<<endl;
+        if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
         vec3_t corner[4];
         vtkIdType pts_triangle[4][3];
         for(int i=0;i<N_neighbours;i++)

@@ -49,7 +49,6 @@ class GuiMainWindow;
 #include <vtkLookupTable.h>
 
 #include "ui_guimainwindow.h"
-#include "ui_guioutputwindow.h"
 #include "vtkEgBoundaryCodesFilter.h"
 #include "vtkEgExtractVolumeCells.h"
 #include "egvtkobject.h"

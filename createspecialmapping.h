@@ -220,21 +220,28 @@ class CreateSpecialMapping : public Operation {
       cout<<"return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );"<<endl;
       return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );*/
       
-/*      cout<<"j="<<j<<endl;
-      cout<<"K="<<K<<endl;
-      cout<<"G_k(j)="<<G_k(j)<<endl;
-      cout<<"G_k(K)="<<G_k(K)<<endl;
-      cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
-      cout<<"L_k(j,K)="<<L_k(j,K)<<endl;*/
-      return ( L_k(j,K)>0.5*(G_k(j)+G_k(K)) );
+      bool result=L_k(j,K)>0.5*(G_k(j)+G_k(K));
+      if(DebugLevel>0 && result){
+        cout<<"j="<<j<<endl;
+        cout<<"K="<<K<<endl;
+        cout<<"G_k(j)="<<G_k(j)<<endl;
+        cout<<"G_k(K)="<<G_k(K)<<endl;
+        cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
+        cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
+      }
+      return ( result );
     }
     bool remove_fieldpoint(vtkIdType P)
     {
       double QL1max=0.8;
       double QL2max=0.5;
-/*      cout<<"Q_L1(P)<QL1max="<< Q_L1(P)<< "<" << QL1max<<endl;
-      cout<<"Q_L2(P)<QL2max="<< Q_L2(P)<< "<" << QL2max<<endl;*/
-      return ( Q_L1(P)<QL1max && Q_L2(P)<QL2max );
+      bool result = Q_L1(P)<QL1max && Q_L2(P)<QL2max;
+      if(DebugLevel>0 && result)
+      {
+        cout<<"Q_L1(P)<QL1max="<< Q_L1(P)<< "<" << QL1max<<endl;
+        cout<<"Q_L2(P)<QL2max="<< Q_L2(P)<< "<" << QL2max<<endl;
+      }
+      return ( result );
     }
     bool remove_edgepoint(vtkIdType P)
     {

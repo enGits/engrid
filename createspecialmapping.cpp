@@ -269,7 +269,7 @@ int CreateSpecialMapping::insert_FP_counter()
   {
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      cout<<"inserting a field point "<<id_cell<<endl;
+      if(DebugLevel>0) cout<<"inserting a field point "<<id_cell<<endl;
       N_inserted_FP++;
       marked_cells[id_cell]=true;
       N_newcells+=2;
@@ -363,7 +363,8 @@ int CreateSpecialMapping::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
   cout<<"marked_cells="<<marked_cells<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_removed_FP="<<N_removed_FP<<endl;
@@ -450,16 +451,16 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
     
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      cout<<"inserting a field point "<<id_cell<<endl;
+      if(DebugLevel>0) cout<<"inserting a field point "<<id_cell<<endl;
       vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
-      cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
+      if(DebugLevel>42) cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
       
       vtkIdType N_pts, *pts;
       m_grid->GetCellPoints(id_cell, N_pts, pts);
       vec3_t C(0,0,0);
       
       int N_neighbours=N_pts;
-      cout<<"N_neighbours="<<N_neighbours<<endl;
+      if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
       vec3_t corner[4];
       vtkIdType pts_triangle[4][3];
       for(int i=0;i<N_neighbours;i++)
@@ -863,7 +864,8 @@ int CreateSpecialMapping::FullEdit()
   if(remove_EP) remove_EP_counter();
   
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
     //unmark cells (TODO: optimize)
@@ -887,7 +889,8 @@ int CreateSpecialMapping::FullEdit()
   if(insert_EP) insert_EP_actor(grid_tmp);
   
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   if(remove_FP) remove_FP_actor(grid_tmp);
   if(remove_EP) remove_EP_actor(grid_tmp);
@@ -929,7 +932,8 @@ int CreateSpecialMapping::remove_EP_all_2()
   
   remove_EP_counter();
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
   int kills=0;
@@ -938,7 +942,7 @@ int CreateSpecialMapping::remove_EP_all_2()
   {
     if(hitlist[i]==2){
       contracts++;
-      cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      if(DebugLevel>47) cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
@@ -950,11 +954,11 @@ int CreateSpecialMapping::remove_EP_all_2()
       if(DelResult)
       {
         kills++;
-        cout<<"Kill successful"<<endl;
+        if(DebugLevel>47) cout<<"Kill successful"<<endl;
       }
       else
       {
-        cout<<"Kill failed"<<endl;
+        if(DebugLevel>47) cout<<"Kill failed"<<endl;
         N_removed_EP--;
       }
       
@@ -1007,7 +1011,8 @@ int CreateSpecialMapping::remove_FP_all_2()
   
 //   cout_grid(cout,m_grid);
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
   int kills=0;
@@ -1016,7 +1021,7 @@ int CreateSpecialMapping::remove_FP_all_2()
   {
     if(hitlist[i]==1){
       contracts++;
-      cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      if(DebugLevel>47) cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
@@ -1028,11 +1033,11 @@ int CreateSpecialMapping::remove_FP_all_2()
       if(DelResult)
       {
         kills++;
-        cout<<"Kill successful"<<endl;
+        if(DebugLevel>47) cout<<"Kill successful"<<endl;
       }
       else
       {
-        cout<<"Kill failed"<<endl;
+        if(DebugLevel>47) cout<<"Kill failed"<<endl;
         N_removed_FP--;
       }
       

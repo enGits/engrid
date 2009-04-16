@@ -992,8 +992,8 @@ typedef struct _vtkMeshVertex
 
 int Operation::UpdateNodeType()
 {
-  cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
-  cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
+  if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
+  if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
 //   cout<<"===UpdateNodeType START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
@@ -1580,7 +1580,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
 bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {
   getAllSurfaceCells(cells,src);
-  getNodesFromCells(cells, nodes, src);
+//   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
   UpdateNodeType();
@@ -1623,10 +1623,13 @@ bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int&
   }
   N_points=src->GetNumberOfPoints();
   N_cells=src->GetNumberOfCells();
-  cout<<"N_points="<<N_points<<endl;
-  cout<<"N_cells="<<N_cells<<endl;
-  cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  if(DebugLevel>47) {
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
   EG_VTKSP(vtkUnstructuredGrid,dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
   

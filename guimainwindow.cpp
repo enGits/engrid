@@ -447,7 +447,7 @@ void GuiMainWindow::updateActors()
       ui.comboBox_Field->clear();
       ui.comboBox_Field->addItem("None");
       int N_Arrays=boundary_pd->GetPointData()->GetNumberOfArrays();
-      cout<<"N_Arrays="<<N_Arrays<<endl;
+//       cout<<"N_Arrays="<<N_Arrays<<endl;
       for (int i=0; i<N_Arrays; i++)
       {
         ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
@@ -456,8 +456,8 @@ void GuiMainWindow::updateActors()
       if(current_field==-1) ui.comboBox_Field->setCurrentIndex(0);
       else ui.comboBox_Field->setCurrentIndex(current_field);
       
-      cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
-      cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
+//       cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
+//       cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
       
       current_field=ui.comboBox_Field->currentIndex();
       if(current_field>0)
