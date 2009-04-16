@@ -90,6 +90,7 @@ HEADERS = \
 boundarycondition.h \
 celllayeriterator.h \
 cellneighbouriterator.h \
+cgnswriter.h \
 containertricks.h \
 correctsurfaceorientation.h \
 createvolumemesh.h \
@@ -174,6 +175,7 @@ main.cpp \
 boundarycondition.cpp \
 celllayeriterator.cpp \
 cellneighbouriterator.cpp \
+cgnswriter.cpp \
 correctsurfaceorientation.cpp \
 createvolumemesh.cpp \
 deletecells.cpp \
