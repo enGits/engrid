@@ -44,7 +44,14 @@
 #ifdef WIN32
 typedef vtkLongLongArray vtkLongArray_t;
 #else
+
+#include <limits.h>
+#if ( __WORDSIZE == 64 )
 typedef vtkLongArray vtkLongArray_t;
+#else
+typedef vtkLongLongArray vtkLongArray_t;
+#endif
+
 #endif
 
 #define EG_ERR_RETURN(TXT) \
