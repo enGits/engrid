@@ -1011,6 +1011,9 @@ void GuiMainWindow::updateStatusBar()
       };
       pick_txt += "]";
       QString tmp;
+      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+      tmp.setNum(cell_code->GetValue(id_cell));
+      pick_txt += " cell_code=" + tmp;
       tmp.setNum(id_cell);
       pick_txt += " id_cell=" + tmp;
     };
@@ -1036,8 +1039,6 @@ void GuiMainWindow::updateStatusBar()
       };
       pick_txt += "]";
       QString tmp;
-      tmp.setNum(id_node);
-      pick_txt += " id_node=" + tmp;
       EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
       tmp.setNum(node_meshdensity->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
@@ -1046,6 +1047,8 @@ void GuiMainWindow::updateStatusBar()
       pick_txt += " current density=" + tmp;
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
       pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
+      tmp.setNum(id_node);
+      pick_txt += " id_node=" + tmp;
     };
     
     txt += pick_txt;
