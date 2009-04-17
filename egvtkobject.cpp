@@ -1238,7 +1238,7 @@ int CheckState2int(Qt::CheckState a)
 {
   if(a==Qt::Unchecked) return(0);
   if(a==Qt::PartiallyChecked) return(1);
-  else return(Qt::Checked);
+  else return(2);
 }
 
 // ///////////////////////////////////////////

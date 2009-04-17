@@ -667,14 +667,31 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
   return(out);
 }
 
-template <class T>
-ostream &operator<<(ostream &out, QMap<T,bool> & map)
+template <class T1, class T2>
+ostream &operator<<(ostream &out, QMap<T1,T2> & map)
 {
-  QMapIterator<T, bool> i(map);
+  QMapIterator<T1, T2> i(map);
   out<<"[";
   while (i.hasNext()) {
     i.next();
     out << " [" << i.key() << ": " << i.value() << "]";
+  }
+  out<<"]";
+  return(out);
+}
+
+template <class T1, class T2>
+ostream &operator<<(ostream &out, QVector < pair<T1,T2> > & vector)
+{
+  int N=vector.size();
+  out<<"[";
+  for (int i = 0; i < N; ++i) {
+    out<<"<";
+    out<<vector.at(i).first;
+    out<<",";
+    out<<vector.at(i).second;
+    out<<">";
+    if(i!=N-1) out<<",";
   }
   out<<"]";
   return(out);

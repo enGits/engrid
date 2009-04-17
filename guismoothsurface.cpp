@@ -376,6 +376,10 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
     for(int j=0;j<Nbc;j++)
     {
       if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
+      int bc = tableWidget->horizontalHeaderItem(j)->text().toInt();
+      int state = CheckState2int( tableWidget->item(i,j)->checkState() );
+//       VMDvector[i].BClist2.push_back(pair<int,int>(bc,state));
+      VMDvector[i].BCmap[bc]=state;
     }
     VMDvector[i].type=Str2VertexType(tableWidget->item(i,Nbc)->text());
     VMDvector[i].SetNodes(tableWidget->item(i,Nbc+1)->text());

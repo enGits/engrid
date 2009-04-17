@@ -257,6 +257,7 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   foreach(vtkIdType C, n2c[node])
   {
     bc.insert(cell_code->GetValue(C));
+    VMD.BCmap[cell_code->GetValue(C)]=2;
   }
   VMD.BClist.resize(bc.size());
   qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
