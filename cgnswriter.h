@@ -11,7 +11,6 @@ class CgnsWriter : public IOOperation
 public:
 
 
-
 };
 
 #endif // CGNSWRITER_H
