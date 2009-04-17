@@ -19,26 +19,38 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 {
 /*  cout<<"this->nodeset="<<this->nodeset<<endl;
   cout<<"VMD.nodeset="<<VMD.nodeset<<endl;*/
-  if(this->nodeset.contains(VMD.CurrentNode) ) return(true);//node ID given, we're done
   
-  if(this->type!=VMD.type && this->type!=-1) return(false);
-  
-  QMapIterator<int, int> i(this->BCmap);
-  while (i.hasNext()) {
-    i.next();
-//     cout << i.key() << ": " << i.value() << endl;
-    int index=i.key();
-    if((this->BCmap)[index]!=VMD.BCmap[index] && (this->BCmap)[index]!=1) return(false);
+  if(this->nodeset.size()>0) //node ID mode
+  {
+    if(this->nodeset.contains(VMD.CurrentNode) ) return(true);//node ID given, we're done
+    else return(false);
   }
-  
-  return(true);
+  else //node properties mode
+  {
+    if(this->type!=VMD.type && this->type!=-1) return(false);
+    
+    QMapIterator<int, int> i(this->BCmap);
+    while (i.hasNext()) {
+      i.next();
+//     cout << i.key() << ": " << i.value() << endl;
+      int index=i.key();
+      if((this->BCmap)[index]!=VMD.BCmap[index] && (this->BCmap)[index]!=1) return(false);
+    }
+    
+    return(true);
+  }
 }
 
+//converts string to nodeset
 void VertexMeshDensity::SetNodes(QString str)
 {
-  QStringList L = str.split(",");
-  nodeset.clear();
-  foreach(QString elt,L) nodeset.insert(elt.toInt());
+  nodeset.clear();//empty by default
+  cout<<"str.size="<<str.size()<<endl;
+  if(str.size()>0)
+  {
+    QStringList L = str.split(",");
+    foreach(QString elt,L) nodeset.insert(elt.toInt());
+  }
 }
 
 // QVector < QVector <int> > BClist;

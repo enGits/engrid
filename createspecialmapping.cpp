@@ -135,6 +135,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");
   
 /*  //Phase A : Calculate current mesh density
   cout<<"===Phase A==="<<endl;
@@ -170,6 +171,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
       if(DebugLevel>2) cout<<"======>"<<endl;
       VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
       int idx=VMDvector.indexOf(nodeVMD);
+      node_specified_density->SetValue(node, idx);
       if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
