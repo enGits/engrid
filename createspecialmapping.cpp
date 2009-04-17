@@ -125,6 +125,8 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
+  getNodesFromCells(m_AllCells, m_AllNodes, m_grid);
+  
   setGrid(m_grid);
   setCells(m_AllCells);
   
@@ -163,7 +165,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   do {
     if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
     first=true;
-    foreach(vtkIdType node,m_SelectedNodes)
+    foreach(vtkIdType node,m_AllNodes)
     {
       if(DebugLevel>2) cout<<"======>"<<endl;
       VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
