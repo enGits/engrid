@@ -70,7 +70,7 @@ private: // methods
 protected: // attributes
   
   QSet<int> boundary_codes;
-  int DebugLevel;
+  static int DebugLevel;
   
 protected: // methods
   

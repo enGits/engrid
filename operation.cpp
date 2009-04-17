@@ -1007,7 +1007,7 @@ int Operation::UpdateNodeType()
   
   vtkPolyData *source = 0;
   
-  vtkIdType numPts, numCells, i, numPolys, numStrips;
+  vtkIdType numPts, numCells, i, numPolys;
   int j, k;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
@@ -1021,8 +1021,7 @@ int Operation::UpdateNodeType()
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
-  vtkTriangleFilter *toTris=NULL;
-  vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
+  vtkCellArray *inVerts, *inLines, *inPolys;
   vtkPoints *newPts;
   vtkMeshVertexPtr Verts;
   vtkCellLocator *cellLocator=NULL;
@@ -1074,73 +1073,14 @@ int Operation::UpdateNodeType()
   inPts = input->GetPoints();
   conv = this->Convergence * input->GetLength();
   
-    // check vertices first. Vertices are never smoothed_--------------
-  for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
-       inVerts->GetNextCell(npts,pts); )
-  {
-    for (j=0; j<npts; j++)
-    {
-      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->vertices:VTK_FIXED_VERTEX 0"<<endl;
-      Verts[pts[j]].type = VTK_FIXED_VERTEX;
-    }
-  }
-  
-  if(DebugLevel>5) cout<<"==check lines=="<<endl;
-    // now check lines. Only manifold lines can be smoothed------------
-  for (inLines=input->GetLines(), inLines->InitTraversal(); 
-       inLines->GetNextCell(npts,pts); )
-  {
-    for (j=0; j<npts; j++)
-    {
-      if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"->lines"<<endl;
-      if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
-      {
-        if ( j == (npts-1) ) //end-of-line marked FIXED
-        {
-          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"2:VTK_FIXED_VERTEX 1"<<endl;
-          Verts[pts[j]].type = VTK_FIXED_VERTEX;
-        }
-        else if ( j == 0 ) //beginning-of-line marked FIXED
-        {
-          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"3:VTK_FIXED_VERTEX 2"<<endl;
-          Verts[pts[0]].type = VTK_FIXED_VERTEX;
-          inPts->GetPoint(pts[0],x2);
-          inPts->GetPoint(pts[1],x3);
-        }
-        else //is edge vertex (unless already edge vertex!)
-        {
-          if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"4:VTK_FEATURE_EDGE_VERTEX"<<endl;
-          Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
-          Verts[pts[j]].edges = vtkIdList::New();
-          Verts[pts[j]].edges->SetNumberOfIds(2);
-          Verts[pts[j]].edges->SetId(0,pts[j-1]);
-          Verts[pts[j]].edges->SetId(1,pts[j+1]);
-        }
-      } //if simple vertex
-      
-      else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
-      { //multiply connected, becomes fixed!
-        if(DebugLevel>5) cout<<"pts[j]="<<pts[j]<<"5:VTK_FIXED_VERTEX 3"<<endl;
-        Verts[pts[j]].type = VTK_FIXED_VERTEX;
-        Verts[pts[j]].edges->Delete();
-        Verts[pts[j]].edges = NULL;
-      }
-      
-    } //for all points in this line
-  } //for all lines
-  
   if(DebugLevel>5) cout<<"==polygons and triangle strips=="<<endl;
     // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
-  inStrips=input->GetStrips();
-  numStrips = inStrips->GetNumberOfCells();
   
   if(DebugLevel>5) cout<<"numPolys="<<numPolys<<endl;
-  if(DebugLevel>5) cout<<"numStrips="<<numStrips<<endl;
   
-  
-  if ( numPolys > 0 || numStrips > 0 )
+  if ( numPolys > 0 )
   { //build cell structure
     vtkCellArray *polys;
     vtkIdType cellId;
@@ -1157,15 +1097,6 @@ int Operation::UpdateNodeType()
     inMesh->SetPoints(inPts);
     inMesh->SetPolys(inPolys);
     Mesh = inMesh;
-    
-    if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
-    { // convert data to triangles
-      inMesh->SetStrips(inStrips);
-      toTris = vtkTriangleFilter::New();
-      toTris->SetInput(inMesh);
-      toTris->Update();
-      Mesh = toTris->GetOutput();
-    }
     
     Mesh->BuildLinks(); //to do neighborhood searching
     polys = Mesh->GetPolys();
@@ -1271,7 +1202,6 @@ int Operation::UpdateNodeType()
     }
     
     inMesh->Delete();
-    if (toTris) {toTris->Delete();}
     
     neighbors->Delete();
   }//if strips or polys

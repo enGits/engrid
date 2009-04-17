@@ -1232,6 +1232,7 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     CreateSpecialMapping toto;
     toto.SetInput(bcs,grid);
+    setDebugLevel(ui.spinBox_DebugLevel->value());
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());

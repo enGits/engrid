@@ -31,6 +31,8 @@
 #include <vtkCell.h>
 #include <vtkCharArray.h>
 
+int EgVtkObject::DebugLevel;
+
 void EgVtkObject::computeNormals
 (
   QVector<vec3_t>     &cell_normals,
