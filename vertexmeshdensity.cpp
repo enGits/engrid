@@ -20,7 +20,7 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 /*  cout<<"this->nodeset="<<this->nodeset<<endl;
   cout<<"VMD.nodeset="<<VMD.nodeset<<endl;*/
   if(this->nodeset.contains(VMD.CurrentNode) ) return(true);
-  if(this->type==VMD.type && this->BClist==VMD.BClist) return(true);
+//   if(this->type==VMD.type && this->BClist==VMD.BClist) return(true);
   else return(false);
 }
 

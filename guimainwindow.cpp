@@ -492,7 +492,7 @@ void GuiMainWindow::updateActors()
       }
       else {
         lut=vtkLookupTable::New();
-        lut->SetNumberOfColors(256);
+        lut->SetNumberOfColors(ui.spinBox_Color->value());
         lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
         lut->Build();
         field_mapper=vtkPolyDataMapper::New();
