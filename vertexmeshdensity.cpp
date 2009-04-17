@@ -19,9 +19,19 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 {
 /*  cout<<"this->nodeset="<<this->nodeset<<endl;
   cout<<"VMD.nodeset="<<VMD.nodeset<<endl;*/
-  if(this->nodeset.contains(VMD.CurrentNode) ) return(true);
-//   if(this->type==VMD.type && this->BClist==VMD.BClist) return(true);
-  else return(false);
+  if(this->nodeset.contains(VMD.CurrentNode) ) return(true);//node ID given, we're done
+  
+  if(this->type!=VMD.type && this->type!=-1) return(false);
+  
+  QMapIterator<int, int> i(this->BCmap);
+  while (i.hasNext()) {
+    i.next();
+//     cout << i.key() << ": " << i.value() << endl;
+    int index=i.key();
+    if((this->BCmap)[index]!=VMD.BCmap[index] && (this->BCmap)[index]!=1) return(false);
+  }
+  
+  return(true);
 }
 
 void VertexMeshDensity::SetNodes(QString str)
