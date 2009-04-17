@@ -443,6 +443,7 @@ void GuiMainWindow::updateActors()
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
       
+      //Fill node field combobox
       int current_field=ui.comboBox_Field->currentIndex();
       ui.comboBox_Field->clear();
       ui.comboBox_Field->addItem("None");
@@ -452,9 +453,21 @@ void GuiMainWindow::updateActors()
       {
         ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
       }
-      
       if(current_field==-1) ui.comboBox_Field->setCurrentIndex(0);
       else ui.comboBox_Field->setCurrentIndex(current_field);
+      
+      //Fill cell field combobox
+      int current_cell_field=ui.comboBox_CellTextField->currentIndex();
+      ui.comboBox_CellTextField->clear();
+      ui.comboBox_CellTextField->addItem("Cell ID");
+      int N_CellArrays=boundary_pd->GetCellData()->GetNumberOfArrays();
+//       cout<<"N_CellArrays="<<N_CellArrays<<endl;
+      for (int i=0; i<N_CellArrays; i++)
+      {
+        ui.comboBox_CellTextField->addItem(grid->GetCellData()->GetArrayName(i));
+      }
+      if(current_cell_field==-1) ui.comboBox_CellTextField->setCurrentIndex(0);
+      else ui.comboBox_CellTextField->setCurrentIndex(current_cell_field);
       
 //       cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
 //       cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
@@ -1174,25 +1187,35 @@ void GuiMainWindow::ViewNodeIDs()
 
 void GuiMainWindow::ViewCellIDs()
 {
-  int N=grid->GetNumberOfCells();
+  vtkIdType N=grid->GetNumberOfCells();
   cout<<"N="<<N<<endl;
   if (ui.actionViewCellIDs->isChecked()) {
     cout<<"Activating cell ID view"<<endl;
     CellText_VectorText.resize(N);
     CellText_PolyDataMapper.resize(N);
     CellText_Follower.resize(N);
-    for(int i=0;i<N;i++){
-      CellText_VectorText[i]=vtkVectorText::New();
+    for(vtkIdType id_cell=0;id_cell<N;id_cell++){
+      CellText_VectorText[id_cell]=vtkVectorText::New();
+      
       QString tmp;
-      tmp.setNum(i);
-      CellText_VectorText[i]->SetText(tmp.toLatin1().data());
-      CellText_PolyDataMapper[i]=vtkPolyDataMapper::New();
-      CellText_PolyDataMapper[i]->SetInputConnection(CellText_VectorText[i]->GetOutputPort());
-      CellText_Follower[i]=vtkFollower::New();
-      CellText_Follower[i]->SetMapper(CellText_PolyDataMapper[i]);
-      CellText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
+      
+      if(ui.comboBox_CellTextField->currentIndex()==0) {
+        tmp.setNum(id_cell);
+      }
+      else if(ui.comboBox_CellTextField->currentIndex()>0) {
+        EG_VTKDCC(vtkIntArray, current_cell_field, grid, ui.comboBox_CellTextField->currentText().toLatin1().data());
+        tmp.setNum(current_cell_field->GetValue(id_cell));
+      }
+      else EG_BUG;
+      
+      CellText_VectorText[id_cell]->SetText(tmp.toLatin1().data());
+      CellText_PolyDataMapper[id_cell]=vtkPolyDataMapper::New();
+      CellText_PolyDataMapper[id_cell]->SetInputConnection(CellText_VectorText[id_cell]->GetOutputPort());
+      CellText_Follower[id_cell]=vtkFollower::New();
+      CellText_Follower[id_cell]->SetMapper(CellText_PolyDataMapper[id_cell]);
+      CellText_Follower[id_cell]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
       vtkIdType N_pts,*pts;
-      grid->GetCellPoints(i,N_pts,pts);
+      grid->GetCellPoints(id_cell,N_pts,pts);
       vec3_t Center(0,0,0);
       for(int p=0;p<N_pts;p++)
       {
@@ -1202,19 +1225,19 @@ void GuiMainWindow::ViewCellIDs()
       }
       vec3_t OffSet=ReferenceSize*triNormal(grid,pts[0],pts[1],pts[2]).normalise();
       Center=1.0/(double)N_pts*Center+OffSet;
-      CellText_Follower[i]->AddPosition(Center[0],Center[1],Center[2]);
-      CellText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
-      CellText_Follower[i]->GetProperty()->SetColor(1,0,0);
-      getRenderer()->AddActor(CellText_Follower[i]);
+      CellText_Follower[id_cell]->AddPosition(Center[0],Center[1],Center[2]);
+      CellText_Follower[id_cell]->SetCamera(getRenderer()->GetActiveCamera());
+      CellText_Follower[id_cell]->GetProperty()->SetColor(1,0,0);
+      getRenderer()->AddActor(CellText_Follower[id_cell]);
     }
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(unsigned int i=0;i<CellText_Follower.size();i++){
-      getRenderer()->RemoveActor(CellText_Follower[i]);
-      CellText_Follower[i]->Delete();
-      CellText_PolyDataMapper[i]->Delete();
-      CellText_VectorText[i]->Delete();
+    for(vtkIdType id_cell=0;id_cell<CellText_Follower.size();id_cell++){
+      getRenderer()->RemoveActor(CellText_Follower[id_cell]);
+      CellText_Follower[id_cell]->Delete();
+      CellText_PolyDataMapper[id_cell]->Delete();
+      CellText_VectorText[id_cell]->Delete();
     }
     CellText_Follower.clear();
     CellText_PolyDataMapper.clear();

@@ -234,7 +234,7 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents" >
     <layout class="QGridLayout" name="gridLayout_3" >
-     <item row="0" column="1" >
+     <item row="0" column="0" >
       <widget class="QScrollArea" name="scrollArea" >
        <property name="sizePolicy" >
         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
@@ -255,9 +255,9 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-125</y>
           <width>262</width>
-          <height>845</height>
+          <height>912</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -649,7 +649,7 @@
            </layout>
           </widget>
          </item>
-         <item row="5" column="0" >
+         <item row="6" column="0" >
           <widget class="QPushButton" name="pushButtonRedraw" >
            <property name="sizePolicy" >
             <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
@@ -664,6 +664,25 @@
             <iconset resource="engrid.qrc" >
              <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
            </property>
+          </widget>
+         </item>
+         <item row="5" column="0" >
+          <widget class="QGroupBox" name="groupBox_6" >
+           <property name="title" >
+            <string>Cell Text</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_9" >
+              <property name="text" >
+               <string>ID/Field :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QComboBox" name="comboBox_CellTextField" />
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -1076,7 +1095,7 @@
     <bool>true</bool>
    </property>
    <property name="text" >
-    <string>Node IDs</string>
+    <string>View node IDs</string>
    </property>
   </action>
   <action name="actionViewCellIDs" >
@@ -1084,7 +1103,7 @@
     <bool>true</bool>
    </property>
    <property name="text" >
-    <string>Cell IDs</string>
+    <string>View cell IDs</string>
    </property>
   </action>
   <action name="actionPick_cell_point" >
@@ -1121,6 +1140,14 @@
    </property>
    <property name="text" >
     <string>Show output</string>
+   </property>
+  </action>
+  <action name="actionViewCellCodes" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>View boundary codes</string>
    </property>
   </action>
  </widget>
