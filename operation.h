@@ -127,18 +127,18 @@ public: // methods
   virtual ~Operation();
   void del();
     
-  void setGrid(vtkUnstructuredGrid *ug) { grid = ug; };
+  void setGrid(vtkUnstructuredGrid *ug) { grid = ug; }
   void setAllCells();
   void setAllVolumeCells();
   void setAllSurfaceCells();
-  vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; };
-  vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; };
-  void setNewNode(vtkIdType id_old_node, vtkIdType id_new_node) { nodes_map[_nodes[id_old_node]] = id_new_node; };
-  void setNewCell(vtkIdType id_old_cell, vtkIdType id_new_cell) { cells_map[_cells[id_old_cell]] = id_new_cell; };
-  void setGui() { gui = true; };
-  OperationThread& getThread() { return thread; };
-  void enableAutoSet() { autoset = true; };
-  void disableAutoSet() { autoset = false; };
+  vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; }
+  vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; }
+  void setNewNode(vtkIdType id_old_node, vtkIdType id_new_node) { nodes_map[_nodes[id_old_node]] = id_new_node; }
+  void setNewCell(vtkIdType id_old_cell, vtkIdType id_new_cell) { cells_map[_cells[id_old_cell]] = id_new_cell; }
+  void setGui() { gui = true; }
+  OperationThread& getThread() { return thread; }
+  void enableAutoSet() { autoset = true; }
+  void disableAutoSet() { autoset = false; }
   
   /**
    * Fill a QListWidget with all available boundary codes from a grid.

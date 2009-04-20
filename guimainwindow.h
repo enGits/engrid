@@ -463,27 +463,28 @@ public slots:
   // the following line can be used as a template:
   // void call() { EG_STDSLOT(); };
   
-  void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); };
-  void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); };
-  void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); };
-  void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); };
-  void callDeleteTetras() { EG_STDSLOT(DeleteTetras); };
-  void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); };
-  void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); };
-  void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); };
-  void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); };
-  void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); };
-  void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); };
-  void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); };
-  void callTransform() { EG_STDINTERSLOT(GuiTransform); };
+  void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); }
+  void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); }
+  void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); }
+  void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); }
+  void callDeleteTetras() { EG_STDSLOT(DeleteTetras); }
+  void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); }
+  void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); }
+  void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); }
+  void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
+  void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
+  void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }
+  void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
+  void callTransform() { EG_STDINTERSLOT(GuiTransform); }
   
   void callFixSTL();
   
-  void callFoamReader()       { EG_STDREADERSLOT(FoamReader); };
-  void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); };
-  void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); };
-  void callVtkReader()        { EG_STDREADERSLOT(VtkReader); };
-  void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); };
+  void callFoamReader()       { EG_STDREADERSLOT(FoamReader); }
+  void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); }
+  void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); }
+  void callCgnsWriter()       { EG_STDINTERSLOT(CgnsWriter); };
+  void callVtkReader()        { EG_STDREADERSLOT(VtkReader); }
+  void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); }
   
 };
 

@@ -40,5 +40,6 @@
 #include "deletepickedcell.h"
 #include "deletepickedpoint.h"
 #include "fixstl.h"
+#include "cgnswriter.h"
 
 // -------------------------------------------

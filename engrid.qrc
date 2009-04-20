@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons" >
+    <file>resources/icons/cgns_color.gif</file>
     <file>resources/icons/of.png</file>
     <file>resources/icons/viewxminus.png</file>
     <file>resources/icons/viewxplus.png</file>
