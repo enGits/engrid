@@ -696,6 +696,25 @@ ostream &operator<<(ostream &out, QVector < pair<T1,T2> > & vector)
   out<<"]";
   return(out);
 }
+
+template <class T>
+QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
+{
+  QVector <T> l_vector(a_set.size());
+  qCopy(a_set.begin(),a_set.end(),l_vector.begin());
+  if(a_sort) qSort(l_vector.begin(),l_vector.end());
+  return(l_vector);
+}
+
+template <class T>
+QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
+{
+  QSet <T> l_set(a_vector.size());
+  qCopy(a_vector.begin(),a_vector.end(),l_set.begin());
+  if(a_sort) qSort(l_set.begin(),l_set.end());
+  return(l_set);
+}
+
 ///////////////////////////////////////////
 // ///////////////////////////////////////////
 // /* Here is how we we get QTextStreams that look like iostreams */

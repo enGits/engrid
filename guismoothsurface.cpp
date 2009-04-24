@@ -210,7 +210,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 10: Super smoothing :)");
   ui.SmoothMethod->addItem("Method 11: Update current mesh density + node types");
   ui.SmoothMethod->addItem("Method 12: Delete all possible points :)");
-  ui.SmoothMethod->addItem("Method 13");
+  ui.SmoothMethod->addItem("Method 13: Delete selected points");
   ui.SmoothMethod->addItem("Method 14");
   ui.SmoothMethod->addItem("Method 15");
   ui.SmoothMethod->addItem("Method 16");
@@ -1283,6 +1283,58 @@ void GuiSmoothSurface::operate()
         DeadNode++;
       }
     }
+    
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==13)// Delete selected points
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    CreateSpecialMapping toto;
+    
+    SetConvergence(ui.doubleSpinBox_Convergence->value());
+    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    
+    int N_newpoints;
+    int N_newcells;
+    
+    vtkIdType N_points=grid->GetNumberOfPoints();
+    vtkIdType N_cells=grid->GetNumberOfCells();
+    
+    QVector <VertexMeshDensity> VMDvector=GetSet();
+//     cout<<"VMDvector="<<VMDvector<<endl;
+    for(unsigned int i=0;i<VMDvector.size();i++)
+    {
+      cout<<"VMDvector["<<i<<"].nodeset="<<VMDvector[i].nodeset<<endl;
+      int N_newpoints=0;
+      int N_newcells=0;
+      DeleteSetOfPoints(grid, VMDvector[i].nodeset, N_newpoints, N_newcells);
+    }
+    
+/*    vector <vtkIdType> nodeId_vector(3);
+    
+    for(vtkIdType i)*/
+    
+    
+/*    bool Global_DelResult=true;
+    while(Global_DelResult)
+    {
+      Global_DelResult=false;
+      vtkIdType DeadNode=0;
+      while(DeadNode<grid->GetNumberOfPoints())
+      {
+        bool Local_DelResult=true;
+        while(Local_DelResult)
+        {
+          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
+          if(Local_DelResult) Global_DelResult=true;
+        }
+        DeadNode++;
+      }
+    }*/
     
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
