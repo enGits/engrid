@@ -2014,11 +2014,12 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
   QSet <vtkIdType> MutilatedCells;
   QVector <vtkIdType> SnapPoint(DeadNode_vector.size());
   
+    //counter init
+  N_newpoints=0;
+  N_newcells=0;
+  
   for(int i=0;i<DeadNode_vector.size();i++)
   {
-//   N_newpoints=-1;
-//   N_newcells=0;
-    
     if(DeadNode_vector[i]<0 || DeadNode_vector[i]>=N_points)
     {
       cout<<"Warning: Point out of range: DeadNode_vector[i]="<<DeadNode_vector[i]<<" N_points="<<N_points<<endl;
@@ -2032,7 +2033,21 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
     }
-    SnapPoint[i]=FindSnapPoint(src,DeadNode_vector[i],DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells);
+    
+    //local values
+    int l_N_newpoints;
+    int l_N_newcells;
+    QSet <vtkIdType> l_DeadCells;
+    QSet <vtkIdType> l_MutatedCells;
+    QSet <vtkIdType> l_MutilatedCells;
+    
+    SnapPoint[i]=FindSnapPoint(src,DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
+    //global values
+    N_newpoints+=l_N_newpoints;
+    N_newcells+=l_N_newcells;
+    DeadCells.unite(l_DeadCells);//DeadCells unite! Kill the living! :D
+    MutatedCells.unite(l_MutatedCells);
+    MutilatedCells.unite(l_MutilatedCells);
     
     if(DebugLevel>0) cout<<"===>DeadNode_vector[i]="<<DeadNode_vector[i]<<" moving to SNAPPOINT="<<SnapPoint[i]<<" DebugLevel="<<DebugLevel<<endl;
     if(SnapPoint[i]<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
@@ -2046,8 +2061,8 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-  N_points=src->GetNumberOfPoints();
-  N_cells=src->GetNumberOfCells();
+//   N_points=src->GetNumberOfPoints();
+//   N_cells=src->GetNumberOfCells();
   
   if(DebugLevel>47) {
     cout<<"N_points="<<N_points<<endl;

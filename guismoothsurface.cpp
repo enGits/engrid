@@ -1292,6 +1292,8 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     CreateSpecialMapping toto;
     
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
     SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
@@ -1312,6 +1314,8 @@ void GuiSmoothSurface::operate()
       int N_newpoints=0;
       int N_newcells=0;
       DeleteSetOfPoints(grid, VMDvector[i].nodeset, N_newpoints, N_newcells);
+      cout<<"N_newpoints="<<N_newpoints<<endl;
+      cout<<"N_newcells="<<N_newcells<<endl;
     }
     
 /*    vector <vtkIdType> nodeId_vector(3);
