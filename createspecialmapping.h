@@ -272,6 +272,9 @@ class CreateSpecialMapping : public Operation {
     int remove_EP_all_2();
     int remove_FP_all_2();
 
+    int remove_EP_all_3();
+    int remove_FP_all_3();
+  
     int SwapFunction();
     int SmoothFunction();
   

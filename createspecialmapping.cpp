@@ -75,14 +75,14 @@ int CreateSpecialMapping::Process()
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
-      remove_FP_all_2();
+      remove_FP_all_3();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
-      remove_EP_all_2();
+      remove_EP_all_3();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
@@ -230,6 +230,7 @@ int CreateSpecialMapping::SwapFunction()
 
 int CreateSpecialMapping::SmoothFunction()
 {
+  cout<<"=== SmoothFunction ==="<<endl;
   //Phase F : translate points to smooth grid
   //4 possibilities
   //vtk smooth 1
@@ -977,6 +978,8 @@ int CreateSpecialMapping::remove_EP_all_2()
   return(0);
 }
 
+
+//count all to remove, then remove them one by one
 int CreateSpecialMapping::remove_FP_all_2()
 {
   cout<<"===remove_FP_all_2 START==="<<endl;
@@ -1053,5 +1056,115 @@ int CreateSpecialMapping::remove_FP_all_2()
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
   cout<<"===remove_FP_all_2 END==="<<endl;
+  return(0);
+}
+
+//count all to remove, then remove them all at once
+int CreateSpecialMapping::remove_FP_all_3()
+{
+  cout<<"===remove_FP_all_3 START==="<<endl;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  N_removed_FP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  hitlist.clear();
+  offset.clear();
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_FP_counter();
+  cout<<"================="<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+  cout<<"================="<<endl;
+  
+  QSet <vtkIdType> DeadNodes;
+  for(vtkIdType i=0;i<hitlist.size();i++)
+  {
+    if(hitlist[i]==1) DeadNodes.insert(i);
+  }
+  int N_newpoints=0;
+  int N_newcells=0;
+  DeleteSetOfPoints(m_grid, DeadNodes, N_newpoints, N_newcells);
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  int kills=-N_newpoints;
+  int contracts=DeadNodes.size();
+  cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_FP_all_3 END==="<<endl;
+  return(0);
+}
+
+//count all to remove, then remove them all at once
+int CreateSpecialMapping::remove_EP_all_3()
+{
+  cout<<"===remove_EP_all_3 START==="<<endl;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  N_removed_EP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  hitlist.clear();
+  offset.clear();
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_EP_counter();
+  cout<<"================="<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+  cout<<"================="<<endl;
+  
+  QSet <vtkIdType> DeadNodes;
+  for(vtkIdType i=0;i<hitlist.size();i++)
+  {
+    if(hitlist[i]==1) DeadNodes.insert(i);
+  }
+  int N_newpoints=0;
+  int N_newcells=0;
+  DeleteSetOfPoints(m_grid, DeadNodes, N_newpoints, N_newcells);
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  int kills=-N_newpoints;
+  int contracts=DeadNodes.size();
+  cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_EP_all_3 END==="<<endl;
   return(0);
 }
