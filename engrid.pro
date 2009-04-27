@@ -11,6 +11,8 @@ INSTALLS += target
 CONFIG += qt debug thread
 DEFINES += QT_NO_DEBUG
 
+QMAKE_CXXFLAGS += -pg
+
 QT += xml network opengl
 
 #VTK libs
