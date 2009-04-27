@@ -103,7 +103,7 @@ protected: // attributes
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
   
-  //Special attributes for UpdateNodeType function
+  //Special attributes for UpdateNodeType_all function
   double Convergence;
   int NumberOfIterations;
   double RelaxationFactor;
@@ -173,8 +173,8 @@ public: // methods
   bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
     
   int UpdateMeshDensity();
-  int UpdateNodeType();
   int UpdateNodeType_all();
+  int UpdateNodeType();
   
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
@@ -183,7 +183,7 @@ public: // methods
   void TxtSave(QString a_filename);
   void DualSave(QString a_filename);
     
-  //Special for UpdateNodeType
+  //Special for UpdateNodeType_all
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};
   void SetRelaxationFactor(double RF){RelaxationFactor=RF;};

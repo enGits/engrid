@@ -1054,13 +1054,21 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    LaplaceSmoother toto;
-    toto.SetInput(bcs,grid);
-    toto.SetNumberOfIterations(ui.spinBox_NumberOfIterations->value());
-    
-    toto();
+    LaplaceSmoother Lap;
+    Lap.SetInput(bcs,grid);
+    Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    Lap();
     
     updateActors();
+    
+    cout<<"===DEFAULT VALUES==="<<endl;
+    vtkSmoothPolyDataFilter* smooth=vtkSmoothPolyDataFilter::New();
+    vtkWindowedSincPolyDataFilter* smooth2=vtkWindowedSincPolyDataFilter::New();
+    cout_vtkSmoothPolyDataFilter(smooth);
+    cout_vtkWindowedSincPolyDataFilter(smooth2);
+    cout<<"===DEFAULT VALUES==="<<endl;
+    
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==7)//VertexAvgDist test
@@ -1245,7 +1253,7 @@ void GuiSmoothSurface::operate()
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateMeshDensity();
-    UpdateNodeType();
+    UpdateNodeType_all();
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1308,7 +1316,7 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
 //     cout<<"VMDvector="<<VMDvector<<endl;
-    for(unsigned int i=0;i<VMDvector.size();i++)
+    for(int i=0;i<VMDvector.size();i++)
     {
       cout<<"VMDvector["<<i<<"].nodeset="<<VMDvector[i].nodeset<<endl;
       int N_newpoints=0;

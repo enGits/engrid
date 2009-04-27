@@ -116,6 +116,9 @@ int CreateSpecialMapping::Process()
 
 int CreateSpecialMapping::UpdateDesiredMeshDensity()
 {
+    //Phase B : define desired mesh density
+  cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
@@ -132,7 +135,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
   EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");
@@ -157,8 +160,6 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
     }
   }*/
   
-    //Phase B : define desired mesh density
-  cout<<"===Phase B==="<<endl;
   double diff=Convergence_meshdensity+1;
   if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
   bool first=true;
@@ -375,7 +376,7 @@ int CreateSpecialMapping::remove_FP_counter()
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_removed_FP="<<N_removed_FP<<endl;
   
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -408,7 +409,7 @@ int CreateSpecialMapping::remove_FP_counter()
 int CreateSpecialMapping::remove_EP_counter()
 {
   cout<<"===remove_EP_counter() START==="<<endl;
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {

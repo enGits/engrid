@@ -66,6 +66,17 @@ Operation::Operation()
   gui = false;
   err = NULL;
   autoset = true;
+
+  //default values for determining node types and for smoothing operations
+  Convergence=0;
+  NumberOfIterations=20;
+  RelaxationFactor=0.01;
+  FeatureEdgeSmoothing=1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
+  FeatureAngle=45;
+  EdgeAngle=15;
+  BoundarySmoothing=1;
+  GenerateErrorScalars=0;
+  GenerateErrorVectors=0;
 };
 
 Operation::~Operation()
@@ -184,6 +195,7 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
   };
 };
 
+//TODO: Get the EG_BUG error again and figure out where it came from
 stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
 {
   stencil_t S;
@@ -993,9 +1005,9 @@ typedef struct _vtkMeshVertex
 
 int Operation::UpdateNodeType_all()
 {
+  cout<<"===UpdateNodeType_all START==="<<endl;
   if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
   if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
-//   cout<<"===UpdateNodeType START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
   if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
@@ -1313,6 +1325,7 @@ int Operation::UpdateNodeType_all()
   }
   delete [] Verts;
   
+  cout<<"===UpdateNodeType_all END==="<<endl;
   return(0);
 }
 //End of UpdateNodeType_all
@@ -1321,7 +1334,7 @@ int Operation::UpdateNodeType()
 {
   if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
   if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
-//   cout<<"===UpdateNodeType START==="<<endl;
+  cout<<"===UpdateNodeType START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
   if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
@@ -1639,6 +1652,7 @@ int Operation::UpdateNodeType()
   }
   delete [] Verts;
   
+  cout<<"===UpdateNodeType END==="<<endl;
   return(0);
 }
 //End of UpdateNodeType
@@ -1656,7 +1670,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
   setGrid(src);
   setCells(cells);
   
-  UpdateNodeType();
+  UpdateNodeType_all();
   
   EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
   if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX)
@@ -1840,7 +1854,7 @@ bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int&
 //   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
-  UpdateNodeType();
+  UpdateNodeType_all();
   
   //src grid info
   int N_points=src->GetNumberOfPoints();
@@ -2003,7 +2017,7 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
 //   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
-  UpdateNodeType();
+  UpdateNodeType_all();
   
   //src grid info
   int N_points=src->GetNumberOfPoints();
