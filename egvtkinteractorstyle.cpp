@@ -409,148 +409,6 @@ void egvtkInteractorStyle::OnChar()
   
   switch (rwi->GetKeyCode()) 
   {
-  case 'm' :
-  case 'M' :
-    if (this->AnimState == VTKIS_ANIM_OFF) 
-    {
-      this->StartAnimate();
-    }
-    else 
-    {
-      this->StopAnimate();
-    }
-    break;
-    
-  case 'Q' :
-  case 'q' :
-  case 'e' :
-  case 'E' :
-    rwi->ExitCallback();
-    break;
-    
-  case 'f' :      
-  case 'F' :
-    {
-      this->AnimState = VTKIS_ANIM_ON;
-      vtkAssemblyPath *path = NULL;
-      this->FindPokedRenderer(rwi->GetEventPosition()[0],
-                              rwi->GetEventPosition()[1]);
-      rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
-                             rwi->GetEventPosition()[1], 
-                             0.0, 
-                             this->CurrentRenderer);
-      vtkAbstractPropPicker *picker;
-      if ((picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())))
-      {
-        path = picker->GetPath();
-      }
-      if (path != NULL)
-      {
-        rwi->FlyTo(this->CurrentRenderer, picker->GetPickPosition());
-      }
-      this->AnimState = VTKIS_ANIM_OFF;
-    }
-    break;
-    
-  case 'u' :
-  case 'U' :
-    rwi->UserCallback();
-    break;
-    
-  case 'r' :
-  case 'R' :
-    this->FindPokedRenderer(rwi->GetEventPosition()[0], 
-                            rwi->GetEventPosition()[1]);
-    this->CurrentRenderer->ResetCamera();
-    rwi->Render();
-    break;
-    
-/*  case 'w' :
-  case 'W' :
-    {
-      vtkActorCollection *ac;
-      vtkActor *anActor, *aPart;
-      vtkAssemblyPath *path;
-      this->FindPokedRenderer(rwi->GetEventPosition()[0],
-                              rwi->GetEventPosition()[1]);
-      ac = this->CurrentRenderer->GetActors();
-      vtkCollectionSimpleIterator ait;
-      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); ) 
-      {
-        for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
-        {
-          aPart=static_cast<vtkActor *>(path->GetLastNode()->GetViewProp());
-          aPart->GetProperty()->SetRepresentationToWireframe();
-        }
-      }
-      rwi->Render();
-    }
-    break;*/
-    
-/*  case 's' :
-  case 'S' :
-    {
-      vtkActorCollection *ac;
-      vtkActor *anActor, *aPart;
-      vtkAssemblyPath *path;
-      this->FindPokedRenderer(rwi->GetEventPosition()[0],
-                              rwi->GetEventPosition()[1]);
-      ac = this->CurrentRenderer->GetActors();
-      vtkCollectionSimpleIterator ait;
-      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); ) 
-      {
-        for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
-        {
-          aPart=static_cast<vtkActor *>(path->GetLastNode()->GetViewProp());
-          aPart->GetProperty()->SetRepresentationToSurface();
-        }
-      }
-      rwi->Render();
-    }
-    break;*/
-    
-  case '3' :
-    if (rwi->GetRenderWindow()->GetStereoRender()) 
-    {
-      rwi->GetRenderWindow()->StereoRenderOff();
-    }
-    else 
-    {
-      rwi->GetRenderWindow()->StereoRenderOn();
-    }
-    rwi->Render();
-    break;
-    
-  case 'p' :
-  case 'P' :
-    cout<<"Pick node"<<endl;
-/*    if (this->State == VTKIS_NONE) 
-    {
-      vtkAssemblyPath *path = NULL;
-      int *eventPos = rwi->GetEventPosition();
-      this->FindPokedRenderer(eventPos[0], eventPos[1]);
-      rwi->StartPickCallback();
-      vtkAbstractPropPicker *picker = 
-        vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker());
-      if ( picker != NULL )
-      {
-        picker->Pick(eventPos[0], eventPos[1], 
-                     0.0, this->CurrentRenderer);
-        path = picker->GetPath();
-      }
-      if ( path == NULL )
-      {
-        this->HighlightProp(NULL);
-        this->PropPicked = 0;
-      }
-      else
-      {
-        this->HighlightProp(path->GetFirstNode()->GetViewProp());
-        this->PropPicked = 1;
-      }
-      rwi->EndPickCallback();
-    }*/
-    break;
     case 'n' :
       cout<<"pick node by mouse"<<endl;
       break;
@@ -566,40 +424,18 @@ void egvtkInteractorStyle::OnChar()
       break;
   }
   
-//   switch (this->Interactor->GetKeyCode())
-//     {
-//     case 'j':
-//     case 'J':
-//       break;
-//     case 't':
-//     case 'T':
-//       this->JoystickOrTrackball = VTKIS_TRACKBALL;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     case 'c':
-//     case 'C':
-//       this->CameraOrActor = VTKIS_CAMERA;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     case 'a':
-//     case 'A':
-//       this->CameraOrActor = VTKIS_ACTOR;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     }
-  
-//   // otherwise pass the OnChar to the vtkInteractorStyle.
-//   if (this->HasObserver(vtkCommand::CharEvent)) 
-//     {
-//     this->ShiftKey = this->Interactor->GetShiftKey();
-//     this->CtrlKey = this->Interactor->GetControlKey();
-//     this->Char = this->Interactor->GetKeyCode();  
-//     
-//     this->InvokeEvent(vtkCommand::CharEvent,NULL);
-//     }
-//   else
-//     {
-//     this->vtkInteractorStyle::OnChar();
-//     }
+   // otherwise pass the OnChar to the vtkInteractorStyle.
+  if (this->HasObserver(vtkCommand::CharEvent)) 
+    {
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->ControlKey = this->Interactor->GetControlKey();
+    this->KeyCode = this->Interactor->GetKeyCode();  
+    
+    this->InvokeEvent(vtkCommand::CharEvent,NULL);
+    }
+  else
+    {
+    this->vtkInteractorStyle::OnChar();
+    }
   
 }

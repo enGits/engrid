@@ -15,6 +15,36 @@ using namespace std;
 class VTK_RENDERING_EXPORT egvtkInteractorStyle : public vtkInteractorStyle
 {
 public:
+  
+    // Event information
+  int   AltKey;
+  int   ControlKey;
+  int   ShiftKey;
+  char  KeyCode;
+  int   RepeatCount;
+  char* KeySym; 
+  int   EventPosition[2];
+  int   LastEventPosition[2];
+  int   EventSize[2];
+  int   Size[2];
+  int   TimerEventId;
+  int   TimerEventType;
+  int   TimerEventDuration;
+  int   TimerEventPlatformId;
+  
+  vtkSetMacro(AltKey, int);
+  vtkGetMacro(AltKey, int);
+  vtkSetMacro(ControlKey, int);
+  vtkGetMacro(ControlKey, int);
+  vtkSetMacro(ShiftKey, int);
+  vtkGetMacro(ShiftKey, int);
+  vtkSetMacro(KeyCode, char);
+  vtkGetMacro(KeyCode, char);
+  vtkSetMacro(RepeatCount, int);
+  vtkGetMacro(RepeatCount, int);
+  vtkSetStringMacro(KeySym);
+  vtkGetStringMacro(KeySym);
+  
   static egvtkInteractorStyle *New();
   vtkTypeRevisionMacro(egvtkInteractorStyle,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);

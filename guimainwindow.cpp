@@ -264,9 +264,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
   
-/*  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
-  style->Delete();*/
+  style->Delete();
 };
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
