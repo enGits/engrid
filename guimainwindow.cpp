@@ -60,6 +60,7 @@ using namespace GeometryTools;
 
 #include "guisettingsviewer.h"
 #include "guitransform.h"
+#include "egvtkinteractorstyle.h"
 
 // GuiOutputWindow::GuiOutputWindow()
 // {
@@ -262,7 +263,11 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
+  
+  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+  getInteractor()->SetInteractorStyle(style);
 };
+//end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
