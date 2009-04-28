@@ -22,7 +22,7 @@
 //
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
-#include "createspecialmapping.h"
+#include "surfacesmoother.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
 #include "laplacesmoother.h"
@@ -1201,7 +1201,7 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     
     toto.SetInput(bcs,grid);
     toto.SetVertexMeshDensityVector(VMDvector);
@@ -1242,7 +1242,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     toto.SetInput(bcs,grid);
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
@@ -1261,7 +1261,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
@@ -1298,7 +1298,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     
     setDebugLevel(ui.spinBox_DebugLevel->value());
     

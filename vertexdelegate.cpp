@@ -1,7 +1,7 @@
 #include <QtGui>
 
 #include "vertexdelegate.h"
-#include "createspecialmapping.h"
+#include "surfacesmoother.h"
 
 #include <iostream>
 using namespace std;

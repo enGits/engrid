@@ -47,7 +47,7 @@ LIBS += -lvtkWidgets
 #netgen lib
 LIBS += -lng
 
-!win32 { 
+!win32 {
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
     LIBS += -Wl,-rpath
@@ -56,7 +56,7 @@ LIBS += -lng
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
-win32 { 
+win32 {
     VTK_DIR = C:\VTK
     VTK_SRCDIR = C:\VTK\5.0.4
     LIBS += -L$$VTK_DIR\bin\release
@@ -156,7 +156,6 @@ guisettingsviewer.h \
  \
  guitransform.h \
  vtksmoothpolydatafilter2.h \
- createspecialmapping.h \
  vertexdelegate.h \
  vertexmeshdensity.h \
  smoothingutilities.h \
@@ -168,7 +167,8 @@ guisettingsviewer.h \
  deletepickedpoint.h \
  text3d.h \
  guipick.h \
- egvtkinteractorstyle.h
+ egvtkinteractorstyle.h \
+ surfacesmoother.h
 
 SOURCES = \
 main.cpp \
@@ -232,7 +232,6 @@ guisettingsviewer.cpp \
  \
  guitransform.cpp \
  vtksmoothpolydatafilter2.cpp \
- createspecialmapping.cpp \
  vertexdelegate.cpp \
  vertexmeshdensity.cpp \
  smoothingutilities.cpp \
@@ -244,7 +243,8 @@ guisettingsviewer.cpp \
  deletepickedpoint.cpp \
  text3d.cpp \
  guipick.cpp \
- egvtkinteractorstyle.cpp
+ egvtkinteractorstyle.cpp \
+ surfacesmoother.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
@@ -259,3 +259,7 @@ guisetboundarycode.ui \
 guismoothsurface.ui \
 guitransform.ui \
 guipick.ui
+SOURCES -= createspecialmapping.cpp
+
+HEADERS -= createspecialmapping.h
+
