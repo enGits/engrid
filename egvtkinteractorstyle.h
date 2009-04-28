@@ -34,48 +34,9 @@ public:
   virtual void OnRightButtonUp();
   virtual void OnMouseWheelForward();
   virtual void OnMouseWheelBackward();
-  virtual void 	OnChar (){
-    cout<<"OnChar "<<this->Interactor->GetKeyCode()<<endl;
-    this->EventCallbackCommand->SetAbortFlag(1);
-    
-//   switch (this->Interactor->GetKeyCode())
-//     {
-//     case 'j':
-//     case 'J':
-//       break;
-//     case 't':
-//     case 'T':
-//       this->JoystickOrTrackball = VTKIS_TRACKBALL;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     case 'c':
-//     case 'C':
-//       this->CameraOrActor = VTKIS_CAMERA;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     case 'a':
-//     case 'A':
-//       this->CameraOrActor = VTKIS_ACTOR;
-//       this->EventCallbackCommand->SetAbortFlag(1);
-//       break;
-//     }
-    
-//   // otherwise pass the OnChar to the vtkInteractorStyle.
-//   if (this->HasObserver(vtkCommand::CharEvent)) 
-//     {
-//     this->ShiftKey = this->Interactor->GetShiftKey();
-//     this->CtrlKey = this->Interactor->GetControlKey();
-//     this->Char = this->Interactor->GetKeyCode();  
-//     
-//     this->InvokeEvent(vtkCommand::CharEvent,NULL);
-//     }
-//   else
-//     {
-//     this->vtkInteractorStyle::OnChar();
-//     }
-    
-  };
-  virtual void 	OnKeyDown (){
+  virtual void OnChar();
+  
+/*  virtual void 	OnKeyDown (){
     cout<<"OnKeyDown "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
   };
@@ -90,7 +51,7 @@ public:
   virtual void 	OnKeyRelease (){
     cout<<"OnKeyRelease "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
-  };
+  };*/
   
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since

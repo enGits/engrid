@@ -264,8 +264,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
   
-  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+/*  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
+  style->Delete();*/
 };
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -1280,6 +1281,7 @@ void GuiMainWindow::pickCellCallBack
   calldata = calldata;
   THIS->updateActors();
   THIS->updateStatusBar();
+  cout<<"pickCellCallBack"<<endl;
 };
 
 void GuiMainWindow::pickPointCallBack
@@ -1296,6 +1298,7 @@ void GuiMainWindow::pickPointCallBack
   calldata = calldata;
   THIS->updateActors();
   THIS->updateStatusBar();
+  cout<<"pickPointCallBack"<<endl;
 };
 
 vtkIdType GuiMainWindow::getPickedCell()
