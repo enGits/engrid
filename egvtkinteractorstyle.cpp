@@ -67,8 +67,8 @@ void egvtkInteractorStyle::OnMouseMove()
 }
 
 //----------------------------------------------------------------------------
-void egvtkInteractorStyle::OnLeftButtonDown() 
-{ 
+void egvtkInteractorStyle::OnLeftButtonDown()
+{
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
@@ -90,7 +90,7 @@ void egvtkInteractorStyle::OnLeftButtonDown()
   } 
   else 
   {
-    if (this->Interactor->GetControlKey()) 
+    if (this->Interactor->GetControlKey())
     {
       this->StartSpin();
     }

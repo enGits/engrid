@@ -250,7 +250,12 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   N_chars = 0;
   
   bool exp_features;
-  getSet("","enable experimental features",false,exp_features);
+//   getSet("","enable experimental features",false,exp_features);
+  bool undo_redo;
+  getSet("","enable undo/redo",false,undo_redo);
+  bool undo_redo_mode;
+  getSet("","use RAM for undo/redo oprations",false,undo_redo_mode);
+  
   ui.actionFoamWriter->setEnabled(exp_features);
   
   ReferenceSize=0.2;
