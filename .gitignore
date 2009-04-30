@@ -22,3 +22,5 @@ engrid.kdevelop.ignore_pcs
 *.vtu
 *.txt
 *.bcs
+netgen_svn_old
+callgrind*
