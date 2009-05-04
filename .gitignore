@@ -24,3 +24,6 @@ engrid.kdevelop.ignore_pcs
 *.bcs
 netgen_svn_old
 callgrind*
+*.aux
+*.log
+*.toc
