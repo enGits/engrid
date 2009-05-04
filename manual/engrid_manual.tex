@@ -546,6 +546,25 @@ This will prompt you for an \foam case directory and the mesh will be directly i
 
 \chapter{Background}
 
+\section{Settings}
+
+\subsection{Feature angle}
+The feature angle is used to determine when an edge is a "feature edge", i.e. on the border of a "flat" surface.
+A feature edge occurs when the angle between the two surface normals of a polygon sharing an edge is greater than the FeatureAngle.
+
+Those feature edges delimit the area which will be set to the given boundary code.
+
+\begin{figure}
+  \begin{centering}
+    \includegraphics[width=14cm]{figures/featureangle4}
+    \par
+  \end{centering}
+  \caption{The feature angle}
+  \label{fig:featureangle4}
+\end{figure}
+
+Consider figure \ref{fig:featureangle4}: If you picked cell 1 and chose a feature angle greater than "a", cell 1 and cell 2 will be set to the same boundary code. Otherwise not.
+
 \section{Technical Details}
 
 \subsection{Initial Boundary Layer Generation}

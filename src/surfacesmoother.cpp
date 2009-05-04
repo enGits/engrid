@@ -231,7 +231,7 @@ int SurfaceSmoother::SwapFunction()
 
 int SurfaceSmoother::SmoothFunction()
 {
-  cout<<"=== SmoothFunction ==="<<endl;
+  cout<<"=== SmoothFunction START ==="<<endl;
   //Phase F : translate points to smooth grid
   //4 possibilities
   //vtk smooth 1
@@ -244,6 +244,7 @@ int SurfaceSmoother::SmoothFunction()
   Lap.SetInput(m_bcs,m_grid);
   Lap.SetNumberOfIterations(N_SmoothIterations);
   Lap();
+  cout<<"=== SmoothFunction END ==="<<endl;
   return(0);
 }
 
