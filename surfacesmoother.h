@@ -15,9 +15,9 @@ using namespace GeometryTools;
 #include <cmath>
 using namespace std;
 
-class CreateSpecialMapping : public Operation {
+class SurfaceSmoother : public Operation {
   public:
-    CreateSpecialMapping();
+    SurfaceSmoother();
     int Process();
     void operate(){};
   
@@ -55,6 +55,7 @@ class CreateSpecialMapping : public Operation {
     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
     QVector <stencil_t> StencilVector;
     QSet <vtkIdType> m_SelectedNodes;
+    QVector <vtkIdType> m_AllNodes;
   
     QVector <int> hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
     QVector <int> offset;//offset caused by terminated elements
@@ -220,21 +221,28 @@ class CreateSpecialMapping : public Operation {
       cout<<"return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );"<<endl;
       return ( 0.5*G_k(K)<L_k(j,K) && L_k(j,K)<1*G_k(K) );*/
       
-/*      cout<<"j="<<j<<endl;
-      cout<<"K="<<K<<endl;
-      cout<<"G_k(j)="<<G_k(j)<<endl;
-      cout<<"G_k(K)="<<G_k(K)<<endl;
-      cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
-      cout<<"L_k(j,K)="<<L_k(j,K)<<endl;*/
-      return ( L_k(j,K)>0.5*(G_k(j)+G_k(K)) );
+      bool result=L_k(j,K)>0.5*(G_k(j)+G_k(K));
+      if(DebugLevel>0 && result){
+        cout<<"j="<<j<<endl;
+        cout<<"K="<<K<<endl;
+        cout<<"G_k(j)="<<G_k(j)<<endl;
+        cout<<"G_k(K)="<<G_k(K)<<endl;
+        cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
+        cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
+      }
+      return ( result );
     }
     bool remove_fieldpoint(vtkIdType P)
     {
       double QL1max=0.8;
       double QL2max=0.5;
-/*      cout<<"Q_L1(P)<QL1max="<< Q_L1(P)<< "<" << QL1max<<endl;
-      cout<<"Q_L2(P)<QL2max="<< Q_L2(P)<< "<" << QL2max<<endl;*/
-      return ( Q_L1(P)<QL1max && Q_L2(P)<QL2max );
+      bool result = Q_L1(P)<QL1max && Q_L2(P)<QL2max;
+      if(DebugLevel>0 && result)
+      {
+        cout<<"Q_L1(P)<QL1max="<< Q_L1(P)<< "<" << QL1max<<endl;
+        cout<<"Q_L2(P)<QL2max="<< Q_L2(P)<< "<" << QL2max<<endl;
+      }
+      return ( result );
     }
     bool remove_edgepoint(vtkIdType P)
     {
@@ -257,18 +265,21 @@ class CreateSpecialMapping : public Operation {
   
     int FullEdit();
     int UpdateDesiredMeshDensity();
-//     int UpdateNodeType();
+//     int UpdateNodeType_all();
 //     bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode);
 //     vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells);
   
     int remove_EP_all_2();
     int remove_FP_all_2();
 
+    int remove_EP_all_3();
+    int remove_FP_all_3();
+  
     int SwapFunction();
     int SmoothFunction();
   
 };
-//end of CreateSpecialMapping class
+//end of SurfaceSmoother class
 
 // #define VTK_SIMPLE_VERTEX 0
 // #define VTK_FIXED_VERTEX 1

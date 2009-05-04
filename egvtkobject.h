@@ -70,7 +70,7 @@ private: // methods
 protected: // attributes
   
   QSet<int> boundary_codes;
-  int DebugLevel;
+  static int DebugLevel;
   
 protected: // methods
   
@@ -667,10 +667,10 @@ ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
   return(out);
 }
 
-template <class T>
-ostream &operator<<(ostream &out, QMap<T,bool> & map)
+template <class T1, class T2>
+ostream &operator<<(ostream &out, QMap<T1,T2> & map)
 {
-  QMapIterator<T, bool> i(map);
+  QMapIterator<T1, T2> i(map);
   out<<"[";
   while (i.hasNext()) {
     i.next();
@@ -679,6 +679,42 @@ ostream &operator<<(ostream &out, QMap<T,bool> & map)
   out<<"]";
   return(out);
 }
+
+template <class T1, class T2>
+ostream &operator<<(ostream &out, QVector < pair<T1,T2> > & vector)
+{
+  int N=vector.size();
+  out<<"[";
+  for (int i = 0; i < N; ++i) {
+    out<<"<";
+    out<<vector.at(i).first;
+    out<<",";
+    out<<vector.at(i).second;
+    out<<">";
+    if(i!=N-1) out<<",";
+  }
+  out<<"]";
+  return(out);
+}
+
+template <class T>
+QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
+{
+  QVector <T> l_vector(a_set.size());
+  qCopy(a_set.begin(),a_set.end(),l_vector.begin());
+  if(a_sort) qSort(l_vector.begin(),l_vector.end());
+  return(l_vector);
+}
+
+template <class T>
+QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
+{
+  QSet <T> l_set(a_vector.size());
+  qCopy(a_vector.begin(),a_vector.end(),l_set.begin());
+  if(a_sort) qSort(l_set.begin(),l_set.end());
+  return(l_set);
+}
+
 ///////////////////////////////////////////
 // ///////////////////////////////////////////
 // /* Here is how we we get QTextStreams that look like iostreams */

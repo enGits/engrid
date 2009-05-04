@@ -31,6 +31,8 @@
 #include <vtkCell.h>
 #include <vtkCharArray.h>
 
+int EgVtkObject::DebugLevel;
+
 void EgVtkObject::computeNormals
 (
   QVector<vec3_t>     &cell_normals,
@@ -735,8 +737,9 @@ void EgVtkObject::copyNodeData
 )
 {
   EGVTKOBJECT_COPYNODEDATA("node_status", vtkIntArray);
-  EGVTKOBJECT_COPYNODEDATA("node_layer",  vtkIntArray);
-  EGVTKOBJECT_COPYNODEDATA("node_index",  vtkLongArray_t);
+  EGVTKOBJECT_COPYNODEDATA("node_layer", vtkIntArray);
+  EGVTKOBJECT_COPYNODEDATA("node_index", vtkLongArray_t);
+  EGVTKOBJECT_COPYNODEDATA("node_specified_density", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
@@ -808,6 +811,7 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_status", vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_layer",  vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_specified_density", vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);
@@ -1236,7 +1240,7 @@ int CheckState2int(Qt::CheckState a)
 {
   if(a==Qt::Unchecked) return(0);
   if(a==Qt::PartiallyChecked) return(1);
-  else return(Qt::Checked);
+  else return(2);
 }
 
 // ///////////////////////////////////////////

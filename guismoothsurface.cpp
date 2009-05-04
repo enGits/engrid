@@ -22,7 +22,7 @@
 //
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
-#include "createspecialmapping.h"
+#include "surfacesmoother.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
 #include "laplacesmoother.h"
@@ -210,7 +210,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 10: Super smoothing :)");
   ui.SmoothMethod->addItem("Method 11: Update current mesh density + node types");
   ui.SmoothMethod->addItem("Method 12: Delete all possible points :)");
-  ui.SmoothMethod->addItem("Method 13");
+  ui.SmoothMethod->addItem("Method 13: Delete selected points");
   ui.SmoothMethod->addItem("Method 14");
   ui.SmoothMethod->addItem("Method 15");
   ui.SmoothMethod->addItem("Method 16");
@@ -376,6 +376,10 @@ QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
     for(int j=0;j<Nbc;j++)
     {
       if(tableWidget->item(i,j)->checkState()) VMDvector[i].BClist.push_back(tableWidget->horizontalHeaderItem(j)->text().toInt());
+      int bc = tableWidget->horizontalHeaderItem(j)->text().toInt();
+      int state = CheckState2int( tableWidget->item(i,j)->checkState() );
+//       VMDvector[i].BClist2.push_back(pair<int,int>(bc,state));
+      VMDvector[i].BCmap[bc]=state;
     }
     VMDvector[i].type=Str2VertexType(tableWidget->item(i,Nbc)->text());
     VMDvector[i].SetNodes(tableWidget->item(i,Nbc+1)->text());
@@ -852,7 +856,7 @@ void GuiSmoothSurface::operate()
         
         vtkIdType type_cell = grid->GetCellType(id_cell);
         int N_neighbours=N_pts;
-        cout<<"N_neighbours="<<N_neighbours<<endl;
+        if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
         vec3_t corner[4];
         vtkIdType pts_triangle[4][3];
         for(int i=0;i<N_neighbours;i++)
@@ -1050,13 +1054,21 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    LaplaceSmoother toto;
-    toto.SetInput(bcs,grid);
-    toto.SetNumberOfIterations(ui.spinBox_NumberOfIterations->value());
-    
-    toto();
+    LaplaceSmoother Lap;
+    Lap.SetInput(bcs,grid);
+    Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    Lap();
     
     updateActors();
+    
+    cout<<"===DEFAULT VALUES==="<<endl;
+    vtkSmoothPolyDataFilter* smooth=vtkSmoothPolyDataFilter::New();
+    vtkWindowedSincPolyDataFilter* smooth2=vtkWindowedSincPolyDataFilter::New();
+    cout_vtkSmoothPolyDataFilter(smooth);
+    cout_vtkWindowedSincPolyDataFilter(smooth2);
+    cout<<"===DEFAULT VALUES==="<<endl;
+    
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==7)//VertexAvgDist test
@@ -1189,7 +1201,7 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     
     toto.SetInput(bcs,grid);
     toto.SetVertexMeshDensityVector(VMDvector);
@@ -1230,8 +1242,9 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     toto.SetInput(bcs,grid);
+    setDebugLevel(ui.spinBox_DebugLevel->value());
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
@@ -1240,7 +1253,7 @@ void GuiSmoothSurface::operate()
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateMeshDensity();
-    UpdateNodeType();
+    UpdateNodeType_all();
     updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1248,7 +1261,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    CreateSpecialMapping toto;
+    SurfaceSmoother toto;
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
@@ -1278,6 +1291,62 @@ void GuiSmoothSurface::operate()
         DeadNode++;
       }
     }
+    
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==13)// Delete selected points
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    SurfaceSmoother toto;
+    
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    
+    SetConvergence(ui.doubleSpinBox_Convergence->value());
+    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    
+    int N_newpoints;
+    int N_newcells;
+    
+    vtkIdType N_points=grid->GetNumberOfPoints();
+    vtkIdType N_cells=grid->GetNumberOfCells();
+    
+    QVector <VertexMeshDensity> VMDvector=GetSet();
+//     cout<<"VMDvector="<<VMDvector<<endl;
+    for(int i=0;i<VMDvector.size();i++)
+    {
+      cout<<"VMDvector["<<i<<"].nodeset="<<VMDvector[i].nodeset<<endl;
+      int N_newpoints=0;
+      int N_newcells=0;
+      DeleteSetOfPoints(grid, VMDvector[i].nodeset, N_newpoints, N_newcells);
+      cout<<"N_newpoints="<<N_newpoints<<endl;
+      cout<<"N_newcells="<<N_newcells<<endl;
+    }
+    
+/*    vector <vtkIdType> nodeId_vector(3);
+    
+    for(vtkIdType i)*/
+    
+    
+/*    bool Global_DelResult=true;
+    while(Global_DelResult)
+    {
+      Global_DelResult=false;
+      vtkIdType DeadNode=0;
+      while(DeadNode<grid->GetNumberOfPoints())
+      {
+        bool Local_DelResult=true;
+        while(Local_DelResult)
+        {
+          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
+          if(Local_DelResult) Global_DelResult=true;
+        }
+        DeadNode++;
+      }
+    }*/
     
   }
   //////////////////////////////////////////////////////////////////////////////////////////////

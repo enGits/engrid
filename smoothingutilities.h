@@ -1,7 +1,7 @@
 #ifndef SMOOTHINGUTILITIES_H
 #define SMOOTHINGUTILITIES_H
 
-// class CreateSpecialMapping : public Operation {
+// class SurfaceSmoother : public Operation {
   
 
 #endif

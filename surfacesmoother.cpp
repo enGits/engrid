@@ -1,4 +1,4 @@
-#include "createspecialmapping.h"
+#include "surfacesmoother.h"
 
 #include <QString>
 #include <QTextStream>
@@ -13,12 +13,12 @@
 #include <iostream>
 using namespace std;
 
-CreateSpecialMapping::CreateSpecialMapping()
+SurfaceSmoother::SurfaceSmoother()
 {
    DebugLevel=0;
 }
 
-int CreateSpecialMapping::Process()
+int SurfaceSmoother::Process()
 {
   int i_iter=0;
   for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
@@ -75,14 +75,14 @@ int CreateSpecialMapping::Process()
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
-      remove_FP_all_2();
+      remove_FP_all_3();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
-      remove_EP_all_2();
+      remove_EP_all_3();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
@@ -114,8 +114,11 @@ int CreateSpecialMapping::Process()
 }
 //end of process
 
-int CreateSpecialMapping::UpdateDesiredMeshDensity()
+int SurfaceSmoother::UpdateDesiredMeshDensity()
 {
+    //Phase B : define desired mesh density
+  cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
+  
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
@@ -125,14 +128,17 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
+  getNodesFromCells(m_AllCells, m_AllNodes, m_grid);
+  
   setGrid(m_grid);
   setCells(m_AllCells);
   
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");
   
 /*  //Phase A : Calculate current mesh density
   cout<<"===Phase A==="<<endl;
@@ -154,8 +160,6 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
     }
   }*/
   
-    //Phase B : define desired mesh density
-  cout<<"===Phase B==="<<endl;
   double diff=Convergence_meshdensity+1;
   if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
   bool first=true;
@@ -163,11 +167,12 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   do {
     if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
     first=true;
-    foreach(vtkIdType node,m_SelectedNodes)
+    foreach(vtkIdType node,m_AllNodes)
     {
       if(DebugLevel>2) cout<<"======>"<<endl;
       VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
       int idx=VMDvector.indexOf(nodeVMD);
+      node_specified_density->SetValue(node, idx);
       if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
@@ -210,7 +215,7 @@ int CreateSpecialMapping::UpdateDesiredMeshDensity()
   return(0);
 }
 
-int CreateSpecialMapping::SwapFunction()
+int SurfaceSmoother::SwapFunction()
 {
   //Phase E : Delaunay swap
   QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
@@ -224,8 +229,9 @@ int CreateSpecialMapping::SwapFunction()
   return(0);
 }
 
-int CreateSpecialMapping::SmoothFunction()
+int SurfaceSmoother::SmoothFunction()
 {
+  cout<<"=== SmoothFunction ==="<<endl;
   //Phase F : translate points to smooth grid
   //4 possibilities
   //vtk smooth 1
@@ -241,7 +247,7 @@ int CreateSpecialMapping::SmoothFunction()
   return(0);
 }
 
-VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
+VertexMeshDensity SurfaceSmoother::getVMD(vtkIdType node, char VertexType)
 {
   VertexMeshDensity VMD;
   VMD.type=VertexType;
@@ -255,6 +261,7 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   foreach(vtkIdType C, n2c[node])
   {
     bc.insert(cell_code->GetValue(C));
+    VMD.BCmap[cell_code->GetValue(C)]=2;
   }
   VMD.BClist.resize(bc.size());
   qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
@@ -262,14 +269,14 @@ VertexMeshDensity CreateSpecialMapping::getVMD(vtkIdType node, char VertexType)
   return(VMD);
 }
 
-int CreateSpecialMapping::insert_FP_counter()
+int SurfaceSmoother::insert_FP_counter()
 {
   cout<<"===insert_FP_counter() START==="<<endl;
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      cout<<"inserting a field point "<<id_cell<<endl;
+      if(DebugLevel>0) cout<<"inserting a field point "<<id_cell<<endl;
       N_inserted_FP++;
       marked_cells[id_cell]=true;
       N_newcells+=2;
@@ -280,7 +287,7 @@ int CreateSpecialMapping::insert_FP_counter()
   return(0);
 }
 
-int CreateSpecialMapping::insert_EP_counter()
+int SurfaceSmoother::insert_EP_counter()
 {
   cout<<"===insert_EP_counter() START==="<<endl;
   
@@ -359,16 +366,17 @@ int CreateSpecialMapping::insert_EP_counter()
   return(0);
 }
 
-int CreateSpecialMapping::remove_FP_counter()
+int SurfaceSmoother::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
   cout<<"marked_cells="<<marked_cells<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_removed_FP="<<N_removed_FP<<endl;
   
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -398,10 +406,10 @@ int CreateSpecialMapping::remove_FP_counter()
   return(0);
 }
 
-int CreateSpecialMapping::remove_EP_counter()
+int SurfaceSmoother::remove_EP_counter()
 {
   cout<<"===remove_EP_counter() START==="<<endl;
-  UpdateNodeType();
+  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -438,7 +446,7 @@ int CreateSpecialMapping::remove_EP_counter()
   return(0);
 }
 
-int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceSmoother::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_FP_actor START==="<<endl;
   
@@ -450,16 +458,16 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
     
     if( !marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      cout<<"inserting a field point "<<id_cell<<endl;
+      if(DebugLevel>0) cout<<"inserting a field point "<<id_cell<<endl;
       vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
-      cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
+      if(DebugLevel>42) cout<<"id_cell="<<id_cell<<" newBC="<<newBC<<endl;
       
       vtkIdType N_pts, *pts;
       m_grid->GetCellPoints(id_cell, N_pts, pts);
       vec3_t C(0,0,0);
       
       int N_neighbours=N_pts;
-      cout<<"N_neighbours="<<N_neighbours<<endl;
+      if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
       vec3_t corner[4];
       vtkIdType pts_triangle[4][3];
       for(int i=0;i<N_neighbours;i++)
@@ -495,7 +503,7 @@ int CreateSpecialMapping::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceSmoother::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_EP_actor START==="<<endl;
   
@@ -567,7 +575,7 @@ int CreateSpecialMapping::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceSmoother::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_FP_actor START==="<<endl;
   abort();
@@ -594,7 +602,7 @@ int CreateSpecialMapping::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceSmoother::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_EP_actor START==="<<endl;
   abort();
@@ -624,7 +632,7 @@ int CreateSpecialMapping::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int CreateSpecialMapping::insert_FP_all()
+int SurfaceSmoother::insert_FP_all()
 {
   cout<<"===insert_FP_all START==="<<endl;
   
@@ -675,7 +683,7 @@ int CreateSpecialMapping::insert_FP_all()
   return(0);
 }
 
-int CreateSpecialMapping::insert_EP_all()
+int SurfaceSmoother::insert_EP_all()
 {
   cout<<"===insert_EP_all START==="<<endl;
   
@@ -727,7 +735,7 @@ int CreateSpecialMapping::insert_EP_all()
   return(0);
 }
 
-int CreateSpecialMapping::remove_FP_all()
+int SurfaceSmoother::remove_FP_all()
 {
   cout<<"===remove_FP_all START==="<<endl;
   
@@ -782,7 +790,7 @@ int CreateSpecialMapping::remove_FP_all()
   return(0);
 }
 
-int CreateSpecialMapping::remove_EP_all()
+int SurfaceSmoother::remove_EP_all()
 {
   cout<<"===remove_EP_all START==="<<endl;
   
@@ -837,7 +845,7 @@ int CreateSpecialMapping::remove_EP_all()
   return(0);
 }
 
-int CreateSpecialMapping::FullEdit()
+int SurfaceSmoother::FullEdit()
 {
   cout<<"===FullEdit START==="<<endl;
   
@@ -863,7 +871,8 @@ int CreateSpecialMapping::FullEdit()
   if(remove_EP) remove_EP_counter();
   
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
     //unmark cells (TODO: optimize)
@@ -887,7 +896,8 @@ int CreateSpecialMapping::FullEdit()
   if(insert_EP) insert_EP_actor(grid_tmp);
   
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   if(remove_FP) remove_FP_actor(grid_tmp);
   if(remove_EP) remove_EP_actor(grid_tmp);
@@ -898,7 +908,7 @@ int CreateSpecialMapping::FullEdit()
   return(0);
 }
 
-int CreateSpecialMapping::remove_EP_all_2()
+int SurfaceSmoother::remove_EP_all_2()
 {
   cout<<"===remove_EP_all_2 START==="<<endl;
   getAllSurfaceCells(m_AllCells,m_grid);
@@ -929,7 +939,8 @@ int CreateSpecialMapping::remove_EP_all_2()
   
   remove_EP_counter();
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
   int kills=0;
@@ -938,7 +949,7 @@ int CreateSpecialMapping::remove_EP_all_2()
   {
     if(hitlist[i]==2){
       contracts++;
-      cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      if(DebugLevel>47) cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
@@ -950,11 +961,11 @@ int CreateSpecialMapping::remove_EP_all_2()
       if(DelResult)
       {
         kills++;
-        cout<<"Kill successful"<<endl;
+        if(DebugLevel>47) cout<<"Kill successful"<<endl;
       }
       else
       {
-        cout<<"Kill failed"<<endl;
+        if(DebugLevel>47) cout<<"Kill failed"<<endl;
         N_removed_EP--;
       }
       
@@ -968,7 +979,9 @@ int CreateSpecialMapping::remove_EP_all_2()
   return(0);
 }
 
-int CreateSpecialMapping::remove_FP_all_2()
+
+//count all to remove, then remove them one by one
+int SurfaceSmoother::remove_FP_all_2()
 {
   cout<<"===remove_FP_all_2 START==="<<endl;
 /*  cout<<"+++++++"<<endl;
@@ -1007,7 +1020,8 @@ int CreateSpecialMapping::remove_FP_all_2()
   
 //   cout_grid(cout,m_grid);
   cout<<"================="<<endl;
-  cout<<"hitlist="<<hitlist<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+//   cout<<"hitlist="<<hitlist<<endl;
   cout<<"================="<<endl;
   
   int kills=0;
@@ -1016,7 +1030,7 @@ int CreateSpecialMapping::remove_FP_all_2()
   {
     if(hitlist[i]==1){
       contracts++;
-      cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
+      if(DebugLevel>47) cout<<"Deleting point "<<i<<" currently known as "<<i-kills<<endl;
       
       QString num1;num1.setNum(i);
       QString num2;num2.setNum(i-kills);
@@ -1028,11 +1042,11 @@ int CreateSpecialMapping::remove_FP_all_2()
       if(DelResult)
       {
         kills++;
-        cout<<"Kill successful"<<endl;
+        if(DebugLevel>47) cout<<"Kill successful"<<endl;
       }
       else
       {
-        cout<<"Kill failed"<<endl;
+        if(DebugLevel>47) cout<<"Kill failed"<<endl;
         N_removed_FP--;
       }
       
@@ -1043,5 +1057,115 @@ int CreateSpecialMapping::remove_FP_all_2()
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
   cout<<"===remove_FP_all_2 END==="<<endl;
+  return(0);
+}
+
+//count all to remove, then remove them all at once
+int SurfaceSmoother::remove_FP_all_3()
+{
+  cout<<"===remove_FP_all_3 START==="<<endl;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  N_removed_FP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  hitlist.clear();
+  offset.clear();
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_FP_counter();
+  cout<<"================="<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+  cout<<"================="<<endl;
+  
+  QSet <vtkIdType> DeadNodes;
+  for(vtkIdType i=0;i<hitlist.size();i++)
+  {
+    if(hitlist[i]==1) DeadNodes.insert(i);
+  }
+  int N_newpoints=0;
+  int N_newcells=0;
+  DeleteSetOfPoints(m_grid, DeadNodes, N_newpoints, N_newcells);
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  int kills=-N_newpoints;
+  int contracts=DeadNodes.size();
+  cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_FP_all_3 END==="<<endl;
+  return(0);
+}
+
+//count all to remove, then remove them all at once
+int SurfaceSmoother::remove_EP_all_3()
+{
+  cout<<"===remove_EP_all_3 START==="<<endl;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
+  m_SelectedNodes.clear();
+  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
+  getNodesFromCells(m_AllCells, nodes, m_grid);
+  setGrid(m_grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  N_removed_EP=0;
+  
+  N_points=m_grid->GetNumberOfPoints();
+  N_cells=m_grid->GetNumberOfCells();
+  N_newpoints=0;
+  N_newcells=0;
+  
+  hitlist.clear();
+  offset.clear();
+  hitlist.resize(N_points);
+  offset.resize(N_points);
+  
+  marked_cells.clear();
+  marked_nodes.clear();
+  
+  remove_EP_counter();
+  cout<<"================="<<endl;
+  cout<<"hitlist.size()="<<hitlist.size()<<endl;
+  cout<<"================="<<endl;
+  
+  QSet <vtkIdType> DeadNodes;
+  for(vtkIdType i=0;i<hitlist.size();i++)
+  {
+    if(hitlist[i]==1) DeadNodes.insert(i);
+  }
+  int N_newpoints=0;
+  int N_newcells=0;
+  DeleteSetOfPoints(m_grid, DeadNodes, N_newpoints, N_newcells);
+  cout<<"N_newpoints="<<N_newpoints<<endl;
+  cout<<"N_newcells="<<N_newcells<<endl;
+  
+  int kills=-N_newpoints;
+  int contracts=DeadNodes.size();
+  cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  cout<<"===remove_EP_all_3 END==="<<endl;
   return(0);
 }
