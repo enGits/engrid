@@ -974,7 +974,7 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
 
 int Operation::UpdateMeshDensity()
 {
-  cout<<"===UpdateMeshDensity START==="<<endl;
+  if(DebugLevel>0) cout<<"===UpdateMeshDensity START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -992,7 +992,7 @@ int Operation::UpdateMeshDensity()
     double D=1./L;
     node_meshdensity_current->SetValue(node, D);
   }
-  cout<<"===UpdateMeshDensity END==="<<endl;
+  if(DebugLevel>0) cout<<"===UpdateMeshDensity END==="<<endl;
   return(0);
 }
 

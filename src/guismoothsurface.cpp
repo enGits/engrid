@@ -107,6 +107,10 @@ int GuiSmoothSurface::readSettings()
   ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
   ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset->value("remove_FP", 2).toInt()));
   ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset->value("remove_EP", 2).toInt()));
+  
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(local_qset->value("GenerateErrorScalars", 2).toInt()));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(local_qset->value("GenerateErrorVectors", 2).toInt()));
+  
   ui.checkBox_Swap->setCheckState(int2CheckState(local_qset->value("DoSwap", 2).toInt()));
   ui.checkBox_LaplaceSmoothing->setCheckState(int2CheckState(local_qset->value("DoLaplaceSmoothing", 2).toInt()));
   
@@ -152,10 +156,15 @@ int GuiSmoothSurface::writeSettings()
   local_qset->setValue("maxiter_density", ui.spinBox_maxiter_density->value());
   local_qset->setValue("DebugLevel", ui.spinBox_DebugLevel->value());
   local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
+  
   local_qset->setValue("insert_FP", ui.checkBox_insert_FP->checkState());
   local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
   local_qset->setValue("remove_FP", ui.checkBox_remove_FP->checkState());
   local_qset->setValue("remove_EP", ui.checkBox_remove_EP->checkState());
+  
+  local_qset->setValue("GenerateErrorScalars", ui.checkBox_GenerateErrorScalars->checkState());
+  local_qset->setValue("GenerateErrorVectors", ui.checkBox_GenerateErrorVectors->checkState());
+  
   local_qset->setValue("DoSwap", ui.checkBox_Swap->checkState());
   local_qset->setValue("DoLaplaceSmoothing", ui.checkBox_LaplaceSmoothing->checkState());
   local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
@@ -228,27 +237,16 @@ void GuiSmoothSurface::before()
   cout_vtkWindowedSincPolyDataFilter(smooth2);
   
   ui.doubleSpinBox_Convergence->setValue(smooth->GetConvergence());
-//   ui.spinBox_NumberOfIterations->setValue(smooth->GetNumberOfIterations());
-//   ui.spinBox_NumberOfIterations->setValue(1000);
-//   ui.spinBox_NumberOfIterations->setValue(1);
+  ui.spinBox_NumberOfIterations->setValue(smooth->GetNumberOfIterations());
   QString tmp;
   ui.lineEdit_RelaxationFactor->setText(tmp.setNum(smooth->GetRelaxationFactor()));
   ui.doubleSpinBox_PassBand->setValue(smooth2->GetPassBand());
-//   ui.checkBox_FeatureEdgeSmoothing->setCheckState(int2CheckState(smooth->GetFeatureEdgeSmoothing()));
   ui.checkBox_FeatureEdgeSmoothing->setCheckState(Qt::Checked);
-//   ui.checkBox_FeatureEdgeSmoothing->setFlags(Qt::ItemIsTristate | ui.checkBox_FeatureEdgeSmoothing->flags);
   ui.doubleSpinBox_FeatureAngle->setValue(smooth->GetFeatureAngle());
   ui.doubleSpinBox_EdgeAngle->setValue(smooth->GetEdgeAngle());
   ui.checkBox_BoundarySmoothing->setCheckState(int2CheckState(smooth->GetBoundarySmoothing()));
-/*  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(smooth->GetGenerateErrorScalars()));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));*/
-  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(2));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(2));
-  
-/*  ui.doubleSpinBox_VTK_SIMPLE_VERTEX->setValue(-1);
-  ui.doubleSpinBox_VTK_FIXED_VERTEX->setValue(-1);
-  ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->setValue(-1);
-  ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->setValue(-1);*/
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(smooth->GetGenerateErrorScalars()));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(smooth->GetGenerateErrorVectors()));
   
   //Load settings
   readSettings();
@@ -283,7 +281,6 @@ void GuiSmoothSurface::before()
   QStringList L;
   for(int i=0;i<Nbc;i++)
   {
-//     Qcout<<"BASE!!!="<<ui.listWidget->item(i)->text()<<endl;
     L<<ui.listWidget->item(i)->text();
   }
   L<<"Vertex Type";
@@ -480,7 +477,6 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   
   for(vtkIdType i=0;i<N2;i++)
   {
-    cout<<"WTF!"<<endl;
     double tuple[4];
     algo->GetOutput()->GetPointData()->GetTuple(i,tuple);
     cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;//TODO: This works, but seems incorrect
@@ -1130,7 +1126,7 @@ void GuiSmoothSurface::operate()
     {
       double L=CurrentVertexAvgDist(node,n2n,grid);
       double D=1./L;
-      cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+      if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
       node_meshdensity->SetValue(node, D);
     }
     
@@ -1141,7 +1137,7 @@ void GuiSmoothSurface::operate()
       {
         double D=DesiredMeshDensity(node,n2n,grid);
         double L=1./D;
-        cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
+        if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
         node_meshdensity->SetValue(node, D);
       }
     }

@@ -1,6 +1,7 @@
 #include "laplacesmoother.h"
 #include <vtkCellLocator.h>
 #include <vtkCharArray.h>
+#include <vtkGenericCell.h>
 
 LaplaceSmoother::LaplaceSmoother()
 {
@@ -40,15 +41,19 @@ void LaplaceSmoother::operate()
   vtkCellLocator* terminator=vtkCellLocator::New();
   terminator->SetDataSet(m_grid_orig);
   terminator->BuildLocator();
+  vtkGenericCell * cell=vtkGenericCell::New();
   
   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   
+  cout<<"makeCopy(m_grid, grid_tmp); START"<<endl;
   makeCopy(m_grid, grid_tmp);
+  cout<<"makeCopy(m_grid, grid_tmp); END"<<endl;
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
-    if(DebugLevel>10) cout<<"i_iter="<<i_iter<<endl;
+//     if(DebugLevel>10) 
+      cout<<"i_iter="<<i_iter<<endl;
     
     foreach(vtkIdType id_G,SelectedNodes)
     {
@@ -63,13 +68,16 @@ void LaplaceSmoother::operate()
         }
         G=(1./n2n[id_G].size())*G;
         vec3_t P;
-        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
-        grid_tmp->GetPoints()->SetPoint(id_G, P.data());
+//         terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+//         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
+        grid_tmp->GetPoints()->SetPoint(id_G, G.data());
         moved_points++;
       }
     }
   }
+  cout<<"makeCopy(grid_tmp,m_grid); START"<<endl;
   makeCopy(grid_tmp,m_grid);
+  cout<<"makeCopy(grid_tmp,m_grid); END"<<endl;
   
   if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
