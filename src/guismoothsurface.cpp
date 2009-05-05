@@ -30,7 +30,7 @@
 #include "guimainwindow.h"
 
 #include <vtkSmoothPolyDataFilter.h>
-#include <vtksmoothpolydatafilter2.h>
+// #include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 
 #include <vtkLongArray.h>

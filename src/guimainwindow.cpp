@@ -198,7 +198,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   volume_pd   = vtkPolyData::New();
   
   current_filename = "untitled.vtu";
-  setWindowTitle(current_filename + " - enGrid");
+  current_operation = 0;
+  setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   
   status_bar = new QStatusBar(this);
   setStatusBar(status_bar);
@@ -853,7 +854,7 @@ void GuiMainWindow::open()
     vtu->Update();
     grid->DeepCopy(vtu->GetOutput());
     createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
-    setWindowTitle(current_filename + " - enGrid");  
+    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
     openBC();
     updateBoundaryCodes(true);
     updateActors();
@@ -948,9 +949,14 @@ void GuiMainWindow::saveAs()
     vtu->SetInput(grid);
     vtu->Write();
     saveBC();
-    setWindowTitle(current_filename + " - enGrid");
+    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   };
 };
+
+void GuiMainWindow::QuickSave()
+{
+
+}
 
 void GuiMainWindow::QuickSave(QString a_filename)
 {

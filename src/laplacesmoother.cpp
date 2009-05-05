@@ -41,6 +41,11 @@ void LaplaceSmoother::operate()
   vtkCellLocator* terminator=vtkCellLocator::New();
   terminator->SetDataSet(m_grid_orig);
   terminator->BuildLocator();
+//   terminator->CacheCellBoundsOn();
+  cout<<"terminator->GetNumberOfBuckets()="<<terminator->GetNumberOfBuckets()<<endl;
+  cout<<"terminator->GetNumberOfCellsPerBucket()="<<terminator->GetNumberOfCellsPerBucket()<<endl;
+  cout<<"terminator->GetCacheCellBounds()="<<terminator->GetCacheCellBounds()<<endl;
+  
   vtkGenericCell * cell=vtkGenericCell::New();
   
   UpdateNodeType_all();
@@ -68,8 +73,10 @@ void LaplaceSmoother::operate()
         }
         G=(1./n2n[id_G].size())*G;
         vec3_t P;
-//         terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+//         cout<<"Searching for target "<<id_G<<"..."<<endl;
+        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
 //         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
+//         cout<<"Target destroyed."<<endl;
         grid_tmp->GetPoints()->SetPoint(id_G, G.data());
         moved_points++;
       }

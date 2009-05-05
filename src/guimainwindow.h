@@ -188,6 +188,9 @@ private: // attributes
   /** The current file name of the grid. */
   QString current_filename;
   
+  /** The current operation number. (used for undo/redo) */
+  int current_operation;
+  
   /** Status bar of the main window and application */
   QStatusBar *status_bar;
   
@@ -391,6 +394,9 @@ public slots:
   
   /** Save the current grid -- using a different file name */
   void saveAs();
+  
+  /** Save the current grid as a temporary file numbered by OperationIndex */
+  void QuickSave();
   
   /** Save the current grid as a_filename */
   void QuickSave(QString a_filename);
