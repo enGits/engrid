@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1025</width>
+    <width>1337</width>
     <height>902</height>
    </rect>
   </property>
@@ -38,8 +38,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1025</width>
-     <height>27</height>
+     <width>1337</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -145,12 +145,12 @@
      <addaction name="actionSimpleFoamWriter" />
      <addaction name="actionFoamWriter" />
     </widget>
-    <addaction name="menuGmsh"/>
-    <addaction name="actionExportNeutral"/>
-    <addaction name="actionExportAsciiStl"/>
-    <addaction name="actionExportBinaryStl"/>
-    <addaction name="menuOpenFOAM"/>
-    <addaction name="actionExportCGNS"/>
+    <addaction name="menuGmsh" />
+    <addaction name="actionExportNeutral" />
+    <addaction name="actionExportAsciiStl" />
+    <addaction name="actionExportBinaryStl" />
+    <addaction name="menuOpenFOAM" />
+    <addaction name="actionExportCGNS" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -179,36 +179,38 @@
    <attribute name="toolBarBreak" >
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpen"/>
-   <addaction name="actionSave"/>
-   <addaction name="actionSaveAs"/>
-   <addaction name="actionExit"/>
-   <addaction name="separator"/>
-   <addaction name="actionSimpleFoamWriter"/>
-   <addaction name="actionExportCGNS"/>
-   <addaction name="separator"/>
-   <addaction name="actionZoomAll"/>
-   <addaction name="actionRedraw"/>
-   <addaction name="separator"/>
-   <addaction name="actionSetBoundaryCode"/>
-   <addaction name="actionChangeOrientation"/>
-   <addaction name="actionCheckOrientation"/>
-   <addaction name="separator"/>
-   <addaction name="actionNormalExtrusion"/>
-   <addaction name="actionCreateVolumeMesh"/>
-   <addaction name="actionSmoothVolumeGrid"/>
-   <addaction name="actionDeleteVolumeGrid"/>
-   <addaction name="actionCreateBoundaryLayer"/>
-   <addaction name="actionDivideBoundaryLayer"/>
-   <addaction name="separator"/>
-   <addaction name="actionViewZP"/>
-   <addaction name="actionViewZM"/>
-   <addaction name="actionViewXM"/>
-   <addaction name="actionViewXP"/>
-   <addaction name="actionViewYP"/>
-   <addaction name="actionViewYM"/>
-   <addaction name="actionDeletePickedPoint"/>
-   <addaction name="actionSmoothSurface"/>
+   <addaction name="actionOpen" />
+   <addaction name="actionSave" />
+   <addaction name="actionSaveAs" />
+   <addaction name="actionExit" />
+   <addaction name="separator" />
+   <addaction name="actionSimpleFoamWriter" />
+   <addaction name="actionExportCGNS" />
+   <addaction name="separator" />
+   <addaction name="actionZoomAll" />
+   <addaction name="actionRedraw" />
+   <addaction name="actionUndo" />
+   <addaction name="actionRedo" />
+   <addaction name="separator" />
+   <addaction name="actionSetBoundaryCode" />
+   <addaction name="actionChangeOrientation" />
+   <addaction name="actionCheckOrientation" />
+   <addaction name="separator" />
+   <addaction name="actionNormalExtrusion" />
+   <addaction name="actionCreateVolumeMesh" />
+   <addaction name="actionSmoothVolumeGrid" />
+   <addaction name="actionDeleteVolumeGrid" />
+   <addaction name="actionCreateBoundaryLayer" />
+   <addaction name="actionDivideBoundaryLayer" />
+   <addaction name="separator" />
+   <addaction name="actionViewZP" />
+   <addaction name="actionViewZM" />
+   <addaction name="actionViewXM" />
+   <addaction name="actionViewXP" />
+   <addaction name="actionViewYP" />
+   <addaction name="actionViewYM" />
+   <addaction name="actionDeletePickedPoint" />
+   <addaction name="actionSmoothSurface" />
   </widget>
   <widget class="QDockWidget" name="dockWidget" >
    <property name="sizePolicy" >
@@ -258,9 +260,9 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>-161</y>
+          <y>0</y>
           <width>262</width>
-          <height>940</height>
+          <height>1025</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -380,94 +382,94 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize">
+              <property name="maximumSize" >
                <size>
                 <width>50</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>0</string>
               </property>
-              <property name="alignment">
+              <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
-             <widget class="QLineEdit" name="lineEditClipNZ">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <item row="6" column="1" >
+             <widget class="QLineEdit" name="lineEditClipNZ" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize">
+              <property name="maximumSize" >
                <size>
                 <width>50</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>0</string>
               </property>
-              <property name="alignment">
+              <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="Line" name="line">
-              <property name="lineWidth">
+            <item row="3" column="1" >
+             <widget class="Line" name="line" >
+              <property name="lineWidth" >
                <number>0</number>
               </property>
-              <property name="orientation">
+              <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
-             <widget class="Line" name="line_2">
-              <property name="lineWidth">
+            <item row="7" column="1" >
+             <widget class="Line" name="line_2" >
+              <property name="lineWidth" >
                <number>0</number>
               </property>
-              <property name="orientation">
+              <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
-            <item row="9" column="1">
-             <widget class="QCheckBox" name="checkBoxClip">
-              <property name="text">
+            <item row="9" column="1" >
+             <widget class="QCheckBox" name="checkBoxClip" >
+              <property name="text" >
                <string>enable</string>
               </property>
              </widget>
             </item>
-            <item row="8" column="1">
-             <widget class="QLineEdit" name="lineEditOffset">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <item row="8" column="1" >
+             <widget class="QLineEdit" name="lineEditOffset" >
+              <property name="sizePolicy" >
+               <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize">
+              <property name="maximumSize" >
                <size>
                 <width>50</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
+              <property name="text" >
                <string>0</string>
               </property>
-              <property name="alignment">
+              <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
+            <item row="8" column="0" >
+             <widget class="QLabel" name="label_3" >
+              <property name="text" >
                <string>offset</string>
               </property>
              </widget>
@@ -475,18 +477,18 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="title">
+         <item row="1" column="0" >
+          <widget class="QGroupBox" name="groupBox_2" >
+           <property name="title" >
             <string>surface elements</string>
            </property>
-           <layout class="QVBoxLayout">
+           <layout class="QVBoxLayout" >
             <item>
-             <widget class="QCheckBox" name="checkBoxSurface">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBoxSurface" >
+              <property name="text" >
                <string>enable</string>
               </property>
-              <property name="checked">
+              <property name="checked" >
                <bool>true</bool>
               </property>
              </widget>
@@ -494,36 +496,36 @@
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="title">
+         <item row="2" column="0" >
+          <widget class="QGroupBox" name="groupBox_3" >
+           <property name="title" >
             <string>volume elements</string>
            </property>
-           <layout class="QVBoxLayout">
+           <layout class="QVBoxLayout" >
             <item>
-             <widget class="QCheckBox" name="checkBoxTetra">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBoxTetra" >
+              <property name="text" >
                <string>tetras</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBoxPyramid">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBoxPyramid" >
+              <property name="text" >
                <string>pyramids</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBoxWedge">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBoxWedge" >
+              <property name="text" >
                <string>wedges</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBoxHexa">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBoxHexa" >
+              <property name="text" >
                <string>hexas</string>
               </property>
              </widget>
@@ -535,29 +537,29 @@
            <zorder>checkBoxWedge</zorder>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="title">
+         <item row="3" column="0" >
+          <widget class="QGroupBox" name="groupBox_4" >
+           <property name="title" >
             <string>Picker</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
+           <layout class="QVBoxLayout" name="verticalLayout" >
             <item>
-             <widget class="QRadioButton" name="radioButton_CellPicker">
-              <property name="text">
+             <widget class="QRadioButton" name="radioButton_CellPicker" >
+              <property name="text" >
                <string>CellPicker</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_PointPicker">
-              <property name="text">
+             <widget class="QRadioButton" name="radioButton_PointPicker" >
+              <property name="text" >
                <string>PointPicker</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBox_UseVTKInteractor">
-              <property name="text">
+             <widget class="QCheckBox" name="checkBox_UseVTKInteractor" >
+              <property name="text" >
                <string>Use VTK Interactor</string>
               </property>
              </widget>
@@ -565,9 +567,9 @@
            </layout>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
+         <item row="4" column="0" >
+          <widget class="QGroupBox" name="groupBox_5" >
+           <property name="title" >
             <string>Fields</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2" >
@@ -588,9 +590,9 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="pushButton_ScaleToData">
-              <property name="text">
+            <item row="1" column="0" >
+             <widget class="QPushButton" name="pushButton_ScaleToData" >
+              <property name="text" >
                <string>Scale to data</string>
               </property>
              </widget>
@@ -634,17 +636,17 @@
               <property name="maximum" >
                <double>1.000000000000000</double>
               </property>
-              <property name="singleStep">
+              <property name="singleStep" >
                <double>0.010000000000000</double>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMax">
-              <property name="maximum">
+            <item row="5" column="1" >
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_HueMax" >
+              <property name="maximum" >
                <double>1.000000000000000</double>
               </property>
-              <property name="singleStep">
+              <property name="singleStep" >
                <double>0.010000000000000</double>
               </property>
              </widget>
@@ -680,11 +682,11 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="text">
+           <property name="text" >
             <string>   redraw</string>
            </property>
-           <property name="icon">
-            <iconset resource="engrid.qrc">
+           <property name="icon" >
+            <iconset resource="engrid.qrc" >
              <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
            </property>
           </widget>
@@ -715,24 +717,24 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_output">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+  <widget class="QDockWidget" name="dockWidget_output" >
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="windowTitle">
+   <property name="windowTitle" >
     <string>Output</string>
    </property>
-   <attribute name="dockWidgetArea">
+   <attribute name="dockWidgetArea" >
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0">
-      <widget class="QTextEdit" name="textEditOutput">
-       <property name="readOnly">
+   <widget class="QWidget" name="dockWidgetContents_2" >
+    <layout class="QGridLayout" name="gridLayout_5" >
+     <item row="0" column="0" >
+      <widget class="QTextEdit" name="textEditOutput" >
+       <property name="readOnly" >
         <bool>true</bool>
        </property>
       </widget>
@@ -740,22 +742,22 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionExit">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionExit" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/kde_icons/exit.png</normaloff>:/icons/resources/kde_icons/exit.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionImportSTL">
-   <property name="text">
+  <action name="actionImportSTL" >
+   <property name="text" >
     <string>STL</string>
    </property>
   </action>
-  <action name="actionImportGmsh1Ascii">
-   <property name="text">
+  <action name="actionImportGmsh1Ascii" >
+   <property name="text" >
     <string>v1.0 (ASCII)</string>
    </property>
   </action>
@@ -812,317 +814,317 @@
     <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/kde_icons/viewmagfit.png</normaloff>:/icons/resources/kde_icons/viewmagfit.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Zoom All</string>
    </property>
   </action>
-  <action name="actionBoundaryCodes">
-   <property name="text">
+  <action name="actionBoundaryCodes" >
+   <property name="text" >
     <string>boundary codes</string>
    </property>
   </action>
-  <action name="actionNormalExtrusion">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionNormalExtrusion" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/extrusion.png</normaloff>:/icons/resources/icons/extrusion.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>extrusion</string>
    </property>
   </action>
-  <action name="actionViewAxes">
-   <property name="checkable">
+  <action name="actionViewAxes" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>coordinate axes</string>
    </property>
   </action>
-  <action name="actionExportGmsh1Ascii">
-   <property name="text">
+  <action name="actionExportGmsh1Ascii" >
+   <property name="text" >
     <string>v1.0 (ASCII)</string>
    </property>
   </action>
-  <action name="actionExportGmsh2Ascii">
-   <property name="enabled">
+  <action name="actionExportGmsh2Ascii" >
+   <property name="enabled" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>v2.0 (ASCII)</string>
    </property>
   </action>
-  <action name="actionExportGmsh2Binary">
-   <property name="enabled">
+  <action name="actionExportGmsh2Binary" >
+   <property name="enabled" >
     <bool>false</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>v2.0 (binary)</string>
    </property>
   </action>
-  <action name="actionSetBoundaryCode">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionSetBoundaryCode" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/setbc.png</normaloff>:/icons/resources/icons/setbc.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>set boundary code</string>
    </property>
   </action>
-  <action name="actionChangeOrientation">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionChangeOrientation" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/reorder.png</normaloff>:/icons/resources/icons/reorder.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>change surface orientation</string>
    </property>
   </action>
-  <action name="actionCheckOrientation">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionCheckOrientation" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/checkorder.png</normaloff>:/icons/resources/icons/checkorder.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>correct surface orientation</string>
    </property>
   </action>
-  <action name="actionImproveAspectRatio">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionImproveAspectRatio" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/aspectratio.png</normaloff>:/icons/resources/icons/aspectratio.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>delete bad aspect ratio cells</string>
    </property>
   </action>
-  <action name="actionCreateVolumeMesh">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionCreateVolumeMesh" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/createvol.png</normaloff>:/icons/resources/icons/createvol.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>create/improve volume mesh (NETGEN)</string>
    </property>
   </action>
-  <action name="actionSmoothSurface">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionSmoothSurface" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/smoothsurf.png</normaloff>:/icons/resources/icons/smoothsurf.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>smooth surface grid</string>
    </property>
   </action>
-  <action name="actionExportNeutral">
-   <property name="text">
+  <action name="actionExportNeutral" >
+   <property name="text" >
     <string>Neutral (NETGEN)</string>
    </property>
   </action>
-  <action name="actionRedraw">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionRedraw" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>redraw</string>
    </property>
   </action>
-  <action name="actionCreateBoundaryLayer">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionCreateBoundaryLayer" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/createblayer.png</normaloff>:/icons/resources/icons/createblayer.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>create prismatic boundary layer</string>
    </property>
   </action>
-  <action name="actionExportAsciiStl">
-   <property name="text">
+  <action name="actionExportAsciiStl" >
+   <property name="text" >
     <string>STL (ASCII)</string>
    </property>
   </action>
-  <action name="actionExportBinaryStl">
-   <property name="text">
+  <action name="actionExportBinaryStl" >
+   <property name="text" >
     <string>STL (binary)</string>
    </property>
   </action>
-  <action name="actionDeleteVolumeGrid">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionDeleteVolumeGrid" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>delete volume grid</string>
    </property>
   </action>
-  <action name="actionDivideBoundaryLayer">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionDivideBoundaryLayer" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/divideblayer.png</normaloff>:/icons/resources/icons/divideblayer.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>divide prismatic boundary layer</string>
    </property>
   </action>
-  <action name="actionConfigure">
-   <property name="text">
+  <action name="actionConfigure" >
+   <property name="text" >
     <string>configure enGrid</string>
    </property>
   </action>
-  <action name="actionSmoothVolumeGrid">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionSmoothVolumeGrid" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/smoothvol.png</normaloff>:/icons/resources/icons/smoothvol.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>smooth volume grid</string>
    </property>
   </action>
-  <action name="actionClearOutputWindow">
-   <property name="text">
+  <action name="actionClearOutputWindow" >
+   <property name="text" >
     <string>clear output window</string>
    </property>
   </action>
-  <action name="actionViewZP">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewZP" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewzplus.png</normaloff>:/icons/resources/icons/viewzplus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from positive z direction</string>
    </property>
   </action>
-  <action name="actionViewZM">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewZM" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewzminus.png</normaloff>:/icons/resources/icons/viewzminus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from negative z direction</string>
    </property>
   </action>
-  <action name="actionViewXP">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewXP" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewxplus.png</normaloff>:/icons/resources/icons/viewxplus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from positive x direction</string>
    </property>
   </action>
-  <action name="actionViewYP">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewYP" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewyplus.png</normaloff>:/icons/resources/icons/viewyplus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from positive y direction</string>
    </property>
   </action>
-  <action name="actionViewXM">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewXM" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewxminus.png</normaloff>:/icons/resources/icons/viewxminus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from negative x direction</string>
    </property>
   </action>
-  <action name="actionViewYM">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionViewYM" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/viewyminus.png</normaloff>:/icons/resources/icons/viewyminus.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>view from negative y direction</string>
    </property>
   </action>
-  <action name="actionFoamReader">
-   <property name="enabled">
+  <action name="actionFoamReader" >
+   <property name="enabled" >
     <bool>false</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>OpenFOAM</string>
    </property>
   </action>
-  <action name="actionVtkReader">
-   <property name="text">
+  <action name="actionVtkReader" >
+   <property name="text" >
     <string>legacy unstructured grid files</string>
    </property>
   </action>
-  <action name="actionFoamWriter">
-   <property name="enabled">
+  <action name="actionFoamWriter" >
+   <property name="enabled" >
     <bool>false</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>OpenFOAM (polyhedral)</string>
    </property>
   </action>
-  <action name="actionPolyDataReader">
-   <property name="text">
+  <action name="actionPolyDataReader" >
+   <property name="text" >
     <string>vtkPolyData</string>
    </property>
   </action>
-  <action name="actionDeleteBadAspectTris">
-   <property name="text">
+  <action name="actionDeleteBadAspectTris" >
+   <property name="text" >
     <string>remove bad triangles</string>
    </property>
   </action>
-  <action name="actionDeletePickedCell">
-   <property name="text">
+  <action name="actionDeletePickedCell" >
+   <property name="text" >
     <string>delete picked cell</string>
    </property>
   </action>
-  <action name="actionFixSTL">
-   <property name="text">
+  <action name="actionFixSTL" >
+   <property name="text" >
     <string>fix surface triangulation</string>
    </property>
   </action>
-  <action name="actionEditBoundaryConditions">
-   <property name="text">
+  <action name="actionEditBoundaryConditions" >
+   <property name="text" >
     <string>edit boundary conditions</string>
    </property>
   </action>
-  <action name="actionSimpleFoamWriter">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionSimpleFoamWriter" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>OpenFOAM</string>
    </property>
-   <property name="toolTip">
+   <property name="toolTip" >
     <string>export to OpenFOAM</string>
    </property>
   </action>
-  <action name="actionTransform">
-   <property name="text">
+  <action name="actionTransform" >
+   <property name="text" >
     <string>Transform...</string>
    </property>
   </action>
-  <action name="actionViewOrthogonal">
-   <property name="checkable">
+  <action name="actionViewOrthogonal" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Orthogonal view</string>
    </property>
   </action>
-  <action name="actionDeletePickedPoint">
-   <property name="text">
+  <action name="actionDeletePickedPoint" >
+   <property name="text" >
     <string>delete picked point</string>
    </property>
   </action>
-  <action name="actionViewNodeIDs">
-   <property name="checkable">
+  <action name="actionViewNodeIDs" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
    <property name="text" >
     <string>View node IDs</string>
    </property>
   </action>
-  <action name="actionViewCellIDs">
-   <property name="checkable">
+  <action name="actionViewCellIDs" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
    <property name="text" >
@@ -1134,43 +1136,43 @@
     <string>Pick point/cell</string>
    </property>
   </action>
-  <action name="actionPick_cell_2">
-   <property name="text">
+  <action name="actionPick_cell_2" >
+   <property name="text" >
     <string>Pick cell</string>
    </property>
   </action>
-  <action name="actionUseVTKInteractor">
-   <property name="text">
+  <action name="actionUseVTKInteractor" >
+   <property name="text" >
     <string>UseVTKInteractor</string>
    </property>
   </action>
-  <action name="actionScaleToData">
-   <property name="text">
+  <action name="actionScaleToData" >
+   <property name="text" >
     <string>ScaleToData</string>
    </property>
   </action>
-  <action name="actionShow_display_options">
-   <property name="checkable">
+  <action name="actionShow_display_options" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Show display options</string>
    </property>
   </action>
-  <action name="actionShow_output">
-   <property name="checkable">
+  <action name="actionShow_output" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Show output</string>
    </property>
   </action>
-  <action name="actionExportCGNS">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
+  <action name="actionExportCGNS" >
+   <property name="icon" >
+    <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/cgns_color.gif</normaloff>:/icons/resources/icons/cgns_color.gif</iconset>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>CGNS</string>
    </property>
   </action>
@@ -1182,8 +1184,18 @@
     <string>View boundary codes</string>
    </property>
   </action>
+  <action name="actionUndo" >
+   <property name="text" >
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo" >
+   <property name="text" >
+    <string>Redo</string>
+   </property>
+  </action>
  </widget>
- <layoutdefault spacing="6" margin="9"/>
+ <layoutdefault spacing="6" margin="9" />
  <customwidgets>
   <customwidget>
    <class>QVTKWidget</class>
@@ -1192,7 +1204,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="engrid.qrc"/>
+  <include location="engrid.qrc" />
  </resources>
  <connections>
   <connection>
@@ -1201,11 +1213,11 @@
    <receiver>actionRedraw</receiver>
    <slot>trigger()</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>877</x>
      <y>595</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>-1</x>
      <y>-1</y>
     </hint>
@@ -1217,11 +1229,11 @@
    <receiver>actionUseVTKInteractor</receiver>
    <slot>trigger()</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>753</x>
      <y>619</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>-1</x>
      <y>-1</y>
     </hint>
@@ -1233,11 +1245,11 @@
    <receiver>actionScaleToData</receiver>
    <slot>trigger()</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>635</x>
      <y>718</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>-1</x>
      <y>-1</y>
     </hint>
@@ -1249,11 +1261,11 @@
    <receiver>dockWidget</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>404</x>
      <y>198</y>
     </hint>

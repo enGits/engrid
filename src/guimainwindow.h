@@ -191,6 +191,9 @@ private: // attributes
   /** The current operation number. (used for undo/redo) */
   int current_operation;
   
+  /** The last operation number. (used for undo/redo) */
+  int last_operation;
+  
   /** Status bar of the main window and application */
   QStatusBar *status_bar;
   
@@ -386,8 +389,8 @@ public slots:
   void openBC();
   void saveBC();
   
-  void undo();
-  void redo();
+  void Undo();
+  void Redo();
   
   /** Save the current grid */
   void save();
@@ -395,11 +398,14 @@ public slots:
   /** Save the current grid -- using a different file name */
   void saveAs();
   
-  /** Save the current grid as a temporary file numbered by OperationIndex */
+  /** Save the current grid as a_filename_a_operation */
   void QuickSave();
   
   /** Save the current grid as a_filename */
   void QuickSave(QString a_filename);
+  
+  /** Load a_filename_a_operation */
+  void QuickLoad(int a_operation);
   
   /** Update the status bar */
   void updateStatusBar();

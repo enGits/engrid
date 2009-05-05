@@ -42,5 +42,7 @@ connect(ui.actionDeletePickedPoint,SIGNAL(activated()),this,SLOT(callDeletePicke
 connect(ui.actionPick_cell_point,SIGNAL(activated()),this,SLOT(callPick_cell_point()));
 connect(ui.actionTransform, SIGNAL(activated()), this, SLOT(callTransform()));
 connect(ui.actionExportCGNS, SIGNAL(activated()), this, SLOT(callCgnsWriter()));
+connect(ui.actionUndo, SIGNAL(activated()), this, SLOT(Undo()));
+connect(ui.actionRedo, SIGNAL(activated()), this, SLOT(Redo()));
 
 // -------------------------------------------

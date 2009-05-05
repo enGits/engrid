@@ -199,6 +199,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   current_filename = "untitled.vtu";
   current_operation = 0;
+  last_operation = 10;
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   
   status_bar = new QStatusBar(this);
@@ -863,12 +864,23 @@ void GuiMainWindow::open()
   };
 };
 
-void GuiMainWindow::undo()
+void GuiMainWindow::Undo()
 {
+  
+  cout << "Undoing operation " << current_operation << endl;
+  current_operation--;
+  QuickLoad(current_operation);
+  ui.actionRedo->setEnabled(true);
+  if(current_operation<=0) ui.actionUndo->setEnabled(false);
 };
 
-void GuiMainWindow::redo()
+void GuiMainWindow::Redo()
 {
+  current_operation++;
+  cout << "Redoing operation " << current_operation << endl;
+  QuickLoad(current_operation);
+  ui.actionUndo->setEnabled(true);
+  if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);
 };
 
 void GuiMainWindow::openBC()
@@ -958,6 +970,11 @@ void GuiMainWindow::QuickSave()
 
 }
 
+void GuiMainWindow::QuickLoad(int a_operation)
+{
+
+}
+
 void GuiMainWindow::QuickSave(QString a_filename)
 {
   cout << a_filename.toAscii().data() << endl;
@@ -975,7 +992,6 @@ void GuiMainWindow::QuickSave(QString a_filename)
   vtu->Write();
   saveBC();
 };
-
 
 void GuiMainWindow::updateStatusBar()
 {
