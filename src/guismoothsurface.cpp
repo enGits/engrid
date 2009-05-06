@@ -63,6 +63,11 @@ QTextStream Qcerr(stderr, QIODevice::WriteOnly);
 
 //////////////////////////////////////////////
 
+GuiSmoothSurface::GuiSmoothSurface()
+{
+  setQuickSave(true);
+}
+
 int cout_vtkWindowedSincPolyDataFilter(vtkWindowedSincPolyDataFilter* smooth)
 {
   cout<<"NumberOfIterations="<<smooth->GetNumberOfIterations()<<endl;

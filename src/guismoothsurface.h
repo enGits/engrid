@@ -56,6 +56,8 @@ private:
   int Nbc;
   SettingsSheet* tableWidget;
 public:
+  GuiSmoothSurface();
+  
   QVector <VertexMeshDensity> GetSet();
   QSettings* local_qset;
   
@@ -69,7 +71,6 @@ public:
   int writeSettings();
   int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
   int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
-  
 };
 
 #endif
