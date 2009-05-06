@@ -421,7 +421,7 @@ public slots:
   /** Update the status bar */
   void updateStatusBar();
   
-  /** Select the boundary codes to be diplayed/hidden */
+  /** Select the boundary codes to be displayed/hidden */
   void selectBoundaryCodes();
   
   /** Update the boundary code book keeping (e.g. after reading a mesh). */
@@ -496,7 +496,7 @@ public slots:
   void callDeleteTetras() { EG_STDSLOT(DeleteTetras); }
   void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); }
   void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); }
-  void callSetBoundaryCode()  { EG_STDSLOT(GuiSetBoundaryCode); }
+  void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); }
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }

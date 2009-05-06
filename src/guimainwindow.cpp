@@ -846,43 +846,15 @@ void GuiMainWindow::zoomAll()
   getRenderWindow()->Render();
 };
 
-
-//TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
-void GuiMainWindow::open()
-{
-  current_filename = QFileDialog::getOpenFileName
-    (
-      NULL,
-      "open grid from file",
-      getCwd(),
-      "VTK unstructured grid files (*.vtu *.VTU)"
-    );
-  if (!current_filename.isNull()) {
-    GuiMainWindow::setCwd(QFileInfo(current_filename).absolutePath());
-    EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
-    vtu->SetFileName(current_filename.toAscii().data());
-    vtu->Update();
-    grid->DeepCopy(vtu->GetOutput());
-    createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
-    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-    openBC();
-    updateBoundaryCodes(true);
-    updateActors();
-    updateStatusBar();
-    zoomAll();
-  };
-  ResetOperationCounter();
-  QuickSave();
-};
-
 void GuiMainWindow::QuickSave()
 {
   current_operation++;
   QFileInfo fileinfo(current_filename);
   QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
   last_operation=current_operation;
-  cout<<"Operation "<<current_operation<<" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
+  cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
   QuickSave(l_filename);
+  setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   if(current_operation>0) ui.actionUndo->setEnabled(true);
   ui.actionRedo->setEnabled(false);
 }
@@ -890,9 +862,10 @@ void GuiMainWindow::QuickSave()
 void GuiMainWindow::QuickLoad(int a_operation)
 {
   QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation);
-  cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
+  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
+//   cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
   QuickLoad(l_filename);
+  setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
 }
 
 void GuiMainWindow::Undo()
@@ -959,6 +932,34 @@ void GuiMainWindow::saveBC(QString a_file)
     f << i << " " << bc.getName() << " " << bc.getType() << "\n";
   };
 }
+
+//TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
+void GuiMainWindow::open()
+{
+  current_filename = QFileDialog::getOpenFileName
+    (
+      NULL,
+      "open grid from file",
+      getCwd(),
+      "VTK unstructured grid files (*.vtu *.VTU)"
+    );
+  if (!current_filename.isNull()) {
+    GuiMainWindow::setCwd(QFileInfo(current_filename).absolutePath());
+    EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
+    vtu->SetFileName(current_filename.toAscii().data());
+    vtu->Update();
+    grid->DeepCopy(vtu->GetOutput());
+    createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+    openBC();
+    updateBoundaryCodes(true);
+    updateActors();
+    updateStatusBar();
+    zoomAll();
+    ResetOperationCounter();
+    QuickSave();
+  };
+};
 
 void GuiMainWindow::save()
 {
@@ -1039,7 +1040,7 @@ void GuiMainWindow::QuickLoad(QString a_filename)
     cout << "Loading " << a_filename.toAscii().data() << endl;
 
     if (!a_filename.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
+//       GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
       EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
       vtu->SetFileName(a_filename.toAscii().data());
       vtu->Update();
@@ -1173,6 +1174,8 @@ void GuiMainWindow::selectBoundaryCodes()
 {
   GuiSelectBoundaryCodes bcodes;
   bcodes.setDisplayBoundaryCodes(display_boundary_codes);
+  cout<<"void GuiMainWindow::selectBoundaryCodes(): all_boundary_codes="<<all_boundary_codes<<endl;
+
   bcodes.setBoundaryCodes(all_boundary_codes);
   bcodes();
   bcodes.getThread().wait();
@@ -1182,6 +1185,7 @@ void GuiMainWindow::selectBoundaryCodes()
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
+  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
   try {
     all_boundary_codes.clear();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -1213,6 +1217,7 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
   } catch (Error err) {
     err.display();
   };
+  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
 };
 
 void GuiMainWindow::normalExtrusion()
