@@ -35,6 +35,7 @@ class GuiSetBoundaryCode : public DialogOperation<Ui::GuiSetBoundaryCode>
   
 protected: // methods
   
+  virtual void before();
   virtual void operate();
   
 };

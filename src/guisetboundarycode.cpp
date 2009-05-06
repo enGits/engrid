@@ -24,8 +24,21 @@
 #include "setboundarycode.h"
 #include "guimainwindow.h"
 
+void GuiSetBoundaryCode::before()
+{
+  //read settings
+  QSettings local_qset("enGits","enGrid_GuiSetBoundaryCode");
+  ui.doubleSpinBoxFeatureAngle->setValue(local_qset.value("FeatureAngle", 45).toDouble());
+  ui.spinBoxBoundaryCode->setValue(local_qset.value("BoundaryCode", 1).toInt());
+}
+
 void GuiSetBoundaryCode::operate()
 {
+  //save settings
+  QSettings local_qset("enGits","enGrid_GuiSetBoundaryCode");
+  local_qset.setValue("FeatureAngle", ui.doubleSpinBoxFeatureAngle->value());
+  local_qset.setValue("BoundaryCode", ui.spinBoxBoundaryCode->value());
+  
   SetBoundaryCode set_bc;
   if (GuiMainWindow::getPickedCell() >= 0) {
     set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
