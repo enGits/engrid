@@ -198,8 +198,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   volume_pd   = vtkPolyData::New();
   
   current_filename = "untitled.vtu";
-  current_operation = 0;
-  last_operation = 10;
+  ResetOperationCounter();//clears undo/redo list and disables undo/redo
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   
   status_bar = new QStatusBar(this);
@@ -847,6 +846,8 @@ void GuiMainWindow::zoomAll()
   getRenderWindow()->Render();
 };
 
+
+//TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
   current_filename = QFileDialog::getOpenFileName
@@ -870,7 +871,27 @@ void GuiMainWindow::open()
     updateStatusBar();
     zoomAll();
   };
+  ResetOperationCounter();
+  QuickSave();
 };
+
+void GuiMainWindow::QuickSave()
+{
+  current_operation++;
+  QFileInfo fileinfo(current_filename);
+  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(current_operation);
+  last_operation=current_operation;
+  cout<<"Operation "<<current_operation<<" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
+  if(current_operation>0) ui.actionUndo->setEnabled(true);
+  ui.actionRedo->setEnabled(false);
+}
+
+void GuiMainWindow::QuickLoad(int a_operation)
+{
+  QFileInfo fileinfo(current_filename);
+  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(a_operation);
+  cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
+}
 
 void GuiMainWindow::Undo()
 {
@@ -889,6 +910,14 @@ void GuiMainWindow::Redo()
   ui.actionUndo->setEnabled(true);
   if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);
 };
+
+void GuiMainWindow::ResetOperationCounter()
+{
+  current_operation=-1;
+  last_operation=current_operation;
+  ui.actionUndo->setEnabled(false);
+  ui.actionRedo->setEnabled(false);
+}
 
 void GuiMainWindow::openBC()
 {
@@ -971,20 +1000,6 @@ void GuiMainWindow::saveAs()
     setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   };
 };
-
-void GuiMainWindow::QuickSave()
-{
-  QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(current_operation);
-  last_operation=current_operation;
-  cout<<"l_filename="<<l_filename.toLatin1().data()<<endl;
-  current_operation++;
-}
-
-void GuiMainWindow::QuickLoad(int a_operation)
-{
-
-}
 
 void GuiMainWindow::QuickSave(QString a_filename)
 {

@@ -85,6 +85,8 @@ private: // attributes
   bool               gui;
   /** Determines whether the grid should be saved after the operation or not. (default is false) */
   bool               m_quicksave;
+  /** Determines whether the operation counter should be reset or not after the operation (default is false) */
+  bool               m_resetoperationcounter;
   bool               autoset;
   Error             *err;
   
@@ -142,6 +144,7 @@ public: // methods
   void enableAutoSet() { autoset = true; }
   void disableAutoSet() { autoset = false; }
   void setQuickSave(bool b) { m_quicksave = b; }
+  void setResetOperationCounter(bool b) { m_resetoperationcounter=b; }
   
   /**
    * Fill a QListWidget with all available boundary codes from a grid.

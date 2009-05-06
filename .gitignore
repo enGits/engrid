@@ -27,3 +27,4 @@ callgrind*
 *.aux
 *.log
 *.toc
+core

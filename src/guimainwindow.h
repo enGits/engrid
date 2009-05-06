@@ -395,6 +395,8 @@ public slots:
   void Undo();
   void Redo();
   
+  void ResetOperationCounter();
+  
   /** Save the current grid */
   void save();
   

@@ -65,6 +65,7 @@ Operation::Operation()
   grid = NULL;
   gui = false;
   m_quicksave = false;
+  m_resetoperationcounter = false;
   err = NULL;
   autoset = true;
 
@@ -121,6 +122,7 @@ void Operation::operator()()
   } else {
     checkGrid();
     operate();
+    if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
   };
 };

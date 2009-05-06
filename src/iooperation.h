@@ -26,6 +26,7 @@
 class IOOperation;
 
 #include "operation.h"
+// #include "guimainwindow.h"
 
 #include <QString>
 #include <QFile>
@@ -90,6 +91,7 @@ protected: // methods
   
 public: // methods
   
+  IOOperation(){ cout<<"IOOperation called"<<endl; setResetOperationCounter(true); setQuickSave(true); };
   virtual ~IOOperation() {};
   
   /// Open a QFileDialog and make the user input a file name for opening or importing. */
