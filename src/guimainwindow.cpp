@@ -879,9 +879,10 @@ void GuiMainWindow::QuickSave()
 {
   current_operation++;
   QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(current_operation);
+  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
   last_operation=current_operation;
   cout<<"Operation "<<current_operation<<" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
+  QuickSave(l_filename);
   if(current_operation>0) ui.actionUndo->setEnabled(true);
   ui.actionRedo->setEnabled(false);
 }
@@ -889,8 +890,9 @@ void GuiMainWindow::QuickSave()
 void GuiMainWindow::QuickLoad(int a_operation)
 {
   QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(a_operation);
+  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation);
   cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
+  QuickLoad(l_filename);
 }
 
 void GuiMainWindow::Undo()
@@ -921,7 +923,17 @@ void GuiMainWindow::ResetOperationCounter()
 
 void GuiMainWindow::openBC()
 {
-  QString bc_file = current_filename + ".bcs";
+  openBC(current_filename);
+};
+
+void GuiMainWindow::saveBC()
+{
+  saveBC(current_filename);
+};
+
+void GuiMainWindow::openBC(QString a_file)
+{
+  QString bc_file = a_file + ".bcs";
   QFile file(bc_file);
   bcmap.clear();
   if (file.exists()) {
@@ -934,11 +946,11 @@ void GuiMainWindow::openBC()
       bcmap[i] = BoundaryCondition(name,type);
     };
   };
-};
+}
 
-void GuiMainWindow::saveBC()
+void GuiMainWindow::saveBC(QString a_file)
 {
-  QString bc_file = current_filename + ".bcs";
+  QString bc_file = a_file + ".bcs";
   QFile file(bc_file);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&file);
@@ -946,7 +958,7 @@ void GuiMainWindow::saveBC()
     BoundaryCondition bc = bcmap[i];
     f << i << " " << bc.getName() << " " << bc.getType() << "\n";
   };
-};
+}
 
 void GuiMainWindow::save()
 {
@@ -1003,7 +1015,10 @@ void GuiMainWindow::saveAs()
 
 void GuiMainWindow::QuickSave(QString a_filename)
 {
-  cout << a_filename.toAscii().data() << endl;
+  QFileInfo fileinfo(a_filename);
+  if(fileinfo.suffix()!=".vtu") a_filename=a_filename + ".vtu";
+  
+  cout << "Saving as " << a_filename.toAscii().data() << endl;
   
   EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
   for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
@@ -1016,7 +1031,28 @@ void GuiMainWindow::QuickSave(QString a_filename)
   vtu->SetDataModeToBinary();
   vtu->SetInput(grid);
   vtu->Write();
-  saveBC();
+  saveBC(a_filename);
+};
+
+void GuiMainWindow::QuickLoad(QString a_filename)
+{
+    cout << "Loading " << a_filename.toAscii().data() << endl;
+
+    if (!a_filename.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
+      EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
+      vtu->SetFileName(a_filename.toAscii().data());
+      vtu->Update();
+      grid->DeepCopy(vtu->GetOutput());
+      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+      setWindowTitle(a_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+      openBC(a_filename);
+      updateBoundaryCodes(true);
+      updateActors();
+      updateStatusBar();
+      zoomAll();
+    };
+  
 };
 
 void GuiMainWindow::updateStatusBar()

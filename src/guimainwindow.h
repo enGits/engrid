@@ -386,16 +386,19 @@ public slots:
   /** Move the camera in order to show everything on the screen */
   void zoomAll();
   
-  /** Open an existing grid */
-  void open();
-  
   void openBC();
   void saveBC();
+  void openBC(QString a_file);
+  void saveBC(QString a_file);
   
   void Undo();
   void Redo();
   
   void ResetOperationCounter();
+  
+  //TODO: Simplify available save/load functions
+  /** Open an existing grid */
+  void open();
   
   /** Save the current grid */
   void save();
@@ -403,11 +406,14 @@ public slots:
   /** Save the current grid -- using a different file name */
   void saveAs();
   
-  /** Save the current grid as a_filename_a_operation */
-  void QuickSave();
-  
   /** Save the current grid as a_filename */
   void QuickSave(QString a_filename);
+  
+  /** Load the current grid from a_filename */
+  void QuickLoad(QString a_filename);
+  
+  /** Save the current grid as a_filename_a_operation */
+  void QuickSave();
   
   /** Load a_filename_a_operation */
   void QuickLoad(int a_operation);
