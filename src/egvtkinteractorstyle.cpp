@@ -422,6 +422,11 @@ void egvtkInteractorStyle::OnChar()
     case 'C' :
       cout<<"pick cell by ID"<<endl;
       break;
+    
+    case 'b' :
+      cout<<"box select"<<endl;
+    
+      break;
   }
   
    // otherwise pass the OnChar to the vtkInteractorStyle.

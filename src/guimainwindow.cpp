@@ -769,11 +769,17 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
     };
     pick_sphere->SetCenter(x.data());
     double R = 1e99;
+//     for (vtkIdType i = 0; i < Npts; ++i) {
+//       vec3_t xp;
+//       grid->GetPoints()->GetPoint(pts[i], xp.data());
+//       R = min(R, 0.25*(xp-x).abs());
+//     };
     for (vtkIdType i = 0; i < Npts; ++i) {
       vec3_t xp;
       grid->GetPoints()->GetPoint(pts[i], xp.data());
       R = min(R, 0.25*(xp-x).abs());
     };
+//     R=getShortestSide(cellId,grid);
     ReferenceSize=R;//Used for text annotations too!
     pick_sphere->SetRadius(R);
     pick_mapper->SetInput(pick_sphere->GetOutput());
@@ -1634,4 +1640,10 @@ void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
   };
 };
 
-
+void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
+{
+  bcs.clear();
+  foreach (int bc, display_boundary_codes) {
+    bcs.insert(bc);
+  };
+};

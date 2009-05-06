@@ -345,6 +345,7 @@ public: // static methods
   static void unlock() { mutex.unlock(); };
   static bool tryLock() { return mutex.tryLock(); };
   void getAllBoundaryCodes(QSet<int> &bcs);
+  void getDisplayBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker(){return(PointPicker);};
   vtkSphereSource* getPickSphere(){return(pick_sphere);};
   bool pickPoint(vtkIdType Point);
