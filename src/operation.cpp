@@ -64,6 +64,7 @@ Operation::Operation()
 {
   grid = NULL;
   gui = false;
+  m_quicksave = false;
   err = NULL;
   autoset = true;
 
@@ -120,11 +121,8 @@ void Operation::operator()()
   } else {
     checkGrid();
     operate();
+    if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
   };
-  /*
-  checkGrid();
-  operate();
-  */
 };
 
 void Operation::setAllCells()

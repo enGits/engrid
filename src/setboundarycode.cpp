@@ -29,6 +29,7 @@ SetBoundaryCode::SetBoundaryCode()
   feature_angle = 180.0;
   boundary_code = 1;
   setSurfaceIteration();
+  setQuickSave(true);
 };
 
 void SetBoundaryCode::pass1()

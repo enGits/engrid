@@ -230,13 +230,21 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   cbc->Delete();
   
   QString user = QString(getenv("USER"));
-  QString basename="enGrid_output_"+user+".txt";
-
+  QString basename="enGrid_output.txt";
+  
+// define temporary path
+  QDir dir("/");
   if (qset.contains("tmp_directory")) {
-    log_file_name = qset.value("tmp_directory").toString() + "/" + basename;
+    m_tmpdir=qset.value("tmp_directory").toString();
   } else {
-    log_file_name = "/tmp/" + basename;
+    m_tmpdir=dir.tempPath();
   };
+  m_tmpdir = m_tmpdir + "/" + "enGrid_"+user + "/";
+  dir.mkpath(m_tmpdir);
+  
+  log_file_name = m_tmpdir + basename;
+  cout<<"log_file_name="<<log_file_name.toLatin1().data()<<endl;
+
   system_stdout = stdout;
   freopen (log_file_name.toAscii().data(), "w", stdout);
   
@@ -866,7 +874,6 @@ void GuiMainWindow::open()
 
 void GuiMainWindow::Undo()
 {
-  
   cout << "Undoing operation " << current_operation << endl;
   current_operation--;
   QuickLoad(current_operation);
@@ -967,7 +974,11 @@ void GuiMainWindow::saveAs()
 
 void GuiMainWindow::QuickSave()
 {
-
+  QFileInfo fileinfo(current_filename);
+  QString l_filename = m_tmpdir + fileinfo.baseName() + "_" + QString("%1").arg(current_operation);
+  last_operation=current_operation;
+  cout<<"l_filename="<<l_filename.toLatin1().data()<<endl;
+  current_operation++;
 }
 
 void GuiMainWindow::QuickLoad(int a_operation)

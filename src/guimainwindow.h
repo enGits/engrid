@@ -194,6 +194,9 @@ private: // attributes
   /** The last operation number. (used for undo/redo) */
   int last_operation;
   
+  /** the temporary directory used to save anything temporary */
+  QString m_tmpdir;
+  
   /** Status bar of the main window and application */
   QStatusBar *status_bar;
   
@@ -474,6 +477,9 @@ public slots:
   //
   // the following line can be used as a template:
   // void call() { EG_STDSLOT(); };
+  // IMPORTANT: Using EG_STDSLOT sets gui to true, while EG_STDINTERSLOT does not (default is gui = false)
+  // This is important to determine whether an operation is a GUI operation or not.
+  // If it's a GUI operation, it locks everything.
   
   void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); }
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); }
@@ -482,7 +488,7 @@ public slots:
   void callDeleteTetras() { EG_STDSLOT(DeleteTetras); }
   void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); }
   void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); }
-  void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); }
+  void callSetBoundaryCode()  { EG_STDSLOT(GuiSetBoundaryCode); }
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }

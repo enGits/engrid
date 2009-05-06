@@ -27,6 +27,7 @@ template <class UI>
 class DialogOperation;
 
 #include "operation.h"
+// #include "guimainwindow.h"
 
 #include <QDialog>
 #include <QListWidget>
@@ -153,6 +154,7 @@ template <class UI>
 void DialogOperation<UI>::operator()()
 {
   bool ok = true;
+  //Prepare the GUI
   try {
     checkGrid();
     before();
@@ -160,8 +162,10 @@ void DialogOperation<UI>::operator()()
     err.display();
     ok = false;
   };
+  //Run the GUI
   if (ok) {
     if (QDialog::exec()) {
+      //Run the operation
       try {
         Operation::operator()();
       } catch (Error err) {
