@@ -1016,7 +1016,10 @@ void GuiMainWindow::saveAs()
     vtu->SetInput(grid);
     vtu->Write();
     saveBC();
+    //for the undo/redo operations
     setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+    ResetOperationCounter();
+    QuickSave();
   };
 };
 
