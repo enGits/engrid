@@ -62,26 +62,26 @@ int SurfaceSmoother::Process()
     if(insert_FP) {
       UpdateDesiredMeshDensity();
       insert_FP_all();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
       if(DoLaplaceSmoothing) SmoothFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
+//     DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
     
     if(insert_EP) {
       UpdateDesiredMeshDensity();
       insert_EP_all();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
+//       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
+//     DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
@@ -89,7 +89,7 @@ int SurfaceSmoother::Process()
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
+//     DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
@@ -97,7 +97,7 @@ int SurfaceSmoother::Process()
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");
+//     DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");
     
 /*    if(DoSwap) SwapFunction();
     if(DoLaplaceSmoothing) SmoothFunction();*/

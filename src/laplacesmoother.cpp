@@ -87,8 +87,8 @@ void LaplaceSmoother::operate()
         
         m_grid->GetPoints()->SetPoint(id_G, P.data());
         
-        int save=GuiMainWindow::pointer()->QuickSave();
-        cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
+//         int save=GuiMainWindow::pointer()->QuickSave();
+//         cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
         moved_points++;
       }
     }
@@ -106,7 +106,7 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
   m_grid->GetPoint(id_G, x0_old.data());
   x0_new=P;
   
-  cout_grid(cout,grid,true,true,true,true);
+//   cout_grid(cout,grid,true,true,true,true);
   foreach(vtkIdType id_cell,n2c[id_G])
   {
     vtkIdType N_pts, *pts;
@@ -129,9 +129,9 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
     double V_new=tetraVol(x0_new, S, x2, x3, true);
     double prod=V_old*V_new;
     if( prod<0 ) {
-      int save=GuiMainWindow::pointer()->QuickSave();
-      cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
-      cout<<"EPIC FAIL for id_G="<<id_G<<"!"<<endl;
+//       int save=GuiMainWindow::pointer()->QuickSave();
+//       cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
+//       cout<<"EPIC FAIL for id_G="<<id_G<<"!"<<endl;
       return(true);
     }
   }
