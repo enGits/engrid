@@ -103,6 +103,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
   connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
   connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
+  connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(DeselectAll()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
   connect(ui.actionSaveAs,                 SIGNAL(activated()),       this, SLOT(saveAs()));
@@ -741,6 +742,7 @@ void GuiMainWindow::setUseVTKInteractor(int a_UseVTKInteractor)
 
 bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 {
+  cout<<"pickPoint called with =nodeId"<<nodeId<<endl;
   if (nodeId >= 0 && nodeId<grid->GetNumberOfPoints()) {
     vec3_t x(0,0,0);
     grid->GetPoints()->GetPoint(nodeId, x.data());
@@ -759,6 +761,7 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 
 bool GuiMainWindow::pickCell(vtkIdType cellId)
 {
+  cout<<"pickCell called with cellId="<<cellId<<endl;
   if (cellId >= 0 && cellId<grid->GetNumberOfCells()) {
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
@@ -855,8 +858,21 @@ void GuiMainWindow::zoomAll()
 
 void GuiMainWindow::ZoomOnPickedObject()
 {
-  getRenderer()->ResetCamera(pick_actor->GetBounds());
-  getRenderWindow()->Render();
+  if(pick_actor!=NULL)
+  {
+    getRenderer()->ResetCamera(pick_actor->GetBounds());
+    getRenderWindow()->Render();
+  }
+}
+
+void GuiMainWindow::DeselectAll()
+{
+  cout<<"void GuiMainWindow::DeselectAll()"<<endl;
+//   goo;
+  setPickMode(false,true);
+  PickedCell=-1;
+  PickedPoint=-1;
+  updateActors();
 }
 
 void GuiMainWindow::QuickSave()
