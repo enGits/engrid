@@ -12,7 +12,7 @@ CONFIG += qt debug thread
 #DEFINES += QT_NO_DEBUG
 DEFINES += QT_DEBUG
 DEFINES += CGNS_SUPPORT
-LIBS    += -lcgns
+LIBS += -lcgns
 #QMAKE_CXXFLAGS += -pg
 
 QT += xml network opengl
@@ -173,7 +173,8 @@ guisettingsviewer.h \
  text3d.h \
  guipick.h \
  egvtkinteractorstyle.h \
- surfacesmoother.h
+ surfacesmoother.h \
+ showinfo.h
 
 SOURCES = \
 main.cpp \
@@ -250,7 +251,8 @@ guisettingsviewer.cpp \
  text3d.cpp \
  guipick.cpp \
  egvtkinteractorstyle.cpp \
- surfacesmoother.cpp
+ surfacesmoother.cpp \
+ showinfo.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

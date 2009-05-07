@@ -212,6 +212,7 @@
    <addaction name="actionDeletePickedPoint" />
    <addaction name="actionSmoothSurface" />
    <addaction name="actionPrintGrid" />
+   <addaction name="actionShowInfo" />
   </widget>
   <widget class="QDockWidget" name="dockWidget" >
    <property name="sizePolicy" >
@@ -1242,6 +1243,11 @@
   <action name="actionPrintGrid" >
    <property name="text" >
     <string>PrintGrid</string>
+   </property>
+  </action>
+  <action name="actionShowInfo" >
+   <property name="text" >
+    <string>ShowInfo</string>
    </property>
   </action>
  </widget>

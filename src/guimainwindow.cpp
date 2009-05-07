@@ -61,6 +61,7 @@ using namespace GeometryTools;
 #include "guisettingsviewer.h"
 #include "guitransform.h"
 #include "egvtkinteractorstyle.h"
+#include "showinfo.h"
 
 // GuiOutputWindow::GuiOutputWindow()
 // {
@@ -104,6 +105,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
   connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
   connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(PrintGrid()));
+  connect(ui.actionShowInfo,               SIGNAL(activated()),       this, SLOT(Info()));
   connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(DeselectAll()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
@@ -906,6 +908,13 @@ void GuiMainWindow::DeselectAll()
   PickedCell=-1;
   PickedPoint=-1;*/
   updateActors();
+}
+
+//TODO: Should display a window
+void GuiMainWindow::Info()
+{
+  ShowInfo info(ui.radioButton_CellPicker->isChecked(),PickedPoint,PickedCell);
+  info();
 }
 
 int GuiMainWindow::QuickSave()
