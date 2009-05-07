@@ -1026,7 +1026,9 @@ void GuiMainWindow::saveAs()
 void GuiMainWindow::QuickSave(QString a_filename)
 {
   QFileInfo fileinfo(a_filename);
-  if(fileinfo.suffix()!=".vtu") a_filename=a_filename + ".vtu";
+  cout<<"a_filename="<<a_filename.toLatin1().data()<<endl;
+  cout<<"fileinfo.suffix()="<<fileinfo.suffix().toLatin1().data()<<endl;
+  if(fileinfo.suffix()!="vtu") a_filename=a_filename + ".vtu";
   
   cout << "Saving as " << a_filename.toAscii().data() << endl;
   

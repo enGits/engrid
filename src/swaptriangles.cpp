@@ -26,6 +26,9 @@
 
 void SwapTriangles::prepare()
 {
+  cout<<"void SwapTriangles::prepare()"<<endl;
+  cout_grid(cout,grid);
+  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
   QList<vtkIdType> ex_cells;
   EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
