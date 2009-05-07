@@ -386,7 +386,8 @@ public slots:
   
   /** Move the camera in order to show everything on the screen */
   void zoomAll();
-  
+  void ZoomOnPickedObject();
+    
   void openBC();
   void saveBC();
   void openBC(QString a_file);

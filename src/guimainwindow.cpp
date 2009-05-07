@@ -102,6 +102,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionExportBinaryStl,        SIGNAL(activated()),       this, SLOT(exportBinaryStl()));
   connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
   connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
+  connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
   connect(ui.actionSaveAs,                 SIGNAL(activated()),       this, SLOT(saveAs()));
@@ -850,7 +851,13 @@ void GuiMainWindow::zoomAll()
 {
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
+
+void GuiMainWindow::ZoomOnPickedObject()
+{
+  getRenderer()->ResetCamera(pick_actor->GetBounds());
+  getRenderWindow()->Render();
+}
 
 void GuiMainWindow::QuickSave()
 {

@@ -68,7 +68,7 @@ void LaplaceSmoother::operate()
         foreach(int id_M,n2n[id_G])
         {
           vec3_t M;
-          grid_tmp->GetPoint(id_M, M.data());
+          m_grid->GetPoint(id_M, M.data());
           G+=M;
         }
         G=(1./n2n[id_G].size())*G;
@@ -77,7 +77,7 @@ void LaplaceSmoother::operate()
         terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
 //         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
 //         cout<<"Target destroyed."<<endl;
-        grid_tmp->GetPoints()->SetPoint(id_G, G.data());
+        grid_tmp->GetPoints()->SetPoint(id_G, P.data());
         moved_points++;
       }
     }

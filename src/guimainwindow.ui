@@ -260,9 +260,9 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-232</y>
           <width>262</width>
-          <height>1025</height>
+          <height>1092</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -542,25 +542,42 @@
            <property name="title" >
             <string>Picker</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout" >
-            <item>
+           <layout class="QGridLayout" name="gridLayout_7" >
+            <item row="0" column="0" colspan="2" >
              <widget class="QRadioButton" name="radioButton_CellPicker" >
               <property name="text" >
                <string>CellPicker</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="1" column="0" colspan="2" >
              <widget class="QRadioButton" name="radioButton_PointPicker" >
               <property name="text" >
                <string>PointPicker</string>
               </property>
              </widget>
             </item>
-            <item>
+            <item row="2" column="0" colspan="2" >
              <widget class="QCheckBox" name="checkBox_UseVTKInteractor" >
               <property name="text" >
                <string>Use VTK Interactor</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_PickerRadius" />
+            </item>
+            <item row="5" column="0" colspan="2" >
+             <widget class="QPushButton" name="pushButton_ZoomOnPickedObject" >
+              <property name="text" >
+               <string>Zoom on picked object</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLabel" name="label_11" >
+              <property name="text" >
+               <string>Picker Radius</string>
               </property>
              </widget>
             </item>
@@ -1194,6 +1211,11 @@
     <string>Redo</string>
    </property>
   </action>
+  <action name="actionZoomOnPickedObject" >
+   <property name="text" >
+    <string>ZoomOnPickedObject</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9" />
  <customwidgets>
@@ -1312,6 +1334,22 @@
     <hint type="sourcelabel" >
      <x>136</x>
      <y>527</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_ZoomOnPickedObject</sender>
+   <signal>clicked()</signal>
+   <receiver>actionZoomOnPickedObject</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>1178</x>
+     <y>554</y>
     </hint>
     <hint type="destinationlabel" >
      <x>-1</x>
