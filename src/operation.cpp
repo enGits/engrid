@@ -1007,7 +1007,7 @@ typedef struct _vtkMeshVertex
 
 int Operation::UpdateNodeType_all()
 {
-  cout<<"===UpdateNodeType_all START==="<<endl;
+  if(DebugLevel>0) cout<<"===UpdateNodeType_all START==="<<endl;
   if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
   if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
   
@@ -1327,7 +1327,7 @@ int Operation::UpdateNodeType_all()
   }
   delete [] Verts;
   
-  cout<<"===UpdateNodeType_all END==="<<endl;
+  if(DebugLevel>0) cout<<"===UpdateNodeType_all END==="<<endl;
   return(0);
 }
 //End of UpdateNodeType_all
