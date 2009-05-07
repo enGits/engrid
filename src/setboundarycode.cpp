@@ -35,41 +35,86 @@ SetBoundaryCode::SetBoundaryCode()
 
 void SetBoundaryCode::pass1()
 {
-  using namespace GeometryTools;
-  double fa = feature_angle*M_PI/180.0;
-  cout<<"fa="<<fa<<endl;
-
-  QSet <int> DBC;
-  GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
-  DBC.insert(boundary_code);
+  if(!SelectAllVisible)
+  {
+    using namespace GeometryTools;
+    double fa = feature_angle*M_PI/180.0;
+    cout<<"fa="<<fa<<endl;
   
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  for (int i = 0; i < pair.size(); ++i) {
-    int bc1 = cell_code->GetValue(pair[i].item1);
-    int bc2 = cell_code->GetValue(pair[i].item2);
-    cout<<"bc1="<<bc1<<" bc2="<<bc2<<" DBC="<<DBC<<endl;
-    if(DBC.contains(bc1) && DBC.contains(bc2)){
-      vec3_t n1 = cellNormal(grid, pair[i].item1);
-      vec3_t n2 = cellNormal(grid, pair[i].item2);
-      double cosa = (n1*n2)/(n1.abs()*n2.abs());
-      if (fabs(acos(cosa)) > fa) {
+    QSet <int> DBC;
+    GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
+    DBC.insert(boundary_code);
+    
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    
+    for (int i = 0; i < pair.size(); ++i) {
+      
+      int bc1 = cell_code->GetValue(pair[i].item1);
+      int bc2 = cell_code->GetValue(pair[i].item2);
+      cout<<"bc1="<<bc1<<" bc2="<<bc2<<" DBC="<<DBC<<endl;
+      
+      if(ProcessAll){
+        vec3_t n1 = cellNormal(grid, pair[i].item1);
+        vec3_t n2 = cellNormal(grid, pair[i].item2);
+        double cosa = (n1*n2)/(n1.abs()*n2.abs());
+        if (fabs(acos(cosa)) > fa) {
+          pair[i].terminate = true;
+        } else {
+          pair[i].terminate = false;
+        };
+      }
+      else{
+        if(DBC.contains(bc1) && DBC.contains(bc2)){
+          vec3_t n1 = cellNormal(grid, pair[i].item1);
+          vec3_t n2 = cellNormal(grid, pair[i].item2);
+          double cosa = (n1*n2)/(n1.abs()*n2.abs());
+          if (fabs(acos(cosa)) > fa) {
+            pair[i].terminate = true;
+          } else {
+            pair[i].terminate = false;
+          };
+        }
+        else{
+          pair[i].terminate = true;
+        }
+      }
+  /*    if(DBC.contains(bc1) && DBC.contains(bc2)){
+        vec3_t n1 = cellNormal(grid, pair[i].item1);
+        vec3_t n2 = cellNormal(grid, pair[i].item2);
+        double cosa = (n1*n2)/(n1.abs()*n2.abs());
+        if (fabs(acos(cosa)) > fa) {
+          pair[i].terminate = true;
+        } else {
+          pair[i].terminate = false;
+        };
+      }
+      else{
         pair[i].terminate = true;
-      } else {
-        pair[i].terminate = false;
-      };
-    }
-    else{
-      pair[i].terminate = true;
-    }
-  };
+      }*/
+      
+    };//end of for loop
+  }
 };
 
 void SetBoundaryCode::pass2()
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   vtkIdType cellId;
-  foreach(cellId, item) {
-    cell_code->SetValue(cellId, boundary_code);
-  };
+  if(!SelectAllVisible){
+    foreach(cellId, item) {
+      cell_code->SetValue(cellId, boundary_code);
+    };
+  }
+  else{
+    QSet <int> DBC;
+    GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
+    DBC.insert(boundary_code);
+    foreach(cellId, cells) {
+      int bc = cell_code->GetValue(cellId);
+      if(DBC.contains(bc)){
+        cell_code->SetValue(cellId, boundary_code);
+      }
+    }
+  }
 };
 

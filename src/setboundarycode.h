@@ -34,6 +34,8 @@ private: // attributes
   
   double feature_angle;
   int    boundary_code;
+  bool   ProcessAll;
+  bool   SelectAllVisible;
   
 protected: // methods
   
@@ -45,6 +47,8 @@ public: // methods
   SetBoundaryCode();
   void setFeatureAngle(double fa) { feature_angle = fa; };
   void setBC(int bc) { boundary_code = bc; };
+  void setProcessAll(bool b) { ProcessAll=b; };
+  void setSelectAllVisible(bool b) { SelectAllVisible=b; };
   
 };
 
