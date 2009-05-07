@@ -250,6 +250,13 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   freopen (log_file_name.toAscii().data(), "w", stdout);
   
   busy = false;
+  
+//   ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+//   ui.radioButton_CellPicker->setChecked(true);
+  setPickMode(true,true);
+  PickedPoint=-1;
+  PickedCell=-1;
+  
   updateStatusBar();
   
   connect(&garbage_timer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
@@ -270,12 +277,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.actionFoamWriter->setEnabled(exp_features);
   
   ReferenceSize=0.2;
-  
-//   ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
-//   ui.radioButton_CellPicker->setChecked(true);
-  setPickMode(true,true);
-  PickedPoint=-1;
-  PickedCell=-1;
   
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
@@ -431,7 +432,7 @@ void GuiMainWindow::updateActors()
     };
     if (pick_actor) {
       getRenderer()->RemoveActor(pick_actor);
-      pick_actor->Delete();
+      pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
       pick_actor = NULL;
     };
     if (iamlegend_actor) {
@@ -574,27 +575,34 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-      if(m_UseVTKInteractor)
+      if(ui.checkBox_foobar->checkState())
       {
-        if(ui.radioButton_CellPicker->isChecked())
+        if(m_UseVTKInteractor)
         {
-  //         CellPicker->Pick(0,0,0, getRenderer());
-          getInteractor()->SetPicker(CellPicker);
-  //         CellPicker->Pick(0,0,0, getRenderer());
-          vtkIdType cellId = getPickedCell();
-          pickCell(cellId);
+          cout<<"NOOOOOOOOOOOOOOOO"<<endl;
+          
+          if(ui.radioButton_CellPicker->isChecked())
+          {
+    //         CellPicker->Pick(0,0,0, getRenderer());
+            cout<<"NOOOOOOOOOOOOOOOO"<<endl;
+            getInteractor()->SetPicker(CellPicker);
+    //         CellPicker->Pick(0,0,0, getRenderer());
+            vtkIdType cellId = getPickedCell();
+            pickCell(cellId);
+          }
+          else
+          {
+            cout<<"NOOOOOOOOOOOOOOOO"<<endl;
+            getInteractor()->SetPicker(PointPicker);
+            vtkIdType nodeId = getPickedPoint();
+            pickPoint(nodeId);
+          }
         }
         else
         {
-          getInteractor()->SetPicker(PointPicker);
-          vtkIdType nodeId = getPickedPoint();
-          pickPoint(nodeId);
+          if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
+          else pickPoint(PickedPoint);
         }
-      }
-      else
-      {
-        if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
-        else pickPoint(PickedPoint);
       }
 /*        getInteractor()->SetPicker(CellPicker);
         vtkIdType cellId = getPickedCell();
@@ -744,11 +752,20 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 {
   cout<<"pickPoint called with =nodeId"<<nodeId<<endl;
   if (nodeId >= 0 && nodeId<grid->GetNumberOfPoints()) {
+    cout<<"MIERDA"<<endl;
     vec3_t x(0,0,0);
     grid->GetPoints()->GetPoint(nodeId, x.data());
     pick_sphere->SetCenter(x.data());
     pick_mapper->SetInput(pick_sphere->GetOutput());
-    pick_actor = vtkActor::New();
+    
+    if (pick_actor) {
+      getRenderer()->RemoveActor(pick_actor);
+      pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
+      pick_actor = NULL;
+    };
+    pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
+//     pick_actor->VisibilityOn();
+    
     pick_actor->SetMapper(pick_mapper);
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(0,0,1);
@@ -763,6 +780,7 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
 {
   cout<<"pickCell called with cellId="<<cellId<<endl;
   if (cellId >= 0 && cellId<grid->GetNumberOfCells()) {
+    cout<<"MIERDA"<<endl;
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
     vec3_t x(0,0,0);
@@ -787,7 +805,14 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
     ReferenceSize=R;//Used for text annotations too!
     pick_sphere->SetRadius(R);
     pick_mapper->SetInput(pick_sphere->GetOutput());
-    pick_actor = vtkActor::New();
+    
+    if (pick_actor) {
+      getRenderer()->RemoveActor(pick_actor);
+      pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
+      pick_actor = NULL;
+    };
+    pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
+    
     pick_actor->SetMapper(pick_mapper);
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(1,0,0);
@@ -868,10 +893,17 @@ void GuiMainWindow::ZoomOnPickedObject()
 void GuiMainWindow::DeselectAll()
 {
   cout<<"void GuiMainWindow::DeselectAll()"<<endl;
+  pick_actor->VisibilityOff();
 //   goo;
+/*  if (pick_actor) {
+    cout<<"Terminating pick_actor"<<endl;
+    getRenderer()->RemoveActor(pick_actor);
+    pick_actor->Delete();
+    pick_actor = NULL;
+  };
   setPickMode(false,true);
   PickedCell=-1;
-  PickedPoint=-1;
+  PickedPoint=-1;*/
   updateActors();
 }
 
@@ -1130,7 +1162,7 @@ void GuiMainWindow::updateStatusBar()
   if(ui.radioButton_CellPicker->isChecked())
   {
     QString pick_txt = ", picked cell: ";
-    vtkIdType id_cell = getPickedCell();
+    vtkIdType id_cell = PickedCell;
     if (id_cell < 0) {
       pick_txt += "no cell picked";
     } else {
@@ -1165,7 +1197,7 @@ void GuiMainWindow::updateStatusBar()
   else
   {
     QString pick_txt = ", picked node: ";
-    vtkIdType id_node = getPickedPoint();
+    vtkIdType id_node = PickedPoint;
     if (id_node < 0) {
       pick_txt += "no node picked";
     } else {
