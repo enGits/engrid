@@ -388,6 +388,7 @@ public slots:
   void zoomAll();
   void ZoomOnPickedObject();
   void DeselectAll();
+  void PrintGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
     
   void openBC();
   void saveBC();

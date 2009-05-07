@@ -211,6 +211,7 @@
    <addaction name="actionViewYM" />
    <addaction name="actionDeletePickedPoint" />
    <addaction name="actionSmoothSurface" />
+   <addaction name="actionPrintGrid" />
   </widget>
   <widget class="QDockWidget" name="dockWidget" >
    <property name="sizePolicy" >
@@ -260,7 +261,7 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>-232</y>
+          <y>0</y>
           <width>262</width>
           <height>1159</height>
          </rect>
@@ -1236,6 +1237,11 @@
   <action name="actionDeselectAll" >
    <property name="text" >
     <string>DeselectAll</string>
+   </property>
+  </action>
+  <action name="actionPrintGrid" >
+   <property name="text" >
+    <string>PrintGrid</string>
    </property>
   </action>
  </widget>

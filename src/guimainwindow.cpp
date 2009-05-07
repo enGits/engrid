@@ -103,6 +103,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
   connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
   connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
+  connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(PrintGrid()));
   connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(DeselectAll()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));

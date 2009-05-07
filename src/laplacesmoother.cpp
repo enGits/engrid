@@ -78,45 +78,17 @@ void LaplaceSmoother::operate()
 //         cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
-        
-        vec3_t x0_old, x0_new;
-        m_grid->GetPoint(id_G, x0_old.data());
-        x0_new=P;
-        
-        foreach(vtkIdType id_cell,n2c[id_G])
+        while(FlippedCells(id_G,P))
         {
-          vtkIdType N_pts, *pts;
-          grid->GetCellPoints(id_cell, N_pts, pts);
-          int i;
-          for(i=0;i<N_pts;i++)
-          {
-            if(pts[i]=id_G) break;
-          }
-          vec3_t x2, x3;
-          m_grid->GetPoint(pts[(i+1)%N_pts], x2.data());
-          m_grid->GetPoint(pts[(i+2)%N_pts], x3.data());
-          
-          vec3_t v2_old=x2-x0_old;
-          vec3_t v3_old=x3-x0_old;
-          
-          //top point
-          vec3_t S=v2_old.cross(v3_old);
-          double V_old=tetraVol(x0_old, S, x2, x3, true);
-          double V_new=tetraVol(x0_new, S, x2, x3, true);
-          double prod=V_old*V_new;
-          if( prod<0 ) {
-            int save=GuiMainWindow::pointer()->QuickSave();
-            cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
-            cout<<"EPIC FAIL for id_G="<<id_G<<"!"<<endl;abort();
-          }
-        }
+          vec3_t x0_old;
+          m_grid->GetPoint(id_G, x0_old.data());
+          P=x0_old+0.5*(P-x0_old);
+        };
         
         m_grid->GetPoints()->SetPoint(id_G, P.data());
         
         int save=GuiMainWindow::pointer()->QuickSave();
-        if(save==250) cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
-        if(save==251) cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
-        if(save==252) cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
+        cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
         moved_points++;
       }
     }
@@ -126,4 +98,42 @@ void LaplaceSmoother::operate()
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
   if(DebugLevel>10) cout_grid(cout,m_grid);
   
+}
+
+bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
+{
+  vec3_t x0_old, x0_new;
+  m_grid->GetPoint(id_G, x0_old.data());
+  x0_new=P;
+  
+  cout_grid(cout,grid,true,true,true,true);
+  foreach(vtkIdType id_cell,n2c[id_G])
+  {
+    vtkIdType N_pts, *pts;
+    m_grid->GetCellPoints(id_cell, N_pts, pts);
+    int i;
+    for(i=0;i<N_pts;i++)
+    {
+      if(pts[i]==id_G) break;
+    }
+    vec3_t x2, x3;
+    m_grid->GetPoint(pts[(i+1)%N_pts], x2.data());
+    m_grid->GetPoint(pts[(i+2)%N_pts], x3.data());
+    cout<<"Testing cell "<<id_cell<<": x0="<<id_G<<" x2="<<pts[(i+1)%N_pts]<<" x3="<<pts[(i+2)%N_pts]<<endl;
+    vec3_t v2_old=x2-x0_old;
+    vec3_t v3_old=x3-x0_old;
+    
+    //top point
+    vec3_t S=v2_old.cross(v3_old);
+    double V_old=tetraVol(x0_old, S, x2, x3, true);
+    double V_new=tetraVol(x0_new, S, x2, x3, true);
+    double prod=V_old*V_new;
+    if( prod<0 ) {
+      int save=GuiMainWindow::pointer()->QuickSave();
+      cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
+      cout<<"EPIC FAIL for id_G="<<id_G<<"!"<<endl;
+      return(true);
+    }
+  }
+  return(false);
 }
