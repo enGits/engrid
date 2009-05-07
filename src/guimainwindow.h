@@ -416,7 +416,7 @@ public slots:
   void QuickLoad(QString a_filename);
   
   /** Save the current grid as a_filename_a_operation */
-  void QuickSave();
+  int QuickSave();
   
   /** Load a_filename_a_operation */
   void QuickLoad(int a_operation);

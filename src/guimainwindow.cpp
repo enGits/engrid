@@ -907,7 +907,7 @@ void GuiMainWindow::DeselectAll()
   updateActors();
 }
 
-void GuiMainWindow::QuickSave()
+int GuiMainWindow::QuickSave()
 {
   current_operation++;
   QFileInfo fileinfo(current_filename);
@@ -918,6 +918,7 @@ void GuiMainWindow::QuickSave()
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
   if(current_operation>0) ui.actionUndo->setEnabled(true);
   ui.actionRedo->setEnabled(false);
+  return(current_operation);
 }
 
 void GuiMainWindow::QuickLoad(int a_operation)

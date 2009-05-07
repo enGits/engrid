@@ -203,7 +203,7 @@ double tetraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, bool neg)
   double V = v1*(v2.cross(v3));
   V /= 6.0;
   if (!neg && (V < 0)) {
-    vec3_t v4 = x2-x1;
+/*    vec3_t v4 = x2-x1;
     vec3_t v5 = x3-x1;
     vec3_t v6 = x3-x2;
     double Lmin = 1e99;
@@ -219,14 +219,15 @@ double tetraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, bool neg)
     Lmax = max(Lmax,v3.abs());
     Lmax = max(Lmax,v4.abs());
     Lmax = max(Lmax,v5.abs());
-    Lmax = max(Lmax,v6.abs());
-    if (Lmin/Lmax < 1e-6) {
+    Lmax = max(Lmax,v6.abs());*/
+/*    if (Lmin/Lmax < 1e-6) {
       V = 0;
       V = -1e99;
     } else {
       V = -1e99;
-    };
+    };*/
     //V *= 1e6;
+    V = -1e99;
   };
   return V; //fabs(V);
 };
