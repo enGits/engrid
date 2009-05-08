@@ -94,6 +94,7 @@ inline vec2_t turnLeft(const vec2_t &v)
   return u;
 };
 
+//polygon must be numbered clockwise
 inline bool IsConvex(vec3_t a,vec3_t b,vec3_t c,vec3_t d)
 {
   vec3_t u[4];
@@ -104,7 +105,7 @@ inline bool IsConvex(vec3_t a,vec3_t b,vec3_t c,vec3_t d)
   
   for(int i=0;i<4;i++) {
     vec3_t n=u[i].cross(u[(i+1)%4]);
-    if(n[2]<0) return(false);
+    if(n[2]>0) return(false);
   }
   return(true);
 };

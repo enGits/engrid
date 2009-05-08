@@ -24,6 +24,8 @@
 
 #include <vtkCellArray.h>
 
+using namespace GeometryTools;
+
 void SwapTriangles::prepare()
 {
   cout<<"void SwapTriangles::prepare()"<<endl;
@@ -69,73 +71,91 @@ void SwapTriangles::operate()
           bool swap = false;
           stencil_t S = getStencil(id_cell, j);
           if (S.valid) {
-            if (!marked[_cells[S.id_cell2]]) {
-              vec3_t x3[4], x3_0(0,0,0);
-              vec2_t x[4];
-              for (int k = 0; k < 4; ++k) {
-                grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
-                x3_0 += x3[k];
-              };
-              vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
-              vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
-              n1.normalise();
-              n2.normalise();
-              if ( (n1*n2) > 0.8) {
-                vec3_t n = n1 + n2;
-                n.normalise();
-                vec3_t ex = orthogonalVector(n);
-                vec3_t ey = ex.cross(n);
+            if(TestSwap(S)){
+            
+              if (!marked[_cells[S.id_cell2]]) {
+                vec3_t x3[4], x3_0(0,0,0);
+                vec2_t x[4];
                 for (int k = 0; k < 4; ++k) {
-                  x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
-                  if(S.id_cell1==136) cout<<"x["<<k<<"]="<<x[k]<<endl;
+                  grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
+                  x3_0 += x3[k];
+                  if(S.id_cell1==136) cout<<"x3["<<k<<"]="<<x3[k]<<endl;
                 };
+                vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
+                vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
                 
-                if(S.id_cell1==136) cout<<"IsConvex="<<IsConvex(x[0],x[1],x[2],x[3])<<endl;
-                if(IsConvex(x[0],x[1],x[2],x[3])){
+/*                vec3_t triNormal(vec3_t x0, vec3_t x1, vec3_t x2)
+                {
+                  vec3_t a = x1-x0;
+                  vec3_t b = x2-x0;
+                  vec3_t n = 0.5*(a.cross(b));
+                  return n;
+                };*/
+                
+                n1.normalise();
+                n2.normalise();
+                cout<<"n1*n2="<<n1*n2<<endl;
+                if ( (n1*n2) > 0.8) {
+                  cout<<"(n1*n2) > 0.8"<<endl;
+                  vec3_t n = n1 + n2;
+                  n.normalise();
+                  vec3_t ex = orthogonalVector(n);
+                  vec3_t ey = ex.cross(n);
+                  for (int k = 0; k < 4; ++k) {
+                    x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
+                    cout<<"x["<<k<<"]="<<x[k]<<endl;
+                  };
                   
-                  vec2_t r1, r2, r3, u1, u2, u3;
-                  r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
-                  r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
-                  r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
-                  double k, l;
-                  vec2_t xm1, xm2;
-                  bool ok = true;
-                  if (intersection(k, l, r1, u1, r3, u3)) {
-                    xm1 = r1 + k*u1;
-                    if (intersection(k, l, r2, u2, r3, u3)) {
-                      xm2 = r2 + k*u2;
+                  cout<<"S.id_cell1="<<S.id_cell1<<endl;
+                  cout<<"S.id_cell2="<<S.id_cell2<<endl;
+                  cout<<"IsConvex="<<IsConvex(x[0],x[1],x[2],x[3])<<endl;
+                  if(IsConvex(x[0],x[1],x[2],x[3])){
+                    
+                    vec2_t r1, r2, r3, u1, u2, u3;
+                    r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
+                    r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
+                    r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
+                    double k, l;
+                    vec2_t xm1, xm2;
+                    bool ok = true;
+                    if (intersection(k, l, r1, u1, r3, u3)) {
+                      xm1 = r1 + k*u1;
+                      if (intersection(k, l, r2, u2, r3, u3)) {
+                        xm2 = r2 + k*u2;
+                      } else {
+                        ok = false;
+                      };
                     } else {
+                      //flat triangle case
                       ok = false;
-                    };
-                  } else {
-                    //flat triangle case
-                    ok = false;
-                    if(S.id_cell1==136) {cout<<"A"<<endl;}
-                    swap = true;
-                  };
-                  if (ok) {
-                    if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
-                      if(S.id_cell1==136) {
-                        cout<<"B"<<endl;
-                        cout<<"(xm1 - x[2]).abs()="<<(xm1 - x[2]).abs()<<endl;
-                        cout<<"(xm1 - x[0]).abs()="<<(xm1 - x[0]).abs()<<endl;
-                      }
+                      if(S.id_cell1==136) {cout<<"A"<<endl;}
                       swap = true;
                     };
-                    if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
-                      if(S.id_cell1==136) {
-                        cout<<"C"<<endl;
-                        cout<<"(xm2 - x[0]).abs()="<<(xm2 - x[0]).abs()<<endl;
-                        cout<<"(xm2 - x[2]).abs()="<<(xm2 - x[2]).abs()<<endl;
-                      }
-                      swap = true;
+                    if (ok) {
+                      if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
+                        if(S.id_cell1==136) {
+                          cout<<"B"<<endl;
+                          cout<<"(xm1 - x[2]).abs()="<<(xm1 - x[2]).abs()<<endl;
+                          cout<<"(xm1 - x[0]).abs()="<<(xm1 - x[0]).abs()<<endl;
+                        }
+                        swap = true;
+                      };
+                      if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
+                        if(S.id_cell1==136) {
+                          cout<<"C"<<endl;
+                          cout<<"(xm2 - x[0]).abs()="<<(xm2 - x[0]).abs()<<endl;
+                          cout<<"(xm2 - x[2]).abs()="<<(xm2 - x[2]).abs()<<endl;
+                        }
+                        swap = true;
+                      };
                     };
-                  };
-                  
-                }//end of if(IsConvex)
-              };//end of if ( (n1*n2) > 0.8)
-            };
-          };
+                    
+                  }//end of if(IsConvex)
+                };//end of if ( (n1*n2) > 0.8)
+              };//end of if (!marked[_cells[S.id_cell2]])
+            }//end of testswap
+          };//end of if if (S.valid)
+          
           if (swap) {
             marked[_cells[S.id_cell1]] = true;
             marked[_cells[S.id_cell2]] = true;
@@ -183,3 +203,15 @@ void SwapTriangles::operate()
   cout << N_total << " triangles have been swapped" << endl;
 };
 
+bool SwapTriangles::TestSwap(stencil_t S)
+{
+  //old triangles
+  vec3_t n1_old=triNormal(grid,S.p[0],S.p[1],S.p[3]);
+  vec3_t n2_old=triNormal(grid,S.p[2],S.p[3],S.p[1]);
+  
+  //new triangles
+  vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
+  vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
+  
+  return(n1_new*n1_old>0 && n1_new*n2_old>0 && n2_new*n1_old>0 && n2_new*n2_old>0);
+}
