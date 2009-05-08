@@ -24,6 +24,7 @@
 #include "setboundarycode.h"
 #include "guimainwindow.h"
 
+//TODO: Change the checkboxes to a dropdown list or radiobuttons since the options are mutually exclusive anyway
 void GuiSetBoundaryCode::before()
 {
   //read settings
@@ -32,6 +33,8 @@ void GuiSetBoundaryCode::before()
   ui.spinBoxBoundaryCode->setValue(local_qset.value("BoundaryCode", 1).toInt());
   ui.checkBox_SelectAllVisible->setCheckState(int2CheckState(local_qset.value("SelectAllVisible", 0).toInt()));
   ui.checkBox_ProcessAll->setCheckState(int2CheckState(local_qset.value("ProcessAll", 0).toInt()));
+  ui.checkBox_OnlyPickedCell->setCheckState(int2CheckState(local_qset.value("OnlyPickedCell", 0).toInt()));
+  ui.checkBox_OnlyPickedCellAndNeighbours->setCheckState(int2CheckState(local_qset.value("OnlyPickedCellAndNeighbours", 0).toInt()));
 }
 
 void GuiSetBoundaryCode::operate()
@@ -42,13 +45,19 @@ void GuiSetBoundaryCode::operate()
   local_qset.setValue("BoundaryCode", ui.spinBoxBoundaryCode->value());
   local_qset.setValue("SelectAllVisible", ui.checkBox_SelectAllVisible->checkState());
   local_qset.setValue("ProcessAll", ui.checkBox_ProcessAll->checkState());
+  local_qset.setValue("OnlyPickedCell", ui.checkBox_OnlyPickedCell->checkState());
+  local_qset.setValue("OnlyPickedCellAndNeighbours", ui.checkBox_OnlyPickedCellAndNeighbours->checkState());
   
   SetBoundaryCode set_bc;
   if (GuiMainWindow::getPickedCell() >= 0) {
+    
     set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
     set_bc.setBC(ui.spinBoxBoundaryCode->value());
     set_bc.setProcessAll(ui.checkBox_ProcessAll->checkState());
     set_bc.setSelectAllVisible(ui.checkBox_SelectAllVisible->checkState());
+    set_bc.setOnlyPickedCell(ui.checkBox_OnlyPickedCell->checkState());
+    set_bc.setOnlyPickedCellAndNeighbours(ui.checkBox_OnlyPickedCellAndNeighbours->checkState());
+    
     set_bc.setStart(GuiMainWindow::getPickedCell());
     set_bc();
   };

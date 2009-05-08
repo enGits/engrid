@@ -63,6 +63,7 @@ void SwapTriangles::operate()
       marked[i_cells] = false;
     };
     foreach (vtkIdType id_cell, cells) {
+      cout<<"===>id_cell="<<id_cell<<" loop="<<loop<<endl;
       if (!marked[_cells[id_cell]]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
@@ -144,6 +145,15 @@ void SwapTriangles::operate()
             grid->ReplaceCell(S.id_cell2, 3, new_pts2);
             ++N_swaps;
             ++N_total;
+            if(S.id_cell1==136) {
+              cout<<"swapping!!!!!!"<<endl;
+              cout<<"S.id_cell1="<<S.id_cell1<<endl;
+              cout<<"S.id_cell2="<<S.id_cell2<<endl;
+//               cout<<"id_cell1="<<id_cell1<<endl;
+              cout<<"marked[_cells[S.id_cell1]]="<<marked[_cells[S.id_cell1]]<<endl;
+              cout<<"marked[_cells[S.id_cell2]]="<<marked[_cells[S.id_cell2]]<<endl;
+//               cout<<"marked[_cells[id_cell1]]="<<marked[_cells[id_cell1]]<<endl;
+            }
             break;
           };
         };

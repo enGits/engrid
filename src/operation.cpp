@@ -203,6 +203,17 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   S.id_cell1 = id_cell1;
   if (c2c[_cells[id_cell1]][j1] != -1) {
     S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
+    if(S.id_cell1==136)
+    {
+      cout<<"id_cell1="<<id_cell1<<endl;
+      cout<<"j1="<<j1<<endl;
+      cout<<"cells[c2c[_cells[id_cell1]][j1]]="<<cells[c2c[_cells[id_cell1]][j1]]<<endl;
+      cout<<"c2c[id_cell1][j1]="<<c2c[id_cell1][j1]<<endl;
+      cout<<"c2c[_cells[id_cell1]]="<<c2c[_cells[id_cell1]]<<endl;
+      cout<<"c2c[id_cell1]="<<c2c[id_cell1]<<endl;
+      cout<<"S.id_cell1="<<S.id_cell1<<endl;
+      cout<<"S.id_cell2="<<S.id_cell2<<endl;
+    }
     if (grid->GetCellType(S.id_cell2) != VTK_TRIANGLE) {
       EG_BUG;
     };
@@ -232,6 +243,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
       };
     };
     if (!p2) {
+      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
       EG_BUG;

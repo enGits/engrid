@@ -42,6 +42,7 @@ public: // methods
   
   CellNeighbourIterator();
   void setStart(vtkIdType s) { start = s; };
+  vtkIdType getStart() { return(start); };
   
 };
 
