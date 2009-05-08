@@ -94,6 +94,30 @@ inline vec2_t turnLeft(const vec2_t &v)
   return u;
 };
 
+inline bool IsConvex(vec3_t a,vec3_t b,vec3_t c,vec3_t d)
+{
+  vec3_t u[4];
+  u[0]=b-a;
+  u[1]=c-b;
+  u[2]=d-c;
+  u[3]=a-d;
+  
+  for(int i=0;i<4;i++) {
+    vec3_t n=u[i].cross(u[(i+1)%4]);
+    if(n[2]<0) return(false);
+  }
+  return(true);
+};
+
+inline bool IsConvex(vec2_t a_2D,vec2_t b_2D,vec2_t c_2D,vec2_t d_2D)
+{
+  vec3_t a_3D(a_2D[0],a_2D[1]);
+  vec3_t b_3D(b_2D[0],b_2D[1]);
+  vec3_t c_3D(c_2D[0],c_2D[1]);
+  vec3_t d_3D(d_2D[0],d_2D[1]);
+  return(IsConvex(a_3D,b_3D,c_3D,d_3D));
+};
+
 /** return the angle w.r.t. another 3-vector */
 double angle(const vec3_t & u, const vec3_t & v);
 
