@@ -72,10 +72,10 @@ void LaplaceSmoother::operate()
         }
         G=(1./n2n[id_G].size())*G;
         vec3_t P;
-//         cout<<"Searching for target "<<id_G<<"..."<<endl;
+        cout<<"Searching for target "<<id_G<<"..."<<endl;
         terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
 //         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
-//         cout<<"Target destroyed."<<endl;
+        cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
         while(FlippedCells(id_G,P))
@@ -119,7 +119,7 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
     vec3_t x2, x3;
     m_grid->GetPoint(pts[(i+1)%N_pts], x2.data());
     m_grid->GetPoint(pts[(i+2)%N_pts], x3.data());
-    cout<<"Testing cell "<<id_cell<<": x0="<<id_G<<" x2="<<pts[(i+1)%N_pts]<<" x3="<<pts[(i+2)%N_pts]<<endl;
+//     cout<<"Testing cell "<<id_cell<<": x0="<<id_G<<" x2="<<pts[(i+1)%N_pts]<<" x3="<<pts[(i+2)%N_pts]<<endl;
     vec3_t v2_old=x2-x0_old;
     vec3_t v3_old=x3-x0_old;
     

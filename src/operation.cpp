@@ -203,7 +203,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   S.id_cell1 = id_cell1;
   if (c2c[_cells[id_cell1]][j1] != -1) {
     S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
-    if(S.id_cell1==136)
+    if(S.id_cell1==138)
     {
       cout<<"id_cell1="<<id_cell1<<endl;
       cout<<"j1="<<j1<<endl;
