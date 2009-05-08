@@ -909,15 +909,19 @@ void GuiMainWindow::DeselectAll()
 
 void GuiMainWindow::QuickSave()
 {
-  current_operation++;
-  QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
-  last_operation=current_operation;
-  cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
-  QuickSave(l_filename);
-  setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-  if(current_operation>0) ui.actionUndo->setEnabled(true);
-  ui.actionRedo->setEnabled(false);
+  if(grid->GetNumberOfPoints()>0)
+  {
+    current_operation++;
+    QFileInfo fileinfo(current_filename);
+    QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
+    last_operation=current_operation;
+    cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
+    QuickSave(l_filename);
+    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+    if(current_operation>0) ui.actionUndo->setEnabled(true);
+    ui.actionRedo->setEnabled(false);
+  }
+  else cout<<"No grid to save!"<<endl;
 }
 
 void GuiMainWindow::QuickLoad(int a_operation)
@@ -1080,25 +1084,29 @@ void GuiMainWindow::saveAs()
 
 void GuiMainWindow::QuickSave(QString a_filename)
 {
-  QFileInfo fileinfo(a_filename);
-  cout<<"a_filename="<<a_filename.toLatin1().data()<<endl;
-  cout<<"fileinfo.suffix()="<<fileinfo.suffix().toLatin1().data()<<endl;
-  if(fileinfo.suffix()!="vtu") a_filename=a_filename + ".vtu";
-  
-  cout << "Saving as " << a_filename.toAscii().data() << endl;
-  
-  EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
-  for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
-    cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
-  };
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  addVtkTypeInfo();
-  createIndices(grid);
-  vtu->SetFileName(a_filename.toAscii().data());
-  vtu->SetDataModeToBinary();
-  vtu->SetInput(grid);
-  vtu->Write();
-  saveBC(a_filename);
+  if(grid->GetNumberOfPoints()>0)
+  {
+    QFileInfo fileinfo(a_filename);
+    cout<<"a_filename="<<a_filename.toLatin1().data()<<endl;
+    cout<<"fileinfo.suffix()="<<fileinfo.suffix().toLatin1().data()<<endl;
+    if(fileinfo.suffix()!="vtu") a_filename=a_filename + ".vtu";
+    
+    cout << "Saving as " << a_filename.toAscii().data() << endl;
+    
+    EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
+    for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
+      cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
+    };
+    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+    addVtkTypeInfo();
+    createIndices(grid);
+    vtu->SetFileName(a_filename.toAscii().data());
+    vtu->SetDataModeToBinary();
+    vtu->SetInput(grid);
+    vtu->Write();
+    saveBC(a_filename);
+  }
+  else cout<<"No grid to save!"<<endl;
 };
 
 void GuiMainWindow::QuickLoad(QString a_filename)
