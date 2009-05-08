@@ -260,9 +260,9 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>-232</y>
+          <y>0</y>
           <width>262</width>
-          <height>1159</height>
+          <height>1122</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -567,7 +567,7 @@
             <item row="4" column="1" >
              <widget class="QDoubleSpinBox" name="doubleSpinBox_PickerRadius" />
             </item>
-            <item row="7" column="0" colspan="2" >
+            <item row="6" column="0" colspan="2" >
              <widget class="QPushButton" name="pushButton_ZoomOnPickedObject" >
               <property name="text" >
                <string>Zoom on picked object</string>
@@ -581,17 +581,10 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2" >
-             <widget class="QPushButton" name="pushButton_DeselectAll" >
-              <property name="text" >
-               <string>Deselect all</string>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="0" colspan="2" >
-             <widget class="QCheckBox" name="checkBox_foobar" >
+             <widget class="QCheckBox" name="checkBox_ShowPickSphere" >
               <property name="text" >
-               <string>foobar</string>
+               <string>Show picksphere</string>
               </property>
               <property name="checked" >
                <bool>true</bool>
@@ -1380,23 +1373,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_DeselectAll</sender>
-   <signal>clicked()</signal>
-   <receiver>actionDeselectAll</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>1178</x>
-     <y>554</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_foobar</sender>
+   <sender>checkBox_ShowPickSphere</sender>
    <signal>clicked()</signal>
    <receiver>actionRedraw</receiver>
    <slot>trigger()</slot>
