@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons" >
+    <file>resources/kde_icons/undo.png</file>
+    <file>resources/kde_icons/redo.png</file>
     <file>resources/icons/cgns_color.gif</file>
     <file>resources/icons/of.png</file>
     <file>resources/icons/viewxminus.png</file>
