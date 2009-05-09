@@ -575,24 +575,19 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-      if(ui.checkBox_foobar->checkState())
+      if(ui.checkBox_ShowPickSphere->checkState())
       {
         if(m_UseVTKInteractor)
         {
-          cout<<"NOOOOOOOOOOOOOOOO"<<endl;
           
           if(ui.radioButton_CellPicker->isChecked())
           {
-    //         CellPicker->Pick(0,0,0, getRenderer());
-            cout<<"NOOOOOOOOOOOOOOOO"<<endl;
             getInteractor()->SetPicker(CellPicker);
-    //         CellPicker->Pick(0,0,0, getRenderer());
             vtkIdType cellId = getPickedCell();
             pickCell(cellId);
           }
           else
           {
-            cout<<"NOOOOOOOOOOOOOOOO"<<endl;
             getInteractor()->SetPicker(PointPicker);
             vtkIdType nodeId = getPickedPoint();
             pickPoint(nodeId);
@@ -604,13 +599,6 @@ void GuiMainWindow::updateActors()
           else pickPoint(PickedPoint);
         }
       }
-/*        getInteractor()->SetPicker(CellPicker);
-        vtkIdType cellId = getPickedCell();
-        pickCell(cellId);
-        getInteractor()->SetPicker(PointPicker);
-        vtkIdType nodeId = getPickedPoint();
-        pickPoint(nodeId);*/
-        
     };
     
     vec3_t x, n;
@@ -752,7 +740,6 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 {
   cout<<"pickPoint called with =nodeId"<<nodeId<<endl;
   if (nodeId >= 0 && nodeId<grid->GetNumberOfPoints()) {
-    cout<<"MIERDA"<<endl;
     vec3_t x(0,0,0);
     grid->GetPoints()->GetPoint(nodeId, x.data());
     pick_sphere->SetCenter(x.data());
@@ -780,7 +767,6 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
 {
   cout<<"pickCell called with cellId="<<cellId<<endl;
   if (cellId >= 0 && cellId<grid->GetNumberOfCells()) {
-    cout<<"MIERDA"<<endl;
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
     vec3_t x(0,0,0);
