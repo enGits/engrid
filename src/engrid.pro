@@ -7,10 +7,10 @@ target.path = /usr/bin
 
 # target.path = $$PREFIX/bin
 INSTALLS += target
-#CONFIG += qt release thread
-CONFIG += qt debug thread
-#DEFINES += QT_NO_DEBUG
-DEFINES += QT_DEBUG
+CONFIG += qt release thread
+#CONFIG += qt debug thread
+DEFINES += QT_NO_DEBUG
+#DEFINES += QT_DEBUG
 DEFINES += CGNS_SUPPORT
 LIBS    += -lcgns
 #QMAKE_CXXFLAGS += -pg
