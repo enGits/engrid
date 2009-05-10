@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1337</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -221,8 +221,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>300</width>
-     <height>132</height>
+     <width>318</width>
+     <height>141</height>
     </size>
    </property>
    <property name="floating">
@@ -261,8 +261,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>262</width>
-          <height>1122</height>
+          <width>285</width>
+          <height>1062</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -589,9 +589,9 @@
              </widget>
             </item>
             <item row="5" column="0" colspan="2">
-             <widget class="QCheckBox" name="checkBox_foobar">
+             <widget class="QCheckBox" name="checkBox_ShowPickSphere">
               <property name="text">
-               <string>foobar</string>
+               <string>show pick sphere</string>
               </property>
               <property name="checked">
                <bool>true</bool>
@@ -1404,7 +1404,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_foobar</sender>
+   <sender>checkBox_ShowPickSphere</sender>
    <signal>clicked()</signal>
    <receiver>actionRedraw</receiver>
    <slot>trigger()</slot>
