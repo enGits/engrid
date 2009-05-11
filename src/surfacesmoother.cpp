@@ -2,10 +2,11 @@
 
 #include <QString>
 #include <QTextStream>
+#include <QTime>
+
 #include <vtkCharArray.h>
 
 #include "smoothingutilities.h"
-
 #include "swaptriangles.h"
 #include "laplacesmoother.h"
 #include "guimainwindow.h"
@@ -20,6 +21,8 @@ SurfaceSmoother::SurfaceSmoother()
 
 int SurfaceSmoother::Process()
 {
+  QTime start = QTime::currentTime();
+  
   int i_iter=0;
   for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
   {
@@ -126,6 +129,9 @@ int SurfaceSmoother::Process()
   UpdateDesiredMeshDensity();
   UpdateMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
+  
   return 1;
 }
 //end of process

@@ -1862,6 +1862,9 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
+  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
+  cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
+  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;
   return(SnapPoint);
 }
 //End of FindSnapPoint
