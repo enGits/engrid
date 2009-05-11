@@ -92,7 +92,7 @@ Operation::~Operation()
 void Operation::del() 
 { 
   garbage_operations.insert(this); 
-};
+}
 
 void OperationThread::run()
 {
@@ -106,7 +106,7 @@ void OperationThread::run()
   };
   GuiMainWindow::unlock();
   GuiMainWindow::pointer()->setIdle();
-};
+}
 
 void Operation::operator()()
 {
@@ -121,11 +121,15 @@ void Operation::operator()()
     };
   } else {
     checkGrid();
-    operate();
+    try {
+      operate();
+    } catch (Error err) {
+      err.display();
+    }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
   };
-};
+}
 
 void Operation::setAllCells()
 {
