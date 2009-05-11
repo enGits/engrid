@@ -207,7 +207,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   S.id_cell1 = id_cell1;
   if (c2c[_cells[id_cell1]][j1] != -1) {
     S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
-    if(S.id_cell1==138)
+/*    if(S.id_cell1==138)
     {
       cout<<"id_cell1="<<id_cell1<<endl;
       cout<<"j1="<<j1<<endl;
@@ -217,7 +217,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
       cout<<"c2c[id_cell1]="<<c2c[id_cell1]<<endl;
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
-    }
+    }*/
     if (grid->GetCellType(S.id_cell2) != VTK_TRIANGLE) {
       EG_BUG;
     };
@@ -910,14 +910,14 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
 //   QVector <vtkIdType> Peons;
   
   QSet <int> S1=n2c[Boss];
-  cout<<"S1="<<S1<<endl;
+//   cout<<"S1="<<S1<<endl;
   foreach(vtkIdType PN,n2n[Boss])
   {
-    cout<<"PN="<<PN<<endl;
+//     cout<<"PN="<<PN<<endl;
     QSet <int> S2=n2c[PN];
-    cout<<"S2="<<S2<<endl;
+//     cout<<"S2="<<S2<<endl;
     QSet <int> Si=S2.intersect(S1);
-    cout<<"PN="<<PN<<" Si="<<Si<<endl;
+//     cout<<"PN="<<PN<<" Si="<<Si<<endl;
     if(Si.size()<2)//only one common cell
     {
       Peons.push_back(PN);
@@ -929,7 +929,7 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
       {
         EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
         int bc=cell_code->GetValue(C);
-        cout<<"C="<<C<<" bc="<<bc<<endl;
+//         cout<<"C="<<C<<" bc="<<bc<<endl;
         bc_set.insert(bc);
       }
       if(bc_set.size()>1)//2 different boundary codes
@@ -987,7 +987,7 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
 /*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
     EG_BUG;*/
   }
-  return(false);
+  return(false);//should never happen
 }
 
 int Operation::UpdateMeshDensity()

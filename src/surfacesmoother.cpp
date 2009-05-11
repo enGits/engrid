@@ -57,41 +57,43 @@ int SurfaceSmoother::Process()
     if(remove_FP) remove_FP_all();
     if(remove_EP) remove_EP_all();*/
     
+    bool DEBUG=false;
+    
     //Method 3
     if(insert_FP) {
       UpdateDesiredMeshDensity();
       insert_FP_all();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
       if(DoLaplaceSmoothing) SmoothFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
     
     if(insert_EP) {
       UpdateDesiredMeshDensity();
       insert_EP_all();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
       remove_FP_all_3();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-insert");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-insert");
       if(DoSwap) SwapFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-swap");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-laplace");
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-laplace");
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
@@ -99,7 +101,7 @@ int SurfaceSmoother::Process()
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
-    DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");
     
 /*    if(DoSwap) SwapFunction();
     if(DoLaplaceSmoothing) SmoothFunction();*/
@@ -442,7 +444,7 @@ int SurfaceSmoother::remove_EP_counter()
       QSet <vtkIdType> MutilatedCells;
       if( !marked && remove_edgepoint(node) && FindSnapPoint(m_grid,node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
-        cout<<"removing edge point "<<node<<endl;
+        if(DebugLevel>0) cout<<"removing edge point "<<node<<endl;
         N_removed_EP++;
         hitlist[node]=2;
         foreach(vtkIdType C,n2c[node]) marked_cells[C]=true;

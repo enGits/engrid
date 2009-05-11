@@ -29,9 +29,9 @@ using namespace GeometryTools;
 
 void SwapTriangles::prepare()
 {
-  cout<<"void SwapTriangles::prepare()"<<endl;
+/*  cout<<"void SwapTriangles::prepare()"<<endl;
   cout_grid(cout,grid);
-  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
+  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");*/
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
   QList<vtkIdType> ex_cells;
   EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
@@ -66,7 +66,7 @@ void SwapTriangles::operate()
       marked[i_cells] = false;
     };
     foreach (vtkIdType id_cell, cells) {
-      cout<<"===>id_cell="<<id_cell<<" loop="<<loop<<endl;
+//       cout<<"===>id_cell="<<id_cell<<" loop="<<loop<<endl;
       if (!marked[_cells[id_cell]]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
@@ -80,23 +80,23 @@ void SwapTriangles::operate()
                 for (int k = 0; k < 4; ++k) {
                   grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
                   x3_0 += x3[k];
-                  if(S.id_cell1==138) cout<<"x3["<<k<<"]="<<x3[k]<<endl;
+//                   if(S.id_cell1==138) cout<<"x3["<<k<<"]="<<x3[k]<<endl;
                 };
                 vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                 vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
                 
                 n1.normalise();
                 n2.normalise();
-                cout<<"n1*n2="<<n1*n2<<endl;
+//                 cout<<"n1*n2="<<n1*n2<<endl;
                 if ( (n1*n2) > 0.8) {
-                  cout<<"(n1*n2) > 0.8"<<endl;
+//                   cout<<"(n1*n2) > 0.8"<<endl;
                   vec3_t n = n1 + n2;
                   n.normalise();
                   vec3_t ex = orthogonalVector(n);
                   vec3_t ey = ex.cross(n);
                   for (int k = 0; k < 4; ++k) {
                     x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
-                    cout<<"x["<<k<<"]="<<x[k]<<endl;
+//                     cout<<"x["<<k<<"]="<<x[k]<<endl;
                   };
                   
 /*                  cout<<"S.id_cell1="<<S.id_cell1<<endl;
@@ -121,24 +121,24 @@ void SwapTriangles::operate()
                     } else {
                       //flat triangle case
                       ok = false;
-                      if(S.id_cell1==138) {cout<<"A"<<endl;}
+//                       if(S.id_cell1==138) {cout<<"A"<<endl;}
                       swap = true;
                     };
                     if (ok) {
                       if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
-                        if(S.id_cell1==138) {
+/*                        if(S.id_cell1==138) {
                           cout<<"B"<<endl;
                           cout<<"(xm1 - x[2]).abs()="<<(xm1 - x[2]).abs()<<endl;
                           cout<<"(xm1 - x[0]).abs()="<<(xm1 - x[0]).abs()<<endl;
-                        }
+                        }*/
                         swap = true;
                       };
                       if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
-                        if(S.id_cell1==138) {
+/*                        if(S.id_cell1==138) {
                           cout<<"C"<<endl;
                           cout<<"(xm2 - x[0]).abs()="<<(xm2 - x[0]).abs()<<endl;
                           cout<<"(xm2 - x[2]).abs()="<<(xm2 - x[2]).abs()<<endl;
-                        }
+                        }*/
                         swap = true;
                       };
                     };
@@ -177,14 +177,14 @@ void SwapTriangles::operate()
             grid->ReplaceCell(S.id_cell2, 3, new_pts2);
             ++N_swaps;
             ++N_total;
-            GuiMainWindow::pointer()->QuickSave();
-            if(S.id_cell1==138) {
+//             GuiMainWindow::pointer()->QuickSave();
+/*            if(S.id_cell1==138) {
               cout<<"swapping!!!!!!"<<endl;
               cout<<"S.id_cell1="<<S.id_cell1<<endl;
               cout<<"S.id_cell2="<<S.id_cell2<<endl;
               cout<<"marked[_cells[S.id_cell1]]="<<marked[_cells[S.id_cell1]]<<endl;
               cout<<"marked[_cells[S.id_cell2]]="<<marked[_cells[S.id_cell2]]<<endl;
-            }
+            }*/
             break;
           };
         };
@@ -222,7 +222,7 @@ bool SwapTriangles::TestSwap(stencil_t S)
   double V2_new=tetraVol(M[3], Summit, M[0], M[2], true);
 
   
-  if(S.id_cell1==138)
+/*  if(S.id_cell1==138)
   {
     cout<<"V1_old="<<V1_old<<endl;
     cout<<"V2_old="<<V2_old<<endl;
@@ -253,7 +253,7 @@ bool SwapTriangles::TestSwap(stencil_t S)
     cout<<"n2_new*n1_new="<<n2_new*n1_new<<endl;
     cout<<"n1_new*n2_new="<<n1_new*n2_new<<endl;
     cout<<"n2_new*n2_new="<<n2_new*n2_new<<endl;
-  }
+  }*/
 //   return(n1_new*n1_old>0 && n1_new*n2_old>0 && n2_new*n1_old>0 && n2_new*n2_old>0);
   return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
 }

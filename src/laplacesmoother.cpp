@@ -57,7 +57,7 @@ void LaplaceSmoother::operate()
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
 //     if(DebugLevel>10) 
-      cout<<"i_iter="<<i_iter<<endl;
+//       cout<<"i_iter="<<i_iter<<endl;
     
     foreach(vtkIdType id_G,SelectedNodes)
     {

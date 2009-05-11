@@ -176,6 +176,11 @@ public: // methods
   vec3_t GetCenter(vtkIdType cellId, double& R);
   
 //   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
+  /**
+   * Returns a QVector containing 2 neighbour points to which the point Boss can snap.
+   * This is used for removing boundary/feature edge vertices without destroying the geometry.
+   * Note BC parameter is currently unused.
+   */
   bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
     
   int UpdateMeshDensity();
