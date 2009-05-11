@@ -72,10 +72,10 @@ void LaplaceSmoother::operate()
         }
         G=(1./n2n[id_G].size())*G;
         vec3_t P;
-        cout<<"Searching for target "<<id_G<<"..."<<endl;
+        if(DebugLevel>0) cout<<"Searching for target "<<id_G<<"..."<<endl;
         terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
 //         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
-        cout<<"Target destroyed."<<endl;
+        if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
         while(FlippedCells(id_G,P))

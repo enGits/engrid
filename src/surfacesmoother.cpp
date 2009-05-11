@@ -34,7 +34,6 @@ int SurfaceSmoother::Process()
     
     EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
     
-    m_SelectedNodes.clear();
     getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
     getNodesFromCells(m_AllCells, nodes, m_grid);
     setGrid(m_grid);
@@ -140,7 +139,6 @@ int SurfaceSmoother::UpdateDesiredMeshDensity()
   
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   getNodesFromCells(m_AllCells, m_AllNodes, m_grid);
@@ -659,7 +657,6 @@ int SurfaceSmoother::insert_FP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -710,7 +707,6 @@ int SurfaceSmoother::insert_EP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -762,7 +758,6 @@ int SurfaceSmoother::remove_FP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -817,7 +812,6 @@ int SurfaceSmoother::remove_EP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -934,7 +928,6 @@ int SurfaceSmoother::remove_EP_all_2()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -1011,7 +1004,6 @@ int SurfaceSmoother::remove_FP_all_2()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -1088,7 +1080,6 @@ int SurfaceSmoother::remove_FP_all_3()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);
@@ -1143,7 +1134,6 @@ int SurfaceSmoother::remove_EP_all_3()
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  m_SelectedNodes.clear();
   getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
   getNodesFromCells(m_AllCells, nodes, m_grid);
   setGrid(m_grid);

@@ -99,9 +99,9 @@ void SwapTriangles::operate()
                     cout<<"x["<<k<<"]="<<x[k]<<endl;
                   };
                   
-                  cout<<"S.id_cell1="<<S.id_cell1<<endl;
+/*                  cout<<"S.id_cell1="<<S.id_cell1<<endl;
                   cout<<"S.id_cell2="<<S.id_cell2<<endl;
-                  cout<<"IsConvex="<<IsConvex(x[0],x[1],x[2],x[3])<<endl;
+                  cout<<"IsConvex="<<IsConvex(x[0],x[1],x[2],x[3])<<endl;*/
                   if(IsConvex(x[0],x[1],x[2],x[3])){
                     
                     vec2_t r1, r2, r3, u1, u2, u3;
