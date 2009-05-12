@@ -1965,3 +1965,132 @@ void Operation::DualSave(QString a_filename)
   TxtSave(a_filename+".txt");
   GuiMainWindow::pointer()->QuickSave(a_filename+".vtu");
 }
+
+//---------------------------------------------------
+//Utility functions used in Roland's formulas
+//Should be renamed to be more explicit
+//Some could be moved into geometrytools
+//Some are pretty useless
+
+///perimeter
+double Operation::Um(vtkIdType D) {
+  double ret=0;
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(D, N_pts, pts);
+  for(int i=0;i<N_pts;i++)
+  {
+    vec3_t A,B;
+    grid->GetPoints()->GetPoint(pts[i], A.data());
+    grid->GetPoints()->GetPoint(pts[(i+1)%N_pts], B.data());
+    ret+=(B-A).abs();
+  }
+  return(ret);
+}
+
+/// area of the circumscribed circle of the triangle
+double Operation::A_U(vtkIdType D) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(D, N_pts, pts);
+  vec3_t A,B,C;
+  grid->GetPoints()->GetPoint(pts[0], A.data());
+  grid->GetPoints()->GetPoint(pts[1], B.data());
+  grid->GetPoints()->GetPoint(pts[2], C.data());
+  double a=(C-B).abs();
+  double alpha=angle((B-A),(C-A));
+  double R=a/(2*sin(alpha));
+  return(M_PI*R*R);
+}
+
+/// triangle area
+double Operation::A_D(vtkIdType D) {
+  return(cellVA(grid,D));
+}
+
+/// triangle neighbours
+double Operation::DN(int i,vtkIdType D) {
+  return(c2c[D][i]);
+}
+
+/// number of edges
+double Operation::nk(vtkIdType P) {
+  return(n2n[P].size());
+}
+
+double Operation::G_k(vtkIdType node) {
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  return(1.0/node_meshdensity->GetValue(node));
+}
+
+/// triangle nodes
+double Operation::DK(int i,vtkIdType D) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(D, N_pts, pts);
+  return(pts[i]);
+}
+
+vtkIdType Operation::KK(int i,vtkIdType j,vtkIdType K) {//i=1 or 2, j=node2, K=node1
+  if(i==1) return(K);
+  else return(j);
+}
+
+double Operation::L_k(vtkIdType j,vtkIdType K)// node1 K, node2 j
+{
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(K, A.data());
+  grid->GetPoints()->GetPoint(j, B.data());
+  return((B-A).abs());
+}
+
+double Operation::Q_L(vtkIdType D)
+{
+      // Um(D)/sum(G_k(DK(i,D)),i,1,3)
+  double denom_sum=0;
+  for(int i=0;i<3;i++)
+  {
+    denom_sum += G_k(DK(i,D));
+  }
+      /*if(DebugLevel>0) cout<<"D="<<D<<" Um(D)="<<Um(D)<<" denom_sum="<<denom_sum<<endl;*/
+  return(Um(D)/denom_sum);
+}
+
+double Operation::Q_L1(vtkIdType P)
+{
+      // [2*sum(L_k(i~),i,1,nk(P))]/[sum(G_k(KK(1,i~))+G_k(KK(2,i~)),i,1,nk(P))]
+  double num_sum=0;
+  double denom_sum=0;
+  foreach(vtkIdType j,n2n[P])
+  {
+    num_sum += 2*L_k(j,P);
+    denom_sum += G_k(KK(1,j,P))+G_k(KK(2,j,P));
+  }
+  return(num_sum/denom_sum);
+}
+
+double Operation::Q_L2(vtkIdType P)
+{
+      // min([2*L_k(i~)]/[G_k(KK(1,i~))+G_k(KK(2,i~))])
+  QVector <double> V;
+  double num,denom;
+  foreach(vtkIdType j,n2n[P])
+  {
+    num = 2*L_k(j,P);
+    denom = G_k(KK(1,j,P))+G_k(KK(2,j,P));
+    V.push_back(num/denom);
+  }
+  qSort(V.begin(),V.end());
+  return(V[0]);
+}
+
+double Operation::T_min(int w)
+{
+      // sum([A_U(i)]/[A_D(i)^w]*[G_k(i)^(2*(w-1))],i,1,Nd)
+  int N_cells=grid->GetNumberOfCells();
+  double T=0;
+  for(int i=0;i<N_cells;i++)
+  {
+    T += A_U(i)/pow(A_D(i),w)*pow(G_k(i),2*(w-1));
+  }
+  return(T);
+}
+//---------------------------------------------------

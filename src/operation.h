@@ -204,6 +204,40 @@ public: // methods
   void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
   void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
   
+  //---------------------------------------------------
+//Utility functions used in Roland's formulas
+//Should be renamed to be more explicit
+//Some could be moved into geometrytools
+//Some are pretty useless
+  
+///perimeter
+  double Um(vtkIdType D);
+/// area of the circumscribed circle of the triangle
+  double A_U(vtkIdType D);
+/// triangle area
+  double A_D(vtkIdType D);
+/// triangle neighbours
+  double DN(int i,vtkIdType D);
+/// number of edges
+  double nk(vtkIdType P);
+  
+  double G_k(vtkIdType node);
+/// triangle nodes
+  double DK(int i,vtkIdType D);
+  
+  vtkIdType KK(int i,vtkIdType j,vtkIdType K);
+  
+  double L_k(vtkIdType j,vtkIdType K);// node1 K, node2 j
+  
+  double Q_L(vtkIdType D);
+  
+  double Q_L1(vtkIdType P);
+  
+  double Q_L2(vtkIdType P);
+  
+  double T_min(int w);
+//---------------------------------------------------
+  
 };
 //End of class Operation
 
