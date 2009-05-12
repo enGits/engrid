@@ -138,7 +138,7 @@ int SurfaceSmoother::Process()
 
 int SurfaceSmoother::UpdateDesiredMeshDensity()
 {
-    //Phase B : define desired mesh density
+  //Phase B : define desired mesh density
   cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
   
   getAllSurfaceCells(m_AllCells,m_grid);
