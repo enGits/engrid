@@ -267,7 +267,3 @@ guisetboundarycode.ui \
 guismoothsurface.ui \
 guitransform.ui \
 guipick.ui
-SOURCES -= createspecialmapping.cpp
-
-HEADERS -= createspecialmapping.h
-
