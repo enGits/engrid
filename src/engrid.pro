@@ -181,7 +181,9 @@ guisettingsviewer.h \
  guipick.h \
  egvtkinteractorstyle.h \
  surfacemesher.h \
- showinfo.h
+ showinfo.h \
+ insertpoints.h \
+ removepoints.h
 
 SOURCES = \
 main.cpp \
@@ -258,7 +260,9 @@ guisettingsviewer.cpp \
  guipick.cpp \
  egvtkinteractorstyle.cpp \
  surfacemesher.cpp \
- showinfo.cpp
+ showinfo.cpp \
+ insertpoints.cpp \
+ removepoints.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

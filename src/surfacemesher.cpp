@@ -19,7 +19,7 @@ SurfaceMesher::SurfaceMesher()
    DebugLevel=0;
 }
 
-int SurfaceMesher::Process()
+void SurfaceMesher::operate()
 {
   QTime start = QTime::currentTime();
   
@@ -132,7 +132,6 @@ int SurfaceMesher::Process()
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   
-  return 1;
 }
 //end of process
 

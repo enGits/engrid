@@ -1201,39 +1201,39 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
-    SurfaceMesher toto;
+    SurfaceMesher surfacemesher;
     
-    toto.SetInput(bcs,grid);
-    toto.SetVertexMeshDensityVector(VMDvector);
-    toto.SetConvergence (ui.doubleSpinBox_Convergence->value());
-    toto.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
-    toto.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
-    toto.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
-    toto.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-    toto.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-    toto.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-    toto.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    toto.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    surfacemesher.SetInput(bcs,grid);
+    surfacemesher.SetVertexMeshDensityVector(VMDvector);
+    surfacemesher.SetConvergence (ui.doubleSpinBox_Convergence->value());
+    surfacemesher.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
+    surfacemesher.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    surfacemesher.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
+    surfacemesher.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    surfacemesher.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    surfacemesher.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
+    surfacemesher.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    surfacemesher.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
-/*    toto.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
-    toto.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
-    toto.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
-    toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());*/
+/*    surfacemesher.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
+    surfacemesher.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
+    surfacemesher.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
+    surfacemesher.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());*/
     
-    toto.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
+    surfacemesher.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
-    toto.Set_insert_FP(ui.checkBox_insert_FP->checkState());
-    toto.Set_insert_EP(ui.checkBox_insert_EP->checkState());
-    toto.Set_remove_FP(ui.checkBox_remove_FP->checkState());
-    toto.Set_remove_EP(ui.checkBox_remove_EP->checkState());
-    toto.DoSwap=ui.checkBox_Swap->checkState();
-    toto.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
+    surfacemesher.Set_insert_FP(ui.checkBox_insert_FP->checkState());
+    surfacemesher.Set_insert_EP(ui.checkBox_insert_EP->checkState());
+    surfacemesher.Set_remove_FP(ui.checkBox_remove_FP->checkState());
+    surfacemesher.Set_remove_EP(ui.checkBox_remove_EP->checkState());
+    surfacemesher.DoSwap=ui.checkBox_Swap->checkState();
+    surfacemesher.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
     
-    toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
-    toto.maxiter_density=ui.spinBox_maxiter_density->value();
-    toto.setDebugLevel(ui.spinBox_DebugLevel->value());
+    surfacemesher.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
+    surfacemesher.maxiter_density=ui.spinBox_maxiter_density->value();
+    surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     
-    toto.Process();
+    surfacemesher();
     
     updateActors();
   }

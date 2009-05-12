@@ -18,8 +18,7 @@ using namespace std;
 class SurfaceMesher : public Operation {
   public:
     SurfaceMesher();
-    int Process();
-    void operate(){};
+    void operate();
   
     int N_SmoothIterations;
     int maxiter_density;
