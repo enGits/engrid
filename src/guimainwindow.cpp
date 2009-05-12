@@ -1663,12 +1663,15 @@ void GuiMainWindow::about()
   
   QString title="ENGRID";
   QString version = QString("version ") + ENGRID_VERSION;
-  if (version == "version CVS") {
-    version += " build on ";
-    version += QString(__DATE__);
-    version += " at ";
-    version += QString(__TIME__);
-  };
+  
+/*  if (version == "version CVS") {
+  };*/
+  
+  version += " built on ";
+  version += QString(__DATE__);
+  version += " at ";
+  version += QString(__TIME__);
+  
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
                        "Marie-Curie-Strasse 8<br/>"

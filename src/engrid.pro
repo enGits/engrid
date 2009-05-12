@@ -7,10 +7,18 @@ target.path = /usr/bin
 
 # target.path = $$PREFIX/bin
 INSTALLS += target
+
 #CONFIG += qt release thread
-CONFIG += qt debug thread
-#DEFINES += QT_NO_DEBUG
-DEFINES += QT_DEBUG
+#CONFIG += qt debug thread
+CONFIG += qt debug_and_release thread
+
+DEFINES += QT_NO_DEBUG
+#DEFINES += QT_DEBUG
+
+#QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
+#get "git revision number"
+QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
+
 DEFINES += CGNS_SUPPORT
 LIBS += -lcgns
 #QMAKE_CXXFLAGS += -pg
@@ -267,7 +275,3 @@ guisetboundarycode.ui \
 guismoothsurface.ui \
 guitransform.ui \
 guipick.ui
-SOURCES -= createspecialmapping.cpp
-
-HEADERS -= createspecialmapping.h
-

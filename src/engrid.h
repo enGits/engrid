@@ -39,7 +39,9 @@
 #include "geometrytools.h"
 #include "containertricks.h"
 
-#define ENGRID_VERSION "CVS"
+#ifndef ENGRID_VERSION
+#define ENGRID_VERSION "git"
+#endif
 
 #ifdef WIN32
 typedef vtkLongLongArray vtkLongArray_t;

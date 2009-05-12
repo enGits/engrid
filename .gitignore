@@ -28,3 +28,5 @@ callgrind*
 *.log
 *.toc
 core
+Makefile.Debug
+Makefile.Release
