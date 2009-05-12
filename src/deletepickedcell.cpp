@@ -37,6 +37,6 @@ void DeletePickedCell::operate()
 //   quad2triangle(grid,cellId,pts[3]);
   int N_newpoints;
   int N_newcells;
-  for(int i=0;i<N_pts;i++) DeletePoint_2(grid,pts[i], N_newpoints, N_newcells);
+  for(int i=0;i<N_pts;i++) DeletePoint(grid,pts[i], N_newpoints, N_newcells);
 //   quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint)
 };

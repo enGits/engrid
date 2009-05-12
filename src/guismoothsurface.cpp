@@ -1277,7 +1277,7 @@ void GuiSmoothSurface::operate()
         bool Local_DelResult=true;
         while(Local_DelResult)
         {
-          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
+          Local_DelResult=DeletePoint(grid,DeadNode,N_newpoints,N_newcells);
           if(Local_DelResult) Global_DelResult=true;
         }
         DeadNode++;

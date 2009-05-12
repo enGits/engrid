@@ -1601,7 +1601,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
 }
 //End of FindSnapPoint
 
-bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
+bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {
   getAllSurfaceCells(cells,src);
 //   getNodesFromCells(cells, nodes, src);
@@ -1760,7 +1760,7 @@ bool Operation::DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int&
   makeCopy(dst, src);
   return(true);
 }
-//End of DeletePoint_2
+//End of DeletePoint
 
 bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells)
 {
