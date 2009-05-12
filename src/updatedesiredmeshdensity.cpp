@@ -25,7 +25,7 @@ UpdateDesiredMeshDensity::~UpdateDesiredMeshDensity()
 
 void UpdateDesiredMeshDensity::operate()
 {
-  //Phase B : define desired mesh density
+  //define desired mesh density
   cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
   
   getAllSurfaceCells(m_AllCells,grid);
@@ -48,8 +48,8 @@ void UpdateDesiredMeshDensity::operate()
   EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   
-/*  //Phase A : Calculate current mesh density
-  cout<<"===Phase A==="<<endl;
+/*  //Calculate current mesh density
+  cout<<"=== Calculate current mesh density ==="<<endl;
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
