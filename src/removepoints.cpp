@@ -24,24 +24,8 @@ RemovePoints::~RemovePoints()
 
 void RemovePoints::operate()
 {
-/*  if(remove_FP) {
-    UpdateDesiredMeshDensity();
-    remove_FP_all();
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-insert");
-    if(DoSwap) SwapFunction();
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-swap");
-    if(DoLaplaceSmoothing) SmoothFunction();
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-laplace");
-  }
-  if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
-  
-  if(remove_EP) {
-    UpdateDesiredMeshDensity();
-    remove_EP_all();
-    if(DoSwap) SwapFunction();
-    if(DoLaplaceSmoothing) SmoothFunction();
-  }
-  if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");*/
+  if(remove_FP) remove_FP_all();
+  if(remove_EP) remove_EP_all();
 }
 
 bool RemovePoints::remove_fieldpoint(vtkIdType P)
