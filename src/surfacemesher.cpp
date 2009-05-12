@@ -80,7 +80,7 @@ void SurfaceMesher::operate()
     
     if(remove_FP) {
       UpdateDesiredMeshDensity();
-      remove_FP_all_3();
+      remove_FP_all();
       if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-insert");
       if(DoSwap) SwapFunction();
       if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-swap");
@@ -91,7 +91,7 @@ void SurfaceMesher::operate()
     
     if(remove_EP) {
       UpdateDesiredMeshDensity();
-      remove_EP_all_3();
+      remove_EP_all();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
     }
@@ -692,9 +692,9 @@ int SurfaceMesher::insert_EP_all()
 }
 
 //count all to remove, then remove them all at once
-int SurfaceMesher::remove_FP_all_3()
+int SurfaceMesher::remove_FP_all()
 {
-  cout<<"===remove_FP_all_3 START==="<<endl;
+  cout<<"===remove_FP_all START==="<<endl;
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -741,14 +741,14 @@ int SurfaceMesher::remove_FP_all_3()
   int contracts=DeadNodes.size();
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
-  cout<<"===remove_FP_all_3 END==="<<endl;
+  cout<<"===remove_FP_all END==="<<endl;
   return(0);
 }
 
 //count all to remove, then remove them all at once
-int SurfaceMesher::remove_EP_all_3()
+int SurfaceMesher::remove_EP_all()
 {
-  cout<<"===remove_EP_all_3 START==="<<endl;
+  cout<<"===remove_EP_all START==="<<endl;
   
   getAllSurfaceCells(m_AllCells,m_grid);
   getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
@@ -795,6 +795,6 @@ int SurfaceMesher::remove_EP_all_3()
   int contracts=DeadNodes.size();
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
-  cout<<"===remove_EP_all_3 END==="<<endl;
+  cout<<"===remove_EP_all END==="<<endl;
   return(0);
 }

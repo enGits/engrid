@@ -249,8 +249,8 @@ class SurfaceMesher : public Operation {
   
     int UpdateDesiredMeshDensity();
   
-    int remove_EP_all_3();
-    int remove_FP_all_3();
+    int remove_EP_all();
+    int remove_FP_all();
   
     int SwapFunction();
     int SmoothFunction();
