@@ -3,16 +3,29 @@
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
+#include <vtkCharArray.h>
+
 #include <QSet>
 #include <QVector>
+#include <QString>
+#include <QTextStream>
+#include <QTime>
+
 #include "egvtkobject.h"
 #include "operation.h"
 #include "vertexmeshdensity.h"
+#include "smoothingutilities.h"
+#include "swaptriangles.h"
+#include "laplacesmoother.h"
+#include "guimainwindow.h"
 
 #include "geometrytools.h"
 using namespace GeometryTools;
 
 #include <cmath>
+using namespace std;
+
+#include <iostream>
 using namespace std;
 
 class SurfaceMesher : public Operation {
@@ -55,9 +68,6 @@ class SurfaceMesher : public Operation {
     QVector <vtkIdType> m_SelectedNodes;
     QVector <vtkIdType> m_AllNodes;
   
-    QVector <int> hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
-    QVector <int> offset;//offset caused by terminated elements
-  
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     
     QMap <vtkIdType,bool> m_marked_cells;
@@ -83,26 +93,6 @@ class SurfaceMesher : public Operation {
     int SwapFunction();
     int SmoothFunction();
   
-    int remove_FP_counter();
-    int remove_EP_counter();
-    int remove_EP_all();
-    int remove_FP_all();
-    bool remove_fieldpoint(vtkIdType P)
-    {
-      double QL1max=0.8;
-      double QL2max=0.5;
-      bool result = Q_L1(P)<QL1max && Q_L2(P)<QL2max;
-      if(DebugLevel>0 && result)
-      {
-        cout<<"Q_L1(P)<QL1max="<< Q_L1(P)<< "<" << QL1max<<endl;
-        cout<<"Q_L2(P)<QL2max="<< Q_L2(P)<< "<" << QL2max<<endl;
-      }
-      return ( result );
-    }
-    bool remove_edgepoint(vtkIdType P)
-    {
-      return ( 0.5*G_k(P)<CurrentVertexAvgDist(P,n2n,m_grid) && CurrentVertexAvgDist(P,n2n,m_grid)<1*G_k(P) );
-    }
 };
 //end of SurfaceMesher class
 
