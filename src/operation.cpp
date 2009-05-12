@@ -608,6 +608,8 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   return(N);
 }
 
+//Remove or finish???
+//Function to check if empty volumes appear when moving DeadNode tp PSP
 bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
 {
   c2c[DeadNode];
