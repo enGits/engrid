@@ -168,8 +168,6 @@ public: // methods
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
-  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
 //   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
   bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
   
@@ -190,7 +188,8 @@ public: // methods
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
   bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
-    
+  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+  
   void TxtSave(QString a_filename);
   void DualSave(QString a_filename);
     
