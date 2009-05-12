@@ -77,6 +77,13 @@ private:
   bool remove_FP;
   bool remove_EP;
   
+  //for the UpdateDesiredMeshDensity operation
+public:
+  int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
+  void setMaxiterDensity(int a){MaxiterDensity=a;};
+  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
+  
 public:
   RemovePoints();
 

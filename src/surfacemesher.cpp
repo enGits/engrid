@@ -47,11 +47,15 @@ void SurfaceMesher::operate()
     InsertPoints insert_points;
     insert_points.Set_insert_FP(insert_FP);
     insert_points.Set_insert_EP(insert_EP);
+    insert_points.setMaxiterDensity(MaxiterDensity);
+    insert_points.SetVertexMeshDensityVector(VMDvector);
     insert_points();
     
     RemovePoints remove_points;
     remove_points.Set_remove_FP(remove_FP);
     remove_points.Set_remove_EP(remove_EP);
+    remove_points.setMaxiterDensity(MaxiterDensity);
+    remove_points.SetVertexMeshDensityVector(VMDvector);
     remove_points();
     
     if(DoSwap) SwapFunction();
