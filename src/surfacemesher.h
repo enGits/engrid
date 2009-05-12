@@ -59,11 +59,6 @@ class SurfaceMesher : public Operation {
     QVector <int> hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
     QVector <int> offset;//offset caused by terminated elements
   
-/*    double SV_value;
-    double FV_value;
-    double FEV_value;
-    double BEV_value;*/
-    
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     
     QMap <vtkIdType,bool> marked_cells;
@@ -76,12 +71,6 @@ class SurfaceMesher : public Operation {
     };
   
     void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
-    
-/*    void Set_SV_value(double V){SV_value=V;};
-    void Set_FV_value(double V){FV_value=V;};
-    void Set_FEV_value(double V){FEV_value=V;};
-    void Set_BEV_value(double V){BEV_value=V;};*/
-  
     void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
     void Set_insert_FP(bool B){insert_FP=B;};
     void Set_insert_EP(bool B){insert_EP=B;};
@@ -254,19 +243,11 @@ class SurfaceMesher : public Operation {
     
     int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
     int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
-    int remove_FP_actor(vtkUnstructuredGrid* grid_tmp);
-    int remove_EP_actor(vtkUnstructuredGrid* grid_tmp);
 
     int insert_FP_all();
     int insert_EP_all();
-    int remove_FP_all();
-    int remove_EP_all();
   
-    int FullEdit();
     int UpdateDesiredMeshDensity();
-//     int UpdateNodeType_all();
-//     bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-//     vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells);
   
     int remove_EP_all_2();
     int remove_FP_all_2();
@@ -279,10 +260,5 @@ class SurfaceMesher : public Operation {
   
 };
 //end of SurfaceMesher class
-
-// #define VTK_SIMPLE_VERTEX 0
-// #define VTK_FIXED_VERTEX 1
-// #define VTK_FEATURE_EDGE_VERTEX 2
-// #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 #endif
