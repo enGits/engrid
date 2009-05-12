@@ -74,8 +74,6 @@ void SurfaceMesher::operate()
     }
     if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
     
-    
-    
     RemovePoints remove_points;
     remove_points.Set_remove_FP(remove_FP);
     remove_points.Set_remove_EP(remove_EP);

@@ -23,6 +23,8 @@ InsertPoints::~InsertPoints()
 
 void InsertPoints::operate()
 {
+  if(insert_FP) insert_FP_all();
+  if(insert_EP) insert_EP_all();
 }
 
 bool InsertPoints::insert_fieldpoint(vtkIdType D)
