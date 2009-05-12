@@ -97,8 +97,8 @@ void SurfaceMesher::operate()
     }
     if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");
     
-/*    if(DoSwap) SwapFunction();
-    if(DoLaplaceSmoothing) SmoothFunction();*/
+    if(DoSwap) SwapFunction();
+    if(DoLaplaceSmoothing) SmoothFunction();
     
     cout<<"===Summary==="<<endl;
     cout<<"N_inserted_FP="<<N_inserted_FP<<endl;
