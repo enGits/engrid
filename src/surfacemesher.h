@@ -34,9 +34,7 @@ class SurfaceMesher : public Operation {
     void operate();
   
     int N_SmoothIterations;
-    int maxiter_density;
-
-    double Convergence_meshdensity;
+    int maxiter_density;//used for UpdateDesiredMeshDensity operation
   
     bool insert_FP;
     bool insert_EP;
@@ -58,20 +56,16 @@ class SurfaceMesher : public Operation {
     int m_total_N_newpoints;
     int m_total_N_newcells;
   
-    QSet<int> m_bcs;
-    QVector<vtkIdType> m_AllCells;
-    QVector<vtkIdType> m_SelectedCells;
     vtkUnstructuredGrid* m_grid;
     
-//     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
-//     QVector <stencil_t> m_StencilVector;
+    QSet<int> m_bcs;
     QVector <vtkIdType> m_SelectedNodes;
     QVector <vtkIdType> m_AllNodes;
+    QVector<vtkIdType> m_SelectedCells;
+    QVector<vtkIdType> m_AllCells;
   
-    QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-    
-    QMap <vtkIdType,bool> m_marked_cells;
-    QMap <vtkIdType,bool> m_marked_nodes;
+//     QMap <vtkIdType,bool> m_marked_cells;
+//     QMap <vtkIdType,bool> m_marked_nodes;
   
     void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
     {
@@ -79,15 +73,18 @@ class SurfaceMesher : public Operation {
       m_grid=a_grid;
     };
   
+    //Used for UpdateDesiredMeshDensity operation
+    QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
+  
+    double Convergence_meshdensity;
     void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
+  
     void Set_insert_FP(bool B){insert_FP=B;};
     void Set_insert_EP(bool B){insert_EP=B;};
     void Set_remove_FP(bool B){remove_FP=B;};
     void Set_remove_EP(bool B){remove_EP=B;};
   
-  public:
-    int UpdateDesiredMeshDensity();
     int SwapFunction();
     int SmoothFunction();
   

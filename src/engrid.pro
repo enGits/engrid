@@ -183,7 +183,8 @@ guisettingsviewer.h \
  surfacemesher.h \
  showinfo.h \
  insertpoints.h \
- removepoints.h
+ removepoints.h \
+ updatedesiredmeshdensity.h
 
 SOURCES = \
 main.cpp \
@@ -262,7 +263,8 @@ guisettingsviewer.cpp \
  surfacemesher.cpp \
  showinfo.cpp \
  insertpoints.cpp \
- removepoints.cpp
+ removepoints.cpp \
+ updatedesiredmeshdensity.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

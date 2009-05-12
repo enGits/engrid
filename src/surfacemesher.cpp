@@ -73,7 +73,7 @@ void SurfaceMesher::operate()
   }
   
   cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
-  UpdateDesiredMeshDensity();
+//   UpdateDesiredMeshDensity();
   UpdateMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
   
@@ -115,105 +115,5 @@ int SurfaceMesher::SmoothFunction()
   Lap.SetNumberOfIterations(N_SmoothIterations);
   Lap();
   cout<<"=== SmoothFunction END ==="<<endl;
-  return(0);
-}
-
-int SurfaceMesher::UpdateDesiredMeshDensity()
-{
-  //Phase B : define desired mesh density
-  cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
-  
-  getAllSurfaceCells(m_AllCells,m_grid);
-  getSurfaceCells(m_bcs, m_SelectedCells, m_grid);
-  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-  
-  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  
-  getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
-  getNodesFromCells(m_AllCells, nodes, m_grid);
-  getNodesFromCells(m_AllCells, m_AllNodes, m_grid);
-  
-  setGrid(m_grid);
-  setCells(m_AllCells);
-  
-  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-  
-  UpdateNodeType_all();
-  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, m_grid, "node_meshdensity");
-  EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");
-  
-/*  //Phase A : Calculate current mesh density
-  cout<<"===Phase A==="<<endl;
-  
-  foreach(vtkIdType node,m_SelectedNodes)
-  {
-    VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
-    int idx=VMDvector.indexOf(nodeVMD);
-    if(DebugLevel>3) cout<<"idx="<<idx<<endl;
-    if(idx!=-1)//specified
-    {
-      node_meshdensity->SetValue(node, VMDvector[idx].density);
-    }
-    else//unspecified
-    {
-      double L=CurrentVertexAvgDist(node,n2n,m_grid);
-      double D=1./L;
-      node_meshdensity->SetValue(node, D);
-    }
-  }*/
-  
-  double diff=Convergence_meshdensity+1;
-  if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
-  bool first=true;
-  int iter=0;
-  do {
-    if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
-    first=true;
-    foreach(vtkIdType node,m_AllNodes)
-    {
-      if(DebugLevel>2) cout<<"======>"<<endl;
-      VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
-      int idx=VMDvector.indexOf(nodeVMD);
-      node_specified_density->SetValue(node, idx);
-      if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
-      if(idx!=-1)//specified
-      {
-        node_meshdensity->SetValue(node, VMDvector[idx].density);
-      }
-      else//unspecified
-      {
-        double D=DesiredMeshDensity(node,n2n,m_grid);
-        if(first) {
-          if(DebugLevel>2) {
-            cout<<"------>FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-          }
-          diff=abs(D-node_meshdensity->GetValue(node));
-          first=false;
-        }
-        else {
-          if(DebugLevel>2) {
-            cout<<"------>NOT FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-            cout<<"------>diff="<<diff<<endl;
-            cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
-          }
-          diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
-        }
-        node_meshdensity->SetValue(node, D);
-      }
-      if(DebugLevel>2) cout<<"======>"<<endl;
-    }
-    iter++;
-  } while(diff>Convergence_meshdensity && !first && iter<maxiter_density);// if first=true, it means no new mesh density has been defined (all densities specified)
-  cout<<"iter="<<iter<<endl;
-  if(iter>=maxiter_density) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
   return(0);
 }
