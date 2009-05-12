@@ -1,4 +1,4 @@
-#include "surfacesmoother.h"
+#include "surfacemesher.h"
 
 #include <QString>
 #include <QTextStream>
@@ -14,12 +14,12 @@
 #include <iostream>
 using namespace std;
 
-SurfaceSmoother::SurfaceSmoother()
+SurfaceMesher::SurfaceMesher()
 {
    DebugLevel=0;
 }
 
-int SurfaceSmoother::Process()
+int SurfaceMesher::Process()
 {
   QTime start = QTime::currentTime();
   
@@ -136,7 +136,7 @@ int SurfaceSmoother::Process()
 }
 //end of process
 
-int SurfaceSmoother::UpdateDesiredMeshDensity()
+int SurfaceMesher::UpdateDesiredMeshDensity()
 {
   //Phase B : define desired mesh density
   cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
@@ -236,7 +236,7 @@ int SurfaceSmoother::UpdateDesiredMeshDensity()
   return(0);
 }
 
-int SurfaceSmoother::SwapFunction()
+int SurfaceMesher::SwapFunction()
 {
   //Phase E : Delaunay swap
   QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
@@ -253,7 +253,7 @@ int SurfaceSmoother::SwapFunction()
   return(0);
 }
 
-int SurfaceSmoother::SmoothFunction()
+int SurfaceMesher::SmoothFunction()
 {
   cout<<"=== SmoothFunction START ==="<<endl;
   //Phase F : translate points to smooth grid
@@ -272,7 +272,7 @@ int SurfaceSmoother::SmoothFunction()
   return(0);
 }
 
-VertexMeshDensity SurfaceSmoother::getVMD(vtkIdType node, char VertexType)
+VertexMeshDensity SurfaceMesher::getVMD(vtkIdType node, char VertexType)
 {
   VertexMeshDensity VMD;
   VMD.type=VertexType;
@@ -294,7 +294,7 @@ VertexMeshDensity SurfaceSmoother::getVMD(vtkIdType node, char VertexType)
   return(VMD);
 }
 
-int SurfaceSmoother::insert_FP_counter()
+int SurfaceMesher::insert_FP_counter()
 {
   cout<<"===insert_FP_counter() START==="<<endl;
   foreach(vtkIdType id_cell, m_SelectedCells)
@@ -312,7 +312,7 @@ int SurfaceSmoother::insert_FP_counter()
   return(0);
 }
 
-int SurfaceSmoother::insert_EP_counter()
+int SurfaceMesher::insert_EP_counter()
 {
   cout<<"===insert_EP_counter() START==="<<endl;
   
@@ -391,7 +391,7 @@ int SurfaceSmoother::insert_EP_counter()
   return(0);
 }
 
-int SurfaceSmoother::remove_FP_counter()
+int SurfaceMesher::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
   cout<<"marked_cells="<<marked_cells<<endl;
@@ -431,7 +431,7 @@ int SurfaceSmoother::remove_FP_counter()
   return(0);
 }
 
-int SurfaceSmoother::remove_EP_counter()
+int SurfaceMesher::remove_EP_counter()
 {
   cout<<"===remove_EP_counter() START==="<<endl;
   UpdateNodeType_all();
@@ -471,7 +471,7 @@ int SurfaceSmoother::remove_EP_counter()
   return(0);
 }
 
-int SurfaceSmoother::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceMesher::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_FP_actor START==="<<endl;
   
@@ -528,7 +528,7 @@ int SurfaceSmoother::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int SurfaceSmoother::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceMesher::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_EP_actor START==="<<endl;
   
@@ -600,7 +600,7 @@ int SurfaceSmoother::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int SurfaceSmoother::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceMesher::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_FP_actor START==="<<endl;
   abort();
@@ -627,7 +627,7 @@ int SurfaceSmoother::remove_FP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int SurfaceSmoother::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
+int SurfaceMesher::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===remove_EP_actor START==="<<endl;
   abort();
@@ -657,7 +657,7 @@ int SurfaceSmoother::remove_EP_actor(vtkUnstructuredGrid* grid_tmp)
   return(0);
 }
 
-int SurfaceSmoother::insert_FP_all()
+int SurfaceMesher::insert_FP_all()
 {
   cout<<"===insert_FP_all START==="<<endl;
   
@@ -707,7 +707,7 @@ int SurfaceSmoother::insert_FP_all()
   return(0);
 }
 
-int SurfaceSmoother::insert_EP_all()
+int SurfaceMesher::insert_EP_all()
 {
   cout<<"===insert_EP_all START==="<<endl;
   
@@ -758,7 +758,7 @@ int SurfaceSmoother::insert_EP_all()
   return(0);
 }
 
-int SurfaceSmoother::remove_FP_all()
+int SurfaceMesher::remove_FP_all()
 {
   cout<<"===remove_FP_all START==="<<endl;
   
@@ -812,7 +812,7 @@ int SurfaceSmoother::remove_FP_all()
   return(0);
 }
 
-int SurfaceSmoother::remove_EP_all()
+int SurfaceMesher::remove_EP_all()
 {
   cout<<"===remove_EP_all START==="<<endl;
   
@@ -866,7 +866,7 @@ int SurfaceSmoother::remove_EP_all()
   return(0);
 }
 
-int SurfaceSmoother::FullEdit()
+int SurfaceMesher::FullEdit()
 {
   cout<<"===FullEdit START==="<<endl;
   
@@ -929,7 +929,7 @@ int SurfaceSmoother::FullEdit()
   return(0);
 }
 
-int SurfaceSmoother::remove_EP_all_2()
+int SurfaceMesher::remove_EP_all_2()
 {
   cout<<"===remove_EP_all_2 START==="<<endl;
   getAllSurfaceCells(m_AllCells,m_grid);
@@ -1001,7 +1001,7 @@ int SurfaceSmoother::remove_EP_all_2()
 
 
 //count all to remove, then remove them one by one
-int SurfaceSmoother::remove_FP_all_2()
+int SurfaceMesher::remove_FP_all_2()
 {
   cout<<"===remove_FP_all_2 START==="<<endl;
 /*  cout<<"+++++++"<<endl;
@@ -1080,7 +1080,7 @@ int SurfaceSmoother::remove_FP_all_2()
 }
 
 //count all to remove, then remove them all at once
-int SurfaceSmoother::remove_FP_all_3()
+int SurfaceMesher::remove_FP_all_3()
 {
   cout<<"===remove_FP_all_3 START==="<<endl;
   
@@ -1134,7 +1134,7 @@ int SurfaceSmoother::remove_FP_all_3()
 }
 
 //count all to remove, then remove them all at once
-int SurfaceSmoother::remove_EP_all_3()
+int SurfaceMesher::remove_EP_all_3()
 {
   cout<<"===remove_EP_all_3 START==="<<endl;
   

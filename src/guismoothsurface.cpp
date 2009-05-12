@@ -22,7 +22,7 @@
 //
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
-#include "surfacesmoother.h"
+#include "surfacemesher.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
 #include "laplacesmoother.h"
@@ -30,7 +30,6 @@
 #include "guimainwindow.h"
 
 #include <vtkSmoothPolyDataFilter.h>
-// #include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 
 #include <vtkLongArray.h>
@@ -1202,7 +1201,7 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     
     toto.SetInput(bcs,grid);
     toto.SetVertexMeshDensityVector(VMDvector);
@@ -1243,7 +1242,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     toto.SetInput(bcs,grid);
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
@@ -1262,7 +1261,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
@@ -1299,7 +1298,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     
     setDebugLevel(ui.spinBox_DebugLevel->value());
     

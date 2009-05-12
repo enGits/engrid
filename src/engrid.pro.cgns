@@ -159,7 +159,6 @@ guisettingstab.h \
 guisettingsviewer.h \
  \
  guitransform.h \
- vtksmoothpolydatafilter2.h \
  createspecialmapping.h \
  vertexdelegate.h \
  vertexmeshdensity.h \
@@ -236,7 +235,6 @@ guisettingstab.cpp \
 guisettingsviewer.cpp \
  \
  guitransform.cpp \
- vtksmoothpolydatafilter2.cpp \
  createspecialmapping.cpp \
  vertexdelegate.cpp \
  vertexmeshdensity.cpp \

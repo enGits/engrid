@@ -15,9 +15,9 @@ using namespace GeometryTools;
 #include <cmath>
 using namespace std;
 
-class SurfaceSmoother : public Operation {
+class SurfaceMesher : public Operation {
   public:
-    SurfaceSmoother();
+    SurfaceMesher();
     int Process();
     void operate(){};
   
@@ -279,7 +279,7 @@ class SurfaceSmoother : public Operation {
     int SmoothFunction();
   
 };
-//end of SurfaceSmoother class
+//end of SurfaceMesher class
 
 // #define VTK_SIMPLE_VERTEX 0
 // #define VTK_FIXED_VERTEX 1

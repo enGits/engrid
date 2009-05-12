@@ -168,7 +168,6 @@ guisettingstab.h \
 guisettingsviewer.h \
  \
  guitransform.h \
- vtksmoothpolydatafilter2.h \
  vertexdelegate.h \
  vertexmeshdensity.h \
  smoothingutilities.h \
@@ -181,7 +180,7 @@ guisettingsviewer.h \
  text3d.h \
  guipick.h \
  egvtkinteractorstyle.h \
- surfacesmoother.h \
+ surfacemesher.h \
  showinfo.h
 
 SOURCES = \
@@ -246,7 +245,6 @@ guisettingstab.cpp \
 guisettingsviewer.cpp \
  \
  guitransform.cpp \
- vtksmoothpolydatafilter2.cpp \
  vertexdelegate.cpp \
  vertexmeshdensity.cpp \
  smoothingutilities.cpp \
@@ -259,7 +257,7 @@ guisettingsviewer.cpp \
  text3d.cpp \
  guipick.cpp \
  egvtkinteractorstyle.cpp \
- surfacesmoother.cpp \
+ surfacemesher.cpp \
  showinfo.cpp
 
 FORMS = \
