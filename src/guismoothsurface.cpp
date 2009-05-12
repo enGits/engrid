@@ -1222,7 +1222,7 @@ void GuiSmoothSurface::operate()
     surfacemesher.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
     
     surfacemesher.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
-    surfacemesher.maxiter_density=ui.spinBox_maxiter_density->value();
+    surfacemesher.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     
     surfacemesher();

@@ -2,6 +2,7 @@
 
 #include "insertpoints.h"
 #include "removepoints.h"
+#include "updatedesiredmeshdensity.h"
 
 SurfaceMesher::SurfaceMesher()
 {
@@ -73,7 +74,12 @@ void SurfaceMesher::operate()
   }
   
   cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
-//   UpdateDesiredMeshDensity();
+  
+  UpdateDesiredMeshDensity update_desired_mesh_density;
+  update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
+  update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density();
+  
   UpdateMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
   

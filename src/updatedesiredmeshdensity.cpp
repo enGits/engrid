@@ -117,9 +117,9 @@ void UpdateDesiredMeshDensity::operate()
       if(DebugLevel>2) cout<<"======>"<<endl;
     }
     iter++;
-  } while(diff>Convergence_meshdensity && !first && iter<maxiter_density);// if first=true, it means no new mesh density has been defined (all densities specified)
+  } while(diff>Convergence_meshdensity && !first && iter<MaxiterDensity);// if first=true, it means no new mesh density has been defined (all densities specified)
   cout<<"iter="<<iter<<endl;
-  if(iter>=maxiter_density) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
+  if(iter>=MaxiterDensity) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
 }
 
 VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexType)

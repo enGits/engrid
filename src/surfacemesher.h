@@ -34,7 +34,6 @@ class SurfaceMesher : public Operation {
     void operate();
   
     int N_SmoothIterations;
-    int maxiter_density;//used for UpdateDesiredMeshDensity operation
   
     bool insert_FP;
     bool insert_EP;
@@ -74,6 +73,8 @@ class SurfaceMesher : public Operation {
     };
   
     //Used for UpdateDesiredMeshDensity operation
+    int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
+    void setMaxiterDensity(int a){MaxiterDensity=a;};
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
   
