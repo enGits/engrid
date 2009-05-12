@@ -86,8 +86,6 @@ class SurfaceMesher : public Operation {
     void Set_remove_FP(bool B){remove_FP=B;};
     void Set_remove_EP(bool B){remove_EP=B;};
   
-    VertexMeshDensity getVMD(vtkIdType node, char VertexType);
-  
   public:
     int UpdateDesiredMeshDensity();
     int SwapFunction();

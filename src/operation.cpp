@@ -21,27 +21,29 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "operation.h"
+
 #include "guimainwindow.h"
-#include "vtkTriangleFilter.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkPolygon.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkCellLocator.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
-#include <vtkCharArray.h>
 #include "egvtkobject.h"
+
+#include <vtkTriangleFilter.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
+#include <vtkPolygon.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkCellLocator.h>
+#include <vtkFloatArray.h>
+#include <vtkMath.h>
+#include <vtkCharArray.h>
+
+#include <QApplication>
 
 #include "geometrytools.h"
 using namespace GeometryTools;
-
-#include <QApplication>
 
 QSet<Operation*> Operation::garbage_operations;
 
@@ -2094,3 +2096,25 @@ double Operation::T_min(int w)
   return(T);
 }
 //---------------------------------------------------
+
+VertexMeshDensity Operation::getVMD(vtkIdType node, char VertexType)
+{
+  VertexMeshDensity VMD;
+  VMD.type=VertexType;
+  VMD.density=0;
+  VMD.CurrentNode=node;
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+/*  createNodeMapping(nodes, _nodes, grid);
+  createNodeToCell(m_AllCells, nodes, _nodes, n2c, grid);*/
+  
+  QSet <int> bc;
+  foreach(vtkIdType C, n2c[node])
+  {
+    bc.insert(cell_code->GetValue(C));
+    VMD.BCmap[cell_code->GetValue(C)]=2;
+  }
+  VMD.BClist.resize(bc.size());
+  qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
+  qSort(VMD.BClist.begin(),VMD.BClist.end());
+  return(VMD);
+}

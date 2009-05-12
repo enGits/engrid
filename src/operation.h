@@ -27,6 +27,7 @@ class Operation;
 class GuiMainWindow;
 
 #include "egvtkobject.h"
+#include "vertexmeshdensity.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
@@ -237,6 +238,8 @@ public: // methods
   
   double T_min(int w);
 //---------------------------------------------------
+  /// Get VertexMeshDensity object
+  VertexMeshDensity getVMD(vtkIdType node, char VertexType);
   
 };
 //End of class Operation

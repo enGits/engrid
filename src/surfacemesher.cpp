@@ -80,7 +80,43 @@ void SurfaceMesher::operate()
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   
 }
-//end of process
+//end of operate()
+
+int SurfaceMesher::SwapFunction()
+{
+  //Phase E : Delaunay swap
+  QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
+  cout<<"m_bcs="<<m_bcs<<endl;
+  cout<<"bcs_complement="<<bcs_complement<<endl;
+  
+  getAllSurfaceCells(m_AllCells,m_grid);
+  setCells(m_AllCells);
+  
+  SwapTriangles swap;
+  swap.setGrid(m_grid);
+  swap.setBoundaryCodes(bcs_complement);
+  swap();
+  return(0);
+}
+
+int SurfaceMesher::SmoothFunction()
+{
+  cout<<"=== SmoothFunction START ==="<<endl;
+  //Phase F : translate points to smooth grid
+  //4 possibilities
+  //vtk smooth 1
+  //vtk smooth 2
+  //laplacian smoothing with projection
+  //Roland smoothing with projection
+  
+  //laplacian smoothing with projection
+  LaplaceSmoother Lap;
+  Lap.SetInput(m_bcs,m_grid);
+  Lap.SetNumberOfIterations(N_SmoothIterations);
+  Lap();
+  cout<<"=== SmoothFunction END ==="<<endl;
+  return(0);
+}
 
 int SurfaceMesher::UpdateDesiredMeshDensity()
 {
@@ -180,62 +216,4 @@ int SurfaceMesher::UpdateDesiredMeshDensity()
   cout<<"iter="<<iter<<endl;
   if(iter>=maxiter_density) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
   return(0);
-}
-
-int SurfaceMesher::SwapFunction()
-{
-  //Phase E : Delaunay swap
-  QSet<int> bcs_complement=complementary_bcs(m_bcs,m_grid,cells);
-  cout<<"m_bcs="<<m_bcs<<endl;
-  cout<<"bcs_complement="<<bcs_complement<<endl;
-  
-  getAllSurfaceCells(m_AllCells,m_grid);
-  setCells(m_AllCells);
-  
-  SwapTriangles swap;
-  swap.setGrid(m_grid);
-  swap.setBoundaryCodes(bcs_complement);
-  swap();
-  return(0);
-}
-
-int SurfaceMesher::SmoothFunction()
-{
-  cout<<"=== SmoothFunction START ==="<<endl;
-  //Phase F : translate points to smooth grid
-  //4 possibilities
-  //vtk smooth 1
-  //vtk smooth 2
-  //laplacian smoothing with projection
-  //Roland smoothing with projection
-
-  //laplacian smoothing with projection
-  LaplaceSmoother Lap;
-  Lap.SetInput(m_bcs,m_grid);
-  Lap.SetNumberOfIterations(N_SmoothIterations);
-  Lap();
-  cout<<"=== SmoothFunction END ==="<<endl;
-  return(0);
-}
-
-VertexMeshDensity SurfaceMesher::getVMD(vtkIdType node, char VertexType)
-{
-  VertexMeshDensity VMD;
-  VMD.type=VertexType;
-  VMD.density=0;
-  VMD.CurrentNode=node;
-  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-/*  createNodeMapping(nodes, _nodes, m_grid);
-  createNodeToCell(m_AllCells, nodes, _nodes, n2c, m_grid);*/
-  
-  QSet <int> bc;
-  foreach(vtkIdType C, n2c[node])
-  {
-    bc.insert(cell_code->GetValue(C));
-    VMD.BCmap[cell_code->GetValue(C)]=2;
-  }
-  VMD.BClist.resize(bc.size());
-  qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
-  qSort(VMD.BClist.begin(),VMD.BClist.end());
-  return(VMD);
 }
