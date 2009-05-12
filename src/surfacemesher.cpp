@@ -41,15 +41,40 @@ void SurfaceMesher::operate()
     N_removed_FP=0;
     N_removed_EP=0;
     
+    //Method 3
     bool DEBUG=false;
     
-    //Method 3
-    InsertPoints insert_points;
-    insert_points.Set_insert_FP(insert_FP);
-    insert_points.Set_insert_EP(insert_EP);
-    insert_points.setMaxiterDensity(MaxiterDensity);
-    insert_points.SetVertexMeshDensityVector(VMDvector);
-    insert_points();
+    if(insert_FP) {
+      MeshDensityFunction();
+      InsertPoints insert_field_points;
+      insert_field_points.Set_insert_FP(insert_FP);
+      insert_field_points.Set_insert_EP(insert_EP);
+      insert_field_points();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
+      if(DoSwap) SwapFunction();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
+      if(DoLaplaceSmoothing) SmoothFunction();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
+      if(DoSwap) SwapFunction();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
+    }
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
+    
+    if(insert_EP) {
+      MeshDensityFunction();
+      InsertPoints insert_edge_points;
+      insert_edge_points.Set_insert_FP(insert_FP);
+      insert_edge_points.Set_insert_EP(insert_EP);
+      insert_edge_points();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
+      if(DoSwap) SwapFunction();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
+      if(DoLaplaceSmoothing) SmoothFunction();
+      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
+    }
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
+    
+    
     
     RemovePoints remove_points;
     remove_points.Set_remove_FP(remove_FP);
@@ -79,10 +104,7 @@ void SurfaceMesher::operate()
   
   cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
   
-  UpdateDesiredMeshDensity update_desired_mesh_density;
-  update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
-  update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
-  update_desired_mesh_density();
+  MeshDensityFunction();
   
   UpdateMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
@@ -91,6 +113,14 @@ void SurfaceMesher::operate()
   
 }
 //end of operate()
+
+void SurfaceMesher::MeshDensityFunction()
+{
+  UpdateDesiredMeshDensity update_desired_mesh_density;
+  update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
+  update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density();
+}
 
 int SurfaceMesher::SwapFunction()
 {

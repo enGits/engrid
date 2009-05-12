@@ -61,12 +61,12 @@ private:
   bool insert_FP;
   bool insert_EP;
   
-  //for the UpdateDesiredMeshDensity operation
+/*  //for the UpdateDesiredMeshDensity operation
 public:
   int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
   void setMaxiterDensity(int a){MaxiterDensity=a;};
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};*/
   
 public:
   InsertPoints();
