@@ -467,9 +467,6 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   int N2=algo->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
   cout<<"Number of components=N1="<<N1<<endl;
   cout<<"Number of tuples=N2="<<N2<<endl;
-/*  vtkPointData* newPointData = vtkPointData::New();
-  newPointData=algo->GetOutput()->GetPointData();
-  cout<<"Are you aware?:"<<newPointData->IsA("vtkDataArray")<<endl;*/
   
 /*  void vtkFieldData::GetTuple  	(  	const vtkIdType   	 i,
                                	   	double *  	tuple	 
@@ -1215,11 +1212,6 @@ void GuiSmoothSurface::operate()
     surfacemesher.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
     surfacemesher.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
-/*    surfacemesher.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
-    surfacemesher.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
-    surfacemesher.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
-    surfacemesher.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());*/
-    
     surfacemesher.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
     surfacemesher.Set_insert_FP(ui.checkBox_insert_FP->checkState());
@@ -1325,29 +1317,6 @@ void GuiSmoothSurface::operate()
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
     }
-    
-/*    vector <vtkIdType> nodeId_vector(3);
-    
-    for(vtkIdType i)*/
-    
-    
-/*    bool Global_DelResult=true;
-    while(Global_DelResult)
-    {
-      Global_DelResult=false;
-      vtkIdType DeadNode=0;
-      while(DeadNode<grid->GetNumberOfPoints())
-      {
-        bool Local_DelResult=true;
-        while(Local_DelResult)
-        {
-          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
-          if(Local_DelResult) Global_DelResult=true;
-        }
-        DeadNode++;
-      }
-    }*/
-    
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else
@@ -1362,9 +1331,6 @@ void GuiSmoothSurface::operate()
     cout<<"_cells="<<_cells<<endl;
     cout<<"nodes="<<nodes<<endl;
     cout<<"_nodes="<<_nodes<<endl;
-/*    QVector< QSet< int > > 	n2c;
-    QVector< QSet< int > > 	n2n;
-    QVector< QVector< int > > 	c2c;*/
     cout<<"n2c="<<n2c<<endl;
     cout<<"n2n="<<n2n<<endl;
     cout<<"c2c="<<c2c<<endl;
