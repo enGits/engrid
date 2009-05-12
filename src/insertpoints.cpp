@@ -23,7 +23,29 @@ InsertPoints::~InsertPoints()
 
 void InsertPoints::operate()
 {
-
+/*  if(insert_FP) {
+    UpdateDesiredMeshDensity();
+    insert_FP_all();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
+    if(DoSwap) SwapFunction();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
+    if(DoLaplaceSmoothing) SmoothFunction();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
+    if(DoSwap) SwapFunction();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
+  }
+  if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
+  
+  if(insert_EP) {
+    UpdateDesiredMeshDensity();
+    insert_EP_all();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
+    if(DoSwap) SwapFunction();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
+    if(DoLaplaceSmoothing) SmoothFunction();
+    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
+  }
+  if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");*/
 }
 
 bool InsertPoints::insert_fieldpoint(vtkIdType D)

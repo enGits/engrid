@@ -1,5 +1,8 @@
 #include "surfacemesher.h"
 
+#include "insertpoints.h"
+#include "removepoints.h"
+
 SurfaceMesher::SurfaceMesher()
 {
    DebugLevel=0;
@@ -40,48 +43,15 @@ void SurfaceMesher::operate()
     bool DEBUG=false;
     
     //Method 3
-/*    if(insert_FP) {
-      UpdateDesiredMeshDensity();
-      insert_FP_all();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-insert");
-      if(DoSwap) SwapFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-1");
-      if(DoLaplaceSmoothing) SmoothFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-laplace");
-      if(DoSwap) SwapFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_FP-post-swap-2");
-    }
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_FP");
+    InsertPoints insert_points;
+    insert_points.Set_insert_FP(insert_FP);
+    insert_points.Set_insert_EP(insert_EP);
+    insert_points();
     
-    if(insert_EP) {
-      UpdateDesiredMeshDensity();
-      insert_EP_all();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-insert");
-      if(DoSwap) SwapFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-swap");
-      if(DoLaplaceSmoothing) SmoothFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/insert_EP-post-laplace");
-    }
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-insert_EP");
-    
-    if(remove_FP) {
-      UpdateDesiredMeshDensity();
-      remove_FP_all();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-insert");
-      if(DoSwap) SwapFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-swap");
-      if(DoLaplaceSmoothing) SmoothFunction();
-      if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/remove_FP-post-laplace");
-    }
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_FP");
-    
-    if(remove_EP) {
-      UpdateDesiredMeshDensity();
-      remove_EP_all();
-      if(DoSwap) SwapFunction();
-      if(DoLaplaceSmoothing) SmoothFunction();
-    }
-    if(DEBUG) DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/post-remove_EP");*/
+    RemovePoints remove_points;
+    remove_points.Set_remove_FP(remove_FP);
+    remove_points.Set_remove_EP(remove_EP);
+    remove_points();
     
     if(DoSwap) SwapFunction();
     if(DoLaplaceSmoothing) SmoothFunction();

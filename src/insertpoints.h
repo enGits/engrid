@@ -58,12 +58,18 @@ private:
   int m_total_N_newcells;
   vtkIdType m_newNodeId;
   
+  bool insert_FP;
+  bool insert_EP;
+  
 public:
   InsertPoints();
 
   ~InsertPoints();
   
   void operate();
+  
+  void Set_insert_FP(bool B){insert_FP=B;};
+  void Set_insert_EP(bool B){insert_EP=B;};
   
   int insert_FP_counter();
   int insert_EP_counter();

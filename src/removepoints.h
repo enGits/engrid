@@ -74,12 +74,18 @@ private:
   int m_total_N_newcells;
   vtkIdType m_newNodeId;
 
+  bool remove_FP;
+  bool remove_EP;
+  
 public:
   RemovePoints();
 
   ~RemovePoints();
   
   void operate();
+  
+  void Set_remove_FP(bool B){remove_FP=B;};
+  void Set_remove_EP(bool B){remove_EP=B;};
   
   int remove_FP_counter();
   int remove_EP_counter();
