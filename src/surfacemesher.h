@@ -49,10 +49,9 @@ class SurfaceMesher : public Operation {
     QVector<vtkIdType> m_AllCells;
     QVector<vtkIdType> m_SelectedCells;
     vtkUnstructuredGrid* m_grid;
-    vtkIdType m_newNodeId;
     
-    QMap< pair<vtkIdType,vtkIdType>, vtkIdType> edge_map;
-    QVector <stencil_t> StencilVector;
+//     QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
+//     QVector <stencil_t> m_StencilVector;
     QVector <vtkIdType> m_SelectedNodes;
     QVector <vtkIdType> m_AllNodes;
   
@@ -61,8 +60,8 @@ class SurfaceMesher : public Operation {
   
     QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
     
-    QMap <vtkIdType,bool> marked_cells;
-    QMap <vtkIdType,bool> marked_nodes;
+    QMap <vtkIdType,bool> m_marked_cells;
+    QMap <vtkIdType,bool> m_marked_nodes;
   
     void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
     {
@@ -79,33 +78,15 @@ class SurfaceMesher : public Operation {
   
     VertexMeshDensity getVMD(vtkIdType node, char VertexType);
   
-  //utilities
   public:
-    bool insert_fieldpoint(vtkIdType D)
-    {
-      double Fred1=1.0/sqrt(3);
-      double Qmin=1.1;//1.189;
-      double total=0;
-      for(int i=0;i<3;i++)
-      {
-        vtkIdType cell=DN(i,D);
-        if(cell!=-1) total += Q_L(cell);
-      }
-      return ( Q_L(D)>1.0/Fred1 && total>3*Qmin );
-    }
-    bool insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
-    {
-      bool result=L_k(j,K)>0.5*(G_k(j)+G_k(K));
-      if(DebugLevel>0 && result){
-        cout<<"j="<<j<<endl;
-        cout<<"K="<<K<<endl;
-        cout<<"G_k(j)="<<G_k(j)<<endl;
-        cout<<"G_k(K)="<<G_k(K)<<endl;
-        cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
-        cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
-      }
-      return ( result );
-    }
+    int UpdateDesiredMeshDensity();
+    int SwapFunction();
+    int SmoothFunction();
+  
+    int remove_FP_counter();
+    int remove_EP_counter();
+    int remove_EP_all();
+    int remove_FP_all();
     bool remove_fieldpoint(vtkIdType P)
     {
       double QL1max=0.8;
@@ -122,24 +103,6 @@ class SurfaceMesher : public Operation {
     {
       return ( 0.5*G_k(P)<CurrentVertexAvgDist(P,n2n,m_grid) && CurrentVertexAvgDist(P,n2n,m_grid)<1*G_k(P) );
     }
-  
-    int UpdateDesiredMeshDensity();
-  
-    int insert_FP_counter();
-    int insert_EP_counter();
-    int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
-    int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
-    int insert_FP_all();
-    int insert_EP_all();
-  
-    int remove_FP_counter();
-    int remove_EP_counter();
-    int remove_EP_all();
-    int remove_FP_all();
-  
-    int SwapFunction();
-    int SmoothFunction();
-  
 };
 //end of SurfaceMesher class
 
