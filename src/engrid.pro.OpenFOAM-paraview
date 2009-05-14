@@ -3,24 +3,54 @@ LANGUAGE = C++
 TARGET   = engrid
 
 # install
-target.path = /usr/bin
+target.path = ../platforms/$(WM_ARCH)
 
 # target.path = $$PREFIX/bin
 INSTALLS += target
-CONFIG += qt release thread
+
+#CONFIG += qt release thread
 #CONFIG += qt debug thread
+CONFIG += qt debug_and_release thread
+
 DEFINES += QT_NO_DEBUG
+#DEFINES += QT_DEBUG
+
+#QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
+# get "git revision number"
+QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
+
+#
+# some hacks to reuse the OpenFOAM paraview files
+#
+VTKDIR = $(ParaView_DIR)
 
 !win32 {
     LIBS += -L./netgen_svn
-    LIBS += -L$(VTKLIBDIR)
-    LIBS += -Wl,-rpath
+#    LIBS += -L$(VTKLIBDIR)
+#    LIBS += -L$(VTKLIB)/bin
+#    LIBS += -Wl,-rpath
+    LIBS += -L$(ParaView_DIR)/lib/paraview-3.5
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
+    INCLUDEPATH += $(CGNSINCDIR)
+# reuse the OpenFOAM paraview files
+# should be easier when the PARAVIEW_INSTALL_DEVELOPMENT:BOOL=ON works better
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Common
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Filtering
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Graphics
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/GUISupport/Qt
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Hybrid
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/IO
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Rendering
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Utilities
+    INCLUDEPATH += $(ParaView_DIR)/VTK
+    INCLUDEPATH += $(ParaView_DIR)/VTK/GUISupport/Qt
+    INCLUDEPATH += $(ParaView_DIR)/VTK/Utilities
+# netgen includes
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-    INCLUDEPATH += /opt/shared/cgns/include/
 }
+
 win32 {
     VTK_DIR = C:\VTK
     VTK_SRCDIR = C:\VTK\5.0.4
@@ -48,6 +78,5 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 
-include (engrid-cgns.pri)
 include (engrid-standard.pri)
 
