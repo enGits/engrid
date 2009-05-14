@@ -17,13 +17,37 @@
 # + GNU General Public License for more details.                         +
 # +                                                                      +
 # + You should have received a copy of the GNU General Public License    +
-# + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.       +
+# + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#
-cd netgen_svn > /dev/null
-echo "downloading NETGEN from SVN repository at sourceforge.net -- please wait"
-svn co https://netgen-mesher.svn.sourceforge.net/svnroot/netgen-mesher netgen-mesher
-qmake
-make
-cd .. > /dev/null
+
+cd ${0%/*} || exit 1    # run from this directory
+
+package=netgen-mesher
+(
+
+    cd netgen_svn || exit 1
+
+    if [ -d netgen-mesher/.svn ]
+    then
+        echo "updating NETGEN from SVN repository (sourceforge.net) -- please wait"
+        svn up $package
+    else
+        echo "downloading NETGEN from SVN repository (sourceforge.net) -- please wait"
+        svn co https://netgen-mesher.svn.sourceforge.net/svnroot/$package $package
+    fi
+
+    echo
+    echo "starting qmake for $package"
+    echo
+
+    qmake
+
+    echo
+    echo "making $package"
+    echo
+
+    make
+)
+
+# ----------------------------------------------------------------- end-of-file

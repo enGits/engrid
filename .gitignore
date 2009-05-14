@@ -1,32 +1,62 @@
-*.o
+# editor and misc backup files - anywhere
+*~
+.*~
+*.orig
+*.bak
+\#*\#
+
+# objects and archives - anywhere
+*.[oa]
+*.la
+*.so
+*.jar
+
+# Qt generated files
 moc_*
 ui_*
-Makefile
-engrid
-netgen_svn
 qrc_*
+
+# ignore derived files
+lex.yy.c
+
+# Corefiles and debugging files
+core
+callgrind*
+
+# build folder(s) and executables
+/platforms/
+engrid
+
+# generated Makefiles
+Makefile
+Makefile.Debug
+Makefile.Release
+
+netgen_svn
 tmp.txt
-*~
 *.kdevelop.pcs
 *.kdevses
+engrid.kdevelop.ignore_pcs
 .bzr
 .hg
 *.user
 qtc-gdbmacros
 *.sp
-engrid.kdevelop.ignore_pcs
-*.vtu
 *.out
-*.orig
-*.tar.gz
 *.vtu
 *.txt
 *.bcs
 netgen_svn_old
-callgrind*
+
+# LaTeX generated files - anywhere
 *.aux
 *.log
 *.toc
-core
-Makefile.Debug
-Makefile.Release
+
+# source packages - anywhere
+*.tar.bz2
+*.tar.gz
+*.tgz
+
+# ignore the persistent .build tag in the main directory
+/.build

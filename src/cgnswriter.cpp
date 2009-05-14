@@ -2,11 +2,15 @@
 
 CgnsWriter::CgnsWriter()
 {
+#ifdef CGNS_SUPPORT
   setFormat("CGNS files(*.cgns)");
+#endif
 }
+
 
 void CgnsWriter::writeGrid()
 {
+#ifdef CGNS_SUPPORT
   setAllCells();
   eg2cgns.fill(-1, cells.size());
 
@@ -242,10 +246,13 @@ void CgnsWriter::writeGrid()
       EG_ERR_RETURN("error writing quads");
     }
   }
+#endif
 }
+
 
 void CgnsWriter::writeBcs()
 {
+#ifdef CGNS_SUPPORT
   EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
   QSet<int> bcs;
   {
@@ -270,21 +277,19 @@ void CgnsWriter::writeBcs()
       EG_ERR_RETURN("error writing boundary condition");
     }
   }
+#endif
 }
+
 
 void CgnsWriter::operate()
 {
-
-#ifndef CGNS_SUPPORT
-  EG_ERR_RETURN("CGNS support has not been compiled");
-#endif
-
+#ifdef CGNS_SUPPORT
   try {
     readOutputFileName();
     if (isValid()) {
       QString file_name = getFileName();
       if (cg_open(file_name.toAscii().data(), MODE_WRITE, &fn)) {
-        EG_ERR_RETURN("error while opening CGNS file  for writing");
+        EG_ERR_RETURN("error while opening CGNS file for writing");
       }
       writeGrid();
       writeBcs();
@@ -295,5 +300,8 @@ void CgnsWriter::operate()
   } catch (Error err) {
     err.display();
   }
+#else
+  EG_ERR_RETURN("CGNS support has not been compiled");
+#endif
 }
 
