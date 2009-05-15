@@ -43,8 +43,6 @@ private:
   QVector <vtkIdType> m_SelectedNodes;
   QVector <vtkIdType> m_AllNodes;
   
-  QSet<int> m_bcs;
-  
   int N_inserted_FP;
   int N_inserted_EP;
   int N_removed_FP;
@@ -67,6 +65,11 @@ public:
   void setMaxiterDensity(int a){MaxiterDensity=a;};
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
   void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};*/
+  
+  //attributes with setter functions
+public:
+  QSet<int> m_bcs;
+  void SetBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
   
 public:
   InsertPoints();

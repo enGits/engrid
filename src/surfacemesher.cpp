@@ -47,6 +47,7 @@ void SurfaceMesher::operate()
     if(insert_FP) {
       MeshDensityFunction();
       InsertPoints insert_field_points;
+      insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
       insert_field_points.Set_insert_EP(false);
       insert_field_points();
@@ -63,6 +64,7 @@ void SurfaceMesher::operate()
     if(insert_EP) {
       MeshDensityFunction();
       InsertPoints insert_edge_points;
+      insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
       insert_edge_points.Set_insert_EP(true);
       insert_edge_points();
@@ -77,6 +79,7 @@ void SurfaceMesher::operate()
     if(remove_FP) {
       MeshDensityFunction();
       RemovePoints remove_field_points;
+      remove_field_points.SetBCS(m_bcs);
       remove_field_points.Set_remove_FP(true);
       remove_field_points.Set_remove_EP(false);
       remove_field_points();
@@ -93,6 +96,7 @@ void SurfaceMesher::operate()
     if(remove_EP) {
       MeshDensityFunction();
       RemovePoints remove_edge_points;
+      remove_edge_points.SetBCS(m_bcs);
       remove_edge_points.Set_remove_FP(false);
       remove_edge_points.Set_remove_EP(true);
       remove_edge_points();
