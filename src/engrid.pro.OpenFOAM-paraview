@@ -32,7 +32,6 @@ VTKDIR = $(ParaView_DIR)
     LIBS += -L$(ParaView_DIR)/lib/paraview-3.5
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
-    INCLUDEPATH += $(CGNSINCDIR)
 # reuse the OpenFOAM paraview files
 # should be easier when the PARAVIEW_INSTALL_DEVELOPMENT:BOOL=ON works better
     INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Common
@@ -79,4 +78,3 @@ win32 {
 }
 
 include (engrid-standard.pri)
-

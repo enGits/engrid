@@ -7,20 +7,34 @@ target.path = /usr/bin
 
 # target.path = $$PREFIX/bin
 INSTALLS += target
-CONFIG += qt release thread
+
+#CONFIG += qt release thread
 #CONFIG += qt debug thread
+CONFIG += qt debug_and_release thread
+
 DEFINES += QT_NO_DEBUG
+#DEFINES += QT_DEBUG
+
+#QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
+# get "git revision number"
+QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
+
+QMAKE_CXXFLAGS += -Wall
+
+# QMAKE_CXXFLAGS += -pg
+
+QT += xml network opengl
 
 !win32 {
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
-    LIBS += -Wl,-rpath
+    #LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-    INCLUDEPATH += /opt/shared/cgns/include/
 }
+
 win32 {
     VTK_DIR = C:\VTK
     VTK_SRCDIR = C:\VTK\5.0.4
@@ -50,4 +64,3 @@ win32 {
 
 include (engrid-cgns.pri)
 include (engrid-standard.pri)
-

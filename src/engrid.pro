@@ -21,8 +21,6 @@ QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
 
 QMAKE_CXXFLAGS += -Wall
 
-DEFINES += CGNS_SUPPORT
-LIBS    += -lcgns
 # QMAKE_CXXFLAGS += -pg
 
 QT += xml network opengl
@@ -30,11 +28,9 @@ QT += xml network opengl
 !win32 {
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
-    LIBS += -L$(CGNSLIBDIR)
     #LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
-    INCLUDEPATH += $(CGNSINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
@@ -66,5 +62,4 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 
-#include (engrid-include01.pri)
 include (engrid-standard.pri)
