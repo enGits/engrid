@@ -1,0 +1,18 @@
+==============================================================================================================================================================
+The following information is only valid if you downloaded one of the binary packages with all libraries included. It does not apply in case of a git checkout.
+==============================================================================================================================================================
+
+INSTALLATION:
+=============
+Choose one of the following:
+./setup
+./setup INSTALLDIR
+./setup INSTALLDIR BINDIR
+
+Defaults:
+INSTALLDIR=/opt
+BINDIR=/usr/local/bin
+
+RUNNING:
+========
+start_engrid

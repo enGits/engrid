@@ -1,14 +1,7 @@
-INSTALLATION:
-=============
-Choose one of the following:
-./setup
-./setup INSTALLDIR
-./setup INSTALLDIR BINDIR
+For detailed compiling & installation instructions, please refer to: http://engits.com/phpBB3/viewtopic.php?f=2&t=34
 
-Defaults:
-INSTALLDIR=/opt
-BINDIR=/usr/local/bin
-
-RUNNING:
-========
-start_engrid
+qmake project files:
+====================
+engrid.pro : Default, No CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR
+engrid.pro.OpenFOAM-paraview : No CGNS support, Uses the VTK libraries from $(ParaView_DIR)/lib/paraview-3.5 and include files from INCLUDEPATH += $(ParaView_INST_DIR)/VTK
+engrid.pro.cgns : With CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR

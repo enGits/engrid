@@ -91,10 +91,10 @@ cd ../..
 
 #add scripts + dependencies
 pwd
-tar -f $tarname -r $SRCDIR/setup
+tar -f $tarname -r $SRCDIR/distribution/setup
 #tar -f $tarname -r $SRCDIR/start_engrid
 tar -f $tarname -r $SRCDIR/enGrid_bin.tar.gz
-tar -f $tarname -r $SRCDIR/README
+tar -f $tarname -r $SRCDIR/distribution/README
 
 #change back to SRCDIR + add source files
 tar -f $tarname -r $SRCDIR/*.h
