@@ -19,6 +19,8 @@ DEFINES += QT_NO_DEBUG
 # get "git revision number"
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
 
+QMAKE_CXXFLAGS += -Wall
+
 DEFINES += CGNS_SUPPORT
 LIBS    += -lcgns
 # QMAKE_CXXFLAGS += -pg
@@ -29,7 +31,7 @@ QT += xml network opengl
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
     LIBS += -L$(CGNSLIBDIR)
-    LIBS += -Wl,-rpath
+    #LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += $(CGNSINCDIR)
@@ -64,4 +66,5 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 
-include (engrid-include01.pri)
+#include (engrid-include01.pri)
+include (engrid-standard.pri)
