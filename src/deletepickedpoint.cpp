@@ -31,6 +31,12 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
+DeletePickedPoint::DeletePickedPoint()
+{
+  //Activate undo/redo
+  setQuickSave(true);
+}
+
 void DeletePickedPoint::operate()
 {
   vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();

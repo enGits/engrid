@@ -1616,162 +1616,10 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
 
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {
-  getAllSurfaceCells(cells,src);
-//   getNodesFromCells(cells, nodes, src);
-  setGrid(src);
-  setCells(cells);
-  UpdateNodeType_all();
-  
-  //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
-  N_newpoints=-1;
-  N_newcells=0;
-  
-  if(DeadNode<0 || DeadNode>=N_points)
-  {
-    cout<<"Warning: Point out of range: DeadNode="<<DeadNode<<" N_points="<<N_points<<endl;
-    return(false);
-  }
-  
-  QSet <vtkIdType> DeadCells;
-  QSet <vtkIdType> MutatedCells;
-  QSet <vtkIdType> MutilatedCells;
-  
-  if(DebugLevel>10) {
-    cout<<"BEFORE FINDSNAPPOINT"<<endl;
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-  }
-  vtkIdType SnapPoint=FindSnapPoint(src,DeadNode,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells);
-  
-  if(DebugLevel>0) cout<<"===>DeadNode="<<DeadNode<<" moving to SNAPPOINT="<<SnapPoint<<" DebugLevel="<<DebugLevel<<endl;
-  if(SnapPoint<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
-  
-  //allocate
-  if(DebugLevel>10) {
-    cout<<"BEFORE ALLOCATION"<<endl;
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-  }
-  N_points=src->GetNumberOfPoints();
-  N_cells=src->GetNumberOfCells();
-  
-  if(DebugLevel>47) {
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-  }
-  EG_VTKSP(vtkUnstructuredGrid,dst);
-  allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
-  
-  //vector used to redefine the new point IDs
-  QVector <vtkIdType> OffSet(N_points);
-  
-  //copy undead points
-  vtkIdType dst_id_node=0;
-  for (vtkIdType src_id_node = 0; src_id_node < N_points; src_id_node++) {//loop through src points
-    if(src_id_node!=DeadNode)//if the node isn't dead, copy it
-    {
-      vec3_t x;
-      src->GetPoints()->GetPoint(src_id_node, x.data());
-      dst->GetPoints()->SetPoint(dst_id_node, x.data());
-      copyNodeData(src, src_id_node, dst, dst_id_node);
-      OffSet[src_id_node]=src_id_node-dst_id_node;
-      dst_id_node++;
-    }
-    else
-    {
-      if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
-    }
-  };
-  if(DebugLevel>10) {
-    cout<<"DeadCells="<<DeadCells<<endl;
-    cout<<"MutatedCells="<<MutatedCells<<endl;
-    cout<<"MutilatedCells="<<MutilatedCells<<endl;
-  }
-  //Copy undead cells
-  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {//loop through src cells
-    if(!DeadCells.contains(id_cell))//if the cell isn't dead
-    {
-      vtkIdType src_N_pts, *src_pts;
-      vtkIdType dst_N_pts, *dst_pts;
-      src->GetCellPoints(id_cell, src_N_pts, src_pts);
-      
-      vtkIdType type_cell = src->GetCellType(id_cell);
-      if(DebugLevel>10) cout<<"-->id_cell="<<id_cell<<endl;
-      if(DebugLevel>10) for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
-//       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
-      dst_N_pts=src_N_pts;
-      dst_pts=new vtkIdType[dst_N_pts];
-      if(MutatedCells.contains(id_cell))//mutated cell
-      {
-        if(DebugLevel>10) cout<<"processing mutated cell "<<id_cell<<endl;
-        for(int i=0;i<src_N_pts;i++)
-        {
-          if(src_pts[i]==DeadNode) {
-            if(DebugLevel>10) {
-              cout<<"SnapPoint="<<SnapPoint<<endl;
-              cout<<"OffSet[SnapPoint]="<<OffSet[SnapPoint]<<endl;
-              cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
-            }
-            dst_pts[i]=SnapPoint-OffSet[SnapPoint];
-          }
-          else dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
-        }
-        if(DebugLevel>10) cout<<"--->dst_pts:"<<endl;
-        if(DebugLevel>10) for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
-        
-      }
-      else if(MutilatedCells.contains(id_cell))//mutilated cell
-      {
-        if(DebugLevel>10) cout<<"processing mutilated cell "<<id_cell<<endl;
-        
-        if(type_cell==VTK_QUAD) {
-          type_cell=VTK_TRIANGLE;
-          dst_N_pts-=1;
-        }
-        else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
-        //merge points
-        int j=0;
-        for(int i=0;i<src_N_pts;i++)
-        {
-          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
-          else if(src_pts[i]!=DeadNode) { dst_pts[j]=src_pts[i]-OffSet[src_pts[i]];j++; }//pre-snap/dead + post-snap/dead
-          //do nothing in case of DeadNode
-        }
-      }
-      else//normal cell
-      {
-        if(DebugLevel>10) cout<<"processing normal cell "<<id_cell<<endl;
-        for(int i=0;i<src_N_pts;i++)
-        {
-          dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
-        }
-      }
-      //copy the cell
-      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
-      copyCellData(src, id_cell, dst, id_new_cell);
-      if(DebugLevel>10) {
-        cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
-        cout<<"src_pts:"<<endl;
-        for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
-        cout<<"dst_pts:"<<endl;
-        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
-        cout<<"OffSet="<<OffSet<<endl;
-        cout<<"===Copying cell end==="<<endl;
-      }
-      delete dst_pts;
-    }
-  };
-//   cout_grid(cout,dst,true,true,true,true);
-  makeCopy(dst, src);
-  return(true);
+  QSet <vtkIdType> DeadNodes;
+  DeadNodes.insert(DeadNode);
+  bool ret = DeleteSetOfPoints(src,DeadNodes, N_newpoints, N_newcells);
+  return(ret);
 }
 //End of DeletePoint
 
@@ -1912,7 +1760,7 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
         if(DebugLevel>10) for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
         
       }
-      else if(MutilatedCells.contains(id_cell))//mutilated cell (ex: square becoming triangle)
+      else if(MutilatedCells.contains(id_cell))//mutilated cell (ex: square becoming triangle) (WARNING: Not fully functional yet)
       {
         cout<<"FATAL ERROR: Quads not supported yet."<<endl;EG_BUG;
         
