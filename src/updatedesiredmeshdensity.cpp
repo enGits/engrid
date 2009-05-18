@@ -115,8 +115,6 @@ VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexTy
   VMD.density=0;
   VMD.CurrentNode=node;
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-/*  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(m_AllCells, nodes, _nodes, n2c, grid);*/
   
   QSet <int> bc;
   foreach(vtkIdType C, n2c[node])
@@ -124,8 +122,5 @@ VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexTy
     bc.insert(cell_code->GetValue(C));
     VMD.BCmap[cell_code->GetValue(C)]=2;
   }
-  VMD.BClist.resize(bc.size());
-  qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
-  qSort(VMD.BClist.begin(),VMD.BClist.end());
   return(VMD);
 }

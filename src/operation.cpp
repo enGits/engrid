@@ -1065,7 +1065,10 @@ int Operation::UpdateNodeType_all()
   foreach(vtkIdType node,nodes)
   {
     if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
-    node_type->SetValue(node,Verts[node].type);
+    char T=Verts[node].type;
+    //TODO: implement BC node types
+    node_type->SetValue(node,T);
+    
   }
   
   //free up connectivity storage
@@ -2128,4 +2131,16 @@ QVector<vtkIdType> Operation::c2c_func(vtkIdType idx)
     if(i!=-1) ret.push_back(cells[i]);
   }
   return(ret);
+}
+
+int Operation::N_neighbour_BCs(vtkIdType a_node)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  QSet <vtkIdType> neighbours=n2c_func(a_node);
+  QSet <int> bc;
+  foreach(vtkIdType C, neighbours)
+  {
+    bc.insert(cell_code->GetValue(C));
+  }
+  return(bc.size());
 }

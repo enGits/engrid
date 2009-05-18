@@ -216,6 +216,9 @@ public: // methods
   double DesiredVertexAvgDist(vtkIdType a_vertex);
   double DesiredMeshDensity(vtkIdType a_vertex);
   
+  ///Returns the number of boundary codes next to this node
+  int N_neighbour_BCs(vtkIdType a_node);
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

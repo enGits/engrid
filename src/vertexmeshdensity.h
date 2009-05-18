@@ -13,7 +13,6 @@ public:
 //   ~VertexMeshDensity();
 
 public:
-  QVector <int> BClist;
   QVector <Qt::CheckState> BClist_value;
   QMap <int,int> BCmap;
   char type;

@@ -53,13 +53,8 @@ void VertexMeshDensity::SetNodes(QString str)
   }
 }
 
-// QVector < QVector <int> > BClist;
-// QVector <char> type;
-// QVector <double> density;
-
 ostream& operator<<(ostream &out, VertexMeshDensity A)
 {
-  out<<" BClist="<<A.BClist;
   out<<" BCmap="<<A.BCmap;
   out<<" type="<<(int)A.type;
   out<<" nodeset="<<A.nodeset;
