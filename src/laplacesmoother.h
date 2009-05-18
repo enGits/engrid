@@ -7,9 +7,9 @@ class LaplaceSmoother : public Operation {
 public:
     LaplaceSmoother();
     ~LaplaceSmoother();
-    int Process();
     void operate();
-
+  bool FlippedCells(vtkIdType id_G, vec3_t P);
+    
 public:
   void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
   {

@@ -22,7 +22,7 @@
 //
 #include "guismoothsurface.h"
 #include "swaptriangles.h"
-#include "surfacesmoother.h"
+#include "surfacemesher.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
 #include "laplacesmoother.h"
@@ -30,7 +30,6 @@
 #include "guimainwindow.h"
 
 #include <vtkSmoothPolyDataFilter.h>
-// #include <vtksmoothpolydatafilter2.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 
 #include <vtkLongArray.h>
@@ -468,9 +467,6 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   int N2=algo->GetOutput()->GetPointData()->GetVectors()->GetNumberOfTuples();
   cout<<"Number of components=N1="<<N1<<endl;
   cout<<"Number of tuples=N2="<<N2<<endl;
-/*  vtkPointData* newPointData = vtkPointData::New();
-  newPointData=algo->GetOutput()->GetPointData();
-  cout<<"Are you aware?:"<<newPointData->IsA("vtkDataArray")<<endl;*/
   
 /*  void vtkFieldData::GetTuple  	(  	const vtkIdType   	 i,
                                	   	double *  	tuple	 
@@ -1202,39 +1198,34 @@ void GuiSmoothSurface::operate()
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
-    SurfaceSmoother toto;
+    SurfaceMesher surfacemesher;
     
-    toto.SetInput(bcs,grid);
-    toto.SetVertexMeshDensityVector(VMDvector);
-    toto.SetConvergence (ui.doubleSpinBox_Convergence->value());
-    toto.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
-    toto.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
-    toto.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
-    toto.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-    toto.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-    toto.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-    toto.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    toto.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    surfacemesher.SetInput(bcs,grid);
+    surfacemesher.SetVertexMeshDensityVector(VMDvector);
+    surfacemesher.SetConvergence (ui.doubleSpinBox_Convergence->value());
+    surfacemesher.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
+    surfacemesher.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    surfacemesher.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
+    surfacemesher.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    surfacemesher.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    surfacemesher.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
+    surfacemesher.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    surfacemesher.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
-/*    toto.Set_SV_value(ui.doubleSpinBox_VTK_SIMPLE_VERTEX->value());
-    toto.Set_FV_value(ui.doubleSpinBox_VTK_FIXED_VERTEX->value());
-    toto.Set_FEV_value(ui.doubleSpinBox_VTK_FEATURE_EDGE_VERTEX->value());
-    toto.Set_BEV_value(ui.doubleSpinBox_VTK_BOUNDARY_EDGE_VERTEX->value());*/
+    surfacemesher.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
-    toto.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
+    surfacemesher.Set_insert_FP(ui.checkBox_insert_FP->checkState());
+    surfacemesher.Set_insert_EP(ui.checkBox_insert_EP->checkState());
+    surfacemesher.Set_remove_FP(ui.checkBox_remove_FP->checkState());
+    surfacemesher.Set_remove_EP(ui.checkBox_remove_EP->checkState());
+    surfacemesher.DoSwap=ui.checkBox_Swap->checkState();
+    surfacemesher.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
     
-    toto.Set_insert_FP(ui.checkBox_insert_FP->checkState());
-    toto.Set_insert_EP(ui.checkBox_insert_EP->checkState());
-    toto.Set_remove_FP(ui.checkBox_remove_FP->checkState());
-    toto.Set_remove_EP(ui.checkBox_remove_EP->checkState());
-    toto.DoSwap=ui.checkBox_Swap->checkState();
-    toto.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
+    surfacemesher.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
+    surfacemesher.setMaxiterDensity(ui.spinBox_maxiter_density->value());
+    surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     
-    toto.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
-    toto.maxiter_density=ui.spinBox_maxiter_density->value();
-    toto.setDebugLevel(ui.spinBox_DebugLevel->value());
-    
-    toto.Process();
+    surfacemesher();
     
     updateActors();
   }
@@ -1243,7 +1234,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     toto.SetInput(bcs,grid);
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
@@ -1262,7 +1253,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
@@ -1286,7 +1277,7 @@ void GuiSmoothSurface::operate()
         bool Local_DelResult=true;
         while(Local_DelResult)
         {
-          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
+          Local_DelResult=DeletePoint(grid,DeadNode,N_newpoints,N_newcells);
           if(Local_DelResult) Global_DelResult=true;
         }
         DeadNode++;
@@ -1299,7 +1290,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    SurfaceSmoother toto;
+    SurfaceMesher toto;
     
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
@@ -1326,29 +1317,6 @@ void GuiSmoothSurface::operate()
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
     }
-    
-/*    vector <vtkIdType> nodeId_vector(3);
-    
-    for(vtkIdType i)*/
-    
-    
-/*    bool Global_DelResult=true;
-    while(Global_DelResult)
-    {
-      Global_DelResult=false;
-      vtkIdType DeadNode=0;
-      while(DeadNode<grid->GetNumberOfPoints())
-      {
-        bool Local_DelResult=true;
-        while(Local_DelResult)
-        {
-          Local_DelResult=DeletePoint_2(grid,DeadNode,N_newpoints,N_newcells);
-          if(Local_DelResult) Global_DelResult=true;
-        }
-        DeadNode++;
-      }
-    }*/
-    
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else
@@ -1363,9 +1331,6 @@ void GuiSmoothSurface::operate()
     cout<<"_cells="<<_cells<<endl;
     cout<<"nodes="<<nodes<<endl;
     cout<<"_nodes="<<_nodes<<endl;
-/*    QVector< QSet< int > > 	n2c;
-    QVector< QSet< int > > 	n2n;
-    QVector< QVector< int > > 	c2c;*/
     cout<<"n2c="<<n2c<<endl;
     cout<<"n2n="<<n2n<<endl;
     cout<<"c2c="<<c2c<<endl;

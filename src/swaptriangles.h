@@ -37,7 +37,8 @@ private: // attributes
 private: // methods
   
   void prepare();
-    
+  bool TestSwap(stencil_t S);
+  
 protected: // methods
   
   virtual void operate();

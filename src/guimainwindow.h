@@ -388,7 +388,9 @@ public slots:
   void zoomAll();
   void ZoomOnPickedObject();
   void DeselectAll();
-    
+  void PrintGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
+  void Info();
+  
   void openBC();
   void saveBC();
   void openBC(QString a_file);
@@ -416,7 +418,7 @@ public slots:
   void QuickLoad(QString a_filename);
   
   /** Save the current grid as a_filename_a_operation */
-  void QuickSave();
+  int QuickSave();
   
   /** Load a_filename_a_operation */
   void QuickLoad(int a_operation);

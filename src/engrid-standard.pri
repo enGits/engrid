@@ -113,7 +113,6 @@ guisettingstab.h \
 guisettingsviewer.h \
 \
 guitransform.h \
-vtksmoothpolydatafilter2.h \
 vertexdelegate.h \
 vertexmeshdensity.h \
 smoothingutilities.h \
@@ -126,7 +125,11 @@ deletepickedpoint.h \
 text3d.h \
 guipick.h \
 egvtkinteractorstyle.h \
-surfacesmoother.h
+insertpoints.h \
+removepoints.h \
+showinfo.h \
+surfacemesher.h \
+updatedesiredmeshdensity.h
 
 #
 # source headers
@@ -194,7 +197,6 @@ guisettingstab.cpp \
 guisettingsviewer.cpp \
 \
 guitransform.cpp \
-vtksmoothpolydatafilter2.cpp \
 vertexdelegate.cpp \
 vertexmeshdensity.cpp \
 smoothingutilities.cpp \
@@ -207,7 +209,11 @@ deletepickedpoint.cpp \
 text3d.cpp \
 guipick.cpp \
 egvtkinteractorstyle.cpp \
-surfacesmoother.cpp
+insertpoints.cpp \
+removepoints.cpp \
+showinfo.cpp \
+surfacemesher.cpp \
+updatedesiredmeshdensity.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

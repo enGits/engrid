@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>172</height>
+    <height>251</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -70,7 +70,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" >
+   <item row="6" column="0" >
     <spacer>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
@@ -83,7 +83,7 @@
      </property>
     </spacer>
    </item>
-   <item row="5" column="0" colspan="3" >
+   <item row="8" column="0" colspan="3" >
     <layout class="QHBoxLayout" >
      <item>
       <widget class="QPushButton" name="pushButtonHelp" >
@@ -128,6 +128,20 @@
     <widget class="QCheckBox" name="checkBox_ProcessAll" >
      <property name="text" >
       <string>Process all cells (even invisible ones)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QCheckBox" name="checkBox_OnlyPickedCell" >
+     <property name="text" >
+      <string>Only picked cell</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QCheckBox" name="checkBox_OnlyPickedCellAndNeighbours" >
+     <property name="text" >
+      <string>Only picked cell and neighbours</string>
      </property>
     </widget>
    </item>

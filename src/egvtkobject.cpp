@@ -360,6 +360,52 @@ void EgVtkObject::getSurfaceNodes
   }
 };
 
+void EgVtkObject::getSurfaceNodes
+(
+  QSet<int>           &bcs,
+  QVector <vtkIdType> &SelectedNodes,
+  vtkUnstructuredGrid *grid
+)
+{
+  QVector<vtkIdType> SelectedCells;
+  getSurfaceCells(bcs, SelectedCells, grid);
+  getNodesFromCells(SelectedCells, SelectedNodes, grid);
+  
+/*  vtkIdType N_total=grid->GetNumberOfPoints();
+  vtkIdType N_selected=0;
+  
+  QVector <bool> marked(N_total);
+  
+  foreach(vtkIdType id_cell, SelectedCells)
+  {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    for(int i=0;i<N_pts;i++)
+    {
+      if(!marked[pts[i]])
+      {
+        marked[pts[i]]=true;
+        N_selected++;
+      }
+    }
+  }
+  
+  SelectedNodes.clear();
+  SelectedNodes.resize(N_selected);
+  vtkIdType idx=0;
+  
+  
+  foreach(vtkIdType id_node, nodes)
+  {
+    if(marked[pts[i]]) {
+      SelectedNodes[idx]=pts[i];
+      idx++;
+    }
+  }
+  
+  if(idx!=N_selected) EG_BUG;*/
+};
+
 void EgVtkObject::addToC2C
 (
   vtkIdType               id_cell,

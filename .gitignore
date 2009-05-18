@@ -4,6 +4,9 @@
 *.orig
 *.bak
 \#*\#
+*.new
+*.old
+temp
 
 # objects and archives - anywhere
 *.[oa]

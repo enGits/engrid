@@ -168,14 +168,17 @@ public: // methods
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
-  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
 //   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
   bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
   
   vec3_t GetCenter(vtkIdType cellId, double& R);
   
 //   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
+  /**
+   * Returns a QVector containing 2 neighbour points to which the point Boss can snap.
+   * This is used for removing boundary/feature edge vertices without destroying the geometry.
+   * Note BC parameter is currently unused.
+   */
   bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
     
   int UpdateMeshDensity();
@@ -183,9 +186,10 @@ public: // methods
   int UpdateNodeType();
   
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
-  bool DeletePoint_2(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
+  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
   bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
-    
+  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+  
   void TxtSave(QString a_filename);
   void DualSave(QString a_filename);
     
@@ -200,6 +204,39 @@ public: // methods
   void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
   void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
   
+  //---------------------------------------------------
+//Utility functions used in Roland's formulas
+//Should be renamed to be more explicit
+//Some could be moved into geometrytools
+//Some are pretty useless
+  
+///perimeter
+  double Um(vtkIdType D);
+/// area of the circumscribed circle of the triangle
+  double A_U(vtkIdType D);
+/// triangle area
+  double A_D(vtkIdType D);
+/// triangle neighbours
+  double DN(int i,vtkIdType D);
+/// number of edges
+  double nk(vtkIdType P);
+  
+  double G_k(vtkIdType node);
+/// triangle nodes
+  double DK(int i,vtkIdType D);
+  
+  vtkIdType KK(int i,vtkIdType j,vtkIdType K);
+  
+  double L_k(vtkIdType j,vtkIdType K);// node1 K, node2 j
+  
+  double Q_L(vtkIdType D);
+  
+  double Q_L1(vtkIdType P);
+  
+  double Q_L2(vtkIdType P);
+  
+  double T_min(int w);
+//---------------------------------------------------
 };
 //End of class Operation
 

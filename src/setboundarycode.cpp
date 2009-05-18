@@ -35,7 +35,7 @@ SetBoundaryCode::SetBoundaryCode()
 
 void SetBoundaryCode::pass1()
 {
-  if(!SelectAllVisible)
+  if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours))
   {
     using namespace GeometryTools;
     double fa = feature_angle*M_PI/180.0;
@@ -100,12 +100,8 @@ void SetBoundaryCode::pass2()
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   vtkIdType cellId;
-  if(!SelectAllVisible){
-    foreach(cellId, item) {
-      cell_code->SetValue(cellId, boundary_code);
-    };
-  }
-  else{
+  if(SelectAllVisible)
+  {
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
     DBC.insert(boundary_code);
@@ -115,6 +111,24 @@ void SetBoundaryCode::pass2()
         cell_code->SetValue(cellId, boundary_code);
       }
     }
+  }
+  else if(OnlyPickedCell)
+  {
+    cell_code->SetValue(this->getStart(), boundary_code);
+  }
+  else if(OnlyPickedCellAndNeighbours)
+  {
+    cell_code->SetValue(this->getStart(), boundary_code);
+    foreach(cellId, c2c[this->getStart()])
+    {
+      cell_code->SetValue(cellId, boundary_code);
+    }
+  }
+  else
+  {
+    foreach(cellId, item) {
+      cell_code->SetValue(cellId, boundary_code);
+    };
   }
 };
 

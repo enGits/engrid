@@ -305,7 +305,20 @@ protected: // methods
       QSet <vtkIdType> &SelectedNodes,
       vtkUnstructuredGrid *grid
     );
-    
+  
+  /**
+   * Get all surface nodes of a grid with a specific boundary condition.
+   * @param bcs   The set of boundary conditions
+   * @param nodes On return this will hold the Ids of the surface nodes.
+   * @param grid  The grid to operate on.
+   */
+  void getSurfaceNodes
+    (
+      QSet<int>           &bcs,
+      QVector <vtkIdType> &SelectedNodes,
+      vtkUnstructuredGrid *grid
+    );
+  
   /**
    * Create a cell neighbourship list for a subset grid. 
    * This has been implemented using VTK's vtkCellLinks structures.

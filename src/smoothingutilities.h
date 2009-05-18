@@ -1,7 +1,7 @@
 #ifndef SMOOTHINGUTILITIES_H
 #define SMOOTHINGUTILITIES_H
 
-// class SurfaceSmoother : public Operation {
+// class SurfaceMesher : public Operation {
   
 
 #endif
