@@ -80,13 +80,15 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   cout<<"===insert_FP_actor START==="<<endl;
   
     //unmark cells (TODO: optimize)
-//   m_marked_cells.clear();//Why?
+  m_marked_cells.clear();//why?
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
     if( !m_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
+      m_marked_cells[id_cell]=true;
+      
       vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
       
       vtkIdType N_pts, *pts;
