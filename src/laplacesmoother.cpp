@@ -64,17 +64,12 @@ void LaplaceSmoother::operate()
       if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
       {
         vec3_t G(0,0,0);
-        if(id_G==290){
-          DualSave("/data1/home/mtaverne/Geometries/DEBUG/laplace_crasher.txt");
-          cout<<"n2n_func("<<id_G<<")="<<n2n_func(id_G)<<endl;
-        }
         foreach(int id_M,n2n_func(id_G))
         {
           vec3_t M;
           m_grid->GetPoint(id_M, M.data());
           G+=M;
         }
-        if(id_G==290) cout<<"SUCCESS"<<endl;
         
         G=(1./n2n_func(id_G).size())*G;
         vec3_t P;
