@@ -35,7 +35,6 @@ class InsertPoints : public Operation
 private:
   QMap <vtkIdType,bool> m_marked_cells;
   QMap <vtkIdType,bool> m_marked_nodes;
-  QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
   
   QVector <stencil_t> m_StencilVector;
   QVector<vtkIdType> m_SelectedCells;
