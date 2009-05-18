@@ -69,13 +69,6 @@ private:
   int m_total_N_newpoints;
   int m_total_N_newcells;
   vtkIdType m_newNodeId;
-
-/*  //for the UpdateDesiredMeshDensity operation
-public:
-  int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
-  void setMaxiterDensity(int a){MaxiterDensity=a;};
-  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};*/
   
   //attributes with setter functions
 public:

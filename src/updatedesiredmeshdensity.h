@@ -32,7 +32,7 @@ public:
   double Convergence_meshdensity;
   void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
   int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
   void setMaxiterDensity(int a){MaxiterDensity=a;};
   

@@ -271,6 +271,9 @@ void GuiSmoothSurface::before()
     <<"VTK_FIXED_VERTEX"
     <<"VTK_FEATURE_EDGE_VERTEX"
     <<"VTK_BOUNDARY_EDGE_VERTEX"
+    <<"BC_FIXED_VERTEX"
+    <<"BC_FEATURE_EDGE_VERTEX"
+    <<"BC_BOUNDARY_EDGE_VERTEX"
     <<"any";
     
   QList<QString> list2;

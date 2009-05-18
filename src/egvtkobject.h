@@ -43,6 +43,9 @@ class EgVtkObject;
 #define VTK_FIXED_VERTEX 1
 #define VTK_FEATURE_EDGE_VERTEX 2
 #define VTK_BOUNDARY_EDGE_VERTEX 3
+#define BC_FIXED_VERTEX 4
+#define BC_FEATURE_EDGE_VERTEX 5
+#define BC_BOUNDARY_EDGE_VERTEX 6
 
 class EgVtkObject
 {
@@ -742,6 +745,5 @@ vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > >
 
 const char* VertexType2Str(char T);
 char Str2VertexType(QString S);
-const char* vertex_type(char T);
 
 #endif

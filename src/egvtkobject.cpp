@@ -1322,6 +1322,9 @@ const char* VertexType2Str(char T)
   if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
   if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
   if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  if(T==BC_FIXED_VERTEX) return("BC_FIXED_VERTEX");
+  if(T==BC_FEATURE_EDGE_VERTEX) return("BC_FEATURE_EDGE_VERTEX");
+  if(T==BC_BOUNDARY_EDGE_VERTEX) return("BC_BOUNDARY_EDGE_VERTEX");
   else return("Unknown vertex type");
 }
 
@@ -1331,14 +1334,8 @@ char Str2VertexType(QString S)
   if(S=="VTK_FIXED_VERTEX") return((char)1);
   if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
   if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
+  if(S=="BC_FIXED_VERTEX") return((char)4);
+  if(S=="BC_FEATURE_EDGE_VERTEX") return((char)5);
+  if(S=="BC_BOUNDARY_EDGE_VERTEX") return((char)6);
   else return((char)-1);
-}
-
-const char* vertex_type(char T)
-{
-  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
-  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
-  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
-  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
-  else return("Unknown vertex type");
 }
