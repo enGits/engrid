@@ -1066,9 +1066,15 @@ int Operation::UpdateNodeType_all()
   {
     if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     char T=Verts[node].type;
-    //TODO: implement BC node types
-    node_type->SetValue(node,T);
-    
+    int N=N_neighbour_BCs(node);
+    //TODO: There could be more cases. Either define new node types or create a node field containing the number of BCs.
+    if(N>2) node_type->SetValue(node,BC_FIXED_VERTEX);
+    else if(N==2){
+      if(T==VTK_FIXED_VERTEX) node_type->SetValue(node,BC_FIXED_VERTEX);
+      else if(T==VTK_BOUNDARY_EDGE_VERTEX) node_type->SetValue(node,BC_BOUNDARY_EDGE_VERTEX);
+      else node_type->SetValue(node,BC_FEATURE_EDGE_VERTEX);
+    }
+    else node_type->SetValue(node,T);
   }
   
   //free up connectivity storage

@@ -267,10 +267,12 @@ void GuiSmoothSurface::before()
   Ncol=tableWidget->columnCount();
   
   QList<QString> list;
-  list << "VTK_SIMPLE_VERTEX"
+  list
+    <<"VTK_SIMPLE_VERTEX"
     <<"VTK_FIXED_VERTEX"
     <<"VTK_FEATURE_EDGE_VERTEX"
     <<"VTK_BOUNDARY_EDGE_VERTEX"
+    <<"BC_SIMPLE_VERTEX"
     <<"BC_FIXED_VERTEX"
     <<"BC_FEATURE_EDGE_VERTEX"
     <<"BC_BOUNDARY_EDGE_VERTEX"
