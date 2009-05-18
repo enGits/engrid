@@ -180,7 +180,10 @@ public: // methods
    * Note BC parameter is currently unused.
    */
   bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
-    
+
+  ///The same for boundary codes!
+  bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
+  
   int UpdateMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();

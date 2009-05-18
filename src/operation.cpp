@@ -726,6 +726,91 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
   return(false);//should never happen
 }
 
+bool Operation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons)
+{
+//   QVector <vtkIdType> Peons;
+  
+  QSet <int> S1=n2c[Boss];
+//   cout<<"S1="<<S1<<endl;
+  foreach(vtkIdType PN,n2n[Boss])
+  {
+//     cout<<"PN="<<PN<<endl;
+    QSet <int> S2=n2c[PN];
+//     cout<<"S2="<<S2<<endl;
+    QSet <int> Si=S2.intersect(S1);
+//     cout<<"PN="<<PN<<" Si="<<Si<<endl;
+    if(Si.size()<2)//only one common cell
+    {
+      Peons.push_back(PN);
+    }
+    else
+    {
+      QSet <int> bc_set;
+      foreach(vtkIdType C,Si)
+      {
+        EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+        int bc=cell_code->GetValue(C);
+//         cout<<"C="<<C<<" bc="<<bc<<endl;
+        bc_set.insert(bc);
+      }
+      if(bc_set.size()>1)//2 different boundary codes
+      {
+        Peons.push_back(PN);
+      }
+    }
+  }
+  if(Peons.size()==2)
+  {
+/*    Peon1=Peons[0];
+    Peon2=Peons[1];*/
+    return(true);
+  }
+  else
+  {
+    int N=n2n[Boss].size();
+    QVector <vtkIdType> neighbours(N);
+    qCopy(n2n[Boss].begin(), n2n[Boss].end(), neighbours.begin());
+    
+    double alphamin_value;
+    vtkIdType alphamin_i;
+    vtkIdType alphamin_j;
+    bool first=true;
+    
+    for(int i=0;i<N;i++)
+    {
+      for(int j=i+1;j<N;j++)
+      {
+        double alpha=deviation(grid,neighbours[i],Boss,neighbours[j]);
+//         cout<<"alpha("<<neighbours[i]<<","<<Boss<<","<<neighbours[j]<<")="<<alpha<<endl;
+        if(first) {
+          alphamin_value=alpha;
+          alphamin_i=i;
+          alphamin_j=j;
+          first=false;
+        }
+        else
+        {
+          if(alpha<alphamin_value)
+          {
+            alphamin_value=alpha;
+            alphamin_i=i;
+            alphamin_j=j;
+          }
+        }
+      }
+    }
+//     cout<<"alphamin_value="<<alphamin_value<<endl;
+    
+    Peons.resize(2);
+    Peons[0]=neighbours[alphamin_i];
+    Peons[1]=neighbours[alphamin_j];
+    return(true);
+/*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
+    EG_BUG;*/
+  }
+  return(false);//should never happen
+}
+
 int Operation::UpdateMeshDensity()
 {
   if(DebugLevel>0) cout<<"===UpdateMeshDensity START==="<<endl;
@@ -1428,12 +1513,15 @@ int Operation::UpdateNodeType()
 
 vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
 {
+  //TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
   getAllSurfaceCells(cells,src);
   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
   
   UpdateNodeType_all();
+  
+  setDebugLevel(20);
   
   EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
   if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX)
@@ -1584,11 +1672,30 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
       IsValidSnapPoint=false;
     }
     
+    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
     if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
     {
       int BC=0;
       QVector <vtkIdType> Peons;
       getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    //TODO: merge with previous case if possible
+    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours_BC(DeadNode, Peons);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -1611,6 +1718,8 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
   cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
   cout<<"DeadCells.size()="<<DeadCells.size()<<endl;
   return(SnapPoint);
+  
+  setDebugLevel(0);
 }
 //End of FindSnapPoint
 
