@@ -21,14 +21,17 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "swaptriangles.h"
+#include "guimainwindow.h"
 
 #include <vtkCellArray.h>
 
+using namespace GeometryTools;
+
 void SwapTriangles::prepare()
 {
-  cout<<"void SwapTriangles::prepare()"<<endl;
+/*  cout<<"void SwapTriangles::prepare()"<<endl;
   cout_grid(cout,grid);
-  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
+  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");*/
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
   QList<vtkIdType> ex_cells;
   EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
@@ -63,6 +66,7 @@ void SwapTriangles::operate()
       marked[i_cells] = false;
     };
     foreach (vtkIdType id_cell, cells) {
+//       cout<<"===>id_cell="<<id_cell<<" loop="<<loop<<endl;
       if (!marked[_cells[id_cell]]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
@@ -144,6 +148,14 @@ void SwapTriangles::operate()
             grid->ReplaceCell(S.id_cell2, 3, new_pts2);
             ++N_swaps;
             ++N_total;
+//             GuiMainWindow::pointer()->QuickSave();
+/*            if(S.id_cell1==138) {
+              cout<<"swapping!!!!!!"<<endl;
+              cout<<"S.id_cell1="<<S.id_cell1<<endl;
+              cout<<"S.id_cell2="<<S.id_cell2<<endl;
+              cout<<"marked[_cells[S.id_cell1]]="<<marked[_cells[S.id_cell1]]<<endl;
+              cout<<"marked[_cells[S.id_cell2]]="<<marked[_cells[S.id_cell2]]<<endl;
+            }*/
             break;
           };
         };
@@ -154,3 +166,65 @@ void SwapTriangles::operate()
   cout << N_total << " triangles have been swapped" << endl;
 };
 
+bool SwapTriangles::TestSwap(stencil_t S)
+{
+  //old triangles
+  vec3_t n1_old=triNormal(grid,S.p[0],S.p[1],S.p[3]);
+  vec3_t n2_old=triNormal(grid,S.p[2],S.p[3],S.p[1]);
+  
+  //new triangles
+  vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
+  vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
+
+  
+  
+  //top point
+  vec3_t Summit=n1_old+n2_old;
+  vec3_t M[4];
+  for (int k = 0; k < 4; ++k) {
+    grid->GetPoints()->GetPoint(S.p[k], M[k].data());
+  };
+  
+  //old volumes
+  double V1_old=tetraVol(M[0], Summit, M[1], M[3], true);
+  double V2_old=tetraVol(M[2], Summit, M[3], M[1], true);
+  //new volumes
+  double V1_new=tetraVol(M[1], Summit, M[2], M[0], true);
+  double V2_new=tetraVol(M[3], Summit, M[0], M[2], true);
+
+  
+/*  if(S.id_cell1==138)
+  {
+    cout<<"V1_old="<<V1_old<<endl;
+    cout<<"V2_old="<<V2_old<<endl;
+    cout<<"V1_new="<<V1_new<<endl;
+    cout<<"V2_new="<<V2_new<<endl;
+    
+    cout<<"n1_old="<<n1_old<<endl;
+    cout<<"n2_old="<<n2_old<<endl;
+    cout<<"n1_new="<<n1_new<<endl;
+    cout<<"n2_new="<<n2_new<<endl;
+    
+    cout<<"n1_old*n1_old="<<n1_old*n1_old<<endl;
+    cout<<"n2_old*n1_old="<<n2_old*n1_old<<endl;
+    cout<<"n1_old*n2_old="<<n1_old*n2_old<<endl;
+    cout<<"n2_old*n2_old="<<n2_old*n2_old<<endl;
+    
+    cout<<"n1_old*n1_new="<<n1_old*n1_new<<endl;
+    cout<<"n2_old*n1_new="<<n2_old*n1_new<<endl;
+    cout<<"n1_old*n2_new="<<n1_old*n2_new<<endl;
+    cout<<"n2_old*n2_new="<<n2_old*n2_new<<endl;
+    
+    cout<<"n1_new*n1_old="<<n1_new*n1_old<<endl;
+    cout<<"n2_new*n1_old="<<n2_new*n1_old<<endl;
+    cout<<"n1_new*n2_old="<<n1_new*n2_old<<endl;
+    cout<<"n2_new*n2_old="<<n2_new*n2_old<<endl;
+    
+    cout<<"n1_new*n1_new="<<n1_new*n1_new<<endl;
+    cout<<"n2_new*n1_new="<<n2_new*n1_new<<endl;
+    cout<<"n1_new*n2_new="<<n1_new*n2_new<<endl;
+    cout<<"n2_new*n2_new="<<n2_new*n2_new<<endl;
+  }*/
+//   return(n1_new*n1_old>0 && n1_new*n2_old>0 && n2_new*n1_old>0 && n2_new*n2_old>0);
+  return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
+}

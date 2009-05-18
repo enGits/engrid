@@ -30,3 +30,6 @@ callgrind*
 core
 Makefile.Debug
 Makefile.Release
+*.new
+*.old
+temp
