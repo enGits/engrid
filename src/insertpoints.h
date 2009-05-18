@@ -47,23 +47,17 @@ private:
   int N_removed_FP;
   int N_removed_EP;
   
-  int N_points;
-  int N_cells;
-  int N_newpoints;
-  int N_newcells;
+  int m_N_points;
+  int m_N_cells;
+  int m_N_newpoints;
+  int m_N_newcells;
+  
   int m_total_N_newpoints;
   int m_total_N_newcells;
   vtkIdType m_newNodeId;
   
   bool insert_FP;
   bool insert_EP;
-  
-/*  //for the UpdateDesiredMeshDensity operation
-public:
-  int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
-  void setMaxiterDensity(int a){MaxiterDensity=a;};
-  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};*/
   
   //attributes with setter functions
 public:
@@ -81,8 +75,8 @@ public:
   void Set_insert_EP(bool B){insert_EP=B;};
   
   int insert_FP_counter();
-  int insert_EP_counter();
-  
+  int insert_EP_counter(int& a_N_newpoints, int& a_N_newcells);
+    
   int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
   int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
   

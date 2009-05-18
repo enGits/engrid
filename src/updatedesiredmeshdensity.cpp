@@ -62,7 +62,7 @@ void UpdateDesiredMeshDensity::operate()
     }
     else//unspecified
     {
-      double L=CurrentVertexAvgDist(node,n2n,grid);
+      double L=CurrentVertexAvgDist(node);
       double D=1./L;
       node_meshdensity->SetValue(node, D);
     }
@@ -88,7 +88,7 @@ void UpdateDesiredMeshDensity::operate()
       }
       else//unspecified
       {
-        double D=DesiredMeshDensity(node,n2n,grid);
+        double D=DesiredMeshDensity(node);
         if(first) {
           if(DebugLevel>2) {
             cout<<"------>FIRST:"<<endl;

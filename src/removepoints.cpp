@@ -43,7 +43,7 @@ bool RemovePoints::remove_fieldpoint(vtkIdType P)
 
 bool RemovePoints::remove_edgepoint(vtkIdType P)
 {
-  return ( 0.5*G_k(P)<CurrentVertexAvgDist(P,n2n,grid) && CurrentVertexAvgDist(P,n2n,grid)<1*G_k(P) );
+  return ( 0.5*G_k(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*G_k(P) );
 }
 
 int RemovePoints::remove_FP_counter()

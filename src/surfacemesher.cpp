@@ -42,7 +42,7 @@ void SurfaceMesher::operate()
     N_removed_EP=0;
     
     //Method 3
-    bool DEBUG=false;
+    bool DEBUG=true;
     QString DEBUGDIR="/data1/home/mtaverne/Geometries/DEBUG/";
     
     if(insert_FP) {

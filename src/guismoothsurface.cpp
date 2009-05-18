@@ -1092,7 +1092,7 @@ void GuiSmoothSurface::operate()
     
     foreach(vtkIdType node,SelectedNodes)
     {
-      cout<<"node="<<node<<" VertexAvgDist="<<CurrentVertexAvgDist(node,n2n,grid)<<endl;
+      cout<<"node="<<node<<" VertexAvgDist="<<CurrentVertexAvgDist(node)<<endl;
     }
     
     updateActors();
@@ -1125,7 +1125,7 @@ void GuiSmoothSurface::operate()
     
     foreach(vtkIdType node,SelectedNodes)
     {
-      double L=CurrentVertexAvgDist(node,n2n,grid);
+      double L=CurrentVertexAvgDist(node);
       double D=1./L;
       if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
       node_meshdensity->SetValue(node, D);
@@ -1136,7 +1136,7 @@ void GuiSmoothSurface::operate()
     {
       foreach(vtkIdType node,SelectedNodes)
       {
-        double D=DesiredMeshDensity(node,n2n,grid);
+        double D=DesiredMeshDensity(node);
         double L=1./D;
         if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
         node_meshdensity->SetValue(node, D);

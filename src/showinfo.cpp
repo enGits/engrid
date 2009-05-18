@@ -33,7 +33,7 @@ void ShowInfo::operate()
     if(PickedCell>=0 && PickedCell<N_cells)
     {
       cout<<"=== INFO ON CELL "<<PickedCell<<" ==="<<endl;
-      cout<<"c2c[PickedCell]="<<c2c[PickedCell]<<endl;
+      cout<<"c2c_func(PickedCell)="<<c2c_func(PickedCell)<<endl;
       vtkIdType *pts, N_pts;
       grid->GetCellPoints(PickedCell, N_pts, pts);
       cout<<"pts=";
@@ -51,8 +51,8 @@ void ShowInfo::operate()
     if(PickedPoint>=0 && PickedPoint<N_points)
     {
       cout<<"=== INFO ON POINT "<<PickedPoint<<" ==="<<endl;
-      cout<<"n2n[PickedPoint]="<<n2n[PickedPoint]<<endl;
-      cout<<"n2c[PickedPoint]="<<n2c[PickedPoint]<<endl;
+      cout<<"n2n_func(PickedPoint)="<<n2n_func(PickedPoint)<<endl;
+      cout<<"n2c_func(PickedPoint)="<<n2c_func(PickedPoint)<<endl;
       cout<<"====================================="<<endl;
     }
     else

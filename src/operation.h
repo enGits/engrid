@@ -204,6 +204,18 @@ public: // methods
   void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
   void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
   
+  ///Equivalent of n2c in absolute numbering
+  QSet<vtkIdType>    n2c_func(vtkIdType idx);
+  ///Equivalent of n2n in absolute numbering
+  QSet<vtkIdType>    n2n_func(vtkIdType idx);
+  ///Equivalent of c2c in absolute numbering
+  QVector<vtkIdType> c2c_func(vtkIdType idx);
+  
+  double CurrentVertexAvgDist(vtkIdType a_vertex);
+  double CurrentMeshDensity(vtkIdType a_vertex);
+  double DesiredVertexAvgDist(vtkIdType a_vertex);
+  double DesiredMeshDensity(vtkIdType a_vertex);
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit
@@ -285,9 +297,5 @@ void Operation::setNodes(const T &nds)
 };
 
 //////////////////////////////////////////////
-double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
 
 #endif

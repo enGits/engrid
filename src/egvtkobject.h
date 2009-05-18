@@ -631,7 +631,7 @@ int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
 template <class T>
-ostream &operator<<(ostream &out, QVector<T> & vector)
+ostream &operator<<(ostream &out, QVector<T> const & vector)
 {
   int N=vector.size();
   out<<"[";
