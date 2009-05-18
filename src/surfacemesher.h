@@ -89,24 +89,6 @@ class SurfaceMesher : public Operation {
     int SwapFunction();
     int SmoothFunction();
     void MeshDensityFunction();
-
-  //debugging
-public:
-  QMap <vtkIdType,bool> m_marked_cells;
-  QMap <vtkIdType,bool> m_marked_nodes;
-  QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
-  
-  QVector <stencil_t> m_StencilVector;
-  vtkIdType m_newNodeId;
-  
-  bool _insert_fieldpoint(vtkIdType D);
-  bool _insert_edgepoint(vtkIdType j,vtkIdType K);// node1 K, node2 j
-  int _insert_FP_counter();
-  int _insert_EP_counter();
-  int _insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
-  int _insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
-  int _insert_FP_all();
-  int _insert_EP_all();
 };
 //end of SurfaceMesher class
 
