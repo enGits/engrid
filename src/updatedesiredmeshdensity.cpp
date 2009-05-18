@@ -26,7 +26,7 @@ UpdateDesiredMeshDensity::~UpdateDesiredMeshDensity()
 void UpdateDesiredMeshDensity::operate()
 {
   //define desired mesh density
-  cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
+  cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -90,26 +90,10 @@ void UpdateDesiredMeshDensity::operate()
       {
         double D=DesiredMeshDensity(node);
         if(first) {
-          if(DebugLevel>2) {
-            cout<<"------>FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-          }
           diff=abs(D-node_meshdensity->GetValue(node));
           first=false;
         }
         else {
-          if(DebugLevel>2) {
-            cout<<"------>NOT FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-            cout<<"------>diff="<<diff<<endl;
-            cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
-          }
           diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
         }
         node_meshdensity->SetValue(node, D);
@@ -120,6 +104,8 @@ void UpdateDesiredMeshDensity::operate()
   } while(diff>Convergence_meshdensity && !first && iter<MaxiterDensity);// if first=true, it means no new mesh density has been defined (all densities specified)
   cout<<"iter="<<iter<<endl;
   if(iter>=MaxiterDensity) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
+  
+  cout<<"=== UpdateDesiredMeshDensity END ==="<<endl;
 }
 
 VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexType)

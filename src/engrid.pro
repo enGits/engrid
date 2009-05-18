@@ -21,7 +21,7 @@ QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
 
 QMAKE_CXXFLAGS += -Wall
 
-# QMAKE_CXXFLAGS += -pg
+QMAKE_CXXFLAGS += -pg
 
 QT += xml network opengl
 
