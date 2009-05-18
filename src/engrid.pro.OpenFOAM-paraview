@@ -5,7 +5,6 @@ TARGET   = engrid
 # install
 target.path = ../platforms/$(WM_ARCH)
 
-# target.path = $$PREFIX/bin
 INSTALLS += target
 
 #CONFIG += qt release thread
@@ -19,6 +18,8 @@ DEFINES += QT_NO_DEBUG
 # get "git revision number"
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
 
+QMAKE_CXXFLAGS += -Wall
+
 #
 # some hacks to reuse the OpenFOAM paraview files
 #
@@ -26,12 +27,8 @@ VTKDIR = $(ParaView_DIR)
 
 !win32 {
     LIBS += -L./netgen_svn
-#    LIBS += -L$(VTKLIBDIR)
-#    LIBS += -L$(VTKLIB)/bin
-#    LIBS += -Wl,-rpath
     LIBS += -L$(ParaView_DIR)/lib/paraview-3.5
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    INCLUDEPATH += $(VTKINCDIR)
+    QMAKE_CXXFLAGS += -DVTK_EXCLUDE_STRSTREAM_HEADERS
 # reuse the OpenFOAM paraview files
 # should be easier when the PARAVIEW_INSTALL_DEVELOPMENT:BOOL=ON works better
     INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Common
