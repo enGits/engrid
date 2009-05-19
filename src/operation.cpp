@@ -1482,15 +1482,33 @@ bool Operation::FullCycleOfPolygons(vtkIdType a_node)
   }
 }
 
-//TODO: Finish this
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
-  char ret=VTK_SIMPLE_EDGE;
+  char ret=VTK_SIMPLE_EDGE;//default value
+  
   QSet <vtkIdType> set1 = n2c_func(a_node1);
   QSet <vtkIdType> set2 = n2c_func(a_node2);
   set1.intersect(set2);
-  QVector <vtkIdType> vec = Set2Vector(set1,false);
-  vtkIdType cell1 = vec[0];
+  QVector <vtkIdType> cell_vector = Set2Vector(set1,false);
+  if(cell_vector.size()<2){
+    ret=VTK_BOUNDARY_EDGE;
+  }
+  else{
+    vtkIdType cell1 = cell_vector[0];
+    vtkIdType cell2 = cell_vector[1];
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    int bc1=cell_code->GetValue(cell1);
+    int bc2=cell_code->GetValue(cell2);
+    if(bc1!=bc2){
+      ret=VTK_BOUNDARY_EDGE;
+    }
+    else{
+      double CosAlpha=CosAngle(grid,cell1,cell2);
+      double CosFeatureAngle=cos(this->FeatureAngle);
+      if(CosAlpha<CosFeatureAngle) ret=VTK_FEATURE_EDGE;
+    }
+  }
+  
   return(ret);
 }
 
