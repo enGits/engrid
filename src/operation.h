@@ -223,6 +223,8 @@ public: // methods
   char getNodeType(vtkIdType a_node);
   bool FullCycleOfPolygons(vtkIdType a_node);
   int getNumberOfFeatureEdges(vtkIdType a_node);
+  ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
+  vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
   
   //---------------------------------------------------
 //Utility functions used in Roland's formulas

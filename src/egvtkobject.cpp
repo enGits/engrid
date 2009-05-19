@@ -1212,7 +1212,6 @@ int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
   return(id_maxlen);
 }
 
-//get number of the edge corresponding to node1-node2
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2)
 {
   vtkIdType N_pts, *pts;
@@ -1301,19 +1300,6 @@ pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
   vtkIdType x=min(a,b);
   vtkIdType y=max(a,b);
   return(pair<vtkIdType,vtkIdType>(x,y));
-}
-
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_cell, N_pts, pts);
-  
-  int i;
-  for(i=0;i<N_pts;i++)
-  {
-    if(pts[i]==a_node) break;
-  }
-  return a_c2c[a_cell][i];
 }
 
 const char* VertexType2Str(char T)

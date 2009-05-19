@@ -610,7 +610,7 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   return(N);
 }
 
-//Remove or finish???
+//TODO: Remove or finish??? Could be put into geometrytools.
 //Function to check if empty volumes appear when moving DeadNode tp PSP
 bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
 {
@@ -619,6 +619,7 @@ bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
   return(true);
 }
 
+//TODO: Could be put into geometrytools.
 vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
 {
   vtkIdType *pts, Npts;
@@ -729,7 +730,7 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
   return(false);//should never happen
 }
 
-//TODO: rename those getNeighbour* functions to avoid confusion
+//TODO: rename those getNeighbour* functions or merge them to avoid confusion and simplify things.
 bool Operation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
   Peons.clear();
@@ -1470,12 +1471,35 @@ char Operation::getNodeType(vtkIdType a_node)
 
 bool Operation::FullCycleOfPolygons(vtkIdType a_node)
 {
-
+  QVector <vtkIdType> N = Set2Vector(n2n_func(a_node),false);
+  for(int i=0;i<N.size();i++)
+  {
+/*    getSide(cell,grid,node1,node2);
+    /foo*/
+  }
 }
 
 int Operation::getNumberOfFeatureEdges(vtkIdType a_node)
 {
 
+}
+
+vtkIdType Operation::getNextCell(vtkIdType a_cell, vtkIdType a_node)
+{
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(a_cell, N_pts, pts);
+  
+  int i;
+  for(i=0;i<N_pts;i++)
+  {
+    if(pts[i]==a_node) break;
+  }
+  //TODO: Optimize if slow
+//this is unreadable but faster
+//   cells[c2c[_cells[a_cell]][i]];
+  QVector<vtkIdType> vec = c2c_func(a_cell);
+  return vec[i];
+//   return c2c[a_cell][i];
 }
 
 // DEFINITIONS:

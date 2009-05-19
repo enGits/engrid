@@ -623,9 +623,12 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, boo
 int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
 
+///get number of the shortest side of the cell
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+///get number of the longest side of the cell
 int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 
+///get number of the edge corresponding to node1-node2
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
 
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
@@ -741,8 +744,6 @@ QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
 // ///////////////////////////////////////////
 
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
-
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid);
 
 const char* VertexType2Str(char T);
 char Str2VertexType(QString S);
