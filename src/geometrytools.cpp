@@ -400,7 +400,11 @@ double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3
 
 double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2)
 {
-
+  vec3_t u1 = cellNormal(grid, cell1);
+  vec3_t u2 = cellNormal(grid, cell2);
+  u1.normalise();
+  u2.normalise();
+  return(u1*u2);
 }
 
 } // namespace
