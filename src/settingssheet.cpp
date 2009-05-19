@@ -150,7 +150,7 @@ void SettingsSheet::setFormula(int row, int column,
 
 QString SettingsSheet::formula(int row, int column) const
 {
-  int RowCount=this->rowCount();
+//   int RowCount=this->rowCount();
   int ColumnCount=this->columnCount();
   Cell *c = cell(row, column);
   if (c) {

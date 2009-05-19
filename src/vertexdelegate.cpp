@@ -50,7 +50,7 @@ void VertexDelegate::setEditorData(QWidget *editor,
 {
     if (index.column() == durationColumn) {
 //         int secs = index.model()->data(index, Qt::DisplayRole).toInt();
-        QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
+//         QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
 // 	ComboEdit->setCurrentIndex(secs);
     } else {
         QItemDelegate::setEditorData(editor, index);

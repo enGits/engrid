@@ -270,8 +270,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   N_chars = 0;
   
-  bool exp_features;
-//   getSet("","enable experimental features",false,exp_features);
+  bool exp_features=false;
+  getSet("","enable experimental features",false,exp_features);
   bool undo_redo;
   getSet("","enable undo/redo",false,undo_redo);
   bool undo_redo_mode;
@@ -1407,7 +1407,7 @@ void GuiMainWindow::ViewCellIDs()
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(vtkIdType id_cell=0;id_cell<CellText_Follower.size();id_cell++){
+    for(vtkIdType id_cell=0;id_cell<(vtkIdType)CellText_Follower.size();id_cell++){
       getRenderer()->RemoveActor(CellText_Follower[id_cell]);
       CellText_Follower[id_cell]->Delete();
       CellText_PolyDataMapper[id_cell]->Delete();

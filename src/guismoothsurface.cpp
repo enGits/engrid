@@ -436,9 +436,7 @@ int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
   cout<<"==============="<<endl;
   cout<<"ErrorScalars:"<<endl;
   int N1,N2;
-  double x1[3], x2[3], x3[3], l1[3], l2[3];
   double dist;
-  int numPts=0;
   N1=algo->GetOutput()->GetPointData()->GetNumberOfArrays();
 //   cout<<"nb of arrays="<<N1<<endl;
   algo->GetOutput();//vtkPolyData
@@ -471,6 +469,7 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   cout<<"Number of components=N1="<<N1<<endl;
   cout<<"Number of tuples=N2="<<N2<<endl;
   
+  //TODO: Fix this eventually
 /*  void vtkFieldData::GetTuple  	(  	const vtkIdType   	 i,
                                	   	double *  	tuple	 
                                	) 			
@@ -854,7 +853,6 @@ void GuiSmoothSurface::operate()
         grid->GetCellPoints(id_cell, N_pts, pts);
         vec3_t C(0,0,0);
         
-        vtkIdType type_cell = grid->GetCellType(id_cell);
         int N_neighbours=N_pts;
         if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
         vec3_t corner[4];
@@ -990,7 +988,6 @@ void GuiSmoothSurface::operate()
       foreach(stencil_t S,StencilVector)
       {
         cout<<S<<endl;
-        vtkIdType N_pts, *pts;
         vec3_t A,B;
         grid_tmp->GetPoint(S.p[1],A.data());
         grid_tmp->GetPoint(S.p[3],B.data());
@@ -1080,10 +1077,7 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
     cout<<"bcs="<<bcs<<endl;
     cout<<"bcs_complement="<<bcs_complement<<endl;
-    
-    int N_points=grid->GetNumberOfPoints();
-    int N_cells=grid->GetNumberOfCells();
-    
+
     QVector<vtkIdType> SelectedCells;
     getSurfaceCells(bcs, SelectedCells, grid);
     QVector<vtkIdType> AllCells;
@@ -1110,9 +1104,6 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs_complement=complementary_bcs(bcs,grid,cells);
     cout<<"bcs="<<bcs<<endl;
     cout<<"bcs_complement="<<bcs_complement<<endl;
-    
-    int N_points=grid->GetNumberOfPoints();
-    int N_cells=grid->GetNumberOfCells();
     
     QVector<vtkIdType> SelectedCells;
     getSurfaceCells(bcs, SelectedCells, grid);
@@ -1161,12 +1152,10 @@ void GuiSmoothSurface::operate()
     EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
     smooth->SetInput(input);
 
-
-    int j, k;
     vtkIdType npts = 0;
     vtkIdType *pts = 0;
   
-    vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
+    vtkCellArray *inVerts;
 
     cout<<"input->GetVerts()="<<input->GetVerts()<<endl;
     cout<<"input->GetVerts()->GetSize()="<<input->GetVerts()->GetSize()<<endl;
@@ -1184,10 +1173,10 @@ void GuiSmoothSurface::operate()
   for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
   inVerts->GetNextCell(npts,pts); )
     {
-	cout<<"npts="<<npts<<endl;
-    for (j=0; j<npts; j++)
+      cout<<"npts="<<npts<<endl;
+      for (int j=0; j<npts; j++)
       {
-	cout<<"pts["<<j<<"]="<<pts[j]<<endl;
+        cout<<"pts["<<j<<"]="<<pts[j]<<endl;
       }
     }
 
@@ -1267,9 +1256,6 @@ void GuiSmoothSurface::operate()
     int N_newpoints;
     int N_newcells;
     
-    vtkIdType N_points=grid->GetNumberOfPoints();
-    vtkIdType N_cells=grid->GetNumberOfCells();
-    
     bool Global_DelResult=true;
     while(Global_DelResult)
     {
@@ -1302,12 +1288,6 @@ void GuiSmoothSurface::operate()
     SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
     SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
-    
-    int N_newpoints;
-    int N_newcells;
-    
-    vtkIdType N_points=grid->GetNumberOfPoints();
-    vtkIdType N_cells=grid->GetNumberOfCells();
     
     QVector <VertexMeshDensity> VMDvector=GetSet();
 //     cout<<"VMDvector="<<VMDvector<<endl;

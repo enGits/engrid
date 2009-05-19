@@ -36,7 +36,7 @@ void LaplaceSmoother::operate()
   EG_VTKSP(vtkUnstructuredGrid,m_grid_orig);
   makeCopy(m_grid, m_grid_orig);
   
-  double closestPoint[3];
+//   double closestPoint[3];
   vtkIdType cellId;
   int subId;
   double dist2;
@@ -48,7 +48,7 @@ void LaplaceSmoother::operate()
   cout<<"terminator->GetNumberOfCellsPerBucket()="<<terminator->GetNumberOfCellsPerBucket()<<endl;
   cout<<"terminator->GetCacheCellBounds()="<<terminator->GetCacheCellBounds()<<endl;
   
-  vtkGenericCell * cell=vtkGenericCell::New();
+//   vtkGenericCell * cell=vtkGenericCell::New();
   
   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");

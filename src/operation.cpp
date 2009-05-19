@@ -688,9 +688,9 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
     QVector <vtkIdType> neighbours(N);
     qCopy(n2n[Boss].begin(), n2n[Boss].end(), neighbours.begin());
     
-    double alphamin_value;
-    vtkIdType alphamin_i;
-    vtkIdType alphamin_j;
+    double alphamin_value=-1;
+    vtkIdType alphamin_i=-1;
+    vtkIdType alphamin_j=-1;
     bool first=true;
     
     for(int i=0;i<N;i++)
