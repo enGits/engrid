@@ -641,7 +641,7 @@ vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
   return(x);
 }
 
-bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC)
+bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
   //TODO: Optimize intersection part
   
@@ -797,26 +797,20 @@ int Operation::UpdateNodeType_all()
   
   vtkPolyData* input=pdata;
   
-  vtkPolyData *source = 0;
-  
   vtkIdType numPts, numCells, i, numPolys;
   int j, k;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  double x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
-  double closestPt[3], dist2, *w = NULL;
-  int iterationNumber, abortExecute;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
-  vtkCellArray *inVerts, *inLines, *inPolys;
-  vtkPoints *newPts;
+  vtkCellArray *inPolys;
   vtkMeshVertexPtr Verts;
-  vtkCellLocator *cellLocator=NULL;
   
     // Check input
     //
@@ -1134,26 +1128,20 @@ int Operation::UpdateNodeType()
   
   vtkPolyData* input=pdata;
   
-  vtkPolyData *source = 0;
-  
   vtkIdType numPts, numCells, i, numPolys;
   int j, k;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  double x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
-  double closestPt[3], dist2, *w = NULL;
-  int iterationNumber, abortExecute;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
-  vtkCellArray *inVerts, *inLines, *inPolys;
-  vtkPoints *newPts;
+  vtkCellArray *inPolys;
   vtkMeshVertexPtr Verts;
-  vtkCellLocator *cellLocator=NULL;
   
     // Check input
     //
@@ -1597,9 +1585,8 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     
     if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
     {
-      int BC=0;
       QVector <vtkIdType> Peons;
-      getNeighbours(DeadNode, Peons, BC);
+      getNeighbours(DeadNode, Peons);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -1609,7 +1596,6 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     
     if(node_type->GetValue(DeadNode)==BC_BOUNDARY_EDGE_VERTEX)
     {
-      int BC=0;
       QVector <vtkIdType> Peons;
       getNeighbours_BC(DeadNode, Peons);
       if(!Peons.contains(PSP))
@@ -1633,9 +1619,8 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     
     if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
     {
-      int BC=0;
       QVector <vtkIdType> Peons;
-      getNeighbours(DeadNode, Peons, BC);
+      getNeighbours(DeadNode, Peons);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -1646,7 +1631,6 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     //TODO: merge with previous case if possible
     if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX)
     {
-      int BC=0;
       QVector <vtkIdType> Peons;
       getNeighbours_BC(DeadNode, Peons);
       if(!Peons.contains(PSP))
@@ -1834,7 +1818,6 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
         }
         else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
         //merge points
-        int j=0;
         for(int i=0;i<src_N_pts;i++)
         {
 /*          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
@@ -2048,6 +2031,7 @@ QVector<vtkIdType> Operation::c2c_func(vtkIdType idx)
   }
   return(ret);
 }
+//---------------------------------------------------
 
 QSet <int> Operation::getBCset(vtkIdType a_node)
 {

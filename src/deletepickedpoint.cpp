@@ -54,7 +54,6 @@ void DeletePickedPoint::operate()
 //   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
   QVector <vtkIdType> Peons;
   vtkIdType Boss;
-  int BC=0;
   
   QMessageBox msgBox;
   msgBox.setText("Delete point?");
@@ -69,8 +68,8 @@ void DeletePickedPoint::operate()
     cout<<"no was clicked"<<endl;
     Boss=nodeId;
     cout<<"=== Topological neighbours ==="<<endl;
-    getNeighbours(Boss,Peons,BC);
-    cout<<"Boss="<<Boss<<" Peons="<<Peons<<" BC="<<BC<<endl;
+    getNeighbours(Boss,Peons);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
     cout<<"=== BC neighbours ==="<<endl;
     getNeighbours_BC(Boss,Peons);
     cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
