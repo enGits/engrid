@@ -195,7 +195,7 @@ public: // methods
   
   void TxtSave(QString a_filename);
   void DualSave(QString a_filename);
-    
+  
   //Special for UpdateNodeType_all
   void SetConvergence(double C){Convergence=C;};
   void SetNumberOfIterations(int N){NumberOfIterations=N;};
@@ -219,8 +219,8 @@ public: // methods
   double DesiredVertexAvgDist(vtkIdType a_vertex);
   double DesiredMeshDensity(vtkIdType a_vertex);
   
-  ///Returns the number of boundary codes next to this node
-  int N_neighbour_BCs(vtkIdType a_node);
+  ///Returns the set of boundary codes next to this node
+  QSet <int> getBCset(vtkIdType a_node);
   
   //---------------------------------------------------
 //Utility functions used in Roland's formulas

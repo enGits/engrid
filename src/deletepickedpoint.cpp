@@ -68,8 +68,12 @@ void DeletePickedPoint::operate()
   case QMessageBox::No:
     cout<<"no was clicked"<<endl;
     Boss=nodeId;
+    cout<<"=== Topological neighbours ==="<<endl;
     getNeighbours(Boss,Peons,BC);
     cout<<"Boss="<<Boss<<" Peons="<<Peons<<" BC="<<BC<<endl;
+    cout<<"=== BC neighbours ==="<<endl;
+    getNeighbours_BC(Boss,Peons);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
     break;
   default:
      // should never be reached

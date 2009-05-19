@@ -643,6 +643,8 @@ vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
 
 bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC)
 {
+  //TODO: Optimize intersection part
+  
 //   QVector <vtkIdType> Peons;
   
   QSet <int> S1=n2c[Boss];
@@ -723,92 +725,30 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC
 /*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
     EG_BUG;*/
   }
+  //TODO: Fix this
   return(false);//should never happen
 }
 
+//TODO: rename those getNeighbour* functions to avoid confusion
 bool Operation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
-//   QVector <vtkIdType> Peons;
-  
+  Peons.clear();
   QSet <int> S1=n2c[Boss];
-//   cout<<"S1="<<S1<<endl;
   foreach(vtkIdType PN,n2n[Boss])
   {
-//     cout<<"PN="<<PN<<endl;
-    QSet <int> S2=n2c[PN];
-//     cout<<"S2="<<S2<<endl;
-    QSet <int> Si=S2.intersect(S1);
-//     cout<<"PN="<<PN<<" Si="<<Si<<endl;
-    if(Si.size()<2)//only one common cell
-    {
+    QSet <int> E1=getBCset(Boss);
+    int n1=E1.size();
+    QSet <int> E2=getBCset(PN);
+    int n2=E2.size();
+    
+    E2.intersect(E1);//Removes all items from E2 that are not contained in the E1.
+    
+    if(n1<=n2 && E2==E1){
       Peons.push_back(PN);
     }
-    else
-    {
-      QSet <int> bc_set;
-      foreach(vtkIdType C,Si)
-      {
-        EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-        int bc=cell_code->GetValue(C);
-//         cout<<"C="<<C<<" bc="<<bc<<endl;
-        bc_set.insert(bc);
-      }
-      if(bc_set.size()>1)//2 different boundary codes
-      {
-        Peons.push_back(PN);
-      }
-    }
   }
-  if(Peons.size()==2)
-  {
-/*    Peon1=Peons[0];
-    Peon2=Peons[1];*/
-    return(true);
-  }
-  else
-  {
-    int N=n2n[Boss].size();
-    QVector <vtkIdType> neighbours(N);
-    qCopy(n2n[Boss].begin(), n2n[Boss].end(), neighbours.begin());
-    
-    double alphamin_value;
-    vtkIdType alphamin_i;
-    vtkIdType alphamin_j;
-    bool first=true;
-    
-    for(int i=0;i<N;i++)
-    {
-      for(int j=i+1;j<N;j++)
-      {
-        double alpha=deviation(grid,neighbours[i],Boss,neighbours[j]);
-//         cout<<"alpha("<<neighbours[i]<<","<<Boss<<","<<neighbours[j]<<")="<<alpha<<endl;
-        if(first) {
-          alphamin_value=alpha;
-          alphamin_i=i;
-          alphamin_j=j;
-          first=false;
-        }
-        else
-        {
-          if(alpha<alphamin_value)
-          {
-            alphamin_value=alpha;
-            alphamin_i=i;
-            alphamin_j=j;
-          }
-        }
-      }
-    }
-//     cout<<"alphamin_value="<<alphamin_value<<endl;
-    
-    Peons.resize(2);
-    Peons[0]=neighbours[alphamin_i];
-    Peons[1]=neighbours[alphamin_j];
-    return(true);
-/*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
-    EG_BUG;*/
-  }
-  return(false);//should never happen
+  cout<<"Boss="<<Boss<<" can snap to Peons="<<Peons<<endl;
+  return(true);
 }
 
 int Operation::UpdateMeshDensity()
@@ -1151,7 +1091,8 @@ int Operation::UpdateNodeType_all()
   {
     if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     char T=Verts[node].type;
-    int N=N_neighbour_BCs(node);
+    QSet <int> BCset = getBCset(node);
+    int N=BCset.size();
     //TODO: There could be more cases. Either define new node types or create a node field containing the number of BCs.
     if(N>2) node_type->SetValue(node,BC_FIXED_VERTEX);
     else if(N==2){
@@ -1524,7 +1465,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
   setDebugLevel(20);
   
   EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
-  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX)
+  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX || node_type->GetValue(DeadNode)==BC_FIXED_VERTEX)
   {
     cout<<"Sorry, unable to remove fixed vertex."<<endl;
     return(-1);
@@ -1659,6 +1600,18 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
       int BC=0;
       QVector <vtkIdType> Peons;
       getNeighbours(DeadNode, Peons, BC);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(node_type->GetValue(DeadNode)==BC_BOUNDARY_EDGE_VERTEX)
+    {
+      int BC=0;
+      QVector <vtkIdType> Peons;
+      getNeighbours_BC(DeadNode, Peons);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -2096,7 +2049,7 @@ QVector<vtkIdType> Operation::c2c_func(vtkIdType idx)
   return(ret);
 }
 
-int Operation::N_neighbour_BCs(vtkIdType a_node)
+QSet <int> Operation::getBCset(vtkIdType a_node)
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   QSet <vtkIdType> neighbours=n2c_func(a_node);
@@ -2105,5 +2058,5 @@ int Operation::N_neighbour_BCs(vtkIdType a_node)
   {
     bc.insert(cell_code->GetValue(C));
   }
-  return(bc.size());
+  return(bc);
 }
