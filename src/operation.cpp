@@ -912,8 +912,12 @@ int Operation::UpdateNodeType_all()
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
         if(DebugLevel>5) cout<<"-->numNei="<<numNei<<endl;
+        //-----------------------
+        //determine edge types
         
+        //default value
         edge = VTK_SIMPLE_VERTEX;
+        
         if ( numNei == 0 )
         {
           edge = VTK_BOUNDARY_EDGE_VERTEX;
@@ -942,7 +946,7 @@ int Operation::UpdateNodeType_all()
           vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
           
           if ( this->FeatureEdgeSmoothing &&
-               vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+               vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
           {
             edge = VTK_FEATURE_EDGE_VERTEX;
           }
@@ -952,6 +956,8 @@ int Operation::UpdateNodeType_all()
           continue;
         }
         
+        //-----------------------
+        //determine node types pre-processing
         if ( edge && Verts[p1].type == VTK_SIMPLE_VERTEX )
         {
           Verts[p1].edges->Reset();
@@ -965,7 +971,7 @@ int Operation::UpdateNodeType_all()
           Verts[p1].edges->InsertNextId(p2);
           if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
           {
-            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
           }
         }
         
@@ -985,14 +991,17 @@ int Operation::UpdateNodeType_all()
             Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
           }
         }
-      }
-    }
+        //-----------------------
+        
+      }//end of loop through points of cell
+    }//end of loop through cells
     
     inMesh->Delete();
     
     neighbors->Delete();
   }//if strips or polys
   
+  //determine node type post-processing
     //post-process edge vertices to make sure we can smooth them
   for (i=0; i<numPts; i++)
   {
@@ -1181,9 +1190,9 @@ int Operation::UpdateNodeType()
   if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
   if(DebugLevel>5) cout<<"0:numPts="<<numPts<<endl;
   Verts = new vtkMeshVertex[numPts];
+  //Set up default values
   for (i=0; i<numPts; i++)
   {
-    if(DebugLevel>5) cout<<"0:VTK_SIMPLE_VERTEX"<<endl;
     Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
     Verts[i].edges = NULL;
   }
@@ -1482,6 +1491,7 @@ bool Operation::FullCycleOfPolygons(vtkIdType a_node)
   else return(true);
 }
 
+//TODO: take into account more than 2 cells on one edge like in the VTK algorithm
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
   char ret=VTK_SIMPLE_EDGE;//default value
