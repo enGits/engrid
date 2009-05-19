@@ -398,4 +398,9 @@ double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3
   return angle(u,v);
 }
 
+double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2)
+{
+
+}
+
 } // namespace

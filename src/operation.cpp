@@ -1434,6 +1434,50 @@ int Operation::UpdateNodeType()
 }
 //End of UpdateNodeType
 
+char Operation::getNodeType(vtkIdType a_node)
+{
+  char type=-1;
+  //pre-processing
+  if(!FullCycleOfPolygons(a_node)){
+    type=VTK_BOUNDARY_EDGE_VERTEX;
+  }
+  else{
+    int N=getNumberOfFeatureEdges(a_node);
+    if(N==0) type=VTK_SIMPLE_VERTEX;
+    else if(N==2) type=VTK_FEATURE_EDGE_VERTEX;
+    else type=VTK_FIXED_VERTEX;
+  }
+  //post-processing
+  QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
+  if( type==VTK_FEATURE_EDGE_VERTEX || type==VTK_BOUNDARY_EDGE_VERTEX ){
+    if( !this->BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ){
+      type=VTK_FIXED_VERTEX;
+    }
+    else if(C.size()!=2){
+      type=VTK_FIXED_VERTEX;
+    }
+    else{
+      double CosAlpha=CosAngle(grid,C[0],C[1]);
+      double CosEdgeAngle=cos(this->EdgeAngle);
+      if(CosAlpha<CosEdgeAngle){
+        type=VTK_FIXED_VERTEX;
+      }
+    }
+  }
+  
+  return(type);
+}
+
+bool Operation::FullCycleOfPolygons(vtkIdType a_node)
+{
+
+}
+
+int Operation::getNumberOfFeatureEdges(vtkIdType a_node)
+{
+
+}
+
 // DEFINITIONS:
 // Normal cell: nothing has changed
 // Dead cell: the cell does not exist anymore

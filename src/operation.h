@@ -220,6 +220,10 @@ public: // methods
   ///Returns the set of boundary codes next to this node
   QSet <int> getBCset(vtkIdType a_node);
   
+  char getNodeType(vtkIdType a_node);
+  bool FullCycleOfPolygons(vtkIdType a_node);
+  int getNumberOfFeatureEdges(vtkIdType a_node);
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

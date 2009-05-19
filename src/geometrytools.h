@@ -128,6 +128,9 @@ double deviation(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTyp
 /** return the angle p1,p2,p3 (angle(p1-p2,p3-p2)) */
 double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
 
+/** return the cosine of the angle between the normals of cell1 and cell2 */
+double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2);
+
 };
 
 #endif
