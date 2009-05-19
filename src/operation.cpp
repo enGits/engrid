@@ -1435,6 +1435,7 @@ int Operation::UpdateNodeType()
 }
 //End of UpdateNodeType
 
+//TODO: Optimize
 char Operation::getNodeType(vtkIdType a_node)
 {
   char type=-1;
@@ -1469,17 +1470,10 @@ char Operation::getNodeType(vtkIdType a_node)
   return(type);
 }
 
-//TODO: Use edges instead to determine node type + consider cells with different boundary code the same as no cells
-//TODO: Finish this
 bool Operation::FullCycleOfPolygons(vtkIdType a_node)
 {
-  QVector <vtkIdType> N = Set2Vector(n2n_func(a_node),false);
-  for(int i=0;i<N.size();i++)
-  {
-//     getNextCell(cell,a_node);
-/*    getSide(cell,grid,node1,node2);
-    /foo*/
-  }
+  if(getNumberOfBoundaryEdges(a_node)!=0) return(false);
+  else return(true);
 }
 
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
@@ -1518,6 +1512,16 @@ int Operation::getNumberOfFeatureEdges(vtkIdType a_node)
   QSet <vtkIdType> neighbours = n2n_func(a_node);
   foreach(vtkIdType i, neighbours){
     if(getEdgeType(a_node,i)==VTK_FEATURE_EDGE) N++;
+  }
+  return(N);
+}
+
+int Operation::getNumberOfBoundaryEdges(vtkIdType a_node)
+{
+  int N=0;
+  QSet <vtkIdType> neighbours = n2n_func(a_node);
+  foreach(vtkIdType i, neighbours){
+    if(getEdgeType(a_node,i)==VTK_BOUNDARY_EDGE) N++;
   }
   return(N);
 }

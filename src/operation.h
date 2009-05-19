@@ -222,7 +222,10 @@ public: // methods
   
   char getNodeType(vtkIdType a_node);
   bool FullCycleOfPolygons(vtkIdType a_node);
+  ///Returns the number of feature edges around node a_node
   int getNumberOfFeatureEdges(vtkIdType a_node);
+  ///Returns the number of boundary edges around node a_node
+  int getNumberOfBoundaryEdges(vtkIdType a_node);
   ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
   vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
   ///Returns the type of the edge [a_node1,a_node2]
