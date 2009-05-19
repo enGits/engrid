@@ -48,6 +48,11 @@ class EgVtkObject;
 #define BC_FEATURE_EDGE_VERTEX 6
 #define BC_BOUNDARY_EDGE_VERTEX 7
 
+#define VTK_SIMPLE_EDGE 0
+#define VTK_FIXED_EDGE 1
+#define VTK_FEATURE_EDGE 2
+#define VTK_BOUNDARY_EDGE 3
+
 class EgVtkObject
 {
   

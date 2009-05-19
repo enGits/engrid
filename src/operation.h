@@ -225,7 +225,9 @@ public: // methods
   int getNumberOfFeatureEdges(vtkIdType a_node);
   ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
   vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
-  
+  ///Returns the type of the edge [a_node1,a_node2]
+  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
+    
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit
