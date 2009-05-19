@@ -1113,7 +1113,7 @@ int Operation::UpdateNodeType_all()
   return(0);
 }
 //End of UpdateNodeType_all
-
+//Don't let me be misunderstood!
 int Operation::UpdateNodeType()
 {
   if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
@@ -1445,9 +1445,15 @@ char Operation::getNodeType(vtkIdType a_node)
   }
   else{
     int N=getNumberOfFeatureEdges(a_node);
-    if(N==0) type=VTK_SIMPLE_VERTEX;
-    else if(N==2) type=VTK_FEATURE_EDGE_VERTEX;
-    else type=VTK_FIXED_VERTEX;
+    if(N==0){
+      type=VTK_SIMPLE_VERTEX;
+    }
+    else if(N==2){
+      type=VTK_FEATURE_EDGE_VERTEX;
+    }
+    else{
+      type=VTK_FIXED_VERTEX;
+    }
   }
   //post-processing
   QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
@@ -1455,7 +1461,7 @@ char Operation::getNodeType(vtkIdType a_node)
     if( !this->BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ){
       type=VTK_FIXED_VERTEX;
     }
-    else if(C.size()!=2){
+    else if(C.size()!=2){//This is wrong. VTK has been misunderstood. :(
       type=VTK_FIXED_VERTEX;
     }
     else{
