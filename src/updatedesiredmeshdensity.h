@@ -45,7 +45,7 @@ public:
   void operate();
   
   /// Get VertexMeshDensity object
-  VertexMeshDensity getVMD(vtkIdType node, char VertexType);
+  VertexMeshDensity getVMD(vtkIdType node);
 };
 
 #endif

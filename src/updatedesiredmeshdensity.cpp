@@ -49,7 +49,7 @@ void UpdateDesiredMeshDensity::operate()
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
   UpdateNodeType_all();
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+//   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   
@@ -83,7 +83,7 @@ void UpdateDesiredMeshDensity::operate()
     foreach(vtkIdType node,m_AllNodes)
     {
       if(DebugLevel>2) cout<<"======>"<<endl;
-      VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+      VertexMeshDensity nodeVMD = getVMD(node);
       int idx=VMDvector.indexOf(nodeVMD);
       node_specified_density->SetValue(node, idx);
       if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
@@ -113,8 +113,11 @@ void UpdateDesiredMeshDensity::operate()
   cout<<"=== UpdateDesiredMeshDensity END ==="<<endl;
 }
 
-VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexType)
+VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node)
 {
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  char VertexType = node_type->GetValue(node);
+  
   VertexMeshDensity VMD;
   VMD.type=VertexType;
   VMD.density=0;
