@@ -105,7 +105,11 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
         C+=corner[i];
       }
       C=(1/(double)N_neighbours)*C;
+      
+      // ADD POINT
       addPoint(grid_tmp,m_newNodeId,C.data());
+      //TODO: PRIORITY 1: Update node info (densities+type)
+      
       vtkIdType intmidpoint=m_newNodeId;
       m_newNodeId++;
       
@@ -258,7 +262,11 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     grid_tmp->GetPoint(S.p[1],A.data());
     grid_tmp->GetPoint(S.p[3],B.data());
     vec3_t M=0.5*(A+B);
+    
+    //ADD POINT
     addPoint(grid_tmp,m_newNodeId,M.data());
+    //TODO: PRIORITY 1: Update node info (densities+type)
+    
     if(DebugLevel>0) cout<<"NEW EDGE POINT: "<<m_newNodeId<<endl;
     
     vtkIdType pts_triangle[4][3];

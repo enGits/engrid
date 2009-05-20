@@ -1698,7 +1698,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
   
 //   UpdateNodeType_all();
   
-  setDebugLevel(20);
+//   setDebugLevel(20);
   
   EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
   if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX || node_type->GetValue(DeadNode)==BC_FIXED_VERTEX)
@@ -1899,12 +1899,12 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
+/*  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
   cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
-  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;
+  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;*/
   return(SnapPoint);
   
-  setDebugLevel(0);
+//   setDebugLevel(0);
 }
 //End of FindSnapPoint
 
