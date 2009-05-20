@@ -42,7 +42,7 @@ tmp.txt
 engrid.kdevelop.ignore_pcs
 .bzr
 .hg
-*.user
+#*.user
 qtc-gdbmacros
 *.sp
 *.out
