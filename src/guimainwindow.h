@@ -53,29 +53,10 @@ class GuiMainWindow;
 #include "vtkEgExtractVolumeCells.h"
 #include "egvtkobject.h"
 #include "boundarycondition.h"
+#include "volumedefinition.h"
 
 #include "std_includes.h"
 #include "guitransform.h"
-
-// class GuiOutputWindow : public QWidget
-// {
-//   
-//   friend class GuiMainWindow;
-//   
-//   Q_OBJECT;
-//   
-// private: // attributes
-//   
-//   Ui::GuiOutputWindow ui;
-//   
-// public: // methods
-//   
-//   GuiOutputWindow();
-//   
-// };
-
-
-  
 
 /**
  * This is the main GUI class of enGrid.
@@ -231,11 +212,15 @@ private: // attributes
   static QMutex mutex;
   QTimer garbage_timer;
   QTimer log_timer;
-//   GuiOutputWindow *output_window;
   QDockWidget *dock_widget;
   
   /** mapping between numerical and symbolic boundary codes */
   QMap<int,BoundaryCondition> bcmap;
+
+  /** all volume definitions */
+  QMap<QString,VolumeDefinition> volmap;
+
+
   
 private: // static attributes
 
@@ -336,22 +321,24 @@ public: // static methods
   /**
    * Access to the QSettings object/
    */
-  static QSettings* settings() { return &qset; };
+  static QSettings* settings() { return &qset; }
   
-  BoundaryCondition getBC(int bc) { return bcmap[bc]; };
+  BoundaryCondition getBC(int bc) { return bcmap[bc]; }
+  VolumeDefinition  getVol(QString volname) { return volmap[volname]; }
+  QVector<VolumeDefinition> getAllVols();
   
-  static GuiMainWindow* pointer() { return THIS; };
-  static void lock() { mutex.lock(); };
-  static void unlock() { mutex.unlock(); };
-  static bool tryLock() { return mutex.tryLock(); };
+  static GuiMainWindow* pointer() { return THIS; }
+  static void lock() { mutex.lock(); }
+  static void unlock() { mutex.unlock(); }
+  static bool tryLock() { return mutex.tryLock(); }
   void getAllBoundaryCodes(QSet<int> &bcs);
   void getDisplayBoundaryCodes(QSet<int> &bcs);
-  vtkPointPicker* getPointPicker(){return(PointPicker);};
-  vtkSphereSource* getPickSphere(){return(pick_sphere);};
+  vtkPointPicker* getPointPicker(){return(PointPicker);}
+  vtkSphereSource* getPickSphere(){return(pick_sphere);}
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   
-  QString GetFilename() {return(current_filename);};
+  QString GetFilename() {return(current_filename);}
   
 public slots:
   void setUseVTKInteractor(int a_UseVTKInteractor);

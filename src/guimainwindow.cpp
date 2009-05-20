@@ -271,7 +271,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   N_chars = 0;
   
   bool exp_features;
-//   getSet("","enable experimental features",false,exp_features);
+  getSet("","enable experimental features",false,exp_features);
   bool undo_redo;
   getSet("","enable undo/redo",false,undo_redo);
   bool undo_redo_mode;
@@ -1664,9 +1664,6 @@ void GuiMainWindow::about()
   QString title="ENGRID";
   QString version = QString("version ") + ENGRID_VERSION;
   
-/*  if (version == "version CVS") {
-  };*/
-  
   version += " built on ";
   version += QString(__DATE__);
   version += " at ";
@@ -1715,3 +1712,14 @@ void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
     bcs.insert(bc);
   };
 };
+
+QVector<VolumeDefinition> GuiMainWindow::getAllVols()
+{
+  QVector<VolumeDefinition> vols(volmap.size());
+  int i = 0;
+  foreach(VolumeDefinition vol, volmap) {
+    vols[i] = vol;
+    ++i;
+  }
+  return vols;
+}
