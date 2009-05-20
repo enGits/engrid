@@ -270,7 +270,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   N_chars = 0;
   
-  bool exp_features;
+  bool exp_features=false;
   getSet("","enable experimental features",false,exp_features);
   bool undo_redo;
   getSet("","enable undo/redo",false,undo_redo);

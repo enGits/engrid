@@ -1,6 +1,6 @@
 TEMPLATE = app
 LANGUAGE = C++
-TARGET   = engrid
+TARGET = engrid
 
 # install
 target.path = /usr/bin
@@ -8,34 +8,35 @@ target.path = /usr/bin
 # target.path = $$PREFIX/bin
 INSTALLS += target
 
-#CONFIG += qt release thread
-#CONFIG += qt debug thread
-CONFIG += qt debug_and_release thread
-
+# CONFIG += qt release thread
+# CONFIG += qt debug thread
+CONFIG += qt \
+    debug_and_release \
+    thread
 DEFINES += QT_NO_DEBUG
-#DEFINES += QT_DEBUG
 
-#QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
+# DEFINES += QT_DEBUG
+# QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
 # get "git revision number"
-QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
-
+QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
+    describe`\\\"
 QMAKE_CXXFLAGS += -Wall
 
 # QMAKE_CXXFLAGS += -pg
-
-QT += xml network opengl
-
-!win32 {
+QT += xml \
+    network \
+    opengl
+!win32 { 
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
-    #LIBS += -Wl,-rpath
+    
+    # LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
-
-win32 {
+win32 { 
     VTK_DIR = C:\VTK
     VTK_SRCDIR = C:\VTK\5.0.4
     LIBS += -L$$VTK_DIR\bin\release
@@ -61,5 +62,4 @@ win32 {
     LIBS += -Lnetgen_svn\release
     DEFINES += _USE_MATH_DEFINES
 }
-
 include (engrid-standard.pri)

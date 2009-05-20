@@ -408,7 +408,7 @@ void SimpleFoamWriter::writeBoundary()
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void SimpleFoamWriter::operate()
 {
@@ -446,5 +446,5 @@ void SimpleFoamWriter::operate()
     };
   } catch (Error err) {
     err.display();
-  };
-};
+  }
+}

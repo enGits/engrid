@@ -90,6 +90,7 @@ stlwriter.h \
 uniquevector.h \
 swaptriangles.h \
 tvtkoperation.h \
+volumedefinition.h \
 vtkreader.h \
 \
 vtkEgBoundaryCodesFilter.h \
@@ -111,6 +112,7 @@ guisetboundarycode.h \
 guismoothsurface.h \
 guisettingstab.h \
 guisettingsviewer.h \
+guivolumedelegate.h \
 \
 guitransform.h \
 vertexdelegate.h \
@@ -174,6 +176,7 @@ simplefoamwriter.cpp \
 stlreader.cpp \
 stlwriter.cpp \
 swaptriangles.cpp \
+volumedefinition.cpp \
 vtkreader.cpp \
 \
 vtkEgBoundaryCodesFilter.cxx \
@@ -195,6 +198,7 @@ guisetboundarycode.cpp \
 guismoothsurface.cpp \
 guisettingstab.cpp \
 guisettingsviewer.cpp \
+guivolumedelegate.cpp \
 \
 guitransform.cpp \
 vertexdelegate.cpp \

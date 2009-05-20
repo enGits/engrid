@@ -47,7 +47,7 @@ public: // methods
   GuiEditBoundaryConditions();
   
   virtual void before();
-  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; };
+  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; }
   
 };
 

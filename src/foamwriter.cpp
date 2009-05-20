@@ -23,16 +23,17 @@
 #include "foamwriter.h"
 
 #include <QFileInfo>
+#include <QDir>
 
 FoamWriter::FoamWriter()
 {
   setFormat("Foam boundary files(boundary)");
   setExtension("");
-};
+}
 
 void FoamWriter::writePoints(const PolyMesh &poly)
 {
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/points";
+  QString filename = path + "points";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -60,11 +61,11 @@ void FoamWriter::writePoints(const PolyMesh &poly)
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void FoamWriter::writeFaces(const PolyMesh &poly)
 {
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/faces";
+  QString filename = path + "faces";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -98,11 +99,11 @@ void FoamWriter::writeFaces(const PolyMesh &poly)
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void FoamWriter::writeOwner(const PolyMesh &poly)
 {
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/owner";
+  QString filename = path + "owner";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -128,11 +129,11 @@ void FoamWriter::writeOwner(const PolyMesh &poly)
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void FoamWriter::writeNeighbour(const PolyMesh &poly)
 {
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/neighbour";
+  QString filename = path + "neighbour";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -163,71 +164,11 @@ void FoamWriter::writeNeighbour(const PolyMesh &poly)
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
-
-void FoamWriter::writeAllCellsSet(const PolyMesh &poly)
-{
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/sets/allCells";
-  QFile file(filename);
-  file.open(QIODevice::WriteOnly);
-  QTextStream f(&file);
-  f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
-  f << "| =========                 |                                                 |\n";
-  f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
-  f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
-  f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
-  f << "|    \\/     M anipulation  |                                                 |\n";
-  f << "\\*---------------------------------------------------------------------------*/\n\n";
-  f << "FoamFile\n";
-  f << "{\n";
-  f << "    version     2.0;\n";
-  f << "    format      ascii;\n";
-  f << "    class       cellSet;\n";
-  f << "    location    \"constant/polyMesh/sets\";\n";
-  f << "    object      allCells;\n";
-  f << "}\n\n";
-  f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-  f << poly.numCells() << "\n(\n";
-  for (int i = 0; i < poly.numCells(); ++i) {
-    f << i << "\n";
-  };
-  f << ")\n\n";
-  f << "// ************************************************************************* //\n\n\n";
-};
-
-void FoamWriter::writeAllFacesSet(const PolyMesh &poly)
-{
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/sets/allFaces";
-  QFile file(filename);
-  file.open(QIODevice::WriteOnly);
-  QTextStream f(&file);
-  f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
-  f << "| =========                 |                                                 |\n";
-  f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
-  f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
-  f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
-  f << "|    \\/     M anipulation  |                                                 |\n";
-  f << "\\*---------------------------------------------------------------------------*/\n\n";
-  f << "FoamFile\n";
-  f << "{\n";
-  f << "    version     2.0;\n";
-  f << "    format      ascii;\n";
-  f << "    class       faceSet;\n";
-  f << "    location    \"constant/polyMesh/sets\";\n";
-  f << "    object      allFaces;\n";
-  f << "}\n\n";
-  f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-  f << poly.numFaces() << "\n(\n";
-  for (int i = 0; i < poly.numFaces(); ++i) {
-    f << i << "\n";
-  };
-  f << ")\n\n";
-  f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void FoamWriter::writeBoundary(const PolyMesh &poly)
 {
-  QString filename = QFileInfo(getFileName()).absolutePath() + "/constant/polyMesh/boundary";
+  QString filename = path + "boundary";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -256,6 +197,7 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
   int i = N;
   while (i < poly.numFaces()) {
     int bc = poly.boundaryCode(i);
+    BoundaryCondition BC = getBC(bc);
     int nFaces = 0;
     int startFace = i;
     bool loop = (poly.boundaryCode(i) == bc);
@@ -265,32 +207,52 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       loop = (i < poly.numFaces());
       if (loop) loop = (poly.boundaryCode(i) == bc);
     };
-    f << "    BC" << bc << "\n";
+    f << "    " << BC.getName() << "\n";
     f << "    {\n";
-    f << "        type        patch;\n";
+    f << "        type        " << BC.getType() << ";\n";
     f << "        nFaces      " << nFaces << ";\n";
     f << "        startFace   " << startFace << ";\n";
-    f << "    }\n";
+  f << "    }\n";
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void FoamWriter::operate()
 {
   try {
     readOutputDirectory();
     if (isValid()) {
+      QString p1 = getFileName();
+      QString p2 = p1 + "/constant";
+      QDir d1(p1);
+      QDir d2(p2);
+      if (!d1.exists()) {
+        EG_BUG;
+      };
+      if (!d2.exists()) {
+        d1.mkdir("constant");
+        d2 = QDir(p2);
+      };
+      d1 = d2;
+      p1 = p2;
+      p2 = p1 + "/polyMesh";
+      d2 = QDir(p2);
+      if (!d2.exists()) {
+        d1.mkdir("polyMesh");
+      };
+      path = getFileName() + "/constant/polyMesh/";
+      if (!QDir(path).exists()) {
+        EG_BUG;
+      };
       PolyMesh poly(grid);
       writePoints(poly);
       writeFaces(poly);
       writeOwner(poly);
       writeNeighbour(poly);
       writeBoundary(poly);
-      writeAllCellsSet(poly);
-      writeAllFacesSet(poly);
-    };
+    }
   } catch (Error err) {
     err.display();
-  };
-};
+  }
+}

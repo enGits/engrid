@@ -39,7 +39,6 @@ void SetBoundaryCode::pass1()
   {
     using namespace GeometryTools;
     double fa = feature_angle*M_PI/180.0;
-    cout<<"fa="<<fa<<endl;
   
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
@@ -51,7 +50,6 @@ void SetBoundaryCode::pass1()
       
       int bc1 = cell_code->GetValue(pair[i].item1);
       int bc2 = cell_code->GetValue(pair[i].item2);
-      cout<<"bc1="<<bc1<<" bc2="<<bc2<<" DBC="<<DBC<<endl;
       
       if(ProcessAll){
         vec3_t n1 = cellNormal(grid, pair[i].item1);

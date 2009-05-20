@@ -33,7 +33,11 @@ class FoamWriter;
  */
 class FoamWriter : public IOOperation
 {
+
+protected: // attributes
   
+  QString path;
+
 protected: // methods
   
   void writePoints(const PolyMesh &poly);
@@ -41,8 +45,6 @@ protected: // methods
   void writeOwner(const PolyMesh &poly);
   void writeNeighbour(const PolyMesh &poly);
   void writeBoundary(const PolyMesh &poly);
-  void writeAllCellsSet(const PolyMesh &poly);
-  void writeAllFacesSet(const PolyMesh &poly);
   virtual void operate();
   
 public: // methods
