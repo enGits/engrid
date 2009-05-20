@@ -805,8 +805,6 @@ int Operation::UpdateNodeType_all()
   vtkIdType p1, p2;
   double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
-  double CosFeatureAngle; //Cosine of angle between adjacent polys
-  double CosEdgeAngle; // Cosine of angle between adjacent edges
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -823,9 +821,10 @@ int Operation::UpdateNodeType_all()
     return 1;
   }
   
-  CosFeatureAngle = 
-    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  //Cosine of angle between adjacent polys
+  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  // Cosine of angle between adjacent edges
+  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
   
   if(DebugLevel>5) {
     cout<<"Smoothing " << numPts << " vertices, " << numCells 
@@ -1074,17 +1073,17 @@ int Operation::UpdateNodeType_all()
       << numBEdges << " boundary edge vertices\n\t"
       << numFixed << " fixed vertices\n\t"<<endl;
     cout<<"1:numPts="<<numPts<<endl;
-  }
   
-  for (i=0; i<numPts; i++) 
-  {
-    if(DebugLevel>5) cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
-    if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
+    for (i=0; i<numPts; i++) 
     {
-      for (j=0; j<npts; j++)
+      cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
+      if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
       {
-        if(DebugLevel>5) cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
-      }//for all connected points
+        for (j=0; j<npts; j++)
+        {
+          cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
+        }//for all connected points
+      }
     }
   }
   
@@ -1145,8 +1144,6 @@ int Operation::UpdateNodeType()
   vtkIdType p1, p2;
   double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
-  double CosFeatureAngle; //Cosine of angle between adjacent polys
-  double CosEdgeAngle; // Cosine of angle between adjacent edges
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -1163,9 +1160,10 @@ int Operation::UpdateNodeType()
     return 1;
   }
   
-  CosFeatureAngle = 
-    cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  //Cosine of angle between adjacent polys
+  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  // Cosine of angle between adjacent edges
+  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
   
   if(DebugLevel>5) {
     cout<<"Smoothing " << numPts << " vertices, " << numCells 
@@ -1405,17 +1403,17 @@ int Operation::UpdateNodeType()
       << numBEdges << " boundary edge vertices\n\t"
       << numFixed << " fixed vertices\n\t"<<endl;
     cout<<"1:numPts="<<numPts<<endl;
-  }
-  
-  for (i=0; i<numPts; i++) 
-  {
-    if(DebugLevel>5) cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
-    if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
+    
+    for (i=0; i<numPts; i++) 
     {
-      for (j=0; j<npts; j++)
+      cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
+      if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
       {
-        if(DebugLevel>5) cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
-      }//for all connected points
+        for (j=0; j<npts; j++)
+        {
+          cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
+        }//for all connected points
+      }
     }
   }
   
@@ -1447,8 +1445,106 @@ int Operation::UpdateNodeType()
 //TODO: Optimize
 char Operation::getNodeType(vtkIdType a_node)
 {
-  char type=-1;
-  //pre-processing
+  //initialize default value
+  char type=VTK_SIMPLE_VERTEX;
+  
+  //loop through edges around a_node
+  
+  vtkIdList *edges;
+  edges = vtkIdList::New();
+  edges->Allocate(16,6);
+  
+  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  
+  QSet <vtkIdType> neighbour_nodes = n2n_func(a_node);
+  
+  foreach(vtkIdType p2,neighbour_nodes)
+  {
+    //-----------------------
+    //determine edge type
+    
+    //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
+    QVector <vtkIdType> neighbour_cells = GetEdgeCells(p2,a_node);
+    int numNei = neighbour_cells.size() - 1;
+//     cout<<"numNei="<<numNei<<endl;
+    
+    //set default value
+    char edge = VTK_SIMPLE_VERTEX;
+    
+    if ( numNei == 0 )
+    {
+      edge = VTK_BOUNDARY_EDGE_VERTEX;
+    }
+    else if ( numNei >= 2 )
+    {
+      edge = VTK_FEATURE_EDGE_VERTEX;
+    }
+    else if ( numNei == 1 )
+    {
+      //check angle between cell1 and cell2 against FeatureAngle
+      if ( this->FeatureEdgeSmoothing && CosAngle(grid,neighbour_cells[0],neighbour_cells[1]) <= CosFeatureAngle )
+      {
+        edge = VTK_FEATURE_EDGE_VERTEX;
+      }
+    }
+    
+    //-----------------------
+    //determine node type pre-processing
+    if ( edge && type == VTK_SIMPLE_VERTEX )
+    {
+      edges->Reset();
+      edges->InsertNextId(p2);
+      type = edge;
+    }
+    else if ( (edge && type == VTK_BOUNDARY_EDGE_VERTEX) ||
+              (edge && type == VTK_FEATURE_EDGE_VERTEX) ||
+              (!edge && type == VTK_SIMPLE_VERTEX ) )
+    {
+      edges->InsertNextId(p2);
+      if ( type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+      {
+        type = VTK_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+      }
+    }
+//     cout<<"a_node="<<a_node<<" p2="<<p2<<" edge="<<VertexType2Str(edge)<<" type="<<VertexType2Str(type)<<endl;
+  }
+  //-----------------------
+  //determine node type post-processing
+  if ( type == VTK_FEATURE_EDGE_VERTEX ||
+       type == VTK_BOUNDARY_EDGE_VERTEX )
+  { //see how many edges; if two, what the angle is
+    
+    if ( !this->BoundarySmoothing && 
+         type == VTK_BOUNDARY_EDGE_VERTEX )
+    {
+      type = VTK_FIXED_VERTEX;
+    }
+    else if ( edges->GetNumberOfIds() != 2 )
+    {
+      type = VTK_FIXED_VERTEX;
+    }
+    else //check angle between edges
+    {
+      double x1[3], x2[3], x3[3], l1[3], l2[3];
+      grid->GetPoint(edges->GetId(0),x1);
+      grid->GetPoint(a_node,x2);
+      grid->GetPoint(edges->GetId(1),x3);
+      for (int k=0; k<3; k++)
+      {
+        l1[k] = x2[k] - x1[k];
+        l2[k] = x3[k] - x2[k];
+      }
+      if ( vtkMath::Normalize(l1) >= 0.0 &&
+           vtkMath::Normalize(l2) >= 0.0 &&
+           vtkMath::Dot(l1,l2) < CosEdgeAngle)
+      {
+        type = VTK_FIXED_VERTEX;
+      }
+    }//if along edge
+  }//if edge vertex
+  
+/*  //pre-processing
   if(!FullCycleOfPolygons(a_node)){
     type=VTK_BOUNDARY_EDGE_VERTEX;
   }
@@ -1465,24 +1561,33 @@ char Operation::getNodeType(vtkIdType a_node)
     }
   }
   //post-processing
-  QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
   if( type==VTK_FEATURE_EDGE_VERTEX || type==VTK_BOUNDARY_EDGE_VERTEX ){
     if( !this->BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ){
       type=VTK_FIXED_VERTEX;
     }
-    else if(C.size()!=2){//This is wrong. VTK has been misunderstood. :(
+    else if(getNumberOfComplexEdges()!=2){//This is wrong. VTK has been misunderstood. :(
       type=VTK_FIXED_VERTEX;
     }
-    else{
+    else{//also wrong here
+      QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
       double CosAlpha=CosAngle(grid,C[0],C[1]);
-      double CosEdgeAngle=cos(this->EdgeAngle);
+      double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+      double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
       if(CosAlpha<CosEdgeAngle){
         type=VTK_FIXED_VERTEX;
       }
     }
-  }
+  }*/
   
   return(type);
+}
+
+QVector <vtkIdType> Operation::GetEdgeCells(vtkIdType p1, vtkIdType p2)
+{
+  QSet <vtkIdType> S1=n2c_func(p1);
+  QSet <vtkIdType> S2=n2c_func(p2);
+  S2.intersect(S1);
+  return Set2Vector(S2,false);
 }
 
 bool Operation::FullCycleOfPolygons(vtkIdType a_node)
@@ -1514,7 +1619,7 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
     }
     else{
       double CosAlpha=CosAngle(grid,cell1,cell2);
-      double CosFeatureAngle=cos(this->FeatureAngle);
+      double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
       if(CosAlpha<CosFeatureAngle) ret=VTK_FEATURE_EDGE;
     }
   }
