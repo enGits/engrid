@@ -300,20 +300,7 @@ double Operation::CurrentVertexAvgDist(vtkIdType a_vertex)
 
 double Operation::CurrentMeshDensity(vtkIdType a_vertex)
 {
-  double total_dist=0;
-  double avg_dist=0;
-  int N=n2n_func(a_vertex).size();
-  vec3_t C;
-  grid->GetPoint(a_vertex, C.data());
-  foreach(int i,n2n_func(a_vertex))
-  {
-    vec3_t M;
-    grid->GetPoint(i, M.data());
-    total_dist+=(M-C).abs();
-  }
-  avg_dist=total_dist/(double)N;
-  double avg_density=1./avg_dist;
-  return(avg_density);
+  return 1./CurrentVertexAvgDist(a_vertex);
 }
 
 double Operation::DesiredVertexAvgDist(vtkIdType a_vertex)

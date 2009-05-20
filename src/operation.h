@@ -212,9 +212,13 @@ public: // methods
   ///Equivalent of c2c in absolute numbering
   QVector<vtkIdType> c2c_func(vtkIdType idx);
   
+  ///Returns the average distance of a_vertex to its neighbours
   double CurrentVertexAvgDist(vtkIdType a_vertex);
+  ///Returns 1/CurrentVertexAvgDist(a_vertex)
   double CurrentMeshDensity(vtkIdType a_vertex);
+  ///Returns the average of 1./node_meshdensity_desired of the neighbours of a_vertex
   double DesiredVertexAvgDist(vtkIdType a_vertex);
+  ///Returns the average of node_meshdensity_desired of the neighbours of a_vertex
   double DesiredMeshDensity(vtkIdType a_vertex);
   
   ///Returns the set of boundary codes next to this node
