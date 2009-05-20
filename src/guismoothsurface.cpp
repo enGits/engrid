@@ -224,7 +224,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 11: Update current mesh density + node types");
   ui.SmoothMethod->addItem("Method 12: Delete all possible points :)");
   ui.SmoothMethod->addItem("Method 13: Delete selected points");
-  ui.SmoothMethod->addItem("Method 14");
+  ui.SmoothMethod->addItem("Method 14: Update current mesh density + node types v2");
   ui.SmoothMethod->addItem("Method 15");
   ui.SmoothMethod->addItem("Method 16");
   ui.SmoothMethod->addItem("Method 17");
@@ -1302,6 +1302,24 @@ void GuiSmoothSurface::operate()
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==14)// Update current mesh density + node types v2
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    SurfaceMesher toto;
+    toto.SetInput(bcs,grid);
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    
+    SetConvergence(ui.doubleSpinBox_Convergence->value());
+    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    
+    UpdateMeshDensity();
+    UpdateNodeType();
+    updateActors();
+  }
   else
   {
     cout<<"UNKNOWN METHOD"<<endl;

@@ -1094,7 +1094,9 @@ int Operation::UpdateNodeType_all()
   {
     if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     char T=Verts[node].type;
-    QSet <int> BCset = getBCset(node);
+    
+    //BC stuff
+/*    QSet <int> BCset = getBCset(node);
     int N=BCset.size();
     //TODO: There could be more cases. Either define new node types or create a node field containing the number of BCs.
     if(N>2) node_type->SetValue(node,BC_FIXED_VERTEX);
@@ -1103,7 +1105,9 @@ int Operation::UpdateNodeType_all()
       else if(T==VTK_BOUNDARY_EDGE_VERTEX) node_type->SetValue(node,BC_BOUNDARY_EDGE_VERTEX);
       else node_type->SetValue(node,BC_FEATURE_EDGE_VERTEX);
     }
-    else node_type->SetValue(node,T);
+    else node_type->SetValue(node,T);*/
+    
+    node_type->SetValue(node,T);
   }
   
   //free up connectivity storage
@@ -1124,9 +1128,15 @@ int Operation::UpdateNodeType_all()
 //Don't let me be misunderstood!
 int Operation::UpdateNodeType()
 {
-  if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
-  if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
   cout<<"===UpdateNodeType START==="<<endl;
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  foreach(vtkIdType node,nodes)
+  {
+    node_type->SetValue(node,getNodeType(node));
+  }
+  
+/*  if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
+  if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
   
   getAllSurfaceCells(cells,grid);
   if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
@@ -1435,7 +1445,7 @@ int Operation::UpdateNodeType()
       Verts[i].edges = NULL;
     }
   }
-  delete [] Verts;
+  delete [] Verts;*/
   
   cout<<"===UpdateNodeType END==="<<endl;
   return(0);
