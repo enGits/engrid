@@ -50,7 +50,7 @@ void LaplaceSmoother::operate()
   
 //   vtkGenericCell * cell=vtkGenericCell::New();
   
-  UpdateNodeType_all();
+//   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   

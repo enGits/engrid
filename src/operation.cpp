@@ -785,6 +785,11 @@ typedef struct _vtkMeshVertex
 
 int Operation::UpdateNodeType_all()
 {
+  static int nStatic_UpdateNodeType_all;    // Value of nStatic_UpdateNodeType_all is retained
+                          // between each function call
+  nStatic_UpdateNodeType_all++;
+  cout << "nStatic_UpdateNodeType_all is " << nStatic_UpdateNodeType_all << endl;
+  
   if(DebugLevel>0) cout<<"===UpdateNodeType_all START==="<<endl;
   if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
   if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
@@ -1128,6 +1133,8 @@ int Operation::UpdateNodeType_all()
 //Don't let me be misunderstood!
 int Operation::UpdateNodeType()
 {
+  abort();
+  
   cout<<"===UpdateNodeType START==="<<endl;
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,nodes)
@@ -1689,7 +1696,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
   setGrid(src);
   setCells(cells);
   
-  UpdateNodeType_all();
+//   UpdateNodeType_all();
   
   setDebugLevel(20);
   
@@ -1918,7 +1925,7 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
 //   getNodesFromCells(cells, nodes, src);
   setGrid(src);
   setCells(cells);
-  UpdateNodeType_all();
+//   UpdateNodeType_all();
   
   //src grid info
   int N_points=src->GetNumberOfPoints();

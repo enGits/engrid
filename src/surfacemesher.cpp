@@ -46,7 +46,7 @@ void SurfaceMesher::operate()
     QString DEBUGDIR="/data1/home/mtaverne/Geometries/DEBUG/";
     
     if(insert_FP) {
-      MeshDensityFunction();
+//       MeshDensityFunction();
       InsertPoints insert_field_points;
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
@@ -61,7 +61,7 @@ void SurfaceMesher::operate()
     if(DEBUG) DualSave(DEBUGDIR+"post-insert_FP");
     
     if(insert_EP) {
-      MeshDensityFunction();
+//       MeshDensityFunction();
       InsertPoints insert_edge_points;
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
@@ -76,7 +76,7 @@ void SurfaceMesher::operate()
     if(DEBUG) DualSave(DEBUGDIR+"post-insert_EP");
     
     if(remove_FP) {
-      MeshDensityFunction();
+//       MeshDensityFunction();
       RemovePoints remove_field_points;
       remove_field_points.SetBCS(m_bcs);
       remove_field_points.Set_remove_FP(true);
@@ -91,7 +91,7 @@ void SurfaceMesher::operate()
     if(DEBUG) DualSave(DEBUGDIR+"post-remove_FP");
     
     if(remove_EP) {
-      MeshDensityFunction();
+//       MeshDensityFunction();
       RemovePoints remove_edge_points;
       remove_edge_points.SetBCS(m_bcs);
       remove_edge_points.Set_remove_FP(false);

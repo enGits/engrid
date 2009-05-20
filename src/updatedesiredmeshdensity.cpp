@@ -25,6 +25,11 @@ UpdateDesiredMeshDensity::~UpdateDesiredMeshDensity()
 
 void UpdateDesiredMeshDensity::operate()
 {
+  static int nStatic_UpdateDesiredMeshDensity;    // Value of nStatic_UpdateDesiredMeshDensity is retained
+                          // between each function call
+  nStatic_UpdateDesiredMeshDensity++;
+  cout << "nStatic_UpdateDesiredMeshDensity is " << nStatic_UpdateDesiredMeshDensity << endl;
+  
   //define desired mesh density
   cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
   
