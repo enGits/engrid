@@ -549,7 +549,7 @@ void GuiMainWindow::updateActors()
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_index",index);
       cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_meshdensity",index);
+      boundary_pd->GetPointData()->GetArray("node_meshdensity_desired",index);
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
       cout<<"index="<<index<<endl;
@@ -1219,8 +1219,8 @@ void GuiMainWindow::updateStatusBar()
       };
       pick_txt += "]";
       QString tmp;
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
-      tmp.setNum(node_meshdensity->GetValue(id_node));
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+      tmp.setNum(node_meshdensity_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
       tmp.setNum(node_meshdensity_current->GetValue(id_node));

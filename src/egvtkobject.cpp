@@ -786,7 +786,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_layer", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_index", vtkLongArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_specified_density", vtkIntArray);
-  EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
+  EGVTKOBJECT_COPYNODEDATA("node_meshdensity_desired",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
 };
@@ -857,10 +857,10 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_status", vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_layer",  vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_specified_density", vtkIntArray,    overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_specified_density", vtkIntArray,    overwrite);//density index from table
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite);//what we want
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);//what we have
+  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);//node type
 };
 
 void EgVtkObject::allocateGrid

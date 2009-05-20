@@ -1111,7 +1111,7 @@ void GuiSmoothSurface::operate()
     getAllSurfaceCells(AllCells,grid);
     
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
     
     QSet <vtkIdType> SelectedNodes;
     getSurfaceNodes(bcs,SelectedNodes,grid);
@@ -1122,7 +1122,7 @@ void GuiSmoothSurface::operate()
       double L=CurrentVertexAvgDist(node);
       double D=1./L;
       if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-      node_meshdensity->SetValue(node, D);
+      node_meshdensity_desired->SetValue(node, D);
     }
     
     int N_iter=ui.spinBox_maxiter_density->value();
@@ -1133,7 +1133,7 @@ void GuiSmoothSurface::operate()
         double D=DesiredMeshDensity(node);
         double L=1./D;
         if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-        node_meshdensity->SetValue(node, D);
+        node_meshdensity_desired->SetValue(node, D);
       }
     }
     

@@ -50,7 +50,7 @@ void UpdateDesiredMeshDensity::operate()
   
   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   
 /*  //Calculate current mesh density
@@ -89,19 +89,19 @@ void UpdateDesiredMeshDensity::operate()
       if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
-        node_meshdensity->SetValue(node, VMDvector[idx].density);
+        node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
       }
       else//unspecified
       {
         double D=DesiredMeshDensity(node);
         if(first) {
-          diff=abs(D-node_meshdensity->GetValue(node));
+          diff=abs(D-node_meshdensity_desired->GetValue(node));
           first=false;
         }
         else {
-          diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
+          diff=max(abs(D-node_meshdensity_desired->GetValue(node)),diff);
         }
-        node_meshdensity->SetValue(node, D);
+        node_meshdensity_desired->SetValue(node, D);
       }
       if(DebugLevel>2) cout<<"======>"<<endl;
     }

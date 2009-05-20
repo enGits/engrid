@@ -320,11 +320,11 @@ double Operation::DesiredVertexAvgDist(vtkIdType a_vertex)
 {
   double total_dist=0;
   double avg_dist=0;
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   int N=n2n_func(a_vertex).size();
   foreach(int i,n2n_func(a_vertex))
   {
-    total_dist+=1./node_meshdensity->GetValue(i);
+    total_dist+=1./node_meshdensity_desired->GetValue(i);
   }
   avg_dist=total_dist/(double)N;
   return(avg_dist);
@@ -334,11 +334,11 @@ double Operation::DesiredMeshDensity(vtkIdType a_vertex)
 {
   double total_density=0;
   double avg_density=0;
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   int N=n2n_func(a_vertex).size();
   foreach(int i,n2n_func(a_vertex))
   {
-    total_density+=node_meshdensity->GetValue(i);
+    total_density+=node_meshdensity_desired->GetValue(i);
   }
   avg_density=total_density/(double)N;
   return(avg_density);
@@ -758,7 +758,7 @@ int Operation::UpdateMeshDensity()
   
   getAllSurfaceCells(cells,grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   getNodesFromCells(cells, nodes, grid);
   setGrid(grid);
   setCells(cells);
@@ -2169,8 +2169,8 @@ double Operation::nk(vtkIdType P) {
 }
 
 double Operation::G_k(vtkIdType node) {
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
-  return(1.0/node_meshdensity->GetValue(node));
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+  return(1.0/node_meshdensity_desired->GetValue(node));
 }
 
 /// triangle nodes

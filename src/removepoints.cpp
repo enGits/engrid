@@ -134,7 +134,7 @@ int RemovePoints::remove_FP_all()
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
   getNodesFromCells(m_AllCells, nodes, grid);
   setGrid(grid);
@@ -189,7 +189,7 @@ int RemovePoints::remove_EP_all()
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
   getNodesFromCells(m_AllCells, nodes, grid);
   setGrid(grid);

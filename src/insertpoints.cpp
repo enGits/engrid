@@ -112,7 +112,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       addPoint(grid_tmp,m_newNodeId,C.data());
       //TODO: PRIORITY 1: Update node info (densities+type)
       EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid_tmp, "node_meshdensity");//what we want
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
       
@@ -149,7 +149,7 @@ int InsertPoints::insert_FP_all()
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
   getNodesFromCells(m_AllCells, nodes, grid);
   setGrid(grid);
@@ -273,7 +273,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     addPoint(grid_tmp,m_newNodeId,M.data());
     //TODO: PRIORITY 1: Update node info (densities+type)
     EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid_tmp, "node_meshdensity");
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");
     EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
     
@@ -345,7 +345,7 @@ int InsertPoints::insert_EP_all()
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
   getNodesFromCells(m_AllCells, nodes, grid);
   setGrid(grid);
