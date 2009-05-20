@@ -11,6 +11,8 @@
 //
 #include "insertpoints.h"
 
+#include <vtkCharArray.h>
+
 InsertPoints::InsertPoints()
  : Operation()
 {
@@ -109,6 +111,10 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       // ADD POINT
       addPoint(grid_tmp,m_newNodeId,C.data());
       //TODO: PRIORITY 1: Update node info (densities+type)
+      EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid_tmp, "node_meshdensity");//what we want
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
+      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
       
       vtkIdType intmidpoint=m_newNodeId;
       m_newNodeId++;
@@ -266,6 +272,10 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     //ADD POINT
     addPoint(grid_tmp,m_newNodeId,M.data());
     //TODO: PRIORITY 1: Update node info (densities+type)
+    EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid_tmp, "node_meshdensity");
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");
+    EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
     
     if(DebugLevel>0) cout<<"NEW EDGE POINT: "<<m_newNodeId<<endl;
     
