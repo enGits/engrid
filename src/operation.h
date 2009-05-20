@@ -182,7 +182,7 @@ public: // methods
   ///The same for boundary codes!
   bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
   
-  int UpdateMeshDensity();
+  int UpdateCurrentMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();
   

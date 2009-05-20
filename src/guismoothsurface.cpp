@@ -1236,7 +1236,7 @@ void GuiSmoothSurface::operate()
     SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
-    UpdateMeshDensity();
+    UpdateCurrentMeshDensity();
     UpdateNodeType_all();
     updateActors();
   }
@@ -1316,7 +1316,7 @@ void GuiSmoothSurface::operate()
     SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
-    UpdateMeshDensity();
+    UpdateCurrentMeshDensity();
     UpdateNodeType();
     updateActors();
   }

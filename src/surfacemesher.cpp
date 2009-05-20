@@ -128,7 +128,7 @@ void SurfaceMesher::operate()
   
   MeshDensityFunction();
   
-  UpdateMeshDensity();
+  UpdateCurrentMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
