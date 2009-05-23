@@ -57,11 +57,6 @@ private:
   QVector <int> m_hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
   QVector <int> m_offset;//offset caused by terminated elements
   
-  int N_inserted_FP;
-  int N_inserted_EP;
-  int N_removed_FP;
-  int N_removed_EP;
-  
   int N_points;
   int N_cells;
   int N_newpoints;

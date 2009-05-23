@@ -42,11 +42,6 @@ private:
   QVector <vtkIdType> m_SelectedNodes;
   QVector <vtkIdType> m_AllNodes;
   
-  int N_inserted_FP;
-  int N_inserted_EP;
-  int N_removed_FP;
-  int N_removed_EP;
-  
   int m_N_points;
   int m_N_cells;
   int m_N_newpoints;

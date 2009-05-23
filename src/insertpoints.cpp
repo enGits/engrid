@@ -59,6 +59,8 @@ bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
 int InsertPoints::insert_FP_counter()
 {
   cout<<"===insert_FP_counter() START==="<<endl;
+  int l_N_inserted_FP=0;
+
   //unmark cells and nodes (TODO: optimize)
   m_marked_cells.clear();
   m_marked_nodes.clear();
@@ -67,14 +69,14 @@ int InsertPoints::insert_FP_counter()
   {
     if( !m_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      N_inserted_FP++;
+      l_N_inserted_FP++;
       m_marked_cells[id_cell]=true;
       m_N_newcells+=2;
       m_N_newpoints+=1;
     }
   }
   cout<<"===insert_FP_counter() END==="<<endl;
-  return(0);
+  return(l_N_inserted_FP);
 }
 
 int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -156,14 +158,12 @@ int InsertPoints::insert_FP_all()
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  N_inserted_FP=0;
-  
   m_N_points=grid->GetNumberOfPoints();
   m_N_cells=grid->GetNumberOfCells();
   m_N_newpoints=0;
   m_N_newcells=0;
   
-  insert_FP_counter();
+  int l_N_inserted_FP = insert_FP_counter();
   
     //init grid_tmp
   m_N_points=grid->GetNumberOfPoints();
@@ -186,7 +186,8 @@ int InsertPoints::insert_FP_all()
 int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 {
   cout<<"===insert_EP_counter() START==="<<endl;
-  
+  int l_N_inserted_EP=0;
+
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
@@ -233,7 +234,7 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
     
     if( !stencil_marked && insert_edgepoint(node1,node2) )
     {
-      N_inserted_EP++;
+      l_N_inserted_EP++;
       foreach(vtkIdType C,stencil_cells_vector) m_marked_cells[C]=true;
       m_StencilVector.push_back(S);//TODO: Optimize
       
@@ -250,7 +251,7 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
     }
   }//end of loop through edges
   cout<<"===insert_EP_counter() END==="<<endl;
-  return(0);
+  return(l_N_inserted_EP);
 }
 
 int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
@@ -352,14 +353,12 @@ int InsertPoints::insert_EP_all()
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  N_inserted_EP=0;
-  
   l_N_points=grid->GetNumberOfPoints();
   l_N_cells=grid->GetNumberOfCells();
   l_N_newpoints=0;
   l_N_newcells=0;
   
-  insert_EP_counter(l_N_newpoints,l_N_newcells);
+  int l_N_inserted_EP = insert_EP_counter(l_N_newpoints,l_N_newcells);
   
     //init grid_tmp
   l_N_points=grid->GetNumberOfPoints();

@@ -49,12 +49,13 @@ bool RemovePoints::remove_edgepoint(vtkIdType P)
 int RemovePoints::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
+  int l_N_removed_FP = 0;
   cout<<"m_marked_cells="<<m_marked_cells<<endl;
 //   cout<<"m_hitlist="<<m_hitlist<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"N_removed_FP="<<N_removed_FP<<endl;
+  cout<<"l_N_removed_FP="<<l_N_removed_FP<<endl;
   
 //   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
@@ -74,7 +75,7 @@ int RemovePoints::remove_FP_counter()
       if( !marked && remove_fieldpoint(node) && FindSnapPoint(grid,node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
         if(DebugLevel>1) cout<<"removing field point "<<node<<endl;
-        N_removed_FP++;
+        l_N_removed_FP++;
         m_hitlist[node]=1;
         foreach(vtkIdType C,n2c[node]) m_marked_cells[C]=true;
         N_newcells-=2;
@@ -83,12 +84,13 @@ int RemovePoints::remove_FP_counter()
     }
   }
   cout<<"===remove_FP_counter() END==="<<endl;
-  return(0);
+  return(l_N_removed_FP);
 }
 
 int RemovePoints::remove_EP_counter()
 {
   cout<<"===remove_EP_counter() START==="<<endl;
+  int l_N_removed_EP = 0;
 //   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
@@ -106,7 +108,7 @@ int RemovePoints::remove_EP_counter()
       if( !marked && remove_edgepoint(node) && FindSnapPoint(grid,node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
         if(DebugLevel>0) cout<<"removing edge point "<<node<<endl;
-        N_removed_EP++;
+        l_N_removed_EP++;
         m_hitlist[node]=2;
         foreach(vtkIdType C,n2c[node]) m_marked_cells[C]=true;
         if(n2n[node].size()==4)//4 cells around the edge
@@ -123,7 +125,7 @@ int RemovePoints::remove_EP_counter()
     }
   }
   cout<<"===remove_EP_counter() END==="<<endl;
-  return(0);
+  return(l_N_removed_EP);
 }
 
 //count all to remove, then remove them all at once
@@ -141,8 +143,6 @@ int RemovePoints::remove_FP_all()
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  N_removed_FP=0;
-  
   N_points=grid->GetNumberOfPoints();
   N_cells=grid->GetNumberOfCells();
   N_newpoints=0;
@@ -156,7 +156,7 @@ int RemovePoints::remove_FP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  remove_FP_counter();
+  int l_N_removed_FP = remove_FP_counter();
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"================="<<endl;
@@ -196,8 +196,6 @@ int RemovePoints::remove_EP_all()
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  N_removed_EP=0;
-  
   N_points=grid->GetNumberOfPoints();
   N_cells=grid->GetNumberOfCells();
   N_newpoints=0;
@@ -211,7 +209,7 @@ int RemovePoints::remove_EP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  remove_EP_counter();
+  int l_N_removed_EP = remove_EP_counter();
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"================="<<endl;
