@@ -63,7 +63,6 @@ int InsertPoints::insert_FP_counter()
 
   //unmark cells and nodes (TODO: optimize)
   m_marked_cells.clear();
-  m_marked_nodes.clear();
   
   foreach(vtkIdType id_cell, m_SelectedCells)
   {
@@ -110,14 +109,36 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       }
       C=(1/(double)N_neighbours)*C;
       
+      //============================================
       // ADD POINT
       addPoint(grid_tmp,m_newNodeId,C.data());
+      //============================================
       //TODO: PRIORITY 1: Update node info (densities+type)
       EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
+      //============================================
       
+      //part 1
+      node_type->SetValue(m_newNodeId,VTK_SIMPLE_VERTEX);
+
+      //part 2
+      double total_dist=0;
+      double avg_dist=0;
+      for(int i=0;i<N_neighbours;i++)
+      {
+        double dist=(corner[i]-C).abs();
+        total_dist+=dist;
+        node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
+      }
+      avg_dist=total_dist/(double)N_neighbours;
+      node_meshdensity_current->SetValue(m_newNodeId,1./avg_dist);
+
+      //part 3
+
+      //============================================
+
       vtkIdType intmidpoint=m_newNodeId;
       m_newNodeId++;
       
@@ -189,7 +210,6 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
   int l_N_inserted_EP=0;
 
   m_marked_cells.clear();
-  m_marked_nodes.clear();
   
   //Prepare m_edge_map
   QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
@@ -377,4 +397,21 @@ int InsertPoints::insert_EP_all()
   
   cout<<"===insert_EP_all END==="<<endl;
   return(0);
+}
+
+double InsertPoints::NewCurrentMeshDensity(vtkIdType a_vertex,double a_dist)
+{
+  double total_dist=0;
+  double avg_dist=0;
+  int N=n2n_func(a_vertex).size();
+  vec3_t C;
+  grid->GetPoint(a_vertex, C.data());
+  foreach(int i,n2n_func(a_vertex))
+  {
+    vec3_t M;
+    grid->GetPoint(i, M.data());
+    total_dist+=(M-C).abs();
+  }
+  avg_dist=(total_dist+a_dist)/(double)(N+1);
+  return(1./avg_dist);
 }
