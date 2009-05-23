@@ -51,7 +51,7 @@ protected:
   
 public:
   
-  void setOperation(Operation *an_op) { op = an_op; };
+  void setOperation(Operation *an_op) { op = an_op; }
   
 };
 
@@ -194,15 +194,16 @@ public: // methods
   void DualSave(QString a_filename);
     
   //Special for UpdateNodeType_all
-  void SetConvergence(double C){Convergence=C;};
-  void SetNumberOfIterations(int N){NumberOfIterations=N;};
-  void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
-  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;};
-  void SetFeatureAngle(double FA){FeatureAngle=FA;};
-  void SetEdgeAngle(double EA){EdgeAngle=EA;};
-  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
-  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
-  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
+  ///@@@ Bitte Lesbarkeit beachten (Spaces!!!) und Methoden mit Lowercase anfangen (z.B. setConvergence(...)
+  void SetConvergence(double C){Convergence=C;}
+  void SetNumberOfIterations(int N){NumberOfIterations=N;}
+  void SetRelaxationFactor(double RF){RelaxationFactor=RF;}
+  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;}
+  void SetFeatureAngle(double FA){FeatureAngle=FA;}
+  void SetEdgeAngle(double EA){EdgeAngle=EA;}
+  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;}
+  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;}
+  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;}
   
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
