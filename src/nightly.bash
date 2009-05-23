@@ -1,5 +1,4 @@
 #!/bin/bash
 /usr/bin/doxygen Doxyfile
-./checkcomments.py > comments.mail
+./checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
 mailx -s "ENGRID: comments" ogloth@engits.com < comments.mail
-rm -f comments.mail
