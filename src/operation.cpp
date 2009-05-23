@@ -50,17 +50,21 @@ QSet<Operation*> Operation::garbage_operations;
 void Operation::collectGarbage()
 {
   QSet<Operation*> delete_operations;
-  foreach (Operation *op, garbage_operations) {
+
+  foreach (Operation *op, garbage_operations)
+  {
     if (!op->getThread().isRunning()) {
       delete_operations.insert(op);
       cout << "deleting Operation " << op << endl;
       delete op;
-    };
-  };
-  foreach (Operation *op, delete_operations) {
+    }
+  }
+
+  foreach (Operation *op, delete_operations)
+  {
     garbage_operations.remove(op);
-  };
-};
+  }
+}
 
 Operation::Operation()
 {
@@ -72,6 +76,12 @@ Operation::Operation()
   autoset = true;
 
   //default values for determining node types and for smoothing operations
+
+  ///@@@ Hi Mike, muss das unbeding hier eingebaut werden?
+
+  ///@@@ Zeilen die mit ///@@@ anfangen werden in Zukunft automatisch verschickt (ueber Nacht).
+  ///@@@ Ich dachte das ist eine einfache Methode um kurzfristige 'TODOs' zu erzeugen.
+
   Convergence=0;
   NumberOfIterations=20;
   RelaxationFactor=0.01;
@@ -81,15 +91,15 @@ Operation::Operation()
   BoundarySmoothing=1;
   GenerateErrorScalars=0;
   GenerateErrorVectors=0;
-};
+}
 
 Operation::~Operation()
 {
   if (err) {
     err->display();
     delete err;
-  };
-};
+  }
+}
 
 void Operation::del() 
 { 
@@ -105,7 +115,7 @@ void OperationThread::run()
   } catch (Error err) {
     op->err = new Error();
     *(op->err) = err;
-  };
+  }
   GuiMainWindow::unlock();
   GuiMainWindow::pointer()->setIdle();
 }
@@ -120,7 +130,7 @@ void Operation::operator()()
       thread.start(QThread::LowPriority);
     } else {
       QMessageBox::warning(NULL, "not permitted", "Operation is not permitted while background process is running!");
-    };
+    }
   } else {
     checkGrid();
     try {
@@ -130,7 +140,7 @@ void Operation::operator()()
     }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
-  };
+  }
 }
 
 void Operation::setAllCells()
@@ -138,53 +148,53 @@ void Operation::setAllCells()
   QVector<vtkIdType> all_cells;
   getAllCells(all_cells, grid);
   setCells(all_cells);
-};
+}
 
 void Operation::setAllVolumeCells()
 {
   QVector<vtkIdType> cells;
   getAllVolumeCells(cells, grid);
   setCells(cells);
-};
+}
 
 void Operation::setAllSurfaceCells()
 {
   QVector<vtkIdType> cells;
   getAllSurfaceCells(cells, grid);
   setCells(cells);
-};
+}
 
 void Operation::initMapping()
 {
   nodes_map.resize(nodes.size());
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     nodes_map[i_nodes] = nodes[i_nodes];
-  };
+  }
   cells_map.resize(cells.size());
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
     cells_map[i_cells] = cells[i_cells];
-  };
-};
+  }
+}
 
 void Operation::checkGrid()
 {
   if (grid == NULL) {
     grid = GuiMainWindow::pointer()->getGrid();
-  };
+  }
   if ((cells.size() == 0) && autoset) {
     setAllCells();
-  };
-};
+  }
+}
 
 void Operation::updateActors()
 {
   mainWindow()->updateActors();
-};
+}
 
 GuiMainWindow* Operation::mainWindow()
 {
   return GuiMainWindow::pointer();
-};
+}
 
 void Operation::populateBoundaryCodes(QListWidget *lw)
 {
@@ -198,8 +208,8 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
     ts << bc;
     lwi->setText(text);
     lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-  };
-};
+  }
+}
 
 //TODO: Get the EG_BUG error again and figure out where it came from
 stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
@@ -222,38 +232,38 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
     }*/
     if (grid->GetCellType(S.id_cell2) != VTK_TRIANGLE) {
       EG_BUG;
-    };
+    }
     vtkIdType N1, N2, *pts1, *pts2;
     grid->GetCellPoints(S.id_cell1, N1, pts1);
     grid->GetCellPoints(S.id_cell2, N2, pts2);
     if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
     else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
+    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; }
     bool p2 = false;
     if (c2c[_cells[S.id_cell2]][0] != -1) {
       if (cells[c2c[_cells[S.id_cell2]][0]] == S.id_cell1) {
         S.p[2] = pts2[2];
         p2 = true;
-      };
-    };
+      }
+    }
     if (c2c[_cells[S.id_cell2]][1] != -1) {
       if (cells[c2c[_cells[S.id_cell2]][1]] == S.id_cell1) {
         S.p[2] = pts2[0];
         p2 = true;
-      };
-    };
+      }
+    }
     if (c2c[_cells[S.id_cell2]][2] != -1) {
       if (cells[c2c[_cells[S.id_cell2]][2]] == S.id_cell1) {
         S.p[2] = pts2[1];
         p2 = true;
-      };
-    };
+      }
+    }
     if (!p2) {
       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
       EG_BUG;
-    };
+    }
   } else {
     S.valid = false;
     S.id_cell2 = -1;
@@ -261,10 +271,10 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
     grid->GetCellPoints(S.id_cell1, N1, pts1);
     if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
     else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
-  };
+    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; }
+  }
   return S;
-};
+}
 
 ostream& operator<<(ostream &out, stencil_t S)
 {
@@ -394,7 +404,7 @@ bool Operation::SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S)
     for (int k = 0; k < 4; ++k) {
       a_grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
       x3_0 += x3[k];
-    };
+    }
     vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
     vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
     n1.normalise();
@@ -406,7 +416,7 @@ bool Operation::SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S)
       vec3_t ey = ex.cross(n);
       for (int k = 0; k < 4; ++k) {
         x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
-      };
+      }
       vec2_t r1, r2, r3, u1, u2, u3;
       r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
       r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
@@ -420,21 +430,21 @@ bool Operation::SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S)
           xm2 = r2 + k*u2;
         } else {
           ok = false;
-        };
+        }
       } else {
         ok = false;
         swap = true;
-      };
+      }
       if (ok) {
         if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
           swap = true;
-        };
+        }
         if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
           swap = true;
-        };
-      };
-    };
-  };
+        }
+      }
+    }
+  }
   if (swap) {
     vtkIdType new_pts1[3], new_pts2[3];
     new_pts1[0] = S.p[1];
@@ -445,7 +455,7 @@ bool Operation::SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S)
     new_pts2[2] = S.p[0];
     a_grid->ReplaceCell(S.id_cell1, 3, new_pts1);
     a_grid->ReplaceCell(S.id_cell2, 3, new_pts2);
-  };
+  }
   return(swap);
 }
 
@@ -467,7 +477,7 @@ void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell)
       src->GetPoints()->GetPoint(id_node, x.data());
       dst->GetPoints()->SetPoint(id_node, x.data());
       copyNodeData(src, id_node, dst, id_node);
-    };
+    }
     for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = src->GetCellType(id_cell);
@@ -504,7 +514,7 @@ void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell)
         S.valid=true;
         SwapCells(dst,S);
       }
-    };
+    }
     cout_grid(cout,dst,true,true,true,true);
     makeCopy(dst, src);
   }//end of if quad
@@ -528,7 +538,7 @@ void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdT
       src->GetPoints()->GetPoint(id_node, x.data());
       dst->GetPoints()->SetPoint(id_node, x.data());
       copyNodeData(src, id_node, dst, id_node);
-    };
+    }
     for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       src->GetCellPoints(id_cell, N_pts, pts);
@@ -568,7 +578,7 @@ void Operation::quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdT
         id_new_cell2 = dst->InsertNextCell(VTK_TRIANGLE, 3, triangle2);
         copyCellData(src, id_cell, dst, id_new_cell2);
       }
-    };
+    }
     cout_grid(cout,dst,true,true,true,true);
     makeCopy(dst, src);
   }//end of if quad
@@ -629,14 +639,14 @@ vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
     vec3_t xp;
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     x += double(1)/Npts * xp;
-  };
+  }
   
   R = 1e99;
   for (vtkIdType i = 0; i < Npts; ++i) {
     vec3_t xp;
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     R = min(R, 0.25*(xp-x).abs());
-  };
+  }
   
   return(x);
 }
@@ -1680,7 +1690,7 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N
     {
       if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
     }
-  };
+  }
   if(DebugLevel>10) {
     cout<<"DeadCells="<<DeadCells<<endl;
     cout<<"MutatedCells="<<MutatedCells<<endl;
@@ -1759,7 +1769,7 @@ bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N
       }
       delete dst_pts;
     }
-  };
+  }
 //   cout_grid(cout,dst,true,true,true,true);
   makeCopy(dst, src);
   return(true);
@@ -1863,7 +1873,7 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
     {
       if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
     }
-  };
+  }
   if(DebugLevel>10) {
     cout<<"DeadCells="<<DeadCells<<endl;
     cout<<"MutatedCells="<<MutatedCells<<endl;
@@ -1945,7 +1955,7 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
       }
       delete dst_pts;
     }
-  };
+  }
   
 //   cout_grid(cout,dst,true,true,true,true);
   makeCopy(dst, src);
@@ -2086,7 +2096,7 @@ double Operation::Q_L2(vtkIdType P)
 
 double Operation::T_min(int w)
 {
-      // sum([A_U(i)]/[A_D(i)^w]*[G_k(i)^(2*(w-1))],i,1,Nd)
+  // sum([A_U(i)]/[A_D(i)^w]*[G_k(i)^(2*(w-1))],i,1,Nd)
   int N_cells=grid->GetNumberOfCells();
   double T=0;
   for(int i=0;i<N_cells;i++)
@@ -2095,4 +2105,5 @@ double Operation::T_min(int w)
   }
   return(T);
 }
+
 //---------------------------------------------------
