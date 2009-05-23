@@ -112,6 +112,8 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       //============================================
       // ADD POINT
       addPoint(grid_tmp,m_newNodeId,C.data());
+
+/*
       //============================================
       //TODO: PRIORITY 1: Update node info (densities+type)
       EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
@@ -146,6 +148,17 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       int idx=VMDvector.indexOf(nodeVMD);
       node_specified_density->SetValue(m_newNodeId, idx);
 
+      //part 4
+      if(idx!=-1)//specified
+      {
+        node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
+      }
+      else//unspecified
+      {
+        double D=DesiredMeshDensity(node);
+        node_meshdensity_desired->SetValue(node, D);
+      }
+*/
       //============================================
 
       vtkIdType intmidpoint=m_newNodeId;
