@@ -42,7 +42,10 @@ private: // methods
 protected: // methods
   
   virtual void operate();
-  
+
+public:
+  SwapTriangles();
+
 };
 
 #endif

@@ -10,6 +10,7 @@
 //
 //
 #include "showinfo.h"
+#include <vtkCharArray.h>
 
 ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : Operation()
 {
@@ -53,6 +54,8 @@ void ShowInfo::operate()
       cout<<"=== INFO ON POINT "<<PickedPoint<<" ==="<<endl;
       cout<<"n2n_func(PickedPoint)="<<n2n_func(PickedPoint)<<endl;
       cout<<"n2c_func(PickedPoint)="<<n2c_func(PickedPoint)<<endl;
+      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+      cout<<"node_type="<<VertexType2Str(node_type->GetValue(PickedPoint))<<endl;
       cout<<"====================================="<<endl;
     }
     else

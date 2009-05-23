@@ -27,6 +27,11 @@
 
 using namespace GeometryTools;
 
+SwapTriangles::SwapTriangles()
+{
+  setQuickSave(true);
+}
+
 void SwapTriangles::prepare()
 {
 /*  cout<<"void SwapTriangles::prepare()"<<endl;

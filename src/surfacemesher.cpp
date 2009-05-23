@@ -42,11 +42,12 @@ void SurfaceMesher::operate()
     N_removed_EP=0;
     
     //Method 3
-    bool DEBUG=false;
-    QString DEBUGDIR="/data1/home/mtaverne/Geometries/DEBUG/";
+    bool DEBUG=true;
+    QString DEBUGDIR="/home/mike/Geometries/DEBUG/";
     
     if(insert_FP) {
 //       MeshDensityFunction();
+      UpdateNodeInfo();
       InsertPoints insert_field_points;
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
@@ -63,6 +64,7 @@ void SurfaceMesher::operate()
     
     if(insert_EP) {
 //       MeshDensityFunction();
+      UpdateNodeInfo();
       InsertPoints insert_edge_points;
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
@@ -79,6 +81,7 @@ void SurfaceMesher::operate()
     
     if(remove_FP) {
 //       MeshDensityFunction();
+      UpdateNodeInfo();
       RemovePoints remove_field_points;
       remove_field_points.SetBCS(m_bcs);
       remove_field_points.Set_remove_FP(true);
@@ -94,6 +97,7 @@ void SurfaceMesher::operate()
     
     if(remove_EP) {
 //       MeshDensityFunction();
+      UpdateNodeInfo();
       RemovePoints remove_edge_points;
       remove_edge_points.SetBCS(m_bcs);
       remove_edge_points.Set_remove_FP(false);
@@ -152,6 +156,7 @@ void SurfaceMesher::MeshDensityFunction()
 
 void SurfaceMesher::UpdateNodeInfo()
 {
+  cout<<"=== UpdateNodeInfo START ==="<<endl;
   setAllCells();
   foreach(vtkIdType node,nodes)
   {
@@ -177,6 +182,7 @@ void SurfaceMesher::UpdateNodeInfo()
       node_meshdensity_desired->SetValue(node, D);
     }
   }
+  cout<<"=== UpdateNodeInfo STOP ==="<<endl;
 }
 
 int SurfaceMesher::SwapFunction()
@@ -199,6 +205,7 @@ int SurfaceMesher::SwapFunction()
 int SurfaceMesher::SmoothFunction()
 {
   cout<<"=== SmoothFunction START ==="<<endl;
+  UpdateNodeInfo();
   //Phase F : translate points to smooth grid
   //4 possibilities
   //vtk smooth 1
