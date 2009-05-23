@@ -58,7 +58,7 @@ void UpdateDesiredMeshDensity::operate()
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+    VertexMeshDensity nodeVMD = getVMD(node);
     int idx=VMDvector.indexOf(nodeVMD);
     if(DebugLevel>3) cout<<"idx="<<idx<<endl;
     if(idx!=-1)//specified
@@ -116,18 +116,16 @@ void UpdateDesiredMeshDensity::operate()
 VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node)
 {
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  char VertexType = node_type->GetValue(node);
-  
-  VertexMeshDensity VMD;
-  VMD.type=VertexType;
-  VMD.density=0;
-  VMD.CurrentNode=node;
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
-  QSet <int> bc;
-  foreach(vtkIdType C, n2c[node])
+  VertexMeshDensity VMD;
+  VMD.type=node_type->GetValue(node);
+  VMD.density=0;
+  VMD.CurrentNode=node;
+  
+  QSet <vtkIdType> cell_set = n2c_func(node);
+  foreach(vtkIdType C, cell_set)
   {
-    bc.insert(cell_code->GetValue(C));
     VMD.BCmap[cell_code->GetValue(C)]=2;
   }
   return(VMD);

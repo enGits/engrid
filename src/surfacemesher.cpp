@@ -51,6 +51,7 @@ void SurfaceMesher::operate()
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
       insert_field_points.Set_insert_EP(false);
+      insert_field_points.SetVertexMeshDensityVector(VMDvector);
       insert_field_points();
       if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-insert");
       if(DoSwap) SwapFunction();
@@ -66,6 +67,7 @@ void SurfaceMesher::operate()
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
       insert_edge_points.Set_insert_EP(true);
+      insert_edge_points.SetVertexMeshDensityVector(VMDvector);
       insert_edge_points();
       if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-insert");
       if(DoSwap) SwapFunction();

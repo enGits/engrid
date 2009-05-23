@@ -136,6 +136,15 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       node_meshdensity_current->SetValue(m_newNodeId,1./avg_dist);
 
       //part 3
+      VertexMeshDensity nodeVMD;
+      nodeVMD.type=node_type->GetValue(m_newNodeId);
+      nodeVMD.density=0;
+      nodeVMD.CurrentNode=m_newNodeId;
+      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+      nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
+
+      int idx=VMDvector.indexOf(nodeVMD);
+      node_specified_density->SetValue(m_newNodeId, idx);
 
       //============================================
 

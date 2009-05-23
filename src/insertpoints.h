@@ -57,6 +57,8 @@ private:
 public:
   QSet<int> m_bcs;
   void SetBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
+  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
   
 public:
   InsertPoints();
