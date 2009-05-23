@@ -89,6 +89,7 @@ class SurfaceMesher : public Operation {
     int SwapFunction();
     int SmoothFunction();
     void MeshDensityFunction();
+    void UpdateNodeInfo();
 };
 //end of SurfaceMesher class
 

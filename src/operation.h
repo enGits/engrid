@@ -27,6 +27,7 @@ class Operation;
 class GuiMainWindow;
 
 #include "egvtkobject.h"
+#include "vertexmeshdensity.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
@@ -237,6 +238,9 @@ public: // methods
   ///Returns a vector containing the cells surrounding edge [p1,p2]
   QVector <vtkIdType> GetEdgeCells(vtkIdType p1, vtkIdType p2);
   
+  /// Get VertexMeshDensity object
+  VertexMeshDensity getVMD(vtkIdType node);
+
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

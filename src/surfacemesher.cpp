@@ -30,7 +30,7 @@ void SurfaceMesher::operate()
     getSurfaceNodes(m_bcs,m_SelectedNodes,m_grid);
     getNodesFromCells(m_AllCells, nodes, m_grid);
     setGrid(m_grid);
-    setCells(m_AllCells);
+    setAllCells();
     
     cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
     
@@ -140,10 +140,43 @@ void SurfaceMesher::operate()
 
 void SurfaceMesher::MeshDensityFunction()
 {
+  //TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
+  update_desired_mesh_density.SetConvergence_meshdensity(Convergence_meshdensity);
   update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
   update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();
+/*  UpdateCurrentMeshDensity();
+  UpdateNodeType_all();*/
+}
+
+void SurfaceMesher::UpdateNodeInfo()
+{
+  setAllCells();
+  foreach(vtkIdType node,nodes)
+  {
+    EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");//node type
+    node_type->SetValue(node, getNodeType(node));
+    
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_grid, "node_meshdensity_current");//what we have
+    node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
+    
+    EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");//density index from table
+    VertexMeshDensity nodeVMD = getVMD(node);
+    int idx=VMDvector.indexOf(nodeVMD);
+    node_specified_density->SetValue(node, idx);
+    
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, m_grid, "node_meshdensity_desired");//what we want
+    if(idx!=-1)//specified
+    {
+      node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
+    }
+    else//unspecified
+    {
+      double D=DesiredMeshDensity(node);
+      node_meshdensity_desired->SetValue(node, D);
+    }
+  }
 }
 
 int SurfaceMesher::SwapFunction()
