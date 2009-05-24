@@ -201,7 +201,7 @@ private: // attributes
   QStatusBar *status_bar;
   
   /** Label for the information in the status bar */
-  QLabel *status_label;
+//   QLabel *status_label;
   
   /** A QList with all active boundary codes. */
   QSet<int> display_boundary_codes;

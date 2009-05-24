@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -103,6 +103,7 @@
     <addaction name="actionViewCellIDs"/>
     <addaction name="actionShow_display_options"/>
     <addaction name="actionShow_output"/>
+    <addaction name="actionShow_node_cell_info"/>
    </widget>
    <widget class="QMenu" name="menuMesh">
     <property name="title">
@@ -265,8 +266,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>280</width>
-          <height>1041</height>
+          <width>278</width>
+          <height>1138</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -773,6 +774,28 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dockWidget_node_cell_info">
+   <property name="windowTitle">
+    <string>Node/Cell info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_node_cell_info">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="engrid.qrc">
@@ -1253,6 +1276,14 @@
     <string>ShowInfo</string>
    </property>
   </action>
+  <action name="actionShow_node_cell_info">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show node/cell info</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9"/>
  <customwidgets>
@@ -1403,6 +1434,38 @@
     <hint type="sourcelabel">
      <x>1178</x>
      <y>550</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionShow_node_cell_info</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidget_node_cell_info</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>791</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidget_node_cell_info</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionShow_node_cell_info</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

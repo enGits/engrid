@@ -208,12 +208,23 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   status_bar = new QStatusBar(this);
   setStatusBar(status_bar);
-  status_label = new QLabel(this);
-  status_bar->addWidget(status_label);
+//   status_label = new QLabel(this);
+//   status_label->setWordWrap(true);
+//   status_label->setSizePolicy(QSizePolicy::Minimum);
+// //   status_label->setVerticalPolicy(QSizePolicy::Minimum);
+//   status_bar->addWidget(status_label);
+
+//   QVBoxLayout *status_layout = new QVBoxLayout;
+//   status_layout->addWidget(status_label);
+//   status_bar->setLayout(status_layout);
+
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
-  status_label->setText(txt);
-  
+//   status_label->setText(txt);
+  status_bar->showMessage(txt);
+  status_bar->setToolTip(txt);
+  ui.label_node_cell_info->setText(txt);
+
   axes = vtkCubeAxesActor2D::New();
   axes->SetCamera(getRenderer()->GetActiveCamera());
   getRenderer()->AddActor(axes);
@@ -1134,7 +1145,10 @@ void GuiMainWindow::updateStatusBar()
     txt = "";
   };
   if (!tryLock()) {
-    status_label->setText(txt);
+//     status_label->setText(txt);
+    status_bar->showMessage(txt);
+    status_bar->setToolTip(txt);
+    ui.label_node_cell_info->setText(txt);
     return;
   };
   vtkIdType Ncells = grid->GetNumberOfCells();
@@ -1237,7 +1251,10 @@ void GuiMainWindow::updateStatusBar()
     txt += pick_txt;
   }
   
-  status_label->setText(txt);
+//   status_label->setText(txt);
+  status_bar->showMessage(txt);
+  status_bar->setToolTip(txt);
+  ui.label_node_cell_info->setText(txt);
   unlock();
 };
 
