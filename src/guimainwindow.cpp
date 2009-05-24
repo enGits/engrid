@@ -1273,7 +1273,7 @@ void GuiMainWindow::selectBoundaryCodes()
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
-  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
+//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
   try {
     all_boundary_codes.clear();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -1305,7 +1305,7 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
   } catch (Error err) {
     err.display();
   };
-  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
+//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
 };
 
 void GuiMainWindow::normalExtrusion()
