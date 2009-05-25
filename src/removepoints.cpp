@@ -14,7 +14,7 @@
 RemovePoints::RemovePoints()
  : Operation()
 {
-//   setQuickSave(true);
+  setQuickSave(true);
 }
 
 

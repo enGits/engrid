@@ -109,8 +109,10 @@ protected: // attributes
   QVector<QVector<int> > c2c;
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
-  /** Used for any operations requiring projection on a surface*/
+  /** vtkCellLocator used for any operations requiring projection on a surface. */
   vtkCellLocator* m_CellLocator;
+  /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
+  vtkUnstructuredGrid* m_ProjectionSurface;
   
   //Special attributes for UpdateNodeType_all function
   double Convergence;
@@ -245,9 +247,9 @@ public: // methods
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);
   
-  void SetSource(vtkUnstructuredGrid *a_ProjectionSurface);
-  void SetCellLocator(vtkCellLocator *a_CellLocator);
-  
+  void setSource(vtkUnstructuredGrid *a_ProjectionSurface);
+  void set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface);
+    
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

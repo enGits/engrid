@@ -71,6 +71,7 @@ Operation::Operation()
   err = NULL;
   autoset = true;
   m_CellLocator = NULL;
+  m_ProjectionSurface = NULL;
   
   //default values for determining node types and for smoothing operations
   Convergence=0;
@@ -2313,9 +2314,24 @@ VertexMeshDensity Operation::getVMD(vtkIdType node)
   return(VMD);
 }
 
-void Operation::SetSource(vtkUnstructuredGrid *a_ProjectionSurface)
+void Operation::setSource(vtkUnstructuredGrid *a_ProjectionSurface)
 {
-  if(m_CellLocator) m_CellLocator->Delete();
+  if(m_CellLocator) {
+    cout<<"WARNING: Deleting previous m_CellLocator!"<<endl;
+    m_CellLocator->Delete();
+    m_CellLocator=NULL;
+  }
+  if(m_ProjectionSurface) {
+    cout<<"WARNING: Deleting previous m_ProjectionSurface!"<<endl;
+    m_ProjectionSurface->Delete();
+    m_ProjectionSurface=NULL;
+  }
+  
+  EG_VTKSP(vtkUnstructuredGrid,l_ProjectionSurface);
+//   m_ProjectionSurface=vtkUnstructuredGrid::New();
+  makeCopy(this->grid,l_ProjectionSurface);
+  m_ProjectionSurface = l_ProjectionSurface;
+  
   m_CellLocator=vtkCellLocator::New();
   m_CellLocator->SetDataSet(a_ProjectionSurface);
   m_CellLocator->BuildLocator();
@@ -2325,8 +2341,8 @@ void Operation::SetSource(vtkUnstructuredGrid *a_ProjectionSurface)
   cout<<"m_CellLocator->GetCacheCellBounds()="<<m_CellLocator->GetCacheCellBounds()<<endl;
 }
 
-void Operation::SetCellLocator(vtkCellLocator *a_CellLocator)
+void Operation::set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface)
 {
-  if(m_CellLocator) m_CellLocator->Delete();
-  m_CellLocator=a_CellLocator;
+  m_CellLocator = a_CellLocator;
+  m_ProjectionSurface = a_ProjectionSurface;
 }

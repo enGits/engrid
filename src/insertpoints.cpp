@@ -16,7 +16,7 @@
 InsertPoints::InsertPoints()
  : Operation()
 {
-//   setQuickSave(true);
+  setQuickSave(true);
 }
 
 
