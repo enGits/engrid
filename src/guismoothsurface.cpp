@@ -946,7 +946,7 @@ void GuiSmoothSurface::operate()
             cout<<"SideToSplit="<<SideToSplit<<endl;
             cout<<"c2c[id_cell][SideToSplit]="<<c2c[id_cell][SideToSplit]<<endl;
             for(int i=0;i<3;i++) cout<<"c2c[id_cell]["<<i<<"]="<<c2c[id_cell][i]<<endl;
-            stencil_t S=getStencil(id_cell,SideToSplit);
+            stencil_t S=getStencil(id_cell,SideToSplit,true);
             if(S.valid){//there is a neighbour cell
               if(!marked[S.id_cell2])
               {

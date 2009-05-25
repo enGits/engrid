@@ -160,7 +160,7 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
+  stencil_t getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC);
   
   vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);

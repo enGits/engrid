@@ -30,13 +30,11 @@ using namespace GeometryTools;
 SwapTriangles::SwapTriangles()
 {
   setQuickSave(true);
+  m_RespectBC=false;
 }
 
 void SwapTriangles::prepare()
 {
-/*  cout<<"void SwapTriangles::prepare()"<<endl;
-  cout_grid(cout,grid);
-  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");*/
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
   QList<vtkIdType> ex_cells;
   EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
@@ -75,7 +73,7 @@ void SwapTriangles::operate()
       if (!marked[_cells[id_cell]]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
-          stencil_t S = getStencil(id_cell, j);
+          stencil_t S = getStencil(id_cell, j, m_RespectBC);
           if (S.valid) {
             if (!marked[_cells[S.id_cell2]]) {
               vec3_t x3[4], x3_0(0,0,0);
