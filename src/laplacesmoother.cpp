@@ -33,32 +33,11 @@ void LaplaceSmoother::operate()
   getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
   
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  
-  EG_VTKSP(vtkUnstructuredGrid,m_grid_orig);
-  makeCopy(m_grid, m_grid_orig);
-  
-//   double closestPoint[3];
-  vtkIdType cellId;
-  int subId;
-  double dist2;
-  vtkCellLocator* terminator=vtkCellLocator::New();
-  terminator->SetDataSet(m_grid_orig);
-  terminator->BuildLocator();
-//   terminator->CacheCellBoundsOn();
-  cout<<"terminator->GetNumberOfBuckets()="<<terminator->GetNumberOfBuckets()<<endl;
-  cout<<"terminator->GetNumberOfCellsPerBucket()="<<terminator->GetNumberOfCellsPerBucket()<<endl;
-  cout<<"terminator->GetCacheCellBounds()="<<terminator->GetCacheCellBounds()<<endl;
-  
-//   vtkGenericCell * cell=vtkGenericCell::New();
-  
-//   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
-//     if(DebugLevel>10) 
-//       cout<<"i_iter="<<i_iter<<endl;
     
     foreach(vtkIdType id_G,SelectedNodes)
     {
@@ -75,8 +54,15 @@ void LaplaceSmoother::operate()
         G=(1./n2n_func(id_G).size())*G;
         vec3_t P;
         if(DebugLevel>0) cout<<"Searching for target "<<id_G<<"..."<<endl;
-        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
-//         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
+        if(m_CellLocator==NULL) {
+          cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
+        }
+        else {
+          vtkIdType cellId;
+          int subId;
+          double dist2;
+          m_CellLocator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+        }
         if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
@@ -89,8 +75,6 @@ void LaplaceSmoother::operate()
         
         m_grid->GetPoints()->SetPoint(id_G, P.data());
         
-//         int save=GuiMainWindow::pointer()->QuickSave();
-//         cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
         moved_points++;
       }
     }

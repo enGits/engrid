@@ -35,6 +35,8 @@ class EgVtkObject;
 #include <vtkLongArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkCellLocator.h>
+
 #include <QSettings>
 #include <QSet>
 #include <QVector>
@@ -625,7 +627,7 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
 
 ///////////////////////////////////////////
-int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
+int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x, vtkCellLocator* a_CellLocator=NULL);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
 
 ///get number of the shortest side of the cell

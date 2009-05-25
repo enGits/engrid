@@ -1217,6 +1217,8 @@ void GuiSmoothSurface::operate()
     surfacemesher.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     
+    surfacemesher.SetSource(grid);
+    
     surfacemesher();
     
     updateActors();

@@ -49,6 +49,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       InsertPoints insert_field_points;
+      insert_field_points.SetCellLocator(m_CellLocator);
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
       insert_field_points.Set_insert_EP(false);
@@ -66,6 +67,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       InsertPoints insert_edge_points;
+      insert_edge_points.SetCellLocator(m_CellLocator);
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
       insert_edge_points.Set_insert_EP(true);
@@ -217,6 +219,7 @@ int SurfaceMesher::SmoothFunction()
   //laplacian smoothing with projection
   LaplaceSmoother Lap;
   Lap.SetInput(m_bcs,m_grid);
+  Lap.SetCellLocator(m_CellLocator);
   Lap.SetNumberOfIterations(N_SmoothIterations);
   Lap();
   cout<<"=== SmoothFunction END ==="<<endl;

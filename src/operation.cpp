@@ -70,7 +70,8 @@ Operation::Operation()
   m_resetoperationcounter = false;
   err = NULL;
   autoset = true;
-
+  m_CellLocator = NULL;
+  
   //default values for determining node types and for smoothing operations
   Convergence=0;
   NumberOfIterations=20;
@@ -2310,4 +2311,22 @@ VertexMeshDensity Operation::getVMD(vtkIdType node)
     VMD.BCmap[cell_code->GetValue(C)]=2;
   }
   return(VMD);
+}
+
+void Operation::SetSource(vtkUnstructuredGrid *a_ProjectionSurface)
+{
+  if(m_CellLocator) m_CellLocator->Delete();
+  m_CellLocator=vtkCellLocator::New();
+  m_CellLocator->SetDataSet(a_ProjectionSurface);
+  m_CellLocator->BuildLocator();
+//   m_CellLocator->CacheCellBoundsOn();
+  cout<<"m_CellLocator->GetNumberOfBuckets()="<<m_CellLocator->GetNumberOfBuckets()<<endl;
+  cout<<"m_CellLocator->GetNumberOfCellsPerBucket()="<<m_CellLocator->GetNumberOfCellsPerBucket()<<endl;
+  cout<<"m_CellLocator->GetCacheCellBounds()="<<m_CellLocator->GetCacheCellBounds()<<endl;
+}
+
+void Operation::SetCellLocator(vtkCellLocator *a_CellLocator)
+{
+  if(m_CellLocator) m_CellLocator->Delete();
+  m_CellLocator=a_CellLocator;
 }

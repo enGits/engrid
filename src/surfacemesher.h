@@ -29,6 +29,7 @@ using namespace std;
 using namespace std;
 
 class SurfaceMesher : public Operation {
+  
   public:
     SurfaceMesher();
     void operate();

@@ -32,6 +32,7 @@ class GuiMainWindow;
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
 #include <vtkSmartPointer.h>
+#include <vtkCellLocator.h>
 
 #include <QThread>
 #include <QMutex>
@@ -97,6 +98,7 @@ private: // methods
   
 protected: // attributes
   
+  /** The main grid the operation operates on. */
   vtkUnstructuredGrid   *grid;
   QVector<vtkIdType>     cells;
   QVector<int>           _cells;
@@ -107,6 +109,8 @@ protected: // attributes
   QVector<QVector<int> > c2c;
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
+  /** Used for any operations requiring projection on a surface*/
+  vtkCellLocator* m_CellLocator;
   
   //Special attributes for UpdateNodeType_all function
   double Convergence;
@@ -240,7 +244,10 @@ public: // methods
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);
-
+  
+  void SetSource(vtkUnstructuredGrid *a_ProjectionSurface);
+  void SetCellLocator(vtkCellLocator *a_CellLocator);
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit
