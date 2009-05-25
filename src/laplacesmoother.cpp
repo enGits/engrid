@@ -9,7 +9,7 @@ using namespace GeometryTools;
 LaplaceSmoother::LaplaceSmoother()
 {
    DebugLevel=0;
-   setQuickSave(true);
+//    setQuickSave(true);
 }
 
 LaplaceSmoother::~LaplaceSmoother()

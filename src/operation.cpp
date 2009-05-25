@@ -1611,7 +1611,7 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     if ( cell_code->GetValue(neighbour_cells[0]) !=  cell_code->GetValue(neighbour_cells[1]) )
     {
-      edge = VTK_FEATURE_EDGE_VERTEX;
+      edge = VTK_BOUNDARY_EDGE_VERTEX;
     }
   }
   

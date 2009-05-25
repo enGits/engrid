@@ -16,7 +16,7 @@
 InsertPoints::InsertPoints()
  : Operation()
 {
-  setQuickSave(true);
+//   setQuickSave(true);
 }
 
 
@@ -267,7 +267,7 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
     
     vtkIdType id_cell=stencil_cells_vector[0];
     int SideToSplit = getSide(id_cell,grid,node1,node2);
-    stencil_t S=getStencil(id_cell,SideToSplit,true);
+    stencil_t S=getStencil(id_cell,SideToSplit,false);
     
     bool stencil_marked=false;
     foreach(vtkIdType C,stencil_cells_vector)
