@@ -1051,7 +1051,12 @@ void GuiMainWindow::save()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC();
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC();
+    }
   };
 };
 
@@ -1082,11 +1087,17 @@ void GuiMainWindow::saveAs()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC();
-    //for the undo/redo operations
-    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-    ResetOperationCounter();
-    QuickSave();
+    
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC();
+      //for the undo/redo operations
+      setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+      ResetOperationCounter();
+      QuickSave();
+    }
   };
 };
 
@@ -1112,7 +1123,12 @@ void GuiMainWindow::QuickSave(QString a_filename)
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC(a_filename);
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC(a_filename);
+    }
   }
   else cout<<"No grid to save!"<<endl;
 };
