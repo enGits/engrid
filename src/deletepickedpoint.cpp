@@ -31,7 +31,7 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
-DeletePickedPoint::DeletePickedPoint()
+DeletePickedPoint::DeletePickedPoint() : Operation()
 {
   //Activate undo/redo
   setQuickSave(true);

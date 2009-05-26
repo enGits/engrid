@@ -163,7 +163,7 @@
     <addaction name="actionDeletePickedPoint" />
     <addaction name="actionPrintGrid" />
     <addaction name="actionShowInfo" />
-    <addaction name="actionBox_select" />
+    <addaction name="actionBoxSelect" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuImport_2" />
@@ -1296,7 +1296,7 @@
     <string>Show node/cell info</string>
    </property>
   </action>
-  <action name="actionBox_select" >
+  <action name="actionBoxSelect" >
    <property name="text" >
     <string>Box select</string>
    </property>

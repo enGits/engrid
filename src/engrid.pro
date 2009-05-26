@@ -1,6 +1,6 @@
 TEMPLATE = app
 LANGUAGE = C++
-TARGET   = engrid
+TARGET = engrid
 
 # install
 target.path = /usr/bin
@@ -63,4 +63,8 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 
-include (engrid-standard.pri)
+include(engrid-standard.pri)
+HEADERS += boxselect.h
+
+SOURCES += boxselect.cpp
+
