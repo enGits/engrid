@@ -13,6 +13,8 @@
 
 #include <vtkCharArray.h>
 
+#include <QTime>
+
 InsertPoints::InsertPoints()
  : Operation()
 {
@@ -55,6 +57,8 @@ bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
 int InsertPoints::insert_FP_counter()
 {
   cout<<"===insert_FP_counter() START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   int l_N_inserted_FP=0;
 
   //unmark cells and nodes (TODO: optimize)
@@ -70,6 +74,8 @@ int InsertPoints::insert_FP_counter()
       m_N_newpoints+=1;
     }
   }
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_counter() END==="<<endl;
   return(l_N_inserted_FP);
 }
@@ -77,6 +83,8 @@ int InsertPoints::insert_FP_counter()
 int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_FP_actor START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   vtkCellLocator* l_CellLocator = vtkCellLocator::New();
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
@@ -128,42 +136,42 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
       //============================================
       
-      //part 1
-      node_type->SetValue(m_newNodeId,VTK_SIMPLE_VERTEX);
-
-      //part 2
-      double total_dist=0;
-      double avg_dist=0;
-      for(int i=0;i<N_neighbours;i++)
-      {
-        double dist=(corner[i]-C).abs();
-        total_dist+=dist;
-        node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
-      }
-      avg_dist=total_dist/(double)N_neighbours;
-      node_meshdensity_current->SetValue(m_newNodeId,1./avg_dist);
-
-      //part 3
-      VertexMeshDensity nodeVMD;
-      nodeVMD.type=node_type->GetValue(m_newNodeId);
-      nodeVMD.density=0;
-      nodeVMD.CurrentNode=m_newNodeId;
-      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-      nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
-
-      int idx=VMDvector.indexOf(nodeVMD);
-      node_specified_density->SetValue(m_newNodeId, idx);
-
-      //part 4
-      if(idx!=-1)//specified
-      {
-        node_meshdensity_desired->SetValue(m_newNodeId, VMDvector[idx].density);
-      }
-      else//unspecified
-      {
-        double D=DesiredMeshDensity(m_newNodeId);
-        node_meshdensity_desired->SetValue(m_newNodeId, D);
-      }
+//       //part 1
+//       node_type->SetValue(m_newNodeId,VTK_SIMPLE_VERTEX);
+// 
+//       //part 2
+//       double total_dist=0;
+//       double avg_dist=0;
+//       for(int i=0;i<N_neighbours;i++)
+//       {
+//         double dist=(corner[i]-C).abs();
+//         total_dist+=dist;
+//         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
+//       }
+//       avg_dist=total_dist/(double)N_neighbours;
+//       node_meshdensity_current->SetValue(m_newNodeId,1./avg_dist);
+// 
+//       //part 3
+//       VertexMeshDensity nodeVMD;
+//       nodeVMD.type=node_type->GetValue(m_newNodeId);
+//       nodeVMD.density=0;
+//       nodeVMD.CurrentNode=m_newNodeId;
+//       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+//       nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
+// 
+//       int idx=VMDvector.indexOf(nodeVMD);
+//       node_specified_density->SetValue(m_newNodeId, idx);
+// 
+//       //part 4
+//       if(idx!=-1)//specified
+//       {
+//         node_meshdensity_desired->SetValue(m_newNodeId, VMDvector[idx].density);
+//       }
+//       else//unspecified
+//       {
+//         double D=DesiredMeshDensity(m_newNodeId);
+//         node_meshdensity_desired->SetValue(m_newNodeId, D);
+//       }
 
       //============================================
 
@@ -191,6 +199,8 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   }
   
   l_CellLocator->Delete();
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_actor END==="<<endl;
   return(0);
 }
@@ -198,6 +208,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 int InsertPoints::insert_FP_all()
 {
   cout<<"===insert_FP_all START==="<<endl;
+  QTime start = QTime::currentTime();
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -230,6 +241,8 @@ int InsertPoints::insert_FP_all()
   insert_FP_actor(grid_tmp);
   
   makeCopy(grid_tmp,grid);
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_all END==="<<endl;
   return(0);
 }
@@ -237,6 +250,8 @@ int InsertPoints::insert_FP_all()
 int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 {
   cout<<"===insert_EP_counter() START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   int l_N_inserted_EP=0;
 
   m_marked_cells.clear();
@@ -300,6 +315,8 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
       }
     }
   }//end of loop through edges
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_EP_counter() END==="<<endl;
   return(l_N_inserted_EP);
 }
@@ -307,6 +324,8 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_EP_actor START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   vtkCellLocator* l_CellLocator = vtkCellLocator::New();
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
@@ -393,6 +412,8 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   }
   
   l_CellLocator->Delete();
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_EP_actor END==="<<endl;
   return(0);
 }
@@ -400,6 +421,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 int InsertPoints::insert_EP_all()
 {
   cout<<"===insert_EP_all START==="<<endl;
+  QTime start = QTime::currentTime();
   
   int l_N_points;
   int l_N_cells;
@@ -438,6 +460,7 @@ int InsertPoints::insert_EP_all()
   
   makeCopy(grid_tmp,grid);
   
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }

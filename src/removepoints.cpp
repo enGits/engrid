@@ -44,6 +44,8 @@ bool RemovePoints::remove_edgepoint(vtkIdType P)
 int RemovePoints::remove_FP_counter()
 {
   cout<<"===remove_FP_counter() START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   int l_N_removed_FP = 0;
   cout<<"m_marked_cells="<<m_marked_cells<<endl;
 //   cout<<"m_hitlist="<<m_hitlist<<endl;
@@ -78,6 +80,8 @@ int RemovePoints::remove_FP_counter()
       }
     }
   }
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===remove_FP_counter() END==="<<endl;
   return(l_N_removed_FP);
 }
@@ -85,6 +89,8 @@ int RemovePoints::remove_FP_counter()
 int RemovePoints::remove_EP_counter()
 {
   cout<<"===remove_EP_counter() START==="<<endl;
+  QTime start = QTime::currentTime();
+  
   int l_N_removed_EP = 0;
 //   UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
@@ -119,6 +125,8 @@ int RemovePoints::remove_EP_counter()
       }
     }
   }
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===remove_EP_counter() END==="<<endl;
   return(l_N_removed_EP);
 }
@@ -127,6 +135,7 @@ int RemovePoints::remove_EP_counter()
 int RemovePoints::remove_FP_all()
 {
   cout<<"===remove_FP_all START==="<<endl;
+  QTime start = QTime::currentTime();
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -171,7 +180,9 @@ int RemovePoints::remove_FP_all()
   int contracts=DeadNodes.size();
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   //TEMPORARY!!!!!!!!!!!!
-//   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===remove_FP_all END==="<<endl;
   return(0);
 }
@@ -180,6 +191,7 @@ int RemovePoints::remove_FP_all()
 int RemovePoints::remove_EP_all()
 {
   cout<<"===remove_EP_all START==="<<endl;
+  QTime start = QTime::currentTime();
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -224,6 +236,8 @@ int RemovePoints::remove_EP_all()
   int contracts=DeadNodes.size();
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
+  
+  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===remove_EP_all END==="<<endl;
   return(0);
 }
