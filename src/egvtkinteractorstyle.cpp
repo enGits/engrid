@@ -11,12 +11,18 @@
 //
 #include "egvtkinteractorstyle.h"
 
+#include "deletepickedpoint.h"
+#include "egvtkobject.h"
+#include "operation.h"
+
 #include "vtkInteractorStyleUser.h"
 #include "vtkMath.h"
 #include "vtkCellPicker.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+
+
 
 vtkCxxRevisionMacro(egvtkInteractorStyle, "$Revision: 1.37 $");
 vtkStandardNewMacro(egvtkInteractorStyle);
@@ -406,41 +412,50 @@ void egvtkInteractorStyle::OnChar()
   this->EventCallbackCommand->SetAbortFlag(1);
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
+  char key=rwi->GetKeyCode();
   
-  switch (rwi->GetKeyCode()) 
-  {
-    case 'n' :
-      cout<<"pick node by mouse"<<endl;
-      break;
-    case 'N' :
-      cout<<"pick node by ID"<<endl;
-      break;
-    
-    case 'c' :
-      cout<<"pick cell by mouse"<<endl;
-      break;
-    case 'C' :
-      cout<<"pick cell by ID"<<endl;
-      break;
-    
-    case 'b' :
-      cout<<"box select"<<endl;
-    
-      break;
+  if(key=='n') {
+    cout<<"pick node by mouse"<<endl;
   }
+/*  else if(key=='N') {
+    cout<<"pick node by ID"<<endl;
+  }*/
   
+  else if(key=='c') {
+    cout<<"pick cell by mouse"<<endl;
+  }
+/*  else if(key=='C') {
+    cout<<"pick cell by ID"<<endl;
+  }*/
+  
+/*  else if(key=='b') {
+    cout<<"box select"<<endl;
+  }*/
+  
+  /*  else if(key=='d') {
+    cout<<"Delete picked point"<<endl;
+//     EG_STDINTERSLOT(DeletePickedPoint);
+    DeletePickedPoint deletepickedpoint;
+    deletepickedpoint();
+    OPER *oper = new OPER(); \
+      (*oper)(); \
+      oper->del(); \
+      if(grid->GetNumberOfPoints()) updateBoundaryCodes(false);
+      updateActors();
+      
+  }*/
+  
+  else {
    // otherwise pass the OnChar to the vtkInteractorStyle.
-  if (this->HasObserver(vtkCommand::CharEvent)) 
-    {
-    this->ShiftKey = this->Interactor->GetShiftKey();
-    this->ControlKey = this->Interactor->GetControlKey();
-    this->KeyCode = this->Interactor->GetKeyCode();  
-    
-    this->InvokeEvent(vtkCommand::CharEvent,NULL);
+    if (this->HasObserver(vtkCommand::CharEvent)) {
+      this->ShiftKey = this->Interactor->GetShiftKey();
+      this->ControlKey = this->Interactor->GetControlKey();
+      this->KeyCode = this->Interactor->GetKeyCode();  
+      
+      this->InvokeEvent(vtkCommand::CharEvent,NULL);
     }
-  else
-    {
-    this->vtkInteractorStyle::OnChar();
+    else {
+      this->vtkInteractorStyle::OnChar();
     }
-  
+  }
 }
