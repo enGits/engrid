@@ -186,11 +186,13 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
         if(i==0)
         {
           grid_tmp->ReplaceCell(id_cell , 3, pts_triangle[0]);
+          if(cellVA(grid_tmp,id_cell)<10e-6) EG_BUG;
           cell_code_tmp->SetValue(id_cell, newBC);
         }
         else
         {
           vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i]);
+          if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
           cell_code_tmp->SetValue(newCellId, newBC);
         }
       }
@@ -379,15 +381,21 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
       cout<<"bc1="<<bc1<<" bc2="<<bc2<<endl;
       
       grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+      if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(S.id_cell1, bc1);
       
       grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
+      if(cellVA(grid_tmp,S.id_cell2)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(S.id_cell2, bc2);
       
       vtkIdType newCellId;
+      
       newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
+      if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(newCellId, bc2);
+      
       newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+      if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(newCellId, bc1);
     }
     else{//there is no neighbour cell
@@ -404,10 +412,12 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
       cout<<"bc1="<<bc1<<endl;
       
       grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
+      if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(S.id_cell1, bc1);
       
       vtkIdType newCellId;
       newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+      if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
       cell_code_tmp->SetValue(newCellId, bc1);
     }
     
