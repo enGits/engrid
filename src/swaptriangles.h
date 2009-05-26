@@ -34,6 +34,7 @@ private: // attributes
   
   QVector<bool> marked;
   bool m_RespectBC;
+  bool m_FeatureSwap;
   
 private: // methods
   
@@ -47,7 +48,8 @@ protected: // methods
 public:
   SwapTriangles();
   void setRespectBC(bool b){m_RespectBC=b;};
-
+  void setFeatureSwap(bool b){m_FeatureSwap=b;};
+  
 };
 
 #endif

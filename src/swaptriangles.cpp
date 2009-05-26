@@ -32,6 +32,7 @@ SwapTriangles::SwapTriangles()
 {
   setQuickSave(true);
   m_RespectBC=false;
+  m_FeatureSwap=false;
 }
 
 void SwapTriangles::prepare()
@@ -87,7 +88,7 @@ void SwapTriangles::operate()
               vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
               n1.normalise();
               n2.normalise();
-              if ( (n1*n2) > 0.8) {
+              if ( m_FeatureSwap || (n1*n2) > 0.8) {
                 vec3_t n = n1 + n2;
                 n.normalise();
                 vec3_t ex = orthogonalVector(n);

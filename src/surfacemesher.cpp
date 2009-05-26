@@ -204,6 +204,7 @@ int SurfaceMesher::SwapFunction()
   
   SwapTriangles swap;
   swap.setRespectBC(true);
+  swap.setFeatureSwap(true);
   swap.setGrid(m_grid);
   swap.setBoundaryCodes(bcs_complement);
   swap();
