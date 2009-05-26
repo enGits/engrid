@@ -256,6 +256,7 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 
   m_marked_cells.clear();
   
+  //TODO: Improve speed here by using a method similar to VTK UpdateNodeType algorithm
   //Prepare m_edge_map
   QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
   vtkIdType edgeId=1;

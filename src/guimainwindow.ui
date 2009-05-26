@@ -997,6 +997,9 @@
    <property name="text" >
     <string>redraw</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionCreateBoundaryLayer" >
    <property name="icon" >

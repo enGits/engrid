@@ -40,6 +40,12 @@ void ShowInfo::operate()
       cout<<"pts=";
       for(int i=0;i<N_pts;i++) cout<<pts[i]<<" ";
       cout<<endl;
+      cout<<"coords:"<<endl;
+      for(int i=0;i<N_pts;i++) {
+        vec3_t X;
+        grid->GetPoint(pts[i],X.data());
+        cout<<"pts["<<i<<"]="<<X<<endl;
+      }
       cout<<"====================================="<<endl;
     }
     else
@@ -56,6 +62,9 @@ void ShowInfo::operate()
       cout<<"n2c_func(PickedPoint)="<<n2c_func(PickedPoint)<<endl;
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
       cout<<"node_type="<<VertexType2Str(node_type->GetValue(PickedPoint))<<endl;
+      vec3_t X;
+      grid->GetPoint(PickedPoint,X.data());
+      cout<<"X="<<X<<endl;
       cout<<"====================================="<<endl;
     }
     else
