@@ -10,6 +10,10 @@
 //
 //
 #include "showinfo.h"
+
+#include "geometrytools.h"
+using namespace GeometryTools;
+
 #include <vtkCharArray.h>
 
 ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : Operation()
@@ -46,6 +50,7 @@ void ShowInfo::operate()
         grid->GetPoint(pts[i],X.data());
         cout<<"pts["<<i<<"]="<<X<<endl;
       }
+      cout<<"area="<<cellVA(grid,PickedCell)<<endl;
       cout<<"====================================="<<endl;
     }
     else

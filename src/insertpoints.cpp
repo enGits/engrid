@@ -337,7 +337,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   foreach(stencil_t S,m_StencilVector)
   {
-    if(DebugLevel>10) cout<<"S="<<S<<endl;
+    cout<<"S="<<S<<endl;
     vec3_t A,B;
     grid_tmp->GetPoint(S.p[1],A.data());
     grid_tmp->GetPoint(S.p[3],B.data());
@@ -376,6 +376,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
       
       int bc1=cell_code_tmp->GetValue(S.id_cell1);
       int bc2=cell_code_tmp->GetValue(S.id_cell2);
+      cout<<"bc1="<<bc1<<" bc2="<<bc2<<endl;
       
       grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
       cell_code_tmp->SetValue(S.id_cell1, bc1);
@@ -400,6 +401,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
       pts_triangle[3][2]=m_newNodeId;
       
       int bc1=cell_code_tmp->GetValue(S.id_cell1);
+      cout<<"bc1="<<bc1<<endl;
       
       grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
       cell_code_tmp->SetValue(S.id_cell1, bc1);
