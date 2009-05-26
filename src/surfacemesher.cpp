@@ -5,6 +5,7 @@
 #include "updatedesiredmeshdensity.h"
 
 SurfaceMesher::SurfaceMesher()
+: Operation()
 {
    DebugLevel=0;
 }
@@ -49,6 +50,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       InsertPoints insert_field_points;
+      insert_field_points.setGrid(m_grid);
       insert_field_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
@@ -67,6 +69,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       InsertPoints insert_edge_points;
+      insert_edge_points.setGrid(m_grid);
       insert_edge_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
@@ -85,6 +88,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       RemovePoints remove_field_points;
+      remove_field_points.setGrid(m_grid);
       remove_field_points.SetBCS(m_bcs);
       remove_field_points.Set_remove_FP(true);
       remove_field_points.Set_remove_EP(false);
@@ -101,6 +105,7 @@ void SurfaceMesher::operate()
 //       MeshDensityFunction();
       UpdateNodeInfo();
       RemovePoints remove_edge_points;
+      remove_edge_points.setGrid(m_grid);
       remove_edge_points.SetBCS(m_bcs);
       remove_edge_points.Set_remove_FP(false);
       remove_edge_points.Set_remove_EP(true);
@@ -218,6 +223,7 @@ int SurfaceMesher::SmoothFunction()
   
   //laplacian smoothing with projection
   LaplaceSmoother Lap;
+  Lap.setGrid(m_grid);
   Lap.SetInput(m_bcs,m_grid);
   Lap.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
   Lap.SetNumberOfIterations(N_SmoothIterations);

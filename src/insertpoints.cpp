@@ -19,11 +19,6 @@ InsertPoints::InsertPoints()
   setQuickSave(true);
 }
 
-
-InsertPoints::~InsertPoints()
-{
-}
-
 void InsertPoints::operate()
 {
   if(insert_FP) insert_FP_all();

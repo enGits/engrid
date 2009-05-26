@@ -28,6 +28,7 @@
 using namespace GeometryTools;
 
 SwapTriangles::SwapTriangles()
+: Operation()
 {
   setQuickSave(true);
   m_RespectBC=false;

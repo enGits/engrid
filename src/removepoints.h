@@ -76,8 +76,6 @@ public:
   
 public:
   RemovePoints();
-
-  ~RemovePoints();
   
   void operate();
   

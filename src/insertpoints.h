@@ -62,8 +62,6 @@ public:
   
 public:
   InsertPoints();
-
-  ~InsertPoints();
   
   void operate();
   

@@ -7,13 +7,10 @@
 using namespace GeometryTools;
 
 LaplaceSmoother::LaplaceSmoother()
+: Operation()
 {
    DebugLevel=0;
    setQuickSave(true);
-}
-
-LaplaceSmoother::~LaplaceSmoother()
-{
 }
 
 void LaplaceSmoother::operate()
@@ -36,9 +33,14 @@ void LaplaceSmoother::operate()
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   
+  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
+  l_CellLocator->SetDataSet(m_ProjectionSurface);
+  l_CellLocator->BuildLocator();
+  
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     
+    l_CellLocator->Print(cout);
     foreach(vtkIdType id_G,SelectedNodes)
     {
       if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
@@ -61,7 +63,7 @@ void LaplaceSmoother::operate()
           vtkIdType cellId;
           int subId;
           double dist2;
-          m_CellLocator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+          l_CellLocator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
         }
         if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         

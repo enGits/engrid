@@ -1191,6 +1191,7 @@ void GuiSmoothSurface::operate()
     QVector <VertexMeshDensity> VMDvector=GetSet();
     
     SurfaceMesher surfacemesher;
+    surfacemesher.setGrid(this->grid);
     
     surfacemesher.SetInput(bcs,this->grid);
     surfacemesher.SetVertexMeshDensityVector(VMDvector);

@@ -2327,10 +2327,11 @@ void Operation::setSource(vtkUnstructuredGrid *a_ProjectionSurface)
     m_ProjectionSurface=NULL;
   }
   
-  EG_VTKSP(vtkUnstructuredGrid,l_ProjectionSurface);
-//   m_ProjectionSurface=vtkUnstructuredGrid::New();
-  makeCopy(this->grid,l_ProjectionSurface);
-  m_ProjectionSurface = l_ProjectionSurface;
+/*  EG_VTKSP(vtkUnstructuredGrid,l_ProjectionSurface);
+  makeCopy(a_ProjectionSurface,l_ProjectionSurface);
+  m_ProjectionSurface = l_ProjectionSurface;*/
+  m_ProjectionSurface=vtkUnstructuredGrid::New();
+  makeCopy(a_ProjectionSurface,m_ProjectionSurface);
   
   m_CellLocator=vtkCellLocator::New();
   m_CellLocator->SetDataSet(a_ProjectionSurface);
@@ -2339,10 +2340,19 @@ void Operation::setSource(vtkUnstructuredGrid *a_ProjectionSurface)
   cout<<"m_CellLocator->GetNumberOfBuckets()="<<m_CellLocator->GetNumberOfBuckets()<<endl;
   cout<<"m_CellLocator->GetNumberOfCellsPerBucket()="<<m_CellLocator->GetNumberOfCellsPerBucket()<<endl;
   cout<<"m_CellLocator->GetCacheCellBounds()="<<m_CellLocator->GetCacheCellBounds()<<endl;
+
+  cout<<"ORIGINAL: m_CellLocator="<<m_CellLocator<<endl;
+  cout<<"ORIGINAL: m_ProjectionSurface="<<m_ProjectionSurface<<endl;
 }
 
 void Operation::set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface)
 {
   m_CellLocator = a_CellLocator;
   m_ProjectionSurface = a_ProjectionSurface;
+  
+  cout<<"===set_CellLocator_and_ProjectionSurface==="<<endl;
+  cout_grid(cout,m_ProjectionSurface);
+  
+  cout<<"COPY: m_CellLocator="<<m_CellLocator<<endl;
+  cout<<"COPY: m_ProjectionSurface="<<m_ProjectionSurface<<endl;
 }

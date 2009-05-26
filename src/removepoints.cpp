@@ -17,12 +17,6 @@ RemovePoints::RemovePoints()
   setQuickSave(true);
 }
 
-
-RemovePoints::~RemovePoints()
-{
-}
-
-
 void RemovePoints::operate()
 {
   if(remove_FP) remove_FP_all();
