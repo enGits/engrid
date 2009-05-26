@@ -13,12 +13,16 @@
 #define BOXSELECT_H
 
 #include <operation.h>
+#include <vtkBoxWidget.h>
 
 /**
 	@author Mike Taverne <mtaverne@engits.com>
 */
 class BoxSelect : public Operation
 {
+private:
+  vtkBoxWidget *boxWidget;
+  
 public:
     BoxSelect();
 
