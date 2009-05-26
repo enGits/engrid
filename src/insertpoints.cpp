@@ -77,6 +77,9 @@ int InsertPoints::insert_FP_counter()
 int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_FP_actor START==="<<endl;
+  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
+  l_CellLocator->SetDataSet(m_ProjectionSurface);
+  l_CellLocator->BuildLocator();
   
     //unmark cells (TODO: optimize)
   m_marked_cells.clear();//why?
@@ -107,8 +110,15 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
       //============================================
       // ADD POINT
+      vtkIdType cellId;
+      int subId;
+      double dist2;
+      vec3_t P;
+      l_CellLocator->FindClosestPoint(C.data(),P.data(),cellId,subId,dist2);
+      C=P;
+      
       addPoint(grid_tmp,m_newNodeId,C.data(),m_CellLocator);
-
+      
 /*
       //============================================
       //TODO: PRIORITY 1: Update node info (densities+type)
@@ -179,6 +189,8 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
     }
   }
+  
+  l_CellLocator->Delete();
   cout<<"===insert_FP_actor END==="<<endl;
   return(0);
 }
@@ -295,6 +307,9 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
 {
   cout<<"===insert_EP_actor START==="<<endl;
+  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
+  l_CellLocator->SetDataSet(m_ProjectionSurface);
+  l_CellLocator->BuildLocator();
   
   //unmark cells (TODO: optimize)
   m_marked_cells.clear();
@@ -309,7 +324,15 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     vec3_t M=0.5*(A+B);
     
     //ADD POINT
+    vtkIdType cellId;
+    int subId;
+    double dist2;
+    vec3_t P;
+    l_CellLocator->FindClosestPoint(M.data(),P.data(),cellId,subId,dist2);
+    M=P;
+    
     addPoint(grid_tmp,m_newNodeId,M.data(),m_CellLocator);
+    
     //TODO: PRIORITY 1: Update node info (densities+type)
     EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");
@@ -368,6 +391,8 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     
     m_newNodeId++;
   }
+  
+  l_CellLocator->Delete();
   cout<<"===insert_EP_actor END==="<<endl;
   return(0);
 }

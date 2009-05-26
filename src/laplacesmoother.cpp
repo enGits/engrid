@@ -82,6 +82,8 @@ void LaplaceSmoother::operate()
     }
   }
   
+  l_CellLocator->Delete();
+  
   if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
   if(DebugLevel>10) cout_grid(cout,m_grid);
