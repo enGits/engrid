@@ -818,9 +818,9 @@ int Operation::UpdateNodeType_all()
   }
   
   //Cosine of angle between adjacent polys
-  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   // Cosine of angle between adjacent edges
-  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
   if(DebugLevel>5) {
     cout<<"Smoothing " << numPts << " vertices, " << numCells 
@@ -1169,9 +1169,9 @@ int Operation::UpdateNodeType()
   }
   
   //Cosine of angle between adjacent polys
-  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+  double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   // Cosine of angle between adjacent edges
-  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
   if(DebugLevel>5) {
     cout<<"Smoothing " << numPts << " vertices, " << numCells 
@@ -1462,8 +1462,8 @@ char Operation::getNodeType(vtkIdType a_node)
   edges = vtkIdList::New();
   edges->Allocate(16,6);
   
-  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
+  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
   QSet <vtkIdType> neighbour_nodes = n2n_func(a_node);
   
@@ -1555,8 +1555,8 @@ char Operation::getNodeType(vtkIdType a_node)
     else{//also wrong here
       QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
       double CosAlpha=CosAngle(grid,C[0],C[1]);
-      double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-      double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+      double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
+      double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
       if(CosAlpha<CosEdgeAngle){
         type=VTK_FIXED_VERTEX;
       }
@@ -1583,8 +1583,8 @@ bool Operation::FullCycleOfPolygons(vtkIdType a_node)
 //TODO: take into account more than 2 cells on one edge like in the VTK algorithm
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
-  double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-  double CosEdgeAngle = cos((double) vtkMath::DegreesToRadians() * this->EdgeAngle);
+  double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
+  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
     //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells = GetEdgeCells(a_node1,a_node2);
@@ -1639,7 +1639,7 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
     }
     else{
       double CosAlpha=CosAngle(grid,cell1,cell2);
-      double CosFeatureAngle = cos((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
+      double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
       if(CosAlpha<CosFeatureAngle) ret=VTK_FEATURE_EDGE;
     }
   }
