@@ -51,6 +51,8 @@ qtc-gdbmacros
 *.txt
 *.bcs
 netgen_svn_old
+*.tag
+docs
 
 # LaTeX generated files - anywhere
 *.aux
