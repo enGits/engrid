@@ -929,6 +929,9 @@
    <property name="text" >
     <string>set boundary code</string>
    </property>
+   <property name="shortcut" >
+    <string>S</string>
+   </property>
   </action>
   <action name="actionChangeOrientation" >
    <property name="icon" >
@@ -1197,6 +1200,9 @@
   <action name="actionPick_cell_point" >
    <property name="text" >
     <string>Pick point/cell</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+P</string>
    </property>
   </action>
   <action name="actionPick_cell_2" >

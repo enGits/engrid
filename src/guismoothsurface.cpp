@@ -804,6 +804,8 @@ void GuiSmoothSurface::operate()
     cout<<"bcs_complement="<<bcs_complement<<endl;
     
     SwapTriangles swap;
+    swap.setRespectBC(true);
+    swap.setFeatureSwap(true);
     swap.setGrid(this->grid);
     swap.setBoundaryCodes(bcs_complement);
     swap();
