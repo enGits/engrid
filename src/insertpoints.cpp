@@ -282,8 +282,6 @@ int InsertPoints::insert_EP_all()
   int l_N_newpoints=0;
   int l_N_newcells=0;
   
-  cout<<"===insert_EP_counter() START==="<<endl;
-    
   QVector <int> l_marked_cells(cells.size());
   QVector <stencil_t> l_StencilVector(cells.size());
   
@@ -365,21 +363,21 @@ int InsertPoints::insert_EP_all()
         int bc2=cell_code_tmp->GetValue(S.id_cell2);
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-        if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
+//         if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(S.id_cell1, bc1);
         
         grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
-        if(cellVA(grid_tmp,S.id_cell2)<10e-6) EG_BUG;
+//         if(cellVA(grid_tmp,S.id_cell2)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(S.id_cell2, bc2);
         
         vtkIdType newCellId;
         
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-        if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
+//         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(newCellId, bc2);
         
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-        if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
+//         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(newCellId, bc1);
       }
       else{//there is no neighbour cell

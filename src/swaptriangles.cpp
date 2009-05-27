@@ -65,6 +65,7 @@ void SwapTriangles::operate()
   do {
     N_swaps = 0;
     createCellToCell(cells, c2c, grid);
+    writeCells(grid,cells,GuiMainWindow::pointer()->getFilePath()+"marked_cells.vtu");
     //NOTE: This for loop can eventually be removed because if undefined, it's probably false.
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       marked[i_cells] = false;
