@@ -200,9 +200,10 @@ protected: // methods
    * @param nodes On return, this will contain the nodes that correspond to the subset of cells
    * @param grid  The grid to operate on
    */
+  template <class C>
   void getNodesFromCells
     (
-      QVector<vtkIdType>  &cells,
+      const C             &cells,
       QVector<vtkIdType>  &nodes,
       vtkUnstructuredGrid *grid
     );
@@ -218,7 +219,7 @@ protected: // methods
       vtkUnstructuredGrid *grid,
       vtkIdType            cellId
     );
-  bool isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isVolume(grid, id_cell); };
+  bool isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isVolume(grid, id_cell); }
   
   
   /**
@@ -232,7 +233,7 @@ protected: // methods
       vtkUnstructuredGrid *grid,
       vtkIdType            id_cell
     );
-  bool isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isSurface(grid, id_cell); };
+  bool isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isSurface(grid, id_cell); }
   
   /**
    * Get all volume cells of a grid.
@@ -498,11 +499,25 @@ protected: // methods
 
   /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".
+   * @param src a pointer to the source grid
+   * @param dst a pointer to the destination grid
    */
   void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+
+  /**
+   * Copy a part of "src" grid to "dst" grid. Allocate "dst" so that it fits the data to be copied.
+   * @param src a pointer to the source grid
+   * @param dst a pointer to the destination grid
+   * @param cells a container with the cells to be copied
+   */
+  template <class C>
+  void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, const C &cells);
+
   /**
    * Copy "src" grid to "dst" grid. DO NOT allocate "dst" so that it fits the data of "src".
    * Allocation is left for the user to do.
+   * @param src a pointer to the source grid
+   * @param dst a pointer to the destination grid
    */
   void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   
@@ -514,7 +529,6 @@ protected: // methods
   * true: remove
   */
   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
-//   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells);
   
   void createIndices(vtkUnstructuredGrid *grid);
   
@@ -525,19 +539,21 @@ protected: // methods
    */
   BoundaryCondition getBC(int bc);
   
-  template <class T>
-  void writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name);
+  template <class C>
+  void writeCells(vtkUnstructuredGrid *grid, const C &cls, QString file_name);
   
 public: // methods
   
+  EgVtkObject() { DebugLevel = 0; }
+
   void setBoundaryCodes(const QSet<int> &bcs);
-  EgVtkObject(){
-      DebugLevel=0;
-  };
-  void setDebugLevel(int a_DebugLevel){DebugLevel=a_DebugLevel;};
+  void setDebugLevel(int a_DebugLevel) { DebugLevel = a_DebugLevel; }
   
 };
+
 //End of class EgVtkObject
+
+
 
 template <class T>
 void EgVtkObject::setIntersection(const QSet<T> &set1,
@@ -548,9 +564,9 @@ void EgVtkObject::setIntersection(const QSet<T> &set1,
   foreach (T t1, set1) {
     if (set2.contains(t1)) {
       inters.insert(t1);
-    };
-  };
-};
+    }
+  }
+}
 
 template <class T>
 void EgVtkObject::vectorIntersection(const QVector<T> &set1,
@@ -561,9 +577,9 @@ void EgVtkObject::vectorIntersection(const QVector<T> &set1,
   foreach (T t1, set1) {
     if (set2.has(t1)) {
       inters.insert(t1);
-    };
-  };
-};
+    }
+  }
+}
 
 template <class T>
 void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name)
@@ -585,7 +601,7 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
     old2new[id_node] = id_new_node;
     copyNodeData(grid, id_node, tmp_grid, id_new_node);
     ++id_new_node;
-  };
+  }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
@@ -593,16 +609,63 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
     QVector<vtkIdType> new_pts(N_pts);
     for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
       new_pts[i_pts] = old2new[pts[i_pts]];
-    };
+    }
     vtkIdType id_new_cell = tmp_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
     copyCellData(grid, id_cell, tmp_grid, id_new_cell);
-  };
+  }
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   vtu->SetFileName(file_name.toAscii().data());
   vtu->SetDataModeToBinary();
   vtu->SetInput(tmp_grid);
   vtu->Write();
-};
+}
+
+template <class C>
+void EgVtkObject::getNodesFromCells(const C& cells, QVector<vtkIdType>  &nodes, vtkUnstructuredGrid *grid)
+{
+  QSet<vtkIdType> ex_nodes;
+  vtkIdType id_cell;
+  foreach(id_cell, cells) {
+    vtkIdType *pts;
+    vtkIdType  Npts;
+    grid->GetCellPoints(id_cell, Npts, pts);
+    for (int i = 0; i < Npts; ++i) {
+      ex_nodes.insert(pts[i]);
+    }
+  }
+  nodes.resize(ex_nodes.size());
+  {
+    int j = 0;
+    vtkIdType i;
+    foreach(i,ex_nodes) {
+      nodes[j] = i;
+      ++j;
+    }
+  }
+}
+
+template <class C>
+void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, const C& cells)
+{
+  QVector<vtkIdType> nodes;
+  getNodesFromCells(cells, nodes, src);
+  allocateGrid(dst, cells.size(), nodes.size());
+  vtkIdType id_new_node = 0;
+  foreach (vtkIdType id_node, nodes) {
+    vec3_t x;
+    src->GetPoints()->GetPoint(id_node, x.data());
+    dst->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(src, id_node, dst, id_new_node);
+    ++id_new_node;
+  }
+  foreach (vtkIdType id_cell, cells) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = src->GetCellType(id_cell);
+    src->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(src, id_cell, dst, id_new_cell);
+  }
+}
 
   /**
    * Utility function that allows printing selected data from an vtkUnstructuredGrid to any ostream (includes ofstream objects)
@@ -630,6 +693,7 @@ Qt::CheckState int2CheckState(int a);
 int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
+
 template <class T>
 ostream &operator<<(ostream &out, QVector<T> & vector)
 {
