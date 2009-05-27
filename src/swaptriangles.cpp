@@ -49,8 +49,10 @@ void SwapTriangles::prepare()
   };
   cells.resize(ex_cells.size());
   qCopy(ex_cells.begin(), ex_cells.end(), cells.begin());
+  createNodeMapping(nodes,_nodes,grid);
   createCellMapping(cells, _cells, grid);
   createCellToCell(cells, c2c, grid);
+  createNodeToNode(cells, nodes, _nodes, n2n, grid);
   marked.resize(cells.size());
 };
 
@@ -69,6 +71,8 @@ void SwapTriangles::operate()
   do {
     N_swaps = 0;
     createCellToCell(cells, c2c, grid);
+    createNodeMapping(nodes,_nodes,grid);
+    createNodeToNode(cells, nodes, _nodes, n2n, grid);
     QString num1, num2;
     QString str;
     num1.setNum(nStatic_SwapTriangles);
@@ -89,7 +93,7 @@ void SwapTriangles::operate()
           bool swap = false;
           stencil_t S = getStencil(id_cell, j, m_RespectBC);
           if (S.valid) {
-            if(TestSwap(S)) {
+            if( ! isEdge(S.p[0],S.p[2]) ) {
               if (!marked[_cells[S.id_cell2]]) {
                 vec3_t x3[4], x3_0(0,0,0);
                 vec2_t x[4];
@@ -167,14 +171,6 @@ void SwapTriangles::operate()
             grid->ReplaceCell(S.id_cell2, 3, new_pts2);
             ++N_swaps;
             ++N_total;
-//             GuiMainWindow::pointer()->QuickSave();
-/*            if(S.id_cell1==138) {
-              cout<<"swapping!!!!!!"<<endl;
-              cout<<"S.id_cell1="<<S.id_cell1<<endl;
-              cout<<"S.id_cell2="<<S.id_cell2<<endl;
-              cout<<"marked[_cells[S.id_cell1]]="<<marked[_cells[S.id_cell1]]<<endl;
-              cout<<"marked[_cells[S.id_cell2]]="<<marked[_cells[S.id_cell2]]<<endl;
-            }*/
             break;
           };
         };
@@ -209,39 +205,15 @@ bool SwapTriangles::TestSwap(stencil_t S)
   double V1_new=tetraVol(M[1], Summit, M[2], M[0], true);
   double V2_new=tetraVol(M[3], Summit, M[0], M[2], true);
 
-  
-/*  if(S.id_cell1==138)
-  {
-    cout<<"V1_old="<<V1_old<<endl;
-    cout<<"V2_old="<<V2_old<<endl;
-    cout<<"V1_new="<<V1_new<<endl;
-    cout<<"V2_new="<<V2_new<<endl;
-    
-    cout<<"n1_old="<<n1_old<<endl;
-    cout<<"n2_old="<<n2_old<<endl;
-    cout<<"n1_new="<<n1_new<<endl;
-    cout<<"n2_new="<<n2_new<<endl;
-    
-    cout<<"n1_old*n1_old="<<n1_old*n1_old<<endl;
-    cout<<"n2_old*n1_old="<<n2_old*n1_old<<endl;
-    cout<<"n1_old*n2_old="<<n1_old*n2_old<<endl;
-    cout<<"n2_old*n2_old="<<n2_old*n2_old<<endl;
-    
-    cout<<"n1_old*n1_new="<<n1_old*n1_new<<endl;
-    cout<<"n2_old*n1_new="<<n2_old*n1_new<<endl;
-    cout<<"n1_old*n2_new="<<n1_old*n2_new<<endl;
-    cout<<"n2_old*n2_new="<<n2_old*n2_new<<endl;
-    
-    cout<<"n1_new*n1_old="<<n1_new*n1_old<<endl;
-    cout<<"n2_new*n1_old="<<n2_new*n1_old<<endl;
-    cout<<"n1_new*n2_old="<<n1_new*n2_old<<endl;
-    cout<<"n2_new*n2_old="<<n2_new*n2_old<<endl;
-    
-    cout<<"n1_new*n1_new="<<n1_new*n1_new<<endl;
-    cout<<"n2_new*n1_new="<<n2_new*n1_new<<endl;
-    cout<<"n1_new*n2_new="<<n1_new*n2_new<<endl;
-    cout<<"n2_new*n2_new="<<n2_new*n2_new<<endl;
-  }*/
-//   return(n1_new*n1_old>0 && n1_new*n2_old>0 && n2_new*n1_old>0 && n2_new*n2_old>0);
   return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
+}
+
+bool SwapTriangles::isEdge(vtkIdType A, vtkIdType B)
+{
+  if( A==148 && (B==51) ) cout<<"AAAAAAAAA "<<n2n_func(A)<<endl;
+  bool ret = false;
+  foreach(vtkIdType id_node,n2n_func(A)) {
+    if( id_node == B ) ret = true;
+  }
+  return(ret);
 }

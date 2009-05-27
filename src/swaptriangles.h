@@ -40,7 +40,8 @@ private: // methods
   
   void prepare();
   bool TestSwap(stencil_t S);
-  
+  bool isEdge(vtkIdType A, vtkIdType B);
+    
 protected: // methods
   
   virtual void operate();
