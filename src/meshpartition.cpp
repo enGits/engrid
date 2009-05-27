@@ -30,10 +30,17 @@ MeshPartition::MeshPartition()
   original_orientation = true;
 }
 
-MeshPartition::MeshPartition(vtkUnstructuredGrid *grid)
+MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
   this->grid = grid;
   original_orientation = true;
+  if (use_all_cells) {
+    QVector<vtkIdType> cls(grid->GetNumberOfCells());
+    for (vtkIdType id_cell = 0; id_cell < cls.size(); ++id_cell) {
+      cls[id_cell] = id_cell;
+    }
+    setCells(cls);
+  }
 }
 
 MeshPartition::MeshPartition(QString volume_name)
@@ -118,7 +125,11 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
     grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    vtkIdType new_pts[N_pts];
+    for (int i = 0; i < N_pts; ++i) {
+      new_pts[i] = _nodes[pts[i]];
+    }
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
     copyCellData(grid, id_cell, new_grid, id_new_cell);
   }
 }
