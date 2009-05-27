@@ -87,7 +87,7 @@ void SwapTriangles::operate()
               vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
 /*              n1.normalise();
               n2.normalise();*/
-              if ( m_FeatureSwap || (n1*n2)/(n1.abs()*n2.abs()) > 0.8) {
+              if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
                 vec3_t n = n1 + n2;
                 n.normalise();
                 vec3_t ex = orthogonalVector(n);
@@ -179,8 +179,6 @@ bool SwapTriangles::TestSwap(stencil_t S)
   //new triangles
   vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
   vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
-
-  
   
   //top point
   vec3_t Summit=n1_old+n2_old;

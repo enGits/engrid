@@ -56,6 +56,9 @@ BoxSelect::~BoxSelect()
 void BoxSelect::operate()
 {
   cout<<"BoxSelect"<<endl;
+  
+///@@@ TODO: Finish BoxSelect
+/*  
   boxWidget = vtkBoxWidget::New();
   boxWidget->SetInteractor(GuiMainWindow::pointer()->getInteractor());
 //   this->Interactor;
@@ -73,5 +76,5 @@ void BoxSelect::operate()
   vtkMyCallback *callback = vtkMyCallback::New();
   boxWidget->AddObserver(vtkCommand::InteractionEvent, callback);
   boxWidget->On();
-  
+  */
 }

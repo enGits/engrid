@@ -305,6 +305,21 @@ GuiMainWindow::~GuiMainWindow()
 {
   qset.setValue("pos", pos());
   qset.setValue("size", size());
+  
+#ifndef QT_DEBUG
+  QDirIterator it(m_LogDir);
+  while (it.hasNext()) {
+    QString str = it.next();
+    QFileInfo fileinfo(str);
+    if(fileinfo.isFile()) {
+      QFile file(str);
+      if(!file.remove()) qDebug() << "Failed to remove " << file.fileName();
+    }
+  }
+  QDir dir(m_LogDir);
+  dir.rmdir(m_LogDir);
+#endif
+  
 };
 
 void GuiMainWindow::updateOutput()
