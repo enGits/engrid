@@ -27,6 +27,7 @@ class GuiEditBoundaryConditions;
 
 #include "boundarycondition.h"
 #include "dialogoperation.h"
+#include "guivolumedelegate.h"
 #include "ui_guieditboundaryconditions.h"
 
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions>
@@ -37,15 +38,23 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
 private: // attributes
   
   QMap<int,BoundaryCondition> *bcmap;
+  GuiVolumeDelegate *delegate;
   
 protected: // methods
   
   virtual void operate();
-  
+  void         updateVol();
+
+protected slots:
+
+  void addVol();
+  void delVol();
+
 public: // methods
   
   GuiEditBoundaryConditions();
-  
+  virtual ~GuiEditBoundaryConditions();
+
   virtual void before();
   void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; }
   

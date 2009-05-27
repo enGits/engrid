@@ -20,12 +20,22 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+
 #include "guieditboundaryconditions.h"
+#include "guimainwindow.h"
+#include "volumedefinition.h"
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
   bcmap = NULL;
-};
+  delegate = new GuiVolumeDelegate();
+  delegate->setFirstCol(3);
+}
+
+GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
+{
+  delete delegate;
+}
 
 void GuiEditBoundaryConditions::before()
 {
@@ -47,15 +57,84 @@ void GuiEditBoundaryConditions::before()
     if (name == "unknown") name = QString("BC") + idx;
     ui.T->item(r,1)->setText(name);
     ui.T->item(r,2)->setText(bc.getType());
-  };
-  
-};
+  }
+  updateVol();
+  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
+  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  ui.T->setItemDelegate(delegate);
+}
+
+void GuiEditBoundaryConditions::updateVol()
+{
+  while (ui.T->columnCount() > 3) {
+    ui.T->removeColumn(3);
+  }
+  QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
+  foreach (VolumeDefinition V, vols) {
+    int c = ui.T->columnCount();
+    ui.T->insertColumn(c);
+    ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(V.getName()));
+    for (int i = 0; i < ui.T->rowCount(); ++i) {
+      int bc = ui.T->item(i,0)->text().toInt();
+      if      (V.getSign(bc) == 1)  ui.T->setItem(i, c, new QTableWidgetItem("green"));
+      else if (V.getSign(bc) == -1) ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
+      else                          ui.T->setItem(i, c, new QTableWidgetItem(" "));
+    }
+  }
+}
+
+void GuiEditBoundaryConditions::addVol()
+{
+  QString name = ui.lineEditVolume->text();
+  if (!name.isEmpty()) {
+    VolumeDefinition NV(name, ui.T->columnCount()-2);
+    QList<VolumeDefinition> vols;
+    QList<VolumeDefinition> new_vols;
+    vols = GuiMainWindow::pointer()->getAllVols();
+    foreach (VolumeDefinition V, vols) {
+      if (NV.getName() != V.getName()) {
+        new_vols.push_back(V);
+      }
+    }
+    new_vols.push_back(NV);
+    GuiMainWindow::pointer()->setAllVols(new_vols);
+    updateVol();
+  }
+}
+
+void GuiEditBoundaryConditions::delVol()
+{
+  int c = ui.T->currentColumn();
+  if (c > 2) {
+    ui.T->removeColumn(c);
+  }
+}
 
 void GuiEditBoundaryConditions::operate()
 {
+  QVector<VolumeDefinition> vols(ui.T->columnCount());
+  for (int j = 3; j < ui.T->columnCount(); ++j) {
+    QString vol_name = ui.T->horizontalHeaderItem(j)->text();
+    VolumeDefinition V(vol_name, j-2);
+    vols[j] = V;
+  }
   for (int i = 0; i < ui.T->rowCount(); ++i) {
-    BoundaryCondition bc(ui.T->item(i,1)->text(),ui.T->item(i,2)->text());
-    (*bcmap)[ui.T->item(i,0)->text().toInt()] = bc;
-  };
-};
+    int bc = ui.T->item(i,0)->text().toInt();
+    BoundaryCondition BC(ui.T->item(i,1)->text(),ui.T->item(i,2)->text());
+    (*bcmap)[bc] = BC;
+    for (int j = 3; j < ui.T->columnCount(); ++j) {
+      QString vol_name = ui.T->horizontalHeaderItem(j)->text();
+      VolumeDefinition V = vols[j];
+      if      (ui.T->item(i,j)->text() == "green")  V.addBC(bc,  1);
+      else if (ui.T->item(i,j)->text() == "yellow") V.addBC(bc, -1);
+      else                                          V.addBC(bc,  0);
+      vols[j] = V;
+    }
+  }
+  QList<VolumeDefinition> vol_list;
+  for (int j = 3; j < ui.T->columnCount(); ++j) {
+    vol_list.append(vols[j]);
+  }
+  GuiMainWindow::pointer()->setAllVols(vol_list);
+}
 
