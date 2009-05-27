@@ -37,10 +37,11 @@ public: // methods
   MeshPartition();
 
   /**
-   * Create an empty mesh partition (with the grid set)
+   * Create a mesh partition with the grid set. Optionally all cells can be selected.
    * @param grid the grid to use
+   * @param use_all_cells if set to true all cells will be selected;
    */
-  MeshPartition(vtkUnstructuredGrid *grid);
+  MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells = false);
 
   /**
    * Create a mesh partition from a global volume definition
