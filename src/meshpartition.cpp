@@ -22,6 +22,7 @@
 //
 
 #include "meshpartition.h"
+#include <vtkMergePoints.h>
 
 MeshPartition::MeshPartition()
 {
@@ -98,3 +99,79 @@ void MeshPartition::setRemainder(const MeshPartition& part)
   setCells(rcells);
 }
 
+void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
+{
+  allocateGrid(new_grid, cells.size(), nodes.size());
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vec3_t x;
+    grid->GetPoints()->GetPoint(nodes[i_nodes], x.data());
+    new_grid->GetPoints()->SetPoint(i_nodes, x.data());
+    copyNodeData(grid, nodes[i_nodes], new_grid, i_nodes);
+  }
+  foreach (vtkIdType id_cell, cells) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = grid->GetCellType(id_cell);
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(grid, id_cell, new_grid, id_new_cell);
+  }
+}
+
+void MeshPartition::addPartition(const MeshPartition& part)
+{
+  if (grid == part.grid) {
+  } else {
+    EG_VTKSP(vtkUnstructuredGrid, new_grid);
+    EG_VTKSP(vtkMergePoints,loc);
+    loc->SetDataSet(grid);
+    loc->BuildLocator();
+
+    QVector<vtkIdType> pnode2node(part.grid->GetNumberOfPoints());
+    vtkIdType N = grid->GetNumberOfPoints();
+    foreach (vtkIdType id_pnode, part.nodes) {
+      vec3_t x;
+      part.grid->GetPoint(id_pnode, x.data());
+      if (loc->IsInsertedPoint(x.data())) {
+        pnode2node[id_pnode] = loc->FindClosestPoint(x.data());
+      } else {
+        pnode2node[id_pnode] = N;
+        ++N;
+      }
+    }
+    allocateGrid(new_grid, grid->GetNumberOfCells() + part.cells.size(), N);
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      grid->GetPoint(id_node, x.data());
+      new_grid->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(grid, id_node, new_grid, id_node);
+    }
+    foreach (vtkIdType id_pnode, part.nodes) {
+      vec3_t x;
+      part.grid->GetPoint(id_pnode, x.data());
+      new_grid->GetPoints()->SetPoint(pnode2node[id_pnode], x.data());
+      copyNodeData(part.grid, id_pnode, new_grid, pnode2node[id_pnode]);
+    }
+    QList<vtkIdType> new_cells;
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = grid->GetCellType(id_cell);
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+      copyCellData(grid, id_cell, new_grid, id_new_cell);
+      new_cells.append(id_new_cell);
+    }
+    foreach (vtkIdType id_pcell, part.cells) {
+      vtkIdType N_pts, *pts;
+      vtkIdType new_pts[N_pts];
+      vtkIdType type_cell = part.grid->GetCellType(id_pcell);
+      part.grid->GetCellPoints(id_pcell, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = pnode2node[pts[i]];
+      }
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
+      copyCellData(part.grid, id_pcell, new_grid, id_new_cell);
+      new_cells.append(id_new_cell);
+    }
+    makeCopy(new_grid, grid);
+  }
+}

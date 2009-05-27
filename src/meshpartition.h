@@ -88,7 +88,19 @@ public: // methods
   /// change the orientation to match the original orientation
   void setOriginalOrientation();
 
-  ///
+  /**
+   * Copy the partition to a VTK grid.
+   * @param new_grid the grid to copy the partition to (will be resized accordingly).
+   */
+  void extractToVtkGrid(vtkUnstructuredGrid *new_grid);
+
+  /**
+   * Add another partition to this one.
+   * If both partitions do not have the same underlying grid the grid will be extended in order
+   * to add the other partition.
+   * @param part the partition to add
+   */
+  void addPartition(const MeshPartition& part);
 
 private: // attributes
 
