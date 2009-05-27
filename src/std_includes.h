@@ -23,6 +23,7 @@
 
 #include "guismoothsurface.h"
 #include "guicreateboundarylayer.h"
+#include "guicreatevolumemesh.h"
 #include "guidivideboundarylayer.h"
 #include "guisetboundarycode.h"
 #include "guideletebadaspecttris.h"
