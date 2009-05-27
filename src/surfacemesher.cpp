@@ -66,8 +66,8 @@ void SurfaceMesher::operate()
     N_removed_EP=0;
     
     //Method 3
-    bool DEBUG=false;
-    QString DEBUGDIR=GuiMainWindow::pointer()->getLogDir();
+    bool DEBUG=true;
+    QString DEBUGDIR=GuiMainWindow::pointer()->getFilePath();
     
     if(insert_FP) {
 //       MeshDensityFunction();

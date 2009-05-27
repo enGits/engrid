@@ -1771,3 +1771,9 @@ QVector<VolumeDefinition> GuiMainWindow::getAllVols()
   }
   return vols;
 }
+
+QString GuiMainWindow::getFilePath()
+{
+  QFileInfo fileinfo(current_filename);
+  return fileinfo.absolutePath()+"/";
+}

@@ -295,6 +295,9 @@ public: // methods
   /// Returns log directory
   QString getLogDir() { return m_LogDir; };
   
+  /// Returns the path to the currently loaded file
+  QString getFilePath();
+  
 public: // static methods
   
   /**
