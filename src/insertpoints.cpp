@@ -61,7 +61,8 @@ int InsertPoints::insert_FP_counter()
   
   int l_N_inserted_FP=0;
 
-  //unmark cells and nodes (TODO: optimize)
+  ///@@@  TODO: optimize
+  //unmark cells and nodes
   m_marked_cells.clear();
   
   foreach(vtkIdType id_cell, m_SelectedCells)
@@ -89,7 +90,8 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
   
-    //unmark cells (TODO: optimize)
+  ///@@@  TODO: optimize
+  //unmark cells
   m_marked_cells.clear();//why?
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
@@ -129,7 +131,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
 
       //============================================
-      //TODO: PRIORITY 1: Update node info (densities+type)
+      ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
       EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
@@ -258,7 +260,7 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
 
   m_marked_cells.clear();
   
-  //TODO: Improve speed here by using a method similar to VTK UpdateNodeType algorithm
+  ///@@@  TODO: Improve speed here by using a method similar to VTK UpdateNodeType algorithm
   //Prepare m_edge_map
   QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
   vtkIdType edgeId=1;
@@ -304,7 +306,8 @@ int InsertPoints::insert_EP_counter(int& a_N_newpoints, int& a_N_newcells)
     {
       l_N_inserted_EP++;
       foreach(vtkIdType C,stencil_cells_vector) m_marked_cells[C]=true;
-      m_StencilVector.push_back(S);//TODO: Optimize
+      ///@@@  TODO: Optimize
+      m_StencilVector.push_back(S);
       
       if(stencil_cells_vector.size()==2)//2 cells around the edge
       {
@@ -333,7 +336,8 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
   
-  //unmark cells (TODO: optimize)
+  ///@@@  TODO: optimize
+  //unmark cells
   m_marked_cells.clear();
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
@@ -355,7 +359,7 @@ int InsertPoints::insert_EP_actor(vtkUnstructuredGrid* grid_tmp)
     
     addPoint(grid_tmp,m_newNodeId,M.data(),m_CellLocator);
     
-    //TODO: PRIORITY 1: Update node info (densities+type)
+    ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
     EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");

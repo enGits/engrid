@@ -250,8 +250,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
       EG_BUG;
     };
     
-      //check that boundary codes are the same
-    
+    //check that boundary codes are the same
     if(a_RespectBC){
       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
       if(cell_code->GetValue(S.id_cell1)!=cell_code->GetValue(S.id_cell2)) S.valid = false;
@@ -604,7 +603,7 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
 
 bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
-  //TODO: Optimize intersection part
+  ///@@@  TODO: Optimize intersection part
   
 //   QVector <vtkIdType> Peons;
   
@@ -686,11 +685,11 @@ bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
 /*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
     EG_BUG;*/
   }
-  //TODO: Fix this
+  ///@@@  TODO: Fix this
   return(false);//should never happen
 }
 
-//TODO: rename those getNeighbour* functions or merge them to avoid confusion and simplify things.
+///@@@  TODO: rename those getNeighbour* functions or merge them to avoid confusion and simplify things.
 bool Operation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
   Peons.clear();
@@ -1061,7 +1060,7 @@ int Operation::UpdateNodeType_all()
     //BC stuff
 /*    QSet <int> BCset = getBCset(node);
     int N=BCset.size();
-    //TODO: There could be more cases. Either define new node types or create a node field containing the number of BCs.
+    ///@@@  TODO: There could be more cases. Either define new node types or create a node field containing the number of BCs.
     if(N>2) node_type->SetValue(node,BC_FIXED_VERTEX);
     else if(N==2){
       if(T==VTK_FIXED_VERTEX) node_type->SetValue(node,BC_FIXED_VERTEX);
@@ -1417,7 +1416,7 @@ int Operation::UpdateNodeType()
 }
 //End of UpdateNodeType
 
-//TODO: Optimize
+///@@@  TODO: Optimize
 char Operation::getNodeType(vtkIdType a_node)
 {
   //initialize default value
@@ -1547,7 +1546,7 @@ bool Operation::FullCycleOfPolygons(vtkIdType a_node)
   else return(true);
 }
 
-//TODO: take into account more than 2 cells on one edge like in the VTK algorithm
+///@@@  TODO: take into account more than 2 cells on one edge like in the VTK algorithm
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
@@ -1644,7 +1643,7 @@ vtkIdType Operation::getNextCell(vtkIdType a_cell, vtkIdType a_node)
   {
     if(pts[i]==a_node) break;
   }
-  //TODO: Optimize if slow
+  ///@@@  TODO: Optimize if slow
 //this is unreadable but faster
 //   cells[c2c[_cells[a_cell]][i]];
   QVector<vtkIdType> vec = c2c_func(a_cell);
@@ -1660,7 +1659,7 @@ vtkIdType Operation::getNextCell(vtkIdType a_cell, vtkIdType a_node)
 
 vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
 {
-  //TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
+  ///@@@  TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
   getAllSurfaceCells(cells,src);
   getNodesFromCells(cells, nodes, src);
   setGrid(src);
@@ -1846,7 +1845,7 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
       }
     }
     
-    //TODO: merge with previous case if possible
+    ///@@@  TODO: merge with previous case if possible
     if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX)
     {
       QVector <vtkIdType> Peons;

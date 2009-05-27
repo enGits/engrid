@@ -907,7 +907,7 @@ void GuiMainWindow::DeselectAll()
   updateActors();
 }
 
-//TODO: Should display a window
+///@@@  TODO: Should display a window
 void GuiMainWindow::Info()
 {
   ShowInfo info(ui.radioButton_CellPicker->isChecked(),PickedPoint,PickedCell);
@@ -1006,7 +1006,7 @@ void GuiMainWindow::saveBC(QString a_file)
   };
 }
 
-//TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
+///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
   current_filename = QFileDialog::getOpenFileName

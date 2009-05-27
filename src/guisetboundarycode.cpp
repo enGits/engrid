@@ -24,7 +24,7 @@
 #include "setboundarycode.h"
 #include "guimainwindow.h"
 
-//TODO: Change the checkboxes to a dropdown list or radiobuttons since the options are mutually exclusive anyway
+///@@@  TODO: Change the checkboxes to a dropdown list or radiobuttons since the options are mutually exclusive anyway
 void GuiSetBoundaryCode::before()
 {
   //read settings

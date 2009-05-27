@@ -469,7 +469,7 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   cout<<"Number of components=N1="<<N1<<endl;
   cout<<"Number of tuples=N2="<<N2<<endl;
   
-  //TODO: Fix this eventually
+  ///@@@  TODO: Fix this eventually
 /*  void vtkFieldData::GetTuple  	(  	const vtkIdType   	 i,
                                	   	double *  	tuple	 
                                	) 			
@@ -482,7 +482,8 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   {
     double tuple[4];
     algo->GetOutput()->GetPointData()->GetTuple(i,tuple);
-    cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;//TODO: This works, but seems incorrect
+    ///@@@  TODO: This works, but seems incorrect
+    cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
   }
   cout<<"==============="<<endl;
   return(0);

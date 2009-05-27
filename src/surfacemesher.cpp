@@ -15,7 +15,8 @@ void SurfaceMesher::operate()
   QTime start = QTime::currentTime();
   
   int i_iter=0;
-  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)//TODO:Optimize this loop
+  ///@@@  TODO:Optimize this loop
+  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
     
@@ -151,7 +152,7 @@ void SurfaceMesher::operate()
 
 void SurfaceMesher::MeshDensityFunction()
 {
-  //TODO: Optimize by using only one loop through nodes!
+  ///@@@  TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.SetConvergence_meshdensity(Convergence_meshdensity);
   update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);

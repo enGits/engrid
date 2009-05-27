@@ -401,7 +401,7 @@ public slots:
   
   void ResetOperationCounter();
   
-  //TODO: Simplify available save/load functions
+  ///@@@  TODO: Simplify available save/load functions
   /** Open an existing grid */
   void open();
   
