@@ -10,11 +10,12 @@ INSTALLS += target
 
 # CONFIG += qt release thread
 # CONFIG += qt debug thread
-CONFIG += qt debug_and_release thread
+CONFIG += qt \
+    debug_and_release \
+    thread
 
-#DEFINES += QT_NO_DEBUG
-#DEFINES += QT_DEBUG
-
+# DEFINES += QT_NO_DEBUG
+# DEFINES += QT_DEBUG
 # QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
 # get "git revision number"
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
@@ -62,3 +63,4 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include (engrid-standard.pri)
+OTHER_FILES += checkcomments.py
