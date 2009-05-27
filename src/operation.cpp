@@ -244,7 +244,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
     };
     
     if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
-      DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
+      DualSave(GuiMainWindow::pointer()->getLogDir()+"abort");
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
       EG_BUG;

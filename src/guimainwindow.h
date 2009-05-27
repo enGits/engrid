@@ -194,8 +194,8 @@ private: // attributes
   /** The last operation number. (used for undo/redo) */
   int last_operation;
   
-  /** the temporary directory used to save anything temporary */
-  QString m_tmpdir;
+  /** the log directory */
+  QString m_LogDir;
   
   /** Status bar of the main window and application */
   QStatusBar *status_bar;
@@ -306,6 +306,9 @@ public: // methods
   
   void setBusy() { busy = true; updateStatusBar(); };
   void setIdle() { busy = false; updateStatusBar(); };
+  
+  /// Returns log directory
+  QString getLogDir() { return m_LogDir; };
   
 public: // static methods
   

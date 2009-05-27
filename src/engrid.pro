@@ -64,7 +64,3 @@ win32 {
 }
 
 include(engrid-standard.pri)
-HEADERS += boxselect.h
-
-SOURCES += boxselect.cpp
-

@@ -67,7 +67,7 @@ void SurfaceMesher::operate()
     
     //Method 3
     bool DEBUG=false;
-    QString DEBUGDIR="/data1/home/mtaverne/Geometries/DEBUG/";
+    QString DEBUGDIR=GuiMainWindow::pointer()->getLogDir();
     
     if(insert_FP) {
 //       MeshDensityFunction();

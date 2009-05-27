@@ -250,14 +250,14 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 // define temporary path
   QDir dir("/");
   if (qset.contains("tmp_directory")) {
-    m_tmpdir=qset.value("tmp_directory").toString();
+    m_LogDir=qset.value("tmp_directory").toString();
   } else {
-    m_tmpdir=dir.tempPath();
+    m_LogDir=dir.tempPath();
   };
-  m_tmpdir = m_tmpdir + "/" + "enGrid_"+user + "/";
-  dir.mkpath(m_tmpdir);
+  m_LogDir = m_LogDir + "/" + "enGrid_"+user + "/";
+  dir.mkpath(m_LogDir);
   
-  log_file_name = m_tmpdir + basename;
+  log_file_name = m_LogDir + basename;
   cout<<"log_file_name="<<log_file_name.toLatin1().data()<<endl;
 
   system_stdout = stdout;
@@ -920,7 +920,7 @@ int GuiMainWindow::QuickSave()
   {
     current_operation++;
     QFileInfo fileinfo(current_filename);
-    QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
+    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
     last_operation=current_operation;
     cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
     QuickSave(l_filename);
@@ -935,7 +935,7 @@ int GuiMainWindow::QuickSave()
 void GuiMainWindow::QuickLoad(int a_operation)
 {
   QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
+  QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
 //   cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
   QuickLoad(l_filename);
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
