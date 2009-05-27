@@ -75,11 +75,8 @@ void EgVtkObject::createNodeMapping
 )
 {
   _nodes.fill(-1,grid->GetNumberOfPoints());
-  vtkIdType id;
-  int i_sub = 0;
-  foreach(id,nodes) {
-    _nodes[id] = i_sub;
-    ++i_sub;
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    _nodes[nodes[i_nodes]] = i_nodes;
   }
 }
 
@@ -91,11 +88,8 @@ void EgVtkObject::createCellMapping
 )
 {
   _cells.fill(-1,grid->GetNumberOfCells());
-  vtkIdType id;
-  int i_sub = 0;
-  foreach(id,cells) {
-    _cells[id] = i_sub;
-    ++i_sub;
+  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    _cells[cells[i_cells]] = i_cells;
   }
 }
 
