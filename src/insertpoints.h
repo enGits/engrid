@@ -55,7 +55,6 @@ private:
   
   int m_total_N_newpoints;
   int m_total_N_newcells;
-  vtkIdType m_newNodeId;
   
   bool insert_FP;
   bool insert_EP;

@@ -104,6 +104,9 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   cout<<"===insert_FP_actor START==="<<endl;
   QTime start = QTime::currentTime();
   
+  //initialize new node counter
+  vtkIdType l_newNodeId=m_N_points;
+  
   vtkCellLocator* l_CellLocator = vtkCellLocator::New();
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
@@ -145,7 +148,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       l_CellLocator->FindClosestPoint(C.data(),P.data(),cellId,subId,dist2);
       C=P;
       
-      addPoint(grid_tmp,m_newNodeId,C.data(),m_CellLocator);
+      addPoint(grid_tmp,l_newNodeId,C.data(),m_CellLocator);
       
 
       //============================================
@@ -157,7 +160,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       //============================================
       
 //       //part 1
-//       node_type->SetValue(m_newNodeId,VTK_SIMPLE_VERTEX);
+//       node_type->SetValue(l_newNodeId,VTK_SIMPLE_VERTEX);
 // 
 //       //part 2
 //       double total_dist=0;
@@ -169,34 +172,34 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 //         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
 //       }
 //       avg_dist=total_dist/(double)N_neighbours;
-//       node_meshdensity_current->SetValue(m_newNodeId,1./avg_dist);
+//       node_meshdensity_current->SetValue(l_newNodeId,1./avg_dist);
 // 
 //       //part 3
 //       VertexMeshDensity nodeVMD;
-//       nodeVMD.type=node_type->GetValue(m_newNodeId);
+//       nodeVMD.type=node_type->GetValue(l_newNodeId);
 //       nodeVMD.density=0;
-//       nodeVMD.CurrentNode=m_newNodeId;
+//       nodeVMD.CurrentNode=l_newNodeId;
 //       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
 //       nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
 // 
 //       int idx=VMDvector.indexOf(nodeVMD);
-//       node_specified_density->SetValue(m_newNodeId, idx);
+//       node_specified_density->SetValue(l_newNodeId, idx);
 // 
 //       //part 4
 //       if(idx!=-1)//specified
 //       {
-//         node_meshdensity_desired->SetValue(m_newNodeId, VMDvector[idx].density);
+//         node_meshdensity_desired->SetValue(l_newNodeId, VMDvector[idx].density);
 //       }
 //       else//unspecified
 //       {
-//         double D=DesiredMeshDensity(m_newNodeId);
-//         node_meshdensity_desired->SetValue(m_newNodeId, D);
+//         double D=DesiredMeshDensity(l_newNodeId);
+//         node_meshdensity_desired->SetValue(l_newNodeId, D);
 //       }
 
       //============================================
 
-      vtkIdType intmidpoint=m_newNodeId;
-      m_newNodeId++;
+      vtkIdType intmidpoint=l_newNodeId;
+      l_newNodeId++;
       
       for(int i=0;i<N_neighbours;i++)
       {
@@ -247,7 +250,7 @@ int InsertPoints::insert_FP_all()
   m_N_newpoints=0;
   m_N_newcells=0;
   
-  int l_N_inserted_FP = insert_FP_counter();
+  insert_FP_counter();
   
     //init grid_tmp
   m_N_points=grid->GetNumberOfPoints();
@@ -257,8 +260,6 @@ int InsertPoints::insert_FP_all()
   m_total_N_newpoints+=m_N_newpoints; m_total_N_newcells+=m_N_newcells;
   
   makeCopyNoAlloc(grid, grid_tmp);
-    //initialize new node counter
-  m_newNodeId=m_N_points;
   
   insert_FP_actor(grid_tmp);
   
@@ -287,8 +288,7 @@ int InsertPoints::insert_EP_all()
   QVector <int> l_marked_cells(m_SelectedCells.size());
   QVector <stencil_t> l_StencilVector(m_SelectedCells.size());
   
-//   cout<<"m_SelectedCells="<<m_SelectedCells<<endl;
-  
+  //counter
   for(int i=0;i<m_SelectedCells.size();i++) {
     vtkIdType id_cell=m_SelectedCells[i];
     for (int j = 0; j < 3; ++j) {
@@ -327,15 +327,18 @@ int InsertPoints::insert_EP_all()
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
   
+  //actor
   for(int i=0;i<m_SelectedCells.size();i++) {
     if(l_marked_cells[i]==1) {
       stencil_t S = l_StencilVector[i];
+      
+      //calculate midpoint
       vec3_t A,B;
       grid_tmp->GetPoint(S.p[1],A.data());
       grid_tmp->GetPoint(S.p[3],B.data());
       vec3_t M=0.5*(A+B);
       
-      //ADD POINT
+      //project point
       vtkIdType cellId;
       int subId;
       double dist2;
@@ -343,24 +346,21 @@ int InsertPoints::insert_EP_all()
       l_CellLocator->FindClosestPoint(M.data(),P.data(),cellId,subId,dist2);
       M=P;
       
-      addPoint(grid_tmp,m_newNodeId,M.data(),m_CellLocator);
-      
-      vtkIdType pts_triangle[4][3];
+      //add point
+      addPoint(grid_tmp,l_newNodeId,M.data(),l_CellLocator);
       
       if(S.valid){//there is a neighbour cell
-        m_marked_cells[S.id_cell1]=true;
-        m_marked_cells[S.id_cell2]=true;
-        
+        //four new triangles
+        vtkIdType pts_triangle[4][3];
         for(int i=0;i<4;i++)
         {
           pts_triangle[i][0]=S.p[i];
           pts_triangle[i][1]=S.p[(i+1)%4];
-          pts_triangle[i][2]=m_newNodeId;
+          pts_triangle[i][2]=l_newNodeId;
         }
         
         int bc1=cell_code_tmp->GetValue(S.id_cell1);
         int bc2=cell_code_tmp->GetValue(S.id_cell2);
-        cout<<"bc1="<<bc1<<" bc2="<<bc2<<endl;
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
         if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
@@ -381,14 +381,14 @@ int InsertPoints::insert_EP_all()
         cell_code_tmp->SetValue(newCellId, bc1);
       }
       else{//there is no neighbour cell
-        m_marked_cells[S.id_cell1]=true;
-        
+        //two new triangles
+        vtkIdType pts_triangle[2][3];
         pts_triangle[0][0]=S.p[0];
         pts_triangle[0][1]=S.p[1];
-        pts_triangle[0][2]=m_newNodeId;
-        pts_triangle[3][0]=S.p[3];
-        pts_triangle[3][1]=S.p[0];
-        pts_triangle[3][2]=m_newNodeId;
+        pts_triangle[0][2]=l_newNodeId;
+        pts_triangle[1][0]=S.p[3];
+        pts_triangle[1][1]=S.p[0];
+        pts_triangle[1][2]=l_newNodeId;
         
         int bc1=cell_code_tmp->GetValue(S.id_cell1);
         cout<<"bc1="<<bc1<<endl;
@@ -398,11 +398,12 @@ int InsertPoints::insert_EP_all()
         cell_code_tmp->SetValue(S.id_cell1, bc1);
         
         vtkIdType newCellId;
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
+        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[1]);
         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(newCellId, bc1);
       }
       
+      //increment ID
       l_newNodeId++;
     }
   }
