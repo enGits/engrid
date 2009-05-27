@@ -24,11 +24,25 @@
 
 VolumeDefinition::VolumeDefinition()
 {
-  name = "";
+  this->name = "unknown";
+  this->vc = -1;
 }
 
-VolumeDefinition::VolumeDefinition(QString name)
+VolumeDefinition::VolumeDefinition(QString name, int vc)
 {
   this->name = name;
+  this->vc = vc;
 }
 
+void VolumeDefinition::addBC(int bc, int sign)
+{
+  bcs[bc] = sign;
+}
+
+ int VolumeDefinition::getSign(int bc)
+ {
+   if (bcs.contains(bc)) {
+     return bcs[bc];
+   }
+   return 0;
+ }

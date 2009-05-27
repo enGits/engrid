@@ -24,18 +24,24 @@
 #define VOLUMEDEFINITION_H
 
 #include <QString>
+#include <QMap>
 
 class VolumeDefinition
 {
 
   QString name;
+  int vc;
+  QMap<int,int> bcs;
 
 public: // methods
 
   VolumeDefinition();
-  VolumeDefinition(QString name);
+  VolumeDefinition(QString name, int vc);
 
   QString getName() { return name; }
+  int getVC() { return vc; }
+  void addBC(int bc, int sign);
+  int getSign(int bc);
 
 };
 
