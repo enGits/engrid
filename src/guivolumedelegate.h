@@ -32,12 +32,11 @@ class GuiVolumeDelegate : public QItemDelegate
 
 public:
 
-  GuiVolumeDelegate(const QVector<int> &cols, QObject *parent = 0);
-
-  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const;
-  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+  void     paint        (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  QWidget* createEditor (QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void     setEditorData(QWidget *editor, const QModelIndex &index) const;
+  void     setModelData (QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+  void     setFirstCol  (int c) { first_column = c; }
 
 private slots:
 
@@ -45,7 +44,7 @@ private slots:
 
 private:
 
-  QVector<int> cols;
+  int first_column;
 
 };
 

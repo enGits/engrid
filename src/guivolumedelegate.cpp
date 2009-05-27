@@ -24,16 +24,9 @@
 
 #include <QComboBox>
 
-GuiVolumeDelegate::GuiVolumeDelegate(const QVector<int> &cols, QObject *parent)
-  : QItemDelegate(parent)
-{
-  this->cols = cols;
-}
-
 void GuiVolumeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  int i = cols.indexOf(index.column());
-  if (i >= 0) {
+  if (index.column() >= first_column) {
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
     QStyleOptionViewItem myOption = option;
     myOption.displayAlignment = Qt::AlignRight | Qt::AlignVCenter;
@@ -46,11 +39,10 @@ void GuiVolumeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 QWidget *GuiVolumeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-  int i = cols.indexOf(index.column());
-  if (i >= 0) {
+  if (index.column() >= first_column) {
     QComboBox *comboBox = new QComboBox(parent);
-    comboBox->addItem("+");
-    comboBox->addItem("-");
+    comboBox->addItem("green");
+    comboBox->addItem("yellow");
     comboBox->addItem(" ");
     connect(comboBox, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
     return comboBox;
@@ -61,8 +53,7 @@ QWidget *GuiVolumeDelegate::createEditor(QWidget *parent, const QStyleOptionView
 
 void GuiVolumeDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-  int i = cols.indexOf(index.column());
-  if (i >= 0) {
+  if (index.column() >= first_column) {
     int secs = index.model()->data(index, Qt::DisplayRole).toInt();
     QComboBox *comboBox = qobject_cast<QComboBox *>(editor);
     comboBox->setCurrentIndex(secs);
@@ -73,8 +64,7 @@ void GuiVolumeDelegate::setEditorData(QWidget *editor, const QModelIndex &index)
 
 void GuiVolumeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-  int i = cols.indexOf(index.column());
-  if (i >= 0) {
+  if (index.column() >= first_column) {
     QComboBox *comboBox = qobject_cast<QComboBox *>(editor);
     model->setData(index, comboBox->currentText());
   } else {
@@ -88,3 +78,4 @@ void GuiVolumeDelegate::commitAndCloseEditor()
   emit commitData(editor);
   emit closeEditor(editor);
 }
+
