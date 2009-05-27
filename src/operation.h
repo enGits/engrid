@@ -63,6 +63,9 @@ struct stencil_t {
 };
 ostream& operator<<(ostream &out, stencil_t S);
 
+///@@@ Die Methoden fuer Oberflaechennetze sollten in eine neue Klasse SurfaceMeshOperation (oder so aehnlich)
+///@@@ verschoben werden. Der Quelltext der Klasse Operation ist nicht mehr sonderlich lesbar!
+
 /**
  * This is the base class for all mesh operations.
  * Operations will typically be triggered by a Qt event; the MainWindow
@@ -83,12 +86,11 @@ private: // attributes
   QVector<vtkIdType> nodes_map;
   QVector<vtkIdType> cells_map;
   bool               gui;
-  /** Determines whether the grid should be saved after the operation or not. (default is false) */
-  bool               m_quicksave;
-  /** Determines whether the operation counter should be reset or not after the operation (default is false) */
-  bool               m_resetoperationcounter;
   bool               autoset;
+  bool               m_quicksave;             /// save grid after the operation or not. (default is false)
+  bool               m_resetoperationcounter; /// reset operation counter after the operation (default is false)
   Error             *err;
+  QString            volume_name;
   
 private: // methods
   
@@ -106,17 +108,18 @@ protected: // attributes
   QVector<QVector<int> > c2c;
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
+  QVector<vtkIdType>     re_orientate_faces;
   
   //Special attributes for UpdateNodeType_all function
   double Convergence;
-  int NumberOfIterations;
+  int    NumberOfIterations;
   double RelaxationFactor;
-  int FeatureEdgeSmoothing;
+  int    FeatureEdgeSmoothing;
   double FeatureAngle;
   double EdgeAngle;
-  int BoundarySmoothing;
-  int GenerateErrorScalars;
-  int GenerateErrorVectors;
+  int    BoundarySmoothing;
+  int    GenerateErrorScalars;
+  int    GenerateErrorVectors;
   
 protected: // methods
   
@@ -135,6 +138,13 @@ public: // methods
   void setAllCells();
   void setAllVolumeCells();
   void setAllSurfaceCells();
+  void setAllCellsFromVolume(QString volume_name);
+  void updateCellsFromVolume() { setAllCellsFromVolume(volume_name); }
+  QString getVolumeName() { return volume_name; }
+
+  /// Change the orientation of all faces in the re_orientate_faces vector.
+  void reOrientateFaces();
+
   vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; }
   vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; }
   void setNewNode(vtkIdType id_old_node, vtkIdType id_new_node) { nodes_map[_nodes[id_old_node]] = id_new_node; }
@@ -153,6 +163,13 @@ public: // methods
    */
   void populateBoundaryCodes(QListWidget *lw);
   
+  /**
+   * Fill a QListWidget with all available volumes from a grid.
+   * @param lw   The QListWidget to fill.
+   * @param grid The grid to use.
+   */
+  void populateVolumes(QListWidget *lw);
+
   virtual void operator()();
 
   template <class T> void setCells(const T &cls);
