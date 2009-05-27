@@ -34,7 +34,7 @@
  </data>
  <data>
   <variable>activebuildconfiguration</variable>
-  <value type="QString" >Release</value>
+  <value type="QString" >Debug</value>
  </data>
  <data>
   <variable>buildConfiguration-Debug</variable>
@@ -112,7 +112,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -157,8 +157,8 @@
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
-    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.2</value>
-    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.4</value>
+    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WM_64=on</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -272,7 +272,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -317,8 +317,8 @@
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
-    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.2</value>
-    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.4</value>
+    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WM_64=on</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -436,7 +436,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -481,8 +481,8 @@
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
-    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.2</value>
-    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.4</value>
+    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WM_64=on</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -593,7 +593,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -753,7 +753,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -917,7 +917,7 @@
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
-    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.0/release/lib:/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >LD_LIBRARY_PATH=/opt/shared/qtcreator-1.1.0/lib64/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
     <value type="QString" >LESSCLOSE=lessclose.sh %s %s</value>
     <value type="QString" >LESSKEY=/etc/lesskey.bin</value>
@@ -962,8 +962,8 @@
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
-    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.2</value>
-    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.2</value>
+    <value type="QString" >VTKINCDIR=/opt/shared/VTK/include/vtk-5.4</value>
+    <value type="QString" >VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WM_64=on</value>
     <value type="QString" >WM_ARCH=linux64</value>
