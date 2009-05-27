@@ -26,8 +26,25 @@ void DeleteTetras::operate()
 {
   cout << "deleting tetrahedral cells" << endl;
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
-  QVector<vtkIdType> tetras, cells, nodes, _nodes;
-  getAllCellsOfType(VTK_TETRA, tetras, grid);
+  QVector<vtkIdType> tetras, cells, nodes;
+
+  {
+    int N = 0;
+    foreach (vtkIdType id_cell, this->cells) {
+      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+        ++N;
+      }
+    }
+    tetras.resize(N);
+    N = 0;
+    foreach (vtkIdType id_cell, this->cells) {
+      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+        tetras[N] = id_cell;
+        ++N;
+      }
+    }
+  }
+
   getRestCells(grid, tetras, cells);
   getNodesFromCells(cells, nodes, grid);
   allocateGrid(new_grid, cells.size(), nodes.size());
@@ -41,19 +58,19 @@ void DeleteTetras::operate()
       copyNodeData(grid, id_node, new_grid, id_new);
       old2new[id_node] = id_new;
       ++id_new;
-    };
-  };
+    }
+  }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType *pts, N_pts;
     grid->GetCellPoints(id_cell, N_pts, pts);
     QVector<vtkIdType> new_pts(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = old2new[pts[i]];
-    };
+    }
     vtkIdType cellType = grid->GetCellType(id_cell);
     vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
     copyCellData(grid, id_cell, new_grid, id_new);
-  };
+  }
   makeCopy(new_grid, grid);
-};
+}
 

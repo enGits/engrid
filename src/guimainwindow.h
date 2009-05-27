@@ -287,10 +287,10 @@ public: // methods
    * Get a pointer to the current grid object
    * @return a pointer to the current vtkUnstructuredGrid object
    */
-  vtkUnstructuredGrid* getGrid() { return grid; };
+  vtkUnstructuredGrid* getGrid() { return grid; }
   
-  void setBusy() { busy = true; updateStatusBar(); };
-  void setIdle() { busy = false; updateStatusBar(); };
+  void setBusy() { busy = true; updateStatusBar(); }
+  void setIdle() { busy = false; updateStatusBar(); }
   
 public: // static methods
   
@@ -325,7 +325,9 @@ public: // static methods
   
   BoundaryCondition getBC(int bc) { return bcmap[bc]; }
   VolumeDefinition  getVol(QString volname) { return volmap[volname]; }
-  QVector<VolumeDefinition> getAllVols();
+  QList<VolumeDefinition> getAllVols();
+  void setAllVols(QList<VolumeDefinition> vols);
+  void createDefaultVol();
   
   static GuiMainWindow* pointer() { return THIS; }
   static void lock() { mutex.lock(); }
@@ -465,8 +467,8 @@ public slots:
   void viewZP();
   void viewZM();
   
-  void appendOutput(QString txt) { ui.textEditOutput->append(txt); };
-  void clearOutput() { ui.textEditOutput->clear(); };
+  void appendOutput(QString txt) { ui.textEditOutput->append(txt); }
+  void clearOutput() { ui.textEditOutput->clear(); }
   void updateOutput();
   void periodicUpdate();
     
@@ -486,7 +488,7 @@ public slots:
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); }
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); }
   void callDeleteTetras() { EG_STDSLOT(DeleteTetras); }
-  void callCreateVolumeMesh() { EG_STDSLOT(CreateVolumeMesh); }
+  void callCreateVolumeMesh() { EG_STDSLOT(GuiCreateVolumeMesh); }
   void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); }
   void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); }
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
@@ -500,7 +502,7 @@ public slots:
   void callFoamReader()       { EG_STDREADERSLOT(FoamReader); }
   void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); }
   void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); }
-  void callCgnsWriter()       { EG_STDINTERSLOT(CgnsWriter); };
+  void callCgnsWriter()       { EG_STDINTERSLOT(CgnsWriter); }
   void callVtkReader()        { EG_STDREADERSLOT(VtkReader); }
   void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); }
   

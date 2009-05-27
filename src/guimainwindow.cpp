@@ -971,6 +971,7 @@ void GuiMainWindow::openBC(QString a_file)
   QString bc_file = a_file + ".bcs";
   QFile file(bc_file);
   bcmap.clear();
+  volmap.clear();
   if (file.exists()) {
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream f(&file);
@@ -978,9 +979,21 @@ void GuiMainWindow::openBC(QString a_file)
       QString name, type;
       int i;
       f >> i >> name >> type;
-      bcmap[i] = BoundaryCondition(name,type);
-    };
-  };
+      if (i >= 0) {
+        bcmap[i] = BoundaryCondition(name,type);
+      } else {
+        VolumeDefinition V(name, -i);
+        QString text = type.replace(",", " ").replace(":", " ");
+        QTextStream s(&text);
+        while (!s.atEnd()) {
+          QString bc_txt, sign_txt;
+          s >> bc_txt >> sign_txt;
+          V.addBC(bc_txt.toInt(), sign_txt.toInt());
+        }
+        volmap[name] = V;
+      }
+    }
+  }
 }
 
 void GuiMainWindow::saveBC(QString a_file)
@@ -989,10 +1002,28 @@ void GuiMainWindow::saveBC(QString a_file)
   QFile file(bc_file);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&file);
-  foreach(int i, all_boundary_codes) {
+  foreach (int i, all_boundary_codes) {
     BoundaryCondition bc = bcmap[i];
     f << i << " " << bc.getName() << " " << bc.getType() << "\n";
-  };
+  }
+  foreach (VolumeDefinition V, volmap) {
+    QString dirs = "";
+    bool first = true;
+    foreach (int i, all_boundary_codes) {
+      BoundaryCondition bc = bcmap[i];
+      if (!first) {
+        dirs += ",";
+      } else {
+        first = false;
+      }
+      QString num;
+      num.setNum(i);
+      dirs += num + ":";
+      num.setNum(V.getSign(i));
+      dirs += num;
+    }
+    f << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
+  }
 }
 
 //TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
@@ -1407,7 +1438,7 @@ void GuiMainWindow::ViewCellIDs()
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(vtkIdType id_cell=0;id_cell<CellText_Follower.size();id_cell++){
+    for(vtkIdType id_cell = 0; id_cell < CellText_Follower.size(); id_cell++){
       getRenderer()->RemoveActor(CellText_Follower[id_cell]);
       CellText_Follower[id_cell]->Delete();
       CellText_PolyDataMapper[id_cell]->Delete();
@@ -1713,13 +1744,31 @@ void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
   };
 };
 
-QVector<VolumeDefinition> GuiMainWindow::getAllVols()
+QList<VolumeDefinition> GuiMainWindow::getAllVols()
 {
-  QVector<VolumeDefinition> vols(volmap.size());
-  int i = 0;
+  QList<VolumeDefinition> vols;
   foreach(VolumeDefinition vol, volmap) {
-    vols[i] = vol;
-    ++i;
+    vols.push_back(vol);
   }
   return vols;
 }
+
+void GuiMainWindow::setAllVols(QList<VolumeDefinition> vols)
+{
+  volmap.clear();
+  foreach (VolumeDefinition V, vols) {
+    volmap[V.getName()] = V;
+  }
+}
+
+void GuiMainWindow::createDefaultVol()
+{
+  QList<VolumeDefinition> vols = getAllVols();
+  if (vols.size() == 0) {
+    VolumeDefinition V("default",1);
+    vols.append(V);
+    setAllVols(vols);
+  }
+}
+
+

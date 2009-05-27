@@ -21,27 +21,45 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "guicreateboundarylayer.h"
+#include "guimainwindow.h"
 #include "seedsimpleprismaticlayer.h"
 #include "gridsmoother.h"
 #include "createvolumemesh.h"
 #include "swaptriangles.h"
 #include "deletetetras.h"
 #include "deletecells.h"
+#include "meshpartition.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "maximal relative error", 0.01, err_max);
   getSet("boundary layer", "maximal number of smoothing iterations", 10, max_iter);
-};
+}
 
 void GuiCreateBoundaryLayer::before()
 {
-  populateBoundaryCodes(ui.listWidget);
-};
+  populateBoundaryCodes(ui.listWidgetBC);
+  populateVolumes(ui.listWidgetVC);
+}
 
 void GuiCreateBoundaryLayer::operate()
 {
-  getSelectedItems(ui.listWidget, boundary_codes);
+  getSelectedItems(ui.listWidgetBC, boundary_codes);
+  QString volume_name = getSelectedVolume(ui.listWidgetVC);
+  VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
+  foreach (int bc, boundary_codes) {
+    if (V.getSign(bc) == 0) {
+      QString msg;
+      msg.setNum(bc);
+      msg = "Boundary code " + msg + " is not part of the volume '" + volume_name +"'.";
+      EG_ERR_RETURN(msg);
+    }
+  }
+  MeshPartition sub_grid(volume_name);
+
+
+  getSurfaceCells(boundary_codes, layer_cells, grid);
+  setAllCellsFromVolume(volume_name);
   getSurfaceCells(boundary_codes, layer_cells, grid);
   
   cout << "\n\ncreating boundary layer mesh)" << endl;
@@ -58,22 +76,22 @@ void GuiCreateBoundaryLayer::operate()
         if (isSurface(grid, id_neigh_cell)) {
           if (boundary_codes.contains(bc->GetValue(id_neigh_cell))) {
             bcs.insert(bc->GetValue(id_neigh_cell));
-          };
-        };
-      };
+          }
+        }
+      }
       if (bcs.size() >= 2) {
         node_status->SetValue(id_node, 1);
-      };
+      }
       node_layer->SetValue(id_node, -1);
-    };
+    }
     foreach (vtkIdType id_cell, layer_cells) {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         node_layer->SetValue(pts[i_pts], 0);
-      };
-    };
-  };
+      }
+    }
+  }
   
   cout << "preparing prismatic layer" << endl;
   
@@ -113,7 +131,7 @@ void GuiCreateBoundaryLayer::operate()
     vol();
     vol.getTraceCells(layer_cells);
     if (smooth.improvement() < err_max) break;
-  };
+  }
   //smooth.setAllCells();
   //smooth();
   
@@ -125,5 +143,5 @@ void GuiCreateBoundaryLayer::operate()
   smooth();
   */
   createIndices(grid);
-};
+}
 

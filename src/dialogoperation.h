@@ -69,7 +69,14 @@ public: // methods
    */
   template <class T>
   bool checkListItem(QListWidget *lw, T item);
-  
+
+  /**
+   * Get the name of the selected volume.
+   * @param lw the QListWidget for volume selection
+   * @return the name of the selected volume
+   */
+  QString getSelectedVolume(QListWidget *lw);
+
   /**
    * Get a set with all seleceted items from a QListWidget.
    * @param lw  The QListWidget.
@@ -84,7 +91,7 @@ public: // methods
    */
   void getSelectedItems(QListWidget *lw, QSet<QString> &sel);
   
-  virtual void before() {};
+  virtual void before() {}
   virtual void operator()();
   
   //connect(const QObject* a, const char* b, const QObject* c, const char* d) { QObject::connect(a,b,c,d); };
@@ -121,10 +128,22 @@ bool DialogOperation<UI>::checkListItem(QListWidget *lw, T item)
   for (int i = 0; i < lw->count(); ++i) {
     if (lw->item(i)->text() == text) {
       if (lw->item(i)->checkState() == Qt::Checked) return true;
-    };
-  };
+    }
+  }
   return false;
-};
+}
+
+template <class UI>
+QString DialogOperation<UI>::getSelectedVolume(QListWidget *lw)
+{
+  QString volume_name;
+  for (int i = 0; i < lw->count(); ++i) {
+    if (lw->item(i)->isSelected()) {
+      volume_name = lw->item(i)->text();
+    }
+  }
+  return volume_name;
+}
 
 template <class UI>
 void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
@@ -134,9 +153,9 @@ void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
     if (lw->item(i)->checkState() == Qt::Checked) {
       QString item = lw->item(i)->text();
       sel.insert(item);
-    };
-  };
-};
+    }
+  }
+}
 
 template <class UI>
 void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
@@ -146,9 +165,9 @@ void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
     if (lw->item(i)->checkState() == Qt::Checked) {
       int item = lw->item(i)->text().toInt();
       sel.insert(item);
-    };
-  };
-};
+    }
+  }
+}
 
 template <class UI>
 void DialogOperation<UI>::operator()()
@@ -170,9 +189,9 @@ void DialogOperation<UI>::operator()()
         Operation::operator()();
       } catch (Error err) {
         err.display();
-      };
-    };
-  };
-};
+      }
+    }
+  }
+}
 
 #endif
