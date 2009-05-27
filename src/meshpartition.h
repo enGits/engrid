@@ -37,6 +37,12 @@ public: // methods
   MeshPartition();
 
   /**
+   * Create an empty mesh partition (with the grid set)
+   * @param grid the grid to use
+   */
+  MeshPartition(vtkUnstructuredGrid *grid);
+
+  /**
    * Create a mesh partition from a global volume definition
    * @param volume_name the name of the volume
    */

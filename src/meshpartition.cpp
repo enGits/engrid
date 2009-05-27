@@ -30,6 +30,12 @@ MeshPartition::MeshPartition()
   original_orientation = true;
 }
 
+MeshPartition::MeshPartition(vtkUnstructuredGrid *grid)
+{
+  this->grid = grid;
+  original_orientation = true;
+}
+
 MeshPartition::MeshPartition(QString volume_name)
 {
   grid = GuiMainWindow::pointer()->getGrid();
