@@ -42,6 +42,13 @@ void GuiCreateBoundaryLayer::before()
   populateVolumes(ui.listWidgetVC);
 }
 
+#define DUMP(GRID,NAME) \
+{ \
+  QString name = QString(NAME) + ".vtu"; \
+  setAllCells(); \
+  writeCells(GRID, cells, name); \
+}
+
 void GuiCreateBoundaryLayer::operate()
 {
   getSelectedItems(ui.listWidgetBC, boundary_codes);
@@ -55,13 +62,31 @@ void GuiCreateBoundaryLayer::operate()
       EG_ERR_RETURN(msg);
     }
   }
-  MeshPartition sub_grid(volume_name);
 
+  EG_VTKSP(vtkUnstructuredGrid, rest_grid);
+  {
+    EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+    MeshPartition volume(volume_name);
+    MeshPartition rest(grid);
+    rest.setRemainder(volume);
+
+    ///@@@ something is wrong here
+    /*
+    The surface needs to be re-orientated; but afterwards it has to be changed back
+    and the information might be lost ...
+    */
+
+    volume.extractToVtkGrid(vol_grid);
+    rest.extractToVtkGrid(rest_grid);
+    makeCopy(vol_grid, grid);
+  }
+
+  DUMP(grid,"reduced");
 
   getSurfaceCells(boundary_codes, layer_cells, grid);
-  setAllCellsFromVolume(volume_name);
+  setAllCells();
   getSurfaceCells(boundary_codes, layer_cells, grid);
-  
+
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
   {
@@ -142,6 +167,12 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setAllCells();
   smooth();
   */
+
+  {
+    MeshPartition volume(grid, true);
+    MeshPartition rest(rest_grid, true);
+    volume.addPartition(rest);
+  }
   createIndices(grid);
 }
 
