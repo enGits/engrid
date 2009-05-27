@@ -28,17 +28,17 @@ Error::Error()
 {
   type = ExitProgram;
   text = "unknown error";
-};
+}
 
 void Error::setType(error_t a_type)
 {
   type = a_type;
-};
+}
 
 void Error::setText(QString a_text)
 {
   text = a_text;
-};
+}
 
 void Error::display()
 {
@@ -47,7 +47,7 @@ void Error::display()
   } else {
     QMessageBox::critical(NULL,"Error",text);
     if (type == ExitProgram) exit(EXIT_FAILURE);
-  };
-};
+  }
+}
 
 
