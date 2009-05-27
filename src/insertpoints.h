@@ -1,13 +1,24 @@
 //
-// C++ Interface: insertpoints
-//
-// Description: 
-//
-//
-// Author: Mike Taverne <mtaverne@engits.com>, (C) 2009
-//
-// Copyright: See COPYING file that comes with this distribution
-//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #ifndef INSERTPOINTS_H
 #define INSERTPOINTS_H
@@ -27,15 +38,10 @@ using namespace GeometryTools;
 #include <cmath>
 using namespace std;
 
-/**
-	@author Mike Taverne <mtaverne@engits.com>
-*/
 class InsertPoints : public Operation
 {
 private:
   QMap <vtkIdType,bool> m_marked_cells;
-  QMap <vtkIdType,bool> m_marked_nodes;
-  QMap< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map;
   
   QVector <stencil_t> m_StencilVector;
   QVector<vtkIdType> m_SelectedCells;
@@ -43,15 +49,11 @@ private:
   QVector <vtkIdType> m_SelectedNodes;
   QVector <vtkIdType> m_AllNodes;
   
-  int N_inserted_FP;
-  int N_inserted_EP;
-  int N_removed_FP;
-  int N_removed_EP;
+  int m_N_points;
+  int m_N_cells;
+  int m_N_newpoints;
+  int m_N_newcells;
   
-  int N_points;
-  int N_cells;
-  int N_newpoints;
-  int N_newcells;
   int m_total_N_newpoints;
   int m_total_N_newcells;
   vtkIdType m_newNodeId;
@@ -59,22 +61,15 @@ private:
   bool insert_FP;
   bool insert_EP;
   
-/*  //for the UpdateDesiredMeshDensity operation
-public:
-  int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
-  void setMaxiterDensity(int a){MaxiterDensity=a;};
-  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector){VMDvector=a_VMDvector;};*/
-  
   //attributes with setter functions
 public:
   QSet<int> m_bcs;
   void SetBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
+  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
+  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
   
 public:
   InsertPoints();
-
-  ~InsertPoints();
   
   void operate();
   
@@ -82,8 +77,8 @@ public:
   void Set_insert_EP(bool B){insert_EP=B;};
   
   int insert_FP_counter();
-  int insert_EP_counter();
-  
+  int insert_EP_counter(int& a_N_newpoints, int& a_N_newcells);
+    
   int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
   int insert_EP_actor(vtkUnstructuredGrid* grid_tmp);
   
@@ -94,6 +89,9 @@ public:
   bool insert_fieldpoint(vtkIdType D);
   ///Check if an edge point needs to be inserted
   bool insert_edgepoint(vtkIdType j,vtkIdType K);// node1 K, node2 j
+
+  double NewCurrentMeshDensity(vtkIdType a_vertex,double a_dist);
+
 };
 
 #endif

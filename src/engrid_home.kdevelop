@@ -94,8 +94,8 @@
       <includestyle>4</includestyle>
       <designerintegration>ExternalDesigner</designerintegration>
       <root>/usr/lib/qt3</root>
-      <qmake>/opt/shared/Qt/4.4.1/debug/bin/qmake</qmake>
-      <designer>/opt/shared/Qt/4.4.1/debug/bin/designer</designer>
+      <qmake>/usr/bin/qmake-qt4</qmake>
+      <designer>/usr/bin/designer-qt4</designer>
       <designerpluginpaths/>
     </qt>
     <codecompletion>
@@ -134,10 +134,7 @@
       <synchronize>true</synchronize>
       <orientation>Vertical</orientation>
     </splitheadersource>
-    <references>
-      <pcs>Qt4</pcs>
-      <pcs>engrid</pcs>
-    </references>
+    <references/>
   </kdevcppsupport>
   <kdevfilecreate>
     <filetypes/>
@@ -153,7 +150,7 @@
     </general>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>/data1/home/mtaverne/engrid/src</mainprogram>
+      <mainprogram/>
       <programargs/>
       <globaldebugarguments/>
       <globalcwd>.</globalcwd>
@@ -163,12 +160,9 @@
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars>
-        <envvar value="/opt/shared/cgns/include/" name="CGNSINCDIR" />
-        <envvar value="/opt/shared/cgns/lib/" name="CGNSLIBDIR" />
-        <envvar value="/opt/shared/cgns/lib/:/opt/shared/VTK/lib/vtk-5.4:/opt/shared/Qt/4.5.0/debug/lib:/usr/lib64/mpi/gcc/openmpi/lib64:$LD_LIBRARY_PATH" name="LD_LIBRARY_PATH" />
-        <envvar value="/opt/shared/Qt/4.5.0/debug" name="QTDIR" />
-        <envvar value="/opt/shared/VTK/include/vtk-5.4/" name="VTKINCDIR" />
-        <envvar value="/opt/shared/VTK/lib/vtk-5.4/" name="VTKLIBDIR" />
+        <envvar value="/usr/local/lib/vtk-5.4/" name="LD_LIBRARY_PATH" />
+        <envvar value="/usr/local/include/vtk-5.4/" name="VTKINCDIR" />
+        <envvar value="/usr/local/lib/vtk-5.4/" name="VTKLIBDIR" />
       </envvars>
     </run>
     <make>
@@ -179,12 +173,9 @@
       <makebin>/usr/bin/make debug</makebin>
       <prio>0</prio>
       <envvars>
-        <envvar value="/opt/shared/cgns/include/" name="CGNSINCDIR" />
-        <envvar value="/opt/shared/cgns/lib/" name="CGNSLIBDIR" />
-        <envvar value="/opt/shared/cgns/lib/:/opt/shared/VTK/lib/vtk-5.4:/opt/shared/Qt/4.5.0/debug/lib:/usr/lib64/mpi/gcc/openmpi/lib64:$LD_LIBRARY_PATH" name="LD_LIBRARY_PATH" />
-        <envvar value="/opt/shared/Qt/4.5.0/debug" name="QTDIR" />
-        <envvar value="/opt/shared/VTK/include/vtk-5.4/" name="VTKINCDIR" />
-        <envvar value="/opt/shared/VTK/lib/vtk-5.4/" name="VTKLIBDIR" />
+        <envvar value="/usr/local/lib/vtk-5.4/" name="LD_LIBRARY_PATH" />
+        <envvar value="/usr/local/include/vtk-5.4/" name="VTKINCDIR" />
+        <envvar value="/usr/local/lib/vtk-5.4/" name="VTKLIBDIR" />
       </envvars>
     </make>
     <qmake>

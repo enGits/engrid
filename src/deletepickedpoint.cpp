@@ -31,6 +31,12 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
+DeletePickedPoint::DeletePickedPoint() : Operation()
+{
+  //Activate undo/redo
+  setQuickSave(true);
+}
+
 void DeletePickedPoint::operate()
 {
   vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
@@ -48,7 +54,7 @@ void DeletePickedPoint::operate()
 //   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
   QVector <vtkIdType> Peons;
   vtkIdType Boss;
-  int BC=0;
+  char type;
   
   QMessageBox msgBox;
   msgBox.setText("Delete point?");
@@ -56,13 +62,25 @@ void DeletePickedPoint::operate()
   switch (msgBox.exec()) {
   case QMessageBox::Yes:
     cout<<"yes was clicked"<<endl;
+//     setDebugLevel(20);
     DeletePoint(grid,nodeId,N_newpoints,N_newcells);
     break;
   case QMessageBox::No:
     cout<<"no was clicked"<<endl;
     Boss=nodeId;
-    getNeighbours(Boss,Peons,BC);
-    cout<<"Boss="<<Boss<<" Peons="<<Peons<<" BC="<<BC<<endl;
+    
+    cout<<"=== Topological neighbours ==="<<endl;
+    getNeighbours(Boss,Peons);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
+    
+    cout<<"=== BC neighbours ==="<<endl;
+    getNeighbours_BC(Boss,Peons);
+    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
+    
+    cout<<"=== NODE TYPE ==="<<endl;
+    type=getNodeType(Boss);
+    cout<<"Boss="<<Boss<<" is of type="<<(int)type<<"="<<VertexType2Str(type)<<endl;
+    
     break;
   default:
      // should never be reached

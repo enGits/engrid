@@ -175,7 +175,9 @@ void GuiSettingsViewer::readSettings()
 
 void GuiSettingsViewer::addChildSettings()
 {
-  tabWidget.clear(); //This only removes the tabs, but does not delete them!!! TODO: delete for real
+  ///@@@  TODO: Delete for real
+  //This only removes the tabs, but does not delete them!!!
+  tabWidget.clear();
   
   tabWidget.addTab(new GuiSettingsTab(organization, application, "General"), "General");
   foreach (QString group, settings->childGroups()) {

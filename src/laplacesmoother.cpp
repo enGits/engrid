@@ -1,3 +1,25 @@
+//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
 #include "laplacesmoother.h"
 #include <vtkCellLocator.h>
 #include <vtkCharArray.h>
@@ -7,12 +29,10 @@
 using namespace GeometryTools;
 
 LaplaceSmoother::LaplaceSmoother()
+: Operation()
 {
    DebugLevel=0;
-}
-
-LaplaceSmoother::~LaplaceSmoother()
-{
+   setQuickSave(true);
 }
 
 void LaplaceSmoother::operate()
@@ -32,49 +52,41 @@ void LaplaceSmoother::operate()
   getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
   
   EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  
-  EG_VTKSP(vtkUnstructuredGrid,m_grid_orig);
-  makeCopy(m_grid, m_grid_orig);
-  
-  double closestPoint[3];
-  vtkIdType cellId;
-  int subId;
-  double dist2;
-  vtkCellLocator* terminator=vtkCellLocator::New();
-  terminator->SetDataSet(m_grid_orig);
-  terminator->BuildLocator();
-//   terminator->CacheCellBoundsOn();
-  cout<<"terminator->GetNumberOfBuckets()="<<terminator->GetNumberOfBuckets()<<endl;
-  cout<<"terminator->GetNumberOfCellsPerBucket()="<<terminator->GetNumberOfCellsPerBucket()<<endl;
-  cout<<"terminator->GetCacheCellBounds()="<<terminator->GetCacheCellBounds()<<endl;
-  
-  vtkGenericCell * cell=vtkGenericCell::New();
-  
-  UpdateNodeType_all();
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   
+  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
+  l_CellLocator->SetDataSet(m_ProjectionSurface);
+  l_CellLocator->BuildLocator();
+  
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
-//     if(DebugLevel>10) 
-//       cout<<"i_iter="<<i_iter<<endl;
     
+    l_CellLocator->Print(cout);
     foreach(vtkIdType id_G,SelectedNodes)
     {
       if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
       {
         vec3_t G(0,0,0);
-        foreach(int id_M,n2n[id_G])
+        foreach(int id_M,n2n_func(id_G))
         {
           vec3_t M;
           m_grid->GetPoint(id_M, M.data());
           G+=M;
         }
-        G=(1./n2n[id_G].size())*G;
+        
+        G=(1./n2n_func(id_G).size())*G;
         vec3_t P;
         if(DebugLevel>0) cout<<"Searching for target "<<id_G<<"..."<<endl;
-        terminator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
-//         terminator->FindClosestPoint(G.data(),P.data(),cell,cellId,subId,dist2);
+        if(m_CellLocator==NULL) {
+          cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
+        }
+        else {
+          vtkIdType cellId;
+          int subId;
+          double dist2;
+          l_CellLocator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+        }
         if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
@@ -87,12 +99,12 @@ void LaplaceSmoother::operate()
         
         m_grid->GetPoints()->SetPoint(id_G, P.data());
         
-//         int save=GuiMainWindow::pointer()->QuickSave();
-//         cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
         moved_points++;
       }
     }
   }
+  
+  l_CellLocator->Delete();
   
   if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
@@ -107,7 +119,7 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
   x0_new=P;
   
 //   cout_grid(cout,grid,true,true,true,true);
-  foreach(vtkIdType id_cell,n2c[id_G])
+  foreach(vtkIdType id_cell,n2c_func(id_G))
   {
     vtkIdType N_pts, *pts;
     m_grid->GetCellPoints(id_cell, N_pts, pts);

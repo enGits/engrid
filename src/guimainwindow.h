@@ -175,14 +175,14 @@ private: // attributes
   /** The last operation number. (used for undo/redo) */
   int last_operation;
   
-  /** the temporary directory used to save anything temporary */
-  QString m_tmpdir;
+  /** the log directory */
+  QString m_LogDir;
   
   /** Status bar of the main window and application */
   QStatusBar *status_bar;
   
   /** Label for the information in the status bar */
-  QLabel *status_label;
+//   QLabel *status_label;
   
   /** A QList with all active boundary codes. */
   QSet<int> display_boundary_codes;
@@ -292,6 +292,9 @@ public: // methods
   void setBusy() { busy = true; updateStatusBar(); }
   void setIdle() { busy = false; updateStatusBar(); }
   
+  /// Returns log directory
+  QString getLogDir() { return m_LogDir; };
+  
 public: // static methods
   
   /**
@@ -340,7 +343,7 @@ public: // static methods
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   
-  QString GetFilename() {return(current_filename);}
+  QString getFilename() {return(current_filename);};
   
 public slots:
   void setUseVTKInteractor(int a_UseVTKInteractor);
@@ -390,7 +393,7 @@ public slots:
   
   void ResetOperationCounter();
   
-  //TODO: Simplify available save/load functions
+  ///@@@  TODO: Simplify available save/load functions
   /** Open an existing grid */
   void open();
   
@@ -494,6 +497,7 @@ public slots:
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }
+  void callBoxSelect() { EG_STDINTERSLOT(BoxSelect); }
   void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
   void callTransform() { EG_STDINTERSLOT(GuiTransform); }
   

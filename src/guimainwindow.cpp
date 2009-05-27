@@ -208,12 +208,23 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   status_bar = new QStatusBar(this);
   setStatusBar(status_bar);
-  status_label = new QLabel(this);
-  status_bar->addWidget(status_label);
+//   status_label = new QLabel(this);
+//   status_label->setWordWrap(true);
+//   status_label->setSizePolicy(QSizePolicy::Minimum);
+// //   status_label->setVerticalPolicy(QSizePolicy::Minimum);
+//   status_bar->addWidget(status_label);
+
+//   QVBoxLayout *status_layout = new QVBoxLayout;
+//   status_layout->addWidget(status_label);
+//   status_bar->setLayout(status_layout);
+
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
-  status_label->setText(txt);
-  
+//   status_label->setText(txt);
+  status_bar->showMessage(txt);
+  status_bar->setToolTip(txt);
+  ui.label_node_cell_info->setText(txt);
+
   axes = vtkCubeAxesActor2D::New();
   axes->SetCamera(getRenderer()->GetActiveCamera());
   getRenderer()->AddActor(axes);
@@ -239,14 +250,14 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 // define temporary path
   QDir dir("/");
   if (qset.contains("tmp_directory")) {
-    m_tmpdir=qset.value("tmp_directory").toString();
+    m_LogDir=qset.value("tmp_directory").toString();
   } else {
-    m_tmpdir=dir.tempPath();
+    m_LogDir=dir.tempPath();
   };
-  m_tmpdir = m_tmpdir + "/" + "enGrid_"+user + "/";
-  dir.mkpath(m_tmpdir);
+  m_LogDir = m_LogDir + "/" + "enGrid_"+user + "/";
+  dir.mkpath(m_LogDir);
   
-  log_file_name = m_tmpdir + basename;
+  log_file_name = m_LogDir + basename;
   cout<<"log_file_name="<<log_file_name.toLatin1().data()<<endl;
 
   system_stdout = stdout;
@@ -287,13 +298,28 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   egvtkInteractorStyle *style = egvtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
   style->Delete();
-};
+}
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
   qset.setValue("pos", pos());
   qset.setValue("size", size());
+  
+#ifndef QT_DEBUG
+  QDirIterator it(m_LogDir);
+  while (it.hasNext()) {
+    QString str = it.next();
+    QFileInfo fileinfo(str);
+    if(fileinfo.isFile()) {
+      QFile file(str);
+      if(!file.remove()) qDebug() << "Failed to remove " << file.fileName();
+    }
+  }
+  QDir dir(m_LogDir);
+  dir.rmdir(m_LogDir);
+#endif
+  
 };
 
 void GuiMainWindow::updateOutput()
@@ -549,7 +575,7 @@ void GuiMainWindow::updateActors()
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_index",index);
       cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_meshdensity",index);
+      boundary_pd->GetPointData()->GetArray("node_meshdensity_desired",index);
       cout<<"index="<<index<<endl;
       boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
       cout<<"index="<<index<<endl;
@@ -896,7 +922,7 @@ void GuiMainWindow::DeselectAll()
   updateActors();
 }
 
-//TODO: Should display a window
+///@@@  TODO: Should display a window
 void GuiMainWindow::Info()
 {
   ShowInfo info(ui.radioButton_CellPicker->isChecked(),PickedPoint,PickedCell);
@@ -909,7 +935,7 @@ int GuiMainWindow::QuickSave()
   {
     current_operation++;
     QFileInfo fileinfo(current_filename);
-    QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
+    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
     last_operation=current_operation;
     cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
     QuickSave(l_filename);
@@ -924,7 +950,7 @@ int GuiMainWindow::QuickSave()
 void GuiMainWindow::QuickLoad(int a_operation)
 {
   QFileInfo fileinfo(current_filename);
-  QString l_filename = m_tmpdir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
+  QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
 //   cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
   QuickLoad(l_filename);
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
@@ -1026,7 +1052,7 @@ void GuiMainWindow::saveBC(QString a_file)
   }
 }
 
-//TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
+///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
   current_filename = QFileDialog::getOpenFileName
@@ -1071,7 +1097,12 @@ void GuiMainWindow::save()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC();
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC();
+    }
   };
 };
 
@@ -1102,11 +1133,17 @@ void GuiMainWindow::saveAs()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC();
-    //for the undo/redo operations
-    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-    ResetOperationCounter();
-    QuickSave();
+    
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC();
+      //for the undo/redo operations
+      setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+      ResetOperationCounter();
+      QuickSave();
+    }
   };
 };
 
@@ -1132,7 +1169,12 @@ void GuiMainWindow::QuickSave(QString a_filename)
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-    saveBC(a_filename);
+    if(vtu->GetErrorCode()) {
+      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
+    }
+    else{
+      saveBC(a_filename);
+    }
   }
   else cout<<"No grid to save!"<<endl;
 };
@@ -1165,7 +1207,10 @@ void GuiMainWindow::updateStatusBar()
     txt = "";
   };
   if (!tryLock()) {
-    status_label->setText(txt);
+//     status_label->setText(txt);
+    status_bar->showMessage(txt);
+    status_bar->setToolTip(txt);
+    ui.label_node_cell_info->setText(txt);
     return;
   };
   vtkIdType Ncells = grid->GetNumberOfCells();
@@ -1250,8 +1295,8 @@ void GuiMainWindow::updateStatusBar()
       };
       pick_txt += "]";
       QString tmp;
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
-      tmp.setNum(node_meshdensity->GetValue(id_node));
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+      tmp.setNum(node_meshdensity_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
       tmp.setNum(node_meshdensity_current->GetValue(id_node));
@@ -1268,7 +1313,10 @@ void GuiMainWindow::updateStatusBar()
     txt += pick_txt;
   }
   
-  status_label->setText(txt);
+//   status_label->setText(txt);
+  status_bar->showMessage(txt);
+  status_bar->setToolTip(txt);
+  ui.label_node_cell_info->setText(txt);
   unlock();
 };
 
@@ -1287,7 +1335,7 @@ void GuiMainWindow::selectBoundaryCodes()
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
-  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
+//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
   try {
     all_boundary_codes.clear();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -1319,7 +1367,7 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
   } catch (Error err) {
     err.display();
   };
-  cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
+//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
 };
 
 void GuiMainWindow::normalExtrusion()
@@ -1438,7 +1486,7 @@ void GuiMainWindow::ViewCellIDs()
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(vtkIdType id_cell = 0; id_cell < CellText_Follower.size(); id_cell++){
+    for(vtkIdType id_cell=0;id_cell<(vtkIdType)CellText_Follower.size();id_cell++){
       getRenderer()->RemoveActor(CellText_Follower[id_cell]);
       CellText_Follower[id_cell]->Delete();
       CellText_PolyDataMapper[id_cell]->Delete();

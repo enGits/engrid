@@ -27,11 +27,15 @@
 
 using namespace GeometryTools;
 
+SwapTriangles::SwapTriangles()
+: Operation()
+{
+  m_RespectBC=false;
+  m_FeatureSwap=false;
+}
+
 void SwapTriangles::prepare()
 {
-/*  cout<<"void SwapTriangles::prepare()"<<endl;
-  cout_grid(cout,grid);
-  DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");*/
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
   QList<vtkIdType> ex_cells;
   EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
@@ -70,7 +74,7 @@ void SwapTriangles::operate()
       if (!marked[_cells[id_cell]]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
-          stencil_t S = getStencil(id_cell, j);
+          stencil_t S = getStencil(id_cell, j, m_RespectBC);
           if (S.valid) {
             if (!marked[_cells[S.id_cell2]]) {
               vec3_t x3[4], x3_0(0,0,0);
@@ -81,9 +85,9 @@ void SwapTriangles::operate()
               };
               vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
               vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
-              n1.normalise();
-              n2.normalise();
-              if ( (n1*n2) > 0.8) {
+/*              n1.normalise();
+              n2.normalise();*/
+              if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
                 vec3_t n = n1 + n2;
                 n.normalise();
                 vec3_t ex = orthogonalVector(n);
@@ -175,8 +179,6 @@ bool SwapTriangles::TestSwap(stencil_t S)
   //new triangles
   vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
   vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
-
-  
   
   //top point
   vec3_t Summit=n1_old+n2_old;

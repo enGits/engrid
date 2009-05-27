@@ -27,10 +27,12 @@ class Operation;
 class GuiMainWindow;
 
 #include "egvtkobject.h"
+#include "vertexmeshdensity.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
 #include <vtkSmartPointer.h>
+#include <vtkCellLocator.h>
 
 #include <QThread>
 #include <QMutex>
@@ -98,7 +100,7 @@ private: // methods
   
 protected: // attributes
   
-  vtkUnstructuredGrid   *grid;
+  vtkUnstructuredGrid   *grid;        /// The main grid the operation operates on.
   QVector<vtkIdType>     cells;
   QVector<int>           _cells;
   QVector<vtkIdType>     nodes;
@@ -109,6 +111,9 @@ protected: // attributes
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
   QVector<vtkIdType>     re_orientate_faces;
+
+  vtkCellLocator*      m_CellLocator;        /// vtkCellLocator used for any operations requiring projection on a surface.
+  vtkUnstructuredGrid* m_ProjectionSurface;  /// vtkUnstructuredGrid used for any operations requiring projection on a surface.
   
   //Special attributes for UpdateNodeType_all function
   double Convergence;
@@ -176,7 +181,7 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
+  stencil_t getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC);
   
   vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
@@ -185,20 +190,16 @@ public: // methods
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
-//   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-  bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
-  
-  vec3_t GetCenter(vtkIdType cellId, double& R);
-  
-//   bool getNeighbours(vtkIdType Boss, vtkIdType& Peon1, vtkIdType& Peon2, int BC);
   /**
    * Returns a QVector containing 2 neighbour points to which the point Boss can snap.
    * This is used for removing boundary/feature edge vertices without destroying the geometry.
-   * Note BC parameter is currently unused.
    */
-  bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons, int BC);
-    
-  int UpdateMeshDensity();
+  bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons);
+
+  ///The same for boundary codes!
+  bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
+  
+  int UpdateCurrentMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();
   
@@ -209,19 +210,56 @@ public: // methods
   
   void TxtSave(QString a_filename);
   void DualSave(QString a_filename);
-    
-  //Special for UpdateNodeType_all
-  ///@@@ Bitte Lesbarkeit beachten (Spaces!!!) und Methoden mit Lowercase anfangen (z.B. setConvergence(...)
-  void SetConvergence(double C){Convergence=C;}
-  void SetNumberOfIterations(int N){NumberOfIterations=N;}
-  void SetRelaxationFactor(double RF){RelaxationFactor=RF;}
-  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;}
-  void SetFeatureAngle(double FA){FeatureAngle=FA;}
-  void SetEdgeAngle(double EA){EdgeAngle=EA;}
-  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;}
-  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;}
-  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;}
   
+  //Special for UpdateNodeType_all
+  void SetConvergence( double C ) { Convergence=C; };
+  void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
+  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
+  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
+  void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
+  void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
+  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
+  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
+  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
+  
+  ///Equivalent of n2c in absolute numbering
+  QSet<vtkIdType>    n2c_func(vtkIdType idx);
+  ///Equivalent of n2n in absolute numbering
+  QSet<vtkIdType>    n2n_func(vtkIdType idx);
+  ///Equivalent of c2c in absolute numbering
+  QVector<vtkIdType> c2c_func(vtkIdType idx);
+  
+  ///Returns the average distance of a_vertex to its neighbours
+  double CurrentVertexAvgDist(vtkIdType a_vertex);
+  ///Returns 1/CurrentVertexAvgDist(a_vertex)
+  double CurrentMeshDensity(vtkIdType a_vertex);
+  ///Returns the average of 1./node_meshdensity_desired of the neighbours of a_vertex
+  double DesiredVertexAvgDist(vtkIdType a_vertex);
+  ///Returns the average of node_meshdensity_desired of the neighbours of a_vertex
+  double DesiredMeshDensity(vtkIdType a_vertex);
+  
+  ///Returns the set of boundary codes next to this node
+  QSet <int> getBCset(vtkIdType a_node);
+  
+  char getNodeType(vtkIdType a_node);
+  bool FullCycleOfPolygons(vtkIdType a_node);
+  ///Returns the number of feature edges around node a_node
+  int getNumberOfFeatureEdges(vtkIdType a_node);
+  ///Returns the number of boundary edges around node a_node
+  int getNumberOfBoundaryEdges(vtkIdType a_node);
+  ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
+  vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
+  ///Returns the type of the edge [a_node1,a_node2]
+  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
+  ///Returns a vector containing the cells surrounding edge [p1,p2]
+  QVector <vtkIdType> getEdgeCells(vtkIdType p1, vtkIdType p2);
+  
+  /// Get VertexMeshDensity object
+  VertexMeshDensity getVMD(vtkIdType node);
+  
+  void setSource(vtkUnstructuredGrid *a_ProjectionSurface);
+  void set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface);
+    
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit
@@ -303,9 +341,5 @@ void Operation::setNodes(const T &nds)
 };
 
 //////////////////////////////////////////////
-double CurrentVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double CurrentMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double DesiredVertexAvgDist(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
-double DesiredMeshDensity(vtkIdType a_vertex,QVector< QSet< int > > &n2n,vtkUnstructuredGrid *a_grid);
 
 #endif

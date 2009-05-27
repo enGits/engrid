@@ -33,6 +33,8 @@ class SwapTriangles : public Operation
 private: // attributes
   
   QVector<bool> marked;
+  bool m_RespectBC;
+  bool m_FeatureSwap;
   
 private: // methods
   
@@ -42,6 +44,11 @@ private: // methods
 protected: // methods
   
   virtual void operate();
+
+public:
+  SwapTriangles();
+  void setRespectBC(bool b){m_RespectBC=b;};
+  void setFeatureSwap(bool b){m_FeatureSwap=b;};
   
 };
 

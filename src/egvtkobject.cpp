@@ -758,7 +758,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_layer", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_index", vtkLongArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_specified_density", vtkIntArray);
-  EGVTKOBJECT_COPYNODEDATA("node_meshdensity",  vtkDoubleArray);
+  EGVTKOBJECT_COPYNODEDATA("node_meshdensity_desired",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
 }
@@ -826,13 +826,13 @@ void EgVtkObject::createBasicNodeFields
   bool                 overwrite
 )
 {
-  EGVTKOBJECT_CREATENODEFIELD("node_status", vtkIntArray,    overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_layer",  vtkIntArray,    overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_index",  vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_specified_density", vtkIntArray,    overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_type",  vtkCharArray, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_status",               vtkIntArray,    overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_layer",                vtkIntArray,    overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_index",                vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_specified_density",    vtkIntArray,    overwrite); //density index from table
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
+  EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite); //what we have
+  EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray, overwrite);   //node type
 }
 
 void EgVtkObject::allocateGrid
@@ -912,46 +912,6 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
     src->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
     copyCellData(src, id_cell, dst, id_new_cell);
-  }
-}
-
-// void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells)
-void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode)
-{
-  vtkIdType src_N_points=src->GetNumberOfPoints();
-  vector <vtkIdType> OffSet(src_N_points);
-  vtkIdType dst_id_node=0;
-  for (vtkIdType src_id_node = 0; src_id_node < src_N_points; ++src_id_node) {
-    if(!DeadNode[src_id_node])
-    {
-      vec3_t x;
-      src->GetPoints()->GetPoint(src_id_node, x.data());
-      dst->GetPoints()->SetPoint(dst_id_node, x.data());
-      copyNodeData(src, src_id_node, dst, dst_id_node);
-      OffSet[src_id_node]=src_id_node-dst_id_node;
-      dst_id_node++;
-    }
-    else
-    {
-      //search closest node
-    }
-  }
-  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *src_pts, *dst_pts;
-    vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, src_pts);
-    src->GetCellPoints(id_cell, N_pts, dst_pts);
-    bool DeadCell=false;
-    for(int i=0;i<N_pts;i++)
-    {
-      if(DeadNode[src_pts[i]]) {DeadCell=true;}
-      dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
-    }
-    if(!DeadCell)
-    {
-      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, dst_pts);
-      copyCellData(src, id_cell, dst, id_new_cell);
-    }
   }
 }
 
@@ -1120,12 +1080,21 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool nce
 }
 
 ///////////////////////////////////////////
-int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x)
+int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t X, vtkCellLocator* a_CellLocator)
 {
-  a_grid->GetPoints()->SetPoint(index, x.data());
+/*  if(a_CellLocator!=NULL) {
+    vtkIdType cellId;
+    int subId;
+    double dist2;
+    vec3_t P;
+    a_CellLocator->FindClosestPoint(X.data(),P.data(),cellId,subId,dist2);
+    X=P;
+  }*/
+  a_grid->GetPoints()->SetPoint(index, X.data());
   return(0);
 }
 
+//Warning: Not functional
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc)
 {
   vtkIdType npts=3;
@@ -1184,7 +1153,6 @@ int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
   return(id_maxlen);
 }
 
-//get number of the edge corresponding to node1-node2
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2)
 {
   vtkIdType N_pts, *pts;
@@ -1275,42 +1243,28 @@ pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
   return(pair<vtkIdType,vtkIdType>(x,y));
 }
 
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_cell, N_pts, pts);
-  
-  int i;
-  for(i=0;i<N_pts;i++)
-  {
-    if(pts[i]==a_node) break;
-  }
-  return a_c2c[a_cell][i];
-}
-
 const char* VertexType2Str(char T)
 {
   if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
   if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
   if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
   if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
+  if(T==BC_SIMPLE_VERTEX) return("BC_SIMPLE_VERTEX");
+  if(T==BC_FIXED_VERTEX) return("BC_FIXED_VERTEX");
+  if(T==BC_FEATURE_EDGE_VERTEX) return("BC_FEATURE_EDGE_VERTEX");
+  if(T==BC_BOUNDARY_EDGE_VERTEX) return("BC_BOUNDARY_EDGE_VERTEX");
   else return("Unknown vertex type");
 }
 
 char Str2VertexType(QString S)
 {
-  if(S=="VTK_SIMPLE_VERTEX") return((char)0);
-  if(S=="VTK_FIXED_VERTEX") return((char)1);
-  if(S=="VTK_FEATURE_EDGE_VERTEX") return((char)2);
-  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return((char)3);
+  if(S=="VTK_SIMPLE_VERTEX") return(VTK_SIMPLE_VERTEX);
+  if(S=="VTK_FIXED_VERTEX") return(VTK_FIXED_VERTEX);
+  if(S=="VTK_FEATURE_EDGE_VERTEX") return(VTK_FEATURE_EDGE_VERTEX);
+  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return(VTK_BOUNDARY_EDGE_VERTEX);
+  if(S=="BC_SIMPLE_VERTEX") return(BC_SIMPLE_VERTEX);
+  if(S=="BC_FIXED_VERTEX") return(BC_FIXED_VERTEX);
+  if(S=="BC_FEATURE_EDGE_VERTEX") return(BC_FEATURE_EDGE_VERTEX);
+  if(S=="BC_BOUNDARY_EDGE_VERTEX") return(BC_BOUNDARY_EDGE_VERTEX);
   else return((char)-1);
-}
-
-const char* vertex_type(char T)
-{
-  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
-  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
-  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
-  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
-  else return("Unknown vertex type");
 }

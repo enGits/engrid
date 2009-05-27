@@ -41,9 +41,9 @@ void GuiImproveAspectRatio::operate()
     elem->SetInput(ug);
     elem->Update();
     grid->DeepCopy(elem->GetOutput());
-    N_elim += elem->GetNumEliminated();
+    N_elim += elem->getNumEliminated();
     ++N_sweeps;
-  } while (elem->GetNumEliminated() > 0);
+  } while (elem->getNumEliminated() > 0);
   QString text, t1, t2;
   t1.setNum(N_elim);
   t2.setNum(N_sweeps);

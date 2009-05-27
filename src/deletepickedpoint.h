@@ -34,6 +34,7 @@ class DeletePickedPoint : public Operation
     virtual void operate();
   
   public:
+    DeletePickedPoint();
 };
 
 #endif

@@ -1,13 +1,24 @@
 //
-// C++ Implementation: updatedesiredmeshdensity
-//
-// Description: 
-//
-//
-// Author: Mike Taverne <mtaverne@engits.com>, (C) 2009
-//
-// Copyright: See COPYING file that comes with this distribution
-//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "updatedesiredmeshdensity.h"
 
@@ -25,8 +36,13 @@ UpdateDesiredMeshDensity::~UpdateDesiredMeshDensity()
 
 void UpdateDesiredMeshDensity::operate()
 {
+  static int nStatic_UpdateDesiredMeshDensity;    // Value of nStatic_UpdateDesiredMeshDensity is retained
+                          // between each function call
+  nStatic_UpdateDesiredMeshDensity++;
+  cout << "nStatic_UpdateDesiredMeshDensity is " << nStatic_UpdateDesiredMeshDensity << endl;
+  
   //define desired mesh density
-  cout<<"=== UpdateDesiredMeshDensity ==="<<endl;
+  cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -44,8 +60,8 @@ void UpdateDesiredMeshDensity::operate()
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
   UpdateNodeType_all();
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity, grid, "node_meshdensity");
+//   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   
 /*  //Calculate current mesh density
@@ -53,7 +69,7 @@ void UpdateDesiredMeshDensity::operate()
   
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+    VertexMeshDensity nodeVMD = getVMD(node);
     int idx=VMDvector.indexOf(nodeVMD);
     if(DebugLevel>3) cout<<"idx="<<idx<<endl;
     if(idx!=-1)//specified
@@ -62,7 +78,7 @@ void UpdateDesiredMeshDensity::operate()
     }
     else//unspecified
     {
-      double L=CurrentVertexAvgDist(node,n2n,grid);
+      double L=CurrentVertexAvgDist(node);
       double D=1./L;
       node_meshdensity->SetValue(node, D);
     }
@@ -78,41 +94,25 @@ void UpdateDesiredMeshDensity::operate()
     foreach(vtkIdType node,m_AllNodes)
     {
       if(DebugLevel>2) cout<<"======>"<<endl;
-      VertexMeshDensity nodeVMD = getVMD(node,node_type->GetValue(node));
+      VertexMeshDensity nodeVMD = getVMD(node);
       int idx=VMDvector.indexOf(nodeVMD);
       node_specified_density->SetValue(node, idx);
       if(DebugLevel>2) cout<<"------>idx="<<idx<<endl;
       if(idx!=-1)//specified
       {
-        node_meshdensity->SetValue(node, VMDvector[idx].density);
+        node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
       }
       else//unspecified
       {
-        double D=DesiredMeshDensity(node,n2n,grid);
+        double D=DesiredMeshDensity(node);
         if(first) {
-          if(DebugLevel>2) {
-            cout<<"------>FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-          }
-          diff=abs(D-node_meshdensity->GetValue(node));
+          diff=abs(D-node_meshdensity_desired->GetValue(node));
           first=false;
         }
         else {
-          if(DebugLevel>2) {
-            cout<<"------>NOT FIRST:"<<endl;
-            cout<<"------>D="<<D<<endl;
-            cout<<"------>node_meshdensity->GetValue("<<node<<")="<<node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>D-node_meshdensity->GetValue("<<node<<")="<<D-node_meshdensity->GetValue(node)<<endl;
-            cout<<"------>diff=abs(D-node_meshdensity->GetValue("<<node<<"))="<<abs(D-node_meshdensity->GetValue(node))<<endl;
-            cout<<"------>diff="<<diff<<endl;
-            cout<<"------>max(abs(D-node_meshdensity->GetValue("<<node<<")),diff)="<<max(abs(D-node_meshdensity->GetValue(node)),diff)<<endl;
-          }
-          diff=max(abs(D-node_meshdensity->GetValue(node)),diff);
+          diff=max(abs(D-node_meshdensity_desired->GetValue(node)),diff);
         }
-        node_meshdensity->SetValue(node, D);
+        node_meshdensity_desired->SetValue(node, D);
       }
       if(DebugLevel>2) cout<<"======>"<<endl;
     }
@@ -120,26 +120,6 @@ void UpdateDesiredMeshDensity::operate()
   } while(diff>Convergence_meshdensity && !first && iter<MaxiterDensity);// if first=true, it means no new mesh density has been defined (all densities specified)
   cout<<"iter="<<iter<<endl;
   if(iter>=MaxiterDensity) cout<<"WARNING: Desired convergence factor has not been reached!"<<endl;
-}
-
-VertexMeshDensity UpdateDesiredMeshDensity::getVMD(vtkIdType node, char VertexType)
-{
-  VertexMeshDensity VMD;
-  VMD.type=VertexType;
-  VMD.density=0;
-  VMD.CurrentNode=node;
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-/*  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(m_AllCells, nodes, _nodes, n2c, grid);*/
   
-  QSet <int> bc;
-  foreach(vtkIdType C, n2c[node])
-  {
-    bc.insert(cell_code->GetValue(C));
-    VMD.BCmap[cell_code->GetValue(C)]=2;
-  }
-  VMD.BClist.resize(bc.size());
-  qCopy(bc.begin(),bc.end(),VMD.BClist.begin());
-  qSort(VMD.BClist.begin(),VMD.BClist.end());
-  return(VMD);
+  cout<<"=== UpdateDesiredMeshDensity END ==="<<endl;
 }
