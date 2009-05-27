@@ -275,8 +275,7 @@ int InsertPoints::insert_EP_all()
   cout<<"===insert_EP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
-  setAllCells();
-  getSurfaceCells(m_bcs, m_SelectedCells, grid);//m_SelectedCells contains absolute IDs
+  setAllSurfaceCells();
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   
@@ -285,31 +284,34 @@ int InsertPoints::insert_EP_all()
   
   cout<<"===insert_EP_counter() START==="<<endl;
     
-  QVector <int> l_marked_cells(m_SelectedCells.size());
-  QVector <stencil_t> l_StencilVector(m_SelectedCells.size());
+  QVector <int> l_marked_cells(cells.size());
+  QVector <stencil_t> l_StencilVector(cells.size());
   
   //counter
-  for(int i=0;i<m_SelectedCells.size();i++) {
-    vtkIdType id_cell=m_SelectedCells[i];
-    for (int j = 0; j < 3; ++j) {
-      if( !l_marked_cells[i] && SplitSide(id_cell,j)) {
+  for(int i=0;i<cells.size();i++) {
+    vtkIdType id_cell=cells[i];
+    if(m_bcs.contains(cell_code->GetValue(id_cell))) {
+      for(int j = 0; j < 3; ++j) {
         stencil_t S = getStencil(id_cell,j,false);
-        l_StencilVector[i]=S;
-        l_marked_cells[i]=1;
-        int bc2 = cell_code->GetValue(S.id_cell2);
-        if(m_bcs.contains(bc2)) {
-          l_marked_cells[m_SelectedCells.indexOf(S.id_cell2)]=2;
-        }
-        l_N_newpoints++;
-        if(S.valid) {
-          l_N_newcells+=2;
-        }
-        else {
-          l_N_newcells+=1;
-        }
-      }
-    }
-  }
+        if( l_marked_cells[i]==0 && l_marked_cells[_cells[S.id_cell2]]==0 ) {
+          if( SplitSide(id_cell,j)) {
+            l_StencilVector[i]=S;
+            l_marked_cells[i]=1;
+            if(cells.indexOf(S.id_cell2)>=0) {
+              l_marked_cells[_cells[S.id_cell2]]=2;
+            }
+            l_N_newpoints++;
+            if(S.valid) {
+              l_N_newcells+=2;
+            }
+            else {
+              l_N_newcells+=1;
+            }
+          }//end of if SplitSide
+        }//end of if unmarked
+      }//end of loop through sides
+    }//end of if selected
+  }//end of counter loop
   
   //initialize grid_tmp
   int l_N_points=grid->GetNumberOfPoints();
@@ -328,7 +330,7 @@ int InsertPoints::insert_EP_all()
   l_CellLocator->BuildLocator();
   
   //actor
-  for(int i=0;i<m_SelectedCells.size();i++) {
+  for(int i=0;i<cells.size();i++) {
     if(l_marked_cells[i]==1) {
       stencil_t S = l_StencilVector[i];
       
