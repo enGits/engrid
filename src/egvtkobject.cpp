@@ -943,46 +943,6 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
   };
 };
 
-// void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells)
-void EgVtkObject::makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode)
-{
-  vtkIdType src_N_points=src->GetNumberOfPoints();
-  vector <vtkIdType> OffSet(src_N_points);
-  vtkIdType dst_id_node=0;
-  for (vtkIdType src_id_node = 0; src_id_node < src_N_points; ++src_id_node) {
-    if(!DeadNode[src_id_node])
-    {
-      vec3_t x;
-      src->GetPoints()->GetPoint(src_id_node, x.data());
-      dst->GetPoints()->SetPoint(dst_id_node, x.data());
-      copyNodeData(src, src_id_node, dst, dst_id_node);
-      OffSet[src_id_node]=src_id_node-dst_id_node;
-      dst_id_node++;
-    }
-    else
-    {
-      //search closest node
-    }
-  };
-  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *src_pts, *dst_pts;
-    vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, src_pts);
-    src->GetCellPoints(id_cell, N_pts, dst_pts);
-    bool DeadCell=false;
-    for(int i=0;i<N_pts;i++)
-    {
-      if(DeadNode[src_pts[i]]) {DeadCell=true;}
-      dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
-    }
-    if(!DeadCell)
-    {
-      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, dst_pts);
-      copyCellData(src, id_cell, dst, id_new_cell);
-    }
-  };
-}
-
 int EgVtkObject::findVolumeCell
 (
   vtkUnstructuredGrid      *grid,
