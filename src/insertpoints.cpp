@@ -65,6 +65,13 @@ bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
   return ( result );
 }
 
+bool InsertPoints::SplitSide(vtkIdType id_cell,int side)
+{
+  vtkIdType N_pts,*pts;
+  grid->GetCellPoints(id_cell,N_pts,pts);
+  return( insert_edgepoint(pts[side],pts[(side+1)%N_pts]) );
+}
+
 int InsertPoints::insert_FP_counter()
 {
   cout<<"===insert_FP_counter() START==="<<endl;
@@ -281,19 +288,28 @@ int InsertPoints::insert_EP_all()
     
   int l_N_inserted_EP=0;
     
-  QVector <bool> l_marked_cells(m_SelectedCells.size());
+  QVector <int> l_marked_cells(m_SelectedCells.size());
+  QVector <stencil_t> l_StencilVector(m_SelectedCells.size());
+  
 //   cout<<"m_SelectedCells="<<m_SelectedCells<<endl;
   
-
   for(int i=0;i<m_SelectedCells.size();i++) {
     vtkIdType id_cell=m_SelectedCells[i];
     for (int j = 0; j < 3; ++j) {
-      if( !l_marked_cells[i] && insert_edgepoint(id_cell,j)) {
-        l_marked_cells[i]=true;
+      if( !l_marked_cells[i] && SplitSide(id_cell,j)) {
+        stencil_t S = getStencil(id_cell,j,false);
+        l_StencilVector[i]=S;
+        l_marked_cells[i]=1;
+        int bc2 = cell_code->GetValue(S.id_cell2);
+        if(m_bcs.contains(bc2)) {
+          l_marked_cells[m_SelectedCells.indexOf(S.id_cell2)]=2;
+        }
         l_N_inserted_EP++;
       }
     }
   }
+  
+  
   /*  
     m_StencilVector.clear();
     QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map_iter(m_edge_map);

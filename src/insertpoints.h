@@ -43,7 +43,6 @@ class InsertPoints : public Operation
 private:
   QMap <vtkIdType,bool> m_marked_cells;
   
-  QVector <stencil_t> m_StencilVector;
   QVector<vtkIdType> m_SelectedCells;
   QVector<vtkIdType> m_AllCells;
   QVector <vtkIdType> m_SelectedNodes;
@@ -87,6 +86,8 @@ public:
   ///Check if an edge point needs to be inserted
   bool insert_edgepoint(vtkIdType j,vtkIdType K);// node1 K, node2 j
 
+  bool SplitSide(vtkIdType id_cell,int side);
+    
   double NewCurrentMeshDensity(vtkIdType a_vertex,double a_dist);
 
 };
