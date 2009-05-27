@@ -58,11 +58,11 @@ void LaplaceSmoother::operate()
   vtkCellLocator* l_CellLocator = vtkCellLocator::New();
   l_CellLocator->SetDataSet(m_ProjectionSurface);
   l_CellLocator->BuildLocator();
+//   l_CellLocator->Print(cout);
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     
-    l_CellLocator->Print(cout);
     foreach(vtkIdType id_G,SelectedNodes)
     {
       if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
@@ -82,10 +82,7 @@ void LaplaceSmoother::operate()
           cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
         }
         else {
-          vtkIdType cellId;
-          int subId;
-          double dist2;
-          l_CellLocator->FindClosestPoint(G.data(),P.data(),cellId,subId,dist2);
+          P=project(G);
         }
         if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         

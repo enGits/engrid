@@ -244,7 +244,10 @@ public: // methods
   
   void setSource(vtkUnstructuredGrid *a_ProjectionSurface);
   void set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface);
-    
+  
+  ///Projection function
+  vec3_t project(vec3_t a_M);
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

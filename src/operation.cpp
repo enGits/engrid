@@ -2328,3 +2328,20 @@ void Operation::set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLoca
   cout<<"COPY: m_CellLocator="<<m_CellLocator<<endl;
   cout<<"COPY: m_ProjectionSurface="<<m_ProjectionSurface<<endl;
 }
+
+vec3_t Operation::project(vec3_t OM)
+{
+  vec3_t P;
+/*  vtkIdType cellId;
+  int subId;
+  double dist2;
+  m_CellLocator->FindClosestPoint(a_M.data(),P.data(),cellId,subId,dist2);*/
+//   OM=OA+AP+PM;
+  vec3_t OA(0,0,OM[2]);
+  vec3_t AM=OM-OA;
+  vec3_t r=AM;
+  r.normalise();
+  vec3_t AP=0.1*r;
+  P=OA+AP;
+  return(P);
+}

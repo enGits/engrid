@@ -112,6 +112,7 @@ void SetBoundaryCode::pass2()
   }
   else if(OnlyPickedCell)
   {
+    cout<<"this->getStart()="<<this->getStart()<<endl;
     cell_code->SetValue(this->getStart(), boundary_code);
   }
   else if(OnlyPickedCellAndNeighbours)

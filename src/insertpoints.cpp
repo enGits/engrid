@@ -141,13 +141,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
       //============================================
       // ADD POINT
-      vtkIdType cellId;
-      int subId;
-      double dist2;
-      vec3_t P;
-      l_CellLocator->FindClosestPoint(C.data(),P.data(),cellId,subId,dist2);
-      C=P;
-      
+      C=project(C);
       addPoint(grid_tmp,l_newNodeId,C.data(),m_CellLocator);
       
 
@@ -316,6 +310,8 @@ int InsertPoints::insert_EP_all()
   int l_N_cells=grid->GetNumberOfCells();
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
+  cout<<"=== ALLOCATING: grid ==="<<endl;cout_grid(cout,grid);
+  cout<<"=== ALLOCATING: grid_tmp ==="<<endl;cout_grid(cout,grid_tmp);
   makeCopyNoAlloc(grid, grid_tmp);
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   
@@ -339,13 +335,7 @@ int InsertPoints::insert_EP_all()
       vec3_t M=0.5*(A+B);
       
       //project point
-      vtkIdType cellId;
-      int subId;
-      double dist2;
-      vec3_t P;
-      l_CellLocator->FindClosestPoint(M.data(),P.data(),cellId,subId,dist2);
-      M=P;
-      
+      M=project(M);
       //add point
       addPoint(grid_tmp,l_newNodeId,M.data(),l_CellLocator);
       
