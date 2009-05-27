@@ -7,6 +7,7 @@
 *.new
 *.old
 temp
+*.output
 
 # objects and archives - anywhere
 *.[oa]
@@ -52,6 +53,7 @@ qtc-gdbmacros
 netgen_svn_old
 *.tag
 *.output
+docs
 
 # LaTeX generated files - anywhere
 *.aux

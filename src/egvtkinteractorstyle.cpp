@@ -1,15 +1,30 @@
 //
-// C++ Implementation: egvtkinteractorstyle
-//
-// Description: 
-//
-//
-// Author: Mike Taverne <mtaverne@engits.com>, (C) 2009
-//
-// Copyright: See COPYING file that comes with this distribution
-//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "egvtkinteractorstyle.h"
+
+#include "deletepickedpoint.h"
+#include "egvtkobject.h"
+#include "operation.h"
 
 #include "vtkInteractorStyleUser.h"
 #include "vtkMath.h"
@@ -17,6 +32,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+
+
 
 vtkCxxRevisionMacro(egvtkInteractorStyle, "$Revision: 1.37 $");
 vtkStandardNewMacro(egvtkInteractorStyle);
@@ -406,41 +423,50 @@ void egvtkInteractorStyle::OnChar()
   this->EventCallbackCommand->SetAbortFlag(1);
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
+  char key=rwi->GetKeyCode();
   
-  switch (rwi->GetKeyCode()) 
-  {
-    case 'n' :
-      cout<<"pick node by mouse"<<endl;
-      break;
-    case 'N' :
-      cout<<"pick node by ID"<<endl;
-      break;
-    
-    case 'c' :
-      cout<<"pick cell by mouse"<<endl;
-      break;
-    case 'C' :
-      cout<<"pick cell by ID"<<endl;
-      break;
-    
-    case 'b' :
-      cout<<"box select"<<endl;
-    
-      break;
+  if(key=='n') {
+    cout<<"pick node by mouse"<<endl;
   }
+/*  else if(key=='N') {
+    cout<<"pick node by ID"<<endl;
+  }*/
   
+  else if(key=='c') {
+    cout<<"pick cell by mouse"<<endl;
+  }
+/*  else if(key=='C') {
+    cout<<"pick cell by ID"<<endl;
+  }*/
+  
+/*  else if(key=='b') {
+    cout<<"box select"<<endl;
+  }*/
+  
+  /*  else if(key=='d') {
+    cout<<"Delete picked point"<<endl;
+//     EG_STDINTERSLOT(DeletePickedPoint);
+    DeletePickedPoint deletepickedpoint;
+    deletepickedpoint();
+    OPER *oper = new OPER(); \
+      (*oper)(); \
+      oper->del(); \
+      if(grid->GetNumberOfPoints()) updateBoundaryCodes(false);
+      updateActors();
+      
+  }*/
+  
+  else {
    // otherwise pass the OnChar to the vtkInteractorStyle.
-  if (this->HasObserver(vtkCommand::CharEvent)) 
-    {
-    this->ShiftKey = this->Interactor->GetShiftKey();
-    this->ControlKey = this->Interactor->GetControlKey();
-    this->KeyCode = this->Interactor->GetKeyCode();  
-    
-    this->InvokeEvent(vtkCommand::CharEvent,NULL);
+    if (this->HasObserver(vtkCommand::CharEvent)) {
+      this->ShiftKey = this->Interactor->GetShiftKey();
+      this->ControlKey = this->Interactor->GetControlKey();
+      this->KeyCode = this->Interactor->GetKeyCode();  
+      
+      this->InvokeEvent(vtkCommand::CharEvent,NULL);
     }
-  else
-    {
-    this->vtkInteractorStyle::OnChar();
+    else {
+      this->vtkInteractorStyle::OnChar();
     }
-  
+  }
 }

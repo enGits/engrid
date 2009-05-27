@@ -35,6 +35,8 @@ class EgVtkObject;
 #include <vtkLongArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkCellLocator.h>
+
 #include <QSettings>
 #include <QSet>
 #include <QVector>
@@ -43,6 +45,15 @@ class EgVtkObject;
 #define VTK_FIXED_VERTEX 1
 #define VTK_FEATURE_EDGE_VERTEX 2
 #define VTK_BOUNDARY_EDGE_VERTEX 3
+#define BC_SIMPLE_VERTEX 4
+#define BC_FIXED_VERTEX 5
+#define BC_FEATURE_EDGE_VERTEX 6
+#define BC_BOUNDARY_EDGE_VERTEX 7
+
+#define VTK_SIMPLE_EDGE 0
+#define VTK_FIXED_EDGE 1
+#define VTK_FEATURE_EDGE 2
+#define VTK_BOUNDARY_EDGE 3
 
 class EgVtkObject
 {
@@ -506,16 +517,6 @@ protected: // methods
    */
   void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
   
-  /**
-  * Copy "src" grid to "dst" grid. DO NOT allocate "dst" so that it fits the data of "src".
-  * Allocation is left for the user to do.
-  * Filter is a vector specifying whether a node should be removed or not.
-  * false: don't remove
-  * true: remove
-  */
-  void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode);
-//   void makeCopyNoAllocFiltered(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, vector <bool> DeadNode, QVector <QSet <vtkIdType>> newCells);
-  
   void createIndices(vtkUnstructuredGrid *grid);
   
   /**
@@ -616,12 +617,15 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
 
 ///////////////////////////////////////////
-int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x);
+int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x, vtkCellLocator* a_CellLocator=NULL);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
 
+///get number of the shortest side of the cell
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+///get number of the longest side of the cell
 int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 
+///get number of the edge corresponding to node1-node2
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
 
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
@@ -631,7 +635,7 @@ int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
 template <class T>
-ostream &operator<<(ostream &out, QVector<T> & vector)
+ostream &operator<<(ostream &out, QVector<T> const & vector)
 {
   int N=vector.size();
   out<<"[";
@@ -738,10 +742,7 @@ QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
 
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
 
-vtkIdType nextcell(vtkIdType a_cell, vtkIdType a_node, QVector< QVector< int > > &a_c2c, vtkUnstructuredGrid *a_grid);
-
 const char* VertexType2Str(char T);
 char Str2VertexType(QString S);
-const char* vertex_type(char T);
 
 #endif

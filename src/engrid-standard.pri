@@ -131,7 +131,8 @@ insertpoints.h \
 removepoints.h \
 showinfo.h \
 surfacemesher.h \
-updatedesiredmeshdensity.h
+updatedesiredmeshdensity.h \
+boxselect.h
 
 #
 # source headers
@@ -217,7 +218,8 @@ insertpoints.cpp \
 removepoints.cpp \
 showinfo.cpp \
 surfacemesher.cpp \
-updatedesiredmeshdensity.cpp
+updatedesiredmeshdensity.cpp \
+boxselect.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

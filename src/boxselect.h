@@ -20,5 +20,24 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "smoothingutilities.h"
+#ifndef BOXSELECT_H
+#define BOXSELECT_H
 
+#include <operation.h>
+#include <vtkBoxWidget.h>
+
+class BoxSelect : public Operation
+{
+private:
+  vtkBoxWidget *boxWidget;
+  
+public:
+    BoxSelect();
+
+    ~BoxSelect();
+
+protected: // methods
+  virtual void operate();
+};
+
+#endif
