@@ -299,7 +299,7 @@ void GuiSmoothSurface::before()
   tableWidget->resizeColumnsToContents();
   
   
-  current_filename= GuiMainWindow::pointer()->GetFilename();
+  current_filename= GuiMainWindow::pointer()->getFilename();
   Qcout<<"current_filename="<<current_filename<<endl;
   Qcout<<"Loading settings from "+current_filename+".sp..."<<endl;
   
@@ -364,11 +364,11 @@ void GuiSmoothSurface::ClearAll_Source()
 void GuiSmoothSurface::TestSet()
 {
   cout<<"Testing set"<<endl;
-  GetSet();
+  getSet();
 }
 
 //This is where we get the user defined mesh densities
-QVector <VertexMeshDensity> GuiSmoothSurface::GetSet()
+QVector <VertexMeshDensity> GuiSmoothSurface::getSet()
 {
   cout<<"Getting set"<<endl;
   QVector <VertexMeshDensity> VMDvector;
@@ -1190,7 +1190,7 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    QVector <VertexMeshDensity> VMDvector=GetSet();
+    QVector <VertexMeshDensity> VMDvector=getSet();
     
     SurfaceMesher surfacemesher;
     surfacemesher.setGrid(this->grid);
@@ -1294,7 +1294,7 @@ void GuiSmoothSurface::operate()
     SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
     SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
-    QVector <VertexMeshDensity> VMDvector=GetSet();
+    QVector <VertexMeshDensity> VMDvector=getSet();
 //     cout<<"VMDvector="<<VMDvector<<endl;
     for(int i=0;i<VMDvector.size();i++)
     {

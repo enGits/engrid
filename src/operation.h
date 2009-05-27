@@ -175,11 +175,6 @@ public: // methods
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
   void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
   
-//   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode);
-  bool EmptyVolume(vtkIdType DeadNode, vtkIdType PSP);
-  
-  vec3_t GetCenter(vtkIdType cellId, double& R);
-  
   /**
    * Returns a QVector containing 2 neighbour points to which the point Boss can snap.
    * This is used for removing boundary/feature edge vertices without destroying the geometry.
@@ -202,15 +197,15 @@ public: // methods
   void DualSave(QString a_filename);
   
   //Special for UpdateNodeType_all
-  void SetConvergence(double C){Convergence=C;};
-  void SetNumberOfIterations(int N){NumberOfIterations=N;};
-  void SetRelaxationFactor(double RF){RelaxationFactor=RF;};
-  void SetFeatureEdgeSmoothing(int FES){FeatureEdgeSmoothing=FES;};
-  void SetFeatureAngle(double FA){FeatureAngle=FA;};
-  void SetEdgeAngle(double EA){EdgeAngle=EA;};
-  void SetBoundarySmoothing(int BS){BoundarySmoothing=BS;};
-  void SetGenerateErrorScalars(int GES){GenerateErrorScalars=GES;};
-  void SetGenerateErrorVectors(int GEV){GenerateErrorVectors=GEV;};
+  void SetConvergence( double C ) { Convergence=C; };
+  void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
+  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
+  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
+  void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
+  void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
+  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
+  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
+  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   
   ///Equivalent of n2c in absolute numbering
   QSet<vtkIdType>    n2c_func(vtkIdType idx);
@@ -242,7 +237,7 @@ public: // methods
   ///Returns the type of the edge [a_node1,a_node2]
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
   ///Returns a vector containing the cells surrounding edge [p1,p2]
-  QVector <vtkIdType> GetEdgeCells(vtkIdType p1, vtkIdType p2);
+  QVector <vtkIdType> getEdgeCells(vtkIdType p1, vtkIdType p2);
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);

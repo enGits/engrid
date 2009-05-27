@@ -203,7 +203,6 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
   };
 };
 
-//TODO: Get the EG_BUG error again and figure out where it came from
 stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
 {
   stencil_t S;
@@ -244,7 +243,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
       };
     };
     
-    if (!p2) {//failed to place point 2
+    if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
       DualSave("/data1/home/mtaverne/Geometries/simulations/SurfaceTests/abort");
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
@@ -601,38 +600,6 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
     }
   }
   return(N);
-}
-
-//TODO: Remove or finish??? Could be put into geometrytools.
-//Function to check if empty volumes appear when moving DeadNode tp PSP
-bool Operation::EmptyVolume(vtkIdType DeadNode, vtkIdType PSP)
-{
-  c2c[DeadNode];
-  c2c[PSP];
-  return(true);
-}
-
-//TODO: Could be put into geometrytools.
-vec3_t Operation::GetCenter(vtkIdType cellId, double& R)
-{
-  vtkIdType *pts, Npts;
-  grid->GetCellPoints(cellId, Npts, pts);
-  
-  vec3_t x(0,0,0);
-  for (vtkIdType i = 0; i < Npts; ++i) {
-    vec3_t xp;
-    grid->GetPoints()->GetPoint(pts[i], xp.data());
-    x += double(1)/Npts * xp;
-  };
-  
-  R = 1e99;
-  for (vtkIdType i = 0; i < Npts; ++i) {
-    vec3_t xp;
-    grid->GetPoints()->GetPoint(pts[i], xp.data());
-    R = min(R, 0.25*(xp-x).abs());
-  };
-  
-  return(x);
 }
 
 bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
@@ -1566,7 +1533,7 @@ char Operation::getNodeType(vtkIdType a_node)
   return(type);
 }
 
-QVector <vtkIdType> Operation::GetEdgeCells(vtkIdType p1, vtkIdType p2)
+QVector <vtkIdType> Operation::getEdgeCells(vtkIdType p1, vtkIdType p2)
 {
   QSet <vtkIdType> S1=n2c_func(p1);
   QSet <vtkIdType> S2=n2c_func(p2);
@@ -1587,7 +1554,7 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
     //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
-  QVector <vtkIdType> neighbour_cells = GetEdgeCells(a_node1,a_node2);
+  QVector <vtkIdType> neighbour_cells = getEdgeCells(a_node1,a_node2);
   int numNei = neighbour_cells.size() - 1;
 //     cout<<"numNei="<<numNei<<endl;
   

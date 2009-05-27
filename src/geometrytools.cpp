@@ -407,4 +407,37 @@ double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2)
   return(u1*u2);
 }
 
+//TODO: Could be put into geometrytools.
+vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, double& Rmax)
+{
+  vtkIdType *pts, Npts;
+  grid->GetCellPoints(cellId, Npts, pts);
+  if(Npts<=0) {
+    cout<<"FATAL ERROR: Npts<=0"<<endl;
+    abort();
+  }
+  
+  //calculate center position
+  vec3_t xc(0,0,0);
+  for (vtkIdType i = 0; i < Npts; ++i) {
+    vec3_t xp;
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    xc += xp;
+  };
+  xc = 1.0/(double)Npts * xc;
+  
+  //calculate Rmin+Rmax
+  vec3_t xp;
+  grid->GetPoints()->GetPoint(pts[0], xp.data());
+  Rmin = 0.25*(xp-xc).abs();
+  Rmax = 0.25*(xp-xc).abs();
+  for (vtkIdType i = 1; i < Npts; ++i) {
+    grid->GetPoints()->GetPoint(pts[i], xp.data());
+    Rmin = min(Rmin, 0.25*(xp-xc).abs());
+    Rmax = max(Rmax, 0.25*(xp-xc).abs());
+  };
+  
+  return(xc);
+}
+
 } // namespace

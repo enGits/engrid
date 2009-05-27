@@ -60,7 +60,7 @@ public: // methods
   void SetMaxRatio(double mr)  { max_ratio  = mr ; Modified(); };
   void SetMaxLength(double ml) { max_length = ml ; Modified(); };
   
-  int GetNumEliminated() { return N_eliminated; };
+  int getNumEliminated() { return N_eliminated; };
   
 protected: // methods
   
