@@ -279,14 +279,10 @@ int InsertPoints::insert_EP_all()
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   
-  int l_N_points=grid->GetNumberOfPoints();
-  int l_N_cells=grid->GetNumberOfCells();
   int l_N_newpoints=0;
   int l_N_newcells=0;
   
   cout<<"===insert_EP_counter() START==="<<endl;
-    
-  int l_N_inserted_EP=0;
     
   QVector <int> l_marked_cells(m_SelectedCells.size());
   QVector <stencil_t> l_StencilVector(m_SelectedCells.size());
@@ -304,62 +300,34 @@ int InsertPoints::insert_EP_all()
         if(m_bcs.contains(bc2)) {
           l_marked_cells[m_SelectedCells.indexOf(S.id_cell2)]=2;
         }
-        l_N_inserted_EP++;
+        l_N_newpoints++;
+        if(S.valid) {
+          l_N_newcells+=2;
+        }
+        else {
+          l_N_newcells+=1;
+        }
       }
     }
   }
   
+  //init grid_tmp
+  int l_N_points=grid->GetNumberOfPoints();
+  int l_N_cells=grid->GetNumberOfCells();
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
+  makeCopyNoAlloc(grid, grid_tmp);
+  
+  //initialize new node counter
+  m_newNodeId=l_N_points;
+  
+  for(int i=0;i<m_SelectedCells.size();i++) {
+    if(l_marked_cells[i]==1) {
+      stencil_t S = l_StencilVector[i];
+    }
+  }
   
   /*  
-    m_StencilVector.clear();
-    QMapIterator< pair<vtkIdType,vtkIdType>, vtkIdType> m_edge_map_iter(m_edge_map);
-      //rewind the iterator
-    m_edge_map_iter.toFront ();
-      //start loop
-    while (m_edge_map_iter.hasNext()) {
-      m_edge_map_iter.next();
-      vtkIdType node1=m_edge_map_iter.key().first;
-      vtkIdType node2=m_edge_map_iter.key().second;
-      QSet <vtkIdType> stencil_cells_set;
-      stencil_cells_set=n2c_func(node1);
-      stencil_cells_set.intersect(n2c_func(node2));
-      
-      QVector <int> stencil_cells_vector;
-      stencil_cells_vector.resize(stencil_cells_set.size());
-      qCopy(stencil_cells_set.begin(),stencil_cells_set.end(),stencil_cells_vector.begin());
-      
-      vtkIdType id_cell=stencil_cells_vector[0];
-      int SideToSplit = getSide(id_cell,grid,node1,node2);
-      stencil_t S=getStencil(id_cell,SideToSplit,false);
-      
-      bool stencil_marked=false;
-      foreach(vtkIdType C,stencil_cells_vector)
-      {
-        if(m_marked_cells[C]) stencil_marked=true;
-      }
-      
-      if( !stencil_marked && insert_edgepoint(node1,node2) )
-      {
-        l_N_inserted_EP++;
-        foreach(vtkIdType C,stencil_cells_vector) m_marked_cells[C]=true;
-      ///@@@  TODO: Optimize
-        m_StencilVector.push_back(S);
-        
-        if(stencil_cells_vector.size()==2)//2 cells around the edge
-        {
-          l_N_newcells+=2;
-          l_N_newpoints+=1;
-        }
-        else//1 cell around the edge
-        {
-          l_N_newcells+=1;
-          l_N_newpoints+=1;
-        }
-      }
-    }//end of loop through edges
-    
-    cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-    cout<<"===insert_EP_counter() END==="<<endl;
   
     //init grid_tmp
   l_N_points=grid->GetNumberOfPoints();
