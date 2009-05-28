@@ -187,6 +187,12 @@ public: // methods
   ///The same for boundary codes!
   bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
   
+  /**
+   * Returns a QSet containing neighbour points to which the point Boss can snap.
+   * This is used for moving/removing boundary/feature edge vertices without destroying the geometry.
+   */
+  QSet <vtkIdType> GetPotentialSnapPoints(vtkIdType Boss);
+  
   int UpdateCurrentMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();
