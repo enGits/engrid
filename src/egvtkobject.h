@@ -526,8 +526,23 @@ protected: // methods
    */
   BoundaryCondition getBC(int bc);
   
+  /**
+   * Save the subgrid defined by cls from grid.
+   * @param grid The source grid
+   * @param cls The cells to extract
+   * @param file_name The file to save to
+   */
   template <class T>
   void writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name);
+  
+  /**
+   * Get the SubGrid defined by cls from grid. The function takes care of allocation for SubGrid.
+   * @param grid The source grid
+   * @param cls The cells to extract
+   * @param SubGrid The SubGrid to create 
+   */
+  template <class T>
+  void getSubGrid(vtkUnstructuredGrid *grid, const T &cls, vtkUnstructuredGrid *SubGrid);
   
 public: // methods
   
@@ -567,26 +582,25 @@ void EgVtkObject::vectorIntersection(const QVector<T> &set1,
 };
 
 template <class T>
-void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name)
+void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const T &cls, vtkUnstructuredGrid *SubGrid)
 {
   createIndices(grid);
-  EG_VTKSP(vtkUnstructuredGrid,tmp_grid);
   QVector<vtkIdType> cells;
   QVector<vtkIdType> nodes;
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
   getNodesFromCells(cells, nodes, grid);
-  allocateGrid(tmp_grid, cells.size(), nodes.size());
+  allocateGrid(SubGrid, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
   QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     grid->GetPoint(id_node, x.data());
-    tmp_grid->GetPoints()->SetPoint(id_new_node, x.data());
+    SubGrid->GetPoints()->SetPoint(id_new_node, x.data());
     old2new[id_node] = id_new_node;
-    copyNodeData(grid, id_node, tmp_grid, id_new_node);
+    copyNodeData(grid, id_node, SubGrid, id_new_node);
     ++id_new_node;
-  };
+  }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
@@ -595,15 +609,23 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
     for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
       new_pts[i_pts] = old2new[pts[i_pts]];
     };
-    vtkIdType id_new_cell = tmp_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
-    copyCellData(grid, id_cell, tmp_grid, id_new_cell);
-  };
+    vtkIdType id_new_cell = SubGrid->InsertNextCell(type_cell, N_pts, new_pts.data());
+    copyCellData(grid, id_cell, SubGrid, id_new_cell);
+  }
+}
+
+template <class T>
+void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name)
+{
+  EG_VTKSP(vtkUnstructuredGrid,SubGrid);
+  getSubGrid(grid,cls,SubGrid);
+  
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   vtu->SetFileName(file_name.toAscii().data());
   vtu->SetDataModeToBinary();
-  vtu->SetInput(tmp_grid);
+  vtu->SetInput(SubGrid);
   vtu->Write();
-};
+}
 
   /**
    * Utility function that allows printing selected data from an vtkUnstructuredGrid to any ostream (includes ofstream objects)

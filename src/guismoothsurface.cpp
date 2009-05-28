@@ -225,7 +225,7 @@ void GuiSmoothSurface::before()
   ui.SmoothMethod->addItem("Method 12: Delete all possible points :)");
   ui.SmoothMethod->addItem("Method 13: Delete selected points");
   ui.SmoothMethod->addItem("Method 14: Update current mesh density + node types v2");
-  ui.SmoothMethod->addItem("Method 15");
+  ui.SmoothMethod->addItem("Method 15: Projection test");
   ui.SmoothMethod->addItem("Method 16");
   ui.SmoothMethod->addItem("Method 17");
   ui.SmoothMethod->addItem("Method 18");
@@ -1171,6 +1171,40 @@ void GuiSmoothSurface::operate()
     UpdateNodeType();
     updateActors();
   }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==15)// Projection test
+  {
+    //What we project on
+    QSet<int> bcs_Source;
+    getSelectedItems(ui.listWidget_Source, bcs_Source);
+    
+    //What we project
+    QSet<int> bcs_Dest;
+    getSelectedItems(ui.listWidget, bcs_Dest);
+    
+    EG_VTKSP(vtkUnstructuredGrid,grid_Source);
+    getSurfaceCells(bcs_Source, cells, grid);
+    getSubGrid(grid,cells,grid_Source);
+    writeCells(grid,cells,GuiMainWindow::pointer()->getFilePath()+"Source.vtu");
+    setSource(grid_Source);
+    
+    EG_VTKSP(vtkUnstructuredGrid,grid_Dest);
+    makeCopy(grid,grid_Dest);
+    getSurfaceCells(bcs_Dest, cells, grid_Dest);
+    setCells(cells);
+    
+    foreach(vtkIdType id_node,nodes) {
+      vec3_t M;
+      grid_Dest->GetPoint(id_node,M.data());
+      M = project(M);
+      grid_Dest->GetPoints()->SetPoint(id_node,M.data());
+    }
+    
+    makeCopy(grid_Dest,grid);
+    
+    updateActors();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
   else
   {
     cout<<"UNKNOWN METHOD"<<endl;
