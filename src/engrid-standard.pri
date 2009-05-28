@@ -119,9 +119,6 @@ vertexdelegate.h \
 vertexmeshdensity.h \
 smoothingutilities.h \
 settingssheet.h \
-vtkeggridsmoother.h \
-vtkeggridsmoothpolydatafilter.h \
-vtkeggridwindowedsincpolydatafilter.h \
 laplacesmoother.h \
 deletepickedpoint.h \
 text3d.h \
@@ -204,9 +201,6 @@ vertexdelegate.cpp \
 vertexmeshdensity.cpp \
 smoothingutilities.cpp \
 settingssheet.cpp \
-vtkeggridsmoother.cpp \
-vtkeggridsmoothpolydatafilter.cpp \
-vtkeggridwindowedsincpolydatafilter.cpp \
 laplacesmoother.cpp \
 deletepickedpoint.cpp \
 text3d.cpp \
