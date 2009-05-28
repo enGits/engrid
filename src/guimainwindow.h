@@ -487,6 +487,7 @@ public slots:
   // IMPORTANT: Using EG_STDSLOT sets gui to true, while EG_STDINTERSLOT does not (default is gui = false)
   // This is important to determine whether an operation is a GUI operation or not.
   // If it's a GUI operation, it locks everything.
+  // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window... Why?
   
   void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); }
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); }

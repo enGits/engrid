@@ -898,7 +898,8 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     
     LaplaceSmoother Lap;
-    Lap.SetInput(bcs,this->grid);
+    Lap.setGrid(this->grid);
+    Lap.setBoundaryCodes(bcs);
     Lap.setSource(this->grid);
     Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
     setDebugLevel(ui.spinBox_DebugLevel->value());

@@ -245,8 +245,8 @@ int SurfaceMesher::SmoothFunction()
   
   //laplacian smoothing with projection
   LaplaceSmoother Lap;
-  Lap.setGrid(grid);
-  Lap.SetInput(m_bcs,grid);
+  Lap.setGrid(this->grid);
+  Lap.setBoundaryCodes(m_bcs);
   Lap.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
   Lap.SetNumberOfIterations(N_SmoothIterations);
   Lap();

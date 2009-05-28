@@ -40,19 +40,19 @@ void LaplaceSmoother::operate()
   if(DebugLevel>10) cout<<"LaplaceSmoother reporting in."<<endl;
   
   QVector<vtkIdType> AllCells;
-  getAllSurfaceCells(AllCells, m_grid);
+  getAllSurfaceCells(AllCells, grid);
   QVector<vtkIdType> SelectedCells;
-  getSurfaceCells(m_bcs, SelectedCells, m_grid);
+  getSurfaceCells(m_bcs, SelectedCells, grid);
   
   cout<<"setCells START"<<endl;
   setCells(AllCells);
   cout<<"setCells END"<<endl;
   
   QSet <vtkIdType> SelectedNodes;
-  getSurfaceNodes(m_bcs,SelectedNodes,m_grid);
+  getSurfaceNodes(m_bcs,SelectedNodes,grid);
   
-  EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   int moved_points=0;
   
 /*  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
@@ -70,7 +70,7 @@ void LaplaceSmoother::operate()
         foreach(int id_M,getPotentialSnapPoints(id_G))
         {
           vec3_t M;
-          m_grid->GetPoint(id_M, M.data());
+          grid->GetPoint(id_M, M.data());
           G+=M;
         }
         
@@ -89,11 +89,11 @@ void LaplaceSmoother::operate()
         while(FlippedCells(id_G,P))
         {
           vec3_t x0_old;
-          m_grid->GetPoint(id_G, x0_old.data());
+          grid->GetPoint(id_G, x0_old.data());
           P=x0_old+0.5*(P-x0_old);
         };
         
-        m_grid->GetPoints()->SetPoint(id_G, P.data());
+        grid->GetPoints()->SetPoint(id_G, P.data());
         
         moved_points++;
       }
@@ -104,29 +104,29 @@ void LaplaceSmoother::operate()
   
   if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
-  if(DebugLevel>10) cout_grid(cout,m_grid);
+  if(DebugLevel>10) cout_grid(cout,grid);
   
 }
 
 bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
 {
   vec3_t x0_old, x0_new;
-  m_grid->GetPoint(id_G, x0_old.data());
+  grid->GetPoint(id_G, x0_old.data());
   x0_new=P;
   
 //   cout_grid(cout,grid,true,true,true,true);
   foreach(vtkIdType id_cell,n2c_func(id_G))
   {
     vtkIdType N_pts, *pts;
-    m_grid->GetCellPoints(id_cell, N_pts, pts);
+    grid->GetCellPoints(id_cell, N_pts, pts);
     int i;
     for(i=0;i<N_pts;i++)
     {
       if(pts[i]==id_G) break;
     }
     vec3_t x2, x3;
-    m_grid->GetPoint(pts[(i+1)%N_pts], x2.data());
-    m_grid->GetPoint(pts[(i+2)%N_pts], x3.data());
+    grid->GetPoint(pts[(i+1)%N_pts], x2.data());
+    grid->GetPoint(pts[(i+2)%N_pts], x3.data());
 //     cout<<"Testing cell "<<id_cell<<": x0="<<id_G<<" x2="<<pts[(i+1)%N_pts]<<" x3="<<pts[(i+2)%N_pts]<<endl;
     vec3_t v2_old=x2-x0_old;
     vec3_t v3_old=x3-x0_old;
