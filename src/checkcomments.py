@@ -27,8 +27,8 @@ for i in range(1,len(sys.argv)):
   while line:
     tline = trimline(line)
     if tline[0:6] == '///@@@':
-      if not conti:
-        print
+#      if not conti:
+#        print
       print fileinfo(sys.argv[i],ln) + ':' + tline[6:len(tline)-1]
       conti = True
     else:
