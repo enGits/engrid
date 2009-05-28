@@ -210,7 +210,10 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
 
 stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
 {
-  if(grid->GetCellType(id_cell1)!=VTK_TRIANGLE) EG_BUG;
+  if(grid->GetCellType(id_cell1)!=VTK_TRIANGLE) {
+    cout<<"CELL IS NOT A TRIANGLE"<<endl;
+    EG_BUG;
+  }
   
   //return variable
   stencil_t S;
@@ -1429,6 +1432,7 @@ char Operation::getNodeType(vtkIdType a_node)
   return(type);
 }
 
+///@@@ TODO: Make it return the size of the vector and pass the vector by reference instead
 QVector <vtkIdType> Operation::getEdgeCells(vtkIdType p1, vtkIdType p2)
 {
 //   cout<<"p1="<<p1<<endl;

@@ -54,6 +54,7 @@ class GuiMainWindow;
 #include "egvtkobject.h"
 #include "boundarycondition.h"
 #include "volumedefinition.h"
+#include "checksurfaceintegrity.h"
 
 #include "std_includes.h"
 #include "guitransform.h"
@@ -499,6 +500,7 @@ public slots:
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }
   void callBoxSelect() { EG_STDINTERSLOT(BoxSelect); }
+  void callCheckSurfaceIntegrity() { EG_STDINTERSLOT(CheckSurfaceIntegrity); }
   void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
   void callTransform() { EG_STDINTERSLOT(GuiTransform); }
   

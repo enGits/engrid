@@ -72,15 +72,16 @@ void SwapTriangles::operate()
     N_swaps = 0;
     setAllSurfaceCells();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    
+    //for debugging
     QString num1, num2;
     QString str;
     num1.setNum(nStatic_SwapTriangles);
     num2.setNum(loop);
-    str += GuiMainWindow::pointer()->getFilePath() + "marked_cells_";
-    str += num1 + "_";
-    str += num2 + ".vtu";
-    cout<<"loop="<<loop<<endl;
+    str = GuiMainWindow::pointer()->getFilePath() + "marked_cells_" + num1 + "_" + num2 + ".vtu";
+    cout<<"nStatic_SwapTriangles="<<nStatic_SwapTriangles<<" loop="<<loop<<endl;
     writeCells(grid,cells,str);
+    
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
       if (!boundary_codes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell)==VTK_TRIANGLE) {//if it is a selected triangle
@@ -137,7 +138,10 @@ void SwapTriangles::operate()
                 }//end of if l_marked
               }//end of if TestSwap
             }//end of S valid
-            else EG_BUG;
+            if( ! ( S.twocells && S.neighbour_type==VTK_TRIANGLE ) ) {
+              cout<<"INVALID STENCIL"<<endl;
+              EG_BUG;
+            }
             
             if (swap) {
               l_marked[_cells[S.id_cell1]] = true;

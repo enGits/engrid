@@ -397,6 +397,10 @@ int InsertPoints::insert_EP_all()
         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(newCellId, bc1);
       }
+      else {
+        cout<<"I DON'T KNOW HOW TO SPLIT THIS CELL!!!"<<endl;
+        EG_BUG;
+      }
       
       //increment ID
       l_newNodeId++;
