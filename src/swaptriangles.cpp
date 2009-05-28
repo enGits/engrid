@@ -176,6 +176,8 @@ void SwapTriangles::operate()
               ++N_swaps;
               ++N_total;
               
+              //for debugging
+              /*
               CheckSurfaceIntegrity check_surface_integrity;
               check_surface_integrity.setGrid(grid);
               bool WaterTight = check_surface_integrity.isWaterTight();
@@ -196,6 +198,7 @@ void SwapTriangles::operate()
                 
                 EG_BUG;
               }
+              */
               
               break;
             }//end of if swap
