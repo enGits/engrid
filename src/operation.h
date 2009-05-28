@@ -61,7 +61,6 @@ struct stencil_t {
   vtkIdType id_cell1;
   vtkIdType id_cell2;
   vtkIdType p[4];
-  bool valid;//deprecated, only used for swaptriangles (valid = twocells && sameBC && neighbour_type==VTK_TRIANGLE)
   bool sameBC;//do both cells have the same BCs?
   bool twocells;//Do we have 2 cells?
   char neighbour_type;//What's the type of the neighbour cell?

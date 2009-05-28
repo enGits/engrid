@@ -216,7 +216,6 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
   stencil_t S;
   
   //default values:
-  S.valid = false;
   S.sameBC = false;
   S.twocells = false;
   S.neighbour_type = -1;
@@ -277,18 +276,16 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
         cout<<"S.id_cell1="<<S.id_cell1<<endl;
         cout<<"S.id_cell2="<<S.id_cell2<<endl;
         createNodeToCell(cells, nodes, _nodes, n2c, grid);
-        QVector <vtkIdType> vec13 = getEdgeCells(S.p[1],S.p[3]);
+/*        QVector <vtkIdType> vec13 = getEdgeCells(S.p[1],S.p[3]);
         QVector <vtkIdType> vec02 = getEdgeCells(S.p[0],S.p[2]);
         cout<<"vec13="<<vec13<<endl;
-        cout<<"vec02="<<vec02<<endl;
+        cout<<"vec02="<<vec02<<endl;*/
         EG_BUG;
       }
     }
     
   }//end of if neighbour cell
   
-  //valid
-  S.valid = S.twocells && S.sameBC && S.neighbour_type==VTK_TRIANGLE;
   return S;
 }
 
@@ -296,7 +293,9 @@ ostream& operator<<(ostream &out, stencil_t S)
 {
   out<<"S.id_cell1="<<S.id_cell1<<" ";
   out<<"S.id_cell2="<<S.id_cell2<<" ";
-  out<<"S.valid="<<S.valid<<" ";
+  out<<"S.sameBC="<<S.sameBC<<" ";
+  out<<"S.twocells="<<S.twocells<<" ";
+  out<<"S.neighbour_type="<<S.neighbour_type<<" ";
   out<<"[";
   for(int i=0;i<4;i++){
     out<<S.p[i];
@@ -1432,12 +1431,12 @@ char Operation::getNodeType(vtkIdType a_node)
 
 QVector <vtkIdType> Operation::getEdgeCells(vtkIdType p1, vtkIdType p2)
 {
-  cout<<"p1="<<p1<<endl;
-  cout<<"p2="<<p2<<endl;
+//   cout<<"p1="<<p1<<endl;
+//   cout<<"p2="<<p2<<endl;
   QSet <vtkIdType> S1=n2c_func(p1);
   QSet <vtkIdType> S2=n2c_func(p2);
   S2.intersect(S1);
-  cout<<"S2="<<S2<<endl;
+//   cout<<"S2="<<S2<<endl;
   return Set2Vector(S2,false);
 }
 

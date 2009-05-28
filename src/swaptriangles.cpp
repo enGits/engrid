@@ -83,12 +83,12 @@ void SwapTriangles::operate()
     writeCells(grid,cells,str);
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
-      if (!boundary_codes.contains(cell_code->GetValue(id_cell))) {
+      if (!boundary_codes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell)==VTK_TRIANGLE) {//if it is a selected triangle
         if (!l_marked[_cells[id_cell]]) {
           for (int j = 0; j < 3; ++j) {
             bool swap = false;
             stencil_t S = getStencil(id_cell, j);
-            if (S.valid) {
+            if(S.twocells && S.sameBC && S.neighbour_type==VTK_TRIANGLE) {
               if( ! isEdge(S.p[0],S.p[2]) ) {
                 if (!l_marked[_cells[S.id_cell2]]) {
                   vec3_t x3[4], x3_0(0,0,0);
@@ -137,6 +137,8 @@ void SwapTriangles::operate()
                 }//end of if l_marked
               }//end of if TestSwap
             }//end of S valid
+            else EG_BUG;
+            
             if (swap) {
               l_marked[_cells[S.id_cell1]] = true;
               l_marked[_cells[S.id_cell2]] = true;
@@ -167,9 +169,10 @@ void SwapTriangles::operate()
               ++N_total;
               break;
             }//end of if swap
+            
           }//end of loop through sides
         }//end of if marked
-      }//end of if selected
+      }//end of if selected triangle
     }//end of loop through cells
     ++loop;
   } while ((N_swaps > 0) && (loop <= 20));
