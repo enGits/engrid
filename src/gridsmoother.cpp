@@ -53,7 +53,7 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "relative height of boundary layer", 1.5, H);
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
   
-};
+}
 
 void GridSmoother::markNodes()
 {
@@ -72,26 +72,26 @@ void GridSmoother::markNodes()
         for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
           if (node_marked[pts[i_pts]]) {
             mark_cell = true;
-          };
-        };
-      };
+          }
+        }
+      }
       if (mark_cell) {
         for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
           new_mark[pts[i_pts]] = true;
-        };
-      };
-    };
+        }
+      }
+    }
     qCopy(new_mark.begin(),new_mark.end(),node_marked.begin());
-  };
+  }
   N_marked_nodes = 0;
   foreach (vtkIdType id_node, nodes) {
     if (id_node < 0) EG_BUG;
     if (id_node > grid->GetNumberOfPoints()) EG_BUG;
     if (node_marked[id_node]) {
       ++N_marked_nodes;
-    };
-  };
-};
+    }
+  }
+}
 
 bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 {
@@ -110,8 +110,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       if (GeometryTools::cellVA(grid, id_cell) < 0) {
         move = false;
         //if (dbg) cout << id_node << " : tetra negative" << endl;
-      };
-    };
+      }
+    }
     if (type_cell == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
       vec3_t xtet[4];
@@ -122,26 +122,26 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
         for (int j = 0; j < 3; ++j) {   // tetrahedron
           for (int k = 0; k < 4; ++k) { // node
             grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
-          };
+          }
           if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
             ok = false;
             //if (dbg) cout << id_node << " : prism negative" << endl;
-          };
-        };
+          }
+        }
         if (ok) {
           break;
-        };
-      };
+        }
+      }
       if (!ok) {
         move = false;
-      };
-    };
-  };
+      }
+    }
+  }
   if (!move) {
     grid->GetPoints()->SetPoint(id_node, x_old.data());
-  };
+  }
   return move;
-};
+}
 
 void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 {
@@ -153,7 +153,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
           vec3_t n = GeometryTools::cellNormal(grid, id_cell);
           n.normalise();
           Dx -= (n*Dx)*n;
-        };
+        }
       } else {
         if (grid->GetCellType(id_cell) == VTK_WEDGE) {
           vtkIdType N_pts, *pts;
@@ -181,13 +181,13 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
               x_new += 1e-4*L*n;
               x_new += x0;
               Dx = x_new - x_old;
-            };
-          };
-        };
-      };
-    };
-  };
-};
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 {
@@ -199,11 +199,11 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
     if (setNewPosition(id_node, x_old + Dx)) {
       moved = true;
       break;
-    };
+    }
     Dx *= 0.5;
-  };
+  }
   return moved;
-};
+}
 
 double GridSmoother::errThickness(double x) 
 {
@@ -224,7 +224,7 @@ double GridSmoother::errThickness(double x)
     cout << (X[i+1]-X[i]) << endl;
     cout << (Y[i+1]-Y[i]) << endl;
     EG_BUG;
-  };
+  }
   */
   
   if (x > 1) x = 2 - x;
@@ -235,7 +235,7 @@ double GridSmoother::errThickness(double x)
   else if (x < 1) err = 1/(a*x+delta) - 1.0/(a+delta);
     
   return err;
-};
+}
 
 double GridSmoother::func(vec3_t x)
 {
@@ -271,7 +271,7 @@ double GridSmoother::func(vec3_t x)
       QVector<vec3_t> xn(N_pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         grid->GetPoint(pts[i_pts],xn[i_pts].data());
-      };
+      }
       if (type_cell == VTK_TETRA) {
         double L = 0;
         L += (xn[0]-xn[1]).abs();
@@ -286,7 +286,7 @@ double GridSmoother::func(vec3_t x)
         double e = sqr((V1-V2)/V2);
         f += w_tet*e;
         err_tet->SetValue(id_cell,e);
-      };
+      }
       if (type_cell == VTK_WEDGE) {
         double L = 0;
         L += (xn[0]-xn[1]).abs();
@@ -314,19 +314,19 @@ double GridSmoother::func(vec3_t x)
         double A2 = 0.5*n_face[1].abs();
         for (int i_face = 0; i_face < 5; ++i_face) {
           n_face[i_face].normalise();
-        };
+        }
         if (nodes[i_nodes_opt] == pts[3]) {
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
-        };
+        }
         if (nodes[i_nodes_opt] == pts[4]) {
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
-        };
+        }
         if (nodes[i_nodes_opt] == pts[5]) {
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
-        };
+        }
         vec3_t v0 = xn[0]-xn[3];
         vec3_t v1 = xn[1]-xn[4];
         vec3_t v2 = xn[2]-xn[5];
@@ -351,7 +351,7 @@ double GridSmoother::func(vec3_t x)
           
           f += w_h*e;
           err_pria->SetValue(id_cell,0);
-        };
+        }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           v0.normalise();
           v1.normalise();
@@ -363,17 +363,17 @@ double GridSmoother::func(vec3_t x)
           f += w_par*e2;
           f += w_par*e3;
           err_pric->SetValue(id_cell,f13*(e1+e2+e3));
-        };
+        }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e = (1+n_face[0]*n_face[1]);
           f += w_n*e;
           err_prib->SetValue(id_cell,e);
-        };
+        }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e = sqr((A1-A2)/(A1+A2));
           f += w_A*e;
           err_prid->SetValue(id_cell,e);
-        };
+        }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e_skew = 0;
           double e_orth = 0;
@@ -391,15 +391,15 @@ double GridSmoother::func(vec3_t x)
                 e_skew += (1-vc*vf);
                 e_orth += (1-vc*n_face[i_face]);
                 ++N;
-              };
-            };
-          };
+              }
+            }
+          }
           e_skew /= N;
           e_orth /= N;
           f += w_skew*e_skew + w_orth*e_orth;
           err_prie->SetValue(id_cell,e_skew);
           err_prif->SetValue(id_cell,e_orth);
-        };
+        }
         
         double f_sharp2 = 0;
         for (int j = 2; j <= 4; ++j) {
@@ -411,33 +411,33 @@ double GridSmoother::func(vec3_t x)
               QVector<vec3_t> x(3);
               for (int i_pts = 3; i_pts <= 5; ++i_pts) {
                 grid->GetPoint(pts[i_pts],x[i_pts-3].data());
-              };
+              }
               vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
               n.normalise();
               f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
-            };            
-          };
-        };
+            }
+          }
+        }
         f += w_sharp2*f_sharp2;
-      };
-    };
-  };
+      }
+    }
+  }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
   {
     double f_sharp1 = 0;
     foreach (vec3_t n, n_pri) {
       f_sharp1 += pow(fabs(1-n_node*n), e_sharp1);
-    };
+    }
     f += w_sharp1*f_sharp1;
-  };
+  }
   return f;
-};
+}
 
 void GridSmoother::resetStencil()
 {
   stencil.clear();
-};
+}
 
 void GridSmoother::addToStencil(double C, vec3_t x)
 {
@@ -445,7 +445,7 @@ void GridSmoother::addToStencil(double C, vec3_t x)
   sn.x = x;
   sn.C = C;
   stencil.append(sn);
-};
+}
 
 void GridSmoother::operate()
 {
@@ -463,18 +463,18 @@ void GridSmoother::operate()
       grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         n2bc[_nodes[pts[i_pts]]].insert(bc->GetValue(id_cell));
-      };
-    };
+      }
+    }
     if (grid->GetCellType(id_cell) == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         if (_nodes[pts[i_pts]] != -1) {
           prism_node[_nodes[pts[i_pts]]] = true;
-        };
-      };
-    };
-  };
+        }
+      }
+    }
+  }
   
   F_old = 0;
   F_max_old = 0;
@@ -487,8 +487,8 @@ void GridSmoother::operate()
       double f = func(x);
       F_old += f;
       F_max_old = max(F_max_old,f);
-    };
-  };
+    }
+  }
   setAllWeighting();
   
   cout << "\nsmoothing volume mesh (" << N_marked_nodes << " nodes)" << endl;
@@ -508,15 +508,15 @@ void GridSmoother::operate()
         foreach (int bc, n2bc[i_nodes]) {
           if (boundary_codes.contains(bc) || (boundary_codes.size() ==0)) {
             smooth = false;
-          };
-        };
+          }
+        }
         foreach (int i_cells, n2c[i_nodes]) {
           vtkIdType type_cell = grid->GetCellType(cells[i_cells]);
           if ((type_cell == VTK_WEDGE) && !smooth_prisms) {
             smooth = false;
-          };
-        };
-      };
+          }
+        }
+      }
       if (smooth) {
         vtkIdType id_node = nodes[i_nodes];
         vec3_t xn;
@@ -531,11 +531,11 @@ void GridSmoother::operate()
             grid->GetPoint(id_neigh_node, xn.data());
             addToStencil(1.0, xn);
             ++N;
-          };
-        };
+          }
+        }
         if (N == 0) {
           EG_BUG;
-        };
+        }
         vec3_t x_new1 = vec3_t(0,0,0);
         sum_C = 0;
         L0 = 0;
@@ -546,7 +546,7 @@ void GridSmoother::operate()
           double L = (sn.x - x_old).abs();
           L0 += sn.C*L;
           L_min = min(L_min, L);
-        };
+        }
         L0 /= sum_C;
         x_new1 *= 1.0/sum_C;
         vec3_t Dx1 = x_new1 - x_old;
@@ -569,13 +569,13 @@ void GridSmoother::operate()
           _N1 = 0;
           _N2 = 1;
           _N3 = 0;
-        };
+        }
         if (f > func(x_old + Dx3)) {
           Dx = Dx3;
           _N1 = 0;
           _N2 = 0;
           _N3 = 1;
-        };
+        }
         if (!moveNode(i_nodes, Dx)) {
           // search for a better place
           vec3_t x_save = x_old;
@@ -588,7 +588,7 @@ void GridSmoother::operate()
           bool illegal = false;
           if (!setNewPosition(id_node,x_old)) {
             illegal = true;
-          };
+          }
           for (int i = -N_search; i <= N_search; ++i) {
             for (int j = -N_search; j <= N_search; ++j) {
               for (int k = -N_search; k <= N_search; ++k) {
@@ -604,12 +604,12 @@ void GridSmoother::operate()
                       x_best = x;
                       found = true;
                       illegal = false;
-                    };
-                  };
-                };
-              };
-            };
-          };
+                    }
+                  }
+                }
+              }
+            }
+          }
           if (found) {
             grid->GetPoints()->SetPoint(id_node, x_best.data());
             ++N_searched;
@@ -617,15 +617,15 @@ void GridSmoother::operate()
             ++N_blocked;
             if (illegal) {
               ++N_illegal;
-            };
-          };
+            }
+          }
         } else {
           N1 += _N1;
           N2 += _N2;
           N3 += _N3;
-        };
-      };
-    };
+        }
+      }
+    }
         
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
@@ -646,8 +646,8 @@ void GridSmoother::operate()
         double f = func(x);
         F_new += f;
         F_max_new = max(F_max_new,f);
-      };
-    };
+      }
+    }
     setAllWeighting();
     cout << "total prism error (old) = " << F_old << endl;
     cout << "total prism error (new) = " << F_new << endl;
@@ -655,9 +655,9 @@ void GridSmoother::operate()
     double f_max_old = max(1e-10,F_max_old);
     cout << "total prism improvement = " << 100*(1-F_new/f_old) << "%" << endl;
     cout << "maximal prism improvement = " << 100*(1-F_max_new/f_max_old) << "%" << endl;
-  };
+  }
   cout << "done" << endl;
-};
+}
 
 double GridSmoother::improvement()
 {
@@ -666,5 +666,5 @@ double GridSmoother::improvement()
   double f_old = max(1e-10,F_old);
   double i2 = 1-F_new/f_old;
   return max(i1,i2);
-};
+}
 
