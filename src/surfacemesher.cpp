@@ -36,6 +36,9 @@ void SurfaceMesher::operate()
 {
   QTime start = QTime::currentTime();
   
+//   UpdateNodeInfo(true);
+  MeshDensityFunction();
+  
   int i_iter=0;
   ///@@@  TODO:Optimize this loop
   for(i_iter=0;i_iter<NumberOfIterations;i_iter++)
@@ -71,7 +74,7 @@ void SurfaceMesher::operate()
     
     if(insert_FP) {
 //       MeshDensityFunction();
-      UpdateNodeInfo();
+      UpdateNodeInfo(false);
       InsertPoints insert_field_points;
       insert_field_points.setGrid(m_grid);
       insert_field_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
@@ -90,7 +93,7 @@ void SurfaceMesher::operate()
     
     if(insert_EP) {
 //       MeshDensityFunction();
-      UpdateNodeInfo();
+      UpdateNodeInfo(false);
       InsertPoints insert_edge_points;
       insert_edge_points.setGrid(m_grid);
       insert_edge_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
@@ -109,7 +112,7 @@ void SurfaceMesher::operate()
     
     if(remove_FP) {
 //       MeshDensityFunction();
-      UpdateNodeInfo();
+      UpdateNodeInfo(false);
       RemovePoints remove_field_points;
       remove_field_points.setGrid(m_grid);
       remove_field_points.SetBCS(m_bcs);
@@ -126,7 +129,7 @@ void SurfaceMesher::operate()
     
     if(remove_EP) {
 //       MeshDensityFunction();
-      UpdateNodeInfo();
+      UpdateNodeInfo(false);
       RemovePoints remove_edge_points;
       remove_edge_points.setGrid(m_grid);
       remove_edge_points.SetBCS(m_bcs);
@@ -184,15 +187,16 @@ void SurfaceMesher::MeshDensityFunction()
   UpdateNodeType_all();*/
 }
 
-void SurfaceMesher::UpdateNodeInfo()
+void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
 {
   cout<<"=== UpdateNodeInfo START ==="<<endl;
   setAllCells();
   foreach(vtkIdType node,nodes)
   {
-    EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");//node type
-    node_type->SetValue(node, getNodeType(node));
-    
+    if(UpdateType) {
+      EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");//node type
+      node_type->SetValue(node, getNodeType(node));
+    }
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_grid, "node_meshdensity_current");//what we have
     node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
     
@@ -238,7 +242,7 @@ int SurfaceMesher::SwapFunction()
 int SurfaceMesher::SmoothFunction()
 {
   cout<<"=== SmoothFunction START ==="<<endl;
-  UpdateNodeInfo();
+  UpdateNodeInfo(false);
   //Phase F : translate points to smooth grid
   //4 possibilities
   //vtk smooth 1
