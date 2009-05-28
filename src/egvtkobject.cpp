@@ -722,13 +722,6 @@ void EgVtkObject::copyCellData
   EGVTKOBJECT_COPYCELLDATA("vtk_type",      vtkIntArray);
   EGVTKOBJECT_COPYCELLDATA("cell_code",     vtkIntArray);
   EGVTKOBJECT_COPYCELLDATA("cell_index",    vtkLongArray_t);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_tet",  vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_pria", vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_prib", vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_pric", vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_prid", vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_prie", vtkDoubleArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_err_prif", vtkDoubleArray);
 }
 
 #define EGVTKOBJECT_COPYNODEDATA(FIELD,TYPE) \
@@ -800,16 +793,18 @@ void EgVtkObject::createBasicCellFields
   bool                 overwrite
 )
 {
-  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,     vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_code",     vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_index",    vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_tet",  vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_pria", vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_prib", vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_pric", vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_prid", vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_prie", vtkDoubleArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_err_prif", vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,        vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_code",        vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_index",       vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_orientation", vtkIntArray, overwrite);
+
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_tet",  vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_pria", vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_prib", vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_pric", vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_prid", vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_prie", vtkDoubleArray, overwrite);
+  //EGVTKOBJECT_CREATECELLFIELD("cell_err_prif", vtkDoubleArray, overwrite);
   EGVTKOBJECT_CREATECELLFIELD("cell_VA",       vtkDoubleArray, overwrite);
 }
 
@@ -820,8 +815,8 @@ void EgVtkObject::createBasicNodeFields
   bool                 overwrite
 )
 {
-  EGVTKOBJECT_CREATENODEFIELD("node_status",               vtkIntArray,    overwrite);
-  EGVTKOBJECT_CREATENODEFIELD("node_layer",                vtkIntArray,    overwrite);
+  //EGVTKOBJECT_CREATENODEFIELD("node_status",               vtkIntArray,    overwrite);
+  //EGVTKOBJECT_CREATENODEFIELD("node_layer",                vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_index",                vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_specified_density",    vtkIntArray,    overwrite); //density index from table
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
