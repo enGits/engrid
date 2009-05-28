@@ -76,22 +76,13 @@ void SwapTriangles::operate()
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     
     //for debugging
-    QString num1, num2;
+/*    QString num1, num2;
     QString str;
     num1.setNum(nStatic_SwapTriangles);
     num2.setNum(loop);
     str = GuiMainWindow::pointer()->getFilePath() + "marked_cells_" + num1 + "_" + num2 + ".vtu";
     cout<<"nStatic_SwapTriangles="<<nStatic_SwapTriangles<<" loop="<<loop<<endl;
-    writeCells(grid,cells,str);
-    
-    CheckSurfaceIntegrity check_surface_integrity;
-    check_surface_integrity.setGrid(grid);
-    bool WaterTight = check_surface_integrity.isWaterTight();
-    if(!WaterTight) {
-      cout<<"NOT WATERTIGHT! Nmin="<<check_surface_integrity.getNmin()<<" Nmax="<<check_surface_integrity.getNmax()<<endl;
-      DualSave(GuiMainWindow::pointer()->getFilePath()+"NotWaterTight");
-      EG_BUG;
-    }
+    writeCells(grid,cells,str);*/
     
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
@@ -149,28 +140,23 @@ void SwapTriangles::operate()
                 }//end of if l_marked
               }//end of if TestSwap
             }//end of S valid
-            if( ! ( S.twocells && S.neighbour_type==VTK_TRIANGLE ) ) {
+/*            if( ! ( S.twocells && S.neighbour_type==VTK_TRIANGLE ) ) {
               cout<<"INVALID STENCIL"<<endl;
               EG_BUG;
-            }
+            }*/
             
             if (swap) {
+//               cout<<"swapping cells "<<S.id_cell1<<" and "<<S.id_cell2<<endl;
+              
               l_marked[_cells[S.id_cell1]] = true;
               l_marked[_cells[S.id_cell2]] = true;
-              if (c2c[_cells[S.id_cell1]][0] != -1) {
-                l_marked[c2c[_cells[S.id_cell1]][0]] = true;
-              } else if (c2c[_cells[S.id_cell1]][1] != -1) {
-                l_marked[c2c[_cells[S.id_cell1]][1]] = true;
-              } else if (c2c[_cells[S.id_cell1]][2] != -1) {
-                l_marked[c2c[_cells[S.id_cell1]][2]] = true;
-              };
-              if (c2c[_cells[S.id_cell2]][0] != -1) {
-                l_marked[c2c[_cells[S.id_cell2]][0]] = true;
-              } else if (c2c[_cells[S.id_cell2]][1] != -1) {
-                l_marked[c2c[_cells[S.id_cell2]][1]] = true;
-              } else if (c2c[_cells[S.id_cell2]][2] != -1) {
-                l_marked[c2c[_cells[S.id_cell2]][2]] = true;
-              };
+              
+              for(int i=0;i<4;i++) {
+                foreach(int i_neighbour,n2c[S.p[i]]) {
+                  l_marked[i_neighbour] = true;
+                }
+              }
+              
               vtkIdType new_pts1[3], new_pts2[3];
               new_pts1[0] = S.p[1];
               new_pts1[1] = S.p[2];
@@ -178,10 +164,39 @@ void SwapTriangles::operate()
               new_pts2[0] = S.p[2];
               new_pts2[1] = S.p[3];
               new_pts2[2] = S.p[0];
+              vtkIdType old_pts1[3], old_pts2[3];
+              old_pts1[0] = S.p[0];
+              old_pts1[1] = S.p[1];
+              old_pts1[2] = S.p[3];
+              old_pts2[0] = S.p[2];
+              old_pts2[1] = S.p[3];
+              old_pts2[2] = S.p[1];
               grid->ReplaceCell(S.id_cell1, 3, new_pts1);
               grid->ReplaceCell(S.id_cell2, 3, new_pts2);
               ++N_swaps;
               ++N_total;
+              
+              CheckSurfaceIntegrity check_surface_integrity;
+              check_surface_integrity.setGrid(grid);
+              bool WaterTight = check_surface_integrity.isWaterTight();
+              if(!WaterTight) {
+                cout<<"NOT WATERTIGHT! Nmin="<<check_surface_integrity.getNmin()<<" Nmax="<<check_surface_integrity.getNmax()<<endl;
+                cout<<"After swapping cells "<<S.id_cell1<<" and "<<S.id_cell2<<endl;
+                
+                check_surface_integrity();
+                DualSave(GuiMainWindow::pointer()->getFilePath()+"NotWaterTight");
+                QSet <vtkIdType> BadCells = check_surface_integrity.getBadCells();
+                BadCells.insert(S.id_cell1);
+                BadCells.insert(S.id_cell2);
+                writeCells(grid,BadCells,GuiMainWindow::pointer()->getFilePath()+"NotWaterTight_detail_after.vtu");
+                
+                grid->ReplaceCell(S.id_cell1, 3, old_pts1);
+                grid->ReplaceCell(S.id_cell2, 3, old_pts2);
+                writeCells(grid,BadCells,GuiMainWindow::pointer()->getFilePath()+"NotWaterTight_detail_before.vtu");
+                
+                EG_BUG;
+              }
+              
               break;
             }//end of if swap
             
