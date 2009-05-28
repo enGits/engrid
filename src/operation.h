@@ -61,8 +61,12 @@ struct stencil_t {
   vtkIdType id_cell1;
   vtkIdType id_cell2;
   vtkIdType p[4];
-  bool valid;
+  bool valid;//deprecated, only used for swaptriangles (valid = twocells && sameBC && neighbour_type==VTK_TRIANGLE)
+  bool sameBC;//do both cells have the same BCs?
+  bool twocells;//Do we have 2 cells?
+  char neighbour_type;//What's the type of the neighbour cell?
 };
+
 ostream& operator<<(ostream &out, stencil_t S);
 
 /**
@@ -166,7 +170,7 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
-  stencil_t getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC);
+  stencil_t getStencil(vtkIdType id_cell1, int j1);
   
   vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);

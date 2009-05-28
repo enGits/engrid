@@ -282,27 +282,32 @@ int InsertPoints::insert_EP_all()
   //counter
   for(int i=0;i<cells.size();i++) {
     vtkIdType id_cell=cells[i];
-    if(m_bcs.contains(cell_code->GetValue(id_cell))) {
+    if(m_bcs.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell)==VTK_TRIANGLE) {//if selected and triangle cell
       for(int j = 0; j < 3; ++j) {
-        stencil_t S = getStencil(id_cell,j,false);
-        if( l_marked_cells[i]==0 && l_marked_cells[_cells[S.id_cell2]]==0 ) {
-          if( SplitSide(id_cell,j)) {
-            l_StencilVector[i]=S;
-            l_marked_cells[i]=1;
-            if(cells.indexOf(S.id_cell2)>=0) {
+        stencil_t S = getStencil(id_cell,j);
+        if(S.twocells && S.neighbour_type==VTK_TRIANGLE) {
+          if( l_marked_cells[i]==0 && l_marked_cells[_cells[S.id_cell2]]==0 ) {
+            if( SplitSide(id_cell,j)) {
+              l_StencilVector[i]=S;
+              l_marked_cells[i]=1;
               l_marked_cells[_cells[S.id_cell2]]=2;
-            }
-            l_N_newpoints++;
-            if(S.valid) {
+              l_N_newpoints++;
               l_N_newcells+=2;
-            }
-            else {
-              l_N_newcells+=1;
-            }
-          }//end of if SplitSide
-        }//end of if unmarked
+            }//end of if SplitSide
+          }//end of if unmarked
+        }//end of if 2 triangles
+        else if(!S.twocells) {
+          if( l_marked_cells[i]==0 ) {
+            if( SplitSide(id_cell,j)) {
+                l_StencilVector[i]=S;
+                l_marked_cells[i]=1;
+                l_N_newpoints++;
+                l_N_newcells+=1;
+            }//end of if SplitSide
+          }//end of if unmarked
+        }//end of if 1 triangle
       }//end of loop through sides
-    }//end of if selected
+    }//end of if selected and triangle cell
   }//end of counter loop
   
   //initialize grid_tmp
@@ -339,7 +344,7 @@ int InsertPoints::insert_EP_all()
       //add point
       addPoint(grid_tmp,l_newNodeId,M.data(),l_CellLocator);
       
-      if(S.valid){//there is a neighbour cell
+      if(S.twocells && S.neighbour_type==VTK_TRIANGLE){//2 triangles
         //four new triangles
         vtkIdType pts_triangle[4][3];
         for(int i=0;i<4;i++)
@@ -370,7 +375,7 @@ int InsertPoints::insert_EP_all()
 //         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
         cell_code_tmp->SetValue(newCellId, bc1);
       }
-      else{//there is no neighbour cell
+      else if(!S.twocells) {//1 triangle
         //two new triangles
         vtkIdType pts_triangle[2][3];
         pts_triangle[0][0]=S.p[0];

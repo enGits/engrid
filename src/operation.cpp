@@ -208,74 +208,87 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
   }
 }
 
-stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
+stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
 {
+  if(grid->GetCellType(id_cell1)!=VTK_TRIANGLE) EG_BUG;
+  
+  //return variable
   stencil_t S;
-  S.valid = true;
+  
+  //default values:
+  S.valid = false;
+  S.sameBC = false;
+  S.twocells = false;
+  S.neighbour_type = -1;
+  
+  //initialize first cell
   S.id_cell1 = id_cell1;
+  vtkIdType N1, *pts1;
+  grid->GetCellPoints(S.id_cell1, N1, pts1);
+  //place points 0,1,3
+  if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
+  else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
+  else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
+  
+  //initialize second cell
+  S.id_cell2 = -1;
+  S.p[2]=-1;
+  
+  //twocells
   if (c2c[_cells[id_cell1]][j1] != -1) {//if neighbour cell
+    
+    //twocells
+    S.twocells = true;
     S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
-    if (grid->GetCellType(S.id_cell2) != VTK_TRIANGLE) {//if neighbour cell is not a triangle
-      EG_BUG;
-    }
-    vtkIdType N1, N2, *pts1, *pts2;
-    grid->GetCellPoints(S.id_cell1, N1, pts1);
-    grid->GetCellPoints(S.id_cell2, N2, pts2);
     
-    //place points 0,1,3
-    if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
-    else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
+    //sameBC
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    if(cell_code->GetValue(S.id_cell1)==cell_code->GetValue(S.id_cell2)) S.sameBC = true;
     
-    //place point 2
-    bool p2 = false;
-    if (c2c[_cells[S.id_cell2]][0] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][0]] == S.id_cell1) {
-        S.p[2] = pts2[2];
-        p2 = true;
+    //neighbour_type
+    S.neighbour_type = grid->GetCellType(S.id_cell2);
+    if ( S.neighbour_type == VTK_TRIANGLE) {//if neighbour cell is a triangle
+      vtkIdType N2, *pts2;
+      grid->GetCellPoints(S.id_cell2, N2, pts2);
+      
+      //place point 2
+      bool p2 = false;
+      if (c2c[_cells[S.id_cell2]][0] != -1) {
+        if (cells[c2c[_cells[S.id_cell2]][0]] == S.id_cell1) {
+          S.p[2] = pts2[2];
+          p2 = true;
+        }
+      }
+      if (c2c[_cells[S.id_cell2]][1] != -1) {
+        if (cells[c2c[_cells[S.id_cell2]][1]] == S.id_cell1) {
+          S.p[2] = pts2[0];
+          p2 = true;
+        }
+      }
+      if (c2c[_cells[S.id_cell2]][2] != -1) {
+        if (cells[c2c[_cells[S.id_cell2]][2]] == S.id_cell1) {
+          S.p[2] = pts2[1];
+          p2 = true;
+        }
+      }
+      
+      if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
+        DualSave(GuiMainWindow::pointer()->getFilePath()+"abort");
+        cout<<"S.id_cell1="<<S.id_cell1<<endl;
+        cout<<"S.id_cell2="<<S.id_cell2<<endl;
+        createNodeToCell(cells, nodes, _nodes, n2c, grid);
+        QVector <vtkIdType> vec13 = getEdgeCells(S.p[1],S.p[3]);
+        QVector <vtkIdType> vec02 = getEdgeCells(S.p[0],S.p[2]);
+        cout<<"vec13="<<vec13<<endl;
+        cout<<"vec02="<<vec02<<endl;
+        EG_BUG;
       }
     }
-    if (c2c[_cells[S.id_cell2]][1] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][1]] == S.id_cell1) {
-        S.p[2] = pts2[0];
-        p2 = true;
-      }
-    }
-    if (c2c[_cells[S.id_cell2]][2] != -1) {
-      if (cells[c2c[_cells[S.id_cell2]][2]] == S.id_cell1) {
-        S.p[2] = pts2[1];
-        p2 = true;
-      }
-    }
     
-    if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
-      DualSave(GuiMainWindow::pointer()->getFilePath()+"abort");
-      cout<<"S.id_cell1="<<S.id_cell1<<endl;
-      cout<<"S.id_cell2="<<S.id_cell2<<endl;
-      createNodeToCell(cells, nodes, _nodes, n2c, grid);
-      QVector <vtkIdType> vec13 = getEdgeCells(S.p[1],S.p[3]);
-      QVector <vtkIdType> vec02 = getEdgeCells(S.p[0],S.p[2]);
-      cout<<"vec13="<<vec13<<endl;
-      cout<<"vec02="<<vec02<<endl;
-      EG_BUG;
-    }
-    
-    //check that boundary codes are the same
-    if(a_RespectBC){
-      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-      if(cell_code->GetValue(S.id_cell1)!=cell_code->GetValue(S.id_cell2)) S.valid = false;
-    }
-    
-  } else {//if no neighbour cell
-    S.valid = false;
-    S.id_cell2 = -1;
-    vtkIdType N1, *pts1;
-    grid->GetCellPoints(S.id_cell1, N1, pts1);
-    //place points 0,1,3
-    if      (j1 == 0) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
-    else if (j1 == 1) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-    else if (j1 == 2) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; }
-  }
+  }//end of if neighbour cell
+  
+  //valid
+  S.valid = S.twocells && S.sameBC && S.neighbour_type==VTK_TRIANGLE;
   return S;
 }
 

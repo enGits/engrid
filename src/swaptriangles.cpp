@@ -34,6 +34,7 @@ SwapTriangles::SwapTriangles()
   m_FeatureSwap=false;
 }
 
+//selects all triangle cells whose boundary code is NOT in boundary_codes and puts them into "cells"
 void SwapTriangles::prepare()
 {
   getAllCellsOfType(VTK_TRIANGLE, cells, grid);
@@ -53,26 +54,24 @@ void SwapTriangles::prepare()
   createCellMapping(cells, _cells, grid);
   createCellToCell(cells, c2c, grid);
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  marked.resize(cells.size());
+  m_marked.resize(cells.size());
 };
 
 void SwapTriangles::operate()
 {
+  cout << "swapping edges of boundary triangles (Delaunay)" << endl;
+  
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
   nStatic_SwapTriangles++;
   cout << "nStatic_SwapTriangles is " << nStatic_SwapTriangles << endl;
   
-  cout << "swapping edges of boundary triangles (Delaunay)" << endl;
-  using namespace GeometryTools;
-  prepare();
   int N_swaps;
   int N_total = 0;
   int loop = 1;
   do {
     N_swaps = 0;
-    createCellToCell(cells, c2c, grid);
-    createNodeMapping(nodes,_nodes,grid);
-    createNodeToNode(cells, nodes, _nodes, n2n, grid);
+    setAllSurfaceCells();
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     QString num1, num2;
     QString str;
     num1.setNum(nStatic_SwapTriangles);
@@ -82,100 +81,96 @@ void SwapTriangles::operate()
     str += num2 + ".vtu";
     cout<<"loop="<<loop<<endl;
     writeCells(grid,cells,str);
-    //NOTE: This for loop can eventually be removed because if undefined, it's probably false.
-    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-      marked[i_cells] = false;
-    };
+    QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
-//       cout<<"===>id_cell="<<id_cell<<" loop="<<loop<<endl;
-      if (!marked[_cells[id_cell]]) {
-        for (int j = 0; j < 3; ++j) {
-          bool swap = false;
-          stencil_t S = getStencil(id_cell, j, m_RespectBC);
-          if (S.valid) {
-            if( ! isEdge(S.p[0],S.p[2]) ) {
-              if (!marked[_cells[S.id_cell2]]) {
-                vec3_t x3[4], x3_0(0,0,0);
-                vec2_t x[4];
-                for (int k = 0; k < 4; ++k) {
-                  grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
-                  x3_0 += x3[k];
-                };
-                vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
-                vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
-  /*              n1.normalise();
-                n2.normalise();*/
-                if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
-                  vec3_t n = n1 + n2;
-                  n.normalise();
-                  vec3_t ex = orthogonalVector(n);
-                  vec3_t ey = ex.cross(n);
+      if (!boundary_codes.contains(cell_code->GetValue(id_cell))) {
+        if (!l_marked[_cells[id_cell]]) {
+          for (int j = 0; j < 3; ++j) {
+            bool swap = false;
+            stencil_t S = getStencil(id_cell, j);
+            if (S.valid) {
+              if( ! isEdge(S.p[0],S.p[2]) ) {
+                if (!l_marked[_cells[S.id_cell2]]) {
+                  vec3_t x3[4], x3_0(0,0,0);
+                  vec2_t x[4];
                   for (int k = 0; k < 4; ++k) {
-                    x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
+                    grid->GetPoints()->GetPoint(S.p[k], x3[k].data());
+                    x3_0 += x3[k];
                   };
-                  vec2_t r1, r2, r3, u1, u2, u3;
-                  r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
-                  r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
-                  r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
-                  double k, l;
-                  vec2_t xm1, xm2;
-                  bool ok = true;
-                  if (intersection(k, l, r1, u1, r3, u3)) {
-                    xm1 = r1 + k*u1;
-                    if (intersection(k, l, r2, u2, r3, u3)) {
-                      xm2 = r2 + k*u2;
+                  vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
+                  vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
+                  if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
+                    vec3_t n = n1 + n2;
+                    n.normalise();
+                    vec3_t ex = orthogonalVector(n);
+                    vec3_t ey = ex.cross(n);
+                    for (int k = 0; k < 4; ++k) {
+                      x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
+                    };
+                    vec2_t r1, r2, r3, u1, u2, u3;
+                    r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
+                    r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
+                    r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
+                    double k, l;
+                    vec2_t xm1, xm2;
+                    bool ok = true;
+                    if (intersection(k, l, r1, u1, r3, u3)) {
+                      xm1 = r1 + k*u1;
+                      if (intersection(k, l, r2, u2, r3, u3)) {
+                        xm2 = r2 + k*u2;
+                      } else {
+                        ok = false;
+                      };
                     } else {
                       ok = false;
+                      swap = true;
                     };
-                  } else {
-                    ok = false;
-                    swap = true;
-                  };
-                  if (ok) {
-                    if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
-                      swap = true;
+                    if (ok) {
+                      if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
+                        swap = true;
+                      }
+                      if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
+                        swap = true;
+                      }
                     }
-                    if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
-                      swap = true;
-                    }
-                  }
-                }//end of if feature angle
-              }//end of if marked
-            }//end of if TestSwap
-          }//end of S valid
-          if (swap) {
-            marked[_cells[S.id_cell1]] = true;
-            marked[_cells[S.id_cell2]] = true;
-            if (c2c[_cells[S.id_cell1]][0] != -1) {
-              marked[c2c[_cells[S.id_cell1]][0]] = true;
-            } else if (c2c[_cells[S.id_cell1]][1] != -1) {
-              marked[c2c[_cells[S.id_cell1]][1]] = true;
-            } else if (c2c[_cells[S.id_cell1]][2] != -1) {
-              marked[c2c[_cells[S.id_cell1]][2]] = true;
-            };
-            if (c2c[_cells[S.id_cell2]][0] != -1) {
-              marked[c2c[_cells[S.id_cell2]][0]] = true;
-            } else if (c2c[_cells[S.id_cell2]][1] != -1) {
-              marked[c2c[_cells[S.id_cell2]][1]] = true;
-            } else if (c2c[_cells[S.id_cell2]][2] != -1) {
-              marked[c2c[_cells[S.id_cell2]][2]] = true;
-            };
-            vtkIdType new_pts1[3], new_pts2[3];
-            new_pts1[0] = S.p[1];
-            new_pts1[1] = S.p[2];
-            new_pts1[2] = S.p[0];
-            new_pts2[0] = S.p[2];
-            new_pts2[1] = S.p[3];
-            new_pts2[2] = S.p[0];
-            grid->ReplaceCell(S.id_cell1, 3, new_pts1);
-            grid->ReplaceCell(S.id_cell2, 3, new_pts2);
-            ++N_swaps;
-            ++N_total;
-            break;
-          };
-        };
-      };
-    };
+                  }//end of if feature angle
+                }//end of if l_marked
+              }//end of if TestSwap
+            }//end of S valid
+            if (swap) {
+              l_marked[_cells[S.id_cell1]] = true;
+              l_marked[_cells[S.id_cell2]] = true;
+              if (c2c[_cells[S.id_cell1]][0] != -1) {
+                l_marked[c2c[_cells[S.id_cell1]][0]] = true;
+              } else if (c2c[_cells[S.id_cell1]][1] != -1) {
+                l_marked[c2c[_cells[S.id_cell1]][1]] = true;
+              } else if (c2c[_cells[S.id_cell1]][2] != -1) {
+                l_marked[c2c[_cells[S.id_cell1]][2]] = true;
+              };
+              if (c2c[_cells[S.id_cell2]][0] != -1) {
+                l_marked[c2c[_cells[S.id_cell2]][0]] = true;
+              } else if (c2c[_cells[S.id_cell2]][1] != -1) {
+                l_marked[c2c[_cells[S.id_cell2]][1]] = true;
+              } else if (c2c[_cells[S.id_cell2]][2] != -1) {
+                l_marked[c2c[_cells[S.id_cell2]][2]] = true;
+              };
+              vtkIdType new_pts1[3], new_pts2[3];
+              new_pts1[0] = S.p[1];
+              new_pts1[1] = S.p[2];
+              new_pts1[2] = S.p[0];
+              new_pts2[0] = S.p[2];
+              new_pts2[1] = S.p[3];
+              new_pts2[2] = S.p[0];
+              grid->ReplaceCell(S.id_cell1, 3, new_pts1);
+              grid->ReplaceCell(S.id_cell2, 3, new_pts2);
+              ++N_swaps;
+              ++N_total;
+              break;
+            }//end of if swap
+          }//end of loop through sides
+        }//end of if marked
+      }//end of if selected
+    }//end of loop through cells
     ++loop;
   } while ((N_swaps > 0) && (loop <= 20));
   cout << N_total << " triangles have been swapped" << endl;

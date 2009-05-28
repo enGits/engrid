@@ -32,7 +32,7 @@ class SwapTriangles : public Operation
   
 private: // attributes
   
-  QVector<bool> marked;
+  QVector<bool> m_marked;
   bool m_RespectBC;
   bool m_FeatureSwap;
   

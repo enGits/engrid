@@ -51,5 +51,3 @@ void Iterator::getCells()
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
   createCellToCell(cells, c2c, grid);
 };
-
-
