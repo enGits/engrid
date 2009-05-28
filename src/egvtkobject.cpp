@@ -793,11 +793,12 @@ void EgVtkObject::createBasicCellFields
   bool                 overwrite
 )
 {
-  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,        vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_code",        vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_index",       vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_orientation", vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_VA",          vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,         vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_code",         vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_index",        vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_orientation1", vtkIntArray, overwrite);     // original orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_orientation2", vtkIntArray, overwrite);     // current orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_VA",           vtkDoubleArray, overwrite);
 }
 
 void EgVtkObject::createBasicNodeFields
