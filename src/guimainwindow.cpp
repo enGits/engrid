@@ -563,38 +563,6 @@ void GuiMainWindow::updateActors()
         }
       }
       
-/*      vtkDoubleArray *newScalars = vtkDoubleArray::New();
-      int index;
-      newScalars=(vtkDoubleArray *)boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
-      cout<<"index="<<index<<endl;*/
-      
-/*      cout<<"=========="<<endl;
-      boundary_pd->GetPointData()->GetArray("node_status",index);
-      cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_layer",index);
-      cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_index",index);
-      cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_meshdensity_desired",index);
-      cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_meshdensity_current",index);
-      cout<<"index="<<index<<endl;
-      boundary_pd->GetPointData()->GetArray("node_type",index);
-      cout<<"index="<<index<<endl;
-      cout<<"=========="<<endl;*/
-      
-/*      int N2=newScalars->GetNumberOfComponents();
-      int N3=newScalars->GetNumberOfTuples();
-      cout<<"Number of components=N2="<<N2<<endl;
-      cout<<"Number of tuples=N3="<<N3<<endl;*/
-      
-      
-/*      for (int i=0; i<N3; i++)
-      {
-        double D=newScalars->GetComponent(i,0);//strange, but works. O.o
-        cout<<"D["<<i<<"]="<<D<<endl;
-      }*/
-      
       surface_wire_actor = vtkActor::New();
       surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
       surface_wire_actor->GetProperty()->SetColor(0,0,1);
