@@ -31,10 +31,14 @@ private:
   bool WaterTight;
   int Nmin;
   int Nmax;
+  QSet <vtkIdType> BadCells;
   
 public:
-    CheckSurfaceIntegrity();
-    bool isWaterTight();
+  CheckSurfaceIntegrity();
+  bool isWaterTight();
+  int getNmin() { return(Nmin); };
+  int getNmax() { return(Nmax); };
+  QSet <vtkIdType> getBadCells() { return(BadCells); };
   
 protected: // methods
   virtual void operate();

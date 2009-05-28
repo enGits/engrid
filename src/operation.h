@@ -239,8 +239,12 @@ public: // methods
   vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
   ///Returns the type of the edge [a_node1,a_node2]
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
-  ///Returns a vector containing the cells surrounding edge [p1,p2]
-  QVector <vtkIdType> getEdgeCells(vtkIdType p1, vtkIdType p2);
+  
+  ///passes a vector containing the cells surrounding edge [p1,p2] by reference and returns its size
+  int getEdgeCells(vtkIdType p1, vtkIdType p2,QVector <vtkIdType> &EdgeCells);
+  
+  ///passes a set containing the cells surrounding edge [p1,p2] by reference and returns its size
+  int getEdgeCells(vtkIdType p1, vtkIdType p2,QSet <vtkIdType> &EdgeCells);
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);

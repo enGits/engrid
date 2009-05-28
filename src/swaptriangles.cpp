@@ -25,6 +25,8 @@
 
 #include <vtkCellArray.h>
 
+#include "checksurfaceintegrity.h"
+
 using namespace GeometryTools;
 
 SwapTriangles::SwapTriangles()
@@ -81,6 +83,15 @@ void SwapTriangles::operate()
     str = GuiMainWindow::pointer()->getFilePath() + "marked_cells_" + num1 + "_" + num2 + ".vtu";
     cout<<"nStatic_SwapTriangles="<<nStatic_SwapTriangles<<" loop="<<loop<<endl;
     writeCells(grid,cells,str);
+    
+    CheckSurfaceIntegrity check_surface_integrity;
+    check_surface_integrity.setGrid(grid);
+    bool WaterTight = check_surface_integrity.isWaterTight();
+    if(!WaterTight) {
+      cout<<"NOT WATERTIGHT! Nmin="<<check_surface_integrity.getNmin()<<" Nmax="<<check_surface_integrity.getNmax()<<endl;
+      DualSave(GuiMainWindow::pointer()->getFilePath()+"NotWaterTight");
+      EG_BUG;
+    }
     
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {

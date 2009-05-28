@@ -21,6 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "checksurfaceintegrity.h"
+// #include "egvtkobject.h"
 
 CheckSurfaceIntegrity::CheckSurfaceIntegrity()
  : Operation()
@@ -30,24 +31,31 @@ CheckSurfaceIntegrity::CheckSurfaceIntegrity()
 void CheckSurfaceIntegrity::operate()
 {
   cout<<"this->isWaterTight()="<<this->isWaterTight()<<endl;
+  cout<<"this->Nmin="<<this->Nmin<<endl;
+  cout<<"this->Nmax="<<this->Nmax<<endl;
+  cout<<"this->BadCells="<<this->BadCells<<endl;
 }
 
 bool CheckSurfaceIntegrity::isWaterTight()
 {
   setAllSurfaceCells();
+  BadCells.clear();
+  
   bool first = true;
   foreach(vtkIdType node1,nodes) {
     foreach(vtkIdType node2,n2n_func(node1)) {
-      QVector <vtkIdType> edge_cells = getEdgeCells(node1,node2);
+      QSet <vtkIdType> edge_cells;
+      int N = getEdgeCells(node1,node2,edge_cells);
       if(first) {
         first = false;
-        Nmin = edge_cells.size();
-        Nmax = edge_cells.size();
+        Nmin = N;
+        Nmax = N;
       }
       else {
-        Nmin = min(Nmin,edge_cells.size());
-        Nmax = max(Nmax,edge_cells.size());
+        Nmin = min(Nmin,N);
+        Nmax = max(Nmax,N);
       }
+      if(edge_cells.size()!=2) BadCells.unite(edge_cells);
     }
   }
   if( Nmin==2 && Nmax==2 ) return(true);

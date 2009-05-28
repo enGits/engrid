@@ -1432,16 +1432,21 @@ char Operation::getNodeType(vtkIdType a_node)
   return(type);
 }
 
-///@@@ TODO: Make it return the size of the vector and pass the vector by reference instead
-QVector <vtkIdType> Operation::getEdgeCells(vtkIdType p1, vtkIdType p2)
+int Operation::getEdgeCells(vtkIdType p1, vtkIdType p2,QVector <vtkIdType> &EdgeCells)
 {
-//   cout<<"p1="<<p1<<endl;
-//   cout<<"p2="<<p2<<endl;
   QSet <vtkIdType> S1=n2c_func(p1);
   QSet <vtkIdType> S2=n2c_func(p2);
   S2.intersect(S1);
-//   cout<<"S2="<<S2<<endl;
-  return Set2Vector(S2,false);
+  EdgeCells = Set2Vector(S2,false);
+  return EdgeCells.size();
+}
+
+int Operation::getEdgeCells(vtkIdType p1, vtkIdType p2,QSet <vtkIdType> &EdgeCells)
+{
+  QSet <vtkIdType> S1=n2c_func(p1);
+  QSet <vtkIdType> S2=n2c_func(p2);
+  EdgeCells = S2.intersect(S1);
+  return EdgeCells.size();
 }
 
 bool Operation::FullCycleOfPolygons(vtkIdType a_node)
@@ -1457,8 +1462,8 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
     //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
-  QVector <vtkIdType> neighbour_cells = getEdgeCells(a_node1,a_node2);
-  int numNei = neighbour_cells.size() - 1;
+  QVector <vtkIdType> neighbour_cells;
+  int numNei = getEdgeCells(a_node1,a_node2,neighbour_cells) - 1;
 //     cout<<"numNei="<<numNei<<endl;
   
     //set default value
