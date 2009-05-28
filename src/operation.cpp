@@ -500,9 +500,9 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   return(N);
 }
 
-QSet <vtkIdType> Operation::GetPotentialSnapPoints(vtkIdType Boss)
+QSet <vtkIdType> Operation::getPotentialSnapPoints(vtkIdType Boss)
 {
-
+  return n2n_func(Boss);
 }
 
 bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
@@ -614,6 +614,219 @@ bool Operation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons)
   cout<<"Boss="<<Boss<<" can snap to Peons="<<Peons<<endl;
   return(true);
 }
+
+// DEFINITIONS:
+// Normal cell: nothing has changed
+// Dead cell: the cell does not exist anymore
+// Mutated cell: the cell's form has changed
+// Mutilated cell: the cell has less points than before
+
+vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
+{
+  ///@@@  TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
+  getAllSurfaceCells(cells,src);
+  getNodesFromCells(cells, nodes, src);
+  setGrid(src);
+  setCells(cells);
+  
+  EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
+  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX || node_type->GetValue(DeadNode)==BC_FIXED_VERTEX)
+  {
+    cout<<"Sorry, unable to remove fixed vertex."<<endl;
+    return(-1);
+  }
+  
+    //src grid info
+  int N_points=src->GetNumberOfPoints();
+  int N_cells=src->GetNumberOfCells();
+  N_newpoints=-1;
+  N_newcells=0;
+  
+  vtkIdType SnapPoint=-1;
+  
+  foreach(vtkIdType PSP, n2n[DeadNode])
+  {
+    bool IsValidSnapPoint=true;
+    
+    if(DebugLevel>10) cout<<"====>PSP="<<PSP<<endl;
+    bool IsTetra=true;
+    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    if(IsTetra)//tetra check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    //count number of points and cells to remove + analyse cell transformations
+    N_newpoints=-1;
+    N_newcells=0;
+    DeadCells.clear();
+    MutatedCells.clear();
+    MutilatedCells.clear();
+    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
+    {
+      //get points around cell
+      vtkIdType N_pts, *pts;
+      src->GetCellPoints(C, N_pts, pts);
+      
+      bool ContainsSnapPoint=false;
+      bool invincible=false;
+      for(int i=0;i<N_pts;i++)
+      {
+        if(DebugLevel>10) cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
+        if(pts[i]==PSP) {ContainsSnapPoint=true;}
+        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
+      }
+      if(ContainsSnapPoint)
+      {
+        if(N_pts==3)//dead cell
+        {
+          if(invincible)//Check that empty lines aren't left behind when a cell is killed
+          {
+            IsValidSnapPoint=false;
+          }
+          else
+          {
+            DeadCells.insert(C);
+            N_newcells-=1;
+          }
+        }
+        else
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+      }
+      else
+      {
+        vtkIdType src_N_pts, *src_pts;
+        src->GetCellPoints(C, src_N_pts, src_pts);
+        
+        if(src_N_pts!=3)
+        {
+          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+          EG_BUG;
+        }
+        
+        vtkIdType OldTriangle[3];
+        vtkIdType NewTriangle[3];
+        
+        for(int i=0;i<src_N_pts;i++)
+        {
+          OldTriangle[i]=src_pts[i];
+          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
+        }
+        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        double OldArea=Old_N.abs();
+        double NewArea=New_N.abs();
+        double scal=Old_N*New_N;
+        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
+        
+        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
+        {
+          if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+          IsValidSnapPoint=false;
+        }
+        
+        //mutated cell
+        MutatedCells.insert(C);
+        if(DebugLevel>10) cout<<"cell "<<C<<" has been infected!"<<endl;
+      }
+    }
+    
+    if(N_cells+N_newcells<=0)//survivor check
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
+    {
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(node_type->GetValue(DeadNode)==BC_BOUNDARY_EDGE_VERTEX)
+    {
+      QVector <vtkIdType> Peons;
+      getNeighbours_BC(DeadNode, Peons);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
+    {
+      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      IsValidSnapPoint=false;
+    }
+    
+    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
+    {
+      QVector <vtkIdType> Peons;
+      getNeighbours(DeadNode, Peons);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    ///@@@  TODO: merge with previous case if possible
+    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX)
+    {
+      QVector <vtkIdType> Peons;
+      getNeighbours_BC(DeadNode, Peons);
+      if(!Peons.contains(PSP))
+      {
+        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+        IsValidSnapPoint=false;
+      }
+    }
+    
+    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
+  }//end of loop through potential SnapPoints
+  
+  if(DebugLevel>10)
+  {
+    cout<<"AT FINDSNAPPOINT EXIT"<<endl;
+    cout<<"N_points="<<N_points<<endl;
+    cout<<"N_cells="<<N_cells<<endl;
+    cout<<"N_newpoints="<<N_newpoints<<endl;
+    cout<<"N_newcells="<<N_newcells<<endl;
+  }
+/*  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
+  cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
+  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;*/
+  return(SnapPoint);
+  
+//   setDebugLevel(0);
+}
+//End of FindSnapPoint
 
 int Operation::UpdateCurrentMeshDensity()
 {
@@ -1564,232 +1777,6 @@ vtkIdType Operation::getNextCell(vtkIdType a_cell, vtkIdType a_node)
   return vec[i];
 //   return c2c[a_cell][i];
 }
-
-// DEFINITIONS:
-// Normal cell: nothing has changed
-// Dead cell: the cell does not exist anymore
-// Mutated cell: the cell's form has changed
-// Mutilated cell: the cell has less points than before
-
-vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
-{
-  ///@@@  TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
-  getAllSurfaceCells(cells,src);
-  getNodesFromCells(cells, nodes, src);
-  setGrid(src);
-  setCells(cells);
-  
-//   UpdateNodeType_all();
-  
-//   setDebugLevel(20);
-  
-  EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
-  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX || node_type->GetValue(DeadNode)==BC_FIXED_VERTEX)
-  {
-    cout<<"Sorry, unable to remove fixed vertex."<<endl;
-    return(-1);
-  }
-  
-    //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
-  N_newpoints=-1;
-  N_newcells=0;
-  
-  vtkIdType SnapPoint=-1;
-  
-  foreach(vtkIdType PSP, n2n[DeadNode])
-  {
-    bool IsValidSnapPoint=true;
-    
-    if(DebugLevel>10) cout<<"====>PSP="<<PSP<<endl;
-    bool IsTetra=true;
-    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    if(IsTetra)//tetra check
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    
-    //count number of points and cells to remove + analyse cell transformations
-    N_newpoints=-1;
-    N_newcells=0;
-    DeadCells.clear();
-    MutatedCells.clear();
-    MutilatedCells.clear();
-    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
-    {
-      //get points around cell
-      vtkIdType N_pts, *pts;
-      src->GetCellPoints(C, N_pts, pts);
-      
-      bool ContainsSnapPoint=false;
-      bool invincible=false;
-      for(int i=0;i<N_pts;i++)
-      {
-        if(DebugLevel>10) cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
-        if(pts[i]==PSP) {ContainsSnapPoint=true;}
-        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
-      }
-      if(ContainsSnapPoint)
-      {
-        if(N_pts==3)//dead cell
-        {
-          if(invincible)//Check that empty lines aren't left behind when a cell is killed
-          {
-            if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-            IsValidSnapPoint=false;
-          }
-          else
-          {
-            DeadCells.insert(C);
-            N_newcells-=1;
-            if(DebugLevel>10) cout<<"cell "<<C<<" has been pwned!"<<endl;
-          }
-        }
-        else
-        {
-          cout<<"RED ALERT: Xenomorph detected!"<<endl;
-          EG_BUG;
-        }
-      }
-      else
-      {
-        vtkIdType src_N_pts, *src_pts;
-        src->GetCellPoints(C, src_N_pts, src_pts);
-        
-        if(src_N_pts!=3)
-        {
-          cout<<"RED ALERT: Xenomorph detected!"<<endl;
-          EG_BUG;
-        }
-        
-        vtkIdType OldTriangle[3];
-        vtkIdType NewTriangle[3];
-        
-        for(int i=0;i<src_N_pts;i++)
-        {
-          OldTriangle[i]=src_pts[i];
-          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
-        }
-        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
-        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
-        double OldArea=Old_N.abs();
-        double NewArea=New_N.abs();
-        double scal=Old_N*New_N;
-        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
-        
-        if(DebugLevel>10) {
-          cout<<"OldArea="<<OldArea<<endl;
-          cout<<"NewArea="<<NewArea<<endl;
-          cout<<"scal="<<scal<<endl;
-          cout<<"cross="<<cross<<endl;
-        }
-        
-        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
-        {
-          if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-          IsValidSnapPoint=false;
-        }
-        
-        //mutated cell
-        MutatedCells.insert(C);
-        if(DebugLevel>10) cout<<"cell "<<C<<" has been infected!"<<endl;
-      }
-    }
-    
-    if(N_cells+N_newcells<=0)//survivor check
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    
-    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    
-    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
-    {
-      QVector <vtkIdType> Peons;
-      getNeighbours(DeadNode, Peons);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
-      }
-    }
-    
-    if(node_type->GetValue(DeadNode)==BC_BOUNDARY_EDGE_VERTEX)
-    {
-      QVector <vtkIdType> Peons;
-      getNeighbours_BC(DeadNode, Peons);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
-      }
-    }
-    
-    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    
-    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
-    }
-    
-    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
-    {
-      QVector <vtkIdType> Peons;
-      getNeighbours(DeadNode, Peons);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
-      }
-    }
-    
-    ///@@@  TODO: merge with previous case if possible
-    if(node_type->GetValue(DeadNode)==BC_FEATURE_EDGE_VERTEX)
-    {
-      QVector <vtkIdType> Peons;
-      getNeighbours_BC(DeadNode, Peons);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
-      }
-    }
-    
-    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
-  }//end of loop through potential SnapPoints
-  
-  if(DebugLevel>10)
-  {
-    cout<<"AT FINDSNAPPOINT EXIT"<<endl;
-    cout<<"N_points="<<N_points<<endl;
-    cout<<"N_cells="<<N_cells<<endl;
-    cout<<"N_newpoints="<<N_newpoints<<endl;
-    cout<<"N_newcells="<<N_newcells<<endl;
-  }
-/*  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
-  cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
-  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;*/
-  return(SnapPoint);
-  
-//   setDebugLevel(0);
-}
-//End of FindSnapPoint
 
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {

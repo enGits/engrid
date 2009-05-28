@@ -191,13 +191,14 @@ public: // methods
    * Returns a QSet containing neighbour points to which the point Boss can snap.
    * This is used for moving/removing boundary/feature edge vertices without destroying the geometry.
    */
-  QSet <vtkIdType> GetPotentialSnapPoints(vtkIdType Boss);
+  QSet <vtkIdType> getPotentialSnapPoints(vtkIdType Boss);
+  
+  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
   int UpdateCurrentMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();
   
-  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
   bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
@@ -218,17 +219,22 @@ public: // methods
   
   ///Equivalent of n2c in absolute numbering
   QSet<vtkIdType>    n2c_func(vtkIdType idx);
+  
   ///Equivalent of n2n in absolute numbering
   QSet<vtkIdType>    n2n_func(vtkIdType idx);
+  
   ///Equivalent of c2c in absolute numbering
   QVector<vtkIdType> c2c_func(vtkIdType idx);
   
   ///Returns the average distance of a_vertex to its neighbours
   double CurrentVertexAvgDist(vtkIdType a_vertex);
+  
   ///Returns 1/CurrentVertexAvgDist(a_vertex)
   double CurrentMeshDensity(vtkIdType a_vertex);
+  
   ///Returns the average of 1./node_meshdensity_desired of the neighbours of a_vertex
   double DesiredVertexAvgDist(vtkIdType a_vertex);
+  
   ///Returns the average of node_meshdensity_desired of the neighbours of a_vertex
   double DesiredMeshDensity(vtkIdType a_vertex);
   
@@ -236,13 +242,18 @@ public: // methods
   QSet <int> getBCset(vtkIdType a_node);
   
   char getNodeType(vtkIdType a_node);
+  
   bool FullCycleOfPolygons(vtkIdType a_node);
+  
   ///Returns the number of feature edges around node a_node
   int getNumberOfFeatureEdges(vtkIdType a_node);
+  
   ///Returns the number of boundary edges around node a_node
   int getNumberOfBoundaryEdges(vtkIdType a_node);
+  
   ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
   vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
+  
   ///Returns the type of the edge [a_node1,a_node2]
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
   

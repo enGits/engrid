@@ -900,6 +900,7 @@ void GuiSmoothSurface::operate()
     
     LaplaceSmoother Lap;
     Lap.SetInput(bcs,this->grid);
+    Lap.setSource(this->grid);
     Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
     setDebugLevel(ui.spinBox_DebugLevel->value());
     Lap();

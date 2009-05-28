@@ -55,19 +55,19 @@ void LaplaceSmoother::operate()
   EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
   int moved_points=0;
   
-  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
+/*  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
   l_CellLocator->SetDataSet(m_ProjectionSurface);
-  l_CellLocator->BuildLocator();
+  l_CellLocator->BuildLocator();*/
 //   l_CellLocator->Print(cout);
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
     foreach(vtkIdType id_G,SelectedNodes)
     {
-      if(node_type->GetValue(id_G)!=VTK_FIXED_VERTEX)
+      if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
       {
         vec3_t G(0,0,0);
-        foreach(int id_M,GetPotentialSnapPoints(id_G))
+        foreach(int id_M,getPotentialSnapPoints(id_G))
         {
           vec3_t M;
           m_grid->GetPoint(id_M, M.data());
@@ -100,7 +100,7 @@ void LaplaceSmoother::operate()
     }
   }
   
-  l_CellLocator->Delete();
+//   l_CellLocator->Delete();
   
   if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
   if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;

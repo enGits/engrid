@@ -53,7 +53,8 @@ bool InsertPoints::insert_fieldpoint(vtkIdType D)
 
 bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
 {
-  bool result=L_k(j,K)>0.5*(G_k(j)+G_k(K));
+  bool result = L_k(j,K)>0.5*(G_k(j)+G_k(K));
+//   bool result = L_k(j,K)>0.5*(G_k(j)+G_k(K));
   if(DebugLevel>0 && result){
     cout<<"j="<<j<<endl;
     cout<<"K="<<K<<endl;
