@@ -33,27 +33,24 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
   f >> word;
   if (word != "$NOD") EG_ERR_RETURN("$NOD expected");
   f >> Nnodes;
-  EG_VTKSP(vtkPoints, points);
   EG_VTKSP(vtkUnstructuredGrid, ug);
-  points->SetNumberOfPoints(Nnodes);
-  std::vector<vtkIdType> idxmap(Nnodes+1);
+  QVector<vtkIdType> idxmap(Nnodes + 1);
+  QVector<vec3_t> x(Nnodes);
   for (vtkIdType i = 0; i < Nnodes; ++i) {
-    double x,y,z;
     int ir;
-    f >> ir >> x >> y >> z;
+    f >> ir >> x[i][0] >> x[i][1] >> x[i][2];
     idxmap[ir] = i;
-    points->SetPoint(i,x,y,z);
-  };
-  ug->SetPoints(points);
+  }
   f >> word;
   if (word != "$ENDNOD") EG_ERR_RETURN("$ENDNOD expected");
   f >> word;
   if (word != "$ELM") EG_ERR_RETURN("$ELM expected");
   f >> Ncells;
-  ug->Allocate(Ncells);
-  EG_VTKSP(vtkIntArray, cell_code);
-  cell_code->SetName("cell_code");
-  cell_code->SetNumberOfValues(Ncells);
+  allocateGrid(ug, Ncells, Nnodes);
+  for (vtkIdType i = 0; i < Nnodes; ++i) {
+    ug->GetPoints()->SetPoint(i, x[i].data());
+  }
+  EG_VTKDCC(vtkIntArray, cell_code, ug, "cell_code");
   for (vtkIdType i = 0; i < Ncells; ++i) {
     f >> word;
     int elm_type, reg_phys;
@@ -61,26 +58,26 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
     f >> reg_phys;
     f >> word;
     f >> word;
-    cell_code->SetTuple1(i,reg_phys);
+    cell_code->SetValue(i, reg_phys);
     vtkIdType pts[8];
     size_t node;
     if        (elm_type == 2) { // triangle
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_TRIANGLE,3,pts);
     } else if (elm_type == 3) { // quad
       for (vtkIdType j = 0; j < 4; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_QUAD,4,pts);
     } else if (elm_type == 4) { // tetrahedron
       for (vtkIdType j = 0; j < 4; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       vtkIdType h = pts[0];
       pts[0] = pts[1];
       pts[1] = h;
@@ -89,29 +86,30 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
       for (vtkIdType j = 0; j < 8; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_HEXAHEDRON,8,pts);
     } else if (elm_type == 6) { // prism/wedge
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j+3] = idxmap[node]; 
-      };
+      }
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_WEDGE,6,pts);
     } else if (elm_type == 7) { // pyramid
       for (vtkIdType j = 0; j < 5; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_PYRAMID,5,pts);
-    };
-  };
+    }
+  }
   ug->GetCellData()->AddArray(cell_code);
   grid->DeepCopy(ug);
-};
+  makeCopy(ug, grid);
+}
 
 void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
 {
@@ -130,27 +128,24 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
   f >> word;
   if (word != "$Nodes") EG_ERR_RETURN("$Nodes expected");
   f >> Nnodes;
-  EG_VTKSP(vtkPoints, points);
   EG_VTKSP(vtkUnstructuredGrid, ug);
-  points->SetNumberOfPoints(Nnodes);
-  std::vector<vtkIdType> idxmap(Nnodes+1);
+  QVector<vtkIdType> idxmap(Nnodes + 1);
+  QVector<vec3_t> x(Nnodes);
   for (vtkIdType i = 0; i < Nnodes; ++i) {
-    double x,y,z;
     int ir;
-    f >> ir >> x >> y >> z;
+    f >> ir >> x[i][0] >> x[i][1] >> x[i][2];
     idxmap[ir] = i;
-    points->SetPoint(i,x,y,z);
-  };
-  ug->SetPoints(points);
+  }
   f >> word;
   if (word != "$EndNodes") EG_ERR_RETURN("$EndNotes expected");
   f >> word;
   if (word != "$Elements") EG_ERR_RETURN("$Elements expected");
   f >> Ncells;
-  ug->Allocate(Ncells);
-  EG_VTKSP(vtkIntArray, cell_code);
-  cell_code->SetName("cell_code");
-  cell_code->SetNumberOfValues(Ncells);
+  allocateGrid(ug, Ncells, Nnodes);
+  for (vtkIdType i = 0; i < Nnodes; ++i) {
+    ug->GetPoints()->SetPoint(i, x[i].data());
+  }
+  EG_VTKDCC(vtkIntArray, cell_code, ug, "cell_code");
   for (vtkIdType i = 0; i < Ncells; ++i) {
     f >> word;
     int elm_type, Ntags, bc;
@@ -162,54 +157,54 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
       f >> bc;
       if (bc <= 0) {
         bc = 99;
-      };
+      }
       for (int j = 1; j < Ntags; ++j) f >> word;
-    };
-    cell_code->SetTuple1(i,bc);
+    }
+    cell_code->SetValue(i, bc);
     vtkIdType pts[8];
     size_t node;
     if        (elm_type == 2) { // triangle
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_TRIANGLE,3,pts);
     } else if (elm_type == 3) { // quad
       for (vtkIdType j = 0; j < 4; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_QUAD,4,pts);
     } else if (elm_type == 4) { // tetrahedron
       for (vtkIdType j = 0; j < 4; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_TETRA,4,pts);
     } else if (elm_type == 5) { // hexhedron
       for (vtkIdType j = 0; j < 8; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_HEXAHEDRON,8,pts);
     } else if (elm_type == 6) { // prism/wedge
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j+3] = idxmap[node]; 
-      };
+      }
       for (vtkIdType j = 0; j < 3; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_WEDGE,6,pts);
     } else if (elm_type == 7) { // pyramid
       for (vtkIdType j = 0; j < 5; ++j) { 
         f >> node; 
         pts[j] = idxmap[node]; 
-      };
+      }
       ug->InsertNextCell(VTK_PYRAMID,5,pts);
-    };
-  };
+    }
+  }
   ug->GetCellData()->AddArray(cell_code);
   grid->DeepCopy(ug);
   
@@ -217,7 +212,7 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
   corr_surf.setGrid(grid);
   corr_surf();
   
-};
+}
 
 void GmshReader::operate()
 {
@@ -228,8 +223,8 @@ void GmshReader::operate()
       else if (format == ascii2) readAscii2(grid);
       createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
       UpdateCellIndex(grid);
-    };
+    }
   } catch (Error err) {
     err.display();
-  };
-};
+  }
+}
