@@ -98,27 +98,27 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 int GuiSmoothSurface::readSettings()
 {
-  local_qset=new QSettings("enGits","enGrid_smoothsurface");
-//   current_settingssheet_name=local_qset->value("Filename", "").toString();
-  ui.SmoothMethod->setCurrentIndex(local_qset->value("Method", 0).toInt());
-  ui.spinBox_NumberOfSmoothIterations->setValue(local_qset->value("NumberOfSmoothIterations", 20).toInt());
-  ui.spinBox_maxiter_density->setValue(local_qset->value("maxiter_density", 1000).toInt());
-  ui.spinBox_DebugLevel->setValue(local_qset->value("DebugLevel", 0).toInt());
-  ui.spinBox_NumberOfIterations->setValue(local_qset->value("NumberOfIterations", 1).toInt());
+  QSettings local_qset("enGits","enGrid_smoothsurface");
+//   current_settingssheet_name=local_qset.value("Filename", "").toString();
+  ui.SmoothMethod->setCurrentIndex(local_qset.value("Method", 0).toInt());
+  ui.spinBox_NumberOfSmoothIterations->setValue(local_qset.value("NumberOfSmoothIterations", 20).toInt());
+  ui.spinBox_maxiter_density->setValue(local_qset.value("maxiter_density", 1000).toInt());
+  ui.spinBox_DebugLevel->setValue(local_qset.value("DebugLevel", 0).toInt());
+  ui.spinBox_NumberOfIterations->setValue(local_qset.value("NumberOfIterations", 1).toInt());
   
-  ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset->value("Convergence_meshdensity", 0.000001).toDouble());
-  ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset->value("insert_FP", 2).toInt()));
-  ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset->value("insert_EP", 2).toInt()));
-  ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset->value("remove_FP", 2).toInt()));
-  ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset->value("remove_EP", 2).toInt()));
+  ui.doubleSpinBox_Convergence_meshdensity->setValue(local_qset.value("Convergence_meshdensity", 0.000001).toDouble());
+  ui.checkBox_insert_FP->setCheckState(int2CheckState(local_qset.value("insert_FP", 2).toInt()));
+  ui.checkBox_insert_EP->setCheckState(int2CheckState(local_qset.value("insert_EP", 2).toInt()));
+  ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset.value("remove_FP", 2).toInt()));
+  ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset.value("remove_EP", 2).toInt()));
   
-  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(local_qset->value("GenerateErrorScalars", 2).toInt()));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(local_qset->value("GenerateErrorVectors", 2).toInt()));
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(local_qset.value("GenerateErrorScalars", 2).toInt()));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(local_qset.value("GenerateErrorVectors", 2).toInt()));
   
-  ui.checkBox_Swap->setCheckState(int2CheckState(local_qset->value("DoSwap", 2).toInt()));
-  ui.checkBox_LaplaceSmoothing->setCheckState(int2CheckState(local_qset->value("DoLaplaceSmoothing", 2).toInt()));
+  ui.checkBox_Swap->setCheckState(int2CheckState(local_qset.value("DoSwap", 2).toInt()));
+  ui.checkBox_LaplaceSmoothing->setCheckState(int2CheckState(local_qset.value("DoLaplaceSmoothing", 2).toInt()));
   
-  if(local_qset->value("DensityUnit_is_length", false).toBool()){
+  if(local_qset.value("DensityUnit_is_length", false).toBool()){
     ui.radioButton_length->toggle();
   }
   else{
@@ -126,76 +126,75 @@ int GuiSmoothSurface::readSettings()
   }
   
   int size;
-  size = local_qset->beginReadArray("list_BC");
+  size = local_qset.beginReadArray("list_BC");
   if(ui.listWidget->count()==size)
   {
     for (int i = 0; i < size; ++i) {
-      local_qset->setArrayIndex(i);
-      Qt::CheckState x=int2CheckState(local_qset->value("state").toInt());
+      local_qset.setArrayIndex(i);
+      Qt::CheckState x=int2CheckState(local_qset.value("state").toInt());
       ui.listWidget->item(i)->setCheckState(x);
     }
-    local_qset->endArray();
+    local_qset.endArray();
   }
   
-  size = local_qset->beginReadArray("list_BC_Source");
+  size = local_qset.beginReadArray("list_BC_Source");
   if(ui.listWidget_Source->count()==size)
   {
     for (int i = 0; i < size; ++i) {
-      local_qset->setArrayIndex(i);
-      Qt::CheckState x=int2CheckState(local_qset->value("state").toInt());
+      local_qset.setArrayIndex(i);
+      Qt::CheckState x=int2CheckState(local_qset.value("state").toInt());
       ui.listWidget_Source->item(i)->setCheckState(x);
     }
-    local_qset->endArray();
+    local_qset.endArray();
   }
   return(0);
 }
 
 int GuiSmoothSurface::writeSettings()
 {
-  local_qset=new QSettings("enGits","enGrid_smoothsurface");
-//   local_qset->setValue("Filename", current_settingssheet_name);
-  local_qset->setValue("Method", ui.SmoothMethod->currentIndex());
-  local_qset->setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
-  local_qset->setValue("NumberOfIterations", ui.spinBox_NumberOfIterations->value());
-  local_qset->setValue("maxiter_density", ui.spinBox_maxiter_density->value());
-  local_qset->setValue("DebugLevel", ui.spinBox_DebugLevel->value());
-  local_qset->setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
+  QSettings local_qset("enGits","enGrid_smoothsurface");
+//   local_qset.setValue("Filename", current_settingssheet_name);
+  local_qset.setValue("Method", ui.SmoothMethod->currentIndex());
+  local_qset.setValue("NumberOfSmoothIterations", ui.spinBox_NumberOfSmoothIterations->value());
+  local_qset.setValue("NumberOfIterations", ui.spinBox_NumberOfIterations->value());
+  local_qset.setValue("maxiter_density", ui.spinBox_maxiter_density->value());
+  local_qset.setValue("DebugLevel", ui.spinBox_DebugLevel->value());
+  local_qset.setValue("Convergence_meshdensity", ui.doubleSpinBox_Convergence_meshdensity->value());
   
-  local_qset->setValue("insert_FP", ui.checkBox_insert_FP->checkState());
-  local_qset->setValue("insert_EP", ui.checkBox_insert_EP->checkState());
-  local_qset->setValue("remove_FP", ui.checkBox_remove_FP->checkState());
-  local_qset->setValue("remove_EP", ui.checkBox_remove_EP->checkState());
+  local_qset.setValue("insert_FP", ui.checkBox_insert_FP->checkState());
+  local_qset.setValue("insert_EP", ui.checkBox_insert_EP->checkState());
+  local_qset.setValue("remove_FP", ui.checkBox_remove_FP->checkState());
+  local_qset.setValue("remove_EP", ui.checkBox_remove_EP->checkState());
   
-  local_qset->setValue("GenerateErrorScalars", ui.checkBox_GenerateErrorScalars->checkState());
-  local_qset->setValue("GenerateErrorVectors", ui.checkBox_GenerateErrorVectors->checkState());
+  local_qset.setValue("GenerateErrorScalars", ui.checkBox_GenerateErrorScalars->checkState());
+  local_qset.setValue("GenerateErrorVectors", ui.checkBox_GenerateErrorVectors->checkState());
   
-  local_qset->setValue("DoSwap", ui.checkBox_Swap->checkState());
-  local_qset->setValue("DoLaplaceSmoothing", ui.checkBox_LaplaceSmoothing->checkState());
-  local_qset->setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
+  local_qset.setValue("DoSwap", ui.checkBox_Swap->checkState());
+  local_qset.setValue("DoLaplaceSmoothing", ui.checkBox_LaplaceSmoothing->checkState());
+  local_qset.setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
   
   QList<Qt::CheckState> list;
   
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     list << ui.listWidget->item(i)->checkState();
   };
-  local_qset->beginWriteArray("list_BC");
+  local_qset.beginWriteArray("list_BC");
   for (int i = 0; i < list.size(); ++i) {
-    local_qset->setArrayIndex(i);
-    local_qset->setValue("state", list.at(i));
+    local_qset.setArrayIndex(i);
+    local_qset.setValue("state", list.at(i));
   }
-  local_qset->endArray();
+  local_qset.endArray();
   
   list.clear();
   for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
     list << ui.listWidget_Source->item(i)->checkState();
   };
-  local_qset->beginWriteArray("list_BC_Source");
+  local_qset.beginWriteArray("list_BC_Source");
   for (int i = 0; i < list.size(); ++i) {
-    local_qset->setArrayIndex(i);
-    local_qset->setValue("state", list.at(i));
+    local_qset.setArrayIndex(i);
+    local_qset.setValue("state", list.at(i));
   }
-  local_qset->endArray();
-  
+  local_qset.endArray();
   return(0);
 }
 
@@ -1039,9 +1038,10 @@ void GuiSmoothSurface::operate()
     QVector <VertexMeshDensity> VMDvector=getSet();
     
     SurfaceMesher surfacemesher;
-    surfacemesher.setGrid(this->grid);
     
-    surfacemesher.SetInput(bcs,this->grid);
+    surfacemesher.setGrid(this->grid);
+    surfacemesher.SetBoundaryCodes(bcs);
+    
     surfacemesher.SetVertexMeshDensityVector(VMDvector);
     surfacemesher.SetConvergence (ui.doubleSpinBox_Convergence->value());
     surfacemesher.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
@@ -1075,10 +1075,6 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==11)// Update current mesh density + node types
   {
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    SurfaceMesher toto;
-    toto.SetInput(bcs,grid);
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
     SetConvergence(ui.doubleSpinBox_Convergence->value());
@@ -1155,12 +1151,7 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==14)// Update current mesh density + node types v2
   {
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    SurfaceMesher toto;
-    toto.SetInput(bcs,this->grid);
     setDebugLevel(ui.spinBox_DebugLevel->value());
-    
     SetConvergence(ui.doubleSpinBox_Convergence->value());
     SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
     SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());

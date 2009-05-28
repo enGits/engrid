@@ -22,6 +22,8 @@
 //
 #include "insertpoints.h"
 
+#include "guimainwindow.h"
+
 #include <vtkCharArray.h>
 
 #include <QTime>
@@ -318,6 +320,7 @@ int InsertPoints::insert_EP_all()
   allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
   cout<<"=== ALLOCATING: grid ==="<<endl;cout_grid(cout,grid);
   cout<<"=== ALLOCATING: grid_tmp ==="<<endl;cout_grid(cout,grid_tmp);
+  GuiMainWindow::pointer()->QuickSave(GuiMainWindow::pointer()->getFilePath()+"before_makeCopyNoAlloc");
   makeCopyNoAlloc(grid, grid_tmp);
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   

@@ -59,7 +59,6 @@ public:
   GuiSmoothSurface();
   
   QVector <VertexMeshDensity> getSet();
-  QSettings* local_qset;
   
   /** The currently loaded grid file. */
   QString current_filename;
