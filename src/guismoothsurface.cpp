@@ -536,7 +536,6 @@ void GuiSmoothSurface::operate()
       vtkIdType nodeId = node_index->GetValue(i);
       this->grid->GetPoints()->SetPoint(nodeId, x.data());
     };
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==1)//vtkWindowedSincPolyDataFilter smoothing
@@ -576,7 +575,6 @@ void GuiSmoothSurface::operate()
       vtkIdType nodeId = node_index->GetValue(i);
       this->grid->GetPoints()->SetPoint(nodeId, x.data());
     };
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==2)//swap triangles
@@ -599,7 +597,6 @@ void GuiSmoothSurface::operate()
     swap();
     
     cout_grid(cout,this->grid);
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==3)//Laplacian smoothing
@@ -615,7 +612,6 @@ void GuiSmoothSurface::operate()
     setDebugLevel(ui.spinBox_DebugLevel->value());
     Lap();
     Lap.delete_CellLocator_and_ProjectionSurface();
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==4)//VertexAvgDist test
@@ -641,8 +637,6 @@ void GuiSmoothSurface::operate()
     {
       cout<<"node="<<node<<" VertexAvgDist="<<CurrentVertexAvgDist(node)<<endl;
     }
-    
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==5)//Create mesh density map
@@ -686,8 +680,6 @@ void GuiSmoothSurface::operate()
         node_meshdensity_desired->SetValue(node, D);
       }
     }
-    
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==6)// super smoothing
@@ -730,8 +722,6 @@ void GuiSmoothSurface::operate()
     
     surfacemesher();
     surfacemesher.delete_CellLocator_and_ProjectionSurface();
-    
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==7)// Update current mesh density + node types
@@ -746,7 +736,6 @@ void GuiSmoothSurface::operate()
     
     UpdateCurrentMeshDensity();
     UpdateNodeType_all();
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==8)// Delete all possible points
@@ -821,7 +810,6 @@ void GuiSmoothSurface::operate()
     
     UpdateCurrentMeshDensity();
     UpdateNodeType();
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==11)// Projection test
@@ -855,8 +843,6 @@ void GuiSmoothSurface::operate()
     makeCopy(grid_Dest,grid);
     
     this->delete_CellLocator_and_ProjectionSurface();
-    
-    updateActors();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else
