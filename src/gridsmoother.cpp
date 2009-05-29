@@ -239,14 +239,6 @@ double GridSmoother::errThickness(double x)
 
 double GridSmoother::func(vec3_t x)
 {
-  EG_VTKDCC(vtkDoubleArray, err_tet,  grid, "cell_err_tet");
-  EG_VTKDCC(vtkDoubleArray, err_pria, grid, "cell_err_pria");
-  EG_VTKDCC(vtkDoubleArray, err_prib, grid, "cell_err_prib");
-  EG_VTKDCC(vtkDoubleArray, err_pric, grid, "cell_err_pric");
-  EG_VTKDCC(vtkDoubleArray, err_prid, grid, "cell_err_prid");
-  EG_VTKDCC(vtkDoubleArray, err_prie, grid, "cell_err_prie");
-  EG_VTKDCC(vtkDoubleArray, err_prif, grid, "cell_err_prif");
-  
   vec3_t x_old;
   grid->GetPoint(nodes[i_nodes_opt], x_old.data());
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x.data());
@@ -259,11 +251,6 @@ double GridSmoother::func(vec3_t x)
   
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
-    err_tet->SetValue(id_cell,0);
-    err_pria->SetValue(id_cell,0);
-    err_prib->SetValue(id_cell,0);
-    err_pric->SetValue(id_cell,0);
-    err_prid->SetValue(id_cell,0);
     if (isVolume(grid, id_cell)) {
       vtkIdType type_cell = grid->GetCellType(id_cell);
       vtkIdType N_pts, *pts;
@@ -285,7 +272,6 @@ double GridSmoother::func(vec3_t x)
         double V2 = sqrt(1.0/72.0)*L*L*L;
         double e = sqr((V1-V2)/V2);
         f += w_tet*e;
-        err_tet->SetValue(id_cell,e);
       }
       if (type_cell == VTK_WEDGE) {
         double L = 0;
@@ -350,7 +336,6 @@ double GridSmoother::func(vec3_t x)
           //err_pria->SetValue(id_cell,f13*(e1+e2+e3));
           
           f += w_h*e;
-          err_pria->SetValue(id_cell,0);
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           v0.normalise();
@@ -362,17 +347,14 @@ double GridSmoother::func(vec3_t x)
           f += w_par*e1;
           f += w_par*e2;
           f += w_par*e3;
-          err_pric->SetValue(id_cell,f13*(e1+e2+e3));
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e = (1+n_face[0]*n_face[1]);
           f += w_n*e;
-          err_prib->SetValue(id_cell,e);
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e = sqr((A1-A2)/(A1+A2));
           f += w_A*e;
-          err_prid->SetValue(id_cell,e);
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
           double e_skew = 0;
@@ -397,8 +379,6 @@ double GridSmoother::func(vec3_t x)
           e_skew /= N;
           e_orth /= N;
           f += w_skew*e_skew + w_orth*e_orth;
-          err_prie->SetValue(id_cell,e_skew);
-          err_prif->SetValue(id_cell,e_orth);
         }
         
         double f_sharp2 = 0;
