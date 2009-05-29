@@ -63,6 +63,7 @@ struct stencil_t {
   vtkIdType p[4];
   bool valid;
 };
+
 ostream& operator<<(ostream &out, stencil_t S);
 
 ///@@@ Die Methoden fuer Oberflaechennetze sollten in eine neue Klasse SurfaceMeshOperation (oder so aehnlich)
@@ -143,12 +144,6 @@ public: // methods
   void setAllCells();
   void setAllVolumeCells();
   void setAllSurfaceCells();
-  void setAllCellsFromVolume(QString volume_name);
-  void updateCellsFromVolume() { setAllCellsFromVolume(volume_name); }
-  QString getVolumeName() { return volume_name; }
-
-  /// Change the orientation of all faces in the re_orientate_faces vector.
-  void reOrientateFaces();
 
   vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; }
   vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; }
@@ -212,15 +207,15 @@ public: // methods
   void DualSave(QString a_filename);
   
   //Special for UpdateNodeType_all
-  void SetConvergence( double C ) { Convergence=C; };
-  void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
-  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
-  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
-  void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
-  void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
-  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
-  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
-  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
+  void SetConvergence( double C ) { Convergence=C; }
+  void SetNumberOfIterations( int N ) { NumberOfIterations=N; }
+  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; }
+  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; }
+  void SetFeatureAngle( double FA ) { FeatureAngle=FA; }
+  void SetEdgeAngle( double EA ) { EdgeAngle=EA; }
+  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; }
+  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; }
+  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; }
   
   ///Equivalent of n2c in absolute numbering
   QSet<vtkIdType>    n2c_func(vtkIdType idx);
@@ -310,7 +305,7 @@ void Operation::setCells(const T &cls)
   node_fixed.fill(nodes.size(), false);
   cell_fixed.fill(cells.size(), false);
   initMapping();
-};
+}
 
 template <class T>
 void Operation::setNodes(const T &nds)
@@ -326,9 +321,9 @@ void Operation::setNodes(const T &nds)
       if (_nodes[pts[i_pts]] >= 0) {
         cls.insert(id_cell);
         break;
-      };
-    };
-  };
+      }
+    }
+  }
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
   createCellMapping(cells, _cells, grid);

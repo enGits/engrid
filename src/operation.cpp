@@ -108,13 +108,11 @@ void OperationThread::run()
   try {
     GuiMainWindow::lock();
     GuiMainWindow::pointer()->setBusy();
-    op->reOrientateFaces();
     op->operate();
   } catch (Error err) {
     op->err = new Error();
     *(op->err) = err;
   }
-  op->reOrientateFaces();
   GuiMainWindow::unlock();
   GuiMainWindow::pointer()->setIdle();
 }
@@ -133,12 +131,10 @@ void Operation::operator()()
   } else {
     checkGrid();
     try {
-      reOrientateFaces();
       operate();
     } catch (Error err) {
       err.display();
     }
-    reOrientateFaces();
     if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
   }
@@ -163,49 +159,6 @@ void Operation::setAllSurfaceCells()
   QVector<vtkIdType> cells;
   getAllSurfaceCells(cells, grid);
   setCells(cells);
-}
-
-void Operation::setAllCellsFromVolume(QString volume_name)
-{
-  this->volume_name = volume_name;
-  VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
-  QList<vtkIdType> cls;
-  QList<vtkIdType> reo_fcs;
-
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  int N = 0;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell)
-  {
-    if (isSurface(id_cell, grid)) {
-      int bc = cell_code->GetValue(id_cell);
-      if (V.getSign(bc) != 0) {
-        cls.append(id_cell);
-        if (V.getSign(bc) == -1) {
-          reo_fcs.append(id_cell);
-        }
-      }
-    } else {
-      if (cell_code->GetValue(id_cell) == V.getVC()) {
-        cls.append(id_cell);
-      }
-    }
-  }
-  re_orientate_faces.resize(reo_fcs.size());
-  qCopy(reo_fcs.begin(), reo_fcs.end(), re_orientate_faces.begin());
-  setCells(cls);
-}
-
-void Operation::reOrientateFaces()
-{
-  foreach (vtkIdType id_cell, re_orientate_faces) {
-    vtkIdType Npts, *pts;
-    grid->GetCellPoints(id_cell, Npts, pts);
-    vtkIdType new_pts[Npts];
-    for (int i = 0; i < Npts; ++i) {
-      new_pts[i] = pts[Npts-1-i];
-    }
-    grid->ReplaceCell(id_cell, Npts, new_pts);
-  }
 }
 
 void Operation::initMapping()
