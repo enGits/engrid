@@ -1612,41 +1612,6 @@ char Operation::getNodeType(vtkIdType a_node)
     }//if along edge
   }//if edge vertex
   
-/*  //pre-processing
-  if(!FullCycleOfPolygons(a_node)){
-    type=VTK_BOUNDARY_EDGE_VERTEX;
-  }
-  else{
-    int N=getNumberOfFeatureEdges(a_node);
-    if(N==0){
-      type=VTK_SIMPLE_VERTEX;
-    }
-    else if(N==2){
-      type=VTK_FEATURE_EDGE_VERTEX;
-    }
-    else{
-      type=VTK_FIXED_VERTEX;
-    }
-  }
-  //post-processing
-  if( type==VTK_FEATURE_EDGE_VERTEX || type==VTK_BOUNDARY_EDGE_VERTEX ){
-    if( !this->BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ){
-      type=VTK_FIXED_VERTEX;
-    }
-    else if(getNumberOfComplexEdges()!=2){//This is wrong. VTK has been misunderstood. :(
-      type=VTK_FIXED_VERTEX;
-    }
-    else{//also wrong here
-      QVector <vtkIdType> C = Set2Vector(n2c_func(a_node),false);
-      double CosAlpha=CosAngle(grid,C[0],C[1]);
-      double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
-      double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
-      if(CosAlpha<CosEdgeAngle){
-        type=VTK_FIXED_VERTEX;
-      }
-    }
-  }*/
-  
   return(type);
 }
 
@@ -1679,12 +1644,11 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
-    //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
+  //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
   int numNei = getEdgeCells(a_node1,a_node2,neighbour_cells) - 1;
-//     cout<<"numNei="<<numNei<<endl;
   
-    //set default value
+  //set default value
   char edge = VTK_SIMPLE_VERTEX;
   
   if ( numNei == 0 )
@@ -1697,12 +1661,12 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   }
   else if ( numNei == 1 )
   {
-      //check angle between cell1 and cell2 against FeatureAngle
+    //check angle between cell1 and cell2 against FeatureAngle
     if ( this->FeatureEdgeSmoothing && CosAngle(grid,neighbour_cells[0],neighbour_cells[1]) <= CosFeatureAngle )
     {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
-      //check the boundary codes
+    //check the boundary codes
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     if ( cell_code->GetValue(neighbour_cells[0]) !=  cell_code->GetValue(neighbour_cells[1]) )
     {
@@ -1711,33 +1675,12 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   }
   
   return(edge);
-  
-/*  char ret=VTK_SIMPLE_EDGE;//default value
-  
-  QSet <vtkIdType> set1 = n2c_func(a_node1);
-  QSet <vtkIdType> set2 = n2c_func(a_node2);
-  set1.intersect(set2);
-  QVector <vtkIdType> cell_vector = Set2Vector(set1,false);
-  if(cell_vector.size()<2){
-    ret=VTK_BOUNDARY_EDGE;
-  }
-  else{
-    vtkIdType cell1 = cell_vector[0];
-    vtkIdType cell2 = cell_vector[1];
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    int bc1=cell_code->GetValue(cell1);
-    int bc2=cell_code->GetValue(cell2);
-    if(bc1!=bc2){
-      ret=VTK_BOUNDARY_EDGE;
-    }
-    else{
-      double CosAlpha=CosAngle(grid,cell1,cell2);
-      double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
-      if(CosAlpha<CosFeatureAngle) ret=VTK_FEATURE_EDGE;
-    }
-  }
-  
-  return(ret);*/
+}
+
+///@@@ TODO: Finish this function for use in insert_EP
+char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2)
+{
+
 }
 
 int Operation::getNumberOfFeatureEdges(vtkIdType a_node)
