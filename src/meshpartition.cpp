@@ -22,18 +22,16 @@
 //
 
 #include "meshpartition.h"
-#include <vtkMergePoints.h>
+#include <vtkKdTreePointLocator.h>
 
 MeshPartition::MeshPartition()
 {
   grid = NULL;
-  original_orientation = true;
 }
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
   this->grid = grid;
-  original_orientation = true;
   if (use_all_cells) {
     QVector<vtkIdType> cls(grid->GetNumberOfCells());
     for (vtkIdType id_cell = 0; id_cell < cls.size(); ++id_cell) {
@@ -46,18 +44,21 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 MeshPartition::MeshPartition(QString volume_name)
 {
   grid = GuiMainWindow::pointer()->getGrid();
+  resetOrientation(grid);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   QList<vtkIdType> cls;
-  QList<vtkIdType> reo_fcs;
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell)
-  {
+  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     if (isSurface(id_cell, grid)) {
       int bc = cell_code->GetValue(id_cell);
+      cell_voldir->SetValue(id_cell, 0);
       if (V.getSign(bc) != 0) {
         cls.append(id_cell);
         if (V.getSign(bc) == -1) {
-          reo_fcs.append(id_cell);
+          cell_voldir->SetValue(id_cell, 1);
         }
       }
     } else {
@@ -66,41 +67,32 @@ MeshPartition::MeshPartition(QString volume_name)
       }
     }
   }
-  re_orientate_faces.resize(reo_fcs.size());
-  qCopy(reo_fcs.begin(), reo_fcs.end(), re_orientate_faces.begin());
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
   getNodesFromCells(cells, nodes, grid);
   createCellMapping(cells, _cells, grid);
   createNodeMapping(nodes, _nodes, grid);
-  original_orientation = true;
-}
-
-void MeshPartition::changeOrientation()
-{
-  foreach (vtkIdType id_cell, re_orientate_faces) {
-    vtkIdType Npts, *pts;
-    grid->GetCellPoints(id_cell, Npts, pts);
-    vtkIdType new_pts[Npts];
-    for (int i = 0; i < Npts; ++i) {
-      new_pts[i] = pts[Npts-1-i];
-    }
-    grid->ReplaceCell(id_cell, Npts, new_pts);
-  }
-  original_orientation = !original_orientation;
 }
 
 void MeshPartition::setVolumeOrientation()
 {
-  if (original_orientation) {
-    changeOrientation();
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
+  foreach (vtkIdType id_cell, cells) {
+    if (cell_curdir->GetValue(id_cell) != cell_voldir->GetValue(id_cell)) {
+      reorientateFace(grid, id_cell);
+    }
   }
 }
 
 void MeshPartition::setOriginalOrientation()
 {
-  if (!original_orientation) {
-    changeOrientation();
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
+  foreach (vtkIdType id_cell, cells) {
+    if (cell_curdir->GetValue(id_cell) != cell_orgdir->GetValue(id_cell)) {
+      reorientateFace(grid, id_cell);
+    }
   }
 }
 
@@ -108,7 +100,7 @@ void MeshPartition::setRemainder(const MeshPartition& part)
 {
   setGrid(part.getGrid());
   QVector<vtkIdType> rcells;
-  getRestCells(grid, cells, rcells);
+  getRestCells(grid, part.cells, rcells);
   setCells(rcells);
 }
 
@@ -137,19 +129,34 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
 void MeshPartition::addPartition(const MeshPartition& part)
 {
   if (grid == part.grid) {
+    QVector<bool> cell_marked(grid->GetNumberOfCells(), false);
+    foreach (vtkIdType id_cell, cells) {
+      cell_marked[id_cell] = true;
+    }
+    foreach (vtkIdType id_cell, part.cells) {
+      cell_marked[id_cell] = true;
+    }
+    QList<vtkIdType> new_cells;
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (cell_marked[id_cell]) {
+        new_cells.append(id_cell);
+      }
+    }
+    setCells(new_cells);
   } else {
+    double tol = 1e-3*min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
-    EG_VTKSP(vtkMergePoints,loc);
+    EG_VTKSP(vtkKdTreePointLocator,loc);
     loc->SetDataSet(grid);
-    loc->BuildLocator();
-
     QVector<vtkIdType> pnode2node(part.grid->GetNumberOfPoints());
     vtkIdType N = grid->GetNumberOfPoints();
     foreach (vtkIdType id_pnode, part.nodes) {
-      vec3_t x;
-      part.grid->GetPoint(id_pnode, x.data());
-      if (loc->IsInsertedPoint(x.data())) {
-        pnode2node[id_pnode] = loc->FindClosestPoint(x.data());
+      vec3_t xp, x;
+      part.grid->GetPoint(id_pnode, xp.data());
+      vtkIdType id_node = loc->FindClosestPoint(xp.data());
+      grid->GetPoint(id_node, x.data());
+      if ((x - xp).abs() < tol) {
+        pnode2node[id_pnode] = id_node;
       } else {
         pnode2node[id_pnode] = N;
         ++N;
@@ -179,9 +186,9 @@ void MeshPartition::addPartition(const MeshPartition& part)
     }
     foreach (vtkIdType id_pcell, part.cells) {
       vtkIdType N_pts, *pts;
-      vtkIdType new_pts[N_pts];
       vtkIdType type_cell = part.grid->GetCellType(id_pcell);
       part.grid->GetCellPoints(id_pcell, N_pts, pts);
+      vtkIdType new_pts[N_pts];
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = pnode2node[pts[i]];
       }
@@ -191,4 +198,68 @@ void MeshPartition::addPartition(const MeshPartition& part)
     }
     makeCopy(new_grid, grid);
   }
+}
+
+double MeshPartition::getSmallestEdgeLength() const
+{
+  double L = 1e99;
+  foreach (vtkIdType id_cell, cells) {
+    vtkIdType type_cell = grid->GetCellType(id_cell);
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    vec3_t x[N_pts];
+    for (int i = 0; i < N_pts; ++i) {
+      grid->GetPoint(pts[i], x[0].data());
+    }
+    if        (type_cell == VTK_TRIANGLE) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[0]).abs());
+    } else if (type_cell == VTK_QUAD) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[3]).abs());
+      L = min(L, (x[3] - x[0]).abs());
+    } else if (type_cell == VTK_TETRA) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[0]).abs());
+      L = min(L, (x[3] - x[0]).abs());
+      L = min(L, (x[3] - x[1]).abs());
+      L = min(L, (x[3] - x[2]).abs());
+    } else if (type_cell == VTK_PYRAMID) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[3]).abs());
+      L = min(L, (x[3] - x[0]).abs());
+      L = min(L, (x[4] - x[0]).abs());
+      L = min(L, (x[4] - x[1]).abs());
+      L = min(L, (x[4] - x[2]).abs());
+      L = min(L, (x[4] - x[3]).abs());
+    } else if (type_cell == VTK_WEDGE) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[0]).abs());
+      L = min(L, (x[3] - x[4]).abs());
+      L = min(L, (x[4] - x[5]).abs());
+      L = min(L, (x[5] - x[3]).abs());
+      L = min(L, (x[0] - x[3]).abs());
+      L = min(L, (x[1] - x[4]).abs());
+      L = min(L, (x[2] - x[5]).abs());
+    } else if (type_cell == VTK_HEXAHEDRON) {
+      L = min(L, (x[0] - x[1]).abs());
+      L = min(L, (x[1] - x[2]).abs());
+      L = min(L, (x[2] - x[3]).abs());
+      L = min(L, (x[3] - x[0]).abs());
+      L = min(L, (x[4] - x[5]).abs());
+      L = min(L, (x[5] - x[6]).abs());
+      L = min(L, (x[6] - x[7]).abs());
+      L = min(L, (x[7] - x[4]).abs());
+      L = min(L, (x[0] - x[4]).abs());
+      L = min(L, (x[1] - x[5]).abs());
+      L = min(L, (x[2] - x[6]).abs());
+      L = min(L, (x[3] - x[7]).abs());
+    }
+  }
+  return L;
 }

@@ -86,9 +86,6 @@ public: // methods
   /// Access to the local node indices;
   const QVector<int>& getLocalNodes() { return _nodes; }
 
-  /// change the orientation of the faces that are marked for a specific volume
-  void changeOrientation();
-
   /// change the face orientation to match the volume definition
   void setVolumeOrientation();
 
@@ -109,13 +106,16 @@ public: // methods
    */
   void addPartition(const MeshPartition& part);
 
+  /**
+   * compute the smallest edge length of the partition
+   * @return the smalles edge length
+   */
+  double getSmallestEdgeLength() const;
+
 private: // attributes
 
   /// the grid underlying this mesh partition
   vtkUnstructuredGrid *grid;
-
-  /// all faces that need to be re-orientated to match a certain volume definition
-  QVector<vtkIdType> re_orientate_faces;
 
   /// all cells of the mesh partition
   QVector<vtkIdType> cells;
@@ -129,9 +129,6 @@ private: // attributes
   /// inverse indexing for the nodes
   QVector<int> _nodes;
 
-  /// flag to track the status of the orientation of faces
-  bool original_orientation;
-
 };
 
 
@@ -141,11 +138,9 @@ void MeshPartition::setCells(const C& cls)
 {
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
-  re_orientate_faces.clear();
   getNodesFromCells(cells, nodes, grid);
   createCellMapping(cells, _cells, grid);
   createNodeMapping(nodes, _nodes, grid);
-  original_orientation = true;
 }
 
 #endif // MESHPARTITION_H
