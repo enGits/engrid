@@ -1,10 +1,14 @@
 #!/bin/bash
 set -eux
 
-make distclean && qmake engrid.pro && make
-make distclean && qmake engrid.pro.cgns && make
+echo "Building engrid.pro release version"
+make distclean && qmake engrid.pro && make -j2
+echo "Building engrid.pro.cgns release version"
+make distclean && qmake engrid.pro.cgns && make -j2
 
-make distclean && qmake engrid.pro && make debug
-make distclean && qmake engrid.pro.cgns && make debug
+echo "Building engrid.pro debug version"
+make distclean && qmake engrid.pro && make -j2 debug
+echo "Building engrid.pro.cgns debug version"
+make distclean && qmake engrid.pro.cgns && make -j2 debug
 
-echo "SUCCESS: Both project files work."
+echo "SUCCESS: Everything compiles."
