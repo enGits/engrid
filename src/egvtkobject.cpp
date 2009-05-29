@@ -719,9 +719,12 @@ void EgVtkObject::copyCellData
   vtkIdType            newId
 )
 {
-  EGVTKOBJECT_COPYCELLDATA("vtk_type",      vtkIntArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_code",     vtkIntArray);
-  EGVTKOBJECT_COPYCELLDATA("cell_index",    vtkLongArray_t);
+  EGVTKOBJECT_COPYCELLDATA("vtk_type",    vtkIntArray);
+  EGVTKOBJECT_COPYCELLDATA("cell_code",   vtkIntArray);
+  EGVTKOBJECT_COPYCELLDATA("cell_orgdir", vtkIntArray);
+  EGVTKOBJECT_COPYCELLDATA("cell_curdir", vtkIntArray);
+  EGVTKOBJECT_COPYCELLDATA("cell_voldir", vtkIntArray);
+  EGVTKOBJECT_COPYCELLDATA("cell_index",  vtkLongArray_t);
 }
 
 #define EGVTKOBJECT_COPYNODEDATA(FIELD,TYPE) \
@@ -793,12 +796,13 @@ void EgVtkObject::createBasicCellFields
   bool                 overwrite
 )
 {
-  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,         vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_code",         vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_index",        vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_orientation1", vtkIntArray, overwrite);     // original orientation
-  EGVTKOBJECT_CREATECELLFIELD("cell_orientation2", vtkIntArray, overwrite);     // current orientation
-  EGVTKOBJECT_CREATECELLFIELD("cell_VA",           vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,   vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_code",   vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_index",  vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_orgdir", vtkIntArray, overwrite); // original orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_curdir", vtkIntArray, overwrite); // current orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_voldir", vtkIntArray, overwrite); // volume orientation -- only valid for a single (i.e. the current) volume
+  EGVTKOBJECT_CREATECELLFIELD("cell_VA",     vtkDoubleArray, overwrite);
 }
 
 void EgVtkObject::createBasicNodeFields
@@ -894,6 +898,39 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
     src->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
     copyCellData(src, id_cell, dst, id_new_cell);
+  }
+}
+
+void EgVtkObject::reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face)
+{
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_face, N_pts, pts);
+  vtkIdType new_pts[N_pts];
+  for (int i = 0; i < N_pts; ++i) {
+    new_pts[i] = pts[N_pts - i - 1];
+  }
+  if (cell_curdir->GetValue(id_face) == 0) {
+    cell_curdir->SetValue(id_face, 1);
+  } else {
+    cell_curdir->SetValue(id_face, 0);
+  }
+  grid->ReplaceCell(id_face, N_pts, new_pts);
+}
+
+void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
+{
+  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
+  QVector<vtkIdType> faces;
+  getAllSurfaceCells(faces, grid);
+  foreach (vtkIdType id_face, faces) {
+    if (cell_curdir->GetValue(id_face) != cell_orgdir->GetValue(id_face)) {
+      reorientateFace(grid, id_face);
+      cell_curdir->SetValue(id_face, cell_orgdir->GetValue(id_face));
+    }
+    cell_voldir->SetValue(id_face, 0);
   }
 }
 

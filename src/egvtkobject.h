@@ -531,6 +531,19 @@ protected: // methods
    * @param dst a pointer to the destination grid
    */
   void makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+
+  /**
+   * Change the orientation of a face.
+   * @param grid the grid to use
+   * @param id_face the id of the face to change
+   */
+  void reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face);
+
+  /**
+   * Reset face orientation to original orientation.
+   * @param grid the grid with the faces
+   */
+  void resetOrientation(vtkUnstructuredGrid *grid);
   
   void createIndices(vtkUnstructuredGrid *grid);
   
@@ -592,7 +605,7 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
   QVector<vtkIdType> nodes;
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
-  getNodesFromCells(cells, nodes, grid);
+  getNodesFromCells(cells, nodes, grid);///@@@ Urgs!
   allocateGrid(tmp_grid, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
   QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
