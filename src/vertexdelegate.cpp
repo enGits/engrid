@@ -28,18 +28,19 @@
 #include <iostream>
 using namespace std;
 
-VertexDelegate::VertexDelegate(int durationColumn, QList<QString> list, QObject *parent)
+VertexDelegate::VertexDelegate(int Column, QList<QString> list, QObject *parent)
     : QItemDelegate(parent)
 {
     this->list = list;
-    this->durationColumn = durationColumn;
+    this->Column = Column;
 }
+
 
 void VertexDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-    if (index.column() == durationColumn) {
+    if (index.column() == Column) {
         QString text = index.model()->data(index, Qt::DisplayRole).toString();
 
         QStyleOptionViewItem myOption = option;
@@ -56,7 +57,7 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
         const QStyleOptionViewItem &option,
         const QModelIndex &index) const
 {
-    if (index.column() == durationColumn) {
+    if (index.column() == Column) {
         QComboBox *ComboEdit = new QComboBox(parent);
 	foreach(QString str,list) ComboEdit->addItem(str);
         connect(ComboEdit, SIGNAL(editingFinished()),
@@ -70,7 +71,7 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
 void VertexDelegate::setEditorData(QWidget *editor,
                                   const QModelIndex &index) const
 {
-    if (index.column() == durationColumn) {
+    if (index.column() == Column) {
 //         int secs = index.model()->data(index, Qt::DisplayRole).toInt();
 //         QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
 // 	ComboEdit->setCurrentIndex(secs);
@@ -83,7 +84,7 @@ void VertexDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
-    if (index.column() == durationColumn) {
+    if (index.column() == Column) {
         QComboBox *ComboEdit = qobject_cast<QComboBox *>(editor);
         model->setData(index, ComboEdit->currentText());
     } else {

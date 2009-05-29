@@ -54,7 +54,8 @@ protected: // methods
 
 private:
   int Nbc;
-  SettingsSheet* tableWidget;
+  SettingsSheet* m_tableWidget;
+  
 public:
   GuiSmoothSurface();
   

@@ -2229,18 +2229,18 @@ vec3_t Operation::project(vec3_t OM)
 {
   vec3_t OP;
   
-  vtkIdType cellId;
+/*  vtkIdType cellId;
   int subId;
   double dist2;
-  m_CellLocator->FindClosestPoint(OM.data(),OP.data(),cellId,subId,dist2);
+  m_CellLocator->FindClosestPoint(OM.data(),OP.data(),cellId,subId,dist2);*/
   
 //   OM=OA+AP+PM;
-/*  vec3_t OA(0,0,OM[2]);
+  vec3_t OA(0,0,OM[2]);
   vec3_t AM=OM-OA;
   vec3_t r=AM;
   r.normalise();
   vec3_t AP=0.1*r;
-  OP=OA+AP;*/
+  OP=OA+AP;
   
   return(OP);
 }
