@@ -66,12 +66,13 @@ void SurfaceMesher::operate()
       UpdateNodeInfo(false);
       InsertPoints insert_field_points;
       insert_field_points.setGrid(grid);
-      insert_field_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
+      insert_field_points.setSource(m_ProjectionSurface);
       insert_field_points.SetBCS(m_bcs);
       insert_field_points.Set_insert_FP(true);
       insert_field_points.Set_insert_EP(false);
       insert_field_points.SetVertexMeshDensityVector(VMDvector);
       insert_field_points();
+      insert_field_points.delete_CellLocator_and_ProjectionSurface();
       if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-insert");
       if(DoSwap) SwapFunction();
       if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-swap");
@@ -85,12 +86,13 @@ void SurfaceMesher::operate()
       UpdateNodeInfo(false);
       InsertPoints insert_edge_points;
       insert_edge_points.setGrid(grid);
-      insert_edge_points.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
+      insert_edge_points.setSource(m_ProjectionSurface);
       insert_edge_points.SetBCS(m_bcs);
       insert_edge_points.Set_insert_FP(false);
       insert_edge_points.Set_insert_EP(true);
       insert_edge_points.SetVertexMeshDensityVector(VMDvector);
       insert_edge_points();
+      insert_edge_points.delete_CellLocator_and_ProjectionSurface();
       if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-insert");
       if(DoSwap) SwapFunction();
       if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-swap");
@@ -247,9 +249,10 @@ int SurfaceMesher::SmoothFunction()
   LaplaceSmoother Lap;
   Lap.setGrid(this->grid);
   Lap.setBoundaryCodes(m_bcs);
-  Lap.set_CellLocator_and_ProjectionSurface(m_CellLocator,m_ProjectionSurface);
+  Lap.setSource(m_ProjectionSurface);
   Lap.SetNumberOfIterations(N_SmoothIterations);
   Lap();
+  Lap.delete_CellLocator_and_ProjectionSurface();
   cout<<"=== SmoothFunction END ==="<<endl;
   return(0);
 }
