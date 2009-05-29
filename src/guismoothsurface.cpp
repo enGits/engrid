@@ -50,9 +50,6 @@
 #include <vtkFloatArray.h>
 #include <vtkCellArray.h>
 
-#include "vtkeggridsmoothpolydatafilter.h"
-#include "vtkeggridwindowedsincpolydatafilter.h"
-
 ///////////////////////////////////////////
 /* Here is how we we get QTextStreams that look like iostreams */
 QTextStream Qcin(stdin, QIODevice::ReadOnly);
