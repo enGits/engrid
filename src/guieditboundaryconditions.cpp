@@ -40,6 +40,7 @@ GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
 void GuiEditBoundaryConditions::before()
 {
   if (!bcmap) EG_BUG;
+  resetOrientation(grid);
   while (ui.T->rowCount()) ui.T->removeRow(0);
   foreach (int i, boundary_codes) {
     BoundaryCondition bc = (*bcmap)[i];
