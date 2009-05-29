@@ -40,7 +40,6 @@ void GuiCreateVolumeMesh::operate()
   CreateVolumeMesh mesh_volume;
   mesh_volume.setGrid(grid);
   QString volume_name = getSelectedVolume(ui.listWidget);
-  mesh_volume.setAllCellsFromVolume(volume_name);
   mesh_volume();
 }
 
