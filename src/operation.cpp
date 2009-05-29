@@ -2215,8 +2215,8 @@ void Operation::setSource(vtkUnstructuredGrid *a_ProjectionSurface)
 
 void Operation::set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface)
 {
-  m_CellLocator = a_CellLocator;
-  m_ProjectionSurface = a_ProjectionSurface;
+  m_CellLocator = vtkCellLocator::SafeDownCast(a_CellLocator);
+  m_ProjectionSurface = vtkUnstructuredGrid::SafeDownCast(a_ProjectionSurface);
   
   cout<<"===set_CellLocator_and_ProjectionSurface==="<<endl;
   cout_grid(cout,m_ProjectionSurface);

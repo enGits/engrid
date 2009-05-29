@@ -13,7 +13,7 @@ INSTALLS += target
 CONFIG += qt debug_and_release thread
 
 #DEFINES += QT_NO_DEBUG
-#DEFINES += QT_DEBUG
+DEFINES += QT_DEBUG
 
 # QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
 # get "git revision number"
