@@ -436,6 +436,7 @@ int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
   }
   
   cout<<"==============="<<endl;
+  newScalars->Delete();
   return(0);
 }
 
