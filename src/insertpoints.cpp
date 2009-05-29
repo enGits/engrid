@@ -110,10 +110,6 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   //initialize new node counter
   vtkIdType l_newNodeId=m_N_points;
   
-  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
-  l_CellLocator->SetDataSet(m_ProjectionSurface);
-  l_CellLocator->BuildLocator();
-  
   ///@@@  TODO: optimize
   //unmark cells
   m_marked_cells.clear();//why?
@@ -145,8 +141,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       //============================================
       // ADD POINT
       C=project(C);
-      addPoint(grid_tmp,l_newNodeId,C.data(),m_CellLocator);
-      
+      grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
 
       //============================================
       ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
@@ -219,8 +214,6 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       
     }
   }
-  
-  l_CellLocator->Delete();
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_actor END==="<<endl;
@@ -327,11 +320,6 @@ int InsertPoints::insert_EP_all()
   //initialize new node counter
   vtkIdType l_newNodeId = l_N_points;
   
-  //initialize vtkCellLocator
-  vtkCellLocator* l_CellLocator = vtkCellLocator::New();
-  l_CellLocator->SetDataSet(m_ProjectionSurface);
-  l_CellLocator->BuildLocator();
-  
   //actor
   for(int i=0;i<cells.size();i++) {
     if(l_marked_cells[i]==1) {
@@ -346,7 +334,7 @@ int InsertPoints::insert_EP_all()
       //project point
       M=project(M);
       //add point
-      addPoint(grid_tmp,l_newNodeId,M.data(),l_CellLocator);
+      grid_tmp->GetPoints()->SetPoint(l_newNodeId, M.data());
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
       node_type->SetValue(l_newNodeId,getEdgeType(S.p[1],S.p[3]));
@@ -413,9 +401,6 @@ int InsertPoints::insert_EP_all()
       l_newNodeId++;
     }
   }
-  
-  //delete vtkCellLocator
-  l_CellLocator->Delete();
   
   //update grid
   makeCopy(grid_tmp,grid);
