@@ -904,7 +904,7 @@ void GuiSmoothSurface::operate()
     Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
     setDebugLevel(ui.spinBox_DebugLevel->value());
     Lap();
-    
+    Lap.delete_CellLocator_and_ProjectionSurface();
     updateActors();
     
     cout<<"===DEFAULT VALUES==="<<endl;
@@ -1070,6 +1070,7 @@ void GuiSmoothSurface::operate()
     surfacemesher.setSource(this->grid);
     
     surfacemesher();
+    surfacemesher.delete_CellLocator_and_ProjectionSurface();
     
     updateActors();
   }
@@ -1178,7 +1179,7 @@ void GuiSmoothSurface::operate()
     getSurfaceCells(bcs_Source, cells, grid);
     getSubGrid(grid,cells,grid_Source);
     writeCells(grid,cells,GuiMainWindow::pointer()->getFilePath()+"Source.vtu");
-    setSource(grid_Source);
+    this->setSource(grid_Source);
     
     EG_VTKSP(vtkUnstructuredGrid,grid_Dest);
     makeCopy(grid,grid_Dest);
@@ -1193,6 +1194,8 @@ void GuiSmoothSurface::operate()
     }
     
     makeCopy(grid_Dest,grid);
+    
+    this->delete_CellLocator_and_ProjectionSurface();
     
     updateActors();
   }

@@ -2244,3 +2244,17 @@ vec3_t Operation::project(vec3_t OM)
   
   return(OP);
 }
+
+void Operation::delete_CellLocator_and_ProjectionSurface()
+{
+  if(m_CellLocator) {
+    cout<<"WARNING: Deleting m_CellLocator!"<<endl;
+    m_CellLocator->Delete();
+    m_CellLocator=NULL;
+  }
+  if(m_ProjectionSurface) {
+    cout<<"WARNING: Deleting m_ProjectionSurface!"<<endl;
+    m_ProjectionSurface->Delete();
+    m_ProjectionSurface=NULL;
+  }
+}
