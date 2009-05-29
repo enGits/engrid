@@ -69,21 +69,14 @@ void GuiCreateBoundaryLayer::operate()
     MeshPartition volume(volume_name);
     MeshPartition rest(grid);
     rest.setRemainder(volume);
-
-    ///@@@ something is wrong here
-    /*
-    The surface needs to be re-orientated; but afterwards it has to be changed back
-    and the information might be lost ...
-    */
-
+    volume.setVolumeOrientation();
     volume.extractToVtkGrid(vol_grid);
     rest.extractToVtkGrid(rest_grid);
     makeCopy(vol_grid, grid);
   }
 
-  DUMP(grid,"reduced");
+  DUMP(rest_grid,"reduced");
 
-  getSurfaceCells(boundary_codes, layer_cells, grid);
   setAllCells();
   getSurfaceCells(boundary_codes, layer_cells, grid);
 
@@ -156,6 +149,7 @@ void GuiCreateBoundaryLayer::operate()
     vol();
     vol.getTraceCells(layer_cells);
     if (smooth.improvement() < err_max) break;
+    break;
   }
   //smooth.setAllCells();
   //smooth();
@@ -171,8 +165,11 @@ void GuiCreateBoundaryLayer::operate()
   {
     MeshPartition volume(grid, true);
     MeshPartition rest(rest_grid, true);
+    DUMP(grid,"grid");
+    DUMP(rest_grid,"rest_grid");
     volume.addPartition(rest);
   }
+  resetOrientation(grid);
   createIndices(grid);
 }
 
