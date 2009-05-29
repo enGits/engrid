@@ -231,7 +231,8 @@ guiselectboundarycodes.ui \
 guisetboundarycode.ui \
 guismoothsurface.ui \
 guitransform.ui \
-guipick.ui
+guipick.ui \
+guicreatevolumemesh.ui
 
 #
 # end

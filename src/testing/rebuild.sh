@@ -4,5 +4,7 @@ set -eux
 make distclean && qmake engrid.pro && make
 make distclean && qmake engrid.pro.cgns && make
 
-echo "SUCCESS: Both project files work."
+make distclean && qmake engrid.pro && make debug
+make distclean && qmake engrid.pro.cgns && make debug
 
+echo "SUCCESS: Both project files work."
