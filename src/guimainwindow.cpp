@@ -890,6 +890,8 @@ void GuiMainWindow::Info()
 
 int GuiMainWindow::QuickSave()
 {
+  ///@@@ might be re-activated with RAM support
+  /*
   if(grid->GetNumberOfPoints()>0)
   {
     current_operation++;
@@ -904,33 +906,43 @@ int GuiMainWindow::QuickSave()
   }
   else cout<<"No grid to save!"<<endl;
   return(current_operation);
+  */
+  return 0;
 }
 
 void GuiMainWindow::QuickLoad(int a_operation)
 {
+  ///@@@ might be re-activated with RAM support
+  /*
   QFileInfo fileinfo(current_filename);
   QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
-//   cout<<"Loading l_filename="<<l_filename.toLatin1().data()<<endl;
   QuickLoad(l_filename);
   setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+  */
 }
 
 void GuiMainWindow::Undo()
 {
+  QMessageBox::critical(this, "de-activated", "Undo is not doing anything at the moment!");
+  /*
   cout << "Undoing operation " << current_operation << endl;
   current_operation--;
   QuickLoad(current_operation);
   ui.actionRedo->setEnabled(true);
   if(current_operation<=0) ui.actionUndo->setEnabled(false);
+  */
 };
 
 void GuiMainWindow::Redo()
 {
+  QMessageBox::critical(this, "de-activated", "Redo is not doing anything at the moment!");
+  /*
   current_operation++;
   cout << "Redoing operation " << current_operation << endl;
   QuickLoad(current_operation);
   ui.actionUndo->setEnabled(true);
   if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);
+  */
 };
 
 void GuiMainWindow::ResetOperationCounter()
