@@ -182,7 +182,7 @@ private: // attributes
   QStatusBar *status_bar;
   
   /** Label for the information in the status bar */
-//   QLabel *status_label;
+  QLabel *status_label;
   
   /** A QList with all active boundary codes. */
   QSet<int> display_boundary_codes;
@@ -293,7 +293,7 @@ public: // methods
   void setIdle() { busy = false; updateStatusBar(); }
   
   /// Returns log directory
-  QString getLogDir() { return m_LogDir; };
+  QString getLogDir() { return m_LogDir; }
   
 public: // static methods
   
@@ -343,7 +343,7 @@ public: // static methods
   bool pickPoint(vtkIdType Point);
   bool pickCell(vtkIdType cellId);
   
-  QString getFilename() {return(current_filename);};
+  QString getFilename() { return(current_filename); }
   
 public slots:
   void setUseVTKInteractor(int a_UseVTKInteractor);

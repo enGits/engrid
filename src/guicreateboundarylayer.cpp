@@ -42,11 +42,12 @@ void GuiCreateBoundaryLayer::before()
   populateVolumes(ui.listWidgetVC);
 }
 
-#define DUMP(GRID,NAME) \
-{ \
-  QString name = QString(NAME) + ".vtu"; \
-  setAllCells(); \
-  writeCells(GRID, cells, name); \
+void GuiCreateBoundaryLayer::dump(vtkUnstructuredGrid *grid, QString name) ///@@@ remove later
+{
+  name += ".vtu";
+  QVector<vtkIdType> cells;
+  getAllCells(cells, grid);
+  writeCells(grid, cells, name);
 }
 
 void GuiCreateBoundaryLayer::operate()
@@ -75,7 +76,8 @@ void GuiCreateBoundaryLayer::operate()
     makeCopy(vol_grid, grid);
   }
 
-  DUMP(rest_grid,"reduced");
+  dump(grid, "grid1");
+  dump(rest_grid,"rest1");
 
   setAllCells();
   getSurfaceCells(boundary_codes, layer_cells, grid);
@@ -165,8 +167,8 @@ void GuiCreateBoundaryLayer::operate()
   {
     MeshPartition volume(grid, true);
     MeshPartition rest(rest_grid, true);
-    DUMP(grid,"grid");
-    DUMP(rest_grid,"rest_grid");
+    dump(grid,"grid2");
+    dump(rest_grid,"rest2");
     volume.addPartition(rest);
   }
   resetOrientation(grid);

@@ -44,6 +44,7 @@ private: // attributes
 private: // methods
   
   void deleteTouchingPrisms(int layer, double L);
+  void dump(vtkUnstructuredGrid *grid, QString name);
   
 protected: // methods
   
@@ -53,7 +54,7 @@ protected: // methods
 public: // methods
   
   GuiCreateBoundaryLayer();
-  
+
 };
 
 #endif
