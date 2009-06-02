@@ -78,22 +78,9 @@ class SurfaceMesher : public Operation {
     int m_total_N_newpoints;
     int m_total_N_newcells;
   
-    vtkUnstructuredGrid* m_grid;
-    
     QSet<int> m_bcs;
-    QVector <vtkIdType> m_SelectedNodes;
-    QVector <vtkIdType> m_AllNodes;
-    QVector<vtkIdType> m_SelectedCells;
-    QVector<vtkIdType> m_AllCells;
   
-//     QMap <vtkIdType,bool> m_marked_cells;
-//     QMap <vtkIdType,bool> m_marked_nodes;
-  
-    void SetInput(QSet<int> a_bcs,vtkUnstructuredGrid* a_grid)
-    {
-      m_bcs=a_bcs;
-      m_grid=a_grid;
-    };
+    void SetBoundaryCodes(QSet<int> a_bcs) { m_bcs=a_bcs; };
   
     //Used for UpdateDesiredMeshDensity operation
     int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
@@ -112,7 +99,7 @@ class SurfaceMesher : public Operation {
     int SwapFunction();
     int SmoothFunction();
     void MeshDensityFunction();
-    void UpdateNodeInfo();
+    void UpdateNodeInfo(bool UpdateType);
 };
 //end of SurfaceMesher class
 

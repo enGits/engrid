@@ -32,7 +32,7 @@ class SwapTriangles : public Operation
   
 private: // attributes
   
-  QVector<bool> marked;
+  QVector<bool> m_marked;
   bool m_RespectBC;
   bool m_FeatureSwap;
   
@@ -40,7 +40,8 @@ private: // methods
   
   void prepare();
   bool TestSwap(stencil_t S);
-  
+  bool isEdge(vtkIdType A, vtkIdType B);
+    
 protected: // methods
   
   virtual void operate();

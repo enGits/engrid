@@ -61,7 +61,9 @@ struct stencil_t {
   vtkIdType id_cell1;
   vtkIdType id_cell2;
   vtkIdType p[4];
-  bool valid;
+  bool sameBC;//do both cells have the same BCs?
+  bool twocells;//Do we have 2 cells?
+  char neighbour_type;//What's the type of the neighbour cell?
 };
 
 ostream& operator<<(ostream &out, stencil_t S);
@@ -89,9 +91,11 @@ private: // attributes
   QVector<vtkIdType> nodes_map;
   QVector<vtkIdType> cells_map;
   bool               gui;
+  /** Determines whether the grid should be saved after the operation or not. (default is false) */
+  bool               m_quicksave;
+  /** Determines whether the operation counter should be reset or not after the operation (default is false) */
+  bool               m_resetoperationcounter;
   bool               autoset;
-  bool               m_quicksave;             /// save grid after the operation or not. (default is false)
-  bool               m_resetoperationcounter; /// reset operation counter after the operation (default is false)
   Error             *err;
   QString            volume_name;
   
@@ -101,7 +105,8 @@ private: // methods
   
 protected: // attributes
   
-  vtkUnstructuredGrid   *grid;        /// The main grid the operation operates on.
+  /** The main grid the operation operates on. */
+  vtkUnstructuredGrid   *grid;
   QVector<vtkIdType>     cells;
   QVector<int>           _cells;
   QVector<vtkIdType>     nodes;
@@ -113,19 +118,21 @@ protected: // attributes
   QVector<bool>          cell_fixed;
   QVector<vtkIdType>     re_orientate_faces;
 
-  vtkCellLocator*      m_CellLocator;        /// vtkCellLocator used for any operations requiring projection on a surface.
-  vtkUnstructuredGrid* m_ProjectionSurface;  /// vtkUnstructuredGrid used for any operations requiring projection on a surface.
+  /** vtkCellLocator used for any operations requiring projection on a surface. */
+  vtkCellLocator* m_CellLocator;
+  /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
+  vtkUnstructuredGrid* m_ProjectionSurface;
   
   //Special attributes for UpdateNodeType_all function
   double Convergence;
-  int    NumberOfIterations;
+  int NumberOfIterations;
   double RelaxationFactor;
-  int    FeatureEdgeSmoothing;
+  int FeatureEdgeSmoothing;
   double FeatureAngle;
   double EdgeAngle;
-  int    BoundarySmoothing;
-  int    GenerateErrorScalars;
-  int    GenerateErrorVectors;
+  int BoundarySmoothing;
+  int GenerateErrorScalars;
+  int GenerateErrorVectors;
   
 protected: // methods
   
@@ -176,7 +183,7 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
-  stencil_t getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC);
+  stencil_t getStencil(vtkIdType id_cell1, int j1);
   
   vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
@@ -194,11 +201,18 @@ public: // methods
   ///The same for boundary codes!
   bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
   
+  /**
+   * Returns a QSet containing neighbour points to which the point Boss can snap.
+   * This is used for moving/removing boundary/feature edge vertices without destroying the geometry.
+   */
+  QSet <vtkIdType> getPotentialSnapPoints(vtkIdType Boss);
+  
+  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
+  
   int UpdateCurrentMeshDensity();
   int UpdateNodeType_all();
   int UpdateNodeType();
   
-  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
   bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
@@ -207,29 +221,35 @@ public: // methods
   void DualSave(QString a_filename);
   
   //Special for UpdateNodeType_all
-  void SetConvergence( double C ) { Convergence=C; }
-  void SetNumberOfIterations( int N ) { NumberOfIterations=N; }
-  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; }
-  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; }
-  void SetFeatureAngle( double FA ) { FeatureAngle=FA; }
-  void SetEdgeAngle( double EA ) { EdgeAngle=EA; }
-  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; }
-  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; }
-  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; }
+  void SetConvergence( double C ) { Convergence=C; };
+  void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
+  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
+  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
+  int GetFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); };
+  void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
+  void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
+  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
+  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
+  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   
   ///Equivalent of n2c in absolute numbering
   QSet<vtkIdType>    n2c_func(vtkIdType idx);
+  
   ///Equivalent of n2n in absolute numbering
   QSet<vtkIdType>    n2n_func(vtkIdType idx);
+  
   ///Equivalent of c2c in absolute numbering
   QVector<vtkIdType> c2c_func(vtkIdType idx);
   
   ///Returns the average distance of a_vertex to its neighbours
   double CurrentVertexAvgDist(vtkIdType a_vertex);
+  
   ///Returns 1/CurrentVertexAvgDist(a_vertex)
   double CurrentMeshDensity(vtkIdType a_vertex);
+  
   ///Returns the average of 1./node_meshdensity_desired of the neighbours of a_vertex
   double DesiredVertexAvgDist(vtkIdType a_vertex);
+  
   ///Returns the average of node_meshdensity_desired of the neighbours of a_vertex
   double DesiredMeshDensity(vtkIdType a_vertex);
   
@@ -237,24 +257,42 @@ public: // methods
   QSet <int> getBCset(vtkIdType a_node);
   
   char getNodeType(vtkIdType a_node);
+  
   bool FullCycleOfPolygons(vtkIdType a_node);
+  
   ///Returns the number of feature edges around node a_node
   int getNumberOfFeatureEdges(vtkIdType a_node);
+  
   ///Returns the number of boundary edges around node a_node
   int getNumberOfBoundaryEdges(vtkIdType a_node);
+  
   ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
   vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
-  ///Returns the type of the edge [a_node1,a_node2]
+  
+  ///Returns the type of the edge [a_node1,a_node2] based on the topology
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
-  ///Returns a vector containing the cells surrounding edge [p1,p2]
-  QVector <vtkIdType> getEdgeCells(vtkIdType p1, vtkIdType p2);
+  
+  ///Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
+  char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2);
+  
+  ///passes a vector containing the cells surrounding edge [p1,p2] by reference and returns its size
+  int getEdgeCells(vtkIdType p1, vtkIdType p2,QVector <vtkIdType> &EdgeCells);
+  
+  ///passes a set containing the cells surrounding edge [p1,p2] by reference and returns its size
+  int getEdgeCells(vtkIdType p1, vtkIdType p2,QSet <vtkIdType> &EdgeCells);
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);
   
   void setSource(vtkUnstructuredGrid *a_ProjectionSurface);
   void set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface);
-    
+  
+  /// Projection function
+  vec3_t project(vec3_t a_M);
+  
+  /// Delete CellLocator and ProjectionSurface
+  void delete_CellLocator_and_ProjectionSurface();
+  
   //---------------------------------------------------
 //Utility functions used in Roland's formulas
 //Should be renamed to be more explicit

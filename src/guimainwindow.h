@@ -54,6 +54,7 @@ class GuiMainWindow;
 #include "egvtkobject.h"
 #include "boundarycondition.h"
 #include "volumedefinition.h"
+#include "checksurfaceintegrity.h"
 
 #include "std_includes.h"
 #include "guitransform.h"
@@ -295,6 +296,9 @@ public: // methods
   /// Returns log directory
   QString getLogDir() { return m_LogDir; }
   
+  /// Returns the path to the currently loaded file
+  QString getFilePath();
+  
 public: // static methods
   
   /**
@@ -485,8 +489,9 @@ public slots:
   // IMPORTANT: Using EG_STDSLOT sets gui to true, while EG_STDINTERSLOT does not (default is gui = false)
   // This is important to determine whether an operation is a GUI operation or not.
   // If it's a GUI operation, it locks everything.
+  // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window... Why?
   
-  void callSmoothSurface() { EG_STDINTERSLOT(GuiSmoothSurface); }
+  void callSmoothSurface() { EG_STDSLOT(GuiSmoothSurface); }
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); }
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); }
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); }
@@ -498,6 +503,7 @@ public slots:
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }
   void callBoxSelect() { EG_STDINTERSLOT(BoxSelect); }
+  void callCheckSurfaceIntegrity() { EG_STDINTERSLOT(CheckSurfaceIntegrity); }
   void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
   void callTransform() { EG_STDINTERSLOT(GuiTransform); }
   

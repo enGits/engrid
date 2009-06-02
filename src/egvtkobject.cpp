@@ -1099,21 +1099,7 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool nce
 }
 
 ///////////////////////////////////////////
-int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t X, vtkCellLocator* a_CellLocator)
-{
-/*  if(a_CellLocator!=NULL) {
-    vtkIdType cellId;
-    int subId;
-    double dist2;
-    vec3_t P;
-    a_CellLocator->FindClosestPoint(X.data(),P.data(),cellId,subId,dist2);
-    X=P;
-  }*/
-  a_grid->GetPoints()->SetPoint(index, X.data());
-  return(0);
-}
-
-//Warning: Not functional
+//Warning: Untested
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc)
 {
   vtkIdType npts=3;
@@ -1126,7 +1112,6 @@ int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, 
   cell_code->SetValue(newCellId, bc);
   return(0);
 }
-
 
 ///////////////////////////////////////////
 

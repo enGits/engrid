@@ -164,6 +164,7 @@
     <addaction name="actionPrintGrid" />
     <addaction name="actionShowInfo" />
     <addaction name="actionBoxSelect" />
+    <addaction name="actionCheck_surface_integrity" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuImport_2" />
@@ -1317,6 +1318,14 @@
    </property>
    <property name="shortcut" >
     <string>B</string>
+   </property>
+  </action>
+  <action name="actionCheck_surface_integrity" >
+   <property name="text" >
+    <string>Check surface integrity</string>
+   </property>
+   <property name="shortcut" >
+    <string>C</string>
    </property>
   </action>
  </widget>

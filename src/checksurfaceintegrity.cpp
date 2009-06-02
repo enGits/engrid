@@ -20,34 +20,44 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "iterator.h"
+#include "checksurfaceintegrity.h"
+// #include "egvtkobject.h"
 
-Iterator::Iterator() 
+CheckSurfaceIntegrity::CheckSurfaceIntegrity()
+ : Operation()
 {
-  custom_iteration = false;
-  volume_iteration = false;
-};
+}
 
-void Iterator::pass1()
+void CheckSurfaceIntegrity::operate()
 {
-  for (int i = 0; i < pair.size(); ++i) {
-    pair[i].terminate = false;
-  };
-};
+  cout<<"this->isWaterTight()="<<this->isWaterTight()<<endl;
+  cout<<"this->Nmin="<<this->Nmin<<endl;
+  cout<<"this->Nmax="<<this->Nmax<<endl;
+  cout<<"this->BadCells="<<this->BadCells<<endl;
+}
 
-void Iterator::getCells()
+bool CheckSurfaceIntegrity::isWaterTight()
 {
-  if (!custom_iteration) {
-    if (volume_iteration) {
-      getAllVolumeCells(cells, grid);
-    } else {
-      getAllSurfaceCells(cells, grid);
-    };
-  };
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
-};
+  setAllSurfaceCells();
+  BadCells.clear();
+  
+  bool first = true;
+  foreach(vtkIdType node1,nodes) {
+    foreach(vtkIdType node2,n2n_func(node1)) {
+      QSet <vtkIdType> edge_cells;
+      int N = getEdgeCells(node1,node2,edge_cells);
+      if(first) {
+        first = false;
+        Nmin = N;
+        Nmax = N;
+      }
+      else {
+        Nmin = min(Nmin,N);
+        Nmax = max(Nmax,N);
+      }
+      if(edge_cells.size()!=2) BadCells.unite(edge_cells);
+    }
+  }
+  if( Nmin==2 && Nmax==2 ) return(true);
+  else return(false);
+}

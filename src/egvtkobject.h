@@ -554,8 +554,23 @@ protected: // methods
    */
   BoundaryCondition getBC(int bc);
   
+  /**
+   * Save the subgrid defined by cls from grid.
+   * @param grid The source grid
+   * @param cls The cells to extract
+   * @param file_name The file to save to
+   */
   template <class C>
   void writeCells(vtkUnstructuredGrid *grid, const C &cls, QString file_name);
+  
+  /**
+   * Get the SubGrid defined by cls from grid. The function takes care of allocation for SubGrid.
+   * @param grid The source grid
+   * @param cls The cells to extract
+   * @param SubGrid The SubGrid to create 
+   */
+  template <class C>
+  void getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid);
   
 public: // methods
   
@@ -567,8 +582,6 @@ public: // methods
 };
 
 //End of class EgVtkObject
-
-
 
 template <class T>
 void EgVtkObject::setIntersection(const QSet<T> &set1,
@@ -596,25 +609,24 @@ void EgVtkObject::vectorIntersection(const QVector<T> &set1,
   }
 }
 
-template <class T>
-void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString file_name)
+template <class C>
+void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid)
 {
   createIndices(grid);
-  EG_VTKSP(vtkUnstructuredGrid,tmp_grid);
   QVector<vtkIdType> cells;
   QVector<vtkIdType> nodes;
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
-  getNodesFromCells(cells, nodes, grid);///@@@ Urgs!
-  allocateGrid(tmp_grid, cells.size(), nodes.size());
+  getNodesFromCells(cells, nodes, grid);
+  allocateGrid(SubGrid, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
   QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     grid->GetPoint(id_node, x.data());
-    tmp_grid->GetPoints()->SetPoint(id_new_node, x.data());
+    SubGrid->GetPoints()->SetPoint(id_new_node, x.data());
     old2new[id_node] = id_new_node;
-    copyNodeData(grid, id_node, tmp_grid, id_new_node);
+    copyNodeData(grid, id_node, SubGrid, id_new_node);
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
@@ -624,14 +636,22 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const T &cls, QString fi
     QVector<vtkIdType> new_pts(N_pts);
     for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
       new_pts[i_pts] = old2new[pts[i_pts]];
-    }
-    vtkIdType id_new_cell = tmp_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
-    copyCellData(grid, id_cell, tmp_grid, id_new_cell);
+    };
+    vtkIdType id_new_cell = SubGrid->InsertNextCell(type_cell, N_pts, new_pts.data());
+    copyCellData(grid, id_cell, SubGrid, id_new_cell);
   }
+}
+
+template <class C>
+void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const C &cls, QString file_name)
+{
+  EG_VTKSP(vtkUnstructuredGrid,SubGrid);
+  getSubGrid(grid,cls,SubGrid);
+  
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   vtu->SetFileName(file_name.toAscii().data());
   vtu->SetDataModeToBinary();
-  vtu->SetInput(tmp_grid);
+  vtu->SetInput(SubGrid);
   vtu->Write();
 }
 
@@ -694,7 +714,6 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, c
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
 
 ///////////////////////////////////////////
-int addPoint(vtkUnstructuredGrid* a_grid,vtkIdType index,vec3_t x, vtkCellLocator* a_CellLocator=NULL);
 int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
 
 ///get number of the shortest side of the cell

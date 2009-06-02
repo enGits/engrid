@@ -20,34 +20,29 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "iterator.h"
+#ifndef CHECKSURFACEINTEGRITY_H
+#define CHECKSURFACEINTEGRITY_H
 
-Iterator::Iterator() 
+#include <operation.h>
+
+class CheckSurfaceIntegrity : public Operation
 {
-  custom_iteration = false;
-  volume_iteration = false;
+private:
+  bool WaterTight;
+  int Nmin;
+  int Nmax;
+  QSet <vtkIdType> BadCells;
+  
+public:
+  CheckSurfaceIntegrity();
+  bool isWaterTight();
+  int getNmin() { return(Nmin); };
+  int getNmax() { return(Nmax); };
+  QSet <vtkIdType> getBadCells() { return(BadCells); };
+  
+protected: // methods
+  virtual void operate();
+  
 };
 
-void Iterator::pass1()
-{
-  for (int i = 0; i < pair.size(); ++i) {
-    pair[i].terminate = false;
-  };
-};
-
-void Iterator::getCells()
-{
-  if (!custom_iteration) {
-    if (volume_iteration) {
-      getAllVolumeCells(cells, grid);
-    } else {
-      getAllSurfaceCells(cells, grid);
-    };
-  };
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
-};
+#endif
