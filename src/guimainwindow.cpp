@@ -1786,4 +1786,8 @@ void GuiMainWindow::createDefaultVol()
   }
 }
 
-
+QString GuiMainWindow::getFilePath()
+{
+  QFileInfo fileinfo(current_filename);
+  return fileinfo.absolutePath()+"/";
+}

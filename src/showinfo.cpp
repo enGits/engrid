@@ -81,6 +81,7 @@ void ShowInfo::operate()
       vec3_t X;
       grid->GetPoint(PickedPoint,X.data());
       cout<<"X="<<X<<endl;
+      cout<<"G_k("<<PickedPoint<<")="<<G_k(PickedPoint)<<endl;
       cout<<"====================================="<<endl;
     }
     else

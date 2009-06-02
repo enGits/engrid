@@ -58,6 +58,7 @@ void GuiSetBoundaryCode::operate()
     set_bc.setOnlyPickedCell(ui.checkBox_OnlyPickedCell->checkState());
     set_bc.setOnlyPickedCellAndNeighbours(ui.checkBox_OnlyPickedCellAndNeighbours->checkState());
     
+    cout<<"GuiMainWindow::getPickedCell()="<<GuiMainWindow::getPickedCell()<<endl;
     set_bc.setStart(GuiMainWindow::getPickedCell());
     set_bc();
   };

@@ -73,8 +73,6 @@ bool SettingsSheet::readFile(const QString &fileName,int verbose)
   
   in >> RowCount;
   in >> ColumnCount;
-/*  cout<<"RowCount="<<RowCount<<endl;
-  cout<<"ColumnCount="<<ColumnCount<<endl;*/
   
   if(ColumnCount!=this->columnCount()) {
     if(verbose>0) QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not compatible with the number of boundary codes."));
@@ -90,13 +88,10 @@ bool SettingsSheet::readFile(const QString &fileName,int verbose)
   this->setRowCount(RowCount);
   this->clearContents();
   
-//   cout<<"===LOADING==="<<endl;
   while (!in.atEnd()) {
     in >> row >> column >> str;
-//     Qcout2<<"row="<<row<<"column="<<column<<"str="<<str<<endl;
     setFormula(row, column, str);
   }
-//   cout<<"===LOADING DONE==="<<endl;
   
   QApplication::restoreOverrideCursor();
   return true;
@@ -123,15 +118,12 @@ bool SettingsSheet::writeFile(const QString &fileName)
   int ColumnCount=this->columnCount();
   out << RowCount;
   out << ColumnCount;
-//   cout<<"===SAVING==="<<endl;
   for (int row = 0; row < RowCount; ++row) {
     for (int column = 0; column < ColumnCount; ++column) {
       QString str = formula(row, column);
       out << quint16(row) << quint16(column) << str;
-//       Qcout2 << quint16(row) <<" "<< quint16(column) <<" "<< str <<endl;
     }
   }
-//   cout<<"===SAVING DONE==="<<endl;
   QApplication::restoreOverrideCursor();
   return true;
 }
@@ -141,27 +133,22 @@ void SettingsSheet::setFormula(int row, int column,
 {
   Cell *c = cell(row, column);
   if (!c) {
-//     Qcout2<<"    (row,column)="<<"("<<row<<","<<column<<")"<<formula<<endl;
     c = new Cell;
     setItem(row, column, c);
   }
   if(column<this->columnCount()-3){
-//     cout<<"    checkbox"<<endl;
     TriStateTableWidgetItem *newBC = new TriStateTableWidgetItem();
     newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
     newBC->setCheckState(int2CheckState(formula.toInt()));
     this->setItem(row, column, newBC);
-//     Qcout2<<"    (row,column)="<<"("<<row<<","<<column<<")"<<formula<<endl;
   }
   else{
-//     cout<<"    string"<<endl;
     c->setFormula(formula);
   }
 }
 
 QString SettingsSheet::formula(int row, int column) const
 {
-//   int RowCount=this->rowCount();
   int ColumnCount=this->columnCount();
   Cell *c = cell(row, column);
   if (c) {

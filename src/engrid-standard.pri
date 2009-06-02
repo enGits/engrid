@@ -129,7 +129,8 @@ removepoints.h \
 showinfo.h \
 surfacemesher.h \
 updatedesiredmeshdensity.h \
-boxselect.h
+boxselect.h \
+checksurfaceintegrity.h
 
 SOURCES = \
 main.cpp \
@@ -211,7 +212,8 @@ removepoints.cpp \
 showinfo.cpp \
 surfacemesher.cpp \
 updatedesiredmeshdensity.cpp \
-boxselect.cpp
+boxselect.cpp \
+checksurfaceintegrity.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \
