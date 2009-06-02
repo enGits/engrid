@@ -164,6 +164,9 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
   EG_VTKDCC(vtkIntArray, cell_code,   new_grid, "cell_code");
   EG_VTKDCN(vtkIntArray, node_layer,  new_grid, "node_layer");
   EG_VTKDCN(vtkIntArray, node_status, new_grid, "node_status");
+  EG_VTKDCC(vtkIntArray, cell_orgdir, new_grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, new_grid, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, new_grid, "cell_curdir");
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     for (int j_faces = 0; j_faces < faces[i_faces].size(); ++j_faces) {
       vtkIdType p1 = faces[i_faces][j_faces];
@@ -188,11 +191,18 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
           vtkIdType id_new_bcell = new_grid->InsertNextCell(VTK_QUAD ,4, pts);
           int bc = 9999;
           QSet<int> bc1, bc2, bc3;
+          int org_dir = -99;
+          int cur_dir = -99;
+          int vol_dir = -99;
           if (_bnodes[old2new[p1]] != -1) {
             foreach (int i_bcells, bn2bc[_bnodes[old2new[p1]]]) {
+              /*
+              if (org_dir == -99) cell_orgdir->SetValue(id_new_bcell, cell_orgdir->GetValue(bcells[i_bcells]));
+              else if (cell  HIER GEHTS WEITER
               if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc1.insert(cell_code->GetValue(bcells[i_bcells]));
               };
+              */
             };
           };
           if (_bnodes[old2new[p2]] != -1) {
