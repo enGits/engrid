@@ -337,7 +337,7 @@ int InsertPoints::insert_EP_all()
       grid_tmp->GetPoints()->SetPoint(l_newNodeId, M.data());
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
-      node_type->SetValue(l_newNodeId,getEdgeType(S.p[1],S.p[3]));
+      node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX /*getEdgeType(S.p[1],S.p[3])*/ );
       
       if(S.twocells && S.neighbour_type==VTK_TRIANGLE){//2 triangles
         //four new triangles

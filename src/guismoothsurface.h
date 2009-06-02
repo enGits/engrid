@@ -55,6 +55,7 @@ protected: // methods
 private:
   int Nbc;
   SettingsSheet* m_tableWidget;
+  bool TABLE;
   
 public:
   GuiSmoothSurface();

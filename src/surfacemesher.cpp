@@ -156,9 +156,9 @@ void SurfaceMesher::operate()
   
   cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
   
-  MeshDensityFunction();
+/*  MeshDensityFunction();
+  UpdateCurrentMeshDensity();*/
   
-  UpdateCurrentMeshDensity();
   if(i_iter<NumberOfIterations) cout<<"WARNING: Exited before finishing all iterations."<<endl;
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
@@ -185,6 +185,10 @@ void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
   foreach(vtkIdType node,nodes)
   {
     if(UpdateType) {
+      static int nStatic_UpdateType;    // Value of nStatic_UpdateType is retained between each function call
+      nStatic_UpdateType++;
+      cout << "nStatic_UpdateType is " << nStatic_UpdateType << endl;
+      
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
       node_type->SetValue(node, getNodeType(node));
     }
