@@ -203,9 +203,6 @@ public: // methods
   bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
   
-  void TxtSave(QString a_filename);
-  void DualSave(QString a_filename);
-  
   //Special for UpdateNodeType_all
   void SetConvergence( double C ) { Convergence=C; }
   void SetNumberOfIterations( int N ) { NumberOfIterations=N; }

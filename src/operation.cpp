@@ -260,7 +260,7 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1, bool a_RespectBC)
     
     if (!p2) {
       // failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
-      DualSave(GuiMainWindow::pointer()->getLogDir()+"abort");
+      ///@@@ DualSave(GuiMainWindow::pointer()->getLogDir()+"abort");
       cout<<"S.id_cell1="<<S.id_cell1<<endl;
       cout<<"S.id_cell2="<<S.id_cell2<<endl;
       EG_BUG;
@@ -2087,21 +2087,6 @@ bool Operation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> Dea
   return(true);
 }
 //End of DeleteSetOfPoints
-
-void Operation::TxtSave(QString a_filename)
-{
-  cout << a_filename.toAscii().data() << endl;
-  ofstream file;
-  file.open(a_filename.toAscii().data());
-  cout_grid(file,grid,true,true,true,true);
-  file.close();
-}
-
-void Operation::DualSave(QString a_filename)
-{
-  TxtSave(a_filename+".txt");
-  GuiMainWindow::pointer()->QuickSave(a_filename+".vtu");
-}
 
 //---------------------------------------------------
 //Utility functions used in Roland's formulas
