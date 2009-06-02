@@ -91,7 +91,7 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 GuiSmoothSurface::GuiSmoothSurface()
 {
-  TABLE = false;
+  TABLE = true;
   
   setQuickSave(true);
 

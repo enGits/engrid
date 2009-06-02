@@ -26,6 +26,8 @@
 #include "removepoints.h"
 #include "updatedesiredmeshdensity.h"
 
+#include <vtkSmoothPolyDataFilter.h>
+
 SurfaceMesher::SurfaceMesher()
 : Operation()
 {
@@ -249,14 +251,55 @@ int SurfaceMesher::SmoothFunction()
   //laplacian smoothing with projection
   //Roland smoothing with projection
   
-  //laplacian smoothing with projection
-  LaplaceSmoother Lap;
-  Lap.setGrid(this->grid);
-  Lap.setBoundaryCodes(m_bcs);
-  Lap.setSource(m_ProjectionSurface);
-  Lap.SetNumberOfIterations(N_SmoothIterations);
-  Lap();
-  Lap.delete_CellLocator_and_ProjectionSurface();
+  if(false) {
+    //laplacian smoothing with projection
+    LaplaceSmoother Lap;
+    Lap.setGrid(this->grid);
+    Lap.setBoundaryCodes(m_bcs);
+    Lap.setSource(m_ProjectionSurface);
+    Lap.SetNumberOfIterations(N_SmoothIterations);
+    Lap();
+    Lap.delete_CellLocator_and_ProjectionSurface();
+  }
+  else {
+    //preparations
+    getSurfaceCells(m_bcs, cells, this->grid);
+    EG_VTKSP(vtkPolyData, pdata);
+    addToPolyData(cells, pdata, this->grid);
+    EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+    
+    //configure vtkSmoothPolyDataFilter
+    smooth->SetInput(pdata);
+    
+//     smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
+    smooth->SetNumberOfIterations (N_SmoothIterations);
+//     smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    smooth->SetFeatureEdgeSmoothing (false);
+//     smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+//     smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    smooth->SetBoundarySmoothing (true);
+//     smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+//     smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    
+    QVector<vtkIdType> cells_Source;
+    getAllSurfaceCells(cells_Source, m_ProjectionSurface);
+    EG_VTKSP(vtkPolyData, pdata_Source);
+    addToPolyData(cells_Source, pdata_Source, m_ProjectionSurface);
+    smooth->SetSource (pdata_Source);
+    
+    //smooth
+    smooth->Update();
+    
+    //copy smoothed grid to main grid
+    EG_VTKDCN(vtkLongArray_t, node_index, pdata, "node_index");
+    for (vtkIdType i = 0; i < smooth->GetOutput()->GetNumberOfPoints(); ++i) {
+      vec3_t x;
+      smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
+      vtkIdType nodeId = node_index->GetValue(i);
+      this->grid->GetPoints()->SetPoint(nodeId, x.data());
+    };
+  }
+  
   cout<<"=== SmoothFunction END ==="<<endl;
   return(0);
 }
