@@ -1,17 +1,17 @@
 #!/bin/bash
-set -eux
+set -ex
 
 #set up environment
 PATH=/usr/bin:/opt/shared/Qt/4.5.0/debug/bin:$PATH
 source ./scripts/setup_paths.cgns.sh engits
 
 echo "PATHS:"
-echo $QTDIR
-echo $VTKLIBDIR
-echo $VTKINCDIR
-echo $CGNSINCDIR
-echo $CGNSLIBDIR
-echo $LD_LIBRARY_PATH
+echo QTDIR = $QTDIR
+echo VTKLIBDIR = $VTKLIBDIR
+echo VTKINCDIR = $VTKINCDIR
+echo CGNSINCDIR = $CGNSINCDIR
+echo CGNSLIBDIR = $CGNSLIBDIR
+echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
 
 echo "Building engrid.pro release version"
 qmake && make distclean && qmake engrid.pro && make -j2 || exit 1
