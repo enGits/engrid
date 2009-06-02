@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eux
+PATH=/usr/bin:/opt/shared/Qt/4.5.0/debug/bin:$PATH
 
 echo "Building engrid.pro release version"
 qmake && make distclean && qmake engrid.pro && make -j2 || exit 1
