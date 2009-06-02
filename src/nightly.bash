@@ -10,7 +10,7 @@ RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
 
 #test build
-./testing/rebuild.sh 1>build.log 2>&1
+./scripts/rebuild.sh 1>build.log 2>&1
 if [ $? -ne 0 ]
 then
   echo "BUILD FAILED"

@@ -43,8 +43,11 @@ fi
 #enGits local system
 if [ $1 = 'engits' ]
 then
-  export VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.2
-  export VTKINCDIR=/opt/shared/VTK/include/vtk-5.2
+  export QTDIR=/opt/shared/Qt/4.5.0/debug
+  export VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4/
+  export VTKINCDIR=/opt/shared/VTK/include/vtk-5.4/
 fi
 
+export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$CGNSLIBDIR:$LD_LIBRARY_PATH
