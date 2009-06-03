@@ -49,7 +49,13 @@ void ShowInfo::operate()
     if(PickedCell>=0 && PickedCell<N_cells)
     {
       cout<<"=== INFO ON CELL "<<PickedCell<<" ==="<<endl;
-      cout<<"c2c_func(PickedCell)="<<c2c_func(PickedCell)<<endl;
+      QVector<int> tmp = c2c[_cells[PickedCell]];
+      QVector<vtkIdType> absolute_c2c;
+      foreach(int i,tmp){
+        if(i!=-1) absolute_c2c.push_back(cells[i]);
+      }
+      
+      cout<<"absolute_c2c(PickedCell)="<<absolute_c2c<<endl;
       vtkIdType *pts, N_pts;
       grid->GetCellPoints(PickedCell, N_pts, pts);
       cout<<"pts=";

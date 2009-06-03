@@ -1402,24 +1402,6 @@ int Operation::getNumberOfBoundaryEdges(vtkIdType a_node)
   return(N);
 }
 
-vtkIdType Operation::getNextCell(vtkIdType a_cell, vtkIdType a_node)
-{
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(a_cell, N_pts, pts);
-  
-  int i;
-  for(i=0;i<N_pts;i++)
-  {
-    if(pts[i]==a_node) break;
-  }
-  ///@@@  TODO: Optimize if slow
-//this is unreadable but faster
-//   cells[c2c[_cells[a_cell]][i]];
-  QVector<vtkIdType> vec = c2c_func(a_cell);
-  return vec[i];
-//   return c2c[a_cell][i];
-}
-
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {
   QSet <vtkIdType> DeadNodes;
@@ -1767,16 +1749,6 @@ QSet<vtkIdType> Operation::n2n_func(vtkIdType idx)
   return(ret);
 }
 
-QVector<vtkIdType> Operation::c2c_func(vtkIdType idx)
-{
-  QVector<int> tmp = c2c[_cells[idx]];
-
-  QVector<vtkIdType> ret;
-  foreach(int i,tmp){
-    if(i!=-1) ret.push_back(cells[i]);
-  }
-  return(ret);
-}
 //---------------------------------------------------
 
 QSet <int> Operation::getBCset(vtkIdType a_node)

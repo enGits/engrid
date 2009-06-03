@@ -235,9 +235,6 @@ public: // methods
   ///Equivalent of n2n in absolute numbering
   QSet<vtkIdType>    n2n_func(vtkIdType idx);
   
-  ///Equivalent of c2c in absolute numbering
-  QVector<vtkIdType> c2c_func(vtkIdType idx);
-  
   ///Returns the average distance of a_vertex to its neighbours
   double CurrentVertexAvgDist(vtkIdType a_vertex);
   
@@ -262,9 +259,6 @@ public: // methods
   
   ///Returns the number of boundary edges around node a_node
   int getNumberOfBoundaryEdges(vtkIdType a_node);
-  
-  ///Returns the ID of the "next neighbour cell" when "rotating" around node a_node
-  vtkIdType getNextCell(vtkIdType a_cell, vtkIdType a_node);
   
   ///Returns the type of the edge [a_node1,a_node2] based on the topology
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
