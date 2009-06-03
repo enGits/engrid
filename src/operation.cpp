@@ -1314,19 +1314,27 @@ char Operation::getNodeType(vtkIdType a_node)
   return(type);
 }
 
-int Operation::getEdgeCells(vtkIdType p1, vtkIdType p2,QVector <vtkIdType> &EdgeCells)
+int Operation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVector <vtkIdType> &EdgeCells)
 {
-  QSet <vtkIdType> S1=n2c_func(p1);
-  QSet <vtkIdType> S2=n2c_func(p2);
+  QSet<vtkIdType> S1;
+  foreach(int i, n2c[_nodes[id_node1]]) S1.insert(cells[i]);
+  
+  QSet<vtkIdType> S2;
+  foreach(int i, n2c[_nodes[id_node2]]) S2.insert(cells[i]);
+  
   S2.intersect(S1);
   EdgeCells = Set2Vector(S2,false);
   return EdgeCells.size();
 }
 
-int Operation::getEdgeCells(vtkIdType p1, vtkIdType p2,QSet <vtkIdType> &EdgeCells)
+int Operation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdType> &EdgeCells)
 {
-  QSet <vtkIdType> S1=n2c_func(p1);
-  QSet <vtkIdType> S2=n2c_func(p2);
+  QSet<vtkIdType> S1;
+  foreach(int i, n2c[_nodes[id_node1]]) S1.insert(cells[i]);
+  
+  QSet<vtkIdType> S2;
+  foreach(int i, n2c[_nodes[id_node2]]) S2.insert(cells[i]);
+  
   EdgeCells = S2.intersect(S1);
   return EdgeCells.size();
 }
@@ -1727,16 +1735,6 @@ double Operation::T_min(int w)
 
 //---------------------------------------------------
 //These functions are not optimized. Avoid using them when possible.
-QSet<vtkIdType> Operation::n2c_func(vtkIdType idx)
-{
-  QSet<int> tmp = n2c[_nodes[idx]];
-  
-  QSet<vtkIdType> ret;
-  foreach(int i,tmp){
-    if(i!=-1) ret.insert(cells[i]);
-  }
-  return(ret);
-}
 
 QSet<vtkIdType> Operation::n2n_func(vtkIdType idx)
 {
@@ -1751,32 +1749,32 @@ QSet<vtkIdType> Operation::n2n_func(vtkIdType idx)
 
 //---------------------------------------------------
 
-QSet <int> Operation::getBCset(vtkIdType a_node)
+QSet <int> Operation::getBCset(vtkIdType id_node)
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  QSet <vtkIdType> neighbours=n2c_func(a_node);
   QSet <int> bc;
-  foreach(vtkIdType C, neighbours)
+  foreach(int i_cell, n2c[_nodes[id_node]])
   {
-    bc.insert(cell_code->GetValue(C));
+    vtkIdType id_cell = cells[i_cell];
+    bc.insert(cell_code->GetValue(id_cell));
   }
   return(bc);
 }
 
-VertexMeshDensity Operation::getVMD(vtkIdType node)
+VertexMeshDensity Operation::getVMD(vtkIdType id_node)
 {
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
   VertexMeshDensity VMD;
-  VMD.type=node_type->GetValue(node);
-  VMD.density=0;
-  VMD.CurrentNode=node;
+  VMD.type = node_type->GetValue(id_node);
+  VMD.density = 0;
+  VMD.CurrentNode = id_node;
   
-  QSet <vtkIdType> cell_set = n2c_func(node);
-  foreach(vtkIdType C, cell_set)
+  foreach(int i_cell, n2c[_nodes[id_node]])
   {
-    VMD.BCmap[cell_code->GetValue(C)]=2;
+    vtkIdType id_cell = cells[i_cell];
+    VMD.BCmap[cell_code->GetValue(id_cell)] = 2;
   }
   return(VMD);
 }

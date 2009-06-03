@@ -107,9 +107,9 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
   grid->GetPoint(id_G, x0_old.data());
   x0_new=P;
   
-//   cout_grid(cout,grid,true,true,true,true);
-  foreach(vtkIdType id_cell,n2c_func(id_G))
+  foreach(int i_cell, n2c[_nodes[id_G]])
   {
+    vtkIdType id_cell = cells[i_cell];
     vtkIdType N_pts, *pts;
     grid->GetCellPoints(id_cell, N_pts, pts);
     int i;
@@ -120,7 +120,6 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
     vec3_t x2, x3;
     grid->GetPoint(pts[(i+1)%N_pts], x2.data());
     grid->GetPoint(pts[(i+2)%N_pts], x3.data());
-//     cout<<"Testing cell "<<id_cell<<": x0="<<id_G<<" x2="<<pts[(i+1)%N_pts]<<" x3="<<pts[(i+2)%N_pts]<<endl;
     vec3_t v2_old=x2-x0_old;
     vec3_t v3_old=x3-x0_old;
     
@@ -130,9 +129,6 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
     double V_new=tetraVol(x0_new, S, x2, x3, true);
     double prod=V_old*V_new;
     if( prod<0 ) {
-//       int save=GuiMainWindow::pointer()->QuickSave();
-//       cout<<"save="<<save<<" : Moving "<<id_G<<" to "<<P<<endl;
-//       cout<<"EPIC FAIL for id_G="<<id_G<<"!"<<endl;
       return(true);
     }
   }

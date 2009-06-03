@@ -49,9 +49,8 @@ void ShowInfo::operate()
     if(PickedCell>=0 && PickedCell<N_cells)
     {
       cout<<"=== INFO ON CELL "<<PickedCell<<" ==="<<endl;
-      QVector<int> tmp = c2c[_cells[PickedCell]];
       QVector<vtkIdType> absolute_c2c;
-      foreach(int i,tmp){
+      foreach(int i, c2c[_cells[PickedCell]]){
         if(i!=-1) absolute_c2c.push_back(cells[i]);
       }
       
@@ -80,8 +79,19 @@ void ShowInfo::operate()
     if(PickedPoint>=0 && PickedPoint<N_points)
     {
       cout<<"=== INFO ON POINT "<<PickedPoint<<" ==="<<endl;
-      cout<<"n2n_func(PickedPoint)="<<n2n_func(PickedPoint)<<endl;
-      cout<<"n2c_func(PickedPoint)="<<n2c_func(PickedPoint)<<endl;
+      
+      QSet<vtkIdType> absolute_n2n;
+      foreach(int i, n2n[_nodes[PickedPoint]]){
+        if(i!=-1) absolute_n2n.insert(nodes[i]);
+      }
+      cout<<"absolute_n2n(PickedPoint)="<<absolute_n2n<<endl;
+      
+      QSet<vtkIdType> absolute_n2c;
+      foreach(int i, n2c[_nodes[PickedPoint]]){
+        if(i!=-1) absolute_n2c.insert(cells[i]);
+      }
+      cout<<"absolute_n2c(PickedPoint)="<<absolute_n2c<<endl;
+      
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
       cout<<"node_type="<<VertexType2Str(node_type->GetValue(PickedPoint))<<endl;
       vec3_t X;

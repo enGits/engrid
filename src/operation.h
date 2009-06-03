@@ -229,9 +229,6 @@ public: // methods
   void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
   void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   
-  ///Equivalent of n2c in absolute numbering
-  QSet<vtkIdType>    n2c_func(vtkIdType idx);
-  
   ///Equivalent of n2n in absolute numbering
   QSet<vtkIdType>    n2n_func(vtkIdType idx);
   
@@ -266,11 +263,11 @@ public: // methods
   ///Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
   char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2);
   
-  ///passes a vector containing the cells surrounding edge [p1,p2] by reference and returns its size
-  int getEdgeCells(vtkIdType p1, vtkIdType p2,QVector <vtkIdType> &EdgeCells);
+  ///passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+  int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVector <vtkIdType> &EdgeCells);
   
-  ///passes a set containing the cells surrounding edge [p1,p2] by reference and returns its size
-  int getEdgeCells(vtkIdType p1, vtkIdType p2,QSet <vtkIdType> &EdgeCells);
+  ///passes a set containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+  int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdType> &EdgeCells);
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);
