@@ -47,7 +47,7 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "skewness weighting", 0.0, w_skew);
   getSet("boundary layer", "orthogonality weighting", 0.0, w_orth);
   getSet("boundary layer", "sharp features on nodes weighting", 8.0, w_sharp1);
-  getSet("boundary layer", "sharp features on nodes exponent", 1.3, e_sharp1);
+  getSet("boundary layer", "sharp features on nodes exponent", 2.0, e_sharp1);
   getSet("boundary layer", "sharp features on edges weighting", 3.0, w_sharp2);
   getSet("boundary layer", "sharp features on edges exponent", 1.3, e_sharp2);
   getSet("boundary layer", "relative height of boundary layer", 1.5, H);
