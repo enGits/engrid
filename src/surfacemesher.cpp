@@ -75,13 +75,9 @@ void SurfaceMesher::operate()
       insert_field_points.SetVertexMeshDensityVector(VMDvector);
       insert_field_points();
       insert_field_points.delete_CellLocator_and_ProjectionSurface();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-insert");
       if(DoSwap) SwapFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_FP-post-laplace");
     }
-    ///@@@ if(DEBUG) DualSave(DEBUGDIR+"post-insert_FP");
     
     if(insert_EP) {
 //       MeshDensityFunction();
@@ -95,13 +91,9 @@ void SurfaceMesher::operate()
       insert_edge_points.SetVertexMeshDensityVector(VMDvector);
       insert_edge_points();
       insert_edge_points.delete_CellLocator_and_ProjectionSurface();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-insert");
       if(DoSwap) SwapFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"insert_EP-post-laplace");
     }
-    ///@@@ if(DEBUG) DualSave(DEBUGDIR+"post-insert_EP");
     
     if(remove_FP) {
 //       MeshDensityFunction();
@@ -112,13 +104,9 @@ void SurfaceMesher::operate()
       remove_field_points.Set_remove_FP(true);
       remove_field_points.Set_remove_EP(false);
       remove_field_points();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_FP-post-remove");
       if(DoSwap) SwapFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_FP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_FP-post-laplace");
     }
-    ///@@@ if(DEBUG) DualSave(DEBUGDIR+"post-remove_FP");
     
     if(remove_EP) {
 //       MeshDensityFunction();
@@ -129,13 +117,9 @@ void SurfaceMesher::operate()
       remove_edge_points.Set_remove_FP(false);
       remove_edge_points.Set_remove_EP(true);
       remove_edge_points();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_EP-post-remove");
       if(DoSwap) SwapFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_EP-post-swap");
       if(DoLaplaceSmoothing) SmoothFunction();
-      ///@@@ if(DEBUG) DualSave(DEBUGDIR+"remove_EP-post-laplace");
     }
-    ///@@@ if(DEBUG) DualSave(DEBUGDIR+"post-remove_EP");
     
     if(DoSwap) SwapFunction();
     if(DoLaplaceSmoothing) SmoothFunction();

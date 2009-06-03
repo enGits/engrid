@@ -284,17 +284,9 @@ stencil_t Operation::getStencil(vtkIdType id_cell1, int j1)
       }
       
       if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
-        ///@@@ DualSave(GuiMainWindow::pointer()->getFilePath()+"abort");
         cout<<"S.id_cell1="<<S.id_cell1<<endl;
         cout<<"S.id_cell2="<<S.id_cell2<<endl;
         createNodeToCell(cells, nodes, _nodes, n2c, grid);
-
-        /*
-        QVector <vtkIdType> vec13 = getEdgeCells(S.p[1],S.p[3]);
-        QVector <vtkIdType> vec02 = getEdgeCells(S.p[0],S.p[2]);
-        cout<<"vec13="<<vec13<<endl;
-        cout<<"vec02="<<vec02<<endl;
-        */
         EG_BUG;
       }
     }
@@ -730,10 +722,6 @@ vtkIdType Operation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,
         }
         vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
         vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
-        double OldArea=Old_N.abs();
-        double NewArea=New_N.abs();
-        double scal=Old_N*New_N;
-        double cross=(Old_N.cross(New_N)).abs();//double-cross on Nar Shadaa B-)
         
         if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
         {
@@ -1244,7 +1232,6 @@ char Operation::getNodeType(vtkIdType id_node)
   edges = vtkIdList::New();
   edges->Allocate(16,6);
   
-  double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
   foreach(int i_node2, n2n[_nodes[id_node]])
@@ -1340,7 +1327,6 @@ int Operation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdTy
 char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
-  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
@@ -1373,12 +1359,6 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   }
   
   return(edge);
-}
-
-///@@@ TODO: Finish this function for use in insert_EP
-char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2)
-{
-
 }
 
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
