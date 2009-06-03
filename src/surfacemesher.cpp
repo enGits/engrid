@@ -60,19 +60,16 @@ void SurfaceMesher::operate()
     N_removed_EP=0;
     
     //Method 3
-    bool DEBUG=false;
-    QString DEBUGDIR=GuiMainWindow::pointer()->getFilePath();
-    
     if(insert_FP) {
 //       MeshDensityFunction();
       UpdateNodeInfo(false);
       InsertPoints insert_field_points;
       insert_field_points.setGrid(grid);
       insert_field_points.setSource(m_ProjectionSurface);
-      insert_field_points.SetBCS(m_bcs);
-      insert_field_points.Set_insert_FP(true);
-      insert_field_points.Set_insert_EP(false);
-      insert_field_points.SetVertexMeshDensityVector(VMDvector);
+      insert_field_points.setBCS(m_bcs);
+      insert_field_points.set_insert_FP(true);
+      insert_field_points.set_insert_EP(false);
+      insert_field_points.setVertexMeshDensityVector(VMDvector);
       insert_field_points();
       insert_field_points.delete_CellLocator_and_ProjectionSurface();
       if(DoSwap) SwapFunction();
@@ -85,10 +82,10 @@ void SurfaceMesher::operate()
       InsertPoints insert_edge_points;
       insert_edge_points.setGrid(grid);
       insert_edge_points.setSource(m_ProjectionSurface);
-      insert_edge_points.SetBCS(m_bcs);
-      insert_edge_points.Set_insert_FP(false);
-      insert_edge_points.Set_insert_EP(true);
-      insert_edge_points.SetVertexMeshDensityVector(VMDvector);
+      insert_edge_points.setBCS(m_bcs);
+      insert_edge_points.set_insert_FP(false);
+      insert_edge_points.set_insert_EP(true);
+      insert_edge_points.setVertexMeshDensityVector(VMDvector);
       insert_edge_points();
       insert_edge_points.delete_CellLocator_and_ProjectionSurface();
       if(DoSwap) SwapFunction();
@@ -100,9 +97,9 @@ void SurfaceMesher::operate()
       UpdateNodeInfo(false);
       RemovePoints remove_field_points;
       remove_field_points.setGrid(grid);
-      remove_field_points.SetBCS(m_bcs);
-      remove_field_points.Set_remove_FP(true);
-      remove_field_points.Set_remove_EP(false);
+      remove_field_points.setBCS(m_bcs);
+      remove_field_points.set_remove_FP(true);
+      remove_field_points.set_remove_EP(false);
       remove_field_points();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
@@ -113,9 +110,9 @@ void SurfaceMesher::operate()
       UpdateNodeInfo(false);
       RemovePoints remove_edge_points;
       remove_edge_points.setGrid(grid);
-      remove_edge_points.SetBCS(m_bcs);
-      remove_edge_points.Set_remove_FP(false);
-      remove_edge_points.Set_remove_EP(true);
+      remove_edge_points.setBCS(m_bcs);
+      remove_edge_points.set_remove_FP(false);
+      remove_edge_points.set_remove_EP(true);
       remove_edge_points();
       if(DoSwap) SwapFunction();
       if(DoLaplaceSmoothing) SmoothFunction();
@@ -158,7 +155,7 @@ void SurfaceMesher::MeshDensityFunction()
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setConvergence_meshdensity(Convergence_meshdensity);
   update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
-  update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();
 /*  UpdateCurrentMeshDensity();
   UpdateNodeType_all();*/
@@ -241,7 +238,7 @@ int SurfaceMesher::SmoothFunction()
     Lap.setGrid(this->grid);
     Lap.setBoundaryCodes(m_bcs);
     Lap.setSource(m_ProjectionSurface);
-    Lap.SetNumberOfIterations(N_SmoothIterations);
+    Lap.setNumberOfIterations(N_SmoothIterations);
     Lap();
     Lap.delete_CellLocator_and_ProjectionSurface();
   }
@@ -255,15 +252,15 @@ int SurfaceMesher::SmoothFunction()
     //configure vtkSmoothPolyDataFilter
     smooth->SetInput(pdata);
     
-//     smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
+//     smooth->setConvergence (ui.doubleSpinBox_Convergence->value());
     smooth->SetNumberOfIterations (N_SmoothIterations);
-//     smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+//     smooth->setRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
     smooth->SetFeatureEdgeSmoothing (false);
-//     smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-//     smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+//     smooth->setFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+//     smooth->setEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
     smooth->SetBoundarySmoothing (true);
-//     smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-//     smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+//     smooth->setGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+//     smooth->setGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
     QVector<vtkIdType> cells_Source;
     getAllSurfaceCells(cells_Source, m_ProjectionSurface);

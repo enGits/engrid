@@ -498,7 +498,7 @@ public slots:
   void callDeleteTetras() { EG_STDSLOT(DeleteTetras); }
   void callCreateVolumeMesh() { EG_STDSLOT(GuiCreateVolumeMesh); }
   void callSmoothVolumeGrid() { EG_STDSLOT(SmoothVolumeGrid); }
-  void callSetBoundaryCode()  { EG_STDINTERSLOT(GuiSetBoundaryCode); }
+  void callsetBoundaryCode()  { EG_STDINTERSLOT(GuisetBoundaryCode); }
   void callDeleteBadAspectTris() { EG_STDINTERSLOT(GuiDeleteBadAspectTris); }
   void callDeletePickedCell() { EG_STDSLOT(DeletePickedCell); }
   void callDeletePickedPoint() { EG_STDINTERSLOT(DeletePickedPoint); }

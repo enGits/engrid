@@ -471,7 +471,7 @@ void GuiMainWindow::updateActors()
     }
     
     if (ui.checkBoxSurface->isChecked()) {
-      bcodes_filter->SetBoundaryCodes(&display_boundary_codes);
+      bcodes_filter->setBoundaryCodes(&display_boundary_codes);
       
       bcodes_filter->SetInput(grid);
       

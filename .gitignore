@@ -54,6 +54,7 @@ netgen_svn_old
 *.tag
 *.output
 docs
+*.tmp
 
 # LaTeX generated files - anywhere
 *.aux

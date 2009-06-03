@@ -33,7 +33,7 @@ connect(ui.actionSmoothVolumeGrid,SIGNAL(activated()),this,SLOT(callSmoothVolume
 connect(ui.actionFoamReader,SIGNAL(activated()),this,SLOT(callFoamReader()));
 connect(ui.actionVtkReader,SIGNAL(activated()),this,SLOT(callVtkReader()));
 connect(ui.actionPolyDataReader,SIGNAL(activated()),this,SLOT(callPolyDataReader()));
-connect(ui.actionSetBoundaryCode,SIGNAL(activated()),this,SLOT(callSetBoundaryCode()));
+connect(ui.actionsetBoundaryCode,SIGNAL(activated()),this,SLOT(callsetBoundaryCode()));
 connect(ui.actionFoamWriter,SIGNAL(activated()),this,SLOT(callFoamWriter()));
 connect(ui.actionSimpleFoamWriter,SIGNAL(activated()),this,SLOT(callSimpleFoamWriter()));
 connect(ui.actionDeleteBadAspectTris,SIGNAL(activated()),this,SLOT(callDeleteBadAspectTris()));

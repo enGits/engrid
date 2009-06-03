@@ -77,7 +77,7 @@ int vtkEgGridFilter::RequestData
   return 1;
 };
 
-void vtkEgGridFilter::SetBoundaryCodes(QSet<int> *bc)
+void vtkEgGridFilter::setBoundaryCodes(QSet<int> *bc)
 {
   BoundaryCodes = bc;
   Modified();

@@ -93,7 +93,7 @@ protected: // methods
   
 public: // methods
   
-  void SetBoundaryCodes(QSet<int> *bc);
+  void setBoundaryCodes(QSet<int> *bc);
   
 };
 

@@ -45,11 +45,11 @@ void DeletePickedPoint::operate()
   int N_newpoints;
   int N_newcells;
   
-  SetConvergence(0.0);
-  SetFeatureEdgeSmoothing(1);
-  SetFeatureAngle(45.0);
-  SetEdgeAngle(15.0);
-  SetBoundarySmoothing(1);
+  setConvergence(0.0);
+  setFeatureEdgeSmoothing(1);
+  setFeatureAngle(45.0);
+  setEdgeAngle(15.0);
+  setBoundarySmoothing(1);
   
 //   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
   QVector <vtkIdType> Peons;

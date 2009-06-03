@@ -25,7 +25,7 @@
 #include <vtkCellData.h>
 #include "guimainwindow.h"
 
-SetBoundaryCode::SetBoundaryCode()
+setBoundaryCode::setBoundaryCode()
 {
   feature_angle = 180.0;
   boundary_code = 1;
@@ -33,7 +33,7 @@ SetBoundaryCode::SetBoundaryCode()
   setQuickSave(true);
 };
 
-void SetBoundaryCode::pass1()
+void setBoundaryCode::pass1()
 {
   if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours))
   {
@@ -94,7 +94,7 @@ void SetBoundaryCode::pass1()
   }
 };
 
-void SetBoundaryCode::pass2()
+void setBoundaryCode::pass2()
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   vtkIdType cellId;

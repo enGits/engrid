@@ -64,7 +64,7 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 }
 
 //converts string to nodeset
-void VertexMeshDensity::SetNodes(QString str)
+void VertexMeshDensity::setNodes(QString str)
 {
   nodeset.clear();//empty by default
   cout<<"str.size="<<str.size()<<endl;

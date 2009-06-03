@@ -82,23 +82,23 @@ public:
   SurfaceMesher();
   virtual void operate();
 
-  void SetBoundaryCodes(QSet<int> a_bcs) { m_bcs=a_bcs; }
+  void setBoundaryCodes(QSet<int> a_bcs) { m_bcs=a_bcs; }
 
   //Used for UpdateDesiredMeshDensity operation
   int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
   void setMaxiterDensity(int a) { MaxiterDensity=a; }
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
 
   void setConvergence_meshdensity(double C) { Convergence_meshdensity = C; }
   void setDoSwap(bool B) { DoSwap = B; }
   void setDoLaplaceSmoothing (bool B) { DoLaplaceSmoothing = B; }
   void setN_SmoothIterations(int N) { N_SmoothIterations = N; }
 
-  void Set_insert_FP(bool B) { insert_FP = B; }
-  void Set_insert_EP(bool B) { insert_EP = B; }
-  void Set_remove_FP(bool B) { remove_FP = B; }
-  void Set_remove_EP(bool B) { remove_EP = B; }
+  void set_insert_FP(bool B) { insert_FP = B; }
+  void set_insert_EP(bool B) { insert_EP = B; }
+  void set_remove_FP(bool B) { remove_FP = B; }
+  void set_remove_EP(bool B) { remove_EP = B; }
 
   int SwapFunction();
   int SmoothFunction();

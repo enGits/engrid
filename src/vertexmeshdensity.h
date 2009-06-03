@@ -42,7 +42,7 @@ public:
   double density;
   vtkIdType CurrentNode;
   bool operator==(const VertexMeshDensity & VMD) const;
-  void SetNodes(QString str);
+  void setNodes(QString str);
 };
 
 ostream& operator<<(ostream &out, VertexMeshDensity A);

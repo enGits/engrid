@@ -23,12 +23,12 @@
 #ifndef guisetboundarycode_H
 #define guisetboundarycode_H
 
-class GuiSetBoundaryCode;
+class GuisetBoundaryCode;
 
 #include "dialogoperation.h"
 #include "ui_guisetboundarycode.h"
 
-class GuiSetBoundaryCode : public DialogOperation<Ui::GuiSetBoundaryCode>
+class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode>
 {
   
   Q_OBJECT;

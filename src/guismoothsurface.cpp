@@ -377,7 +377,7 @@ QVector <VertexMeshDensity> GuiSmoothSurface::getSet()
       VMDvector[i].BCmap[bc]=state;
     }
     VMDvector[i].type=Str2VertexType(m_tableWidget->item(i,Nbc)->text());
-    VMDvector[i].SetNodes(m_tableWidget->item(i,Nbc+1)->text());
+    VMDvector[i].setNodes(m_tableWidget->item(i,Nbc+1)->text());
     if(ui.radioButton_density->isChecked()){
       VMDvector[i].density=m_tableWidget->item(i,Nbc+2)->text().toDouble();
     }
@@ -622,7 +622,7 @@ void GuiSmoothSurface::operate()
     Lap.setGrid(this->grid);
     Lap.setBoundaryCodes(bcs);
     Lap.setSource(this->grid);
-    Lap.SetNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+    Lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
     setDebugLevel(ui.spinBox_DebugLevel->value());
     Lap();
     Lap.delete_CellLocator_and_ProjectionSurface();
@@ -706,25 +706,25 @@ void GuiSmoothSurface::operate()
     SurfaceMesher surfacemesher;
     
     surfacemesher.setGrid(this->grid);
-    surfacemesher.SetBoundaryCodes(bcs);
+    surfacemesher.setBoundaryCodes(bcs);
     
-    surfacemesher.SetVertexMeshDensityVector(VMDvector);
-    surfacemesher.SetConvergence (ui.doubleSpinBox_Convergence->value());
-    surfacemesher.SetNumberOfIterations (ui.spinBox_NumberOfIterations->value());
-    surfacemesher.SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
-    surfacemesher.SetFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
-    surfacemesher.SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-    surfacemesher.SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
-    surfacemesher.SetBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-    surfacemesher.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    surfacemesher.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    surfacemesher.setVertexMeshDensityVector(VMDvector);
+    surfacemesher.setConvergence (ui.doubleSpinBox_Convergence->value());
+    surfacemesher.setNumberOfIterations (ui.spinBox_NumberOfIterations->value());
+    surfacemesher.setRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    surfacemesher.setFeatureEdgeSmoothing (ui.checkBox_FeatureEdgeSmoothing->checkState());
+    surfacemesher.setFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    surfacemesher.setEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    surfacemesher.setBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
+    surfacemesher.setGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    surfacemesher.setGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
     surfacemesher.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
-    surfacemesher.Set_insert_FP(ui.checkBox_insert_FP->checkState());
-    surfacemesher.Set_insert_EP(ui.checkBox_insert_EP->checkState());
-    surfacemesher.Set_remove_FP(ui.checkBox_remove_FP->checkState());
-    surfacemesher.Set_remove_EP(ui.checkBox_remove_EP->checkState());
+    surfacemesher.set_insert_FP(ui.checkBox_insert_FP->checkState());
+    surfacemesher.set_insert_EP(ui.checkBox_insert_EP->checkState());
+    surfacemesher.set_remove_FP(ui.checkBox_remove_FP->checkState());
+    surfacemesher.set_remove_EP(ui.checkBox_remove_EP->checkState());
     surfacemesher.setDoSwap(ui.checkBox_Swap->checkState());
     surfacemesher.setDoLaplaceSmoothing(ui.checkBox_LaplaceSmoothing->checkState());
     
@@ -742,11 +742,11 @@ void GuiSmoothSurface::operate()
   {
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
-    SetConvergence(ui.doubleSpinBox_Convergence->value());
-    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
-    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
-    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
-    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    setConvergence(ui.doubleSpinBox_Convergence->value());
+    setFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    setFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    setEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateCurrentMeshDensity();
     UpdateNodeType_all();
@@ -758,11 +758,11 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     SurfaceMesher toto;
     
-    SetConvergence(ui.doubleSpinBox_Convergence->value());
-    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
-    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
-    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
-    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    setConvergence(ui.doubleSpinBox_Convergence->value());
+    setFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    setFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    setEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     int N_newpoints;
     int N_newcells;
@@ -794,11 +794,11 @@ void GuiSmoothSurface::operate()
     
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
-    SetConvergence(ui.doubleSpinBox_Convergence->value());
-    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
-    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
-    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
-    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    setConvergence(ui.doubleSpinBox_Convergence->value());
+    setFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    setFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    setEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     QVector <VertexMeshDensity> VMDvector=getSet();
 //     cout<<"VMDvector="<<VMDvector<<endl;
@@ -816,11 +816,11 @@ void GuiSmoothSurface::operate()
   else if(ui.SmoothMethod->currentIndex()==10)// Update current mesh density + node types v2
   {
     setDebugLevel(ui.spinBox_DebugLevel->value());
-    SetConvergence(ui.doubleSpinBox_Convergence->value());
-    SetFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
-    SetFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
-    SetEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
-    SetBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
+    setConvergence(ui.doubleSpinBox_Convergence->value());
+    setFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
+    setFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
+    setEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
+    setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateCurrentMeshDensity();
     UpdateNodeType();

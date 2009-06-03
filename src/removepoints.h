@@ -76,11 +76,11 @@ private:
   //attributes with setter functions
 public:
   QSet<int> m_bcs;
-  void SetBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
+  void setBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
   bool remove_FP;
-  void Set_remove_FP(bool B){remove_FP=B;};
+  void set_remove_FP(bool B){remove_FP=B;};
   bool remove_EP;
-  void Set_remove_EP(bool B){remove_EP=B;};
+  void set_remove_EP(bool B){remove_EP=B;};
   
 public:
   RemovePoints();

@@ -108,7 +108,7 @@
     <property name="title" >
      <string>&amp;Mesh</string>
     </property>
-    <addaction name="actionSetBoundaryCode" />
+    <addaction name="actionsetBoundaryCode" />
     <addaction name="actionChangeOrientation" />
     <addaction name="actionCheckOrientation" />
     <addaction name="actionImproveAspectRatio" />
@@ -199,7 +199,7 @@
    <addaction name="actionUndo" />
    <addaction name="actionRedo" />
    <addaction name="separator" />
-   <addaction name="actionSetBoundaryCode" />
+   <addaction name="actionsetBoundaryCode" />
    <addaction name="actionChangeOrientation" />
    <addaction name="actionCheckOrientation" />
    <addaction name="separator" />
@@ -928,7 +928,7 @@
     <string>v2.0 (binary)</string>
    </property>
   </action>
-  <action name="actionSetBoundaryCode" >
+  <action name="actionsetBoundaryCode" >
    <property name="icon" >
     <iconset resource="engrid.qrc" >
      <normaloff>:/icons/resources/icons/setbc.png</normaloff>:/icons/resources/icons/setbc.png</iconset>

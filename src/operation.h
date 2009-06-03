@@ -212,16 +212,16 @@ public: // methods
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
   
   //Special for UpdateNodeType_all
-  void SetConvergence( double C ) { Convergence=C; };
-  void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
-  void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
-  void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
+  void setConvergence( double C ) { Convergence=C; };
+  void setNumberOfIterations( int N ) { NumberOfIterations=N; };
+  void setRelaxationFactor( double RF ) { RelaxationFactor=RF; };
+  void setFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
   int getFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); };
-  void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
-  void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
-  void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
-  void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
-  void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
+  void setFeatureAngle( double FA ) { FeatureAngle=FA; };
+  void setEdgeAngle( double EA ) { EdgeAngle=EA; };
+  void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
+  void setGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
+  void setGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   
   ///Returns the average distance of id_node to its neighbours
   double CurrentVertexAvgDist(vtkIdType id_node);

@@ -62,17 +62,17 @@ private:
   //attributes with setter functions
 public:
   QSet<int> m_bcs;
-  void SetBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
+  void setBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void SetVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
   
 public:
   InsertPoints();
   
   virtual void operate();
   
-  void Set_insert_FP(bool B){insert_FP=B;};
-  void Set_insert_EP(bool B){insert_EP=B;};
+  void set_insert_FP(bool B){insert_FP=B;};
+  void set_insert_EP(bool B){insert_EP=B;};
   
   int insert_FP_counter();
   int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
