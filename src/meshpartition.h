@@ -24,12 +24,29 @@
 #ifndef MESHPARTITION_H
 #define MESHPARTITION_H
 
-#include "egvtkobject.h"
+class MeshPartition;
 
-#include "guimainwindow.h"
+#include "egvtkobject.h"
 
 class MeshPartition : public EgVtkObject
 {
+
+private: // attributes
+
+  /// the grid underlying this mesh partition
+  vtkUnstructuredGrid *grid;
+
+  /// all cells of the mesh partition
+  QVector<vtkIdType> cells;
+
+  /// inverse indexing for the cells
+  QVector<int> _cells;
+
+  /// all nodes of the mesh partition
+  QVector<vtkIdType> nodes;
+
+  /// inverse indexing for the nodes
+  QVector<int> _nodes;
 
 public: // methods
 
@@ -67,6 +84,13 @@ public: // methods
    */
   template <class C>
   void setCells(const C& cls);
+
+  /**
+   * Define the mesh partition by giving a symbolic volume name.
+   * The grid will be changed to the default (main) grid that is currently loaded into ENGRID.
+   * @param volume_name the symbolic volume name
+   */
+  void setVolume(QString volume_name);
 
   /**
    * Define the mesh partition as the remainder of an existing partition.
@@ -113,22 +137,8 @@ public: // methods
    */
   double getSmallestEdgeLength() const;
 
-private: // attributes
-
-  /// the grid underlying this mesh partition
-  vtkUnstructuredGrid *grid;
-
-  /// all cells of the mesh partition
-  QVector<vtkIdType> cells;
-
-  /// inverse indexing for the cells
-  QVector<int> _cells;
-
-  /// all nodes of the mesh partition
-  QVector<vtkIdType> nodes;
-
-  /// inverse indexing for the nodes
-  QVector<int> _nodes;
+  //int       lN2N(int       i, int j) { return n2n[i]; }
+  //vtkIdType gN2N(vtkIdType i, int j) { return n2n[_nodes[i]][j]; }
 
 };
 

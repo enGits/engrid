@@ -22,6 +22,8 @@
 //
 
 #include "meshpartition.h"
+#include "guimainwindow.h"
+
 #include <vtkKdTreePointLocator.h>
 
 MeshPartition::MeshPartition()
@@ -42,6 +44,11 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 }
 
 MeshPartition::MeshPartition(QString volume_name)
+{
+  setVolume(volume_name);
+}
+
+void MeshPartition::setVolume(QString volume_name)
 {
   grid = GuiMainWindow::pointer()->getGrid();
   resetOrientation(grid);
