@@ -171,7 +171,6 @@ int RemovePoints::remove_FP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  int l_N_removed_FP = remove_FP_counter();
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"================="<<endl;
@@ -227,7 +226,6 @@ int RemovePoints::remove_EP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  int l_N_removed_EP = remove_EP_counter();
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"================="<<endl;
