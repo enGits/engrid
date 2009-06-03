@@ -57,21 +57,22 @@ void LaplaceSmoother::operate()
   
   for(int i_iter=0;i_iter<NumberOfIterations;i_iter++)
   {
-    foreach(vtkIdType id_G,SelectedNodes)
+    foreach(vtkIdType id_nodeG,SelectedNodes)
     {
-      if(node_type->GetValue(id_G)==VTK_SIMPLE_VERTEX)
+      if(node_type->GetValue(id_nodeG)==VTK_SIMPLE_VERTEX)
       {
         vec3_t G(0,0,0);
-        foreach(int id_M,getPotentialSnapPoints(id_G))
+        foreach(int i_nodeM, n2n[_nodes[id_nodeG]])
         {
+          vtkIdType id_nodeM = nodes[i_nodeM];
           vec3_t M;
-          grid->GetPoint(id_M, M.data());
+          grid->GetPoint(id_nodeM, M.data());
           G+=M;
         }
         
-        G=(1./n2n_func(id_G).size())*G;
+        G=(1./n2n[_nodes[id_nodeG]].size())*G;
         vec3_t P;
-        if(DebugLevel>0) cout<<"Searching for target "<<id_G<<"..."<<endl;
+        if(DebugLevel>0) cout<<"Searching for target "<<id_nodeG<<"..."<<endl;
         if(m_CellLocator==NULL) {
           cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
         }
@@ -81,14 +82,14 @@ void LaplaceSmoother::operate()
         if(DebugLevel>0) cout<<"Target destroyed."<<endl;
         
         //check that no cell gets flipped!
-        while(FlippedCells(id_G,P))
+        while(FlippedCells(id_nodeG,P))
         {
           vec3_t x0_old;
-          grid->GetPoint(id_G, x0_old.data());
+          grid->GetPoint(id_nodeG, x0_old.data());
           P=x0_old+0.5*(P-x0_old);
         };
         
-        grid->GetPoints()->SetPoint(id_G, P.data());
+        grid->GetPoints()->SetPoint(id_nodeG, P.data());
         
         moved_points++;
       }
@@ -101,13 +102,13 @@ void LaplaceSmoother::operate()
   
 }
 
-bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
+bool LaplaceSmoother::FlippedCells(vtkIdType id_nodeG, vec3_t P)
 {
   vec3_t x0_old, x0_new;
-  grid->GetPoint(id_G, x0_old.data());
+  grid->GetPoint(id_nodeG, x0_old.data());
   x0_new=P;
   
-  foreach(int i_cell, n2c[_nodes[id_G]])
+  foreach(int i_cell, n2c[_nodes[id_nodeG]])
   {
     vtkIdType id_cell = cells[i_cell];
     vtkIdType N_pts, *pts;
@@ -115,7 +116,7 @@ bool LaplaceSmoother::FlippedCells(vtkIdType id_G, vec3_t P)
     int i;
     for(i=0;i<N_pts;i++)
     {
-      if(pts[i]==id_G) break;
+      if(pts[i]==id_nodeG) break;
     }
     vec3_t x2, x3;
     grid->GetPoint(pts[(i+1)%N_pts], x2.data());

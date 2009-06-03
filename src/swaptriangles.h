@@ -38,8 +38,11 @@ private: // attributes
   
 private: // methods
   
+  ///returns true if performing a swap on the stencil does not change the orientation of the cells (tetra volume test)
   bool TestSwap(stencil_t S);
-  bool isEdge(vtkIdType A, vtkIdType B);
+  
+  ///returns true if id_node1 is linked to id_node2
+  bool isEdge(vtkIdType id_node1, vtkIdType id_node2);
     
 protected: // methods
   

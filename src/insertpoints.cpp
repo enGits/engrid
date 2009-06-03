@@ -409,20 +409,3 @@ int InsertPoints::insert_EP_all()
   cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }
-
-double InsertPoints::NewCurrentMeshDensity(vtkIdType a_vertex,double a_dist)
-{
-  double total_dist=0;
-  double avg_dist=0;
-  int N=n2n_func(a_vertex).size();
-  vec3_t C;
-  grid->GetPoint(a_vertex, C.data());
-  foreach(int i,n2n_func(a_vertex))
-  {
-    vec3_t M;
-    grid->GetPoint(i, M.data());
-    total_dist+=(M-C).abs();
-  }
-  avg_dist=(total_dist+a_dist)/(double)(N+1);
-  return(1./avg_dist);
-}

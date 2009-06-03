@@ -510,11 +510,6 @@ int Operation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTe
   return(N);
 }
 
-QSet <vtkIdType> Operation::getPotentialSnapPoints(vtkIdType Boss)
-{
-  return n2n_func(Boss);
-}
-
 bool Operation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
   ///@@@  TODO: Optimize intersection part

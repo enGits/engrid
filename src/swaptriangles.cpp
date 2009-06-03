@@ -171,11 +171,12 @@ bool SwapTriangles::TestSwap(stencil_t S)
   return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
 }
 
-bool SwapTriangles::isEdge(vtkIdType A, vtkIdType B)
+bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
 {
   bool ret = false;
-  foreach(vtkIdType id_node,n2n_func(A)) {
-    if( id_node == B ) ret = true;
+  foreach(int i_node, n2n[_nodes[id_node1]]) {
+    vtkIdType id_node = nodes[i_node];
+    if( id_node == id_node2 ) ret = true;
   }
   return(ret);
 }

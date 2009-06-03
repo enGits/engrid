@@ -42,10 +42,11 @@ bool CheckSurfaceIntegrity::isWaterTight()
   BadCells.clear();
   
   bool first = true;
-  foreach(vtkIdType node1,nodes) {
-    foreach(vtkIdType node2,n2n_func(node1)) {
+  foreach(vtkIdType id_node1, nodes) {
+    foreach(int i_node2, n2n[_nodes[id_node1]]) {
+      vtkIdType id_node2 = nodes[i_node2];
       QSet <vtkIdType> edge_cells;
-      int N = getEdgeCells(node1,node2,edge_cells);
+      int N = getEdgeCells(id_node1, id_node2,edge_cells);
       if(first) {
         first = false;
         Nmin = N;

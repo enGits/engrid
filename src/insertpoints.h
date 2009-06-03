@@ -86,8 +86,6 @@ public:
   bool insert_edgepoint(vtkIdType j,vtkIdType K);// node1 K, node2 j
 
   bool SplitSide(vtkIdType id_cell,int side);
-    
-  double NewCurrentMeshDensity(vtkIdType a_vertex,double a_dist);
 
 };
 
