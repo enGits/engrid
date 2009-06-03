@@ -319,51 +319,54 @@ ostream& operator<<(ostream &out, stencil_t S)
 }
 
 //////////////////////////////////////////////
-double Operation::CurrentVertexAvgDist(vtkIdType a_vertex)
+double Operation::CurrentVertexAvgDist(vtkIdType id_node)
 {
   double total_dist=0;
   double avg_dist=0;
-  int N=n2n_func(a_vertex).size();
+  int N = n2n[_nodes[id_node]].size();
   vec3_t C;
-  grid->GetPoint(a_vertex, C.data());
-  foreach(int i,n2n_func(a_vertex))
+  grid->GetPoint(id_node, C.data());
+  foreach(int i_node_neighbour, n2n[_nodes[id_node]])
   {
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint(i, M.data());
+    grid->GetPoint(id_node_neighbour, M.data());
     total_dist+=(M-C).abs();
   }
   avg_dist=total_dist/(double)N;
   return(avg_dist);
 }
 
-double Operation::CurrentMeshDensity(vtkIdType a_vertex)
+double Operation::CurrentMeshDensity(vtkIdType id_node)
 {
-  return 1./CurrentVertexAvgDist(a_vertex);
+  return 1./CurrentVertexAvgDist(id_node);
 }
 
-double Operation::DesiredVertexAvgDist(vtkIdType a_vertex)
+double Operation::DesiredVertexAvgDist(vtkIdType id_node)
 {
   double total_dist=0;
   double avg_dist=0;
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  int N=n2n_func(a_vertex).size();
-  foreach(int i,n2n_func(a_vertex))
+  int N = n2n[_nodes[id_node]].size();
+  foreach(int i_node_neighbour, n2n[_nodes[id_node]])
   {
-    total_dist+=1./node_meshdensity_desired->GetValue(i);
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
+    total_dist+=1./node_meshdensity_desired->GetValue(id_node_neighbour);
   }
   avg_dist=total_dist/(double)N;
   return(avg_dist);
 }
 
-double Operation::DesiredMeshDensity(vtkIdType a_vertex)
+double Operation::DesiredMeshDensity(vtkIdType id_node)
 {
   double total_density=0;
   double avg_density=0;
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  int N=n2n_func(a_vertex).size();
-  foreach(int i,n2n_func(a_vertex))
+  int N = n2n[_nodes[id_node]].size();
+  foreach(int i_node_neighbour, n2n[_nodes[id_node]])
   {
-    total_density+=node_meshdensity_desired->GetValue(i);
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
+    total_density+=node_meshdensity_desired->GetValue(id_node_neighbour);
   }
   avg_density=total_density/(double)N;
   return(avg_density);
@@ -1230,12 +1233,12 @@ int Operation::UpdateNodeType()
 //End of UpdateNodeType
 
 ///@@@  TODO: Optimize
-char Operation::getNodeType(vtkIdType a_node)
+char Operation::getNodeType(vtkIdType id_node)
 {
   //initialize default value
   char type=VTK_SIMPLE_VERTEX;
   
-  //loop through edges around a_node
+  //loop through edges around id_node
   
   vtkIdList *edges;
   edges = vtkIdList::New();
@@ -1244,27 +1247,26 @@ char Operation::getNodeType(vtkIdType a_node)
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
-  QSet <vtkIdType> neighbour_nodes = n2n_func(a_node);
-  
-  foreach(vtkIdType p2,neighbour_nodes)
+  foreach(int i_node2, n2n[_nodes[id_node]])
   {
+    vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
-    char edge = getEdgeType(p2,a_node);
+    char edge = getEdgeType(id_node2,id_node);
     
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
     if ( edge && type == VTK_SIMPLE_VERTEX )
     {
       edges->Reset();
-      edges->InsertNextId(p2);
+      edges->InsertNextId(id_node2);
       type = edge;
     }
     else if ( (edge && type == VTK_BOUNDARY_EDGE_VERTEX) ||
               (edge && type == VTK_FEATURE_EDGE_VERTEX) ||
               (!edge && type == VTK_SIMPLE_VERTEX ) )
     {
-      edges->InsertNextId(p2);
+      edges->InsertNextId(id_node2);
       if ( type && edge == VTK_BOUNDARY_EDGE_VERTEX )
       {
         type = VTK_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
@@ -1290,7 +1292,7 @@ char Operation::getNodeType(vtkIdType a_node)
     {
       double x1[3], x2[3], x3[3], l1[3], l2[3];
       grid->GetPoint(edges->GetId(0),x1);
-      grid->GetPoint(a_node,x2);
+      grid->GetPoint(id_node,x2);
       grid->GetPoint(edges->GetId(1),x3);
       for (int k=0; k<3; k++)
       {
@@ -1332,12 +1334,6 @@ int Operation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdTy
   
   EdgeCells = S2.intersect(S1);
   return EdgeCells.size();
-}
-
-bool Operation::FullCycleOfPolygons(vtkIdType a_node)
-{
-  if(getNumberOfBoundaryEdges(a_node)!=0) return(false);
-  else return(true);
 }
 
 ///@@@  TODO: take into account more than 2 cells on one edge like in the VTK algorithm
@@ -1383,26 +1379,6 @@ char Operation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2)
 {
 
-}
-
-int Operation::getNumberOfFeatureEdges(vtkIdType a_node)
-{
-  int N=0;
-  QSet <vtkIdType> neighbours = n2n_func(a_node);
-  foreach(vtkIdType i, neighbours){
-    if(getEdgeType(a_node,i)==VTK_FEATURE_EDGE) N++;
-  }
-  return(N);
-}
-
-int Operation::getNumberOfBoundaryEdges(vtkIdType a_node)
-{
-  int N=0;
-  QSet <vtkIdType> neighbours = n2n_func(a_node);
-  foreach(vtkIdType i, neighbours){
-    if(getEdgeType(a_node,i)==VTK_BOUNDARY_EDGE) N++;
-  }
-  return(N);
 }
 
 bool Operation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
@@ -1726,20 +1702,6 @@ double Operation::T_min(int w)
     T += A_U(i)/pow(A_D(i),w)*pow(G_k(i),2*(w-1));
   }
   return(T);
-}
-
-//---------------------------------------------------
-//These functions are not optimized. Avoid using them when possible.
-
-QSet<vtkIdType> Operation::n2n_func(vtkIdType idx)
-{
-  QSet<int> tmp = n2n[_nodes[idx]];
-
-  QSet<vtkIdType> ret;
-  foreach(int i,tmp){
-    if(i!=-1) ret.insert(nodes[i]);
-  }
-  return(ret);
 }
 
 //---------------------------------------------------

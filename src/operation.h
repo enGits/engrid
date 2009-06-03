@@ -223,33 +223,22 @@ public: // methods
   void SetGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
   void SetGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   
-  ///Equivalent of n2n in absolute numbering
-  QSet<vtkIdType>    n2n_func(vtkIdType idx);
+  ///Returns the average distance of id_node to its neighbours
+  double CurrentVertexAvgDist(vtkIdType id_node);
   
-  ///Returns the average distance of a_vertex to its neighbours
-  double CurrentVertexAvgDist(vtkIdType a_vertex);
+  ///Returns 1/CurrentVertexAvgDist(id_node)
+  double CurrentMeshDensity(vtkIdType id_node);
   
-  ///Returns 1/CurrentVertexAvgDist(a_vertex)
-  double CurrentMeshDensity(vtkIdType a_vertex);
+  ///Returns the average of 1./node_meshdensity_desired of the neighbours of id_node
+  double DesiredVertexAvgDist(vtkIdType id_node);
   
-  ///Returns the average of 1./node_meshdensity_desired of the neighbours of a_vertex
-  double DesiredVertexAvgDist(vtkIdType a_vertex);
-  
-  ///Returns the average of node_meshdensity_desired of the neighbours of a_vertex
-  double DesiredMeshDensity(vtkIdType a_vertex);
+  ///Returns the average of node_meshdensity_desired of the neighbours of id_node
+  double DesiredMeshDensity(vtkIdType id_node);
   
   ///Returns the set of boundary codes next to this node
   QSet <int> getBCset(vtkIdType a_node);
   
   char getNodeType(vtkIdType a_node);
-  
-  bool FullCycleOfPolygons(vtkIdType a_node);
-  
-  ///Returns the number of feature edges around node a_node
-  int getNumberOfFeatureEdges(vtkIdType a_node);
-  
-  ///Returns the number of boundary edges around node a_node
-  int getNumberOfBoundaryEdges(vtkIdType a_node);
   
   ///Returns the type of the edge [a_node1,a_node2] based on the topology
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
