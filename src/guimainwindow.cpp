@@ -66,7 +66,7 @@ using namespace GeometryTools;
 // GuiOutputWindow::GuiOutputWindow()
 // {
 //   ui.setupUi(this);
-// };
+// }
 
 QString GuiMainWindow::cwd = ".";
 QSettings GuiMainWindow::qset("enGits","enGrid");
@@ -140,7 +140,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   if (qset.contains("working_directory")) {
     cwd = qset.value("working_directory").toString();
-  };
+  }
   grid = vtkUnstructuredGrid::New();
   renderer = vtkRenderer::New();
   getRenderWindow()->AddRenderer(renderer);
@@ -241,15 +241,16 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 // define temporary path
   QDir dir("/");
   if (qset.contains("tmp_directory")) {
-    m_LogDir=qset.value("tmp_directory").toString();
+    m_LogDir = qset.value("tmp_directory").toString();
   } else {
-    m_LogDir=dir.tempPath();
-  };
-  m_LogDir = m_LogDir + "/" + "enGrid_"+user + "/";
+    m_LogDir = dir.tempPath();
+  }
+  QDateTime now = QDateTime::currentDateTime();
+  m_LogDir = m_LogDir + "/" + "enGrid_" + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz") + "/";
   dir.mkpath(m_LogDir);
   
   log_file_name = m_LogDir + basename;
-  cout<<"log_file_name="<<log_file_name.toLatin1().data()<<endl;
+  cout << "log_file_name=" << log_file_name.toLatin1().data() << endl;
 
   system_stdout = stdout;
   freopen (log_file_name.toAscii().data(), "w", stdout);
@@ -311,7 +312,7 @@ GuiMainWindow::~GuiMainWindow()
   dir.rmdir(m_LogDir);
 #endif
   
-};
+}
 
 void GuiMainWindow::updateOutput()
 {
@@ -324,41 +325,41 @@ void GuiMainWindow::updateOutput()
     QString txt(newchars);
     if (txt.right(1) == "\n") {
       txt = txt.left(txt.size()-1);
-    };
+    }
     ui.textEditOutput->append(txt);
-  };
-};
+  }
+}
 
 void GuiMainWindow::exit()
 {
   QCoreApplication::exit();
-};
+}
 
 vtkRenderWindow* GuiMainWindow::getRenderWindow() 
 {
   return ui.qvtkWidget->GetRenderWindow();
-};
+}
 
 vtkRenderer* GuiMainWindow::getRenderer()
 {
   return renderer;
-};
+}
 
 QVTKInteractor* GuiMainWindow::getInteractor()
 {
   return ui.qvtkWidget->GetInteractor();
-};
+}
 
 QString GuiMainWindow::getCwd()
 {
   return cwd;
-};
+}
 
 void GuiMainWindow::setCwd(QString dir)
 {
   cwd = dir;
   qset.setValue("working_directory",dir);
-};
+}
 
 void GuiMainWindow::ScaleToData()
 {
@@ -388,13 +389,13 @@ void GuiMainWindow::updateActors()
           cell_idx->SetName("cell_index");
           cell_idx->SetNumberOfValues(grid->GetNumberOfCells());
           grid->GetCellData()->AddArray(cell_idx);
-        };
-      };
+        }
+      }
       EG_VTKDCC(vtkLongArray_t, cell_index, grid, "cell_index");
       for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
         cell_index->SetValue(cellId, cellId);
-      };
-    };
+      }
+    }
     
     axes->SetInput(grid);
     
@@ -413,61 +414,61 @@ void GuiMainWindow::updateActors()
       ymax = max(x[1], ymax);
       zmin = min(x[2], zmin);
       zmax = max(x[2], zmax);
-    };
+    }
     
     if (surface_actor) {
       getRenderer()->RemoveActor(surface_actor);
       surface_actor->Delete();
       surface_actor = NULL;
-    };
+    }
     if (surface_wire_actor) {
       getRenderer()->RemoveActor(surface_wire_actor);
       surface_wire_actor->Delete();
       surface_wire_actor = NULL;
-    };
+    }
     if (tetra_actor) {
       getRenderer()->RemoveActor(tetra_actor);
       tetra_actor->Delete();
       tetra_actor = NULL;
-    };
+    }
     if (pyramid_actor) {
       getRenderer()->RemoveActor(pyramid_actor);
       pyramid_actor->Delete();
       pyramid_actor = NULL;
-    };
+    }
     if (wedge_actor) {
       getRenderer()->RemoveActor(wedge_actor);
       wedge_actor->Delete();
       wedge_actor = NULL;
-    };
+    }
     if (hexa_actor) {
       getRenderer()->RemoveActor(hexa_actor);
       hexa_actor->Delete();
       hexa_actor = NULL;
-    };
+    }
     if (volume_wire_actor) {
       getRenderer()->RemoveActor(volume_wire_actor);
       volume_wire_actor->Delete();
       volume_wire_actor = NULL;
-    };
+    }
     if (pick_actor) {
       getRenderer()->RemoveActor(pick_actor);
       pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
       pick_actor = NULL;
-    };
+    }
     if (iamlegend_actor) {
       getRenderer()->RemoveActor(iamlegend_actor);
       iamlegend_actor->Delete();
       iamlegend_actor = NULL;
-    };
+    }
     if (lut) {
       lut->Delete();
       lut = NULL;
-    };
+    }
     if (field_mapper) {
       field_mapper->Delete();
       field_mapper = NULL;
-    };
+    }
     
     if (ui.checkBoxSurface->isChecked()) {
       bcodes_filter->SetBoundaryCodes(&display_boundary_codes);
@@ -587,7 +588,7 @@ void GuiMainWindow::updateActors()
           else pickPoint(PickedPoint);
         }
       }
-    };
+    }
     
     vec3_t x, n;
     x[0] = ui.lineEditClipX->text().toDouble();
@@ -608,7 +609,7 @@ void GuiMainWindow::updateActors()
         extr_tetras->SetN(n);
       } else {
         extr_tetras->SetClippingOff();
-      };
+      }
       tetra_actor = vtkActor::New();
       tetra_geometry->SetInput(extr_tetras->GetOutput());
       tetra_geometry->Update();
@@ -618,7 +619,7 @@ void GuiMainWindow::updateActors()
       tetra_actor->SetMapper(tetra_mapper);
       tetra_actor->GetProperty()->SetColor(1,0,0);
       getRenderer()->AddActor(tetra_actor);
-    };
+    }
     if (ui.checkBoxPyramid->isChecked()) {
       extr_vol->SetPyramidsOn();
       extr_pyramids->SetInput(grid);
@@ -628,7 +629,7 @@ void GuiMainWindow::updateActors()
         extr_pyramids->SetN(n);
       } else {
         extr_pyramids->SetClippingOff();
-      };
+      }
       pyramid_actor = vtkActor::New();
       pyramid_geometry->SetInput(extr_pyramids->GetOutput());
       pyramid_geometry->Update();
@@ -638,7 +639,7 @@ void GuiMainWindow::updateActors()
       pyramid_actor->SetMapper(pyramid_mapper);
       pyramid_actor->GetProperty()->SetColor(1,1,0);
       getRenderer()->AddActor(pyramid_actor);
-    };
+    }
     if (ui.checkBoxWedge->isChecked()) {
       extr_vol->SetWedgesOn();
       extr_wedges->SetInput(grid);
@@ -648,7 +649,7 @@ void GuiMainWindow::updateActors()
         extr_wedges->SetN(n);
       } else {
         extr_wedges->SetClippingOff();
-      };
+      }
       wedge_actor = vtkActor::New();
       wedge_geometry->SetInput(extr_wedges->GetOutput());
       wedge_geometry->Update();
@@ -658,7 +659,7 @@ void GuiMainWindow::updateActors()
       wedge_actor->SetMapper(wedge_mapper);
       wedge_actor->GetProperty()->SetColor(0,1,0);
       getRenderer()->AddActor(wedge_actor);
-    };
+    }
     if (ui.checkBoxHexa->isChecked()) {
       extr_vol->SetHexasOn();
       extr_hexas->SetInput(grid);
@@ -668,7 +669,7 @@ void GuiMainWindow::updateActors()
         extr_hexas->SetN(n);
       } else {
         extr_hexas->SetClippingOff();
-      };
+      }
       hexa_actor = vtkActor::New();
       hexa_geometry->SetInput(extr_hexas->GetOutput());
       hexa_geometry->Update();
@@ -678,7 +679,7 @@ void GuiMainWindow::updateActors()
       hexa_actor->SetMapper(hexa_mapper);
       hexa_actor->GetProperty()->SetColor(0,0.7,1);
       getRenderer()->AddActor(hexa_actor);
-    };
+    }
     
     // wireframe
     extr_vol->SetInput(grid);
@@ -688,7 +689,7 @@ void GuiMainWindow::updateActors()
       extr_vol->SetN(n);
     } else {
       extr_vol->SetClippingOff();
-    };
+    }
     volume_wire_actor = vtkActor::New();
     volume_geometry->SetInput(extr_vol->GetOutput());
     volume_geometry->Update();
@@ -704,9 +705,9 @@ void GuiMainWindow::updateActors()
     getRenderWindow()->Render();
   } catch (Error err) {
     err.display();
-  };
+  }
   unlock();
-};
+}
 
 void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
 {
@@ -737,7 +738,7 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
       getRenderer()->RemoveActor(pick_actor);
       pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
       pick_actor = NULL;
-    };
+    }
     pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
 //     pick_actor->VisibilityOn();
     
@@ -762,19 +763,19 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
       vec3_t xp;
       grid->GetPoints()->GetPoint(pts[i], xp.data());
       x += double(1)/Npts * xp;
-    };
+    }
     pick_sphere->SetCenter(x.data());
     double R = 1e99;
 //     for (vtkIdType i = 0; i < Npts; ++i) {
 //       vec3_t xp;
 //       grid->GetPoints()->GetPoint(pts[i], xp.data());
 //       R = min(R, 0.25*(xp-x).abs());
-//     };
+//     }
     for (vtkIdType i = 0; i < Npts; ++i) {
       vec3_t xp;
       grid->GetPoints()->GetPoint(pts[i], xp.data());
       R = min(R, 0.25*(xp-x).abs());
-    };
+    }
 //     R=getShortestSide(cellId,grid);
     ReferenceSize=R;//Used for text annotations too!
     pick_sphere->SetRadius(R);
@@ -784,7 +785,7 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
       getRenderer()->RemoveActor(pick_actor);
       pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
       pick_actor = NULL;
-    };
+    }
     pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
     
     pick_actor->SetMapper(pick_mapper);
@@ -805,7 +806,7 @@ void GuiMainWindow::importSTL()
   updateActors();
   updateStatusBar();
   zoomAll();
-};
+}
 
 void GuiMainWindow::importGmsh1Ascii()
 {
@@ -816,14 +817,14 @@ void GuiMainWindow::importGmsh1Ascii()
   updateActors();
   updateStatusBar();
   zoomAll();
-};
+}
 
 void GuiMainWindow::exportGmsh1Ascii()
 {
   GmshWriter gmsh;
   gmsh.setV1Ascii();
   gmsh();
-};
+}
 
 void GuiMainWindow::importGmsh2Ascii()
 {
@@ -834,20 +835,20 @@ void GuiMainWindow::importGmsh2Ascii()
   updateActors();
   updateStatusBar();
   zoomAll();
-};
+}
 
 void GuiMainWindow::exportGmsh2Ascii()
 {
   GmshWriter gmsh;
   gmsh.setV2Ascii();
   gmsh();
-};
+}
 
 void GuiMainWindow::exportNeutral()
 {
   NeutralWriter neutral;
   neutral();
-};
+}
 
 void GuiMainWindow::zoomAll()
 {
@@ -874,7 +875,7 @@ void GuiMainWindow::DeselectAll()
     getRenderer()->RemoveActor(pick_actor);
     pick_actor->Delete();
     pick_actor = NULL;
-  };
+  }
   setPickMode(false,true);
   PickedCell=-1;
   PickedPoint=-1;*/
@@ -931,7 +932,7 @@ void GuiMainWindow::Undo()
   ui.actionRedo->setEnabled(true);
   if(current_operation<=0) ui.actionUndo->setEnabled(false);
   */
-};
+}
 
 void GuiMainWindow::Redo()
 {
@@ -943,7 +944,7 @@ void GuiMainWindow::Redo()
   ui.actionUndo->setEnabled(true);
   if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);
   */
-};
+}
 
 void GuiMainWindow::ResetOperationCounter()
 {
@@ -956,12 +957,12 @@ void GuiMainWindow::ResetOperationCounter()
 void GuiMainWindow::openBC()
 {
   openBC(current_filename);
-};
+}
 
 void GuiMainWindow::saveBC()
 {
   saveBC(current_filename);
-};
+}
 
 void GuiMainWindow::openBC(QString a_file)
 {
@@ -1048,8 +1049,8 @@ void GuiMainWindow::open()
     zoomAll();
     ResetOperationCounter();
     QuickSave();
-  };
-};
+  }
+}
 
 void GuiMainWindow::save()
 {
@@ -1060,7 +1061,7 @@ void GuiMainWindow::save()
     EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
     for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
       cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
-    };
+    }
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     addVtkTypeInfo();
     createIndices(grid);
@@ -1074,8 +1075,8 @@ void GuiMainWindow::save()
     else{
       saveBC();
     }
-  };
-};
+  }
+}
 
 void GuiMainWindow::saveAs()
 {
@@ -1090,12 +1091,12 @@ void GuiMainWindow::saveAs()
     if (current_filename.right(4) != ".vtu") {
       if (current_filename.right(4) != ".VTU") {
         current_filename += ".vtu";
-      };
-    };
+      }
+    }
     EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
     for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
       cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
-    };
+    }
     GuiMainWindow::setCwd(QFileInfo(current_filename).absolutePath());
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     addVtkTypeInfo();
@@ -1115,8 +1116,8 @@ void GuiMainWindow::saveAs()
       ResetOperationCounter();
       QuickSave();
     }
-  };
-};
+  }
+}
 
 void GuiMainWindow::QuickSave(QString a_filename)
 {
@@ -1132,7 +1133,7 @@ void GuiMainWindow::QuickSave(QString a_filename)
     EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
     for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
       cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
-    };
+    }
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     addVtkTypeInfo();
     createIndices(grid);
@@ -1148,7 +1149,7 @@ void GuiMainWindow::QuickSave(QString a_filename)
     }
   }
   else cout<<"No grid to save!"<<endl;
-};
+}
 
 void GuiMainWindow::QuickLoad(QString a_filename)
 {
@@ -1167,21 +1168,21 @@ void GuiMainWindow::QuickLoad(QString a_filename)
       updateActors();
       updateStatusBar();
       zoomAll();
-    };
+    }
   
-};
+}
 
 void GuiMainWindow::updateStatusBar()
 {
   QString num, txt = "enGrid is currently busy with an operation ...";
   if (!busy) {
     txt = "";
-  };
+  }
   if (!tryLock()) {
     status_label->setText(txt);
     ui.label_node_cell_info->setText(txt);
     return;
-  };
+  }
   vtkIdType Ncells = grid->GetNumberOfCells();
   vtkIdType Nnodes = grid->GetNumberOfPoints();
   vtkIdType Ntris  = 0;
@@ -1198,7 +1199,7 @@ void GuiMainWindow::updateStatusBar()
     else if (ct == VTK_WEDGE)      ++Nprism;
     else if (ct == VTK_PYRAMID)    ++Npyras;
     else if (ct == VTK_HEXAHEDRON) ++Nhexas;
-  };
+  }
   num.setNum(Ntets + Npyras + Nprism + Nhexas); txt += num + " volume cells(";
   num.setNum(Ntets);  txt += num + " tetras, ";
   num.setNum(Npyras); txt += num + " pyramids, ";
@@ -1232,8 +1233,8 @@ void GuiMainWindow::updateStatusBar()
         pick_txt += num;
         if (i_pts < N_pts-1) {
           pick_txt += ",";
-        };
-      };
+        }
+      }
       pick_txt += "]";
       QString tmp;
       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -1241,7 +1242,7 @@ void GuiMainWindow::updateStatusBar()
       pick_txt += " cell_code=" + tmp;
       tmp.setNum(id_cell);
       pick_txt += " id_cell=" + tmp;
-    };
+    }
     txt += pick_txt;
   }
   else
@@ -1260,8 +1261,8 @@ void GuiMainWindow::updateStatusBar()
         pick_txt += num;
         if (i < 2) {
           pick_txt += ",";
-        };
-      };
+        }
+      }
       pick_txt += "]";
       QString tmp;
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
@@ -1277,7 +1278,7 @@ void GuiMainWindow::updateStatusBar()
       pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
       tmp.setNum(id_node);
       pick_txt += " id_node=" + tmp;
-    };
+    }
     
     txt += pick_txt;
   }
@@ -1285,7 +1286,7 @@ void GuiMainWindow::updateStatusBar()
   status_label->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
-};
+}
 
 void GuiMainWindow::selectBoundaryCodes()
 {
@@ -1298,7 +1299,7 @@ void GuiMainWindow::selectBoundaryCodes()
   bcodes.getThread().wait();
   bcodes.getSelectedBoundaryCodes(display_boundary_codes);
   updateActors();
-};
+}
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
@@ -1310,32 +1311,32 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
       int ct = grid->GetCellType(i);
       if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD)) {
         all_boundary_codes.insert(cell_code->GetValue(i));
-      };
-    };
+      }
+    }
     if (all_on) {
       display_boundary_codes.clear();
       foreach (int bc, all_boundary_codes) {
         display_boundary_codes.insert(bc);
-      };
+      }
     } else {
       QSet<int> dbcs;
       foreach (int bc, display_boundary_codes) {
         if (all_boundary_codes.contains(bc)) {
           dbcs.insert(bc);
-        };
-      };
+        }
+      }
       display_boundary_codes.clear();
       foreach (int bc, all_boundary_codes) {
         if (dbcs.contains(bc)) {
           display_boundary_codes.insert(bc);
-        };
-      };
-    };
+        }
+      }
+    }
   } catch (Error err) {
     err.display();
-  };
+  }
 //   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
-};
+}
 
 void GuiMainWindow::normalExtrusion()
 {
@@ -1343,21 +1344,21 @@ void GuiMainWindow::normalExtrusion()
   extr();
   updateBoundaryCodes(false);
   updateActors();
-};
+}
 
 void GuiMainWindow::setAxesVisibility()
 {
   if (ui.actionViewAxes->isChecked()) axes->SetVisibility(1);
   else                                axes->SetVisibility(0);
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::setViewingMode()
 {
   if (ui.actionViewOrthogonal->isChecked()) getRenderer()->GetActiveCamera()->ParallelProjectionOn();
   else getRenderer()->GetActiveCamera()->ParallelProjectionOff();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::ViewNodeIDs()
 {
@@ -1403,7 +1404,7 @@ void GuiMainWindow::ViewNodeIDs()
   }
   
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::ViewCellIDs()
 {
@@ -1465,7 +1466,7 @@ void GuiMainWindow::ViewCellIDs()
   }
   
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::addVtkTypeInfo()
 {
@@ -1474,9 +1475,9 @@ void GuiMainWindow::addVtkTypeInfo()
   vtk_type->SetNumberOfValues(grid->GetNumberOfCells());
   for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
     vtk_type->SetValue(cellId, grid->GetCellType(cellId));
-  };
+  }
   grid->GetCellData()->AddArray(vtk_type);
-};
+}
 
 void GuiMainWindow::pickCellCallBack
 (
@@ -1493,7 +1494,7 @@ void GuiMainWindow::pickCellCallBack
   THIS->updateActors();
   THIS->updateStatusBar();
   cout<<"pickCellCallBack"<<endl;
-};
+}
 
 void GuiMainWindow::pickPointCallBack
 (
@@ -1510,7 +1511,7 @@ void GuiMainWindow::pickPointCallBack
   THIS->updateActors();
   THIS->updateStatusBar();
   cout<<"pickPointCallBack"<<endl;
-};
+}
 
 vtkIdType GuiMainWindow::getPickedCell()
 {
@@ -1526,11 +1527,11 @@ vtkIdType GuiMainWindow::getPickedCell()
     if (cellId >= 0) {
       if (cellId < THIS->bcodes_filter->GetOutput()->GetNumberOfCells()) {
         picked_cell = cell_index->GetValue(cellId);
-      };
-    };
-  };
+      }
+    }
+  }
   return picked_cell;
-};
+}
 
 vtkIdType GuiMainWindow::getPickedPoint()
 {
@@ -1545,9 +1546,9 @@ vtkIdType GuiMainWindow::getPickedPoint()
     if (pointId >= 0) {
       picked_point = pointId;
     }
-  };
+  }
   return picked_point;
-};
+}
 
 void GuiMainWindow::changeSurfaceOrientation()
 {
@@ -1557,9 +1558,9 @@ void GuiMainWindow::changeSurfaceOrientation()
     QVector<vtkIdType> nodes(Npts);
     for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
     for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
-  };
+  }
   updateActors();
-};
+}
 
 void GuiMainWindow::checkSurfaceOrientation()
 {
@@ -1567,33 +1568,33 @@ void GuiMainWindow::checkSurfaceOrientation()
   vtkIdType picked_cell = getPickedCell();
   if (picked_cell >= 0) {
     corr_surf.setStart(picked_cell);
-  };
+  }
   corr_surf();
   updateActors();
-};
+}
 
 void GuiMainWindow::improveAspectRatio()
 {
   GuiImproveAspectRatio impr_ar;
   impr_ar();
   updateActors();
-};
+}
 
 void GuiMainWindow::exportAsciiStl()
 {
   StlWriter stl;
   stl();
-};
+}
 
 void GuiMainWindow::exportBinaryStl()
 {
-};
+}
 
 void GuiMainWindow::periodicUpdate()
 {
   Operation::collectGarbage(); 
   updateStatusBar();
-};
+}
 
 void GuiMainWindow::viewXP()
 {
@@ -1606,7 +1607,7 @@ void GuiMainWindow::viewXP()
   getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::viewXM()
 {
@@ -1619,7 +1620,7 @@ void GuiMainWindow::viewXM()
   getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::viewYP()
 {
@@ -1632,7 +1633,7 @@ void GuiMainWindow::viewYP()
   getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::viewYM()
 {
@@ -1645,7 +1646,7 @@ void GuiMainWindow::viewYM()
   getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::viewZP()
 {
@@ -1658,7 +1659,7 @@ void GuiMainWindow::viewZP()
   getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::viewZM()
 {
@@ -1671,7 +1672,7 @@ void GuiMainWindow::viewZM()
   getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
-};
+}
 
 void GuiMainWindow::callFixSTL()
 {
@@ -1681,7 +1682,7 @@ void GuiMainWindow::callFixSTL()
   (*fix)();
   updateBoundaryCodes(false);
   updateActors();
-};
+}
 
 void GuiMainWindow::editBoundaryConditions()
 {
@@ -1689,7 +1690,7 @@ void GuiMainWindow::editBoundaryConditions()
   editbcs.setBoundaryCodes(all_boundary_codes);
   editbcs.setMap(&bcmap);
   editbcs();
-};
+}
 
 void GuiMainWindow::configure()
 {
@@ -1698,10 +1699,10 @@ void GuiMainWindow::configure()
     // so that the options menu isn't empty at first start.
     GridSmoother tmp01;
     GuiCreateBoundaryLayer tmp02;
-  };
+  }
   GuiSettingsViewer settings(&qset);
   settings.exec();
-};
+}
 
 void GuiMainWindow::about()
 {
@@ -1741,23 +1742,23 @@ void GuiMainWindow::about()
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
   
-};
+}
 
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
   bcs.clear();
   foreach (int bc, all_boundary_codes) {
     bcs.insert(bc);
-  };
-};
+  }
+}
 
 void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
 {
   bcs.clear();
   foreach (int bc, display_boundary_codes) {
     bcs.insert(bc);
-  };
-};
+  }
+}
 
 QList<VolumeDefinition> GuiMainWindow::getAllVols()
 {
