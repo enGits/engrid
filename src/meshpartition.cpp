@@ -144,10 +144,13 @@ void MeshPartition::addPartition(const MeshPartition& part)
     }
     setCells(new_cells);
   } else {
+    cout << "merging two grids" << endl;
     double tol = 1e-3*min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
+    cout << "tolerance = " << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
     loc->SetDataSet(grid);
+    loc->BuildLocator();
     QVector<vtkIdType> pnode2node(part.grid->GetNumberOfPoints());
     vtkIdType N = grid->GetNumberOfPoints();
     foreach (vtkIdType id_pnode, part.nodes) {
@@ -209,7 +212,7 @@ double MeshPartition::getSmallestEdgeLength() const
     grid->GetCellPoints(id_cell, N_pts, pts);
     vec3_t x[N_pts];
     for (int i = 0; i < N_pts; ++i) {
-      grid->GetPoint(pts[i], x[0].data());
+      grid->GetPoint(pts[i], x[i].data());
     }
     if        (type_cell == VTK_TRIANGLE) {
       L = min(L, (x[0] - x[1]).abs());
