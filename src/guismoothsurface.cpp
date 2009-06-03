@@ -77,7 +77,7 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
   cout<<"GetConvergence="<<smooth->GetConvergence()<<endl;
   cout<<"GetNumberOfIterations="<<smooth->GetNumberOfIterations()<<endl;
   cout<<"GetRelaxationFactor="<<smooth->GetRelaxationFactor()<<endl;
-  cout<<"GetFeatureEdgeSmoothing="<<smooth->GetFeatureEdgeSmoothing()<<endl;
+  cout<<"getFeatureEdgeSmoothing="<<smooth->GetFeatureEdgeSmoothing()<<endl;
   cout<<"GetFeatureAngle="<<smooth->GetFeatureAngle()<<endl;
   cout<<"GetEdgeAngle="<<smooth->GetEdgeAngle()<<endl;
   cout<<"GetBoundarySmoothing="<<smooth->GetBoundarySmoothing()<<endl;
@@ -719,16 +719,16 @@ void GuiSmoothSurface::operate()
     surfacemesher.SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
     surfacemesher.SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
-    surfacemesher.SetConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
+    surfacemesher.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
     surfacemesher.Set_insert_FP(ui.checkBox_insert_FP->checkState());
     surfacemesher.Set_insert_EP(ui.checkBox_insert_EP->checkState());
     surfacemesher.Set_remove_FP(ui.checkBox_remove_FP->checkState());
     surfacemesher.Set_remove_EP(ui.checkBox_remove_EP->checkState());
-    surfacemesher.DoSwap=ui.checkBox_Swap->checkState();
-    surfacemesher.DoLaplaceSmoothing=ui.checkBox_LaplaceSmoothing->checkState();
+    surfacemesher.setDoSwap(ui.checkBox_Swap->checkState());
+    surfacemesher.setDoLaplaceSmoothing(ui.checkBox_LaplaceSmoothing->checkState());
     
-    surfacemesher.N_SmoothIterations=ui.spinBox_NumberOfSmoothIterations->value();
+    surfacemesher.setN_SmoothIterations(ui.spinBox_NumberOfSmoothIterations->value());
     surfacemesher.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     

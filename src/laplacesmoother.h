@@ -27,8 +27,8 @@
 
 class LaplaceSmoother : public Operation {
 public:
-    LaplaceSmoother();
-    void operate();
+  LaplaceSmoother();
+  virtual void operate();
   bool FlippedCells(vtkIdType id_G, vec3_t P);
     
 public:

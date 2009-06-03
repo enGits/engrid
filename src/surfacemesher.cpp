@@ -172,7 +172,7 @@ void SurfaceMesher::MeshDensityFunction()
 {
   ///@@@  TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
-  update_desired_mesh_density.SetConvergence_meshdensity(Convergence_meshdensity);
+  update_desired_mesh_density.setConvergence_meshdensity(Convergence_meshdensity);
   update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
   update_desired_mesh_density.SetVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();

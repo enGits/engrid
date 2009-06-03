@@ -41,7 +41,7 @@ public:
   //attributes with setter functions
 public:
   double Convergence_meshdensity;
-  void SetConvergence_meshdensity(double C){Convergence_meshdensity=C;};
+  void setConvergence_meshdensity(double C){Convergence_meshdensity=C;};
   QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
   void SetVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
   int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
@@ -53,8 +53,7 @@ public:
 
     ~UpdateDesiredMeshDensity();
 
-  void operate();
-  
+    virtual void operate();
 };
 
 #endif

@@ -62,5 +62,9 @@ win32 {
     LIBS += -Lnetgen_svn\release
     DEFINES += _USE_MATH_DEFINES
 }
-include (engrid-standard.pri)
+include(engrid-standard.pri)
 OTHER_FILES += checkcomments.py
+HEADERS += surfaceoperation.h
+
+SOURCES += surfaceoperation.cpp
+

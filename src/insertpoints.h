@@ -69,7 +69,7 @@ public:
 public:
   InsertPoints();
   
-  void operate();
+  virtual void operate();
   
   void Set_insert_FP(bool B){insert_FP=B;};
   void Set_insert_EP(bool B){insert_EP=B;};

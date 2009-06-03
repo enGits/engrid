@@ -216,7 +216,7 @@ public: // methods
   void SetNumberOfIterations( int N ) { NumberOfIterations=N; };
   void SetRelaxationFactor( double RF ) { RelaxationFactor=RF; };
   void SetFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
-  int GetFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); };
+  int getFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); };
   void SetFeatureAngle( double FA ) { FeatureAngle=FA; };
   void SetEdgeAngle( double EA ) { EdgeAngle=EA; };
   void SetBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };

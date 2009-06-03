@@ -85,8 +85,7 @@ public:
 public:
   RemovePoints();
   
-  void operate();
-  
+  virtual void operate();
   
   int remove_FP_counter();
   int remove_EP_counter();
