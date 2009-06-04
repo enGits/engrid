@@ -164,6 +164,7 @@ protected: // methods
   
   /**
    * Create a node to cell structure for a given set of cells and nodes.
+   * This creates a vector of sets which might have performance issues.
    * @param cells  the subset of cells
    * @param nodes  the subset of nodes
    * @param _nodes the reverse mapping for the nodes
@@ -180,11 +181,30 @@ protected: // methods
     );
   
   /**
-   * Create a node to node structure for a given set of cells and nodes.
+   * Create a node to cell structure for a given set of cells and nodes.
+   * This creates a vector of vectors.
    * @param cells  the subset of cells
    * @param nodes  the subset of nodes
    * @param _nodes the reverse mapping for the nodes
-   * @param n2c    On return, this will hold the node to node structure
+   * @param n2c    On return, this will hold the node to cell structure
+   * @param grid   The grid to operate on
+   */
+  void createNodeToCell
+    (
+      QVector<vtkIdType>     &cells,
+      QVector<vtkIdType>     &nodes,
+      QVector<int>           &_nodes,
+      QVector<QVector<int> > &n2c,
+      vtkUnstructuredGrid    *grid
+    );
+
+  /**
+   * Create a node to node structure for a given set of cells and nodes.
+   * This creates a vector of sets which might have performance issues.
+   * @param cells  the subset of cells
+   * @param nodes  the subset of nodes
+   * @param _nodes the reverse mapping for the nodes
+   * @param n2n    On return, this will hold the node to node structure
    * @param grid   The grid to operate on
    */
   void createNodeToNode
@@ -196,6 +216,24 @@ protected: // methods
       vtkUnstructuredGrid *grid
     );
   
+  /**
+   * Create a node to node structure for a given set of cells and nodes.
+   * This creates a vector of vectors.
+   * @param cells  the subset of cells
+   * @param nodes  the subset of nodes
+   * @param _nodes the reverse mapping for the nodes
+   * @param n2n    On return, this will hold the node to node structure
+   * @param grid   The grid to operate on
+   */
+  void createNodeToNode
+    (
+      QVector<vtkIdType>     &cells,
+      QVector<vtkIdType>     &nodes,
+      QVector<int>           &_nodes,
+      QVector<QVector<int> > &n2n,
+      vtkUnstructuredGrid    *grid
+    );
+
   /**
    * Extract the nodes which are part of a given set of cells.
    * @param cells the subset of cells

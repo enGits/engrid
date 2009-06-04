@@ -147,18 +147,6 @@ void Operation::setAllSurfaceCells()
   setCells(cells);
 }
 
-void Operation::initMapping()
-{
-  nodes_map.resize(nodes.size());
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    nodes_map[i_nodes] = nodes[i_nodes];
-  }
-  cells_map.resize(cells.size());
-  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    cells_map[i_cells] = cells[i_cells];
-  }
-}
-
 void Operation::checkGrid()
 {
   if (grid == NULL) {
