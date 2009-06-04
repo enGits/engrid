@@ -85,9 +85,7 @@ int InsertPoints::insert_FP_all()
   for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
   {
     vtkIdType id_cell = l_SelectedCells[i_cell];
-    cout<<"insert_fieldpoint("<<id_cell<<")="<<insert_fieldpoint(id_cell)<<endl;
-
-    if( !l_marked_cells[i_cell] && insert_fieldpoint(id_cell) )
+    if( insert_fieldpoint(id_cell) )
     {
       l_marked_cells[i_cell] = true;
       l_N_newcells += 2;
@@ -109,7 +107,7 @@ int InsertPoints::insert_FP_all()
   for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
   {
     vtkIdType id_cell = l_SelectedCells[i_cell];
-    if( !l_marked_cells[i_cell] )
+    if( l_marked_cells[i_cell] )
     {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);

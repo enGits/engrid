@@ -63,9 +63,6 @@ void ShowInfo::operate()
         cout<<"pts["<<i<<"]="<<X<<endl;
       }
       cout<<"area="<<cellVA(grid,PickedCell)<<endl;
-/*      InsertPoints insert_points;
-      insert_points.setGrid(this->grid);
-      cout<<"insert_points="<<insert_points.insert_fieldpoint(PickedCell)<<endl;*/
       cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
       cout<<"====================================="<<endl;
     }

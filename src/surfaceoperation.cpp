@@ -589,6 +589,8 @@ double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 //Some could be moved into geometrytools
 //Some are pretty useless
 
+///@@@ TODO: Correct operations using n2n,n2c,c2c
+
 ///perimeter
 double SurfaceOperation::Um(vtkIdType D) {
   double ret=0;
