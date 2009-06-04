@@ -80,69 +80,40 @@ int InsertPoints::insert_FP_all()
   cout<<"===insert_FP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
-  QMap <vtkIdType,bool> l_marked_cells;
-  QVector<vtkIdType> l_SelectedCells;
-  QVector<vtkIdType> l_AllCells;
-  QVector <vtkIdType> l_SelectedNodes;
-  QVector <vtkIdType> l_AllNodes;
-  
-  int l_N_newpoints;
-  int l_N_newcells;
-  
-  int l_total_N_newpoints;
-  int l_total_N_newcells;
-  
   setAllSurfaceCells();
-  getAllSurfaceCells(l_AllCells,grid);
+  
+  QVector <vtkIdType> l_SelectedCells;
   getSurfaceCells(m_bcs, l_SelectedCells, grid);
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getSurfaceNodes(m_bcs,l_SelectedNodes,grid);
-  getNodesFromCells(l_AllCells, nodes, grid);
-  setGrid(grid);
-  setCells(l_AllCells);
-  cout<<"l_AllCells.size()="<<l_AllCells.size()<<endl;
   
-  int N_points = grid->GetNumberOfPoints();
-  int N_cells = grid->GetNumberOfCells();
-  l_N_newpoints=0;
-  l_N_newcells=0;
+  QVector <bool> l_marked_cells(l_SelectedCells.size());
   
-  cout<<"===insert_FP_counter() START==="<<endl;
+  int l_N_newpoints=0;
+  int l_N_newcells=0;
   
-  int l_N_inserted_FP=0;
-  
-  ///@@@  TODO: optimize
-  //unmark cells and nodes
-  l_marked_cells.clear();
-  
-  foreach(vtkIdType id_cell, l_SelectedCells)
+  //counter
+  for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
   {
-    if( !l_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
+    vtkIdType id_cell = l_SelectedCells[i_cell];
+    if( !l_marked_cells[i_cell] && insert_fieldpoint(id_cell) )
     {
-      l_N_inserted_FP++;
-      l_marked_cells[id_cell]=true;
-      l_N_newcells+=2;
-      l_N_newpoints+=1;
+      l_marked_cells[i_cell] = true;
+      l_N_newcells += 2;
+      l_N_newpoints += 1;
     }
   }
   
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  cout<<"===insert_FP_counter() END==="<<endl;
-  
-    //init grid_tmp
-  N_points = grid->GetNumberOfPoints();
-  N_cells = grid->GetNumberOfCells();
+  //initialize grid_tmp
+  int l_N_points = grid->GetNumberOfPoints();
+  int l_N_cells = grid->GetNumberOfCells();
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,N_cells+l_N_newcells,N_points+l_N_newpoints);
-  l_total_N_newpoints+=l_N_newpoints; l_total_N_newcells+=l_N_newcells;
-  
+  allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
   makeCopyNoAlloc(grid, grid_tmp);
   
-  cout<<"===insert_FP_actor START==="<<endl;
-  
+  //actor
   //initialize new node counter
-  vtkIdType l_newNodeId = N_points;
-  
+  vtkIdType l_newNodeId = l_N_points;
+
+  /*
   ///@@@  TODO: optimize
   //unmark cells
   l_marked_cells.clear();//why?
@@ -176,53 +147,6 @@ int InsertPoints::insert_FP_all()
       C=project(C);
       grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
       
-      //============================================
-      ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
-      EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
-      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
-      //============================================
-      
-//       //part 1
-//       node_type->SetValue(l_newNodeId,VTK_SIMPLE_VERTEX);
-// 
-//       //part 2
-//       double total_dist=0;
-//       double avg_dist=0;
-//       for(int i=0;i<N_neighbours;i++)
-//       {
-//         double dist=(corner[i]-C).abs();
-//         total_dist+=dist;
-//         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
-//       }
-//       avg_dist=total_dist/(double)N_neighbours;
-//       node_meshdensity_current->SetValue(l_newNodeId,1./avg_dist);
-// 
-//       //part 3
-//       VertexMeshDensity nodeVMD;
-//       nodeVMD.type=node_type->GetValue(l_newNodeId);
-//       nodeVMD.density=0;
-//       nodeVMD.CurrentNode=l_newNodeId;
-//       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-//       nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
-// 
-//       int idx=VMDvector.indexOf(nodeVMD);
-//       node_specified_density->SetValue(l_newNodeId, idx);
-// 
-//       //part 4
-//       if(idx!=-1)//specified
-//       {
-//         node_meshdensity_desired->SetValue(l_newNodeId, VMDvector[idx].density);
-//       }
-//       else//unspecified
-//       {
-//         double D=DesiredMeshDensity(l_newNodeId);
-//         node_meshdensity_desired->SetValue(l_newNodeId, D);
-//       }
-      
-      //============================================
-      
       vtkIdType intmidpoint=l_newNodeId;
       l_newNodeId++;
       
@@ -247,10 +171,8 @@ int InsertPoints::insert_FP_all()
       
     }
   }
-  
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  cout<<"===insert_FP_actor END==="<<endl;
-  
+  */
+  //update grid
   makeCopy(grid_tmp,grid);
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
@@ -309,9 +231,6 @@ int InsertPoints::insert_EP_all()
   int l_N_cells=grid->GetNumberOfCells();
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
-  cout<<"=== ALLOCATING: grid ==="<<endl;cout_grid(cout,grid);
-  cout<<"=== ALLOCATING: grid_tmp ==="<<endl;cout_grid(cout,grid_tmp);
-  GuiMainWindow::pointer()->QuickSave(GuiMainWindow::pointer()->getFilePath()+"before_makeCopyNoAlloc");
   makeCopyNoAlloc(grid, grid_tmp);
   
   //initialize new node counter
@@ -392,3 +311,51 @@ int InsertPoints::insert_EP_all()
   cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }
+
+///@@@ TODO:
+       //============================================
+      ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
+// EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
+// EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
+// EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
+// EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
+      //============================================
+
+//       //part 1
+//       node_type->SetValue(l_newNodeId,VTK_SIMPLE_VERTEX);
+// 
+//       //part 2
+//       double total_dist=0;
+//       double avg_dist=0;
+//       for(int i=0;i<N_neighbours;i++)
+//       {
+//         double dist=(corner[i]-C).abs();
+//         total_dist+=dist;
+//         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
+//       }
+//       avg_dist=total_dist/(double)N_neighbours;
+//       node_meshdensity_current->SetValue(l_newNodeId,1./avg_dist);
+// 
+//       //part 3
+//       VertexMeshDensity nodeVMD;
+//       nodeVMD.type=node_type->GetValue(l_newNodeId);
+//       nodeVMD.density=0;
+//       nodeVMD.CurrentNode=l_newNodeId;
+//       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+//       nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
+// 
+//       int idx=VMDvector.indexOf(nodeVMD);
+//       node_specified_density->SetValue(l_newNodeId, idx);
+// 
+//       //part 4
+//       if(idx!=-1)//specified
+//       {
+//         node_meshdensity_desired->SetValue(l_newNodeId, VMDvector[idx].density);
+//       }
+//       else//unspecified
+//       {
+//         double D=DesiredMeshDensity(l_newNodeId);
+//         node_meshdensity_desired->SetValue(l_newNodeId, D);
+//       }
+
+      //============================================
