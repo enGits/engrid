@@ -153,6 +153,7 @@ void SurfaceMesher::MeshDensityFunction()
 {
   ///@@@  TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
+  update_desired_mesh_density.setGrid(grid);
   update_desired_mesh_density.setConvergence_meshdensity(Convergence_meshdensity);
   update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
@@ -210,10 +211,10 @@ int SurfaceMesher::SwapFunction()
   setAllSurfaceCells();
   
   SwapTriangles swap;
+  swap.setGrid(this->grid);
   swap.setQuickSave(true);
   swap.setRespectBC(true);
   swap.setFeatureSwap(true);
-  swap.setGrid(grid);
   swap.setBoundaryCodes(bcs_complement);
   swap();
   

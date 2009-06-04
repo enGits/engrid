@@ -21,34 +21,34 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "guismoothsurface.h"
+
 #include "swaptriangles.h"
 #include "surfacemesher.h"
 #include "vertexdelegate.h"
 #include "settingssheet.h"
 #include "laplacesmoother.h"
-
 #include "guimainwindow.h"
+#include "containertricks.h"
+#include "updatedesiredmeshdensity.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtkWindowedSincPolyDataFilter.h>
-
 #include <vtkLongArray.h>
-#include <QtGui>
-
-#include <QTextStream>
-#include <stdio.h>
-
-#include "vtkEgNormalExtrusion.h"
-#include "containertricks.h"
-
-#include <iostream>
-#include <fstream>
+#include <vtkEgNormalExtrusion.h>
 #include <vtkIdList.h>
 #include <vtkCell.h>
-#include <cmath>
 #include <vtkCellLocator.h>
 #include <vtkFloatArray.h>
 #include <vtkCellArray.h>
+
+#include <QtGui>
+#include <QTextStream>
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+
+#include <stdio.h>
 
 ///////////////////////////////////////////
 /* Here is how we we get QTextStreams that look like iostreams */
@@ -100,16 +100,14 @@ GuiSmoothSurface::GuiSmoothSurface()
   
   ui.SmoothMethod->addItem("Method 0: vtkSmoothPolyDataFilter smoothing");
   ui.SmoothMethod->addItem("Method 1: vtkWindowedSincPolyDataFilter smoothing");
-  ui.SmoothMethod->addItem("Method 2: swap triangles");
-  ui.SmoothMethod->addItem("Method 3: Laplacian smoothing");
-  ui.SmoothMethod->addItem("Method 4: VertexAvgDist test");
-  ui.SmoothMethod->addItem("Method 5: Create mesh density map");
-  ui.SmoothMethod->addItem("Method 6: Super smoothing :)");
-  ui.SmoothMethod->addItem("Method 7: Update current mesh density + node types");
-  ui.SmoothMethod->addItem("Method 8: Delete all possible points :)");
-  ui.SmoothMethod->addItem("Method 9: Delete selected points");
-  ui.SmoothMethod->addItem("Method 10: Projection test");
-  ui.SmoothMethod->addItem("Method 11: Save selected boundary codes");
+  ui.SmoothMethod->addItem("Method 2: Laplacian smoothing");
+  ui.SmoothMethod->addItem("Method 3: swap triangles");
+  ui.SmoothMethod->addItem("Method 4: Refine mesh");
+  ui.SmoothMethod->addItem("Method 5: Update node information");
+  ui.SmoothMethod->addItem("Method 6: Decimate (Delete all possible points)");
+  ui.SmoothMethod->addItem("Method 7: Delete selected points");
+  ui.SmoothMethod->addItem("Method 8: Projection test");
+  ui.SmoothMethod->addItem("Method 9: Save selected boundary codes");
   
   vtkSmoothPolyDataFilter* smooth=vtkSmoothPolyDataFilter::New();
   vtkWindowedSincPolyDataFilter* smooth2=vtkWindowedSincPolyDataFilter::New();
@@ -589,7 +587,22 @@ void GuiSmoothSurface::operate()
     };
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==2)//swap triangles
+  else if(ui.SmoothMethod->currentIndex()==2)//Laplacian smoothing
+  {
+    QSet<int> bcs;
+    getSelectedItems(ui.listWidget, bcs);
+    
+    LaplaceSmoother Lap;
+    Lap.setGrid(this->grid);
+    Lap.setBoundaryCodes(bcs);
+    Lap.setSource(this->grid);
+    Lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+    setDebugLevel(ui.spinBox_DebugLevel->value());
+    Lap();
+    Lap.delete_CellLocator_and_ProjectionSurface();
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  else if(ui.SmoothMethod->currentIndex()==3)//swap triangles
   {
     cout_grid(cout,this->grid);
     
@@ -611,90 +624,7 @@ void GuiSmoothSurface::operate()
     cout_grid(cout,this->grid);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==3)//Laplacian smoothing
-  {
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    
-    LaplaceSmoother Lap;
-    Lap.setGrid(this->grid);
-    Lap.setBoundaryCodes(bcs);
-    Lap.setSource(this->grid);
-    Lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
-    setDebugLevel(ui.spinBox_DebugLevel->value());
-    Lap();
-    Lap.delete_CellLocator_and_ProjectionSurface();
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==4)//VertexAvgDist test
-  {
-    cout_grid(cout,this->grid);
-    
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    QSet<int> bcs_complement=complementary_bcs(bcs,this->grid,cells);
-    cout<<"bcs="<<bcs<<endl;
-    cout<<"bcs_complement="<<bcs_complement<<endl;
-
-    QVector<vtkIdType> SelectedCells;
-    getSurfaceCells(bcs, SelectedCells, this->grid);
-    QVector<vtkIdType> AllCells;
-    getAllSurfaceCells(AllCells,this->grid);
-    
-    QSet <vtkIdType> SelectedNodes;
-    getSurfaceNodes(bcs,SelectedNodes,this->grid);
-    createNodeToNode(cells, nodes, _nodes, n2n, this->grid);
-    
-    foreach(vtkIdType node,SelectedNodes)
-    {
-      cout<<"node="<<node<<" VertexAvgDist="<<CurrentVertexAvgDist(node)<<endl;
-    }
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==5)//Create mesh density map
-  {
-    cout_grid(cout,this->grid);
-    
-    QSet<int> bcs;
-    getSelectedItems(ui.listWidget, bcs);
-    QSet<int> bcs_complement=complementary_bcs(bcs,this->grid,cells);
-    cout<<"bcs="<<bcs<<endl;
-    cout<<"bcs_complement="<<bcs_complement<<endl;
-    
-    QVector<vtkIdType> SelectedCells;
-    getSurfaceCells(bcs, SelectedCells, this->grid);
-    QVector<vtkIdType> AllCells;
-    getAllSurfaceCells(AllCells,this->grid);
-    
-    EG_VTKDCC(vtkIntArray, cell_code, this->grid, "cell_code");
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, this->grid, "node_meshdensity_desired");
-    
-    QSet <vtkIdType> SelectedNodes;
-    getSurfaceNodes(bcs,SelectedNodes,this->grid);
-    createNodeToNode(cells, nodes, _nodes, n2n, this->grid);
-    
-    foreach(vtkIdType node,SelectedNodes)
-    {
-      double L=CurrentVertexAvgDist(node);
-      double D=1./L;
-      if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-      node_meshdensity_desired->SetValue(node, D);
-    }
-    
-    int N_iter=ui.spinBox_maxiter_density->value();
-    for(int i_iter=0;i_iter<N_iter;i_iter++)
-    {
-      foreach(vtkIdType node,SelectedNodes)
-      {
-        double D=DesiredMeshDensity(node);
-        double L=1./D;
-        if(DebugLevel>0) cout<<"node="<<node<<" VertexAvgDist="<<L<<" Net density="<<D<<endl;
-        node_meshdensity_desired->SetValue(node, D);
-      }
-    }
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==6)// super smoothing
+  else if(ui.SmoothMethod->currentIndex()==4)// super smoothing
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
@@ -734,7 +664,7 @@ void GuiSmoothSurface::operate()
     surfacemesher.delete_CellLocator_and_ProjectionSurface();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==7)// Update current mesh density + node types
+  else if(ui.SmoothMethod->currentIndex()==5)// Update current mesh density + node types + desired mesh density
   {
     setDebugLevel(ui.spinBox_DebugLevel->value());
     
@@ -746,9 +676,19 @@ void GuiSmoothSurface::operate()
     
     UpdateCurrentMeshDensity();
     UpdateNodeType();
+    
+    QVector <VertexMeshDensity> VMDvector=getSet();
+    
+    UpdateDesiredMeshDensity update_desired_mesh_density;
+    update_desired_mesh_density.setGrid(grid);
+    update_desired_mesh_density.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
+    update_desired_mesh_density.setMaxiterDensity(ui.spinBox_maxiter_density->value());
+    update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+    update_desired_mesh_density();
+    
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==8)// Delete all possible points
+  else if(ui.SmoothMethod->currentIndex()==6)// Delete all possible points
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
@@ -782,7 +722,7 @@ void GuiSmoothSurface::operate()
     
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==9)// Delete selected points
+  else if(ui.SmoothMethod->currentIndex()==7)// Delete selected points
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
@@ -808,7 +748,7 @@ void GuiSmoothSurface::operate()
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==10)// Projection test
+  else if(ui.SmoothMethod->currentIndex()==8)// Projection test
   {
     //What we project on
     QSet<int> bcs_Source;
@@ -841,7 +781,7 @@ void GuiSmoothSurface::operate()
     this->delete_CellLocator_and_ProjectionSurface();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==11)// Save selected boundary codes
+  else if(ui.SmoothMethod->currentIndex()==9)// Save selected boundary codes
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);

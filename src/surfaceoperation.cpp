@@ -171,7 +171,7 @@ int SurfaceOperation::UpdateNodeType()
 {
   cout<<"=== UpdateNodeType START ==="<<endl;
   //prepare
-  getAllSurfaceCells(cells,grid);
+  setAllSurfaceCells();
   
   m_PotentialSnapPoints.resize(nodes.size());
   
