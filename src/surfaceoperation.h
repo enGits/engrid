@@ -132,8 +132,6 @@ public:
   ///returns the farthest node from a_id_node
   vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
   
-  int UNT();
-  
   //---------------------------------------------------
   //Utility functions used in Roland's formulas
   //Should be renamed to be more explicit
