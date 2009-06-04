@@ -29,7 +29,7 @@
 #include <vtkSmoothPolyDataFilter.h>
 
 SurfaceMesher::SurfaceMesher()
-: Operation()
+: SurfaceOperation()
 {
    DebugLevel=0;
 }
@@ -252,15 +252,15 @@ int SurfaceMesher::SmoothFunction()
     //configure vtkSmoothPolyDataFilter
     smooth->SetInput(pdata);
     
-//     smooth->setConvergence (ui.doubleSpinBox_Convergence->value());
+//     smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
     smooth->SetNumberOfIterations (N_SmoothIterations);
-//     smooth->setRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+//     smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
     smooth->SetFeatureEdgeSmoothing (false);
-//     smooth->setFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-//     smooth->setEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+//     smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+//     smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
     smooth->SetBoundarySmoothing (true);
-//     smooth->setGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-//     smooth->setGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+//     smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+//     smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
     QVector<vtkIdType> cells_Source;
     getAllSurfaceCells(cells_Source, m_ProjectionSurface);

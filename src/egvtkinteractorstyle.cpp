@@ -296,9 +296,9 @@ void egvtkInteractorStyle::Spin()
   
   double *center = this->CurrentRenderer->GetCenter();
   
-  double newAngle = atan2( rwi->GetEventPosition()[1] - center[1], rwi->GetEventPosition()[0] - center[0] ) * vtkMath::RadiansToDegrees();
+  double newAngle = vtkMath::DegreesFromRadians( atan2( rwi->GetEventPosition()[1] - center[1], rwi->GetEventPosition()[0] - center[0] ) );
   
-  double oldAngle = atan2( rwi->GetLastEventPosition()[1] - center[1], rwi->GetLastEventPosition()[0] - center[0] ) * vtkMath::RadiansToDegrees();
+  double oldAngle = vtkMath::DegreesFromRadians( atan2( rwi->GetLastEventPosition()[1] - center[1], rwi->GetLastEventPosition()[0] - center[0] ) );
   
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   camera->Roll( newAngle - oldAngle );

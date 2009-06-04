@@ -29,7 +29,7 @@
 using namespace GeometryTools;
 
 LaplaceSmoother::LaplaceSmoother()
-: Operation()
+: SurfaceOperation()
 {
    DebugLevel=0;
    setQuickSave(true);

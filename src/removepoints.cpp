@@ -23,7 +23,7 @@
 #include "removepoints.h"
 
 RemovePoints::RemovePoints()
- : Operation()
+: SurfaceOperation()
 {
   setQuickSave(true);
 }

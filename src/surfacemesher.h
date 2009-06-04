@@ -34,7 +34,7 @@
 #include <QTime>
 
 #include "egvtkobject.h"
-#include "operation.h"
+#include "surfaceoperation.h"
 #include "vertexmeshdensity.h"
 #include "smoothingutilities.h"
 #include "swaptriangles.h"
@@ -50,7 +50,7 @@ using namespace std;
 #include <iostream>
 using namespace std;
 
-class SurfaceMesher : public Operation {
+class SurfaceMesher : public SurfaceOperation {
 
 private:
   int N_SmoothIterations;

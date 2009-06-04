@@ -23,9 +23,9 @@
 #ifndef LAPLACESMOOTHER_H
 #define LAPLACESMOOTHER_H
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
-class LaplaceSmoother : public Operation {
+class LaplaceSmoother : public SurfaceOperation {
 public:
   LaplaceSmoother();
   virtual void operate();

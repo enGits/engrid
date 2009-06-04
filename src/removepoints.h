@@ -23,7 +23,7 @@
 #ifndef REMOVEPOINTS_H
 #define REMOVEPOINTS_H
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
@@ -52,7 +52,7 @@ using namespace std;
 #include <iostream>
 using namespace std;
 
-class RemovePoints : public Operation
+class RemovePoints : public SurfaceOperation
 {
 private:
   QMap <vtkIdType,bool> m_marked_cells;

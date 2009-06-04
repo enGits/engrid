@@ -29,7 +29,7 @@
 #include <QTime>
 
 InsertPoints::InsertPoints()
- : Operation()
+: SurfaceOperation()
 {
   setQuickSave(true);
 }

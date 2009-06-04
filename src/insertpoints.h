@@ -23,7 +23,7 @@
 #ifndef INSERTPOINTS_H
 #define INSERTPOINTS_H
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
@@ -38,7 +38,7 @@ using namespace GeometryTools;
 #include <cmath>
 using namespace std;
 
-class InsertPoints : public Operation
+class InsertPoints : public SurfaceOperation
 {
 private:
   QMap <vtkIdType,bool> m_marked_cells;
