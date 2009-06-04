@@ -335,6 +335,8 @@ int InsertPoints::insert_EP_all()
       M=project(M);
       //add point
       grid_tmp->GetPoints()->SetPoint(l_newNodeId, M.data());
+      copyNodeData(grid_tmp,S.p[1],grid_tmp,l_newNodeId);
+      
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
       node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX /*getEdgeType(S.p[1],S.p[3])*/ );
@@ -353,22 +355,15 @@ int InsertPoints::insert_EP_all()
         int bc2=cell_code_tmp->GetValue(S.id_cell2);
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-//         if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(S.id_cell1, bc1);
-        
         grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
-//         if(cellVA(grid_tmp,S.id_cell2)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(S.id_cell2, bc2);
         
         vtkIdType newCellId;
         
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-//         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(newCellId, bc2);
+        copyCellData(grid_tmp,S.id_cell2,grid_tmp,newCellId);
         
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-//         if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(newCellId, bc1);
+        copyCellData(grid_tmp,S.id_cell1,grid_tmp,newCellId);
       }
       else if(!S.twocells) {//1 triangle
         //two new triangles
@@ -380,17 +375,11 @@ int InsertPoints::insert_EP_all()
         pts_triangle[1][1]=S.p[0];
         pts_triangle[1][2]=l_newNodeId;
         
-        int bc1=cell_code_tmp->GetValue(S.id_cell1);
-        cout<<"bc1="<<bc1<<endl;
-        
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
-        if(cellVA(grid_tmp,S.id_cell1)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(S.id_cell1, bc1);
         
         vtkIdType newCellId;
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[1]);
-        if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
-        cell_code_tmp->SetValue(newCellId, bc1);
+        copyCellData(grid_tmp,S.id_cell1,grid_tmp,newCellId);
       }
       else {
         cout<<"I DON'T KNOW HOW TO SPLIT THIS CELL!!!"<<endl;
