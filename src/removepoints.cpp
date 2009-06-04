@@ -65,7 +65,7 @@ int RemovePoints::remove_FP_counter()
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"l_N_removed_FP="<<l_N_removed_FP<<endl;
   
-//   UpdateNodeType_all();
+//   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -103,7 +103,7 @@ int RemovePoints::remove_EP_counter()
   QTime start = QTime::currentTime();
   
   int l_N_removed_EP = 0;
-//   UpdateNodeType_all();
+//   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {

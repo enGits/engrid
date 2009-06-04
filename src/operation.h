@@ -109,7 +109,7 @@ protected: // attributes
   /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
   vtkUnstructuredGrid* m_ProjectionSurface;
   
-  //Special attributes for UpdateNodeType_all function
+  //Special attributes for UpdateNodeType function
   double Convergence;
   int NumberOfIterations;
   double RelaxationFactor;

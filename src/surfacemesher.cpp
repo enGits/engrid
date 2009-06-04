@@ -158,7 +158,7 @@ void SurfaceMesher::MeshDensityFunction()
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();
 /*  UpdateCurrentMeshDensity();
-  UpdateNodeType_all();*/
+  UpdateNodeType();*/
 }
 
 void SurfaceMesher::UpdateNodeInfo(bool UpdateType)

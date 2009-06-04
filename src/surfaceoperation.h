@@ -41,6 +41,10 @@ ostream& operator<<(ostream &out, stencil_t S);
 
 class SurfaceOperation : public Operation
 {
+private:
+  ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points and all neighbour points otherwise
+  QVector < vtkIdList* > PotentialSnapPoints;
+  
 public:
   SurfaceOperation();
   virtual void operate();
@@ -57,7 +61,6 @@ public:
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
   int UpdateCurrentMeshDensity();
-  int UpdateNodeType_all();
   int UpdateNodeType();
   
   bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
@@ -65,7 +68,7 @@ public:
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
   
   //--------------------------------------
-  //Special for UpdateNodeType_all
+  //Special for UpdateNodeType
   void setConvergence( double C ) { Convergence=C; };
   void setNumberOfIterations( int N ) { NumberOfIterations=N; };
   void setRelaxationFactor( double RF ) { RelaxationFactor=RF; };

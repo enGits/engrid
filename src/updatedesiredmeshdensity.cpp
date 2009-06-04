@@ -59,7 +59,7 @@ void UpdateDesiredMeshDensity::operate()
   
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   
-  UpdateNodeType_all();
+  UpdateNodeType();
 //   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");

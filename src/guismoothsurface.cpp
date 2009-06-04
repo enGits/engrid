@@ -108,9 +108,8 @@ GuiSmoothSurface::GuiSmoothSurface()
   ui.SmoothMethod->addItem("Method 7: Update current mesh density + node types");
   ui.SmoothMethod->addItem("Method 8: Delete all possible points :)");
   ui.SmoothMethod->addItem("Method 9: Delete selected points");
-  ui.SmoothMethod->addItem("Method 10: Update current mesh density + node types v2");
-  ui.SmoothMethod->addItem("Method 11: Projection test");
-  ui.SmoothMethod->addItem("Method 12: Save selected boundary codes");
+  ui.SmoothMethod->addItem("Method 10: Projection test");
+  ui.SmoothMethod->addItem("Method 11: Save selected boundary codes");
   
   vtkSmoothPolyDataFilter* smooth=vtkSmoothPolyDataFilter::New();
   vtkWindowedSincPolyDataFilter* smooth2=vtkWindowedSincPolyDataFilter::New();
@@ -749,7 +748,7 @@ void GuiSmoothSurface::operate()
     setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateCurrentMeshDensity();
-    UpdateNodeType_all();
+    UpdateNodeType();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==8)// Delete all possible points
@@ -801,7 +800,6 @@ void GuiSmoothSurface::operate()
     setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     QVector <VertexMeshDensity> VMDvector=getSet();
-//     cout<<"VMDvector="<<VMDvector<<endl;
     for(int i=0;i<VMDvector.size();i++)
     {
       cout<<"VMDvector["<<i<<"].nodeset="<<VMDvector[i].nodeset<<endl;
@@ -813,20 +811,7 @@ void GuiSmoothSurface::operate()
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==10)// Update current mesh density + node types v2
-  {
-    setDebugLevel(ui.spinBox_DebugLevel->value());
-    setConvergence(ui.doubleSpinBox_Convergence->value());
-    setFeatureEdgeSmoothing(ui.checkBox_FeatureEdgeSmoothing->checkState());
-    setFeatureAngle(ui.doubleSpinBox_FeatureAngle->value());
-    setEdgeAngle(ui.doubleSpinBox_EdgeAngle->value());
-    setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
-    
-    UpdateCurrentMeshDensity();
-    UpdateNodeType_all();
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==11)// Projection test
+  else if(ui.SmoothMethod->currentIndex()==10)// Projection test
   {
     //What we project on
     QSet<int> bcs_Source;
@@ -859,7 +844,7 @@ void GuiSmoothSurface::operate()
     this->delete_CellLocator_and_ProjectionSurface();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==12)// Save selected boundary codes
+  else if(ui.SmoothMethod->currentIndex()==11)// Save selected boundary codes
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
