@@ -136,6 +136,41 @@ void EgVtkObject::createNodeToCell
   }
 }
 
+void EgVtkObject::createNodeToCell
+(
+  QVector<vtkIdType>     &cells,
+  QVector<vtkIdType>     &nodes,
+  QVector<int>           &_nodes,
+  QVector<QVector<int> > &n2c,
+  vtkUnstructuredGrid    *grid
+)
+{
+  n2c.fill(QVector<int>(), nodes.size());
+  QVector<int> count(nodes.size(),0);
+  for (vtkIdType i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    vtkIdType *pts;
+    vtkIdType  Npts;
+    grid->GetCellPoints(cells[i_cells], Npts, pts);
+    for (int i_pts = 0; i_pts < Npts; ++i_pts) {
+      ++count[_nodes[pts[i_pts]]];
+    }
+  }
+  for (int i = 0; i < nodes.size(); ++i) {
+    n2c[i].resize(count[i]);
+    count[i] = 0;
+  }
+  for (vtkIdType i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    vtkIdType *pts;
+    vtkIdType  Npts;
+    grid->GetCellPoints(cells[i_cells], Npts, pts);
+    for (int i_pts = 0; i_pts < Npts; ++i_pts) {
+      int i_nodes = _nodes[pts[i_pts]];
+      n2c[i_nodes][count[i_nodes]] = i_cells;
+      ++count[i_nodes];
+    }
+  }
+}
+
 void EgVtkObject::addToN2N
 (
   QVector<QSet<int> > &n2n, 
@@ -215,6 +250,23 @@ void EgVtkObject::createNodeToNode
       addToN2N(n2n, n[5], n[6]);
       addToN2N(n2n, n[6], n[7]);
     }
+  }
+}
+
+void EgVtkObject::createNodeToNode
+(
+  QVector<vtkIdType>     &cells,
+  QVector<vtkIdType>     &nodes,
+  QVector<int>           &_nodes,
+  QVector<QVector<int> > &n2n,
+  vtkUnstructuredGrid    *grid
+)
+{
+  QVector<QSet<int> > n2n_set;
+  createNodeToNode(cells, nodes, _nodes, n2n_set, grid);
+  n2n.resize(n2n_set.size());
+  for (int i = 0; i < n2n.size(); ++i) {
+    qCopy(n2n_set[i].begin(), n2n_set[i].end(), n2n[i].begin());
   }
 }
 
