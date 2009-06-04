@@ -44,7 +44,13 @@ bool RemovePoints::remove_fieldpoint(vtkIdType P)
 
 bool RemovePoints::remove_edgepoint(vtkIdType P)
 {
-  return ( 0.5*G_k(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*G_k(P) );
+  QVector <vtkIdType> PSP = getPotentialSnapPoints(P);
+  double Lmean = CurrentVertexAvgDist(P);
+  cout<<"Lmean("<<P<<")="<<Lmean<<endl;
+  cout<<"G_k("<<PSP[0]<<")="<<G_k(PSP[0])<<endl;
+  cout<<"G_k("<<PSP[1]<<")="<<G_k(PSP[1])<<endl;
+  return ( Lmean<G_k(PSP[0]) && Lmean<G_k(PSP[1]) );
+//   return ( 0.5*G_k(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*G_k(P) );
 }
 
 //count all to remove, then remove them all at once
@@ -62,6 +68,7 @@ int RemovePoints::remove_FP_all()
   setGrid(grid);
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  UpdateNodeType();
   
   N_points=grid->GetNumberOfPoints();
   N_cells=grid->GetNumberOfCells();
@@ -85,7 +92,6 @@ int RemovePoints::remove_FP_all()
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"l_N_removed_FP="<<l_N_removed_FP<<endl;
   
-//   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -155,6 +161,7 @@ int RemovePoints::remove_EP_all()
   setGrid(grid);
   setCells(m_AllCells);
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  UpdateNodeType();
   
   N_points=grid->GetNumberOfPoints();
   N_cells=grid->GetNumberOfCells();
@@ -172,7 +179,6 @@ int RemovePoints::remove_EP_all()
   cout<<"===remove_EP_counter() START==="<<endl;
   
   int l_N_removed_EP = 0;
-//   UpdateNodeType();
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
@@ -206,7 +212,6 @@ int RemovePoints::remove_EP_all()
     }
   }
   
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===remove_EP_counter() END==="<<endl;
   
   cout<<"================="<<endl;
@@ -216,7 +221,7 @@ int RemovePoints::remove_EP_all()
   QSet <vtkIdType> DeadNodes;
   for(vtkIdType i=0;i<m_hitlist.size();i++)
   {
-    if(m_hitlist[i]==1) DeadNodes.insert(i);
+    if(m_hitlist[i]==2) DeadNodes.insert(i);
   }
   int N_newpoints=0;
   int N_newcells=0;
