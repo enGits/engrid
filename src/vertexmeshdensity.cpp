@@ -29,19 +29,11 @@ VertexMeshDensity::VertexMeshDensity()
 {
 }
 
-
-// VertexMeshDensity::~VertexMeshDensity()
-// {
-// }
-
 //this=user defined
 //VMD=VMD of current node
 //This operator is NOT SYMMETRICAL. But it can be used with indexOf.
 bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
 {
-/*  cout<<"this->nodeset="<<this->nodeset<<endl;
-  cout<<"VMD.nodeset="<<VMD.nodeset<<endl;*/
-  
   if(this->nodeset.size()>0) //node ID mode
   {
     if(this->nodeset.contains(VMD.CurrentNode) ) return(true);//node ID given, we're done
@@ -54,7 +46,6 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
     QMapIterator<int, int> i(this->BCmap);
     while (i.hasNext()) {
       i.next();
-//     cout << i.key() << ": " << i.value() << endl;
       int index=i.key();
       if((this->BCmap)[index]!=VMD.BCmap[index] && (this->BCmap)[index]!=1) return(false);
     }

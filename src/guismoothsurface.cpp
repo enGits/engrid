@@ -823,7 +823,7 @@ void GuiSmoothSurface::operate()
     setBoundarySmoothing(ui.checkBox_BoundarySmoothing->checkState());
     
     UpdateCurrentMeshDensity();
-    UpdateNodeType();
+    UNT();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==11)// Projection test

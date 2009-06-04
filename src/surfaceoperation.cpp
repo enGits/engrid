@@ -545,15 +545,11 @@ int SurfaceOperation::UpdateNodeType_all()
   nStatic_UpdateNodeType_all++;
   cout << "nStatic_UpdateNodeType_all is " << nStatic_UpdateNodeType_all << endl;
   
-  if(DebugLevel>0) cout<<"===UpdateNodeType_all START==="<<endl;
-  if(DebugLevel>47) cout<<"this->FeatureAngle="<<this->FeatureAngle<<endl;
-  if(DebugLevel>47) cout<<"this->EdgeAngle="<<this->EdgeAngle<<endl;
+  cout<<"===UpdateNodeType_all START==="<<endl;
   
   getAllSurfaceCells(cells,grid);
-  if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
   
   EG_VTKSP(vtkPolyData, pdata);
-  //   addToPolyData(m_SelectedCells, pdata, grid);
   addToPolyData(cells, pdata, grid);
   
   vtkPolyData* input=pdata;
@@ -569,10 +565,8 @@ int SurfaceOperation::UpdateNodeType_all()
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
-  vtkMeshVertexPtr Verts;
   
-    // Check input
-    //
+  // Check input
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
@@ -586,32 +580,10 @@ int SurfaceOperation::UpdateNodeType_all()
   // Cosine of angle between adjacent edges
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
   
-  if(DebugLevel>5) {
-    cout<<"Smoothing " << numPts << " vertices, " << numCells 
-      << " cells with:\n"
-      << "\tConvergence= " << this->Convergence << "\n"
-      << "\tIterations= " << this->NumberOfIterations << "\n"
-      << "\tRelaxation Factor= " << this->RelaxationFactor << "\n"
-      << "\tEdge Angle= " << this->EdgeAngle << "\n"
-      << "\tBoundary Smoothing " << (this->BoundarySmoothing ? "On\n" : "Off\n")
-      << "\tFeature Edge Smoothing " << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
-      << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
-      << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n")<<endl;
-  }
-    // Peform topological analysis. What we're gonna do is build a connectivity
-    // array of connected vertices. The outcome will be one of three
-    // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
-    // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected 
-    // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
-    // using a subset of the attached vertices.
-    //
-  if(DebugLevel>5) cout<<"===>Analyze topology==="<<endl;
-  if(DebugLevel>5) cout<<"Analyzing topology..."<<endl;
-  if(DebugLevel>5) cout<<"0:numPts="<<numPts<<endl;
+  vtkMeshVertexPtr Verts;
   Verts = new vtkMeshVertex[numPts];
   for (i=0; i<numPts; i++)
   {
-    if(DebugLevel>5) cout<<"0:VTK_SIMPLE_VERTEX"<<endl;
     Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
     Verts[i].edges = NULL;
   }
@@ -619,12 +591,9 @@ int SurfaceOperation::UpdateNodeType_all()
   inPts = input->GetPoints();
   conv = this->Convergence * input->GetLength();
   
-  if(DebugLevel>5) cout<<"==polygons and triangle strips=="<<endl;
-    // now polygons and triangle strips-------------------------------
+  // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
   numPolys = inPolys->GetNumberOfCells();
-  
-  if(DebugLevel>5) cout<<"numPolys="<<numPolys<<endl;
   
   if ( numPolys > 0 )
   { //build cell structure
@@ -650,10 +619,8 @@ int SurfaceOperation::UpdateNodeType_all()
     for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
          cellId++)
     {
-      if(DebugLevel>5) cout<<"->cellId="<<cellId<<endl;
       for (i=0; i < npts; i++) 
       {
-        if(DebugLevel>5) cout<<"-->i="<<i<<endl;
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
         
@@ -670,7 +637,6 @@ int SurfaceOperation::UpdateNodeType_all()
         
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
-        if(DebugLevel>5) cout<<"-->numNei="<<numNei<<endl;
         //-----------------------
         //determine edge types
         
@@ -761,7 +727,7 @@ int SurfaceOperation::UpdateNodeType_all()
   }//if strips or polys
   
   //determine node type post-processing
-    //post-process edge vertices to make sure we can smooth them
+  //post-process edge vertices to make sure we can smooth them
   for (i=0; i<numPts; i++)
   {
     if ( Verts[i].type == VTK_SIMPLE_VERTEX )
@@ -781,14 +747,12 @@ int SurfaceOperation::UpdateNodeType_all()
       if ( !this->BoundarySmoothing && 
            Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
       {
-        if(DebugLevel>5) cout<<"Verts[i].type = VTK_FIXED_VERTEX; 4"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numBEdges++;
       }
       
       else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
       {
-        if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 5"<<endl;
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
       }
@@ -808,7 +772,6 @@ int SurfaceOperation::UpdateNodeType_all()
              vtkMath::Normalize(l2) >= 0.0 &&
              vtkMath::Dot(l1,l2) < CosEdgeAngle)
         {
-          if(DebugLevel>5) cout<<"Verts["<<i<<"].type = VTK_FIXED_VERTEX; 6"<<endl;
           Verts[i].type = VTK_FIXED_VERTEX;
           numFixed++;
         }
@@ -827,32 +790,10 @@ int SurfaceOperation::UpdateNodeType_all()
     }//if edge vertex
   }//for all points
   
-  if(DebugLevel>5) {
-    cout<<"Found\n\t" << numSimple << " simple vertices\n\t"
-      << numFEdges << " feature edge vertices\n\t"
-      << numBEdges << " boundary edge vertices\n\t"
-      << numFixed << " fixed vertices\n\t"<<endl;
-    cout<<"1:numPts="<<numPts<<endl;
-    
-    for (i=0; i<numPts; i++) 
-    {
-      cout<<"Verts["<<i<<"].type="<<VertexType2Str(Verts[i].type)<<endl;
-      if(Verts[i].edges != NULL && (npts = Verts[i].edges->GetNumberOfIds()) > 0)
-      {
-        for (j=0; j<npts; j++)
-        {
-          cout<<"Verts["<<i<<"].edges->GetId("<<j<<")="<<Verts[i].edges->GetId(j)<<endl;
-        }//for all connected points
-      }
-    }
-  }
-  
   //Copy node type info from Verts
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  if(DebugLevel>5) cout<<"nodes.size()="<<nodes.size()<<endl;
   foreach(vtkIdType node,nodes)
   {
-    if(DebugLevel>5) cout<<"Verts["<<node<<"].type="<<VertexType2Str(Verts[node].type)<<endl;
     char T=Verts[node].type;
     
     //BC stuff
@@ -865,8 +806,6 @@ int SurfaceOperation::UpdateNodeType_all()
       else node_type->SetValue(node,BC_BOUNDARY_EDGE_VERTEX);
     }
     else node_type->SetValue(node,T);
-    
-//     node_type->SetValue(node,T);
   }
   
   //free up connectivity storage
@@ -880,15 +819,13 @@ int SurfaceOperation::UpdateNodeType_all()
   }
   delete [] Verts;
   
-  if(DebugLevel>0) cout<<"===UpdateNodeType_all END==="<<endl;
+  cout<<"===UpdateNodeType_all END==="<<endl;
   return(0);
 }
 //End of UpdateNodeType_all
 
 int SurfaceOperation::UpdateNodeType()
 {
-//   abort();
-  
   static int nStatic_UpdateNodeType;    // Value of nStatic_UpdateNodeType is retained between each function call
   nStatic_UpdateNodeType++;
   cout << "nStatic_UpdateNodeType is " << nStatic_UpdateNodeType << endl;
@@ -904,6 +841,134 @@ int SurfaceOperation::UpdateNodeType()
   return(0);
 }
 //End of UpdateNodeType
+
+int SurfaceOperation::UNT()
+{
+  getAllSurfaceCells(cells,grid);
+  
+  //initialize default value
+  vtkMeshVertexPtr Verts;
+  Verts = new vtkMeshVertex[grid->GetNumberOfPoints()];
+  for (int i=0; i<grid->GetNumberOfPoints(); i++)
+  {
+    Verts[i].type = VTK_SIMPLE_VERTEX;
+    Verts[i].edges = NULL;
+  }
+  
+  cout<<"===PRE-PROCESSING==="<<endl;
+  int counter=0;
+  //We loop through edges
+  foreach(vtkIdType id_cell, cells) {
+    vtkIdType *pts, Npts;
+    grid->GetCellPoints(id_cell, Npts, pts);
+    for(int i=0;i<Npts;i++) {
+      
+      int i_neighbour_cell = c2c[_cells[id_cell]][i];
+      if( i_neighbour_cell>=0 && cells[i_neighbour_cell] < id_cell ) continue;//already visited edge
+      counter++;
+      
+      vtkIdType id_node1 = pts[i];
+      vtkIdType id_node2 = pts[(i+1)%Npts];
+      
+      if ( Verts[id_node1].edges == NULL )
+      {
+        Verts[id_node1].edges = vtkIdList::New();
+        Verts[id_node1].edges->Allocate(16,6);
+      }
+      if ( Verts[id_node2].edges == NULL )
+      {
+        Verts[id_node2].edges = vtkIdList::New();
+        Verts[id_node2].edges->Allocate(16,6);
+      }
+      
+      //-----------------------
+      //determine edge type
+      char edge = getEdgeType(id_node2,id_node1);
+      cout<<"edge("<<id_node2<<","<<id_node1<<")="<<VertexType2Str(edge)<<endl;
+      //-----------------------
+      //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
+      if ( edge && Verts[id_node1].type == VTK_SIMPLE_VERTEX )
+      {
+        Verts[id_node1].edges->Reset();
+        Verts[id_node1].edges->InsertNextId(id_node2);
+        Verts[id_node1].type = edge;
+      }
+      else if ( (edge && Verts[id_node1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
+                (edge && Verts[id_node1].type == VTK_FEATURE_EDGE_VERTEX) ||
+                (!edge && Verts[id_node1].type == VTK_SIMPLE_VERTEX ) )
+      {
+        Verts[id_node1].edges->InsertNextId(id_node2);
+        if ( Verts[id_node1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+        {
+          Verts[id_node1].type = VTK_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+        }
+      }
+      
+      if ( edge && Verts[id_node2].type == VTK_SIMPLE_VERTEX )
+      {
+        Verts[id_node2].edges->Reset();
+        Verts[id_node2].edges->InsertNextId(id_node1);
+        Verts[id_node2].type = edge;
+      }
+      else if ( (edge && Verts[id_node2].type == VTK_BOUNDARY_EDGE_VERTEX ) ||
+                (edge && Verts[id_node2].type == VTK_FEATURE_EDGE_VERTEX) ||
+                (!edge && Verts[id_node2].type == VTK_SIMPLE_VERTEX ) )
+      {
+        Verts[id_node2].edges->InsertNextId(id_node1);
+        if ( Verts[id_node2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+        {
+          Verts[id_node2].type = VTK_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+        }
+      }
+      cout<<"Verts["<<id_node1<<"].type="<<VertexType2Str(Verts[id_node1].type)<<endl;
+      cout<<"Verts["<<id_node2<<"].type="<<VertexType2Str(Verts[id_node2].type)<<endl;
+    }
+  }
+  
+  cout<<"counter="<<counter<<endl;
+  
+  //-----------------------
+  //determine node type post-processing
+  double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
+  cout<<"===POST-PROCESSING==="<<endl;
+  //This time, we loop through nodes
+  foreach(vtkIdType id_node, nodes) {
+    if ( Verts[id_node].type == VTK_FEATURE_EDGE_VERTEX || Verts[id_node].type == VTK_BOUNDARY_EDGE_VERTEX )
+    { //see how many edges; if two, what the angle is
+      
+      if ( !this->BoundarySmoothing && 
+           Verts[id_node].type == VTK_BOUNDARY_EDGE_VERTEX )
+      {
+        Verts[id_node].type = VTK_FIXED_VERTEX;
+      }
+      else if ( Verts[id_node].edges->GetNumberOfIds() != 2 )
+      {
+        Verts[id_node].type = VTK_FIXED_VERTEX;
+      }
+      else //check angle between edges
+      {
+        double x1[3], x2[3], x3[3], l1[3], l2[3];
+        grid->GetPoint(Verts[id_node].edges->GetId(0),x1);
+        grid->GetPoint(id_node,x2);
+        grid->GetPoint(Verts[id_node].edges->GetId(1),x3);
+        for (int k=0; k<3; k++)
+        {
+          l1[k] = x2[k] - x1[k];
+          l2[k] = x3[k] - x2[k];
+        }
+        if ( vtkMath::Normalize(l1) >= 0.0 &&
+             vtkMath::Normalize(l2) >= 0.0 &&
+             vtkMath::Dot(l1,l2) < CosEdgeAngle)
+        {
+          Verts[id_node].type = VTK_FIXED_VERTEX;
+        }
+      }//if along edge
+    }//if edge vertex
+    cout<<"Verts["<<id_node<<"].type="<<VertexType2Str(Verts[id_node].type)<<endl;
+  }
+  
+  return(0);
+}
 
 ///@@@  TODO: Optimize
 char SurfaceOperation::getNodeType(vtkIdType id_node)
@@ -947,8 +1012,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node)
   }
   //-----------------------
   //determine node type post-processing
-  if ( type == VTK_FEATURE_EDGE_VERTEX ||
-       type == VTK_BOUNDARY_EDGE_VERTEX )
+  if ( type == VTK_FEATURE_EDGE_VERTEX || type == VTK_BOUNDARY_EDGE_VERTEX )
   { //see how many edges; if two, what the angle is
     
     if ( !this->BoundarySmoothing && 
