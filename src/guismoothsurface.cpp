@@ -88,12 +88,10 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 GuiSmoothSurface::GuiSmoothSurface()
 {
-  TABLE = true;
-  
   setQuickSave(true);
 
-  if(TABLE) m_tableWidget = new SettingsSheet();
-  if(TABLE) ui.verticalLayout_SettingsSheet->addWidget(m_tableWidget);
+  m_tableWidget = new SettingsSheet();
+  ui.verticalLayout_SettingsSheet->addWidget(m_tableWidget);
   
   populateBoundaryCodes(ui.listWidget);
   populateBoundaryCodes(ui.listWidget_Source);
@@ -130,11 +128,9 @@ GuiSmoothSurface::GuiSmoothSurface()
   //Load settings
   readSettings();
   
-  if(TABLE) cout<<"m_tableWidget->rowCount()="<<m_tableWidget->rowCount()<<endl;
-  if(TABLE) cout<<"m_tableWidget->columnCount()="<<m_tableWidget->columnCount()<<endl;
   int Nrow,Ncol;
-  if(TABLE) Nrow=m_tableWidget->rowCount();
-  if(TABLE) Ncol=m_tableWidget->columnCount();
+  Nrow=m_tableWidget->rowCount();
+  Ncol=m_tableWidget->columnCount();
   
   QList<QString> list;
   list
@@ -142,10 +138,6 @@ GuiSmoothSurface::GuiSmoothSurface()
     <<"VTK_FIXED_VERTEX"
     <<"VTK_FEATURE_EDGE_VERTEX"
     <<"VTK_BOUNDARY_EDGE_VERTEX"
-    <<"BC_SIMPLE_VERTEX"
-    <<"BC_FIXED_VERTEX"
-    <<"BC_FEATURE_EDGE_VERTEX"
-    <<"BC_BOUNDARY_EDGE_VERTEX"
     <<"any";
   
   QList<QString> list2;
@@ -155,9 +147,9 @@ GuiSmoothSurface::GuiSmoothSurface()
     <<"any";
   
   Nbc=ui.listWidget-> count ();
-  if(TABLE) m_tableWidget->setColumnCount(Nbc+3);
+  m_tableWidget->setColumnCount(Nbc+3);
   VertexDelegate* item_delegate = new VertexDelegate(Nbc, list);
-  if(TABLE) m_tableWidget->setItemDelegate(item_delegate);
+  m_tableWidget->setItemDelegate(item_delegate);
   
   QStringList L;
   for(int i=0;i<Nbc;i++)
@@ -167,18 +159,16 @@ GuiSmoothSurface::GuiSmoothSurface()
   L<<"Vertex Type";
   L<<"Nodelist";
   L<<"Mesh Density";
-  if(TABLE) m_tableWidget->setHorizontalHeaderLabels(L);
-  if(TABLE) m_tableWidget->resizeColumnsToContents();
+  m_tableWidget->setHorizontalHeaderLabels(L);
+  m_tableWidget->resizeColumnsToContents();
   
   
   current_filename= GuiMainWindow::pointer()->getFilename();
   Qcout<<"current_filename="<<current_filename<<endl;
   Qcout<<"Loading settings from "+current_filename+".sp..."<<endl;
   
-  if(TABLE) {
-    if (!m_tableWidget->readFile(current_filename+".sp",0)) {
+  if (!m_tableWidget->readFile(current_filename+".sp",0)) {
     cout<<"Loading settingssheet failed"<<endl;
-    }
   }
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
@@ -306,19 +296,15 @@ void GuiSmoothSurface::before()
 void GuiSmoothSurface::Load()
 {
   QString current_settingssheet_name = QFileDialog::getOpenFileName(this,tr("Open SettingsSheet"), ".",tr("SettingsSheet files (*.sp)"));
-  if(TABLE) {
-    if (!current_settingssheet_name.isEmpty() && !m_tableWidget->readFile(current_settingssheet_name)) {
+  if (!current_settingssheet_name.isEmpty() && !m_tableWidget->readFile(current_settingssheet_name)) {
     cout<<"Loading failed"<<endl;
-    }
   }
 }
 void GuiSmoothSurface::Save()
 {
   QString current_settingssheet_name = QFileDialog::getSaveFileName(this,tr("Save SettingsSheet as..."), ".",tr("SettingsSheet files (*.sp)"));
-  if(TABLE) {
-    if (!current_settingssheet_name.isEmpty() && !m_tableWidget->writeFile(current_settingssheet_name)) {
+  if (!current_settingssheet_name.isEmpty() && !m_tableWidget->writeFile(current_settingssheet_name)) {
     cout<<"Saving failed"<<endl;
-    }
   }
 }
 
@@ -359,7 +345,6 @@ QVector <VertexMeshDensity> GuiSmoothSurface::getSet()
   cout<<"Getting set"<<endl;
   QVector <VertexMeshDensity> VMDvector;
   
-  if(TABLE) {
   cout<<"VMDvector:"<<VMDvector<<endl;
   
   int N_VMD=m_tableWidget->rowCount();
@@ -379,18 +364,16 @@ QVector <VertexMeshDensity> GuiSmoothSurface::getSet()
       VMDvector[i].density=m_tableWidget->item(i,Nbc+2)->text().toDouble();
     }
     else{
-      cout<<"ze_density="<<1.0/(m_tableWidget->item(i,Nbc+2)->text().toDouble())<<endl;
+      cout<<"desired_density="<<1.0/(m_tableWidget->item(i,Nbc+2)->text().toDouble())<<endl;
       VMDvector[i].density=1.0/(m_tableWidget->item(i,Nbc+2)->text().toDouble());
     }
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
-  }
   return(VMDvector);
 }
 
 void GuiSmoothSurface::AddSet()
 {
-  if(TABLE) {
   cout<<"Adding set"<<endl;
   int row=m_tableWidget->rowCount();
   m_tableWidget->insertRow(row);
@@ -409,16 +392,13 @@ void GuiSmoothSurface::AddSet()
   QTableWidgetItem* item3 = new QTableWidgetItem("-1");
   m_tableWidget->setItem(row, Nbc+2, item3);
   m_tableWidget->resizeColumnsToContents();
-  }
 }
 
 void GuiSmoothSurface::RemoveSet()
 {
-  if(TABLE) {
   cout<<"Removing set"<<endl;
   m_tableWidget->removeRow(m_tableWidget->currentRow());
   m_tableWidget->resizeColumnsToContents();
-  }
 }
 
 int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
@@ -489,9 +469,7 @@ void GuiSmoothSurface::operate()
   
   Qcout<<"current_filename="<<current_filename<<endl;
   Qcout<<"Saving settings as "+current_filename+".sp..."<<endl;
-  if(TABLE) {
-    if(!m_tableWidget->writeFile(current_filename+".sp")) cout<<"Saving settingssheet failed."<<endl;
-  }
+  if(!m_tableWidget->writeFile(current_filename+".sp")) cout<<"Saving settingssheet failed."<<endl;
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;
   //can't use switch case because dynamic variables seem to be forbidden inside case statements
