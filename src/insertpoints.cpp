@@ -56,15 +56,6 @@ bool InsertPoints::insert_fieldpoint(vtkIdType D)
 bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
 {
   bool result = L_k(j,K)>0.5*(G_k(j)+G_k(K));
-//   bool result = L_k(j,K)>0.5*(G_k(j)+G_k(K));
-  if(DebugLevel>0 && result){
-    cout<<"j="<<j<<endl;
-    cout<<"K="<<K<<endl;
-    cout<<"G_k(j)="<<G_k(j)<<endl;
-    cout<<"G_k(K)="<<G_k(K)<<endl;
-    cout<<"0.5*(G_k(j)+G_k(K))="<<0.5*(G_k(j)+G_k(K))<<endl;
-    cout<<"L_k(j,K)="<<L_k(j,K)<<endl;
-  }
   return ( result );
 }
 
@@ -94,6 +85,8 @@ int InsertPoints::insert_FP_all()
   for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
   {
     vtkIdType id_cell = l_SelectedCells[i_cell];
+    cout<<"insert_fieldpoint("<<id_cell<<")="<<insert_fieldpoint(id_cell)<<endl;
+
     if( !l_marked_cells[i_cell] && insert_fieldpoint(id_cell) )
     {
       l_marked_cells[i_cell] = true;
@@ -109,69 +102,50 @@ int InsertPoints::insert_FP_all()
   allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
   makeCopyNoAlloc(grid, grid_tmp);
   
-  //actor
   //initialize new node counter
   vtkIdType l_newNodeId = l_N_points;
 
-  /*
-  ///@@@  TODO: optimize
-  //unmark cells
-  l_marked_cells.clear();//why?
-  
-  EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
-  foreach(vtkIdType id_cell, l_SelectedCells)
+  //actor
+  for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
   {
-    if( !l_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
+    vtkIdType id_cell = l_SelectedCells[i_cell];
+    if( !l_marked_cells[i_cell] )
     {
-      l_marked_cells[id_cell]=true;
-      
-      vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
-      
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
       vec3_t C(0,0,0);
-      
-      int N_neighbours=N_pts;
-      if(DebugLevel>42) cout<<"N_neighbours="<<N_neighbours<<endl;
-      vec3_t corner[4];
-      vtkIdType pts_triangle[4][3];
-      for(int i=0;i<N_neighbours;i++)
+      for(int i=0;i<N_pts;i++)
       {
-        grid->GetPoints()->GetPoint(pts[i], corner[i].data());
-        C+=corner[i];
+        vec3_t corner;
+        grid->GetPoints()->GetPoint(pts[i], corner.data());
+        C+=corner;
       }
-      C=(1/(double)N_neighbours)*C;
+      C=(1/(double)N_pts)*C;
       
-      //============================================
-      // ADD POINT
       C=project(C);
       grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
+      copyNodeData(grid_tmp,pts[0],grid_tmp,l_newNodeId);
       
-      vtkIdType intmidpoint=l_newNodeId;
-      l_newNodeId++;
-      
-      for(int i=0;i<N_neighbours;i++)
+      for(int i=0;i<N_pts;i++)
       {
-        pts_triangle[i][0]=pts[i];
-        pts_triangle[i][1]=pts[(i+1)%N_neighbours];
-        pts_triangle[i][2]=intmidpoint;
+        vtkIdType pts_triangle[3];
+        pts_triangle[0]=pts[i];
+        pts_triangle[1]=pts[(i+1)%N_pts];
+        pts_triangle[2]=l_newNodeId;
         if(i==0)
         {
-          grid_tmp->ReplaceCell(id_cell , 3, pts_triangle[0]);
-          if(cellVA(grid_tmp,id_cell)<10e-6) EG_BUG;
-          cell_code_tmp->SetValue(id_cell, newBC);
+          grid_tmp->ReplaceCell(id_cell , 3, pts_triangle);
         }
         else
         {
-          vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i]);
-          if(cellVA(grid_tmp,newCellId)<10e-6) EG_BUG;
-          cell_code_tmp->SetValue(newCellId, newBC);
+          vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle);
+          copyCellData(grid_tmp,id_cell,grid_tmp,newCellId);
         }
       }
-      
+      l_newNodeId++;
     }
   }
-  */
+  
   //update grid
   makeCopy(grid_tmp,grid);
   
@@ -327,13 +301,13 @@ int InsertPoints::insert_EP_all()
 //       //part 2
 //       double total_dist=0;
 //       double avg_dist=0;
-//       for(int i=0;i<N_neighbours;i++)
+//       for(int i=0;i<N_pts;i++)
 //       {
 //         double dist=(corner[i]-C).abs();
 //         total_dist+=dist;
 //         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
 //       }
-//       avg_dist=total_dist/(double)N_neighbours;
+//       avg_dist=total_dist/(double)N_pts;
 //       node_meshdensity_current->SetValue(l_newNodeId,1./avg_dist);
 // 
 //       //part 3

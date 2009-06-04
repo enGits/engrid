@@ -34,8 +34,6 @@ private:
   
 public:
   ShowInfo(bool b, vtkIdType P, vtkIdType C);
-  
-//     ~ShowInfo();
   virtual void operate();
   
 };

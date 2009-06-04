@@ -22,6 +22,8 @@
 //
 #include "showinfo.h"
 
+#include "insertpoints.h"
+
 #include "geometrytools.h"
 using namespace GeometryTools;
 
@@ -29,16 +31,10 @@ using namespace GeometryTools;
 
 ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : SurfaceOperation()
 {
-  CellInfo=b;
-  PickedPoint=P;
-  PickedCell=C;
+  CellInfo = b;
+  PickedPoint = P;
+  PickedCell = C;
 }
-
-
-// ShowInfo::~ShowInfo()
-// {
-// }
-
 
 void ShowInfo::operate()
 {
@@ -67,6 +63,10 @@ void ShowInfo::operate()
         cout<<"pts["<<i<<"]="<<X<<endl;
       }
       cout<<"area="<<cellVA(grid,PickedCell)<<endl;
+/*      InsertPoints insert_points;
+      insert_points.setGrid(this->grid);
+      cout<<"insert_points="<<insert_points.insert_fieldpoint(PickedCell)<<endl;*/
+      cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
       cout<<"====================================="<<endl;
     }
     else
