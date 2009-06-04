@@ -92,37 +92,3 @@ void LaplaceSmoother::operate()
   
   cout<<"=== LaplaceSmoother END ==="<<endl;
 }
-
-bool LaplaceSmoother::FlippedCells(vtkIdType id_nodeG, vec3_t P)
-{
-  vec3_t x0_old, x0_new;
-  grid->GetPoint(id_nodeG, x0_old.data());
-  x0_new=P;
-  
-  foreach(int i_cell, n2c[_nodes[id_nodeG]])
-  {
-    vtkIdType id_cell = cells[i_cell];
-    vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    int i;
-    for(i=0;i<N_pts;i++)
-    {
-      if(pts[i]==id_nodeG) break;
-    }
-    vec3_t x2, x3;
-    grid->GetPoint(pts[(i+1)%N_pts], x2.data());
-    grid->GetPoint(pts[(i+2)%N_pts], x3.data());
-    vec3_t v2_old=x2-x0_old;
-    vec3_t v3_old=x3-x0_old;
-    
-    //top point
-    vec3_t S=v2_old.cross(v3_old);
-    double V_old=tetraVol(x0_old, S, x2, x3, true);
-    double V_new=tetraVol(x0_new, S, x2, x3, true);
-    double prod=V_old*V_new;
-    if( prod<0 ) {
-      return(true);
-    }
-  }
-  return(false);
-}

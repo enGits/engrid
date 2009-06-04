@@ -714,16 +714,16 @@ double SurfaceOperation::T_min(int w)
 
 //---------------------------------------------------
 
-vtkIdType SurfaceOperation::getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node)
 {
   vec3_t C;
-  a_grid->GetPoint(a_id_node,C.data());
+  grid->GetPoint(id_node,C.data());
   vtkIdType id_minlen=-1;
   double minlen=-1;
-  foreach(vtkIdType neighbour,n2n[a_id_node])
+  foreach(vtkIdType neighbour,n2n[id_node])
   {
     vec3_t M;
-    a_grid->GetPoint(neighbour,M.data());
+    grid->GetPoint(neighbour,M.data());
     double len=(M-C).abs();
     if(minlen<0 or len<minlen)
     {
@@ -734,16 +734,16 @@ vtkIdType SurfaceOperation::getClosestNode(vtkIdType a_id_node,vtkUnstructuredGr
   return(id_minlen);
 }
 
-vtkIdType SurfaceOperation::getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid)
+vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
 {
   vec3_t C;
-  a_grid->GetPoint(a_id_node,C.data());
+  grid->GetPoint(id_node,C.data());
   vtkIdType id_maxlen=-1;
   double maxlen=-1;
-  foreach(vtkIdType neighbour,n2n[a_id_node])
+  foreach(vtkIdType neighbour,n2n[id_node])
   {
     vec3_t M;
-    a_grid->GetPoint(neighbour,M.data());
+    grid->GetPoint(neighbour,M.data());
     double len=(M-C).abs();
     if(maxlen<0 or len>maxlen)
     {
@@ -802,24 +802,24 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node)
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
-vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
+vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
 {
   ///@@@  TODO: Organize cases and make sure all are considered if possible.
-  getAllSurfaceCells(cells,src);
-  getNodesFromCells(cells, nodes, src);
-  setGrid(src);
+  getAllSurfaceCells(cells,grid);
+  getNodesFromCells(cells, nodes, grid);
+  setGrid(grid);
   setCells(cells);
   
-  EG_VTKDCN(vtkCharArray, node_type, src, "node_type");
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX )
   {
     cout<<"Sorry, unable to remove fixed vertex."<<endl;
     return(-1);
   }
   
-  //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
+  //grid info
+  int N_points=grid->GetNumberOfPoints();
+  int N_cells=grid->GetNumberOfCells();
   N_newpoints=-1;
   N_newcells=0;
   
@@ -852,7 +852,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
     {
       //get points around cell
       vtkIdType N_pts, *pts;
-      src->GetCellPoints(C, N_pts, pts);
+      grid->GetCellPoints(C, N_pts, pts);
       
       bool ContainsSnapPoint=false;
       bool invincible=false;
@@ -885,7 +885,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
       else
       {
         vtkIdType src_N_pts, *src_pts;
-        src->GetCellPoints(C, src_N_pts, src_pts);
+        grid->GetCellPoints(C, src_N_pts, src_pts);
         
         if(src_N_pts!=3)
         {
@@ -901,8 +901,8 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
           OldTriangle[i]=src_pts[i];
           NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
         }
-        vec3_t Old_N= triNormal(src, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
-        vec3_t New_N= triNormal(src, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        vec3_t Old_N= triNormal(grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N= triNormal(grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
         
         if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
         {
@@ -930,8 +930,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
     
     if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
     {
-      QVector <vtkIdType> Peons;
-//       getNeighbours(DeadNode, Peons);
+      QVector <vtkIdType> Peons = getPotentialSnapPoints(DeadNode);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -947,8 +946,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
     
     if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
     {
-      QVector <vtkIdType> Peons;
-//       getNeighbours(DeadNode, Peons);
+      QVector <vtkIdType> Peons = getPotentialSnapPoints(DeadNode);
       if(!Peons.contains(PSP))
       {
         if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
@@ -988,8 +986,8 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   UpdateNodeType();
   
   //src grid info
-  int N_points=grid->GetNumberOfPoints();
-  int N_cells=grid->GetNumberOfCells();
+  int N_points = grid->GetNumberOfPoints();
+  int N_cells = grid->GetNumberOfCells();
   
   QSet <vtkIdType> DeadCells;
   QSet <vtkIdType> MutatedCells;
@@ -1015,7 +1013,7 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
     QSet <vtkIdType> l_MutatedCells;
     QSet <vtkIdType> l_MutilatedCells;
     
-    SnapPoint[i]=FindSnapPoint(grid,DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
+    SnapPoint[i]=FindSnapPoint(DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
     //global values
     N_newpoints+=l_N_newpoints;
     N_newcells+=l_N_newcells;
@@ -1027,8 +1025,8 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
     if(SnapPoint[i]<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
     
   }
-  //allocate
   
+  //allocate
   EG_VTKSP(vtkUnstructuredGrid,dst);
   allocateGrid(dst,N_cells+N_newcells,N_points+N_newpoints);
   
@@ -1111,3 +1109,37 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   return(true);
 }
 //End of DeleteSetOfPoints
+
+bool SurfaceOperation::FlippedCells(vtkIdType id_node, vec3_t P)
+{
+  vec3_t x0_old, x0_new;
+  grid->GetPoint(id_node, x0_old.data());
+  x0_new=P;
+  
+  foreach(int i_cell, n2c[_nodes[id_node]])
+  {
+    vtkIdType id_cell = cells[i_cell];
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    int i;
+    for(i=0;i<N_pts;i++)
+    {
+      if(pts[i]==id_node) break;
+    }
+    vec3_t x2, x3;
+    grid->GetPoint(pts[(i+1)%N_pts], x2.data());
+    grid->GetPoint(pts[(i+2)%N_pts], x3.data());
+    vec3_t v2_old=x2-x0_old;
+    vec3_t v3_old=x3-x0_old;
+    
+    //top point
+    vec3_t S=v2_old.cross(v3_old);
+    double V_old=tetraVol(x0_old, S, x2, x3, true);
+    double V_new=tetraVol(x0_new, S, x2, x3, true);
+    double prod=V_old*V_new;
+    if( prod<0 ) {
+      return(true);
+    }
+  }
+  return(false);
+}

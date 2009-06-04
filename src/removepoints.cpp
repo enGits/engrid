@@ -80,7 +80,7 @@ int RemovePoints::remove_FP_counter()
       QSet <vtkIdType> DeadCells;
       QSet <vtkIdType> MutatedCells;
       QSet <vtkIdType> MutilatedCells;
-      if( !marked && remove_fieldpoint(node) && FindSnapPoint(grid,node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
+      if( !marked && remove_fieldpoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
         if(DebugLevel>1) cout<<"removing field point "<<node<<endl;
         l_N_removed_FP++;
@@ -117,7 +117,7 @@ int RemovePoints::remove_EP_counter()
       QSet <vtkIdType> DeadCells;
       QSet <vtkIdType> MutatedCells;
       QSet <vtkIdType> MutilatedCells;
-      if( !marked && remove_edgepoint(node) && FindSnapPoint(grid,node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
+      if( !marked && remove_edgepoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
         if(DebugLevel>0) cout<<"removing edge point "<<node<<endl;
         l_N_removed_EP++;

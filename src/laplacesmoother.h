@@ -29,7 +29,6 @@ class LaplaceSmoother : public SurfaceOperation {
 public:
   LaplaceSmoother();
   virtual void operate();
-  bool FlippedCells(vtkIdType id_G, vec3_t P);
     
 public:
   void setBoundaryCodes(QSet<int> a_bcs) { m_bcs=a_bcs; };
