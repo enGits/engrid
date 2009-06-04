@@ -87,8 +87,6 @@ public:
   
   virtual void operate();
   
-  int remove_FP_counter();
-  int remove_EP_counter();
   int remove_EP_all();
   int remove_FP_all();
   
