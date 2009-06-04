@@ -77,22 +77,19 @@ private: // attributes
   QVector<vtkIdType> nodes_map;
   QVector<vtkIdType> cells_map;
   bool               gui;
-  /** Determines whether the grid should be saved after the operation or not. (default is false) */
-  bool               m_quicksave;
-  /** Determines whether the operation counter should be reset or not after the operation (default is false) */
-  bool               m_resetoperationcounter;
+  bool               m_quicksave;             /// save grid after operation finished?
+  bool               m_resetoperationcounter; /// reset operation counter after operation finished? (default is false)
   bool               autoset;
   Error             *err;
   QString            volume_name;
   
 private: // methods
   
-  void initMapping();
+  //void initMapping();
   
 protected: // attributes
   
-  /** The main grid the operation operates on. */
-  vtkUnstructuredGrid   *grid;
+  vtkUnstructuredGrid   *grid;   /// The main grid the operation operates on.
   QVector<vtkIdType>     cells;
   QVector<int>           _cells;
   QVector<vtkIdType>     nodes;
@@ -100,9 +97,6 @@ protected: // attributes
   QVector<QSet<int> >    n2c;
   QVector<QSet<int> >    n2n;
   QVector<QVector<int> > c2c;
-  QVector<bool>          node_fixed;
-  QVector<bool>          cell_fixed;
-  QVector<vtkIdType>     re_orientate_faces;
   
 protected: // methods
   
@@ -152,7 +146,11 @@ public: // methods
 
   static void collectGarbage();
 };
+
 //End of class Operation
+
+
+
 
 template <class T>
 void Operation::setCells(const T &cls)
@@ -165,9 +163,6 @@ void Operation::setCells(const T &cls)
   createNodeToCell(cells, nodes, _nodes, n2c, grid);
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
   createCellToCell(cells, c2c, grid);
-  node_fixed.fill(nodes.size(), false);
-  cell_fixed.fill(cells.size(), false);
-  initMapping();
 }
 
 template <class T>
@@ -193,11 +188,6 @@ void Operation::setNodes(const T &nds)
   createNodeToCell(cells, nodes, _nodes, n2c, grid);
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
   createCellToCell(cells, c2c, grid);
-  node_fixed.fill(nodes.size(), false);
-  cell_fixed.fill(cells.size(), false);
-  initMapping();
-};
-
-//////////////////////////////////////////////
+}
 
 #endif
