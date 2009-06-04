@@ -74,10 +74,7 @@ public:
   void set_insert_FP(bool B){insert_FP=B;};
   void set_insert_EP(bool B){insert_EP=B;};
   
-  int insert_FP_counter();
-  int insert_FP_actor(vtkUnstructuredGrid* grid_tmp);
   int insert_FP_all();
-  
   int insert_EP_all();
   
   ///Check if a field point needs to be inserted

@@ -75,13 +75,30 @@ bool InsertPoints::SplitSide(vtkIdType id_cell,int side)
   return( insert_edgepoint(pts[side],pts[(side+1)%N_pts]) );
 }
 
-int InsertPoints::insert_FP_counter()
+int InsertPoints::insert_FP_all()
 {
-  cout<<"===insert_FP_counter() START==="<<endl;
+  cout<<"===insert_FP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
+  getAllSurfaceCells(m_AllCells,grid);
+  getSurfaceCells(m_bcs, m_SelectedCells, grid);
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+  getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
+  getNodesFromCells(m_AllCells, nodes, grid);
+  setGrid(grid);
+  setCells(m_AllCells);
+  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  
+  m_N_points=grid->GetNumberOfPoints();
+  m_N_cells=grid->GetNumberOfCells();
+  m_N_newpoints=0;
+  m_N_newcells=0;
+  
+  cout<<"===insert_FP_counter() START==="<<endl;
+  
   int l_N_inserted_FP=0;
-
+  
   ///@@@  TODO: optimize
   //unmark cells and nodes
   m_marked_cells.clear();
@@ -99,13 +116,17 @@ int InsertPoints::insert_FP_counter()
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_counter() END==="<<endl;
-  return(l_N_inserted_FP);
-}
-
-int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
-{
+  
+    //init grid_tmp
+  m_N_points=grid->GetNumberOfPoints();
+  m_N_cells=grid->GetNumberOfCells();
+  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
+  allocateGrid(grid_tmp,m_N_cells+m_N_newcells,m_N_points+m_N_newpoints);
+  m_total_N_newpoints+=m_N_newpoints; m_total_N_newcells+=m_N_newcells;
+  
+  makeCopyNoAlloc(grid, grid_tmp);
+  
   cout<<"===insert_FP_actor START==="<<endl;
-  QTime start = QTime::currentTime();
   
   //initialize new node counter
   vtkIdType l_newNodeId=m_N_points;
@@ -142,7 +163,7 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
       // ADD POINT
       C=project(C);
       grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
-
+      
       //============================================
       ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
       EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
@@ -187,9 +208,9 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
 //         double D=DesiredMeshDensity(l_newNodeId);
 //         node_meshdensity_desired->SetValue(l_newNodeId, D);
 //       }
-
+      
       //============================================
-
+      
       vtkIdType intmidpoint=l_newNodeId;
       l_newNodeId++;
       
@@ -217,41 +238,6 @@ int InsertPoints::insert_FP_actor(vtkUnstructuredGrid* grid_tmp)
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_FP_actor END==="<<endl;
-  return(0);
-}
-
-int InsertPoints::insert_FP_all()
-{
-  cout<<"===insert_FP_all START==="<<endl;
-  QTime start = QTime::currentTime();
-  
-  getAllSurfaceCells(m_AllCells,grid);
-  getSurfaceCells(m_bcs, m_SelectedCells, grid);
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
-  getNodesFromCells(m_AllCells, nodes, grid);
-  setGrid(grid);
-  setCells(m_AllCells);
-  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-  
-  m_N_points=grid->GetNumberOfPoints();
-  m_N_cells=grid->GetNumberOfCells();
-  m_N_newpoints=0;
-  m_N_newcells=0;
-  
-  insert_FP_counter();
-  
-    //init grid_tmp
-  m_N_points=grid->GetNumberOfPoints();
-  m_N_cells=grid->GetNumberOfCells();
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,m_N_cells+m_N_newcells,m_N_points+m_N_newpoints);
-  m_total_N_newpoints+=m_N_newpoints; m_total_N_newcells+=m_N_newcells;
-  
-  makeCopyNoAlloc(grid, grid_tmp);
-  
-  insert_FP_actor(grid_tmp);
   
   makeCopy(grid_tmp,grid);
   
@@ -315,7 +301,6 @@ int InsertPoints::insert_EP_all()
   cout<<"=== ALLOCATING: grid_tmp ==="<<endl;cout_grid(cout,grid_tmp);
   GuiMainWindow::pointer()->QuickSave(GuiMainWindow::pointer()->getFilePath()+"before_makeCopyNoAlloc");
   makeCopyNoAlloc(grid, grid_tmp);
-  EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
   
   //initialize new node counter
   vtkIdType l_newNodeId = l_N_points;
@@ -350,9 +335,6 @@ int InsertPoints::insert_EP_all()
           pts_triangle[i][1]=S.p[(i+1)%4];
           pts_triangle[i][2]=l_newNodeId;
         }
-        
-        int bc1=cell_code_tmp->GetValue(S.id_cell1);
-        int bc2=cell_code_tmp->GetValue(S.id_cell2);
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
         grid_tmp->ReplaceCell(S.id_cell2 , 3, pts_triangle[1]);
