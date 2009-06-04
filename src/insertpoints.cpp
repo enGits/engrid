@@ -123,6 +123,8 @@ int InsertPoints::insert_FP_all()
       C=project(C);
       grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
       copyNodeData(grid_tmp,pts[0],grid_tmp,l_newNodeId);
+      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
+      node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX);
       
       for(int i=0;i<N_pts;i++)
       {
@@ -226,7 +228,7 @@ int InsertPoints::insert_EP_all()
       copyNodeData(grid_tmp,S.p[1],grid_tmp,l_newNodeId);
       
       // inserted edge point = type of the edge on which it is inserted
-      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
+      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
       node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX /*getEdgeType(S.p[1],S.p[3])*/ );
       
       if(S.twocells && S.neighbour_type==VTK_TRIANGLE){//2 triangles
