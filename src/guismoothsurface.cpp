@@ -92,7 +92,7 @@ GuiSmoothSurface::GuiSmoothSurface()
   
   setQuickSave(true);
 
-  if(TABLE) m_tableWidget=new SettingsSheet();
+  if(TABLE) m_tableWidget = new SettingsSheet();
   if(TABLE) ui.verticalLayout_SettingsSheet->addWidget(m_tableWidget);
   
   populateBoundaryCodes(ui.listWidget);
@@ -398,9 +398,9 @@ void GuiSmoothSurface::AddSet()
   int Nbc=ui.listWidget->count();
   for(int i=0;i<Nbc;i++)
   {
-    TriStateTableWidgetItem newBC;
-    newBC.setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-    m_tableWidget->setItem(row, i, &newBC);
+    TriStateTableWidgetItem* newBC = new TriStateTableWidgetItem();
+    newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+    m_tableWidget->setItem(row, i, newBC);
   }
   QTableWidgetItem* item1 = new QTableWidgetItem("any");
   m_tableWidget->setItem(row, Nbc, item1);
