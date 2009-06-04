@@ -74,8 +74,6 @@ private: // static attributes
   
 private: // attributes
   
-  QVector<vtkIdType> nodes_map;
-  QVector<vtkIdType> cells_map;
   bool               gui;
   bool               m_quicksave;             /// save grid after operation finished?
   bool               m_resetoperationcounter; /// reset operation counter after operation finished? (default is false)
@@ -89,7 +87,7 @@ private: // methods
   
 protected: // attributes
   
-  vtkUnstructuredGrid   *grid;   /// The main grid the operation operates on.
+  vtkUnstructuredGrid    *grid;   /// The main grid the operation operates on.
   QVector<vtkIdType>     cells;
   QVector<int>           _cells;
   QVector<vtkIdType>     nodes;
@@ -97,7 +95,14 @@ protected: // attributes
   QVector<QSet<int> >    n2c;
   QVector<QSet<int> >    n2n;
   QVector<QVector<int> > c2c;
-  
+  //QVector<vtkIdType>     &cells;
+  //QVector<int>           &_cells;
+  //QVector<vtkIdType>     &nodes;
+  //QVector<int>           &_nodes;
+  //QVector<QSet<int> >    &n2c;
+  //QVector<QSet<int> >    &n2n;
+  //QVector<QVector<int> > &c2c;
+
 protected: // methods
   
   void checkGrid();
@@ -116,8 +121,6 @@ public: // methods
   void setAllVolumeCells();
   void setAllSurfaceCells();
 
-  vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; }
-  vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; }
   void setGui() { gui = true; }
   OperationThread& getThread() { return thread; }
   void enableAutoSet() { autoset = true; }
