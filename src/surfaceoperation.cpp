@@ -37,7 +37,6 @@ SurfaceOperation::SurfaceOperation()
   m_ProjectionSurface = NULL;
   
   //default values for determining node types and for smoothing operations
-  ///@@@ TODO: Remove useless attributes
   Convergence=0;
   NumberOfIterations=20;
   RelaxationFactor=0.01;

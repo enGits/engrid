@@ -49,7 +49,8 @@ private:
   vtkCellLocator* m_CellLocator;
   
 protected:
-  //Special attributes for UpdateNodeType function
+  ///@@@ TODO: Remove useless attributes
+  //attributes for determining node types and for smoothing operations
   double Convergence;
   int NumberOfIterations;
   double RelaxationFactor;

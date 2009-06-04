@@ -59,7 +59,6 @@ int RemovePoints::remove_FP_counter()
   
   int l_N_removed_FP = 0;
   cout<<"m_marked_cells="<<m_marked_cells<<endl;
-//   cout<<"m_hitlist="<<m_hitlist<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   cout<<"N_newpoints="<<N_newpoints<<endl;
@@ -189,7 +188,6 @@ int RemovePoints::remove_FP_all()
   int kills=-N_newpoints;
   int contracts=DeadNodes.size();
   cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
-  //TEMPORARY!!!!!!!!!!!!
   if(kills!=contracts) {cout<<"MISSION FAILED"<<endl;EG_BUG;}
   
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
