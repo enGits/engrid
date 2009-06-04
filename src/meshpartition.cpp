@@ -48,6 +48,13 @@ MeshPartition::MeshPartition(QString volume_name)
   setVolume(volume_name);
 }
 
+void MeshPartition::updateStructures()
+{
+  createNodeToNode(cells, nodes, _nodes, n2n, grid);
+  createCellToCell(cells, c2c, grid);
+  createNodeToCell(cells, nodes, _nodes, n2c, grid);
+}
+
 void MeshPartition::setVolume(QString volume_name)
 {
   grid = GuiMainWindow::pointer()->getGrid();

@@ -48,6 +48,20 @@ private: // attributes
   /// inverse indexing for the nodes
   QVector<int> _nodes;
 
+  /// node to cell information
+  QVector<QVector<int> > n2c;
+
+  /// node to node information
+  QVector<QVector<int> > n2n;
+
+  /// cell to cell information
+  QVector<QVector<int> > c2c;
+
+private: // methods
+
+  /// update x2x structures
+  void updateStructures();
+
 public: // methods
 
   /// Create an empty (undefined) mesh partition
@@ -110,6 +124,15 @@ public: // methods
   /// Access to the local node indices;
   const QVector<int>& getLocalNodes() { return _nodes; }
 
+  /// Access to the local node to node structure
+  QVector<QVector<int> >& getN2N() { return n2n; }
+
+  /// Access to the local node to cell structure
+  QVector<QVector<int> >& getN2C() { return n2c; }
+
+  /// Access to the local cell to cell structure
+  QVector<QVector<int> >& getC2C() { return c2c; }
+
   /// change the face orientation to match the volume definition
   void setVolumeOrientation();
 
@@ -137,8 +160,29 @@ public: // methods
    */
   double getSmallestEdgeLength() const;
 
-  //int       lN2N(int       i, int j) { return n2n[i]; }
-  //vtkIdType gN2N(vtkIdType i, int j) { return n2n[_nodes[i]][j]; }
+  int n2nLSize(int i_nodes) { return n2n[i_nodes].size(); }
+  int n2nLL(int i_nodes, int j) { return n2n[i_nodes][j]; }
+  vtkIdType n2nLG(int i_nodes, int j) { return nodes[n2n[i_nodes][j]]; }
+
+  int n2nGSize(vtkIdType id_node) { return n2n[_nodes[id_node]].size(); }
+  int n2nGL(vtkIdType id_node, int j) { return n2n[_nodes[id_node]][j]; }
+  vtkIdType n2nGG(vtkIdType id_node, int j) { return nodes[n2n[_nodes[id_node]][j]]; }
+
+  int n2cLSize(int i_nodes) { return n2c[i_nodes].size(); }
+  int n2cLL(int i_nodes, int j) { return n2c[i_nodes][j]; }
+  vtkIdType n2cLG(int i_nodes, int j) { return nodes[n2c[i_nodes][j]]; }
+
+  int n2cGSize(vtkIdType id_node) { return n2c[_nodes[id_node]].size(); }
+  int n2cGL(vtkIdType id_node, int j) { return n2n[_nodes[id_node]][j]; }
+  vtkIdType n2cGG(vtkIdType id_node, int j) { return cells[n2n[_nodes[id_node]][j]]; }
+
+  int c2cLSize(int i_cells) { return c2c[i_cells].size(); }
+  int c2cLL(int i_cells, int j) { return c2c[i_cells][j]; }
+  vtkIdType c2cLG(int i_cells, int j) { return cells[c2c[i_cells][j]]; }
+
+  int c2cGSize(vtkIdType id_cell) { return c2c[_cells[id_cell]].size(); }
+  int c2cGL(vtkIdType id_cell, int j) { return c2c[_cells[id_cell]][j]; }
+  vtkIdType c2cGG(vtkIdType id_cell, int j) { return cells[c2c[_cells[id_cell]][j]]; }
 
 };
 
