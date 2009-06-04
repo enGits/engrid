@@ -154,8 +154,6 @@ public: // methods
 
   vtkIdType getNewNode(vtkIdType id_old_node) { return nodes_map[_nodes[id_old_node]] ; }
   vtkIdType getNewCell(vtkIdType id_old_cell) { return cells_map[_cells[id_old_cell]] ; }
-  void setNewNode(vtkIdType id_old_node, vtkIdType id_new_node) { nodes_map[_nodes[id_old_node]] = id_new_node; }
-  void setNewCell(vtkIdType id_old_cell, vtkIdType id_new_cell) { cells_map[_cells[id_old_cell]] = id_new_cell; }
   void setGui() { gui = true; }
   OperationThread& getThread() { return thread; }
   void enableAutoSet() { autoset = true; }
@@ -183,15 +181,6 @@ public: // methods
   template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
-  
-  vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
-  vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
-  
-  bool SwapCells(vtkUnstructuredGrid* a_grid, stencil_t S);
-  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell);
-  void quad2triangle(vtkUnstructuredGrid* src,vtkIdType quadcell,vtkIdType MovingPoint);
-  
 };
 //End of class Operation
 

@@ -109,6 +109,15 @@ public:
   /// Delete CellLocator and ProjectionSurface
   void delete_CellLocator_and_ProjectionSurface();
   
+  ///returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
+  stencil_t getStencil(vtkIdType id_cell1, int j1);
+  
+  ///returns the closest node to a_id_node
+  vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  
+  ///returns the farthest node from a_id_node
+  vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  
   //---------------------------------------------------
   //Utility functions used in Roland's formulas
   //Should be renamed to be more explicit

@@ -29,7 +29,7 @@
 
 using namespace GeometryTools;
 
-SwapTriangles::SwapTriangles() : Operation()
+SwapTriangles::SwapTriangles() : SurfaceOperation()
 {
   m_RespectBC   = false;
   m_FeatureSwap = false;

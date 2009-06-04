@@ -25,9 +25,9 @@
 
 class SwapTriangles;
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
-class SwapTriangles : public Operation
+class SwapTriangles : public SurfaceOperation
 {
   
 private: // attributes
