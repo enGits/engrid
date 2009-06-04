@@ -69,14 +69,17 @@ public:
    */
   QVector <vtkIdType> getPotentialSnapPoints(vtkIdType id_node);
   
-  vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
+  vtkIdType FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
   int UpdateCurrentMeshDensity();
   int UpdateNodeType();
   
-  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
-  bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
+  bool DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
+  bool DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
+  
+  ///returns true if moving id_node to position P leads to flipped cells
+  bool FlippedCells(vtkIdType id_node, vec3_t P);
   
   //--------------------------------------
   //Special for UpdateNodeType
@@ -138,11 +141,11 @@ public:
   ///returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
   stencil_t getStencil(vtkIdType id_cell1, int j1);
   
-  ///returns the closest node to a_id_node
-  vtkIdType getClosestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  ///returns the closest neighbour node of id_node
+  vtkIdType getClosestNode(vtkIdType id_node);
   
-  ///returns the farthest node from a_id_node
-  vtkIdType getFarthestNode(vtkIdType a_id_node,vtkUnstructuredGrid* a_grid);
+  ///returns the farthest neighbour node of id_node
+  vtkIdType getFarthestNode(vtkIdType id_node);
   
   //---------------------------------------------------
   //Utility functions used in Roland's formulas
