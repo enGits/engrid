@@ -46,12 +46,11 @@ bool RemovePoints::remove_edgepoint(vtkIdType P)
 {
   QVector <vtkIdType> PSP = getPotentialSnapPoints(P);
   double Lmean = CurrentVertexAvgDist(P);
-  cout<<"Lmean("<<P<<")="<<Lmean<<endl;
-  cout<<"G_k("<<PSP[0]<<")="<<G_k(PSP[0])<<endl;
-  cout<<"G_k("<<PSP[1]<<")="<<G_k(PSP[1])<<endl;
   return ( Lmean<G_k(PSP[0]) && Lmean<G_k(PSP[1]) );
 //   return ( 0.5*G_k(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*G_k(P) );
 }
+
+///@@@ TODO: Add support for removing feature edge vertices
 
 //count all to remove, then remove them all at once
 int RemovePoints::remove_FP_all()
@@ -83,14 +82,7 @@ int RemovePoints::remove_FP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  cout<<"===remove_FP_counter() START==="<<endl;
-  
   int l_N_removed_FP = 0;
-  cout<<"m_marked_cells="<<m_marked_cells<<endl;
-  cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
-  cout<<"N_newcells="<<N_newcells<<endl;
-  cout<<"N_newpoints="<<N_newpoints<<endl;
-  cout<<"l_N_removed_FP="<<l_N_removed_FP<<endl;
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
@@ -117,9 +109,6 @@ int RemovePoints::remove_FP_all()
       }
     }
   }
-  
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  cout<<"===remove_FP_counter() END==="<<endl;
   
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
@@ -176,8 +165,6 @@ int RemovePoints::remove_EP_all()
   m_marked_cells.clear();
   m_marked_nodes.clear();
   
-  cout<<"===remove_EP_counter() START==="<<endl;
-  
   int l_N_removed_EP = 0;
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
@@ -211,8 +198,6 @@ int RemovePoints::remove_EP_all()
       }
     }
   }
-  
-  cout<<"===remove_EP_counter() END==="<<endl;
   
   cout<<"================="<<endl;
   cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
