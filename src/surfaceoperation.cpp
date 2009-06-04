@@ -971,25 +971,25 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
 }
 //End of FindSnapPoint
 
-bool SurfaceOperation::DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
+bool SurfaceOperation::DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
 {
   QSet <vtkIdType> DeadNodes;
   DeadNodes.insert(DeadNode);
-  bool ret = DeleteSetOfPoints(src,DeadNodes, N_newpoints, N_newcells);
+  bool ret = DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
   return(ret);
 }
 //End of DeletePoint
 
-bool SurfaceOperation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells)
+bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells)
 {
   QVector <vtkIdType> DeadNode_vector=Set2Vector(DeadNodes,false);
   
-  getAllSurfaceCells(cells,src);
+  getAllSurfaceCells(cells,grid);
   UpdateNodeType();
   
   //src grid info
-  int N_points=src->GetNumberOfPoints();
-  int N_cells=src->GetNumberOfCells();
+  int N_points=grid->GetNumberOfPoints();
+  int N_cells=grid->GetNumberOfCells();
   
   QSet <vtkIdType> DeadCells;
   QSet <vtkIdType> MutatedCells;
@@ -1015,7 +1015,7 @@ bool SurfaceOperation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdTy
     QSet <vtkIdType> l_MutatedCells;
     QSet <vtkIdType> l_MutilatedCells;
     
-    SnapPoint[i]=FindSnapPoint(src,DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
+    SnapPoint[i]=FindSnapPoint(grid,DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
     //global values
     N_newpoints+=l_N_newpoints;
     N_newcells+=l_N_newcells;
@@ -1041,9 +1041,9 @@ bool SurfaceOperation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdTy
     if(!DeadNode_vector.contains(src_id_node))//if the node isn't dead, copy it
     {
       vec3_t x;
-      src->GetPoints()->GetPoint(src_id_node, x.data());
+      grid->GetPoints()->GetPoint(src_id_node, x.data());
       dst->GetPoints()->SetPoint(dst_id_node, x.data());
-      copyNodeData(src, src_id_node, dst, dst_id_node);
+      copyNodeData(grid, src_id_node, dst, dst_id_node);
       OffSet[src_id_node]=src_id_node-dst_id_node;
       dst_id_node++;
     }
@@ -1053,14 +1053,14 @@ bool SurfaceOperation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdTy
     }
   };
   //Copy undead cells
-  for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {//loop through src cells
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
     if(!DeadCells.contains(id_cell))//if the cell isn't dead
     {
       vtkIdType src_N_pts, *src_pts;
       vtkIdType dst_N_pts, *dst_pts;
-      src->GetCellPoints(id_cell, src_N_pts, src_pts);
+      grid->GetCellPoints(id_cell, src_N_pts, src_pts);
       
-      vtkIdType type_cell = src->GetCellType(id_cell);
+      vtkIdType type_cell = grid->GetCellType(id_cell);
 //       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
       dst_N_pts=src_N_pts;
       dst_pts=new vtkIdType[dst_N_pts];
@@ -1102,21 +1102,12 @@ bool SurfaceOperation::DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdTy
       }
       //copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
-      copyCellData(src, id_cell, dst, id_new_cell);
-      if(DebugLevel>10) {
-        cout<<"===Copying cell "<<id_cell<<" to "<<id_new_cell<<"==="<<endl;
-        cout<<"src_pts:"<<endl;
-        for(int i=0;i<src_N_pts;i++) cout<<"src_pts["<<i<<"]="<<src_pts[i]<<endl;
-        cout<<"dst_pts:"<<endl;
-        for(int i=0;i<dst_N_pts;i++) cout<<"dst_pts["<<i<<"]="<<dst_pts[i]<<endl;
-        cout<<"OffSet="<<OffSet<<endl;
-        cout<<"===Copying cell end==="<<endl;
-      }
+      copyCellData(grid, id_cell, dst, id_new_cell);
       delete dst_pts;
     }
   };
   
-  makeCopy(dst, src);
+  makeCopy(dst, grid);
   return(true);
 }
 //End of DeleteSetOfPoints

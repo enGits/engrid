@@ -74,8 +74,8 @@ public:
   int UpdateCurrentMeshDensity();
   int UpdateNodeType();
   
-  bool DeletePoint(vtkUnstructuredGrid *src, vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
-  bool DeleteSetOfPoints(vtkUnstructuredGrid *src, QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
+  bool DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
+  bool DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
   int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
   
   //--------------------------------------

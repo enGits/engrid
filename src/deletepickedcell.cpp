@@ -36,5 +36,5 @@ void DeletePickedCell::operate()
   grid->GetCellPoints(cellId, N_pts, pts);
   int N_newpoints;
   int N_newcells;
-  for(int i=0;i<N_pts;i++) DeletePoint(grid,pts[i], N_newpoints, N_newcells);
+  for(int i=0;i<N_pts;i++) DeletePoint(pts[i], N_newpoints, N_newcells);
 };

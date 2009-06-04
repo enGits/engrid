@@ -773,7 +773,7 @@ void GuiSmoothSurface::operate()
         bool Local_DelResult=true;
         while(Local_DelResult)
         {
-          Local_DelResult=DeletePoint(this->grid,DeadNode,N_newpoints,N_newcells);
+          Local_DelResult = DeletePoint(DeadNode,N_newpoints,N_newcells);
           if(Local_DelResult) Global_DelResult=true;
         }
         DeadNode++;
@@ -802,7 +802,7 @@ void GuiSmoothSurface::operate()
       cout<<"VMDvector["<<i<<"].nodeset="<<VMDvector[i].nodeset<<endl;
       int N_newpoints=0;
       int N_newcells=0;
-      DeleteSetOfPoints(this->grid, VMDvector[i].nodeset, N_newpoints, N_newcells);
+      DeleteSetOfPoints(VMDvector[i].nodeset, N_newpoints, N_newcells);
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
     }

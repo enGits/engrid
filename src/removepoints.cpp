@@ -182,7 +182,7 @@ int RemovePoints::remove_FP_all()
   }
   int N_newpoints=0;
   int N_newcells=0;
-  DeleteSetOfPoints(grid, DeadNodes, N_newpoints, N_newcells);
+  DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   
@@ -237,7 +237,7 @@ int RemovePoints::remove_EP_all()
   }
   int N_newpoints=0;
   int N_newcells=0;
-  DeleteSetOfPoints(grid, DeadNodes, N_newpoints, N_newcells);
+  DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
   cout<<"N_newpoints="<<N_newpoints<<endl;
   cout<<"N_newcells="<<N_newcells<<endl;
   
