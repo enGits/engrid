@@ -72,6 +72,7 @@ int InsertPoints::insert_FP_all()
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
+  UpdateNodeType();
   
   QVector <vtkIdType> l_SelectedCells;
   getSurfaceCells(m_bcs, l_SelectedCells, grid);
@@ -160,8 +161,9 @@ int InsertPoints::insert_EP_all()
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
+  UpdateNodeType();
+  
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   
   int l_N_newpoints=0;
   int l_N_newcells=0;
@@ -229,7 +231,7 @@ int InsertPoints::insert_EP_all()
       
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
-      node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX /*getEdgeType(S.p[1],S.p[3])*/ );
+      node_type->SetValue(l_newNodeId, getNewNodeType(S) );
       
       if(S.twocells && S.neighbour_type==VTK_TRIANGLE){//2 triangles
         //four new triangles
@@ -284,6 +286,32 @@ int InsertPoints::insert_EP_all()
   cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
   cout<<"===insert_EP_all END==="<<endl;
   return(0);
+}
+
+char InsertPoints::getNewNodeType(stencil_t S)
+{
+  vtkIdType id_node1 = S.p[1];
+  vtkIdType id_node2 = S.p[3];
+  
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  if( node_type->GetValue(id_node1)==VTK_SIMPLE_VERTEX || node_type->GetValue(id_node2)==VTK_SIMPLE_VERTEX ) {
+    return VTK_SIMPLE_VERTEX;
+  }
+  else {
+    QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node1);
+    if( PSP.contains(id_node2) ) {
+      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+      if( cell_code->GetValue(S.id_cell1) != cell_code->GetValue(S.id_cell2) ) {
+        return VTK_BOUNDARY_EDGE_VERTEX;
+      }
+      else {
+        return VTK_FEATURE_EDGE_VERTEX;
+      }
+    }
+    else {
+      return VTK_SIMPLE_VERTEX;
+    }
+  }
 }
 
 ///@@@ TODO:
