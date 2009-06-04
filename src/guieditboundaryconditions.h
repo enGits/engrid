@@ -30,7 +30,7 @@ class GuiEditBoundaryConditions;
 #include "guivolumedelegate.h"
 #include "ui_guieditboundaryconditions.h"
 
-class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions>
+class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
   
   Q_OBJECT;

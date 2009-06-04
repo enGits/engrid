@@ -28,7 +28,7 @@ class GuiPick;
 #include "dialogoperation.h"
 #include "ui_guipick.h"
 
-class GuiPick : public DialogOperation<Ui::GuiPick>
+class GuiPick : public DialogOperation<Ui::GuiPick, Operation>
 {
   
   Q_OBJECT;

@@ -26,7 +26,7 @@
 #include "dialogoperation.h"
 #include "ui_guicreatevolumemesh.h"
 
-class GuiCreateVolumeMesh : public DialogOperation<Ui::GuiCreateVolumeMesh>
+class GuiCreateVolumeMesh : public DialogOperation<Ui::GuiCreateVolumeMesh, Operation>
 {
 
   Q_OBJECT;

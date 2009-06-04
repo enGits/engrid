@@ -23,9 +23,9 @@
 #ifndef CHECKSURFACEINTEGRITY_H
 #define CHECKSURFACEINTEGRITY_H
 
-#include <operation.h>
+#include <surfaceoperation.h>
 
-class CheckSurfaceIntegrity : public Operation
+class CheckSurfaceIntegrity : public SurfaceOperation
 {
 private:
   bool WaterTight;

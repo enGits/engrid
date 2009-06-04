@@ -130,7 +130,8 @@ showinfo.h \
 surfacemesher.h \
 updatedesiredmeshdensity.h \
 boxselect.h \
-checksurfaceintegrity.h
+checksurfaceintegrity.h \
+surfaceoperation.h
 
 SOURCES = \
 main.cpp \
@@ -213,7 +214,8 @@ showinfo.cpp \
 surfacemesher.cpp \
 updatedesiredmeshdensity.cpp \
 boxselect.cpp \
-checksurfaceintegrity.cpp
+checksurfaceintegrity.cpp \
+surfaceoperation.cpp
 
 FORMS = \
 guicreateboundarylayer.ui \

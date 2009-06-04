@@ -30,7 +30,7 @@ class GuiCreateBoundaryLayer;
 
 #include <QProgressDialog>
 
-class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer>
+class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer, Operation>
 {
   
   Q_OBJECT;

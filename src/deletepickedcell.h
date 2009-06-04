@@ -25,9 +25,9 @@
 
 class DeletePickedCell;
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
-class DeletePickedCell : public Operation
+class DeletePickedCell : public SurfaceOperation
 {
 
 protected: // methods

@@ -28,7 +28,7 @@ class GuisetBoundaryCode;
 #include "dialogoperation.h"
 #include "ui_guisetboundarycode.h"
 
-class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode>
+class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode, Operation>
 {
   
   Q_OBJECT;

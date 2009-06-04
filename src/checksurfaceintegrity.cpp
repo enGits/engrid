@@ -24,7 +24,7 @@
 // #include "egvtkobject.h"
 
 CheckSurfaceIntegrity::CheckSurfaceIntegrity()
- : Operation()
+: SurfaceOperation()
 {
 }
 

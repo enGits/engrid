@@ -28,7 +28,7 @@ class GuiDeleteBadAspectTris;
 #include "dialogoperation.h"
 #include "ui_guideletebadaspecttris.h"
 
-class GuiDeleteBadAspectTris : public DialogOperation<Ui::GuiDeleteBadAspectTris>
+class GuiDeleteBadAspectTris : public DialogOperation<Ui::GuiDeleteBadAspectTris, Operation>
 {
   
   Q_OBJECT;

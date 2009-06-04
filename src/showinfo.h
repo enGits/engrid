@@ -23,9 +23,9 @@
 #ifndef SHOWINFO_H
 #define SHOWINFO_H
 
-#include <operation.h>
+#include <surfaceoperation.h>
 
-class ShowInfo : public Operation
+class ShowInfo : public SurfaceOperation
 {
 private:
   bool CellInfo;

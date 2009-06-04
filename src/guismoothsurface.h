@@ -27,10 +27,11 @@
 #include "dialogoperation.h"
 #include "vertexmeshdensity.h"
 #include "settingssheet.h"
+#include "surfaceoperation.h"
 
 #include <vtkPolyDataAlgorithm.h>
 
-class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface>
+class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface, SurfaceOperation>
 {
   
   Q_OBJECT;

@@ -28,7 +28,7 @@ class GuiNormalExtrusion;
 #include "dialogoperation.h"
 #include "ui_guinormalextrusion.h"
 
-class GuiNormalExtrusion : public DialogOperation<Ui::GuiNormalExtrusion>
+class GuiNormalExtrusion : public DialogOperation<Ui::GuiNormalExtrusion, Operation>
 {
   
   Q_OBJECT;

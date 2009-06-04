@@ -27,7 +27,7 @@ using namespace GeometryTools;
 
 #include <vtkCharArray.h>
 
-ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : Operation()
+ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : SurfaceOperation()
 {
   CellInfo=b;
   PickedPoint=P;

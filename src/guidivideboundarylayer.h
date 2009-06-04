@@ -28,7 +28,7 @@ class GuiDivideBoundaryLayer;
 #include "dialogoperation.h"
 #include "ui_guidivideboundarylayer.h"
 
-class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer>
+class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer, Operation>
 {
   
 private: // attributes

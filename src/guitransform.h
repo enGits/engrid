@@ -30,7 +30,7 @@ class GuiTransform;
 
 #include <QProgressDialog>
 
-class GuiTransform : public DialogOperation<Ui::GuiTransform>
+class GuiTransform : public DialogOperation<Ui::GuiTransform, Operation>
 {
   
   Q_OBJECT;

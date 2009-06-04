@@ -25,9 +25,9 @@
 
 class DeletePickedPoint;
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
-class DeletePickedPoint : public Operation
+class DeletePickedPoint : public SurfaceOperation
 {
 
   protected: // methods

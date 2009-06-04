@@ -26,7 +26,7 @@
 #include "ui_guiimproveaspectratio.h"
 #include "dialogoperation.h"
 
-class GuiImproveAspectRatio : public DialogOperation<Ui::GuiImproveAspectRatio>
+class GuiImproveAspectRatio : public DialogOperation<Ui::GuiImproveAspectRatio, Operation>
 {
   
   Q_OBJECT;

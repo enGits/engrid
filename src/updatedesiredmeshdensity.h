@@ -23,12 +23,12 @@
 #ifndef UPDATEDESIREDMESHDENSITY_H
 #define UPDATEDESIREDMESHDENSITY_H
 
-#include "operation.h"
+#include "surfaceoperation.h"
 
 #include "vertexmeshdensity.h"
 
 /// Update desired mesh density, i.e. the field used for surface meshing
-class UpdateDesiredMeshDensity : public Operation
+class UpdateDesiredMeshDensity : public SurfaceOperation
 {
   //attributes
 public:

@@ -23,7 +23,7 @@
 #ifndef dialogoperation_H
 #define dialogoperation_H
 
-template <class UI>
+template <class UI, class OP>
 class DialogOperation;
 
 #include "operation.h"
@@ -37,9 +37,9 @@ class DialogOperation;
 #include <vtkIntArray.h>
 #include <vtkCellData.h>
 
-template <class UI>
+template <class UI, class OP>
 class DialogOperation : public QDialog, 
-                        public Operation
+                        public OP
 {
   
 protected: // attributes
@@ -98,15 +98,15 @@ public: // methods
 };
 
 
-template <class UI>
-DialogOperation<UI>::DialogOperation()
+template <class UI, class OP>
+DialogOperation<UI,OP>::DialogOperation()
 {
   ui.setupUi(this);
 };
 
-template <class UI>
+template <class UI, class OP>
 template <class T>
-void DialogOperation<UI>::addListItem(QListWidget *lw, T item, bool checked)
+void DialogOperation<UI,OP>::addListItem(QListWidget *lw, T item, bool checked)
 {
   QListWidgetItem *lwi = new QListWidgetItem(lw);
   if (checked) lwi->setCheckState(Qt::Checked);
@@ -118,9 +118,9 @@ void DialogOperation<UI>::addListItem(QListWidget *lw, T item, bool checked)
   lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
 };
 
-template <class UI>
+template <class UI, class OP>
 template <class T>
-bool DialogOperation<UI>::checkListItem(QListWidget *lw, T item)
+bool DialogOperation<UI,OP>::checkListItem(QListWidget *lw, T item)
 {
   QString text = "";
   QTextStream ts(&text);
@@ -133,8 +133,8 @@ bool DialogOperation<UI>::checkListItem(QListWidget *lw, T item)
   return false;
 }
 
-template <class UI>
-QString DialogOperation<UI>::getSelectedVolume(QListWidget *lw)
+template <class UI, class OP>
+QString DialogOperation<UI,OP>::getSelectedVolume(QListWidget *lw)
 {
   QString volume_name;
   for (int i = 0; i < lw->count(); ++i) {
@@ -145,8 +145,8 @@ QString DialogOperation<UI>::getSelectedVolume(QListWidget *lw)
   return volume_name;
 }
 
-template <class UI>
-void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
+template <class UI, class OP>
+void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
 {
   sel.clear();
   for (int i = 0; i < lw->count(); ++i) {
@@ -157,8 +157,8 @@ void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
   }
 }
 
-template <class UI>
-void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
+template <class UI, class OP>
+void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
 {
   sel.clear();
   for (int i = 0; i < lw->count(); ++i) {
@@ -169,13 +169,13 @@ void DialogOperation<UI>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
   }
 }
 
-template <class UI>
-void DialogOperation<UI>::operator()()
+template <class UI, class OP>
+void DialogOperation<UI,OP>::operator()()
 {
   bool ok = true;
   //Prepare the GUI
   try {
-    checkGrid();
+    OP::checkGrid();
     before();
   } catch (Error err) {
     err.display();
@@ -186,7 +186,7 @@ void DialogOperation<UI>::operator()()
     if (QDialog::exec()) {
       //Run the operation
       try {
-        Operation::operator()();
+        OP::operator()();
       } catch (Error err) {
         err.display();
       }

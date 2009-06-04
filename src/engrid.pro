@@ -64,7 +64,3 @@ win32 {
 }
 include(engrid-standard.pri)
 OTHER_FILES += checkcomments.py
-HEADERS += surfaceoperation.h
-
-SOURCES += surfaceoperation.cpp
-

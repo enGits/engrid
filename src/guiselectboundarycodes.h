@@ -26,7 +26,7 @@
 #include "ui_guiselectboundarycodes.h"
 #include "dialogoperation.h"
 
-class GuiSelectBoundaryCodes : public DialogOperation<Ui::GuiSelectBoundaryCodes>
+class GuiSelectBoundaryCodes : public DialogOperation<Ui::GuiSelectBoundaryCodes, Operation>
 {
   
   Q_OBJECT;

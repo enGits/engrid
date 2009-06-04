@@ -25,7 +25,7 @@
 #include <vtkCharArray.h>
 
 UpdateDesiredMeshDensity::UpdateDesiredMeshDensity()
- : Operation()
+: SurfaceOperation()
 {
 }
 
