@@ -41,21 +41,6 @@ using namespace std;
 class InsertPoints : public SurfaceOperation
 {
 private:
-  QMap <vtkIdType,bool> m_marked_cells;
-  
-  QVector<vtkIdType> m_SelectedCells;
-  QVector<vtkIdType> m_AllCells;
-  QVector <vtkIdType> m_SelectedNodes;
-  QVector <vtkIdType> m_AllNodes;
-  
-  int m_N_points;
-  int m_N_cells;
-  int m_N_newpoints;
-  int m_N_newcells;
-  
-  int m_total_N_newpoints;
-  int m_total_N_newcells;
-  
   bool insert_FP;
   bool insert_EP;
   

@@ -80,20 +80,32 @@ int InsertPoints::insert_FP_all()
   cout<<"===insert_FP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
-  getAllSurfaceCells(m_AllCells,grid);
-  getSurfaceCells(m_bcs, m_SelectedCells, grid);
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
-  getNodesFromCells(m_AllCells, nodes, grid);
-  setGrid(grid);
-  setCells(m_AllCells);
-  cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  QMap <vtkIdType,bool> l_marked_cells;
+  QVector<vtkIdType> l_SelectedCells;
+  QVector<vtkIdType> l_AllCells;
+  QVector <vtkIdType> l_SelectedNodes;
+  QVector <vtkIdType> l_AllNodes;
   
-  m_N_points=grid->GetNumberOfPoints();
-  m_N_cells=grid->GetNumberOfCells();
-  m_N_newpoints=0;
-  m_N_newcells=0;
+  int l_N_newpoints;
+  int l_N_newcells;
+  
+  int l_total_N_newpoints;
+  int l_total_N_newcells;
+  
+  setAllSurfaceCells();
+  getAllSurfaceCells(l_AllCells,grid);
+  getSurfaceCells(m_bcs, l_SelectedCells, grid);
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+  getSurfaceNodes(m_bcs,l_SelectedNodes,grid);
+  getNodesFromCells(l_AllCells, nodes, grid);
+  setGrid(grid);
+  setCells(l_AllCells);
+  cout<<"l_AllCells.size()="<<l_AllCells.size()<<endl;
+  
+  int N_points = grid->GetNumberOfPoints();
+  int N_cells = grid->GetNumberOfCells();
+  l_N_newpoints=0;
+  l_N_newcells=0;
   
   cout<<"===insert_FP_counter() START==="<<endl;
   
@@ -101,16 +113,16 @@ int InsertPoints::insert_FP_all()
   
   ///@@@  TODO: optimize
   //unmark cells and nodes
-  m_marked_cells.clear();
+  l_marked_cells.clear();
   
-  foreach(vtkIdType id_cell, m_SelectedCells)
+  foreach(vtkIdType id_cell, l_SelectedCells)
   {
-    if( !m_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
+    if( !l_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
       l_N_inserted_FP++;
-      m_marked_cells[id_cell]=true;
-      m_N_newcells+=2;
-      m_N_newpoints+=1;
+      l_marked_cells[id_cell]=true;
+      l_N_newcells+=2;
+      l_N_newpoints+=1;
     }
   }
   
@@ -118,29 +130,29 @@ int InsertPoints::insert_FP_all()
   cout<<"===insert_FP_counter() END==="<<endl;
   
     //init grid_tmp
-  m_N_points=grid->GetNumberOfPoints();
-  m_N_cells=grid->GetNumberOfCells();
+  N_points = grid->GetNumberOfPoints();
+  N_cells = grid->GetNumberOfCells();
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,m_N_cells+m_N_newcells,m_N_points+m_N_newpoints);
-  m_total_N_newpoints+=m_N_newpoints; m_total_N_newcells+=m_N_newcells;
+  allocateGrid(grid_tmp,N_cells+l_N_newcells,N_points+l_N_newpoints);
+  l_total_N_newpoints+=l_N_newpoints; l_total_N_newcells+=l_N_newcells;
   
   makeCopyNoAlloc(grid, grid_tmp);
   
   cout<<"===insert_FP_actor START==="<<endl;
   
   //initialize new node counter
-  vtkIdType l_newNodeId=m_N_points;
+  vtkIdType l_newNodeId = N_points;
   
   ///@@@  TODO: optimize
   //unmark cells
-  m_marked_cells.clear();//why?
+  l_marked_cells.clear();//why?
   
   EG_VTKDCC(vtkIntArray, cell_code_tmp, grid_tmp, "cell_code");
-  foreach(vtkIdType id_cell, m_SelectedCells)
+  foreach(vtkIdType id_cell, l_SelectedCells)
   {
-    if( !m_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
+    if( !l_marked_cells[id_cell] && insert_fieldpoint(id_cell) )
     {
-      m_marked_cells[id_cell]=true;
+      l_marked_cells[id_cell]=true;
       
       vtkIdType newBC=cell_code_tmp->GetValue(id_cell);
       
