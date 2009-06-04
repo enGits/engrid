@@ -311,7 +311,7 @@ bool SurfaceOperation::getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peo
 
 vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
 {
-  ///@@@  TODO: Organize cases and make sure all are considered if possible. It's the final countdown!!!
+  ///@@@  TODO: Organize cases and make sure all are considered if possible.
   getAllSurfaceCells(cells,src);
   getNodesFromCells(cells, nodes, src);
   setGrid(src);
@@ -503,9 +503,6 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-/*  cout<<"MutilatedCells.size()="<<MutilatedCells.size()<<endl;
-  cout<<"MutatedCells.size()="<<MutatedCells.size()<<endl;
-  cout<<"DeadCells.size()="<<DeadCells.size()<<endl;*/
   return(SnapPoint);
   
 //   setDebugLevel(0);
@@ -887,7 +884,6 @@ int SurfaceOperation::UpdateNodeType_all()
 }
 //End of UpdateNodeType_all
 
-//Don't let me be misunderstood!
 int SurfaceOperation::UpdateNodeType()
 {
 //   abort();
