@@ -57,20 +57,6 @@ public:
   
 };
 
-struct stencil_t {
-  vtkIdType id_cell1;
-  vtkIdType id_cell2;
-  vtkIdType p[4];
-  bool sameBC;//do both cells have the same BCs?
-  bool twocells;//Do we have 2 cells?
-  char neighbour_type;//What's the type of the neighbour cell?
-};
-
-ostream& operator<<(ostream &out, stencil_t S);
-
-///@@@ Die Methoden fuer Oberflaechennetze sollten in eine neue Klasse SurfaceMeshOperation (oder so aehnlich)
-///@@@ verschoben werden. Der Quelltext der Klasse Operation ist nicht mehr sonderlich lesbar!
-
 /**
  * This is the base class for all mesh operations.
  * Operations will typically be triggered by a Qt event; the MainWindow

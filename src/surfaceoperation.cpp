@@ -40,6 +40,28 @@ void SurfaceOperation::operate()
 
 }
 
+/// Special structure for marking vertices
+typedef struct _vtkMeshVertex {
+  char      type;
+  vtkIdList *edges; // connected edges (list of connected point ids)
+} vtkMeshVertex, *vtkMeshVertexPtr;
+
+ostream& operator<<(ostream &out, stencil_t S)
+{
+  out<<"S.id_cell1="<<S.id_cell1<<" ";
+  out<<"S.id_cell2="<<S.id_cell2<<" ";
+  out<<"S.sameBC="<<S.sameBC<<" ";
+  out<<"S.twocells="<<S.twocells<<" ";
+  out<<"S.neighbour_type="<<S.neighbour_type<<" ";
+  out<<"[";
+  for(int i=0;i<4;i++){
+    out<<S.p[i];
+    if(i!=3) out<<",";
+  }
+  out<<"]";
+  return(out);
+}
+
 stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
 {
   if(grid->GetCellType(id_cell1)!=VTK_TRIANGLE) {
@@ -196,18 +218,11 @@ int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, boo
 bool SurfaceOperation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
 {
   ///@@@  TODO: Optimize intersection part
-  
-//   QVector <vtkIdType> Peons;
-  
   QSet <int> S1=n2c[Boss];
-//   cout<<"S1="<<S1<<endl;
   foreach(vtkIdType PN,n2n[Boss])
   {
-//     cout<<"PN="<<PN<<endl;
     QSet <int> S2=n2c[PN];
-//     cout<<"S2="<<S2<<endl;
     QSet <int> Si=S2.intersect(S1);
-//     cout<<"PN="<<PN<<" Si="<<Si<<endl;
     if(Si.size()<2)//only one common cell
     {
       Peons.push_back(PN);
@@ -219,7 +234,6 @@ bool SurfaceOperation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
       {
         EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
         int bc=cell_code->GetValue(C);
-//         cout<<"C="<<C<<" bc="<<bc<<endl;
         bc_set.insert(bc);
       }
       if(bc_set.size()>1)//2 different boundary codes
@@ -230,8 +244,6 @@ bool SurfaceOperation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
   }
   if(Peons.size()==2)
   {
-/*    Peon1=Peons[0];
-    Peon2=Peons[1];*/
     return(true);
   }
   else
@@ -250,7 +262,6 @@ bool SurfaceOperation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
       for(int j=i+1;j<N;j++)
       {
         double alpha=deviation(grid,neighbours[i],Boss,neighbours[j]);
-//         cout<<"alpha("<<neighbours[i]<<","<<Boss<<","<<neighbours[j]<<")="<<alpha<<endl;
         if(first) {
           alphamin_value=alpha;
           alphamin_i=i;
@@ -268,14 +279,11 @@ bool SurfaceOperation::getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons)
         }
       }
     }
-//     cout<<"alphamin_value="<<alphamin_value<<endl;
     
     Peons.resize(2);
     Peons[0]=neighbours[alphamin_i];
     Peons[1]=neighbours[alphamin_j];
     return(true);
-/*    cout<<"FATAL ERROR: number of neighbours != 2"<<endl;
-    EG_BUG;*/
   }
   ///@@@  TODO: Fix this
   return(false);//should never happen
@@ -324,7 +332,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType De
     return(-1);
   }
   
-    //src grid info
+  //src grid info
   int N_points=src->GetNumberOfPoints();
   int N_cells=src->GetNumberOfCells();
   N_newpoints=-1;
@@ -530,13 +538,6 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   if(DebugLevel>0) cout<<"===UpdateMeshDensity END==="<<endl;
   return(0);
 }
-
-// Special structure for marking vertices
-typedef struct _vtkMeshVertex 
-{
-  char      type;
-  vtkIdList *edges; // connected edges (list of connected point ids)
-} vtkMeshVertex, *vtkMeshVertexPtr;
 
 int SurfaceOperation::UpdateNodeType_all()
 {
@@ -1007,7 +1008,6 @@ int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <
   return EdgeCells.size();
 }
 
-///@@@  TODO: take into account more than 2 cells on one edge like in the VTK algorithm
 char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 {
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));

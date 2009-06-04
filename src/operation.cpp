@@ -216,19 +216,3 @@ void Operation::populateVolumes(QListWidget *lw)
     lwi->setText(V.getName());
   }
 }
-
-ostream& operator<<(ostream &out, stencil_t S)
-{
-  out<<"S.id_cell1="<<S.id_cell1<<" ";
-  out<<"S.id_cell2="<<S.id_cell2<<" ";
-  out<<"S.sameBC="<<S.sameBC<<" ";
-  out<<"S.twocells="<<S.twocells<<" ";
-  out<<"S.neighbour_type="<<S.neighbour_type<<" ";
-  out<<"[";
-  for(int i=0;i<4;i++){
-    out<<S.p[i];
-    if(i!=3) out<<",";
-  }
-  out<<"]";
-  return(out);
-}
