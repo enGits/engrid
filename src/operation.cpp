@@ -74,20 +74,6 @@ Operation::Operation()
   m_resetoperationcounter = false;
   err = NULL;
   autoset = true;
-  m_CellLocator = NULL;
-  m_ProjectionSurface = NULL;
-  
-  //default values for determining node types and for smoothing operations
-  ///@@@ TODO: Remove useless attributes
-  Convergence=0;
-  NumberOfIterations=20;
-  RelaxationFactor=0.01;
-  FeatureEdgeSmoothing=1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
-  FeatureAngle=45;
-  EdgeAngle=15;
-  BoundarySmoothing=1;
-  GenerateErrorScalars=0;
-  GenerateErrorVectors=0;
 }
 
 Operation::~Operation()

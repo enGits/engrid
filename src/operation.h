@@ -103,22 +103,6 @@ protected: // attributes
   QVector<bool>          node_fixed;
   QVector<bool>          cell_fixed;
   QVector<vtkIdType>     re_orientate_faces;
-
-  /** vtkCellLocator used for any operations requiring projection on a surface. */
-  vtkCellLocator* m_CellLocator;
-  /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
-  vtkUnstructuredGrid* m_ProjectionSurface;
-  
-  //Special attributes for UpdateNodeType function
-  double Convergence;
-  int NumberOfIterations;
-  double RelaxationFactor;
-  int FeatureEdgeSmoothing;
-  double FeatureAngle;
-  double EdgeAngle;
-  int BoundarySmoothing;
-  int GenerateErrorScalars;
-  int GenerateErrorVectors;
   
 protected: // methods
   

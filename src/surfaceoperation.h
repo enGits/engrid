@@ -43,20 +43,31 @@ class SurfaceOperation : public Operation
 {
 private:
   ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points and all neighbour points otherwise
-  QVector < vtkIdList* > PotentialSnapPoints;
+  QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
+  
+  /** vtkCellLocator used for any operations requiring projection on a surface. */
+  vtkCellLocator* m_CellLocator;
+  
+protected:
+  //Special attributes for UpdateNodeType function
+  double Convergence;
+  int NumberOfIterations;
+  double RelaxationFactor;
+  int FeatureEdgeSmoothing;
+  double FeatureAngle;
+  double EdgeAngle;
+  int BoundarySmoothing;
+  /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
+  vtkUnstructuredGrid* m_ProjectionSurface;
   
 public:
   SurfaceOperation();
   virtual void operate();
   
   /**
-   * Returns a QVector containing 2 neighbour points to which the point Boss can snap.
-   * This is used for removing boundary/feature edge vertices without destroying the geometry.
+   * Returns a QVector containing neighbour points to which the point id_node can snap.
    */
-  bool getNeighbours(vtkIdType Boss, QVector <vtkIdType>& Peons);
-  
-  ///The same for boundary codes!
-  bool getNeighbours_BC(vtkIdType Boss, QVector <vtkIdType>& Peons);
+  QVector <vtkIdType> getPotentialSnapPoints(vtkIdType id_node);
   
   vtkIdType FindSnapPoint(vtkUnstructuredGrid *src, vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
@@ -77,8 +88,6 @@ public:
   void setFeatureAngle( double FA ) { FeatureAngle=FA; };
   void setEdgeAngle( double EA ) { EdgeAngle=EA; };
   void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
-  void setGenerateErrorScalars( int GES ) { GenerateErrorScalars=GES; };
-  void setGenerateErrorVectors( int GEV ) { GenerateErrorVectors=GEV; };
   //--------------------------------------
   
   ///Returns the average distance of id_node to its neighbours

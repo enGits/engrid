@@ -37,7 +37,7 @@ LaplaceSmoother::LaplaceSmoother()
 
 void LaplaceSmoother::operate()
 {
-  if(DebugLevel>10) cout<<"LaplaceSmoother reporting in."<<endl;
+  cout<<"=== LaplaceSmoother START ==="<<endl;
   
   QVector<vtkIdType> AllCells;
   getAllSurfaceCells(AllCells, grid);
@@ -62,24 +62,17 @@ void LaplaceSmoother::operate()
       if(node_type->GetValue(id_nodeG)==VTK_SIMPLE_VERTEX)
       {
         vec3_t G(0,0,0);
-        foreach(int i_nodeM, n2n[_nodes[id_nodeG]])
+        QVector <vtkIdType> PSP = getPotentialSnapPoints(id_nodeG);
+        foreach(vtkIdType id_nodeM, PSP)
         {
-          vtkIdType id_nodeM = nodes[i_nodeM];
           vec3_t M;
           grid->GetPoint(id_nodeM, M.data());
           G+=M;
         }
+        G=(1./PSP.size())*G;
         
-        G=(1./n2n[_nodes[id_nodeG]].size())*G;
         vec3_t P;
-        if(DebugLevel>0) cout<<"Searching for target "<<id_nodeG<<"..."<<endl;
-        if(m_CellLocator==NULL) {
-          cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
-        }
-        else {
-          P=project(G);
-        }
-        if(DebugLevel>0) cout<<"Target destroyed."<<endl;
+        P=project(G);
         
         //check that no cell gets flipped!
         while(FlippedCells(id_nodeG,P))
@@ -96,10 +89,7 @@ void LaplaceSmoother::operate()
     }
   }
   
-  if(DebugLevel>10) cout << "SelectedNodes.size()=" << SelectedNodes.size() << endl;
-  if(DebugLevel>10) cout << "moved_points=" << moved_points << endl;
-  if(DebugLevel>10) cout_grid(cout,grid);
-  
+  cout<<"=== LaplaceSmoother END ==="<<endl;
 }
 
 bool LaplaceSmoother::FlippedCells(vtkIdType id_nodeG, vec3_t P)

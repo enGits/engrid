@@ -45,16 +45,11 @@ void DeletePickedPoint::operate()
   int N_newpoints;
   int N_newcells;
   
-  setConvergence(0.0);
-  setFeatureEdgeSmoothing(1);
-  setFeatureAngle(45.0);
-  setEdgeAngle(15.0);
-  setBoundarySmoothing(1);
-  
-//   QMessageBox::question(GuiMainWindow::pointer(),QObject::tr("Overwrite File? -- Application Name"),QObject::tr("Do you want to overwrite it?"),QMessageBox::Yes,QMessageBox::No);
-  QVector <vtkIdType> Peons;
-  vtkIdType Boss;
+  vtkIdType id_node;
   char type;
+  QVector <vtkIdType> PSP;
+  
+  UpdateNodeType();
   
   QMessageBox msgBox;
   msgBox.setText("Delete point?");
@@ -62,24 +57,18 @@ void DeletePickedPoint::operate()
   switch (msgBox.exec()) {
   case QMessageBox::Yes:
     cout<<"yes was clicked"<<endl;
-//     setDebugLevel(20);
     DeletePoint(grid,nodeId,N_newpoints,N_newcells);
     break;
   case QMessageBox::No:
     cout<<"no was clicked"<<endl;
-    Boss=nodeId;
-    
+    id_node=nodeId;
     cout<<"=== Topological neighbours ==="<<endl;
-    getNeighbours(Boss,Peons);
-    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
-    
-    cout<<"=== BC neighbours ==="<<endl;
-    getNeighbours_BC(Boss,Peons);
-    cout<<"Boss="<<Boss<<" Peons="<<Peons<<endl;
+    PSP = getPotentialSnapPoints(id_node);
+    cout<<"id_node="<<id_node<<" PSP="<<PSP<<endl;
     
     cout<<"=== NODE TYPE ==="<<endl;
-    type=getNodeType(Boss);
-    cout<<"Boss="<<Boss<<" is of type="<<(int)type<<"="<<VertexType2Str(type)<<endl;
+    type = getNodeType(id_node);
+    cout<<"id_node="<<id_node<<" is of type="<<(int)type<<"="<<VertexType2Str(type)<<endl;
     
     break;
   default:

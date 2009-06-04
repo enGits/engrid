@@ -616,7 +616,7 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-//     UpdateNodeType();
+    UpdateNodeType();
     LaplaceSmoother Lap;
     Lap.setGrid(this->grid);
     Lap.setBoundaryCodes(bcs);
@@ -715,8 +715,6 @@ void GuiSmoothSurface::operate()
     surfacemesher.setFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
     surfacemesher.setEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
     surfacemesher.setBoundarySmoothing (ui.checkBox_BoundarySmoothing->checkState());
-    surfacemesher.setGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-    surfacemesher.setGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
     surfacemesher.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     
