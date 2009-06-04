@@ -38,6 +38,7 @@ LaplaceSmoother::LaplaceSmoother()
 void LaplaceSmoother::operate()
 {
   cout<<"=== LaplaceSmoother START ==="<<endl;
+  UpdateNodeType();
   
   QVector<vtkIdType> AllCells;
   getAllSurfaceCells(AllCells, grid);
@@ -59,7 +60,7 @@ void LaplaceSmoother::operate()
   {
     foreach(vtkIdType id_nodeG,SelectedNodes)
     {
-      if(node_type->GetValue(id_nodeG)==VTK_SIMPLE_VERTEX)
+      if(node_type->GetValue(id_nodeG)!=VTK_FIXED_VERTEX)
       {
         vec3_t G(0,0,0);
         QVector <vtkIdType> PSP = getPotentialSnapPoints(id_nodeG);

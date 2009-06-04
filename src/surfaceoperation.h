@@ -42,7 +42,7 @@ ostream& operator<<(ostream &out, stencil_t S);
 class SurfaceOperation : public Operation
 {
 private:
-  ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points and all neighbour points otherwise
+  ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points, all neighbour points in case of simple points and the points belonging to edges in case of fixed points
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
   
   /** vtkCellLocator used for any operations requiring projection on a surface. */

@@ -169,6 +169,7 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
 
 int SurfaceOperation::UpdateNodeType()
 {
+  cout<<"=== UpdateNodeType START ==="<<endl;
   //prepare
   getAllSurfaceCells(cells,grid);
   
@@ -181,7 +182,7 @@ int SurfaceOperation::UpdateNodeType()
     m_PotentialSnapPoints[id_node].clear();
   }
   
-  cout<<"===PRE-PROCESSING==="<<endl;
+  cout<<"===pre-processing==="<<endl;
   int N_edges=0;
   //We loop through edges
   foreach(vtkIdType id_cell, cells) {
@@ -242,7 +243,7 @@ int SurfaceOperation::UpdateNodeType()
   //-----------------------
   //determine node type post-processing
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
-  cout<<"===POST-PROCESSING==="<<endl;
+  cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach(vtkIdType id_node, nodes) {
     if ( node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX || node_type->GetValue(id_node) == VTK_BOUNDARY_EDGE_VERTEX )
@@ -277,7 +278,8 @@ int SurfaceOperation::UpdateNodeType()
       }//if along edge
     }//if edge vertex
   }
-  
+  cout<<"m_PotentialSnapPoints.size()="<<m_PotentialSnapPoints.size()<<endl;
+  cout<<"=== UpdateNodeType END ==="<<endl;
   return(0);
 }
 
@@ -790,6 +792,7 @@ int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, boo
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node)
 {
+  if(id_node<0 || id_node>=m_PotentialSnapPoints.size()) EG_BUG;
   return m_PotentialSnapPoints[id_node];
 }
 

@@ -616,7 +616,6 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
     
-    UpdateNodeType();
     LaplaceSmoother Lap;
     Lap.setGrid(this->grid);
     Lap.setBoundaryCodes(bcs);
