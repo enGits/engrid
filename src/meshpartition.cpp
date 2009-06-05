@@ -50,6 +50,7 @@ MeshPartition::MeshPartition(QString volume_name)
 
 void MeshPartition::updateStructures()
 {
+  getNodesFromCells(cells, nodes, grid);
   createCellMapping(cells, _cells, grid);
   createNodeMapping(nodes, _nodes, grid);
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
@@ -63,7 +64,7 @@ void MeshPartition::setVolume(QString volume_name)
   resetOrientation(grid);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   QList<vtkIdType> cls;
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
   EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
   EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
@@ -83,11 +84,7 @@ void MeshPartition::setVolume(QString volume_name)
       }
     }
   }
-  cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), cells.begin());
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
+  setCells(cls);
 }
 
 void MeshPartition::setVolumeOrientation()
