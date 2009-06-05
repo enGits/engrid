@@ -1120,6 +1120,15 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
   return(variable);
 }
 
+void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
+{
+  name += ".vtu";
+  QVector<vtkIdType> cells;
+  getAllCells(cells, grid);
+  writeCells(grid, cells, name);
+}
+
+
 ///////////////////////////////////////////
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
 {

@@ -598,6 +598,9 @@ protected: // methods
    */
   template <class C>
   void getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid);
+
+  void writeGrid(vtkUnstructuredGrid *grid, QString name);
+
   
 public: // methods
   
