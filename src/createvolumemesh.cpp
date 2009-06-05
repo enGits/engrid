@@ -215,11 +215,6 @@ void CreateVolumeMesh::prepare()
       pts[2] = old2tri[T[2]];
       tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
     }
-    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-    vtu->SetFileName("triangles.vtu");
-    vtu->SetDataModeToBinary();
-    vtu->SetInput(tri_grid);
-    vtu->Write();
   }
   {
     EG_VTKSP(vtkUnstructuredGrid,centre_grid);
@@ -232,11 +227,6 @@ void CreateVolumeMesh::prepare()
       centre_grid->InsertNextCell(VTK_VERTEX, 1, pts);
       ++N;
     }
-    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-    vtu->SetFileName("centres.vtu");
-    vtu->SetDataModeToBinary();
-    vtu->SetInput(centre_grid);
-    vtu->Write();
   }
   {
     EG_VTKSP(vtkUnstructuredGrid,conn_grid);
@@ -256,22 +246,7 @@ void CreateVolumeMesh::prepare()
       pts[1] = i+conn1.size();
       conn_grid->InsertNextCell(VTK_LINE, 2, pts);
     }
-    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-    vtu->SetFileName("connections.vtu");
-    vtu->SetDataModeToBinary();
-    vtu->SetInput(conn_grid);
-    vtu->Write();
-  }
-  {
-    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-    createIndices(grid);
-    vtu->SetFileName("prevol.vtu");
-    vtu->SetDataModeToBinary();
-    vtu->SetInput(grid);
-    vtu->Write();
-  }
-  
-  
+  }  
 }
 
 void CreateVolumeMesh::computeMeshDensity()
