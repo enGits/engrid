@@ -194,8 +194,7 @@ void MeshPartition::setCells(const C& cls)
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
   getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
+  updateStructures();
 }
 
 #endif // MESHPARTITION_H

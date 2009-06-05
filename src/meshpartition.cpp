@@ -50,6 +50,8 @@ MeshPartition::MeshPartition(QString volume_name)
 
 void MeshPartition::updateStructures()
 {
+  createCellMapping(cells, _cells, grid);
+  createNodeMapping(nodes, _nodes, grid);
   createNodeToNode(cells, nodes, _nodes, n2n, grid);
   createCellToCell(cells, c2c, grid);
   createNodeToCell(cells, nodes, _nodes, n2c, grid);

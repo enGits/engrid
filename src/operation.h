@@ -157,6 +157,7 @@ public: // methods
 template <class T>
 void Operation::setCells(const T &cls)
 {
+  m_Part.setGrid(grid);
   m_Part.setCells(cls);
   cells = m_Part.getCells();
   nodes = m_Part.getNodes();

@@ -152,12 +152,22 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
     <value type="QString" >SHELL=/bin/bash</value>
     <value type="QString" >SHLVL=3</value>
     <value type="QString" >SSH_AGENT_PID=4803</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
     <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
+=======
+    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
+    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=3</value>
+    <value type="QString" >SSH_AGENT_PID=19468</value>
+    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
@@ -195,8 +205,13 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
+=======
+    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
+    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
@@ -252,8 +267,14 @@
     <value type="QString" >FOAM_USER_LIBBIN=/home/ogloth/OpenFOAM/ogloth-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >FOAM_UTILITIES=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/utilities</value>
     <value type="QString" >FROM_HEADER=</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >GS_LIB=/home/ogloth/.fonts</value>
     <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/home/ogloth/.gtkrc-2.0-qtengine:/home/ogloth/.gtkrc-2.0:/home/ogloth/.kde/share/config/gtkrc-2.0</value>
+=======
+    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-PkUSkD/S.gpg-agent:19467:1</value>
+    <value type="QString" >GS_LIB=/data1/home/ogloth/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/data1/home/ogloth/.gtkrc-2.0-qtengine:/data1/home/ogloth/.gtkrc-2.0</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >GTK_IM_MODULE=cedilla</value>
     <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/ogloth/.gtkrc:/home/ogloth/.kde/share/config/gtkrc</value>
     <value type="QString" >G_BROKEN_FILENAMES=1</value>
@@ -310,12 +331,22 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
     <value type="QString" >SHELL=/bin/bash</value>
     <value type="QString" >SHLVL=3</value>
     <value type="QString" >SSH_AGENT_PID=4803</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
     <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
+=======
+    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
+    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=3</value>
+    <value type="QString" >SSH_AGENT_PID=19468</value>
+    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
@@ -353,8 +384,13 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
+=======
+    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
+    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
@@ -414,8 +450,14 @@
     <value type="QString" >FOAM_USER_LIBBIN=/home/ogloth/OpenFOAM/ogloth-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >FOAM_UTILITIES=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/utilities</value>
     <value type="QString" >FROM_HEADER=</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >GS_LIB=/home/ogloth/.fonts</value>
     <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/home/ogloth/.gtkrc-2.0-qtengine:/home/ogloth/.gtkrc-2.0:/home/ogloth/.kde/share/config/gtkrc-2.0</value>
+=======
+    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-PkUSkD/S.gpg-agent:19467:1</value>
+    <value type="QString" >GS_LIB=/data1/home/ogloth/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/data1/home/ogloth/.gtkrc-2.0-qtengine:/data1/home/ogloth/.gtkrc-2.0</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >GTK_IM_MODULE=cedilla</value>
     <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/ogloth/.gtkrc:/home/ogloth/.kde/share/config/gtkrc</value>
     <value type="QString" >G_BROKEN_FILENAMES=1</value>
@@ -472,12 +514,22 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
     <value type="QString" >SHELL=/bin/bash</value>
     <value type="QString" >SHLVL=3</value>
     <value type="QString" >SSH_AGENT_PID=4803</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
     <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
+=======
+    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
+    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=3</value>
+    <value type="QString" >SSH_AGENT_PID=19468</value>
+    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
@@ -515,8 +567,13 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
+<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
+=======
+    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
+    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
+>>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
