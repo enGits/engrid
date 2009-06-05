@@ -164,6 +164,12 @@ void Operation::setAllSurfaceCells()
   setCells(cells);
 }
 
+void Operation::setVolume(QString volume_name)
+{
+  m_Part.setGrid(grid);
+  m_Part.setVolume(volume_name);
+}
+
 void Operation::checkGrid()
 {
   if (grid == NULL) {
