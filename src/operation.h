@@ -123,6 +123,8 @@ public: // methods
   void setAllCells();
   void setAllVolumeCells();
   void setAllSurfaceCells();
+  void setVolume(QString volume_name);
+  template <class T> void setCells(const T &cls);
 
   void setGui() { gui = true; }
   OperationThread& getThread() { return thread; }
@@ -146,9 +148,6 @@ public: // methods
   void populateVolumes(QListWidget *lw);
 
   virtual void operator()();
-
-  template <class T> void setCells(const T &cls);
-  //template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
 };
