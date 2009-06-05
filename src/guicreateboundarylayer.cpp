@@ -165,6 +165,15 @@ void GuiCreateBoundaryLayer::operate()
   */
 
   {
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (isVolume(grid, id_cell)) {
+        cell_code->SetValue(id_cell, V.getVC());
+      }
+    }
+  }
+
+  {
     MeshPartition volume(grid, true);
     MeshPartition rest(rest_grid, true);
     dump(grid,"grid2");
