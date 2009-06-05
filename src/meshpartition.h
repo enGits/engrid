@@ -113,25 +113,25 @@ public: // methods
   void setRemainder(const MeshPartition& part);
 
   /// Access to the cell indices;
-  const QVector<vtkIdType>& getCells() { return cells; }
+  const QVector<vtkIdType>& getCells() const { return cells; }
 
   /// Access to the local cell indices;
-  const QVector<int>& getLocalCells() { return _cells; }
+  const QVector<int>& getLocalCells() const { return _cells; }
 
   /// Access to the node indices;
-  const QVector<vtkIdType>& getNodes() { return nodes; }
+  const QVector<vtkIdType>& getNodes() const { return nodes; }
 
   /// Access to the local node indices;
-  const QVector<int>& getLocalNodes() { return _nodes; }
+  const QVector<int>& getLocalNodes() const { return _nodes; }
 
   /// Access to the local node to node structure
-  QVector<QVector<int> >& getN2N() { return n2n; }
+  const QVector<QVector<int> >& getN2N() const { return n2n; }
 
   /// Access to the local node to cell structure
-  QVector<QVector<int> >& getN2C() { return n2c; }
+  const QVector<QVector<int> >& getN2C() const { return n2c; }
 
   /// Access to the local cell to cell structure
-  QVector<QVector<int> >& getC2C() { return c2c; }
+  const QVector<QVector<int> >& getC2C() const { return c2c; }
 
   /// change the face orientation to match the volume definition
   void setVolumeOrientation();
