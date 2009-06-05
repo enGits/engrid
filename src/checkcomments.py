@@ -5,7 +5,8 @@ import sys
 def trimline(line):
   append = False
   trimmedline = ''
-  for i in range (1,len(line)):
+  for i in range (0,len(line)):
+    #print line[i]
     if line[i] != ' ':
       append = True
     if append:
@@ -21,14 +22,14 @@ def fileinfo(name,ln):
 
 for i in range(1,len(sys.argv)):
   f = open(sys.argv[i])
+  #print f
   line = f.readline()
   conti = True
   ln = 1
   while line:
     tline = trimline(line)
+    #print tline
     if tline[0:6] == '///@@@':
-#      if not conti:
-#        print
       print fileinfo(sys.argv[i],ln) + ':' + tline[6:len(tline)-1]
       conti = True
     else:
@@ -36,6 +37,3 @@ for i in range(1,len(sys.argv)):
     line = f.readline()
     ln = ln + 1
   f.close
-  
-  
-
