@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>487</height>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,148 +16,123 @@
    <iconset resource="engrid.qrc" >
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QLabel" name="label_FeatureAngle" >
-     <property name="text" >
-      <string>Feature Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" >
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxFeatureAngle" >
-     <property name="minimum" >
-      <double>-1.000000000000000</double>
-     </property>
-     <property name="maximum" >
-      <double>180.000000000000000</double>
-     </property>
-     <property name="singleStep" >
-      <double>5.000000000000000</double>
-     </property>
-     <property name="value" >
-      <double>45.000000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QLabel" name="label_BoundaryCode" >
-     <property name="text" >
-      <string>Boundary Code</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" >
-    <widget class="QSpinBox" name="spinBoxBoundaryCode" >
-     <property name="minimum" >
-      <number>1</number>
-     </property>
-     <property name="maximum" >
-      <number>999</number>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" >
-    <widget class="QCheckBox" name="checkBox_SelectAllVisible" >
-     <property name="text" >
-      <string>Select all visible cells</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" >
-    <widget class="QCheckBox" name="checkBox_ProcessAll" >
-     <property name="text" >
-      <string>Process all cells (even invisible ones)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" >
-    <widget class="QCheckBox" name="checkBox_OnlyPickedCell" >
-     <property name="text" >
-      <string>Only picked cell</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" >
-    <widget class="QCheckBox" name="checkBox_OnlyPickedCellAndNeighbours" >
-     <property name="text" >
-      <string>Only picked cell and neighbours</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" >
-    <widget class="QRadioButton" name="radioButton_SelectAllVisible" >
-     <property name="text" >
-      <string>Select all visible cells</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" >
-    <widget class="QRadioButton" name="radioButton_ProcessAll" >
-     <property name="text" >
-      <string>Process all cells (even invisible ones)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" >
-    <widget class="QRadioButton" name="radioButton_ProcessOnlyVisible" >
-     <property name="text" >
-      <string>Process only visible cells</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" >
-    <widget class="QRadioButton" name="radioButton_OnlyPickedCell" >
-     <property name="text" >
-      <string>Only picked cell</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0" >
-    <widget class="QRadioButton" name="radioButton_OnlyPickedCellAndNeighbours" >
-     <property name="text" >
-      <string>Only picked cell and neighbours</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0" colspan="2" >
-    <layout class="QVBoxLayout" name="verticalLayout_PickMethod" />
-   </item>
-   <item row="12" column="0" colspan="2" >
-    <layout class="QHBoxLayout" >
-     <item>
-      <widget class="QPushButton" name="pushButtonHelp" >
-       <property name="text" >
-        <string>Help</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0" >
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-  </layout>
+  <widget class="QLabel" name="label_FeatureAngle" >
+   <property name="geometry" >
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>156</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Feature Angle</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBoxFeatureAngle" >
+   <property name="geometry" >
+    <rect>
+     <x>170</x>
+     <y>9</y>
+     <width>156</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="minimum" >
+    <double>-1.000000000000000</double>
+   </property>
+   <property name="maximum" >
+    <double>180.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>5.000000000000000</double>
+   </property>
+   <property name="value" >
+    <double>45.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_BoundaryCode" >
+   <property name="geometry" >
+    <rect>
+     <x>9</x>
+     <y>39</y>
+     <width>156</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Boundary Code</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBoxBoundaryCode" >
+   <property name="geometry" >
+    <rect>
+     <x>170</x>
+     <y>39</y>
+     <width>156</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="minimum" >
+    <number>1</number>
+   </property>
+   <property name="maximum" >
+    <number>999</number>
+   </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>9</x>
+     <y>69</y>
+     <width>317</width>
+     <height>153</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_PickMethod" />
+  </widget>
+  <widget class="QWidget" name="" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>317</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <item>
+     <widget class="QPushButton" name="pushButtonHelp" >
+      <property name="text" >
+       <string>Help</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QDialogButtonBox" name="buttonBox" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons" >
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources>
   <include location="engrid.qrc" />
@@ -192,54 +167,6 @@
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_SelectAllVisible</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkBox_ProcessAll</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>122</x>
-     <y>80</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>122</x>
-     <y>109</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_SelectAllVisible</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>doubleSpinBoxFeatureAngle</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>122</x>
-     <y>80</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>274</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_SelectAllVisible</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_FeatureAngle</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>122</x>
-     <y>80</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>122</x>
-     <y>20</y>
     </hint>
    </hints>
   </connection>

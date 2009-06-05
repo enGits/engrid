@@ -23,6 +23,9 @@
 #ifndef guisetboundarycode_H
 #define guisetboundarycode_H
 
+#include <QButtonGroup>
+#include <QRadioButton>
+
 class GuisetBoundaryCode;
 
 #include "dialogoperation.h"
@@ -34,9 +37,9 @@ class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode, Operat
   Q_OBJECT;
 private:
   QButtonGroup* buttongroup;
-  QRadioButton* radioButton_SelectAllVisible;
-  QRadioButton* radioButton_ProcessAll;
   QRadioButton* radioButton_ProcessOnlyVisible;
+  QRadioButton* radioButton_ProcessAll;
+  QRadioButton* radioButton_SelectAllVisible;
   QRadioButton* radioButton_OnlyPickedCell;
   QRadioButton* radioButton_OnlyPickedCellAndNeighbours;
   
