@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>251</height>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,7 @@
    <iconset resource="engrid.qrc" >
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QGridLayout" name="gridLayout" >
    <item row="0" column="0" >
     <widget class="QLabel" name="label_FeatureAngle" >
      <property name="text" >
@@ -40,19 +40,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="2" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>71</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="0" >
     <widget class="QLabel" name="label_BoundaryCode" >
      <property name="text" >
@@ -70,20 +57,73 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
+   <item row="2" column="0" >
+    <widget class="QCheckBox" name="checkBox_SelectAllVisible" >
+     <property name="text" >
+      <string>Select all visible cells</string>
      </property>
-     <property name="sizeHint" stdset="0" >
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
+    </widget>
    </item>
-   <item row="8" column="0" colspan="3" >
+   <item row="3" column="0" >
+    <widget class="QCheckBox" name="checkBox_ProcessAll" >
+     <property name="text" >
+      <string>Process all cells (even invisible ones)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QCheckBox" name="checkBox_OnlyPickedCell" >
+     <property name="text" >
+      <string>Only picked cell</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QCheckBox" name="checkBox_OnlyPickedCellAndNeighbours" >
+     <property name="text" >
+      <string>Only picked cell and neighbours</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" >
+    <widget class="QRadioButton" name="radioButton_SelectAllVisible" >
+     <property name="text" >
+      <string>Select all visible cells</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" >
+    <widget class="QRadioButton" name="radioButton_ProcessAll" >
+     <property name="text" >
+      <string>Process all cells (even invisible ones)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" >
+    <widget class="QRadioButton" name="radioButton_ProcessOnlyVisible" >
+     <property name="text" >
+      <string>Process only visible cells</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" >
+    <widget class="QRadioButton" name="radioButton_OnlyPickedCell" >
+     <property name="text" >
+      <string>Only picked cell</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" >
+    <widget class="QRadioButton" name="radioButton_OnlyPickedCellAndNeighbours" >
+     <property name="text" >
+      <string>Only picked cell and neighbours</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="2" >
+    <layout class="QVBoxLayout" name="verticalLayout_PickMethod" />
+   </item>
+   <item row="12" column="0" colspan="2" >
     <layout class="QHBoxLayout" >
      <item>
       <widget class="QPushButton" name="pushButtonHelp" >
@@ -116,34 +156,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="2" column="0" >
-    <widget class="QCheckBox" name="checkBox_SelectAllVisible" >
-     <property name="text" >
-      <string>Select all visible cells</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" >
-    <widget class="QCheckBox" name="checkBox_ProcessAll" >
-     <property name="text" >
-      <string>Process all cells (even invisible ones)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" >
-    <widget class="QCheckBox" name="checkBox_OnlyPickedCell" >
-     <property name="text" >
-      <string>Only picked cell</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" >
-    <widget class="QCheckBox" name="checkBox_OnlyPickedCellAndNeighbours" >
-     <property name="text" >
-      <string>Only picked cell and neighbours</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

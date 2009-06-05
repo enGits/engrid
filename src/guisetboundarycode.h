@@ -32,6 +32,13 @@ class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode, Operat
 {
   
   Q_OBJECT;
+private:
+  QButtonGroup* buttongroup;
+  QRadioButton* radioButton_SelectAllVisible;
+  QRadioButton* radioButton_ProcessAll;
+  QRadioButton* radioButton_ProcessOnlyVisible;
+  QRadioButton* radioButton_OnlyPickedCell;
+  QRadioButton* radioButton_OnlyPickedCellAndNeighbours;
   
 protected: // methods
   

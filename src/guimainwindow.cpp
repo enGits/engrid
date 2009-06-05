@@ -63,11 +63,6 @@ using namespace GeometryTools;
 #include "egvtkinteractorstyle.h"
 #include "showinfo.h"
 
-// GuiOutputWindow::GuiOutputWindow()
-// {
-//   ui.setupUi(this);
-// }
-
 QString GuiMainWindow::cwd = ".";
 QSettings GuiMainWindow::qset("enGits","enGrid");
 GuiMainWindow* GuiMainWindow::THIS = NULL;
@@ -85,13 +80,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   QSize size = qset.value("size", QSize(400, 400)).toSize();
   resize(size);
   move(pos);
-  
-//   dock_widget = new QDockWidget(tr("output"), this);
-//   dock_widget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-//   output_window = new GuiOutputWindow();
-//   dock_widget->setWidget(output_window);
-//   addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
-//   ui.menuView->addAction(dock_widget->toggleViewAction());
   
   connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
   connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
@@ -1283,6 +1271,7 @@ void GuiMainWindow::updateStatusBar()
     txt += pick_txt;
   }
   
+  ///@@@ TODO: Reduce size of text for small screens or better: allow making the window smaller than the text
   status_label->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
