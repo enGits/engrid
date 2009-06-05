@@ -28,6 +28,7 @@ class GuiMainWindow;
 
 #include "egvtkobject.h"
 #include "vertexmeshdensity.h"
+#include "meshpartition.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
@@ -46,7 +47,11 @@ class OperationThread : public QThread
 private:
   
   Operation *op;
-  
+
+  static QVector<vtkIdType>     m_static_DummyQVectorVtkIdType;  /// dummy container to initialise references
+  static QVector<int>           m_static_DummyQVectorInt;        /// dummy container to initialise references
+  static QVector<QVector<int> > m_static_DummyQVectorQVectorInt; /// dummy container to initialise references
+
 protected:
   
   virtual void run();
@@ -88,20 +93,14 @@ private: // methods
 protected: // attributes
   
   vtkUnstructuredGrid    *grid;   /// The main grid the operation operates on.
-  QVector<vtkIdType>     cells;
-  QVector<int>           _cells;
-  QVector<vtkIdType>     nodes;
-  QVector<int>           _nodes;
-  QVector<QSet<int> >    n2c;
-  QVector<QSet<int> >    n2n;
-  QVector<QVector<int> > c2c;
-  //QVector<vtkIdType>     &cells;
-  //QVector<int>           &_cells;
-  //QVector<vtkIdType>     &nodes;
-  //QVector<int>           &_nodes;
-  //QVector<QSet<int> >    &n2c;
-  //QVector<QSet<int> >    &n2n;
-  //QVector<QVector<int> > &c2c;
+  MeshPartition           m_Part; /// the partition containing the subset of cells and nodes
+  QVector<vtkIdType>     &cells;  /// reference for backwards compatibility
+  QVector<int>           &_cells; /// reference for backwards compatibility
+  QVector<vtkIdType>     &nodes;  /// reference for backwards compatibility
+  QVector<int>           &_nodes; /// reference for backwards compatibility
+  QVector<QVector<int> > &n2n;    /// reference for backwards compatibility
+  QVector<QVector<int> > &n2c;    /// reference for backwards compatibility
+  QVector<QVector<int> > &c2c;    /// reference for backwards compatibility
 
 protected: // methods
   
@@ -145,7 +144,7 @@ public: // methods
   virtual void operator()();
 
   template <class T> void setCells(const T &cls);
-  template <class T> void setNodes(const T &nds);
+  //template <class T> void setNodes(const T &nds);
 
   static void collectGarbage();
 };
@@ -158,39 +157,14 @@ public: // methods
 template <class T>
 void Operation::setCells(const T &cls)
 {
-  cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), cells.begin());
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
-}
-
-template <class T>
-void Operation::setNodes(const T &nds)
-{
-  nodes.resize(nds.size());
-  qCopy(nds.begin(), nds.end(), nodes.begin());
-  createNodeMapping(nodes, _nodes, grid);
-  QSet<vtkIdType> cls;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType *pts, N_pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-      if (_nodes[pts[i_pts]] >= 0) {
-        cls.insert(id_cell);
-        break;
-      }
-    }
-  }
-  cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), cells.begin());
-  createCellMapping(cells, _cells, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
+  m_Part.setCells(cls);
+  cells = m_Part.getCells();
+  nodes = m_Part.getNodes();
+  _cells = m_Part.getLocalCells();
+  _nodes = m_Part.getLocalNodes();
+  n2n = m_Part.getN2N();
+  n2c = m_Part.getN2C();
+  c2c = m_Part.getC2C();
 }
 
 #endif

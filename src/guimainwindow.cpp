@@ -901,6 +901,7 @@ int GuiMainWindow::QuickSave()
 
 void GuiMainWindow::QuickLoad(int a_operation)
 {
+  a_operation = a_operation;
   ///@@@ might be re-activated with RAM support
   /*
   QFileInfo fileinfo(current_filename);

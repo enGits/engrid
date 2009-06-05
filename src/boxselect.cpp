@@ -34,6 +34,7 @@ public:
   { return new vtkMyCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
+    caller = caller; ///@@@ get rid of warning
 /*      vtkTransform *t = vtkTransform::New();
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       widget->GetTransform(t);

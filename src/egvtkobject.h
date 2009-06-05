@@ -64,8 +64,8 @@ private: // methods
   
   void addToN2N
     (
-      QVector<QSet<int> > &n2n, 
-      int                  n1, 
+      QVector<QSet<int> > &n2n,
+      int                  n1,
       int                  n2
     );
   
@@ -137,7 +137,7 @@ protected: // methods
     );
   
   /**
-   * Create a mapping from global cell indices to the indeces of a subset of cells.
+   * Create a mapping from global cell indices to the indices of a subset of cells.
    * @param cells  The subset of cells.
    * @param _cells On return, this will contain the mapping.
    * @param grid   The grid to operate on.
@@ -173,11 +173,11 @@ protected: // methods
    */
   void createNodeToCell
     (
-      QVector<vtkIdType>  &cells,
-      QVector<vtkIdType>  &nodes,
-      QVector<int>        &_nodes,
-      QVector<QSet<int> > &n2c,
-      vtkUnstructuredGrid *grid
+      QVector<vtkIdType>   &cells,
+      QVector<vtkIdType>   &nodes,
+      QVector<int>         &_nodes,
+      QVector<QSet<int> >  &n2c,
+      vtkUnstructuredGrid  *grid
     );
   
   /**
@@ -481,27 +481,25 @@ protected: // methods
     );
   
   /**
-   * Compute the intersection of two QSets.
-   * @param set1 the first set
-   * @param set2 the second set
-   * @param inters On return this will hold the intersection
+   * Compute the intersection of two Q containers.
+   * This will return a set.
+   * @param set1 the first container
+   * @param set2 the second container
+   * @param inters on return this will hold the intersection
    */
-  template <class T>
-  void setIntersection(const QSet<T> &set1,
-                       const QSet<T> &set2,
-                       QSet<T>       &inters);
-    
+  template <class C1, class C2>
+  void qcontIntersection(const C1& c1, const C2& c2, QSet<typename C1::value_type> &inters);
+
   /**
-   * Compute the intersection of two QVectors.
-   * @param set1 the first vector
-   * @param set2 the second vector
-   * @param inters On return this will hold the intersection
+   * Compute the intersection of two Q containers.
+   * This will return a vector.
+   * @param set1 the first container
+   * @param set2 the second container
+   * @param inters on return this will hold the intersection
    */
-  template <class T>
-  void vectorIntersection(const QVector<T> &set1,
-                          const QVector<T> &set2,
-                          QSet<T>          &inters);
-  
+  template <class C1, class C2>
+  void qcontIntersection(const C1& c1, const C2& c2, QVector<typename C1::value_type> &inters);
+
   /**
    * Compute the centre of a cell
    * @param grid the grid to use
@@ -534,7 +532,7 @@ protected: // methods
       const QVector<int>      _nodes,      
       const QVector<vtkIdType> cells,      
       const QVector<int>      _cells,      
-      QVector<QSet<int> >     &n2c
+      QVector<QVector<int> >  &n2c
     );
 
   /**
@@ -612,30 +610,26 @@ public: // methods
 
 //End of class EgVtkObject
 
-template <class T>
-void EgVtkObject::setIntersection(const QSet<T> &set1,
-                                  const QSet<T> &set2,
-                                  QSet<T>       &inters)
+template <class C1, class C2>
+void EgVtkObject::qcontIntersection(const C1& c1, const C2& c2, QSet<typename C1::value_type> &inters)
 {
   inters.clear();
-  foreach (T t1, set1) {
-    if (set2.contains(t1)) {
-      inters.insert(t1);
+  foreach (typename C1::value_type t1, c1) {
+    foreach (typename C2::value_type t2, c2) {
+      if (t1 == t2) {
+        inters.insert(t1);
+      }
     }
   }
 }
 
-template <class T>
-void EgVtkObject::vectorIntersection(const QVector<T> &set1,
-                                     const QVector<T> &set2,
-                                     QSet<T>          &inters)
+template <class C1, class C2>
+void EgVtkObject::qcontIntersection(const C1& c1, const C2& c2, QVector<typename C1::value_type> &inters)
 {
-  inters.clear();
-  foreach (T t1, set1) {
-    if (set2.has(t1)) {
-      inters.insert(t1);
-    }
-  }
+  QSet<typename C1::value_type> inters_set;
+  qcontIntersection(c1, c2, inters_set);
+  inters.resize(inters_set.size());
+  qCopy(inters_set.begin(), inters_set.end(), inters.begin());
 }
 
 template <class C>

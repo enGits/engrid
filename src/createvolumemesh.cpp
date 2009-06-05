@@ -51,7 +51,7 @@ void CreateVolumeMesh::prepare()
   QVector<vtkIdType> cells, nodes;
   QVector<int>       _cells, _nodes;
   QVector<QVector< int > > c2c;
-  QVector<QSet<int> > n2c;
+  QVector<QVector<int> > n2c;
   getAllCells(cells, grid);
   createCellMapping(cells, _cells, grid);
   getNodesFromCells(cells, nodes, grid);

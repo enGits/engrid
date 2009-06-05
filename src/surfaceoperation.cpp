@@ -758,24 +758,26 @@ vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
 int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra)
 {
 //   QVector< QSet< int > > 	n2n
-  QSet <int> node1_neighbours=n2n[node1];
-  QSet <int> node2_neighbours=n2n[node2];
-  QSet <int> intersection=node1_neighbours.intersect(node2_neighbours);
-  int N=intersection.size();
-  IsTetra=false;
+  QVector<int> node1_neighbours=n2n[node1];
+  QVector<int> node2_neighbours=n2n[node2];
+  QVector<int> intersection;
+  qcontIntersection(node1_neighbours, node2_neighbours, intersection);
+  int N = intersection.size();
+  IsTetra = false;
   if(N==2)
   {
-    QSet<int>::const_iterator p1=intersection.begin();
-    QSet<int>::const_iterator p2=p1+1;
+    QVector<int>::const_iterator p1=intersection.begin();
+    QVector<int>::const_iterator p2=p1+1;
     vtkIdType intersection1=_nodes[*p1];
     vtkIdType intersection2=_nodes[*p2];
     if(n2n[intersection1].contains(intersection2))//if there's an edge between intersection1 and intersection2
     {
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
   //     QVector< QSet< int > > 	n2c
-      QSet< int > S1=n2c[intersection1];
-      QSet< int > S2=n2c[intersection2];
-      QSet< int > Si=S1.intersect(S2);
+      QVector<int> S1=n2c[intersection1];
+      QVector<int> S2=n2c[intersection2];
+      QVector<int> Si;
+      qcontIntersection(S1, S2, Si);
       int counter=0;
       foreach(vtkIdType C,Si){
         vtkIdType N_pts, *pts;

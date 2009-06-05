@@ -47,6 +47,12 @@ using namespace GeometryTools;
 
 QSet<Operation*> Operation::garbage_operations;
 
+QVector<vtkIdType>     m_static_DummyQVectorVtkIdType;
+QVector<int>           m_static_DummyQVectorInt;
+QVector<QVector<int> > m_static_DummyQVectorQVectorInt;
+
+
+
 void Operation::collectGarbage()
 {
   QSet<Operation*> delete_operations;
@@ -66,7 +72,14 @@ void Operation::collectGarbage()
   }
 }
 
-Operation::Operation()
+Operation::Operation() :
+   cells(m_static_DummyQVectorVtkIdType),
+  _cells(m_static_DummyQVectorInt),
+   nodes(m_static_DummyQVectorVtkIdType),
+  _nodes(m_static_DummyQVectorInt),
+   n2n(m_static_DummyQVectorQVectorInt),
+   n2c(m_static_DummyQVectorQVectorInt),
+   c2c(m_static_DummyQVectorQVectorInt)
 {
   grid = NULL;
   gui = false;

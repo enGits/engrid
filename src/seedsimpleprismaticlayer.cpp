@@ -131,7 +131,7 @@ int SeedSimplePrismaticLayer::countBoundaryElements()
       }
       if (consider_edge) {
         QSet<int> faces_on_edge;
-        setIntersection(n2f[p1], n2f[p2], faces_on_edge);
+        qcontIntersection(n2f[p1], n2f[p2], faces_on_edge);
         if (faces_on_edge.size() == 0) {
           EG_BUG;
         } else if (faces_on_edge.size() == 1) {
@@ -183,7 +183,7 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
       }
       if (consider_edge) {
         QSet<int> faces_on_edge;
-        setIntersection(n2f[p1], n2f[p2], faces_on_edge);
+        qcontIntersection(n2f[p1], n2f[p2], faces_on_edge);
         if (faces_on_edge.size() == 0) {
           EG_BUG;
         } else if (faces_on_edge.size() == 1) {
@@ -241,7 +241,7 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
               }
             }
           }
-          setIntersection(bc1, bc2, bc3);
+          qcontIntersection(bc1, bc2, bc3);
           if (bc3.size() == 1) {
             bc = *(bc3.begin());
           } else {
