@@ -28,19 +28,19 @@ CreateVolumeMesh::CreateVolumeMesh()
 {
   maxh     = 1e99;
   fineness = 0.0;
-};
+}
 
 void CreateVolumeMesh::setTraceCells(const QVector<vtkIdType> &cells)
 {
   trace_cells.resize(cells.size()); 
   qCopy(cells.begin(), cells.end(), trace_cells.begin()); 
-};
+}
 
 void CreateVolumeMesh::getTraceCells(QVector<vtkIdType> &cells)
 {
   cells.resize(trace_cells.size()); 
   qCopy(trace_cells.begin(), trace_cells.end(), cells.begin()); 
-};
+}
 
 void CreateVolumeMesh::prepare()
 {
@@ -78,7 +78,7 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[2];
         ex_tri.append(T);
         ++N4;
-      };
+      }
     } else if (type_cell == VTK_QUAD) {
       if (findVolumeCell(grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
         EG_BUG;
@@ -91,7 +91,7 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[0];
         ex_tri.append(T);
         ++N3;
-      };
+      }
     } else if (type_cell == VTK_WEDGE) {
       if (c2c[id_cell][0] == -1) {
         T[0] = pts[0];
@@ -99,14 +99,14 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[1];
         ex_tri.append(T);
         ++N2;
-      };
+      }
       if (c2c[id_cell][1] == -1) {
         T[0] = pts[3];
         T[1] = pts[4];
         T[2] = pts[5];
         ex_tri.append(T);
         ++N2;
-      };
+      }
       if (c2c[id_cell][2] == -1) {
         T[0] = pts[0];
         T[1] = pts[1];
@@ -124,7 +124,7 @@ void CreateVolumeMesh::prepare()
       } else {
         conn1.append(cellCentre(grid, id_cell));
         conn2.append(cellCentre(grid, cells[c2c[id_cell][2]]));
-      };
+      }
       if (c2c[id_cell][3] == -1) {
         T[0] = pts[4];
         T[1] = pts[1];
@@ -142,7 +142,7 @@ void CreateVolumeMesh::prepare()
       } else {
         conn1.append(cellCentre(grid, id_cell));
         conn2.append(cellCentre(grid, cells[c2c[id_cell][3]]));
-      };
+      }
       if (c2c[id_cell][4] == -1) {
         T[0] = pts[0];
         T[1] = pts[3];
@@ -160,11 +160,11 @@ void CreateVolumeMesh::prepare()
       } else {
         conn1.append(cellCentre(grid, id_cell));
         conn2.append(cellCentre(grid, cells[c2c[id_cell][4]]));
-      };
+      }
     } else {
       EG_BUG;
-    };
-  };
+    }
+  }
   cout << "*********************************************************************" << endl;
   cout << "prism quads     : " << N1 << endl;
   cout << "prism triangles : " << N2 << endl;
@@ -178,7 +178,7 @@ void CreateVolumeMesh::prepare()
     add_to_ng[T[0]] = true;
     add_to_ng[T[1]] = true;
     add_to_ng[T[2]] = true;
-  };
+  }
   num_nodes_to_add = 0;
   num_old_nodes = 0;
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -186,8 +186,8 @@ void CreateVolumeMesh::prepare()
       ++num_nodes_to_add;
     } else {
       ++num_old_nodes;
-    };
-  };
+    }
+  }
   
   {
     QVector<vtkIdType> old2tri(grid->GetNumberOfPoints(),-1);
@@ -196,8 +196,8 @@ void CreateVolumeMesh::prepare()
       if (add_to_ng[id_node]) {
         old2tri[id_node] = N;
         ++N;
-      };
-    };
+      }
+    }
     EG_VTKSP(vtkUnstructuredGrid,tri_grid);
     allocateGrid(tri_grid, tri.size(), N);
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -206,21 +206,21 @@ void CreateVolumeMesh::prepare()
         grid->GetPoint(id_node, x.data());
         tri_grid->GetPoints()->SetPoint(old2tri[id_node], x.data());
         copyNodeData(grid, id_node, tri_grid, old2tri[id_node]);
-      };
-    };
+      }
+    }
     foreach (QVector<vtkIdType> T, tri) {
       vtkIdType pts[3];
       pts[0] = old2tri[T[0]];
       pts[1] = old2tri[T[1]];
       pts[2] = old2tri[T[2]];
       tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
-    };
+    }
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     vtu->SetFileName("triangles.vtu");
     vtu->SetDataModeToBinary();
     vtu->SetInput(tri_grid);
     vtu->Write();
-  };
+  }
   {
     EG_VTKSP(vtkUnstructuredGrid,centre_grid);
     allocateGrid(centre_grid, centres.size(), centres.size());
@@ -231,13 +231,13 @@ void CreateVolumeMesh::prepare()
       pts[0] = N;
       centre_grid->InsertNextCell(VTK_VERTEX, 1, pts);
       ++N;
-    };
+    }
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     vtu->SetFileName("centres.vtu");
     vtu->SetDataModeToBinary();
     vtu->SetInput(centre_grid);
     vtu->Write();
-  };
+  }
   {
     EG_VTKSP(vtkUnstructuredGrid,conn_grid);
     allocateGrid(conn_grid, conn1.size(), 2*conn1.size());
@@ -246,22 +246,22 @@ void CreateVolumeMesh::prepare()
     foreach (vec3_t x, conn1) {
       conn_grid->GetPoints()->SetPoint(N, x.data());
       ++N;
-    };
+    }
     foreach (vec3_t x, conn2) {
       conn_grid->GetPoints()->SetPoint(N, x.data());
       ++N;
-    };
+    }
     for (int i = 0; i < conn1.size(); ++i) {
       pts[0] = i;
       pts[1] = i+conn1.size();
       conn_grid->InsertNextCell(VTK_LINE, 2, pts);
-    };
+    }
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     vtu->SetFileName("connections.vtu");
     vtu->SetDataModeToBinary();
     vtu->SetInput(conn_grid);
     vtu->Write();
-  };
+  }
   {
     EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
     createIndices(grid);
@@ -269,10 +269,10 @@ void CreateVolumeMesh::prepare()
     vtu->SetDataModeToBinary();
     vtu->SetInput(grid);
     vtu->Write();
-  };
+  }
   
   
-};
+}
 
 void CreateVolumeMesh::computeMeshDensity()
 {
@@ -296,23 +296,23 @@ void CreateVolumeMesh::computeMeshDensity()
       fixed[_nodes[pts[0]]] = true;
       fixed[_nodes[pts[1]]] = true;
       fixed[_nodes[pts[2]]] = true;
-    };
+    }
     if (c2c[i_cells][1] == -1) {
       fixed[_nodes[pts[0]]] = true;
       fixed[_nodes[pts[1]]] = true;
       fixed[_nodes[pts[3]]] = true;
-    };
+    }
     if (c2c[i_cells][2] == -1) {
       fixed[_nodes[pts[0]]] = true;
       fixed[_nodes[pts[2]]] = true;
       fixed[_nodes[pts[3]]] = true;
-    };
+    }
     if (c2c[i_cells][3] == -1) {
       fixed[_nodes[pts[1]]] = true;
       fixed[_nodes[pts[2]]] = true;
       fixed[_nodes[pts[3]]] = true;
-    };
-  };
+    }
+  }
   QVector<double> H(nodes.size(), 0.0);
   double H_min = 1e99;
   vec3_t X1, X2;
@@ -332,23 +332,23 @@ void CreateVolumeMesh::computeMeshDensity()
         for (int k = 0; k < 3; ++k) {
           X1[k] = min(xi[k], X1[k]);
           X2[k] = max(xi[k], X2[k]);
-        };
-      };
+        }
+      }
       foreach (int j_nodes, n2n[i_nodes]) {
         if (fixed[j_nodes]) {
           vec3_t xj;
           grid->GetPoint(nodes[j_nodes], xj.data());
           H[i_nodes] += (xi-xj).abs();
           ++N;
-        };
-      };
+        }
+      }
       if (N < 2) {
         EG_BUG;
-      };
+      }
       H[i_nodes] /= N;
       H_min = min(H[i_nodes], H_min);
-    };
-  };
+    }
+  }
   boxes.clear();
   QString num = "0";
   cout << "relaxing mesh size : " << num.toAscii().data() << "% done" << endl;
@@ -364,21 +364,21 @@ void CreateVolumeMesh::computeMeshDensity()
           foreach (int j_nodes, n2n[i_nodes]) {
             H[i_nodes] += H[j_nodes];
             ++N;
-          };
+          }
           if (N == 0) {
             EG_BUG;
-          };
+          }
           H[i_nodes] /= N;
           DH_max = max(H[i_nodes] - H0, DH_max);
-        };
-      };
+        }
+      }
       QString new_num;
       double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
       new_num.setNum(100*e,'f',0);
       if (new_num != num) {
         num = new_num;
         cout << "relaxing mesh size : " << num.toAscii().data() << "% done" << endl;
-      };
+      }
     } while (DH_max > 1e-3*H_min);
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vec3_t x1, x2;
@@ -390,16 +390,16 @@ void CreateVolumeMesh::computeMeshDensity()
         for (int k = 0; k < 3; ++k) {
           x1[k] = min(xj[k], x1[k]);
           x2[k] = max(xj[k], x2[k]);
-        };
-      };
+        }
+      }
       box_t B;
       B.x1 =x1;
       B.x2 =x2;
       B.h = H[i_nodes];
       boxes.append(B);
-    };
-  };
-};
+    }
+  }
+}
 
 void CreateVolumeMesh::operate()
 {
@@ -424,17 +424,17 @@ void CreateVolumeMesh::operate()
         ng2eg[N] = id_node;
         eg2ng[id_node] = N;
         ++N;
-      };
-    };
-  };
+      }
+    }
+  }
   
   foreach (QVector<vtkIdType> T, tri) {
     int trig[3];
     for (int i = 0; i < 3; ++i) {
       trig[i] = eg2ng[T[i]];
-    };
+    }
     Ng_AddSurfaceElement(mesh, NG_TRIG, trig);
-  };
+  }
   Ng_Result res;
   try {
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
@@ -446,7 +446,7 @@ void CreateVolumeMesh::operate()
     err.setType(Error::ExitOperation);
     err.setText(msg);
     throw err;
-  };
+  }
   if (res == NG_OK) {
     int Npoints_ng = Ng_GetNP(mesh);
     int Ncells_ng  = Ng_GetNE(mesh);
@@ -464,7 +464,7 @@ void CreateVolumeMesh::operate()
       copyNodeData(grid, id_point, vol_grid, new_point);
       old2new[id_point] = new_point;
       ++new_point;
-    };
+    }
     
     // mark all surface nodes coming from NETGEN
     QVector<bool> ng_surf_node(Npoints_ng + 1, false);
@@ -479,11 +479,11 @@ void CreateVolumeMesh::operate()
         N = 4;
       } else {
         EG_BUG;
-      };
+      }
       for (int j = 0; j < N; ++j) {
         ng_surf_node[pts[j]] = true;
-      };
-    };
+      }
+    }
     
     // add new points from NETGEN
     QVector<vtkIdType> ng2new(Npoints_ng+1, -1);
@@ -494,8 +494,8 @@ void CreateVolumeMesh::operate()
         vol_grid->GetPoints()->SetPoint(new_point, x.data());
         ng2new[i] = new_point;
         ++new_point;
-      };
-    };
+      }
+    }
     
     // copy existing cells
     QVector<vtkIdType> old2new_cell(grid->GetNumberOfCells(), -1);
@@ -512,13 +512,13 @@ void CreateVolumeMesh::operate()
           pts[i] = old2new[pts[i]];
           if (pts[i] == -1) {
             EG_BUG;
-          };
-        };
+          }
+        }
         vtkIdType id_new = vol_grid->InsertNextCell(type_cell, N_pts, pts);
         copyCellData(grid, id_cell, vol_grid, id_new);
         old2new_cell[id_cell] = id_new;
-      };
-    };
+      }
+    }
     
     // add new cells
     vtkIdType id_new_cell;
@@ -527,19 +527,19 @@ void CreateVolumeMesh::operate()
       vtkIdType new_pts[4];
       for (int i = 0; i < 8; ++i) {
         pts[i] = 0;
-      };
+      }
       Ng_Volume_Element_Type ng_type;
       ng_type = Ng_GetVolumeElement(mesh, cellId + 1, pts);
       if (ng_type != NG_TET) {
         EG_BUG;
-      };
+      }
       for (int i = 0; i < 4; ++i) {
         if (!ng_surf_node[pts[i]]) {
           new_pts[i] = ng2new[pts[i]];
         } else {
           new_pts[i] = ng2eg[pts[i]];
-        };
-      };
+        }
+      }
       if (ng_type == NG_TET) {
         vtkIdType tet[4];
         tet[0] = new_pts[0];
@@ -553,15 +553,15 @@ void CreateVolumeMesh::operate()
         EG_ERR_RETURN("prisms cannot be handled yet");
       } else {
         EG_ERR_RETURN("bug encountered");
-      };
-    };
+      }
+    }
     makeCopy(vol_grid, grid);
     for (int i = 0; i < trace_cells.size(); ++i) {
       if (old2new_cell[trace_cells[i]] == -1) {
         EG_BUG;
-      };
+      }
       trace_cells[i] = old2new_cell[trace_cells[i]];
-    };
+    }
   } else {
     Error err;
     QString msg = "NETGEN did not succeed.\nPlease check if the surface mesh is oriented correctly";
@@ -569,10 +569,10 @@ void CreateVolumeMesh::operate()
     err.setType(Error::ExitOperation);
     err.setText(msg);
     throw err;
-  };
+  }
   Ng_DeleteMesh(mesh);
   Ng_Exit();
   cout << "\n\nNETGEN call finished" << endl;
   cout << endl;
-};
+}
 
