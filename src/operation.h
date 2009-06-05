@@ -125,6 +125,7 @@ public: // methods
   void setAllSurfaceCells();
   void setVolume(QString volume_name);
   template <class T> void setCells(const T &cls);
+  void setMeshPartition(const MeshPartition &part);
 
   void setGui() { gui = true; }
   OperationThread& getThread() { return thread; }

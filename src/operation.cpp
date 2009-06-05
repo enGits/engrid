@@ -170,6 +170,12 @@ void Operation::setVolume(QString volume_name)
   m_Part.setVolume(volume_name);
 }
 
+void Operation::setMeshPartition(const MeshPartition &part)
+{
+  m_Part.setGrid(part.getGrid());
+  m_Part.setCells(part.getCells());
+}
+
 void Operation::checkGrid()
 {
   if (grid == NULL) {
