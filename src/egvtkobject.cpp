@@ -266,6 +266,7 @@ void EgVtkObject::createNodeToNode
   createNodeToNode(cells, nodes, _nodes, n2n_set, grid);
   n2n.resize(n2n_set.size());
   for (int i = 0; i < n2n.size(); ++i) {
+    n2n[i].resize(n2n_set[i].size());
     qCopy(n2n_set[i].begin(), n2n_set[i].end(), n2n[i].begin());
   }
 }
