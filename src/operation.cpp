@@ -47,9 +47,13 @@ using namespace GeometryTools;
 
 QSet<Operation*> Operation::garbage_operations;
 
-QVector<vtkIdType>     m_static_DummyQVectorVtkIdType;
-QVector<int>           m_static_DummyQVectorInt;
-QVector<QVector<int> > m_static_DummyQVectorQVectorInt;
+QVector<vtkIdType>     m_static_DummyCells;
+QVector<int>           m_static_DummyRCells;
+QVector<vtkIdType>     m_static_DummyNodes;
+QVector<int>           m_static_DummyRNodes;
+QVector<QVector<int> > m_static_DummyN2N;
+QVector<QVector<int> > m_static_DummyN2C;
+QVector<QVector<int> > m_static_DummyC2C;
 
 
 
@@ -73,13 +77,13 @@ void Operation::collectGarbage()
 }
 
 Operation::Operation() :
-   cells(m_static_DummyQVectorVtkIdType),
-  _cells(m_static_DummyQVectorInt),
-   nodes(m_static_DummyQVectorVtkIdType),
-  _nodes(m_static_DummyQVectorInt),
-   n2n(m_static_DummyQVectorQVectorInt),
-   n2c(m_static_DummyQVectorQVectorInt),
-   c2c(m_static_DummyQVectorQVectorInt)
+   cells(m_static_DummyCells),
+  _cells(m_static_DummyRCells),
+   nodes(m_static_DummyNodes),
+  _nodes(m_static_DummyRNodes),
+   n2n(m_static_DummyN2N),
+   n2c(m_static_DummyN2C),
+   c2c(m_static_DummyC2C)
 {
   grid = NULL;
   gui = false;

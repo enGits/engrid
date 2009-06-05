@@ -48,9 +48,13 @@ private:
   
   Operation *op;
 
-  static QVector<vtkIdType>     m_static_DummyQVectorVtkIdType;  /// dummy container to initialise references
-  static QVector<int>           m_static_DummyQVectorInt;        /// dummy container to initialise references
-  static QVector<QVector<int> > m_static_DummyQVectorQVectorInt; /// dummy container to initialise references
+  static QVector<vtkIdType>     m_static_DummyCells;  /// dummy to initialise references
+  static QVector<int>           m_static_DummyRCells; /// dummy to initialise references
+  static QVector<vtkIdType>     m_static_DummyNodes;  /// dummy to initialise references
+  static QVector<int>           m_static_DummyRNodes; /// dummy to initialise references
+  static QVector<QVector<int> > m_static_DummyN2N;    /// dummy to initialise references
+  static QVector<QVector<int> > m_static_DummyN2C;    /// dummy to initialise references
+  static QVector<QVector<int> > m_static_DummyC2C;    /// dummy to initialise references
 
 protected:
   
