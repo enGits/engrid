@@ -47,6 +47,7 @@ void CreateVolumeMesh::prepare()
   using namespace nglib;
   DeleteTetras del;
   del.setGrid(grid);
+  del.setAllCells();
   del();
   QVector<vtkIdType> cells, nodes;
   QVector<int>       _cells, _nodes;
