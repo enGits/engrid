@@ -24,56 +24,56 @@
 #include "setboundarycode.h"
 #include "guimainwindow.h"
 
-void GuisetBoundaryCode::before()
+void GuiSetBoundaryCode::before()
 {
   //prepare radiobuttons
-  buttongroup = new QButtonGroup(this);
-  radioButton_ProcessOnlyVisible = new QRadioButton("Process only visible cells",this);
-  radioButton_ProcessAll = new QRadioButton("Process all cells (even invisible ones)",this);
-  radioButton_SelectAllVisible = new QRadioButton("Select all visible cells",this);
-  radioButton_OnlyPickedCell = new QRadioButton("Only picked cell",this);
-  radioButton_OnlyPickedCellAndNeighbours = new QRadioButton("Only picked cell and neighbours",this);
-  buttongroup->addButton(radioButton_ProcessOnlyVisible,0);
-  buttongroup->addButton(radioButton_ProcessAll,1);
-  buttongroup->addButton(radioButton_SelectAllVisible,2);
-  buttongroup->addButton(radioButton_OnlyPickedCell,3);
-  buttongroup->addButton(radioButton_OnlyPickedCellAndNeighbours,4);
-  ui.verticalLayout_PickMethod->addWidget(radioButton_ProcessOnlyVisible);
-  ui.verticalLayout_PickMethod->addWidget(radioButton_ProcessAll);
-  ui.verticalLayout_PickMethod->addWidget(radioButton_SelectAllVisible);
-  ui.verticalLayout_PickMethod->addWidget(radioButton_OnlyPickedCell);
-  ui.verticalLayout_PickMethod->addWidget(radioButton_OnlyPickedCellAndNeighbours);
+  m_ButtonGroup = new QButtonGroup(this);
+  m_RadioButtonProcessOnlyVisible = new QRadioButton("Process only visible cells",this);
+  m_RadioButtonProcessAll = new QRadioButton("Process all cells (even invisible ones)",this);
+  m_RadioButtonSelectAllVisible = new QRadioButton("Select all visible cells",this);
+  m_RadioButtonOnlyPickedCell = new QRadioButton("Only picked cell",this);
+  m_RadioButtonOnlyPickedCellAndNeighbours = new QRadioButton("Only picked cell and neighbours",this);
+  m_ButtonGroup->addButton(m_RadioButtonProcessOnlyVisible,0);
+  m_ButtonGroup->addButton(m_RadioButtonProcessAll,1);
+  m_ButtonGroup->addButton(m_RadioButtonSelectAllVisible,2);
+  m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCell,3);
+  m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCellAndNeighbours,4);
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessOnlyVisible);
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessAll);
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonSelectAllVisible);
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCell);
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCellAndNeighbours);
   
   //read settings
   QSettings local_qset("enGits","enGrid_GuisetBoundaryCode");
   ui.doubleSpinBoxFeatureAngle->setValue(local_qset.value("FeatureAngle", 45).toDouble());
   ui.spinBoxBoundaryCode->setValue(local_qset.value("BoundaryCode", 1).toInt());
-  buttongroup->button(local_qset.value("PickMethod",0).toInt())->setChecked(true);
+  m_ButtonGroup->button(local_qset.value("PickMethod",0).toInt())->setChecked(true);
 }
 
-void GuisetBoundaryCode::operate()
+void GuiSetBoundaryCode::operate()
 {
-  buttongroup->checkedId();
-  cout<<"buttongroup->checkedId()="<<buttongroup->checkedId()<<endl;
+  m_ButtonGroup->checkedId();
+  cout<<"buttongroup->checkedId()="<<m_ButtonGroup->checkedId()<<endl;
 
   //save settings
   QSettings local_qset("enGits","enGrid_GuisetBoundaryCode");
   local_qset.setValue("FeatureAngle", ui.doubleSpinBoxFeatureAngle->value());
   local_qset.setValue("BoundaryCode", ui.spinBoxBoundaryCode->value());
-  local_qset.setValue("PickMethod", buttongroup->checkedId());
+  local_qset.setValue("PickMethod", m_ButtonGroup->checkedId());
   
-  setBoundaryCode set_bc;
+  SetBoundaryCode set_bc;
   if (GuiMainWindow::getPickedCell() >= 0) {
     set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
     set_bc.setBC(ui.spinBoxBoundaryCode->value());
     
-    set_bc.setProcessAll(buttongroup->button(1)->isChecked());
-    set_bc.setSelectAllVisible(buttongroup->button(2)->isChecked());
-    set_bc.setOnlyPickedCell(buttongroup->button(3)->isChecked());
-    set_bc.setOnlyPickedCellAndNeighbours(buttongroup->button(4)->isChecked());
+    set_bc.setProcessAll(m_ButtonGroup->button(1)->isChecked());
+    set_bc.setSelectAllVisible(m_ButtonGroup->button(2)->isChecked());
+    set_bc.setOnlyPickedCell(m_ButtonGroup->button(3)->isChecked());
+    set_bc.setOnlyPickedCellAndNeighbours(m_ButtonGroup->button(4)->isChecked());
     
     cout<<"GuiMainWindow::getPickedCell()="<<GuiMainWindow::getPickedCell()<<endl;
     set_bc.setStart(GuiMainWindow::getPickedCell());
     set_bc();
-  };
-};
+  }
+}

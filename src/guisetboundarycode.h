@@ -26,22 +26,24 @@
 #include <QButtonGroup>
 #include <QRadioButton>
 
-class GuisetBoundaryCode;
+class GuiSetBoundaryCode;
 
 #include "dialogoperation.h"
 #include "ui_guisetboundarycode.h"
 
-class GuisetBoundaryCode : public DialogOperation<Ui::GuisetBoundaryCode, Operation>
+class GuiSetBoundaryCode : public DialogOperation<Ui::GuiSetBoundaryCode, Operation>
 {
   
   Q_OBJECT;
+
 private:
-  QButtonGroup* buttongroup;
-  QRadioButton* radioButton_ProcessOnlyVisible;
-  QRadioButton* radioButton_ProcessAll;
-  QRadioButton* radioButton_SelectAllVisible;
-  QRadioButton* radioButton_OnlyPickedCell;
-  QRadioButton* radioButton_OnlyPickedCellAndNeighbours;
+
+  QButtonGroup* m_ButtonGroup;
+  QRadioButton* m_RadioButtonProcessAll;
+  QRadioButton* m_RadioButtonProcessOnlyVisible;
+  QRadioButton* m_RadioButtonSelectAllVisible;
+  QRadioButton* m_RadioButtonOnlyPickedCell;
+  QRadioButton* m_RadioButtonOnlyPickedCellAndNeighbours;
   
 protected: // methods
   
