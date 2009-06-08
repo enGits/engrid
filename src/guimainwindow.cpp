@@ -522,8 +522,7 @@ void GuiMainWindow::updateActors()
         surface_actor->GetProperty()->SetColor(0.5,1,0.5);
         surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
         surface_actor->SetMapper(surface_mapper);
-      }
-      else {
+      } else {
         lut=vtkLookupTable::New();
         lut->SetNumberOfColors(ui.spinBox_Color->value());
         lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
@@ -553,8 +552,7 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(surface_wire_actor);
       bcodes_filter->Update();
 
-      if(ui.checkBox_ShowPickSphere->checkState())
-      {
+      if(ui.checkBox_ShowPickSphere->checkState()) {
         if(m_UseVTKInteractor)
         {
           
@@ -563,16 +561,12 @@ void GuiMainWindow::updateActors()
             getInteractor()->SetPicker(CellPicker);
             vtkIdType cellId = getPickedCell();
             pickCell(cellId);
-          }
-          else
-          {
+          } else {
             getInteractor()->SetPicker(PointPicker);
             vtkIdType nodeId = getPickedPoint();
             pickPoint(nodeId);
           }
-        }
-        else
-        {
+        } else {
           if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
           else pickPoint(PickedPoint);
         }
@@ -1243,12 +1237,12 @@ void GuiMainWindow::updateStatusBar()
       pick_txt += "no cell picked";
     } else {
       vtkIdType type_cell = grid->GetCellType(id_cell);
-      if      (type_cell == VTK_TRIANGLE)   pick_txt += "triangle";
-      else if (type_cell == VTK_QUAD)       pick_txt += "quad";
-      else if (type_cell == VTK_TETRA)      pick_txt += "tetrahedron";
-      else if (type_cell == VTK_PYRAMID)    pick_txt += "pyramid";
-      else if (type_cell == VTK_WEDGE)      pick_txt += "prism";
-      else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hexahedron";
+      if      (type_cell == VTK_TRIANGLE)   pick_txt += "tri";
+      else if (type_cell == VTK_QUAD)       pick_txt += "qua";
+      else if (type_cell == VTK_TETRA)      pick_txt += "tet";
+      else if (type_cell == VTK_PYRAMID)    pick_txt += "pyr";
+      else if (type_cell == VTK_WEDGE)      pick_txt += "pri";
+      else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hex";
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
       pick_txt += " [";
@@ -1264,9 +1258,9 @@ void GuiMainWindow::updateStatusBar()
       QString tmp;
       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
       tmp.setNum(cell_code->GetValue(id_cell));
-      pick_txt += " cell_code=" + tmp;
+      pick_txt += " code=" + tmp;
       tmp.setNum(id_cell);
-      pick_txt += " id_cell=" + tmp;
+      pick_txt += " id=" + tmp;
     }
     txt += pick_txt;
   }
