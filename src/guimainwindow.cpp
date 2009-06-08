@@ -1771,7 +1771,12 @@ void GuiMainWindow::createDefaultVol()
 {
   QList<VolumeDefinition> vols = getAllVols();
   if (vols.size() == 0) {
-    VolumeDefinition V("default",1);
+    VolumeDefinition V("default", 1);
+    QSet<int> bcs;
+    getAllBoundaryCodes(bcs);
+    foreach (int bc, bcs) {
+      V.addBC(bc, 1);
+    }
     vols.append(V);
     setAllVols(vols);
   }
