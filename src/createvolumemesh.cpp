@@ -379,6 +379,9 @@ void CreateVolumeMesh::computeMeshDensity()
 void CreateVolumeMesh::operate()
 {
   using namespace nglib;
+  if (grid->GetNumberOfCells() == 0) {
+    EG_ERR_RETURN("The grid appears to be empty.");
+  }
   Ng_Init();
   Ng_Meshing_Parameters mp;
   mp.maxh = maxh;
