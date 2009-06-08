@@ -21,22 +21,22 @@ CONFIG += qt \
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
     describe`\\\"
 QMAKE_CXXFLAGS += -Wall
-
-# QMAKE_CXXFLAGS += -pg
+QMAKE_CXXFLAGS += -pg
+QMAKE_LFLAGS += -pg
 QT += xml \
     network \
     opengl
-!win32 {
+!win32 { 
     LIBS += -L./netgen_svn
     LIBS += -L$(VTKLIBDIR)
-
+    
     # LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
     INCLUDEPATH += $(VTKINCDIR)
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
     INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
-win32 {
+win32 { 
     VTK_DIR = C:\VTK
     VTK_SRCDIR = C:\VTK\5.0.4
     LIBS += -L$$VTK_DIR\bin\release
@@ -63,4 +63,5 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include(engrid-standard.pri)
-OTHER_FILES += checkcomments.py
+OTHER_FILES += checkcomments.py \
+    todo.txt
