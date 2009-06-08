@@ -25,7 +25,7 @@
 CellNeighbourIterator::CellNeighbourIterator() 
 {
   start = 0; 
-};
+}
 
 
 void CellNeighbourIterator::operate()
@@ -36,7 +36,7 @@ void CellNeighbourIterator::operate()
   pair[0].item2 = start;
   if (_cells[pair[0].item2] < 0) {
     pair[0].item2 = cells[0];
-  };
+  }
   pair[0].terminate = false;
   mark2.fill(false, cells.size());
   bool first = true;
@@ -46,39 +46,39 @@ void CellNeighbourIterator::operate()
       pass1();
     } else {
       first = false;
-    };
+    }
     for (int i = 0; i < pair.size(); ++i) {
       if (!pair[i].terminate) {
         mark1[_cells[pair[i].item2]] = true;
-      };
-    };
+      }
+    }
     for (int i = 0; i < pair.size(); ++i) {
       if (pair[i].terminate) {
         mark1[_cells[pair[i].item2]] = false;
-      };
-    };
+      }
+    }
     {
       int N = 0;
       for (int i = 0; i < cells.size(); ++i) {
         if (mark1[i]) {
           ++N;
-        };
-      };
+        }
+      }
       item.resize(N);
-    };
+    }
     {
       int j = 0;
       for (int i = 0; i < cells.size(); ++i) {
         if (mark1[i]) {
           item[j] = cells[i];
           ++j;
-        };
-      };
-    };
+        }
+      }
+    }
     pass2();
     for (int i = 0; i < item.size(); ++i) {
       mark2[_cells[item[i]]] = true;
-    };
+    }
     {
       int N = 0;
       for (int i = 0; i < item.size(); ++i) {
@@ -86,10 +86,10 @@ void CellNeighbourIterator::operate()
           if (c2c[_cells[item[i]]][j] >= 0) {
             if (!mark2[c2c[_cells[item[i]]][j]]) {
               ++N;
-            };
-          };
-        };
-      };
+            }
+          }
+        }
+      }
       pair.resize(N);
       N = 0;
       for (int i = 0; i < item.size(); ++i) {
@@ -100,13 +100,13 @@ void CellNeighbourIterator::operate()
               pair[N].item2 = cells[c2c[_cells[item[i]]][j]];
               pair[N].terminate = false;
               ++N;
-            };
-          };
-        };
-      };
-    };
-  };
-};
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 
 
