@@ -67,7 +67,7 @@
     <value type="QString" >CGNSLIBDIR=/opt/cgns/lib</value>
     <value type="QString" >CINTSYSDIR=/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >CMAKE_HOME=/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64</value>
-    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >COLORTERM=1</value>
     <value type="QString" >CPU=x86_64</value>
     <value type="QString" >CSHEDIT=emacs</value>
     <value type="QString" >CVSROOT=ogloth@engrid.cvs.sourceforge.net:/cvsroot/engrid</value>
@@ -115,8 +115,6 @@
     <value type="QString" >KDE_FULL_SESSION=true</value>
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
-    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-28899,konsole)</value>
-    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-28899,session-4)</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
     <value type="QString" >LD_LIBRARY_PATH=/opt/QtCreator/1.2.0/lib/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/VTK/5.4.0/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
@@ -129,7 +127,7 @@
     <value type="QString" >LS_OPTIONS=-N --color=tty -T 0</value>
     <value type="QString" >MACHTYPE=x86_64-suse-linux</value>
     <value type="QString" >MAIL=/var/spool/mail/ogloth</value>
-    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc:/home/ogloth/pub/CINT/cint/doc</value>
+    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc</value>
     <value type="QString" >MINICOM=-c on</value>
     <value type="QString" >MORE=-sl</value>
     <value type="QString" >MPI_ARCH_PATH=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
@@ -139,11 +137,11 @@
     <value type="QString" >OPAL_PREFIX=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
     <value type="QString" >OSTYPE=linux</value>
     <value type="QString" >PAGER=less</value>
-    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/opt/kde3/bin:/opt/Qt/4.5.0/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint:/home/ogloth/pub/CINT/cint</value>
+    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/opt/kde3/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >PROFILEREAD=true</value>
     <value type="QString" >PV_PLUGIN_PATH=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >PWD=/home/ogloth</value>
-    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
+    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
     <value type="QString" >PYTHONSTARTUP=/etc/pythonstart</value>
     <value type="QString" >ParaView_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc</value>
     <value type="QString" >ParaView_INST_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs</value>
@@ -152,29 +150,18 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
+    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/3848,unix/ogloth-LAPTOP:/tmp/.ICE-unix/3848</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=4803</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >SSH_AGENT_PID=3795</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
-=======
-    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
-    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
-    <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=19468</value>
-    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-MdbGb3292/agent.3292</value>
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
     <value type="QString" >VTKINCDIR=/opt/VTK/5.4.0/include/vtk-5.4</value>
     <value type="QString" >VTKLIBDIR=/opt/VTK/5.4.0/lib/vtk-5.4</value>
-    <value type="QString" >WINDOWID=83886088</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WINDOWPATH=7</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -205,13 +192,8 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
+    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244213249.161852-494730969</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
-=======
-    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
-    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
@@ -240,7 +222,7 @@
     <value type="QString" >CGNSLIBDIR=/opt/cgns/lib</value>
     <value type="QString" >CINTSYSDIR=/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >CMAKE_HOME=/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64</value>
-    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >COLORTERM=1</value>
     <value type="QString" >CPU=x86_64</value>
     <value type="QString" >CSHEDIT=emacs</value>
     <value type="QString" >CVSROOT=ogloth@engrid.cvs.sourceforge.net:/cvsroot/engrid</value>
@@ -267,14 +249,8 @@
     <value type="QString" >FOAM_USER_LIBBIN=/home/ogloth/OpenFOAM/ogloth-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >FOAM_UTILITIES=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/utilities</value>
     <value type="QString" >FROM_HEADER=</value>
-<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >GS_LIB=/home/ogloth/.fonts</value>
     <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/home/ogloth/.gtkrc-2.0-qtengine:/home/ogloth/.gtkrc-2.0:/home/ogloth/.kde/share/config/gtkrc-2.0</value>
-=======
-    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-PkUSkD/S.gpg-agent:19467:1</value>
-    <value type="QString" >GS_LIB=/data1/home/ogloth/.fonts</value>
-    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/data1/home/ogloth/.gtkrc-2.0-qtengine:/data1/home/ogloth/.gtkrc-2.0</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >GTK_IM_MODULE=cedilla</value>
     <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/ogloth/.gtkrc:/home/ogloth/.kde/share/config/gtkrc</value>
     <value type="QString" >G_BROKEN_FILENAMES=1</value>
@@ -294,8 +270,6 @@
     <value type="QString" >KDE_FULL_SESSION=true</value>
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
-    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-28899,konsole)</value>
-    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-28899,session-4)</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
     <value type="QString" >LD_LIBRARY_PATH=/opt/QtCreator/1.2.0/lib/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/VTK/5.4.0/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
@@ -308,7 +282,7 @@
     <value type="QString" >LS_OPTIONS=-N --color=tty -T 0</value>
     <value type="QString" >MACHTYPE=x86_64-suse-linux</value>
     <value type="QString" >MAIL=/var/spool/mail/ogloth</value>
-    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc:/home/ogloth/pub/CINT/cint/doc</value>
+    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc</value>
     <value type="QString" >MINICOM=-c on</value>
     <value type="QString" >MORE=-sl</value>
     <value type="QString" >MPI_ARCH_PATH=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
@@ -318,11 +292,11 @@
     <value type="QString" >OPAL_PREFIX=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
     <value type="QString" >OSTYPE=linux</value>
     <value type="QString" >PAGER=less</value>
-    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/opt/kde3/bin:/opt/Qt/4.5.0/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint:/home/ogloth/pub/CINT/cint</value>
+    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/opt/kde3/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >PROFILEREAD=true</value>
     <value type="QString" >PV_PLUGIN_PATH=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >PWD=/home/ogloth</value>
-    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
+    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
     <value type="QString" >PYTHONSTARTUP=/etc/pythonstart</value>
     <value type="QString" >ParaView_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc</value>
     <value type="QString" >ParaView_INST_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs</value>
@@ -331,29 +305,18 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
+    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/3848,unix/ogloth-LAPTOP:/tmp/.ICE-unix/3848</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=4803</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >SSH_AGENT_PID=3795</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
-=======
-    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
-    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
-    <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=19468</value>
-    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-MdbGb3292/agent.3292</value>
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
     <value type="QString" >VTKINCDIR=/opt/VTK/5.4.0/include/vtk-5.4</value>
     <value type="QString" >VTKLIBDIR=/opt/VTK/5.4.0/lib/vtk-5.4</value>
-    <value type="QString" >WINDOWID=83886088</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WINDOWPATH=7</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -384,13 +347,8 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
+    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244213249.161852-494730969</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
-=======
-    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
-    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
@@ -423,7 +381,7 @@
     <value type="QString" >CGNSLIBDIR=/opt/cgns/lib</value>
     <value type="QString" >CINTSYSDIR=/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >CMAKE_HOME=/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64</value>
-    <value type="QString" >COLORTERM=</value>
+    <value type="QString" >COLORTERM=1</value>
     <value type="QString" >CPU=x86_64</value>
     <value type="QString" >CSHEDIT=emacs</value>
     <value type="QString" >CVSROOT=ogloth@engrid.cvs.sourceforge.net:/cvsroot/engrid</value>
@@ -450,14 +408,8 @@
     <value type="QString" >FOAM_USER_LIBBIN=/home/ogloth/OpenFOAM/ogloth-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >FOAM_UTILITIES=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/utilities</value>
     <value type="QString" >FROM_HEADER=</value>
-<<<<<<< HEAD:src/engrid.pro.user
     <value type="QString" >GS_LIB=/home/ogloth/.fonts</value>
     <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/home/ogloth/.gtkrc-2.0-qtengine:/home/ogloth/.gtkrc-2.0:/home/ogloth/.kde/share/config/gtkrc-2.0</value>
-=======
-    <value type="QString" >GPG_AGENT_INFO=/tmp/gpg-PkUSkD/S.gpg-agent:19467:1</value>
-    <value type="QString" >GS_LIB=/data1/home/ogloth/.fonts</value>
-    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/usr/share/themes//QtCurve/gtk-2.0/gtkrc:/data1/home/ogloth/.gtkrc-2.0-qtengine:/data1/home/ogloth/.gtkrc-2.0</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >GTK_IM_MODULE=cedilla</value>
     <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/ogloth/.gtkrc:/home/ogloth/.kde/share/config/gtkrc</value>
     <value type="QString" >G_BROKEN_FILENAMES=1</value>
@@ -477,8 +429,6 @@
     <value type="QString" >KDE_FULL_SESSION=true</value>
     <value type="QString" >KDE_MULTIHEAD=false</value>
     <value type="QString" >KDE_SESSION_UID=1002</value>
-    <value type="QString" >KONSOLE_DCOP=DCOPRef(konsole-28899,konsole)</value>
-    <value type="QString" >KONSOLE_DCOP_SESSION=DCOPRef(konsole-28899,session-4)</value>
     <value type="QString" >LANG=en_GB.UTF-8</value>
     <value type="QString" >LD_LIBRARY_PATH=/opt/QtCreator/1.2.0/lib/qtcreator:/opt/shared/Qt/4.5.1/release/lib:/opt/VTK/5.4.0/lib/vtk-5.4</value>
     <value type="QString" >LESS=-M -I</value>
@@ -491,7 +441,7 @@
     <value type="QString" >LS_OPTIONS=-N --color=tty -T 0</value>
     <value type="QString" >MACHTYPE=x86_64-suse-linux</value>
     <value type="QString" >MAIL=/var/spool/mail/ogloth</value>
-    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc:/home/ogloth/pub/CINT/cint/doc</value>
+    <value type="QString" >MANPATH=/usr/lib64/mpi/gcc/openmpi/share/man:/usr/local/man:/usr/share/man:/home/ogloth/pub/CINT/cint/doc</value>
     <value type="QString" >MINICOM=-c on</value>
     <value type="QString" >MORE=-sl</value>
     <value type="QString" >MPI_ARCH_PATH=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
@@ -501,11 +451,11 @@
     <value type="QString" >OPAL_PREFIX=/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt</value>
     <value type="QString" >OSTYPE=linux</value>
     <value type="QString" >PAGER=less</value>
-    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/opt/kde3/bin:/opt/Qt/4.5.0/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint:/home/ogloth/pub/CINT/cint</value>
+    <value type="QString" >PATH=/opt/Qt/4.5.1/debug/bin:/opt/kde3/bin:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/bin:/home/ogloth/OpenFOAM/ThirdParty/cmake-2.4.6/platforms/linux64/bin:/home/ogloth/OpenFOAM/ThirdParty/openmpi-1.2.6/platforms/linux64GccDPOpt/bin:/home/ogloth/OpenFOAM/ogloth-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/applications/bin/linux64GccDPOpt:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/wmake:/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/bin:/opt/Qt/4.5.1/release/bin:/usr/lib64/mpi/gcc/openmpi/bin:/home/ogloth/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/games:/usr/lib64/jvm/jre/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/usr/lib/qt3/bin:/home/ogloth/sync/scripts:/usr/lib64/git:/home/ogloth/pub/CINT/cint</value>
     <value type="QString" >PROFILEREAD=true</value>
     <value type="QString" >PV_PLUGIN_PATH=/home/ogloth/OpenFOAM/OpenFOAM-1.5.x/lib/linux64GccDPOpt</value>
     <value type="QString" >PWD=/home/ogloth</value>
-    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
+    <value type="QString" >PYTHONPATH=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/Utilities/VTKPythonWrapping:/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc/lib/paraview-3.3</value>
     <value type="QString" >PYTHONSTARTUP=/etc/pythonstart</value>
     <value type="QString" >ParaView_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs/platforms/linux64Gcc</value>
     <value type="QString" >ParaView_INST_DIR=/home/ogloth/OpenFOAM/ThirdParty/ParaView3.3-cvs</value>
@@ -514,29 +464,18 @@
     <value type="QString" >QT_IM_MODULE=xim</value>
     <value type="QString" >QT_IM_SWITCHER=imsw-multi</value>
     <value type="QString" >QT_SYSTEM_DIR=/usr/share/desktop-data</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4855,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4855</value>
+    <value type="QString" >SESSION_MANAGER=local/ogloth-LAPTOP:@/tmp/.ICE-unix/4490,unix/ogloth-LAPTOP:/tmp/.ICE-unix/4490</value>
     <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=4803</value>
+    <value type="QString" >SHLVL=2</value>
+    <value type="QString" >SSH_AGENT_PID=4438</value>
     <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-xbctz4286/agent.4286</value>
-=======
-    <value type="QString" >SDL_AUDIODRIVER=pulse</value>
-    <value type="QString" >SESSION_MANAGER=local/herring:@/tmp/.ICE-unix/19522,unix/herring:/tmp/.ICE-unix/19522</value>
-    <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=3</value>
-    <value type="QString" >SSH_AGENT_PID=19468</value>
-    <value type="QString" >SSH_ASKPASS=/usr/lib64/ssh/x11-ssh-askpass</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-VDfi19024/agent.19024</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
+    <value type="QString" >SSH_AUTH_SOCK=/tmp/ssh-Csjqp3871/agent.3871</value>
     <value type="QString" >TERM=xterm</value>
     <value type="QString" >TMPDIR=/tmp</value>
     <value type="QString" >USER=ogloth</value>
     <value type="QString" >USE_FAM=</value>
     <value type="QString" >VTKINCDIR=/opt/VTK/5.4.0/include/vtk-5.4</value>
     <value type="QString" >VTKLIBDIR=/opt/VTK/5.4.0/lib/vtk-5.4</value>
-    <value type="QString" >WINDOWID=83886088</value>
     <value type="QString" >WINDOWMANAGER=/opt/kde3/bin/startkde</value>
     <value type="QString" >WINDOWPATH=7</value>
     <value type="QString" >WM_ARCH=linux64</value>
@@ -567,13 +506,8 @@
     <value type="QString" >XCURSOR_THEME=DMZ</value>
     <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg</value>
     <value type="QString" >XDG_DATA_DIRS=/usr/share:/etc/opt/kde3/share:/opt/kde3/share</value>
-<<<<<<< HEAD:src/engrid.pro.user
-    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244099784.709704-756069473</value>
+    <value type="QString" >XDG_SESSION_COOKIE=d2f223773c984c89331a62fa493ee8fd-1244193945.338856-1834648265</value>
     <value type="QString" >XDM_MANAGED=method=classic</value>
-=======
-    <value type="QString" >XDG_SESSION_COOKIE=307c583e61bf50ae9da392d2493ee79a-1244189054.221467-704850202</value>
-    <value type="QString" >XDM_MANAGED=/var/run/xdmctl/xdmctl-:0,maysd,mayfn,sched,rsvd,method=classic</value>
->>>>>>> e4b87259dc4223a391a332c0336e11df8cb2a834:src/engrid.pro.user
     <value type="QString" >XKEYSYMDB=/usr/share/X11/XKeysymDB</value>
     <value type="QString" >XMODIFIERS=@im=local</value>
     <value type="QString" >XNLSPATH=/usr/share/X11/nls</value>
