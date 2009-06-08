@@ -72,9 +72,17 @@ private: // attributes
   /** The user interface definition -- created by QtDesigner. */
   Ui::GuiMainWindow ui;
   
-  /** The current state of the grid that is being generated. */
-  vtkUnstructuredGrid *grid;
-  
+
+  vtkUnstructuredGrid *grid;           /// The current state of the grid that is being generated.
+  unsigned long int    m_GridMTime;    /// last modification of the grid
+  bool                 m_TetraExtr;    /// flag if tetras have been extracted yet
+  bool                 m_PyraExtr;     /// flag if pyramids have been extracted yet
+  bool                 m_PrismExtr;    /// flag if prisms have been extracted yet
+  bool                 m_HexaExtr;     /// flag if hexes have been extracted yet
+  bool                 m_VolExtr;      /// flag if any vol. cells have been extracted yet
+  bool                 m_UsedClipping; /// flag if clipping had been used for last update
+  QString              m_ClippingText; /// last clipping input from UI
+
   vtkPolyData *boundary_pd;
   vtkPolyData *tetras_pd;
   vtkPolyData *wedges_pd;

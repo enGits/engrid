@@ -130,6 +130,15 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
     cwd = qset.value("working_directory").toString();
   }
   grid = vtkUnstructuredGrid::New();
+  m_GridMTime = grid->GetMTime();
+
+  m_TetraExtr = false;
+  m_PyraExtr = false;
+  m_PrismExtr = false;
+  m_HexaExtr = false;
+  m_VolExtr = false;
+  m_UsedClipping = false;
+
   renderer = vtkRenderer::New();
   getRenderWindow()->AddRenderer(renderer);
   surface_actor = vtkActor::New();
@@ -369,6 +378,8 @@ void GuiMainWindow::ScaleToData()
 void GuiMainWindow::updateActors()
 {
   if (!tryLock()) return;
+  bool grid_modified = (grid->GetMTime() > m_GridMTime);
+  m_GridMTime = grid->GetMTime();
   try {
     {
       {
@@ -459,30 +470,26 @@ void GuiMainWindow::updateActors()
     }
     
     if (ui.checkBoxSurface->isChecked()) {
-      bcodes_filter->setBoundaryCodes(&display_boundary_codes);
-      
-      bcodes_filter->SetInput(grid);
-      
-      surface_filter->SetInput(bcodes_filter->GetOutput());
-      
-      surface_filter->Update();
-      
-      boundary_pd->DeepCopy(surface_filter->GetOutput());
-      
-      surface_mapper->SetInput(boundary_pd);
-      
-      surface_wire_mapper->SetInput(boundary_pd);
+
+      if (grid_modified) {
+        bcodes_filter->setBoundaryCodes(&display_boundary_codes);
+        bcodes_filter->SetInput(grid);
+        surface_filter->SetInput(bcodes_filter->GetOutput());
+        surface_filter->Update();
+        boundary_pd->DeepCopy(surface_filter->GetOutput());
+        surface_mapper->SetInput(boundary_pd);
+        surface_wire_mapper->SetInput(boundary_pd);
+      }
+
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
       
-      //Fill node field combobox
+      // fill node field combobox
       int current_field=ui.comboBox_Field->currentIndex();
       ui.comboBox_Field->clear();
       ui.comboBox_Field->addItem("None");
       int N_Arrays=boundary_pd->GetPointData()->GetNumberOfArrays();
-//       cout<<"N_Arrays="<<N_Arrays<<endl;
-      for (int i=0; i<N_Arrays; i++)
-      {
+      for (int i=0; i<N_Arrays; i++) {
         ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
       }
       if(current_field==-1) ui.comboBox_Field->setCurrentIndex(0);
@@ -493,20 +500,14 @@ void GuiMainWindow::updateActors()
       ui.comboBox_CellTextField->clear();
       ui.comboBox_CellTextField->addItem("Cell ID");
       int N_CellArrays=boundary_pd->GetCellData()->GetNumberOfArrays();
-//       cout<<"N_CellArrays="<<N_CellArrays<<endl;
-      for (int i=0; i<N_CellArrays; i++)
-      {
+      for (int i=0; i<N_CellArrays; i++) {
         ui.comboBox_CellTextField->addItem(grid->GetCellData()->GetArrayName(i));
       }
       if(current_cell_field==-1) ui.comboBox_CellTextField->setCurrentIndex(0);
       else ui.comboBox_CellTextField->setCurrentIndex(current_cell_field);
       
-//       cout<<"index="<<ui.comboBox_Field->currentIndex()<<endl;
-//       cout<<"name="<<ui.comboBox_Field->currentText().toLatin1().data()<<endl;
-      
       current_field=ui.comboBox_Field->currentIndex();
-      if(current_field>0)
-      {
+      if(current_field>0) {
         double range[2];
         boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
         cout<<"current_field="<<current_field<<endl;
@@ -579,6 +580,13 @@ void GuiMainWindow::updateActors()
     }
     
     vec3_t x, n;
+    QString clipping_text = "";
+    clipping_text += ui.lineEditClipX->text();
+    clipping_text += ui.lineEditClipY->text();
+    clipping_text += ui.lineEditClipZ->text();
+    clipping_text += ui.lineEditClipNX->text();
+    clipping_text += ui.lineEditClipNY->text();
+    clipping_text += ui.lineEditClipNZ->text();
     x[0] = ui.lineEditClipX->text().toDouble();
     x[1] = ui.lineEditClipY->text().toDouble();
     x[2] = ui.lineEditClipZ->text().toDouble();
@@ -587,21 +595,37 @@ void GuiMainWindow::updateActors()
     n[2] = ui.lineEditClipNZ->text().toDouble();
     n.normalise();
     x = x + ui.lineEditOffset->text().toDouble()*n;
-    extr_vol->SetAllOff();
-    if (ui.checkBoxTetra->isChecked()) {
-      extr_vol->SetTetrasOn();
-      extr_tetras->SetInput(grid);
-      if (ui.checkBoxClip->isChecked()) {
-        extr_tetras->SetClippingOn();
-        extr_tetras->SetX(x);
-        extr_tetras->SetN(n);
-      } else {
-        extr_tetras->SetClippingOff();
+    if (grid_modified) {
+      extr_vol->SetAllOff();
+    }
+    bool clipping_changed = (ui.checkBoxClip->isChecked() && (clipping_text != m_ClippingText));
+    m_ClippingText = clipping_text;
+    if (!clipping_changed) {
+      if (ui.checkBoxClip->isChecked() && !m_UsedClipping) {
+        clipping_changed = true;
       }
-      tetra_actor = vtkActor::New();
-      tetra_geometry->SetInput(extr_tetras->GetOutput());
-      tetra_geometry->Update();
-      tetras_pd->DeepCopy(tetra_geometry->GetOutput());
+      if (!ui.checkBoxClip->isChecked() && m_UsedClipping) {
+        clipping_changed = true;
+      }
+    }
+    m_UsedClipping = ui.checkBoxClip->isChecked();
+    if (ui.checkBoxTetra->isChecked()) {
+      if (grid_modified || !m_TetraExtr || clipping_changed) {
+        m_TetraExtr = true;
+        extr_vol->SetTetrasOn();
+        extr_tetras->SetInput(grid);
+        if (ui.checkBoxClip->isChecked()) {
+          extr_tetras->SetClippingOn();
+          extr_tetras->SetX(x);
+          extr_tetras->SetN(n);
+        } else {
+          extr_tetras->SetClippingOff();
+        }
+        tetra_actor = vtkActor::New();
+        tetra_geometry->SetInput(extr_tetras->GetOutput());
+        tetra_geometry->Update();
+        tetras_pd->DeepCopy(tetra_geometry->GetOutput());
+      }
       tetra_mapper->SetInput(tetras_pd);
       tetra_actor = vtkActor::New();
       tetra_actor->SetMapper(tetra_mapper);
@@ -609,19 +633,22 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(tetra_actor);
     }
     if (ui.checkBoxPyramid->isChecked()) {
-      extr_vol->SetPyramidsOn();
-      extr_pyramids->SetInput(grid);
-      if (ui.checkBoxClip->isChecked()) {
-        extr_pyramids->SetClippingOn();
-        extr_pyramids->SetX(x);
-        extr_pyramids->SetN(n);
-      } else {
-        extr_pyramids->SetClippingOff();
+      if (grid_modified || !m_PyraExtr || clipping_changed) {
+        m_PyraExtr = true;
+        extr_vol->SetPyramidsOn();
+        extr_pyramids->SetInput(grid);
+        if (ui.checkBoxClip->isChecked()) {
+          extr_pyramids->SetClippingOn();
+          extr_pyramids->SetX(x);
+          extr_pyramids->SetN(n);
+        } else {
+          extr_pyramids->SetClippingOff();
+        }
+        pyramid_actor = vtkActor::New();
+        pyramid_geometry->SetInput(extr_pyramids->GetOutput());
+        pyramid_geometry->Update();
+        pyras_pd->DeepCopy(pyramid_geometry->GetOutput());
       }
-      pyramid_actor = vtkActor::New();
-      pyramid_geometry->SetInput(extr_pyramids->GetOutput());
-      pyramid_geometry->Update();
-      pyras_pd->DeepCopy(pyramid_geometry->GetOutput());
       pyramid_mapper->SetInput(pyras_pd);
       pyramid_actor = vtkActor::New();
       pyramid_actor->SetMapper(pyramid_mapper);
@@ -629,19 +656,22 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(pyramid_actor);
     }
     if (ui.checkBoxWedge->isChecked()) {
-      extr_vol->SetWedgesOn();
-      extr_wedges->SetInput(grid);
-      if (ui.checkBoxClip->isChecked()) {
-        extr_wedges->SetClippingOn();
-        extr_wedges->SetX(x);
-        extr_wedges->SetN(n);
-      } else {
-        extr_wedges->SetClippingOff();
+      if (grid_modified || !m_PrismExtr || clipping_changed) {
+        m_PrismExtr = true;
+        extr_vol->SetWedgesOn();
+        extr_wedges->SetInput(grid);
+        if (ui.checkBoxClip->isChecked()) {
+          extr_wedges->SetClippingOn();
+          extr_wedges->SetX(x);
+          extr_wedges->SetN(n);
+        } else {
+          extr_wedges->SetClippingOff();
+        }
+        wedge_actor = vtkActor::New();
+        wedge_geometry->SetInput(extr_wedges->GetOutput());
+        wedge_geometry->Update();
+        wedges_pd->DeepCopy(wedge_geometry->GetOutput());
       }
-      wedge_actor = vtkActor::New();
-      wedge_geometry->SetInput(extr_wedges->GetOutput());
-      wedge_geometry->Update();
-      wedges_pd->DeepCopy(wedge_geometry->GetOutput());
       wedge_mapper->SetInput(wedges_pd);
       wedge_actor = vtkActor::New();
       wedge_actor->SetMapper(wedge_mapper);
@@ -649,19 +679,22 @@ void GuiMainWindow::updateActors()
       getRenderer()->AddActor(wedge_actor);
     }
     if (ui.checkBoxHexa->isChecked()) {
-      extr_vol->SetHexasOn();
-      extr_hexas->SetInput(grid);
-      if (ui.checkBoxClip->isChecked()) {
-        extr_hexas->SetClippingOn();
-        extr_hexas->SetX(x);
-        extr_hexas->SetN(n);
-      } else {
-        extr_hexas->SetClippingOff();
+      if (grid_modified || !m_HexaExtr || clipping_changed) {
+        m_HexaExtr = true;
+        extr_vol->SetHexasOn();
+        extr_hexas->SetInput(grid);
+        if (ui.checkBoxClip->isChecked()) {
+          extr_hexas->SetClippingOn();
+          extr_hexas->SetX(x);
+          extr_hexas->SetN(n);
+        } else {
+          extr_hexas->SetClippingOff();
+        }
+        hexa_actor = vtkActor::New();
+        hexa_geometry->SetInput(extr_hexas->GetOutput());
+        hexa_geometry->Update();
+        hexas_pd->DeepCopy(hexa_geometry->GetOutput());
       }
-      hexa_actor = vtkActor::New();
-      hexa_geometry->SetInput(extr_hexas->GetOutput());
-      hexa_geometry->Update();
-      hexas_pd->DeepCopy(hexa_geometry->GetOutput());
       hexa_mapper->SetInput(hexas_pd);
       hexa_actor = vtkActor::New();
       hexa_actor->SetMapper(hexa_mapper);
@@ -670,18 +703,21 @@ void GuiMainWindow::updateActors()
     }
     
     // wireframe
-    extr_vol->SetInput(grid);
-    if (ui.checkBoxClip->isChecked()) {
-      extr_vol->SetClippingOn();
-      extr_vol->SetX(x);
-      extr_vol->SetN(n);
-    } else {
-      extr_vol->SetClippingOff();
+    if (grid_modified || !m_VolExtr || clipping_changed) {
+      m_VolExtr = true;
+      extr_vol->SetInput(grid);
+      if (ui.checkBoxClip->isChecked()) {
+        extr_vol->SetClippingOn();
+        extr_vol->SetX(x);
+        extr_vol->SetN(n);
+      } else {
+        extr_vol->SetClippingOff();
+      }
+      volume_geometry->SetInput(extr_vol->GetOutput());
+      volume_geometry->Update();
+      volume_pd->DeepCopy(volume_geometry->GetOutput());
     }
     volume_wire_actor = vtkActor::New();
-    volume_geometry->SetInput(extr_vol->GetOutput());
-    volume_geometry->Update();
-    volume_pd->DeepCopy(volume_geometry->GetOutput());
     volume_wire_mapper->SetInput(volume_pd);
     volume_wire_actor->SetMapper(volume_wire_mapper);
     volume_wire_actor->GetProperty()->SetRepresentationToWireframe();
