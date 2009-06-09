@@ -39,37 +39,39 @@ class SmallSquareMatrix : public MathVector<StaticVector<MathVector<StaticVector
   typedef MathVector<StaticVector<double,N> > rvec_t;
 
 protected:
+
   /** Indicator for precision safe mode
    */
   bool prec_safe;
   T prec_limit;
 
 public:
+
   /** get a component of the matrix.
    *  @param row the row of the component
    *  @param column the column of the component
    *  @return the component M[row,column]
    */
-  T comp(uint_t row, uint_t column) const { return (*this)[row][column]; };
+  T comp(uint_t row, uint_t column) const { return (*this)[row][column]; }
 
   /** Empty Constructor I */
   SmallSquareMatrix<T,N>(T a_limit = 1e-20)
-    : MathVector<StaticVector<MathVector<StaticVector<double,N> >,N> >() { prec_safe = false; a_limit = a_limit; };
+    : MathVector<StaticVector<MathVector<StaticVector<double,N> >,N> >() { prec_safe = false; a_limit = a_limit; }
 
   /** Copy Constructor */
   SmallSquareMatrix<T,N>(const SmallSquareMatrix<T,N> &M)
-    : MathVector<StaticVector<MathVector<StaticVector<double,N> >,N> >(M) {prec_safe = false;};
+    : MathVector<StaticVector<MathVector<StaticVector<double,N> >,N> >(M) {prec_safe = false;}
 
   /** Constructor upon an open set of vectors
    *  @param row_col_type string indicating "row" or "column" type setting
-   *    (only these two key-words allowed)
+   *         (only these two key-words allowed)
    *  @param col_vects an stl-type vector of double vectors
    */
   SmallSquareMatrix<T,N>(string row_col_type, vector<svec_t*> col_vects);
 
   /** Constructor upon an open set of vectors containing doubles [T = double]
    *  @param row_col_type string indicating "row" or "column" type setting
-   *    (only these two key-words allowed)
+   *         (only these two key-words allowed)
    *  @param col_vects an stl-type vector of double vectors
    */
   SmallSquareMatrix<T,N>(string row_col_type, vector<rvec_t*> col_vects);
@@ -82,7 +84,7 @@ public:
   void row(uint_t row, Tvec row_vec)
   {
     (*this)[row] = row_vec;
-  };
+  }
 
   /** Set a column vector
    *  @param column the column number to be set
@@ -93,8 +95,8 @@ public:
   {
     for(uint_t k_row = 0; k_row<N; k_row++) {
       (*this)[k_row][column] = col_vec[k_row];
-    };
-  };
+    }
+  }
 
   /** Set safe mode. Safe mode throws a Precision_error in
    *  case of a precision limit (e.g. floating exception for "double")
@@ -103,28 +105,28 @@ public:
   void setSafe(T a_prec_limit) {
     prec_limit = a_prec_limit;
     prec_safe = true;
-  };
+  }
 
   /** Set unsafe mode. Safe mode throws a Precision_error in
    *  case of a precision limit (e.g. floating exception for "double")
    */
   void setUnSafe() {
     prec_safe = false;
-  };
+  }
 
   /** Access safe mode. Safe mode throws a Precision_error in
    *  case of a precision limit (e.g. floating exception for "double")
    */
   bool isSafe() {
     return prec_safe;
-  };
+  }
 
   /** Access safe limit. Safe mode throws a Precision_error in
    *  case of a precision limit (e.g. floating exception for "double")
    */
   T safeLimit() {
     return prec_limit;
-  };
+  }
 
   /** Analyse Precision and throw error, if needed
    *  @param det determinant
@@ -139,8 +141,8 @@ public:
     if(compare_det < safeLimit() * ele_max) {
       cerr << "matrix appears to be singular within given precision" << endl;
       exit(EXIT_FAILURE);
-    };
-  };
+    }
+  }
 
   /** Get maximum absolute value of all elements
    *  @param det determinant
@@ -155,12 +157,12 @@ public:
 	qq = (*this)[i][j] * (*this)[i][j];
 	if(qq > ele_max) {
 	  ele_max = qq;
-	};
-      };
-    };
+        }
+      }
+    }
     ele_max = sqrt(ele_max);
     return ele_max;
-  };
+  }
 
   /** get an identity matrix
    *  @return an identity matrix of the dimension N
@@ -213,9 +215,9 @@ SmallSquareMatrix<T,N>::operator* (const MathVector<StaticVector<T,N> > &vec) co
     result_vec[i] = 0;
     for (uint_t j = 0; j < N; j++)
       result_vec[i] += comp(i,j) * vec[j];
-  };
+  }
   return result_vec;
-};
+}
 
 template <class T, uint_t N>
 inline SmallSquareMatrix<T,N> SmallSquareMatrix<T,N>::operator* (const SmallSquareMatrix<T,N> &mat) const 
@@ -225,10 +227,10 @@ inline SmallSquareMatrix<T,N> SmallSquareMatrix<T,N>::operator* (const SmallSqua
     for (uint_t j = 0; j < N; ++j) {
       result_mat[i][j] = 0;
       for (uint_t k = 0; k < N; ++k) result_mat[i][j] += this->Comp(i,k)*mat[k][j];
-    };
-  };
+    }
+  }
   return result_mat;
-};
+}
 
 template <class T, uint_t N>
 inline void SmallSquareMatrix<T,N>::initAll(double initvalue)
@@ -236,9 +238,9 @@ inline void SmallSquareMatrix<T,N>::initAll(double initvalue)
   for (uint_t i = 0; i < N; i++) {
     for (uint_t j = 0; j < N; j++) {
       (*this)[i][j] = initvalue;
-    };
-  };
-};
+    }
+  }
+}
 
 template <class T, uint_t N>
 inline T SmallSquareMatrix<T,N>::det()
@@ -291,7 +293,7 @@ inline T SmallSquareMatrix<T,N>::det()
   det=det*a[n-1][n-1];
     
   return det;
-};
+}
 
 // Rainers inverter
 template <class T, uint_t N>
@@ -314,12 +316,12 @@ public:
     T q,s,max,h,det;
     T ele_max = 0;
       
-    if(a_prec_safe) {a.setSafe(a_prec_limit);};
+    if(a_prec_safe) {a.setSafe(a_prec_limit);}
 
     //.. Find maximum element to get a relative value
     if(a.isSafe()) {
       ele_max = a.linNorm_0();
-    };
+    }
 
     //.. Get in matrix reduction
     for(k=0;k<Smalldim;k++)
@@ -338,22 +340,22 @@ public:
 	if(q>max){
 	  max=q;
 	  p[k]=i;
-	};
-      };
+        }
+      }
       if(!(p[k]==k)){
 	det=-det;
 	for(j=0;j<n;j++){
 	  h=a[k][j];
 	  a[k][j]=a[p[k]][j];
 	  a[p[k]][j]=h;
-	};
-      };
+        }
+      }
       det=det*a[k][k];
       for(i=k+1;i<n;i++){
 	a[i][k]=a[i][k]/a[k][k];
 	for(j=k+1;j<n;j++) a[i][j]=a[i][j]-a[i][k]*a[k][j];
-      };
-    };
+      }
+    }
     det=det*a[n-1][n-1];
 
     //.. Proceed with rest of system reduction
@@ -369,8 +371,8 @@ public:
       for(j=0;j<i;j++){
 	for(l=0;l<n;l++)
 	  b[i][l]=b[i][l]-a[i][j]*b[j][l];
-      };
-    };
+      }
+    }
     for(i=n-1;i>=0;i--){
       for(l=0;l<n;l++){
 	s=b[i][l];
@@ -383,11 +385,11 @@ public:
     //.. Check Determinant and throw error, if needed
     if(a.isSafe()) {
       a.precisionHandling(det, ele_max);
-    };
+    }
 
-  };
+  }
 
-  SmallSquareMatrix<T,N> inverse() { return b; };
+  SmallSquareMatrix<T,N> inverse() { return b; }
 };
 
 
@@ -423,10 +425,10 @@ public:
       INV[0][1] = -SSM[0][1]*t4;
       INV[1][0] = -SSM[1][0]*t4;
       INV[1][1] = SSM[0][0]*t4;
-    };
-  };
+    }
+  }
     
-  SmallSquareMatrix<T,2> inverse() { return INV; };
+  SmallSquareMatrix<T,2> inverse() { return INV; }
 };
 
 template <class T>
@@ -484,9 +486,9 @@ public:
       INV[2][0] = -(-SSM[1][0]*SSM[2][1]+SSM[1][1]*SSM[2][0])*t17;
       INV[2][1] = -(SSM[0][0]*SSM[2][1]-t12)*t17;
       INV[2][2] = (t4-t8)*t17;
-    };
-  };
-  SmallSquareMatrix<T,3> inverse() { return INV; };
+    }
+  }
+  SmallSquareMatrix<T,3> inverse() { return INV; }
 };
 
 
@@ -506,7 +508,7 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       << "SmallSquareMatrix<T,N>(string row_col_type, vector<SmallVector<T,N>*> col_vects)"
       << "\n"
       << "too many input vectors" << endl;
-  };
+  }
   uint_t direct_it = 0;
   if(row_col_type == "Column") {
     for(typename vector<svec_t*>::iterator kk = col_vects.begin();
@@ -515,7 +517,7 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       {
 	(*this).Column(direct_it, *(*kk));
 	direct_it++;
-      };
+      }
   } else if(row_col_type == "Row") {
     for(typename vector<svec_t*>::iterator kk = col_vects.begin();
 	kk != col_vects.end();
@@ -523,16 +525,16 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       {
 	(*this).Row(direct_it, *(*kk));
 	direct_it++;
-      };
+      }
   } else {
     cout
       << "SmallSquareMatrix<T,N>(string row_col_type, uint_t num_smvects, ...)"
       << "\n"
       << "Only Row or Column allowed as first argument" << endl;
     exit(EXIT_FAILURE);
-  };
+  }
   prec_safe = false;
-};
+}
 
 template <class T, uint_t N>
 SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
@@ -544,7 +546,7 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       << "SmallSquareMatrix<real,N>(string row_col_type, vector<rvec_t*> col_vects)"
       << "\n"
       << "too many input vectors" << endl;
-  };
+  }
   uint_t direct_it = 0;
   if(row_col_type == "Column") {
     for(typename vector<rvec_t*>::iterator kk = col_vects.begin();
@@ -553,7 +555,7 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       {
 	(*this).Column(direct_it, *(*kk));
 	direct_it++;
-      };
+      }
   } else if(row_col_type == "Row") {
     for(typename vector<rvec_t*>::iterator kk = col_vects.begin();
 	kk != col_vects.end();
@@ -561,16 +563,16 @@ SmallSquareMatrix<T,N>::SmallSquareMatrix(string row_col_type,
       {
 	(*this).Row(direct_it, *(*kk));
 	direct_it++;
-      };
+      }
   } else {
     cout
       <<  "SmallSquareMatrix<real,N>(string row_col_type, vector<rvec_t*> col_vects)"
       << "\n"
       << "Only Row or Column allowed as first argument" << endl;
     exit(EXIT_FAILURE);
-  };
+  }
   prec_safe = false;
-};
+}
 
 template <class T, uint_t N>
 SmallSquareMatrix<T, N> SmallSquareMatrix<T, N>::identity()
@@ -580,10 +582,10 @@ SmallSquareMatrix<T, N> SmallSquareMatrix<T, N>::identity()
     for (uint_t j = 0; j < N; j++) {
       if (i==j) I[i][j] = 1;
       else I[i][j] = 0;
-    };
-  };
+    }
+  }
   return I;
-};
+}
 
 /*
 template <class T, uint_t N>
@@ -594,7 +596,7 @@ T SmallSquareMatrix<T,N>::Det()
   // the whole class :-(
   DetSmallSquareMatrix<T,N> DET(*this);
   return DET.Det();
-};
+}
 */
 
 template <class T, uint_t N>
@@ -604,17 +606,17 @@ SmallSquareMatrix<T,N> SmallSquareMatrix<T,N>::transp()
   for (uint_t i = 0; i < N; i++) {
     for (uint_t j = 0; j < N; j++) {
       M_t[i][j] = comp(j,i);
-    };
-  };
+    }
+  }
   return M_t;
-};
+}
 
 template <class T, uint_t N>
 SmallSquareMatrix<T,N> SmallSquareMatrix<T,N>::inverse()
 {
   InvSmallSquareMatrix<T,N> INV(*this, isSafe(), prec_limit);
   return INV.inverse();
-};
+}
 
 template <class T, uint_t N>
 SmallSquareMatrix<T,N-1> SmallSquareMatrix<T,N>::subMatrix(uint_t row, uint_t column)
@@ -629,10 +631,10 @@ SmallSquareMatrix<T,N-1> SmallSquareMatrix<T,N>::subMatrix(uint_t row, uint_t co
       if (j == column) continue;
       M[i_new][j_new] = comp(i,j);
       j_new++;
-    };
+    }
     i_new++;
-  };
+  }
   return M;
-};
+}
 
 #endif
