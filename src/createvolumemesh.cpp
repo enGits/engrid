@@ -22,6 +22,7 @@
 //
 #include "createvolumemesh.h"
 #include "deletetetras.h"
+#include "guimainwindow.h"
 #include <vtkXMLUnstructuredGridWriter.h>
 
 CreateVolumeMesh::CreateVolumeMesh()
@@ -60,9 +61,6 @@ void CreateVolumeMesh::prepare()
   createCellToCell(cells, c2c, grid);
   createNodeToCell(cells, nodes, _nodes, n2c, grid);
   QList<QVector<vtkIdType> > ex_tri;
-  QList<vec3_t> centres;
-  QList<vec3_t> conn1;
-  QList<vec3_t> conn2;
   int N1 = 0;
   int N2 = 0;
   int N3 = 0;
@@ -118,13 +116,6 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[3];
         ex_tri.append(T);
         ++N1;
-        vec3_t x[6];
-        for (int i = 0; i < 6; ++i) grid->GetPoint(pts[i], x[i].data());
-        vec3_t xc = 0.25*(x[0]+x[1]+x[3]+x[4]);
-        centres.append(xc);
-      } else {
-        conn1.append(cellCentre(grid, id_cell));
-        conn2.append(cellCentre(grid, cells[c2c[id_cell][2]]));
       }
       if (c2c[id_cell][3] == -1) {
         T[0] = pts[4];
@@ -136,13 +127,6 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[5];
         ex_tri.append(T);
         ++N1;
-        vec3_t x[6];
-        for (int i = 0; i < 6; ++i) grid->GetPoint(pts[i], x[i].data());
-        vec3_t xc = 0.25*(x[4]+x[1]+x[2]+x[5]);
-        centres.append(xc);
-      } else {
-        conn1.append(cellCentre(grid, id_cell));
-        conn2.append(cellCentre(grid, cells[c2c[id_cell][3]]));
       }
       if (c2c[id_cell][4] == -1) {
         T[0] = pts[0];
@@ -154,13 +138,6 @@ void CreateVolumeMesh::prepare()
         T[2] = pts[2];
         ex_tri.append(T);
         ++N1;
-        vec3_t x[6];
-        for (int i = 0; i < 6; ++i) grid->GetPoint(pts[i], x[i].data());
-        vec3_t xc = 0.25*(x[0]+x[3]+x[2]+x[5]);
-        centres.append(xc);
-      } else {
-        conn1.append(cellCentre(grid, id_cell));
-        conn2.append(cellCentre(grid, cells[c2c[id_cell][4]]));
       }
     } else {
       EG_BUG;
@@ -188,19 +165,22 @@ void CreateVolumeMesh::prepare()
     } else {
       ++num_old_nodes;
     }
-  }
-  
-  {
-    QVector<vtkIdType> old2tri(grid->GetNumberOfPoints(),-1);
-    int N = 0;
-    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-      if (add_to_ng[id_node]) {
-        old2tri[id_node] = N;
-        ++N;
-      }
+  }  
+  old2tri.fill(-1, grid->GetNumberOfPoints());
+  m_NumTriangles = 0;
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    if (add_to_ng[id_node]) {
+      old2tri[id_node] = m_NumTriangles;
+      ++m_NumTriangles;
     }
+  }
+}
+
+void CreateVolumeMesh::writeDebugInfo()
+{
+  {
     EG_VTKSP(vtkUnstructuredGrid,tri_grid);
-    allocateGrid(tri_grid, tri.size(), N);
+    allocateGrid(tri_grid, tri.size(), m_NumTriangles);
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
       if (add_to_ng[id_node]) {
         vec3_t x;
@@ -216,38 +196,11 @@ void CreateVolumeMesh::prepare()
       pts[2] = old2tri[T[2]];
       tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
     }
+    writeGrid(tri_grid, "triangles");
   }
   {
-    EG_VTKSP(vtkUnstructuredGrid,centre_grid);
-    allocateGrid(centre_grid, centres.size(), centres.size());
-    vtkIdType N = 0;
-    vtkIdType pts[1];
-    foreach (vec3_t x, centres) {
-      centre_grid->GetPoints()->SetPoint(N, x.data());
-      pts[0] = N;
-      centre_grid->InsertNextCell(VTK_VERTEX, 1, pts);
-      ++N;
-    }
+    writeGrid(grid, "last_grid");
   }
-  {
-    EG_VTKSP(vtkUnstructuredGrid,conn_grid);
-    allocateGrid(conn_grid, conn1.size(), 2*conn1.size());
-    vtkIdType N = 0;
-    vtkIdType pts[2];
-    foreach (vec3_t x, conn1) {
-      conn_grid->GetPoints()->SetPoint(N, x.data());
-      ++N;
-    }
-    foreach (vec3_t x, conn2) {
-      conn_grid->GetPoints()->SetPoint(N, x.data());
-      ++N;
-    }
-    for (int i = 0; i < conn1.size(); ++i) {
-      pts[0] = i;
-      pts[1] = i+conn1.size();
-      conn_grid->InsertNextCell(VTK_LINE, 2, pts);
-    }
-  }  
 }
 
 void CreateVolumeMesh::computeMeshDensity()
@@ -419,9 +372,11 @@ void CreateVolumeMesh::operate()
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
     res = Ng_GenerateVolumeMesh (mesh, &mp);
   } catch (netgen::NgException ng_err) {
+    writeDebugInfo();
     Error err;
     QString msg = "Netgen stopped with the following error:\n";
     msg += ng_err.What().c_str();
+    msg += "\n\nDebug information has been saved to:\n" + mainWindow()->getCwd();
     err.setType(Error::ExitOperation);
     err.setText(msg);
     throw err;

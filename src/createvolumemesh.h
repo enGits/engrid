@@ -46,6 +46,8 @@ private: // attributes
   int num_nodes_to_add;
   int num_old_nodes;
   QVector<vtkIdType> trace_cells;
+  QVector<vtkIdType> old2tri;
+  int m_NumTriangles;
   
   struct box_t {
     vec3_t x1, x2;
@@ -63,6 +65,7 @@ private: // methods
   
   void computeMeshDensity();
   void prepare();
+  void writeDebugInfo();
   
 protected: // methods
   
