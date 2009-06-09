@@ -1,7 +1,8 @@
-<ui version="4.0" >
- <class>GuisetBoundaryCode</class>
- <widget class="QDialog" name="GuisetBoundaryCode" >
-  <property name="geometry" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GuiSetBoundaryCode</class>
+ <widget class="QDialog" name="GuiSetBoundaryCode">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,15 +10,15 @@
     <height>270</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>set boundary code</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="engrid.qrc" >
+  <property name="windowIcon">
+   <iconset resource="engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <widget class="QLabel" name="label_FeatureAngle" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_FeatureAngle">
+   <property name="geometry">
     <rect>
      <x>9</x>
      <y>9</y>
@@ -25,12 +26,12 @@
      <height>23</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Feature Angle</string>
    </property>
   </widget>
-  <widget class="QDoubleSpinBox" name="doubleSpinBoxFeatureAngle" >
-   <property name="geometry" >
+  <widget class="QDoubleSpinBox" name="doubleSpinBoxFeatureAngle">
+   <property name="geometry">
     <rect>
      <x>170</x>
      <y>9</y>
@@ -38,21 +39,21 @@
      <height>23</height>
     </rect>
    </property>
-   <property name="minimum" >
+   <property name="minimum">
     <double>-1.000000000000000</double>
    </property>
-   <property name="maximum" >
+   <property name="maximum">
     <double>180.000000000000000</double>
    </property>
-   <property name="singleStep" >
+   <property name="singleStep">
     <double>5.000000000000000</double>
    </property>
-   <property name="value" >
+   <property name="value">
     <double>45.000000000000000</double>
    </property>
   </widget>
-  <widget class="QLabel" name="label_BoundaryCode" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_BoundaryCode">
+   <property name="geometry">
     <rect>
      <x>9</x>
      <y>39</y>
@@ -60,12 +61,12 @@
      <height>23</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Boundary Code</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBoxBoundaryCode" >
-   <property name="geometry" >
+  <widget class="QSpinBox" name="spinBoxBoundaryCode">
+   <property name="geometry">
     <rect>
      <x>170</x>
      <y>39</y>
@@ -73,15 +74,15 @@
      <height>23</height>
     </rect>
    </property>
-   <property name="minimum" >
+   <property name="minimum">
     <number>1</number>
    </property>
-   <property name="maximum" >
+   <property name="maximum">
     <number>999</number>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget" >
-   <property name="geometry" >
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
     <rect>
      <x>9</x>
      <y>69</y>
@@ -89,10 +90,10 @@
      <height>153</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_PickMethod" />
+   <layout class="QVBoxLayout" name="verticalLayout_PickMethod"/>
   </widget>
-  <widget class="QWidget" name="" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>230</y>
@@ -100,20 +101,20 @@
      <height>31</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" >
+   <layout class="QHBoxLayout">
     <item>
-     <widget class="QPushButton" name="pushButtonHelp" >
-      <property name="text" >
+     <widget class="QPushButton" name="pushButtonHelp">
+      <property name="text">
        <string>Help</string>
       </property>
      </widget>
     </item>
     <item>
      <spacer>
-      <property name="orientation" >
+      <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <property name="sizeHint" stdset="0" >
+      <property name="sizeHint" stdset="0">
        <size>
         <width>40</width>
         <height>20</height>
@@ -122,11 +123,11 @@
      </spacer>
     </item>
     <item>
-     <widget class="QDialogButtonBox" name="buttonBox" >
-      <property name="orientation" >
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <property name="standardButtons" >
+      <property name="standardButtons">
        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
       </property>
      </widget>
@@ -135,20 +136,20 @@
   </widget>
  </widget>
  <resources>
-  <include location="engrid.qrc" />
+  <include location="engrid.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>GuisetBoundaryCode</receiver>
+   <receiver>GuiSetBoundaryCode</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -157,14 +158,14 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>GuisetBoundaryCode</receiver>
+   <receiver>GuiSetBoundaryCode</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
