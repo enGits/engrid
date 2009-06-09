@@ -46,11 +46,14 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
   f >> word;
   if (word != "$ELM") EG_ERR_RETURN("$ELM expected");
   f >> Ncells;
-  allocateGrid(ug, Ncells, Nnodes);
+  allocateGrid(ug, Ncells, Nnodes, false);
   for (vtkIdType i = 0; i < Nnodes; ++i) {
     ug->GetPoints()->SetPoint(i, x[i].data());
   }
-  EG_VTKDCC(vtkIntArray, cell_code, ug, "cell_code");
+  EG_VTKSP(vtkIntArray, cell_code);
+  cell_code->SetName("cell_code");
+  cell_code->SetNumberOfValues(Ncells);
+  ug->GetCellData()->AddArray(cell_code);
   for (vtkIdType i = 0; i < Ncells; ++i) {
     f >> word;
     int elm_type, reg_phys;
@@ -108,7 +111,6 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
   }
   ug->GetCellData()->AddArray(cell_code);
   grid->DeepCopy(ug);
-  makeCopy(ug, grid);
 }
 
 void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
@@ -141,11 +143,15 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
   f >> word;
   if (word != "$Elements") EG_ERR_RETURN("$Elements expected");
   f >> Ncells;
-  allocateGrid(ug, Ncells, Nnodes);
+  allocateGrid(ug, Ncells, Nnodes, false);
   for (vtkIdType i = 0; i < Nnodes; ++i) {
     ug->GetPoints()->SetPoint(i, x[i].data());
   }
-  EG_VTKDCC(vtkIntArray, cell_code, ug, "cell_code");
+  EG_VTKSP(vtkIntArray, cell_code);
+  cell_code->SetName("cell_code");
+  cell_code->SetNumberOfValues(Ncells);
+  ug->GetCellData()->AddArray(cell_code);
+
   for (vtkIdType i = 0; i < Ncells; ++i) {
     f >> word;
     int elm_type, Ntags, bc;
@@ -207,11 +213,6 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
   }
   ug->GetCellData()->AddArray(cell_code);
   grid->DeepCopy(ug);
-  
-  CorrectSurfaceOrientation corr_surf;
-  corr_surf.setGrid(grid);
-  corr_surf();
-  
 }
 
 void GmshReader::operate()
@@ -219,10 +220,17 @@ void GmshReader::operate()
   try {
     readInputFileName();
     if (isValid()) {
-      if      (format == ascii1) readAscii1(grid);
-      else if (format == ascii2) readAscii2(grid);
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+      if (format == ascii1) {
+        readAscii1(grid);
+      }
+      if (format == ascii2) {
+        readAscii2(grid);
+      }
+      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
       UpdateCellIndex(grid);
+      CorrectSurfaceOrientation corr_surf;
+      corr_surf.setGrid(grid);
+      corr_surf();
     }
   } catch (Error err) {
     err.display();
