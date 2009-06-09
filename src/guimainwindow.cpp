@@ -102,13 +102,14 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionNormalExtrusion,        SIGNAL(activated()),       this, SLOT(normalExtrusion()));
   connect(ui.actionViewAxes,               SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
   connect(ui.actionViewOrthogonal,         SIGNAL(changed()),         this, SLOT(setViewingMode()));
-  connect(ui.actionViewNodeIDs,            SIGNAL(changed()),         this, SLOT(ViewNodeIDs()));
-  connect(ui.actionViewCellIDs,            SIGNAL(changed()),         this, SLOT(ViewCellIDs()));
+  connect(ui.actionViewNodeIDs,            SIGNAL(changed()),         this, SLOT(viewNodeIDs()));
+  connect(ui.actionViewCellIDs,            SIGNAL(changed()),         this, SLOT(viewCellIDs()));
   connect(ui.actionChangeOrientation,      SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
   connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
   connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
   connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
-  connect(ui.actionScaleToData,            SIGNAL(activated()),       this, SLOT(ScaleToData()));
+  connect(ui.actionForcedRedraw,           SIGNAL(activated()),       this, SLOT(forceUpdateActors()));
+  connect(ui.actionScaleToData,            SIGNAL(activated()),       this, SLOT(scaleToData()));
   connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
@@ -122,6 +123,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionViewYM, SIGNAL(activated()), this, SLOT(viewYM()));
   connect(ui.actionViewZP, SIGNAL(activated()), this, SLOT(viewZP()));
   connect(ui.actionViewZM, SIGNAL(activated()), this, SLOT(viewZM()));
+
+  connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
   
   
 #include "std_connections.h"
@@ -131,6 +134,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   }
   grid = vtkUnstructuredGrid::New();
   m_GridMTime = grid->GetMTime();
+  m_CellDataMTime = grid->GetCellData()->GetMTime();
 
   m_TetraExtr = false;
   m_PyraExtr = false;
@@ -358,7 +362,7 @@ void GuiMainWindow::setCwd(QString dir)
   qset.setValue("working_directory",dir);
 }
 
-void GuiMainWindow::ScaleToData()
+void GuiMainWindow::scaleToData()
 {
   int current_field=ui.comboBox_Field->currentIndex();
   if(current_field>0)
@@ -375,11 +379,18 @@ void GuiMainWindow::ScaleToData()
   }
 }
 
-void GuiMainWindow::updateActors()
+void GuiMainWindow::updateActors(bool forced)
 {
   if (!tryLock()) return;
-  bool grid_modified = (grid->GetMTime() > m_GridMTime);
+  cout << "------------------------------------------" << endl;
+  cout << "grid->GetMTime()=" << grid->GetMTime() << endl;
+  cout << "m_GridMTime=" << m_GridMTime << endl;
+  cout << "grid->GetCellData()->GetMTime()=" << grid->GetCellData()->GetMTime() << endl;
+  cout << "m_CellDataMTime=" << m_CellDataMTime << endl;
+  cout << "------------------------------------------" << endl;
+  bool grid_modified = ((grid->GetMTime() > m_GridMTime) || (grid->GetCellData()->GetMTime() > m_CellDataMTime)) || forced;
   m_GridMTime = grid->GetMTime();
+  m_CellDataMTime = grid->GetCellData()->GetMTime();
   try {
     {
       {
@@ -471,7 +482,7 @@ void GuiMainWindow::updateActors()
     
     if (ui.checkBoxSurface->isChecked()) {
 
-      if (grid_modified) {
+      //if (grid_modified) {
         bcodes_filter->setBoundaryCodes(&display_boundary_codes);
         bcodes_filter->SetInput(grid);
         surface_filter->SetInput(bcodes_filter->GetOutput());
@@ -479,7 +490,7 @@ void GuiMainWindow::updateActors()
         boundary_pd->DeepCopy(surface_filter->GetOutput());
         surface_mapper->SetInput(boundary_pd);
         surface_wire_mapper->SetInput(boundary_pd);
-      }
+      //}
 
       surface_actor = vtkActor::New();
       surface_actor->GetProperty()->SetRepresentationToSurface();
@@ -697,34 +708,39 @@ void GuiMainWindow::updateActors()
     }
     
     // wireframe
-    if (grid_modified || !m_VolExtr || clipping_changed) {
-      m_VolExtr = true;
-      extr_vol->SetInput(grid);
-      if (ui.checkBoxClip->isChecked()) {
-        extr_vol->SetClippingOn();
-        extr_vol->SetX(x);
-        extr_vol->SetN(n);
-      } else {
-        extr_vol->SetClippingOff();
+    if (ui.checkBoxTetra->isChecked() || ui.checkBoxPyramid->isChecked() || ui.checkBoxWedge->isChecked() || ui.checkBoxHexa->isChecked()) {
+      if (grid_modified || !m_VolExtr || clipping_changed) {
+        m_VolExtr = true;
+        extr_vol->SetInput(grid);
+        if (ui.checkBoxClip->isChecked()) {
+          extr_vol->SetClippingOn();
+          extr_vol->SetX(x);
+          extr_vol->SetN(n);
+        } else {
+          extr_vol->SetClippingOff();
+        }
+        volume_geometry->SetInput(extr_vol->GetOutput());
+        volume_geometry->Update();
+        volume_pd->DeepCopy(volume_geometry->GetOutput());
       }
-      volume_geometry->SetInput(extr_vol->GetOutput());
-      volume_geometry->Update();
-      volume_pd->DeepCopy(volume_geometry->GetOutput());
+      volume_wire_actor = vtkActor::New();
+      volume_wire_mapper->SetInput(volume_pd);
+      volume_wire_actor->SetMapper(volume_wire_mapper);
+      volume_wire_actor->GetProperty()->SetRepresentationToWireframe();
+      volume_wire_actor->GetProperty()->SetColor(0,0,1);
+      getRenderer()->AddActor(volume_wire_actor);
     }
-    volume_wire_actor = vtkActor::New();
-    volume_wire_mapper->SetInput(volume_pd);
-    volume_wire_actor->SetMapper(volume_wire_mapper);
-    volume_wire_actor->GetProperty()->SetRepresentationToWireframe();
-    volume_wire_actor->GetProperty()->SetColor(0,0,1);
-    getRenderer()->AddActor(volume_wire_actor);
-    
-    
     updateStatusBar();
     getRenderWindow()->Render();
   } catch (Error err) {
     err.display();
   }
   unlock();
+}
+
+void GuiMainWindow::forceUpdateActors()
+{
+  updateActors(true);
 }
 
 void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
@@ -874,7 +890,7 @@ void GuiMainWindow::zoomAll()
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::ZoomOnPickedObject()
+void GuiMainWindow::zoomOnPickedObject()
 {
   if(pick_actor!=NULL)
   {
@@ -883,12 +899,13 @@ void GuiMainWindow::ZoomOnPickedObject()
   }
 }
 
-void GuiMainWindow::DeselectAll()
+void GuiMainWindow::deselectAll()
 {
   cout<<"void GuiMainWindow::DeselectAll()"<<endl;
   pick_actor->VisibilityOff();
-//   goo;
-/*  if (pick_actor) {
+  // goo;
+  /*
+  if (pick_actor) {
     cout<<"Terminating pick_actor"<<endl;
     getRenderer()->RemoveActor(pick_actor);
     pick_actor->Delete();
@@ -896,18 +913,19 @@ void GuiMainWindow::DeselectAll()
   }
   setPickMode(false,true);
   PickedCell=-1;
-  PickedPoint=-1;*/
+  PickedPoint=-1;
+  */
   updateActors();
 }
 
 ///@@@  TODO: Should display a window
-void GuiMainWindow::Info()
+void GuiMainWindow::info()
 {
   ShowInfo info(ui.radioButton_CellPicker->isChecked(),PickedPoint,PickedCell);
   info();
 }
 
-int GuiMainWindow::QuickSave()
+int GuiMainWindow::quickSave()
 {
   ///@@@ might be re-activated with RAM support
   /*
@@ -929,7 +947,7 @@ int GuiMainWindow::QuickSave()
   return 0;
 }
 
-void GuiMainWindow::QuickLoad(int a_operation)
+void GuiMainWindow::quickLoad(int a_operation)
 {
   a_operation = a_operation;
   ///@@@ might be re-activated with RAM support
@@ -1059,7 +1077,7 @@ void GuiMainWindow::open()
     vtu->SetFileName(current_filename.toAscii().data());
     vtu->Update();
     grid->DeepCopy(vtu->GetOutput());
-    createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+    createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
     setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
     openBC();
     updateBoundaryCodes(true);
@@ -1067,7 +1085,7 @@ void GuiMainWindow::open()
     updateStatusBar();
     zoomAll();
     ResetOperationCounter();
-    QuickSave();
+    quickSave();
   }
 }
 
@@ -1133,12 +1151,12 @@ void GuiMainWindow::saveAs()
       //for the undo/redo operations
       setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
       ResetOperationCounter();
-      QuickSave();
+      quickSave();
     }
   }
 }
 
-void GuiMainWindow::QuickSave(QString a_filename)
+void GuiMainWindow::quickSave(QString a_filename)
 {
   if(grid->GetNumberOfPoints()>0)
   {
@@ -1170,17 +1188,17 @@ void GuiMainWindow::QuickSave(QString a_filename)
   else cout<<"No grid to save!"<<endl;
 }
 
-void GuiMainWindow::QuickLoad(QString a_filename)
+void GuiMainWindow::quickLoad(QString a_filename)
 {
     cout << "Loading " << a_filename.toAscii().data() << endl;
 
     if (!a_filename.isNull()) {
-//       GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
+      // GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
       EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
       vtu->SetFileName(a_filename.toAscii().data());
       vtu->Update();
       grid->DeepCopy(vtu->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
       setWindowTitle(a_filename + " - enGrid - " + QString("%1").arg(current_operation) );
       openBC(a_filename);
       updateBoundaryCodes(true);
@@ -1380,7 +1398,7 @@ void GuiMainWindow::setViewingMode()
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::ViewNodeIDs()
+void GuiMainWindow::viewNodeIDs()
 {
   int N=grid->GetNumberOfPoints();
   cout<<"N="<<N<<endl;
@@ -1426,7 +1444,7 @@ void GuiMainWindow::ViewNodeIDs()
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::ViewCellIDs()
+void GuiMainWindow::viewCellIDs()
 {
   vtkIdType N=grid->GetNumberOfCells();
   cout<<"N="<<N<<endl;
@@ -1816,4 +1834,11 @@ QString GuiMainWindow::getFilePath()
 {
   QFileInfo fileinfo(current_filename);
   return fileinfo.absolutePath()+"/";
+}
+
+void GuiMainWindow::markOutputLine()
+{
+  cout << "\n****************************************\n";
+  cout << QTime::currentTime().toString("hh:mm:ss").toAscii().data();
+  cout << "\n****************************************\n" << endl;
 }

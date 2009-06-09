@@ -73,15 +73,16 @@ private: // attributes
   Ui::GuiMainWindow ui;
   
 
-  vtkUnstructuredGrid *grid;           /// The current state of the grid that is being generated.
-  unsigned long int    m_GridMTime;    /// last modification of the grid
-  bool                 m_TetraExtr;    /// flag if tetras have been extracted yet
-  bool                 m_PyraExtr;     /// flag if pyramids have been extracted yet
-  bool                 m_PrismExtr;    /// flag if prisms have been extracted yet
-  bool                 m_HexaExtr;     /// flag if hexes have been extracted yet
-  bool                 m_VolExtr;      /// flag if any vol. cells have been extracted yet
-  bool                 m_UsedClipping; /// flag if clipping had been used for last update
-  QString              m_ClippingText; /// last clipping input from UI
+  vtkUnstructuredGrid *grid;            ///< The current state of the grid that is being generated.
+  unsigned long int    m_GridMTime;     ///< last modification of the grid
+  unsigned long int    m_CellDataMTime; ///< last modification of the grid's cell data (for bcs)
+  bool                 m_TetraExtr;     ///< flag if tetras have been extracted yet
+  bool                 m_PyraExtr;      ///< flag if pyramids have been extracted yet
+  bool                 m_PrismExtr;     ///< flag if prisms have been extracted yet
+  bool                 m_HexaExtr;      ///< flag if hexes have been extracted yet
+  bool                 m_VolExtr;       ///< flag if any vol. cells have been extracted yet
+  bool                 m_UsedClipping;  ///< flag if clipping had been used for last update
+  QString              m_ClippingText;  ///< last clipping input from UI
 
   vtkPolyData *boundary_pd;
   vtkPolyData *tetras_pd;
@@ -159,12 +160,6 @@ private: // attributes
   
   /** Boolean value specifying wether the VTK Interactor should be used or not to determine picked points/cells */
   static bool m_UseVTKInteractor;
-  
-/*  vtkTextActor* textActor[3];
-  
-  vtkVectorText* atext[3];
-  vtkPolyDataMapper* textMapper[3];
-  vtkFollower* textActor2[3];*/
   
   /** VTK mapper to map pick marker */
   vtkPolyDataMapper *pick_mapper;
@@ -361,39 +356,21 @@ public slots:
   void setUseVTKInteractor(int a_UseVTKInteractor);
   void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   
-  /** Exit the application */
-  void exit();
-  
-  /** Import an STL file (ASCII or binary) */
-  void importSTL();
-  
-  /** Import a Gmsh grid from an ASCII file -- using version 1.0 of the Gmsh file format */
-  void importGmsh1Ascii();
-  
-  /** Export a grid from to an ASCII Gmsh file -- using version 1.0 of the Gmsh file format */
-  void exportGmsh1Ascii();
-  
-  /** Import a Gmsh grid from an ASCII file -- using version 2.0 of the Gmsh file format */
-  void importGmsh2Ascii();
-  
-  /** Export a grid from to an ASCII Gmsh file -- using version 2.0 of the Gmsh file format */
-  void exportGmsh2Ascii();
-  
-  /** Export a grid to neutral format for NETGEN */
-  void exportNeutral();
-  
-  /** Update the VTK output */
-  void updateActors();
-  
-  /** Scale to data */
-  void ScaleToData();
-  
-  /** Move the camera in order to show everything on the screen */
-  void zoomAll();
-  void ZoomOnPickedObject();
-  void DeselectAll();
-  void PrintGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
-  void Info();
+  void exit();                           ///< Exit the application
+  void importSTL();                      ///< Import an STL file (ASCII or binary)
+  void importGmsh1Ascii();               ///< Import a Gmsh grid from an ASCII file -- using version 1.0 of the Gmsh file format
+  void exportGmsh1Ascii();               ///< Export a grid from to an ASCII Gmsh file -- using version 1.0 of the Gmsh file format
+  void importGmsh2Ascii();               ///< Import a Gmsh grid from an ASCII file -- using version 2.0 of the Gmsh file format
+  void exportGmsh2Ascii();               ///< Export a grid from to an ASCII Gmsh file -- using version 2.0 of the Gmsh file format
+  void exportNeutral();                  ///< Export a grid to neutral format for NETGEN
+  void updateActors(bool force = false); ///< Update the VTK output
+  void forceUpdateActors();              ///< Force an update of the VTK output
+  void scaleToData();                    ///< Scale to data
+  void zoomAll();                        ///< Move the camera in order to show everything on the screen
+  void zoomOnPickedObject();
+  void deselectAll();
+  void printGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
+  void info();
   
   void openBC();
   void saveBC();
@@ -406,74 +383,31 @@ public slots:
   void ResetOperationCounter();
   
   ///@@@  TODO: Simplify available save/load functions
-  /** Open an existing grid */
-  void open();
-  
-  /** Save the current grid */
-  void save();
-  
-  /** Save the current grid -- using a different file name */
-  void saveAs();
-  
-  /** Save the current grid as a_filename */
-  void QuickSave(QString a_filename);
-  
-  /** Load the current grid from a_filename */
-  void QuickLoad(QString a_filename);
-  
-  /** Save the current grid as a_filename_a_operation */
-  int QuickSave();
-  
-  /** Load a_filename_a_operation */
-  void QuickLoad(int a_operation);
-  
-  /** Update the status bar */
-  void updateStatusBar();
-  
-  /** Select the boundary codes to be displayed/hidden */
-  void selectBoundaryCodes();
-  
-  /** Update the boundary code book keeping (e.g. after reading a mesh). */
-  void updateBoundaryCodes(bool all_on);
-  
-  /** Normal extrusion of boundary elements (no validity check). */
-  void normalExtrusion();
-  
-  /** Toggle the visibility of the axes annotation. */
-  void setAxesVisibility();
-  
-  /** Toggle orthogonal viewing mode. */
-  void setViewingMode();
-  
-  /** Toggle node ID viewing mode. */
-  void ViewNodeIDs();
-  
-  /** Toggle cell ID viewing mode. */
-  void ViewCellIDs();
-  
-  /** Change the orientation of all surface elements */
-  void changeSurfaceOrientation();
-  
-  /** Check and, if required, change the orientation of all surface elements */
-  void checkSurfaceOrientation();
-  
-  /** Eliminate edges in order to improve the aspect ratio of the cells */
-  void improveAspectRatio();
-  
-  /** Write surface elements to an ASCII STL file. */
-  void exportAsciiStl();
-  
-  /** Write surface elements to a binary STL file. */
-  void exportBinaryStl();
-  
-  /** Edit boundary conditions (names and types) */
-  void editBoundaryConditions();
-  
-  /** Edit settings */
-  void configure();
-  
-  /** Display an about message */
-  void about();
+
+  void open();                           ///< Open an existing grid
+  void save();                           ///< Save the current grid
+  void saveAs();                         ///< Save the current grid -- using a different file name
+  void quickSave(QString a_filename);    ///< Save the current grid as a_filename
+  void quickLoad(QString a_filename);    ///< Load the current grid from a_filename
+  int  quickSave();                      ///< Save the current grid as a_filename_a_operation
+  void quickLoad(int a_operation);       ///< Load a_filename_a_operation
+  void updateStatusBar();                ///< Update the status bar
+  void selectBoundaryCodes();            ///< Select the boundary codes to be displayed/hidden
+  void updateBoundaryCodes(bool all_on); ///< Update the boundary code book keeping (e.g. after reading a mesh).
+  void normalExtrusion();                ///< Normal extrusion of boundary elements (no validity check).
+  void setAxesVisibility();              ///< Toggle the visibility of the axes annotation.
+  void setViewingMode();                 ///< Toggle orthogonal viewing mode.
+  void viewNodeIDs();                    ///< Toggle node ID viewing mode.
+  void viewCellIDs();                    ///< Toggle cell ID viewing mode.
+  void changeSurfaceOrientation();       ///< Change the orientation of all surface elements
+  void checkSurfaceOrientation();        ///< Check and, if required, change the orientation of all surface elements
+  void improveAspectRatio();             ///< Eliminate edges in order to improve the aspect ratio of the cells
+  void exportAsciiStl();                 ///< Write surface elements to an ASCII STL file.
+  void exportBinaryStl();                ///< Write surface elements to a binary STL file.
+  void editBoundaryConditions();         ///< Edit boundary conditions (names and types)
+  void configure();                      ///< Edit settings
+  void about();                          ///< Display an about message
+  void markOutputLine();                 ///< Mark the current position in the output window
   
   void viewXP();
   void viewXM();
