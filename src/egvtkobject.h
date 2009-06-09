@@ -69,6 +69,9 @@ private: // methods
       int                  n2
     );
   
+  void createNodeField(vtkUnstructuredGrid *grid, QString field_name, QString type_name, int Nnodes, bool overwrite = false);
+  void createCellField(vtkUnstructuredGrid *grid, QString field_name, QString type_name, int Ncells, bool overwrite = false);
+
 protected: // attributes
   
   QSet<int> boundary_codes;
@@ -114,14 +117,7 @@ protected: // methods
    * @param nodes        The nodes to compute the normals of
    * @param grid         The grid to operate on
    */
-  void computeNormals
-    (
-      QVector<vec3_t>     &cell_normals,
-      QVector<vec3_t>     &node_normals,
-      QVector<vtkIdType>  &cells,
-      QVector<vtkIdType>  &nodes,
-      vtkUnstructuredGrid *grid
-    );
+  void computeNormals(QVector<vec3_t> &cell_normals, QVector<vec3_t> &node_normals, QVector<vtkIdType> &cells, QVector<vtkIdType>  &nodes, vtkUnstructuredGrid *grid);
       
   /**
    * Create a mapping from global node indices to the indeces of a subset of nodes.
@@ -129,12 +125,7 @@ protected: // methods
    * @param _nodes On return, this will contain the mapping.
    * @param grid   The grid to operate on.
    */
-  void createNodeMapping
-    (
-      QVector<vtkIdType>  &nodes,
-      QVector<int>        &_nodes,
-      vtkUnstructuredGrid *grid
-    );
+  void createNodeMapping(QVector<vtkIdType> &nodes, QVector<int> &_nodes, vtkUnstructuredGrid *grid);
   
   /**
    * Create a mapping from global cell indices to the indices of a subset of cells.
@@ -142,12 +133,7 @@ protected: // methods
    * @param _cells On return, this will contain the mapping.
    * @param grid   The grid to operate on.
    */
-  void createCellMapping
-    (
-      QVector<vtkIdType>  &cells,
-      QVector<int>        &_cells,
-      vtkUnstructuredGrid *grid
-    );
+  void createCellMapping(QVector<vtkIdType> &cells, QVector<int> &_cells, vtkUnstructuredGrid *grid);
   
   /**
    * Create a node to boundary condition ("cell_code") mapping.
@@ -156,11 +142,7 @@ protected: // methods
    *             attached to a node.
    * @param grid The grid to operate on.
    */
-  void createNodeToBcMapping
-    (
-      QVector<QSet<int> > &bcs,
-      vtkUnstructuredGrid *grid
-    );
+  void createNodeToBcMapping(QVector<QSet<int> > &bcs, vtkUnstructuredGrid *grid);
   
   /**
    * Create a node to cell structure for a given set of cells and nodes.
@@ -171,14 +153,7 @@ protected: // methods
    * @param n2c    On return, this will hold the node to cell structure
    * @param grid   The grid to operate on
    */
-  void createNodeToCell
-    (
-      QVector<vtkIdType>   &cells,
-      QVector<vtkIdType>   &nodes,
-      QVector<int>         &_nodes,
-      QVector<QSet<int> >  &n2c,
-      vtkUnstructuredGrid  *grid
-    );
+  void createNodeToCell(QVector<vtkIdType> &cells, QVector<vtkIdType> &nodes, QVector<int> &_nodes, QVector<QSet<int> >  &n2c, vtkUnstructuredGrid *grid);
   
   /**
    * Create a node to cell structure for a given set of cells and nodes.
@@ -189,14 +164,7 @@ protected: // methods
    * @param n2c    On return, this will hold the node to cell structure
    * @param grid   The grid to operate on
    */
-  void createNodeToCell
-    (
-      QVector<vtkIdType>     &cells,
-      QVector<vtkIdType>     &nodes,
-      QVector<int>           &_nodes,
-      QVector<QVector<int> > &n2c,
-      vtkUnstructuredGrid    *grid
-    );
+  void createNodeToCell(QVector<vtkIdType> &cells, QVector<vtkIdType> &nodes, QVector<int> &_nodes, QVector<QVector<int> > &n2c, vtkUnstructuredGrid *grid);
 
   /**
    * Create a node to node structure for a given set of cells and nodes.
@@ -207,14 +175,7 @@ protected: // methods
    * @param n2n    On return, this will hold the node to node structure
    * @param grid   The grid to operate on
    */
-  void createNodeToNode
-    (
-      QVector<vtkIdType>  &cells,
-      QVector<vtkIdType>  &nodes,
-      QVector<int>        &_nodes,
-      QVector<QSet<int> > &n2n,
-      vtkUnstructuredGrid *grid
-    );
+  void createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType> &nodes, QVector<int> &_nodes, QVector<QSet<int> > &n2n, vtkUnstructuredGrid *grid);
   
   /**
    * Create a node to node structure for a given set of cells and nodes.
@@ -225,14 +186,7 @@ protected: // methods
    * @param n2n    On return, this will hold the node to node structure
    * @param grid   The grid to operate on
    */
-  void createNodeToNode
-    (
-      QVector<vtkIdType>     &cells,
-      QVector<vtkIdType>     &nodes,
-      QVector<int>           &_nodes,
-      QVector<QVector<int> > &n2n,
-      vtkUnstructuredGrid    *grid
-    );
+  void createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType> &nodes, QVector<int> &_nodes, QVector<QVector<int> > &n2n, vtkUnstructuredGrid *grid);
 
   /**
    * Extract the nodes which are part of a given set of cells.
@@ -241,12 +195,7 @@ protected: // methods
    * @param grid  The grid to operate on
    */
   template <class C>
-  void getNodesFromCells
-    (
-      const C             &cells,
-      QVector<vtkIdType>  &nodes,
-      vtkUnstructuredGrid *grid
-    );
+  void getNodesFromCells(const C &cells, QVector<vtkIdType> &nodes, vtkUnstructuredGrid *grid);
   
   /**
    * Check if a cell is a volume cell.
@@ -254,12 +203,7 @@ protected: // methods
    * @param grid   The grid to operate on
    * @return true if the cell represents a volume and false if not
    */
-  bool isVolume
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            cellId
-    );
-  bool isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isVolume(grid, id_cell); }
+  bool isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid);
   
   
   /**
@@ -268,34 +212,21 @@ protected: // methods
    * @param grid   The grid to operate on
    * @return true if the cell represents a surface and false if not
    */
-  bool isSurface
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            id_cell
-    );
-  bool isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid) { return isSurface(grid, id_cell); }
+  bool isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid);
   
   /**
    * Get all volume cells of a grid.
    * @param cells On return this will hold the Ids of all volume cells.
    * @param grid  The grid to operate on.
    */
-  void getAllVolumeCells
-    (
-      QVector<vtkIdType>  &cells,
-      vtkUnstructuredGrid *grid
-    );
+  void getAllVolumeCells(QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
   
   /**
    * Get all cells of a grid.
    * @param cells On return this will hold the Ids of all cells.
    * @param grid  The grid to operate on.
    */
-  void getAllCells
-    (
-      QVector<vtkIdType>  &cells,
-      vtkUnstructuredGrid *grid
-    );
+  void getAllCells(QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
   
   /**
    * Get all cells of a grid and a specific type.
@@ -303,23 +234,14 @@ protected: // methods
    * @param cells On return this will hold the Ids of all cells.
    * @param grid  The grid to operate on.
    */
-  void getAllCellsOfType
-    (
-      vtkIdType            type,
-      QVector<vtkIdType>  &cells,
-      vtkUnstructuredGrid *grid
-    );
+  void getAllCellsOfType(vtkIdType type, QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
   
   /**
    * Get all surface cells of a grid.
    * @param cells On return this will hold the Ids of all surface cells.
    * @param grid  The grid to operate on.
    */
-  void getAllSurfaceCells
-    (
-      QVector<vtkIdType>  &cells,
-      vtkUnstructuredGrid *grid
-    );
+  void getAllSurfaceCells(QVector<vtkIdType>  &cells, vtkUnstructuredGrid *grid);
   
   /**
    * Get all surface cells of a grid with a specific boundary condition.
@@ -327,12 +249,7 @@ protected: // methods
    * @param cells On return this will hold the Ids of the surface cells.
    * @param grid  The grid to operate on.
    */
-  void getSurfaceCells
-    (
-      QSet<int>           &bcs,
-      QVector<vtkIdType>  &cells,
-      vtkUnstructuredGrid *grid
-    );
+  void getSurfaceCells(QSet<int> &bcs, QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
   
   /**
    * Get all surface nodes of a grid with a specific boundary condition.
@@ -340,12 +257,7 @@ protected: // methods
    * @param nodes On return this will hold the Ids of the surface nodes.
    * @param grid  The grid to operate on.
    */
-  void getSurfaceNodes
-    (
-      QSet<int>           &bcs,
-      QSet <vtkIdType> &SelectedNodes,
-      vtkUnstructuredGrid *grid
-    );
+  void getSurfaceNodes(QSet<int> &bcs, QSet <vtkIdType> &SelectedNodes, vtkUnstructuredGrid *grid);
   
   /**
    * Get all surface nodes of a grid with a specific boundary condition.
@@ -353,12 +265,7 @@ protected: // methods
    * @param nodes On return this will hold the Ids of the surface nodes.
    * @param grid  The grid to operate on.
    */
-  void getSurfaceNodes
-    (
-      QSet<int>           &bcs,
-      QVector <vtkIdType> &SelectedNodes,
-      vtkUnstructuredGrid *grid
-    );
+  void getSurfaceNodes(QSet<int> &bcs, QVector <vtkIdType> &SelectedNodes, vtkUnstructuredGrid *grid);
   
   /**
    * Create a cell neighbourship list for a subset grid. 
@@ -367,12 +274,7 @@ protected: // methods
    * @param c2c   On return this will hold the neighbourship list
    * @param grid  The grid to operate on.
    */
-  void createCellToCell
-    (
-      QVector<vtkIdType>     &cells,
-      QVector<QVector<int> > &c2c,
-      vtkUnstructuredGrid    *grid
-    );
+  void createCellToCell(QVector<vtkIdType> &cells, QVector<QVector<int> > &c2c, vtkUnstructuredGrid *grid);
   
   /**
    * Insert a subset of a grid into a vtkPolyData structure.
@@ -385,12 +287,7 @@ protected: // methods
    * @param pdata the vtkPolyData to add the nodes and cells to
    * @param grid  The grid to operate on.
    */
-  void addToPolyData
-    (
-      QVector<vtkIdType>  &cells,
-      vtkPolyData         *pdata,
-      vtkUnstructuredGrid *grid
-    );
+  void addToPolyData(QVector<vtkIdType>  &cells, vtkPolyData *pdata, vtkUnstructuredGrid *grid);
   
   /**
    * Copy the attributes from an input to an output cell.
@@ -399,13 +296,7 @@ protected: // methods
    * @param new_grid the output grid
    * @param newId    the new output cell
    */
-  void copyCellData
-    (
-      vtkUnstructuredGrid *old_grid, 
-      vtkIdType            oldId, 
-      vtkUnstructuredGrid *new_grid,
-      vtkIdType            newId
-    );
+  void copyCellData(vtkUnstructuredGrid *old_grid, vtkIdType oldId, vtkUnstructuredGrid *new_grid, vtkIdType newId);
   
   /**
    * Copy the attributes from an input to an output node.
@@ -414,13 +305,7 @@ protected: // methods
    * @param new_grid the output grid
    * @param newId    the new output node
    */
-  void copyNodeData
-    (
-      vtkUnstructuredGrid *old_grid, 
-      vtkIdType            oldId, 
-      vtkUnstructuredGrid *new_grid,
-      vtkIdType            newId
-    );
+  void copyNodeData(vtkUnstructuredGrid *old_grid, vtkIdType oldId, vtkUnstructuredGrid *new_grid, vtkIdType newId);
   
   /**
    * Create the basic fields on a given grid.
@@ -430,13 +315,7 @@ protected: // methods
    * @param Nnodes the number of output nodes
    * @param overwrite f set to true existing fields will be re-created
    */
-  void createBasicFields
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            Ncells, 
-      vtkIdType            Nnodes,
-      bool                 overwrite = true
-    );
+  void createBasicFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool overwrite = false);
   
   /**
    * Create the basic cell fields on a given grid.
@@ -445,12 +324,7 @@ protected: // methods
    * @param Ncells the number of output cells
    * @param overwrite f set to true existing fields will be re-created
    */
-  void createBasicCellFields
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            Ncells, 
-      bool                 overwrite = true
-    );
+  void createBasicCellFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, bool overwrite = false);
   
   /**
    * Create the basic node fields on a given grid.
@@ -459,12 +333,7 @@ protected: // methods
    * @param Nnodes the number of output nodes
    * @param overwrite f set to true existing fields will be re-created
    */
-  void createBasicNodeFields
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            Nnodes,
-      bool                 overwrite = true
-    );
+  void createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nnodes, bool overwrite = false);
   
   /**
    * Allocate memory for a grid. This method will also create the basic
@@ -472,14 +341,24 @@ protected: // methods
    * @param grid   the grid for which to allocate memory
    * @param Ncells the number of output cells
    * @param Nnodes the number of output nodes
+   * @param create_fields flag to determine if node and cell data shall be created
    */
-  void allocateGrid
-    (
-      vtkUnstructuredGrid *grid,
-      vtkIdType            Ncells,
-      vtkIdType            Nnodes
-    );
+  void allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields = true);
   
+  /**
+   * Get the names of all node (point) attributes (fields) of a VTK grid
+   * @param field_names On return this vector will contain the names of all fields
+   * @param grid the grid
+   */
+  void getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid);
+
+  /**
+   * Get the names of all cell attributes (fields) of a VTK grid
+   * @param field_names On return this vector will contain the names of all fields
+   * @param grid the grid
+   */
+  void getAllCellDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid);
+
   /**
    * Compute the intersection of two Q containers.
    * This will return a set.
@@ -514,9 +393,7 @@ protected: // methods
    * @param cells the given set of cells
    * @param rest_cells on return this will hold the rest of all cells of the grid (not part of cells)
    */
-  void getRestCells(vtkUnstructuredGrid      *grid, 
-                    const QVector<vtkIdType> &cells,
-                    QVector<vtkIdType>       &rest_cells);
+  void getRestCells(vtkUnstructuredGrid *grid, const QVector<vtkIdType> &cells, QVector<vtkIdType> &rest_cells);
   
   /**
    * Find the corresponding volume cell of a surface cell
@@ -525,15 +402,7 @@ protected: // methods
    * @param n2n the node to cell structure for this grid
    * @return the id of the corresponding volume cell (or -1 if not found)
    */
-  int findVolumeCell
-    (
-      vtkUnstructuredGrid     *grid,
-      vtkIdType                id_surf,
-      const QVector<int>      _nodes,      
-      const QVector<vtkIdType> cells,      
-      const QVector<int>      _cells,      
-      QVector<QVector<int> >  &n2c
-    );
+  int findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, const QVector<int> _nodes, const QVector<vtkIdType> cells, const QVector<int> _cells, QVector<QVector<int> >  &n2c);
 
   /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".

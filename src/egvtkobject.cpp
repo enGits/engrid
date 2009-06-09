@@ -649,7 +649,7 @@ void EgVtkObject::createCellToCell
   }
 }
 
-bool EgVtkObject::isVolume(vtkUnstructuredGrid *grid, vtkIdType id_cell)
+bool EgVtkObject::isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid)
 {
   bool isVol = false;
   if      (grid->GetCellType(id_cell) == VTK_TETRA)      isVol = true;
@@ -659,7 +659,7 @@ bool EgVtkObject::isVolume(vtkUnstructuredGrid *grid, vtkIdType id_cell)
   return isVol;
 }
 
-bool EgVtkObject::isSurface(vtkUnstructuredGrid *grid, vtkIdType id_cell)
+bool EgVtkObject::isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid)
 {
   bool isSurf = false;
   if      (grid->GetCellType(id_cell) == VTK_TRIANGLE) isSurf = true;
@@ -808,46 +808,45 @@ void EgVtkObject::copyNodeData
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
 if (!grid->GetCellData()->GetArray(FIELD)) { \
-EG_VTKSP(TYPE, var); \
-var->SetName(FIELD); \
-var->SetNumberOfValues(Ncells); \
-grid->GetCellData()->AddArray(var); \
+  EG_VTKSP(TYPE, var); \
+  var->SetName(FIELD); \
+  var->SetNumberOfValues(Ncells); \
+  grid->GetCellData()->AddArray(var); \
+  for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
+    var->SetValue(i,0); \
+  } \
 } else if (OW) { \
-EG_VTKDCC(TYPE, var, grid, FIELD); \
-var->SetNumberOfValues(Ncells); \
+  EG_VTKDCC(TYPE, var, grid, FIELD); \
+  var->SetNumberOfValues(Ncells); \
+  for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
+    var->SetValue(i,0); \
+  } \
 }
 
 #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW) \
 if (!grid->GetPointData()->GetArray(FIELD)) { \
-EG_VTKSP(TYPE, var); \
-var->SetName(FIELD); \
-var->SetNumberOfValues(Nnodes); \
-grid->GetPointData()->AddArray(var); \
-for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
+  EG_VTKSP(TYPE, var); \
+  var->SetName(FIELD); \
+  var->SetNumberOfValues(Nnodes); \
+  grid->GetPointData()->AddArray(var); \
+  for (int i = 0; i < grid->GetNumberOfPoints(); ++i) { \
+    var->SetValue(i,0); \
+  } \
 } else if (OW) { \
-EG_VTKDCN(TYPE, var, grid, FIELD); \
-var->SetNumberOfValues(Nnodes); \
-for (int i = 0; i < grid->GetNumberOfPoints(); ++i) var->SetValue(i,0); \
+  EG_VTKDCN(TYPE, var, grid, FIELD); \
+  var->SetNumberOfValues(Nnodes); \
+  for (int i = 0; i < grid->GetNumberOfPoints(); ++i) { \
+    var->SetValue(i,0); \
+  } \
 }
 
-void EgVtkObject::createBasicFields
-(
-  vtkUnstructuredGrid *grid,
-  vtkIdType            Ncells, 
-  vtkIdType            Nnodes,
-  bool                 overwrite
-)
+void EgVtkObject::createBasicFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool overwrite)
 {
   createBasicNodeFields(grid, Nnodes, overwrite);
   createBasicCellFields(grid, Ncells, overwrite);
 }
 
-void EgVtkObject::createBasicCellFields
-(
-  vtkUnstructuredGrid *grid,
-  vtkIdType            Ncells, 
-  bool                 overwrite
-)
+void EgVtkObject::createBasicCellFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, bool overwrite)
 {
   EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,   vtkIntArray, overwrite);
   EGVTKOBJECT_CREATECELLFIELD("cell_code",   vtkIntArray, overwrite);
@@ -858,12 +857,7 @@ void EgVtkObject::createBasicCellFields
   EGVTKOBJECT_CREATECELLFIELD("cell_VA",     vtkDoubleArray, overwrite);
 }
 
-void EgVtkObject::createBasicNodeFields
-(
-  vtkUnstructuredGrid *grid,
-  vtkIdType            Nnodes,
-  bool                 overwrite
-)
+void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nnodes, bool overwrite)
 {
   EGVTKOBJECT_CREATENODEFIELD("node_status",               vtkIntArray,    overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_layer",                vtkIntArray,    overwrite);
@@ -874,18 +868,15 @@ void EgVtkObject::createBasicNodeFields
   EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray, overwrite);   //node type
 }
 
-void EgVtkObject::allocateGrid
-(
-  vtkUnstructuredGrid *grid,
-  vtkIdType            Ncells,
-  vtkIdType            Nnodes
-)
+void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)
 {
   EG_VTKSP(vtkPoints,points);
   points->SetNumberOfPoints(Nnodes);
   grid->SetPoints(points);
   grid->Allocate(Ncells,max(vtkIdType(1),Ncells/10));
-  createBasicFields(grid, Ncells, Nnodes);
+  if (create_fields) {
+    createBasicFields(grid, Ncells, Nnodes, true);
+  }
 }
 
 vec3_t EgVtkObject::cellCentre(vtkUnstructuredGrid *grid, vtkIdType id_cell)
@@ -1122,12 +1113,29 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
 
 void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
 {
-  name += ".vtu";
   QVector<vtkIdType> cells;
   getAllCells(cells, grid);
+  name = GuiMainWindow::pointer()->getCwd() + "/" + name + ".vtu";
   writeCells(grid, cells, name);
 }
 
+void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
+{
+  int N = grid->GetPointData()->GetNumberOfArrays();
+  field_names.resize(N);
+  for (int i = 0; i < N; ++i) {
+    field_names[i] = grid->GetPointData()->GetArrayName(i);
+  }
+}
+
+void EgVtkObject::getAllCellDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
+{
+  int N = grid->GetCellData()->GetNumberOfArrays();
+  field_names.resize(N);
+  for (int i = 0; i < N; ++i) {
+    field_names[i] = grid->GetCellData()->GetArrayName(i);
+  }
+}
 
 ///////////////////////////////////////////
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
