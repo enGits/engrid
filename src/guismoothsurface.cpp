@@ -452,10 +452,10 @@ int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
   
   for(vtkIdType i=0;i<N2;i++)
   {
-    double tuple[4];
-    algo->GetOutput()->GetPointData()->GetTuple(i,tuple);///@@@ deprecated
+    //double tuple[4];
+    //algo->GetOutput()->GetPointData()->GetTuple(i,tuple);///@@@ deprecated
     ///@@@  TODO: This works, but seems incorrect
-    cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
+    //cout<<"tuple["<<tuple[0]<<"]=("<<tuple[1]<<","<<tuple[2]<<","<<tuple[3]<<")"<<endl;
   }
   cout<<"==============="<<endl;
   return(0);
