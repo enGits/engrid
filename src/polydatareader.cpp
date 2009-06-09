@@ -29,7 +29,7 @@ PolyDataReader::PolyDataReader()
 {
   setFormat("VTK poly data files(*.vtp)");
   setExtension(".vtp");
-};
+}
 
 void PolyDataReader::operate()
 {
@@ -42,15 +42,15 @@ void PolyDataReader::operate()
       pd2ug->SetInput(vtp->GetOutput());
       pd2ug->Update();
       grid->DeepCopy(pd2ug->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
       UpdateNodeIndex(grid);
       UpdateCellIndex(grid);
       EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
       for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfPoints(); ++id_cell) {
         bc->SetValue(id_cell,99);
-      };
-    };
+      }
+    }
   } catch (Error err) {
     err.display();
-  };
-};
+  }
+}

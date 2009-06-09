@@ -22,7 +22,7 @@
 //
 #include "vtkEgNormalExtrusion.h"
 
-vtkStandardNewMacro(vtkEgNormalExtrusion);
+vtkStandardNewMacro(vtkEgNormalExtrusion)
 
 void vtkEgNormalExtrusion::ExecuteEg()
 {
@@ -40,14 +40,14 @@ void vtkEgNormalExtrusion::ExecuteEg()
       vec3_t x0 = x - ((x-origin)*axis)*axis;
       node_normals[i] = x0 - origin;
       node_normals[i].normalise();
-    };
+    }
   } else if ((mode == fixed) || (mode == planar)) {
     fixed_normal.normalise();
     node_normals.resize(nodes.size());
     for (int i = 0; i < node_normals.size(); ++i) {
       node_normals[i] = fixed_normal;
-    };
-  };
+    }
+  }
   n1.resize(nodes.size());
   n2.resize(nodes.size());
   
@@ -69,7 +69,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
     QVector<vtkIdType> surf_pts(Npts);
     for (int i_pts = 0; i_pts < Npts; ++i_pts) {
       surf_pts[i_pts] = _nodes[pts[i_pts]];
-    };
+    }
     for (int i_surf_pts = 0; i_surf_pts < Npts; ++i_surf_pts) {
       vtkIdType p1 = surf_pts[i_surf_pts];
       vtkIdType p2;
@@ -77,21 +77,21 @@ void vtkEgNormalExtrusion::ExecuteEg()
         p2 = surf_pts[i_surf_pts + 1];
       } else {
         p2 = surf_pts[0];
-      };
+      }
       bool add_bd = false;
       {
         int N = 0;
         int cell;
         foreach(cell, n2c[p1]) {
           if (n2c[p2].contains(cell)) ++N;
-        };
+        }
         if (N == 1) add_bd = true;
-      };
+      }
       if (add_bd) {
         NnewCells += layer_y.size();
-      };
-    };
-  };
+      }
+    }
+  }
   
   // count the number of new surface elements (base)
   QVector<bool> is_boundary;
@@ -101,35 +101,35 @@ void vtkEgNormalExtrusion::ExecuteEg()
     int Nsurf = 0;
     QVector<int> nvol;
     nvol.fill(0, nodes.size());
-    for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
-      if (isVolume(cellId, input)) {
+    for (vtkIdType id_cell = 0; id_cell < input->GetNumberOfCells(); ++id_cell) {
+      if (isVolume(id_cell, input)) {
         vtkIdType Npts, *pts;
-        input->GetCellPoints(cellId, Npts, pts);
+        input->GetCellPoints(id_cell, Npts, pts);
         for (int i = 0; i < Npts; ++i) {
           if (_nodes[pts[i]] >= 0) {
             ++nvol[_nodes[pts[i]]];
-          };
-        };
-      };
-    };
+          }
+        }
+      }
+    }
     for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
-      vtkIdType cellId = cells[i_cell];
+      vtkIdType id_cell = cells[i_cell];
       vtkIdType Npts, *pts;
-      input->GetCellPoints(cellId, Npts, pts);
+      input->GetCellPoints(id_cell, Npts, pts);
       for (int i = 0; i < Npts; ++i) {
         if (nvol[_nodes[pts[i]]] == 0) {
           is_boundary[i_cell] = true;
-        };
-      };
+        }
+      }
       if (is_boundary[i_cell]) {
         ++NnewCells;
         ++Nsurf;
       } else {
         ++Nvol;
-      };
-    };
+      }
+    }
     qDebug() << Nvol << Nsurf;
-  };
+  }
 
   // allocate memory for the new grid
   allocateGrid(output, NnewCells, NnewNodes);
@@ -139,20 +139,20 @@ void vtkEgNormalExtrusion::ExecuteEg()
   EG_VTKDCC(vtkIntArray, cell_code2, output, "cell_code");
   
   int new_bc = 1;
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
-    if (isSurface(input, cellId)) {
-      if (cell_code1->GetValue(cellId) >= new_bc) {
-        new_bc = cell_code1->GetValue(cellId) + 1;
-      };
-    };
-  };
+  for (vtkIdType id_cell = 0; id_cell < input->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, input)) {
+      if (cell_code1->GetValue(id_cell) >= new_bc) {
+        new_bc = cell_code1->GetValue(id_cell) + 1;
+      }
+    }
+  }
   
   for (int i = 0; i < nodes.size(); ++i) {
     n2[i] = nodes[i];
     vec3_t x;
     input->GetPoint(nodes[i],x.data());
     output->GetPoints()->SetPoint(n2[i],x.data());
-  };
+  }
   double total_layers = layer_y[layer_y.size()-1] - layer_y[0];
   QVector<double> total_dist(nodes.size());
   double L_max = -1e99;
@@ -167,8 +167,8 @@ void vtkEgNormalExtrusion::ExecuteEg()
       if (L > L_max) {
         i_max = i;
         L_max = L;
-      };
-    };
+      }
+    }
     vec3_t x_far;
     input->GetPoint(nodes[i_max],x_far.data());
     x_far += min_dist*fixed_normal;
@@ -178,9 +178,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
         vec3_t x_origin;
         input->GetPoint(nodes[i],x_origin.data());
         total_dist[i] = (x_far-x_origin)*fixed_normal;
-      };
-    };
-  };
+      }
+    }
+  }
   for (int i_layer = 0; i_layer < layer_y.size() - 1; ++i_layer) {
     for (int i = 0; i < n1.size(); ++i) {
       n1[i] = n2[i];
@@ -196,12 +196,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
         double dist = (layer_y[i_layer + 1] - layer_y[i_layer]);
         if (mode == planar) {
           dist *= total_dist[i]/total_layers;
-        };
+        }
         x2 = x1 + dist*node_normals[i];
-      };
+      }
       output->GetPoints()->SetPoint(n2[i],x2.data());
-      //qDebug() << n1[i] << n2[i];
-    };
+    }
     
     for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
       vtkIdType *pts;
@@ -210,7 +209,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
       QVector<vtkIdType> surf_pts(Npts);
       for (int i_pts = 0; i_pts < Npts; ++i_pts) {
         surf_pts[i_pts] = _nodes[pts[i_pts]];
-      };
+      }
       for (int i_surf_pts = 0; i_surf_pts < Npts; ++i_surf_pts) {
         vtkIdType p1 = surf_pts[i_surf_pts];
         vtkIdType p2;
@@ -218,27 +217,26 @@ void vtkEgNormalExtrusion::ExecuteEg()
           p2 = surf_pts[i_surf_pts + 1];
         } else {
           p2 = surf_pts[0];
-        };
+        }
         bool add_bd = false;
         {
           int N = 0;
           int cell;
           foreach(cell, n2c[p1]) {
             if (n2c[p2].contains(cell)) ++N;
-          };
+          }
           if (N == 1) add_bd = true;
-        };
+        }
         if (add_bd) {
           vtkIdType quad_pts[4];
           quad_pts[0] = n1[p1];
           quad_pts[1] = n1[p2];
           quad_pts[2] = n2[p2];
           quad_pts[3] = n2[p1];
-          vtkIdType newCellId = output->InsertNextCell(VTK_QUAD,4,quad_pts);
-          cell_code2->SetValue(newCellId, new_bc);
-          //qDebug() << "-" << newCellId << new_bc;
-        };
-      };
+          vtkIdType id_new_cell = output->InsertNextCell(VTK_QUAD,4,quad_pts);
+          cell_code2->SetValue(id_new_cell, new_bc);
+        }
+      }
       if (Npts == 3) {
         {
           vtkIdType pri_pts[6];
@@ -248,20 +246,18 @@ void vtkEgNormalExtrusion::ExecuteEg()
           pri_pts[3] = n2[surf_pts[0]];
           pri_pts[4] = n2[surf_pts[2]];
           pri_pts[5] = n2[surf_pts[1]];
-          vtkIdType newCellId = output->InsertNextCell(VTK_WEDGE,6,pri_pts);
-          cell_code2->SetValue(newCellId, 0);
-          //qDebug() << "-" << newCellId << 0;
-        };
+          vtkIdType id_new_cell = output->InsertNextCell(VTK_WEDGE,6,pri_pts);
+          cell_code2->SetValue(id_new_cell, 0);
+        }
         if (i_layer == layer_y.size() - 2) {
           vtkIdType tri_pts[3];
           tri_pts[0] = n2[surf_pts[0]];
           tri_pts[1] = n2[surf_pts[1]];
           tri_pts[2] = n2[surf_pts[2]];
-          vtkIdType newCellId = output->InsertNextCell(VTK_TRIANGLE,3,tri_pts);
-          cell_code2->SetValue(newCellId, cell_code1->GetValue(cells[i_cell]));
-          //qDebug() << "-" << newCellId << cell_code1->GetValue(cells[i_cell]);
-        };
-      };
+          vtkIdType id_new_cell = output->InsertNextCell(VTK_TRIANGLE,3,tri_pts);
+          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+        }
+      }
       if (Npts == 4) {
         {
           vtkIdType pri_pts[8];
@@ -273,67 +269,64 @@ void vtkEgNormalExtrusion::ExecuteEg()
           pri_pts[5] = n2[surf_pts[1]];
           pri_pts[6] = n2[surf_pts[2]];
           pri_pts[7] = n2[surf_pts[3]];
-          vtkIdType newCellId = output->InsertNextCell(VTK_HEXAHEDRON,8,pri_pts);
-          cell_code2->SetValue(newCellId, 0);
-          //qDebug() << "-" << newCellId << 0;
-        };
+          vtkIdType id_new_cell = output->InsertNextCell(VTK_HEXAHEDRON,8,pri_pts);
+          cell_code2->SetValue(id_new_cell, 0);
+        }
         if (i_layer == layer_y.size() - 2) {
           vtkIdType quad_pts[4];
           quad_pts[0] = n2[surf_pts[0]];
           quad_pts[1] = n2[surf_pts[1]];
           quad_pts[2] = n2[surf_pts[2]];
           quad_pts[3] = n2[surf_pts[3]];
-          vtkIdType newCellId = output->InsertNextCell(VTK_QUAD,4,quad_pts);
-          cell_code2->SetValue(newCellId, cell_code1->GetValue(cells[i_cell]));
-          //qDebug() << "-" << newCellId << cell_code1->GetValue(cells[i_cell]);
-        };
-      };
-    };
-  };
+          vtkIdType id_new_cell = output->InsertNextCell(VTK_QUAD,4,quad_pts);
+          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+        }
+      }
+    }
+  }
   
   
   for (vtkIdType nodeId = 0; nodeId < input->GetNumberOfPoints(); ++nodeId) {
     vec3_t x;
     input->GetPoints()->GetPoint(nodeId, x.data());
     output->GetPoints()->SetPoint(nodeId, x.data());
-  };
+  }
   
   // copy all original cells that were not part of the extrusion
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
-    if (_cells[cellId] == -1) {
+  for (vtkIdType id_cell = 0; id_cell < input->GetNumberOfCells(); ++id_cell) {
+    if (_cells[id_cell] == -1) {
       vtkIdType *pts;
       vtkIdType  Npts;
-      input->GetCellPoints(cellId, Npts, pts);
-      vtkIdType newCellId = output->InsertNextCell(input->GetCellType(cellId), Npts, pts);
-      copyCellData(input, cellId, output, newCellId);
-    };
-  };
+      input->GetCellPoints(id_cell, Npts, pts);
+      vtkIdType id_new_cell = output->InsertNextCell(input->GetCellType(id_cell), Npts, pts);
+      copyCellData(input, id_cell, output, id_new_cell);
+    }
+  }
   
   // close boundary where no volume cells were present in the original grid
   
   for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
     if (is_boundary[i_cell]) {
-      vtkIdType cellId = cells[i_cell];
+      vtkIdType id_cell = cells[i_cell];
       vtkIdType *pts;
       vtkIdType  Npts;
-      input->GetCellPoints(cellId, Npts, pts);
-      vtkIdType newCellId = output->InsertNextCell(input->GetCellType(cellId), Npts, pts);
-      output->GetCellPoints(newCellId, Npts, pts);
+      input->GetCellPoints(id_cell, Npts, pts);
+      vtkIdType id_new_cell = output->InsertNextCell(input->GetCellType(id_cell), Npts, pts);
+      output->GetCellPoints(id_new_cell, Npts, pts);
       QVector<vtkIdType> nodes(Npts);
       for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
       for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
-      copyCellData(input, cellId, output, newCellId);
-    };
-  };
+      copyCellData(input, id_cell, output, id_new_cell);
+    }
+  }
   
   UpdateCellIndex(output);
-  //output->Squeeze();
-};
+}
 
 void vtkEgNormalExtrusion::SetLayers(const QVector<double> &y)
 {
   layer_y.resize(y.size());
   qCopy(y.begin(), y.end(), layer_y.begin());
-};
+}
 
 

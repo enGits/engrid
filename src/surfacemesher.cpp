@@ -206,7 +206,7 @@ int SurfaceMesher::SwapFunction()
   cout<<"m_bcs="<<m_bcs<<endl;
   cout<<"bcs_complement="<<bcs_complement<<endl;
   
-  GuiMainWindow::pointer()->QuickSave(GuiMainWindow::pointer()->getFilePath()+"beforeswap");
+  GuiMainWindow::pointer()->quickSave(GuiMainWindow::pointer()->getFilePath()+"beforeswap");
   
   setAllSurfaceCells();
   

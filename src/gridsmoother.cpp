@@ -251,7 +251,7 @@ double GridSmoother::func(vec3_t x)
   
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
-    if (isVolume(grid, id_cell)) {
+    if (isVolume(id_cell, grid)) {
       vtkIdType type_cell = grid->GetCellType(id_cell);
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
@@ -365,7 +365,7 @@ double GridSmoother::func(vec3_t x)
             int i_cells_neigh = c2c[i_cells][i_face];
             if (i_cells_neigh != -1) {
               vtkIdType id_neigh_cell = cells[i_cells_neigh];
-              if (isVolume(grid, id_neigh_cell)) {
+              if (isVolume(id_neigh_cell, grid)) {
                 vec3_t vc = cellCentre(grid, id_neigh_cell) - xc;
                 vec3_t vf = x_face[i_face] - xc;
                 vc.normalise();
@@ -438,7 +438,7 @@ void GridSmoother::operate()
   QVector<QSet<int> > n2bc(nodes.size());
   QVector<bool> prism_node(nodes.size(),false);
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(grid, id_cell)) {
+    if (isSurface(id_cell, grid)) {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {

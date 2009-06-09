@@ -82,7 +82,7 @@ void GuiCreateBoundaryLayer::operate()
       QSet<int> bcs;
       foreach (int i_neigh_cells, n2c[_nodes[id_node]]) {
         vtkIdType id_neigh_cell = cells[i_neigh_cells];
-        if (isSurface(grid, id_neigh_cell)) {
+        if (isSurface(id_neigh_cell, grid)) {
           if (boundary_codes.contains(bc->GetValue(id_neigh_cell))) {
             bcs.insert(bc->GetValue(id_neigh_cell));
           }
@@ -156,7 +156,7 @@ void GuiCreateBoundaryLayer::operate()
   {
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-      if (isVolume(grid, id_cell)) {
+      if (isVolume(id_cell, grid)) {
         cell_code->SetValue(id_cell, V.getVC());
       }
     }

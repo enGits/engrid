@@ -139,7 +139,7 @@ void Operation::operator()()
       err.display();
     }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
-    if(m_quicksave) GuiMainWindow::pointer()->QuickSave();
+    if(m_quicksave) GuiMainWindow::pointer()->quickSave();
   }
 }
 

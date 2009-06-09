@@ -23,11 +23,11 @@
 #ifndef setboundarycode_H
 #define setboundarycode_H
 
-class setBoundaryCode;
+class SetBoundaryCode;
 
 #include "cellneighbouriterator.h"
 
-class setBoundaryCode : public CellNeighbourIterator
+class SetBoundaryCode : public CellNeighbourIterator
 {
   
 private: // attributes
@@ -46,14 +46,14 @@ protected: // methods
   
 public: // methods
   
-  setBoundaryCode();
-  void setFeatureAngle(double fa) { feature_angle = fa; };
-  void setBC(int bc) { boundary_code = bc; };
-  void setProcessAll(bool b) { ProcessAll=b; };
-  void setSelectAllVisible(bool b) { SelectAllVisible=b; };
-  void setOnlyPickedCell(bool b) { OnlyPickedCell=b; };
-  void setOnlyPickedCellAndNeighbours(bool b) { OnlyPickedCellAndNeighbours=b; };
-  void set(bool b) { OnlyPickedCell=b; };
+  SetBoundaryCode();
+  void setFeatureAngle(double fa) { feature_angle = fa; }
+  void setBC(int bc) { boundary_code = bc; }
+  void setProcessAll(bool b) { ProcessAll=b; }
+  void setSelectAllVisible(bool b) { SelectAllVisible=b; }
+  void setOnlyPickedCell(bool b) { OnlyPickedCell=b; }
+  void setOnlyPickedCellAndNeighbours(bool b) { OnlyPickedCellAndNeighbours=b; }
+  void set(bool b) { OnlyPickedCell=b; }
   
 };
 

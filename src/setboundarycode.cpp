@@ -25,15 +25,15 @@
 #include <vtkCellData.h>
 #include "guimainwindow.h"
 
-setBoundaryCode::setBoundaryCode()
+SetBoundaryCode::SetBoundaryCode()
 {
   feature_angle = 180.0;
   boundary_code = 1;
   setSurfaceIteration();
   setQuickSave(true);
-};
+}
 
-void setBoundaryCode::pass1()
+void SetBoundaryCode::pass1()
 {
   if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours))
   {
@@ -47,10 +47,8 @@ void setBoundaryCode::pass1()
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     
     for (int i = 0; i < pair.size(); ++i) {
-      
       int bc1 = cell_code->GetValue(pair[i].item1);
       int bc2 = cell_code->GetValue(pair[i].item2);
-      
       if(ProcessAll){
         vec3_t n1 = cellNormal(grid, pair[i].item1);
         vec3_t n2 = cellNormal(grid, pair[i].item2);
@@ -59,9 +57,8 @@ void setBoundaryCode::pass1()
           pair[i].terminate = true;
         } else {
           pair[i].terminate = false;
-        };
-      }
-      else{
+        }
+      } else {
         if(DBC.contains(bc1) && DBC.contains(bc2)){
           vec3_t n1 = cellNormal(grid, pair[i].item1);
           vec3_t n2 = cellNormal(grid, pair[i].item2);
@@ -76,30 +73,15 @@ void setBoundaryCode::pass1()
           pair[i].terminate = true;
         }
       }
-  /*    if(DBC.contains(bc1) && DBC.contains(bc2)){
-        vec3_t n1 = cellNormal(grid, pair[i].item1);
-        vec3_t n2 = cellNormal(grid, pair[i].item2);
-        double cosa = (n1*n2)/(n1.abs()*n2.abs());
-        if (fabs(acos(cosa)) > fa) {
-          pair[i].terminate = true;
-        } else {
-          pair[i].terminate = false;
-        };
-      }
-      else{
-        pair[i].terminate = true;
-      }*/
-      
-    };//end of for loop
+    }
   }
-};
+}
 
-void setBoundaryCode::pass2()
+void SetBoundaryCode::pass2()
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   vtkIdType cellId;
-  if(SelectAllVisible)
-  {
+  if(SelectAllVisible) {
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
     DBC.insert(boundary_code);
@@ -109,25 +91,19 @@ void setBoundaryCode::pass2()
         cell_code->SetValue(cellId, boundary_code);
       }
     }
-  }
-  else if(OnlyPickedCell)
-  {
+  } else if (OnlyPickedCell) {
     cout<<"this->getStart()="<<this->getStart()<<endl;
     cell_code->SetValue(this->getStart(), boundary_code);
-  }
-  else if(OnlyPickedCellAndNeighbours)
-  {
+  } else if (OnlyPickedCellAndNeighbours) {
     cell_code->SetValue(this->getStart(), boundary_code);
-    foreach(cellId, c2c[this->getStart()])
+    foreach (cellId, c2c[this->getStart()])
     {
       cell_code->SetValue(cellId, boundary_code);
     }
-  }
-  else
-  {
-    foreach(cellId, item) {
+  } else {
+    foreach (cellId, item) {
       cell_code->SetValue(cellId, boundary_code);
-    };
+    }
   }
-};
+}
 

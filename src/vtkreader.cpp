@@ -28,7 +28,7 @@ VtkReader::VtkReader()
 {
   setFormat("legacy VTK files(*.vtk)");
   setExtension(".vtk");
-};
+}
 
 void VtkReader::operate()
 {
@@ -39,11 +39,11 @@ void VtkReader::operate()
       vtk->SetFileName(getFileName().toAscii().data());
       vtk->Update();
       grid->DeepCopy(vtk->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints(), false);
+      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
       UpdateNodeIndex(grid);
       UpdateCellIndex(grid);
-    };
+    }
   } catch (Error err) {
     err.display();
-  };
-};
+  }
+}
