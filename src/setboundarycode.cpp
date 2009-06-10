@@ -105,5 +105,6 @@ void SetBoundaryCode::pass2()
       cell_code->SetValue(cellId, boundary_code);
     }
   }
+  grid->Modified();
 }
 
