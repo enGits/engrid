@@ -94,7 +94,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
   connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(PrintGrid()));
   connect(ui.actionShowInfo,               SIGNAL(activated()),       this, SLOT(Info()));
-  connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(DeselectAll()));
+  connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(deselectAll()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
   connect(ui.actionSaveAs,                 SIGNAL(activated()),       this, SLOT(saveAs()));
@@ -196,12 +196,14 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   extr_hexas->SetAllOff();
   extr_hexas->SetHexasOn();
   
+  /*
   boundary_pd = vtkPolyData::New();
   tetras_pd   = vtkPolyData::New();
   wedges_pd   = vtkPolyData::New();
   pyras_pd    = vtkPolyData::New();
   hexas_pd    = vtkPolyData::New();
   volume_pd   = vtkPolyData::New();
+  */
   
   current_filename = "untitled.vtu";
   ResetOperationCounter();//clears undo/redo list and disables undo/redo
@@ -283,7 +285,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   ui.actionFoamWriter->setEnabled(exp_features);
   
-  ReferenceSize=0.2;
+  m_ReferenceSize=0.2;
   
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
@@ -368,7 +370,9 @@ void GuiMainWindow::scaleToData()
   if(current_field>0)
   {
     double range[2];
-    boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
+
+    surface_filter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
+    //boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
     cout<<"current_field="<<current_field<<endl;
     cout<<"range[0]="<<range[0]<<endl;
     cout<<"range[1]="<<range[1]<<endl;
@@ -379,357 +383,297 @@ void GuiMainWindow::scaleToData()
   }
 }
 
+void GuiMainWindow::deleteActors()
+{
+  if (surface_actor) {
+    getRenderer()->RemoveActor(surface_actor);
+    surface_actor->Delete();
+    surface_actor = NULL;
+  }
+  if (surface_wire_actor) {
+    getRenderer()->RemoveActor(surface_wire_actor);
+    surface_wire_actor->Delete();
+    surface_wire_actor = NULL;
+  }
+  if (tetra_actor) {
+    getRenderer()->RemoveActor(tetra_actor);
+    tetra_actor->Delete();
+    tetra_actor = NULL;
+  }
+  if (pyramid_actor) {
+    getRenderer()->RemoveActor(pyramid_actor);
+    pyramid_actor->Delete();
+    pyramid_actor = NULL;
+  }
+  if (wedge_actor) {
+    getRenderer()->RemoveActor(wedge_actor);
+    wedge_actor->Delete();
+    wedge_actor = NULL;
+  }
+  if (hexa_actor) {
+    getRenderer()->RemoveActor(hexa_actor);
+    hexa_actor->Delete();
+    hexa_actor = NULL;
+  }
+  if (volume_wire_actor) {
+    getRenderer()->RemoveActor(volume_wire_actor);
+    volume_wire_actor->Delete();
+    volume_wire_actor = NULL;
+  }
+  if (pick_actor) {
+    getRenderer()->RemoveActor(pick_actor);
+    pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
+    pick_actor = NULL;
+  }
+  if (iamlegend_actor) {
+    getRenderer()->RemoveActor(iamlegend_actor);
+    iamlegend_actor->Delete();
+    iamlegend_actor = NULL;
+  }
+  if (lut) {
+    lut->Delete();
+    lut = NULL;
+  }
+  if (field_mapper) {
+    field_mapper->Delete();
+    field_mapper = NULL;
+  }
+}
+
+void GuiMainWindow::updateSurfaceActors(bool forced)
+{
+  bcodes_filter->SetBoundaryCodes(&display_boundary_codes);
+  bcodes_filter->SetInput(grid);
+  surface_filter->SetInput(bcodes_filter->GetOutput());
+  if (forced) {
+    surface_filter->Update();
+  }
+
+  // boundary_pd->DeepCopy(surface_filter->GetOutput());
+  surface_mapper->SetInput(surface_filter->GetOutput());
+  surface_wire_mapper->SetInput(surface_filter->GetOutput());
+  surface_actor = vtkActor::New();
+  surface_actor->GetProperty()->SetRepresentationToSurface();
+
+  //Fill node field combobox
+  int current_field=ui.comboBox_Field->currentIndex();
+  ui.comboBox_Field->clear();
+  ui.comboBox_Field->addItem("None");
+  for (int i = 0; i < surface_filter->GetOutput()->GetPointData()->GetNumberOfArrays(); ++i) {
+    ui.comboBox_Field->addItem(surface_filter->GetOutput()->GetPointData()->GetArrayName(i));
+  }
+  if(current_field == -1) {
+    ui.comboBox_Field->setCurrentIndex(0);
+  } else {
+    ui.comboBox_Field->setCurrentIndex(current_field);
+  }
+
+  //Fill cell field combobox
+  int current_cell_field = ui.comboBox_CellTextField->currentIndex();
+  ui.comboBox_CellTextField->clear();
+  ui.comboBox_CellTextField->addItem("Cell ID");
+  for (int i = 0; i < surface_filter->GetOutput()->GetCellData()->GetNumberOfArrays(); ++i) {
+    ui.comboBox_CellTextField->addItem(grid->GetCellData()->GetArrayName(i));
+  }
+  if(current_cell_field == -1) {
+    ui.comboBox_CellTextField->setCurrentIndex(0);
+  } else {
+    ui.comboBox_CellTextField->setCurrentIndex(current_cell_field);
+  }
+  current_field = ui.comboBox_Field->currentIndex();
+  if(current_field > 0) {
+    double range[2];
+    surface_filter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
+    ui.doubleSpinBox_FieldMin->setRange(range[0],range[1]);
+    ui.doubleSpinBox_FieldMax->setRange(range[0],range[1]);
+  }
+
+  if(ui.comboBox_Field->currentIndex()<=0) {
+    surface_actor->SetBackfaceProperty(backface_property);
+    surface_actor->GetProperty()->SetColor(0.5,1,0.5);
+    surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
+    surface_actor->SetMapper(surface_mapper);
+  }
+  else {
+    lut=vtkLookupTable::New();
+    lut->SetNumberOfColors(ui.spinBox_Color->value());
+    lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
+    lut->Build();
+    field_mapper=vtkPolyDataMapper::New();
+    field_mapper->SetLookupTable(lut);
+    field_mapper->SetInput(surface_filter->GetOutput());
+    field_mapper->SetColorModeToMapScalars();
+    field_mapper->SetScalarModeToUsePointFieldData();
+    field_mapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
+    field_mapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
+    surface_actor->SetMapper(field_mapper);
+
+    if(ui.checkBox_Legend->checkState()) {
+      iamlegend_actor = vtkScalarBarActor::New();
+      iamlegend_actor->SetLookupTable (lut);
+      getRenderer()->AddActor(iamlegend_actor);
+    }
+  }
+
+  surface_wire_actor = vtkActor::New();
+  surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
+  surface_wire_actor->GetProperty()->SetColor(0,0,1);
+
+  surface_wire_actor->SetMapper(surface_wire_mapper);
+  getRenderer()->AddActor(surface_actor);
+  getRenderer()->AddActor(surface_wire_actor);
+
+  if (forced) {
+    bcodes_filter->Update();
+  }
+
+  if(ui.checkBox_ShowPickSphere->checkState()) {
+    if(m_UseVTKInteractor) {
+      if(ui.radioButton_CellPicker->isChecked()) {
+        getInteractor()->SetPicker(CellPicker);
+        vtkIdType cellId = getPickedCell();
+        pickCell(cellId);
+      } else {
+        getInteractor()->SetPicker(PointPicker);
+        vtkIdType nodeId = getPickedPoint();
+        pickPoint(nodeId);
+      }
+    } else {
+      if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
+      else pickPoint(PickedPoint);
+    }
+  }
+}
+
+void GuiMainWindow::updateVolumeActors(bool forced)
+{
+  vec3_t x, n;
+  x[0] = ui.lineEditClipX->text().toDouble();
+  x[1] = ui.lineEditClipY->text().toDouble();
+  x[2] = ui.lineEditClipZ->text().toDouble();
+  n[0] = ui.lineEditClipNX->text().toDouble();
+  n[1] = ui.lineEditClipNY->text().toDouble();
+  n[2] = ui.lineEditClipNZ->text().toDouble();
+  n.normalise();
+  x = x + ui.lineEditOffset->text().toDouble()*n;
+  extr_vol->SetAllOff();
+  if (ui.checkBoxTetra->isChecked()) {
+    extr_vol->SetTetrasOn();
+    extr_tetras->SetInput(grid);
+    if (ui.checkBoxClip->isChecked()) {
+      extr_tetras->SetClippingOn();
+      extr_tetras->SetX(x);
+      extr_tetras->SetN(n);
+    } else {
+      extr_tetras->SetClippingOff();
+    }
+    tetra_actor = vtkActor::New();
+    tetra_geometry->SetInput(extr_tetras->GetOutput());
+    if (forced) {
+      tetra_geometry->Update();
+    }
+    tetra_mapper->SetInput(tetra_geometry->GetOutput());
+    tetra_actor = vtkActor::New();
+    tetra_actor->SetMapper(tetra_mapper);
+    tetra_actor->GetProperty()->SetColor(1,0,0);
+    getRenderer()->AddActor(tetra_actor);
+  }
+  if (ui.checkBoxPyramid->isChecked()) {
+    extr_vol->SetPyramidsOn();
+    extr_pyramids->SetInput(grid);
+    if (ui.checkBoxClip->isChecked()) {
+      extr_pyramids->SetClippingOn();
+      extr_pyramids->SetX(x);
+      extr_pyramids->SetN(n);
+    } else {
+      extr_pyramids->SetClippingOff();
+    }
+    pyramid_actor = vtkActor::New();
+    pyramid_geometry->SetInput(extr_pyramids->GetOutput());
+    if (forced) {
+      pyramid_geometry->Update();
+    }
+    pyramid_mapper->SetInput(pyramid_geometry->GetOutput());
+    pyramid_actor = vtkActor::New();
+    pyramid_actor->SetMapper(pyramid_mapper);
+    pyramid_actor->GetProperty()->SetColor(1,1,0);
+    getRenderer()->AddActor(pyramid_actor);
+  }
+  if (ui.checkBoxWedge->isChecked()) {
+    extr_vol->SetWedgesOn();
+    extr_wedges->SetInput(grid);
+    if (ui.checkBoxClip->isChecked()) {
+      extr_wedges->SetClippingOn();
+      extr_wedges->SetX(x);
+      extr_wedges->SetN(n);
+    } else {
+      extr_wedges->SetClippingOff();
+    }
+    wedge_actor = vtkActor::New();
+    wedge_geometry->SetInput(extr_wedges->GetOutput());
+    if (forced) {
+      wedge_geometry->Update();
+    }
+    wedge_mapper->SetInput(wedge_geometry->GetOutput());
+    wedge_actor = vtkActor::New();
+    wedge_actor->SetMapper(wedge_mapper);
+    wedge_actor->GetProperty()->SetColor(0,1,0);
+    getRenderer()->AddActor(wedge_actor);
+  }
+  if (ui.checkBoxHexa->isChecked()) {
+    extr_vol->SetHexasOn();
+    extr_hexas->SetInput(grid);
+    if (ui.checkBoxClip->isChecked()) {
+      extr_hexas->SetClippingOn();
+      extr_hexas->SetX(x);
+      extr_hexas->SetN(n);
+    } else {
+      extr_hexas->SetClippingOff();
+    }
+    hexa_actor = vtkActor::New();
+    hexa_geometry->SetInput(extr_hexas->GetOutput());
+    if (forced) {
+      hexa_geometry->Update();
+    }
+    hexa_mapper->SetInput(hexa_geometry->GetOutput());
+    hexa_actor = vtkActor::New();
+    hexa_actor->SetMapper(hexa_mapper);
+    hexa_actor->GetProperty()->SetColor(0,0.7,1);
+    getRenderer()->AddActor(hexa_actor);
+  }
+
+  // wireframe
+  extr_vol->SetInput(grid);
+  if (ui.checkBoxClip->isChecked()) {
+    extr_vol->SetClippingOn();
+    extr_vol->SetX(x);
+    extr_vol->SetN(n);
+  } else {
+    extr_vol->SetClippingOff();
+  }
+  volume_wire_actor = vtkActor::New();
+  volume_geometry->SetInput(extr_vol->GetOutput());
+  if (forced) {
+    volume_geometry->Update();
+  }
+  volume_wire_mapper->SetInput(volume_geometry->GetOutput());
+  volume_wire_actor->SetMapper(volume_wire_mapper);
+  volume_wire_actor->GetProperty()->SetRepresentationToWireframe();
+  volume_wire_actor->GetProperty()->SetColor(0,0,1);
+  getRenderer()->AddActor(volume_wire_actor);
+}
+
 void GuiMainWindow::updateActors(bool forced)
 {
   if (!tryLock()) return;
-  cout << "------------------------------------------" << endl;
-  cout << "grid->GetMTime()=" << grid->GetMTime() << endl;
-  cout << "m_GridMTime=" << m_GridMTime << endl;
-  cout << "grid->GetCellData()->GetMTime()=" << grid->GetCellData()->GetMTime() << endl;
-  cout << "m_CellDataMTime=" << m_CellDataMTime << endl;
-  cout << "------------------------------------------" << endl;
-  bool grid_modified = ((grid->GetMTime() > m_GridMTime) || (grid->GetCellData()->GetMTime() > m_CellDataMTime)) || forced;
-  m_GridMTime = grid->GetMTime();
-  m_CellDataMTime = grid->GetCellData()->GetMTime();
   try {
-    {
-      {
-        if (!grid->GetCellData()->GetScalars("cell_index")) {
-          EG_VTKSP(vtkLongArray_t, cell_idx);
-          cell_idx->SetName("cell_index");
-          cell_idx->SetNumberOfValues(grid->GetNumberOfCells());
-          grid->GetCellData()->AddArray(cell_idx);
-        }
-      }
-      EG_VTKDCC(vtkLongArray_t, cell_index, grid, "cell_index");
-      for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
-        cell_index->SetValue(cellId, cellId);
-      }
-    }
-    
+    createIndices(grid);
     axes->SetInput(grid);
-    
-    double xmin =  1e99;
-    double xmax = -1e99;
-    double ymin =  1e99;
-    double ymax = -1e99;
-    double zmin =  1e99;
-    double zmax = -1e99;
-    for (vtkIdType nodeId = 0; nodeId < grid->GetNumberOfPoints(); ++nodeId) {
-      vec3_t x;
-      grid->GetPoints()->GetPoint(nodeId, x.data());
-      xmin = min(x[0], xmin);
-      xmax = max(x[0], xmax);
-      ymin = min(x[1], ymin);
-      ymax = max(x[1], ymax);
-      zmin = min(x[2], zmin);
-      zmax = max(x[2], zmax);
-    }
-    
-    if (surface_actor) {
-      getRenderer()->RemoveActor(surface_actor);
-      surface_actor->Delete();
-      surface_actor = NULL;
-    }
-    if (surface_wire_actor) {
-      getRenderer()->RemoveActor(surface_wire_actor);
-      surface_wire_actor->Delete();
-      surface_wire_actor = NULL;
-    }
-    if (tetra_actor) {
-      getRenderer()->RemoveActor(tetra_actor);
-      tetra_actor->Delete();
-      tetra_actor = NULL;
-    }
-    if (pyramid_actor) {
-      getRenderer()->RemoveActor(pyramid_actor);
-      pyramid_actor->Delete();
-      pyramid_actor = NULL;
-    }
-    if (wedge_actor) {
-      getRenderer()->RemoveActor(wedge_actor);
-      wedge_actor->Delete();
-      wedge_actor = NULL;
-    }
-    if (hexa_actor) {
-      getRenderer()->RemoveActor(hexa_actor);
-      hexa_actor->Delete();
-      hexa_actor = NULL;
-    }
-    if (volume_wire_actor) {
-      getRenderer()->RemoveActor(volume_wire_actor);
-      volume_wire_actor->Delete();
-      volume_wire_actor = NULL;
-    }
-    if (pick_actor) {
-      getRenderer()->RemoveActor(pick_actor);
-      pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
-      pick_actor = NULL;
-    }
-    if (iamlegend_actor) {
-      getRenderer()->RemoveActor(iamlegend_actor);
-      iamlegend_actor->Delete();
-      iamlegend_actor = NULL;
-    }
-    if (lut) {
-      lut->Delete();
-      lut = NULL;
-    }
-    if (field_mapper) {
-      field_mapper->Delete();
-      field_mapper = NULL;
-    }
-    
+    deleteActors();
     if (ui.checkBoxSurface->isChecked()) {
-
-      //if (grid_modified) {
-        bcodes_filter->setBoundaryCodes(&display_boundary_codes);
-        bcodes_filter->SetInput(grid);
-        surface_filter->SetInput(bcodes_filter->GetOutput());
-        surface_filter->Update();
-        boundary_pd->DeepCopy(surface_filter->GetOutput());
-        surface_mapper->SetInput(boundary_pd);
-        surface_wire_mapper->SetInput(boundary_pd);
-      //}
-
-      surface_actor = vtkActor::New();
-      surface_actor->GetProperty()->SetRepresentationToSurface();
-      
-      // fill node field combobox
-      int current_field=ui.comboBox_Field->currentIndex();
-      ui.comboBox_Field->clear();
-      ui.comboBox_Field->addItem("None");
-      int N_Arrays=boundary_pd->GetPointData()->GetNumberOfArrays();
-      for (int i=0; i<N_Arrays; i++) {
-        ui.comboBox_Field->addItem(boundary_pd->GetPointData()->GetArrayName(i));
-      }
-      if(current_field==-1) ui.comboBox_Field->setCurrentIndex(0);
-      else ui.comboBox_Field->setCurrentIndex(current_field);
-      
-      //Fill cell field combobox
-      int current_cell_field=ui.comboBox_CellTextField->currentIndex();
-      ui.comboBox_CellTextField->clear();
-      ui.comboBox_CellTextField->addItem("Cell ID");
-      int N_CellArrays=boundary_pd->GetCellData()->GetNumberOfArrays();
-      for (int i=0; i<N_CellArrays; i++) {
-        ui.comboBox_CellTextField->addItem(grid->GetCellData()->GetArrayName(i));
-      }
-      if(current_cell_field==-1) ui.comboBox_CellTextField->setCurrentIndex(0);
-      else ui.comboBox_CellTextField->setCurrentIndex(current_cell_field);
-      
-      current_field=ui.comboBox_Field->currentIndex();
-      if(current_field>0) {
-        double range[2];
-        boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
-        cout<<"current_field="<<current_field<<endl;
-        cout<<"range[0]="<<range[0]<<endl;
-        cout<<"range[1]="<<range[1]<<endl;
-        ui.doubleSpinBox_FieldMin->setRange(range[0],range[1]);
-        ui.doubleSpinBox_FieldMax->setRange(range[0],range[1]);
-      }
-      
-      if(ui.comboBox_Field->currentIndex()<=0) {
-        surface_actor->SetBackfaceProperty(backface_property);
-        surface_actor->GetProperty()->SetColor(0.5,1,0.5);
-        surface_actor->GetBackfaceProperty()->SetColor(1,1,0.5);
-        surface_actor->SetMapper(surface_mapper);
-      } else {
-        lut=vtkLookupTable::New();
-        lut->SetNumberOfColors(ui.spinBox_Color->value());
-        lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
-        lut->Build();
-        field_mapper=vtkPolyDataMapper::New();
-        field_mapper->SetLookupTable(lut);
-        field_mapper->SetInput(boundary_pd);
-        field_mapper->SetColorModeToMapScalars();
-        field_mapper->SetScalarModeToUsePointFieldData();
-        field_mapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
-        field_mapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
-        surface_actor->SetMapper(field_mapper);
-        
-        if(ui.checkBox_Legend->checkState()) {
-          iamlegend_actor = vtkScalarBarActor::New();
-          iamlegend_actor->SetLookupTable (lut);
-          getRenderer()->AddActor(iamlegend_actor);
-        }
-      }
-      
-      surface_wire_actor = vtkActor::New();
-      surface_wire_actor->GetProperty()->SetRepresentationToWireframe();
-      surface_wire_actor->GetProperty()->SetColor(0,0,1);
-      
-      surface_wire_actor->SetMapper(surface_wire_mapper);
-      getRenderer()->AddActor(surface_actor);
-      getRenderer()->AddActor(surface_wire_actor);
-      bcodes_filter->Update();
-
-      if(ui.checkBox_ShowPickSphere->checkState()) {
-        if(m_UseVTKInteractor)
-        {
-          
-          if(ui.radioButton_CellPicker->isChecked())
-          {
-            getInteractor()->SetPicker(CellPicker);
-            vtkIdType cellId = getPickedCell();
-            pickCell(cellId);
-          } else {
-            getInteractor()->SetPicker(PointPicker);
-            vtkIdType nodeId = getPickedPoint();
-            pickPoint(nodeId);
-          }
-        } else {
-          if(ui.radioButton_CellPicker->isChecked()) pickCell(PickedCell);
-          else pickPoint(PickedPoint);
-        }
-      }
+      updateSurfaceActors(forced);
     }
-    
-    vec3_t x, n;
-    QString clipping_text = "";
-    clipping_text += ui.lineEditClipX->text();
-    clipping_text += ui.lineEditClipY->text();
-    clipping_text += ui.lineEditClipZ->text();
-    clipping_text += ui.lineEditClipNX->text();
-    clipping_text += ui.lineEditClipNY->text();
-    clipping_text += ui.lineEditClipNZ->text();
-    x[0] = ui.lineEditClipX->text().toDouble();
-    x[1] = ui.lineEditClipY->text().toDouble();
-    x[2] = ui.lineEditClipZ->text().toDouble();
-    n[0] = ui.lineEditClipNX->text().toDouble();
-    n[1] = ui.lineEditClipNY->text().toDouble();
-    n[2] = ui.lineEditClipNZ->text().toDouble();
-    n.normalise();
-    x = x + ui.lineEditOffset->text().toDouble()*n;
-    if (grid_modified) {
-      extr_vol->SetAllOff();
-    }
-    bool clipping_changed = (ui.checkBoxClip->isChecked() && (clipping_text != m_ClippingText));
-    m_ClippingText = clipping_text;
-    if (!clipping_changed) {
-      if (ui.checkBoxClip->isChecked() && !m_UsedClipping) {
-        clipping_changed = true;
-      }
-      if (!ui.checkBoxClip->isChecked() && m_UsedClipping) {
-        clipping_changed = true;
-      }
-    }
-    m_UsedClipping = ui.checkBoxClip->isChecked();
-    if (ui.checkBoxTetra->isChecked()) {
-      if (grid_modified || !m_TetraExtr || clipping_changed) {
-        m_TetraExtr = true;
-        extr_vol->SetTetrasOn();
-        extr_tetras->SetInput(grid);
-        if (ui.checkBoxClip->isChecked()) {
-          extr_tetras->SetClippingOn();
-          extr_tetras->SetX(x);
-          extr_tetras->SetN(n);
-        } else {
-          extr_tetras->SetClippingOff();
-        }
-        tetra_actor = vtkActor::New();
-        tetra_geometry->SetInput(extr_tetras->GetOutput());
-        tetra_geometry->Update();
-        tetras_pd->DeepCopy(tetra_geometry->GetOutput());
-      }
-      tetra_mapper->SetInput(tetras_pd);
-      tetra_actor = vtkActor::New();
-      tetra_actor->SetMapper(tetra_mapper);
-      tetra_actor->GetProperty()->SetColor(1,0,0);
-      getRenderer()->AddActor(tetra_actor);
-    }
-    if (ui.checkBoxPyramid->isChecked()) {
-      if (grid_modified || !m_PyraExtr || clipping_changed) {
-        m_PyraExtr = true;
-        extr_vol->SetPyramidsOn();
-        extr_pyramids->SetInput(grid);
-        if (ui.checkBoxClip->isChecked()) {
-          extr_pyramids->SetClippingOn();
-          extr_pyramids->SetX(x);
-          extr_pyramids->SetN(n);
-        } else {
-          extr_pyramids->SetClippingOff();
-        }
-        pyramid_actor = vtkActor::New();
-        pyramid_geometry->SetInput(extr_pyramids->GetOutput());
-        pyramid_geometry->Update();
-        pyras_pd->DeepCopy(pyramid_geometry->GetOutput());
-      }
-      pyramid_mapper->SetInput(pyras_pd);
-      pyramid_actor = vtkActor::New();
-      pyramid_actor->SetMapper(pyramid_mapper);
-      pyramid_actor->GetProperty()->SetColor(1,1,0);
-      getRenderer()->AddActor(pyramid_actor);
-    }
-    if (ui.checkBoxWedge->isChecked()) {
-      if (grid_modified || !m_PrismExtr || clipping_changed) {
-        m_PrismExtr = true;
-        extr_vol->SetWedgesOn();
-        extr_wedges->SetInput(grid);
-        if (ui.checkBoxClip->isChecked()) {
-          extr_wedges->SetClippingOn();
-          extr_wedges->SetX(x);
-          extr_wedges->SetN(n);
-        } else {
-          extr_wedges->SetClippingOff();
-        }
-        wedge_actor = vtkActor::New();
-        wedge_geometry->SetInput(extr_wedges->GetOutput());
-        wedge_geometry->Update();
-        wedges_pd->DeepCopy(wedge_geometry->GetOutput());
-      }
-      wedge_mapper->SetInput(wedges_pd);
-      wedge_actor = vtkActor::New();
-      wedge_actor->SetMapper(wedge_mapper);
-      wedge_actor->GetProperty()->SetColor(0,1,0);
-      getRenderer()->AddActor(wedge_actor);
-    }
-    if (ui.checkBoxHexa->isChecked()) {
-      if (grid_modified || !m_HexaExtr || clipping_changed) {
-        m_HexaExtr = true;
-        extr_vol->SetHexasOn();
-        extr_hexas->SetInput(grid);
-        if (ui.checkBoxClip->isChecked()) {
-          extr_hexas->SetClippingOn();
-          extr_hexas->SetX(x);
-          extr_hexas->SetN(n);
-        } else {
-          extr_hexas->SetClippingOff();
-        }
-        hexa_actor = vtkActor::New();
-        hexa_geometry->SetInput(extr_hexas->GetOutput());
-        hexa_geometry->Update();
-        hexas_pd->DeepCopy(hexa_geometry->GetOutput());
-      }
-      hexa_mapper->SetInput(hexas_pd);
-      hexa_actor = vtkActor::New();
-      hexa_actor->SetMapper(hexa_mapper);
-      hexa_actor->GetProperty()->SetColor(0,0.7,1);
-      getRenderer()->AddActor(hexa_actor);
-    }
-    
-    // wireframe
-    if (ui.checkBoxTetra->isChecked() || ui.checkBoxPyramid->isChecked() || ui.checkBoxWedge->isChecked() || ui.checkBoxHexa->isChecked()) {
-      if (grid_modified || !m_VolExtr || clipping_changed) {
-        m_VolExtr = true;
-        extr_vol->SetInput(grid);
-        if (ui.checkBoxClip->isChecked()) {
-          extr_vol->SetClippingOn();
-          extr_vol->SetX(x);
-          extr_vol->SetN(n);
-        } else {
-          extr_vol->SetClippingOff();
-        }
-        volume_geometry->SetInput(extr_vol->GetOutput());
-        volume_geometry->Update();
-        volume_pd->DeepCopy(volume_geometry->GetOutput());
-      }
-      volume_wire_actor = vtkActor::New();
-      volume_wire_mapper->SetInput(volume_pd);
-      volume_wire_actor->SetMapper(volume_wire_mapper);
-      volume_wire_actor->GetProperty()->SetRepresentationToWireframe();
-      volume_wire_actor->GetProperty()->SetColor(0,0,1);
-      getRenderer()->AddActor(volume_wire_actor);
-    }
+    updateVolumeActors(forced);
     updateStatusBar();
     getRenderWindow()->Render();
   } catch (Error err) {
@@ -737,6 +681,8 @@ void GuiMainWindow::updateActors(bool forced)
   }
   unlock();
 }
+
+
 
 void GuiMainWindow::forceUpdateActors()
 {
@@ -746,22 +692,25 @@ void GuiMainWindow::forceUpdateActors()
 void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
 {
   m_UseVTKInteractor=a_UseVTKInteractor;
-  if(a_UseVTKInteractor) ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
-  else ui.checkBox_UseVTKInteractor->setCheckState(Qt::Unchecked);
-  if(a_CellPickerMode) ui.radioButton_CellPicker->toggle();
-  else ui.radioButton_PointPicker->toggle();
-//   cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
+  if (a_UseVTKInteractor) {
+    ui.checkBox_UseVTKInteractor->setCheckState(Qt::Checked);
+  } else {
+    ui.checkBox_UseVTKInteractor->setCheckState(Qt::Unchecked);
+  }
+  if (a_CellPickerMode) {
+    ui.radioButton_CellPicker->toggle();
+  } else {
+    ui.radioButton_PointPicker->toggle();
+  }
 }
 
 void GuiMainWindow::setUseVTKInteractor(int a_UseVTKInteractor)
 {
-  m_UseVTKInteractor=a_UseVTKInteractor;
-//   cout<<"m_UseVTKInteractor="<<m_UseVTKInteractor<<endl;
+  m_UseVTKInteractor = a_UseVTKInteractor;
 }
 
 bool GuiMainWindow::pickPoint(vtkIdType nodeId)
 {
-  cout<<"pickPoint called with =nodeId"<<nodeId<<endl;
   if (nodeId >= 0 && nodeId<grid->GetNumberOfPoints()) {
     vec3_t x(0,0,0);
     grid->GetPoints()->GetPoint(nodeId, x.data());
@@ -774,21 +723,19 @@ bool GuiMainWindow::pickPoint(vtkIdType nodeId)
       pick_actor = NULL;
     }
     pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
-//     pick_actor->VisibilityOn();
-    
     pick_actor->SetMapper(pick_mapper);
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(0,0,1);
     getRenderer()->AddActor(pick_actor);
     PickedPoint=nodeId;
     return(true);
+  } else {
+    return(false);
   }
-  else return(false);
 }
 
 bool GuiMainWindow::pickCell(vtkIdType cellId)
 {
-  cout<<"pickCell called with cellId="<<cellId<<endl;
   if (cellId >= 0 && cellId<grid->GetNumberOfCells()) {
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
@@ -800,36 +747,30 @@ bool GuiMainWindow::pickCell(vtkIdType cellId)
     }
     pick_sphere->SetCenter(x.data());
     double R = 1e99;
-//     for (vtkIdType i = 0; i < Npts; ++i) {
-//       vec3_t xp;
-//       grid->GetPoints()->GetPoint(pts[i], xp.data());
-//       R = min(R, 0.25*(xp-x).abs());
-//     }
     for (vtkIdType i = 0; i < Npts; ++i) {
       vec3_t xp;
       grid->GetPoints()->GetPoint(pts[i], xp.data());
       R = min(R, 0.25*(xp-x).abs());
     }
-//     R=getShortestSide(cellId,grid);
-    ReferenceSize=R;//Used for text annotations too!
+    m_ReferenceSize=R;//Used for text annotations too!
     pick_sphere->SetRadius(R);
     pick_mapper->SetInput(pick_sphere->GetOutput());
     
     if (pick_actor) {
       getRenderer()->RemoveActor(pick_actor);
-      pick_actor->Delete();cout<<"Deleting pick_actor="<<pick_actor<<endl;
+      pick_actor->Delete();
       pick_actor = NULL;
     }
-    pick_actor = vtkActor::New();cout<<"New pick_actor="<<pick_actor<<endl;
-    
+    pick_actor = vtkActor::New();
     pick_actor->SetMapper(pick_mapper);
     pick_actor->GetProperty()->SetRepresentationToSurface();
     pick_actor->GetProperty()->SetColor(1,0,0);
     getRenderer()->AddActor(pick_actor);
-    PickedCell=cellId;
+    PickedCell = cellId;
     return(true);
+  } else {
+    return(false);
   }
-  else return(false);
 }
 
 void GuiMainWindow::importSTL()
@@ -901,20 +842,8 @@ void GuiMainWindow::zoomOnPickedObject()
 
 void GuiMainWindow::deselectAll()
 {
-  cout<<"void GuiMainWindow::DeselectAll()"<<endl;
+  cout<<"void GuiMainWindow::deselectAll()"<<endl;
   pick_actor->VisibilityOff();
-  // goo;
-  /*
-  if (pick_actor) {
-    cout<<"Terminating pick_actor"<<endl;
-    getRenderer()->RemoveActor(pick_actor);
-    pick_actor->Delete();
-    pick_actor = NULL;
-  }
-  setPickMode(false,true);
-  PickedCell=-1;
-  PickedPoint=-1;
-  */
   updateActors();
 }
 
@@ -1341,7 +1270,6 @@ void GuiMainWindow::selectBoundaryCodes()
 
 void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
-//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on)"<<endl;
   try {
     all_boundary_codes.clear();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -1373,7 +1301,6 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
   } catch (Error err) {
     err.display();
   }
-//   cout<<"void GuiMainWindow::updateBoundaryCodes(bool all_on): all_boundary_codes="<<all_boundary_codes<<endl;
 }
 
 void GuiMainWindow::normalExtrusion()
@@ -1404,41 +1331,41 @@ void GuiMainWindow::viewNodeIDs()
   cout<<"N="<<N<<endl;
   if (ui.actionViewNodeIDs->isChecked()) {
     cout<<"Activating node ID view"<<endl;
-    NodeText_VectorText.resize(N);
-    NodeText_PolyDataMapper.resize(N);
-    NodeText_Follower.resize(N);
-    for(int i=0;i<N;i++){
-      NodeText_VectorText[i]=vtkVectorText::New();
+    m_NodeTextVectorText.resize(N);
+    m_NodeTextPolyDataMapper.resize(N);
+    m_NodeTextFollower.resize(N);
+    for(int i = 0; i < N; ++i){
+      m_NodeTextVectorText[i]=vtkVectorText::New();
       QString tmp;
       tmp.setNum(i);
-      NodeText_VectorText[i]->SetText(tmp.toLatin1().data());
-      NodeText_PolyDataMapper[i]=vtkPolyDataMapper::New();
-      NodeText_PolyDataMapper[i]->SetInputConnection(NodeText_VectorText[i]->GetOutputPort());
-      NodeText_Follower[i]=vtkFollower::New();
-      NodeText_Follower[i]->SetMapper(NodeText_PolyDataMapper[i]);
-      NodeText_Follower[i]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
+      m_NodeTextVectorText[i]->SetText(tmp.toLatin1().data());
+      m_NodeTextPolyDataMapper[i]=vtkPolyDataMapper::New();
+      m_NodeTextPolyDataMapper[i]->SetInputConnection(m_NodeTextVectorText[i]->GetOutputPort());
+      m_NodeTextFollower[i]=vtkFollower::New();
+      m_NodeTextFollower[i]->SetMapper(m_NodeTextPolyDataMapper[i]);
+      m_NodeTextFollower[i]->SetScale(m_ReferenceSize, m_ReferenceSize, m_ReferenceSize);
       vec3_t M;
-      grid->GetPoint(i,M.data());
-      vec3_t tmp_M=M;
-      vec3_t OffSet=ReferenceSize*tmp_M.normalise();
-      M=M+OffSet;
-      NodeText_Follower[i]->AddPosition(M[0],M[1],M[2]);
-      NodeText_Follower[i]->SetCamera(getRenderer()->GetActiveCamera());
-      NodeText_Follower[i]->GetProperty()->SetColor(0,0,1);
-      getRenderer()->AddActor(NodeText_Follower[i]);
+      grid->GetPoint(i, M.data());
+      vec3_t tmp_M = M;
+      vec3_t OffSet = m_ReferenceSize*tmp_M.normalise();
+      M = M + OffSet;
+      m_NodeTextFollower[i]->AddPosition(M[0], M[1], M[2]);
+      m_NodeTextFollower[i]->SetCamera(getRenderer()->GetActiveCamera());
+      m_NodeTextFollower[i]->GetProperty()->SetColor(0,0,1);
+      getRenderer()->AddActor(m_NodeTextFollower[i]);
     }
   }
   else {
     cout<<"Deactivating node ID view"<<endl;
-    for(unsigned int i=0;i<NodeText_Follower.size();i++){
-      getRenderer()->RemoveActor(NodeText_Follower[i]);
-      NodeText_Follower[i]->Delete();
-      NodeText_PolyDataMapper[i]->Delete();
-      NodeText_VectorText[i]->Delete();
+    for(unsigned int i = 0; i < m_NodeTextFollower.size();i++){
+      getRenderer()->RemoveActor(m_NodeTextFollower[i]);
+      m_NodeTextFollower[i]->Delete();
+      m_NodeTextPolyDataMapper[i]->Delete();
+      m_NodeTextVectorText[i]->Delete();
     }
-    NodeText_Follower.clear();
-    NodeText_PolyDataMapper.clear();
-    NodeText_VectorText.clear();
+    m_NodeTextFollower.clear();
+    m_NodeTextPolyDataMapper.clear();
+    m_NodeTextVectorText.clear();
   }
   
   getRenderWindow()->Render();
@@ -1450,11 +1377,11 @@ void GuiMainWindow::viewCellIDs()
   cout<<"N="<<N<<endl;
   if (ui.actionViewCellIDs->isChecked()) {
     cout<<"Activating cell ID view"<<endl;
-    CellText_VectorText.resize(N);
-    CellText_PolyDataMapper.resize(N);
-    CellText_Follower.resize(N);
-    for(vtkIdType id_cell=0;id_cell<N;id_cell++){
-      CellText_VectorText[id_cell]=vtkVectorText::New();
+    m_CellTextVectorText.resize(N);
+    m_CellTextPolyDataMapper.resize(N);
+    m_CellTextFollower.resize(N);
+    for(vtkIdType id_cell = 0; id_cell < N; ++id_cell){
+      m_CellTextVectorText[id_cell] = vtkVectorText::New();
       
       QString tmp;
       
@@ -1467,40 +1394,39 @@ void GuiMainWindow::viewCellIDs()
       }
       else EG_BUG;
       
-      CellText_VectorText[id_cell]->SetText(tmp.toLatin1().data());
-      CellText_PolyDataMapper[id_cell]=vtkPolyDataMapper::New();
-      CellText_PolyDataMapper[id_cell]->SetInputConnection(CellText_VectorText[id_cell]->GetOutputPort());
-      CellText_Follower[id_cell]=vtkFollower::New();
-      CellText_Follower[id_cell]->SetMapper(CellText_PolyDataMapper[id_cell]);
-      CellText_Follower[id_cell]->SetScale(ReferenceSize,ReferenceSize,ReferenceSize);
+      m_CellTextVectorText[id_cell]->SetText(tmp.toLatin1().data());
+      m_CellTextPolyDataMapper[id_cell]=vtkPolyDataMapper::New();
+      m_CellTextPolyDataMapper[id_cell]->SetInputConnection(m_CellTextVectorText[id_cell]->GetOutputPort());
+      m_CellTextFollower[id_cell]=vtkFollower::New();
+      m_CellTextFollower[id_cell]->SetMapper(m_CellTextPolyDataMapper[id_cell]);
+      m_CellTextFollower[id_cell]->SetScale(m_ReferenceSize, m_ReferenceSize, m_ReferenceSize);
       vtkIdType N_pts,*pts;
       grid->GetCellPoints(id_cell,N_pts,pts);
       vec3_t Center(0,0,0);
-      for(int p=0;p<N_pts;p++)
-      {
+      for(int p = 0; p < N_pts; ++p) {
         vec3_t M;
         grid->GetPoint(pts[p],M.data());
         Center+=M.data();
       }
-      vec3_t OffSet=ReferenceSize*triNormal(grid,pts[0],pts[1],pts[2]).normalise();
-      Center=1.0/(double)N_pts*Center+OffSet;
-      CellText_Follower[id_cell]->AddPosition(Center[0],Center[1],Center[2]);
-      CellText_Follower[id_cell]->SetCamera(getRenderer()->GetActiveCamera());
-      CellText_Follower[id_cell]->GetProperty()->SetColor(1,0,0);
-      getRenderer()->AddActor(CellText_Follower[id_cell]);
+      vec3_t OffSet = m_ReferenceSize*triNormal(grid, pts[0], pts[1], pts[2]).normalise();
+      Center = 1.0/(double)N_pts*Center+OffSet;
+      m_CellTextFollower[id_cell]->AddPosition(Center[0], Center[1], Center[2]);
+      m_CellTextFollower[id_cell]->SetCamera(getRenderer()->GetActiveCamera());
+      m_CellTextFollower[id_cell]->GetProperty()->SetColor(1, 0, 0);
+      getRenderer()->AddActor(m_CellTextFollower[id_cell]);
     }
   }
   else {
     cout<<"Deactivating cell ID view"<<endl;
-    for(vtkIdType id_cell=0;id_cell<(vtkIdType)CellText_Follower.size();id_cell++){
-      getRenderer()->RemoveActor(CellText_Follower[id_cell]);
-      CellText_Follower[id_cell]->Delete();
-      CellText_PolyDataMapper[id_cell]->Delete();
-      CellText_VectorText[id_cell]->Delete();
+    for(vtkIdType id_cell = 0; id_cell < (vtkIdType) m_CellTextFollower.size(); ++id_cell) {
+      getRenderer()->RemoveActor(m_CellTextFollower[id_cell]);
+      m_CellTextFollower[id_cell]->Delete();
+      m_CellTextPolyDataMapper[id_cell]->Delete();
+      m_CellTextVectorText[id_cell]->Delete();
     }
-    CellText_Follower.clear();
-    CellText_PolyDataMapper.clear();
-    CellText_VectorText.clear();
+    m_CellTextFollower.clear();
+    m_CellTextPolyDataMapper.clear();
+    m_CellTextVectorText.clear();
   }
   
   getRenderWindow()->Render();

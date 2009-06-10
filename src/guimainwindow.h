@@ -69,10 +69,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   
 private: // attributes
   
-  /** The user interface definition -- created by QtDesigner. */
-  Ui::GuiMainWindow ui;
-  
-
+  Ui::GuiMainWindow    ui;              ///< The user interface definition -- created by QtDesigner.
   vtkUnstructuredGrid *grid;            ///< The current state of the grid that is being generated.
   unsigned long int    m_GridMTime;     ///< last modification of the grid
   unsigned long int    m_CellDataMTime; ///< last modification of the grid's cell data (for bcs)
@@ -84,36 +81,28 @@ private: // attributes
   bool                 m_UsedClipping;  ///< flag if clipping had been used for last update
   QString              m_ClippingText;  ///< last clipping input from UI
 
-  vtkPolyData *boundary_pd;
-  vtkPolyData *tetras_pd;
-  vtkPolyData *wedges_pd;
-  vtkPolyData *pyras_pd;
-  vtkPolyData *hexas_pd;
-  vtkPolyData *volume_pd;
+  vtkRenderer *renderer; ///< The VTK renderer object, used for visualising the grid
   
-  /** The VTK renderer object, used for visualising the grid */
-  vtkRenderer *renderer;
+  vtkActor* surface_actor;
+  vtkActor* surface_wire_actor;
+  vtkActor* tetra_actor;
+  vtkActor* wedge_actor;
+  vtkActor* pyramid_actor;
+  vtkActor* hexa_actor;
+  vtkActor* volume_wire_actor;
+
+  vtkProperty*       backface_property;
+  vtkLookupTable*    lut;
+  vtkScalarBarActor* iamlegend_actor;
   
-  vtkActor *surface_actor;
-  vtkActor *surface_wire_actor;
-  vtkActor *tetra_actor;
-  vtkActor *wedge_actor;
-  vtkActor *pyramid_actor;
-  vtkActor *hexa_actor;
-  vtkActor *volume_wire_actor;
-  vtkProperty *backface_property;
-  
-  vtkLookupTable *lut;
-  vtkScalarBarActor *iamlegend_actor;
-  
-  vtkPolyDataMapper *field_mapper;
-  vtkPolyDataMapper *surface_mapper;
-  vtkPolyDataMapper *surface_wire_mapper;
-  vtkPolyDataMapper *tetra_mapper;
-  vtkPolyDataMapper *pyramid_mapper;
-  vtkPolyDataMapper *wedge_mapper;
-  vtkPolyDataMapper *hexa_mapper;
-  vtkPolyDataMapper *volume_wire_mapper;
+  vtkPolyDataMapper* field_mapper;
+  vtkPolyDataMapper* surface_mapper;
+  vtkPolyDataMapper* surface_wire_mapper;
+  vtkPolyDataMapper* tetra_mapper;
+  vtkPolyDataMapper* pyramid_mapper;
+  vtkPolyDataMapper* wedge_mapper;
+  vtkPolyDataMapper* hexa_mapper;
+  vtkPolyDataMapper* volume_wire_mapper;
   
   vtkEgExtractVolumeCells *extr_vol;
   vtkEgExtractVolumeCells *extr_tetras;
@@ -126,105 +115,50 @@ private: // attributes
   vtkGeometryFilter *pyramid_geometry;
   vtkGeometryFilter *wedge_geometry;
   vtkGeometryFilter *hexa_geometry;
-  
-  /** VTK filter to extract the surface of the current grid. */
-  vtkGeometryFilter *surface_filter;
-  
-  /** sphere to mark picked cell/points */
-  vtkSphereSource *pick_sphere;
-  
-  /** Size to use for picker objects and annotations */
-  double ReferenceSize;
-  
-  /** 2D Text actor to display node IDs */
-  vector <vtkTextActor*> NodeText;
-  
-  /** 2D Text actor to display cell IDs */
-  vector <vtkTextActor*> CellText;
-  
-  /** 3D Text actor to display node IDs */
-  vector <vtkVectorText*> NodeText_VectorText;
-  vector <vtkPolyDataMapper*> NodeText_PolyDataMapper;
-  vector <vtkFollower*> NodeText_Follower;
-  
-  /** 3D Text actor to display cell IDs */
-  vector <vtkVectorText*> CellText_VectorText;
-  vector <vtkPolyDataMapper*> CellText_PolyDataMapper;
-  vector <vtkFollower*> CellText_Follower;
-  
-  /** Picked point */
-  static vtkIdType PickedPoint;
-  
-  /** Picked cell */
-  static vtkIdType PickedCell;
-  
-  /** Boolean value specifying wether the VTK Interactor should be used or not to determine picked points/cells */
-  static bool m_UseVTKInteractor;
-  
-  /** VTK mapper to map pick marker */
-  vtkPolyDataMapper *pick_mapper;
-  
-  /** VTK actor to display pick marker */
-  vtkActor *pick_actor;
-  
-  /** VTK actor to display the coordinate system */
-  vtkCubeAxesActor2D *axes;
-  
-  /** The current file name of the grid. */
-  QString current_filename;
-  
-  /** The current operation number. (used for undo/redo) */
-  int current_operation;
-  
-  /** The last operation number. (used for undo/redo) */
-  int last_operation;
-  
-  /** the log directory */
-  QString m_LogDir;
-  
-  /** Status bar of the main window and application */
-  QStatusBar *status_bar;
-  
-  /** Label for the information in the status bar */
-  QLabel *status_label;
-  
-  /** A QList with all active boundary codes. */
-  QSet<int> display_boundary_codes;
-  
-    /** A QList with all boundary codes. */
-  QSet<int> all_boundary_codes;
-  
-  /** VTK filter to extract boundary elements with certain codes */
-  vtkEgBoundaryCodesFilter *bcodes_filter;
-  
-  /** VTK CellPicker to pick cells for various user interactions */
-  vtkCellPicker *CellPicker;
 
-  /** VTK PointPicker to pick points for various user interactions */
-  vtkPointPicker *PointPicker;
-  
-  /** flag to indicate that enGrid is busy with an operation */
-  bool busy;
-  
-  /** log file to collect program output for display in the output window */
-  QString log_file_name;
-  
-  /** number of lines that have been read from the log file */
-  long int N_chars;
-  
-  FILE *system_stdout;
-  static QMutex mutex;
-  QTimer garbage_timer;
-  QTimer log_timer;
-  QDockWidget *dock_widget;
-  
-  /** mapping between numerical and symbolic boundary codes */
-  QMap<int,BoundaryCondition> bcmap;
+  static vtkIdType PickedPoint;        ///< Picked point
+  static vtkIdType PickedCell;         ///< Picked cell
+  static bool      m_UseVTKInteractor; ///< Boolean value specifying whether the VTK Interactor should be used or not
+  static QMutex    mutex;
 
-  /** all volume definitions */
-  QMap<QString,VolumeDefinition> volmap;
+  vtkGeometryFilter* surface_filter;  ///< VTK filter to extract the surface of the current grid.
+  vtkSphereSource*   pick_sphere;     ///< sphere to mark picked cell/points
+  double             m_ReferenceSize; ///< Size to use for picker objects and annotations
 
+  vector <vtkTextActor*>      m_NodeText;               ///< 2D Text actor to display node IDs
+  vector <vtkTextActor*>      m_CellText;               ///< 2D Text actor to display cell IDs
+  vector <vtkVectorText*>     m_NodeTextVectorText;     ///< 3D Text actor to display node IDs
+  vector <vtkPolyDataMapper*> m_NodeTextPolyDataMapper;
+  vector <vtkFollower*>       m_NodeTextFollower;
+  vector <vtkVectorText*>     m_CellTextVectorText;     ///< 3D Text actor to display cell IDs
+  vector <vtkPolyDataMapper*> m_CellTextPolyDataMapper;
+  vector <vtkFollower*>       m_CellTextFollower;
 
+  vtkPolyDataMapper*        pick_mapper;   ///< VTK mapper to map pick marker
+  vtkActor*                 pick_actor;    ///< VTK actor to display pick marker
+  vtkCubeAxesActor2D*       axes;          ///< VTK actor to display the coordinate system
+  vtkEgBoundaryCodesFilter* bcodes_filter; ///< VTK filter to extract boundary elements with certain codes
+  vtkCellPicker*            CellPicker;    ///< VTK CellPicker to pick cells for various user interactions
+  vtkPointPicker*           PointPicker;   ///< VTK PointPicker to pick points for various user interactions
+
+  QString      current_filename;       ///< The current file name of the grid.
+  int          current_operation;      ///< The current operation number. (used for undo/redo)
+  int          last_operation;         ///< The last operation number. (used for undo/redo)
+  QString      m_LogDir;               ///< the log directory
+  QStatusBar*  status_bar;             ///< Status bar of the main window and application
+  QLabel*      status_label;           ///< Label for the information in the status bar
+  QSet<int>    display_boundary_codes; ///< A QList with all active boundary codes.
+  QSet<int>    all_boundary_codes;     ///< A QList with all boundary codes.
+  bool         busy;                   ///< flag to indicate that enGrid is busy with an operation
+  QString      log_file_name;          ///< log file to collect program output for display in the output window
+  long int     N_chars;                ///< number of lines that have been read from the log file
+  FILE*        system_stdout;
+  QTimer       garbage_timer;
+  QTimer       log_timer;
+  QDockWidget* dock_widget;
+
+  QMap<int,BoundaryCondition>    bcmap;  ///< mapping between numerical and symbolic boundary codes
+  QMap<QString,VolumeDefinition> volmap; ///< all volume definitions
   
 private: // static attributes
 
@@ -246,15 +180,13 @@ private: // static attributes
   
 private: // methods
   
-  /** Add VTK type information to the grid (useful for visualisation with ParaView). */
-  void addVtkTypeInfo();
-  
-  /** callback for cell picking */
+  void        addVtkTypeInfo(); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
   static void pickCellCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
-
-  /** callback for point picking */
   static void pickPointCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
-  
+  void        deleteActors();
+  void        updateSurfaceActors(bool forced);
+  void        updateVolumeActors(bool forced);
+
 public: // methods
   
   /**
@@ -353,6 +285,7 @@ public: // static methods
   QString getFilename() { return(current_filename); }
   
 public slots:
+
   void setUseVTKInteractor(int a_UseVTKInteractor);
   void setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode);
   
