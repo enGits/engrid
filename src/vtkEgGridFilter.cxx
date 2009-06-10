@@ -28,7 +28,7 @@ vtkEgGridFilter::vtkEgGridFilter()
   BoundaryCodes = NULL;
   input = NULL;
   output = NULL;
-};
+}
 
 int vtkEgGridFilter::FillInputPortInformation
 (
@@ -38,7 +38,7 @@ int vtkEgGridFilter::FillInputPortInformation
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUnstructuredGrid");
   return 1;
-};
+}
 
 int vtkEgGridFilter::FillOutputPortInformation
 (
@@ -48,7 +48,7 @@ int vtkEgGridFilter::FillOutputPortInformation
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkUnstructuredGrid");
   return 1;
-};
+}
 
 int vtkEgGridFilter::RequestData
 (
@@ -62,9 +62,9 @@ int vtkEgGridFilter::RequestData
   output = vtkUnstructuredGrid::GetData(outputVector);
   
   // check if we have a proper inputVector
-  if (!input)                                      { vtkDebugMacro("No input!"); return 1; };
-  if (!input->GetPoints())                         { vtkDebugMacro("No input!"); return 1; };
-  if (input->GetPoints()->GetNumberOfPoints() < 1) { vtkDebugMacro("No input!"); return 1; };
+  if (!input)                                      { vtkDebugMacro("No input!"); return 1; }
+  if (!input->GetPoints())                         { vtkDebugMacro("No input!"); return 1; }
+  if (input->GetPoints()->GetNumberOfPoints() < 1) { vtkDebugMacro("No input!"); return 1; }
   
   // call the enGrid filter method
   try {
@@ -72,16 +72,16 @@ int vtkEgGridFilter::RequestData
   } catch (Error err) {
     err.display();
     output->DeepCopy(input);
-  };
+  }
   
   return 1;
-};
+}
 
-void vtkEgGridFilter::setBoundaryCodes(QSet<int> *bc)
+void vtkEgGridFilter::SetBoundaryCodes(QSet<int> *bc)
 {
   BoundaryCodes = bc;
   Modified();
-};
+}
 
 void vtkEgGridFilter::ExtractBoundary
 (
@@ -104,10 +104,10 @@ void vtkEgGridFilter::ExtractBoundary
         input->GetCellPoints(i,npts,pts);
         for (int j = 0; j < npts; ++j) {
           ex_nodes.insert(pts[j]);
-        };
-      };
-    };
-  };
+        }
+      }
+    }
+  }
   cells.resize(ex_cells.size());
   nodes.resize(ex_nodes.size());
   {
@@ -116,17 +116,17 @@ void vtkEgGridFilter::ExtractBoundary
     foreach(i,ex_cells) {
       cells[j] = i;
       ++j;
-    };
-  };
+    }
+  }
   {
     int j = 0;
     vtkIdType i;
     foreach(i,ex_nodes) {
       nodes[j] = i;
       ++j;
-    };
-  };
-};
+    }
+  }
+}
 
 /*
 void vtkEgGridFilter::CreateBasicFields(vtkIdType Ncells, vtkIdType Nnodes)
@@ -140,7 +140,7 @@ void vtkEgGridFilter::CreateBasicFields(vtkIdType Ncells, vtkIdType Nnodes)
   } else {
     EG_VTKDCC(vtkIntArray, cell_code, output, "cell_code");
     cell_code->SetNumberOfValues(Ncells);
-  };
+  }
   if (!output->GetCellData()->GetArray("cell_index")) {
     EG_VTKSP(vtkLongArray_t, cell_index);
     cell_index->SetName("cell_index");
@@ -149,8 +149,8 @@ void vtkEgGridFilter::CreateBasicFields(vtkIdType Ncells, vtkIdType Nnodes)
   } else {
     EG_VTKDCC(vtkLongArray_t, cell_index, output, "cell_index");
     cell_index->SetNumberOfValues(Ncells);
-  };
-};
+  }
+}
 
 void vtkEgGridFilter::CopyCellData(vtkIdType oldId, vtkIdType newId)
 {
@@ -161,7 +161,7 @@ void vtkEgGridFilter::CopyCellData(vtkIdType oldId, vtkIdType newId)
   EG_VTKDCC(vtkLongArray_t, cell_index2, output, "cell_index");
   cell_index2->SetValue(newId, cell_index1->GetValue(oldId));
   //qDebug() << oldId << newId;
-};
+}
 
 void vtkEgGridFilter::AllocateOutput(vtkIdType Ncells, vtkIdType Nnodes)
 {
@@ -170,7 +170,7 @@ void vtkEgGridFilter::AllocateOutput(vtkIdType Ncells, vtkIdType Nnodes)
   output->SetPoints(points);
   output->Allocate(Ncells,max(1,Ncells/10));
   CreateBasicFields(Ncells, Nnodes);
-};
+}
 */
 
 

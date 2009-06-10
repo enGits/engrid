@@ -31,7 +31,7 @@
 #include <vtkCellData.h>
 #include <vtkIntArray.h>
 
-vtkStandardNewMacro(vtkEgBoundaryCodesFilter);
+vtkStandardNewMacro(vtkEgBoundaryCodesFilter)
 
 void vtkEgBoundaryCodesFilter::ExecuteEg()
 {

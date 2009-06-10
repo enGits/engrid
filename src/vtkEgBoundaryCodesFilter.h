@@ -38,8 +38,8 @@ public: // methods
   
 protected: // methods
   
-  vtkEgBoundaryCodesFilter() {};
-  ~vtkEgBoundaryCodesFilter() {};
+  vtkEgBoundaryCodesFilter() {}
+  ~vtkEgBoundaryCodesFilter() {}
   virtual void ExecuteEg();
   
 private:

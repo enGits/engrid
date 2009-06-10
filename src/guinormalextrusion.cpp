@@ -27,7 +27,7 @@
 void GuiNormalExtrusion::before()
 {
   populateBoundaryCodes(ui.listWidget);
-};
+}
 
 void GuiNormalExtrusion::operate()
 {
@@ -42,13 +42,13 @@ void GuiNormalExtrusion::operate()
     for (int i = 1; i < y.size(); ++i) {
       y[i] = y[i-1] + h;
       h *= f;
-    };
+    }
   } else if (ui.radioButtonFixedHeights->isChecked()) {
     y.resize(ui.lineEditFixedHeightsNumLayers->text().toInt() + 1);
     QVector<double> x(y.size());
     for (int i = 0; i < x.size(); ++i) {
       x[i] = i*1.0/(x.size() - 1);
-    };
+    }
     mat3_t A;
     clinit(A[0]) = pow(x[1],5.0), pow(x[1],3.0), x[1];
     clinit(A[1]) = pow(x[x.size() - 2],5.0), pow(x[x.size() - 2],3.0), x[x.size() - 2];
@@ -64,10 +64,10 @@ void GuiNormalExtrusion::operate()
       if (i > 0) {
         if (y[i] < y[i-1]) {
           EG_ERR_RETURN("unable to compute layer heights");
-        };
-      };
-    };
-  };
+        }
+      }
+    }
+  }
   extr->SetLayers(y);
   
   if (ui.radioButtonFixed->isChecked()) {
@@ -80,8 +80,8 @@ void GuiNormalExtrusion::operate()
     } else {
       extr->SetPlanar();
       extr->SetMinDist(min_dist);
-    };
-  };
+    }
+  }
   if (ui.radioButtonCylinder->isChecked()) {
     extr->SetCylindrical();
     extr->SetOrigin(vec3_t(ui.lineEditCylinderX0->text().toDouble(),
@@ -90,7 +90,7 @@ void GuiNormalExtrusion::operate()
     extr->SetAxis(vec3_t(ui.lineEditCylinderNX->text().toDouble(),
                          ui.lineEditCylinderNY->text().toDouble(),
                          ui.lineEditCylinderNZ->text().toDouble()));
-  };
+  }
   if (ui.radioButtonRotation->isChecked()) {
     extr->SetRotation();
     extr->SetOrigin(vec3_t(ui.lineEditCylinderX0->text().toDouble(),
@@ -99,14 +99,14 @@ void GuiNormalExtrusion::operate()
     extr->SetAxis(vec3_t(ui.lineEditCylinderNX->text().toDouble(),
                          ui.lineEditCylinderNY->text().toDouble(),
                          ui.lineEditCylinderNZ->text().toDouble()));
-  };
+  }
   
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
-  extr->setBoundaryCodes(&bcs);
+  extr->SetBoundaryCodes(&bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
   makeCopy(grid, ug);
   extr->SetInput(ug);
   extr->Update();
   makeCopy(extr->GetOutput(), grid);
-};
+}

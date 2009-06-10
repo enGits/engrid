@@ -53,7 +53,7 @@ protected: // attributes
 protected: // methods
   
   vtkEgGridFilter();
-  ~vtkEgGridFilter() {};
+  ~vtkEgGridFilter() {}
   
   virtual int FillInputPortInformation
     (
@@ -93,7 +93,7 @@ protected: // methods
   
 public: // methods
   
-  void setBoundaryCodes(QSet<int> *bc);
+  void SetBoundaryCodes(QSet<int> *bc);
   
 };
 
