@@ -28,7 +28,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
 {
   QVector<vtkIdType> cells, nodes, n1, n2;
   QVector<vec3_t> cell_normals, node_normals;
-  ExtractBoundary(cells, nodes, *BoundaryCodes, input);
+  ExtractBoundary(cells, nodes, m_BoundaryCodes, input);
   if (mode == normal) {
     computeNormals(cell_normals, node_normals, cells, nodes,input);
   } else if (mode == cylinder) {

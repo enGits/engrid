@@ -42,7 +42,7 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
     input->GetPoints()->GetPoint(vertId,x);
     output->GetPoints()->SetPoint(vertId,x);
     copyNodeData(input, vertId, output, vertId);
-  };
+  }
   
   EG_VTKDCC(vtkIntArray,cell_code,input,"cell_code");
   
@@ -51,19 +51,19 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
     vtkIdType *pts;
     vtkIdType npts;
     bool add = false;
-    if (!cell_code || !BoundaryCodes) { 
+    if (!cell_code) {
       add = false;
-    } else if (BoundaryCodes->contains(cell_code->GetValue(cellId))) {
+    } else if (m_BoundaryCodes.contains(cell_code->GetValue(cellId))) {
       if (input->GetCellType(cellId) == VTK_TRIANGLE) add = true;
       if (input->GetCellType(cellId) == VTK_QUAD)     add = true;
-    };
+    }
     if (add) {
       input->GetCellPoints(cellId,npts,pts);
       vtkIdType newCell = output->InsertNextCell(input->GetCellType(cellId),npts,pts);
       copyCellData(input, cellId, output, newCell);
-    };
-  };
+    }
+  }
   
   output->Squeeze();
-};
+}
 
