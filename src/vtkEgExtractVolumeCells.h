@@ -32,36 +32,42 @@ class vtkEgExtractVolumeCells : public vtkEgGridFilter
   
 protected: // attributes
   
-  bool Clip;
-  vec3_t X;
-  vec3_t N;
-  bool tetra;
-  bool hexa;
-  bool wedge;
-  bool pyramid;
-  
+  bool    m_Clip;
+  bool    m_ExtrTetras;
+  bool    m_ExtrHexes;
+  bool    m_ExtrWedges;
+  bool    m_ExtrPyramids;
+  vec3_t  m_X;
+  vec3_t  m_N;
+
 public: // methods
   
   static vtkEgExtractVolumeCells* New();
-  void SetX(vec3_t x)   { X = x; Modified(); };
-  void SetN(vec3_t n)   { N = n; Modified(); };
-  void SetClippingOn()  { Clip = true;  Modified(); };
-  void SetClippingOff() { Clip = false; Modified(); };
-  void SetAllOn()       { tetra = true; hexa = true; wedge = true; pyramid = true; };
-  void SetAllOff()      { tetra = false; hexa = false; wedge = false; pyramid = false; };
-  void SetTetrasOn()    { tetra = true; };
-  void SetTetrasOff()   { tetra = false; };
-  void SetPyramidsOn()  { pyramid = true; };
-  void SetPyramidsOff() { pyramid = false; };
-  void SetWedgesOn()    { wedge = true; };
-  void SetWedgesOff()   { wedge = false; };
-  void SetHexasOn()     { hexa = true; };
-  void SetHexasOff()    { hexa = false; };
+  void SetX(vec3_t x);
+  void Setx(double x);
+  void Sety(double y);
+  void Setz(double z);
+  void SetN(vec3_t n);
+  void Setnx(double nx);
+  void Setny(double ny);
+  void Setnz(double nz);
+  void SetClippingOn();
+  void SetClippingOff();
+  void SetAllOn();
+  void SetAllOff();
+  void SetTetrasOn();
+  void SetTetrasOff();
+  void SetPyramidsOn();
+  void SetPyramidsOff();
+  void SetWedgesOn();
+  void SetWedgesOff();
+  void SetHexesOn();
+  void SetHexesOff();
   
 protected: // methods
   
   vtkEgExtractVolumeCells();
-  ~vtkEgExtractVolumeCells() {};
+  ~vtkEgExtractVolumeCells() {}
   virtual void ExecuteEg();
   
 private: // methods

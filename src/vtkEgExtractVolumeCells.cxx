@@ -22,18 +22,164 @@
 //
 #include "vtkEgExtractVolumeCells.h"
 
-vtkStandardNewMacro(vtkEgExtractVolumeCells);
+vtkStandardNewMacro(vtkEgExtractVolumeCells)
 
 vtkEgExtractVolumeCells::vtkEgExtractVolumeCells()
 {
   SetClippingOff();
   SetX(vec3_t(0,0,0));
-  SetN(vec3_t(0,0,1));
-  tetra   = true;
-  pyramid = true;
-  wedge   = true;
-  hexa    = true;
-};
+  SetN(vec3_t(1,0,0));
+  m_ExtrTetras   = true;
+  m_ExtrPyramids = true;
+  m_ExtrWedges   = true;
+  m_ExtrHexes    = true;
+}
+
+void vtkEgExtractVolumeCells::SetX(vec3_t x)
+{
+  m_X = x;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::SetN(vec3_t n)
+{
+  m_N = n;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::SetClippingOn()
+{
+  if (!m_Clip) {
+    m_Clip = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetClippingOff()
+{
+  if (m_Clip) {
+    m_Clip = false;
+    Modified();
+  }
+}
+
+
+void vtkEgExtractVolumeCells::SetAllOn()
+{
+  SetTetrasOn();
+  SetPyramidsOn();
+  SetWedgesOn();
+  SetHexesOn();
+}
+
+void vtkEgExtractVolumeCells::SetAllOff()
+{
+  SetTetrasOff();
+  SetPyramidsOff();
+  SetWedgesOff();
+  SetHexesOff();
+}
+
+void vtkEgExtractVolumeCells::SetTetrasOn()
+{
+  if (!m_ExtrTetras) {
+    m_ExtrTetras = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetTetrasOff()
+{
+  if (m_ExtrTetras) {
+    m_ExtrTetras = false;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetPyramidsOn()
+{
+  if (!m_ExtrPyramids) {
+    m_ExtrPyramids = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetPyramidsOff()
+{
+  if (m_ExtrPyramids) {
+    m_ExtrPyramids = false;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetWedgesOn()
+{
+  if (!m_ExtrWedges) {
+    m_ExtrWedges = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetWedgesOff()
+{
+  if (m_ExtrWedges) {
+    m_ExtrWedges = false;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetHexesOn()
+{
+  if (!m_ExtrHexes) {
+    m_ExtrHexes = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetHexesOff()
+{
+  if (m_ExtrHexes) {
+    m_ExtrHexes = false;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::Setx(double x)
+{
+  m_X[0] = x;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::Sety(double y)
+{
+  m_X[1] = y;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::Setz(double z)
+{
+  m_X[2] = z;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::Setnx(double nx)
+{
+  m_N[0] = nx;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::Setny(double ny)
+{
+  m_N[1] = ny;
+  Modified();
+}
+
+void vtkEgExtractVolumeCells::Setnz(double nz)
+{
+  m_N[2] = nz;
+  Modified();
+}
+
 
 void vtkEgExtractVolumeCells::ExecuteEg()
 {
@@ -42,28 +188,36 @@ void vtkEgExtractVolumeCells::ExecuteEg()
     if (isVolume(id_cell, input)) {
       bool select = true;
       vtkIdType type_cell = input->GetCellType(id_cell);
-      if (!tetra   && type_cell == VTK_TETRA)      select = false;
-      if (!pyramid && type_cell == VTK_PYRAMID)    select = false;
-      if (!wedge   && type_cell == VTK_WEDGE)      select = false;
-      if (!hexa    && type_cell == VTK_HEXAHEDRON) select = false;
-      if (Clip && select) {
+      if (!m_ExtrTetras && type_cell == VTK_TETRA) {
+        select = false;
+      }
+      if (!m_ExtrPyramids && type_cell == VTK_PYRAMID) {
+        select = false;
+      }
+      if (!m_ExtrWedges && type_cell == VTK_WEDGE) {
+        select = false;
+      }
+      if (!m_ExtrHexes && type_cell == VTK_HEXAHEDRON) {
+        select = false;
+      }
+      if (m_Clip && select) {
         vtkIdType *pts;
         vtkIdType  N_pts;
         input->GetCellPoints(id_cell, N_pts, pts);
         for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
           vec3_t x;
           input->GetPoints()->GetPoint(pts[i_pts],x.data());
-          if ((x-X)*N < 0) {
+          if ((x - m_X)*m_N < 0) {
             select = false;
             break;
-          };
-        };
-      };
+          }
+        }
+      }
       if (select) {
         ex_cells.insert(id_cell);
-      };
-    };
-  };
+      }
+    }
+  }
   QVector<vtkIdType> cells(ex_cells.size());
   qCopy(ex_cells.begin(), ex_cells.end(), cells.begin());
   QVector<vtkIdType> nodes;
@@ -71,23 +225,22 @@ void vtkEgExtractVolumeCells::ExecuteEg()
   getNodesFromCells(cells, nodes, input);
   createNodeMapping(nodes, _nodes, input);
   allocateGrid(output, cells.size(), nodes.size());
-  vtkIdType cellId, nodeId;
-  foreach(nodeId, nodes) {
+  foreach(vtkIdType id_node, nodes) {
     vec3_t x;
-    input->GetPoints()->GetPoint(nodeId, x.data());
-    output->GetPoints()->SetPoint(_nodes[nodeId], x.data());
-  };
-  foreach(cellId, cells) {
+    input->GetPoints()->GetPoint(id_node, x.data());
+    output->GetPoints()->SetPoint(_nodes[id_node], x.data());
+  }
+  foreach(vtkIdType id_cell, cells) {
     vtkIdType  Npts;
     vtkIdType *pts;
-    input->GetCellPoints(cellId, Npts, pts);
+    input->GetCellPoints(id_cell, Npts, pts);
     vtkIdType *new_pts = new vtkIdType[Npts];
     for (int i = 0; i < Npts; ++i) {
       new_pts[i] = _nodes[pts[i]];
-    };
-    vtkIdType newId = output->InsertNextCell(input->GetCellType(cellId), Npts, new_pts);
-    copyCellData(input, cellId, output, newId);
+    }
+    vtkIdType id_new_cell = output->InsertNextCell(input->GetCellType(id_cell), Npts, new_pts);
+    copyCellData(input, id_cell, output, id_new_cell);
     delete [] new_pts;
-  };
-};
+  }
+}
 

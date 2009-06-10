@@ -46,33 +46,19 @@ class vtkEgGridFilter : public vtkUnstructuredGridAlgorithm, public EgVtkObject
   
 protected: // attributes
   
-  QSet<int>           *BoundaryCodes;
+  QSet<int>            m_BoundaryCodes;
   vtkUnstructuredGrid *input;
   vtkUnstructuredGrid *output;
+  unsigned long        m_LastRun;
   
 protected: // methods
   
   vtkEgGridFilter();
   ~vtkEgGridFilter() {}
   
-  virtual int FillInputPortInformation
-    (
-      int, 
-      vtkInformation* info
-    );
-  
-  virtual int FillOutputPortInformation
-    (
-      int, 
-      vtkInformation* info
-    );
-  
-  virtual int RequestData
-    (
-      vtkInformation*, 
-      vtkInformationVector** inputVector, 
-      vtkInformationVector*  outputVector
-    );
+  virtual int FillInputPortInformation(int, vtkInformation* info);
+  virtual int FillOutputPortInformation(int, vtkInformation* info);
+  virtual int RequestData(vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*  outputVector);
   
   virtual void ExecuteEg() = 0;
   
@@ -83,17 +69,11 @@ protected: // methods
    * @param grid  The grid to operate on.
    * @param bc    A set of the boundary conditions to extract.
    */
-  void ExtractBoundary
-    (
-      QVector<vtkIdType>  &cells, 
-      QVector<vtkIdType>  &nodes, 
-      QSet<int>           &bc,
-      vtkUnstructuredGrid *grid
-    );
+  void ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdType> &nodes, QSet<int> &bc, vtkUnstructuredGrid *grid);
   
 public: // methods
   
-  void SetBoundaryCodes(QSet<int> *bc);
+  void SetBoundaryCodes(const QSet<int>& bc);
   
 };
 
