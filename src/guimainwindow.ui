@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1337</width>
-    <height>902</height>
+    <width>1067</width>
+    <height>799</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1337</width>
+     <width>1067</width>
      <height>24</height>
     </rect>
    </property>
@@ -222,15 +222,15 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-     <horstretch>0</horstretch>
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>200</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>318</width>
-     <height>141</height>
+     <width>260</width>
+     <height>132</height>
     </size>
    </property>
    <property name="floating">
@@ -261,6 +261,9 @@
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -268,18 +271,18 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
-          <width>280</width>
-          <height>1002</height>
+          <y>-336</y>
+          <width>362</width>
+          <height>1011</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>clipping</string>
            </property>
-           <layout class="QGridLayout">
+           <layout class="QGridLayout" name="gridLayout_4">
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEditClipX">
               <property name="sizePolicy">
@@ -350,6 +353,16 @@
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="Line" name="line">
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -426,13 +439,10 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="Line" name="line">
-              <property name="lineWidth">
-               <number>0</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>offset</string>
               </property>
              </widget>
             </item>
@@ -443,13 +453,6 @@
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1">
-             <widget class="QCheckBox" name="checkBoxClip">
-              <property name="text">
-               <string>enable</string>
               </property>
              </widget>
             </item>
@@ -475,26 +478,73 @@
               </property>
              </widget>
             </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_3">
+            <item row="9" column="1">
+             <widget class="QCheckBox" name="checkBoxClip">
               <property name="text">
-               <string>offset</string>
+               <string>enable</string>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox_2">
+         <item>
+          <widget class="QGroupBox" name="groupBox_3">
            <property name="title">
-            <string>surface elements</string>
+            <string>elements</string>
            </property>
-           <layout class="QVBoxLayout">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
              <widget class="QCheckBox" name="checkBoxSurface">
               <property name="text">
-               <string>enable</string>
+               <string>enable surface elements</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxVolume">
+              <property name="text">
+               <string>enable volume elements</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxTetra">
+              <property name="text">
+               <string>tetras</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxPyramid">
+              <property name="text">
+               <string>pyramids</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxWedge">
+              <property name="text">
+               <string>wedges</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxHexa">
+              <property name="text">
+               <string>hexas</string>
               </property>
               <property name="checked">
                <bool>true</bool>
@@ -504,92 +554,44 @@
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="title">
-            <string>volume elements</string>
-           </property>
-           <layout class="QVBoxLayout">
-            <item>
-             <widget class="QCheckBox" name="checkBoxTetra">
-              <property name="text">
-               <string>tetras</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="checkBoxPyramid">
-              <property name="text">
-               <string>pyramids</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="checkBoxWedge">
-              <property name="text">
-               <string>wedges</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="checkBoxHexa">
-              <property name="text">
-               <string>hexas</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-           <zorder>checkBoxTetra</zorder>
-           <zorder>checkBoxPyramid</zorder>
-           <zorder>checkBoxHexa</zorder>
-           <zorder>checkBoxWedge</zorder>
-          </widget>
-         </item>
-         <item row="3" column="0">
+         <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
             <string>Picker</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0" colspan="2">
+            <item row="0" column="0">
              <widget class="QRadioButton" name="radioButton_CellPicker">
               <property name="text">
                <string>CellPicker</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2">
+            <item row="1" column="0">
              <widget class="QRadioButton" name="radioButton_PointPicker">
               <property name="text">
                <string>PointPicker</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
+            <item row="2" column="0">
              <widget class="QCheckBox" name="checkBox_UseVTKInteractor">
               <property name="text">
                <string>Use VTK Interactor</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_PickerRadius"/>
-            </item>
-            <item row="6" column="0" colspan="2">
-             <widget class="QPushButton" name="pushButton_ZoomOnPickedObject">
-              <property name="text">
-               <string>Zoom on picked object</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
+            <item row="3" column="0">
              <widget class="QLabel" name="label_11">
               <property name="text">
                <string>Picker Radius</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="0" colspan="2">
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_PickerRadius"/>
+            </item>
+            <item row="4" column="0">
              <widget class="QCheckBox" name="checkBox_ShowPickSphere">
               <property name="text">
                <string>Show pick sphere</string>
@@ -599,24 +601,31 @@
               </property>
              </widget>
             </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QPushButton" name="pushButton_ZoomOnPickedObject">
+              <property name="text">
+               <string>Zoom on picked object</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item>
           <widget class="QGroupBox" name="groupBox_5">
            <property name="title">
             <string>Fields</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="1">
-             <widget class="QComboBox" name="comboBox_Field"/>
-            </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
                <string>Field :</string>
               </property>
              </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBox_Field"/>
             </item>
             <item row="1" column="1">
              <widget class="QCheckBox" name="checkBox_Legend">
@@ -625,25 +634,15 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="pushButton_ScaleToData">
-              <property name="text">
-               <string>Scale to data</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMin"/>
-            </item>
-            <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMax"/>
-            </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_5">
               <property name="text">
                <string>DataMin :</string>
               </property>
              </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMin"/>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_6">
@@ -652,17 +651,13 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_FieldMax"/>
+            </item>
             <item row="4" column="0">
              <widget class="QLabel" name="label_7">
               <property name="text">
                <string>HueMin :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>HueMax :</string>
               </property>
              </widget>
             </item>
@@ -673,6 +668,13 @@
               </property>
               <property name="singleStep">
                <double>0.010000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>HueMax :</string>
               </property>
              </widget>
             </item>
@@ -706,27 +708,17 @@
               </property>
              </widget>
             </item>
+            <item row="7" column="0" colspan="2">
+             <widget class="QPushButton" name="pushButton_ScaleToData">
+              <property name="text">
+               <string>Scale to data</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="pushButtonRedraw">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>   redraw</string>
-           </property>
-           <property name="icon">
-            <iconset resource="engrid.qrc">
-             <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
+         <item>
           <widget class="QGroupBox" name="groupBox_6">
            <property name="title">
             <string>Cell Text</string>
@@ -743,6 +735,23 @@
              <widget class="QComboBox" name="comboBox_CellTextField"/>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonRedraw">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>   redraw</string>
+           </property>
+           <property name="icon">
+            <iconset resource="engrid.qrc">
+             <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
+           </property>
           </widget>
          </item>
         </layout>
