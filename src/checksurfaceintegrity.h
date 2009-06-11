@@ -36,9 +36,9 @@ private:
 public:
   CheckSurfaceIntegrity();
   bool isWaterTight();
-  int getNmin() { return(Nmin); };
-  int getNmax() { return(Nmax); };
-  QSet <vtkIdType> getBadCells() { return(BadCells); };
+  int getNmin() { return(Nmin); }
+  int getNmax() { return(Nmax); }
+  QSet <vtkIdType> getBadCells() { return(BadCells); }
   
 protected: // methods
   virtual void operate();
