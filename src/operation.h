@@ -38,8 +38,11 @@ class GuiMainWindow;
 #include <QThread>
 #include <QMutex>
 #include <QListWidget>
+#include <QTime>
 
 #include <typeinfo>
+
+#define EG_TYPENAME setTypeName(QString(typeid(*this).name()))
 
 class OperationThread : public QThread
 {
@@ -84,15 +87,18 @@ private: // static attributes
 private: // attributes
   
   bool               gui;
-  bool               m_quicksave;             /// save grid after operation finished?
-  bool               m_resetoperationcounter; /// reset operation counter after operation finished? (default is false)
+  bool               m_quicksave;             ///< save grid after operation finished?
+  bool               m_resetoperationcounter; ///< reset operation counter after operation finished? (default is false)
   bool               autoset;
   Error             *err;
   QString            volume_name;
-  
+  QString            m_TypeName;              ///< typename retrieved from typeid(this).name()
+  QTime              m_StartTime;             ///< start time for run-time information
+
 private: // methods
-  
-  //void initMapping();
+
+  void setStartTime() { m_StartTime = QTime::currentTime(); }
+  int  elapsedTime() { return m_StartTime.secsTo(QTime::currentTime()); }
   
 protected: // attributes
   
@@ -112,6 +118,7 @@ protected: // methods
   void updateActors();
   GuiMainWindow* mainWindow();
   virtual void operate() = 0;
+  void setTypeName(QString name);
 
 public: // methods
   
@@ -151,6 +158,9 @@ public: // methods
   virtual void operator()();
 
   static void collectGarbage();
+
+  QString getTypeName() { return m_TypeName; }
+
 };
 
 //End of class Operation

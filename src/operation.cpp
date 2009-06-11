@@ -41,6 +41,7 @@
 #include <vtkCharArray.h>
 
 #include <QApplication>
+#include <QTime>
 
 #include "geometrytools.h"
 using namespace GeometryTools;
@@ -91,6 +92,7 @@ Operation::Operation() :
   m_resetoperationcounter = false;
   err = NULL;
   autoset = true;
+  m_TypeName = "undefined";
 }
 
 Operation::~Operation()
@@ -112,6 +114,7 @@ void OperationThread::run()
     GuiMainWindow::lock();
     GuiMainWindow::pointer()->setBusy();
     op->operate();
+    cout << "secs. for " << op->getTypeName().toAscii().data() << ": " << op->elapsedTime() << endl;
   } catch (Error err) {
     op->err = new Error();
     *(op->err) = err;
@@ -120,8 +123,18 @@ void OperationThread::run()
   GuiMainWindow::pointer()->setIdle();
 }
 
+void Operation::setTypeName(QString name)
+{
+  int i = 0;
+  while ((i < name.size()) && (name[i].isDigit())) {
+    ++i;
+  }
+  m_TypeName = name.right(name.size() - i);
+}
+
 void Operation::operator()()
 {
+  setStartTime();
   if (gui) {
     if (GuiMainWindow::tryLock()) {
       checkGrid();
@@ -135,6 +148,7 @@ void Operation::operator()()
     checkGrid();
     try {
       operate();
+      cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
     } catch (Error err) {
       err.display();
     }
