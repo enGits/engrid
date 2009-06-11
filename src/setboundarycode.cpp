@@ -35,8 +35,7 @@ SetBoundaryCode::SetBoundaryCode()
 
 void SetBoundaryCode::pass1()
 {
-  if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours))
-  {
+  if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours)) {
     using namespace GeometryTools;
     double fa = feature_angle*M_PI/180.0;
   
@@ -67,9 +66,8 @@ void SetBoundaryCode::pass1()
             pair[i].terminate = true;
           } else {
             pair[i].terminate = false;
-          };
-        }
-        else{
+          }
+        } else {
           pair[i].terminate = true;
         }
       }
@@ -96,8 +94,7 @@ void SetBoundaryCode::pass2()
     cell_code->SetValue(this->getStart(), boundary_code);
   } else if (OnlyPickedCellAndNeighbours) {
     cell_code->SetValue(this->getStart(), boundary_code);
-    foreach (cellId, c2c[this->getStart()])
-    {
+    foreach (cellId, c2c[this->getStart()]) {
       cell_code->SetValue(cellId, boundary_code);
     }
   } else {
