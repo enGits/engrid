@@ -66,15 +66,15 @@ protected: // attributes
 protected: // methods
   
   virtual void pass1();
-  virtual void pass2() {};
+  virtual void pass2() {}
   void getCells();
   
 public: // methods
   
   Iterator();
   
-  void setVolumeIteration()  { volume_iteration = true; };
-  void setSurfaceIteration() { volume_iteration = false; };
+  void setVolumeIteration()  { volume_iteration = true; }
+  void setSurfaceIteration() { volume_iteration = false; }
   
 };
 
