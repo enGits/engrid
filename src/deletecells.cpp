@@ -26,13 +26,13 @@ void DeleteCells::setTraceCells(const QVector<vtkIdType> &cells)
 {
   trace_cells.resize(cells.size()); 
   qCopy(cells.begin(), cells.end(), trace_cells.begin()); 
-};
+}
 
 void DeleteCells::getTraceCells(QVector<vtkIdType> &cells)
 {
   cells.resize(trace_cells.size()); 
   qCopy(trace_cells.begin(), trace_cells.end(), cells.begin()); 
-};
+}
 
 void DeleteCells::operate()
 {
@@ -54,9 +54,9 @@ void DeleteCells::operate()
         copyNodeData(grid, id_node, new_grid, id_new);
         old2new_nodes[id_node] = id_new;
         ++id_new;
-      };
-    };
-  };
+      }
+    }
+  }
   {
     foreach (vtkIdType id_cell, new_cells) {
       vtkIdType *pts, N_pts;
@@ -64,21 +64,21 @@ void DeleteCells::operate()
       QVector<vtkIdType> new_pts(N_pts);
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = old2new_nodes[pts[i]];
-      };
+      }
       vtkIdType cellType = grid->GetCellType(id_cell);
       vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
       copyCellData(grid, id_cell, new_grid, id_new);
       old2new_cells[id_cell] = id_new;
-    };
+    }
     QList<vtkIdType> new_trace_cells;
     foreach (vtkIdType id_cell, trace_cells) {
       if (old2new_cells[id_cell] != -1) {
         new_trace_cells.append(old2new_cells[id_cell]);
-      };
-    };
+      }
+    }
     trace_cells.resize(new_trace_cells.size());
     qCopy(new_trace_cells.begin(), new_trace_cells.end(), trace_cells.begin());
-  };
+  }
   makeCopy(new_grid, grid);
-};
+}
 
