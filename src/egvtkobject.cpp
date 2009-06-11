@@ -171,25 +171,13 @@ void EgVtkObject::createNodeToCell
   }
 }
 
-void EgVtkObject::addToN2N
-(
-  QVector<QSet<int> > &n2n, 
-  int                  n1, 
-  int                  n2
-)
+void EgVtkObject::addToN2N(QVector<QSet<int> > &n2n, int n1, int n2)
 {
   n2n[n1].insert(n2);
   n2n[n2].insert(n1);
 }
 
-void EgVtkObject::createNodeToNode
-(
-  QVector<vtkIdType>  &cells,
-  QVector<vtkIdType>  &nodes,
-  QVector<int>        &_nodes,
-  QVector<QSet<int> > &n2n,
-  vtkUnstructuredGrid *grid
-)
+void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType> &nodes, QVector<int> &_nodes, QVector<QSet<int> > &n2n, vtkUnstructuredGrid *grid)
 {
   n2n.fill(QSet<int>(), nodes.size());
   foreach (vtkIdType id_cell, cells) {
@@ -453,16 +441,7 @@ void EgVtkObject::getSurfaceNodes
   if(idx!=N_selected) EG_BUG;*/
 }
 
-void EgVtkObject::addToC2C
-(
-  vtkIdType               id_cell,
-  QVector<int>           &_cells,
-  QVector<QVector<int> > &c2c,
-  int                     j,
-  vtkIdList              *nds,
-  vtkIdList              *cls,
-  vtkUnstructuredGrid    *grid
-)
+void EgVtkObject::addToC2C(vtkIdType id_cell, QVector<int> &_cells, QVector<QVector<int> > &c2c, int j, vtkIdList *nds, vtkIdList *cls, vtkUnstructuredGrid *grid)
 {
   c2c[_cells[id_cell]][j] = -1;
   grid->GetCellNeighbors(id_cell, nds, cls);
@@ -476,12 +455,7 @@ void EgVtkObject::addToC2C
 }
 
 
-void EgVtkObject::createCellToCell
-(
-  QVector<vtkIdType>     &cells,
-  QVector<QVector<int> > &c2c,
-  vtkUnstructuredGrid    *grid
-)
+void EgVtkObject::createCellToCell(QVector<vtkIdType> &cells, QVector<QVector<int> > &c2c, vtkUnstructuredGrid *grid)
 {
   // GetCellNeighbors(vtkIdType id_cell, vtkIdList *ptIds, vtkIdList *id_cells)
   grid->BuildLinks();
