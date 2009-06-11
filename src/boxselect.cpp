@@ -44,8 +44,8 @@ public:
 };
 
 BoxSelect::BoxSelect()
- : Operation()
 {
+  EG_TYPENAME;
 }
 
 

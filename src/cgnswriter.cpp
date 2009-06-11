@@ -24,6 +24,7 @@
 
 CgnsWriter::CgnsWriter()
 {
+  EG_TYPENAME;
 #ifdef CGNS_SUPPORT
   setFormat("CGNS files(*.cgns)");
 #endif

@@ -40,6 +40,10 @@ class GmshReader : public GmshIOOperation
 protected: // methods
   
   virtual void operate();
+
+public: // methods
+
+  GmshReader() { EG_TYPENAME; }
   
 };
 

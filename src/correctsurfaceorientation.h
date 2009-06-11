@@ -36,7 +36,7 @@ protected: // methods
   
 public: // methods
   
-  CorrectSurfaceOrientation() { setSurfaceIteration(); };
+  CorrectSurfaceOrientation() { EG_TYPENAME; setSurfaceIteration(); }
   
 };
 

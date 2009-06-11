@@ -24,8 +24,9 @@
 
 GmshIOOperation::GmshIOOperation()
 {
+  EG_TYPENAME;
   setFormat("Gmsh files(*.msh *.MSH)");
   setExtension(".msh");
   format = ascii1;
-};
+}
 

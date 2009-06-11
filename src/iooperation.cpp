@@ -25,15 +25,23 @@
 
 #include <QFileDialog>
 
+IOOperation::IOOperation()
+{
+  EG_TYPENAME;
+  setResetOperationCounter(true);
+  setQuickSave(true);
+}
+
+
 void IOOperation::setFormat(QString format)
 {
   format_txt = format;  
-};
+}
 
 void IOOperation::setExtension(QString extension)
 {
   extension_txt = extension;  
-};
+}
 
 void IOOperation::readInputFileName()
 {
@@ -43,8 +51,8 @@ void IOOperation::readInputFileName()
     valid = true;
   } else {
     valid = false;
-  };
-};
+  }
+}
 
 void IOOperation::readOutputFileName()
 {
@@ -54,13 +62,13 @@ void IOOperation::readOutputFileName()
     if (filename.right(4) != extension_txt.toLower()) {
       if (filename.right(4) != extension_txt.toUpper()) {
         filename += extension_txt.toLower();
-      };
-    };
+      }
+    }
     valid = true;
   } else {
     valid = false;
-  };
-};
+  }
+}
 
 void IOOperation::readOutputDirectory()
 {
@@ -70,22 +78,22 @@ void IOOperation::readOutputDirectory()
     valid = true;
   } else {
     valid = false;
-  };
-};
+  }
+}
 
 bool IOOperation::isValid()
 {
   return valid;
-};
+}
 
 char* IOOperation::getCFileName()
 {
   return filename.toAscii().data();
-};
+}
 
 QString IOOperation::getFileName()
 {
   return filename;
-};
+}
 
 

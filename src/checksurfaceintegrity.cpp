@@ -23,9 +23,9 @@
 #include "checksurfaceintegrity.h"
 // #include "egvtkobject.h"
 
-CheckSurfaceIntegrity::CheckSurfaceIntegrity()
-: SurfaceOperation()
+CheckSurfaceIntegrity::CheckSurfaceIntegrity() : SurfaceOperation()
 {
+  EG_TYPENAME;
 }
 
 void CheckSurfaceIntegrity::operate()

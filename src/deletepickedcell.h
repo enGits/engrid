@@ -33,6 +33,11 @@ class DeletePickedCell : public SurfaceOperation
 protected: // methods
   
   virtual void operate();
+
+public: // methods
+
+  DeletePickedCell() { EG_TYPENAME; }
+
 };
 
 #endif

@@ -27,6 +27,7 @@
 
 FoamWriter::FoamWriter()
 {
+  EG_TYPENAME;
   setFormat("Foam boundary files(boundary)");
   setExtension("");
 }

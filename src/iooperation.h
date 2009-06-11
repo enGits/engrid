@@ -91,8 +91,8 @@ protected: // methods
   
 public: // methods
   
-  IOOperation(){ cout<<"IOOperation called"<<endl; setResetOperationCounter(true); setQuickSave(true); };
-  virtual ~IOOperation() {};
+  IOOperation();
+  virtual ~IOOperation() {}
   
   /// Open a QFileDialog and make the user input a file name for opening or importing. */
   void readInputFileName();

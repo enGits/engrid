@@ -40,6 +40,8 @@ protected: // methods
   virtual void operate();
   
 public: // methods
+
+  DeleteCells() { EG_TYPENAME; }
   
   template <class T> void setCellsToDelete(const T &cls);
   void setTraceCells(const QVector<vtkIdType> &cells);

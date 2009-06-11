@@ -27,6 +27,7 @@
 
 CreateVolumeMesh::CreateVolumeMesh()
 {
+  EG_TYPENAME;
   maxh     = 1e99;
   fineness = 0.0;
 }

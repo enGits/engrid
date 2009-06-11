@@ -33,6 +33,10 @@ class DeleteVolumeGrid : public Operation
 protected: // methods
   
   virtual void operate();
+
+public: // methods
+
+  DeleteVolumeGrid() { EG_TYPENAME; }
   
 };
 

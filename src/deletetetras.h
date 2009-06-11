@@ -34,6 +34,10 @@ protected: // methods
   
   virtual void operate();
   
+public: // methods
+
+  DeleteTetras() { EG_TYPENAME; }
+
 };
 
 #endif

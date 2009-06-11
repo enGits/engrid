@@ -33,6 +33,7 @@ using namespace GeometryTools;
 
 DeletePickedPoint::DeletePickedPoint() : SurfaceOperation()
 {
+  EG_TYPENAME;
   //Activate undo/redo
   setQuickSave(true);
 }
