@@ -471,6 +471,12 @@ protected: // methods
   void writeGrid(vtkUnstructuredGrid *grid, QString name);
 
   
+public: // data-types
+
+  typedef QVector<vtkIdType>     l2g_t;
+  typedef QVector<int>           g2l_t;
+  typedef QVector<QVector<int> > l2l_t;
+
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }

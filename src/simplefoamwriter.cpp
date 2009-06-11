@@ -36,11 +36,11 @@ bool SimpleFoamWriter::face_t::operator<(const face_t &F) const
     } else if (owner == F.owner) {
       if (neighbour < F.neighbour) {
         less = true;
-      };
-    };
-  };
+      }
+    }
+  }
   return less;
-};
+}
 
 vec3_t SimpleFoamWriter::face_t::normal(vtkUnstructuredGrid *grid)
 {
@@ -50,19 +50,19 @@ vec3_t SimpleFoamWriter::face_t::normal(vtkUnstructuredGrid *grid)
   for (int i = 0; i < node.size(); ++i) {
     grid->GetPoint(node[i],x[i].data());
     xc += x[i];
-  };
+  }
   xc *= 1.0/node.size();
   vec3_t n(0,0,0);
   for (int i = 0; i < node.size()-1; ++i) {
     vec3_t a = x[i]   - xc; 
     vec3_t b = x[i+1] - xc; 
     n += 0.5*(a.cross(b));
-  };
+  }
   vec3_t a = x[node.size()-1] - xc; 
   vec3_t b = x[0]             - xc; 
   n += 0.5*(a.cross(b));
   return n;
-};
+}
 
 
 SimpleFoamWriter::SimpleFoamWriter()
@@ -73,11 +73,13 @@ SimpleFoamWriter::SimpleFoamWriter()
 
 vtkIdType SimpleFoamWriter::getNeigh(int i_cells, int i_neigh) 
 { 
+  l2g_t cells = getPartCells();
+  l2l_t c2c   = getPartC2C();
   int n = c2c[i_cells][i_neigh]; 
   if (n >= 0) return cells[n]; 
   EG_BUG;
   return -1;
-};
+}
 
 void SimpleFoamWriter::addFace(face_t F)
 {
@@ -85,16 +87,18 @@ void SimpleFoamWriter::addFace(face_t F)
     if (F.neighbour > F.owner) {
       F.bc = 0;
       lfaces.append(F);
-    };
+    }
   } else {
     F.bc = bc->GetValue(F.neighbour);
     F.neighbour = -1;
     lfaces.append(F);
-  };
-};
+  }
+}
 
 void SimpleFoamWriter::createFaces()
 {
+  l2g_t cells = getPartCells();
+
   lfaces.clear();
   EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
   bc = cell_code;
@@ -115,22 +119,22 @@ void SimpleFoamWriter::createFaces()
         face_t F(3,id_cell,getNeigh(i_cells,0));
         F.node[0] = pts[2]; F.node[1] = pts[1]; F.node[2] = pts[0];
         addFace(F);
-      };
+      }
       {
         face_t F(3,id_cell,getNeigh(i_cells,1));
         F.node[0] = pts[0]; F.node[1] = pts[1]; F.node[2] = pts[3];
         addFace(F);
-      };
+      }
       {
         face_t F(3,id_cell,getNeigh(i_cells,2));
         F.node[0] = pts[0]; F.node[1] = pts[3]; F.node[2] = pts[2];
         addFace(F);
-      };
+      }
       {
         face_t F(3,id_cell,getNeigh(i_cells,3));
         F.node[0] = pts[1]; F.node[1] = pts[2]; F.node[2] = pts[3];
         addFace(F);
-      };
+      }
     }
     
     // prisms
@@ -141,28 +145,28 @@ void SimpleFoamWriter::createFaces()
         face_t F(3,id_cell,getNeigh(i_cells,0));
         F.node[0] = pts[0]; F.node[1] = pts[1]; F.node[2] = pts[2];
         addFace(F);
-      };
+      }
       {
         face_t F(3,id_cell,getNeigh(i_cells,1));
         F.node[0] = pts[3]; F.node[1] = pts[5]; F.node[2] = pts[4];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,2));
         F.node[0] = pts[3]; F.node[1] = pts[4]; F.node[2] = pts[1]; F.node[3] = pts[0];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,3));
         F.node[0] = pts[1]; F.node[1] = pts[4]; F.node[2] = pts[5]; F.node[3] = pts[2];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,4));
         F.node[0] = pts[0]; F.node[1] = pts[2]; F.node[2] = pts[5]; F.node[3] = pts[3];
         addFace(F);
-      };
-    };
+      }
+    }
     
     // hexes
     //
@@ -172,44 +176,46 @@ void SimpleFoamWriter::createFaces()
         face_t F(4,id_cell,getNeigh(i_cells,0),0);
         F.node[0] = pts[3]; F.node[1] = pts[2]; F.node[2] = pts[1]; F.node[3] = pts[0];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,1),0);
         F.node[0] = pts[4]; F.node[1] = pts[5]; F.node[2] = pts[6]; F.node[3] = pts[7];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,2),0);
         F.node[0] = pts[0]; F.node[1] = pts[1]; F.node[2] = pts[5]; F.node[3] = pts[4];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,3),0);
         F.node[0] = pts[3]; F.node[1] = pts[7]; F.node[2] = pts[6]; F.node[3] = pts[2];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,4),0);
         F.node[0] = pts[0]; F.node[1] = pts[4]; F.node[2] = pts[7]; F.node[3] = pts[3];
         addFace(F);
-      };
+      }
       {
         face_t F(4,id_cell,getNeigh(i_cells,5),0);
         F.node[0] = pts[1]; F.node[1] = pts[2]; F.node[2] = pts[6]; F.node[3] = pts[5];
         addFace(F);
-      };
-    };
-  };
+      }
+    }
+  }
   
   faces.resize(lfaces.size());
   qCopy(lfaces.begin(),lfaces.end(),faces.begin());
   qSort(faces);
   
-};
+}
 
 
 void SimpleFoamWriter::writePoints()
 {
+  l2g_t nodes = getPartNodes();
+
   QString filename = path + "points";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
@@ -237,10 +243,10 @@ void SimpleFoamWriter::writePoints()
     grid->GetPoint(id_node,x.data());
     f.setRealNumberPrecision(16);
     f << "(" << x[0] << " " << x[1] << " " << x[2] << ")\n";
-  };
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void SimpleFoamWriter::writeFaces()
 {
@@ -273,12 +279,12 @@ void SimpleFoamWriter::writeFaces()
         f << ")\n";
       } else {
         f << " ";
-      };
-    };
-  };
+      }
+    }
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void SimpleFoamWriter::writeOwner()
 {
@@ -305,10 +311,10 @@ void SimpleFoamWriter::writeOwner()
   f << faces.size() << "\n(\n";
   foreach (face_t F, faces) {
     f << eg2of[F.owner] << "\n";
-  };
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void SimpleFoamWriter::writeNeighbour()
 {
@@ -338,11 +344,11 @@ void SimpleFoamWriter::writeNeighbour()
       f << "-1\n";
     } else {
       f << eg2of[F.neighbour] << "\n";
-    };
-  };
+    }
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
-};
+}
 
 void SimpleFoamWriter::writeBoundary()
 {
@@ -370,8 +376,8 @@ void SimpleFoamWriter::writeBoundary()
   foreach (face_t F, faces) {
     if (F.bc != 0) {
       bcs.insert(F.bc);
-    };
-  };
+    }
+  }
   f << bcs.size() << "\n(\n";
   QVector<patch_t> patch(bcs.size());
   int N_bc = 0;
@@ -383,9 +389,9 @@ void SimpleFoamWriter::writeBoundary()
         ++nFaces;
         if (startFace == -1) {
           startFace = i;
-        };
-      };
-    };
+        }
+      }
+    }
     if (startFace == -1) {
       EG_BUG;
     }
@@ -405,7 +411,7 @@ void SimpleFoamWriter::writeBoundary()
     f << "        nFaces      " << P.nFaces << ";\n";
     f << "        startFace   " << P.startFace << ";\n";
     f << "    }\n";
-  };
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
 }
@@ -421,29 +427,29 @@ void SimpleFoamWriter::operate()
       QDir d2(p2);
       if (!d1.exists()) {
         EG_BUG;
-      };
+      }
       if (!d2.exists()) {
         d1.mkdir("constant");
         d2 = QDir(p2);
-      };
+      }
       d1 = d2;
       p1 = p2;
       p2 = p1 + "/polyMesh";
       d2 = QDir(p2);
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
-      };
+      }
       path = getFileName() + "/constant/polyMesh/";
       if (!QDir(path).exists()) {
         EG_BUG;
-      };
+      }
       createFaces();
       writePoints();
       writeFaces();
       writeOwner();
       writeNeighbour();
       writeBoundary();
-    };
+    }
   } catch (Error err) {
     err.display();
   }

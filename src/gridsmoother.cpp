@@ -84,6 +84,7 @@ void GridSmoother::markNodes()
     qCopy(new_mark.begin(),new_mark.end(),node_marked.begin());
   }
   N_marked_nodes = 0;
+  QVector<vtkIdType> nodes = m_Part.getNodes();
   foreach (vtkIdType id_node, nodes) {
     if (id_node < 0) EG_BUG;
     if (id_node > grid->GetNumberOfPoints()) EG_BUG;
@@ -102,6 +103,9 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   grid->GetPoints()->SetPoint(id_node, x_new.data());
   bool move = true;
   Elements E;
+
+  QVector<vtkIdType> cells = m_Part.getCells();
+  QVector<QVector<int> > n2c = m_Part.getN2C();
 
   foreach (int i_cells, n2c[id_node]) {
     vtkIdType id_cell = cells[i_cells];
@@ -145,6 +149,9 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 {
+  QVector<vtkIdType> nodes = m_Part.getNodes();
+  QVector<QVector<int> > n2c = m_Part.getN2C();
+
   for (int i_boundary_correction = 0; i_boundary_correction < N_boundary_corrections; ++i_boundary_correction) {
     foreach (vtkIdType id_cell, n2c[i_nodes]) {
       if (isSurface(id_cell, grid)) {
@@ -191,6 +198,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 
 bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 {
+  l2g_t nodes = getPartNodes();
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
   grid->GetPoint(id_node, x_old.data());
@@ -239,6 +247,11 @@ double GridSmoother::errThickness(double x)
 
 double GridSmoother::func(vec3_t x)
 {
+  l2g_t nodes = getPartNodes();
+  l2l_t n2c   = getPartN2C();
+  l2g_t cells = getPartCells();
+  l2l_t c2c   = getPartC2C();
+
   vec3_t x_old;
   grid->GetPoint(nodes[i_nodes_opt], x_old.data());
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x.data());
@@ -435,6 +448,12 @@ void GridSmoother::operate()
   EG_VTKDCN(vtkIntArray,    node_status, grid, "node_status");
   EG_VTKDCN(vtkIntArray,    node_layer,  grid, "node_layer");
   
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2c   = getPartN2C();
+  l2l_t  n2n   = getPartN2N();
+
   QVector<QSet<int> > n2bc(nodes.size());
   QVector<bool> prism_node(nodes.size(),false);
   foreach (vtkIdType id_cell, cells) {

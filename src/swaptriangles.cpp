@@ -37,6 +37,11 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
 
 void SwapTriangles::operate()
 {
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2l_t  n2c   = getPartN2C();
+  g2l_t _nodes = getPartLocalNodes();
+
   cout << "swapping edges of boundary triangles (Delaunay)" << endl;
   
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
@@ -173,6 +178,10 @@ bool SwapTriangles::TestSwap(stencil_t S)
 
 bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
+
   bool ret = false;
   foreach(int i_node, n2n[_nodes[id_node1]]) {
     vtkIdType id_node = nodes[i_node];

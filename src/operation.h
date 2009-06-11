@@ -104,13 +104,6 @@ protected: // attributes
   
   vtkUnstructuredGrid    *grid;   /// The main grid the operation operates on.
   MeshPartition           m_Part; /// the partition containing the subset of cells and nodes
-  QVector<vtkIdType>     &cells;  /// reference for backwards compatibility
-  QVector<int>           &_cells; /// reference for backwards compatibility
-  QVector<vtkIdType>     &nodes;  /// reference for backwards compatibility
-  QVector<int>           &_nodes; /// reference for backwards compatibility
-  QVector<QVector<int> > &n2n;    /// reference for backwards compatibility
-  QVector<QVector<int> > &n2c;    /// reference for backwards compatibility
-  QVector<QVector<int> > &c2c;    /// reference for backwards compatibility
 
 protected: // methods
   
@@ -119,6 +112,14 @@ protected: // methods
   GuiMainWindow* mainWindow();
   virtual void operate() = 0;
   void setTypeName(QString name);
+
+  const l2g_t& getPartNodes()      const { return m_Part.getNodes(); }
+  const l2g_t& getPartCells()      const { return m_Part.getCells(); }
+  const g2l_t& getPartLocalNodes() const { return m_Part.getLocalNodes(); }
+  const g2l_t& getPartLocalCells() const { return m_Part.getLocalCells(); }
+  const l2l_t& getPartN2N()        const { return m_Part.getN2N(); }
+  const l2l_t& getPartN2C()        const { return m_Part.getN2C(); }
+  const l2l_t& getPartC2C()        const { return m_Part.getC2C(); }
 
 public: // methods
   
@@ -173,13 +174,6 @@ void Operation::setCells(const T &cls)
 {
   m_Part.setGrid(grid);
   m_Part.setCells(cls);
-  cells = m_Part.getCells();
-  nodes = m_Part.getNodes();
-  _cells = m_Part.getLocalCells();
-  _nodes = m_Part.getLocalNodes();
-  n2n = m_Part.getN2N();
-  n2c = m_Part.getN2C();
-  c2c = m_Part.getC2C();
 }
 
 #endif

@@ -30,14 +30,14 @@ void DeleteTetras::operate()
 
   {
     int N = 0;
-    foreach (vtkIdType id_cell, this->cells) {
+    foreach (vtkIdType id_cell, m_Part.getCells()) {
       if (grid->GetCellType(id_cell) == VTK_TETRA) {
         ++N;
       }
     }
     tetras.resize(N);
     N = 0;
-    foreach (vtkIdType id_cell, this->cells) {
+    foreach (vtkIdType id_cell, m_Part.getCells()) {
       if (grid->GetCellType(id_cell) == VTK_TETRA) {
         tetras[N] = id_cell;
         ++N;

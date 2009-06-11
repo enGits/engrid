@@ -276,6 +276,9 @@ void SeedSimplePrismaticLayer::operate()
   EG_VTKDCN(vtkIntArray, node_layer_old,  grid,     "node_layer");
   EG_VTKDCN(vtkIntArray, node_layer_new,  new_grid, "node_layer");
   EG_VTKDCC(vtkIntArray, bc,              grid,     "cell_code");
+
+  l2l_t  n2c   = getPartN2C();
+  g2l_t _nodes = getPartLocalNodes();
   
   QVector<QSet<int> > n2f(grid->GetNumberOfPoints());
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {

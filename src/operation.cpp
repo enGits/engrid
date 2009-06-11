@@ -77,14 +77,7 @@ void Operation::collectGarbage()
   }
 }
 
-Operation::Operation() :
-   cells(m_static_DummyCells),
-  _cells(m_static_DummyRCells),
-   nodes(m_static_DummyNodes),
-  _nodes(m_static_DummyRNodes),
-   n2n(m_static_DummyN2N),
-   n2c(m_static_DummyN2C),
-   c2c(m_static_DummyC2C)
+Operation::Operation()
 {
   grid = NULL;
   gui = false;
@@ -195,6 +188,7 @@ void Operation::checkGrid()
   if (grid == NULL) {
     grid = GuiMainWindow::pointer()->getGrid();
   }
+  l2g_t cells = getPartCells();
   if ((cells.size() == 0) && autoset) {
     setAllCells();
   }
