@@ -38,7 +38,7 @@ protected: // attributes
 public: // methods
   
   LayerIterator();
-  bool firstLayer() { return first_layer; };
+  bool firstLayer() { return first_layer; }
   
 };
 
