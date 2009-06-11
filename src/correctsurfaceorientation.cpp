@@ -44,15 +44,15 @@ void CorrectSurfaceOrientation::pass1()
           if ((node_11 == node_22) && (node_12 == node_21)) {
             ok = true;
             break;
-          };
-        };
-      };
+          }
+        }
+      }
       if (!ok) {
         QVector<vtkIdType> nodes(Npts2);
         for (vtkIdType j = 0; j < Npts2; ++j) nodes[j]            = pts2[j];
         for (vtkIdType j = 0; j < Npts2; ++j) pts2[Npts2 - j - 1] = nodes[j];
-      };
-    };
-  };
-};
+      }
+    }
+  }
+}
 
