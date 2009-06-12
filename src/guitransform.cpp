@@ -29,6 +29,7 @@
 #include "deletecells.h"
 #include <cmath>
 #include "geometrytools.h"
+
 using namespace GeometryTools;
 
 /** Set default values */
@@ -61,6 +62,8 @@ void GuiTransform::before()
 /** Apply transformations to the grid ( scaling, translation, rotation ) */
 void GuiTransform::operate()
 {
+  l2g_t nodes = getPartNodes();
+
   cout<<"======================================"<<endl;
   cout<<"void GuiTransform::operate()"<<endl;
   cout<<"======================================"<<endl;

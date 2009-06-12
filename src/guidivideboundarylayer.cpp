@@ -26,10 +26,13 @@
 void GuiDivideBoundaryLayer::before()
 {
   populateBoundaryCodes(ui.listWidget);
-};
+}
 
 void GuiDivideBoundaryLayer::findBoundaryLayer()
 {
+  l2g_t cells = getPartCells();
+  l2l_t c2c   = getPartC2C();
+
   pairs.clear();
   insert_cell.fill(true,grid->GetNumberOfCells());
   N_prisms = 0;
@@ -41,51 +44,57 @@ void GuiDivideBoundaryLayer::findBoundaryLayer()
       grid->GetCellPoints(cells[i_cells],N_pts,pts);
       for (int j = 0; j < 3; ++j) {
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
-      };
+      }
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
-          };
+          }
         } else {
           vec3_t x;
           grid->GetPoint(pts[0],x.data());
           cout << x << endl;
           EG_BUG;
-        };
-      };
+        }
+      }
       for (int j = 0; j < 2; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
           if (type_ncell == VTK_WEDGE) {
             EG_ERR_RETURN("the boundary layer seems to have been split already");
-          };
+          }
         } else {
           EG_BUG;
-        };
-      };
-    };
+        }
+      }
+    }
     if (grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
       ++N_quads;
-    };
-  };
+    }
+  }
   if (N_prisms == 0) {
     EG_ERR_RETURN("unable to identify boundary layer");
-  };
+  }
   is_blayer_node.clear();
   is_blayer_node.fill(false, grid->GetNumberOfPoints());
   
   QPair<vtkIdType,vtkIdType> P;
   foreach (P, pairs) {
     is_blayer_node[P.second] = true;
-  };
-};
+  }
+}
 
 void GuiDivideBoundaryLayer::findBoundaryLayer1()
 {
   pairs.clear();
-  
+
+  l2g_t  cells = getPartCells();
+  g2l_t _nodes = getPartLocalNodes();
+  g2l_t _cells = getPartLocalCells();
+  l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
+
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
   QVector<vtkIdType> scells;
@@ -117,32 +126,32 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       ++N_prisms;
       if (type_scell != VTK_QUAD) {
         EG_ERR_RETURN("unable to identify boundary layer");
-      };
+      }
       if (cells[c2c[i_cells][0]] == id_scell) {
         for (int j = 0; j < 3; ++j) {
           pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
-        };
+        }
       } else if (cells[c2c[i_cells][1]] == id_scell) {
         for (int j = 0; j < 3; ++j) {
           pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j+3],pts[j]));
-        };
+        }
       } else {
         EG_ERR_RETURN("unable to identify boundary layer");
-      };
+      }
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType id_ncell   = cells[c2c[i_cells][j]];
           vtkIdType type_ncell = grid->GetCellType(id_ncell);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_HEXAHEDRON) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
-          };
+          }
           if (type_ncell == VTK_QUAD) {
             insert_cell[id_ncell] = false;
-          };
+          }
         } else {
           EG_BUG;
-        };
-      };
+        }
+      }
     } else if (type_cell == VTK_HEXAHEDRON) {
       
       // hexes
@@ -150,7 +159,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       ++N_hexes;
       if (type_scell != VTK_QUAD) {
         EG_ERR_RETURN("unable to identify boundary layer");
-      };
+      }
       QVector<bool> check_neigh(6,true);
       if (cells[c2c[i_cells][0]] == id_scell) {
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[0],pts[4]));
@@ -194,7 +203,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[2],pts[3]));
         check_neigh[4] = false;
         check_neigh[5] = false;
-      };
+      }
       for (int j = 0; j < 6; ++j) {
         if (check_neigh[j]) {
           if (c2c[i_cells][j] != -1) {
@@ -202,15 +211,15 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
             vtkIdType type_ncell = grid->GetCellType(id_ncell);
             if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_HEXAHEDRON) && (type_ncell != VTK_QUAD)) {
               EG_ERR_RETURN("unable to identify boundary layer");
-            };
+            }
             if (type_ncell == VTK_QUAD) {
               insert_cell[id_ncell] = false;
-            };
+            }
           } else {
             EG_BUG;
-          };
-        };
-      };
+          }
+        }
+      }
       
     } else if (type_cell == VTK_QUAD) {
       
@@ -220,8 +229,8 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       
     } else {
       EG_ERR_RETURN("unable to identify boundary layer");
-    };
-  };
+    }
+  }
   
   /*
   N_prisms = 0;
@@ -234,37 +243,37 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       grid->GetCellPoints(cells[i_cells],N_pts,pts);
       for (int j = 0; j < 3; ++j) {
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
-      };
+      }
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
-          };
+          }
         } else {
           EG_BUG;
-        };
-      };
+        }
+      }
       for (int j = 0; j < 2; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
           if (type_ncell == VTK_WEDGE) {
             EG_ERR_RETURN("the boundary layer seems to have been split already");
-          };
+          }
         } else {
           EG_BUG;
-        };
-      };
-    };
+        }
+      }
+    }
     if (grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
       ++N_quads;
-    };
-  };
+    }
+  }
   */
   
   if (N_prisms + N_hexes == 0) {
     EG_ERR_RETURN("unable to identify boundary layer");
-  };
+  }
   
   is_blayer_node.clear();
   is_blayer_node.fill(false, grid->GetNumberOfPoints());
@@ -272,8 +281,8 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
   QPair<vtkIdType,vtkIdType> P;
   foreach (P, pairs) {
     is_blayer_node[P.second] = true;
-  };
-};
+  }
+}
 
 void GuiDivideBoundaryLayer::bisectF(double &f1, double &f2)
 {
@@ -282,7 +291,7 @@ void GuiDivideBoundaryLayer::bisectF(double &f1, double &f2)
   if (y[y.size()-1] > 1) f2 = f;
   else                   f1 = f;
   f = 0.5*(f1+f2);
-};
+}
 
 
 //begin GROSSER MURKS 
@@ -300,7 +309,7 @@ void GuiDivideBoundaryLayer::computeF()
     err = fabs((y[y.size()-1]-1)/(y[y.size()-1]-y[y.size()-2]));
   } while (err > 0.01);
   f = 0.5*(f1+f2);
-};
+}
 
 void GuiDivideBoundaryLayer::computeY()
 {
@@ -308,8 +317,8 @@ void GuiDivideBoundaryLayer::computeY()
   for (int i = 2; i < y.size(); ++i) {
     y[i] = y[i-1] + C*(y[i-1]-y[i-2]);
     C *= f;
-  };
-};
+  }
+}
 
 //end GROSSER MURKS
 
@@ -338,19 +347,19 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
       x.resize(y.size());
       for (int i = 0; i < x.size(); ++i) {
         x[i] = i*1.0/(x.size() - 1);
-      };
+      }
       double Dy1;
       if (ui.checkBoxH->isChecked()) {
         Dy1 = h;
       } else {
         Dy1 = h/n.abs();
-      };
+      }
       y[0]   = 0;
       y[1]   = Dy1;
       computeF();
       computeY();
       y_computed = true;
-    };
+    }
     ymin = min(ymin,y[1]*n.abs());
     ymax = max(ymax,y[1]*n.abs());
     for (int i = 1; i < N_layers; ++i) {
@@ -359,15 +368,15 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
       new_grid->GetPoints()->SetPoint(id_new_node, x.data());
       edges[N][i] = id_new_node;
       ++id_new_node;
-    };
+    }
     ++N;
-  };
+  }
   cout << LINE;
   cout << "maximal increment : " << max_step << endl;
   cout << "min(y) : " << ymin << endl;
   cout << "max(y) : " << ymax << endl;
   cout << LINE;
-};
+}
 
 void GuiDivideBoundaryLayer::operate1()
 {
@@ -391,7 +400,7 @@ void GuiDivideBoundaryLayer::operate1()
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
     copyNodeData(grid, id_node, new_grid, id_new_node);
     ++id_new_node;
-  };
+  }
   vtkIdType id_new_cell;
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
@@ -402,8 +411,8 @@ void GuiDivideBoundaryLayer::operate1()
     if (insert_cell[id_cell]) {
       id_new_cell = new_grid->InsertNextCell(grid->GetCellType(id_cell), N_pts, pts);
       copyCellData(grid, id_cell, new_grid, id_new_cell);
-    };
-  };
+    }
+  }
   
   // create divided boundary layer
   createEdges(new_grid);
@@ -423,8 +432,8 @@ void GuiDivideBoundaryLayer::operate1()
           p[5] = edges[old2edge[pts[2]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
           copyCellData(grid, id_cell, new_grid, id_new_cell);
-        };
-      };
+        }
+      }
       if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) {
         EG_BUG;
         // MURKS!!!!
@@ -440,10 +449,10 @@ void GuiDivideBoundaryLayer::operate1()
           p[5] = edges[old2edge[pts[2]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
           copyCellData(grid, id_cell, new_grid, id_new_cell);
-        };
+        }
         
         
-      };
+      }
       if (grid->GetCellType(id_cell) == VTK_QUAD) {
         vtkIdType N_pts, *pts;
         grid->GetCellPoints(id_cell, N_pts, pts);
@@ -456,14 +465,14 @@ void GuiDivideBoundaryLayer::operate1()
             p[3] = edges[old2edge[pts[0]]][i+1];
             id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, p);
             copyCellData(grid, id_cell, new_grid, id_new_cell);
-          };
-        };
-      };
-    };
-  };
+          }
+        }
+      }
+    }
+  }
   
   makeCopy(new_grid, grid);
-};
+}
 
 void GuiDivideBoundaryLayer::operate()
 {
@@ -485,7 +494,7 @@ void GuiDivideBoundaryLayer::operate()
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
     copyNodeData(grid, id_node, new_grid, id_new_node);
     ++id_new_node;
-  };
+  }
   vtkIdType id_new_cell;
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
@@ -496,8 +505,8 @@ void GuiDivideBoundaryLayer::operate()
     if (insert_cell) {
       id_new_cell = new_grid->InsertNextCell(grid->GetCellType(id_cell), N_pts, pts);
       copyCellData(grid, id_cell, new_grid, id_new_cell);
-    };
-  };
+    }
+  }
   
   // create divided boundary layer
   createEdges(new_grid);
@@ -516,8 +525,8 @@ void GuiDivideBoundaryLayer::operate()
         p[5] = edges[old2edge[pts[2]]][i+1];
         id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
         copyCellData(grid, id_cell, new_grid, id_new_cell);
-      };
-    };
+      }
+    }
     if (grid->GetCellType(id_cell) == VTK_QUAD) {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
@@ -530,11 +539,11 @@ void GuiDivideBoundaryLayer::operate()
           p[3] = edges[old2edge[pts[0]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, p);
           copyCellData(grid, id_cell, new_grid, id_new_cell);
-        };
-      };
-    };
-  };
+        }
+      }
+    }
+  }
   
   makeCopy(new_grid, grid);
-};
+}
 

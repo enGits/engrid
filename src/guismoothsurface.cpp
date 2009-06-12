@@ -265,7 +265,7 @@ int GuiSmoothSurface::writeSettings()
   
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     list << ui.listWidget->item(i)->checkState();
-  };
+  }
   local_qset.beginWriteArray("list_BC");
   for (int i = 0; i < list.size(); ++i) {
     local_qset.setArrayIndex(i);
@@ -276,7 +276,7 @@ int GuiSmoothSurface::writeSettings()
   list.clear();
   for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
     list << ui.listWidget_Source->item(i)->checkState();
-  };
+  }
   local_qset.beginWriteArray("list_BC_Source");
   for (int i = 0; i < list.size(); ++i) {
     local_qset.setArrayIndex(i);
@@ -312,25 +312,25 @@ void GuiSmoothSurface::SelectAll_BC()
 {
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     ui.listWidget->item(i)->setCheckState(Qt::Checked);
-  };
+  }
 }
 void GuiSmoothSurface::ClearAll_BC()
 {
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
-  };
+  }
 }
 void GuiSmoothSurface::SelectAll_Source()
 {
   for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
     ui.listWidget_Source->item(i)->setCheckState(Qt::Checked);
-  };
+  }
 }
 void GuiSmoothSurface::ClearAll_Source()
 {
   for (int i = 0; i < ui.listWidget_Source->count(); ++i) {
     ui.listWidget_Source->item(i)->setCheckState(Qt::Unchecked);
-  };
+  }
 }
 
 void GuiSmoothSurface::TestSet()
@@ -523,7 +523,7 @@ void GuiSmoothSurface::operate()
       smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
       vtkIdType nodeId = node_index->GetValue(i);
       this->grid->GetPoints()->SetPoint(nodeId, x.data());
-    };
+    }
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==1)//vtkWindowedSincPolyDataFilter smoothing
@@ -562,7 +562,7 @@ void GuiSmoothSurface::operate()
       smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
       vtkIdType nodeId = node_index->GetValue(i);
       this->grid->GetPoints()->SetPoint(nodeId, x.data());
-    };
+    }
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==2)//Laplacian smoothing
@@ -582,24 +582,16 @@ void GuiSmoothSurface::operate()
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==3)//swap triangles
   {
-    cout_grid(cout,this->grid);
-    
-    QSet<int> bcs;
+    QSet<int> bcs, rest_bcs;
     getSelectedItems(ui.listWidget, bcs);
-    
-    QSet<int> bcs_complement=complementary_bcs(bcs,this->grid,cells);
-    
-    cout<<"bcs="<<bcs<<endl;
-    cout<<"bcs_complement="<<bcs_complement<<endl;
-    
+    mainWindow()->getAllBoundaryCodes(rest_bcs);
+    rest_bcs -= bcs;
     SwapTriangles swap;
     swap.setRespectBC(true);
     swap.setFeatureSwap(true);
     swap.setGrid(this->grid);
-    swap.setBoundaryCodes(bcs_complement);
+    swap.setBoundaryCodes(rest_bcs);
     swap();
-    
-    cout_grid(cout,this->grid);
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==4)// super smoothing
@@ -736,17 +728,18 @@ void GuiSmoothSurface::operate()
     QSet<int> bcs_Dest;
     getSelectedItems(ui.listWidget, bcs_Dest);
     
-    EG_VTKSP(vtkUnstructuredGrid,grid_Source);
+    EG_VTKSP(vtkUnstructuredGrid, grid_Source);
+    QVector<vtkIdType> cells;
     getSurfaceCells(bcs_Source, cells, grid);
-    getSubGrid(grid,cells,grid_Source);
-    writeCells(grid,cells,GuiMainWindow::pointer()->getFilePath()+"Source.vtu");
+    getSubGrid(grid, cells, grid_Source);
+    writeCells(grid,cells, mainWindow()->getFilePath()+"Source.vtu");
     this->setSource(grid_Source);
     
     EG_VTKSP(vtkUnstructuredGrid,grid_Dest);
     makeCopy(grid,grid_Dest);
     getSurfaceCells(bcs_Dest, cells, grid_Dest);
     setCells(cells);
-    
+    l2g_t nodes = getPartNodes();
     foreach(vtkIdType id_node,nodes) {
       vec3_t M;
       grid_Dest->GetPoint(id_node,M.data());
@@ -763,7 +756,7 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    
+    QVector<vtkIdType> cells;
     getSurfaceCells(bcs, cells, grid);
     writeCells(grid,cells,GuiMainWindow::pointer()->getFilePath()+"Selection.vtu");
   }
@@ -776,6 +769,12 @@ void GuiSmoothSurface::operate()
     QVector<vtkIdType> cells;
     getSurfaceCells(bcs, cells, this->grid);
     setCells(cells);
+    l2g_t  nodes = getPartNodes();
+    g2l_t _cells = getPartLocalCells();
+    g2l_t _nodes = getPartLocalNodes();
+    l2l_t  n2n   = getPartN2N();
+    l2l_t  n2c   = getPartN2C();
+    l2l_t  c2c   = getPartC2C();
     cout<<"cells="<<cells<<endl;
     cout<<"_cells="<<_cells<<endl;
     cout<<"nodes="<<nodes<<endl;
@@ -784,4 +783,4 @@ void GuiSmoothSurface::operate()
     cout<<"n2n="<<n2n<<endl;
     cout<<"c2c="<<c2c<<endl;
   }
-};
+}

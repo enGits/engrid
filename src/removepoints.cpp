@@ -62,10 +62,11 @@ int RemovePoints::remove_FP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
-  getNodesFromCells(m_AllCells, nodes, grid);
+  getNodesFromCells(m_SelectedCells, m_SelectedNodes, grid);
   setGrid(grid);
   setCells(m_AllCells);
+  l2g_t nodes = getPartNodes();
+  l2l_t n2c   = getPartN2C();
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   UpdateNodeType();
   
@@ -145,10 +146,12 @@ int RemovePoints::remove_EP_all()
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getSurfaceNodes(m_bcs,m_SelectedNodes,grid);
-  getNodesFromCells(m_AllCells, nodes, grid);
+  getNodesFromCells(m_SelectedCells, m_SelectedNodes, grid);
   setGrid(grid);
   setCells(m_AllCells);
+  l2g_t nodes = getPartNodes();
+  l2l_t n2c   = getPartN2C();
+  l2l_t n2n   = getPartN2N();
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   UpdateNodeType();
   
@@ -169,29 +172,23 @@ int RemovePoints::remove_EP_all()
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    if(node_type->GetValue(node)==VTK_BOUNDARY_EDGE_VERTEX)
-    {
+    if(node_type->GetValue(node)==VTK_BOUNDARY_EDGE_VERTEX) {
       bool marked=false;
-      foreach(vtkIdType C,n2c[node])
-      {
+      foreach(vtkIdType C,n2c[node]) {
         if(m_marked_cells[C]) marked=true;
       }
       QSet <vtkIdType> DeadCells;
       QSet <vtkIdType> MutatedCells;
       QSet <vtkIdType> MutilatedCells;
-      if( !marked && remove_edgepoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
-      {
+      if( !marked && remove_edgepoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1) {
         if(DebugLevel>0) cout<<"removing edge point "<<node<<endl;
         l_N_removed_EP++;
         m_hitlist[node]=2;
         foreach(vtkIdType C,n2c[node]) m_marked_cells[C]=true;
-        if(n2n[node].size()==4)//4 cells around the edge
-        {
+        if(n2n[node].size()==4) { //4 cells around the edge
           N_newcells-=2;
           N_newpoints-=1;
-        }
-        else//2 cells around the edge
-        {
+        } else { //2 cells around the edge
           N_newcells-=1;
           N_newpoints-=1;
         }
@@ -204,8 +201,7 @@ int RemovePoints::remove_EP_all()
   cout<<"================="<<endl;
   
   QSet <vtkIdType> DeadNodes;
-  for(vtkIdType i=0;i<m_hitlist.size();i++)
-  {
+  for(vtkIdType i=0;i<m_hitlist.size();i++) {
     if(m_hitlist[i]==2) DeadNodes.insert(i);
   }
   int N_newpoints=0;

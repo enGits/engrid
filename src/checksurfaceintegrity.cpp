@@ -40,6 +40,10 @@ bool CheckSurfaceIntegrity::isWaterTight()
 {
   setAllSurfaceCells();
   BadCells.clear();
+
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
   
   bool first = true;
   foreach(vtkIdType id_node1, nodes) {

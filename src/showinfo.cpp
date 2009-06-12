@@ -38,15 +38,21 @@ ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : SurfaceOperation()
 
 void ShowInfo::operate()
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2l_t  c2c   = getPartC2C();
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c   = getPartN2C();
+
   int N_cells=grid->GetNumberOfCells();
   int N_points=grid->GetNumberOfPoints();
-  if(CellInfo)
-  {
-    if(PickedCell>=0 && PickedCell<N_cells)
-    {
+  if(CellInfo) {
+    if(PickedCell>=0 && PickedCell<N_cells) {
       cout<<"=== INFO ON CELL "<<PickedCell<<" ==="<<endl;
       QVector<vtkIdType> absolute_c2c;
-      foreach(int i, c2c[_cells[PickedCell]]){
+      foreach(int i, c2c[_cells[PickedCell]]) {
         if(i!=-1) absolute_c2c.push_back(cells[i]);
       }
       
@@ -65,26 +71,21 @@ void ShowInfo::operate()
       cout<<"area="<<cellVA(grid,PickedCell)<<endl;
       cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
       cout<<"====================================="<<endl;
-    }
-    else
-    {
+    } else {
       cout<<"Invalid cell"<<endl;
     }
-  }
-  else
-  {
-    if(PickedPoint>=0 && PickedPoint<N_points)
-    {
+  } else {
+    if(PickedPoint>=0 && PickedPoint<N_points) {
       cout<<"=== INFO ON POINT "<<PickedPoint<<" ==="<<endl;
       
       QSet<vtkIdType> absolute_n2n;
-      foreach(int i, n2n[_nodes[PickedPoint]]){
+      foreach(int i, n2n[_nodes[PickedPoint]]) {
         if(i!=-1) absolute_n2n.insert(nodes[i]);
       }
       cout<<"absolute_n2n(PickedPoint)="<<absolute_n2n<<endl;
       
       QSet<vtkIdType> absolute_n2c;
-      foreach(int i, n2c[_nodes[PickedPoint]]){
+      foreach(int i, n2c[_nodes[PickedPoint]]) {
         if(i!=-1) absolute_n2c.insert(cells[i]);
       }
       cout<<"absolute_n2c(PickedPoint)="<<absolute_n2c<<endl;
@@ -99,9 +100,7 @@ void ShowInfo::operate()
       cout<<"Q_L2("<<PickedPoint<<")="<<Q_L2(PickedPoint)<<endl;
       cout<<"CurrentVertexAvgDist("<<PickedPoint<<")="<<CurrentVertexAvgDist(PickedPoint)<<endl;
       cout<<"====================================="<<endl;
-    }
-    else
-    {
+    } else {
       cout<<"Invalid point"<<endl;
     }
   }

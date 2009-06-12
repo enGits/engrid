@@ -164,10 +164,11 @@ void SurfaceMesher::MeshDensityFunction()
 
 void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
 {
+  l2g_t nodes = getPartNodes();
+
   cout<<"=== UpdateNodeInfo START ==="<<endl;
   setAllCells();
-  foreach(vtkIdType node,nodes)
-  {
+  foreach(vtkIdType node, nodes) {
     if(UpdateType) {
       static int nStatic_UpdateType;    // Value of nStatic_UpdateType is retained between each function call
       nStatic_UpdateType++;
@@ -185,12 +186,9 @@ void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
     node_specified_density->SetValue(node, idx);
     
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");//what we want
-    if(idx!=-1)//specified
-    {
+    if(idx!=-1) { //specified
       node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
-    }
-    else//unspecified
-    {
+    } else { //unspecified
       double D=DesiredMeshDensity(node);
       node_meshdensity_desired->SetValue(node, D);
     }
@@ -200,22 +198,20 @@ void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
 
 int SurfaceMesher::SwapFunction()
 {
+  l2g_t cells = getPartCells();
+
   cout<<"=== SwapFunction START ==="<<endl;
-  //Delaunay swap
-  QSet<int> bcs_complement=complementary_bcs(m_bcs,grid,cells);
-  cout<<"m_bcs="<<m_bcs<<endl;
-  cout<<"bcs_complement="<<bcs_complement<<endl;
-  
-  GuiMainWindow::pointer()->quickSave(GuiMainWindow::pointer()->getFilePath()+"beforeswap");
-  
+  QSet<int> rest_bcs;
+  mainWindow()->getAllBoundaryCodes(rest_bcs);
+  rest_bcs -= m_bcs;
+  GuiMainWindow::pointer()->quickSave(GuiMainWindow::pointer()->getFilePath() + "beforeswap");
   setAllSurfaceCells();
-  
   SwapTriangles swap;
   swap.setGrid(this->grid);
   swap.setQuickSave(true);
   swap.setRespectBC(true);
   swap.setFeatureSwap(true);
-  swap.setBoundaryCodes(bcs_complement);
+  swap.setBoundaryCodes(rest_bcs);
   swap();
   
   cout<<"=== SwapFunction END ==="<<endl;
@@ -233,7 +229,7 @@ int SurfaceMesher::SmoothFunction()
   //laplacian smoothing with projection
   //Roland smoothing with projection
   
-  if(false) {
+  if (false) {
     //laplacian smoothing with projection
     LaplaceSmoother Lap;
     Lap.setGrid(this->grid);
@@ -242,9 +238,9 @@ int SurfaceMesher::SmoothFunction()
     Lap.setNumberOfIterations(N_SmoothIterations);
     Lap();
     Lap.delete_CellLocator_and_ProjectionSurface();
-  }
-  else {
+  } else {
     //preparations
+    QVector<vtkIdType> cells;
     getSurfaceCells(m_bcs, cells, this->grid);
     EG_VTKSP(vtkPolyData, pdata);
     addToPolyData(cells, pdata, this->grid);
@@ -253,15 +249,15 @@ int SurfaceMesher::SmoothFunction()
     //configure vtkSmoothPolyDataFilter
     smooth->SetInput(pdata);
     
-//     smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
+    // smooth->SetConvergence (ui.doubleSpinBox_Convergence->value());
     smooth->SetNumberOfIterations (N_SmoothIterations);
-//     smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
+    // smooth->SetRelaxationFactor (ui.lineEdit_RelaxationFactor->text().toDouble());
     smooth->SetFeatureEdgeSmoothing (false);
-//     smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
-//     smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
+    // smooth->SetFeatureAngle (ui.doubleSpinBox_FeatureAngle->value());
+    // smooth->SetEdgeAngle (ui.doubleSpinBox_EdgeAngle->value());
     smooth->SetBoundarySmoothing (true);
-//     smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
-//     smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
+    // smooth->SetGenerateErrorScalars (ui.checkBox_GenerateErrorScalars->checkState());
+    // smooth->SetGenerateErrorVectors (ui.checkBox_GenerateErrorVectors->checkState());
     
     QVector<vtkIdType> cells_Source;
     getAllSurfaceCells(cells_Source, m_ProjectionSurface);
@@ -279,7 +275,7 @@ int SurfaceMesher::SmoothFunction()
       smooth->GetOutput()->GetPoints()->GetPoint(i, x.data());
       vtkIdType nodeId = node_index->GetValue(i);
       this->grid->GetPoints()->SetPoint(nodeId, x.data());
-    };
+    }
   }
   
   cout<<"=== SmoothFunction END ==="<<endl;

@@ -157,6 +157,9 @@ int InsertPoints::insert_FP_all()
 
 int InsertPoints::insert_EP_all()
 {
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+
   cout<<"===insert_EP_all START==="<<endl;
   QTime start = QTime::currentTime();
   

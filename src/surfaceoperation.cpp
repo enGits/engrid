@@ -69,6 +69,10 @@ ostream& operator<<(ostream &out, stencil_t S)
 
 stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
 {
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2l_t  c2c   = getPartC2C();
+
   if(grid->GetCellType(id_cell1)!=VTK_TRIANGLE) {
     cout<<"CELL IS NOT A TRIANGLE"<<endl;
     EG_BUG;
@@ -96,7 +100,7 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   S.p[2]=-1;
   
   //twocells
-  if (c2c[_cells[id_cell1]][j1] != -1) {//if neighbour cell
+  if (c2c[_cells[id_cell1]][j1] != -1) { //if neighbour cell
     
     //twocells
     S.twocells = true;
@@ -136,7 +140,6 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
       if (!p2) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
         cout<<"S.id_cell1="<<S.id_cell1<<endl;
         cout<<"S.id_cell2="<<S.id_cell2<<endl;
-        createNodeToCell(cells, nodes, _nodes, n2c, grid);
         EG_BUG;
       }
     }
@@ -146,28 +149,36 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
 
 int SurfaceOperation::UpdateCurrentMeshDensity()
 {
-  if(DebugLevel>0) cout<<"===UpdateMeshDensity START==="<<endl;
-  
-  getAllSurfaceCells(cells,grid);
+  if (DebugLevel > 0) {
+    cout << "===UpdateMeshDensity START===" << endl;
+  }
+  QVector<vtkIdType> cells;
+  getAllSurfaceCells(cells, grid);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getNodesFromCells(cells, nodes, grid);
   setGrid(grid);
   setCells(cells);
-  
-  if(DebugLevel>5) cout<<"cells.size()="<<cells.size()<<endl;
-  
+  if (DebugLevel > 5) {
+    cout << "cells.size()="<<cells.size() << endl;
+  }
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
-  foreach(vtkIdType node,nodes)
-  {
+  l2g_t nodes = getPartNodes();
+  foreach (vtkIdType node, nodes) {
     node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
   }
-  if(DebugLevel>0) cout<<"===UpdateMeshDensity END==="<<endl;
-  return(0);
+  if (DebugLevel > 0) {
+    cout << "===UpdateMeshDensity END===" << endl;
+  }
+  return(0); ///@@@ what for???
 }
 
 int SurfaceOperation::UpdateNodeType()
 {
+  l2g_t nodes  = getPartNodes();
+  l2g_t cells  = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2l_t c2c    = getPartC2C();
+
   cout<<"=== UpdateNodeType START ==="<<endl;
   //prepare
   setAllSurfaceCells();
@@ -285,8 +296,12 @@ int SurfaceOperation::UpdateNodeType()
 ///@@@  TODO: Optimize
 char SurfaceOperation::getNodeType(vtkIdType id_node)
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
+
   //initialize default value
-  char type=VTK_SIMPLE_VERTEX;
+  char type = VTK_SIMPLE_VERTEX;
   
   //loop through edges around id_node
   
@@ -359,11 +374,19 @@ char SurfaceOperation::getNodeType(vtkIdType id_node)
 
 int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVector <vtkIdType> &EdgeCells)
 {
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t cells  = getPartCells();
+  l2l_t n2c    = getPartN2C();
+
   QSet<vtkIdType> S1;
-  foreach(int i, n2c[_nodes[id_node1]]) S1.insert(cells[i]);
+  foreach(int i, n2c[_nodes[id_node1]]) {
+    S1.insert(cells[i]);
+  }
   
   QSet<vtkIdType> S2;
-  foreach(int i, n2c[_nodes[id_node2]]) S2.insert(cells[i]);
+  foreach(int i, n2c[_nodes[id_node2]]) {
+    S2.insert(cells[i]);
+  }
   
   S2.intersect(S1);
   EdgeCells = Set2Vector(S2,false);
@@ -372,11 +395,19 @@ int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVecto
 
 int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdType> &EdgeCells)
 {
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t cells  = getPartCells();
+  l2l_t n2c    = getPartN2C();
+
   QSet<vtkIdType> S1;
-  foreach(int i, n2c[_nodes[id_node1]]) S1.insert(cells[i]);
-  
+  foreach(int i, n2c[_nodes[id_node1]]) {
+    S1.insert(cells[i]);
+  }
+
   QSet<vtkIdType> S2;
-  foreach(int i, n2c[_nodes[id_node2]]) S2.insert(cells[i]);
+  foreach(int i, n2c[_nodes[id_node2]]) {
+    S2.insert(cells[i]);
+  }
   
   EdgeCells = S2.intersect(S1);
   return EdgeCells.size();
@@ -421,6 +452,10 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
 
 QSet <int> SurfaceOperation::getBCset(vtkIdType id_node)
 {
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2c   = getPartN2C();
+
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   QSet <int> bc;
   foreach(int i_cell, n2c[_nodes[id_node]])
@@ -433,6 +468,10 @@ QSet <int> SurfaceOperation::getBCset(vtkIdType id_node)
 
 VertexMeshDensity SurfaceOperation::getVMD(vtkIdType id_node)
 {
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2c   = getPartN2C();
+
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
@@ -441,8 +480,7 @@ VertexMeshDensity SurfaceOperation::getVMD(vtkIdType id_node)
   VMD.density = 0;
   VMD.CurrentNode = id_node;
   
-  foreach(int i_cell, n2c[_nodes[id_node]])
-  {
+  foreach(int i_cell, n2c[_nodes[id_node]]) {
     vtkIdType id_cell = cells[i_cell];
     VMD.BCmap[cell_code->GetValue(id_cell)] = 2;
   }
@@ -530,6 +568,10 @@ void SurfaceOperation::delete_CellLocator_and_ProjectionSurface()
 //////////////////////////////////////////////
 double SurfaceOperation::CurrentVertexAvgDist(vtkIdType id_node)
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
+
   double total_dist=0;
   double avg_dist=0;
   int N = n2n[_nodes[id_node]].size();
@@ -548,11 +590,15 @@ double SurfaceOperation::CurrentVertexAvgDist(vtkIdType id_node)
 
 double SurfaceOperation::CurrentMeshDensity(vtkIdType id_node)
 {
-  return 1./CurrentVertexAvgDist(id_node);
+  return 1.0/CurrentVertexAvgDist(id_node);
 }
 
 double SurfaceOperation::DesiredVertexAvgDist(vtkIdType id_node)
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
+
   double total_dist=0;
   double avg_dist=0;
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
@@ -568,6 +614,10 @@ double SurfaceOperation::DesiredVertexAvgDist(vtkIdType id_node)
 
 double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 {
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2n   = getPartN2N();
+
   double total_density=0;
   double avg_density=0;
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
@@ -627,12 +677,12 @@ double SurfaceOperation::A_D(vtkIdType D) {
 
 /// triangle neighbours
 double SurfaceOperation::DN(int i,vtkIdType D) {
-  return(c2c[D][i]);
+  return(m_Part.getC2C()[D][i]);
 }
 
 /// number of edges
 double SurfaceOperation::nk(vtkIdType P) {
-  return(n2n[P].size());
+  return(m_Part.getN2N()[P].size());
 }
 
 double SurfaceOperation::G_k(vtkIdType node) {
@@ -675,11 +725,10 @@ double SurfaceOperation::Q_L(vtkIdType D)
 
 double SurfaceOperation::Q_L1(vtkIdType P)
 {
-      // [2*sum(L_k(i~),i,1,nk(P))]/[sum(G_k(KK(1,i~))+G_k(KK(2,i~)),i,1,nk(P))]
-  double num_sum=0;
-  double denom_sum=0;
-  foreach(vtkIdType j,n2n[P])
-  {
+  l2l_t n2n = getPartN2N();
+  double num_sum = 0;
+  double denom_sum = 0;
+  foreach(vtkIdType j,n2n[P]) {
     num_sum += 2*L_k(j,P);
     denom_sum += G_k(KK(1,j,P))+G_k(KK(2,j,P));
   }
@@ -688,11 +737,10 @@ double SurfaceOperation::Q_L1(vtkIdType P)
 
 double SurfaceOperation::Q_L2(vtkIdType P)
 {
-      // min([2*L_k(i~)]/[G_k(KK(1,i~))+G_k(KK(2,i~))])
+  l2l_t n2n = getPartN2N();
   QVector <double> V;
   double num,denom;
-  foreach(vtkIdType j,n2n[P])
-  {
+  foreach(vtkIdType j,n2n[P]) {
     num = 2*L_k(j,P);
     denom = G_k(KK(1,j,P))+G_k(KK(2,j,P));
     V.push_back(num/denom);
@@ -703,11 +751,9 @@ double SurfaceOperation::Q_L2(vtkIdType P)
 
 double SurfaceOperation::T_min(int w)
 {
-  // sum([A_U(i)]/[A_D(i)^w]*[G_k(i)^(2*(w-1))],i,1,Nd)
-  int N_cells=grid->GetNumberOfCells();
-  double T=0;
-  for(int i=0;i<N_cells;i++)
-  {
+  int N_cells = grid->GetNumberOfCells();
+  double T = 0;
+  for(int i = 0; i < N_cells; ++i) {
     T += A_U(i)/pow(A_D(i),w)*pow(G_k(i),2*(w-1));
   }
   return(T);
@@ -717,17 +763,16 @@ double SurfaceOperation::T_min(int w)
 
 vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node)
 {
+  l2l_t n2n = getPartN2N();
   vec3_t C;
   grid->GetPoint(id_node,C.data());
-  vtkIdType id_minlen=-1;
-  double minlen=-1;
-  foreach(vtkIdType neighbour,n2n[id_node])
-  {
+  vtkIdType id_minlen = -1;
+  double minlen = -1;
+  foreach(vtkIdType neighbour,n2n[id_node]) {
     vec3_t M;
-    grid->GetPoint(neighbour,M.data());
-    double len=(M-C).abs();
-    if(minlen<0 or len<minlen)
-    {
+    grid->GetPoint(neighbour, M.data());
+    double len = (M-C).abs();
+    if(minlen < 0 or len < minlen) {
       minlen=len;
       id_minlen=neighbour;
     }
@@ -737,19 +782,18 @@ vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node)
 
 vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
 {
+  l2l_t n2n = getPartN2N();
   vec3_t C;
-  grid->GetPoint(id_node,C.data());
-  vtkIdType id_maxlen=-1;
-  double maxlen=-1;
-  foreach(vtkIdType neighbour,n2n[id_node])
-  {
+  grid->GetPoint(id_node, C.data());
+  vtkIdType id_maxlen = -1;
+  double maxlen = -1;
+  foreach(vtkIdType neighbour, n2n[id_node]) {
     vec3_t M;
     grid->GetPoint(neighbour,M.data());
-    double len=(M-C).abs();
-    if(maxlen<0 or len>maxlen)
-    {
-      maxlen=len;
-      id_maxlen=neighbour;
+    double len = (M-C).abs();
+    if(maxlen < 0 or len > maxlen) {
+      maxlen = len;
+      id_maxlen = neighbour;
     }
   }
   return(id_maxlen);
@@ -757,37 +801,37 @@ vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
 
 int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra)
 {
-//   QVector< QSet< int > > 	n2n
-  QVector<int> node1_neighbours=n2n[node1];
-  QVector<int> node2_neighbours=n2n[node2];
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c   = getPartN2C();
+  g2l_t _nodes = getPartLocalNodes();
+  QVector<int> node1_neighbours = n2n[node1];
+  QVector<int> node2_neighbours = n2n[node2];
   QVector<int> intersection;
   qcontIntersection(node1_neighbours, node2_neighbours, intersection);
   int N = intersection.size();
   IsTetra = false;
-  if(N==2)
-  {
-    QVector<int>::const_iterator p1=intersection.begin();
-    QVector<int>::const_iterator p2=p1+1;
-    vtkIdType intersection1=_nodes[*p1];
-    vtkIdType intersection2=_nodes[*p2];
-    if(n2n[intersection1].contains(intersection2))//if there's an edge between intersection1 and intersection2
-    {
+  if(N == 2) {
+    QVector<int>::const_iterator p1 = intersection.begin();
+    QVector<int>::const_iterator p2 = p1 + 1;
+    vtkIdType intersection1 = _nodes[*p1];
+    vtkIdType intersection2 = _nodes[*p2];
+    if(n2n[intersection1].contains(intersection2)) { //if there's an edge between intersection1 and intersection2
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
-  //     QVector< QSet< int > > 	n2c
-      QVector<int> S1=n2c[intersection1];
-      QVector<int> S2=n2c[intersection2];
+      QVector<int> S1 = n2c[intersection1];
+      QVector<int> S2 = n2c[intersection2];
       QVector<int> Si;
       qcontIntersection(S1, S2, Si);
       int counter=0;
-      foreach(vtkIdType C,Si){
+      foreach(vtkIdType C, Si) {
         vtkIdType N_pts, *pts;
         grid->GetCellPoints(C, N_pts, pts);
-        for(int i=0;i<N_pts;i++)
-        {
+        for(int i = 0; i < N_pts; ++i) {
           if(pts[i]==node1 || pts[i]==node2) counter++;
         }
       }
-      if(counter>=2) IsTetra=true;
+      if(counter >= 2) {
+        IsTetra = true;
+      }
     }
   }
   return(N);
@@ -807,91 +851,86 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node)
 
 vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
 {
+  l2l_t n2n = getPartN2N();
+  l2l_t n2c = getPartN2C();
+
   ///@@@  TODO: Organize cases and make sure all are considered if possible.
-  getAllSurfaceCells(cells,grid);
-  getNodesFromCells(cells, nodes, grid);
-  setGrid(grid);
-  setCells(cells);
+  setAllSurfaceCells();
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  if(node_type->GetValue(DeadNode)==VTK_FIXED_VERTEX )
-  {
+  if(node_type->GetValue(DeadNode) == VTK_FIXED_VERTEX ) {
     cout<<"Sorry, unable to remove fixed vertex."<<endl;
     return(-1);
   }
   
   //grid info
-  int N_points=grid->GetNumberOfPoints();
-  int N_cells=grid->GetNumberOfCells();
-  N_newpoints=-1;
-  N_newcells=0;
+  int N_points = grid->GetNumberOfPoints();
+  int N_cells = grid->GetNumberOfCells();
+  N_newpoints = -1;
+  N_newcells = 0;
   
-  vtkIdType SnapPoint=-1;
+  vtkIdType SnapPoint = -1;
   
-  foreach(vtkIdType PSP, n2n[DeadNode])
-  {
-    bool IsValidSnapPoint=true;
+  foreach (vtkIdType PSP, n2n[DeadNode]) {
+    bool IsValidSnapPoint = true;
     
-    if(DebugLevel>10) cout<<"====>PSP="<<PSP<<endl;
-    bool IsTetra=true;
-    if(NumberOfCommonPoints(DeadNode,PSP,IsTetra)>2)//common point check
-    {
+    if(DebugLevel > 10) {
+      cout << "====>PSP=" << PSP << endl;
+    }
+    bool IsTetra = true;
+    if(NumberOfCommonPoints(DeadNode, PSP, IsTetra) > 2) { //common point check
       if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
       IsValidSnapPoint=false;
     }
     if(IsTetra)//tetra check
     {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      if(DebugLevel > 10) {
+        cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
+      }
       IsValidSnapPoint=false;
     }
     
     //count number of points and cells to remove + analyse cell transformations
-    N_newpoints=-1;
-    N_newcells=0;
+    N_newpoints = -1;
+    N_newcells = 0;
     DeadCells.clear();
     MutatedCells.clear();
     MutilatedCells.clear();
-    foreach(vtkIdType C, n2c[DeadNode])//loop through potentially dead cells
-    {
+    foreach (vtkIdType C, n2c[DeadNode]) { //loop through potentially dead cells
       //get points around cell
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(C, N_pts, pts);
       
       bool ContainsSnapPoint=false;
       bool invincible=false;
-      for(int i=0;i<N_pts;i++)
-      {
-        if(DebugLevel>10) cout<<"pts["<<i<<"]="<<pts[i]<<" and PSP="<<PSP<<endl;
-        if(pts[i]==PSP) {ContainsSnapPoint=true;}
-        if(pts[i]!=DeadNode && pts[i]!=PSP &&  n2c[pts[i]].size()<=1) invincible=true;
-      }
-      if(ContainsSnapPoint)
-      {
-        if(N_pts==3)//dead cell
-        {
-          if(invincible)//Check that empty lines aren't left behind when a cell is killed
-          {
-            IsValidSnapPoint=false;
-          }
-          else
-          {
-            DeadCells.insert(C);
-            N_newcells-=1;
-          }
+      for(int i = 0; i < N_pts; ++i) {
+        if(DebugLevel > 10) {
+          cout << "pts[" << i << "]=" << pts[i] << " and PSP=" << PSP << endl;
         }
-        else
-        {
-          cout<<"RED ALERT: Xenomorph detected!"<<endl;
+        if(pts[i] == PSP) {
+          ContainsSnapPoint = true;
+        }
+        if(pts[i] != DeadNode && pts[i] != PSP &&  n2c[pts[i]].size() <= 1) {
+          invincible = true;
+        }
+      }
+      if (ContainsSnapPoint) {
+        if(N_pts == 3) { //dead cell
+          if(invincible) { //Check that empty lines aren't left behind when a cell is killed
+            IsValidSnapPoint = false;
+          } else {
+            DeadCells.insert(C);
+            N_newcells -= 1;
+          }
+        } else {
+          cout << "RED ALERT: Xenomorph detected!" << endl;
           EG_BUG;
         }
-      }
-      else
-      {
+      } else {
         vtkIdType src_N_pts, *src_pts;
         grid->GetCellPoints(C, src_N_pts, src_pts);
         
-        if(src_N_pts!=3)
-        {
+        if(src_N_pts != 3) {
           cout<<"RED ALERT: Xenomorph detected!"<<endl;
           EG_BUG;
         }
@@ -899,76 +938,83 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & 
         vtkIdType OldTriangle[3];
         vtkIdType NewTriangle[3];
         
-        for(int i=0;i<src_N_pts;i++)
-        {
-          OldTriangle[i]=src_pts[i];
-          NewTriangle[i]=( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
+        for(int i = 0; i < src_N_pts; ++i) {
+          OldTriangle[i] = src_pts[i];
+          NewTriangle[i] = ( (src_pts[i]==DeadNode) ? PSP : src_pts[i] );
         }
-        vec3_t Old_N= triNormal(grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
-        vec3_t New_N= triNormal(grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        vec3_t Old_N = triNormal(grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t New_N = triNormal(grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
         
-        if(Old_N*New_N<Old_N*Old_N*1./100.)//area + inversion check
-        {
-          if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-          IsValidSnapPoint=false;
+        if(Old_N*New_N < Old_N*Old_N*1./100.) { //area + inversion check
+          if(DebugLevel > 10) {
+            cout << "Sorry, but you are not allowed to move point " << DeadNode<<" to point " << PSP << "." << endl;
+          }
+          IsValidSnapPoint = false;
         }
         
         //mutated cell
         MutatedCells.insert(C);
-        if(DebugLevel>10) cout<<"cell "<<C<<" has been infected!"<<endl;
+        if(DebugLevel > 10) {
+          cout << "cell " << C << " has been infected!" << endl;
+        }
       }
     }
     
-    if(N_cells+N_newcells<=0)//survivor check
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
+    if (N_cells + N_newcells <= 0) { //survivor check
+      if(DebugLevel > 10) {
+        cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      }
+      IsValidSnapPoint = false;
     }
     
-    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
+    if (node_type->GetValue(DeadNode) == VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue(PSP) == VTK_SIMPLE_VERTEX) {
+      if(DebugLevel > 10) {
+        cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      }
+      IsValidSnapPoint = false;
     }
     
-    if(node_type->GetValue(DeadNode)==VTK_BOUNDARY_EDGE_VERTEX)
-    {
+    if (node_type->GetValue(DeadNode) == VTK_BOUNDARY_EDGE_VERTEX) {
       QVector <vtkIdType> Peons = getPotentialSnapPoints(DeadNode);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
+      if(!Peons.contains(PSP)) {
+        if(DebugLevel > 0) {
+          cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+        }
+        IsValidSnapPoint = false;
       }
     }
     
-    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP)==VTK_SIMPLE_VERTEX)
-    {
-      if(DebugLevel>10) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-      IsValidSnapPoint=false;
+    if (node_type->GetValue(DeadNode) == VTK_FEATURE_EDGE_VERTEX && node_type->GetValue(PSP) == VTK_SIMPLE_VERTEX) {
+      if(DebugLevel > 10) {
+        cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      }
+      IsValidSnapPoint = false;
     }
     
-    if(node_type->GetValue(DeadNode)==VTK_FEATURE_EDGE_VERTEX)
-    {
+    if (node_type->GetValue(DeadNode) == VTK_FEATURE_EDGE_VERTEX) {
       QVector <vtkIdType> Peons = getPotentialSnapPoints(DeadNode);
-      if(!Peons.contains(PSP))
-      {
-        if(DebugLevel>0) cout<<"Sorry, but you are not allowed to move point "<<DeadNode<<" to point "<<PSP<<"."<<endl;
-        IsValidSnapPoint=false;
+      if(!Peons.contains(PSP)) {
+        if (DebugLevel > 0) {
+          cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+        }
+        IsValidSnapPoint = false;
       }
     }
     
-    if(IsValidSnapPoint) {SnapPoint=PSP; break;}
-  }//end of loop through potential SnapPoints
+    if (IsValidSnapPoint) {
+      SnapPoint = PSP;
+      break;
+    }
+  } //end of loop through potential SnapPoints
   
-  if(DebugLevel>10)
-  {
+  if (DebugLevel > 10) {
     cout<<"AT FINDSNAPPOINT EXIT"<<endl;
     cout<<"N_points="<<N_points<<endl;
     cout<<"N_cells="<<N_cells<<endl;
     cout<<"N_newpoints="<<N_newpoints<<endl;
     cout<<"N_newcells="<<N_newcells<<endl;
   }
-  return(SnapPoint);
+  return (SnapPoint);
 }
 //End of FindSnapPoint
 
@@ -983,9 +1029,10 @@ bool SurfaceOperation::DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_
 
 bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells)
 {
-  QVector <vtkIdType> DeadNode_vector=Set2Vector(DeadNodes,false);
+  QVector <vtkIdType> DeadNode_vector = Set2Vector(DeadNodes,false);
   
-  getAllSurfaceCells(cells,grid);
+  QVector<vtkIdType> cells;
+  getAllSurfaceCells(cells, grid);
   UpdateNodeType();
   
   //src grid info
@@ -998,15 +1045,13 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   QVector <vtkIdType> SnapPoint(DeadNode_vector.size());
   
   //counter init
-  N_newpoints=0;
-  N_newcells=0;
+  N_newpoints = 0;
+  N_newcells = 0;
   
-  for(int i=0;i<DeadNode_vector.size();i++)
-  {
-    if(DeadNode_vector[i]<0 || DeadNode_vector[i]>=N_points)
-    {
-      cout<<"Warning: Point out of range: DeadNode_vector[i]="<<DeadNode_vector[i]<<" N_points="<<N_points<<endl;
-      return(false);
+  for(int i = 0;i < DeadNode_vector.size(); i++) {
+    if(DeadNode_vector[i] < 0 || DeadNode_vector[i] >= N_points) {
+      cout << "Warning: Point out of range: DeadNode_vector[i]=" << DeadNode_vector[i] << " N_points=" << N_points << endl;
+      return (false);
     }
     
     //local values
@@ -1018,14 +1063,19 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
     
     SnapPoint[i]=FindSnapPoint(DeadNode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_N_newpoints, l_N_newcells);
     //global values
-    N_newpoints+=l_N_newpoints;
-    N_newcells+=l_N_newcells;
-    DeadCells.unite(l_DeadCells);//DeadCells unite! Kill the living! :D
+    N_newpoints += l_N_newpoints;
+    N_newcells += l_N_newcells;
+    DeadCells.unite(l_DeadCells); //DeadCells unite! Kill the living! :D
     MutatedCells.unite(l_MutatedCells);
     MutilatedCells.unite(l_MutilatedCells);
     
-    if(DebugLevel>0) cout<<"===>DeadNode_vector[i]="<<DeadNode_vector[i]<<" moving to SNAPPOINT="<<SnapPoint[i]<<" DebugLevel="<<DebugLevel<<endl;
-    if(SnapPoint[i]<0) {cout<<"Sorry no possible SnapPoint found."<<endl; return(false);}
+    if(DebugLevel > 0) {
+      cout << "===>DeadNode_vector[i]=" << DeadNode_vector[i] << " moving to SNAPPOINT=" << SnapPoint[i] << " DebugLevel=" << DebugLevel << endl;
+    }
+    if(SnapPoint[i] < 0) {
+      cout << "Sorry no possible SnapPoint found." << endl;
+      return(false);
+    }
     
   }
   
@@ -1039,74 +1089,66 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   //copy undead points
   vtkIdType dst_id_node=0;
   for (vtkIdType src_id_node = 0; src_id_node < N_points; src_id_node++) {//loop through src points
-    if(!DeadNode_vector.contains(src_id_node))//if the node isn't dead, copy it
-    {
+    if(!DeadNode_vector.contains(src_id_node)) { //if the node isn't dead, copy it
       vec3_t x;
       grid->GetPoints()->GetPoint(src_id_node, x.data());
       dst->GetPoints()->SetPoint(dst_id_node, x.data());
       copyNodeData(grid, src_id_node, dst, dst_id_node);
-      OffSet[src_id_node]=src_id_node-dst_id_node;
+      OffSet[src_id_node] = src_id_node-dst_id_node;
       dst_id_node++;
+    } else {
+      if (DebugLevel > 0) {
+        cout << "src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
+      }
     }
-    else
-    {
-      if(DebugLevel>0) cout<<"src_id_node="<<src_id_node<<" dst_id_node="<<dst_id_node<<endl;
-    }
-  };
+  }
   //Copy undead cells
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
-    if(!DeadCells.contains(id_cell))//if the cell isn't dead
-    {
+    if(!DeadCells.contains(id_cell)) { //if the cell isn't dead
       vtkIdType src_N_pts, *src_pts;
       vtkIdType dst_N_pts, *dst_pts;
       grid->GetCellPoints(id_cell, src_N_pts, src_pts);
       
       vtkIdType type_cell = grid->GetCellType(id_cell);
-//       src->GetCellPoints(id_cell, dst_N_pts, dst_pts);
-      dst_N_pts=src_N_pts;
-      dst_pts=new vtkIdType[dst_N_pts];
-      if(MutatedCells.contains(id_cell))//mutated cell
-      {
-        for(int i=0;i<src_N_pts;i++)
-        {
+      dst_N_pts = src_N_pts;
+      dst_pts = new vtkIdType[dst_N_pts];
+      if (MutatedCells.contains(id_cell)) { //mutated cell
+        for(int i=0;i<src_N_pts;i++) {
           int DeadIndex = DeadNode_vector.indexOf(src_pts[i]);
-          if(DeadIndex!=-1) {
+          if (DeadIndex != -1) {
             dst_pts[i]=SnapPoint[DeadIndex]-OffSet[SnapPoint[DeadIndex]];
+          } else {
+            dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
           }
-          else dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
         }
-      }
-      else if(MutilatedCells.contains(id_cell))//mutilated cell (ex: square becoming triangle) (WARNING: Not fully functional yet)
-      {
-        cout<<"FATAL ERROR: Quads not supported yet."<<endl;EG_BUG;
-        
-        if(type_cell==VTK_QUAD) {
-          type_cell=VTK_TRIANGLE;
-          dst_N_pts-=1;
+      } else if (MutilatedCells.contains(id_cell)) { //mutilated cell (ex: square becoming triangle) (WARNING: Not fully functional yet)
+        cout << "FATAL ERROR: Quads not supported yet." << endl;
+        EG_BUG;
+        if(type_cell == VTK_QUAD) {
+          type_cell = VTK_TRIANGLE;
+          dst_N_pts -= 1;
+        } else {
+          cout << "FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!" << endl;
+          EG_BUG;
         }
-        else {cout<<"FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!"<<endl;EG_BUG;}
-        //merge points
-        for(int i=0;i<src_N_pts;i++)
-        {
-/*          if(src_pts[i]==SnapPoint) { dst_pts[j]=SnapPoint-OffSet[SnapPoint];j++; }//SnapPoint
-          else if(src_pts[i]!=DeadNode_vector[i]) { dst_pts[j]=src_pts[i]-OffSet[src_pts[i]];j++; }//pre-snap/dead + post-snap/dead*/
+        // merge points
+        for(int i = 0; i < src_N_pts; i++) {
           //do nothing in case of DeadNode_vector[i]
         }
-      }
-      else//normal cell
-      {
-        if(DebugLevel>10) cout<<"processing normal cell "<<id_cell<<endl;
-        for(int i=0;i<src_N_pts;i++)
-        {
-          dst_pts[i]=src_pts[i]-OffSet[src_pts[i]];
+      } else { //normal cell
+        if (DebugLevel > 10) {
+          cout << "processing normal cell " << id_cell << endl;
+        }
+        for(int i = 0; i < src_N_pts; i++) {
+          dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
         }
       }
-      //copy the cell
+      // copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_N_pts, dst_pts);
       copyCellData(grid, id_cell, dst, id_new_cell);
       delete dst_pts;
     }
-  };
+  }
   
   makeCopy(dst, grid);
   return(true);
@@ -1115,33 +1157,37 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
 
 bool SurfaceOperation::FlippedCells(vtkIdType id_node, vec3_t P)
 {
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2c   = getPartN2C();
+
   vec3_t x0_old, x0_new;
   grid->GetPoint(id_node, x0_old.data());
-  x0_new=P;
+  x0_new = P;
   
-  foreach(int i_cell, n2c[_nodes[id_node]])
-  {
+  foreach (int i_cell, n2c[_nodes[id_node]]) {
     vtkIdType id_cell = cells[i_cell];
     vtkIdType N_pts, *pts;
     grid->GetCellPoints(id_cell, N_pts, pts);
     int i;
-    for(i=0;i<N_pts;i++)
-    {
-      if(pts[i]==id_node) break;
+    for(i = 0; i < N_pts; i++) {
+      if(pts[i] == id_node) {
+        break;
+      }
     }
     vec3_t x2, x3;
     grid->GetPoint(pts[(i+1)%N_pts], x2.data());
     grid->GetPoint(pts[(i+2)%N_pts], x3.data());
-    vec3_t v2_old=x2-x0_old;
-    vec3_t v3_old=x3-x0_old;
+    vec3_t v2_old = x2 - x0_old;
+    vec3_t v3_old = x3 - x0_old;
     
     //top point
     vec3_t S=v2_old.cross(v3_old);
-    double V_old=tetraVol(x0_old, S, x2, x3, true);
-    double V_new=tetraVol(x0_new, S, x2, x3, true);
-    double prod=V_old*V_new;
-    if( prod<0 ) {
-      return(true);
+    double V_old = tetraVol(x0_old, S, x2, x3, true);
+    double V_new = tetraVol(x0_new, S, x2, x3, true);
+    double prod = V_old*V_new;
+    if (prod < 0) {
+      return (true);
     }
   }
   return(false);
