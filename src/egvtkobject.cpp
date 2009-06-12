@@ -373,74 +373,6 @@ void EgVtkObject::getSurfaceCells
   }
 }
 
-void EgVtkObject::getSurfaceNodes
-(
-  QSet<int>           &bcs,
-  QSet <vtkIdType> &SelectedNodes,
-  vtkUnstructuredGrid *grid
-)
-{
-  QVector<vtkIdType> SelectedCells;
-  getSurfaceCells(bcs, SelectedCells, grid);
-  
-  SelectedNodes.clear();
-  foreach(vtkIdType id_cell, SelectedCells)
-  {
-    vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    for(int i=0;i<N_pts;i++)
-    {
-      SelectedNodes.insert(pts[i]);
-    }
-  }
-}
-
-void EgVtkObject::getSurfaceNodes
-(
-  QSet<int>           &bcs,
-  QVector <vtkIdType> &SelectedNodes,
-  vtkUnstructuredGrid *grid
-)
-{
-  QVector<vtkIdType> SelectedCells;
-  getSurfaceCells(bcs, SelectedCells, grid);
-  getNodesFromCells(SelectedCells, SelectedNodes, grid);
-  
-/*  vtkIdType N_total=grid->GetNumberOfPoints();
-  vtkIdType N_selected=0;
-  
-  QVector <bool> marked(N_total);
-  
-  foreach(vtkIdType id_cell, SelectedCells)
-  {
-    vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    for(int i=0;i<N_pts;i++)
-    {
-      if(!marked[pts[i]])
-      {
-        marked[pts[i]]=true;
-        N_selected++;
-      }
-    }
-  }
-  
-  SelectedNodes.clear();
-  SelectedNodes.resize(N_selected);
-  vtkIdType idx=0;
-  
-  
-  foreach(vtkIdType id_node, nodes)
-  {
-    if(marked[pts[i]]) {
-      SelectedNodes[idx]=pts[i];
-      idx++;
-    }
-  }
-  
-  if(idx!=N_selected) EG_BUG;*/
-}
-
 void EgVtkObject::addToC2C(vtkIdType id_cell, QVector<int> &_cells, QVector<QVector<int> > &c2c, int j, vtkIdList *nds, vtkIdList *cls, vtkUnstructuredGrid *grid)
 {
   c2c[_cells[id_cell]][j] = -1;
@@ -952,15 +884,7 @@ void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
   }
 }
 
-int EgVtkObject::findVolumeCell
-(
-  vtkUnstructuredGrid      *grid,
-  vtkIdType                 id_surf,
-  const QVector<int>       _nodes,      
-  const QVector<vtkIdType>  cells,
-  const QVector<int>       _cells,      
-  QVector<QVector<int> >   &n2c
-)
+int EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
 {
   vtkIdType N_pts, *pts;
   if (_cells.size()) N_pts = N_pts; // dummy statement to get rid of compiler warning ...
@@ -1221,21 +1145,6 @@ int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1
   if(edge[0]==0 && edge[1]==N_pts-1) return(N_pts-1);
   else return(edge[0]);
 }
-///////////////////////////////////////////
-
-QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells)
-{
-  QSet <int> bcs_complement;
-  EG_VTKDCC(vtkIntArray, bc, a_grid, "cell_code");
-  foreach (vtkIdType id_cell, a_cells) {
-    int code=bc->GetValue(id_cell);
-    if (!bcs.contains(code)) {
-      bcs_complement.insert(code);
-    }
-  }
-  return(bcs_complement);
-}
-
 ///////////////////////////////////////////
 
 QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)

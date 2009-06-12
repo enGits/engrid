@@ -48,6 +48,12 @@ class EgVtkObject;
 
 class EgVtkObject
 {
+
+public: // data-types
+
+  typedef const QVector<vtkIdType>&     l2g_t;
+  typedef const QVector<int>&           g2l_t;
+  typedef const QVector<QVector<int> >& l2l_t;
   
 private: // methods
   
@@ -252,22 +258,6 @@ protected: // methods
   void getSurfaceCells(QSet<int> &bcs, QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
   
   /**
-   * Get all surface nodes of a grid with a specific boundary condition.
-   * @param bcs   The set of boundary conditions
-   * @param nodes On return this will hold the Ids of the surface nodes.
-   * @param grid  The grid to operate on.
-   */
-  void getSurfaceNodes(QSet<int> &bcs, QSet <vtkIdType> &SelectedNodes, vtkUnstructuredGrid *grid);
-  
-  /**
-   * Get all surface nodes of a grid with a specific boundary condition.
-   * @param bcs   The set of boundary conditions
-   * @param nodes On return this will hold the Ids of the surface nodes.
-   * @param grid  The grid to operate on.
-   */
-  void getSurfaceNodes(QSet<int> &bcs, QVector <vtkIdType> &SelectedNodes, vtkUnstructuredGrid *grid);
-  
-  /**
    * Create a cell neighbourship list for a subset grid. 
    * This has been implemented using VTK's vtkCellLinks structures.
    * @param cells the subset of cells
@@ -402,7 +392,7 @@ protected: // methods
    * @param n2n the node to cell structure for this grid
    * @return the id of the corresponding volume cell (or -1 if not found)
    */
-  int findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, const QVector<int> _nodes, const QVector<vtkIdType> cells, const QVector<int> _cells, QVector<QVector<int> >  &n2c);
+  int findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
 
   /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".
@@ -469,13 +459,6 @@ protected: // methods
   void getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid);
 
   void writeGrid(vtkUnstructuredGrid *grid, QString name);
-
-  
-public: // data-types
-
-  typedef QVector<vtkIdType>     l2g_t;
-  typedef QVector<int>           g2l_t;
-  typedef QVector<QVector<int> > l2l_t;
 
 public: // methods
   
