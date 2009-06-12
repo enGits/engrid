@@ -567,6 +567,53 @@ Consider figure \ref{fig:featureangle4}: If you picked cell 1 and chose a featur
 
 \section{Technical Details}
 
+\subsection{Mesh data structures}
+
+\subsubsection{Cells}
+
+\subsubsection{Local cells}
+Depends on:
+\begin{itemize}
+ \item cells
+\end{itemize}
+
+\subsubsection{Nodes}
+Depends on:
+\begin{itemize}
+ \item cells
+\end{itemize}
+
+\subsubsection{Local nodes}
+Depends on:
+\begin{itemize}
+ \item cells
+ \item nodes
+\end{itemize}
+
+\subsubsection{N2N (node to node)}
+Depends on:
+\begin{itemize}
+ \item cells
+ \item nodes
+ \item local nodes
+\end{itemize}
+
+\subsubsection{N2C (node to cell)}
+Depends on:
+\begin{itemize}
+ \item cells
+ \item nodes
+ \item local nodes
+\end{itemize}
+
+\subsubsection{C2C (cell to cell)}
+Depends on:
+\begin{itemize}
+ \item cells
+\end{itemize}
+
+
+
 \subsection{Initial Boundary Layer Generation}
 
 \subsection{Mesh-Smoothing}
