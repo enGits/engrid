@@ -38,7 +38,6 @@ void UpdateDesiredMeshDensity::operate()
   
   //define desired mesh density
   cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
-  cout<<"DebugLevel="<<DebugLevel<<endl;
 
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
@@ -50,22 +49,14 @@ void UpdateDesiredMeshDensity::operate()
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   
   double diff=Convergence_meshdensity+1;
-  if(DebugLevel>3) cout<<"before loop: diff="<<diff<<endl;
   bool first = true;
   int iter = 0;
   do {
-    if(DebugLevel>2) cout<<"--->diff="<<diff<<endl;
     first = true;
     foreach (vtkIdType node, nodes) {
-      if (DebugLevel > 2) {
-        cout << "======>" << endl;
-      }
       VertexMeshDensity nodeVMD = getVMD(node);
       int idx = VMDvector.indexOf(nodeVMD);
       node_specified_density->SetValue(node, idx);
-      if (DebugLevel > 2) {
-        cout << "------>idx=" << idx << endl;
-      }
       if ( idx != -1) { //specified
         node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
       } else { //unspecified
@@ -77,9 +68,6 @@ void UpdateDesiredMeshDensity::operate()
           diff=max(abs(D-node_meshdensity_desired->GetValue(node)),diff);
         }
         node_meshdensity_desired->SetValue(node, D);
-      }
-      if (DebugLevel > 2) {
-        cout << "======>" << endl;
       }
     }
     iter++;
