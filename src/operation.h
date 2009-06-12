@@ -51,14 +51,6 @@ private:
   
   Operation *op;
 
-  static QVector<vtkIdType>     m_static_DummyCells;  /// dummy to initialise references
-  static QVector<int>           m_static_DummyRCells; /// dummy to initialise references
-  static QVector<vtkIdType>     m_static_DummyNodes;  /// dummy to initialise references
-  static QVector<int>           m_static_DummyRNodes; /// dummy to initialise references
-  static QVector<QVector<int> > m_static_DummyN2N;    /// dummy to initialise references
-  static QVector<QVector<int> > m_static_DummyN2C;    /// dummy to initialise references
-  static QVector<QVector<int> > m_static_DummyC2C;    /// dummy to initialise references
-
 protected:
   
   virtual void run();
@@ -113,13 +105,13 @@ protected: // methods
   virtual void operate() = 0;
   void setTypeName(QString name);
 
-  const l2g_t& getPartNodes()      const { return m_Part.getNodes(); }
-  const l2g_t& getPartCells()      const { return m_Part.getCells(); }
-  const g2l_t& getPartLocalNodes() const { return m_Part.getLocalNodes(); }
-  const g2l_t& getPartLocalCells() const { return m_Part.getLocalCells(); }
-  const l2l_t& getPartN2N()        const { return m_Part.getN2N(); }
-  const l2l_t& getPartN2C()        const { return m_Part.getN2C(); }
-  const l2l_t& getPartC2C()        const { return m_Part.getC2C(); }
+  l2g_t getPartNodes()      const { return m_Part.getNodes(); }
+  l2g_t getPartCells()      const { return m_Part.getCells(); }
+  g2l_t getPartLocalNodes() const { return m_Part.getLocalNodes(); }
+  g2l_t getPartLocalCells() const { return m_Part.getLocalCells(); }
+  l2l_t getPartN2N()        const { return m_Part.getN2N(); }
+  l2l_t getPartN2C()        const { return m_Part.getN2C(); }
+  l2l_t getPartC2C()        const { return m_Part.getC2C(); }
 
 public: // methods
   
