@@ -198,8 +198,6 @@ void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
 
 int SurfaceMesher::SwapFunction()
 {
-  l2g_t cells = getPartCells();
-
   cout<<"=== SwapFunction START ==="<<endl;
   QSet<int> rest_bcs;
   mainWindow()->getAllBoundaryCodes(rest_bcs);

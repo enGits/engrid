@@ -65,7 +65,6 @@ int RemovePoints::remove_FP_all()
   getNodesFromCells(m_SelectedCells, m_SelectedNodes, grid);
   setGrid(grid);
   setCells(m_AllCells);
-  l2g_t nodes = getPartNodes();
   l2l_t n2c   = getPartN2C();
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
   UpdateNodeType();
@@ -149,7 +148,6 @@ int RemovePoints::remove_EP_all()
   getNodesFromCells(m_SelectedCells, m_SelectedNodes, grid);
   setGrid(grid);
   setCells(m_AllCells);
-  l2g_t nodes = getPartNodes();
   l2l_t n2c   = getPartN2C();
   l2l_t n2n   = getPartN2N();
   cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
