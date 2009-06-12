@@ -33,10 +33,6 @@ class UpdateDesiredMeshDensity : public SurfaceOperation
   //attributes
 public:
   QSet<int> m_bcs;
-  QVector <vtkIdType> m_SelectedNodes;
-  QVector <vtkIdType> m_AllNodes;
-  QVector<vtkIdType> m_SelectedCells;
-  QVector<vtkIdType> m_AllCells;
   
   //attributes with setter functions
 public:
@@ -50,9 +46,6 @@ public:
   //methods
 public:
     UpdateDesiredMeshDensity();
-
-    ~UpdateDesiredMeshDensity();
-
     virtual void operate();
 };
 

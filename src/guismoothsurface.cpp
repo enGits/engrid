@@ -88,6 +88,8 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 GuiSmoothSurface::GuiSmoothSurface()
 {
+  EG_TYPENAME;
+  
   setQuickSave(true);
 
   m_tableWidget = new SettingsSheet();
@@ -655,6 +657,7 @@ void GuiSmoothSurface::operate()
     update_desired_mesh_density.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     update_desired_mesh_density.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+    update_desired_mesh_density.setDebugLevel(ui.spinBox_DebugLevel->value());
     update_desired_mesh_density();
     
   }
