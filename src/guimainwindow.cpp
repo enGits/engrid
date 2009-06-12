@@ -76,10 +76,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
-  QPoint pos = qset.value("pos", QPoint(200, 200)).toPoint();
-  QSize size = qset.value("size", QSize(400, 400)).toSize();
-  resize(size);
-  move(pos);
+  setGeometry(qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
+  restoreState(qset.value("dockWidget_states").toByteArray());
   
   connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
   connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
@@ -214,8 +212,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
-  qset.setValue("pos", pos());
-  qset.setValue("size", size());
+  qset.setValue("GuiMainWindow", this->geometry());
+  qset.setValue("dockWidget_states", this->saveState());
   
 #ifndef QT_DEBUG
   QDirIterator it(m_LogDir);
