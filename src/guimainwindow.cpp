@@ -133,7 +133,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
   connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
   
-  
 #include "std_connections.h"
   
   if (qset.contains("working_directory")) {
@@ -508,8 +507,8 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     int current_field=ui.comboBox_Field->currentIndex();
     ui.comboBox_Field->clear();
     ui.comboBox_Field->addItem("None");
-    for (int i = 0; i < surface_filter->GetOutput()->GetPointData()->GetNumberOfArrays(); ++i) {
-      ui.comboBox_Field->addItem(surface_filter->GetOutput()->GetPointData()->GetArrayName(i));
+    for (int i = 0; i < grid->GetPointData()->GetNumberOfArrays(); ++i) {
+      ui.comboBox_Field->addItem(grid->GetPointData()->GetArrayName(i));
     }
     if(current_field == -1) {
       ui.comboBox_Field->setCurrentIndex(0);
@@ -545,6 +544,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       m_SurfaceMapper->SetScalarModeToUsePointFieldData();
       m_SurfaceMapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
       m_SurfaceMapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
+      m_SurfaceMapper->ScalarVisibilityOn();
       if(ui.checkBox_Legend->checkState()) {
         m_LegendActor->SetVisibility(1);
       } else {
@@ -552,6 +552,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       }
     } else {
       m_SurfaceMapper->SetColorModeToDefault();
+      m_SurfaceMapper->ScalarVisibilityOff();
     }
     if (forced) {
       m_BCodesFilter->Update();
