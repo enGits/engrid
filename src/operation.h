@@ -94,8 +94,8 @@ private: // methods
   
 protected: // attributes
   
-  vtkUnstructuredGrid    *grid;   /// The main grid the operation operates on.
-  MeshPartition           m_Part; /// the partition containing the subset of cells and nodes
+  vtkUnstructuredGrid    *grid;   ///< The main grid the operation operates on.
+  MeshPartition           m_Part; ///< the partition containing the subset of cells and nodes
 
 protected: // methods
   
@@ -105,13 +105,13 @@ protected: // methods
   virtual void operate() = 0;
   void setTypeName(QString name);
 
-  l2g_t getPartNodes()      const { return m_Part.getNodes(); }
-  l2g_t getPartCells()      const { return m_Part.getCells(); }
-  g2l_t getPartLocalNodes() const { return m_Part.getLocalNodes(); }
-  g2l_t getPartLocalCells() const { return m_Part.getLocalCells(); }
-  l2l_t getPartN2N()        const { return m_Part.getN2N(); }
-  l2l_t getPartN2C()        const { return m_Part.getN2C(); }
-  l2l_t getPartC2C()        const { return m_Part.getC2C(); }
+  l2g_t getPartNodes()       { return m_Part.getNodes(); }
+  l2g_t getPartCells() const { return m_Part.getCells(); }
+  g2l_t getPartLocalNodes()  { return m_Part.getLocalNodes(); }
+  g2l_t getPartLocalCells()  { return m_Part.getLocalCells(); }
+  l2l_t getPartN2N()         { return m_Part.getN2N(); }
+  l2l_t getPartN2C()         { return m_Part.getN2C(); }
+  l2l_t getPartC2C()         { return m_Part.getC2C(); }
 
 public: // methods
   

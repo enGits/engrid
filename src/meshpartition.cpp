@@ -28,12 +28,19 @@
 
 MeshPartition::MeshPartition()
 {
-  grid = NULL;
+  m_Grid = NULL;
+  m_CellsStamp = 0;
+  m_LCellsStamp = 0;
+  m_NodesStamp = 0;
+  m_LNodesStamp = 0;
+  m_N2NStamp = 0;
+  m_N2NStamp = 0;
+  m_C2CStamp = 0;
 }
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
-  this->grid = grid;
+  m_Grid = grid;
   if (use_all_cells) {
     QVector<vtkIdType> cls(grid->GetNumberOfCells());
     for (vtkIdType id_cell = 0; id_cell < cls.size(); ++id_cell) {
@@ -48,28 +55,18 @@ MeshPartition::MeshPartition(QString volume_name)
   setVolume(volume_name);
 }
 
-void MeshPartition::updateStructures()
-{
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-}
-
 void MeshPartition::setVolume(QString volume_name)
 {
-  grid = GuiMainWindow::pointer()->getGrid();
-  resetOrientation(grid);
+  m_Grid = GuiMainWindow::pointer()->getGrid();
+  resetOrientation(m_Grid);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   QList<vtkIdType> cls;
-  EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
-  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
-  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
-  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, m_Grid, "cell_voldir");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
       int bc = cell_code->GetValue(id_cell);
       cell_voldir->SetValue(id_cell, 0);
       if (V.getSign(bc) != 0) {
@@ -89,22 +86,22 @@ void MeshPartition::setVolume(QString volume_name)
 
 void MeshPartition::setVolumeOrientation()
 {
-  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
-  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
-  foreach (vtkIdType id_cell, cells) {
+  EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, m_Grid, "cell_voldir");
+  foreach (vtkIdType id_cell, m_Cells) {
     if (cell_curdir->GetValue(id_cell) != cell_voldir->GetValue(id_cell)) {
-      reorientateFace(grid, id_cell);
+      reorientateFace(m_Grid, id_cell);
     }
   }
 }
 
 void MeshPartition::setOriginalOrientation()
 {
-  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
-  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
-  foreach (vtkIdType id_cell, cells) {
+  EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
+  foreach (vtkIdType id_cell, m_Cells) {
     if (cell_curdir->GetValue(id_cell) != cell_orgdir->GetValue(id_cell)) {
-      reorientateFace(grid, id_cell);
+      reorientateFace(m_Grid, id_cell);
     }
   }
 }
@@ -113,44 +110,44 @@ void MeshPartition::setRemainder(const MeshPartition& part)
 {
   setGrid(part.getGrid());
   QVector<vtkIdType> rcells;
-  getRestCells(grid, part.cells, rcells);
+  getRestCells(m_Grid, part.m_Cells, rcells);
   setCells(rcells);
 }
 
 void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
 {
-  allocateGrid(new_grid, cells.size(), nodes.size());
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+  allocateGrid(new_grid, m_Cells.size(), m_Nodes.size());
+  for (int i_nodes = 0; i_nodes < m_Nodes.size(); ++i_nodes) {
     vec3_t x;
-    grid->GetPoints()->GetPoint(nodes[i_nodes], x.data());
+    m_Grid->GetPoints()->GetPoint(m_Nodes[i_nodes], x.data());
     new_grid->GetPoints()->SetPoint(i_nodes, x.data());
-    copyNodeData(grid, nodes[i_nodes], new_grid, i_nodes);
+    copyNodeData(m_Grid, m_Nodes[i_nodes], new_grid, i_nodes);
   }
-  foreach (vtkIdType id_cell, cells) {
+  foreach (vtkIdType id_cell, m_Cells) {
     vtkIdType N_pts, *pts;
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType new_pts[N_pts];
     for (int i = 0; i < N_pts; ++i) {
-      new_pts[i] = _nodes[pts[i]];
+      new_pts[i] = m_LNodes[pts[i]];
     }
     vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
-    copyCellData(grid, id_cell, new_grid, id_new_cell);
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
 }
 
 void MeshPartition::addPartition(const MeshPartition& part)
 {
-  if (grid == part.grid) {
-    QVector<bool> cell_marked(grid->GetNumberOfCells(), false);
-    foreach (vtkIdType id_cell, cells) {
+  if (m_Grid == part.m_Grid) {
+    QVector<bool> cell_marked(m_Grid->GetNumberOfCells(), false);
+    foreach (vtkIdType id_cell, m_Cells) {
       cell_marked[id_cell] = true;
     }
-    foreach (vtkIdType id_cell, part.cells) {
+    foreach (vtkIdType id_cell, part.m_Cells) {
       cell_marked[id_cell] = true;
     }
     QList<vtkIdType> new_cells;
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (cell_marked[id_cell]) {
         new_cells.append(id_cell);
       }
@@ -162,15 +159,15 @@ void MeshPartition::addPartition(const MeshPartition& part)
     cout << "tolerance = " << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
-    loc->SetDataSet(grid);
+    loc->SetDataSet(m_Grid);
     loc->BuildLocator();
-    QVector<vtkIdType> pnode2node(part.grid->GetNumberOfPoints());
-    vtkIdType N = grid->GetNumberOfPoints();
-    foreach (vtkIdType id_pnode, part.nodes) {
+    QVector<vtkIdType> pnode2node(part.m_Grid->GetNumberOfPoints());
+    vtkIdType N = m_Grid->GetNumberOfPoints();
+    foreach (vtkIdType id_pnode, part.m_Nodes) {
       vec3_t xp, x;
-      part.grid->GetPoint(id_pnode, xp.data());
+      part.m_Grid->GetPoint(id_pnode, xp.data());
       vtkIdType id_node = loc->FindClosestPoint(xp.data());
-      grid->GetPoint(id_node, x.data());
+      m_Grid->GetPoint(id_node, x.data());
       if ((x - xp).abs() < tol) {
         pnode2node[id_pnode] = id_node;
       } else {
@@ -178,54 +175,54 @@ void MeshPartition::addPartition(const MeshPartition& part)
         ++N;
       }
     }
-    allocateGrid(new_grid, grid->GetNumberOfCells() + part.cells.size(), N);
-    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    allocateGrid(new_grid, m_Grid->GetNumberOfCells() + part.m_Cells.size(), N);
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       vec3_t x;
-      grid->GetPoint(id_node, x.data());
+      m_Grid->GetPoint(id_node, x.data());
       new_grid->GetPoints()->SetPoint(id_node, x.data());
-      copyNodeData(grid, id_node, new_grid, id_node);
+      copyNodeData(m_Grid, id_node, new_grid, id_node);
     }
-    foreach (vtkIdType id_pnode, part.nodes) {
+    foreach (vtkIdType id_pnode, part.m_Nodes) {
       vec3_t x;
-      part.grid->GetPoint(id_pnode, x.data());
+      part.m_Grid->GetPoint(id_pnode, x.data());
       new_grid->GetPoints()->SetPoint(pnode2node[id_pnode], x.data());
-      copyNodeData(part.grid, id_pnode, new_grid, pnode2node[id_pnode]);
+      copyNodeData(part.m_Grid, id_pnode, new_grid, pnode2node[id_pnode]);
     }
     QList<vtkIdType> new_cells;
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
-      vtkIdType type_cell = grid->GetCellType(id_cell);
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
-      copyCellData(grid, id_cell, new_grid, id_new_cell);
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
       new_cells.append(id_new_cell);
     }
-    foreach (vtkIdType id_pcell, part.cells) {
+    foreach (vtkIdType id_pcell, part.m_Cells) {
       vtkIdType N_pts, *pts;
-      vtkIdType type_cell = part.grid->GetCellType(id_pcell);
-      part.grid->GetCellPoints(id_pcell, N_pts, pts);
+      vtkIdType type_cell = part.m_Grid->GetCellType(id_pcell);
+      part.m_Grid->GetCellPoints(id_pcell, N_pts, pts);
       vtkIdType new_pts[N_pts];
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = pnode2node[pts[i]];
       }
       vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
-      copyCellData(part.grid, id_pcell, new_grid, id_new_cell);
+      copyCellData(part.m_Grid, id_pcell, new_grid, id_new_cell);
       new_cells.append(id_new_cell);
     }
-    makeCopy(new_grid, grid);
+    makeCopy(new_grid, m_Grid);
   }
 }
 
 double MeshPartition::getSmallestEdgeLength() const
 {
   double L = 1e99;
-  foreach (vtkIdType id_cell, cells) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
+  foreach (vtkIdType id_cell, m_Cells) {
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     vec3_t x[N_pts];
     for (int i = 0; i < N_pts; ++i) {
-      grid->GetPoint(pts[i], x[i].data());
+      m_Grid->GetPoint(pts[i], x[i].data());
     }
     if        (type_cell == VTK_TRIANGLE) {
       L = min(L, (x[0] - x[1]).abs());

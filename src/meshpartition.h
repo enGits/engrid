@@ -33,34 +33,32 @@ class MeshPartition : public EgVtkObject
 
 private: // attributes
 
-  /// the grid underlying this mesh partition
-  vtkUnstructuredGrid *grid;
 
-  /// all cells of the mesh partition
-  QVector<vtkIdType> cells;
+  vtkUnstructuredGrid*   m_Grid;   ///< the grid underlying this mesh partition
+  QVector<vtkIdType>     m_Cells;  ///< all cells of the mesh partition
+  QVector<int>           m_LCells; ///< inverse indexing for the cells
+  QVector<vtkIdType>     m_Nodes;  ///< all nodes of the mesh partition
+  QVector<int>           m_LNodes; ///< inverse indexing for the nodes
+  QVector<QVector<int> > m_N2C;    ///< node to cell information
+  QVector<QVector<int> > m_N2N;    ///< node to node information
+  QVector<QVector<int> > m_C2C;    ///< cell to cell information
 
-  /// inverse indexing for the cells
-  QVector<int> _cells;
-
-  /// all nodes of the mesh partition
-  QVector<vtkIdType> nodes;
-
-  /// inverse indexing for the nodes
-  QVector<int> _nodes;
-
-  /// node to cell information
-  QVector<QVector<int> > n2c;
-
-  /// node to node information
-  QVector<QVector<int> > n2n;
-
-  /// cell to cell information
-  QVector<QVector<int> > c2c;
+  int m_CellsStamp;  ///< "time"-stamp
+  int m_LCellsStamp; ///< "time"-stamp
+  int m_NodesStamp;  ///< "time"-stamp
+  int m_LNodesStamp; ///< "time"-stamp
+  int m_N2NStamp;    ///< "time"-stamp
+  int m_N2CStamp;    ///< "time"-stamp
+  int m_C2CStamp;    ///< "time"-stamp
 
 private: // methods
 
-  /// update x2x structures
-  void updateStructures();
+  void checkNodes();
+  void checkLCells();
+  void checkLNodes();
+  void checkN2N();
+  void checkN2C();
+  void checkC2C();
 
 public: // methods
 
@@ -84,13 +82,13 @@ public: // methods
    * Set the grid.
    * @param a pointer to the grid
    */
-  void setGrid(vtkUnstructuredGrid *grid) { this->grid = grid; }
+  void setGrid(vtkUnstructuredGrid *grid) { m_Grid = grid; }
 
   /**
    * Access to the grid.
    * @return a pointer to the grid
    */
-  vtkUnstructuredGrid* getGrid() const { return grid; }
+  vtkUnstructuredGrid* getGrid() const { return m_Grid; }
 
   /**
    * Define the mesh partition by defining its cells.
@@ -112,32 +110,16 @@ public: // methods
    */
   void setRemainder(const MeshPartition& part);
 
-  /// Access to the cell indices;
-  const QVector<vtkIdType>& getCells() const { return cells; }
+  const QVector<vtkIdType>&     getCells() const; ///< Access to the cell indices
+  const QVector<int>&           getLocalCells();  ///< Access to the local cell indices
+  const QVector<vtkIdType>&     getNodes();       ///< Access to the node indices
+  const QVector<int>&           getLocalNodes();  ///< Access to the local node indices
+  const QVector<QVector<int> >& getN2N();         ///< Access to the local node to node structure
+  const QVector<QVector<int> >& getN2C();         ///< Access to the local node to cell structure
+  const QVector<QVector<int> >& getC2C();         ///< Access to the local cell to cell structure
 
-  /// Access to the local cell indices;
-  const QVector<int>& getLocalCells() const { return _cells; }
-
-  /// Access to the node indices;
-  const QVector<vtkIdType>& getNodes() const { return nodes; }
-
-  /// Access to the local node indices;
-  const QVector<int>& getLocalNodes() const { return _nodes; }
-
-  /// Access to the local node to node structure
-  const QVector<QVector<int> >& getN2N() const { return n2n; }
-
-  /// Access to the local node to cell structure
-  const QVector<QVector<int> >& getN2C() const { return n2c; }
-
-  /// Access to the local cell to cell structure
-  const QVector<QVector<int> >& getC2C() const { return c2c; }
-
-  /// change the face orientation to match the volume definition
-  void setVolumeOrientation();
-
-  /// change the orientation to match the original orientation
-  void setOriginalOrientation();
+  void setVolumeOrientation();   ///< change the face orientation to match the volume definition
+  void setOriginalOrientation(); ///< change the orientation to match the original orientation
 
   /**
    * Copy the partition to a VTK grid.
@@ -156,45 +138,242 @@ public: // methods
 
   /**
    * compute the smallest edge length of the partition
-   * @return the smalles edge length
+   * @return the smallest edge length
    */
   double getSmallestEdgeLength() const;
 
-  int n2nLSize(int i_nodes) { return n2n[i_nodes].size(); }
-  int n2nLL(int i_nodes, int j) { return n2n[i_nodes][j]; }
-  vtkIdType n2nLG(int i_nodes, int j) { return nodes[n2n[i_nodes][j]]; }
-
-  int n2nGSize(vtkIdType id_node) { return n2n[_nodes[id_node]].size(); }
-  int n2nGL(vtkIdType id_node, int j) { return n2n[_nodes[id_node]][j]; }
-  vtkIdType n2nGG(vtkIdType id_node, int j) { return nodes[n2n[_nodes[id_node]][j]]; }
-
-  int n2cLSize(int i_nodes) { return n2c[i_nodes].size(); }
-  int n2cLL(int i_nodes, int j) { return n2c[i_nodes][j]; }
-  vtkIdType n2cLG(int i_nodes, int j) { return nodes[n2c[i_nodes][j]]; }
-
-  int n2cGSize(vtkIdType id_node) { return n2c[_nodes[id_node]].size(); }
-  int n2cGL(vtkIdType id_node, int j) { return n2n[_nodes[id_node]][j]; }
-  vtkIdType n2cGG(vtkIdType id_node, int j) { return cells[n2n[_nodes[id_node]][j]]; }
-
-  int c2cLSize(int i_cells) { return c2c[i_cells].size(); }
-  int c2cLL(int i_cells, int j) { return c2c[i_cells][j]; }
-  vtkIdType c2cLG(int i_cells, int j) { return cells[c2c[i_cells][j]]; }
-
-  int c2cGSize(vtkIdType id_cell) { return c2c[_cells[id_cell]].size(); }
-  int c2cGL(vtkIdType id_cell, int j) { return c2c[_cells[id_cell]][j]; }
-  vtkIdType c2cGG(vtkIdType id_cell, int j) { return cells[c2c[_cells[id_cell]][j]]; }
+  int       n2nLSize(int i_nodes);
+  int       n2nLL(int i_nodes, int j);
+  vtkIdType n2nLG(int i_nodes, int j);
+  int       n2nGSize(vtkIdType id_node);
+  int       n2nGL(vtkIdType id_node, int j);
+  vtkIdType n2nGG(vtkIdType id_node, int j);
+  int       n2cLSize(int i_nodes);
+  int       n2cLL(int i_nodes, int j);
+  vtkIdType n2cLG(int i_nodes, int j);
+  int       n2cGSize(vtkIdType id_node);
+  int       n2cGL(vtkIdType id_node, int j);
+  vtkIdType n2cGG(vtkIdType id_node, int j);
+  int       c2cLSize(int i_cells);
+  int       c2cLL(int i_cells, int j);
+  vtkIdType c2cLG(int i_cells, int j);
+  int       c2cGSize(vtkIdType id_cell);
+  int       c2cGL(vtkIdType id_cell, int j);
+  vtkIdType c2cGG(vtkIdType id_cell, int j);
 
 };
 
 
-
 template <class C>
-void MeshPartition::setCells(const C& cls)
+inline void MeshPartition::setCells(const C& cls)
 {
-  cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), cells.begin());
-  getNodesFromCells(cells, nodes, grid);
-  updateStructures();
+  m_Cells.resize(cls.size());
+  qCopy(cls.begin(), cls.end(), m_Cells.begin());
+  ++m_CellsStamp;
 }
+
+inline void MeshPartition::checkNodes()
+{
+  if (m_CellsStamp > m_NodesStamp) {
+    getNodesFromCells(m_Cells, m_Nodes, m_Grid);
+    m_NodesStamp = m_CellsStamp;
+  }
+}
+
+inline void MeshPartition::checkLCells()
+{
+  if (m_CellsStamp > m_LCellsStamp) {
+    createCellMapping(m_Cells, m_LCells, m_Grid);
+    m_LCellsStamp = m_CellsStamp;
+  }
+}
+
+inline void MeshPartition::checkLNodes()
+{
+  checkNodes();
+  if (m_NodesStamp > m_LNodesStamp) {
+    createNodeMapping(m_Nodes, m_LNodes, m_Grid);
+    m_LNodesStamp = m_NodesStamp;
+  }
+}
+
+inline void MeshPartition::checkN2N()
+{
+  checkLNodes();
+  if (m_LNodesStamp > m_N2NStamp) {
+    createNodeToNode(m_Cells, m_Nodes, m_LNodes, m_N2N, m_Grid);
+    m_N2NStamp = m_LNodesStamp;
+  }
+}
+
+inline void MeshPartition::checkN2C()
+{
+  checkLNodes();
+  if (m_LNodesStamp > m_N2CStamp) {
+    createNodeToCell(m_Cells, m_Nodes, m_LNodes, m_N2C, m_Grid);
+    m_N2CStamp = m_LNodesStamp;
+  }
+}
+
+inline void MeshPartition::checkC2C()
+{
+  if (m_CellsStamp > m_C2CStamp) {
+    createCellToCell(m_Cells, m_C2C, m_Grid);
+    m_C2CStamp = m_CellsStamp;
+  }
+}
+
+inline const QVector<vtkIdType>& MeshPartition::getCells() const
+{
+  return m_Cells;
+}
+
+inline const QVector<int>& MeshPartition::getLocalCells()
+{
+  checkLCells();
+  return m_LCells;
+}
+
+inline const QVector<vtkIdType>& MeshPartition::getNodes()
+{
+  checkNodes();
+  return m_Nodes;
+}
+
+inline const QVector<int>& MeshPartition::getLocalNodes()
+{
+  checkLNodes();
+  return m_LNodes;
+}
+
+inline const QVector<QVector<int> >& MeshPartition::getN2N()
+{
+  checkN2N();
+  return m_N2N;
+}
+
+inline const QVector<QVector<int> >& MeshPartition::getN2C()
+{
+  checkN2C();
+  return m_N2C;
+}
+
+inline const QVector<QVector<int> >& MeshPartition::getC2C()
+{
+  checkC2C();
+  return m_C2C;
+}
+
+inline int MeshPartition::n2nLSize(int i_nodes)
+{
+  checkN2N();
+  return m_N2N[i_nodes].size();
+}
+
+inline int MeshPartition::n2nLL(int i_nodes, int j)
+{
+  checkN2N();
+  return m_N2N[i_nodes][j];
+}
+
+inline vtkIdType MeshPartition::n2nLG(int i_nodes, int j)
+{
+  checkN2N();
+  return m_Nodes[m_N2N[i_nodes][j]];
+}
+
+inline int MeshPartition::n2nGSize(vtkIdType id_node)
+{
+  checkN2N();
+  return m_N2N[m_LNodes[id_node]].size();
+}
+
+inline int MeshPartition::n2nGL(vtkIdType id_node, int j)
+{
+  checkN2N();
+  return m_N2N[m_LNodes[id_node]][j];
+}
+
+inline vtkIdType MeshPartition::n2nGG(vtkIdType id_node, int j)
+{
+  checkN2N();
+  return m_Nodes[m_N2N[m_LNodes[id_node]][j]];
+}
+
+inline int MeshPartition::n2cLSize(int i_nodes)
+{
+  checkN2C();
+  return m_N2C[i_nodes].size();
+}
+
+inline int MeshPartition::n2cLL(int i_nodes, int j)
+{
+  checkN2C();
+  return m_N2C[i_nodes][j];
+}
+
+inline vtkIdType MeshPartition::n2cLG(int i_nodes, int j)
+{
+  checkN2C();
+  return m_Nodes[m_N2C[i_nodes][j]];
+}
+
+inline int MeshPartition::n2cGSize(vtkIdType id_node)
+{
+  checkN2C();
+  return m_N2C[m_LNodes[id_node]].size();
+}
+
+inline int MeshPartition::n2cGL(vtkIdType id_node, int j)
+{
+  checkN2C();
+  return m_N2C[m_LNodes[id_node]][j];
+}
+
+inline vtkIdType MeshPartition::n2cGG(vtkIdType id_node, int j)
+{
+  checkN2C();
+  return m_Cells[m_N2C[m_LNodes[id_node]][j]];
+}
+
+inline int MeshPartition::c2cLSize(int i_cells)
+{
+  checkC2C();
+  return m_C2C[i_cells].size();
+}
+
+inline int MeshPartition::c2cLL(int i_cells, int j)
+{
+  checkC2C();
+  return m_C2C[i_cells][j];
+}
+
+inline vtkIdType MeshPartition::c2cLG(int i_cells, int j)
+{
+  checkC2C();
+  return m_Cells[m_C2C[i_cells][j]];
+}
+
+inline int MeshPartition::c2cGSize(vtkIdType id_cell)
+{
+  checkC2C();
+  checkLCells();
+  return m_C2C[m_LCells[id_cell]].size();
+}
+
+inline int MeshPartition::c2cGL(vtkIdType id_cell, int j)
+{
+  checkC2C();
+  checkLCells();
+  return m_C2C[m_LCells[id_cell]][j];
+}
+
+inline vtkIdType MeshPartition::c2cGG(vtkIdType id_cell, int j)
+{
+  checkC2C();
+  checkLCells();
+  return m_Cells[m_C2C[m_LCells[id_cell]][j]];
+}
+
 
 #endif // MESHPARTITION_H

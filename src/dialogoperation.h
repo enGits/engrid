@@ -49,13 +49,13 @@ protected: // attributes
 
 protected: // methods
 
-  EgVtkObject::l2g_t getPartNodes()      const { return this->m_Part.getNodes(); }
-  EgVtkObject::l2g_t getPartCells()      const { return this->m_Part.getCells(); }
-  EgVtkObject::g2l_t getPartLocalNodes() const { return this->m_Part.getLocalNodes(); }
-  EgVtkObject::g2l_t getPartLocalCells() const { return this->m_Part.getLocalCells(); }
-  EgVtkObject::l2l_t getPartN2N()        const { return this->m_Part.getN2N(); }
-  EgVtkObject::l2l_t getPartN2C()        const { return this->m_Part.getN2C(); }
-  EgVtkObject::l2l_t getPartC2C()        const { return this->m_Part.getC2C(); }
+  EgVtkObject::l2g_t getPartNodes()      { return this->m_Part.getNodes(); }
+  EgVtkObject::l2g_t getPartCells()const { return this->m_Part.getCells(); }
+  EgVtkObject::g2l_t getPartLocalNodes() { return this->m_Part.getLocalNodes(); }
+  EgVtkObject::g2l_t getPartLocalCells() { return this->m_Part.getLocalCells(); }
+  EgVtkObject::l2l_t getPartN2N()        { return this->m_Part.getN2N(); }
+  EgVtkObject::l2l_t getPartN2C()        { return this->m_Part.getN2C(); }
+  EgVtkObject::l2l_t getPartC2C()        { return this->m_Part.getC2C(); }
   
 public: // methods
   
