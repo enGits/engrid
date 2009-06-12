@@ -39,18 +39,18 @@ void DeleteVolumeGrid::operate()
       sgrid ->GetPoints()->SetPoint(newId, x.data());
       copyNodeData(grid, nodeId, sgrid, newId);
       ++newId;
-    };
-  };
+    }
+  }
   foreach (vtkIdType cellId, scells) {
     vtkIdType *pts, Npts;
     grid->GetCellPoints(cellId, Npts, pts);
     for (int i = 0; i < Npts; ++i) {
       pts[i] = _snodes[pts[i]];
-    };
+    }
     vtkIdType cellType = grid->GetCellType(cellId);
     vtkIdType newId = sgrid->InsertNextCell(cellType, Npts, pts);
     copyCellData(grid, cellId, sgrid, newId);
-  };
+  }
   makeCopy(sgrid, grid);
-};
+}
 
