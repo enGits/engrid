@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -105,6 +105,7 @@
     <addaction name="actionShow_display_options"/>
     <addaction name="actionShow_output"/>
     <addaction name="actionShow_node_cell_info"/>
+    <addaction name="actionShow_debugging_utilities"/>
    </widget>
    <widget class="QMenu" name="menuMesh">
     <property name="title">
@@ -220,7 +221,7 @@
    <addaction name="actionViewYM"/>
    <addaction name="actionSmoothSurface"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
      <horstretch>200</horstretch>
@@ -229,8 +230,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>260</width>
-     <height>132</height>
+     <width>0</width>
+     <height>0</height>
     </size>
    </property>
    <property name="floating">
@@ -262,7 +263,7 @@
         <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAsNeeded</enum>
+        <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
@@ -271,9 +272,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-336</y>
-          <width>362</width>
-          <height>1011</height>
+          <y>0</y>
+          <width>222</width>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -555,6 +556,117 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonRedraw">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>   redraw</string>
+           </property>
+           <property name="icon">
+            <iconset resource="engrid.qrc">
+             <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_output">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>Output</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QTextEdit" name="textEditOutput">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="pushButtonMarkPosition">
+       <property name="text">
+        <string>mark position</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_node_cell_info">
+   <property name="windowTitle">
+    <string>Node/Cell info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_node_cell_info">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_DebuggingUtilities">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Debugging utilities</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_4">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QScrollArea" name="scrollArea_2">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>228</width>
+          <height>557</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
             <string>Picker</string>
@@ -737,79 +849,8 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonRedraw">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>   redraw</string>
-           </property>
-           <property name="icon">
-            <iconset resource="engrid.qrc">
-             <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_output">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="windowTitle">
-    <string>Output</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0">
-      <widget class="QTextEdit" name="textEditOutput">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="pushButtonMarkPosition">
-       <property name="text">
-        <string>mark position</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_node_cell_info">
-   <property name="windowTitle">
-    <string>Node/Cell info</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLabel" name="label_node_cell_info">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
       </widget>
      </item>
     </layout>
@@ -1351,6 +1392,14 @@
     <string>forced redraw</string>
    </property>
   </action>
+  <action name="actionShow_debugging_utilities">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show debugging utilities</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9"/>
  <customwidgets>
@@ -1381,41 +1430,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_UseVTKInteractor</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>actionUseVTKInteractor</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>753</x>
-     <y>619</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_ScaleToData</sender>
-   <signal>clicked()</signal>
-   <receiver>actionScaleToData</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>635</x>
-     <y>718</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionShow_display_options</sender>
    <signal>triggered(bool)</signal>
-   <receiver>dockWidget</receiver>
+   <receiver>dockWidget_DisplayOptions</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1429,7 +1446,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>dockWidget</sender>
+   <sender>dockWidget_DisplayOptions</sender>
    <signal>visibilityChanged(bool)</signal>
    <receiver>actionShow_display_options</receiver>
    <slot>setChecked(bool)</slot>
@@ -1477,38 +1494,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_ZoomOnPickedObject</sender>
-   <signal>clicked()</signal>
-   <receiver>actionZoomOnPickedObject</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1178</x>
-     <y>554</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_ShowPickSphere</sender>
-   <signal>clicked()</signal>
-   <receiver>actionRedraw</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1178</x>
-     <y>550</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionShow_node_cell_info</sender>
    <signal>triggered(bool)</signal>
    <receiver>dockWidget_node_cell_info</receiver>
@@ -1533,6 +1518,38 @@
     <hint type="sourcelabel">
      <x>136</x>
      <y>791</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionShow_debugging_utilities</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidget_DebuggingUtilities</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>936</x>
+     <y>609</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidget_DebuggingUtilities</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionShow_debugging_utilities</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>936</x>
+     <y>609</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

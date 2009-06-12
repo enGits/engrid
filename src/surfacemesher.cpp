@@ -31,7 +31,7 @@
 SurfaceMesher::SurfaceMesher()
 : SurfaceOperation()
 {
-   DebugLevel=0;
+  EG_TYPENAME;
 }
 
 void SurfaceMesher::operate()

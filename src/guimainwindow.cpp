@@ -76,10 +76,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
-  QPoint pos = qset.value("pos", QPoint(200, 200)).toPoint();
-  QSize size = qset.value("size", QSize(400, 400)).toSize();
-  resize(size);
-  move(pos);
+  setGeometry(qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
+  restoreState(qset.value("dockWidget_states").toByteArray());
   
   connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
   connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
@@ -91,9 +89,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionExportBinaryStl,        SIGNAL(activated()),       this, SLOT(exportBinaryStl()));
   connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
   connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
-  connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(ZoomOnPickedObject()));
-  connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(PrintGrid()));
-  connect(ui.actionShowInfo,               SIGNAL(activated()),       this, SLOT(Info()));
+  connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(zoomOnPickedObject()));
+  connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(printGrid()));
+  connect(ui.actionShowInfo,               SIGNAL(activated()),       this, SLOT(info()));
   connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(deselectAll()));
   connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
   connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
@@ -132,7 +130,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.lineEditClipNZ, SIGNAL(textChanged(QString)), this, SLOT(setClipNZ(QString)));
 
   connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
-  
   
 #include "std_connections.h"
   
@@ -215,8 +212,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
-  qset.setValue("pos", pos());
-  qset.setValue("size", size());
+  qset.setValue("GuiMainWindow", this->geometry());
+  qset.setValue("dockWidget_states", this->saveState());
   
 #ifndef QT_DEBUG
   QDirIterator it(m_LogDir);
@@ -508,8 +505,8 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     int current_field=ui.comboBox_Field->currentIndex();
     ui.comboBox_Field->clear();
     ui.comboBox_Field->addItem("None");
-    for (int i = 0; i < surface_filter->GetOutput()->GetPointData()->GetNumberOfArrays(); ++i) {
-      ui.comboBox_Field->addItem(surface_filter->GetOutput()->GetPointData()->GetArrayName(i));
+    for (int i = 0; i < grid->GetPointData()->GetNumberOfArrays(); ++i) {
+      ui.comboBox_Field->addItem(grid->GetPointData()->GetArrayName(i));
     }
     if(current_field == -1) {
       ui.comboBox_Field->setCurrentIndex(0);
@@ -545,6 +542,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       m_SurfaceMapper->SetScalarModeToUsePointFieldData();
       m_SurfaceMapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
       m_SurfaceMapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
+      m_SurfaceMapper->ScalarVisibilityOn();
       if(ui.checkBox_Legend->checkState()) {
         m_LegendActor->SetVisibility(1);
       } else {
@@ -552,6 +550,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       }
     } else {
       m_SurfaceMapper->SetColorModeToDefault();
+      m_SurfaceMapper->ScalarVisibilityOff();
     }
     if (forced) {
       m_BCodesFilter->Update();

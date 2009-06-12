@@ -88,6 +88,8 @@ int cout_vtkSmoothPolyDataFilter(vtkSmoothPolyDataFilter* smooth)
 
 GuiSmoothSurface::GuiSmoothSurface()
 {
+  EG_TYPENAME;
+  
   setQuickSave(true);
 
   m_tableWidget = new SettingsSheet();
@@ -586,6 +588,7 @@ void GuiSmoothSurface::operate()
     getSelectedItems(ui.listWidget, bcs);
     mainWindow()->getAllBoundaryCodes(rest_bcs);
     rest_bcs -= bcs;
+    cout<<"rest_bcs="<<rest_bcs<<endl;
     SwapTriangles swap;
     swap.setRespectBC(true);
     swap.setFeatureSwap(true);
@@ -654,6 +657,7 @@ void GuiSmoothSurface::operate()
     update_desired_mesh_density.setConvergence_meshdensity(ui.doubleSpinBox_Convergence_meshdensity->value());
     update_desired_mesh_density.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+    update_desired_mesh_density.setDebugLevel(ui.spinBox_DebugLevel->value());
     update_desired_mesh_density();
     
   }
@@ -783,4 +787,6 @@ void GuiSmoothSurface::operate()
     cout<<"n2n="<<n2n<<endl;
     cout<<"c2c="<<c2c<<endl;
   }
+  grid->Modified();
+//   updateActors(true);
 }
