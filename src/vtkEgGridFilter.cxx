@@ -23,12 +23,20 @@
 #include "vtkEgGridFilter.h"
 #include "vtkInformation.h"
 
+#include "guimainwindow.h"
+
 vtkEgGridFilter::vtkEgGridFilter()
 {
   m_BoundaryCodes.clear();
-  input = NULL;
-  output = NULL;
+  m_Input = NULL;
+  m_Output = NULL;
+  m_LastOutput = vtkUnstructuredGrid::New();
   m_LastRun = GetMTime();
+}
+
+vtkEgGridFilter::~vtkEgGridFilter()
+{
+  m_LastOutput->Delete();
 }
 
 int vtkEgGridFilter::FillInputPortInformation
@@ -54,31 +62,38 @@ int vtkEgGridFilter::FillOutputPortInformation
 int vtkEgGridFilter::RequestData
 (
   vtkInformation*, 
-  vtkInformationVector** inputVector, 
-  vtkInformationVector*  outputVector
+  vtkInformationVector** m_InputVector,
+  vtkInformationVector*  m_OutputVector
 )
 {
-  // Get input and output data
-  input  = vtkUnstructuredGrid::GetData(inputVector[0]);
-  output = vtkUnstructuredGrid::GetData(outputVector);
+  // Get m_Input and m_Output data
+  m_Input  = vtkUnstructuredGrid::GetData(m_InputVector[0]);
+  m_Output = vtkUnstructuredGrid::GetData(m_OutputVector);
   
-  // check if we have a proper inputVector
-  if (!input)                                      { vtkDebugMacro("No input!"); return 1; }
-  if (!input->GetPoints())                         { vtkDebugMacro("No input!"); return 1; }
-  if (input->GetPoints()->GetNumberOfPoints() < 1) { vtkDebugMacro("No input!"); return 1; }
+  // check if we have a proper m_InputVector
+  if (!m_Input)                                      { vtkDebugMacro("No input!"); return 1; }
+  if (!m_Input->GetPoints())                         { vtkDebugMacro("No input!"); return 1; }
+  if (m_Input->GetPoints()->GetNumberOfPoints() < 1) { vtkDebugMacro("No input!"); return 1; }
   
   // call the enGrid filter method
   try {
-    bool input_changed = (input->GetMTime() > m_LastRun);
+    bool m_Input_changed = (m_Input->GetMTime() > m_LastRun);
     bool filter_changed = (GetMTime() > m_LastRun);
-    if (input_changed || filter_changed) {
-      ExecuteEg();
-      Modified();
-      m_LastRun = GetMTime();
+    if (m_Input_changed || filter_changed) {
+      if (GuiMainWindow::tryLock()) {
+        ExecuteEg();
+        makeCopy(m_Output, m_LastOutput);
+        Modified();
+        m_LastRun = GetMTime();
+        GuiMainWindow::unlock();
+      } else {
+        makeCopy(m_LastOutput, m_Output);
+      }
     }
   } catch (Error err) {
+    GuiMainWindow::unlock();
     err.display();
-    output->DeepCopy(input);
+    m_Output->DeepCopy(m_Input);
   }
   
   return 1;
@@ -113,7 +128,7 @@ void vtkEgGridFilter::ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdT
         ex_cells.insert(i);
         vtkIdType *pts;
         vtkIdType npts;
-        input->GetCellPoints(i,npts,pts);
+        m_Input->GetCellPoints(i,npts,pts);
         for (int j = 0; j < npts; ++j) {
           ex_nodes.insert(pts[j]);
         }

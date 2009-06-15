@@ -47,14 +47,15 @@ class vtkEgGridFilter : public vtkUnstructuredGridAlgorithm, public EgVtkObject
 protected: // attributes
   
   QSet<int>            m_BoundaryCodes;
-  vtkUnstructuredGrid *input;
-  vtkUnstructuredGrid *output;
+  vtkUnstructuredGrid *m_Input;
+  vtkUnstructuredGrid *m_Output;
+  vtkUnstructuredGrid *m_LastOutput;
   unsigned long        m_LastRun;
   
 protected: // methods
   
   vtkEgGridFilter();
-  ~vtkEgGridFilter() {}
+  ~vtkEgGridFilter();
   
   virtual int FillInputPortInformation(int, vtkInformation* info);
   virtual int FillOutputPortInformation(int, vtkInformation* info);
