@@ -30,19 +30,28 @@ class Octree : public EgVtkObject
 
 private: // attributes
 
-  vec3_t m_Origin; /// origin of internal coordinate system
-  mat3_t m_Base;   /// base vectors of internal coordinate system
+  vec3_t m_Origin;  /// origin of internal coordinate system
+  mat3_t m_Base;    /// base vectors of internal coordinate system
+  mat3_t m_InvBase; /// inverted base of internal coordiante system
 
 public: // methods
 
-  Octree(vec3_t origin = vec3_t(0,0,0),
-         vec3_t basevec1 = vec3_t(1,0,0),
-         vec3_t basevec2 = vec3_t(0,1,0),
-         vec3_t basevec3 = vec3_t(0,0,1));
+  Octree(vec3_t x0 = vec3_t(0,0,0), vec3_t g1 = vec3_t(1,0,0), vec3_t g2 = vec3_t(0,1,0), vec3_t g3 = vec3_t(0,0,1));
 
   vec3_t transfTo(vec3_t x);
   vec3_t transfFrom(vec3_t r);
 
 };
+
+inline vec3_t Octree::transfTo(vec3_t x)
+{
+  vec3_t dx = x - m_Origin;
+  return m_InvBase*dx;
+}
+
+inline vec3_t Octree::transfFrom(vec3_t r)
+{
+  return m_Origin + m_Base*r;
+}
 
 #endif // OCTREE_H

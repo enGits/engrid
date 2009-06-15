@@ -22,10 +22,13 @@
 //
 #include "octree.h"
 
-Octree::Octree(vec3_t origin, vec3_t basevec1, vec3_t basevec2, vec3_t basevec3)
+Octree::Octree(vec3_t x0, vec3_t g1, vec3_t g2, vec3_t g3)
 {
-  m_Origin = origin;
-  m_Base.column(0, basevec1);
-  m_Base.column(1, basevec2);
-  m_Base.column(2, basevec3);
+  m_Origin = x0;
+  m_Base.column(0, g1);
+  m_Base.column(1, g2);
+  m_Base.column(2, g3);
+  m_InvBase = m_Base.inverse();
 }
+
+
