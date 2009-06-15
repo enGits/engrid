@@ -184,10 +184,10 @@ void vtkEgExtractVolumeCells::Setnz(double nz)
 void vtkEgExtractVolumeCells::ExecuteEg()
 {
   QSet<vtkIdType> ex_cells;
-  for (vtkIdType id_cell = 0; id_cell < input->GetNumberOfCells(); ++id_cell) {
-    if (isVolume(id_cell, input)) {
+  for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, m_Input)) {
       bool select = true;
-      vtkIdType type_cell = input->GetCellType(id_cell);
+      vtkIdType type_cell = m_Input->GetCellType(id_cell);
       if (!m_ExtrTetras && type_cell == VTK_TETRA) {
         select = false;
       }
@@ -203,10 +203,10 @@ void vtkEgExtractVolumeCells::ExecuteEg()
       if (m_Clip && select) {
         vtkIdType *pts;
         vtkIdType  N_pts;
-        input->GetCellPoints(id_cell, N_pts, pts);
+        m_Input->GetCellPoints(id_cell, N_pts, pts);
         for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
           vec3_t x;
-          input->GetPoints()->GetPoint(pts[i_pts],x.data());
+          m_Input->GetPoints()->GetPoint(pts[i_pts],x.data());
           if ((x - m_X)*m_N < 0) {
             select = false;
             break;
@@ -222,24 +222,24 @@ void vtkEgExtractVolumeCells::ExecuteEg()
   qCopy(ex_cells.begin(), ex_cells.end(), cells.begin());
   QVector<vtkIdType> nodes;
   QVector<int>       _nodes;
-  getNodesFromCells(cells, nodes, input);
-  createNodeMapping(nodes, _nodes, input);
-  allocateGrid(output, cells.size(), nodes.size());
+  getNodesFromCells(cells, nodes, m_Input);
+  createNodeMapping(nodes, _nodes, m_Input);
+  allocateGrid(m_Output, cells.size(), nodes.size());
   foreach(vtkIdType id_node, nodes) {
     vec3_t x;
-    input->GetPoints()->GetPoint(id_node, x.data());
-    output->GetPoints()->SetPoint(_nodes[id_node], x.data());
+    m_Input->GetPoints()->GetPoint(id_node, x.data());
+    m_Output->GetPoints()->SetPoint(_nodes[id_node], x.data());
   }
   foreach(vtkIdType id_cell, cells) {
     vtkIdType  Npts;
     vtkIdType *pts;
-    input->GetCellPoints(id_cell, Npts, pts);
+    m_Input->GetCellPoints(id_cell, Npts, pts);
     vtkIdType *new_pts = new vtkIdType[Npts];
     for (int i = 0; i < Npts; ++i) {
       new_pts[i] = _nodes[pts[i]];
     }
-    vtkIdType id_new_cell = output->InsertNextCell(input->GetCellType(id_cell), Npts, new_pts);
-    copyCellData(input, id_cell, output, id_new_cell);
+    vtkIdType id_new_cell = m_Output->InsertNextCell(m_Input->GetCellType(id_cell), Npts, new_pts);
+    copyCellData(m_Input, id_cell, m_Output, id_new_cell);
     delete [] new_pts;
   }
 }

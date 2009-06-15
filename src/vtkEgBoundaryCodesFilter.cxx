@@ -36,34 +36,34 @@ vtkStandardNewMacro(vtkEgBoundaryCodesFilter)
 void vtkEgBoundaryCodesFilter::ExecuteEg()
 {
   // the coordinates of the nodes
-  allocateGrid(output, input->GetNumberOfCells(), input->GetNumberOfPoints());
-  for (vtkIdType vertId = 0; vertId < input->GetNumberOfPoints(); ++vertId) {
+  allocateGrid(m_Output, m_Input->GetNumberOfCells(), m_Input->GetNumberOfPoints());
+  for (vtkIdType vertId = 0; vertId < m_Input->GetNumberOfPoints(); ++vertId) {
     double x[3];
-    input->GetPoints()->GetPoint(vertId,x);
-    output->GetPoints()->SetPoint(vertId,x);
-    copyNodeData(input, vertId, output, vertId);
+    m_Input->GetPoints()->GetPoint(vertId,x);
+    m_Output->GetPoints()->SetPoint(vertId,x);
+    copyNodeData(m_Input, vertId, m_Output, vertId);
   }
   
-  EG_VTKDCC(vtkIntArray,cell_code,input,"cell_code");
+  EG_VTKDCC(vtkIntArray,cell_code,m_Input,"cell_code");
   
   // the cells
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
+  for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     vtkIdType *pts;
     vtkIdType npts;
     bool add = false;
     if (!cell_code) {
       add = false;
     } else if (m_BoundaryCodes.contains(cell_code->GetValue(cellId))) {
-      if (input->GetCellType(cellId) == VTK_TRIANGLE) add = true;
-      if (input->GetCellType(cellId) == VTK_QUAD)     add = true;
+      if (m_Input->GetCellType(cellId) == VTK_TRIANGLE) add = true;
+      if (m_Input->GetCellType(cellId) == VTK_QUAD)     add = true;
     }
     if (add) {
-      input->GetCellPoints(cellId,npts,pts);
-      vtkIdType newCell = output->InsertNextCell(input->GetCellType(cellId),npts,pts);
-      copyCellData(input, cellId, output, newCell);
+      m_Input->GetCellPoints(cellId,npts,pts);
+      vtkIdType newCell = m_Output->InsertNextCell(m_Input->GetCellType(cellId),npts,pts);
+      copyCellData(m_Input, cellId, m_Output, newCell);
     }
   }
   
-  output->Squeeze();
+  m_Output->Squeeze();
 }
 

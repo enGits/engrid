@@ -33,14 +33,14 @@ vtkEgEliminateShortEdges::vtkEgEliminateShortEdges()
 
 void vtkEgEliminateShortEdges::CheckEdges()
 {
-  new_node_idx.fill(-1,input->GetNumberOfPoints());
-  delete_cell.fill(false, input->GetNumberOfCells());
-  QVector<bool> marked(input->GetNumberOfPoints(), false);
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
-    int cellType = input->GetCellType(cellId);
+  new_node_idx.fill(-1, m_Input->GetNumberOfPoints());
+  delete_cell.fill(false, m_Input->GetNumberOfCells());
+  QVector<bool> marked(m_Input->GetNumberOfPoints(), false);
+  for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
+    int cellType = m_Input->GetCellType(cellId);
     if ((cellType == VTK_TRIANGLE) || (cellType == VTK_QUAD)) {
       vtkIdType *pts, Npts;
-      input->GetCellPoints(cellId, Npts, pts);
+      m_Input->GetCellPoints(cellId, Npts, pts);
       double L_av = 0;
       vector<vec3_t> x(Npts);
       int N_del = 0;
@@ -55,8 +55,8 @@ void vtkEgEliminateShortEdges::CheckEdges()
           EG_ERR_RETURN("bug encountered");
         };
         vec3_t x1, x2;
-        input->GetPoints()->GetPoint(p1, x1.data());
-        input->GetPoints()->GetPoint(p2, x2.data());
+        m_Input->GetPoints()->GetPoint(p1, x1.data());
+        m_Input->GetPoints()->GetPoint(p2, x2.data());
         double L = (x2-x1).abs();
         L_av += L;
         if (L < Lmin) {
@@ -80,8 +80,8 @@ void vtkEgEliminateShortEdges::CheckEdges()
           if (i < Npts-1) p2 = pts[i+1];
           else            p2 = pts[0];
           vec3_t x1, x2;
-          input->GetPoints()->GetPoint(p1, x1.data());
-          input->GetPoints()->GetPoint(p2, x2.data());
+          m_Input->GetPoints()->GetPoint(p1, x1.data());
+          m_Input->GetPoints()->GetPoint(p2, x2.data());
           double L = (x2-x1).abs();
           bool delete_edge = false;
           if (L == 0) {
@@ -109,11 +109,11 @@ void vtkEgEliminateShortEdges::CheckEdges()
 
 void vtkEgEliminateShortEdges::CheckCells()
 {
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
-    int cellType = input->GetCellType(cellId);
+  for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
+    int cellType = m_Input->GetCellType(cellId);
     if (cellType == VTK_TRIANGLE) {
       vtkIdType *pts, Npts;
-      input->GetCellPoints(cellId, Npts, pts);
+      m_Input->GetCellPoints(cellId, Npts, pts);
       for (int i = 0; i < Npts; ++i) {
         vtkIdType p1 = pts[i];
         vtkIdType p2;
@@ -135,18 +135,18 @@ void vtkEgEliminateShortEdges::CheckCells()
 
 void vtkEgEliminateShortEdges::CopyPoints()
 {
-  node_mapping.fill(-1,input->GetNumberOfPoints());
+  node_mapping.fill(-1, m_Input->GetNumberOfPoints());
   vtkIdType newPointId = 0;
-  for (vtkIdType pointId = 0; pointId < input->GetNumberOfPoints(); ++pointId) {
+  for (vtkIdType pointId = 0; pointId < m_Input->GetNumberOfPoints(); ++pointId) {
     if(new_node_idx[pointId] < 0) {
       node_mapping[pointId] = newPointId;
       vec3_t x;
-      input->GetPoints()->GetPoint(pointId,x.data());
-      output->GetPoints()->SetPoint(newPointId,x.data());
+      m_Input->GetPoints()->GetPoint(pointId,x.data());
+      m_Output->GetPoints()->SetPoint(newPointId,x.data());
       ++newPointId;
     };
   };
-  for (vtkIdType pointId = 0; pointId < input->GetNumberOfPoints(); ++pointId) {
+  for (vtkIdType pointId = 0; pointId < m_Input->GetNumberOfPoints(); ++pointId) {
     if(new_node_idx[pointId] >= 0) {
       if (node_mapping[new_node_idx[pointId]] < 0) {
         EG_ERR_RETURN("bug encountered");
@@ -158,17 +158,17 @@ void vtkEgEliminateShortEdges::CopyPoints()
 
 void vtkEgEliminateShortEdges::CopyCells()
 {
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
+  for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     if(!delete_cell[cellId]) {
       vtkIdType *old_pts;
       vtkIdType  Npts;
-      input->GetCellPoints(cellId, Npts, old_pts);
+      m_Input->GetCellPoints(cellId, Npts, old_pts);
       vtkIdType *new_pts = new vtkIdType[Npts];
       for (int i = 0; i < Npts; ++i) {
         new_pts[i] = node_mapping[old_pts[i]];
       };
-      vtkIdType newCellId = output->InsertNextCell(input->GetCellType(cellId), Npts, new_pts);
-      copyCellData(input, cellId, output, newCellId);
+      vtkIdType newCellId = m_Output->InsertNextCell(m_Input->GetCellType(cellId), Npts, new_pts);
+      copyCellData(m_Input, cellId, m_Output, newCellId);
       delete [] new_pts;
     };
   };
@@ -182,21 +182,21 @@ void vtkEgEliminateShortEdges::ExecuteEg()
   CheckEdges();
   CheckCells();
   int N = 0;
-  for (vtkIdType pointId = 0; pointId < input->GetNumberOfPoints(); ++pointId) {
+  for (vtkIdType pointId = 0; pointId < m_Input->GetNumberOfPoints(); ++pointId) {
     if(new_node_idx[pointId] < 0) {
       ++N_new_points;
     };
   };
-  for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId) {
+  for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     if(!delete_cell[cellId]) {
       ++N_new_cells;
     } else {
       ++N;
     };
   };
-  allocateGrid(output, N_new_cells, N_new_points);
+  allocateGrid(m_Output, N_new_cells, N_new_points);
   CopyPoints();
   CopyCells();
-  UpdateCellIndex(output);
+  UpdateCellIndex(m_Output);
   N_eliminated = N;
 };
