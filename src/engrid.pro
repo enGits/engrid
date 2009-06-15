@@ -63,5 +63,3 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include(engrid-standard.pri)
-OTHER_FILES += checkcomments.py \
-    todo.txt

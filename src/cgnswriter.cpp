@@ -35,6 +35,8 @@ void CgnsWriter::writeGrid()
 {
 #ifdef CGNS_SUPPORT
   setAllCells();
+  l2g_t cells = m_Part.getCells();
+  l2g_t nodes = m_Part.getNodes();
   eg2cgns.fill(-1, cells.size());
 
   // create the base node
