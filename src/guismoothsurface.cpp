@@ -202,8 +202,8 @@ int GuiSmoothSurface::readSettings()
   ui.checkBox_remove_FP->setCheckState(int2CheckState(local_qset.value("remove_FP", 2).toInt()));
   ui.checkBox_remove_EP->setCheckState(int2CheckState(local_qset.value("remove_EP", 2).toInt()));
   
-  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(local_qset.value("GenerateErrorScalars", 2).toInt()));
-  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(local_qset.value("GenerateErrorVectors", 2).toInt()));
+  ui.checkBox_GenerateErrorScalars->setCheckState(int2CheckState(local_qset.value("GenerateErrorScalars", 0).toInt()));
+  ui.checkBox_GenerateErrorVectors->setCheckState(int2CheckState(local_qset.value("GenerateErrorVectors", 0).toInt()));
   
   ui.checkBox_Swap->setCheckState(int2CheckState(local_qset.value("DoSwap", 2).toInt()));
   ui.checkBox_LaplaceSmoothing->setCheckState(int2CheckState(local_qset.value("DoLaplaceSmoothing", 2).toInt()));
@@ -405,7 +405,7 @@ void GuiSmoothSurface::RemoveSet()
 
 int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
 {
-
+  return(0);
   cout<<"==============="<<endl;
   cout<<"ErrorScalars:"<<endl;
   int N1,N2;
@@ -433,6 +433,7 @@ int GuiSmoothSurface::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
 
 int GuiSmoothSurface::DisplayErrorVectors(vtkPolyDataAlgorithm* algo)
 {
+  return(0);
   cout<<"==============="<<endl;
   cout<<"ErrorVectors:"<<endl;
 //   int N1,N2;
