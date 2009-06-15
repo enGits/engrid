@@ -106,13 +106,13 @@ private: // attributes
   vtkGeometryFilter *wedge_geometry;
   vtkGeometryFilter *hexa_geometry;
 
-  static vtkIdType PickedPoint;        ///< Picked point
-  static vtkIdType PickedCell;         ///< Picked cell
-  static bool      m_UseVTKInteractor; ///< Boolean value specifying whether the VTK Interactor should be used or not
+  vtkIdType m_PickedPoint;      ///< Picked point
+  vtkIdType m_PickedCell;       ///< Picked cell
+  bool      m_UseVTKInteractor; ///< Boolean value specifying whether the VTK Interactor should be used or not
+
   static QMutex    mutex;
 
   vtkGeometryFilter* surface_filter;  ///< VTK filter to extract the surface of the current grid.
-  vtkSphereSource*   pick_sphere;     ///< sphere to mark picked cell/points
   double             m_ReferenceSize; ///< Size to use for picker objects and annotations
 
   vector <vtkTextActor*>      m_NodeText;               ///< 2D Text actor to display node IDs
@@ -124,12 +124,13 @@ private: // attributes
   vector <vtkPolyDataMapper*> m_CellTextPolyDataMapper;
   vector <vtkFollower*>       m_CellTextFollower;
 
-  vtkPolyDataMapper*        pick_mapper;    ///< VTK mapper to map pick marker
-  vtkActor*                 pick_actor;     ///< VTK actor to display pick marker
-  vtkCubeAxesActor2D*       axes;           ///< VTK actor to display the coordinate system
+  vtkPolyDataMapper*        m_PickMapper;   ///< VTK mapper to map pick marker
+  vtkActor*                 m_PickActor;    ///< VTK actor to display pick marker
+  vtkSphereSource*          m_PickSphere;   ///< sphere to mark picked cell/points
+  vtkCubeAxesActor2D*       m_Axes;           ///< VTK actor to display the coordinate system
   vtkEgBoundaryCodesFilter* m_BCodesFilter; ///< VTK filter to extract boundary elements with certain codes
-  vtkCellPicker*            CellPicker;     ///< VTK CellPicker to pick cells for various user interactions
-  vtkPointPicker*           PointPicker;    ///< VTK PointPicker to pick points for various user interactions
+  vtkCellPicker*            m_CellPicker;   ///< VTK CellPicker to pick cells for various user interactions
+  vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
 
   QString      current_filename;       ///< The current file name of the grid.
   int          current_operation;      ///< The current operation number. (used for undo/redo)
@@ -251,13 +252,13 @@ public: // static methods
    * Get the currently picked cell.
    * @return the picked cell ID or -1 if no cell has been picked
    */
-  static vtkIdType getPickedCell();
+  vtkIdType getPickedCell();
 
   /**
    * Get the currently picked point.
    * @return the picked point ID or -1 if no point has been picked
    */
-  static vtkIdType getPickedPoint();
+  vtkIdType getPickedPoint();
   
   /**
    * Access to the QSettings object/
@@ -276,10 +277,10 @@ public: // static methods
   static bool tryLock() { return mutex.tryLock(); }
   void getAllBoundaryCodes(QSet<int> &bcs);
   void getDisplayBoundaryCodes(QSet<int> &bcs);
-  vtkPointPicker* getPointPicker(){return(PointPicker);}
-  vtkSphereSource* getPickSphere(){return(pick_sphere);}
-  bool pickPoint(vtkIdType Point);
-  bool pickCell(vtkIdType cellId);
+  vtkPointPicker* getPointPicker() { return (m_PointPicker);}
+  vtkSphereSource* getPickSphere() { return (m_PickSphere);}
+  bool pickPoint(vtkIdType id_point);
+  bool pickCell(vtkIdType id_cell);
   
   QString getFilename() { return(current_filename); }
   
