@@ -34,7 +34,7 @@ MeshPartition::MeshPartition()
   m_NodesStamp = 0;
   m_LNodesStamp = 0;
   m_N2NStamp = 0;
-  m_N2NStamp = 0;
+  m_N2CStamp = 0;
   m_C2CStamp = 0;
 }
 
