@@ -65,7 +65,7 @@ void GuiSetBoundaryCode::operate()
   SetBoundaryCode set_bc;
   set_bc.setGrid(grid);
   set_bc.setAllSurfaceCells();
-  if (GuiMainWindow::getPickedCell() >= 0) {
+  if (mainWindow()->getPickedCell() >= 0) {
     set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
     set_bc.setBC(ui.spinBoxBoundaryCode->value());
     
@@ -74,8 +74,8 @@ void GuiSetBoundaryCode::operate()
     set_bc.setOnlyPickedCell(m_ButtonGroup->button(3)->isChecked());
     set_bc.setOnlyPickedCellAndNeighbours(m_ButtonGroup->button(4)->isChecked());
     
-    cout<<"GuiMainWindow::getPickedCell()="<<GuiMainWindow::getPickedCell()<<endl;
-    set_bc.setStart(GuiMainWindow::getPickedCell());
+    cout << "GuiMainWindow::getPickedCell()=" << mainWindow()->getPickedCell() << endl;
+    set_bc.setStart(mainWindow()->getPickedCell());
     set_bc();
   }
 }
