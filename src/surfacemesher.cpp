@@ -43,8 +43,7 @@ void SurfaceMesher::operate()
   
   int i_iter=0;
   ///@@@  TODO:Optimize this loop
-  for(i_iter=0;i_iter<NumberOfIterations;i_iter++)
-  {
+  for(i_iter=0;i_iter<NumberOfIterations;i_iter++) {
     cout<<"===ITERATION NB "<<i_iter<<"/"<<NumberOfIterations<<"==="<<endl;
     
     m_total_N_newpoints=0;
@@ -135,9 +134,11 @@ void SurfaceMesher::operate()
     
 //     if(m_total_N_newpoints==0 && m_total_N_newcells==0) break;
 //     if(N_inserted_FP==0 && N_inserted_EP==0 && N_removed_FP==0 && N_removed_EP==0) break;
+
+    cout << "i_iter/NumberOfIterations=" << i_iter << "/" << NumberOfIterations << endl;
   }
   
-  cout<<"i_iter/NumberOfIterations="<<i_iter<<"/"<<NumberOfIterations<<endl;
+  cout << "i_iter/NumberOfIterations=" << i_iter << "/" << NumberOfIterations << endl;
   
 /*  MeshDensityFunction();
   UpdateCurrentMeshDensity();*/
