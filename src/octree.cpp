@@ -22,13 +22,35 @@
 //
 #include "octree.h"
 
-Octree::Octree(vec3_t x0, vec3_t g1, vec3_t g2, vec3_t g3)
+Octree::Octree()
+{
+  m_Origin = vec3_t(0,0,0);
+  setBase(vec3_t(1,0,0), vec3_t(0,1,0), vec3_t(0,0,1));
+  m_Nodes.resize(8);
+  m_Cells.resize(1);
+  setBounds(vec3_t(0,0,0), vec3_t(1,1,1));
+}
+
+void Octree::setOrigin(vec3_t x0)
 {
   m_Origin = x0;
+}
+
+void Octree::setBase(vec3_t g1, vec3_t g2, vec3_t g3)
+{
   m_Base.column(0, g1);
   m_Base.column(1, g2);
   m_Base.column(2, g3);
   m_InvBase = m_Base.inverse();
+}
+
+void Octree::setBounds(vec3_t corner1, vec3_t corner2)
+{
+  if (m_Cells.size() != 1) {
+    EG_BUG;
+  }
+  m_Corner1 = corner1;
+  m_Corner2 = corner2;
 }
 
 
