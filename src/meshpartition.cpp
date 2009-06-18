@@ -52,6 +52,7 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 
 MeshPartition::MeshPartition(QString volume_name)
 {
+  EG_BUG; // change this !!!
   setVolume(volume_name);
 }
 
@@ -116,6 +117,7 @@ void MeshPartition::setRemainder(const MeshPartition& part)
 
 void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
 {
+  checkLNodes();
   allocateGrid(new_grid, m_Cells.size(), m_Nodes.size());
   for (int i_nodes = 0; i_nodes < m_Nodes.size(); ++i_nodes) {
     vec3_t x;
