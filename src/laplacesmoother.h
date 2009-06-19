@@ -25,18 +25,20 @@
 
 #include "surfaceoperation.h"
 
-class LaplaceSmoother : public SurfaceOperation {
+class LaplaceSmoother : public SurfaceOperation
+{
+
+private:
+
+  QSet<int> m_BCs;
+  int       m_NumberOfIterations;
+
 public:
+
   LaplaceSmoother();
   virtual void operate();
-    
-public:
-  void setBoundaryCodes(QSet<int> a_bcs) { m_bcs=a_bcs; };
-  void setNumberOfIterations(int N){NumberOfIterations=N;};
-  
-public:
-  QSet<int> m_bcs;
-  int NumberOfIterations;
+  void setBoundaryCodes(const QSet<int>& bcs) { m_BCs = bcs; }
+  void setNumberOfIterations(int N)           { m_NumberOfIterations = N;}
   
 };
 

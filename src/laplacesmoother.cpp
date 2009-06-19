@@ -38,5 +38,9 @@ void LaplaceSmoother::operate()
 {
   cout<<"=== LaplaceSmoother START ==="<<endl;
   UpdateNodeType();
+  cout << "Hello World" << endl;
+  foreach (int bc, m_BCs) {
+    cout << bc << endl;
+  }
   cout<<"=== LaplaceSmoother END ==="<<endl;
 }
