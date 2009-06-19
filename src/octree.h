@@ -27,6 +27,8 @@ class Octree;
 
 #include "egvtkobject.h"
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 class OctreeNode
 {
 
@@ -40,6 +42,8 @@ public:
   void    setPosition(const vec3_t& x) { m_Position = x; }
 
 };
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class OctreeCell
 {
@@ -61,6 +65,8 @@ public:
 
 };
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 class Octree : public EgVtkObject
 {
 
@@ -76,6 +82,13 @@ private: // attributes
   QVector<OctreeNode> m_Nodes;
   QVector<OctreeCell> m_Cells;
   QVector<bool>       m_ToRefine;
+
+  QVector<int>        m_SameNodes;
+
+private: // methods
+
+  void resetNodeMerge();
+  void mergeNodes();
 
 public: // methods
 
