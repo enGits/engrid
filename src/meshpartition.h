@@ -53,6 +53,7 @@ private: // attributes
 
 private: // methods
 
+  void resetTimeStamps();
   void checkNodes();
   void checkLCells();
   void checkLNodes();

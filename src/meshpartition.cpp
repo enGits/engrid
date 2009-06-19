@@ -29,17 +29,12 @@
 MeshPartition::MeshPartition()
 {
   m_Grid = NULL;
-  m_CellsStamp = 0;
-  m_LCellsStamp = 0;
-  m_NodesStamp = 0;
-  m_LNodesStamp = 0;
-  m_N2NStamp = 0;
-  m_N2CStamp = 0;
-  m_C2CStamp = 0;
+  resetTimeStamps();
 }
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
+  resetTimeStamps();
   m_Grid = grid;
   if (use_all_cells) {
     QVector<vtkIdType> cls(grid->GetNumberOfCells());
@@ -52,8 +47,19 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 
 MeshPartition::MeshPartition(QString volume_name)
 {
-  EG_BUG; // change this !!!
+  resetTimeStamps();
   setVolume(volume_name);
+}
+
+void MeshPartition::resetTimeStamps()
+{
+  m_CellsStamp = 0;
+  m_LCellsStamp = 0;
+  m_NodesStamp = 0;
+  m_LNodesStamp = 0;
+  m_N2NStamp = 0;
+  m_N2CStamp = 0;
+  m_C2CStamp = 0;
 }
 
 void MeshPartition::setVolume(QString volume_name)
