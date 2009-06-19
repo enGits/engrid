@@ -266,11 +266,7 @@ void EgVtkObject::getAllCells
 )
 {
   int N = 0;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    ++N;
-  }
-  cells.resize(N);
-  N = 0;
+  cells.resize(grid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     cells[N] = id_cell;
     ++N;
