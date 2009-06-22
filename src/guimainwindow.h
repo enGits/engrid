@@ -33,6 +33,7 @@ class GuiMainWindow;
 #include <QMutex>
 #include <QTimer>
 #include <QDockWidget>
+#include <QDomDocument>
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkActor.h>
@@ -69,6 +70,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   
 private: // attributes
   
+  QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
+
   Ui::GuiMainWindow    ui;              ///< The user interface definition -- created by QtDesigner.
   vtkUnstructuredGrid *grid;            ///< The current state of the grid that is being generated.
 
@@ -186,6 +189,15 @@ private slots:
   void setClipNX(const QString &txt);
   void setClipNY(const QString &txt);
   void setClipNZ(const QString &txt);
+
+  void openBC();
+  void saveBC();
+  void openBC(QString a_file);
+  void saveBC(QString a_file);
+  void openGrid(QString file_name);
+  void saveGrid(QString file_name);
+
+
 
 public: // methods
   
@@ -305,11 +317,6 @@ public slots:
   void printGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
   void info();
   
-  void openBC();
-  void saveBC();
-  void openBC(QString a_file);
-  void saveBC(QString a_file);
-  
   void Undo();
   void Redo();
   
@@ -317,9 +324,10 @@ public slots:
   
   ///@@@  TODO: Simplify available save/load functions
 
-  void open();                           ///< Open an existing grid
-  void save();                           ///< Save the current grid
-  void saveAs();                         ///< Save the current grid -- using a different file name
+  void open();                           ///< Open an existing case
+  void save();                           ///< Save the current case
+  void saveAs();                         ///< Save the current case -- using a different file name
+
   void quickSave(QString a_filename);    ///< Save the current grid as a_filename
   void quickLoad(QString a_filename);    ///< Load the current grid from a_filename
   int  quickSave();                      ///< Save the current grid as a_filename_a_operation

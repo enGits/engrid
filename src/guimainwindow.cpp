@@ -972,6 +972,15 @@ void GuiMainWindow::saveBC(QString a_file)
   }
 }
 
+void GuiMainWindow::openGrid(QString file_name)
+{
+}
+
+void GuiMainWindow::saveGrid(QString file_name)
+{
+}
+
+
 ///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
