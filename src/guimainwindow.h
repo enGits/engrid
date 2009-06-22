@@ -135,7 +135,7 @@ private: // attributes
   vtkCellPicker*            m_CellPicker;   ///< VTK CellPicker to pick cells for various user interactions
   vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
 
-  QString      current_filename;       ///< The current file name of the grid.
+  QString      m_CurrentFilename;      ///< The current file name of the grid.
   int          current_operation;      ///< The current operation number. (used for undo/redo)
   int          last_operation;         ///< The last operation number. (used for undo/redo)
   QString      m_LogDir;               ///< the log directory
@@ -192,8 +192,6 @@ private slots:
 
   void openBC();
   void saveBC();
-  void openBC(QString a_file);
-  void saveBC(QString a_file);
   void openGrid(QString file_name);
   void saveGrid(QString file_name);
 
@@ -294,7 +292,7 @@ public: // static methods
   bool pickPoint(vtkIdType id_point);
   bool pickCell(vtkIdType id_cell);
   
-  QString getFilename() { return(current_filename); }
+  QString getFilename() { return(m_CurrentFilename); }
   
 public slots:
 
@@ -317,13 +315,14 @@ public slots:
   void printGrid() {cout<<"PrintGrid() called!"<<endl; cout_grid(cout,grid,true,true,true,true);}
   void info();
   
-  void Undo();
-  void Redo();
+  void undo();
+  void redo();
   
-  void ResetOperationCounter();
+  void resetOperationCounter();
   
   ///@@@  TODO: Simplify available save/load functions
 
+  void saveXml();                        ///< Save the case in an XML file
   void open();                           ///< Open an existing case
   void save();                           ///< Save the current case
   void saveAs();                         ///< Save the current case -- using a different file name
@@ -349,7 +348,10 @@ public slots:
   void configure();                      ///< Edit settings
   void about();                          ///< Display an about message
   void markOutputLine();                 ///< Mark the current position in the output window
-  
+
+  QString getXmlSection(QString name);                   ///< Get a section from the XML case description
+  void    setXmlSection(QString name, QString contents); ///< Set a section of the XML case description
+
   void viewXP();
   void viewXM();
   void viewYP();

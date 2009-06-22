@@ -1031,6 +1031,30 @@ void EgVtkObject::getAllCellDataNames(QVector<QString> &field_names, vtkUnstruct
   }
 }
 
+QString EgVtkObject::stripFromExtension(QString file_name)
+{
+  int i = file_name.size() - 1;
+  while ((i > 0) && (file_name[i] != '.') && (file_name[i] != '/') && (file_name[i] != '\\')) {
+    --i;
+  }
+  if (file_name[i] == '.') {
+    return file_name.left(i);
+  }
+  return file_name;
+}
+
+QString EgVtkObject::getExtension(QString file_name)
+{
+  int i = file_name.size();
+  while ((i > 0) && (file_name[i] != '.') && (file_name[i] != '/') && (file_name[i] != '\\')) {
+    --i;
+  }
+  if (file_name[i] == '.') {
+    return (file_name.right(file_name.size() - i - 1)).toLower();
+  }
+  return "";
+}
+
 ///////////////////////////////////////////
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
 {

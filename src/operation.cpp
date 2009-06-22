@@ -145,7 +145,7 @@ void Operation::operator()()
     } catch (Error err) {
       err.display();
     }
-    if(m_resetoperationcounter) GuiMainWindow::pointer()->ResetOperationCounter();
+    if(m_resetoperationcounter) GuiMainWindow::pointer()->resetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->quickSave();
   }
 }

@@ -460,6 +460,20 @@ protected: // methods
 
   void writeGrid(vtkUnstructuredGrid *grid, QString name);
 
+  /**
+   * Get a file name without extension.
+   * @param file_name the full name (with extension)
+   * @return the name without the extension
+   */
+  QString stripFromExtension(QString file_name);
+
+  /**
+   * Get the extension of a file name
+   * @param file_name the full name (with extension)
+   * @return the extension
+   */
+  QString getExtension(QString file_name);
+
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }
