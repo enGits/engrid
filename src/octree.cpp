@@ -43,6 +43,7 @@ Octree::Octree()
   setBase(vec3_t(1,0,0), vec3_t(0,1,0), vec3_t(0,0,1));
   m_Nodes.resize(8);
   m_Cells.resize(1);
+  m_ToRefine.fill(false, 1);
   setBounds(vec3_t(0,0,0), vec3_t(1,1,1));
   setSmoothTransitionOn();
 }
@@ -88,6 +89,9 @@ void Octree::setBounds(vec3_t corner1, vec3_t corner2)
   }
   m_Corner1 = corner1;
   m_Corner2 = corner2;
+  m_Dx = fabs(corner1[0] - corner2[0]);
+  m_Dy = fabs(corner1[1] - corner2[1]);
+  m_Dz = fabs(corner1[2] - corner2[2]);
   m_Nodes[0].m_Position = vec3_t(corner1[0], corner1[1], corner1[2]);
   m_Nodes[1].m_Position = vec3_t(corner2[0], corner1[1], corner1[2]);
   m_Nodes[2].m_Position = vec3_t(corner1[0], corner2[1], corner1[2]);
@@ -105,6 +109,7 @@ void Octree::refineAll()
 {
   int N1;
   int N2;
+  int count = 0;
   do {
     N1 = 0;
     N2 = 0;
@@ -114,7 +119,7 @@ void Octree::refineAll()
         for (int face = 0; face < 6; ++face) {
           int neigh = getNeighbour(i_cells, face);
           if (neigh != -1) {
-            if (m_Cells[neigh].m_Level < m_Cells[i_cells].m_Level) {
+            if ((m_Cells[neigh].m_Level < m_Cells[i_cells].m_Level) && !m_ToRefine[neigh]) {
               m_ToRefine[neigh] = true;
               ++N2;
             }
@@ -122,9 +127,13 @@ void Octree::refineAll()
         }
       }
     }
+    ++count;
+    if (count > 10) {
+      cout << "ups!" << endl;
+    }
   } while (N2 > 0);
   N2 = m_Cells.size();
-  m_Cells.insert(N2, N1, OctreeCell());
+  m_Cells.insert(N2, 8*N1, OctreeCell());
   int new_node = m_Nodes.size();
   m_Nodes.insert(m_Nodes.size(), N1*19, OctreeNode());
   N1 = N2;
@@ -141,51 +150,51 @@ void Octree::refineAll()
       nn[7] = m_Cells[i_cells].m_Node[7];
       // create new nodes
       int ne[12];
-      ne[0] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position);
-      ne[1] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position);
-      ne[2] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position);
-      ne[3] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position);
-      ne[4] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position);
-      ne[5] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
-      ne[6] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position);
-      ne[7] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
-      ne[8] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position);
-      ne[9] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position);
-      ne[10] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position);
-      ne[11] = new_node++;
-      m_Nodes[new_node].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
+      ne[0] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position);
+      ne[1] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position);
+      ne[2] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position);
+      ne[3] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position);
+      ne[4] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position);
+      ne[5] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
+      ne[6] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position);
+      ne[7] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
+      ne[8] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[0]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[4]].m_Position);
+      ne[9] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[1]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[5]].m_Position);
+      ne[10] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[2]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[6]].m_Position);
+      ne[11] = new_node;
+      m_Nodes[new_node++].m_Position = 0.5*(m_Nodes[m_Cells[i_cells].m_Node[3]].m_Position + m_Nodes[m_Cells[i_cells].m_Node[7]].m_Position);
       int nf[6];
-      nf[0] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[0]].m_Position + m_Nodes[ne[4]].m_Position
+      nf[0] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[0]].m_Position + m_Nodes[ne[4]].m_Position
                                            + m_Nodes[ne[8]].m_Position  + m_Nodes[ne[10]].m_Position);
-      nf[1] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[1]].m_Position + m_Nodes[ne[5]].m_Position
+      nf[1] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[1]].m_Position + m_Nodes[ne[5]].m_Position
                                            + m_Nodes[ne[9]].m_Position  + m_Nodes[ne[11]].m_Position);
-      nf[2] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[2]].m_Position + m_Nodes[ne[6]].m_Position
+      nf[2] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[2]].m_Position + m_Nodes[ne[6]].m_Position
                                            + m_Nodes[ne[8]].m_Position  + m_Nodes[ne[9]].m_Position);
-      nf[3] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[3]].m_Position + m_Nodes[ne[7]].m_Position
+      nf[3] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[3]].m_Position + m_Nodes[ne[7]].m_Position
                                            + m_Nodes[ne[10]].m_Position + m_Nodes[ne[11]].m_Position);
-      nf[4] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[0]].m_Position + m_Nodes[ne[1]].m_Position
+      nf[4] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[0]].m_Position + m_Nodes[ne[1]].m_Position
                                            + m_Nodes[ne[2]].m_Position  + m_Nodes[ne[3]].m_Position);
-      nf[5] = new_node++;
-      m_Nodes[new_node].m_Position = 0.25*(  m_Nodes[ne[4]].m_Position + m_Nodes[ne[5]].m_Position
+      nf[5] = new_node;
+      m_Nodes[new_node++].m_Position = 0.25*(  m_Nodes[ne[4]].m_Position + m_Nodes[ne[5]].m_Position
                                            + m_Nodes[ne[6]].m_Position  + m_Nodes[ne[7]].m_Position);
-      int nv = new_node++;
-      m_Nodes[new_node].m_Position = 1.0/6.0*(  m_Nodes[nf[0]].m_Position + m_Nodes[nf[1]].m_Position + m_Nodes[nf[2]].m_Position
+      int nv = new_node;
+      m_Nodes[new_node++].m_Position = 1.0/6.0*(  m_Nodes[nf[0]].m_Position + m_Nodes[nf[1]].m_Position + m_Nodes[nf[2]].m_Position
                                               + m_Nodes[nf[3]].m_Position + m_Nodes[nf[4]].m_Position + m_Nodes[nf[5]].m_Position);
 
       for (int child = 0; child < 8; ++child) {
@@ -250,23 +259,23 @@ void Octree::refineAll()
       m_Cells[m_Cells[i_cells].m_Child[5]].m_Node[6] = nf[5];
       m_Cells[m_Cells[i_cells].m_Child[5]].m_Node[7] = ne[5];
       // child 6
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[0] = nf[0];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[1] = nv;
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[2] = ne[10];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[3] = nf[3];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[4] = ne[4];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[5] = nf[5];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[6] = nn[6];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[7] = ne[7];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[0] = nf[0];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[1] = nv;
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[2] = ne[10];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[3] = nf[3];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[4] = ne[4];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[5] = nf[5];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[6] = nn[6];
+      m_Cells[m_Cells[i_cells].m_Child[6]].m_Node[7] = ne[7];
       // child 7
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[0] = nv;
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[1] = nf[1];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[2] = nf[3];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[3] = ne[11];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[4] = nf[5];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[5] = ne[5];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[6] = ne[7];
-      m_Cells[m_Cells[i_cells].m_Child[0]].m_Node[7] = nn[7];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[0] = nv;
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[1] = nf[1];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[2] = nf[3];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[3] = ne[11];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[4] = nf[5];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[5] = ne[5];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[6] = ne[7];
+      m_Cells[m_Cells[i_cells].m_Child[7]].m_Node[7] = nn[7];
 
       // - - -
       m_Cells[m_Cells[i_cells].m_Child[0]].m_Neighbour[1] = m_Cells[i_cells].m_Child[1];
@@ -402,4 +411,53 @@ void Octree::refineAll()
       }
     }
   }
+
+  m_ToRefine.fill(false, m_Cells.size());
+
 }
+
+void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
+{
+  int N = 0;
+  foreach (OctreeCell cell, m_Cells) {
+    if (cell.m_Child[0] == -1) {
+      ++N;
+    }
+  }
+  allocateGrid(grid, N, m_Nodes.size());
+  for (int id_node = 0; id_node < m_Nodes.size(); ++id_node) {
+    grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].m_Position.data());
+  }
+  foreach (OctreeCell cell, m_Cells) {
+    if (cell.m_Child[0] == -1) {
+      vtkIdType Npts = 8;
+      vtkIdType pts[8];
+      pts[0] = cell.m_Node[0];
+      pts[1] = cell.m_Node[1];
+      pts[2] = cell.m_Node[3];
+      pts[3] = cell.m_Node[2];
+      pts[4] = cell.m_Node[4];
+      pts[5] = cell.m_Node[5];
+      pts[6] = cell.m_Node[7];
+      pts[7] = cell.m_Node[6];
+      for (int i = 0; i < 8; ++i) {
+        if (pts[i] < 0) {
+          pts[i] = 0;
+        }
+      }
+      grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
+    }
+  }
+}
+
+vec3_t Octree::getCellCentre(int cell)
+{
+  vec3_t r(0,0,0);
+  for (int i = 0; i < 8; ++i) {
+    r += m_Nodes[m_Cells[cell].m_Node[i]].m_Position;
+  }
+  r *= 1.0/8.0;
+  return transfFrom(r);
+}
+
+

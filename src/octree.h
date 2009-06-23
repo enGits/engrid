@@ -60,8 +60,8 @@ public:
 
   OctreeCell();
 
-  int  getNode     (int i) { return m_Node[i]; }
-  int  getNeighbour(int i) { return m_Neighbour[i]; }
+  int    getNode     (int i) { return m_Node[i]; }
+  int    getNeighbour(int i) { return m_Neighbour[i]; }
 
 };
 
@@ -77,6 +77,10 @@ private: // attributes
   mat3_t m_InvBase; ///< inverted base of internal coordiante system
   vec3_t m_Corner1; ///< first corner of extend box of the whole domain (in internal coordinates)
   vec3_t m_Corner2; ///< second corner of extend box of the whole domain (in internal coordinates)
+  double m_Dx;      ///< extend in x direction
+  double m_Dy;      ///< extend in y direction
+  double m_Dz;      ///< extend in z direction
+
   bool   m_SmoothTransition;
 
   QVector<OctreeNode> m_Nodes;
@@ -107,6 +111,15 @@ public: // methods
   void refineAll();
   void setSmoothTransitionOn()  { m_SmoothTransition = true; }
   void setSmoothTransitionOff() { m_SmoothTransition = false; }
+
+  vec3_t getCellCentre(int cell);
+  vec3_t getNodePoition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
+  int    getNumCells() { return m_Cells.size(); }
+  double getDx(int cell) { return Dx/m_Cells[cell].m_Level; }
+  double getDy(int cell) { return Dy/m_Cells[cell].m_Level; }
+  double getDz(int cell) { return Dz/m_Cells[cell].m_Level; }
+
+  void toVtkGrid(vtkUnstructuredGrid *grid);
 
 };
 
