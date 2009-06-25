@@ -41,7 +41,7 @@ void LaplaceSmoother::operate()
   m_CartMesh.markToRefine(0);
   m_CartMesh.refineAll();
 
-  for (int level = 0; level < 5; ++level) {
+  for (int level = 0; level < m_NumberOfIterations; ++level) {
     for (int i = 0; i < m_CartMesh.getNumCells(); ++i) {
       double r_min =  1e99;
       double r_max = -1e99;
@@ -54,6 +54,7 @@ void LaplaceSmoother::operate()
       if (r_min*r_max <= 0) {
         m_CartMesh.markToRefine(i);
       }
+      m_CartMesh.markToRefine(i); ///@@@ DEBUG
     }
     m_CartMesh.refineAll();
     cout << m_CartMesh.getNumCells() << " cells" << endl;
