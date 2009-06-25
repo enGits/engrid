@@ -91,8 +91,12 @@ private: // attributes
 
 private: // methods
 
-  void resetNodeMerge();
+  void mergeNodes_identifyDuplicates();
+  void mergeNodes_compactNodes();
+  void mergeNodes_updateCells();
   void mergeNodes();
+
+  void checkNeighbours();
 
 public: // methods
 
@@ -105,7 +109,7 @@ public: // methods
   vec3_t transfTo(vec3_t x);
   vec3_t transfFrom(vec3_t r);
 
-  int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
+  //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
   void markToRefine(int cell) { m_ToRefine[cell] = true; }
   void refineAll();
@@ -113,11 +117,15 @@ public: // methods
   void setSmoothTransitionOff() { m_SmoothTransition = false; }
 
   vec3_t getCellCentre(int cell);
+  vec3_t getFaceCentre(int i_cells, int i_faces);
   vec3_t getNodePoition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
   int    getNumCells() { return m_Cells.size(); }
-  double getDx(int cell) { return Dx/m_Cells[cell].m_Level; }
-  double getDy(int cell) { return Dy/m_Cells[cell].m_Level; }
-  double getDz(int cell) { return Dz/m_Cells[cell].m_Level; }
+  double getDx(int cell) { return m_Dx/m_Cells[cell].m_Level; }
+  double getDy(int cell) { return m_Dy/m_Cells[cell].m_Level; }
+  double getDz(int cell) { return m_Dz/m_Cells[cell].m_Level; }
+  double getDx(const OctreeCell& cell) { return m_Dx/cell.m_Level; }
+  double getDy(const OctreeCell& cell) { return m_Dy/cell.m_Level; }
+  double getDz(const OctreeCell& cell) { return m_Dz/cell.m_Level; }
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 
