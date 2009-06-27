@@ -113,6 +113,7 @@ public: // methods
 
   void markToRefine(int cell) { m_ToRefine[cell] = true; }
   void refineAll();
+  void resetRefineMarks();
   void setSmoothTransitionOn()  { m_SmoothTransition = true; }
   void setSmoothTransitionOff() { m_SmoothTransition = false; }
 
@@ -126,6 +127,8 @@ public: // methods
   double getDx(const OctreeCell& cell) { return m_Dx/cell.m_Level; }
   double getDy(const OctreeCell& cell) { return m_Dy/cell.m_Level; }
   double getDz(const OctreeCell& cell) { return m_Dz/cell.m_Level; }
+  bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
+  int    findCell(vec3_t x);
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 

@@ -24,16 +24,16 @@
 #define LAPLACESMOOTHER_H
 
 #include "surfaceoperation.h"
-#include "octree.h"
+#include "surfaceprojection.h"
 
 class LaplaceSmoother : public SurfaceOperation
 {
 
 private:
 
-  QSet<int> m_BCs;
-  int       m_NumberOfIterations;
-  Octree    m_CartMesh;
+  QSet<int>         m_BCs;
+  int               m_NumberOfIterations;
+  SurfaceProjection m_Proj;
 
 public:
 

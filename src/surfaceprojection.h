@@ -1,4 +1,4 @@
- //
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -24,14 +24,92 @@
 #define SURFACEPROJECTION_H
 
 #include "egvtkobject.h"
+#include "octree.h"
 
 class SurfaceProjection : public EgVtkObject
 {
+
+private: // attributes
+
+  vtkUnstructuredGrid*   m_BGrid;
+  QVector<double>        m_EdgeLength;
+  QVector<vtkIdType>     m_Cells;
+  QVector<vtkIdType>     m_Nodes;
+  QVector<QVector<int> > m_N2N;
+  Octree                 m_OTGrid;
+  QSet<int>              m_BCs;
+
+private: // methods
+
+  template <class C>
+  void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells);
+  void setBackgroundGrid_initOctree();
+  void setBackgroundGrid_refineFromNodes();
+  void setBackgroundGrid_refineFromEdges();
 
 public: // methods
 
   SurfaceProjection();
 
+  template <class C>
+  void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells);
+
+  void setBoundaryCodes(const QSet<int>& bcs) { m_BCs = bcs; }
+
 };
+
+template <class C>
+void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
+{
+  setBackgroundGrid_setupGrid(grid, cells);
+  setBackgroundGrid_initOctree();
+  setBackgroundGrid_refineFromNodes();
+  setBackgroundGrid_refineFromEdges();
+  EG_VTKSP(vtkUnstructuredGrid, otg);
+  m_OTGrid.toVtkGrid(otg);
+  writeGrid(otg, "octree");
+}
+
+template <class C>
+void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells)
+{
+  QVector<vtkIdType> nodes;
+  getNodesFromCells(cells, nodes, grid);
+  allocateGrid(m_BGrid, cells.size(), nodes.size());
+  vtkIdType id_new_node = 0;
+  foreach (vtkIdType id_node, nodes) {
+    vec3_t x;
+    grid->GetPoints()->GetPoint(id_node, x.data());
+    m_BGrid->GetPoints()->SetPoint(id_node, x.data());
+    ++id_new_node;
+  }
+  foreach (vtkIdType id_cell, cells) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = grid->GetCellType(id_cell);
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_BGrid->InsertNextCell(type_cell, N_pts, pts);
+  }
+  getAllCells(m_Cells, m_BGrid);
+  getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
+  QVector<int> _nodes(m_Nodes.size());
+  for (int i = 0; i < _nodes.size(); ++i) {
+    _nodes[i] = i;
+  }
+  createNodeToNode(m_Cells, m_Nodes, _nodes, m_N2N, m_BGrid);
+  m_EdgeLength.fill(0, m_BGrid->GetNumberOfPoints());
+  foreach (vtkIdType id_node, m_Nodes) {
+    vec3_t x;
+    m_BGrid->GetPoints()->GetPoint(id_node, x.data());
+    foreach (vtkIdType id_neigh, m_N2N[id_node]) {
+      vec3_t xn;
+      m_BGrid->GetPoints()->GetPoint(id_neigh, xn.data());
+      m_EdgeLength[id_node] += (x-xn).abs();
+    }
+    if (m_N2N[id_node].size() < 2) {
+      EG_BUG;
+    }
+    m_EdgeLength[id_node] /= m_N2N[id_node].size();
+  }
+}
 
 #endif // SURFACEPROJECTION_H

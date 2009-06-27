@@ -637,3 +637,51 @@ vec3_t Octree::getFaceCentre(int i_cells, int i_faces)
   x *= 0.25;
   return x;
 }
+
+int Octree::findCell(vec3_t x)
+{
+  for (int i = 0; i < 3; ++i) {
+    if ((x[i] < m_Corner1[i]) || (x[i] > m_Corner2[i])) {
+      EG_BUG;
+    }
+  }
+  int i_cells = 0;
+  while (hasChildren(i_cells)) {
+    vec3_t xc = getCellCentre(i_cells);
+    if (x[0] > xc[0]) {
+      if (x[1] > xc[1]) {
+        if (x[2] > xc[2]) {
+          i_cells = m_Cells[i_cells].m_Child[7];
+        } else {
+          i_cells = m_Cells[i_cells].m_Child[3];
+        }
+      } else {
+        if (x[2] > xc[2]) {
+          i_cells = m_Cells[i_cells].m_Child[5];
+        } else {
+          i_cells = m_Cells[i_cells].m_Child[1];
+        }
+      }
+    } else {
+      if (x[1] > xc[1]) {
+        if (x[2] > xc[2]) {
+          i_cells = m_Cells[i_cells].m_Child[6];
+        } else {
+          i_cells = m_Cells[i_cells].m_Child[2];
+        }
+      } else {
+        if (x[2] > xc[2]) {
+          i_cells = m_Cells[i_cells].m_Child[4];
+        } else {
+          i_cells = m_Cells[i_cells].m_Child[0];
+        }
+      }
+    }
+  }
+  return i_cells;
+}
+
+void Octree::resetRefineMarks()
+{
+  m_ToRefine.fill(false, m_Cells.size());
+}

@@ -36,32 +36,9 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 
 void LaplaceSmoother::operate()
 {
-  m_CartMesh.setBounds(vec3_t(-3,-3,-3), vec3_t(3,3,3));
-
-  m_CartMesh.markToRefine(0);
-  m_CartMesh.refineAll();
-
-  for (int level = 0; level < m_NumberOfIterations; ++level) {
-    for (int i = 0; i < m_CartMesh.getNumCells(); ++i) {
-      double r_min =  1e99;
-      double r_max = -1e99;
-      for (int j = 0; j < 8; ++j) {
-        r_min = min(r_min, m_CartMesh.getNodePoition(i,j).abs());
-        r_max = max(r_max, m_CartMesh.getNodePoition(i,j).abs());
-      }
-      r_min -= 1;
-      r_max -= 1;
-      if (r_min*r_max <= 0) {
-        m_CartMesh.markToRefine(i);
-      }
-      m_CartMesh.markToRefine(i); ///@@@ DEBUG
-    }
-    m_CartMesh.refineAll();
-    cout << m_CartMesh.getNumCells() << " cells" << endl;
-  }
-  EG_VTKSP(vtkUnstructuredGrid, grid);
-  m_CartMesh.toVtkGrid(grid);
-  writeGrid(grid, "octree");
+  QVector<vtkIdType> cells;
+  getSurfaceCells(m_BCs, cells, grid);
+  m_Proj.setBackgroundGrid(grid, cells);
 
   //UpdateNodeType();
 }
