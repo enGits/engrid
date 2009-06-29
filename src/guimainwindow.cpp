@@ -1117,6 +1117,10 @@ void GuiMainWindow::saveAs()
 {
   m_CurrentFilename = QFileDialog::getSaveFileName(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
   if (!m_CurrentFilename.isNull()) {
+    QFileInfo fileinfo(m_CurrentFilename);
+    if (fileinfo.suffix().toLower() != "egc") {
+      m_CurrentFilename += ".egc";
+    }
     GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
     saveGrid(m_CurrentFilename);
     saveBC();
