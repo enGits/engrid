@@ -104,8 +104,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   bool move = true;
   Elements E;
 
-  QVector<vtkIdType> cells = m_Part.getCells();
-  QVector<QVector<int> > n2c = m_Part.getN2C();
+  l2g_t cells = getPartCells();
+  l2l_t n2c   = getPartN2C();
 
   foreach (int i_cells, n2c[id_node]) {
     vtkIdType id_cell = cells[i_cells];
