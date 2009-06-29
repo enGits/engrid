@@ -163,9 +163,6 @@ public:
   /// triangle neighbours
   double DN(int i,vtkIdType id_cell);
   
-  /// number of edges
-  double nk(vtkIdType id_node);
-  
   /// desired edge length for id_node
   double G_k(vtkIdType id_node);
   

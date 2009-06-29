@@ -641,6 +641,36 @@ double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 
 ///@@@ TODO: Correct operations using n2n,n2c,c2c
 
+//useless functions to remove
+/// triangle neighbours
+double SurfaceOperation::DN(int i,vtkIdType id_cell) {
+  return(m_Part.getC2C()[id_cell][i]);
+}
+
+/// desired edge length for id_node
+double SurfaceOperation::G_k(vtkIdType id_node) {
+  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
+  return(1.0/node_meshdensity_desired->GetValue(id_node));
+}
+
+/// triangle nodes
+double SurfaceOperation::DK(int i,vtkIdType id_cell) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  return(pts[i]);
+}
+
+/// distance between id_node1 and id_node2
+double SurfaceOperation::L_k(vtkIdType id_node1,vtkIdType id_node2)
+{
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(id_node2, A.data());
+  grid->GetPoints()->GetPoint(id_node1, B.data());
+  return((B-A).abs());
+}
+
+//other functions
 ///perimeter
 double SurfaceOperation::perimeter(vtkIdType id_cell) {
   double ret=0;
@@ -670,22 +700,6 @@ double SurfaceOperation::A_U(vtkIdType id_cell) {
   return(M_PI*R*R);
 }
 
-/// triangle neighbours
-double SurfaceOperation::DN(int i,vtkIdType id_cell) {
-  return(m_Part.getC2C()[id_cell][i]);
-}
-
-/// number of edges
-double SurfaceOperation::nk(vtkIdType id_node) {
-  return(m_Part.getN2N()[id_node].size());
-}
-
-/// desired edge length for id_node
-double SurfaceOperation::G_k(vtkIdType id_node) {
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  return(1.0/node_meshdensity_desired->GetValue(id_node));
-}
-
 /// mean desired edge length for id_cell
 double SurfaceOperation::G_k_cell(vtkIdType id_cell) {
   vtkIdType N_pts, *pts;
@@ -695,23 +709,6 @@ double SurfaceOperation::G_k_cell(vtkIdType id_cell) {
     total += G_k(pts[i]);
   }
   return total/(double)N_pts;
-}
-
-/// triangle nodes
-double SurfaceOperation::DK(int i,vtkIdType id_cell) {
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
-  return(pts[i]);
-}
-
-/// distance between id_node1 and id_node2
-double SurfaceOperation::L_k(vtkIdType id_node1,vtkIdType id_node2)
-{
-  vec3_t A;
-  vec3_t B;
-  grid->GetPoints()->GetPoint(id_node2, A.data());
-  grid->GetPoints()->GetPoint(id_node1, B.data());
-  return((B-A).abs());
 }
 
 /// perimeter / sum of the desired edge lengths
