@@ -642,7 +642,7 @@ double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 ///@@@ TODO: Correct operations using n2n,n2c,c2c
 
 ///perimeter
-double SurfaceOperation::Um(vtkIdType id_cell) {
+double SurfaceOperation::perimeter(vtkIdType id_cell) {
   double ret=0;
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(id_cell, N_pts, pts);
@@ -670,11 +670,6 @@ double SurfaceOperation::A_U(vtkIdType id_cell) {
   return(M_PI*R*R);
 }
 
-/// triangle area
-double SurfaceOperation::A_D(vtkIdType id_cell) {
-  return(cellVA(grid,id_cell));
-}
-
 /// triangle neighbours
 double SurfaceOperation::DN(int i,vtkIdType id_cell) {
   return(m_Part.getC2C()[id_cell][i]);
@@ -685,10 +680,21 @@ double SurfaceOperation::nk(vtkIdType id_node) {
   return(m_Part.getN2N()[id_node].size());
 }
 
-/// desired edge length
-double SurfaceOperation::G_k(vtkIdType node) {
+/// desired edge length for id_node
+double SurfaceOperation::G_k(vtkIdType id_node) {
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  return(1.0/node_meshdensity_desired->GetValue(node));
+  return(1.0/node_meshdensity_desired->GetValue(id_node));
+}
+
+/// mean desired edge length for id_cell
+double SurfaceOperation::G_k_cell(vtkIdType id_cell) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  int total = 0;
+  for(int i = 0; i<N_pts; i++) {
+    total += G_k(pts[i]);
+  }
+  return total/(double)N_pts;
 }
 
 /// triangle nodes
@@ -716,7 +722,7 @@ double SurfaceOperation::Q_L(vtkIdType id_cell)
   {
     denom_sum += G_k(DK(i,id_cell));
   }
-  return(Um(id_cell)/denom_sum);
+  return(perimeter(id_cell)/denom_sum);
 }
 
 /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
@@ -750,10 +756,10 @@ double SurfaceOperation::Q_L2(vtkIdType id_node)
 /// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
 double SurfaceOperation::T_min(int w)
 {
-  int N_cells = grid->GetNumberOfCells();
+  l2g_t cells = getPartCells();
   double T = 0;
-  for(int i = 0; i < N_cells; ++i) {
-    T += A_U(i)/pow(A_D(i),w)*pow(G_k(i),2*(w-1));
+  foreach(vtkIdType id_cell, cells) {
+    T += cellVA(grid,id_cell)/pow(cellVA(grid,id_cell),w)*pow(G_k_cell(id_cell),2*(w-1));
   }
   return(T);
 }

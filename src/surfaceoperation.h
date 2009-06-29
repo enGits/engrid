@@ -155,13 +155,10 @@ public:
   //Some are pretty useless
   
   ///perimeter
-  double Um(vtkIdType id_cell);
+  double perimeter(vtkIdType id_cell);
   
   /// area of the circumscribed circle of the triangle
   double A_U(vtkIdType id_cell);
-  
-  /// triangle area
-  double A_D(vtkIdType id_cell);
   
   /// triangle neighbours
   double DN(int i,vtkIdType id_cell);
@@ -169,9 +166,12 @@ public:
   /// number of edges
   double nk(vtkIdType id_node);
   
-  /// desired edge length
+  /// desired edge length for id_node
   double G_k(vtkIdType id_node);
   
+  /// mean desired edge length for id_cell
+  double G_k_cell(vtkIdType id_cell);
+    
   /// triangle nodes
   double DK(int i,vtkIdType id_cell);
   
