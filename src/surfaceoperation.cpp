@@ -676,13 +676,13 @@ double SurfaceOperation::A_D(vtkIdType id_cell) {
 }
 
 /// triangle neighbours
-double SurfaceOperation::DN(int i,vtkIdType D) {
-  return(m_Part.getC2C()[D][i]);
+double SurfaceOperation::DN(int i,vtkIdType id_cell) {
+  return(m_Part.getC2C()[id_cell][i]);
 }
 
 /// number of edges
-double SurfaceOperation::nk(vtkIdType P) {
-  return(m_Part.getN2N()[P].size());
+double SurfaceOperation::nk(vtkIdType id_node) {
+  return(m_Part.getN2N()[id_node].size());
 }
 
 /// desired edge length
@@ -692,9 +692,9 @@ double SurfaceOperation::G_k(vtkIdType node) {
 }
 
 /// triangle nodes
-double SurfaceOperation::DK(int i,vtkIdType D) {
+double SurfaceOperation::DK(int i,vtkIdType id_cell) {
   vtkIdType N_pts, *pts;
-  grid->GetCellPoints(D, N_pts, pts);
+  grid->GetCellPoints(id_cell, N_pts, pts);
   return(pts[i]);
 }
 
@@ -709,14 +709,14 @@ double SurfaceOperation::L_k(vtkIdType id_node1,vtkIdType id_node2)
 }
 
 /// perimeter / sum of the desired edge lengths
-double SurfaceOperation::Q_L(vtkIdType D)
+double SurfaceOperation::Q_L(vtkIdType id_cell)
 {
   double denom_sum=0;
   for(int i=0;i<3;i++)
   {
-    denom_sum += G_k(DK(i,D));
+    denom_sum += G_k(DK(i,id_cell));
   }
-  return(Um(D)/denom_sum);
+  return(Um(id_cell)/denom_sum);
 }
 
 /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
