@@ -214,7 +214,7 @@ vtkIdType *PTS; \
 vtkIdType  N ## PTS; \
 GRID->GetCellPoints(CELLID, N ## PTS, PTS);
 
-inline double sqr(double x) { return x*x; };
+inline double sqr(double x) { return x*x; }
 
 inline int factorial_rec(int num)
 {
@@ -244,5 +244,39 @@ inline int N_Permutations(int N,int k)
 #define LINE "========================================================================" << endl;
 
 #define USE(X) X=X
+
+template <class T>
+struct SortedPair
+{
+  T v1, v2;
+  SortedPair(T v1, T v2);
+  bool operator==(const SortedPair<T>& P) { return (v1 == P.v1) && (v2 == P.v2); }
+  bool operator<(const SortedPair<T>& P);
+  bool operator>(const SortedPair<T>& P) { return !operator<(P); }
+
+};
+
+template <class T>
+SortedPair<T>::SortedPair(T v1, T v2)
+{
+  if (v1 > v2) {
+    this->v1 = v2;
+    this->v2 = v1;
+  } else {
+    this->v1 = v1;
+    this->v2 = v2;
+  }
+}
+
+template <class T>
+bool SortedPair<T>::operator<(const SortedPair<T>& P)
+{
+  if (v1 < P.v1) {
+    return true;
+  } else if (v1 == P.v1) {
+    return v2 < P.v2;
+  }
+  return false;
+}
 
 #endif
