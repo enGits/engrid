@@ -106,13 +106,10 @@ public: // methods
   void setBase(vec3_t g1, vec3_t g2, vec3_t g3);
   void setBounds(vec3_t corner1, vec3_t corner2);
 
-  vec3_t transfTo(vec3_t x);
-  vec3_t transfFrom(vec3_t r);
-
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
   void markToRefine(int cell) { m_ToRefine[cell] = true; }
-  void refineAll();
+  int  refineAll();
   void resetRefineMarks();
   void setSmoothTransitionOn()  { m_SmoothTransition = true; }
   void setSmoothTransitionOff() { m_SmoothTransition = false; }
@@ -121,28 +118,74 @@ public: // methods
   vec3_t getFaceCentre(int i_cells, int i_faces);
   vec3_t getNodePoition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
   int    getNumCells() { return m_Cells.size(); }
-  double getDx(int cell) { return m_Dx/m_Cells[cell].m_Level; }
-  double getDy(int cell) { return m_Dy/m_Cells[cell].m_Level; }
-  double getDz(int cell) { return m_Dz/m_Cells[cell].m_Level; }
-  double getDx(const OctreeCell& cell) { return m_Dx/cell.m_Level; }
-  double getDy(const OctreeCell& cell) { return m_Dy/cell.m_Level; }
-  double getDz(const OctreeCell& cell) { return m_Dz/cell.m_Level; }
+  int    getLevel(int cell) { return m_Cells[cell].m_Level; }
+  double getDx(int cell);
+  double getDy(int cell);
+  double getDz(int cell);
+  double getDx(const OctreeCell& cell);
+  double getDy(const OctreeCell& cell);
+  double getDz(const OctreeCell& cell);
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
   int    findCell(vec3_t x);
+  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2);
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 
 };
 
-inline vec3_t Octree::transfTo(vec3_t x)
+
+inline double Octree::getDx(int cell)
 {
-  vec3_t dx = x - m_Origin;
-  return m_InvBase*dx;
+  double dx = m_Dx;
+  for (int i = 0; i < m_Cells[cell].m_Level; ++i) {
+    dx *= 0.5;
+  }
+  return dx;
 }
 
-inline vec3_t Octree::transfFrom(vec3_t r)
+inline double Octree::getDx(const OctreeCell& cell)
 {
-  return m_Origin + m_Base*r;
+  double dx = m_Dx;
+  for (int i = 0; i < cell.m_Level; ++i) {
+    dx *= 0.5;
+  }
+  return dx;
+}
+
+inline double Octree::getDy(int cell)
+{
+  double dy = m_Dy;
+  for (int i = 0; i < m_Cells[cell].m_Level; ++i) {
+    dy *= 0.5;
+  }
+  return dy;
+}
+
+inline double Octree::getDy(const OctreeCell& cell)
+{
+  double dy = m_Dy;
+  for (int i = 0; i < cell.m_Level; ++i) {
+    dy *= 0.5;
+  }
+  return dy;
+}
+
+inline double Octree::getDz(int cell)
+{
+  double dz = m_Dz;
+  for (int i = 0; i < m_Cells[cell].m_Level; ++i) {
+    dz *= 0.5;
+  }
+  return dz;
+}
+
+inline double Octree::getDz(const OctreeCell& cell)
+{
+  double dz = m_Dz;
+  for (int i = 0; i < cell.m_Level; ++i) {
+    dz *= 0.5;
+  }
+  return dz;
 }
 
 #endif // OCTREE_H

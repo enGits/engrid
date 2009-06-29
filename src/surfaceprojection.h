@@ -46,6 +46,7 @@ private: // methods
   void setBackgroundGrid_initOctree();
   void setBackgroundGrid_refineFromNodes();
   void setBackgroundGrid_refineFromEdges();
+  void setBackgroundGrid_refineFromFaces();
 
 public: // methods
 
@@ -64,7 +65,8 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setBackgroundGrid_setupGrid(grid, cells);
   setBackgroundGrid_initOctree();
   setBackgroundGrid_refineFromNodes();
-  setBackgroundGrid_refineFromEdges();
+  //setBackgroundGrid_refineFromEdges();
+  setBackgroundGrid_refineFromFaces();
   EG_VTKSP(vtkUnstructuredGrid, otg);
   m_OTGrid.toVtkGrid(otg);
   writeGrid(otg, "octree");
@@ -76,39 +78,44 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
   QVector<vtkIdType> nodes;
   getNodesFromCells(cells, nodes, grid);
   allocateGrid(m_BGrid, cells.size(), nodes.size());
+  QVector<vtkIdType> _nodes(grid->GetNumberOfPoints());
   vtkIdType id_new_node = 0;
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     grid->GetPoints()->GetPoint(id_node, x.data());
-    m_BGrid->GetPoints()->SetPoint(id_node, x.data());
+    m_BGrid->GetPoints()->SetPoint(id_new_node, x.data());
+    _nodes[id_node] = id_new_node;
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
     grid->GetCellPoints(id_cell, N_pts, pts);
-    m_BGrid->InsertNextCell(type_cell, N_pts, pts);
+    vtkIdType new_pts[N_pts];
+    for (int i = 0; i < N_pts; ++i) {
+      new_pts[i] = _nodes[pts[i]];
+    }
+    m_BGrid->InsertNextCell(type_cell, N_pts, new_pts);
   }
   getAllCells(m_Cells, m_BGrid);
   getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
-  QVector<int> _nodes(m_Nodes.size());
-  for (int i = 0; i < _nodes.size(); ++i) {
-    _nodes[i] = i;
+  QVector<int> m_LNodes(m_Nodes.size());
+  for (int i = 0; i < m_LNodes.size(); ++i) {
+    m_LNodes[i] = i;
   }
-  createNodeToNode(m_Cells, m_Nodes, _nodes, m_N2N, m_BGrid);
-  m_EdgeLength.fill(0, m_BGrid->GetNumberOfPoints());
+  createNodeToNode(m_Cells, m_Nodes, m_LNodes, m_N2N, m_BGrid);
+  m_EdgeLength.fill(1e99, m_BGrid->GetNumberOfPoints());
   foreach (vtkIdType id_node, m_Nodes) {
     vec3_t x;
     m_BGrid->GetPoints()->GetPoint(id_node, x.data());
     foreach (vtkIdType id_neigh, m_N2N[id_node]) {
       vec3_t xn;
       m_BGrid->GetPoints()->GetPoint(id_neigh, xn.data());
-      m_EdgeLength[id_node] += (x-xn).abs();
+      m_EdgeLength[id_node] = min(m_EdgeLength[id_node], (x-xn).abs());
     }
     if (m_N2N[id_node].size() < 2) {
       EG_BUG;
     }
-    m_EdgeLength[id_node] /= m_N2N[id_node].size();
   }
 }
 

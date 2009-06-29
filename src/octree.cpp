@@ -93,7 +93,7 @@ void Octree::mergeNodes_identifyDuplicates()
   int N = 0;
   for (int i_nodes = 0; i_nodes < m_Nodes.size(); ++i_nodes) {
     if (is_dup[i_nodes]) {
-      cout << "DN: " << m_Nodes[i_nodes].m_Position << endl;
+      //cout << "DN: " << m_Nodes[i_nodes].m_Position << endl;
       ++N;
     }
   }
@@ -109,8 +109,7 @@ void Octree::mergeNodes_identifyDuplicates()
       ++N;
     }
   }
-  writeGrid(dup_grid, "dup_nodes");
-
+  //writeGrid(dup_grid, "dup_nodes");
   cout << N << " duplicate nodes identified" << endl;
 }
 
@@ -237,7 +236,7 @@ void Octree::setBounds(vec3_t corner1, vec3_t corner2)
   }
 }
 
-void Octree::refineAll()
+int Octree::refineAll()
 {
   int N1;
   int N2;
@@ -253,13 +252,15 @@ void Octree::refineAll()
     for (int i_cells = 0; i_cells < m_Cells.size(); ++i_cells) {
       if (m_ToRefine[i_cells]) {
         ++N1;
-        for (int face = 0; face < 6; ++face) {
-          //int neigh = getNeighbour(i_cells, face);
-          int neigh = m_Cells[i_cells].m_Neighbour[face];
-          if (neigh != -1) {
-            if ((m_Cells[neigh].m_Level < m_Cells[i_cells].m_Level) && !m_ToRefine[neigh]) {
-              m_ToRefine[neigh] = true;
-              ++N2;
+        if (m_SmoothTransition) {
+          for (int face = 0; face < 6; ++face) {
+            //int neigh = getNeighbour(i_cells, face);
+            int neigh = m_Cells[i_cells].m_Neighbour[face];
+            if (neigh != -1) {
+              if ((m_Cells[neigh].m_Level < m_Cells[i_cells].m_Level) && !m_ToRefine[neigh]) {
+                m_ToRefine[neigh] = true;
+                ++N2;
+              }
             }
           }
         }
@@ -272,6 +273,7 @@ void Octree::refineAll()
   } while (N2 > 0);
   N2 = m_Cells.size();
   m_Cells.insert(N2, 8*N1, OctreeCell());
+  int Nrefine = N1;
   int new_node = m_Nodes.size();
   m_Nodes.insert(m_Nodes.size(), N1*19, OctreeNode());
   N1 = N2;
@@ -455,7 +457,7 @@ void Octree::refineAll()
       {
         int neigh = m_Cells[i_cells].m_Neighbour[0];
         if (neigh != -1) {
-          if (m_Cells[neigh].m_Child[0] != -1) {
+          if ((m_Cells[neigh].m_Child[0] != -1) && (m_Cells[i_cells].m_Level == m_Cells[neigh].m_Level)) {
             m_Cells[m_Cells[i_cells].m_Child[0]].m_Neighbour[0] = m_Cells[neigh].m_Child[1];
             m_Cells[m_Cells[i_cells].m_Child[2]].m_Neighbour[0] = m_Cells[neigh].m_Child[3];
             m_Cells[m_Cells[i_cells].m_Child[4]].m_Neighbour[0] = m_Cells[neigh].m_Child[5];
@@ -553,6 +555,7 @@ void Octree::refineAll()
 
   m_ToRefine.fill(false, m_Cells.size());
   mergeNodes();
+  return Nrefine;
 }
 
 void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
@@ -591,12 +594,12 @@ void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
 
 vec3_t Octree::getCellCentre(int cell)
 {
-  vec3_t r(0,0,0);
+  vec3_t x(0,0,0);
   for (int i = 0; i < 8; ++i) {
-    r += m_Nodes[m_Cells[cell].m_Node[i]].m_Position;
+    x += m_Nodes[m_Cells[cell].m_Node[i]].m_Position;
   }
-  r *= 1.0/8.0;
-  return transfFrom(r);
+  x *= 1.0/8.0;
+  return x;
 }
 
 vec3_t Octree::getFaceCentre(int i_cells, int i_faces)
@@ -679,6 +682,59 @@ int Octree::findCell(vec3_t x)
     }
   }
   return i_cells;
+}
+
+bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2)
+{
+  vec3_t a, b, c;
+  if (face == 0) {
+    a = m_Nodes[m_Cells[cell].m_Node[0]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[2]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[4]].m_Position;
+  } else if (face == 1) {
+    a = m_Nodes[m_Cells[cell].m_Node[1]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[3]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[5]].m_Position;
+  } else if (face == 2) {
+    a = m_Nodes[m_Cells[cell].m_Node[0]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[1]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[4]].m_Position;
+  } else if (face == 3) {
+    a = m_Nodes[m_Cells[cell].m_Node[2]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[3]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[6]].m_Position;
+  } else if (face == 4) {
+    a = m_Nodes[m_Cells[cell].m_Node[0]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[1]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[2]].m_Position;
+  } else if (face == 5) {
+    a = m_Nodes[m_Cells[cell].m_Node[4]].m_Position;
+    b = m_Nodes[m_Cells[cell].m_Node[5]].m_Position;
+    c = m_Nodes[m_Cells[cell].m_Node[6]].m_Position;
+  }
+  vec3_t g1 = b-a;
+  vec3_t g2 = c-a;
+  double g1abs = g1.abs();
+  double g2abs = g2.abs();
+  g1.normalise();
+  g2.normalise();
+  vec3_t n = g1.cross(g2);
+  double k = GeometryTools::intersection(x1, x2-x1, a, n);
+  bool intersects = false;
+  if ((k >= 0) && (k <= 1)) {
+    vec3_t x = x1 + k*(x2-x1) - a;
+    double xg1 = x*g1;
+    double xg2 = x*g2;
+    xg1 /= g1abs;
+    xg2 /= g2abs;
+    if (fabs(x*n) > 1e-4) {
+      EG_BUG;
+    }
+    if ((xg1 >= 0) && (xg1 <= 1) && (xg2 >= 0) &&  (xg2 <= 1)) {
+      intersects = true;
+    }
+  }
+  return intersects;
 }
 
 void Octree::resetRefineMarks()
