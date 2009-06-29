@@ -155,31 +155,41 @@ public:
   //Some are pretty useless
   
   ///perimeter
-  double Um(vtkIdType D);
+  double Um(vtkIdType id_cell);
+  
   /// area of the circumscribed circle of the triangle
-  double A_U(vtkIdType D);
+  double A_U(vtkIdType id_cell);
+  
   /// triangle area
-  double A_D(vtkIdType D);
+  double A_D(vtkIdType id_cell);
+  
   /// triangle neighbours
-  double DN(int i,vtkIdType D);
+  double DN(int i,vtkIdType id_cell);
+  
   /// number of edges
-  double nk(vtkIdType P);
+  double nk(vtkIdType id_node);
   
-  double G_k(vtkIdType node);
+  /// desired edge length
+  double G_k(vtkIdType id_node);
+  
   /// triangle nodes
-  double DK(int i,vtkIdType D);
+  double DK(int i,vtkIdType id_cell);
   
-  vtkIdType KK(int i,vtkIdType j,vtkIdType K);
+  /// distance between id_node1 and id_node2
+  double L_k(vtkIdType id_node1, vtkIdType id_node2);
   
-  double L_k(vtkIdType j,vtkIdType K);// node1 K, node2 j
+  /// perimeter / sum of the desired edge lengths
+  double Q_L(vtkIdType id_cell);
   
-  double Q_L(vtkIdType D);
+  /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
+  double Q_L1(vtkIdType id_node);
   
-  double Q_L1(vtkIdType P);
+  /// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
+  double Q_L2(vtkIdType id_node);
   
-  double Q_L2(vtkIdType P);
-  
+  /// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
   double T_min(int w);
+  
 //---------------------------------------------------
 };
 

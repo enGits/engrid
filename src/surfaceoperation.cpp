@@ -642,10 +642,10 @@ double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 ///@@@ TODO: Correct operations using n2n,n2c,c2c
 
 ///perimeter
-double SurfaceOperation::Um(vtkIdType D) {
+double SurfaceOperation::Um(vtkIdType id_cell) {
   double ret=0;
   vtkIdType N_pts, *pts;
-  grid->GetCellPoints(D, N_pts, pts);
+  grid->GetCellPoints(id_cell, N_pts, pts);
   for(int i=0;i<N_pts;i++)
   {
     vec3_t A,B;
@@ -657,9 +657,9 @@ double SurfaceOperation::Um(vtkIdType D) {
 }
 
 /// area of the circumscribed circle of the triangle
-double SurfaceOperation::A_U(vtkIdType D) {
+double SurfaceOperation::A_U(vtkIdType id_cell) {
   vtkIdType N_pts, *pts;
-  grid->GetCellPoints(D, N_pts, pts);
+  grid->GetCellPoints(id_cell, N_pts, pts);
   vec3_t A,B,C;
   grid->GetPoints()->GetPoint(pts[0], A.data());
   grid->GetPoints()->GetPoint(pts[1], B.data());
@@ -671,8 +671,8 @@ double SurfaceOperation::A_U(vtkIdType D) {
 }
 
 /// triangle area
-double SurfaceOperation::A_D(vtkIdType D) {
-  return(cellVA(grid,D));
+double SurfaceOperation::A_D(vtkIdType id_cell) {
+  return(cellVA(grid,id_cell));
 }
 
 /// triangle neighbours
@@ -685,6 +685,7 @@ double SurfaceOperation::nk(vtkIdType P) {
   return(m_Part.getN2N()[P].size());
 }
 
+/// desired edge length
 double SurfaceOperation::G_k(vtkIdType node) {
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   return(1.0/node_meshdensity_desired->GetValue(node));
@@ -697,58 +698,56 @@ double SurfaceOperation::DK(int i,vtkIdType D) {
   return(pts[i]);
 }
 
-vtkIdType SurfaceOperation::KK(int i,vtkIdType j,vtkIdType K) {//i=1 or 2, j=node2, K=node1
-  if(i==1) return(K);
-  else return(j);
-}
-
-double SurfaceOperation::L_k(vtkIdType j,vtkIdType K)// node1 K, node2 j
+/// distance between id_node1 and id_node2
+double SurfaceOperation::L_k(vtkIdType id_node1,vtkIdType id_node2)
 {
   vec3_t A;
   vec3_t B;
-  grid->GetPoints()->GetPoint(K, A.data());
-  grid->GetPoints()->GetPoint(j, B.data());
+  grid->GetPoints()->GetPoint(id_node2, A.data());
+  grid->GetPoints()->GetPoint(id_node1, B.data());
   return((B-A).abs());
 }
 
+/// perimeter / sum of the desired edge lengths
 double SurfaceOperation::Q_L(vtkIdType D)
 {
-      // Um(D)/sum(G_k(DK(i,D)),i,1,3)
   double denom_sum=0;
   for(int i=0;i<3;i++)
   {
     denom_sum += G_k(DK(i,D));
   }
-      /*if(DebugLevel>0) cout<<"D="<<D<<" Um(D)="<<Um(D)<<" denom_sum="<<denom_sum<<endl;*/
   return(Um(D)/denom_sum);
 }
 
-double SurfaceOperation::Q_L1(vtkIdType P)
+/// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
+double SurfaceOperation::Q_L1(vtkIdType id_node)
 {
   l2l_t n2n = getPartN2N();
   double num_sum = 0;
   double denom_sum = 0;
-  foreach(vtkIdType j,n2n[P]) {
-    num_sum += 2*L_k(j,P);
-    denom_sum += G_k(KK(1,j,P))+G_k(KK(2,j,P));
+  foreach(vtkIdType j,n2n[id_node]) {
+    num_sum += 2*L_k(j,id_node);
+    denom_sum += G_k(id_node)+G_k(j);
   }
   return(num_sum/denom_sum);
 }
 
-double SurfaceOperation::Q_L2(vtkIdType P)
+/// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
+double SurfaceOperation::Q_L2(vtkIdType id_node)
 {
   l2l_t n2n = getPartN2N();
   QVector <double> V;
   double num,denom;
-  foreach(vtkIdType j,n2n[P]) {
-    num = 2*L_k(j,P);
-    denom = G_k(KK(1,j,P))+G_k(KK(2,j,P));
+  foreach(vtkIdType j,n2n[id_node]) {
+    num = 2*L_k(j,id_node);
+    denom = G_k(id_node)+G_k(j);
     V.push_back(num/denom);
   }
   qSort(V.begin(),V.end());
   return(V[0]);
 }
 
+/// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
 double SurfaceOperation::T_min(int w)
 {
   int N_cells = grid->GetNumberOfCells();
