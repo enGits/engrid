@@ -65,7 +65,7 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setBackgroundGrid_setupGrid(grid, cells);
   setBackgroundGrid_initOctree();
   setBackgroundGrid_refineFromNodes();
-  //setBackgroundGrid_refineFromEdges();
+  setBackgroundGrid_refineFromEdges();
   setBackgroundGrid_refineFromFaces();
   EG_VTKSP(vtkUnstructuredGrid, otg);
   m_OTGrid.toVtkGrid(otg);
