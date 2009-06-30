@@ -684,7 +684,7 @@ int Octree::findCell(vec3_t x)
   return i_cells;
 }
 
-bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2)
+bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double tol)
 {
   vec3_t a, b, c;
   if (face == 0) {
@@ -721,7 +721,7 @@ bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2)
   vec3_t n = g1.cross(g2);
   double k = GeometryTools::intersection(x1, x2-x1, a, n);
   bool intersects = false;
-  if ((k >= 0) && (k <= 1)) {
+  if ((k > 0 - tol*(x1-x2).abs()) && (k < 1 + tol*(x1-x2).abs())) {
     vec3_t x = x1 + k*(x2-x1) - a;
     double xg1 = x*g1;
     double xg2 = x*g2;
@@ -730,7 +730,7 @@ bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2)
     if (fabs(x*n) > 1e-4) {
       EG_BUG;
     }
-    if ((xg1 >= 0) && (xg1 <= 1) && (xg2 >= 0) &&  (xg2 <= 1)) {
+    if ((xg1 > 0 - tol) && (xg1 < 1 + tol) && (xg2 > 0 - tol) &&  (xg2 < 1 + tol)) {
       intersects = true;
     }
   }
@@ -741,3 +741,21 @@ void Octree::resetRefineMarks()
 {
   m_ToRefine.fill(false, m_Cells.size());
 }
+
+void Octree::getEdges(int cell, QVector<SortedPair<int> >& edges)
+{
+  edges.resize(12);
+  edges[0].v1  = getNode(cell, 0); edges[0].v2  = getNode(cell, 1);
+  edges[1].v1  = getNode(cell, 0); edges[1].v2  = getNode(cell, 2);
+  edges[2].v1  = getNode(cell, 0); edges[2].v2  = getNode(cell, 4);
+  edges[3].v1  = getNode(cell, 1); edges[3].v2  = getNode(cell, 3);
+  edges[4].v1  = getNode(cell, 1); edges[4].v2  = getNode(cell, 5);
+  edges[5].v1  = getNode(cell, 2); edges[5].v2  = getNode(cell, 3);
+  edges[6].v1  = getNode(cell, 2); edges[6].v2  = getNode(cell, 6);
+  edges[7].v1  = getNode(cell, 3); edges[7].v2  = getNode(cell, 7);
+  edges[8].v1  = getNode(cell, 4); edges[8].v2  = getNode(cell, 5);
+  edges[9].v1  = getNode(cell, 4); edges[9].v2  = getNode(cell, 6);
+  edges[10].v1 = getNode(cell, 5); edges[10].v2 = getNode(cell, 7);
+  edges[11].v1 = getNode(cell, 6); edges[11].v2 = getNode(cell, 7);
+}
+

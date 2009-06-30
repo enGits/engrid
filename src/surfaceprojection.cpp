@@ -86,15 +86,9 @@ void SurfaceProjection::setBackgroundGrid_refineFromEdges()
               double Dy = m_OTGrid.getDy(i_cells);
               double Dz = m_OTGrid.getDz(i_cells);
               double D = max(Dx, max(Dy, Dz));
-              vec3_t xc = m_OTGrid.getCellCentre(i_cells);
               if (D > L) {
                 for (int i_faces = 0; i_faces < 6; ++i_faces) {
                   if (m_OTGrid.intersectsFace(i_cells, i_faces, x1, x2)) {
-                    if ((xc[0] < -0.7) && (xc[1] < -0.7)) {
-                      m_OTGrid.intersectsFace(i_cells, i_faces, x1, x2);
-                      cout << xc << endl;
-                    }
-                    vec3_t xf = m_OTGrid.getFaceCentre(i_cells, i_faces);
                     m_OTGrid.markToRefine(i_cells);
                     break;
                   }
@@ -115,74 +109,32 @@ void SurfaceProjection::setBackgroundGrid_refineFromFaces()
   do {
     num_refine = 0;
     m_OTGrid.resetRefineMarks();
-    for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
-      if (!m_OTGrid.hasChildren(i_cells)) {
-        double Dx = m_OTGrid.getDx(i_cells);
-        double Dy = m_OTGrid.getDy(i_cells);
-        double Dz = m_OTGrid.getDz(i_cells);
-        double D = max(Dx, max(Dy, Dz));
-        vec3_t x[8];
-        for (int i = 0; i < 8; ++i) {
-          x[i] = m_OTGrid.getNodePosition(i_cells, i);
-        }
-        for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-          vtkIdType Npts, *pts;
-          m_BGrid->GetCellPoints(id_cell, Npts, pts);
-          if (Npts == 3) {
-            double L = min(m_EdgeLength[pts[0]], min(m_EdgeLength[pts[1]], m_EdgeLength[pts[2]]));
+    for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType Npts, *pts;
+      m_BGrid->GetCellPoints(id_cell, Npts, pts);
+      if (Npts == 3) {
+        vec3_t a, b, c;
+        m_BGrid->GetPoints()->GetPoint(pts[0], a.data());
+        m_BGrid->GetPoints()->GetPoint(pts[1], b.data());
+        m_BGrid->GetPoints()->GetPoint(pts[2], c.data());
+        double L = min(m_EdgeLength[pts[0]], min(m_EdgeLength[pts[1]], m_EdgeLength[pts[2]]));
+        for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
+          if (!m_OTGrid.hasChildren(i_cells) && !m_OTGrid.markedForRefine(i_cells)) {
+            double Dx = m_OTGrid.getDx(i_cells);
+            double Dy = m_OTGrid.getDy(i_cells);
+            double Dz = m_OTGrid.getDz(i_cells);
+            double D = max(Dx, max(Dy, Dz));
             if (D > L) {
-              vec3_t xt[3];
-              for (int i = 0; i < 3; ++i) {
-                m_BGrid->GetPoints()->GetPoint(pts[i], xt[i].data());
-              }
-              vec3_t xi;
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[0], x[1], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[0], x[2], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[0], x[4], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[1], x[3], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[1], x[5], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[2], x[3], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[2], x[6], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[3], x[7], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[4], x[5], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[4], x[6], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[5], x[7], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
-              }
-              if (GeometryTools::intersectEdgeAndTriangle(xt[0], xt[1], xt[2], x[6], x[7], xi)) {
-                m_OTGrid.markToRefine(i_cells);
-                break;
+              QVector<SortedPair<int> > edges;
+              m_OTGrid.getEdges(i_cells, edges);
+              foreach (SortedPair<int> edge, edges) {
+                vec3_t xi;
+                vec3_t x1 = m_OTGrid.getNodePosition(edge.v1);
+                vec3_t x2 = m_OTGrid.getNodePosition(edge.v2);
+                if (GeometryTools::intersectEdgeAndTriangle(a, b, c, x1, x2, xi)) {
+                  m_OTGrid.markToRefine(i_cells);
+                  break;
+                }
               }
             }
           }
@@ -193,3 +145,55 @@ void SurfaceProjection::setBackgroundGrid_refineFromFaces()
   } while (num_refine > 0);
 }
 
+void SurfaceProjection::setBackgroundGrid_initLevelSet()
+{
+  m_G.fill(0, m_OTGrid.getNumNodes());
+  QVector<int> count(m_G.size(), 0);
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType Npts, *pts;
+    m_BGrid->GetCellPoints(id_cell, Npts, pts);
+    if (Npts == 3) {
+      vec3_t a, b, c;
+      m_BGrid->GetPoints()->GetPoint(pts[0], a.data());
+      m_BGrid->GetPoints()->GetPoint(pts[1], b.data());
+      m_BGrid->GetPoints()->GetPoint(pts[2], c.data());
+      vec3_t u = b - a;
+      vec3_t v = c - a;
+      vec3_t n = u.cross(v);
+      n.normalise();
+      for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
+        if (!m_OTGrid.hasChildren(i_cells)) {
+          QVector<SortedPair<int> > edges;
+          m_OTGrid.getEdges(i_cells, edges);
+          foreach (SortedPair<int> edge, edges) {
+            vec3_t xi;
+            vec3_t x1 = m_OTGrid.getNodePosition(edge.v1);
+            vec3_t x2 = m_OTGrid.getNodePosition(edge.v2);
+            if (GeometryTools::intersectEdgeAndTriangle(a, b, c, x1, x2, xi)) {
+              double L1 = (xi-x1).abs();
+              double L2 = (xi-x2).abs();
+              if ((x1-a)*n > 0) {
+                m_G[edge.v1] +=  1;//L1;
+                m_G[edge.v2] +=  1;//-L2;
+              } else {
+                m_G[edge.v1] +=  1;//-L1;
+                m_G[edge.v2] +=  1;//L2;
+              }
+              ++count[edge.v1];
+              ++count[edge.v2];
+            }
+          }
+        }
+      }
+    }
+  }
+  for (int i = 0; i < m_G.size(); ++i) {
+    if (count[i] > 0) {
+      m_G[i] /= count[i];
+    }
+  }
+}
+
+void SurfaceProjection::setBackgroundGrid_computeLevelSet()
+{
+}

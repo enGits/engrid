@@ -440,7 +440,7 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
 }
 
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
-                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi)
+                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi, double tol)
 {
   // triangle base
   vec3_t g1 = b - a;
@@ -461,10 +461,10 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   xi = x1 + k*v;
 
   // intersection outside of edge range?
-  if (k < 0) {
+  if (k < 0 - tol*(x1-x2).abs()) {
     return false;
   }
-  if (k > 1) {
+  if (k > 1 + tol*(x1-x2).abs()) {
     return false;
   }
 
@@ -481,10 +481,10 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   if (xit[0] + xit[1] > 1) {
     return false;
   }
-  if ((xit[0] < 0) || (xit[0] > 1)) {
+  if ((xit[0] < 0 - tol) || (xit[0] > 1 + tol)) {
     return false;
   }
-  if ((xit[1] < 0) || (xit[1] > 1)) {
+  if ((xit[1] < 0 - tol) || (xit[1] > 1 + tol)) {
     return false;
   }
 
