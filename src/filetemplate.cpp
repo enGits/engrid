@@ -55,7 +55,7 @@ int FileTemplate::process() {
   QStringList L_open = m_InText.split("<<<");
   for(int i = 1; i < L_open.size(); i++) {
     QStringList L_close = L_open[i].split(">>>");
-    qDebug()<<L_close[0];
+//     qDebug()<<L_close[0];
     QStringList L_elements = L_close[0].split(":");
     TemplateLine template_line;
     template_line.type = L_elements[0];
@@ -67,13 +67,63 @@ int FileTemplate::process() {
   return(0);
 }
 
+QVector <TemplateLine> FileTemplate::getLines() {
+  return(m_Lines);
+}
+
 GuiTemplateViewer::GuiTemplateViewer(QWidget *parent) : QDialog(parent) {
 
 }
 
 GuiTemplateViewer::GuiTemplateViewer(QString filename, QWidget *parent) : QDialog(parent) {
+  
+  openButton = new QPushButton("Open...");
+  saveButton = new QPushButton("Save");
+  saveAsButton = new QPushButton("Save as...");
+  
+  connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
+  connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
+  connect(saveAsButton, SIGNAL(clicked()), this, SLOT(saveAs()));
+  
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->addStretch();
+  bottomLayout->addWidget(openButton);
+  bottomLayout->addWidget(saveButton);
+  bottomLayout->addWidget(saveAsButton);
+  
+  formLayout = new QFormLayout;
+  mainLayout = new QVBoxLayout;
+  
+  this->setWindowTitle("Template Viewer");
+  
   FileTemplate file_template(filename);
   file_template.print();
+  m_Lines = file_template.getLines();
+  for(int i = 0; i < m_Lines.size(); i++) {
+    if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
+    else qDebug()<<"Unknown type";
+  }
+  
+  mainLayout->addLayout(formLayout);
+  mainLayout->addLayout(bottomLayout);
+  this->setLayout(mainLayout);
+}
+
+void GuiTemplateViewer::addComboBox(TemplateLine line) {
+  qDebug()<<"Adding a ComboBox...";
+  QComboBox* combobox = new QComboBox;
+  QStringList description;
+  QStringList value;
+  QStringList L_open = line.options.split("(");
+  for(int i = 1; i < L_open.size(); i++) {
+    QStringList L_close = L_open[i].split(")");
+    QStringList L_elements = L_close[0].split(",");
+    qDebug()<<L_elements;
+    description<<L_elements[0];
+    value<<L_elements[1];
+  }
+  combobox->addItems(description);
+  formLayout->addRow(line.name, combobox);
 }
 
 void GuiTemplateViewer::open() {

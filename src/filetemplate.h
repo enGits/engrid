@@ -8,6 +8,8 @@
 #include <QtGui>
 #include <QApplication>
 #include <QStringList>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 int fileTemplateTest( int argc, char ** argv );
 
@@ -36,36 +38,44 @@ public:
   int saveAs(QString filename);
   int process();
   void print();
+  QVector <TemplateLine> getLines();
 };
 
 class GuiTemplateViewer : public QDialog
 {
   Q_OBJECT
-    
   public:
-  // constructors
-  /**
-   * Constructor
-   * @param parent Parent QWidget
-   */
-  GuiTemplateViewer(QWidget *parent = 0);
+    QVector <TemplateLine> m_Lines;
   
-  /**
-   * Constructor
-   * @param filename name of the template file to use
-   * @param parent Parent QWidget
-   */
-  GuiTemplateViewer(QString filename, QWidget *parent = 0);
-
-private slots:
-  void open();
-  void save();
-  void saveAs();
+  public:
+    // constructors
+    /**
+    * Constructor
+    * @param parent Parent QWidget
+    */
+    GuiTemplateViewer(QWidget *parent = 0);
+    
+    /**
+    * Constructor
+    * @param filename name of the template file to use
+    * @param parent Parent QWidget
+    */
+    GuiTemplateViewer(QString filename, QWidget *parent = 0);
   
-private:
-  QPushButton *openButton;
-  QPushButton *saveButton;
-  QPushButton *saveAsButton;
+    void addComboBox(TemplateLine line);
+    
+  private slots:
+    void open();
+    void save();
+    void saveAs();
+  
+  private:
+    QPushButton *openButton;
+    QPushButton *saveButton;
+    QPushButton *saveAsButton;
+    QFormLayout *formLayout;
+    QVBoxLayout *mainLayout;
+    QHBoxLayout *bottomLayout;
 };
 
 #endif

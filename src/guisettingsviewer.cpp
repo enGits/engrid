@@ -25,9 +25,6 @@
 #include "guisettingsviewer.h"
 #include "guisettingstab.h"
 
-// #include <iostream>
-// using namespace std;
-
 #include <QTextStream>
 #include <stdio.h>
 
