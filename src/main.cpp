@@ -28,7 +28,6 @@
 #include <QDate>
 
 #include "guimainwindow.h"
-#include "filetemplate.h"
 
 void makeDistribution()
 {
@@ -36,9 +35,6 @@ void makeDistribution()
 
 int main( int argc, char ** argv )
 {
-  fileTemplateTest( argc, argv );
-  exit(0);
-  
   if (argc > 1) {
     if (QString(argv[1]) == QString("-appendlic")) {
       int first_year = 2008;
