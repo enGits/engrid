@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(p)         Gauss linear;
+    grad(U)         Gauss linear;
+}
+
+divSchemes
+{
+    default         	none;
+    div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+    div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+    div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+}
+
+laplacianSchemes
+{
+    default         			none;
+    laplacian(nuEff,U) 			Gauss linear corrected;
+    laplacian((1|A(U)),p)		Gauss linear corrected;
+    laplacian(DkEff,k) 			Gauss linear corrected;
+    laplacian(DomegaEff,omega) 		Gauss linear corrected;
+    laplacian(1,p)                      Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+    interpolate(U)  linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+}
+
+// ************************************************************************* //
