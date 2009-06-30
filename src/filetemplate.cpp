@@ -155,6 +155,7 @@ void GuiTemplateViewer::addComboBox(TemplateLine line) {
   combobox->addItems(description);
   formLayout->addRow(line.name, combobox);
   m_ComboBoxVector.push_back(combobox);
+  m_ComboboxValues.push_back(value);
 }
 
 void GuiTemplateViewer::getValues() {
@@ -169,7 +170,8 @@ void GuiTemplateViewer::getValues() {
 }
 
 QString GuiTemplateViewer::readComboBox(int idx) {
-  return("MOMO");
+  int i = m_ComboBoxVector[idx]->currentIndex();
+  return m_ComboboxValues[idx][i];
 }
 
 void GuiTemplateViewer::open() {

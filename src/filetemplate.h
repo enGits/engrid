@@ -81,6 +81,7 @@ class GuiTemplateViewer : public QDialog
     QVector <TemplateLine> m_Lines;
     QStringList m_OutValues;
     QVector <QComboBox*> m_ComboBoxVector;
+    QVector <QStringList> m_ComboboxValues;
 };
 
 #endif
