@@ -48,6 +48,7 @@ struct ParseNode
   value_type operator[](const uint_t &i) const { return O::apply(l[i], r[i]); };
   uint_t size() const { return r.size(); };
   value_type abs() const;
+  value_type abs2() const;
 };
 
 template <class O, class R>
@@ -60,9 +61,5 @@ struct ParseNode<double, O, R>
   value_type operator[](const uint_t &i) const { return O::apply(l, r[i]); };
   uint_t size() const { return r.size(); };
   value_type abs() const;
+  value_type abs2() const;
 };
-
-
-
-
-

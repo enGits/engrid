@@ -504,8 +504,7 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
   vec3_t B;
   grid->GetPoints()->GetPoint(id_node1, A.data());
   grid->GetPoints()->GetPoint(id_node2, B.data());
-  vec3_t C = B-A;
-  return(C.abs2());
+  return((B-A).abs2());
 }
 
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
