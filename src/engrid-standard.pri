@@ -127,7 +127,9 @@ HEADERS = boundarycondition.h \
     checksurfaceintegrity.h \
     surfaceoperation.h \
     surfaceprojection.h \
-    octree.h
+    octree.h \
+    filetemplate.h
+
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -207,7 +209,9 @@ SOURCES = main.cpp \
     checksurfaceintegrity.cpp \
     surfaceoperation.cpp \
     surfaceprojection.cpp \
-    octree.cpp
+    octree.cpp \
+    filetemplate.cpp
+
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -221,5 +225,6 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
+
 OTHER_FILES += checkcomments.py \
     todo.txt
