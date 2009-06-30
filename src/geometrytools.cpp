@@ -491,4 +491,34 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   return true;
 }
 
+double distance(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2) {
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(id_node1, A.data());
+  grid->GetPoints()->GetPoint(id_node2, B.data());
+  return((B-A).abs());
+}
+
+double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2) {
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(id_node1, A.data());
+  grid->GetPoints()->GetPoint(id_node2, B.data());
+  vec3_t C = B-A;
+  return(C.abs2());
+}
+
+double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  vec3_t A,B,C;
+  grid->GetPoints()->GetPoint(pts[0], A.data());
+  grid->GetPoints()->GetPoint(pts[1], B.data());
+  grid->GetPoints()->GetPoint(pts[2], C.data());
+  double a=(C-B).abs();
+  double alpha=angle((B-A),(C-A));
+  double R=a/(2*sin(alpha));
+  return(M_PI*R*R);
+}
+
 } // namespace

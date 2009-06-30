@@ -135,6 +135,15 @@ double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2);
 /** Returns the center of mass of cellId + passes the minimal and maximal center to corner distances by reference */
 vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, double& Rmax);
 
+/** Returns the distance between id_node1 and id_node2 */
+double distance(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2);
+
+/** Returns the distance squared between id_node1 and id_node2 */
+double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2);
+
+/** area of the circumscribed circle of the triangle */
+double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
+
 };
 
 #endif

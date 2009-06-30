@@ -95,7 +95,7 @@ void ShowInfo::operate()
       vec3_t X;
       grid->GetPoint(PickedPoint,X.data());
       cout<<"X="<<X<<endl;
-      cout<<"G_k("<<PickedPoint<<")="<<G_k(PickedPoint)<<endl;
+      cout<<"desiredEdgeLength("<<PickedPoint<<")="<<desiredEdgeLength(PickedPoint)<<endl;
       cout<<"Q_L1("<<PickedPoint<<")="<<Q_L1(PickedPoint)<<endl;
       cout<<"Q_L2("<<PickedPoint<<")="<<Q_L2(PickedPoint)<<endl;
       cout<<"CurrentVertexAvgDist("<<PickedPoint<<")="<<CurrentVertexAvgDist(PickedPoint)<<endl;

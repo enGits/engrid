@@ -83,7 +83,7 @@ inline MathVector<V> MathVector<V>::cross(const MathVector<V> &vec) const
 // absolute value (||v||_2 in this case)
 // -------------------------------------
 template <class V>
-inline typename MathVector<V>::scalar_t MathVector<V>::abs() const 
+inline typename MathVector<V>::scalar_t MathVector<V>::abs() const
 {
   scalar_t l = 0;
   for (uint_t i = 0; i < this->size(); ++i) l += (*this)[i]*(*this)[i];
@@ -93,7 +93,7 @@ inline typename MathVector<V>::scalar_t MathVector<V>::abs() const
 // absolute value squared ((||v||_2)^2 in this case)
 // -------------------------------------------------
 template <class V>
-inline typename MathVector<V>::scalar_t MathVector<V>::abs2() const 
+inline typename MathVector<V>::scalar_t MathVector<V>::abs2() const
 {
   scalar_t l = 0;
   for (uint_t i = 0; i < this->size(); ++i) l += (*this)[i]*(*this)[i];
