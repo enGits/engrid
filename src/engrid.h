@@ -249,6 +249,7 @@ template <class T>
 struct SortedPair
 {
   T v1, v2;
+  SortedPair();
   SortedPair(T v1, T v2);
   bool operator==(const SortedPair<T>& P) { return (v1 == P.v1) && (v2 == P.v2); }
   bool operator<(const SortedPair<T>& P);
@@ -266,6 +267,13 @@ SortedPair<T>::SortedPair(T v1, T v2)
     this->v1 = v1;
     this->v2 = v2;
   }
+}
+
+template <class T>
+SortedPair<T>::SortedPair()
+{
+  v1 = 0;
+  v2 = 0;
 }
 
 template <class T>
