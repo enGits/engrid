@@ -109,6 +109,7 @@ public: // methods
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
   void markToRefine(int cell) { m_ToRefine[cell] = true; }
+  bool markedForRefine(int cell) { return m_ToRefine[cell]; }
   int  refineAll();
   void resetRefineMarks();
   void setSmoothTransitionOn()  { m_SmoothTransition = true; }
@@ -117,7 +118,11 @@ public: // methods
   vec3_t getCellCentre(int cell);
   vec3_t getFaceCentre(int i_cells, int i_faces);
   vec3_t getNodePosition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
+  vec3_t getNodePosition(int node) { return m_Nodes[node].m_Position; }
+  int    getNode(int cell, int node) { return m_Cells[cell].m_Node[node]; }
   int    getNumCells() { return m_Cells.size(); }
+  int    getNumNodes() { return m_Nodes.size(); }
+  void   getEdges(int cell, QVector<SortedPair<int> >& edges);
   int    getLevel(int cell) { return m_Cells[cell].m_Level; }
   double getDx(int cell);
   double getDy(int cell);
@@ -127,7 +132,7 @@ public: // methods
   double getDz(const OctreeCell& cell);
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
   int    findCell(vec3_t x);
-  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2);
+  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double tol = 1e-4);
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 
