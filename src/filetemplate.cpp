@@ -38,7 +38,11 @@ int FileTemplate::open(QString filename) {
   qDebug()<<"Opening "<<filename;
   m_FileInfo.setFile(filename);
   QFile file(m_FileInfo.filePath());
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+  if( !file.exists() ) {
+    qDebug()<<"ERROR: "<<m_FileInfo.filePath()<<" not found.";
+    return(-1);
+  }
+  if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     qDebug()<<"ERROR: Failed to open file.";
     return(-1);
   }
@@ -46,6 +50,28 @@ int FileTemplate::open(QString filename) {
   m_InText = text_stream.readAll();
   file.close();
   process();
+  return(0);
+}
+
+int FileTemplate::saveAs(QString filename) {
+  qDebug()<<"Saving as "<<filename;
+  m_FileInfo.setFile(filename);
+  QFile file(m_FileInfo.filePath());
+  if(!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    qDebug()<<"ERROR: Failed to open file.";
+    return(-1);
+  }
+  QTextStream out(&file);
+  m_OutText = m_InText;
+  QRegExp regexp("<<<.*>>>");
+  regexp.setMinimal(true);
+  for(int i = 0; i < m_OutValues.size(); i++) {
+    int idx1 = m_OutText.indexOf("<<<");
+    int idx2 = m_OutText.indexOf(">>>");
+    m_OutText.replace(idx1,idx2-idx1+3,m_OutValues[i]);
+  }
+  out<<m_OutText;
+  file.close();
   return(0);
 }
 
@@ -69,6 +95,10 @@ int FileTemplate::process() {
 
 QVector <TemplateLine> FileTemplate::getLines() {
   return(m_Lines);
+}
+
+void FileTemplate::setOutValues(QStringList L) {
+  m_OutValues = L;
 }
 
 GuiTemplateViewer::GuiTemplateViewer(QWidget *parent) : QDialog(parent) {
@@ -96,7 +126,7 @@ GuiTemplateViewer::GuiTemplateViewer(QString filename, QWidget *parent) : QDialo
   
   this->setWindowTitle("Template Viewer");
   
-  FileTemplate file_template(filename);
+  file_template.open(filename);
   file_template.print();
   m_Lines = file_template.getLines();
   for(int i = 0; i < m_Lines.size(); i++) {
@@ -124,12 +154,32 @@ void GuiTemplateViewer::addComboBox(TemplateLine line) {
   }
   combobox->addItems(description);
   formLayout->addRow(line.name, combobox);
+  m_ComboBoxVector.push_back(combobox);
+}
+
+void GuiTemplateViewer::getValues() {
+  int combobox_idx = 0;
+  for(int i = 0; i < m_Lines.size(); i++) {
+    if(m_Lines[i].type == "ComboBox") {
+      m_OutValues<<readComboBox(combobox_idx);
+      combobox_idx++;
+    }
+    else qDebug()<<"Unknown type";
+  }
+}
+
+QString GuiTemplateViewer::readComboBox(int idx) {
+  return("MOMO");
 }
 
 void GuiTemplateViewer::open() {
 }
 
 void GuiTemplateViewer::save() {
+  qDebug()<<"Saving...";
+  getValues();
+  file_template.setOutValues(m_OutValues);
+  file_template.saveAs("openfoam.txt");
 }
 
 void GuiTemplateViewer::saveAs() {

@@ -29,6 +29,7 @@ public:
   QVector <TemplateLine> m_Lines;
   QString m_InText;
   QString m_OutText;
+  QStringList m_OutValues;
   
 public:
   FileTemplate();
@@ -39,14 +40,12 @@ public:
   int process();
   void print();
   QVector <TemplateLine> getLines();
+  void setOutValues(QStringList L);
 };
 
 class GuiTemplateViewer : public QDialog
 {
   Q_OBJECT
-  public:
-    QVector <TemplateLine> m_Lines;
-  
   public:
     // constructors
     /**
@@ -63,6 +62,8 @@ class GuiTemplateViewer : public QDialog
     GuiTemplateViewer(QString filename, QWidget *parent = 0);
   
     void addComboBox(TemplateLine line);
+    void getValues();
+    QString readComboBox(int idx);
     
   private slots:
     void open();
@@ -76,6 +77,10 @@ class GuiTemplateViewer : public QDialog
     QFormLayout *formLayout;
     QVBoxLayout *mainLayout;
     QHBoxLayout *bottomLayout;
+    FileTemplate file_template;
+    QVector <TemplateLine> m_Lines;
+    QStringList m_OutValues;
+    QVector <QComboBox*> m_ComboBoxVector;
 };
 
 #endif
