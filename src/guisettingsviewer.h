@@ -73,7 +73,7 @@ private:
     QPushButton *closeButton;
 
     QTabWidget tabWidget;
-    QVector<GuiSettingsTab> tabs;  
+    QVector<GuiSettingsTab> tabs;
   
     QString organization;
     QString application;
