@@ -63,17 +63,17 @@ public:
   int insert_EP_all();
   
   ///Check if a field point needs to be inserted
-  bool insert_fieldpoint(vtkIdType D);
+  bool insert_fieldpoint(vtkIdType id_cell);
   
   ///Check if an edge point needs to be inserted
-  bool insert_edgepoint(vtkIdType j,vtkIdType K);// node1 K, node2 j
+  bool insert_edgepoint(vtkIdType id_node1, vtkIdType id_node2);
   
   ///Check if an edge point needs to be inserted
   bool SplitSide(vtkIdType id_cell,int side);
   
   ///Returns the type of the node inserted on the edge S.p[1],S.p[3] from stencil_t S
   char getNewNodeType(stencil_t S);
-    
+  
 };
 
 #endif

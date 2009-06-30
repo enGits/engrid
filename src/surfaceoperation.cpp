@@ -635,39 +635,14 @@ double SurfaceOperation::DesiredMeshDensity(vtkIdType id_node)
 
 //---------------------------------------------------
 //Utility functions used in Roland's formulas
-//Should be renamed to be more explicit
-//Some could be moved into geometrytools
-//Some are pretty useless
 
-///@@@ TODO: Correct operations using n2n,n2c,c2c
-
-//useless functions to remove
-/// triangle neighbours
-double SurfaceOperation::DN(int i,vtkIdType id_cell) {
-  return(m_Part.getC2C()[id_cell][i]);
-}
+///@@@ TODO: Check that operations using n2n,n2c,c2c are still correct
+///@@@ TODO: change meshdensity fields to edgelength fields since this is what is mostly used?
 
 /// desired edge length for id_node
-double SurfaceOperation::G_k(vtkIdType id_node) {
+double SurfaceOperation::desiredEdgeLength(vtkIdType id_node) {
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   return(1.0/node_meshdensity_desired->GetValue(id_node));
-}
-
-/// triangle nodes
-double SurfaceOperation::DK(int i,vtkIdType id_cell) {
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
-  return(pts[i]);
-}
-
-/// distance between id_node1 and id_node2
-double SurfaceOperation::L_k(vtkIdType id_node1,vtkIdType id_node2)
-{
-  vec3_t A;
-  vec3_t B;
-  grid->GetPoints()->GetPoint(id_node2, A.data());
-  grid->GetPoints()->GetPoint(id_node1, B.data());
-  return((B-A).abs());
 }
 
 //other functions
@@ -686,64 +661,50 @@ double SurfaceOperation::perimeter(vtkIdType id_cell) {
   return(ret);
 }
 
-/// area of the circumscribed circle of the triangle
-double SurfaceOperation::A_U(vtkIdType id_cell) {
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
-  vec3_t A,B,C;
-  grid->GetPoints()->GetPoint(pts[0], A.data());
-  grid->GetPoints()->GetPoint(pts[1], B.data());
-  grid->GetPoints()->GetPoint(pts[2], C.data());
-  double a=(C-B).abs();
-  double alpha=angle((B-A),(C-A));
-  double R=a/(2*sin(alpha));
-  return(M_PI*R*R);
-}
-
 /// mean desired edge length for id_cell
-double SurfaceOperation::G_k_cell(vtkIdType id_cell) {
+double SurfaceOperation::meanDesiredEdgeLength(vtkIdType id_cell) {
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(id_cell, N_pts, pts);
   int total = 0;
   for(int i = 0; i<N_pts; i++) {
-    total += G_k(pts[i]);
+    total += desiredEdgeLength(pts[i]);
   }
   return total/(double)N_pts;
 }
 
+///@@@ TODO: Should be renamed to be more explicit if possible
+
 /// perimeter / sum of the desired edge lengths
-double SurfaceOperation::Q_L(vtkIdType id_cell)
-{
+double SurfaceOperation::Q_L(vtkIdType id_cell) {
   double denom_sum=0;
-  for(int i=0;i<3;i++)
-  {
-    denom_sum += G_k(DK(i,id_cell));
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  for(int i = 0; i < N_pts; i++) {
+    denom_sum += desiredEdgeLength(pts[i]);
   }
   return(perimeter(id_cell)/denom_sum);
 }
 
 /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
-double SurfaceOperation::Q_L1(vtkIdType id_node)
-{
+double SurfaceOperation::Q_L1(vtkIdType id_node) {
   l2l_t n2n = getPartN2N();
   double num_sum = 0;
   double denom_sum = 0;
-  foreach(vtkIdType j,n2n[id_node]) {
-    num_sum += 2*L_k(j,id_node);
-    denom_sum += G_k(id_node)+G_k(j);
+  foreach(vtkIdType j, n2n[id_node]) {
+    num_sum += 2 * distance(grid, j, id_node);
+    denom_sum += desiredEdgeLength(id_node) + desiredEdgeLength(j);
   }
   return(num_sum/denom_sum);
 }
 
 /// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
-double SurfaceOperation::Q_L2(vtkIdType id_node)
-{
+double SurfaceOperation::Q_L2(vtkIdType id_node) {
   l2l_t n2n = getPartN2N();
   QVector <double> V;
   double num,denom;
-  foreach(vtkIdType j,n2n[id_node]) {
-    num = 2*L_k(j,id_node);
-    denom = G_k(id_node)+G_k(j);
+  foreach(vtkIdType j, n2n[id_node]) {
+    num = 2 * distance(grid, j, id_node);
+    denom = desiredEdgeLength(id_node) + desiredEdgeLength(j);
     V.push_back(num/denom);
   }
   qSort(V.begin(),V.end());
@@ -751,20 +712,18 @@ double SurfaceOperation::Q_L2(vtkIdType id_node)
 }
 
 /// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
-double SurfaceOperation::T_min(int w)
-{
+double SurfaceOperation::T_min(int w) {
   l2g_t cells = getPartCells();
   double T = 0;
   foreach(vtkIdType id_cell, cells) {
-    T += cellVA(grid,id_cell)/pow(cellVA(grid,id_cell),w)*pow(G_k_cell(id_cell),2*(w-1));
+    T += areaOfCircumscribedCircle(grid,id_cell)/pow(cellVA(grid,id_cell),w)*pow(meanDesiredEdgeLength(id_cell),2*(w-1));
   }
   return(T);
 }
 
 //---------------------------------------------------
 
-vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node)
-{
+vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node) {
   l2l_t n2n = getPartN2N();
   vec3_t C;
   grid->GetPoint(id_node,C.data());
@@ -782,8 +741,7 @@ vtkIdType SurfaceOperation::getClosestNode(vtkIdType id_node)
   return(id_minlen);
 }
 
-vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
-{
+vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node) {
   l2l_t n2n = getPartN2N();
   vec3_t C;
   grid->GetPoint(id_node, C.data());
@@ -801,8 +759,7 @@ vtkIdType SurfaceOperation::getFarthestNode(vtkIdType id_node)
   return(id_maxlen);
 }
 
-int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra)
-{
+int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra) {
   l2l_t  n2n   = getPartN2N();
   l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
@@ -839,8 +796,7 @@ int SurfaceOperation::NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, boo
   return(N);
 }
 
-QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node)
-{
+QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node) {
   if(id_node<0 || id_node>=m_PotentialSnapPoints.size()) EG_BUG;
   return m_PotentialSnapPoints[id_node];
 }
@@ -851,8 +807,7 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node)
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
-vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells)
-{
+vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells) {
   l2l_t n2n = getPartN2N();
   l2l_t n2c = getPartN2C();
 
@@ -1020,8 +975,7 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & 
 }
 //End of FindSnapPoint
 
-bool SurfaceOperation::DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells)
-{
+bool SurfaceOperation::DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells) {
   QSet <vtkIdType> DeadNodes;
   DeadNodes.insert(DeadNode);
   bool ret = DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
@@ -1029,8 +983,7 @@ bool SurfaceOperation::DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_
 }
 //End of DeletePoint
 
-bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells)
-{
+bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells) {
   QVector <vtkIdType> DeadNode_vector = Set2Vector(DeadNodes,false);
   
   QVector<vtkIdType> cells;
@@ -1157,8 +1110,7 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
 }
 //End of DeleteSetOfPoints
 
-bool SurfaceOperation::FlippedCells(vtkIdType id_node, vec3_t P)
-{
+bool SurfaceOperation::FlippedCells(vtkIdType id_node, vec3_t P) {
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();

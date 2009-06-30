@@ -40,22 +40,22 @@ void InsertPoints::operate()
   if(insert_EP) insert_EP_all();
 }
 
-bool InsertPoints::insert_fieldpoint(vtkIdType D)
+bool InsertPoints::insert_fieldpoint(vtkIdType id_cell)
 {
   double Fred1=1.0/sqrt(3);
   double Qmin=1.1;//1.189;
   double total=0;
   for(int i=0;i<3;i++)
   {
-    vtkIdType cell=DN(i,D);
-    if(cell!=-1) total += Q_L(cell);
+    vtkIdType cell = getPartC2C()[id_cell][i];
+    if( cell != -1 ) total += Q_L(cell);
   }
-  return ( Q_L(D)>1.0/Fred1 && total>3*Qmin );
+  return ( Q_L(id_cell)>1.0/Fred1 && total>3*Qmin );
 }
 
-bool InsertPoints::insert_edgepoint(vtkIdType j,vtkIdType K)// node1 K, node2 j
+bool InsertPoints::insert_edgepoint(vtkIdType id_node1, vtkIdType id_node2)
 {
-  bool result = L_k(j,K)>0.5*(G_k(j)+G_k(K));
+  bool result = distance(grid, id_node1, id_node2) > 0.5 * ( desiredEdgeLength(id_node1) + desiredEdgeLength(id_node2) );
   return ( result );
 }
 

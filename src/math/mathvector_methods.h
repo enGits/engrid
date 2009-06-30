@@ -83,7 +83,7 @@ inline MathVector<V> MathVector<V>::cross(const MathVector<V> &vec) const
 // absolute value (||v||_2 in this case)
 // -------------------------------------
 template <class V>
-inline typename MathVector<V>::scalar_t MathVector<V>::abs() const 
+inline typename MathVector<V>::scalar_t MathVector<V>::abs() const
 {
   scalar_t l = 0;
   for (uint_t i = 0; i < this->size(); ++i) l += (*this)[i]*(*this)[i];
@@ -93,13 +93,15 @@ inline typename MathVector<V>::scalar_t MathVector<V>::abs() const
 // absolute value squared ((||v||_2)^2 in this case)
 // -------------------------------------------------
 template <class V>
-inline typename MathVector<V>::scalar_t MathVector<V>::abs2() const 
+inline typename MathVector<V>::scalar_t MathVector<V>::abs2() const
 {
   scalar_t l = 0;
   for (uint_t i = 0; i < this->size(); ++i) l += (*this)[i]*(*this)[i];
   return l;
 };
 
+// absolute value (||v||_2 in this case)
+// -------------------------------------
 template <class L, class O, class R>
 inline typename ParseNode<L,O,R>::value_type ParseNode<L,O,R>::abs() const
 {
@@ -114,6 +116,24 @@ inline typename ParseNode<double,O,R>::value_type ParseNode<double,O,R>::abs() c
   value_type abs_value = 0;
   for (uint_t i = 0; i < this->size(); ++i) abs_value += (*this)[i]*(*this)[i];
   return sqrt(abs_value);
+};
+
+// absolute value squared ((||v||_2)^2 in this case)
+// -------------------------------------------------
+template <class L, class O, class R>
+inline typename ParseNode<L,O,R>::value_type ParseNode<L,O,R>::abs2() const
+{
+  value_type abs_value = 0;
+  for (uint_t i = 0; i < this->size(); ++i) abs_value += (*this)[i]*(*this)[i];
+  return abs_value;
+};
+
+template <class O, class R>
+inline typename ParseNode<double,O,R>::value_type ParseNode<double,O,R>::abs2() const
+{
+  value_type abs_value = 0;
+  for (uint_t i = 0; i < this->size(); ++i) abs_value += (*this)[i]*(*this)[i];
+  return abs_value;
 };
 
 // norm the vector to a length of 1 (according to ||v||_2)

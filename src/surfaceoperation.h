@@ -150,30 +150,15 @@ public:
   
   //---------------------------------------------------
   //Utility functions used in Roland's formulas
-  //Should be renamed to be more explicit
-  //Some could be moved into geometrytools
-  //Some are pretty useless
   
   ///perimeter
   double perimeter(vtkIdType id_cell);
   
-  /// area of the circumscribed circle of the triangle
-  double A_U(vtkIdType id_cell);
-  
-  /// triangle neighbours
-  double DN(int i,vtkIdType id_cell);
-  
   /// desired edge length for id_node
-  double G_k(vtkIdType id_node);
+  double desiredEdgeLength(vtkIdType id_node);
   
   /// mean desired edge length for id_cell
-  double G_k_cell(vtkIdType id_cell);
-    
-  /// triangle nodes
-  double DK(int i,vtkIdType id_cell);
-  
-  /// distance between id_node1 and id_node2
-  double L_k(vtkIdType id_node1, vtkIdType id_node2);
+  double meanDesiredEdgeLength(vtkIdType id_cell);
   
   /// perimeter / sum of the desired edge lengths
   double Q_L(vtkIdType id_cell);

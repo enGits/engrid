@@ -46,8 +46,8 @@ bool RemovePoints::remove_edgepoint(vtkIdType P)
 {
   QVector <vtkIdType> PSP = getPotentialSnapPoints(P);
   double Lmean = CurrentVertexAvgDist(P);
-  return ( Lmean<G_k(PSP[0]) && Lmean<G_k(PSP[1]) );
-//   return ( 0.5*G_k(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*G_k(P) );
+  return ( Lmean<desiredEdgeLength(PSP[0]) && Lmean<desiredEdgeLength(PSP[1]) );
+//   return ( 0.5*desiredEdgeLength(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*desiredEdgeLength(P) );
 }
 
 ///@@@ TODO: Add support for removing feature edge vertices

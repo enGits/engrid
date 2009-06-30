@@ -59,7 +59,7 @@ void rotate(vec3_t g1, vec3_t g2,vec3_t g3, vec3_t &b, double theta)
   //cout << bbb << endl;
   b = g*bbb;
   //cout << b << endl;
-};
+}
 
 vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 {
@@ -90,10 +90,10 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 
   // matrix for rotation around g_t[1];
   mat3_t rot = mat3_t::identity();
-  rot[0][0] = cos(theta);
-  rot[0][2] = sin(theta);
+  rot[0][0] =  cos(theta);
+  rot[0][2] =  sin(theta);
   rot[2][0] = -sin(theta);
-  rot[2][2] = cos(theta);
+  rot[2][2] =  cos(theta);
 
   // transfer v to rotate system
   vec3_t v_r = g_t*v;
@@ -103,7 +103,7 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta)
   v = g*v_r;
 
   return v;
-};
+}
 
 vec3_t orthogonalVector(vec3_t v)
 {
@@ -114,27 +114,27 @@ vec3_t orthogonalVector(vec3_t v)
   for (int i = 1; i < 3; ++i) {
     if (v[i] > v[i_max]) i_max = i;
     if (v[i] < v[i_min]) i_min = i;
-  };
+  }
   double h = u[i_min];
   u[i_min] = u[i_max];
   u[i_max] = h;
   u -= (u*v)*v;
   u.normalise();
   return u;
-};
+}
 
 
 double intersection(vec3_t x_straight, vec3_t v_straight, vec3_t x_plane, vec3_t u_plane, vec3_t v_plane)
 {
   vec3_t n = u_plane.cross(v_plane);
   return intersection(x_straight,v_straight,x_plane,n);
-};
+}
 
 double intersection(vec3_t x_straight, vec3_t v_straight, vec3_t x_plane, vec3_t n_plane)
 {
   double k = (x_plane*n_plane - x_straight*n_plane)/(v_straight*n_plane);
   return k;
-};
+}
 
 bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2)
 {
@@ -146,8 +146,8 @@ bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2
     return true;
   } else {
     return false;
-  };
-};
+  }
+}
 
 void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<vec3_t> > &Tout)
 {
@@ -166,7 +166,7 @@ void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<
     if      ((kab <= kbc) && (kab <= kca)) ab_cut = false;
     else if ((kbc <= kab) && (kbc <= kca)) bc_cut = false;
     else                                   ca_cut = false;
-  };
+  }
   if (ab_cut && bc_cut) {
     vec3_t ab = a + kab*(b-a);
     vec3_t bc = b + kbc*(c-b);
@@ -191,8 +191,8 @@ void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<
   } else {
     Tout.resize(1,vector<vec3_t>(3));
     clinit(Tout[0]) = a,b,c;
-  };
-};
+  }
+}
 
 
 double tetraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, bool neg)
@@ -225,12 +225,12 @@ double tetraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, bool neg)
       V = -1e99;
     } else {
       V = -1e99;
-    };*/
+    }*/
     //V *= 1e6;
     V = -1e99;
-  };
+  }
   return V; //fabs(V);
-};
+}
 
 double pyraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, bool neg)
 {
@@ -246,7 +246,7 @@ double pyraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, bool neg)
   V += tetraVol(x3, x0, m0, x4, neg);
   return V;
   */
-};
+}
 
 double prismVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5, bool neg)
 {
@@ -258,7 +258,7 @@ double prismVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5
   V += pyraVol (x1, x2, x5, x4, p, neg);
   V += pyraVol (x0, x3, x5, x2, p, neg);
   return V;
-};
+}
 
 double hexaVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5, vec3_t x6, vec3_t x7, bool neg)
 {
@@ -271,7 +271,7 @@ double hexaVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5,
   V += pyraVol(x1, x5, x7, x3, p, neg);
   V += pyraVol(x0, x2, x6, x4, p, neg);
   return V;
-};
+}
 
 double triArea(vec3_t x0, vec3_t x1, vec3_t x2)
 {
@@ -279,7 +279,7 @@ double triArea(vec3_t x0, vec3_t x1, vec3_t x2)
   vec3_t b = x2-x0;
   double A = 0.5*((a.cross(b)).abs());
   return A;
-};
+}
 
 double quadArea(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3)
 {
@@ -290,7 +290,7 @@ double quadArea(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3)
   A += triArea(x2,x3,p);
   A += triArea(x3,x0,p);
   return A;
-};
+}
 
 vec3_t triNormal(vec3_t x0, vec3_t x1, vec3_t x2)
 {
@@ -298,7 +298,7 @@ vec3_t triNormal(vec3_t x0, vec3_t x1, vec3_t x2)
   vec3_t b = x2-x0;
   vec3_t n = 0.5*(a.cross(b));
   return n;
-};
+}
 
 vec3_t quadNormal(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3)
 {
@@ -310,7 +310,7 @@ vec3_t quadNormal(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3)
   n += triNormal(x2,x3,p);
   n += triNormal(x3,x0,p);
   return n;
-};
+}
 
 vec3_t triNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3)
 {
@@ -319,7 +319,7 @@ vec3_t triNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTyp
   grid->GetPoint(p2,x2.data());
   grid->GetPoint(p3,x3.data());
   return triNormal(x1,x2,x3);
-};
+}
 
 vec3_t quadNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3, vtkIdType p4)
 {
@@ -329,7 +329,7 @@ vec3_t quadNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTy
   grid->GetPoint(p3,x3.data());
   grid->GetPoint(p4,x4.data());
   return quadNormal(x1,x2,x3,x4);
-};
+}
 
 vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
 {
@@ -341,7 +341,7 @@ vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
   if      (npts == 3) return triNormal(grid,pts[0],pts[1],pts[2]);
   else if (npts == 4) return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
   return n;
-};
+}
 
 double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg)
 {
@@ -351,7 +351,7 @@ double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg)
   grid->GetCellPoints(cellId, Npts, pts);
   for (int i_pts = 0; i_pts < Npts; ++i_pts) {
     grid->GetPoints()->GetPoint(pts[i_pts], p[i_pts].data());
-  };
+  }
   vtkIdType cellType = grid->GetCellType(cellId);
   if      (cellType == VTK_TRIANGLE)   return triArea (p[0], p[1], p[2]);
   else if (cellType == VTK_QUAD)       return quadArea(p[0], p[1], p[2], p[3]);
@@ -360,7 +360,7 @@ double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg)
   else if (cellType == VTK_WEDGE)      return prismVol(p[0], p[1], p[2], p[3], p[4], p[5], neg);
   else if (cellType == VTK_HEXAHEDRON) return hexaVol (p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], neg);
   return 0.0;
-};
+}
 
 double angle(const vec3_t & u, const vec3_t & v)
 {
@@ -422,7 +422,7 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
     vec3_t xp;
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     xc += xp;
-  };
+  }
   xc = 1.0/(double)Npts * xc;
   
   //calculate Rmin+Rmax
@@ -434,9 +434,90 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     Rmin = min(Rmin, 0.25*(xp-xc).abs());
     Rmax = max(Rmax, 0.25*(xp-xc).abs());
-  };
+  }
   
   return(xc);
+}
+
+bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
+                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi)
+{
+  // triangle base
+  vec3_t g1 = b - a;
+  vec3_t g2 = c - a;
+  vec3_t g3 = g1.cross(g2);
+  g3.normalise();
+
+  // direction of the edge
+  vec3_t v = x2 - x1;
+
+  // parallel?
+  if (fabs(g3*v) < 1e-6) {
+    return false;
+  }
+
+  // compute intersection between straight and triangular plane
+  double k = intersection(x1, v, a, g3);
+  xi = x1 + k*v;
+
+  // intersection outside of edge range?
+  if (k < 0) {
+    return false;
+  }
+  if (k > 1) {
+    return false;
+  }
+
+  // transform xi to triangular base
+  mat3_t G;
+  G.column(0, g1);
+  G.column(1, g2);
+  G.column(2, g3);
+  mat3_t GI = G.inverse();
+  vec3_t xit = xi - a;
+  xit = GI*xit;
+
+  // intersction outside of triangle?
+  if (xit[0] + xit[1] > 1) {
+    return false;
+  }
+  if ((xit[0] < 0) || (xit[0] > 1)) {
+    return false;
+  }
+  if ((xit[1] < 0) || (xit[1] > 1)) {
+    return false;
+  }
+
+  return true;
+}
+
+double distance(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2) {
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(id_node1, A.data());
+  grid->GetPoints()->GetPoint(id_node2, B.data());
+  return((B-A).abs());
+}
+
+double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2) {
+  vec3_t A;
+  vec3_t B;
+  grid->GetPoints()->GetPoint(id_node1, A.data());
+  grid->GetPoints()->GetPoint(id_node2, B.data());
+  return((B-A).abs2());
+}
+
+double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  vec3_t A,B,C;
+  grid->GetPoints()->GetPoint(pts[0], A.data());
+  grid->GetPoints()->GetPoint(pts[1], B.data());
+  grid->GetPoints()->GetPoint(pts[2], C.data());
+  double a=(C-B).abs();
+  double alpha=angle((B-A),(C-A));
+  double R=a/(2*sin(alpha));
+  return(M_PI*R*R);
 }
 
 } // namespace

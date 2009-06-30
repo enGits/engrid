@@ -31,11 +31,9 @@
 namespace GeometryTools
 {
 
-/** Converts radians to degrees */
-double rad2deg( double rad );
 
-/** Converts degrees to radians */
-double deg2rad( double deg );
+double rad2deg( double rad ); ///< Converts radians to degrees
+double deg2rad( double deg ); ///< Converts degrees to radians
 
 void rotate(vec3_t g1, vec3_t g2, vec3_t g3, vec3_t &b, double theta);
 
@@ -49,6 +47,9 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
+
+bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
+                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi);
 
 bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2);
 
@@ -133,6 +134,15 @@ double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2);
 
 /** Returns the center of mass of cellId + passes the minimal and maximal center to corner distances by reference */
 vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, double& Rmax);
+
+/** Returns the distance between id_node1 and id_node2 */
+double distance(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2);
+
+/** Returns the distance squared between id_node1 and id_node2 */
+double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_node2);
+
+/** area of the circumscribed circle of the triangle */
+double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
 
 };
 
