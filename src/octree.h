@@ -116,7 +116,7 @@ public: // methods
 
   vec3_t getCellCentre(int cell);
   vec3_t getFaceCentre(int i_cells, int i_faces);
-  vec3_t getNodePoition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
+  vec3_t getNodePosition(int cell, int node) { return m_Nodes[m_Cells[cell].m_Node[node]].m_Position; }
   int    getNumCells() { return m_Cells.size(); }
   int    getLevel(int cell) { return m_Cells[cell].m_Level; }
   double getDx(int cell);
