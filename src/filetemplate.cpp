@@ -81,7 +81,6 @@ int FileTemplate::process() {
   QStringList L_open = m_InText.split("<<<");
   for(int i = 1; i < L_open.size(); i++) {
     QStringList L_close = L_open[i].split(">>>");
-//     qDebug()<<L_close[0];
     QStringList L_elements = L_close[0].split(":");
     TemplateLine template_line;
     template_line.type = L_elements[0];
