@@ -31,11 +31,9 @@
 namespace GeometryTools
 {
 
-/** Converts radians to degrees */
-double rad2deg( double rad );
 
-/** Converts degrees to radians */
-double deg2rad( double deg );
+double rad2deg( double rad ); ///< Converts radians to degrees
+double deg2rad( double deg ); ///< Converts degrees to radians
 
 void rotate(vec3_t g1, vec3_t g2, vec3_t g3, vec3_t &b, double theta);
 
@@ -49,6 +47,9 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
+
+bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
+                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi);
 
 bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2);
 
