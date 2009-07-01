@@ -44,7 +44,7 @@ public:
   void setOutValues(QStringList L);
 };
 
-class SuperBox : public QFormLayout
+class TemplateFormLayout : public QFormLayout
 {
   Q_OBJECT
   
@@ -64,7 +64,7 @@ private:
   QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
   
 public:
-  SuperBox(QString filename, char *name=0, QWidget *parent=0);
+  TemplateFormLayout(QString filename, char *name=0, QWidget *parent=0);
   
   void addComboBox(TemplateLine line);
   void addIntLineEdit(TemplateLine line);
@@ -89,14 +89,14 @@ public:
   void saveAs();
 };
 
-class SuperGui : public QDialog
+class TemplateDialog : public QDialog
 {
   Q_OBJECT
 public:
-  SuperGui(QVector <QString> files, QWidget *parent = 0);
+  TemplateDialog(QVector <QString> files, QWidget *parent = 0);
 private:
   QVector <QFileInfo> m_FileInfo;
-  QVector <SuperBox*> m_SuperBoxVector;
+  QVector <TemplateFormLayout*> m_TemplateFormLayoutVector;
 private slots:
   void open();
   void save();

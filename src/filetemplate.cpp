@@ -13,7 +13,7 @@ int fileTemplateTest( int argc, char ** argv ) {
   files.push_back("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
   files.push_back("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template");
   
-  SuperGui super_gui(files);
+  TemplateDialog super_gui(files);
   super_gui.show();
   
   return app.exec();
@@ -111,7 +111,7 @@ void FileTemplate::setOutValues(QStringList L) {
   m_OutValues = L;
 }
 
-SuperGui::SuperGui(QVector <QString> files, QWidget *parent) : QDialog(parent) {
+TemplateDialog::TemplateDialog(QVector <QString> files, QWidget *parent) : QDialog(parent) {
   
   this->setWindowTitle("Template Viewer");
   
@@ -127,9 +127,9 @@ SuperGui::SuperGui(QVector <QString> files, QWidget *parent) : QDialog(parent) {
   
   for(int i = 0; i < files.size(); i++) {
     m_FileInfo.push_back(QFileInfo(files[i]));
-    SuperBox* box = new SuperBox(files[i]);
+    TemplateFormLayout* box = new TemplateFormLayout(files[i]);
     mainLayout->addLayout(box);
-    m_SuperBoxVector.push_back(box);
+    m_TemplateFormLayoutVector.push_back(box);
   }
   
   QHBoxLayout *bottomLayout = new QHBoxLayout;
@@ -140,7 +140,7 @@ SuperGui::SuperGui(QVector <QString> files, QWidget *parent) : QDialog(parent) {
   mainLayout->addLayout(bottomLayout);
 }
 
-SuperBox::SuperBox(QString filename, char *name, QWidget *parent) : QFormLayout(parent) {
+TemplateFormLayout::TemplateFormLayout(QString filename, char *name, QWidget *parent) : QFormLayout(parent) {
   QFormLayout::setObjectName(name);
   m_file_template.open(filename);
   m_file_template.print();
@@ -157,7 +157,7 @@ SuperBox::SuperBox(QString filename, char *name, QWidget *parent) : QFormLayout(
   }
 }
 
-void SuperBox::addComboBox(TemplateLine line) {
+void TemplateFormLayout::addComboBox(TemplateLine line) {
   qDebug()<<"Adding a ComboBox...";
   QComboBox* combobox = new QComboBox;
   QStringList description;
@@ -175,7 +175,7 @@ void SuperBox::addComboBox(TemplateLine line) {
   m_ComboboxValues.push_back(value);
 }
 
-void SuperBox::addIntLineEdit(TemplateLine line) {
+void TemplateFormLayout::addIntLineEdit(TemplateLine line) {
   qDebug()<<"Adding a IntLineEdit...";
   QValidator *validator = new QIntValidator(this);
   QLineEdit* int_lineedit = new QLineEdit;
@@ -185,7 +185,7 @@ void SuperBox::addIntLineEdit(TemplateLine line) {
   m_IntLineEditVector.push_back(int_lineedit);
 }
 
-void SuperBox::addDoubleLineEdit(TemplateLine line) {
+void TemplateFormLayout::addDoubleLineEdit(TemplateLine line) {
   qDebug()<<"Adding a DoubleLineEdit...";
   QValidator *validator = new QDoubleValidator(this);
   QLineEdit* double_lineedit = new QLineEdit;
@@ -195,7 +195,7 @@ void SuperBox::addDoubleLineEdit(TemplateLine line) {
   m_DoubleLineEditVector.push_back(double_lineedit);
 }
 
-void SuperBox::addTextLineEdit(TemplateLine line) {
+void TemplateFormLayout::addTextLineEdit(TemplateLine line) {
   qDebug()<<"Adding a TextLineEdit...";
   QLineEdit* text_lineedit = new QLineEdit;
   text_lineedit->setText(line.options.trimmed());
@@ -203,7 +203,7 @@ void SuperBox::addTextLineEdit(TemplateLine line) {
   m_TextLineEditVector.push_back(text_lineedit);
 }
 
-void SuperBox::addCheckBox(TemplateLine line) {
+void TemplateFormLayout::addCheckBox(TemplateLine line) {
   qDebug()<<"Adding a CheckBox...";
   QCheckBox* check_box = new QCheckBox;
   QStringList L = line.options.split(",");
@@ -217,7 +217,7 @@ void SuperBox::addCheckBox(TemplateLine line) {
   m_CheckBoxValues.push_back(values);
 }
 
-void SuperBox::addSpinBox(TemplateLine line) {
+void TemplateFormLayout::addSpinBox(TemplateLine line) {
   qDebug()<<"Adding a SpinBox...";
   QSpinBox* spin_box = new QSpinBox;
   QStringList L = line.options.split(",");
@@ -232,7 +232,7 @@ void SuperBox::addSpinBox(TemplateLine line) {
   m_SpinBoxVector.push_back(spin_box);
 }
 
-void SuperBox::addDoubleSpinBox(TemplateLine line) {
+void TemplateFormLayout::addDoubleSpinBox(TemplateLine line) {
   qDebug()<<"Adding a DoubleSpinBox...";
   QDoubleSpinBox* double_spin_box = new QDoubleSpinBox;
   QStringList L = line.options.split(",");
@@ -249,33 +249,33 @@ void SuperBox::addDoubleSpinBox(TemplateLine line) {
   m_DoubleSpinBoxVector.push_back(double_spin_box);
 }
 
-void SuperGui::open() {
+void TemplateDialog::open() {
 }
 
-void SuperGui::save() {
+void TemplateDialog::save() {
   qDebug()<<"Saving...";
-  for(int i = 0; i<m_SuperBoxVector.size(); i++) {
-    m_SuperBoxVector[i]->save();
+  for(int i = 0; i<m_TemplateFormLayoutVector.size(); i++) {
+    m_TemplateFormLayoutVector[i]->save();
   }
 }
 
-void SuperGui::saveAs() {
+void TemplateDialog::saveAs() {
 }
 
-void SuperBox::open() {
+void TemplateFormLayout::open() {
 }
 
-void SuperBox::save() {
+void TemplateFormLayout::save() {
   qDebug()<<"Saving...";
   getValues();
   m_file_template.setOutValues(m_OutValues);
   m_file_template.save();
 }
 
-void SuperBox::saveAs() {
+void TemplateFormLayout::saveAs() {
 }
 
-void SuperBox::getValues() {
+void TemplateFormLayout::getValues() {
   int combobox_idx = 0;
   int intlineedit_idx = 0;
   int doublelineedit_idx = 0;
@@ -316,35 +316,35 @@ void SuperBox::getValues() {
   }
 }
 
-QString SuperBox::readComboBox(int idx) {
+QString TemplateFormLayout::readComboBox(int idx) {
   int i = m_ComboBoxVector[idx]->currentIndex();
   return m_ComboboxValues[idx][i];
 }
 
-QString SuperBox::readIntLineEdit(int idx) {
+QString TemplateFormLayout::readIntLineEdit(int idx) {
   return m_IntLineEditVector[idx]->text();
 }
 
-QString SuperBox::readDoubleLineEdit(int idx) {
+QString TemplateFormLayout::readDoubleLineEdit(int idx) {
   return m_DoubleLineEditVector[idx]->text();
 }
 
-QString SuperBox::readTextLineEdit(int idx) {
+QString TemplateFormLayout::readTextLineEdit(int idx) {
   return m_TextLineEditVector[idx]->text();
 }
 
-QString SuperBox::readCheckBox(int idx) {
+QString TemplateFormLayout::readCheckBox(int idx) {
   if(m_CheckBoxVector[idx]->checkState() == Qt::Checked) return m_CheckBoxValues[idx].first;
   else return m_CheckBoxValues[idx].second;
 }
 
-QString SuperBox::readSpinBox(int idx) {
+QString TemplateFormLayout::readSpinBox(int idx) {
   QString ret;
   ret.setNum(m_SpinBoxVector[idx]->value());
   return ret;
 }
 
-QString SuperBox::readDoubleSpinBox(int idx) {
+QString TemplateFormLayout::readDoubleSpinBox(int idx) {
   QString ret;
   ret.setNum(m_DoubleSpinBoxVector[idx]->value());
   return ret;
