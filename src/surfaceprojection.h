@@ -30,6 +30,15 @@
 class SurfaceProjection : public EgVtkObject
 {
 
+private: // data-types
+
+  struct Triangle
+  {
+    vec3_t a, b, c;
+    vec3_t g1, g2, g3;
+    mat3_t G, GI;
+  };
+
 private: // attributes
 
   vtkUnstructuredGrid*   m_BGrid;
@@ -40,6 +49,7 @@ private: // attributes
   Octree                 m_OTGrid;
   QSet<int>              m_BCs;
   QVector<double>        m_G;
+  QVector<bool>          m_GSet;
 
 private: // methods
 
@@ -71,7 +81,8 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setBackgroundGrid_refineFromNodes();
   setBackgroundGrid_refineFromEdges();
   setBackgroundGrid_refineFromFaces();
-  setBackgroundGrid_initLevelSet();
+  setBackgroundGrid_computeLevelSet();
+  /*
   EG_VTKSP(vtkUnstructuredGrid, otg);
   m_OTGrid.toVtkGrid(otg);
   EG_VTKSP(vtkDoubleArray, g);
@@ -87,6 +98,7 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   vtu->SetInput(otg);
   vtu->Write();
   writeGrid(m_BGrid, "m_BGrid");
+  */
 }
 
 template <class C>
