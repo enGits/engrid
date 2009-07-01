@@ -64,6 +64,10 @@ int FileTemplate::open(QString filename) {
   return(0);
 }
 
+int FileTemplate::save() {
+  this->saveAs(m_FileInfo.completeBaseName());
+}
+
 int FileTemplate::saveAs(QString filename) {
   qDebug()<<"Saving as "<<filename;
   m_FileInfo.setFile(filename);
@@ -358,6 +362,7 @@ SuperGui::SuperGui(MultipleFileTemplate multiple_file_template, QWidget *parent)
     QString filename = m_Files.m_FileInfos[i_fileinfo].filePath();
     SuperBox* box = new SuperBox(filename);
     mainLayout->addLayout(box);
+    m_SuperBoxVector.push_back(box);
   }
   
   QHBoxLayout *bottomLayout = new QHBoxLayout;
@@ -477,3 +482,52 @@ void SuperBox::addDoubleSpinBox(TemplateLine line) {
   this->addRow(line.name, double_spin_box);
   m_DoubleSpinBoxVector.push_back(double_spin_box);
 }
+
+void SuperGui::open() {
+}
+
+void SuperGui::save() {
+  qDebug()<<"Saving...";
+  for(int i = 0; i<m_SuperBoxVector.size(); i++) {
+    m_SuperBoxVector[i]->save();
+  }
+}
+
+void SuperGui::saveAs() {
+}
+
+void SuperBox::open() {
+}
+
+void SuperBox::save() {
+  qDebug()<<"Saving...";
+  getValues();
+  m_file_template.setOutValues(m_OutValues);
+  m_file_template.save();
+}
+
+void SuperBox::saveAs() {
+}
+
+void SuperBox::getValues() {
+  int combobox_idx = 0;
+  for(int i = 0; i < m_Lines.size(); i++) {
+    if(m_Lines[i].type == "ComboBox") {
+      m_OutValues<<readComboBox(combobox_idx);
+      combobox_idx++;
+    }
+    else qDebug()<<"Unknown type";
+  }
+}
+
+QString SuperBox::readComboBox(int idx) {
+  int i = m_ComboBoxVector[idx]->currentIndex();
+  return m_ComboboxValues[idx][i];
+}
+
+QString SuperBox::readIntLineEdit(int idx) {}
+QString SuperBox::readDoubleLineEdit(int idx) {}
+QString SuperBox::readTextLineEdit(int idx) {}
+QString SuperBox::readCheckBox(int idx) {}
+QString SuperBox::readSpinBox(int idx) {}
+QString SuperBox::readDoubleSpinBox(int idx) {}

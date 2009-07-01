@@ -140,6 +140,8 @@ class SuperBox : public QFormLayout
   QVector <QSpinBox*> m_SpinBoxVector;
   QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
   
+  QStringList m_OutValues;
+  
     public:
     SuperBox(QString filename, char *name=0, QWidget *parent=0);
   
@@ -150,6 +152,20 @@ class SuperBox : public QFormLayout
   void addCheckBox(TemplateLine line);
   void addSpinBox(TemplateLine line);
   void addDoubleSpinBox(TemplateLine line);
+  
+  QString readComboBox(int idx);
+  QString readIntLineEdit(int idx);
+  QString readDoubleLineEdit(int idx);
+  QString readTextLineEdit(int idx);
+  QString readCheckBox(int idx);
+  QString readSpinBox(int idx);
+  QString readDoubleSpinBox(int idx);
+  
+  void getValues();
+  
+  void open();
+  void save();
+  void saveAs();
   
   ~SuperBox()
   {
@@ -169,6 +185,11 @@ public:
   SuperGui(MultipleFileTemplate multiple_file_template, QWidget *parent = 0);
 private:
   MultipleFileTemplate m_Files;
+  QVector <SuperBox*> m_SuperBoxVector;
+private slots:
+  void open();
+  void save();
+  void saveAs();
 };
 
 #endif
