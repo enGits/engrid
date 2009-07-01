@@ -44,6 +44,13 @@ public:
   void setOutValues(QStringList L);
 };
 
+class MultipleFileTemplate{
+private:
+  QVector <QFileInfo> m_FileInfos;
+public:
+  void addFile(QString filename);
+};
+
 class GuiTemplateViewer : public QDialog
 {
   Q_OBJECT

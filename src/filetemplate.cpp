@@ -9,6 +9,10 @@ using namespace std;
 int fileTemplateTest( int argc, char ** argv ) {
   QApplication app(argc, argv);
   
+  MultipleFileTemplate multiple_file_template;
+  multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
+  multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template");
+  
   GuiTemplateViewer gui_template_viewer("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes");
   gui_template_viewer.show();
   
@@ -273,3 +277,8 @@ QString GuiTemplateViewer::readTextLineEdit(int idx) {}
 QString GuiTemplateViewer::readCheckBox(int idx) {}
 QString GuiTemplateViewer::readSpinBox(int idx) {}
 QString GuiTemplateViewer::readDoubleSpinBox(int idx) {}
+
+void MultipleFileTemplate::addFile(QString filename) {
+  QFileInfo file_info(filename);
+  m_FileInfos.push_back(file_info);
+}
