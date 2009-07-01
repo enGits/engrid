@@ -340,16 +340,32 @@ void MultipleFileTemplate::addFile(QString filename) {
 }
 
 SuperGui::SuperGui(MultipleFileTemplate multiple_file_template, QWidget *parent) : QDialog(parent) {
+  
+  this->setWindowTitle("Template Viewer");
+  
   QVBoxLayout* mainLayout = new QVBoxLayout(this);
   this->setLayout(mainLayout);
   
-  m_Files = multiple_file_template;
+  QPushButton* openButton = new QPushButton("Open...",this);
+  QPushButton* saveButton = new QPushButton("Save",this);
+  QPushButton* saveAsButton = new QPushButton("Save as...",this);
+  connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
+  connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
+  connect(saveAsButton, SIGNAL(clicked()), this, SLOT(saveAs()));
   
+  m_Files = multiple_file_template;
   for(int i_fileinfo = 0; i_fileinfo<m_Files.m_FileInfos.size(); i_fileinfo++) {
     QString filename = m_Files.m_FileInfos[i_fileinfo].filePath();
     SuperBox* box = new SuperBox(filename);
     mainLayout->addLayout(box);
   }
+  
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->addStretch();
+  bottomLayout->addWidget(openButton);
+  bottomLayout->addWidget(saveButton);
+  bottomLayout->addWidget(saveAsButton);
+  mainLayout->addLayout(bottomLayout);
 }
 
 SuperBox::SuperBox(QString filename, char *name, QWidget *parent) : QFormLayout(parent) {
