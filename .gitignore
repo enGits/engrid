@@ -39,7 +39,6 @@ Makefile.Release
 netgen_svn
 tmp.txt
 *.kdevelop.pcs
-*.kdevses
 engrid.kdevelop.ignore_pcs
 .bzr
 .hg
