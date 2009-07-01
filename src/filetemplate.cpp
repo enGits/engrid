@@ -445,7 +445,7 @@ void SuperBox::addCheckBox(TemplateLine line) {
   else check_box->setCheckState(Qt::Unchecked);
   QPair < QString, QString > values;
   values.first = L[1];
-  values.first = L[2];
+  values.second = L[2];
   this->addRow(line.name, check_box);
   m_CheckBoxVector.push_back(check_box);
   m_CheckBoxValues.push_back(values);
@@ -511,10 +511,40 @@ void SuperBox::saveAs() {
 
 void SuperBox::getValues() {
   int combobox_idx = 0;
+  int intlineedit_idx = 0;
+  int doublelineedit_idx = 0;
+  int textlineedit_idx = 0;
+  int checkbox_idx = 0;
+  int spinbox_idx = 0;
+  int doublespinbox_idx = 0;
   for(int i = 0; i < m_Lines.size(); i++) {
     if(m_Lines[i].type == "ComboBox") {
       m_OutValues<<readComboBox(combobox_idx);
       combobox_idx++;
+    }
+    else if(m_Lines[i].type == "IntLineEdit") {
+      m_OutValues<<readIntLineEdit(intlineedit_idx);
+      intlineedit_idx++;
+    }
+    else if(m_Lines[i].type == "DoubleLineEdit") {
+      m_OutValues<<readDoubleLineEdit(doublelineedit_idx);
+      doublelineedit_idx++;
+    }
+    else if(m_Lines[i].type == "TextLineEdit") {
+      m_OutValues<<readTextLineEdit(textlineedit_idx);
+      textlineedit_idx++;
+    }
+    else if(m_Lines[i].type == "CheckBox") {
+      m_OutValues<<readCheckBox(checkbox_idx);
+      checkbox_idx++;
+    }
+    else if(m_Lines[i].type == "SpinBox") {
+      m_OutValues<<readSpinBox(spinbox_idx);
+      spinbox_idx++;
+    }
+    else if(m_Lines[i].type == "DoubleSpinBox") {
+      m_OutValues<<readDoubleSpinBox(doublespinbox_idx);
+      doublespinbox_idx++;
     }
     else qDebug()<<"Unknown type";
   }
@@ -525,9 +555,33 @@ QString SuperBox::readComboBox(int idx) {
   return m_ComboboxValues[idx][i];
 }
 
-QString SuperBox::readIntLineEdit(int idx) {}
-QString SuperBox::readDoubleLineEdit(int idx) {}
-QString SuperBox::readTextLineEdit(int idx) {}
-QString SuperBox::readCheckBox(int idx) {}
-QString SuperBox::readSpinBox(int idx) {}
-QString SuperBox::readDoubleSpinBox(int idx) {}
+QString SuperBox::readIntLineEdit(int idx) {
+  return m_IntLineEditVector[idx]->text();
+}
+
+QString SuperBox::readDoubleLineEdit(int idx) {
+  return m_DoubleLineEditVector[idx]->text();
+}
+
+QString SuperBox::readTextLineEdit(int idx) {
+  return m_TextLineEditVector[idx]->text();
+}
+
+QString SuperBox::readCheckBox(int idx) {
+  qDebug()<<m_CheckBoxValues[idx].first;
+  qDebug()<<m_CheckBoxValues[idx].second;
+  if(m_CheckBoxVector[idx]->checkState() == Qt::Checked) return m_CheckBoxValues[idx].first;
+  else return m_CheckBoxValues[idx].second;
+}
+
+QString SuperBox::readSpinBox(int idx) {
+  QString ret;
+  ret.setNum(m_SpinBoxVector[idx]->value());
+  return ret;
+}
+
+QString SuperBox::readDoubleSpinBox(int idx) {
+  QString ret;
+  ret.setNum(m_DoubleSpinBoxVector[idx]->value());
+  return ret;
+}
