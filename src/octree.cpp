@@ -93,24 +93,9 @@ void Octree::mergeNodes_identifyDuplicates()
   int N = 0;
   for (int i_nodes = 0; i_nodes < m_Nodes.size(); ++i_nodes) {
     if (is_dup[i_nodes]) {
-      //cout << "DN: " << m_Nodes[i_nodes].m_Position << endl;
       ++N;
     }
   }
-  EG_VTKSP(vtkUnstructuredGrid, dup_grid);
-  allocateGrid(dup_grid, N, N, false);
-  N = 0;
-  for (int i_nodes = 0; i_nodes < m_Nodes.size(); ++i_nodes) {
-    if (is_dup[i_nodes]) {
-      dup_grid->GetPoints()->SetPoint(N, m_Nodes[i_nodes].m_Position.data());
-      vtkIdType pts[1];
-      pts[0] = N;
-      dup_grid->InsertNextCell(VTK_VERTEX, 1, pts);
-      ++N;
-    }
-  }
-  //writeGrid(dup_grid, "dup_nodes");
-  cout << N << " duplicate nodes identified" << endl;
 }
 
 void Octree::mergeNodes_compactNodes()
@@ -123,14 +108,9 @@ void Octree::mergeNodes_compactNodes()
         EG_BUG;
       }
       ++last_offset;
-      //m_SameNodes[i] -= offset[m_SameNodes[i]];
-    } else {
-      //m_SameNodes[i] -= last_offset;
     }
     offset[i] = last_offset;
   }
-
-  cout << "offset computed" << endl;
 
   for (int i = 0; i < m_Nodes.size(); ++i) {
     if (m_SameNodes[i] != i) {
@@ -194,7 +174,6 @@ void Octree::checkNeighbours()
 
 void Octree::mergeNodes()
 {
-  //checkNeighbours();
   mergeNodes_identifyDuplicates();
   mergeNodes_compactNodes();
   mergeNodes_updateCells();
@@ -267,8 +246,8 @@ int Octree::refineAll()
       }
     }
     ++count;
-    if (count > 10) {
-      cout << "ups!" << endl;
+    if (count > 100) {
+      EG_BUG;
     }
   } while (N2 > 0);
   N2 = m_Cells.size();

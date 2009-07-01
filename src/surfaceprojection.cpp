@@ -145,55 +145,87 @@ void SurfaceProjection::setBackgroundGrid_refineFromFaces()
   } while (num_refine > 0);
 }
 
-void SurfaceProjection::setBackgroundGrid_initLevelSet()
+void SurfaceProjection::setBackgroundGrid_computeLevelSet()
 {
-  m_G.fill(0, m_OTGrid.getNumNodes());
-  QVector<int> count(m_G.size(), 0);
+  QVector<Triangle> triangles(m_BGrid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     vtkIdType Npts, *pts;
     m_BGrid->GetCellPoints(id_cell, Npts, pts);
     if (Npts == 3) {
-      vec3_t a, b, c;
-      m_BGrid->GetPoints()->GetPoint(pts[0], a.data());
-      m_BGrid->GetPoints()->GetPoint(pts[1], b.data());
-      m_BGrid->GetPoints()->GetPoint(pts[2], c.data());
-      vec3_t u = b - a;
-      vec3_t v = c - a;
-      vec3_t n = u.cross(v);
-      n.normalise();
-      for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
-        if (!m_OTGrid.hasChildren(i_cells)) {
-          QVector<SortedPair<int> > edges;
-          m_OTGrid.getEdges(i_cells, edges);
-          foreach (SortedPair<int> edge, edges) {
-            vec3_t xi;
-            vec3_t x1 = m_OTGrid.getNodePosition(edge.v1);
-            vec3_t x2 = m_OTGrid.getNodePosition(edge.v2);
-            if (GeometryTools::intersectEdgeAndTriangle(a, b, c, x1, x2, xi)) {
-              double L1 = (xi-x1).abs();
-              double L2 = (xi-x2).abs();
-              if ((x1-a)*n > 0) {
-                m_G[edge.v1] +=  1;//L1;
-                m_G[edge.v2] +=  1;//-L2;
-              } else {
-                m_G[edge.v1] +=  1;//-L1;
-                m_G[edge.v2] +=  1;//L2;
-              }
-              ++count[edge.v1];
-              ++count[edge.v2];
-            }
+      m_BGrid->GetPoints()->GetPoint(pts[0], triangles[id_cell].a.data());
+      m_BGrid->GetPoints()->GetPoint(pts[1], triangles[id_cell].b.data());
+      m_BGrid->GetPoints()->GetPoint(pts[2], triangles[id_cell].c.data());
+      triangles[id_cell].g1 = triangles[id_cell].b - triangles[id_cell].a;
+      triangles[id_cell].g2 = triangles[id_cell].c - triangles[id_cell].a;
+      triangles[id_cell].g3 = triangles[id_cell].g1.cross(triangles[id_cell].g2);
+      triangles[id_cell].g3.normalise();
+      triangles[id_cell].G.column(0, triangles[id_cell].g1);
+      triangles[id_cell].G.column(1, triangles[id_cell].g2);
+      triangles[id_cell].G.column(2, triangles[id_cell].g3);
+      triangles[id_cell].GI = triangles[id_cell].G.inverse();
+    } else {
+      EG_ERR_RETURN("only triangles allowed at the moment");
+    }
+  }
+  m_G.fill(1e99, m_OTGrid.getNumNodes());
+  for (int i_nodes = 0; i_nodes < m_OTGrid.getNumNodes(); ++i_nodes) {
+    foreach (Triangle T, triangles) {
+      vec3_t xi;
+      vec3_t xp = m_OTGrid.getNodePosition(i_nodes);
+      double scal = (xp - T.a)*T.g3;
+      double sign = 1;
+      if (scal < 0) {
+        sign = -1;
+      }
+      if (GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, xp, xp - 2*scal*T.g3, xi)) {
+        double G = (xp-T.a)*T.g3;
+        if (fabs(G) < fabs(m_G[i_nodes])) {
+          m_G[i_nodes] = G;
+        }
+      } else {
+        double kab = GeometryTools::intersection(T.a, T.b-T.a, xp, T.b-T.a);
+        double kac = GeometryTools::intersection(T.a, T.c-T.a, xp, T.c-T.a);
+        double kbc = GeometryTools::intersection(T.b, T.c-T.b, xp, T.c-T.b);
+        if ((kab >= 0) && (kab <= 1)) {
+          xi = T.a + kab*(T.b-T.a);
+          double G = (xi-xp).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
+          }
+        }
+        if ((kac >= 0) && (kac <= 1)) {
+          xi = T.a + kac*(T.c-T.a);
+          double G = (xi-xp).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
+          }
+        }
+        if ((kbc >= 0) && (kbc <= 1)) {
+          xi = T.b + kbc*(T.c-T.b);
+          double G = (xi-xp).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
+          }
+        }
+        {
+          double G = (xp-T.a).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
+          }
+        }
+        {
+          double G = (xp-T.b).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
+          }
+        }
+        {
+          double G = (xp-T.c).abs();
+          if (G < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = sign*G;
           }
         }
       }
     }
   }
-  for (int i = 0; i < m_G.size(); ++i) {
-    if (count[i] > 0) {
-      m_G[i] /= count[i];
-    }
-  }
-}
-
-void SurfaceProjection::setBackgroundGrid_computeLevelSet()
-{
 }
