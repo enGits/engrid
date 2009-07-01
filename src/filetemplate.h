@@ -64,7 +64,7 @@ class GuiTemplateViewer : public QDialog
     void addComboBox(TemplateLine line);
     void addIntLineEdit(TemplateLine line);
     void addDoubleLineEdit(TemplateLine line);
-    void addLineEdit(TemplateLine line);
+    void addTextLineEdit(TemplateLine line);
     void addCheckBox(TemplateLine line);
     void addSpinBox(TemplateLine line);
     void addDoubleSpinBox(TemplateLine line);
@@ -74,7 +74,7 @@ class GuiTemplateViewer : public QDialog
     QString readComboBox(int idx);
     QString readIntLineEdit(int idx);
     QString readDoubleLineEdit(int idx);
-    QString readLineEdit(int idx);
+    QString readTextLineEdit(int idx);
     QString readCheckBox(int idx);
     QString readSpinBox(int idx);
     QString readDoubleSpinBox(int idx);
@@ -99,7 +99,7 @@ class GuiTemplateViewer : public QDialog
     QVector <QStringList> m_ComboboxValues;
     QVector <QLineEdit*> m_IntLineEditVector;
     QVector <QLineEdit*> m_DoubleLineEditVector;
-    QVector <QLineEdit*> m_LineEditVector;
+    QVector <QLineEdit*> m_TextLineEditVector;
     QVector <QCheckBox*> m_CheckBoxVector;
     QVector <QSpinBox*> m_SpinBoxVector;
     QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;

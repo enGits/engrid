@@ -1,7 +1,9 @@
 #include "filetemplate.h"
-#include <QtDebug>
-#include <iostream>
 
+#include <QtDebug>
+#include <QValidator>
+
+#include <iostream>
 using namespace std;
 
 int fileTemplateTest( int argc, char ** argv ) {
@@ -130,12 +132,12 @@ GuiTemplateViewer::GuiTemplateViewer(QString filename, QWidget *parent) : QDialo
   m_Lines = file_template.getLines();
   for(int i = 0; i < m_Lines.size(); i++) {
     if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
-//     else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
-/*    else if(m_Lines[i].type == "DoubleLineEdit") addDoubleLineEdit(m_Lines[i]);
-    else if(m_Lines[i].type == "LineEdit") addLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "DoubleLineEdit") addDoubleLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "TextLineEdit") addTextLineEdit(m_Lines[i]);
     else if(m_Lines[i].type == "CheckBox") addCheckBox(m_Lines[i]);
     else if(m_Lines[i].type == "SpinBox") addSpinBox(m_Lines[i]);
-    else if(m_Lines[i].type == "DoubleSpinBox") addDoubleSpinBox(m_Lines[i]);*/
+    else if(m_Lines[i].type == "DoubleSpinBox") addDoubleSpinBox(m_Lines[i]);
     else qDebug()<<"Unknown type";
   }
   
@@ -188,24 +190,33 @@ void GuiTemplateViewer::addComboBox(TemplateLine line) {
 }
 
 void GuiTemplateViewer::addIntLineEdit(TemplateLine line) {
-  qDebug()<<"Adding a LineEdit...";
-  QLineEdit* lineedit = new QLineEdit;
-  QStringList description;
-  QStringList value;
-  QStringList L_open = line.options.split("(");
-  for(int i = 1; i < L_open.size(); i++) {
-    QStringList L_close = L_open[i].split(")");
-    QStringList L_elements = L_close[0].split(",");
-    qDebug()<<L_elements;
-    description<<L_elements[0];
-    value<<L_elements[1];
-  }
-  formLayout->addRow(line.name, lineedit);
-  m_LineEditVector.push_back(lineedit);
+  qDebug()<<"Adding a IntLineEdit...";
+  QValidator *validator = new QIntValidator(this);
+  QLineEdit* int_lineedit = new QLineEdit;
+  int_lineedit->setValidator(validator);
+  int_lineedit->setText(line.options.trimmed());
+  formLayout->addRow(line.name, int_lineedit);
+  m_IntLineEditVector.push_back(int_lineedit);
 }
 
-void GuiTemplateViewer::addDoubleLineEdit(TemplateLine line) {}
-void GuiTemplateViewer::addLineEdit(TemplateLine line) {}
+void GuiTemplateViewer::addDoubleLineEdit(TemplateLine line) {
+  qDebug()<<"Adding a DoubleLineEdit...";
+  QValidator *validator = new QDoubleValidator(this);
+  QLineEdit* double_lineedit = new QLineEdit;
+  double_lineedit->setValidator(validator);
+  double_lineedit->setText(line.options.trimmed());
+  formLayout->addRow(line.name, double_lineedit);
+  m_DoubleLineEditVector.push_back(double_lineedit);
+}
+
+void GuiTemplateViewer::addTextLineEdit(TemplateLine line) {
+  qDebug()<<"Adding a TextLineEdit...";
+  QLineEdit* text_lineedit = new QLineEdit;
+  text_lineedit->setText(line.options.trimmed());
+  formLayout->addRow(line.name, text_lineedit);
+  m_TextLineEditVector.push_back(text_lineedit);
+}
+
 void GuiTemplateViewer::addCheckBox(TemplateLine line) {}
 void GuiTemplateViewer::addSpinBox(TemplateLine line) {}
 void GuiTemplateViewer::addDoubleSpinBox(TemplateLine line) {}
@@ -217,7 +228,7 @@ QString GuiTemplateViewer::readComboBox(int idx) {
 
 QString GuiTemplateViewer::readIntLineEdit(int idx) {}
 QString GuiTemplateViewer::readDoubleLineEdit(int idx) {}
-QString GuiTemplateViewer::readLineEdit(int idx) {}
+QString GuiTemplateViewer::readTextLineEdit(int idx) {}
 QString GuiTemplateViewer::readCheckBox(int idx) {}
 QString GuiTemplateViewer::readSpinBox(int idx) {}
 QString GuiTemplateViewer::readDoubleSpinBox(int idx) {}

@@ -17,9 +17,9 @@ FoamFile
 
 ddtSchemes
 {
-  default <<<IntLineEdit: ddtSchemes : >>>;
-  default <<<DoubleLineEdit: ddtSchemes : >>>;
-  default <<<LineEdit: ddtSchemes : >>>;
+  default <<<IntLineEdit: ddtSchemes int : 42 >>>;
+  default <<<DoubleLineEdit: ddtSchemes double : 3.14 >>>;
+  default <<<TextLineEdit: ddtSchemes text : toto >>>;
 }
 
 gradSchemes
