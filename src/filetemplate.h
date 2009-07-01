@@ -45,7 +45,7 @@ public:
 };
 
 class MultipleFileTemplate{
-private:
+public:
   QVector <QFileInfo> m_FileInfos;
 public:
   void addFile(QString filename);
@@ -69,6 +69,13 @@ class GuiTemplateViewer : public QDialog
     */
     GuiTemplateViewer(QString filename, QWidget *parent = 0);
   
+    /**
+    * Constructor
+    * @param multiple_file_template MultipleFileTemplate object to use
+    * @param parent Parent QWidget
+    */
+    GuiTemplateViewer(MultipleFileTemplate multiple_file_template, QWidget *parent = 0);
+  
     void addComboBox(TemplateLine line);
     void addIntLineEdit(TemplateLine line);
     void addDoubleLineEdit(TemplateLine line);
@@ -78,6 +85,7 @@ class GuiTemplateViewer : public QDialog
     void addDoubleSpinBox(TemplateLine line);
   
     void getValues();
+    void addFile(QString filename);
   
     QString readComboBox(int idx);
     QString readIntLineEdit(int idx);
@@ -112,6 +120,29 @@ class GuiTemplateViewer : public QDialog
     QVector < QPair <QString, QString> > m_CheckBoxValues;
     QVector <QSpinBox*> m_SpinBoxVector;
     QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
+  
+    MultipleFileTemplate m_Files;
+};
+
+class SuperBox : public QVBoxLayout
+{
+  Q_OBJECT
+    public:
+    SuperBox(char *name=0, QWidget *parent=0) : QVBoxLayout(parent) {
+      QVBoxLayout::setObjectName(name);
+      qDebug() << "Created: " << QVBoxLayout::objectName();
+      QPushButton* button1 = new QPushButton("button1", parent);
+      QPushButton* button2 = new QPushButton("button2", parent);
+      QPushButton* button3 = new QPushButton("button3", parent);
+      this->addWidget(button1);
+      this->addWidget(button2);
+      this->addWidget(button3);
+    }
+  
+  ~SuperBox()
+  {
+    qDebug() << "Deleted: " << QVBoxLayout::objectName();
+  }
 };
 
 #endif

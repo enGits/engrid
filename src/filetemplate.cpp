@@ -13,8 +13,39 @@ int fileTemplateTest( int argc, char ** argv ) {
   multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
   multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template");
   
-  GuiTemplateViewer gui_template_viewer("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes");
+  GuiTemplateViewer gui_template_viewer("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
+//   GuiTemplateViewer gui_template_viewer(multiple_file_template);
   gui_template_viewer.show();
+  
+/*  QDialog toto;
+  QVBoxLayout* mainLayout = new QVBoxLayout((QWidget*)&toto);
+  toto.setLayout(mainLayout);
+  
+  QVBoxLayout* b1 = new QVBoxLayout;
+  QPushButton* button1 = new QPushButton("button1");
+  QPushButton* button2 = new QPushButton("button2");
+  QPushButton* button3 = new QPushButton("button3");
+  b1->addWidget(button1);
+  b1->addWidget(button2);
+  b1->addWidget(button3);
+  
+  QVBoxLayout* b2 = new QVBoxLayout;
+  QPushButton* button4 = new QPushButton("button4");
+  QPushButton* button5 = new QPushButton("button5");
+  QPushButton* button6 = new QPushButton("button6");
+  b2->addWidget(button4);
+  b2->addWidget(button5);
+  b2->addWidget(button6);
+  
+  SuperBox box1;
+  SuperBox box2;
+  
+  mainLayout->addLayout(&box1);
+  mainLayout->addLayout(&box2);
+  mainLayout->addLayout(b1);
+  mainLayout->addLayout(b2);
+  
+  toto.show();*/
   
   return app.exec();
 }
@@ -150,6 +181,51 @@ GuiTemplateViewer::GuiTemplateViewer(QString filename, QWidget *parent) : QDialo
   this->setLayout(mainLayout);
 }
 
+GuiTemplateViewer::GuiTemplateViewer(MultipleFileTemplate multiple_file_template, QWidget *parent) : QDialog(parent) {
+  
+  openButton = new QPushButton("Open...");
+  saveButton = new QPushButton("Save");
+  saveAsButton = new QPushButton("Save as...");
+  
+  connect(openButton, SIGNAL(clicked()), this, SLOT(open()));
+  connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
+  connect(saveAsButton, SIGNAL(clicked()), this, SLOT(saveAs()));
+  
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->addStretch();
+  bottomLayout->addWidget(openButton);
+  bottomLayout->addWidget(saveButton);
+  bottomLayout->addWidget(saveAsButton);
+  
+  formLayout = new QFormLayout;
+  mainLayout = new QVBoxLayout;
+  
+  this->setWindowTitle("Template Viewer");
+  
+  m_Files = multiple_file_template;
+  
+  for(int i_fileinfo = 0; i_fileinfo<m_Files.m_FileInfos.size(); i_fileinfo++) {
+    QString filename = m_Files.m_FileInfos[i_fileinfo].filePath();
+    file_template.open(filename);
+    file_template.print();
+    m_Lines = file_template.getLines();
+    for(int i = 0; i < m_Lines.size(); i++) {
+      if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
+      else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
+      else if(m_Lines[i].type == "DoubleLineEdit") addDoubleLineEdit(m_Lines[i]);
+      else if(m_Lines[i].type == "TextLineEdit") addTextLineEdit(m_Lines[i]);
+      else if(m_Lines[i].type == "CheckBox") addCheckBox(m_Lines[i]);
+      else if(m_Lines[i].type == "SpinBox") addSpinBox(m_Lines[i]);
+      else if(m_Lines[i].type == "DoubleSpinBox") addDoubleSpinBox(m_Lines[i]);
+      else qDebug()<<"Unknown type";
+    }
+  }
+  
+  mainLayout->addLayout(formLayout);
+  mainLayout->addLayout(bottomLayout);
+  this->setLayout(mainLayout);
+}
+
 void GuiTemplateViewer::getValues() {
   int combobox_idx = 0;
   for(int i = 0; i < m_Lines.size(); i++) {
@@ -277,6 +353,10 @@ QString GuiTemplateViewer::readTextLineEdit(int idx) {}
 QString GuiTemplateViewer::readCheckBox(int idx) {}
 QString GuiTemplateViewer::readSpinBox(int idx) {}
 QString GuiTemplateViewer::readDoubleSpinBox(int idx) {}
+
+void GuiTemplateViewer::addFile(QString filename) {
+  m_Files.addFile(filename);
+}
 
 void MultipleFileTemplate::addFile(QString filename) {
   QFileInfo file_info(filename);
