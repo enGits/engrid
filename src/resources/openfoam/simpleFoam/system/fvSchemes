@@ -7,8 +7,8 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     <<<SpinBox: version: 0, 10, 1>>>;
-    floatversion     <<<DoubleSpinBox: version: 0, 100, 0.5>>>;
+    version     <<<SpinBox: version: 0, 10, 5, 7>>>;
+    floatversion     <<<DoubleSpinBox: version: 0, 100, 0.5, 5, 42>>>;
     format      ascii;
     class       dictionary;
     object      fvSchemes;

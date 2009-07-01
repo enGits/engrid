@@ -231,9 +231,35 @@ void GuiTemplateViewer::addCheckBox(TemplateLine line) {
 }
 
 void GuiTemplateViewer::addSpinBox(TemplateLine line) {
+  qDebug()<<"Adding a SpinBox...";
+  QSpinBox* spin_box = new QSpinBox;
+  QStringList L = line.options.split(",");
+  int minimum = L[0].trimmed().toInt();
+  int maximum = L[1].trimmed().toInt();
+  int step = L[2].trimmed().toInt();
+  int value = L[3].trimmed().toInt();
+  spin_box->setRange( minimum, maximum );
+  spin_box->setSingleStep( step );
+  spin_box->setValue( value );
+  formLayout->addRow(line.name, spin_box);
+  m_SpinBoxVector.push_back(spin_box);
 }
 
 void GuiTemplateViewer::addDoubleSpinBox(TemplateLine line) {
+  qDebug()<<"Adding a DoubleSpinBox...";
+  QDoubleSpinBox* double_spin_box = new QDoubleSpinBox;
+  QStringList L = line.options.split(",");
+  double minimum = L[0].trimmed().toDouble();
+  double maximum = L[1].trimmed().toDouble();
+  double step = L[2].trimmed().toDouble();
+  int decimals = L[3].trimmed().toInt();
+  double value = L[4].trimmed().toDouble();
+  double_spin_box->setRange( minimum, maximum );
+  double_spin_box->setSingleStep( step );
+  double_spin_box->setDecimals( decimals );
+  double_spin_box->setValue( value );
+  formLayout->addRow(line.name, double_spin_box);
+  m_DoubleSpinBoxVector.push_back(double_spin_box);
 }
 
 QString GuiTemplateViewer::readComboBox(int idx) {
