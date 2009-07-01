@@ -56,6 +56,7 @@ class GuiMainWindow;
 #include "boundarycondition.h"
 #include "volumedefinition.h"
 #include "checksurfaceintegrity.h"
+#include "openfoamcase.h"
 
 #include "std_includes.h"
 #include "guitransform.h"
@@ -398,6 +399,7 @@ public slots:
   void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); }
   void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); }
   void callCgnsWriter()       { EG_STDINTERSLOT(CgnsWriter); }
+  void callOpenFOAMcase()     { EG_STDINTERSLOT(OpenFOAMcase); }
   void callVtkReader()        { EG_STDREADERSLOT(VtkReader); }
   void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); }
   

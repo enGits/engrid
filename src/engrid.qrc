@@ -30,6 +30,7 @@
         <file>resources/kde_icons/viewmagfit.png</file>
     </qresource>
     <qresource prefix="/openfoam/simpleFoam" >
-        <file>resources/openfoam/simpleFoam/system/fvSchemes</file>
+        <file>resources/openfoam/simpleFoam/system/fvSchemes.template</file>
+        <file>resources/openfoam/simpleFoam/system/fvSchemes2.template</file>
     </qresource>
 </RCC>

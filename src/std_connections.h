@@ -44,6 +44,7 @@ connect(ui.actionCheck_surface_integrity,SIGNAL(activated()),this,SLOT(callCheck
 connect(ui.actionPick_cell_point,SIGNAL(activated()),this,SLOT(callPick_cell_point()));
 connect(ui.actionTransform, SIGNAL(activated()), this, SLOT(callTransform()));
 connect(ui.actionExportCGNS, SIGNAL(activated()), this, SLOT(callCgnsWriter()));
+connect(ui.actionOpenFOAMcase, SIGNAL(activated()), this, SLOT(callOpenFOAMcase()));
 connect(ui.actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 connect(ui.actionRedo, SIGNAL(activated()), this, SLOT(redo()));
 
