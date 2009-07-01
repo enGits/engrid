@@ -60,7 +60,8 @@ snGradSchemes
 
 fluxRequired
 {
-    default         <<<CheckBox: fluxRequired: yes, no>>>;
+    default         <<<CheckBox: fluxRequired: checked, yes, no>>>;
+    default         <<<CheckBox: fluxRequired: unchecked, yes, no>>>;
     p;
 }
 

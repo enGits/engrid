@@ -179,7 +179,6 @@ void GuiTemplateViewer::addComboBox(TemplateLine line) {
   for(int i = 1; i < L_open.size(); i++) {
     QStringList L_close = L_open[i].split(")");
     QStringList L_elements = L_close[0].split(",");
-    qDebug()<<L_elements;
     description<<L_elements[0];
     value<<L_elements[1];
   }
@@ -217,9 +216,25 @@ void GuiTemplateViewer::addTextLineEdit(TemplateLine line) {
   m_TextLineEditVector.push_back(text_lineedit);
 }
 
-void GuiTemplateViewer::addCheckBox(TemplateLine line) {}
-void GuiTemplateViewer::addSpinBox(TemplateLine line) {}
-void GuiTemplateViewer::addDoubleSpinBox(TemplateLine line) {}
+void GuiTemplateViewer::addCheckBox(TemplateLine line) {
+  qDebug()<<"Adding a CheckBox...";
+  QCheckBox* check_box = new QCheckBox;
+  QStringList L = line.options.split(",");
+  if(L[0].trimmed() == "checked") check_box->setCheckState(Qt::Checked);
+  else check_box->setCheckState(Qt::Unchecked);
+  QPair < QString, QString > values;
+  values.first = L[1];
+  values.first = L[2];
+  formLayout->addRow(line.name, check_box);
+  m_CheckBoxVector.push_back(check_box);
+  m_CheckBoxValues.push_back(values);
+}
+
+void GuiTemplateViewer::addSpinBox(TemplateLine line) {
+}
+
+void GuiTemplateViewer::addDoubleSpinBox(TemplateLine line) {
+}
 
 QString GuiTemplateViewer::readComboBox(int idx) {
   int i = m_ComboBoxVector[idx]->currentIndex();

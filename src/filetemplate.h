@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QPair>
 
 int fileTemplateTest( int argc, char ** argv );
 
@@ -101,6 +102,7 @@ class GuiTemplateViewer : public QDialog
     QVector <QLineEdit*> m_DoubleLineEditVector;
     QVector <QLineEdit*> m_TextLineEditVector;
     QVector <QCheckBox*> m_CheckBoxVector;
+    QVector < QPair <QString, QString> > m_CheckBoxValues;
     QVector <QSpinBox*> m_SpinBoxVector;
     QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
 };
