@@ -5,7 +5,7 @@
 
 class OpenFOAMcase : public IOOperation
 {
-public:
+  public:
     OpenFOAMcase();
     virtual void operate();
 };

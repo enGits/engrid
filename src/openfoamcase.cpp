@@ -4,11 +4,11 @@
 using namespace std;
 
 OpenFOAMcase::OpenFOAMcase()
- : IOOperation()
+    : IOOperation()
 {
 }
 
 void OpenFOAMcase::operate()
 {
-  cout<<"OpenFOAMcase::operate()"<<endl;
+  cout << "OpenFOAMcase::operate()" << endl;
 }
