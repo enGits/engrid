@@ -107,7 +107,7 @@ class GuiTemplateViewer : public QDialog
     QFormLayout *formLayout;
     QVBoxLayout *mainLayout;
     QHBoxLayout *bottomLayout;
-    FileTemplate file_template;
+    FileTemplate m_file_template;
     QVector <TemplateLine> m_Lines;
     QStringList m_OutValues;
     
@@ -124,25 +124,51 @@ class GuiTemplateViewer : public QDialog
     MultipleFileTemplate m_Files;
 };
 
-class SuperBox : public QVBoxLayout
+class SuperBox : public QFormLayout
 {
   Q_OBJECT
+    private:
+    FileTemplate m_file_template;
+    QVector <TemplateLine> m_Lines;
+  QVector <QComboBox*> m_ComboBoxVector;
+  QVector <QStringList> m_ComboboxValues;
+  QVector <QLineEdit*> m_IntLineEditVector;
+  QVector <QLineEdit*> m_DoubleLineEditVector;
+  QVector <QLineEdit*> m_TextLineEditVector;
+  QVector <QCheckBox*> m_CheckBoxVector;
+  QVector < QPair <QString, QString> > m_CheckBoxValues;
+  QVector <QSpinBox*> m_SpinBoxVector;
+  QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
+  
     public:
-    SuperBox(char *name=0, QWidget *parent=0) : QVBoxLayout(parent) {
-      QVBoxLayout::setObjectName(name);
-      qDebug() << "Created: " << QVBoxLayout::objectName();
-      QPushButton* button1 = new QPushButton("button1", parent);
-      QPushButton* button2 = new QPushButton("button2", parent);
-      QPushButton* button3 = new QPushButton("button3", parent);
-      this->addWidget(button1);
-      this->addWidget(button2);
-      this->addWidget(button3);
-    }
+    SuperBox(QString filename, char *name=0, QWidget *parent=0);
+  
+  void addComboBox(TemplateLine line);
+  void addIntLineEdit(TemplateLine line);
+  void addDoubleLineEdit(TemplateLine line);
+  void addTextLineEdit(TemplateLine line);
+  void addCheckBox(TemplateLine line);
+  void addSpinBox(TemplateLine line);
+  void addDoubleSpinBox(TemplateLine line);
   
   ~SuperBox()
   {
-    qDebug() << "Deleted: " << QVBoxLayout::objectName();
+    qDebug() << "Deleted: " << QFormLayout::objectName();
   }
+};
+
+class SuperGui : public QDialog
+{
+  Q_OBJECT
+public:
+  // constructors
+  /**
+  * Constructor
+  * @param parent Parent QWidget
+  */
+  SuperGui(MultipleFileTemplate multiple_file_template, QWidget *parent = 0);
+private:
+  MultipleFileTemplate m_Files;
 };
 
 #endif

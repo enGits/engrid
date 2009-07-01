@@ -12,40 +12,14 @@ int fileTemplateTest( int argc, char ** argv ) {
   MultipleFileTemplate multiple_file_template;
   multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
   multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template");
+//   multiple_file_template.addFile("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template");
   
-  GuiTemplateViewer gui_template_viewer("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
+//   GuiTemplateViewer gui_template_viewer("/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template");
 //   GuiTemplateViewer gui_template_viewer(multiple_file_template);
-  gui_template_viewer.show();
+//   gui_template_viewer.show();
   
-/*  QDialog toto;
-  QVBoxLayout* mainLayout = new QVBoxLayout((QWidget*)&toto);
-  toto.setLayout(mainLayout);
-  
-  QVBoxLayout* b1 = new QVBoxLayout;
-  QPushButton* button1 = new QPushButton("button1");
-  QPushButton* button2 = new QPushButton("button2");
-  QPushButton* button3 = new QPushButton("button3");
-  b1->addWidget(button1);
-  b1->addWidget(button2);
-  b1->addWidget(button3);
-  
-  QVBoxLayout* b2 = new QVBoxLayout;
-  QPushButton* button4 = new QPushButton("button4");
-  QPushButton* button5 = new QPushButton("button5");
-  QPushButton* button6 = new QPushButton("button6");
-  b2->addWidget(button4);
-  b2->addWidget(button5);
-  b2->addWidget(button6);
-  
-  SuperBox box1;
-  SuperBox box2;
-  
-  mainLayout->addLayout(&box1);
-  mainLayout->addLayout(&box2);
-  mainLayout->addLayout(b1);
-  mainLayout->addLayout(b2);
-  
-  toto.show();*/
+  SuperGui super_gui(multiple_file_template);
+  super_gui.show();
   
   return app.exec();
 }
@@ -118,8 +92,10 @@ int FileTemplate::process() {
   QStringList L_open = m_InText.split("<<<");
   for(int i = 1; i < L_open.size(); i++) {
     QStringList L_close = L_open[i].split(">>>");
+    qDebug()<<"L_close[0]="<<L_close[0];
     QStringList L_elements = L_close[0].split(":");
     TemplateLine template_line;
+    qDebug()<<"L_elements="<<L_elements;
     template_line.type = L_elements[0];
     template_line.name = L_elements[1];
     template_line.options = L_elements[2];
@@ -162,9 +138,9 @@ GuiTemplateViewer::GuiTemplateViewer(QString filename, QWidget *parent) : QDialo
   
   this->setWindowTitle("Template Viewer");
   
-  file_template.open(filename);
-  file_template.print();
-  m_Lines = file_template.getLines();
+  m_file_template.open(filename);
+  m_file_template.print();
+  m_Lines = m_file_template.getLines();
   for(int i = 0; i < m_Lines.size(); i++) {
     if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
     else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
@@ -206,9 +182,9 @@ GuiTemplateViewer::GuiTemplateViewer(MultipleFileTemplate multiple_file_template
   
   for(int i_fileinfo = 0; i_fileinfo<m_Files.m_FileInfos.size(); i_fileinfo++) {
     QString filename = m_Files.m_FileInfos[i_fileinfo].filePath();
-    file_template.open(filename);
-    file_template.print();
-    m_Lines = file_template.getLines();
+    m_file_template.open(filename);
+    m_file_template.print();
+    m_Lines = m_file_template.getLines();
     for(int i = 0; i < m_Lines.size(); i++) {
       if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
       else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
@@ -243,8 +219,8 @@ void GuiTemplateViewer::open() {
 void GuiTemplateViewer::save() {
   qDebug()<<"Saving...";
   getValues();
-  file_template.setOutValues(m_OutValues);
-  file_template.saveAs("openfoam.txt");
+  m_file_template.setOutValues(m_OutValues);
+  m_file_template.saveAs("openfoam.txt");
 }
 
 void GuiTemplateViewer::saveAs() {
@@ -361,4 +337,127 @@ void GuiTemplateViewer::addFile(QString filename) {
 void MultipleFileTemplate::addFile(QString filename) {
   QFileInfo file_info(filename);
   m_FileInfos.push_back(file_info);
+}
+
+SuperGui::SuperGui(MultipleFileTemplate multiple_file_template, QWidget *parent) : QDialog(parent) {
+  QVBoxLayout* mainLayout = new QVBoxLayout(this);
+  this->setLayout(mainLayout);
+  
+  m_Files = multiple_file_template;
+  
+  for(int i_fileinfo = 0; i_fileinfo<m_Files.m_FileInfos.size(); i_fileinfo++) {
+    QString filename = m_Files.m_FileInfos[i_fileinfo].filePath();
+    SuperBox* box = new SuperBox(filename);
+    mainLayout->addLayout(box);
+  }
+}
+
+SuperBox::SuperBox(QString filename, char *name, QWidget *parent) : QFormLayout(parent) {
+  QFormLayout::setObjectName(name);
+  qDebug() << "Created: " << QFormLayout::objectName();
+  m_file_template.open(filename);
+  m_file_template.print();
+  m_Lines = m_file_template.getLines();
+  for(int i = 0; i < m_Lines.size(); i++) {
+    if(m_Lines[i].type == "ComboBox") addComboBox(m_Lines[i]);
+    else if(m_Lines[i].type == "IntLineEdit") addIntLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "DoubleLineEdit") addDoubleLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "TextLineEdit") addTextLineEdit(m_Lines[i]);
+    else if(m_Lines[i].type == "CheckBox") addCheckBox(m_Lines[i]);
+    else if(m_Lines[i].type == "SpinBox") addSpinBox(m_Lines[i]);
+    else if(m_Lines[i].type == "DoubleSpinBox") addDoubleSpinBox(m_Lines[i]);
+    else qDebug()<<"Unknown type";
+  }
+}
+
+void SuperBox::addComboBox(TemplateLine line) {
+  qDebug()<<"Adding a ComboBox...";
+  QComboBox* combobox = new QComboBox;
+  QStringList description;
+  QStringList value;
+  QStringList L_open = line.options.split("(");
+  for(int i = 1; i < L_open.size(); i++) {
+    QStringList L_close = L_open[i].split(")");
+    QStringList L_elements = L_close[0].split(",");
+    description<<L_elements[0];
+    value<<L_elements[1];
+  }
+  combobox->addItems(description);
+  this->addRow(line.name, combobox);
+  m_ComboBoxVector.push_back(combobox);
+  m_ComboboxValues.push_back(value);
+}
+
+void SuperBox::addIntLineEdit(TemplateLine line) {
+  qDebug()<<"Adding a IntLineEdit...";
+  QValidator *validator = new QIntValidator(this);
+  QLineEdit* int_lineedit = new QLineEdit;
+  int_lineedit->setValidator(validator);
+  int_lineedit->setText(line.options.trimmed());
+  this->addRow(line.name, int_lineedit);
+  m_IntLineEditVector.push_back(int_lineedit);
+}
+
+void SuperBox::addDoubleLineEdit(TemplateLine line) {
+  qDebug()<<"Adding a DoubleLineEdit...";
+  QValidator *validator = new QDoubleValidator(this);
+  QLineEdit* double_lineedit = new QLineEdit;
+  double_lineedit->setValidator(validator);
+  double_lineedit->setText(line.options.trimmed());
+  this->addRow(line.name, double_lineedit);
+  m_DoubleLineEditVector.push_back(double_lineedit);
+}
+
+void SuperBox::addTextLineEdit(TemplateLine line) {
+  qDebug()<<"Adding a TextLineEdit...";
+  QLineEdit* text_lineedit = new QLineEdit;
+  text_lineedit->setText(line.options.trimmed());
+  this->addRow(line.name, text_lineedit);
+  m_TextLineEditVector.push_back(text_lineedit);
+}
+
+void SuperBox::addCheckBox(TemplateLine line) {
+  qDebug()<<"Adding a CheckBox...";
+  QCheckBox* check_box = new QCheckBox;
+  QStringList L = line.options.split(",");
+  if(L[0].trimmed() == "checked") check_box->setCheckState(Qt::Checked);
+  else check_box->setCheckState(Qt::Unchecked);
+  QPair < QString, QString > values;
+  values.first = L[1];
+  values.first = L[2];
+  this->addRow(line.name, check_box);
+  m_CheckBoxVector.push_back(check_box);
+  m_CheckBoxValues.push_back(values);
+}
+
+void SuperBox::addSpinBox(TemplateLine line) {
+  qDebug()<<"Adding a SpinBox...";
+  QSpinBox* spin_box = new QSpinBox;
+  QStringList L = line.options.split(",");
+  int minimum = L[0].trimmed().toInt();
+  int maximum = L[1].trimmed().toInt();
+  int step = L[2].trimmed().toInt();
+  int value = L[3].trimmed().toInt();
+  spin_box->setRange( minimum, maximum );
+  spin_box->setSingleStep( step );
+  spin_box->setValue( value );
+  this->addRow(line.name, spin_box);
+  m_SpinBoxVector.push_back(spin_box);
+}
+
+void SuperBox::addDoubleSpinBox(TemplateLine line) {
+  qDebug()<<"Adding a DoubleSpinBox...";
+  QDoubleSpinBox* double_spin_box = new QDoubleSpinBox;
+  QStringList L = line.options.split(",");
+  double minimum = L[0].trimmed().toDouble();
+  double maximum = L[1].trimmed().toDouble();
+  double step = L[2].trimmed().toDouble();
+  int decimals = L[3].trimmed().toInt();
+  double value = L[4].trimmed().toDouble();
+  double_spin_box->setRange( minimum, maximum );
+  double_spin_box->setSingleStep( step );
+  double_spin_box->setDecimals( decimals );
+  double_spin_box->setValue( value );
+  this->addRow(line.name, double_spin_box);
+  m_DoubleSpinBoxVector.push_back(double_spin_box);
 }
