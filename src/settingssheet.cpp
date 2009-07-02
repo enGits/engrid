@@ -30,11 +30,6 @@
 #include <iostream>
 using namespace std;
 
-/* Here is how we we get QTextStreams that look like iostreams */
-QTextStream Qcin2(stdin, QIODevice::ReadOnly);
-QTextStream Qcout2(stdout, QIODevice::WriteOnly);
-QTextStream Qcerr2(stderr, QIODevice::WriteOnly);
-
 SettingsSheet::SettingsSheet(QWidget *parent)
  : QTableWidget(parent)
 {

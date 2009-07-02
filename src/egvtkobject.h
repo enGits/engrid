@@ -728,13 +728,6 @@ QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
 }
 
 ///////////////////////////////////////////
-// ///////////////////////////////////////////
-// /* Here is how we we get QTextStreams that look like iostreams */
-// QTextStream Qcin;
-// QTextStream Qcout;
-// QTextStream Qcerr;
-// ///////////////////////////////////////////
-
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
 
 const char* VertexType2Str(char T);
