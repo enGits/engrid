@@ -7,8 +7,8 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     <<<SpinBox: version: 0, 10, 5, 7>>>;
-    floatversion     <<<DoubleSpinBox: version: 0, 100, 0.5, 5, 42>>>;
+    version     <<<SpinBox: version int: 0, 10, 5, 7>>>;
+    floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5, 42>>>;
     format      ascii;
     class       dictionary;
     object      fvSchemes;
@@ -60,8 +60,8 @@ snGradSchemes
 
 fluxRequired
 {
-    default         <<<CheckBox: fluxRequired: checked, yes, no>>>;
-    default         <<<CheckBox: fluxRequired: unchecked, yes, no>>>;
+    default         <<<CheckBox: fluxRequired 1: checked, yes, no>>>;
+    default         <<<CheckBox: fluxRequired 2: unchecked, yes, no>>>;
     p;
 }
 

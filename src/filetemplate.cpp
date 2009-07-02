@@ -6,6 +6,7 @@
 #include <iostream>
 using namespace std;
 
+//=======================================
 int fileTemplateTest( int argc, char ** argv )
 {
   QApplication app( argc, argv );
@@ -19,6 +20,7 @@ int fileTemplateTest( int argc, char ** argv )
 
   return app.exec();
 }
+//=======================================
 
 void TemplateLine::print()
 {
@@ -27,6 +29,7 @@ void TemplateLine::print()
   qDebug() << "options=" << this->options;
   qDebug() << "position=" << this->position;
 }
+//=======================================
 
 FileTemplate::FileTemplate()
 {
@@ -123,12 +126,20 @@ void FileTemplate::setOutValues( QStringList L )
 }
 
 QString FileTemplate::getContents() {
-  return QString("TODO");
+  QString ret;
+  for(int i = 0; i < m_Lines.size(); i++) {
+    if(m_Lines[i].type == "ComboBox") {
+      
+    }
+    qDebug()<<m_Lines[i].name;
+  }
+  return ret;
 }
 
 void FileTemplate::setContents(QString contents) {
 
 }
+//=======================================
 
 TemplateDialog::TemplateDialog( QVector <QString> files, QWidget *parent ) : QDialog( parent )
 {
@@ -159,6 +170,24 @@ TemplateDialog::TemplateDialog( QVector <QString> files, QWidget *parent ) : QDi
   bottomLayout->addWidget( saveAsButton );
   mainLayout->addLayout( bottomLayout );
 }
+
+void TemplateDialog::open()
+{
+}
+
+void TemplateDialog::save()
+{
+  qDebug() << "Saving...";
+  for ( int i = 0; i < m_TemplateFormLayoutVector.size(); i++ ) {
+    m_TemplateFormLayoutVector[i]->save();
+  }
+}
+
+void TemplateDialog::saveAs()
+{
+}
+
+//=======================================
 
 TemplateFormLayout::TemplateFormLayout( QString filename, char *name, QWidget *parent ) : QFormLayout( parent )
 {
@@ -277,22 +306,6 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
   m_DoubleSpinBoxVector.push_back( double_spin_box );
 }
 
-void TemplateDialog::open()
-{
-}
-
-void TemplateDialog::save()
-{
-  qDebug() << "Saving...";
-  for ( int i = 0; i < m_TemplateFormLayoutVector.size(); i++ ) {
-    m_TemplateFormLayoutVector[i]->save();
-  }
-}
-
-void TemplateDialog::saveAs()
-{
-}
-
 void TemplateFormLayout::open()
 {
 }
@@ -391,3 +404,4 @@ QString TemplateFormLayout::readDoubleSpinBox( int idx )
   ret.setNum( m_DoubleSpinBoxVector[idx]->value() );
   return ret;
 }
+//=======================================
