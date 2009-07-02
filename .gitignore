@@ -30,6 +30,7 @@ callgrind*
 # build folder(s) and executables
 /platforms/
 engrid
+engrid_debug
 
 # generated Makefiles
 Makefile
