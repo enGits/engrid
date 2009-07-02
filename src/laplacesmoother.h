@@ -33,14 +33,12 @@ private:
 
   QSet<int>         m_BCs;
   int               m_NumberOfIterations;
-  SurfaceProjection m_Proj;
 
 public:
 
   LaplaceSmoother();
   virtual void operate();
-  void setBoundaryCodes(const QSet<int>& bcs) { m_BCs = bcs; }
-  void setNumberOfIterations(int N)           { m_NumberOfIterations = N;}
+  void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
   
 };
 

@@ -29,7 +29,5 @@
         <file>resources/kde_icons/reload.png</file>
         <file>resources/kde_icons/viewmagfit.png</file>
     </qresource>
-    <qresource prefix="/openfoam/simpleFoam" >
-        <file>resources/openfoam/simpleFoam/system/fvSchemes</file>
-    </qresource>
+    <qresource prefix="/openfoam/simpleFoam" />
 </RCC>

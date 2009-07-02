@@ -23,6 +23,8 @@
 #ifndef SURFACEPROJECTION_H
 #define SURFACEPROJECTION_H
 
+class SurfaceProjection;
+
 #include "egvtkobject.h"
 #include "octree.h"
 #include "guimainwindow.h"
@@ -47,9 +49,9 @@ private: // attributes
   QVector<vtkIdType>     m_Nodes;
   QVector<QVector<int> > m_N2N;
   Octree                 m_OTGrid;
-  QSet<int>              m_BCs;
   QVector<double>        m_G;
   QVector<bool>          m_GSet;
+  double                 m_Relax;
 
 private: // methods
 
@@ -62,14 +64,19 @@ private: // methods
   void setBackgroundGrid_initLevelSet();
   void setBackgroundGrid_computeLevelSet();
 
+  vec3_t calcGradG(vec3_t x);
+  double calcG(vec3_t x);
+
 public: // methods
 
   SurfaceProjection();
 
   template <class C>
   void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells);
-
-  void setBoundaryCodes(const QSet<int>& bcs) { m_BCs = bcs; }
+  vec3_t project(vec3_t x);
+  int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
+  void setRelaxation(double relax) { m_Relax = relax; }
+  void writeOctree(QString file_name);
 
 };
 
@@ -82,23 +89,6 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setBackgroundGrid_refineFromEdges();
   setBackgroundGrid_refineFromFaces();
   setBackgroundGrid_computeLevelSet();
-  /*
-  EG_VTKSP(vtkUnstructuredGrid, otg);
-  m_OTGrid.toVtkGrid(otg);
-  EG_VTKSP(vtkDoubleArray, g);
-  g->SetName("g");
-  g->SetNumberOfValues(otg->GetNumberOfPoints());
-  otg->GetPointData()->AddArray(g);
-  for (int i = 0; i < otg->GetNumberOfPoints(); ++i) {
-    g->SetValue(i, m_G[i]);
-  }
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName((GuiMainWindow::pointer()->getCwd() + "/octree.vtu").toAscii().data());
-  vtu->SetDataModeToBinary();
-  vtu->SetInput(otg);
-  vtu->Write();
-  writeGrid(m_BGrid, "m_BGrid");
-  */
 }
 
 template <class C>

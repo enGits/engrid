@@ -180,7 +180,7 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
       cout << "here" << endl;
     }
     int pass = 0;
-    bool passed = false;
+    double total_weight = 0;
     do {
       ++pass;
       foreach (Triangle T, triangles) {
@@ -199,58 +199,16 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
           x1 = xp - T.g3;
           x2 = xp - scal*T.g3 + T.g3;
         }
-        if (GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri) || (pass == 2)) {
-          passed = true;
+        if (GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri)) {
+          pass = 3;
           double G = (xp-T.a)*T.g3;
           if (fabs(G) < fabs(m_G[i_nodes])) {
             m_G[i_nodes] = G;
           }
-        } else {
-          double kab = GeometryTools::intersection(T.a, T.b-T.a, xp, T.b-T.a);
-          double kac = GeometryTools::intersection(T.a, T.c-T.a, xp, T.c-T.a);
-          double kbc = GeometryTools::intersection(T.b, T.c-T.b, xp, T.c-T.b);
-          if ((kab >= 0) && (kab <= 1)) {
-            xi = T.a + kab*(T.b-T.a);
-            double G = (xi-xp).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
-          if ((kac >= 0) && (kac <= 1)) {
-            xi = T.a + kac*(T.c-T.a);
-            double G = (xi-xp).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
-          if ((kbc >= 0) && (kbc <= 1)) {
-            xi = T.b + kbc*(T.c-T.b);
-            double G = (xi-xp).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
-          {
-            double G = (xp-T.a).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
-          {
-            double G = (xp-T.b).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
-          {
-            double G = (xp-T.c).abs();
-            if (G < fabs(m_G[i_nodes])) {
-              m_G[i_nodes] = sign*G;
-            }
-          }
+        } else if (pass == 2) {
         }
       }
-    } while (!passed);
+    } while (pass < 2);
   }
 }
 

@@ -572,15 +572,23 @@ void GuiSmoothSurface::operate()
   {
     QSet<int> bcs;
     getSelectedItems(ui.listWidget, bcs);
-    
-    LaplaceSmoother Lap;
-    Lap.setGrid(this->grid);
-    Lap.setBoundaryCodes(bcs);
-    Lap.setSource(this->grid);
-    Lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
-    setDebugLevel(ui.spinBox_DebugLevel->value());
-    Lap();
-    Lap.delete_CellLocator_and_ProjectionSurface();
+//    
+//    LaplaceSmoother Lap;
+//    Lap.setGrid(this->grid);
+//    Lap.setBoundaryCodes(bcs);
+//    Lap.setSource(this->grid);
+//    Lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+//    setDebugLevel(ui.spinBox_DebugLevel->value());
+//    Lap();
+//    Lap.delete_CellLocator_and_ProjectionSurface();
+//    //laplacian smoothing with projection
+    LaplaceSmoother lap;
+    lap.setGrid(this->grid);
+    QVector<vtkIdType> cls;
+    getSurfaceCells(bcs, cls, this->grid);
+    lap.setCells(cls);
+    lap.setNumberOfIterations(ui.spinBox_NumberOfSmoothIterations->value());
+    lap();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==3)//swap triangles
