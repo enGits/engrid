@@ -171,7 +171,7 @@ private: // static attributes
   static QString cwd;
   
   /** a static this pointer (somewhat ugly, but there is only one MainWindow) */
-  static GuiMainWindow *THIS;
+  static GuiMainWindow* THIS;
   
 private: // methods
   
