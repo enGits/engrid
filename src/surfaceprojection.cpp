@@ -25,6 +25,7 @@
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
+  m_Relax = 0.1;
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -79,16 +80,17 @@ void SurfaceProjection::setBackgroundGrid_refineFromEdges()
         if (i_nodes < i_neigh) {
           vec3_t x2;
           m_BGrid->GetPoints()->GetPoint(m_Nodes[i_neigh], x2.data());
-          double L = min(m_EdgeLength[i_nodes], m_EdgeLength[i_neigh]);
           for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
             if (!m_OTGrid.hasChildren(i_cells)) {
               double Dx = m_OTGrid.getDx(i_cells);
               double Dy = m_OTGrid.getDy(i_cells);
               double Dz = m_OTGrid.getDz(i_cells);
               double D = max(Dx, max(Dy, Dz));
-              if (D > L) {
-                for (int i_faces = 0; i_faces < 6; ++i_faces) {
-                  if (m_OTGrid.intersectsFace(i_cells, i_faces, x1, x2)) {
+              for (int i_faces = 0; i_faces < 6; ++i_faces) {
+                double k;
+                if (m_OTGrid.intersectsFace(i_cells, i_faces, x1, x2, k)) {
+                  double L = (1-k)*m_EdgeLength[i_nodes] + k*m_EdgeLength[i_neigh];
+                  if (D > L) {
                     m_OTGrid.markToRefine(i_cells);
                     break;
                   }
@@ -117,21 +119,25 @@ void SurfaceProjection::setBackgroundGrid_refineFromFaces()
         m_BGrid->GetPoints()->GetPoint(pts[0], a.data());
         m_BGrid->GetPoints()->GetPoint(pts[1], b.data());
         m_BGrid->GetPoints()->GetPoint(pts[2], c.data());
-        double L = min(m_EdgeLength[pts[0]], min(m_EdgeLength[pts[1]], m_EdgeLength[pts[2]]));
+        double La = m_EdgeLength[pts[0]];
+        double Lb = m_EdgeLength[pts[1]];
+        double Lc = m_EdgeLength[pts[2]];
         for (int i_cells = 0; i_cells < m_OTGrid.getNumCells(); ++i_cells) {
           if (!m_OTGrid.hasChildren(i_cells) && !m_OTGrid.markedForRefine(i_cells)) {
-            double Dx = m_OTGrid.getDx(i_cells);
-            double Dy = m_OTGrid.getDy(i_cells);
-            double Dz = m_OTGrid.getDz(i_cells);
-            double D = max(Dx, max(Dy, Dz));
-            if (D > L) {
-              QVector<SortedPair<int> > edges;
-              m_OTGrid.getEdges(i_cells, edges);
-              foreach (SortedPair<int> edge, edges) {
-                vec3_t xi;
-                vec3_t x1 = m_OTGrid.getNodePosition(edge.v1);
-                vec3_t x2 = m_OTGrid.getNodePosition(edge.v2);
-                if (GeometryTools::intersectEdgeAndTriangle(a, b, c, x1, x2, xi)) {
+            QVector<SortedPair<int> > edges;
+            m_OTGrid.getEdges(i_cells, edges);
+            foreach (SortedPair<int> edge, edges) {
+              vec3_t xi;
+              vec3_t ri;
+              vec3_t x1 = m_OTGrid.getNodePosition(edge.v1);
+              vec3_t x2 = m_OTGrid.getNodePosition(edge.v2);
+              if (GeometryTools::intersectEdgeAndTriangle(a, b, c, x1, x2, xi, ri)) {
+                double L = La + ri[0]*(Lb-La) + ri[1]*(Lc-La);
+                double Dx = m_OTGrid.getDx(i_cells);
+                double Dy = m_OTGrid.getDy(i_cells);
+                double Dz = m_OTGrid.getDz(i_cells);
+                double D = max(Dx, max(Dy, Dz));
+                if (D > L) {
                   m_OTGrid.markToRefine(i_cells);
                   break;
                 }
@@ -169,63 +175,162 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
   }
   m_G.fill(1e99, m_OTGrid.getNumNodes());
   for (int i_nodes = 0; i_nodes < m_OTGrid.getNumNodes(); ++i_nodes) {
-    foreach (Triangle T, triangles) {
-      vec3_t xi;
-      vec3_t xp = m_OTGrid.getNodePosition(i_nodes);
-      double scal = (xp - T.a)*T.g3;
-      double sign = 1;
-      if (scal < 0) {
-        sign = -1;
-      }
-      if (GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, xp, xp - 2*scal*T.g3, xi)) {
-        double G = (xp-T.a)*T.g3;
-        if (fabs(G) < fabs(m_G[i_nodes])) {
-          m_G[i_nodes] = G;
-        }
-      } else {
-        double kab = GeometryTools::intersection(T.a, T.b-T.a, xp, T.b-T.a);
-        double kac = GeometryTools::intersection(T.a, T.c-T.a, xp, T.c-T.a);
-        double kbc = GeometryTools::intersection(T.b, T.c-T.b, xp, T.c-T.b);
-        if ((kab >= 0) && (kab <= 1)) {
-          xi = T.a + kab*(T.b-T.a);
-          double G = (xi-xp).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-        if ((kac >= 0) && (kac <= 1)) {
-          xi = T.a + kac*(T.c-T.a);
-          double G = (xi-xp).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-        if ((kbc >= 0) && (kbc <= 1)) {
-          xi = T.b + kbc*(T.c-T.b);
-          double G = (xi-xp).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-        {
-          double G = (xp-T.a).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-        {
-          double G = (xp-T.b).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-        {
-          double G = (xp-T.c).abs();
-          if (G < fabs(m_G[i_nodes])) {
-            m_G[i_nodes] = sign*G;
-          }
-        }
-      }
+    vec3_t xp = m_OTGrid.getNodePosition(i_nodes);
+    if ((xp - vec3_t(0,0,0.5)).abs() < 0.05) {
+      cout << "here" << endl;
     }
+    int pass = 0;
+    bool passed = false;
+    do {
+      ++pass;
+      foreach (Triangle T, triangles) {
+        vec3_t xi;
+        vec3_t ri;
+        double scal = (xp - T.a)*T.g3;
+        double sign = 1;
+        if (scal < 0) {
+          sign = -1;
+        }
+        vec3_t x1, x2;
+        if (scal > 0) {
+          x1 = xp + T.g3;
+          x2 = xp - scal*T.g3 - T.g3;
+        } else {
+          x1 = xp - T.g3;
+          x2 = xp - scal*T.g3 + T.g3;
+        }
+        if (GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri) || (pass == 2)) {
+          passed = true;
+          double G = (xp-T.a)*T.g3;
+          if (fabs(G) < fabs(m_G[i_nodes])) {
+            m_G[i_nodes] = G;
+          }
+        } else {
+          double kab = GeometryTools::intersection(T.a, T.b-T.a, xp, T.b-T.a);
+          double kac = GeometryTools::intersection(T.a, T.c-T.a, xp, T.c-T.a);
+          double kbc = GeometryTools::intersection(T.b, T.c-T.b, xp, T.c-T.b);
+          if ((kab >= 0) && (kab <= 1)) {
+            xi = T.a + kab*(T.b-T.a);
+            double G = (xi-xp).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+          if ((kac >= 0) && (kac <= 1)) {
+            xi = T.a + kac*(T.c-T.a);
+            double G = (xi-xp).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+          if ((kbc >= 0) && (kbc <= 1)) {
+            xi = T.b + kbc*(T.c-T.b);
+            double G = (xi-xp).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+          {
+            double G = (xp-T.a).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+          {
+            double G = (xp-T.b).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+          {
+            double G = (xp-T.c).abs();
+            if (G < fabs(m_G[i_nodes])) {
+              m_G[i_nodes] = sign*G;
+            }
+          }
+        }
+      }
+    } while (!passed);
   }
+}
+
+vec3_t SurfaceProjection::calcGradG(vec3_t x)
+{
+  int cell = m_OTGrid.findCell(x);
+  vec3_t DG(0,0,0);
+  DG[0] += m_G[m_OTGrid.getNode(cell, 1)] - m_G[m_OTGrid.getNode(cell, 0)];
+  DG[0] += m_G[m_OTGrid.getNode(cell, 3)] - m_G[m_OTGrid.getNode(cell, 2)];
+  DG[0] += m_G[m_OTGrid.getNode(cell, 5)] - m_G[m_OTGrid.getNode(cell, 4)];
+  DG[0] += m_G[m_OTGrid.getNode(cell, 7)] - m_G[m_OTGrid.getNode(cell, 6)];
+  DG[0] /= m_OTGrid.getDx(cell);
+  DG[1] += m_G[m_OTGrid.getNode(cell, 2)] - m_G[m_OTGrid.getNode(cell, 0)];
+  DG[1] += m_G[m_OTGrid.getNode(cell, 3)] - m_G[m_OTGrid.getNode(cell, 1)];
+  DG[1] += m_G[m_OTGrid.getNode(cell, 6)] - m_G[m_OTGrid.getNode(cell, 4)];
+  DG[1] += m_G[m_OTGrid.getNode(cell, 7)] - m_G[m_OTGrid.getNode(cell, 5)];
+  DG[1] /= m_OTGrid.getDy(cell);
+  DG[2] += m_G[m_OTGrid.getNode(cell, 4)] - m_G[m_OTGrid.getNode(cell, 0)];
+  DG[2] += m_G[m_OTGrid.getNode(cell, 5)] - m_G[m_OTGrid.getNode(cell, 1)];
+  DG[2] += m_G[m_OTGrid.getNode(cell, 6)] - m_G[m_OTGrid.getNode(cell, 2)];
+  DG[2] += m_G[m_OTGrid.getNode(cell, 7)] - m_G[m_OTGrid.getNode(cell, 3)];
+  DG[2] /= m_OTGrid.getDz(cell);
+  DG *= 0.25;
+  return DG;
+}
+
+double SurfaceProjection::calcG(vec3_t x)
+{
+  //cout << m_OTGrid.getNumCells() << ',' << x << endl;
+  int cell = m_OTGrid.findCell(x);
+  vec3_t r = x - m_OTGrid.getNodePosition(m_OTGrid.getNode(cell, 0));
+  double kx = r[0]/m_OTGrid.getDx(cell);
+  double ky = r[1]/m_OTGrid.getDy(cell);
+  double kz = r[2]/m_OTGrid.getDz(cell);
+  double g_01 = (1-kx)*m_G[m_OTGrid.getNode(cell, 0)] + kx*m_G[m_OTGrid.getNode(cell, 1)];
+  double g_23 = (1-kx)*m_G[m_OTGrid.getNode(cell, 2)] + kx*m_G[m_OTGrid.getNode(cell, 3)];
+  double g_45 = (1-kx)*m_G[m_OTGrid.getNode(cell, 4)] + kx*m_G[m_OTGrid.getNode(cell, 5)];
+  double g_67 = (1-kx)*m_G[m_OTGrid.getNode(cell, 6)] + kx*m_G[m_OTGrid.getNode(cell, 7)];
+  double g_01_23 = (1-ky)*g_01 + ky*g_23;
+  double g_45_67 = (1-ky)*g_45 + ky*g_67;
+  return (1-kz)*g_01_23 + kz*g_45_67;
+}
+
+void SurfaceProjection::writeOctree(QString file_name)
+{
+  EG_VTKSP(vtkUnstructuredGrid, otg);
+  m_OTGrid.toVtkGrid(otg);
+  EG_VTKSP(vtkDoubleArray, g);
+  g->SetName("g");
+  g->SetNumberOfValues(otg->GetNumberOfPoints());
+  otg->GetPointData()->AddArray(g);
+  for (int i = 0; i < otg->GetNumberOfPoints(); ++i) {
+    g->SetValue(i, m_G[i]);
+  }
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName((GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtu").toAscii().data());
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(otg);
+  vtu->Write();
+  //writeGrid(m_BGrid, "m_BGrid");
+}
+
+vec3_t SurfaceProjection::project(vec3_t x)
+{
+  int count = 0;
+  double& _x = x[0];
+  double& _y = x[1];
+  double& _z = x[2];
+  double g = calcG(x);
+  while (fabs(g) > 1e-8) {
+    if (count > 100) {
+      EG_ERR_RETURN("projection failed");
+    }
+    ++count;
+    vec3_t dx = calcGradG(x);
+    dx.normalise();
+    if (g != 0) {
+      x -= m_Relax*g*dx;
+    }
+    g = calcG(x);
+  }
+  return x;
 }
