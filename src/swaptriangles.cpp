@@ -37,11 +37,6 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
 
 void SwapTriangles::operate()
 {
-  l2g_t  cells = getPartCells();
-  g2l_t _cells = getPartLocalCells();
-  l2l_t  n2c   = getPartN2C();
-  g2l_t _nodes = getPartLocalNodes();
-
   cout << "swapping edges of boundary triangles (Delaunay)" << endl;
   
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
@@ -54,6 +49,10 @@ void SwapTriangles::operate()
   do {
     N_swaps = 0;
     setAllSurfaceCells();
+    l2g_t  cells = getPartCells();
+    g2l_t _cells = getPartLocalCells();
+    l2l_t  n2c   = getPartN2C();
+    g2l_t _nodes = getPartLocalNodes();
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {

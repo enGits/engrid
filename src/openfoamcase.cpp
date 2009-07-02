@@ -1,5 +1,7 @@
 #include "openfoamcase.h"
 
+#include "filetemplate.h"
+
 #include <iostream>
 using namespace std;
 

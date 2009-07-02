@@ -174,5 +174,3 @@ inline void print_table(vector<vector<double> > f, string file_name)
 };
 
 #endif
-
-
