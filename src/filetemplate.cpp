@@ -122,6 +122,14 @@ void FileTemplate::setOutValues( QStringList L )
   m_OutValues = L;
 }
 
+QString FileTemplate::getContents() {
+  return QString("TODO");
+}
+
+void FileTemplate::setContents(QString contents) {
+
+}
+
 TemplateDialog::TemplateDialog( QVector <QString> files, QWidget *parent ) : QDialog( parent )
 {
 

@@ -44,6 +44,8 @@ class FileTemplate
     void print();
     QVector <TemplateLine> getLines();
     void setOutValues( QStringList L );
+    QString getContents();
+    void setContents(QString contents);
 };
 
 class TemplateFormLayout : public QFormLayout

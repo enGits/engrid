@@ -93,6 +93,7 @@
     <addaction name="actionViewYM" />
     <addaction name="separator" />
     <addaction name="actionZoomAll" />
+    <addaction name="actionZoomOnPickedObject" />
     <addaction name="actionBoundaryCodes" />
     <addaction name="actionRedraw" />
     <addaction name="actionForcedRedraw" />
@@ -272,7 +273,7 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-239</y>
           <width>212</width>
           <height>547</height>
          </rect>
@@ -660,7 +661,7 @@
         <property name="geometry" >
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-110</y>
           <width>228</width>
           <height>597</height>
          </rect>
@@ -1555,6 +1556,22 @@
     <hint type="sourcelabel" >
      <x>936</x>
      <y>609</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_ZoomOnPickedObject</sender>
+   <signal>clicked()</signal>
+   <receiver>actionZoomOnPickedObject</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>941</x>
+     <y>549</y>
     </hint>
     <hint type="destinationlabel" >
      <x>-1</x>

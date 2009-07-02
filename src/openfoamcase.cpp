@@ -22,14 +22,16 @@ void OpenFOAMcase::operate()
   
   FileTemplate file_template(files[0]);
   
-  
-  QString str = GuiMainWindow::pointer()->getXmlSection("openfoam/simplefoam/standard");
+  QString section = "openfoam/simplefoam/standard";
+  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
   qDebug()<<"=======";
-  qDebug()<<str;
+  qDebug()<<openfoam_string;
   qDebug()<<"=======";
-  QString str2 = GuiMainWindow::pointer()->getXmlSection("engrid/bc");
-  qWarning()<<"=======";
-  qWarning()<<str2;
-  qWarning()<<"=======";
-//   void    setXmlSection(QString name, QString contents);
+  if(openfoam_string == "") {
+    QString contents = file_template.getContents();
+    GuiMainWindow::pointer()->setXmlSection(section, contents);
+  }
+  else {
+    file_template.setContents(openfoam_string);
+  }
 }
