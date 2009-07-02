@@ -177,8 +177,7 @@ private: // methods
   
   void        setupVtk();
   void        addVtkTypeInfo(); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
-  static void pickCellCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
-  static void pickPointCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
+  static void pickCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
   void        updateSurfaceActors(bool forced);
   void        updateVolumeActors(bool forced);
 
