@@ -29,6 +29,7 @@ class vtkEgBoundaryCodesFilter;
 #include <vtkEgGridFilter.h>
 #include <QSet>
 
+/** Class used to filter out selected boundary codes for viewing and picking */
 class vtkEgBoundaryCodesFilter : public vtkEgGridFilter
 {
   

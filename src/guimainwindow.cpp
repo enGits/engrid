@@ -566,7 +566,6 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     }
     if(ui.checkBox_ShowPickSphere->checkState()) {
       if(m_UseVTKInteractor) {
-        qDebug()<<"Using VTK interactor";
         if(ui.radioButton_CellPicker->isChecked()) {
           getInteractor()->SetPicker(m_CellPicker);
           vtkIdType id_cell = getPickedCell();
@@ -1518,7 +1517,6 @@ vtkIdType GuiMainWindow::getPickedCell()
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCC(vtkLongArray_t, cell_index, m_BCodesFilter->GetOutput(), "cell_index");
-      vtkIdType id_cell;
       if (m_UseVTKInteractor) {
         picked_cell = cell_index->GetValue(m_CellPicker->GetCellId());
       } else {
@@ -1536,7 +1534,6 @@ vtkIdType GuiMainWindow::getPickedPoint()
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCN(vtkLongArray_t, node_index, m_BCodesFilter->GetOutput(), "node_index");
-      vtkIdType id_point;
       if (m_UseVTKInteractor) {
         picked_point = node_index->GetValue(m_PointPicker->GetPointId());
       } else {
