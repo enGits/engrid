@@ -94,6 +94,7 @@
     <addaction name="actionViewYM"/>
     <addaction name="separator"/>
     <addaction name="actionZoomAll"/>
+    <addaction name="actionZoomOnPickedObject"/>
     <addaction name="actionBoundaryCodes"/>
     <addaction name="actionRedraw"/>
     <addaction name="actionForcedRedraw"/>
@@ -156,6 +157,7 @@
     <addaction name="actionExportBinaryStl"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
+    <addaction name="actionOpenFOAMcase"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1406,6 +1408,11 @@
     <string>store geometry for surface meshing</string>
    </property>
   </action>
+  <action name="actionOpenFOAMcase">
+   <property name="text">
+    <string>edit OpenFOAM case</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9"/>
  <customwidgets>
@@ -1556,6 +1563,22 @@
     <hint type="sourcelabel">
      <x>936</x>
      <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_ZoomOnPickedObject</sender>
+   <signal>clicked()</signal>
+   <receiver>actionZoomOnPickedObject</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>941</x>
+     <y>549</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

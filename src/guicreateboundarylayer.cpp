@@ -44,11 +44,6 @@ void GuiCreateBoundaryLayer::before()
 
 void GuiCreateBoundaryLayer::operate()
 {
-  l2g_t  nodes = getPartNodes();
-  l2g_t  cells = getPartCells();
-  g2l_t _nodes = getPartLocalNodes();
-  l2l_t  n2c   = getPartN2C();
-
   getSelectedItems(ui.listWidgetBC, boundary_codes);
   QString volume_name = getSelectedVolume(ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
@@ -74,6 +69,10 @@ void GuiCreateBoundaryLayer::operate()
   }
 
   setAllCells();
+  l2g_t  nodes = getPartNodes();
+  l2g_t  cells = getPartCells();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2c   = getPartN2C();
   getSurfaceCells(boundary_codes, layer_cells, grid);
 
   cout << "\n\ncreating boundary layer mesh)" << endl;

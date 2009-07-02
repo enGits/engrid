@@ -30,6 +30,7 @@ callgrind*
 # build folder(s) and executables
 /platforms/
 engrid
+engrid_debug
 
 # generated Makefiles
 Makefile
@@ -39,7 +40,6 @@ Makefile.Release
 netgen_svn
 tmp.txt
 *.kdevelop.pcs
-*.kdevses
 engrid.kdevelop.ignore_pcs
 .bzr
 .hg
@@ -55,6 +55,7 @@ netgen_svn_old
 *.output
 docs
 *.tmp
+*.dbg
 
 # LaTeX generated files - anywhere
 *.aux

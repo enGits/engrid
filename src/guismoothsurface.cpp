@@ -50,13 +50,6 @@
 
 #include <stdio.h>
 
-///////////////////////////////////////////
-/* Here is how we we get QTextStreams that look like iostreams */
-QTextStream Qcin(stdin, QIODevice::ReadOnly);
-QTextStream Qcout(stdout, QIODevice::WriteOnly);
-QTextStream Qcerr(stderr, QIODevice::WriteOnly);
-///////////////////////////////////////////
-
 //////////////////////////////////////////////
 
 int cout_vtkWindowedSincPolyDataFilter(vtkWindowedSincPolyDataFilter* smooth)
@@ -166,8 +159,8 @@ GuiSmoothSurface::GuiSmoothSurface()
   
   
   current_filename= GuiMainWindow::pointer()->getFilename();
-  Qcout<<"current_filename="<<current_filename<<endl;
-  Qcout<<"Loading settings from "+current_filename+".sp..."<<endl;
+  qDebug()<<"current_filename="<<current_filename;
+  qDebug()<<"Loading settings from "+current_filename+".sp...";
   
   if (!m_tableWidget->readFile(current_filename+".sp",0)) {
     cout<<"Loading settingssheet failed"<<endl;
@@ -470,8 +463,8 @@ void GuiSmoothSurface::operate()
   //Save settings
   writeSettings();
   
-  Qcout<<"current_filename="<<current_filename<<endl;
-  Qcout<<"Saving settings as "+current_filename+".sp..."<<endl;
+  qDebug()<<"current_filename="<<current_filename;
+  qDebug()<<"Saving settings as "+current_filename+".sp...";
   if(!m_tableWidget->writeFile(current_filename+".sp")) cout<<"Saving settingssheet failed."<<endl;
   
   cout<<"METHOD "<<ui.SmoothMethod->currentIndex()<<endl;

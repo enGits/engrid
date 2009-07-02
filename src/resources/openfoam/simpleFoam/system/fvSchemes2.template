@@ -7,61 +7,62 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     <<<SpinBox: version: 0, 10, 1>>>;
-    floatversion     <<<DoubleSpinBox: version: 0, 100, 0.5>>>;
-    format      ascii;
-    class       dictionary;
-    object      fvSchemes;
+  version     <<<SpinBox: version int : 0, 14, 5, 14>>>;
+  floatversion     <<<DoubleSpinBox: version double : 0, 100, 0.5, 5, 84>>>;
+  format      ascii;
+  class       dictionary;
+  object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 ddtSchemes
 {
-    default <<<IntLineEdit: ddtSchemes int >>>;
-    default <<<DoubleLineEdit: ddtSchemes double >>>;
-    default <<<LineEdit: ddtSchemes text >>>;
+  default <<<IntLineEdit: ddtSchemes int : 84 >>>;
+  default <<<DoubleLineEdit: ddtSchemes double : 6.28 >>>;
+  default <<<TextLineEdit: ddtSchemes text : totototo >>>;
 }
 
 gradSchemes
 {
-    default         Gauss linear;
-    grad(p)         Gauss linear;
-    grad(U)         Gauss linear;
+  default         Gauss linear;
+  grad(p)         Gauss linear;
+  grad(U)         Gauss linear;
 }
 
 divSchemes
 {
-    default         	none;
-    div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
-    div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
-    div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+  default         	none;
+  div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+  div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+  div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
 }
 
 laplacianSchemes
 {
-    default         			none;
-    laplacian(nuEff,U) 			Gauss linear corrected;
-    laplacian((1|A(U)),p)		Gauss linear corrected;
-    laplacian(DkEff,k) 			Gauss linear corrected;
-    laplacian(DomegaEff,omega) 		Gauss linear corrected;
-    laplacian(1,p)                      Gauss linear corrected;
+  default         			none;
+  laplacian(nuEff,U) 			Gauss linear corrected;
+  laplacian((1|A(U)),p)		Gauss linear corrected;
+  laplacian(DkEff,k) 			Gauss linear corrected;
+  laplacian(DomegaEff,omega) 		Gauss linear corrected;
+  laplacian(1,p)                      Gauss linear corrected;
 }
 
 interpolationSchemes
 {
-    default         linear;
-    interpolate(U)  linear;
+  default         linear;
+  interpolate(U)  linear;
 }
 
 snGradSchemes
 {
-    default         corrected;
+  default         corrected;
 }
 
 fluxRequired
 {
-    default         <<<CheckBox: fluxRequired: yes, no>>>;
-    p;
+  default         <<<CheckBox: fluxRequired 1 : unchecked, yes, no>>>;
+  default         <<<CheckBox: fluxRequired 2 : checked, yes, no>>>;
+  p;
 }
 
 // ************************************************************************* //

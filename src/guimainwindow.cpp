@@ -366,7 +366,7 @@ void GuiMainWindow::setupVtk()
   m_PickActor   = vtkActor::New();
   m_CellPicker  = vtkCellPicker::New();
   m_PointPicker = vtkPointPicker::New();
-  //
+  
   m_PickSphere->SetRadius(0.25); //in case the user starts picking points instead of cells
   m_PickMapper->SetInput(m_PickSphere->GetOutput());
   m_PickActor->SetMapper(m_PickMapper);
@@ -374,13 +374,14 @@ void GuiMainWindow::setupVtk()
   m_PickActor->GetProperty()->SetColor(0,0,1);
   m_PickActor->VisibilityOff();
   getRenderer()->AddActor(m_PickActor);
+  
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
-  cbc->SetCallback(pickCellCallBack);
+  cbc->SetCallback(pickCallBack);
+  
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
-  cbc->SetCallback(pickPointCallBack);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
-  cbc->Delete();
-
+  
+//   cbc->Delete();
 }
 
 void GuiMainWindow::updateOutput()
@@ -1494,7 +1495,7 @@ void GuiMainWindow::addVtkTypeInfo()
   grid->GetCellData()->AddArray(vtk_type);
 }
 
-void GuiMainWindow::pickCellCallBack
+void GuiMainWindow::pickCallBack
 (
   vtkObject *caller, 
   unsigned long int eid, 
@@ -1508,24 +1509,6 @@ void GuiMainWindow::pickCellCallBack
   calldata = calldata;
   THIS->updateActors();
   THIS->updateStatusBar();
-  cout<<"pickCellCallBack"<<endl;
-}
-
-void GuiMainWindow::pickPointCallBack
-(
-  vtkObject *caller, 
-  unsigned long int eid, 
-  void *clientdata, 
-  void *calldata
-)
-{
-  caller = caller;
-  eid = eid;
-  clientdata = clientdata;
-  calldata = calldata;
-  THIS->updateActors();
-  THIS->updateStatusBar();
-  cout<<"pickPointCallBack"<<endl;
 }
 
 vtkIdType GuiMainWindow::getPickedCell()
@@ -1535,16 +1518,10 @@ vtkIdType GuiMainWindow::getPickedCell()
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCC(vtkLongArray_t, cell_index, m_BCodesFilter->GetOutput(), "cell_index");
-      vtkIdType id_cell;
       if (m_UseVTKInteractor) {
-        id_cell = cell_index->GetValue(m_CellPicker->GetCellId());
+        picked_cell = cell_index->GetValue(m_CellPicker->GetCellId());
       } else {
-        id_cell = m_PickedCell;
-      }
-      if (id_cell >= 0) {
-        if (id_cell < m_BCodesFilter->GetOutput()->GetNumberOfCells()) {
-          picked_cell = cell_index->GetValue(id_cell);
-        }
+        picked_cell = m_PickedCell;
       }
     }
   }
@@ -1558,14 +1535,10 @@ vtkIdType GuiMainWindow::getPickedPoint()
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCN(vtkLongArray_t, node_index, m_BCodesFilter->GetOutput(), "node_index");
-      vtkIdType id_point;
       if (m_UseVTKInteractor) {
-        id_point = node_index->GetValue(m_PointPicker->GetPointId());
+        picked_point = node_index->GetValue(m_PointPicker->GetPointId());
       } else {
-        id_point = m_PickedPoint;
-      }
-      if (id_point >= 0) {
-        picked_point = node_index->GetValue(id_point);
+        picked_point = m_PickedPoint;
       }
     }
   }

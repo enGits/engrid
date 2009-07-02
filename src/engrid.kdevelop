@@ -153,11 +153,11 @@
     </general>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>/data1/home/mtaverne/engrid/src</mainprogram>
+      <mainprogram>/data1/home/mtaverne/engrid/src/engrid_debug</mainprogram>
       <programargs/>
       <globaldebugarguments/>
       <globalcwd>.</globalcwd>
-      <useglobalprogram>false</useglobalprogram>
+      <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>

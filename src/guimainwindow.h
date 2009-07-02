@@ -57,7 +57,7 @@ class GuiMainWindow;
 #include "volumedefinition.h"
 #include "checksurfaceintegrity.h"
 #include "surfaceprojection.h"
-
+#include "openfoamcase.h"
 #include "std_includes.h"
 #include "guitransform.h"
 
@@ -173,14 +173,13 @@ private: // static attributes
   static QString cwd;
   
   /** a static this pointer (somewhat ugly, but there is only one MainWindow) */
-  static GuiMainWindow *THIS;
+  static GuiMainWindow* THIS;
   
 private: // methods
   
   void        setupVtk();
   void        addVtkTypeInfo(); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
-  static void pickCellCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
-  static void pickPointCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
+  static void pickCallBack(vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata);
   void        updateSurfaceActors(bool forced);
   void        updateVolumeActors(bool forced);
 
@@ -405,6 +404,7 @@ public slots:
   void callFoamWriter()       { EG_STDINTERSLOT(FoamWriter); }
   void callSimpleFoamWriter() { EG_STDINTERSLOT(SimpleFoamWriter); }
   void callCgnsWriter()       { EG_STDINTERSLOT(CgnsWriter); }
+  void callOpenFOAMcase()     { EG_STDINTERSLOT(OpenFOAMcase); }
   void callVtkReader()        { EG_STDREADERSLOT(VtkReader); }
   void callPolyDataReader()   { EG_STDREADERSLOT(PolyDataReader); }
   

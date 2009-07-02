@@ -1206,13 +1206,6 @@ int CheckState2int(Qt::CheckState a)
   else return(2);
 }
 
-// ///////////////////////////////////////////
-// /* Here is how we we get QTextStreams that look like iostreams */
-// Qcin=QTextStream(stdin, QIODevice::ReadOnly);
-// Qcout=QTextStream(stdout, QIODevice::WriteOnly);
-// Qcerr=QTextStream(stderr, QIODevice::WriteOnly);
-// ///////////////////////////////////////////
-
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
 {
   vtkIdType x=min(a,b);
