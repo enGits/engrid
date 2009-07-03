@@ -31,12 +31,12 @@ QString TemplateLine::getDefaultValue()
 
 void TemplateLine::print()
 {
-  qDebug() << "type=" << this->type;
+/*  qDebug() << "type=" << this->type;
   qDebug() << "name=" << this->name;
   qDebug() << "options=" << this->options;
   qDebug() << "default_value_egc=" << this->default_value_egc;
   qDebug() << "default_value_of=" << this->default_value_of;
-  qDebug() << "position=" << this->position;
+  qDebug() << "position=" << this->position;*/
 }
 //=======================================
 
@@ -51,10 +51,10 @@ FileTemplate::FileTemplate( QString filename )
 
 void FileTemplate::print()
 {
-  for ( int i = 0; i < m_Lines.size(); i++ ) {
+/*  for ( int i = 0; i < m_Lines.size(); i++ ) {
     m_Lines[i].print();
     qDebug();
-  }
+  }*/
 }
 
 int FileTemplate::open( QString filename )
@@ -83,7 +83,7 @@ int FileTemplate::save_egc()
   QString section = "openfoam/simplefoam/standard/"+m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection(section, contents);
-  
+  GuiMainWindow::pointer()->saveXml();
   return( 0 );
 }
 
@@ -148,6 +148,10 @@ int FileTemplate::process()
 QVector <TemplateLine> FileTemplate::getLines()
 {
   return( m_Lines );
+}
+
+void FileTemplate::setLines(QVector <TemplateLine> lines) {
+  m_Lines = lines;
 }
 
 QString FileTemplate::getContents() {
@@ -408,6 +412,7 @@ void TemplateFormLayout::getValues()
     }
     else qDebug() << "Unknown type";
   }
+  m_file_template.setLines(m_Lines);
 }
 
 QString TemplateFormLayout::readComboBox( int idx )

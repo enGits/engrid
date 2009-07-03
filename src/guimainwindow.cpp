@@ -1105,7 +1105,7 @@ void GuiMainWindow::saveXml()
 
 void GuiMainWindow::save()
 {
-  cout << m_CurrentFilename.toAscii().data() << endl;
+  cout << "Saving" << m_CurrentFilename.toAscii().data() << endl;
   saveBC();
   if (m_CurrentFilename == "untitled.egc") {
     saveAs();

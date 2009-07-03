@@ -44,8 +44,6 @@ void OpenFOAMcase::operate()
   super_gui.exec();
   qDebug()<<"GUI DONE";
   
-  GuiMainWindow::pointer()->save();
-  
   for(int i = 0; i<files.size(); i++) {
     QFileInfo file_info(files[i]);
     FileTemplate file_template(files[i]);

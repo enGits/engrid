@@ -46,6 +46,7 @@ class FileTemplate
     int process();
     void print();
     QVector <TemplateLine> getLines();
+    void setLines(QVector <TemplateLine> lines);
     QString getContents();
     void setContents(QString contents);
 };
