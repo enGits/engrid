@@ -55,6 +55,7 @@ class GuiMainWindow;
 #include "egvtkobject.h"
 #include "boundarycondition.h"
 #include "volumedefinition.h"
+#include "physicalboundaryconditions.h"
 #include "checksurfaceintegrity.h"
 #include "surfaceprojection.h"
 #include "openfoamcase.h"
@@ -154,7 +155,8 @@ private: // attributes
 
   QMap<int,BoundaryCondition>    bcmap;      ///< mapping between numerical and symbolic boundary codes
   QMap<QString,VolumeDefinition> volmap;     ///< all volume definitions
-
+  QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;     ///< all physical boundary conditions definitions
+  
   QMap<int,SurfaceProjection*>   m_SurfProj; ///< all surface projectors for surface meshing
   
 private: // static attributes
@@ -279,9 +281,13 @@ public: // static methods
   
   BoundaryCondition getBC(int bc) { return bcmap[bc]; }
   VolumeDefinition  getVol(QString volname) { return volmap[volname]; }
+  
   QList<VolumeDefinition> getAllVols();
   void setAllVols(QList<VolumeDefinition> vols);
   void createDefaultVol();
+  
+  QList<PhysicalBoundaryConditions> getAllPhysicalBoundaryConditions();
+  void setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryConditions> physical_boundary_conditions);
   
   static GuiMainWindow* pointer() { return THIS; }
   static void lock() { mutex.lock(); }

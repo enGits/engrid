@@ -26,6 +26,7 @@
 #include "guimainwindow.h"
 #include "volumedefinition.h"
 #include "filetemplate.h"
+#include "physicalboundaryconditions.h"
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
@@ -82,6 +83,7 @@ void GuiEditBoundaryConditions::before()
     ui.T->item(r,2)->setText(bc.getType());
   }
   updateVol();
+  updatePhysicalBoundaryConditions();
   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
   connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
   connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
@@ -92,11 +94,41 @@ void GuiEditBoundaryConditions::before()
 void GuiEditBoundaryConditions::addBoundaryType()
 {
   cout<<"Adding BT"<<endl;
+  QString name = ui.lineEdit_BoundaryTypes->text();
+  if (!name.isEmpty()) {
+    PhysicalBoundaryConditions NPBC(name);
+    QList<PhysicalBoundaryConditions> physical_boundary_conditions;
+    QList<PhysicalBoundaryConditions> new_physical_boundary_conditions;
+    physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
+    foreach (PhysicalBoundaryConditions V, physical_boundary_conditions) {
+      if (NPBC.getName() != V.getName()) {
+        new_physical_boundary_conditions.push_back(V);
+      }
+    }
+    new_physical_boundary_conditions.push_back(NPBC);
+    GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(new_physical_boundary_conditions);
+    updatePhysicalBoundaryConditions();
+  }
 }
 
 void GuiEditBoundaryConditions::deleteBoundaryType()
 {
   cout<<"Deleting BT"<<endl;
+  int row = ui.listWidget_BoundaryType->currentRow();
+  cout<<"row="<<row<<endl;
+  if(row>=0) {
+    QListWidgetItem* list_widget_item = ui.listWidget_BoundaryType->takeItem(row);
+    delete list_widget_item;
+  }
+}
+
+void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
+{
+  ui.listWidget_BoundaryType->clear();
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
+  foreach (PhysicalBoundaryConditions PBC, physical_boundary_conditions) {
+    ui.listWidget_BoundaryType->addItem(PBC.getName());
+  }
 }
 
 void GuiEditBoundaryConditions::updateVol()
@@ -171,5 +203,5 @@ void GuiEditBoundaryConditions::operate()
     vol_list.append(vols[j]);
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
+  
 }
-

@@ -14,13 +14,13 @@ CONFIG += qt \
 #to generate a debug and/or a release binary
 CONFIG += debug_and_release
 
-CONFIG(debug, debug|release) {
-  TARGET = engrid_debug
-  QMAKE_CXXFLAGS += -pg
-  QMAKE_LFLAGS += -pg
+CONFIG(debug, debug|release){
+    TARGET = engrid_debug
+    QMAKE_CXXFLAGS += -pg
+    QMAKE_LFLAGS += -pg
 }
 else {
-  TARGET = engrid
+    TARGET = engrid
 }
 
 #if we want both binaries to be built by default
@@ -74,3 +74,7 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include(engrid-standard.pri)
+HEADERS += physicalboundaryconditions.h
+
+SOURCES += physicalboundaryconditions.cpp
+

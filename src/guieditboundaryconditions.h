@@ -44,7 +44,8 @@ protected: // methods
   
   virtual void operate();
   void         updateVol();
-
+  void         updatePhysicalBoundaryConditions();
+  
 protected slots:
 
   void addVol();

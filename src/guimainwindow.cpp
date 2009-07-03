@@ -1778,6 +1778,23 @@ void GuiMainWindow::setAllVols(QList<VolumeDefinition> vols)
   }
 }
 
+QList<PhysicalBoundaryConditions> GuiMainWindow::getAllPhysicalBoundaryConditions()
+{
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions;
+  foreach(PhysicalBoundaryConditions PBC, m_PhysicalBoundaryConditionsMap) {
+    physical_boundary_conditions.push_back(PBC);
+  }
+  return physical_boundary_conditions;
+}
+
+void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryConditions> physical_boundary_conditions)
+{
+  m_PhysicalBoundaryConditionsMap.clear();
+  foreach (PhysicalBoundaryConditions PBC, physical_boundary_conditions) {
+    m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
+  }
+}
+
 void GuiMainWindow::createDefaultVol()
 {
   QList<VolumeDefinition> vols = getAllVols();
