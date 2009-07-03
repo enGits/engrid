@@ -49,7 +49,9 @@ protected slots:
 
   void addVol();
   void delVol();
-
+  void addBoundaryType();
+  void deleteBoundaryType();
+  
 public: // methods
   
   GuiEditBoundaryConditions();

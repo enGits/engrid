@@ -143,10 +143,12 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 {
   switch (type) {
   case QtDebugMsg:
-    fprintf(stdout, "%s\n", msg);
+//     fprintf(stdout, "%s", msg);
+    cout<<msg<<endl;
     break;
   case QtWarningMsg:
-    fprintf(stderr, "%s\n", msg);
+//     fprintf(stderr, "%s", msg);
+    cerr<<msg<<endl;
     break;
   case QtCriticalMsg:
     fprintf(stderr, "Critical: %s\n", msg);

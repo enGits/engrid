@@ -84,7 +84,19 @@ void GuiEditBoundaryConditions::before()
   updateVol();
   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
   connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
+  connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
   ui.T->setItemDelegate(delegate);
+}
+
+void GuiEditBoundaryConditions::addBoundaryType()
+{
+  cout<<"Adding BT"<<endl;
+}
+
+void GuiEditBoundaryConditions::deleteBoundaryType()
+{
+  cout<<"Deleting BT"<<endl;
 }
 
 void GuiEditBoundaryConditions::updateVol()
