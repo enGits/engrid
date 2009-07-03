@@ -49,7 +49,7 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
 
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
-                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi, double tol = 1e-4);
+                              const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
 bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2);
 

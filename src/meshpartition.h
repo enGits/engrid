@@ -316,7 +316,7 @@ inline int MeshPartition::n2cLL(int i_nodes, int j)
 inline vtkIdType MeshPartition::n2cLG(int i_nodes, int j)
 {
   checkN2C();
-  return m_Nodes[m_N2C[i_nodes][j]];
+  return m_Cells[m_N2C[i_nodes][j]];
 }
 
 inline int MeshPartition::n2cGSize(vtkIdType id_node)

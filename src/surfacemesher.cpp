@@ -228,15 +228,15 @@ int SurfaceMesher::SmoothFunction()
   //laplacian smoothing with projection
   //Roland smoothing with projection
   
-  if (false) {
+  if (true) {
     //laplacian smoothing with projection
-    LaplaceSmoother Lap;
-    Lap.setGrid(this->grid);
-    Lap.setBoundaryCodes(m_bcs);
-    Lap.setSource(m_ProjectionSurface);
-    Lap.setNumberOfIterations(N_SmoothIterations);
-    Lap();
-    Lap.delete_CellLocator_and_ProjectionSurface();
+    LaplaceSmoother lap;
+    lap.setGrid(this->grid);
+    QVector<vtkIdType> cls;
+    getSurfaceCells(m_bcs, cls, this->grid);
+    lap.setCells(cls);
+    lap.setNumberOfIterations(N_SmoothIterations);
+    lap();
   } else {
     //preparations
     QVector<vtkIdType> cells;

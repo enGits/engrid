@@ -56,8 +56,8 @@ class GuiMainWindow;
 #include "boundarycondition.h"
 #include "volumedefinition.h"
 #include "checksurfaceintegrity.h"
+#include "surfaceprojection.h"
 #include "openfoamcase.h"
-
 #include "std_includes.h"
 #include "guitransform.h"
 
@@ -152,8 +152,10 @@ private: // attributes
   QTimer       log_timer;
   QDockWidget* dock_widget;
 
-  QMap<int,BoundaryCondition>    bcmap;  ///< mapping between numerical and symbolic boundary codes
-  QMap<QString,VolumeDefinition> volmap; ///< all volume definitions
+  QMap<int,BoundaryCondition>    bcmap;      ///< mapping between numerical and symbolic boundary codes
+  QMap<QString,VolumeDefinition> volmap;     ///< all volume definitions
+
+  QMap<int,SurfaceProjection*>   m_SurfProj; ///< all surface projectors for surface meshing
   
 private: // static attributes
 
@@ -293,6 +295,8 @@ public: // static methods
   bool pickCell(vtkIdType id_cell);
   
   QString getFilename() { return(m_CurrentFilename); }
+
+  SurfaceProjection* getSurfProj(int bc) { return m_SurfProj[bc]; }
   
 public slots:
 
@@ -363,6 +367,8 @@ public slots:
   void clearOutput() { ui.textEditOutput->clear(); }
   void updateOutput();
   void periodicUpdate();
+
+  void storeSurfaceProjection();
     
   // SLOTS for all standard operations should be defined below;
   // entries should look like this:

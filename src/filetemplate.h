@@ -20,6 +20,7 @@ class TemplateLine
     QString type;
     QString name;
     QString options;
+    QString default_value;
     int position;
   public:
     void print();

@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -130,6 +130,7 @@
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="separator"/>
     <addaction name="actionSmoothVolumeGrid"/>
+    <addaction name="actionStoreGeometry"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -274,9 +275,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-188</y>
-          <width>212</width>
-          <height>501</height>
+          <y>0</y>
+          <width>198</width>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -662,9 +663,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-201</y>
-          <width>228</width>
-          <height>557</height>
+          <y>0</y>
+          <width>214</width>
+          <height>533</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1400,6 +1401,11 @@
    </property>
    <property name="text">
     <string>Show debugging utilities</string>
+   </property>
+  </action>
+  <action name="actionStoreGeometry">
+   <property name="text">
+    <string>store geometry for surface meshing</string>
    </property>
   </action>
   <action name="actionOpenFOAMcase">

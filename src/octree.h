@@ -132,7 +132,7 @@ public: // methods
   double getDz(const OctreeCell& cell);
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
   int    findCell(vec3_t x);
-  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double tol = 1e-4);
+  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 

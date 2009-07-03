@@ -109,6 +109,7 @@ int FileTemplate::process()
     template_line.type = L_elements[0];
     template_line.name = L_elements[1];
     template_line.options = L_elements[2];
+    template_line.default_value = L_elements[3];
     template_line.position = i;
     m_Lines.push_back( template_line );
   }

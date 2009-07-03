@@ -110,6 +110,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
   connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
+  connect(ui.actionStoreGeometry,          SIGNAL(activated()),       this, SLOT(storeSurfaceProjection()));
   
   connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
   
@@ -129,7 +130,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
   connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
   
-#include "std_connections.h"
+# include "std_connections.h"
   
   if (qset.contains("working_directory")) {
     cwd = qset.value("working_directory").toString();
@@ -1797,4 +1798,28 @@ void GuiMainWindow::markOutputLine()
   cout << "\n****************************************\n";
   cout << QTime::currentTime().toString("hh:mm:ss").toAscii().data();
   cout << "\n****************************************\n" << endl;
+}
+
+void GuiMainWindow::storeSurfaceProjection()
+{
+  foreach (SurfaceProjection* proj, m_SurfProj) {
+    delete proj;
+  }
+  m_SurfProj.clear();
+  cout << "creating octrees for surface projection:" << endl;
+  foreach (int bc, m_AllBoundaryCodes) {
+    SurfaceProjection *proj = new SurfaceProjection();
+    m_SurfProj[bc] = proj;
+    QSet<int> bcs;
+    bcs.insert(bc);
+    QVector<vtkIdType> cls;
+    getSurfaceCells(bcs, cls, grid);
+    proj->setBackgroundGrid(grid, cls);
+    QString file_name;
+    file_name.setNum(bc);
+    file_name = "OctreeBC" + file_name;
+    proj->writeOctree(file_name);
+    proj->setRelaxation(1.0);
+    cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
+  }
 }

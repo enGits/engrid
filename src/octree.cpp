@@ -622,9 +622,10 @@ vec3_t Octree::getFaceCentre(int i_cells, int i_faces)
 
 int Octree::findCell(vec3_t x)
 {
+  //cout << x << ',' << m_Corner1 << ',' << m_Corner2 << endl;
   for (int i = 0; i < 3; ++i) {
     if ((x[i] < m_Corner1[i]) || (x[i] > m_Corner2[i])) {
-      EG_BUG;
+      EG_ERR_RETURN("node outside of octree mesh");
     }
   }
   int i_cells = 0;
@@ -663,7 +664,7 @@ int Octree::findCell(vec3_t x)
   return i_cells;
 }
 
-bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double tol)
+bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol)
 {
   vec3_t a, b, c;
   if (face == 0) {
@@ -698,7 +699,7 @@ bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double tol
   g1.normalise();
   g2.normalise();
   vec3_t n = g1.cross(g2);
-  double k = GeometryTools::intersection(x1, x2-x1, a, n);
+  k = GeometryTools::intersection(x1, x2-x1, a, n);
   bool intersects = false;
   if ((k > 0 - tol*(x1-x2).abs()) && (k < 1 + tol*(x1-x2).abs())) {
     vec3_t x = x1 + k*(x2-x1) - a;
