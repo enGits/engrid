@@ -196,6 +196,10 @@ private slots:
 
   void openBC();
   void saveBC();
+  
+  void openPhysicalBoundaryConditions();
+  void savePhysicalBoundaryConditions();
+  
   void openGrid(QString file_name);
   void saveGrid(QString file_name);
 

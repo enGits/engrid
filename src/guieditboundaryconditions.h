@@ -52,7 +52,8 @@ protected slots:
   void delVol();
   void addBoundaryType();
   void deleteBoundaryType();
-  
+  void changePhysicalValues( QListWidgetItem* );
+    
 public: // methods
   
   GuiEditBoundaryConditions();

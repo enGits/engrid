@@ -27,14 +27,21 @@
 
 class PhysicalBoundaryConditions{
 public:
-  QString name;
-  double pressure;
-  double velocity;
-  double temperature;
+  QString m_Name;
+  int m_Index;
+public:
+  double m_Pressure;
+  double m_Temperature;
+  double m_Velocity;
 public:
   PhysicalBoundaryConditions();
-  PhysicalBoundaryConditions(QString name);
-  QString getName() { return name; }
+  PhysicalBoundaryConditions(QString name, int index);
+  PhysicalBoundaryConditions(QString name, int index, QString values);
+public:
+  QString getName();
+  QString getIndex();
+  QString getValues();
+  void setDefaults();
 };
 
 #endif

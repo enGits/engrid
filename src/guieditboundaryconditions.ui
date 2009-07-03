@@ -118,42 +118,42 @@
            <item row="0" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
-              <string>pressure :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_3" >
-             <property name="text" >
-              <string>velocity :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_4" >
-             <property name="text" >
-              <string>temperature :</string>
+              <string>Pressure :</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1" >
-            <widget class="QLineEdit" name="lineEdit" >
+            <widget class="QLineEdit" name="lineEdit_Pressure" >
              <property name="text" >
               <string>0</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1" >
-            <widget class="QLineEdit" name="lineEdit_2" >
+            <widget class="QLineEdit" name="lineEdit_Temperature" >
              <property name="text" >
               <string>0</string>
              </property>
             </widget>
            </item>
            <item row="2" column="1" >
-            <widget class="QLineEdit" name="lineEdit_3" >
+            <widget class="QLineEdit" name="lineEdit_Velocity" >
              <property name="text" >
               <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_4" >
+             <property name="text" >
+              <string>Temperature :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="label_3" >
+             <property name="text" >
+              <string>Velocity :</string>
              </property>
             </widget>
            </item>

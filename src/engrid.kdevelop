@@ -155,7 +155,7 @@
       <directoryradio>executable</directoryradio>
       <mainprogram>/data1/home/mtaverne/engrid/src/engrid_debug</mainprogram>
       <programargs>-f ~/Geometries/simplecube.egc</programargs>
-      <globaldebugarguments></globaldebugarguments>
+      <globaldebugarguments>-f ~/Geometries/simplecube.egc</globaldebugarguments>
       <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>

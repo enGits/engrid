@@ -88,7 +88,13 @@ void GuiEditBoundaryConditions::before()
   connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
   connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
   connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
+  connect(ui.listWidget_BoundaryType, SIGNAL(itemClicked( QListWidgetItem* )), this, SLOT(changePhysicalValues( QListWidgetItem* )));
   ui.T->setItemDelegate(delegate);
+}
+
+void GuiEditBoundaryConditions::changePhysicalValues( QListWidgetItem* )
+{
+  cout<<"void changePhysicalValues( QListWidgetItem* )"<<endl;
 }
 
 void GuiEditBoundaryConditions::addBoundaryType()
@@ -96,7 +102,7 @@ void GuiEditBoundaryConditions::addBoundaryType()
   cout<<"Adding BT"<<endl;
   QString name = ui.lineEdit_BoundaryTypes->text();
   if (!name.isEmpty()) {
-    PhysicalBoundaryConditions NPBC(name);
+    PhysicalBoundaryConditions NPBC(name, ui.listWidget_BoundaryType->count());
     QList<PhysicalBoundaryConditions> physical_boundary_conditions;
     QList<PhysicalBoundaryConditions> new_physical_boundary_conditions;
     physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
@@ -179,6 +185,7 @@ void GuiEditBoundaryConditions::delVol()
 
 void GuiEditBoundaryConditions::operate()
 {
+  // BoundaryCondition and VolumeDefinition
   QVector<VolumeDefinition> vols(ui.T->columnCount());
   for (int j = 3; j < ui.T->columnCount(); ++j) {
     QString vol_name = ui.T->horizontalHeaderItem(j)->text();
@@ -204,4 +211,16 @@ void GuiEditBoundaryConditions::operate()
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
   
+  // PhysicalBoundaryConditions
+  QVector<PhysicalBoundaryConditions> physical_boundary_conditions(ui.listWidget_BoundaryType->count());
+  for (int j = 0; j < ui.listWidget_BoundaryType->count(); ++j) {
+    QString physical_boundary_conditions_name = ui.listWidget_BoundaryType->item(j)->text();
+    PhysicalBoundaryConditions PBC(physical_boundary_conditions_name, j);
+    physical_boundary_conditions[j] = PBC;
+  }
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions_list;
+  for (int j = 0; j < ui.listWidget_BoundaryType->count(); ++j) {
+    physical_boundary_conditions_list.append(physical_boundary_conditions[j]);
+  }
+  GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(physical_boundary_conditions_list);
 }
