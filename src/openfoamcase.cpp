@@ -20,7 +20,7 @@ void OpenFOAMcase::operate()
   files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template" );
   files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
   
-  for(int i = 0; i<files.size(); i++) {
+/*  for(int i = 0; i<files.size(); i++) {
     QFileInfo file_info(files[i]);
     FileTemplate file_template(files[i]);
     QString section = "openfoam/simplefoam/standard/"+file_info.completeBaseName();
@@ -38,8 +38,18 @@ void OpenFOAMcase::operate()
       file_template.print();
       qDebug()<<"=== file_template.print(); END ===";
     }
-  }
+  }*/
+  
   TemplateDialog super_gui( files );
   super_gui.exec();
   qDebug()<<"GUI DONE";
+  
+  GuiMainWindow::pointer()->save();
+  
+  for(int i = 0; i<files.size(); i++) {
+    QFileInfo file_info(files[i]);
+    FileTemplate file_template(files[i]);
+    file_template.save_of();
+  }
+  
 }

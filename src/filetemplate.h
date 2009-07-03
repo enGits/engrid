@@ -35,18 +35,17 @@ class FileTemplate
     QVector <TemplateLine> m_Lines;
     QString m_InText;
     QString m_OutText;
-    QStringList m_OutValues;
 
   public:
     FileTemplate();
     FileTemplate( QString filename );
     int open( QString filename );
-    int save();
-    int saveAs( QString filename );
+    int save_egc();
+    int save_of();
+    int saveAs_of( QString filename );
     int process();
     void print();
     QVector <TemplateLine> getLines();
-    void setOutValues( QStringList L );
     QString getContents();
     void setContents(QString contents);
 };
@@ -58,7 +57,6 @@ class TemplateFormLayout : public QFormLayout
   private:
     FileTemplate m_file_template;
     QVector <TemplateLine> m_Lines;
-    QStringList m_OutValues;
 
     QVector <QComboBox*> m_ComboBoxVector;
     QVector <QStringList> m_ComboboxValues;

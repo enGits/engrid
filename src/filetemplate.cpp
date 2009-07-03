@@ -77,13 +77,33 @@ int FileTemplate::open( QString filename )
   return( 0 );
 }
 
-int FileTemplate::save()
+int FileTemplate::save_egc()
 {
-  this->saveAs( m_FileInfo.completeBaseName() );
+  qDebug() << "Saving EGC ... ";
+  QString section = "openfoam/simplefoam/standard/"+m_FileInfo.completeBaseName();
+  QString contents = this->getContents();
+  GuiMainWindow::pointer()->setXmlSection(section, contents);
+  
   return( 0 );
 }
 
-int FileTemplate::saveAs( QString filename )
+int FileTemplate::save_of()
+{
+  qDebug() << "Saving OF ...";
+  
+  
+  QString section = "openfoam/simplefoam/standard/"+m_FileInfo.completeBaseName();
+  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
+  this->setContents(openfoam_string);
+  qDebug()<<"=== After reading EGC START ===";
+  this->print();
+  qDebug()<<"=== After reading EGC END ===";
+  
+  this->saveAs_of( m_FileInfo.completeBaseName() );
+  return( 0 );
+}
+
+int FileTemplate::saveAs_of( QString filename )
 {
   qDebug() << "Saving as " << filename;
   m_FileInfo.setFile( filename );
@@ -96,10 +116,10 @@ int FileTemplate::saveAs( QString filename )
   m_OutText = m_InText;
   QRegExp regexp( "<<<.*>>>" );
   regexp.setMinimal( true );
-  for ( int i = 0; i < m_OutValues.size(); i++ ) {
+  for ( int i = 0; i < m_Lines.size(); i++ ) {
     int idx1 = m_OutText.indexOf( "<<<" );
     int idx2 = m_OutText.indexOf( ">>>" );
-    m_OutText.replace( idx1, idx2 - idx1 + 3, m_OutValues[i] );
+    m_OutText.replace( idx1, idx2 - idx1 + 3, m_Lines[i].getDefaultValue() );
   }
   out << m_OutText;
   file.close();
@@ -130,16 +150,11 @@ QVector <TemplateLine> FileTemplate::getLines()
   return( m_Lines );
 }
 
-void FileTemplate::setOutValues( QStringList L )
-{
-  m_OutValues = L;
-}
-
 QString FileTemplate::getContents() {
   QString ret;
   ret += "\n";
   for(int i = 0; i < m_Lines.size(); i++) {
-    ret += m_Lines[i].name + " = " + m_Lines[i].default_value_of + ";\n";
+    ret += m_Lines[i].name + " = " + m_Lines[i].getDefaultValue() + ";\n";
   }
   return ret;
 }
@@ -346,8 +361,7 @@ void TemplateFormLayout::save()
 {
   qDebug() << "Saving...";
   getValues();
-  m_file_template.setOutValues( m_OutValues );
-  m_file_template.save();
+  m_file_template.save_egc();
 }
 
 void TemplateFormLayout::saveAs()
@@ -365,31 +379,31 @@ void TemplateFormLayout::getValues()
   int doublespinbox_idx = 0;
   for ( int i = 0; i < m_Lines.size(); i++ ) {
     if ( m_Lines[i].type == "ComboBox" ) {
-      m_OutValues << readComboBox( combobox_idx );
+      m_Lines[i].default_value_egc = readComboBox( combobox_idx );
       combobox_idx++;
     }
     else if ( m_Lines[i].type == "IntLineEdit" ) {
-      m_OutValues << readIntLineEdit( intlineedit_idx );
+      m_Lines[i].default_value_egc =  readIntLineEdit( intlineedit_idx );
       intlineedit_idx++;
     }
     else if ( m_Lines[i].type == "DoubleLineEdit" ) {
-      m_OutValues << readDoubleLineEdit( doublelineedit_idx );
+      m_Lines[i].default_value_egc =  readDoubleLineEdit( doublelineedit_idx );
       doublelineedit_idx++;
     }
     else if ( m_Lines[i].type == "TextLineEdit" ) {
-      m_OutValues << readTextLineEdit( textlineedit_idx );
+      m_Lines[i].default_value_egc =  readTextLineEdit( textlineedit_idx );
       textlineedit_idx++;
     }
     else if ( m_Lines[i].type == "CheckBox" ) {
-      m_OutValues << readCheckBox( checkbox_idx );
+      m_Lines[i].default_value_egc =  readCheckBox( checkbox_idx );
       checkbox_idx++;
     }
     else if ( m_Lines[i].type == "SpinBox" ) {
-      m_OutValues << readSpinBox( spinbox_idx );
+      m_Lines[i].default_value_egc =  readSpinBox( spinbox_idx );
       spinbox_idx++;
     }
     else if ( m_Lines[i].type == "DoubleSpinBox" ) {
-      m_OutValues << readDoubleSpinBox( doublespinbox_idx );
+      m_Lines[i].default_value_egc =  readDoubleSpinBox( doublespinbox_idx );
       doublespinbox_idx++;
     }
     else qDebug() << "Unknown type";
