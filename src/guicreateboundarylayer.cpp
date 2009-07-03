@@ -174,4 +174,3 @@ void GuiCreateBoundaryLayer::operate()
   resetOrientation(grid);
   createIndices(grid);
 }
-
