@@ -22,8 +22,10 @@
 //
 
 #include "guieditboundaryconditions.h"
+
 #include "guimainwindow.h"
 #include "volumedefinition.h"
+#include "filetemplate.h"
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
