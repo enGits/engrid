@@ -28,6 +28,7 @@
 #include <QDate>
 
 #include "guimainwindow.h"
+#include "filetemplate.h"
 
 ///@@@ TODO: replace with shellscript?
 void appendLicense(int argc, char ** argv)
@@ -159,6 +160,7 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 int main( int argc, char ** argv )
 {
   qInstallMsgHandler(engridMessageHandler);
+  Q_INIT_RESOURCE(engrid);
   
   ///@@@ TODO: use gnu getopt ? Check windows/mac compatibility.
   if (argc > 1) {

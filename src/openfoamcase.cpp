@@ -39,8 +39,8 @@ void OpenFOAMcase::operate()
 {
   cout << "OpenFOAMcase::operate()" << endl;
   QVector <QString> files;
-  files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
+  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
+  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
   
 /*  for(int i = 0; i<files.size(); i++) {
     QFileInfo file_info(files[i]);

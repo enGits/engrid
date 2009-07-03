@@ -31,13 +31,14 @@
 using namespace std;
 
 //=======================================
+// Only works if a file is already loaded in engrid (.egc necessary)
 int fileTemplateTest( int argc, char ** argv )
 {
   QApplication app( argc, argv );
 
   QVector <QString> files;
-  files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  files.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
+  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
+  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
 
   TemplateDialog super_gui( files );
   super_gui.show();
@@ -53,12 +54,12 @@ QString TemplateLine::getDefaultValue()
 
 void TemplateLine::print()
 {
-/*  qDebug() << "type=" << this->type;
+  qDebug() << "type=" << this->type;
   qDebug() << "name=" << this->name;
   qDebug() << "options=" << this->options;
   qDebug() << "default_value_egc=" << this->default_value_egc;
   qDebug() << "default_value_of=" << this->default_value_of;
-  qDebug() << "position=" << this->position;*/
+  qDebug() << "position=" << this->position;
 }
 //=======================================
 
@@ -73,10 +74,10 @@ FileTemplate::FileTemplate( QString filename )
 
 void FileTemplate::print()
 {
-/*  for ( int i = 0; i < m_Lines.size(); i++ ) {
+  for ( int i = 0; i < m_Lines.size(); i++ ) {
     m_Lines[i].print();
     qDebug();
-  }*/
+  }
 }
 
 int FileTemplate::open( QString filename )
@@ -86,10 +87,12 @@ int FileTemplate::open( QString filename )
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
     qDebug() << "ERROR: " << m_FileInfo.filePath() << " not found.";
+    EG_BUG;
     return( -1 );
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
     qDebug() << "ERROR: Failed to open file.";
+    EG_BUG;
     return( -1 );
   }
   QTextStream text_stream( &file );
@@ -247,17 +250,11 @@ TemplateFormLayout::TemplateFormLayout( QString filename, char *name, QWidget *p
   GuiMainWindow::pointer();
   QFormLayout::setObjectName( name );
   m_file_template.open( filename );
-  qDebug()<<"=== Before reading EGC START ===";
-  m_file_template.print();
-  qDebug()<<"=== Before reading EGC END ===";
   
   QFileInfo file_info(filename);
   QString section = "openfoam/simplefoam/standard/"+file_info.completeBaseName();
   QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
   m_file_template.setContents(openfoam_string);
-  qDebug()<<"=== After reading EGC START ===";
-  m_file_template.print();
-  qDebug()<<"=== After reading EGC END ===";
     
   m_Lines = m_file_template.getLines();
   for ( int i = 0; i < m_Lines.size(); i++ ) {
