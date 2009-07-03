@@ -122,44 +122,65 @@
        <string>Solver</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
-          <string>Solver:</string>
-         </property>
-         <property name="alignment" >
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="comboBox_Solver" >
-         <item>
-          <property name="text" >
-           <string>simpleFoam</string>
+       <item row="1" column="0" >
+        <widget class="MultiPageWidget" name="multipagewidget_Solver" >
+         <widget class="QWidget" name="page" >
+          <property name="windowTitle" >
+           <string>Kerrigan</string>
           </property>
-         </item>
-         <item>
-          <property name="text" >
+          <layout class="QVBoxLayout" name="verticalLayout_4" >
+           <item>
+            <widget class="QScrollArea" name="scrollArea" >
+             <property name="widgetResizable" >
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents" >
+              <property name="geometry" >
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>497</width>
+                <height>245</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7" >
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_simpleFoam" />
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_2" >
+          <property name="windowTitle" >
            <string>rhoSimpleFoam</string>
           </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2" >
-        <widget class="QScrollArea" name="scrollArea_Solver" >
-         <property name="widgetResizable" >
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>533</width>
-            <height>281</height>
-           </rect>
-          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5" >
+           <item>
+            <widget class="QScrollArea" name="scrollArea_2" >
+             <property name="widgetResizable" >
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_2" >
+              <property name="geometry" >
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>96</width>
+                <height>26</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9" >
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_rhoSimpleFoam" />
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -206,6 +227,15 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MultiPageWidget</class>
+   <extends>QWidget</extends>
+   <header>multipagewidget.h</header>
+   <addpagemethod>addPage</addpagemethod>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="engrid.qrc" />
  </resources>

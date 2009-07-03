@@ -29,6 +29,26 @@
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
+  // simpleFoam
+  QVector <QString> files_simpleFoam;
+  files_simpleFoam.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes.template" );
+  files_simpleFoam.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
+  for(int i = 0; i < files_simpleFoam.size(); i++) {
+    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i]);
+    ui.verticalLayout_simpleFoam->addLayout( template_form_layout_simpleFoam );
+  }
+  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);
+  
+  // rhoSimpleFoam
+  QVector <QString> files_rhoSimpleFoam;
+  files_rhoSimpleFoam.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
+  files_rhoSimpleFoam.push_back( "/data1/home/mtaverne/engrid/src/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
+  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
+    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i]);
+    ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
+  }
+  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
+  
   bcmap = NULL;
   delegate = new GuiVolumeDelegate();
   delegate->setFirstCol(3);
