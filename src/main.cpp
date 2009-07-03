@@ -162,12 +162,30 @@ int main( int argc, char ** argv )
   
   ///@@@ TODO: use gnu getopt ? Check windows/mac compatibility.
   if (argc > 1) {
+    if (QString(argv[1]) == QString("-h")) {
+      QFileInfo file_info(argv[0]);
+      cout<<"Usage:"<<endl;
+      cout<<file_info.fileName().toLatin1().data()<<" : start engrid"<<endl;
+      cout<<file_info.fileName().toLatin1().data()<<" -f FILE : start engrid and open FILE"<<endl;
+      cout<<file_info.fileName().toLatin1().data()<<" -h : Display usage instructions"<<endl;
+      cout<<file_info.fileName().toLatin1().data()<<" -appendlic FILE1 FILE2 ...: Append license to files"<<endl;
+      cout<<file_info.fileName().toLatin1().data()<<" -distbin : Create binary distribution"<<endl;
+      exit(0);
+    };
     if (QString(argv[1]) == QString("-appendlic")) {
       appendLicense(argc, argv);
     };
     if (QString(argv[1]) == QString("-distbin")) {
       makeDistribution();
     };
+    if (QString(argv[1]) == QString("-f") && argc == 3) {
+      QApplication a( argc, argv );
+      GuiMainWindow w;
+      w.show();
+      a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+      GuiMainWindow::pointer()->open(QString(argv[2]));//this could aventually be done with another GuiMainWindow constructor
+      a.exec();
+    }
   } else {
     QApplication a( argc, argv );
     GuiMainWindow w;

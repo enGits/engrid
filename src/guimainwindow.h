@@ -328,6 +328,7 @@ public slots:
 
   void saveXml();                        ///< Save the case in an XML file
   void open();                           ///< Open an existing case
+  void open(QString file_name);          ///< Open case file_name
   void save();                           ///< Save the current case
   void saveAs();                         ///< Save the current case -- using a different file name
 

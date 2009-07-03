@@ -1070,28 +1070,34 @@ void GuiMainWindow::open()
 {
   m_CurrentFilename = QFileDialog::getOpenFileName(NULL, "open grid from file", getCwd(), "enGrid case files/VTK unstr. grid files (*.egc *.EGC *.vtu *.VTU)");
   if (!m_CurrentFilename.isNull()) {
-    bool no_case_file = false;
-    QString file_extension = getExtension(m_CurrentFilename);
-    QString grid_file_name = m_CurrentFilename;
-    if (file_extension.toLower() == "vtu") {
-      no_case_file = true;
-      grid_file_name = stripFromExtension(m_CurrentFilename);
-      m_CurrentFilename = stripFromExtension(m_CurrentFilename) + ".egc";
-    }
-    GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
-    if (!no_case_file) {
-      QFile xml_file(m_CurrentFilename);
-      if (!xml_file.open(QIODevice::ReadOnly)) {
-        EG_BUG;
-      }
-      if (!m_XmlDoc.setContent(&xml_file)) {
-        QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(m_CurrentFilename));
-      }
-      xml_file.close();
-    }
-    openGrid(grid_file_name);
-    openBC();
+    this->open(m_CurrentFilename);
   }
+}
+
+void GuiMainWindow::open(QString file_name)
+{
+  m_CurrentFilename = file_name;
+  bool no_case_file = false;
+  QString file_extension = getExtension(m_CurrentFilename);
+  QString grid_file_name = m_CurrentFilename;
+  if (file_extension.toLower() == "vtu") {
+    no_case_file = true;
+    grid_file_name = stripFromExtension(m_CurrentFilename);
+    m_CurrentFilename = stripFromExtension(m_CurrentFilename) + ".egc";
+  }
+  GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
+  if (!no_case_file) {
+    QFile xml_file(m_CurrentFilename);
+    if (!xml_file.open(QIODevice::ReadOnly)) {
+      EG_BUG;
+    }
+    if (!m_XmlDoc.setContent(&xml_file)) {
+      QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(m_CurrentFilename));
+    }
+    xml_file.close();
+  }
+  openGrid(grid_file_name);
+  openBC();
 }
 
 void GuiMainWindow::saveXml()

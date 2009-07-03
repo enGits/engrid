@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>GuiEditBoundaryConditions</class>
- <widget class="QDialog" name="GuiEditBoundaryConditions">
-  <property name="windowModality">
+ <widget class="QDialog" name="GuiEditBoundaryConditions" >
+  <property name="windowModality" >
    <enum>Qt::NonModal</enum>
   </property>
-  <property name="geometry">
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
@@ -13,92 +12,192 @@
     <height>457</height>
    </rect>
   </property>
-  <property name="windowTitle">
+  <property name="windowTitle" >
    <string>edit boundary conditions</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="engrid.qrc">
+  <property name="windowIcon" >
+   <iconset resource="engrid.qrc" >
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" >
    <item>
-    <widget class="QTableWidget" name="T">
-     <column>
-      <property name="text">
-       <string>BC-index</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>BC-name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>BC-type</string>
-      </property>
-     </column>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Boundary conditions</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item>
+        <widget class="QTableWidget" name="T" >
+         <column>
+          <property name="text" >
+           <string>BC-index</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>BC-name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>BC-type</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout" >
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>new volume</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QLineEdit" name="lineEditVolume" />
+         </item>
+         <item row="0" column="2" >
+          <widget class="QPushButton" name="pushButtonAdd" >
+           <property name="text" >
+            <string>add</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" >
+          <widget class="QPushButton" name="pushButtonDelete" >
+           <property name="text" >
+            <string>delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <attribute name="title" >
+       <string>Boundary types</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3" >
+       <item>
+        <layout class="QGridLayout" name="gridLayout_3" >
+         <item row="0" column="0" >
+          <widget class="QListWidget" name="listWidget_BoundaryType" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item rowspan="3" row="0" column="1" >
+          <layout class="QFormLayout" name="formLayout_BoundaryType" />
+         </item>
+         <item row="1" column="0" >
+          <widget class="QPushButton" name="pushButton_AddBoundaryType" >
+           <property name="text" >
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QPushButton" name="pushButton_DeleteBoundaryType" >
+           <property name="text" >
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Solver</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
+          <string>Solver:</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QComboBox" name="comboBox_Solver" >
+         <item>
+          <property name="text" >
+           <string>simpleFoam</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>rhoSimpleFoam</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QScrollArea" name="scrollArea_Solver" >
+         <property name="widgetResizable" >
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents" >
+          <property name="geometry" >
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>533</width>
+            <height>281</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>new volume</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditVolume"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pushButtonAdd">
-       <property name="text">
-        <string>add</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="pushButtonDelete">
-       <property name="text">
-        <string>delete</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <spacer name="spacer" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>534</width>
+       <height>31</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout">
-     <property name="spacing">
+    <layout class="QHBoxLayout" >
+     <property name="spacing" >
       <number>6</number>
      </property>
-     <property name="margin">
+     <property name="margin" >
       <number>0</number>
      </property>
      <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>131</width>
-         <height>31</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton">
-       <property name="text">
+      <widget class="QPushButton" name="okButton" >
+       <property name="text" >
         <string>OK</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cancelButton">
-       <property name="text">
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="text" >
         <string>Cancel</string>
        </property>
       </widget>
@@ -108,7 +207,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="engrid.qrc"/>
+  <include location="engrid.qrc" />
  </resources>
  <connections>
   <connection>
@@ -117,11 +216,11 @@
    <receiver>GuiEditBoundaryConditions</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>278</x>
      <y>253</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>96</x>
      <y>254</y>
     </hint>
@@ -133,11 +232,11 @@
    <receiver>GuiEditBoundaryConditions</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>369</x>
      <y>253</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>179</x>
      <y>282</y>
     </hint>
