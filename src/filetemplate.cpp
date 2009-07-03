@@ -1,5 +1,7 @@
 #include "filetemplate.h"
 
+#include "guimainwindow.h"
+
 #include <QtDebug>
 #include <QValidator>
 
@@ -21,12 +23,19 @@ int fileTemplateTest( int argc, char ** argv )
   return app.exec();
 }
 //=======================================
+QString TemplateLine::getDefaultValue()
+{
+  if(default_value_egc == "") return default_value_of;
+  else return default_value_egc;
+}
 
 void TemplateLine::print()
 {
   qDebug() << "type=" << this->type;
   qDebug() << "name=" << this->name;
   qDebug() << "options=" << this->options;
+  qDebug() << "default_value_egc=" << this->default_value_egc;
+  qDebug() << "default_value_of=" << this->default_value_of;
   qDebug() << "position=" << this->position;
 }
 //=======================================
@@ -109,7 +118,7 @@ int FileTemplate::process()
     template_line.type = L_elements[0];
     template_line.name = L_elements[1];
     template_line.options = L_elements[2];
-    template_line.default_value = L_elements[3];
+    template_line.default_value_of = L_elements[3];
     template_line.position = i;
     m_Lines.push_back( template_line );
   }
@@ -128,17 +137,19 @@ void FileTemplate::setOutValues( QStringList L )
 
 QString FileTemplate::getContents() {
   QString ret;
+  ret += "\n";
   for(int i = 0; i < m_Lines.size(); i++) {
-    if(m_Lines[i].type == "ComboBox") {
-      
-    }
-    qDebug()<<m_Lines[i].name;
+    ret += m_Lines[i].name + " = " + m_Lines[i].default_value_of + ";\n";
   }
   return ret;
 }
 
 void FileTemplate::setContents(QString contents) {
-
+  QStringList L = contents.split(";");
+  for(int i = 0; i < L.size()-1; i++) {
+    QStringList L_pair = L[i].split("=");
+    m_Lines[i].default_value_egc = L_pair[1].trimmed();
+  }
 }
 //=======================================
 
@@ -192,9 +203,21 @@ void TemplateDialog::saveAs()
 
 TemplateFormLayout::TemplateFormLayout( QString filename, char *name, QWidget *parent ) : QFormLayout( parent )
 {
+  GuiMainWindow::pointer();
   QFormLayout::setObjectName( name );
   m_file_template.open( filename );
+  qDebug()<<"=== Before reading EGC START ===";
   m_file_template.print();
+  qDebug()<<"=== Before reading EGC END ===";
+  
+  QFileInfo file_info(filename);
+  QString section = "openfoam/simplefoam/standard/"+file_info.completeBaseName();
+  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
+  m_file_template.setContents(openfoam_string);
+  qDebug()<<"=== After reading EGC START ===";
+  m_file_template.print();
+  qDebug()<<"=== After reading EGC END ===";
+    
   m_Lines = m_file_template.getLines();
   for ( int i = 0; i < m_Lines.size(); i++ ) {
     if ( m_Lines[i].type == "ComboBox" ) addComboBox( m_Lines[i] );
@@ -219,9 +242,11 @@ void TemplateFormLayout::addComboBox( TemplateLine line )
     QStringList L_close = L_open[i].split( ")" );
     QStringList L_elements = L_close[0].split( "," );
     description << L_elements[0];
-    value << L_elements[1];
+    value << L_elements[1].trimmed();
   }
+  int current = value.indexOf(line.getDefaultValue().trimmed());
   combobox->addItems( description );
+  combobox-> setCurrentIndex(current);
   this->addRow( line.name, combobox );
   m_ComboBoxVector.push_back( combobox );
   m_ComboboxValues.push_back( value );
@@ -233,7 +258,8 @@ void TemplateFormLayout::addIntLineEdit( TemplateLine line )
   QValidator *validator = new QIntValidator( this );
   QLineEdit* int_lineedit = new QLineEdit;
   int_lineedit->setValidator( validator );
-  int_lineedit->setText( line.options.trimmed() );
+  line.default_value_of = line.options;
+  int_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.name, int_lineedit );
   m_IntLineEditVector.push_back( int_lineedit );
 }
@@ -244,7 +270,8 @@ void TemplateFormLayout::addDoubleLineEdit( TemplateLine line )
   QValidator *validator = new QDoubleValidator( this );
   QLineEdit* double_lineedit = new QLineEdit;
   double_lineedit->setValidator( validator );
-  double_lineedit->setText( line.options.trimmed() );
+  line.default_value_of = line.options;
+  double_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.name, double_lineedit );
   m_DoubleLineEditVector.push_back( double_lineedit );
 }
@@ -253,7 +280,8 @@ void TemplateFormLayout::addTextLineEdit( TemplateLine line )
 {
   qDebug() << "Adding a TextLineEdit...";
   QLineEdit* text_lineedit = new QLineEdit;
-  text_lineedit->setText( line.options.trimmed() );
+  line.default_value_of = line.options;
+  text_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.name, text_lineedit );
   m_TextLineEditVector.push_back( text_lineedit );
 }
@@ -263,7 +291,8 @@ void TemplateFormLayout::addCheckBox( TemplateLine line )
   qDebug() << "Adding a CheckBox...";
   QCheckBox* check_box = new QCheckBox;
   QStringList L = line.options.split( "," );
-  if ( L[0].trimmed() == "checked" ) check_box->setCheckState( Qt::Checked );
+  line.default_value_of = L[0];
+  if ( line.getDefaultValue().trimmed() == "checked" ) check_box->setCheckState( Qt::Checked );
   else check_box->setCheckState( Qt::Unchecked );
   QPair < QString, QString > values;
   values.first = L[1];
@@ -281,7 +310,8 @@ void TemplateFormLayout::addSpinBox( TemplateLine line )
   int minimum = L[0].trimmed().toInt();
   int maximum = L[1].trimmed().toInt();
   int step = L[2].trimmed().toInt();
-  int value = L[3].trimmed().toInt();
+  line.default_value_of = L[3];
+  int value = line.getDefaultValue().trimmed().toInt();
   spin_box->setRange( minimum, maximum );
   spin_box->setSingleStep( step );
   spin_box->setValue( value );
@@ -298,7 +328,8 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
   double maximum = L[1].trimmed().toDouble();
   double step = L[2].trimmed().toDouble();
   int decimals = L[3].trimmed().toInt();
-  double value = L[4].trimmed().toDouble();
+  line.default_value_of = L[4];
+  double value = line.getDefaultValue().trimmed().toDouble();
   double_spin_box->setRange( minimum, maximum );
   double_spin_box->setSingleStep( step );
   double_spin_box->setDecimals( decimals );

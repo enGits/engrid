@@ -7,8 +7,8 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     <<<SpinBox: version int: 0, 10, 5, 7>>>;
-    floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5, 42>>>;
+  version     <<<SpinBox: version int: 0, 10, 5, 7 : 7 >>>;
+  floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5, 42 : 42 >>>;
     format      ascii;
     class       dictionary;
     object      fvSchemes;
@@ -17,9 +17,9 @@ FoamFile
 
 ddtSchemes
 {
-  default <<<IntLineEdit: ddtSchemes int : 42 >>>;
-  default <<<DoubleLineEdit: ddtSchemes double : 3.14 >>>;
-  default <<<TextLineEdit: ddtSchemes text : toto >>>;
+  default <<<IntLineEdit: ddtSchemes int : 42 : 42 >>>;
+  default <<<DoubleLineEdit: ddtSchemes double : 3.14 : 3.14 >>>;
+  default <<<TextLineEdit: ddtSchemes text : toto : toto >>>;
 }
 
 gradSchemes
@@ -32,9 +32,9 @@ gradSchemes
 divSchemes
 {
     default         	none;
-    div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
-    div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
-    div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1)>>>;
+  div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1): Gauss upwind >>>;
+  div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss linearUpwind Gauss>>>;
+  div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss limitedLinearV 1 >>>;
 }
 
 laplacianSchemes
@@ -60,8 +60,8 @@ snGradSchemes
 
 fluxRequired
 {
-    default         <<<CheckBox: fluxRequired 1: checked, yes, no>>>;
-    default         <<<CheckBox: fluxRequired 2: unchecked, yes, no>>>;
+  default         <<<CheckBox: fluxRequired 1: checked, yes, no : yes >>>;
+  default         <<<CheckBox: fluxRequired 2: unchecked, yes, no: no >>>;
     p;
 }
 

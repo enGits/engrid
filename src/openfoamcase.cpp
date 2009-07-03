@@ -34,6 +34,9 @@ void OpenFOAMcase::operate()
     }
     else {
       file_template.setContents(openfoam_string);
+      qDebug()<<"=== file_template.print(); START ===";
+      file_template.print();
+      qDebug()<<"=== file_template.print(); END ===";
     }
   }
   TemplateDialog super_gui( files );

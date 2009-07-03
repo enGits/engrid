@@ -20,10 +20,12 @@ class TemplateLine
     QString type;
     QString name;
     QString options;
-    QString default_value;
+    QString default_value_egc;
+    QString default_value_of;
     int position;
   public:
     void print();
+    QString getDefaultValue();
 };
 
 class FileTemplate
