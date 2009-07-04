@@ -36,9 +36,19 @@ private: // data-types
 
   struct Triangle
   {
+    vtkIdType id_a, id_b, id_c;
     vec3_t a, b, c;
     vec3_t g1, g2, g3;
     mat3_t G, GI;
+    double A;
+  };
+
+  struct Edge
+  {
+    vec3_t a, b;
+    vec3_t v;
+    vec3_t na, nb;
+    double La, Lb;
   };
 
 private: // attributes
@@ -47,11 +57,20 @@ private: // attributes
   QVector<double>        m_EdgeLength;
   QVector<vtkIdType>     m_Cells;
   QVector<vtkIdType>     m_Nodes;
+  QVector<vec3_t>        m_NodeNormals;
+  QVector<Triangle>      m_Triangles;
+  QVector<Edge>          m_Edges;
   QVector<QVector<int> > m_N2N;
   Octree                 m_OTGrid;
   QVector<double>        m_G;
   QVector<bool>          m_GSet;
   double                 m_Relax;
+  double                 m_RelEdgeLength;
+  double                 m_DistExp;
+  double                 m_DistWeight;
+  double                 m_DirWeight;
+  double                 m_DirExp;
+  double                 m_WeightOffset;
 
 private: // methods
 
@@ -77,6 +96,7 @@ public: // methods
   int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
   void setRelaxation(double relax) { m_Relax = relax; }
   void writeOctree(QString file_name);
+  void setRelEdgeLength(double l) { m_RelEdgeLength = l; }
 
 };
 
