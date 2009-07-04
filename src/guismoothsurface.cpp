@@ -633,10 +633,7 @@ void GuiSmoothSurface::operate()
     surfacemesher.setMaxiterDensity(ui.spinBox_maxiter_density->value());
     surfacemesher.setDebugLevel(ui.spinBox_DebugLevel->value());
     
-    surfacemesher.setSource(this->grid);
-    
     surfacemesher();
-    surfacemesher.delete_CellLocator_and_ProjectionSurface();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==5)// Update current mesh density + node types + desired mesh density
@@ -722,40 +719,6 @@ void GuiSmoothSurface::operate()
       cout<<"N_newpoints="<<N_newpoints<<endl;
       cout<<"N_newcells="<<N_newcells<<endl;
     }
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  else if(ui.SmoothMethod->currentIndex()==8)// Projection test
-  {
-    //What we project on
-    QSet<int> bcs_Source;
-    getSelectedItems(ui.listWidget_Source, bcs_Source);
-    
-    //What we project
-    QSet<int> bcs_Dest;
-    getSelectedItems(ui.listWidget, bcs_Dest);
-    
-    EG_VTKSP(vtkUnstructuredGrid, grid_Source);
-    QVector<vtkIdType> cells;
-    getSurfaceCells(bcs_Source, cells, grid);
-    getSubGrid(grid, cells, grid_Source);
-    writeCells(grid,cells, mainWindow()->getFilePath()+"Source.vtu");
-    this->setSource(grid_Source);
-    
-    EG_VTKSP(vtkUnstructuredGrid,grid_Dest);
-    makeCopy(grid,grid_Dest);
-    getSurfaceCells(bcs_Dest, cells, grid_Dest);
-    setCells(cells);
-    l2g_t nodes = getPartNodes();
-    foreach(vtkIdType id_node,nodes) {
-      vec3_t M;
-      grid_Dest->GetPoint(id_node,M.data());
-      M = project(M);
-      grid_Dest->GetPoints()->SetPoint(id_node,M.data());
-    }
-    
-    makeCopy(grid_Dest,grid);
-    
-    this->delete_CellLocator_and_ProjectionSurface();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////
   else if(ui.SmoothMethod->currentIndex()==9)// Save selected boundary codes

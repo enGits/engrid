@@ -34,10 +34,10 @@ void UpdateDesiredMeshDensity::operate()
 {
   static int nStatic_UpdateDesiredMeshDensity;    // Value of nStatic_UpdateDesiredMeshDensity is retained between each function call
   nStatic_UpdateDesiredMeshDensity++;
-  cout << "nStatic_UpdateDesiredMeshDensity is " << nStatic_UpdateDesiredMeshDensity << endl;
+  //cout << "nStatic_UpdateDesiredMeshDensity is " << nStatic_UpdateDesiredMeshDensity << endl;
   
   //define desired mesh density
-  cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
+  //cout<<"=== UpdateDesiredMeshDensity START ==="<<endl;
 
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
@@ -72,10 +72,10 @@ void UpdateDesiredMeshDensity::operate()
     }
     iter++;
   } while (diff > Convergence_meshdensity && !first && iter < MaxiterDensity);// if first=true, it means no new mesh density has been defined (all densities specified)
-  cout << "iter=" << iter << endl;
+  //cout << "iter=" << iter << endl;
   if (iter >= MaxiterDensity) {
-    cout << "WARNING: Desired convergence factor has not been reached!" << endl;
+    cout << "WARNING: Desired mesh density convergence factor has not been reached!" << endl;
   }
   
-  cout<<"=== UpdateDesiredMeshDensity END ==="<<endl;
+  //cout<<"=== UpdateDesiredMeshDensity END ==="<<endl;
 }

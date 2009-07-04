@@ -25,19 +25,28 @@
 
 #include <QString>
 
-class PhysicalBoundaryConditions{
+class PhysicalBoundaryConditions
+{
+
 public:
+
   QString m_Name;
   int m_Index;
+
 public:
+
   double m_Pressure;
   double m_Temperature;
   double m_Velocity;
+
 public:
+
   PhysicalBoundaryConditions();
   PhysicalBoundaryConditions(QString name, int index);
   PhysicalBoundaryConditions(QString name, int index, QString values);
+
 public:
+
   QString getName();
   QString getIndex();
   QString getValues();

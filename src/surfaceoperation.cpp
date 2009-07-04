@@ -33,9 +33,6 @@ using namespace GeometryTools;
 SurfaceOperation::SurfaceOperation()
  : Operation()
 {
-  m_CellLocator = NULL;
-  m_ProjectionSurface = NULL;
-  
   //default values for determining node types and for smoothing operations
   Convergence=0;
   NumberOfIterations=20;
@@ -179,7 +176,7 @@ int SurfaceOperation::UpdateNodeType()
   g2l_t _cells = getPartLocalCells();
   l2l_t c2c    = getPartC2C();
 
-  cout<<"=== UpdateNodeType START ==="<<endl;
+  //cout<<"=== UpdateNodeType START ==="<<endl;
   //prepare
   setAllSurfaceCells();
   
@@ -192,7 +189,7 @@ int SurfaceOperation::UpdateNodeType()
     m_PotentialSnapPoints[id_node].clear();
   }
   
-  cout<<"===pre-processing==="<<endl;
+  //cout<<"===pre-processing==="<<endl;
   int N_edges=0;
   //We loop through edges
   foreach(vtkIdType id_cell, cells) {
@@ -248,12 +245,12 @@ int SurfaceOperation::UpdateNodeType()
     }
   }
   
-  cout<<"N_edges="<<N_edges<<endl;
+  //cout<<"N_edges="<<N_edges<<endl;
   
   //-----------------------
   //determine node type post-processing
   double CosEdgeAngle = cos((double) vtkMath::RadiansFromDegrees(this->EdgeAngle));
-  cout<<"===post-processing==="<<endl;
+  //cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach(vtkIdType id_node, nodes) {
     if ( node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX || node_type->GetValue(id_node) == VTK_BOUNDARY_EDGE_VERTEX )
@@ -288,8 +285,8 @@ int SurfaceOperation::UpdateNodeType()
       }//if along edge
     }//if edge vertex
   }
-  cout<<"m_PotentialSnapPoints.size()="<<m_PotentialSnapPoints.size()<<endl;
-  cout<<"=== UpdateNodeType END ==="<<endl;
+  //cout<<"m_PotentialSnapPoints.size()="<<m_PotentialSnapPoints.size()<<endl;
+  //cout<<"=== UpdateNodeType END ==="<<endl;
   return(0);
 }
 
@@ -485,84 +482,6 @@ VertexMeshDensity SurfaceOperation::getVMD(vtkIdType id_node)
     VMD.BCmap[cell_code->GetValue(id_cell)] = 2;
   }
   return(VMD);
-}
-
-void SurfaceOperation::setSource(vtkUnstructuredGrid *a_ProjectionSurface)
-{
-  if(m_CellLocator) {
-    cout<<"WARNING: Deleting previous m_CellLocator!"<<endl;
-    m_CellLocator->Delete();
-    m_CellLocator=NULL;
-  }
-  if(m_ProjectionSurface) {
-    cout<<"WARNING: Deleting previous m_ProjectionSurface!"<<endl;
-    m_ProjectionSurface->Delete();
-    m_ProjectionSurface=NULL;
-  }
-  
-  m_ProjectionSurface=vtkUnstructuredGrid::New();
-  makeCopy(a_ProjectionSurface,m_ProjectionSurface);
-  
-  m_CellLocator=vtkCellLocator::New();
-  m_CellLocator->SetDataSet(a_ProjectionSurface);
-  m_CellLocator->BuildLocator();
-//   m_CellLocator->CacheCellBoundsOn();
-  cout<<"m_CellLocator->GetNumberOfBuckets()="<<m_CellLocator->GetNumberOfBuckets()<<endl;
-  cout<<"m_CellLocator->GetNumberOfCellsPerBucket()="<<m_CellLocator->GetNumberOfCellsPerBucket()<<endl;
-  cout<<"m_CellLocator->GetCacheCellBounds()="<<m_CellLocator->GetCacheCellBounds()<<endl;
-  
-  cout<<"ORIGINAL: m_CellLocator="<<m_CellLocator<<endl;
-  cout<<"ORIGINAL: m_ProjectionSurface="<<m_ProjectionSurface<<endl;
-}
-
-void SurfaceOperation::set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface)
-{
-  m_CellLocator = vtkCellLocator::SafeDownCast(a_CellLocator);
-  m_ProjectionSurface = vtkUnstructuredGrid::SafeDownCast(a_ProjectionSurface);
-  
-  cout<<"===set_CellLocator_and_ProjectionSurface==="<<endl;
-  cout_grid(cout,m_ProjectionSurface);
-  
-  cout<<"COPY: m_CellLocator="<<m_CellLocator<<endl;
-  cout<<"COPY: m_ProjectionSurface="<<m_ProjectionSurface<<endl;
-}
-
-vec3_t SurfaceOperation::project(vec3_t OM)
-{
-  vec3_t OP;
-  if(m_CellLocator==NULL) {
-    cout<<"FATAL ERROR: No source surface has been defined."<<endl; EG_BUG;
-  }
-  else {
-    vtkIdType cellId;
-    int subId;
-    double dist2;
-    m_CellLocator->FindClosestPoint(OM.data(),OP.data(),cellId,subId,dist2);
-  }
-  
-//   OM=OA+AP+PM;
-/*  vec3_t OA(0,0,OM[2]);
-  vec3_t AM=OM-OA;
-  vec3_t r=AM;
-  r.normalise();
-  vec3_t AP=0.1*r;
-  OP=OA+AP;*/
-  
-  return(OP);
-}
-
-void SurfaceOperation::delete_CellLocator_and_ProjectionSurface()
-{
-  if(m_CellLocator) {
-    cout<<"WARNING: Deleting m_CellLocator!"<<endl;
-    m_CellLocator->Delete();
-    m_CellLocator=NULL;
-  }
-  if(m_ProjectionSurface) {
-    cout<<"WARNING: Deleting m_ProjectionSurface!"<<endl;
-    m_ProjectionSurface->Delete();
-    m_ProjectionSurface=NULL;
-  }
 }
 
 //////////////////////////////////////////////

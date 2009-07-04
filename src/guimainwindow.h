@@ -408,6 +408,7 @@ public slots:
   void callCheckSurfaceIntegrity() { EG_STDINTERSLOT(CheckSurfaceIntegrity); }
   void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
   void callTransform() { EG_STDINTERSLOT(GuiTransform); }
+  void callUpdateSurfProj() { EG_STDSLOT(UpdateSurfProj); }
   
   void callFixSTL();
   

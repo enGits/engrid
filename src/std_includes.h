@@ -43,5 +43,6 @@
 #include "boxselect.h"
 #include "fixstl.h"
 #include "cgnswriter.h"
+#include "updatesurfproj.h"
 
 // -------------------------------------------

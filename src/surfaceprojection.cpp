@@ -32,6 +32,10 @@ SurfaceProjection::SurfaceProjection()
   getSet("surface meshing", "projection direction weighting", 1.0, m_DirWeight);
   getSet("surface meshing", "projection direction exponent", 1.0, m_DirExp);
   getSet("surface meshing", "projection weight offset", 0.001, m_WeightOffset);
+  getSet("surface meshing", "octree minimal scale", 0.0, m_MinOTLength);
+  double max_cells;
+  getSet("surface meshing", "octree maximal number of cells", 2000, max_cells);
+  m_MaxOTCells = int(max_cells);
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -49,6 +53,7 @@ void SurfaceProjection::setBackgroundGrid_initOctree()
   x2 = xm + 2*vec3_t(D,D,D);
   m_OTGrid.setBounds(x1, x2);
   m_OTGrid.setSmoothTransitionOff();
+  m_OTGrid.setMaxCells(m_MaxOTCells);
 }
 
 void SurfaceProjection::setBackgroundGrid_refineFromNodes()
@@ -66,7 +71,9 @@ void SurfaceProjection::setBackgroundGrid_refineFromNodes()
       double Dz = m_OTGrid.getDz(i_otcell);
       double D = max(Dx, max(Dy, Dz));
       if (D > m_RelEdgeLength*m_EdgeLength[id_node]) {
-        m_OTGrid.markToRefine(i_otcell);
+        if (D > 0.5*m_MinOTLength) {
+          m_OTGrid.markToRefine(i_otcell);
+        }
       }
     }
     num_refine = m_OTGrid.refineAll();
@@ -97,8 +104,10 @@ void SurfaceProjection::setBackgroundGrid_refineFromEdges()
                 if (m_OTGrid.intersectsFace(i_cells, i_faces, x1, x2, k)) {
                   double L = (1-k)*m_EdgeLength[i_nodes] + k*m_EdgeLength[i_neigh];
                   if (D > m_RelEdgeLength*L) {
-                    m_OTGrid.markToRefine(i_cells);
-                    break;
+                    if (D > 0.5*m_MinOTLength) {
+                      m_OTGrid.markToRefine(i_cells);
+                      break;
+                    }
                   }
                 }
               }
@@ -144,8 +153,10 @@ void SurfaceProjection::setBackgroundGrid_refineFromFaces()
                 double Dz = m_OTGrid.getDz(i_cells);
                 double D = max(Dx, max(Dy, Dz));
                 if (D > m_RelEdgeLength*L) {
-                  m_OTGrid.markToRefine(i_cells);
-                  break;
+                  if (D > 0.5*m_MinOTLength) {
+                    m_OTGrid.markToRefine(i_cells);
+                    break;
+                  }
                 }
               }
             }

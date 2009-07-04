@@ -86,8 +86,8 @@ private: // attributes
   QVector<OctreeNode> m_Nodes;
   QVector<OctreeCell> m_Cells;
   QVector<bool>       m_ToRefine;
-
   QVector<int>        m_SameNodes;
+  int                 m_MaxCells;
 
 private: // methods
 
@@ -133,6 +133,7 @@ public: // methods
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
   int    findCell(vec3_t x);
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
+  void   setMaxCells(int n) { m_MaxCells = n; }
 
   void toVtkGrid(vtkUnstructuredGrid *grid);
 

@@ -36,8 +36,11 @@ InsertPoints::InsertPoints()
 
 void InsertPoints::operate()
 {
+  int N1 = grid->GetNumberOfPoints();
   if(insert_FP) insert_FP_all();
   if(insert_EP) insert_EP_all();
+  int N2 = grid->GetNumberOfPoints();
+  m_NumInserted = N2 - N1;
 }
 
 bool InsertPoints::insert_fieldpoint(vtkIdType id_cell)
@@ -68,7 +71,7 @@ bool InsertPoints::SplitSide(vtkIdType id_cell,int side)
 
 int InsertPoints::insert_FP_all()
 {
-  cout<<"===insert_FP_all START==="<<endl;
+  //cout<<"===insert_FP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
@@ -121,7 +124,7 @@ int InsertPoints::insert_FP_all()
       }
       C=(1/(double)N_pts)*C;
       
-      C=project(C);
+      //C=project(C);
       grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
       copyNodeData(grid_tmp,pts[0],grid_tmp,l_newNodeId);
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
@@ -150,8 +153,8 @@ int InsertPoints::insert_FP_all()
   //update grid
   makeCopy(grid_tmp,grid);
   
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  cout<<"===insert_FP_all END==="<<endl;
+  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
+  //cout<<"===insert_FP_all END==="<<endl;
   return(0);
 }
 
@@ -160,7 +163,7 @@ int InsertPoints::insert_EP_all()
   l2g_t  cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
 
-  cout<<"===insert_EP_all START==="<<endl;
+  //cout<<"===insert_EP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
@@ -227,7 +230,7 @@ int InsertPoints::insert_EP_all()
       vec3_t M=0.5*(A+B);
       
       //project point
-      M=project(M);
+      //M=project(M);
       //add point
       grid_tmp->GetPoints()->SetPoint(l_newNodeId, M.data());
       copyNodeData(grid_tmp,S.p[1],grid_tmp,l_newNodeId);
@@ -286,8 +289,8 @@ int InsertPoints::insert_EP_all()
   //update grid
   makeCopy(grid_tmp,grid);
   
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  cout<<"===insert_EP_all END==="<<endl;
+  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
+  //cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }
 

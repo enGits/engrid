@@ -42,13 +42,12 @@ ostream& operator<<(ostream &out, stencil_t S);
 class SurfaceOperation : public Operation
 {
 private:
+
   ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points, all neighbour points in case of simple points and the points belonging to edges in case of fixed points
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
   
-  /** vtkCellLocator used for any operations requiring projection on a surface. */
-  vtkCellLocator* m_CellLocator;
-  
 protected:
+
   ///@@@ TODO: Remove useless attributes
   //attributes for determining node types and for smoothing operations
   double Convergence;
@@ -58,17 +57,12 @@ protected:
   double FeatureAngle;
   double EdgeAngle;
   int BoundarySmoothing;
-  /** vtkUnstructuredGrid used for any operations requiring projection on a surface. */
-  vtkUnstructuredGrid* m_ProjectionSurface;
-  
+
 public:
   SurfaceOperation();
   virtual void operate();
   
-  /**
-   * Returns a QVector containing neighbour points to which the point id_node can snap.
-   */
-  QVector <vtkIdType> getPotentialSnapPoints(vtkIdType id_node);
+  QVector <vtkIdType> getPotentialSnapPoints(vtkIdType id_node); ///< Returns a QVector containing neighbour points to which the point id_node can snap.
   
   vtkIdType FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
@@ -84,74 +78,62 @@ public:
   
   //--------------------------------------
   //Special for UpdateNodeType
-  void setConvergence( double C ) { Convergence=C; };
-  void setNumberOfIterations( int N ) { NumberOfIterations=N; };
-  void setRelaxationFactor( double RF ) { RelaxationFactor=RF; };
-  void setFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; };
-  int getFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); };
-  void setFeatureAngle( double FA ) { FeatureAngle=FA; };
-  void setEdgeAngle( double EA ) { EdgeAngle=EA; };
-  void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; };
+  void setConvergence( double C ) { Convergence=C; }
+  void setNumberOfIterations( int N ) { NumberOfIterations=N; }
+  void setRelaxationFactor( double RF ) { RelaxationFactor=RF; }
+  void setFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; }
+  int getFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); }
+  void setFeatureAngle( double FA ) { FeatureAngle=FA; }
+  void setEdgeAngle( double EA ) { EdgeAngle=EA; }
+  void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; }
   //--------------------------------------
   
-  ///Returns the average distance of id_node to its neighbours
+  /// Returns the average distance of id_node to its neighbours
   double CurrentVertexAvgDist(vtkIdType id_node);
   
-  ///Returns 1/CurrentVertexAvgDist(id_node)
+  /// Returns 1/CurrentVertexAvgDist(id_node)
   double CurrentMeshDensity(vtkIdType id_node);
   
-  ///Returns the average of 1./node_meshdensity_desired of the neighbours of id_node
+  /// Returns the average of 1./node_meshdensity_desired of the neighbours of id_node
   double DesiredVertexAvgDist(vtkIdType id_node);
   
-  ///Returns the average of node_meshdensity_desired of the neighbours of id_node
+  /// Returns the average of node_meshdensity_desired of the neighbours of id_node
   double DesiredMeshDensity(vtkIdType id_node);
   
-  ///Returns the set of boundary codes next to this node
+  /// Returns the set of boundary codes next to this node
   QSet <int> getBCset(vtkIdType a_node);
   
-  ///Returns the node type
+  /// Returns the node type
   char getNodeType(vtkIdType a_node);
   
-  ///Returns the type of the edge [a_node1,a_node2] based on the topology
+  /// Returns the type of the edge [a_node1,a_node2] based on the topology
   char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
   
-  ///Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
+  /// Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
   char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2);
   
-  ///passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+  /// passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
   int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVector <vtkIdType> &EdgeCells);
   
-  ///passes a set containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+  /// passes a set containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
   int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdType> &EdgeCells);
   
   /// Get VertexMeshDensity object
   VertexMeshDensity getVMD(vtkIdType node);
   
-  ///Sets the projection surface and builds the corresponding vtkCellLocator
-  void setSource(vtkUnstructuredGrid *a_ProjectionSurface);
-  
-  ///Sets the vtkCellLocator and ProjectionSurface pointers
-  void set_CellLocator_and_ProjectionSurface(vtkCellLocator *a_CellLocator, vtkUnstructuredGrid *a_ProjectionSurface);
-  
-  /// Projection function
-  vec3_t project(vec3_t a_M);
-  
-  /// Delete CellLocator and ProjectionSurface
-  void delete_CellLocator_and_ProjectionSurface();
-  
-  ///returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
+  /// returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
   stencil_t getStencil(vtkIdType id_cell1, int j1);
   
-  ///returns the closest neighbour node of id_node
+  /// returns the closest neighbour node of id_node
   vtkIdType getClosestNode(vtkIdType id_node);
   
-  ///returns the farthest neighbour node of id_node
+  /// returns the farthest neighbour node of id_node
   vtkIdType getFarthestNode(vtkIdType id_node);
   
   //---------------------------------------------------
   //Utility functions used in Roland's formulas
   
-  ///perimeter
+  /// perimeter
   double perimeter(vtkIdType id_cell);
   
   /// desired edge length for id_node

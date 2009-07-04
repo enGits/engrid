@@ -46,6 +46,7 @@ Octree::Octree()
   m_ToRefine.fill(false, 1);
   setBounds(vec3_t(0,0,0), vec3_t(1,1,1));
   setSmoothTransitionOn();
+  setMaxCells(1000000);
 }
 
 void Octree::mergeNodes_identifyDuplicates()
@@ -251,6 +252,9 @@ int Octree::refineAll()
     }
   } while (N2 > 0);
   N2 = m_Cells.size();
+  if (N2 + 8*N1 > m_MaxCells) {
+    EG_ERR_RETURN("maximal number of cells exceeded");
+  }
   m_Cells.insert(N2, 8*N1, OctreeCell());
   int Nrefine = N1;
   int new_node = m_Nodes.size();

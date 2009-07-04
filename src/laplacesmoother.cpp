@@ -56,7 +56,7 @@ void LaplaceSmoother::operate()
     qCopy(bcs.begin(), bcs.end(), n2bc[i_nodes].begin());
   }
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
-    cout << "laplace smoother: " << i_iter+1 << "/" << m_NumberOfIterations << endl;
+    //cout << "laplace smoother: " << i_iter+1 << "/" << m_NumberOfIterations << endl;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if ((n2bc[i_nodes].size() < 3) && smooth_node[nodes[i_nodes]]) {
         vec3_t x_old;

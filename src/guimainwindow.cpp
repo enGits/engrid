@@ -110,7 +110,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
   connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
   connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
-  connect(ui.actionStoreGeometry,          SIGNAL(activated()),       this, SLOT(storeSurfaceProjection()));
+  connect(ui.actionStoreGeometry,          SIGNAL(activated()),       this, SLOT(callUpdateSurfProj()));
   
   connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
   
