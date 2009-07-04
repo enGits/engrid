@@ -273,7 +273,7 @@ public: // static methods
   vtkIdType getPickedPoint();
   
   /**
-   * Access to the QSettings object/
+   * Access to the QSettings object
    */
   static QSettings* settings() { return &qset; }
   

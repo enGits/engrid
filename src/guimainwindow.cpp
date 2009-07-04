@@ -1694,6 +1694,7 @@ void GuiMainWindow::configure()
     // so that the options menu isn't empty at first start.
     GridSmoother tmp01;
     GuiCreateBoundaryLayer tmp02;
+    SurfaceProjection proj;
   }
   GuiSettingsViewer settings(&qset);
   settings.exec();
