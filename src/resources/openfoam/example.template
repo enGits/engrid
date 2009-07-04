@@ -19,7 +19,7 @@ ddtSchemes
 {
   default <<<IntLineEdit: ddtSchemes int : 42 : 42 >>>;
   default <<<DoubleLineEdit: ddtSchemes double : 3.14 : 3.14 >>>;
-  default <<<TextLineEdit: ddtSchemes text : simpleFoam : simpleFoam >>>;
+  default <<<TextLineEdit: ddtSchemes text : toto : toto >>>;
 }
 
 gradSchemes

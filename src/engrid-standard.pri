@@ -129,7 +129,8 @@ HEADERS = boundarycondition.h \
     surfaceprojection.h \
     octree.h \
     filetemplate.h \
-    openfoamcase.h
+    openfoamcase.h \
+    multipagewidget.h
 
 SOURCES = main.cpp \
     boundarycondition.cpp \
@@ -212,7 +213,8 @@ SOURCES = main.cpp \
     surfaceprojection.cpp \
     octree.cpp \
     filetemplate.cpp \
-    openfoamcase.cpp
+    openfoamcase.cpp \
+    multipagewidget.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

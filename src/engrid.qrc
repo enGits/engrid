@@ -29,8 +29,10 @@
         <file>resources/kde_icons/reload.png</file>
         <file>resources/kde_icons/viewmagfit.png</file>
     </qresource>
-    <qresource prefix="/openfoam/simpleFoam" >
+    <qresource>
         <file>resources/openfoam/simpleFoam/system/fvSchemes.template</file>
         <file>resources/openfoam/simpleFoam/system/fvSchemes2.template</file>
+        <file>resources/openfoam/rhoSimpleFoam/system/fvSchemes.template</file>
+        <file>resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template</file>
     </qresource>
 </RCC>

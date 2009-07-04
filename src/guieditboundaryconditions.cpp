@@ -22,11 +22,34 @@
 //
 
 #include "guieditboundaryconditions.h"
+
 #include "guimainwindow.h"
 #include "volumedefinition.h"
+#include "filetemplate.h"
+#include "physicalboundaryconditions.h"
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
+  // simpleFoam
+  QVector <QString> files_simpleFoam;
+  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
+  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
+  for(int i = 0; i < files_simpleFoam.size(); i++) {
+    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i]);
+    ui.verticalLayout_simpleFoam->addLayout( template_form_layout_simpleFoam );
+  }
+  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);
+  
+  // rhoSimpleFoam
+  QVector <QString> files_rhoSimpleFoam;
+  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
+  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
+  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
+    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i]);
+    ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
+  }
+  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
+  
   bcmap = NULL;
   delegate = new GuiVolumeDelegate();
   delegate->setFirstCol(3);
@@ -60,9 +83,58 @@ void GuiEditBoundaryConditions::before()
     ui.T->item(r,2)->setText(bc.getType());
   }
   updateVol();
+  updatePhysicalBoundaryConditions();
   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
   connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
+  connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
+  connect(ui.listWidget_BoundaryType, SIGNAL(itemClicked( QListWidgetItem* )), this, SLOT(changePhysicalValues( QListWidgetItem* )));
   ui.T->setItemDelegate(delegate);
+}
+
+void GuiEditBoundaryConditions::changePhysicalValues( QListWidgetItem* )
+{
+  cout<<"void changePhysicalValues( QListWidgetItem* )"<<endl;
+}
+
+void GuiEditBoundaryConditions::addBoundaryType()
+{
+  cout<<"Adding BT"<<endl;
+  QString name = ui.lineEdit_BoundaryTypes->text();
+  if (!name.isEmpty()) {
+    PhysicalBoundaryConditions NPBC(name, ui.listWidget_BoundaryType->count());
+    QList<PhysicalBoundaryConditions> physical_boundary_conditions;
+    QList<PhysicalBoundaryConditions> new_physical_boundary_conditions;
+    physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
+    foreach (PhysicalBoundaryConditions V, physical_boundary_conditions) {
+      if (NPBC.getName() != V.getName()) {
+        new_physical_boundary_conditions.push_back(V);
+      }
+    }
+    new_physical_boundary_conditions.push_back(NPBC);
+    GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(new_physical_boundary_conditions);
+    updatePhysicalBoundaryConditions();
+  }
+}
+
+void GuiEditBoundaryConditions::deleteBoundaryType()
+{
+  cout<<"Deleting BT"<<endl;
+  int row = ui.listWidget_BoundaryType->currentRow();
+  cout<<"row="<<row<<endl;
+  if(row>=0) {
+    QListWidgetItem* list_widget_item = ui.listWidget_BoundaryType->takeItem(row);
+    delete list_widget_item;
+  }
+}
+
+void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
+{
+  ui.listWidget_BoundaryType->clear();
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
+  foreach (PhysicalBoundaryConditions PBC, physical_boundary_conditions) {
+    ui.listWidget_BoundaryType->addItem(PBC.getName());
+  }
 }
 
 void GuiEditBoundaryConditions::updateVol()
@@ -113,6 +185,7 @@ void GuiEditBoundaryConditions::delVol()
 
 void GuiEditBoundaryConditions::operate()
 {
+  // BoundaryCondition and VolumeDefinition
   QVector<VolumeDefinition> vols(ui.T->columnCount());
   for (int j = 3; j < ui.T->columnCount(); ++j) {
     QString vol_name = ui.T->horizontalHeaderItem(j)->text();
@@ -137,5 +210,17 @@ void GuiEditBoundaryConditions::operate()
     vol_list.append(vols[j]);
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
+  
+  // PhysicalBoundaryConditions
+  QVector<PhysicalBoundaryConditions> physical_boundary_conditions(ui.listWidget_BoundaryType->count());
+  for (int j = 0; j < ui.listWidget_BoundaryType->count(); ++j) {
+    QString physical_boundary_conditions_name = ui.listWidget_BoundaryType->item(j)->text();
+    PhysicalBoundaryConditions PBC(physical_boundary_conditions_name, j);
+    physical_boundary_conditions[j] = PBC;
+  }
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions_list;
+  for (int j = 0; j < ui.listWidget_BoundaryType->count(); ++j) {
+    physical_boundary_conditions_list.append(physical_boundary_conditions[j]);
+  }
+  GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(physical_boundary_conditions_list);
 }
-

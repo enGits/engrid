@@ -969,6 +969,35 @@ void GuiMainWindow::setXmlSection(QString name, QString contents)
   }
 }
 
+void GuiMainWindow::openPhysicalBoundaryConditions()
+{
+  m_PhysicalBoundaryConditionsMap.clear();
+  QString buffer = getXmlSection("engrid/physical");
+  QTextStream f(&buffer, QIODevice::ReadOnly);
+  while (!f.atEnd()) {
+    QString name, values;
+    int i;
+    f >> i >> name >> values;
+    if(name!="" && values!="") {
+      qWarning()<<"i="<<i<<"name="<<name<<"values="<<values;
+      PhysicalBoundaryConditions PBC(name, i, values);
+      m_PhysicalBoundaryConditionsMap[name] = PBC;
+    }
+  }
+}
+
+void GuiMainWindow::savePhysicalBoundaryConditions()
+{
+  QString buffer("");
+  QTextStream f(&buffer, QIODevice::WriteOnly);
+  f << "\n";
+  foreach (PhysicalBoundaryConditions PBC, m_PhysicalBoundaryConditionsMap) {
+    f << "      " << PBC.getIndex() << " " << PBC.getName() << " " << PBC.getValues() << "\n";
+  }
+  f << "    ";
+  setXmlSection("engrid/physical", buffer);
+}
+
 void GuiMainWindow::openBC()
 {
   bcmap.clear();
@@ -979,25 +1008,28 @@ void GuiMainWindow::openBC()
     QString name, type;
     int i;
     f >> i >> name >> type;
-    if (i >= 0) {
-      bcmap[i] = BoundaryCondition(name,type);
-    } else {
-      VolumeDefinition V(name, -i);
-      QString text = type.replace(",", " ").replace(":", " ");
-      QTextStream s(&text);
-      while (!s.atEnd()) {
-        QString bc_txt, sign_txt;
-        s >> bc_txt >> sign_txt;
-        V.addBC(bc_txt.toInt(), sign_txt.toInt());
+    if(name!="" && type!="") {
+      qWarning()<<"i="<<i<<"name="<<name<<"type="<<type;
+      if (i >= 0) {
+        bcmap[i] = BoundaryCondition(name,type);
+      } else {
+        VolumeDefinition V(name, -i);
+        QString text = type.replace(",", " ").replace(":", " ");
+        QTextStream s(&text);
+        while (!s.atEnd()) {
+          QString bc_txt, sign_txt;
+          s >> bc_txt >> sign_txt;
+          V.addBC(bc_txt.toInt(), sign_txt.toInt());
+        }
+        volmap[name] = V;
       }
-      volmap[name] = V;
     }
   }
 }
 
 void GuiMainWindow::saveBC()
 {
-  QString buffer = "";
+  QString buffer("");
   QTextStream f(&buffer, QIODevice::WriteOnly);
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
@@ -1036,6 +1068,7 @@ void GuiMainWindow::openGrid(QString file_name)
   createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
   openBC();
+  openPhysicalBoundaryConditions();
   updateBoundaryCodes(true);
   createIndices(grid);
   updateActors();
@@ -1070,28 +1103,35 @@ void GuiMainWindow::open()
 {
   m_CurrentFilename = QFileDialog::getOpenFileName(NULL, "open grid from file", getCwd(), "enGrid case files/VTK unstr. grid files (*.egc *.EGC *.vtu *.VTU)");
   if (!m_CurrentFilename.isNull()) {
-    bool no_case_file = false;
-    QString file_extension = getExtension(m_CurrentFilename);
-    QString grid_file_name = m_CurrentFilename;
-    if (file_extension.toLower() == "vtu") {
-      no_case_file = true;
-      grid_file_name = stripFromExtension(m_CurrentFilename);
-      m_CurrentFilename = stripFromExtension(m_CurrentFilename) + ".egc";
-    }
-    GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
-    if (!no_case_file) {
-      QFile xml_file(m_CurrentFilename);
-      if (!xml_file.open(QIODevice::ReadOnly)) {
-        EG_BUG;
-      }
-      if (!m_XmlDoc.setContent(&xml_file)) {
-        QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(m_CurrentFilename));
-      }
-      xml_file.close();
-    }
-    openGrid(grid_file_name);
-    openBC();
+    this->open(m_CurrentFilename);
   }
+}
+
+void GuiMainWindow::open(QString file_name)
+{
+  m_CurrentFilename = file_name;
+  bool no_case_file = false;
+  QString file_extension = getExtension(m_CurrentFilename);
+  QString grid_file_name = m_CurrentFilename;
+  if (file_extension.toLower() == "vtu") {
+    no_case_file = true;
+    grid_file_name = stripFromExtension(m_CurrentFilename);
+    m_CurrentFilename = stripFromExtension(m_CurrentFilename) + ".egc";
+  }
+  GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
+  if (!no_case_file) {
+    QFile xml_file(m_CurrentFilename);
+    if (!xml_file.open(QIODevice::ReadOnly)) {
+      EG_BUG;
+    }
+    if (!m_XmlDoc.setContent(&xml_file)) {
+      QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(m_CurrentFilename));
+    }
+    xml_file.close();
+  }
+  openGrid(grid_file_name);
+  openBC();
+  openPhysicalBoundaryConditions();
 }
 
 void GuiMainWindow::saveXml()
@@ -1105,8 +1145,9 @@ void GuiMainWindow::saveXml()
 
 void GuiMainWindow::save()
 {
-  cout << m_CurrentFilename.toAscii().data() << endl;
+  cout << "Saving" << m_CurrentFilename.toAscii().data() << endl;
   saveBC();
+  savePhysicalBoundaryConditions();
   if (m_CurrentFilename == "untitled.egc") {
     saveAs();
   } else {
@@ -1126,6 +1167,7 @@ void GuiMainWindow::saveAs()
     GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
     saveGrid(m_CurrentFilename);
     saveBC();
+    savePhysicalBoundaryConditions();
     saveXml();
     //for the undo/redo operations
     setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
@@ -1770,6 +1812,23 @@ void GuiMainWindow::setAllVols(QList<VolumeDefinition> vols)
   volmap.clear();
   foreach (VolumeDefinition V, vols) {
     volmap[V.getName()] = V;
+  }
+}
+
+QList<PhysicalBoundaryConditions> GuiMainWindow::getAllPhysicalBoundaryConditions()
+{
+  QList<PhysicalBoundaryConditions> physical_boundary_conditions;
+  foreach(PhysicalBoundaryConditions PBC, m_PhysicalBoundaryConditionsMap) {
+    physical_boundary_conditions.push_back(PBC);
+  }
+  return physical_boundary_conditions;
+}
+
+void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryConditions> physical_boundary_conditions)
+{
+  m_PhysicalBoundaryConditionsMap.clear();
+  foreach (PhysicalBoundaryConditions PBC, physical_boundary_conditions) {
+    m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
 }
 

@@ -20,48 +20,28 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef guieditboundaryconditions_H
-#define guieditboundaryconditions_H
+#ifndef PHYSICALBOUNDARYCONDITIONS_H
+#define PHYSICALBOUNDARYCONDITIONS_H
 
-class GuiEditBoundaryConditions;
+#include <QString>
 
-#include "boundarycondition.h"
-#include "dialogoperation.h"
-#include "guivolumedelegate.h"
-#include "ui_guieditboundaryconditions.h"
-
-class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
-{
-  
-  Q_OBJECT;
-  
-private: // attributes
-  
-  QMap<int,BoundaryCondition> *bcmap;
-  GuiVolumeDelegate *delegate;
-  
-protected: // methods
-  
-  virtual void operate();
-  void         updateVol();
-  void         updatePhysicalBoundaryConditions();
-  
-protected slots:
-
-  void addVol();
-  void delVol();
-  void addBoundaryType();
-  void deleteBoundaryType();
-  void changePhysicalValues( QListWidgetItem* );
-    
-public: // methods
-  
-  GuiEditBoundaryConditions();
-  virtual ~GuiEditBoundaryConditions();
-
-  virtual void before();
-  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; }
-  
+class PhysicalBoundaryConditions{
+public:
+  QString m_Name;
+  int m_Index;
+public:
+  double m_Pressure;
+  double m_Temperature;
+  double m_Velocity;
+public:
+  PhysicalBoundaryConditions();
+  PhysicalBoundaryConditions(QString name, int index);
+  PhysicalBoundaryConditions(QString name, int index, QString values);
+public:
+  QString getName();
+  QString getIndex();
+  QString getValues();
+  void setDefaults();
 };
 
 #endif
