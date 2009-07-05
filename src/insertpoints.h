@@ -43,21 +43,23 @@ class InsertPoints : public SurfaceOperation
 private:
   bool insert_FP;
   bool insert_EP;
+
+  int m_NumInserted;
   
   //attributes with setter functions
 public:
   QSet<int> m_bcs;
-  void setBCS(QSet<int> a_bcs) {m_bcs=a_bcs;};
-  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
+  void setBCS(QSet<int> a_bcs) {m_bcs=a_bcs;}
+  QVector <VertexMeshDensity> VMDvector; //Vertices of Mass destruction
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;}
   
 public:
   InsertPoints();
   
   virtual void operate();
   
-  void set_insert_FP(bool B){insert_FP=B;};
-  void set_insert_EP(bool B){insert_EP=B;};
+  void set_insert_FP(bool B) {insert_FP=B;}
+  void set_insert_EP(bool B) {insert_EP=B;}
   
   int insert_FP_all();
   int insert_EP_all();
@@ -73,6 +75,8 @@ public:
   
   ///Returns the type of the node inserted on the edge S.p[1],S.p[3] from stencil_t S
   char getNewNodeType(stencil_t S);
+
+  int getNumInserted() { return m_NumInserted; }
   
 };
 

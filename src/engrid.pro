@@ -8,23 +8,11 @@ target.path = /usr/bin
 # target.path = $$PREFIX/bin
 INSTALLS += target
 
+# CONFIG += qt release thread
+# CONFIG += qt debug thread
 CONFIG += qt \
+    debug_and_release \
     thread
-
-#to generate a debug and/or a release binary
-CONFIG += debug_and_release
-
-CONFIG(debug, debug|release){
-    TARGET = engrid_debug
-    QMAKE_CXXFLAGS += -pg
-    QMAKE_LFLAGS += -pg
-}
-else {
-    TARGET = engrid
-}
-
-#if we want both binaries to be built by default
-#CONFIG += build_all
 
 # DEFINES += QT_NO_DEBUG
 # DEFINES += QT_DEBUG
@@ -33,7 +21,8 @@ else {
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
     describe`\\\"
 QMAKE_CXXFLAGS += -Wall
-
+QMAKE_CXXFLAGS += -pg
+QMAKE_LFLAGS += -pg
 QT += xml \
     network \
     opengl
@@ -74,7 +63,3 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include(engrid-standard.pri)
-HEADERS += physicalboundaryconditions.h
-
-SOURCES += physicalboundaryconditions.cpp
-

@@ -23,7 +23,7 @@
 
 //connect(ui.action,SIGNAL(activated()),this,SLOT(call()));
 
-connect(ui.actionSmoothSurface,SIGNAL(activated()),this,SLOT(callSmoothSurface()));
+connect(ui.actionCreateSurfaceMesh,SIGNAL(activated()),this,SLOT(callCreateSurfaceMesh()));
 connect(ui.actionCreateBoundaryLayer,SIGNAL(activated()),this,SLOT(callCreateBoundaryLayer()));
 connect(ui.actionDivideBoundaryLayer,SIGNAL(activated()),this,SLOT(callDivideBoundaryLayer()));
 connect(ui.actionDeleteVolumeGrid,SIGNAL(activated()),this,SLOT(callDeleteTetras()));

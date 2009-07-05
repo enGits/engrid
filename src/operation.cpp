@@ -141,7 +141,7 @@ void Operation::operator()()
     checkGrid();
     try {
       operate();
-      cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
+      //cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
     } catch (Error err) {
       err.display();
     }

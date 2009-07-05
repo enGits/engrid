@@ -56,7 +56,7 @@ void LaplaceSmoother::operate()
     qCopy(bcs.begin(), bcs.end(), n2bc[i_nodes].begin());
   }
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
-    cout << "laplace smoother: " << i_iter+1 << "/" << m_NumberOfIterations << endl;
+    //cout << "laplace smoother: " << i_iter+1 << "/" << m_NumberOfIterations << endl;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if ((n2bc[i_nodes].size() < 3) && smooth_node[nodes[i_nodes]]) {
         vec3_t x_old;
@@ -81,11 +81,13 @@ void LaplaceSmoother::operate()
         }
         if (N > 0) {
           x_new *= 1.0/N;
+
           for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
             foreach (int bc, n2bc[i_nodes]) {
               x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new);
             }
           }
+
           grid->GetPoints()->SetPoint(nodes[i_nodes], x_new.data());
         }
       }

@@ -30,23 +30,25 @@
 /// Update desired mesh density, i.e. the field used for surface meshing
 class UpdateDesiredMeshDensity : public SurfaceOperation
 {
-  //attributes
-public:
+
+public: //attributes
+
   QSet<int> m_bcs;
-  
-  //attributes with setter functions
-public:
+
+public: //attributes with setter functions
+
   double Convergence_meshdensity;
-  void setConvergence_meshdensity(double C){Convergence_meshdensity=C;};
-  QVector <VertexMeshDensity> VMDvector;//Vertices of Mass destruction
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector){VMDvector=a_VMDvector;};
-  int MaxiterDensity;//used for UpdateDesiredMeshDensity operation
-  void setMaxiterDensity(int a){MaxiterDensity=a;};
+  void setConvergence_meshdensity(double C) {Convergence_meshdensity = C; }
+  QVector <VertexMeshDensity> VMDvector; //Vertices of Mass destruction
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector) { VMDvector=a_VMDvector; }
+  int MaxiterDensity; //used for UpdateDesiredMeshDensity operation
+  void setMaxiterDensity(int a) { MaxiterDensity = a; }
   
-  //methods
-public:
-    UpdateDesiredMeshDensity();
-    virtual void operate();
+public: //methods
+
+  UpdateDesiredMeshDensity();
+  virtual void operate();
+
 };
 
 #endif

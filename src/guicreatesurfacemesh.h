@@ -20,10 +20,10 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef guismoothsurface_H
-#define guismoothsurface_H
+#ifndef guicreatesurfacemesh_H
+#define guicreatesurfacemesh_H
 
-#include "ui_guismoothsurface.h"
+#include "ui_guicreatesurfacemesh.h"
 #include "dialogoperation.h"
 #include "vertexmeshdensity.h"
 #include "settingssheet.h"
@@ -31,7 +31,7 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-class GuiSmoothSurface : public DialogOperation<Ui::GuiSmoothSurface, SurfaceOperation>
+class GuiCreateSurfaceMesh : public DialogOperation<Ui::GuiCreateSurfaceMesh, SurfaceOperation>
 {
   
   Q_OBJECT;
@@ -41,34 +41,31 @@ private slots:
   void AddSet();
   void RemoveSet();
   void TestSet();
-  void Load();
-  void Save();
   void SelectAll_BC();
   void ClearAll_BC();
-  void SelectAll_Source();
-  void ClearAll_Source();
   
 protected: // methods
   
-  virtual void before();
   virtual void operate();
 
 private:
+
   int Nbc;
   SettingsSheet* m_tableWidget;
   
 public:
-  GuiSmoothSurface();
+
+  GuiCreateSurfaceMesh();
   
   QVector <VertexMeshDensity> getSet();
   
-  /** The currently loaded grid file. */
   QString current_filename;
   
   int readSettings();
   int writeSettings();
   int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
   int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
+
 };
 
 #endif

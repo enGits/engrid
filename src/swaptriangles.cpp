@@ -37,11 +37,11 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
 
 void SwapTriangles::operate()
 {
-  cout << "swapping edges of boundary triangles (Delaunay)" << endl;
+  //cout << "swapping edges of boundary triangles (Delaunay)" << endl;
   
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
   nStatic_SwapTriangles++;
-  cout << "nStatic_SwapTriangles is " << nStatic_SwapTriangles << endl;
+  //cout << "nStatic_SwapTriangles is " << nStatic_SwapTriangles << endl;
   
   int N_swaps;
   int N_total = 0;
@@ -145,7 +145,7 @@ void SwapTriangles::operate()
     } //end of loop through cells
     ++loop;
   } while ((N_swaps > 0) && (loop <= 20));
-  cout << N_total << " triangles have been swapped" << endl;
+  //cout << N_total << " triangles have been swapped" << endl;
 }
 
 bool SwapTriangles::TestSwap(stencil_t S)

@@ -21,7 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "guismoothsurface.h"
+#include "guicreatesurfacemesh.h"
 #include "guicreateboundarylayer.h"
 #include "guicreatevolumemesh.h"
 #include "guidivideboundarylayer.h"
@@ -43,5 +43,6 @@
 #include "boxselect.h"
 #include "fixstl.h"
 #include "cgnswriter.h"
+#include "updatesurfproj.h"
 
 // -------------------------------------------

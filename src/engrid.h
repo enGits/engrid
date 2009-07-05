@@ -251,9 +251,9 @@ struct SortedPair
   T v1, v2;
   SortedPair();
   SortedPair(T v1, T v2);
-  bool operator==(const SortedPair<T>& P) { return (v1 == P.v1) && (v2 == P.v2); }
-  bool operator<(const SortedPair<T>& P);
-  bool operator>(const SortedPair<T>& P) { return !operator<(P); }
+  bool operator==(const SortedPair<T>& P) const{ return (v1 == P.v1) && (v2 == P.v2); }
+  bool operator<(const SortedPair<T>& P) const;
+  bool operator>(const SortedPair<T>& P) const { return !operator<(P); }
 
 };
 
@@ -277,7 +277,7 @@ SortedPair<T>::SortedPair()
 }
 
 template <class T>
-bool SortedPair<T>::operator<(const SortedPair<T>& P)
+bool SortedPair<T>::operator<(const SortedPair<T>& P) const
 {
   if (v1 < P.v1) {
     return true;
@@ -286,5 +286,14 @@ bool SortedPair<T>::operator<(const SortedPair<T>& P)
   }
   return false;
 }
+
+template <class T>
+inline uint qHash(const SortedPair<T> &P)
+{
+  uint h1 = qHash(P.v1);
+  uint h2 = qHash(P.v2);
+  return ((h1 << 16) | (h1 >> 16)) ^ h2;
+}
+
 
 #endif

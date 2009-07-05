@@ -279,7 +279,7 @@ public: // static methods
   vtkIdType getPickedPoint();
   
   /**
-   * Access to the QSettings object/
+   * Access to the QSettings object
    */
   static QSettings* settings() { return &qset; }
   
@@ -396,7 +396,7 @@ public slots:
   // If it's a GUI operation, it locks everything.
   // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window... Why?
   
-  void callSmoothSurface() { EG_STDSLOT(GuiSmoothSurface); }
+  void callCreateSurfaceMesh() { EG_STDSLOT(GuiCreateSurfaceMesh); }
   void callCreateBoundaryLayer() { EG_STDSLOT(GuiCreateBoundaryLayer); }
   void callDivideBoundaryLayer() { EG_STDSLOT(GuiDivideBoundaryLayer); }
   void callDeleteVolumeGrid() { EG_STDSLOT(DeleteVolumeGrid); }
@@ -411,6 +411,7 @@ public slots:
   void callCheckSurfaceIntegrity() { EG_STDINTERSLOT(CheckSurfaceIntegrity); }
   void callPick_cell_point() { EG_STDINTERSLOT(GuiPick); }
   void callTransform() { EG_STDINTERSLOT(GuiTransform); }
+  void callUpdateSurfProj() { EG_STDSLOT(UpdateSurfProj); }
   
   void callFixSTL();
   

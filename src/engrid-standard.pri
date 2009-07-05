@@ -73,6 +73,7 @@ HEADERS = boundarycondition.h \
     nodelayeriterator.h \
     operation.h \
     optimisation.h \
+    physicalboundaryconditions.h \
     polydatareader.h \
     polymesh.h \
     seedsimpleprismaticlayer.h \
@@ -104,7 +105,7 @@ HEADERS = boundarycondition.h \
     guinormalextrusion.h \
     guiselectboundarycodes.h \
     guisetboundarycode.h \
-    guismoothsurface.h \
+    guicreatesurfacemesh.h \
     guisettingstab.h \
     guisettingsviewer.h \
     guivolumedelegate.h \
@@ -130,8 +131,9 @@ HEADERS = boundarycondition.h \
     octree.h \
     filetemplate.h \
     openfoamcase.h \
-    multipagewidget.h
-
+    multipagewidget.h \
+    tricoord.h \
+    updatesurfproj.h
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -162,6 +164,7 @@ SOURCES = main.cpp \
     nodelayeriterator.cpp \
     operation.cpp \
     optimisation.cpp \
+    physicalboundaryconditions.cpp \
     polydatareader.cpp \
     polymesh.cpp \
     seedsimpleprismaticlayer.cpp \
@@ -188,7 +191,7 @@ SOURCES = main.cpp \
     guinormalextrusion.cpp \
     guiselectboundarycodes.cpp \
     guisetboundarycode.cpp \
-    guismoothsurface.cpp \
+    guicreatesurfacemesh.cpp \
     guisettingstab.cpp \
     guisettingsviewer.cpp \
     guivolumedelegate.cpp \
@@ -214,8 +217,9 @@ SOURCES = main.cpp \
     octree.cpp \
     filetemplate.cpp \
     openfoamcase.cpp \
-    multipagewidget.cpp
-
+    multipagewidget.cpp \
+    tricoord.cpp \
+    updatesurfproj.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -225,10 +229,9 @@ FORMS = guicreateboundarylayer.ui \
     guinormalextrusion.ui \
     guiselectboundarycodes.ui \
     guisetboundarycode.ui \
-    guismoothsurface.ui \
+    guicreatesurfacemesh.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
-
 OTHER_FILES += checkcomments.py \
     todo.txt
