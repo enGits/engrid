@@ -55,23 +55,6 @@ using namespace std;
 class RemovePoints : public SurfaceOperation
 {
   private:
-    QMap <vtkIdType, bool> m_marked_cells;
-    QMap <vtkIdType, bool> m_marked_nodes;
-
-    QVector<vtkIdType> m_SelectedCells;
-    QVector<vtkIdType> m_AllCells;
-    QVector <vtkIdType> m_SelectedNodes;
-    QVector <vtkIdType> m_AllNodes;
-    QVector <int> m_hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
-    QVector <int> m_offset;//offset caused by terminated elements
-
-    int N_points;
-    int N_cells;
-    int N_newpoints;
-    int N_newcells;
-    int m_total_N_newpoints;
-    int m_total_N_newcells;
-    vtkIdType m_newNodeId;
     int m_NumRemoved;
 
     //attributes with setter functions

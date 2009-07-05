@@ -726,12 +726,11 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node) 
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
+///@@@  TODO: Organize cases and make sure all are considered if possible.
 vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells) {
+  setAllSurfaceCells();
   l2l_t n2n = getPartN2N();
   l2l_t n2c = getPartN2C();
-
-  ///@@@  TODO: Organize cases and make sure all are considered if possible.
-  setAllSurfaceCells();
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   if(node_type->GetValue(DeadNode) == VTK_FIXED_VERTEX ) {
@@ -1025,6 +1024,11 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   }
   
   makeCopy(dst, grid);
+  
+  if ( -N_newpoints != DeadNodes.size() ) {
+    EG_BUG;
+  }
+  
   return(true);
 }
 //End of DeleteSetOfPoints
