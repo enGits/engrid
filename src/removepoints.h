@@ -89,11 +89,7 @@ public:
   
   virtual void operate();
   
-  int remove_EP_all();
-  int remove_FP_all();
-
-  bool remove_fieldpoint(vtkIdType P); ///< Check if a field point needs to be removed
-  bool remove_edgepoint(vtkIdType P);  ///< Check if an edge point needs to be removed
+  bool removePointCriteria(vtkIdType id_node); ///< Check if a point needs to be removed
 
   int getNumRemoved() { return m_NumRemoved; }
   

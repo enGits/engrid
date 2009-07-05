@@ -28,38 +28,22 @@ RemovePoints::RemovePoints()
   setQuickSave(true);
 }
 
-void RemovePoints::operate()
-{
-  int N1 = grid->GetNumberOfPoints();
-  if(remove_FP) remove_FP_all();
-  if(remove_EP) remove_EP_all();
-  int N2 = grid->GetNumberOfPoints();
-  m_NumRemoved = N1 - N2;
-}
-
-bool RemovePoints::remove_fieldpoint(vtkIdType P)
+bool RemovePoints::removePointCriteria(vtkIdType id_node)
 {
   double QL1max=0.8;
   double QL2max=0.5;
-  bool result = Q_L1(P)<QL1max && Q_L2(P)<QL2max;
-  return ( result );
+  bool result1 = Q_L1(id_node)<QL1max && Q_L2(id_node)<QL2max;
+  
+  QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node);
+  double Lmean = CurrentVertexAvgDist(id_node);
+  bool result2 = Lmean<desiredEdgeLength(PSP[0]) && Lmean<desiredEdgeLength(PSP[1]);
+  
+  return ( result1 );
 }
 
-bool RemovePoints::remove_edgepoint(vtkIdType P)
+void RemovePoints::operate()
 {
-  QVector <vtkIdType> PSP = getPotentialSnapPoints(P);
-  double Lmean = CurrentVertexAvgDist(P);
-  return ( Lmean<desiredEdgeLength(PSP[0]) && Lmean<desiredEdgeLength(PSP[1]) );
-//   return ( 0.5*desiredEdgeLength(P)<CurrentVertexAvgDist(P) && CurrentVertexAvgDist(P)<1*desiredEdgeLength(P) );
-}
-
-///@@@ TODO: Add support for removing feature edge vertices
-
-//count all to remove, then remove them all at once
-int  RemovePoints::remove_FP_all()
-{
-  //cout<<"===remove_FP_all START==="<<endl;
-  QTime start = QTime::currentTime();
+  int N1 = grid->GetNumberOfPoints();
   
   getAllSurfaceCells(m_AllCells,grid);
   getSurfaceCells(m_bcs, m_SelectedCells, grid);
@@ -69,7 +53,7 @@ int  RemovePoints::remove_FP_all()
   setGrid(grid);
   setCells(m_AllCells);
   l2l_t n2c   = getPartN2C();
-  //cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
+  l2l_t n2n   = getPartN2N();
   UpdateNodeType();
   
   N_points=grid->GetNumberOfPoints();
@@ -90,124 +74,23 @@ int  RemovePoints::remove_FP_all()
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType node,m_SelectedNodes)
   {
-    if(node_type->GetValue(node)==VTK_SIMPLE_VERTEX)
-    {
+    if(node_type->GetValue(node)!=VTK_FIXED_VERTEX) {
       bool marked=false;
-      foreach(vtkIdType C,n2c[node])
-      {
-        if(m_marked_cells[C]) marked=true;
+      foreach(vtkIdType id_cell,n2c[node]) {
+        if(m_marked_cells[id_cell]) marked=true;
       }
       
       QSet <vtkIdType> DeadCells;
       QSet <vtkIdType> MutatedCells;
       QSet <vtkIdType> MutilatedCells;
-      if( !marked && remove_fieldpoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
+      if( !marked && removePointCriteria(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1)
       {
-        if (DebugLevel>1) {
-          cout << "removing field point " << node << endl;
-        }
         l_N_removed_FP++;
         m_hitlist[node]=1;
-        foreach(vtkIdType C,n2c[node]) m_marked_cells[C]=true;
-        N_newcells-=2;
-        N_newpoints-=1;
+        foreach(vtkIdType id_cell,n2c[node]) m_marked_cells[id_cell]=true;
       }
     }
   }
-  
-  //cout<<"================="<<endl;
-  //cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
-  //cout<<"================="<<endl;
-  
-  QSet <vtkIdType> DeadNodes;
-  for(vtkIdType i=0;i<m_hitlist.size();i++)
-  {
-    if(m_hitlist[i]==1) DeadNodes.insert(i);
-  }
-  int N_newpoints=0;
-  int N_newcells=0;
-  DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
-  //cout<<"N_newpoints="<<N_newpoints<<endl;
-  //cout<<"N_newcells="<<N_newcells<<endl;
-  
-  int kills=-N_newpoints;
-  int contracts=DeadNodes.size();
-  //cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
-  if(kills != contracts) {
-    EG_BUG;
-  }
-  
-  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  //cout<<"===remove_FP_all END==="<<endl;
-  return(0);
-}
-
-//count all to remove, then remove them all at once
-int RemovePoints::remove_EP_all()
-{
-  //cout<<"===remove_EP_all START==="<<endl;
-  QTime start = QTime::currentTime();
-  
-  getAllSurfaceCells(m_AllCells,grid);
-  getSurfaceCells(m_bcs, m_SelectedCells, grid);
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-  getNodesFromCells(m_SelectedCells, m_SelectedNodes, grid);
-  setGrid(grid);
-  setCells(m_AllCells);
-  l2l_t n2c   = getPartN2C();
-  l2l_t n2n   = getPartN2N();
-  //cout<<"m_AllCells.size()="<<m_AllCells.size()<<endl;
-  UpdateNodeType();
-  
-  N_points=grid->GetNumberOfPoints();
-  N_cells=grid->GetNumberOfCells();
-  N_newpoints=0;
-  N_newcells=0;
-  
-  m_hitlist.clear();
-  m_offset.clear();
-  m_hitlist.resize(N_points);
-  m_offset.resize(N_points);
-  
-  m_marked_cells.clear();
-  m_marked_nodes.clear();
-  
-  int l_N_removed_EP = 0;
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  foreach(vtkIdType node,m_SelectedNodes)
-  {
-    if(node_type->GetValue(node)==VTK_BOUNDARY_EDGE_VERTEX) {
-      bool marked=false;
-      foreach(vtkIdType C,n2c[node]) {
-        if(m_marked_cells[C]) marked=true;
-      }
-      QSet <vtkIdType> DeadCells;
-      QSet <vtkIdType> MutatedCells;
-      QSet <vtkIdType> MutilatedCells;
-      if( !marked && remove_edgepoint(node) && FindSnapPoint(node,DeadCells,MutatedCells,MutilatedCells, N_newpoints, N_newcells)!=-1) {
-        if (DebugLevel > 0) {
-          cout << "removing edge point " << node << endl;
-        }
-        l_N_removed_EP++;
-        m_hitlist[node]=2;
-        foreach(vtkIdType C, n2c[node]) {
-          m_marked_cells[C] = true;
-        }
-        if (n2n[node].size() == 4) { //4 cells around the edge
-          N_newcells-=2;
-          N_newpoints-=1;
-        } else { //2 cells around the edge
-          N_newcells-=1;
-          N_newpoints-=1;
-        }
-      }
-    }
-  }
-  
-  //cout<<"================="<<endl;
-  //cout<<"m_hitlist.size()="<<m_hitlist.size()<<endl;
-  //cout<<"================="<<endl;
   
   QSet <vtkIdType> DeadNodes;
   for(vtkIdType i=0;i<m_hitlist.size();i++) {
@@ -216,17 +99,13 @@ int RemovePoints::remove_EP_all()
   int N_newpoints=0;
   int N_newcells=0;
   DeleteSetOfPoints(DeadNodes, N_newpoints, N_newcells);
-  //cout<<"N_newpoints="<<N_newpoints<<endl;
-  //cout<<"N_newcells="<<N_newcells<<endl;
   
   int kills=-N_newpoints;
   int contracts=DeadNodes.size();
-  //cout<<"Killed: "<<kills<<"/"<<contracts<<endl;
   if (kills != contracts) {
     EG_BUG;
   }
   
-  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  //cout<<"===remove_EP_all END==="<<endl;
-  return(0);
+  int N2 = grid->GetNumberOfPoints();
+  m_NumRemoved = N1 - N2;
 }
