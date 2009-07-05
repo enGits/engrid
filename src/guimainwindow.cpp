@@ -1831,6 +1831,16 @@ void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryCondi
   }
 }
 
+// PhysicalBoundaryConditions GuiMainWindow::getPhysicalBoundaryConditions(QString name)
+// {
+//   return m_PhysicalBoundaryConditionsMap[name];
+// }
+// 
+// void GuiMainWindow::setPhysicalBoundaryConditions(PhysicalBoundaryConditions physical_boundary_conditions)
+// {
+//   m_PhysicalBoundaryConditionsMap[physical_boundary_conditions.getName()] = physical_boundary_conditions;
+// }
+
 void GuiMainWindow::createDefaultVol()
 {
   QList<VolumeDefinition> vols = getAllVols();
