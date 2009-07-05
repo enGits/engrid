@@ -54,45 +54,45 @@ using namespace std;
 
 class RemovePoints : public SurfaceOperation
 {
-private:
-  QMap <vtkIdType,bool> m_marked_cells;
-  QMap <vtkIdType,bool> m_marked_nodes;
-  
-  QVector<vtkIdType> m_SelectedCells;
-  QVector<vtkIdType> m_AllCells;
-  QVector <vtkIdType> m_SelectedNodes;
-  QVector <vtkIdType> m_AllNodes;
-  QVector <int> m_hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
-  QVector <int> m_offset;//offset caused by terminated elements
-  
-  int N_points;
-  int N_cells;
-  int N_newpoints;
-  int N_newcells;
-  int m_total_N_newpoints;
-  int m_total_N_newcells;
-  vtkIdType m_newNodeId;
-  int m_NumRemoved;
-  
-  //attributes with setter functions
-public:
-  QSet<int> m_bcs;
-  void setBCS(QSet<int> a_bcs) { m_bcs = a_bcs;}
-  bool remove_FP;
-  void set_remove_FP(bool B) { remove_FP = B;}
-  bool remove_EP;
-  void set_remove_EP(bool B) { remove_EP = B;}
-  
-public:
+  private:
+    QMap <vtkIdType, bool> m_marked_cells;
+    QMap <vtkIdType, bool> m_marked_nodes;
 
-  RemovePoints();
-  
-  virtual void operate();
-  
-  bool removePointCriteria(vtkIdType id_node); ///< Check if a point needs to be removed
+    QVector<vtkIdType> m_SelectedCells;
+    QVector<vtkIdType> m_AllCells;
+    QVector <vtkIdType> m_SelectedNodes;
+    QVector <vtkIdType> m_AllNodes;
+    QVector <int> m_hitlist;//Elements to be terminated (0=keep alive, 1=field agent to eliminate, 2=border agent to eliminate)
+    QVector <int> m_offset;//offset caused by terminated elements
 
-  int getNumRemoved() { return m_NumRemoved; }
-  
+    int N_points;
+    int N_cells;
+    int N_newpoints;
+    int N_newcells;
+    int m_total_N_newpoints;
+    int m_total_N_newcells;
+    vtkIdType m_newNodeId;
+    int m_NumRemoved;
+
+    //attributes with setter functions
+  public:
+    QSet<int> m_bcs;
+    void setBCS( QSet<int> a_bcs ) { m_bcs = a_bcs;}
+    bool remove_FP;
+    void set_remove_FP( bool B ) { remove_FP = B;}
+    bool remove_EP;
+    void set_remove_EP( bool B ) { remove_EP = B;}
+
+  public:
+
+    RemovePoints();
+
+    virtual void operate();
+
+    bool removePointCriteria( vtkIdType id_node ); ///< Check if a point needs to be removed
+
+    int getNumRemoved() { return m_NumRemoved; }
+
 };
 
 #endif
