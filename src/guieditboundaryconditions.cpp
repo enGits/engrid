@@ -241,6 +241,7 @@ void GuiEditBoundaryConditions::addVol()
   }
 }
 
+///@@@ TODO: Fix bug of reloading all volumes when deleting volumes and then adding new ones
 void GuiEditBoundaryConditions::delVol()
 {
   int c = ui.T->currentColumn();
