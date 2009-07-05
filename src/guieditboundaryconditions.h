@@ -39,6 +39,7 @@ private: // attributes
   
   QMap<int,BoundaryCondition> *bcmap;
   GuiVolumeDelegate *delegate;
+  int m_PreviousSelected;
   
 protected: // methods
   
@@ -52,8 +53,12 @@ protected slots:
   void delVol();
   void addBoundaryType();
   void deleteBoundaryType();
-  void changePhysicalValues( QListWidgetItem* );
-    
+  void changePhysicalValues();
+  void loadPhysicalValues(int index);
+  void savePhysicalValues(int index);
+  void loadAllPhysicalValues();
+  void saveAllPhysicalValues();
+  
 public: // methods
   
   GuiEditBoundaryConditions();

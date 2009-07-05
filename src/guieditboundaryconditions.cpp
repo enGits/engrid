@@ -82,19 +82,70 @@ void GuiEditBoundaryConditions::before()
     ui.T->item(r,1)->setText(name);
     ui.T->item(r,2)->setText(bc.getType());
   }
+  
   updateVol();
   updatePhysicalBoundaryConditions();
+  
+  loadAllPhysicalValues();
+  
+  m_PreviousSelected = 0;
+  ui.listWidget_BoundaryType->setCurrentRow(m_PreviousSelected);
+  
   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
   connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
   connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
   connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
-  connect(ui.listWidget_BoundaryType, SIGNAL(itemClicked( QListWidgetItem* )), this, SLOT(changePhysicalValues( QListWidgetItem* )));
+  connect(ui.listWidget_BoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
+  
   ui.T->setItemDelegate(delegate);
 }
 
-void GuiEditBoundaryConditions::changePhysicalValues( QListWidgetItem* )
+void GuiEditBoundaryConditions::loadPhysicalValues(int index)
+{
+
+}
+
+void GuiEditBoundaryConditions::savePhysicalValues(int index)
+{
+
+}
+
+void GuiEditBoundaryConditions::loadAllPhysicalValues()
+{
+  for(int i = 0; i<ui.listWidget_BoundaryType->count(); i++) {
+    loadPhysicalValues(i);
+  }
+}
+
+void GuiEditBoundaryConditions::saveAllPhysicalValues()
+{
+  for(int i = 0; i<ui.listWidget_BoundaryType->count(); i++) {
+    savePhysicalValues(i);
+  }
+}
+
+void GuiEditBoundaryConditions::changePhysicalValues()
 {
   cout<<"void changePhysicalValues( QListWidgetItem* )"<<endl;
+  cout<<"TODO???"<<endl;
+  
+  savePhysicalValues(m_PreviousSelected);
+  loadPhysicalValues(ui.listWidget_BoundaryType->currentRow());
+  
+/*  PhysicalBoundaryConditions PBC_previous(m_PreviousSelectedName,m_PreviousSelectedIndex);
+  PBC_previous.m_Pressure = ui.lineEdit_Pressure->text().toDouble();
+  PBC_previous.m_Temperature = ui.lineEdit_Temperature->text().toDouble();
+  PBC_previous.m_Velocity = ui.lineEdit_Velocity->text().toDouble();
+  GuiMainWindow::pointer()->setPhysicalBoundaryConditions(PBC_previous);
+  
+  PhysicalBoundaryConditions PBC_current = GuiMainWindow::pointer()->getPhysicalBoundaryConditions(item->text());
+  QString str;
+  str.setNum(PBC_current.m_Pressure); ui.lineEdit_Pressure->setText(str);
+  str.setNum(PBC_current.m_Temperature); ui.lineEdit_Temperature->setText(str);
+  str.setNum(PBC_current.m_Velocity); ui.lineEdit_Velocity->setText(str);
+  
+  m_PreviousSelectedName = PBC_current.m_Name;
+  m_PreviousSelectedIndex = PBC_current.m_Index;*/
 }
 
 void GuiEditBoundaryConditions::addBoundaryType()
@@ -210,6 +261,8 @@ void GuiEditBoundaryConditions::operate()
     vol_list.append(vols[j]);
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
+  
+  saveAllPhysicalValues();
   
   // PhysicalBoundaryConditions
   QVector<PhysicalBoundaryConditions> physical_boundary_conditions(ui.listWidget_BoundaryType->count());
