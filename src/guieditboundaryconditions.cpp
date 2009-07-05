@@ -35,8 +35,9 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
   files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
   files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
   for(int i = 0; i < files_simpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i]);
+    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i], (char*)"openfoam/simplefoam/standard/");
     ui.verticalLayout_simpleFoam->addLayout( template_form_layout_simpleFoam );
+    m_template_form_layout_simpleFoam_vector.push_back(template_form_layout_simpleFoam);
   }
   ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);
   
@@ -45,8 +46,9 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
   files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
   files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
   for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i]);
+    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i], (char*)"openfoam/rhoSimplefoam/standard/");
     ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
+    m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
   }
   ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
   
@@ -276,4 +278,12 @@ void GuiEditBoundaryConditions::operate()
     physical_boundary_conditions_list.append(physical_boundary_conditions[j]);
   }
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(physical_boundary_conditions_list);
+  
+  //Save solver parameters
+  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
+    m_template_form_layout_simpleFoam_vector[i]->save_egc();
+  }
+  for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
+    m_template_form_layout_rhoSimpleFoam_vector[i]->save_egc();
+  }
 }

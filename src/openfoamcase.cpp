@@ -62,13 +62,13 @@ void OpenFOAMcase::operate()
     }
   }*/
   
-  TemplateDialog super_gui( files );
+  TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
   super_gui.exec();
   qDebug()<<"GUI DONE";
   
   for(int i = 0; i<files.size(); i++) {
     QFileInfo file_info(files[i]);
-    FileTemplate file_template(files[i]);
+    FileTemplate file_template(files[i], "openfoam/simplefoam/standard/");
     file_template.save_of();
   }
   

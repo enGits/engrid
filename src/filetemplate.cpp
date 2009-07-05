@@ -39,8 +39,8 @@ int fileTemplateTest( int argc, char ** argv )
   QVector <QString> files;
   files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
   files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
-
-  TemplateDialog super_gui( files );
+  
+  TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
   super_gui.show();
 
   return app.exec();
@@ -67,9 +67,9 @@ FileTemplate::FileTemplate()
 {
 }
 
-FileTemplate::FileTemplate( QString filename )
+FileTemplate::FileTemplate( QString filename, QString section )
 {
-  this->open( filename );
+  this->open( filename, section );
 }
 
 void FileTemplate::print()
@@ -80,8 +80,9 @@ void FileTemplate::print()
   }
 }
 
-int FileTemplate::open( QString filename )
+int FileTemplate::open( QString filename, QString section )
 {
+  m_Section = section;
   qDebug() << "Opening " << filename;
   m_FileInfo.setFile( filename );
   QFile file( m_FileInfo.filePath() );
@@ -105,7 +106,7 @@ int FileTemplate::open( QString filename )
 int FileTemplate::save_egc()
 {
   qDebug() << "Saving EGC ... ";
-  QString section = "openfoam/simplefoam/standard/"+m_FileInfo.completeBaseName();
+  QString section = m_Section+m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection(section, contents);
   GuiMainWindow::pointer()->saveXml();
@@ -117,7 +118,7 @@ int FileTemplate::save_of()
   qDebug() << "Saving OF ...";
   
   
-  QString section = "openfoam/simplefoam/standard/"+m_FileInfo.completeBaseName();
+  QString section = m_Section+m_FileInfo.completeBaseName();
   QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
   this->setContents(openfoam_string);
   qDebug()<<"=== After reading EGC START ===";
@@ -197,7 +198,7 @@ void FileTemplate::setContents(QString contents) {
 }
 //=======================================
 
-TemplateDialog::TemplateDialog( QVector <QString> files, QWidget *parent ) : QDialog( parent )
+TemplateDialog::TemplateDialog( QVector <QString> files, QString section, QWidget *parent ) : QDialog( parent )
 {
 
   this->setWindowTitle( "Template Viewer" );
@@ -209,12 +210,12 @@ TemplateDialog::TemplateDialog( QVector <QString> files, QWidget *parent ) : QDi
   QPushButton* saveButton = new QPushButton( "Save", this );
   QPushButton* saveAsButton = new QPushButton( "Save as...", this );
   connect( openButton, SIGNAL( clicked() ), this, SLOT( open() ) );
-  connect( saveButton, SIGNAL( clicked() ), this, SLOT( save() ) );
+  connect( saveButton, SIGNAL( clicked() ), this, SLOT( save_egc() ) );
   connect( saveAsButton, SIGNAL( clicked() ), this, SLOT( saveAs() ) );
 
   for ( int i = 0; i < files.size(); i++ ) {
     m_FileInfo.push_back( QFileInfo( files[i] ) );
-    TemplateFormLayout* box = new TemplateFormLayout( files[i] );
+    TemplateFormLayout* box = new TemplateFormLayout( files[i], section );
     mainLayout->addLayout( box );
     m_TemplateFormLayoutVector.push_back( box );
   }
@@ -231,11 +232,11 @@ void TemplateDialog::open()
 {
 }
 
-void TemplateDialog::save()
+void TemplateDialog::save_egc()
 {
   qDebug() << "Saving...";
   for ( int i = 0; i < m_TemplateFormLayoutVector.size(); i++ ) {
-    m_TemplateFormLayoutVector[i]->save();
+    m_TemplateFormLayoutVector[i]->save_egc();
   }
 }
 
@@ -245,15 +246,14 @@ void TemplateDialog::saveAs()
 
 //=======================================
 
-TemplateFormLayout::TemplateFormLayout( QString filename, char *name, QWidget *parent ) : QFormLayout( parent )
+TemplateFormLayout::TemplateFormLayout( QString filename, QString section, char *name, QWidget *parent ) : QFormLayout( parent )
 {
   GuiMainWindow::pointer();
   QFormLayout::setObjectName( name );
-  m_file_template.open( filename );
+  m_file_template.open( filename, section );
   
   QFileInfo file_info(filename);
-  QString section = "openfoam/simplefoam/standard/"+file_info.completeBaseName();
-  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
+  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section + file_info.completeBaseName() );
   m_file_template.setContents(openfoam_string);
     
   m_Lines = m_file_template.getLines();
@@ -329,12 +329,11 @@ void TemplateFormLayout::addCheckBox( TemplateLine line )
   qDebug() << "Adding a CheckBox...";
   QCheckBox* check_box = new QCheckBox;
   QStringList L = line.options.split( "," );
-  line.default_value_of = L[0];
-  if ( line.getDefaultValue().trimmed() == "checked" ) check_box->setCheckState( Qt::Checked );
+  if ( line.getDefaultValue().trimmed() == "yes" ) check_box->setCheckState( Qt::Checked );
   else check_box->setCheckState( Qt::Unchecked );
   QPair < QString, QString > values;
-  values.first = L[1];
-  values.second = L[2];
+  values.first = L[0];
+  values.second = L[1];
   this->addRow( line.name, check_box );
   m_CheckBoxVector.push_back( check_box );
   m_CheckBoxValues.push_back( values );
@@ -380,7 +379,7 @@ void TemplateFormLayout::open()
 {
 }
 
-void TemplateFormLayout::save()
+void TemplateFormLayout::save_egc()
 {
   qDebug() << "Saving...";
   getValues();

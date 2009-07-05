@@ -36,6 +36,8 @@
 
 int fileTemplateTest( int argc, char ** argv );
 
+///@@@ TODO: Improve class structure
+
 class TemplateLine
 {
   public:
@@ -57,11 +59,12 @@ class FileTemplate
     QVector <TemplateLine> m_Lines;
     QString m_InText;
     QString m_OutText;
+    QString m_Section;
 
   public:
     FileTemplate();
-    FileTemplate( QString filename );
-    int open( QString filename );
+    FileTemplate( QString filename, QString section );
+    int open( QString filename, QString section );
     int save_egc();
     int save_of();
     int saveAs_of( QString filename );
@@ -92,7 +95,7 @@ class TemplateFormLayout : public QFormLayout
     QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
 
   public:
-    TemplateFormLayout( QString filename, char *name = 0, QWidget *parent = 0 );
+    TemplateFormLayout( QString filename, QString section, char *name = 0, QWidget *parent = 0 );
 
     void addComboBox( TemplateLine line );
     void addIntLineEdit( TemplateLine line );
@@ -113,7 +116,7 @@ class TemplateFormLayout : public QFormLayout
     void getValues();
 
     void open();
-    void save();
+    void save_egc();
     void saveAs();
 };
 
@@ -121,13 +124,13 @@ class TemplateDialog : public QDialog
 {
     Q_OBJECT
   public:
-    TemplateDialog( QVector <QString> files, QWidget *parent = 0 );
+    TemplateDialog( QVector <QString> files, QString section, QWidget *parent = 0 );
   private:
     QVector <QFileInfo> m_FileInfo;
     QVector <TemplateFormLayout*> m_TemplateFormLayoutVector;
   private slots:
     void open();
-    void save();
+    void save_egc();
     void saveAs();
 };
 

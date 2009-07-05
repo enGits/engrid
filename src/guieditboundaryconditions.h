@@ -28,6 +28,8 @@ class GuiEditBoundaryConditions;
 #include "boundarycondition.h"
 #include "dialogoperation.h"
 #include "guivolumedelegate.h"
+#include "filetemplate.h"
+
 #include "ui_guieditboundaryconditions.h"
 
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
@@ -40,6 +42,8 @@ private: // attributes
   QMap<int,BoundaryCondition> *bcmap;
   GuiVolumeDelegate *delegate;
   int m_PreviousSelected;
+  QVector <TemplateFormLayout*> m_template_form_layout_simpleFoam_vector;
+  QVector <TemplateFormLayout*> m_template_form_layout_rhoSimpleFoam_vector;
   
 protected: // methods
   
