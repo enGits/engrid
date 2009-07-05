@@ -105,7 +105,7 @@ HEADERS = boundarycondition.h \
     guinormalextrusion.h \
     guiselectboundarycodes.h \
     guisetboundarycode.h \
-    guismoothsurface.h \
+    guicreatesurfacemesh.h \
     guisettingstab.h \
     guisettingsviewer.h \
     guivolumedelegate.h \
@@ -191,7 +191,7 @@ SOURCES = main.cpp \
     guinormalextrusion.cpp \
     guiselectboundarycodes.cpp \
     guisetboundarycode.cpp \
-    guismoothsurface.cpp \
+    guicreatesurfacemesh.cpp \
     guisettingstab.cpp \
     guisettingsviewer.cpp \
     guivolumedelegate.cpp \
@@ -229,7 +229,7 @@ FORMS = guicreateboundarylayer.ui \
     guinormalextrusion.ui \
     guiselectboundarycodes.ui \
     guisetboundarycode.ui \
-    guismoothsurface.ui \
+    guicreatesurfacemesh.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui

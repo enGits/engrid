@@ -95,7 +95,7 @@ public:
   bool remove_fieldpoint(vtkIdType P); ///< Check if a field point needs to be removed
   bool remove_edgepoint(vtkIdType P);  ///< Check if an edge point needs to be removed
 
-  int getNumRemoved() { return m_NumRemoved; };
+  int getNumRemoved() { return m_NumRemoved; }
   
 };
 

@@ -28,128 +28,18 @@
 
 #include <vtkSmoothPolyDataFilter.h>
 
-SurfaceMesher::SurfaceMesher()
-: SurfaceOperation()
+SurfaceMesher::SurfaceMesher() : SurfaceOperation()
 {
   EG_TYPENAME;
 }
 
-void SurfaceMesher::operate()
-{
-  QTime start = QTime::currentTime();
-  
-//   UpdateNodeInfo(true);
-  MeshDensityFunction();
-  
-  int i_iter=0;
-  ///@@@  TODO:Optimize this loop
-  for(i_iter=0;i_iter<NumberOfIterations;i_iter++) {
-    cout<<"surface meshing iteration " << i_iter << "/" << NumberOfIterations << endl;
-    
-    m_total_N_newpoints=0;
-    m_total_N_newcells=0;
-    
-    setAllSurfaceCells();
-    
-    //edit points
-    //cout<<"===Phase D==="<<endl;
-    N_inserted_FP=0;
-    N_inserted_EP=0;
-    N_removed_FP=0;
-    N_removed_EP=0;
-    
-    //Method 3
-    if (insert_FP) {
-      UpdateNodeInfo(false);
-      InsertPoints insert_field_points;
-      insert_field_points.setGrid(grid);
-      insert_field_points.setBCS(m_bcs);
-      insert_field_points.set_insert_FP(true);
-      insert_field_points.set_insert_EP(false);
-      insert_field_points.setVertexMeshDensityVector(VMDvector);
-      insert_field_points();
-      if (DoSwap) {
-        SwapFunction();
-      }
-      if (DoLaplaceSmoothing) {
-        SmoothFunction();
-      }
-      MeshDensityFunction();
-    }
-    
-    if (insert_EP) {
-//    MeshDensityFunction();
-      UpdateNodeInfo(false);
-      InsertPoints insert_edge_points;
-      insert_edge_points.setGrid(grid);
-      insert_edge_points.setBCS(m_bcs);
-      insert_edge_points.set_insert_FP(false);
-      insert_edge_points.set_insert_EP(true);
-      insert_edge_points.setVertexMeshDensityVector(VMDvector);
-      insert_edge_points();
-      if (DoSwap) {
-        SwapFunction();
-      }
-      MeshDensityFunction();
-    }
-    
-    if (remove_FP) {
-      int N;
-      do {
-        UpdateNodeInfo(false);
-        RemovePoints remove_field_points;
-        remove_field_points.setGrid(grid);
-        remove_field_points.setBCS(m_bcs);
-        remove_field_points.set_remove_FP(true);
-        remove_field_points.set_remove_EP(false);
-        remove_field_points();
-        SwapFunction();
-      } while (N > 0);
-      MeshDensityFunction();
-    }
-    
-    if (remove_EP) {
-      int N;
-      do {
-        UpdateNodeInfo(false);
-        RemovePoints remove_edge_points;
-        remove_edge_points.setGrid(grid);
-        remove_edge_points.setBCS(m_bcs);
-        remove_edge_points.set_remove_FP(false);
-        remove_edge_points.set_remove_EP(true);
-        remove_edge_points();
-        N = remove_edge_points.getNumRemoved();
-        SwapFunction();
-      } while (N > 0);
-      MeshDensityFunction();
-    }
-    
-    if (DoLaplaceSmoothing) {
-      SmoothFunction();
-    }
-    MeshDensityFunction();
-
-    cout << "  cells: " << grid->GetNumberOfCells() << endl;
-    cout << "  nodes: " << grid->GetNumberOfPoints() << endl;
-
-  }
-  
-  if (i_iter < NumberOfIterations) {
-    cout << " WARNING: Exited before finishing all iterations." << endl;
-  }
-  
-  cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  
-}
-//end of operate()
-
-void SurfaceMesher::MeshDensityFunction()
+void SurfaceMesher::computeMeshDensity()
 {
   ///@@@  TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setGrid(grid);
-  update_desired_mesh_density.setConvergence_meshdensity(Convergence_meshdensity);
-  update_desired_mesh_density.setMaxiterDensity(MaxiterDensity);
+  update_desired_mesh_density.setConvergence_meshdensity(1e-4);
+  update_desired_mesh_density.setMaxiterDensity(1000);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();
 
@@ -157,18 +47,12 @@ void SurfaceMesher::MeshDensityFunction()
   //UpdateNodeType();
 }
 
-void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
+void SurfaceMesher::updateNodeInfo(bool update_type)
 {
   l2g_t nodes = getPartNodes();
-
-  //cout<<"=== UpdateNodeInfo START ==="<<endl;
   setAllCells();
   foreach(vtkIdType node, nodes) {
-    if(UpdateType) {
-      static int nStatic_UpdateType;    // Value of nStatic_UpdateType is retained between each function call
-      nStatic_UpdateType++;
-      //cout << "nStatic_UpdateType is " << nStatic_UpdateType << endl;
-      
+    if(update_type) {
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
       node_type->SetValue(node, getNodeType(node));
     }
@@ -188,37 +72,78 @@ void SurfaceMesher::UpdateNodeInfo(bool UpdateType)
       node_meshdensity_desired->SetValue(node, D);
     }
   }
-  //cout<<"=== UpdateNodeInfo STOP ==="<<endl;
 }
 
-int SurfaceMesher::SwapFunction()
+void SurfaceMesher::swap()
 {
-  //cout<<"=== SwapFunction START ==="<<endl;
-  QSet<int> rest_bcs;
-  mainWindow()->getAllBoundaryCodes(rest_bcs);
-  rest_bcs -= m_bcs;
-  GuiMainWindow::pointer()->quickSave(GuiMainWindow::pointer()->getFilePath() + "beforeswap");
-  setAllSurfaceCells();
   SwapTriangles swap;
-  swap.setGrid(this->grid);
-  swap.setQuickSave(true);
+  swap.setGrid(grid);
   swap.setRespectBC(true);
   swap.setFeatureSwap(true);
+  QSet<int> rest_bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
+  rest_bcs -= m_BCs;
   swap.setBoundaryCodes(rest_bcs);
   swap();
-  
-  //cout<<"=== SwapFunction END ==="<<endl;
-  return(0);
 }
 
-int SurfaceMesher::SmoothFunction()
+void SurfaceMesher::smooth(int N_iter)
 {
   LaplaceSmoother lap;
-  lap.setGrid(this->grid);
+  lap.setGrid(grid);
   QVector<vtkIdType> cls;
-  getSurfaceCells(m_bcs, cls, this->grid);
+  getSurfaceCells(m_BCs, cls, grid);
   lap.setCells(cls);
-  lap.setNumberOfIterations(N_SmoothIterations);
+  lap.setNumberOfIterations(N_iter);
   lap();
-  return(0);
 }
+
+int SurfaceMesher::insertNodes()
+{
+  InsertPoints insert_points;
+  insert_points.setGrid(grid);
+  insert_points.setBCS(m_BCs);
+  insert_points.set_insert_FP(false);
+  insert_points.set_insert_EP(true);
+  insert_points.setVertexMeshDensityVector(VMDvector);
+  insert_points();
+  return insert_points.getNumInserted();
+}
+
+int SurfaceMesher::deleteNodes()
+{
+  RemovePoints remove_points;
+  remove_points.setGrid(grid);
+  remove_points.setBCS(m_BCs);
+  remove_points.set_remove_FP(true);
+  remove_points.set_remove_EP(true);
+  remove_points();
+  return remove_points.getNumRemoved();
+}
+
+void SurfaceMesher::operate()
+{
+  updateNodeInfo(true);
+  int num_inserted = 0;
+  int num_deleted = 0;
+  do {
+    computeMeshDensity();
+    num_inserted = insertNodes();
+    //cout << num_inserted << " nodes inserted" << endl;
+    swap();
+    smooth(4);
+    /*
+    do {
+      num_deleted = deleteNodes();
+      cout << num_deleted << " nodes deleted" << endl;
+    } while (num_deleted > 0);
+    */
+    for (int i = 0; i < 10; ++i) {
+      swap();
+      smooth(1);
+    }
+  } while (num_inserted - num_deleted > grid->GetNumberOfPoints()/100);
+  //createIndices(grid);
+  updateNodeInfo(true);
+}
+

@@ -21,7 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "guismoothsurface.h"
+#include "guicreatesurfacemesh.h"
 #include "guicreateboundarylayer.h"
 #include "guicreatevolumemesh.h"
 #include "guidivideboundarylayer.h"

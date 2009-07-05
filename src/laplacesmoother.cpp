@@ -81,11 +81,13 @@ void LaplaceSmoother::operate()
         }
         if (N > 0) {
           x_new *= 1.0/N;
+
           for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
             foreach (int bc, n2bc[i_nodes]) {
               x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new);
             }
           }
+
           grid->GetPoints()->SetPoint(nodes[i_nodes], x_new.data());
         }
       }

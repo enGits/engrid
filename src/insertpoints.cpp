@@ -171,57 +171,67 @@ int InsertPoints::insert_EP_all()
   
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
-  int l_N_newpoints=0;
-  int l_N_newcells=0;
+  int num_newpoints=0;
+  int num_newcells=0;
   
-  QVector <int> l_marked_cells(cells.size());
-  QVector <stencil_t> l_StencilVector(cells.size());
+  QVector <int> marked_cells(cells.size());
+  QVector <stencil_t> stencil_vector(cells.size());
   
   //counter
-  for(int i=0;i<cells.size();i++) {
-    vtkIdType id_cell=cells[i];
-    if(m_bcs.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell)==VTK_TRIANGLE) {//if selected and triangle cell
-      for(int j = 0; j < 3; ++j) {
-        stencil_t S = getStencil(id_cell,j);
-        if(S.twocells && S.neighbour_type==VTK_TRIANGLE) {
-          if( l_marked_cells[i]==0 && l_marked_cells[_cells[S.id_cell2]]==0 ) {
-            if( SplitSide(id_cell,j)) {
-              l_StencilVector[i]=S;
-              l_marked_cells[i]=1;
-              l_marked_cells[_cells[S.id_cell2]]=2;
-              l_N_newpoints++;
-              l_N_newcells+=2;
-            }//end of if SplitSide
-          }//end of if unmarked
-        }//end of if 2 triangles
-        else if(!S.twocells) {
-          if( l_marked_cells[i]==0 ) {
-            if( SplitSide(id_cell,j)) {
-                l_StencilVector[i]=S;
-                l_marked_cells[i]=1;
-                l_N_newpoints++;
-                l_N_newcells+=1;
-            }//end of if SplitSide
-          }//end of if unmarked
-        }//end of if 1 triangle
-      }//end of loop through sides
-    }//end of if selected and triangle cell
-  }//end of counter loop
+  for (int i = 0; i < cells.size(); ++i) {
+    vtkIdType id_cell = cells[i];
+    if (m_bcs.contains(cell_code->GetValue(id_cell)) && (grid->GetCellType(id_cell) == VTK_TRIANGLE)) {//if selected and triangle cell
+      int j_split = -1;
+      double L_max = 0;
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int j = 0; j < 3; ++j) {
+        vtkIdType id_node1 = pts[j];
+        vtkIdType id_node2 = pts[(j+1)%N_pts];
+        double L = distance(grid, id_node1, id_node2);
+        if (L > max(desiredEdgeLength(id_node1), desiredEdgeLength(id_node2))) {
+          if (L > L_max) {
+            j_split = j;
+            L_max = L;
+          }
+        }
+      }
+      if (j_split != -1) {
+        stencil_t S = getStencil(id_cell, j_split);
+        if (S.twocells && (S.neighbour_type == VTK_TRIANGLE)) {
+          if (!marked_cells[i]  && !marked_cells[_cells[S.id_cell2]]) {
+            stencil_vector[i] = S;
+            marked_cells[i] = 1;
+            marked_cells[_cells[S.id_cell2]] = 2;
+            num_newpoints++;
+            num_newcells += 2;
+          }
+        } else if (!S.twocells) {
+          if (!marked_cells[i]) {
+            stencil_vector[i] = S;
+            marked_cells[i] = 1;
+            num_newpoints++;
+            num_newcells+=1;
+          }
+        }
+      } //end of loop through sides
+    } //end of if selected and triangle cell
+  } //end of counter loop
   
   //initialize grid_tmp
   int l_N_points=grid->GetNumberOfPoints();
   int l_N_cells=grid->GetNumberOfCells();
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
+  allocateGrid(grid_tmp, l_N_cells + num_newcells, l_N_points + num_newpoints);
   makeCopyNoAlloc(grid, grid_tmp);
   
   //initialize new node counter
   vtkIdType l_newNodeId = l_N_points;
   
   //actor
-  for(int i=0;i<cells.size();i++) {
-    if(l_marked_cells[i]==1) {
-      stencil_t S = l_StencilVector[i];
+  for (int i = 0; i < cells.size(); i++) {
+    if (marked_cells[i] == 1) {
+      stencil_t S = stencil_vector[i];
       
       //calculate midpoint
       vec3_t A,B;

@@ -618,6 +618,8 @@ int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, 
 int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 ///get number of the longest side of the cell
 int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+///sort sides by length
+//QVector <vtkIdType> sortSidesByLength(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
 
 ///get number of the edge corresponding to node1-node2
 int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
