@@ -26,6 +26,7 @@
 class GuiEditBoundaryConditions;
 
 #include "boundarycondition.h"
+#include "physicalboundaryconditions.h"
 #include "dialogoperation.h"
 #include "guivolumedelegate.h"
 #include "filetemplate.h"
@@ -41,9 +42,13 @@ private: // attributes
   
   QMap<int,BoundaryCondition> *bcmap;
   GuiVolumeDelegate *delegate;
-  int m_PreviousSelected;
   QVector <TemplateFormLayout*> m_template_form_layout_simpleFoam_vector;
   QVector <TemplateFormLayout*> m_template_form_layout_rhoSimpleFoam_vector;
+  
+  int m_PreviousSelected;
+  QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
+  QString m_PreviousSelectedName;
+  int m_PreviousSelectedIndex;
   
 protected: // methods
   
@@ -58,8 +63,8 @@ protected slots:
   void addBoundaryType();
   void deleteBoundaryType();
   void changePhysicalValues();
-  void loadPhysicalValues(int index);
-  void savePhysicalValues(int index);
+  void loadPhysicalValues(QString name);
+  void savePhysicalValues(QString name, int index);
   void loadAllPhysicalValues();
   void saveAllPhysicalValues();
   

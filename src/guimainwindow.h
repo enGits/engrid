@@ -292,6 +292,7 @@ public: // static methods
   
   QList<PhysicalBoundaryConditions> getAllPhysicalBoundaryConditions();
   void setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryConditions> physical_boundary_conditions);
+  void setAllPhysicalBoundaryConditions(QMap<QString,PhysicalBoundaryConditions> physical_boundary_conditions);
   
 /*  PhysicalBoundaryConditions getPhysicalBoundaryConditions(QString name);
   void setPhysicalBoundaryConditions(PhysicalBoundaryConditions physical_boundary_conditions);*/

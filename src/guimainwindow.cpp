@@ -1835,6 +1835,10 @@ void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryCondi
   }
 }
 
+void GuiMainWindow::setAllPhysicalBoundaryConditions(QMap<QString,PhysicalBoundaryConditions> physical_boundary_conditions) {
+  m_PhysicalBoundaryConditionsMap = physical_boundary_conditions;
+}
+
 // PhysicalBoundaryConditions GuiMainWindow::getPhysicalBoundaryConditions(QString name)
 // {
 //   return m_PhysicalBoundaryConditionsMap[name];
