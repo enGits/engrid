@@ -94,7 +94,7 @@ void RemovePoints::operate()
   
   QSet <vtkIdType> DeadNodes;
   for(vtkIdType i=0;i<m_hitlist.size();i++) {
-    if(m_hitlist[i]==2) DeadNodes.insert(i);
+    if(m_hitlist[i]==1) DeadNodes.insert(i);
   }
   int N_newpoints=0;
   int N_newcells=0;
