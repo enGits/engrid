@@ -729,7 +729,6 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints(vtkIdType id_node) 
 ///@@@  TODO: Organize cases and make sure all are considered if possible.
 vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells) {
   setAllSurfaceCells();
-  l2l_t n2n = getPartN2N();
   l2l_t n2c = getPartN2C();
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
@@ -741,12 +740,11 @@ vtkIdType SurfaceOperation::FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & 
   //grid info
   int N_points = grid->GetNumberOfPoints();
   int N_cells = grid->GetNumberOfCells();
-  N_newpoints = -1;
-  N_newcells = 0;
   
   vtkIdType SnapPoint = -1;
   
-  foreach (vtkIdType PSP, n2n[DeadNode]) {
+  QVector <vtkIdType> PSP_vector = getPotentialSnapPoints(DeadNode);
+  foreach (vtkIdType PSP, PSP_vector) {
     bool IsValidSnapPoint = true;
     
     if(DebugLevel > 10) {

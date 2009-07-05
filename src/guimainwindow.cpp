@@ -1145,13 +1145,15 @@ void GuiMainWindow::saveXml()
 
 void GuiMainWindow::save()
 {
-  cout << "Saving" << m_CurrentFilename.toAscii().data() << endl;
   saveBC();
   savePhysicalBoundaryConditions();
   if (m_CurrentFilename == "untitled.egc") {
     saveAs();
   } else {
+    cout << "Saving as " << m_CurrentFilename.toAscii().data() << endl;
     saveGrid(m_CurrentFilename);
+    saveBC();
+    savePhysicalBoundaryConditions();
     saveXml();
   }
 }
@@ -1165,6 +1167,7 @@ void GuiMainWindow::saveAs()
       m_CurrentFilename += ".egc";
     }
     GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
+    cout << "Saving as " << m_CurrentFilename.toAscii().data() << endl;
     saveGrid(m_CurrentFilename);
     saveBC();
     savePhysicalBoundaryConditions();
