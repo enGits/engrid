@@ -50,8 +50,8 @@ void SurfaceMesher::computeMeshDensity()
 
 void SurfaceMesher::updateNodeInfo(bool update_type)
 {
-  l2g_t nodes = getPartNodes();
   setAllCells();
+  l2g_t nodes = getPartNodes();
   foreach(vtkIdType node, nodes) {
     if(update_type) {
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
@@ -134,12 +134,12 @@ void SurfaceMesher::operate()
     num_inserted = insertNodes();
     swap();
     smooth(4);
-    /*
+    
     do {
       num_deleted = deleteNodes();
       cout << num_deleted << " nodes deleted" << endl;
     } while (num_deleted > 0);
-    */
+    
     for (int i = 0; i < 10; ++i) {
       swap();
       smooth(1);

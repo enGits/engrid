@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>smooth surface</string>
+   <string>Create surface mesh</string>
   </property>
   <property name="windowIcon">
    <iconset resource="engrid.qrc">
