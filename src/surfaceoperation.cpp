@@ -729,13 +729,13 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
   foreach( vtkIdType PSP, PSP_vector ) {
     bool IsValidSnapPoint = true;
 
-    // TEST 1
+    // TEST 1: Number of common points must not exceed 2.
     bool IsTetra = true;
     if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
     }
-    // TEST 2
+    // TEST 2: DeadNode, PSP and common points must not form a tetrahedron.
     if ( IsTetra ) { //tetra check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
@@ -752,6 +752,11 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
       vtkIdType num_pts, *pts;
       grid->GetCellPoints( id_cell, num_pts, pts );
 
+      if ( num_pts != 3 ) {
+        cout << "ERROR: Non-triangle detected!" << endl;
+        EG_BUG;
+      }
+      
       bool ContainsSnapPoint = false;
       bool invincible = false;
       for ( int i = 0; i < num_pts; ++i ) {
@@ -762,41 +767,30 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
           invincible = true;
         }
       }
-      if ( ContainsSnapPoint ) {
-        if ( num_pts == 3 ) { //dead cell
-          if ( invincible ) { //Check that empty lines aren't left behind when a cell is killed
-            IsValidSnapPoint = false;
-          }
-          else {
-            DeadCells.insert( id_cell );
-            num_newcells -= 1;
-          }
+      if ( ContainsSnapPoint ) { // potential dead cell
+        if ( invincible ) {
+          // TEST 3: Check that empty lines aren't left behind when a cell is killed
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          IsValidSnapPoint = false;
         }
         else {
-          cout << "RED ALERT: Xenomorph detected!" << endl;
-          EG_BUG;
+          DeadCells.insert( id_cell );
+          num_newcells -= 1;
         }
       }
-      else {
-        vtkIdType src_num_pts, *src_pts;
-        grid->GetCellPoints( id_cell, src_num_pts, src_pts );
-
-        if ( src_num_pts != 3 ) {
-          cout << "RED ALERT: Xenomorph detected!" << endl;
-          EG_BUG;
-        }
+      else { // if the cell does not contain the SnapPoint (potential mutated cell)
 
         vtkIdType OldTriangle[3];
         vtkIdType NewTriangle[3];
 
-        for ( int i = 0; i < src_num_pts; ++i ) {
-          OldTriangle[i] = src_pts[i];
-          NewTriangle[i] = (( src_pts[i] == DeadNode ) ? PSP : src_pts[i] );
+        for ( int i = 0; i < num_pts; ++i ) {
+          OldTriangle[i] = pts[i];
+          NewTriangle[i] = (( pts[i] == DeadNode ) ? PSP : pts[i] );
         }
         vec3_t Old_N = triNormal( grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
         vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
 
-        // TEST 3
+        // TEST 4
         if ( Old_N*New_N < Old_N*Old_N*1. / 100. ) { //area + inversion check
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
           IsValidSnapPoint = false;
@@ -804,46 +798,13 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
 
         //mutated cell
         MutatedCells.insert( id_cell );
-        if ( DebugLevel > 10 ) {
-          cout << "cell " << id_cell << " has been infected!" << endl;
-        }
       }
     }
 
-    // TEST 4
-    if ( num_cells + num_newcells <= 0 ) { //survivor check
+    // TEST 5: survivor check
+    if ( num_cells + num_newcells <= 0 ) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
-    }
-
-    // TEST 5
-    if ( node_type->GetValue( DeadNode ) == VTK_BOUNDARY_EDGE_VERTEX && node_type->GetValue( PSP ) == VTK_SIMPLE_VERTEX ) {
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
-    }
-
-    // TEST 6
-    if ( node_type->GetValue( DeadNode ) == VTK_BOUNDARY_EDGE_VERTEX ) {
-      QVector <vtkIdType> Peons = getPotentialSnapPoints( DeadNode );
-      if ( !Peons.contains( PSP ) ) {
-        if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-        IsValidSnapPoint = false;
-      }
-    }
-
-    // TEST 7
-    if ( node_type->GetValue( DeadNode ) == VTK_FEATURE_EDGE_VERTEX && node_type->GetValue( PSP ) == VTK_SIMPLE_VERTEX ) {
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
-    }
-
-    // TEST 8
-    if ( node_type->GetValue( DeadNode ) == VTK_FEATURE_EDGE_VERTEX ) {
-      QVector <vtkIdType> Peons = getPotentialSnapPoints( DeadNode );
-      if ( !Peons.contains( PSP ) ) {
-        if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-        IsValidSnapPoint = false;
-      }
     }
 
     if ( IsValidSnapPoint ) {
