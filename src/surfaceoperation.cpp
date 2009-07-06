@@ -675,6 +675,29 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   if ( N == 2 ) {
     vtkIdType intersection1 = nodes[intersection[0]];
     vtkIdType intersection2 = nodes[intersection[1]];
+    // TEST 0: id_node1, id_node2 and intersection* must form a cell
+    QVector <vtkIdType> EdgeCells_1i;
+    QVector <vtkIdType> EdgeCells_2i;
+    QVector <vtkIdType> inter;
+    int N;
+    
+    // intersection1
+    N = getEdgeCells( id_node1, intersection1, EdgeCells_1i );
+    if(N!=2) EG_BUG;
+    N = getEdgeCells( id_node2, intersection1, EdgeCells_2i );
+    if(N!=2) EG_BUG;
+    qcontIntersection(EdgeCells_1i, EdgeCells_2i, inter);
+    if(inter.size()<=0) EG_BUG;
+    
+    // intersection2
+    N = getEdgeCells( id_node1, intersection2, EdgeCells_1i );
+    if(N!=2) EG_BUG;
+    N = getEdgeCells( id_node2, intersection2, EdgeCells_2i );
+    if(N!=2) EG_BUG;
+    qcontIntersection(EdgeCells_1i, EdgeCells_2i, inter);
+    if(inter.size()<=0) EG_BUG;
+    
+    // TEST 1
     if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
       QVector<int> S1 = n2c[_nodes[intersection1]];
@@ -729,6 +752,8 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
   foreach( vtkIdType PSP, PSP_vector ) {
     bool IsValidSnapPoint = true;
 
+    // TEST 0: DeadNode, PSP and any common point must belong to a cell.
+    
     // TEST 1: Number of common points must not exceed 2.
     bool IsTetra = true;
     if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
@@ -791,10 +816,19 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
 
         // TEST 4
-        if ( Old_N*New_N < Old_N*Old_N*1. / 100. ) { //area + inversion check
+        if ( Old_N*New_N<0 || New_N*New_N < Old_N*Old_N*1. / 100. ) { //area + inversion check
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
           IsValidSnapPoint = false;
         }
+        
+        ///@@@ TODO: finish this
+        // TEST 5: flipped cell test from old laplace smoother
+//         if(FlippedCells( DeadNode, vec3_t P )) {
+//           qWarning()<<"EPIC FAIL!!!!!!!!!!!!!!!!!! You have flipped cells!";
+//           EG_BUG;
+//           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+//           IsValidSnapPoint = false;
+//         }
 
         //mutated cell
         MutatedCells.insert( id_cell );
@@ -828,6 +862,8 @@ bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int&
 
 bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
 {
+  int initial_num_points = grid->GetNumberOfPoints();
+  
   CheckSurfaceIntegrity check_surface_integrity;
   check_surface_integrity();
   if(!check_surface_integrity.isWaterTight()) {
@@ -886,6 +922,10 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
 
   }
 
+  if(num_newcells!=2*num_newpoints) {
+    EG_BUG;
+  }
+  
   //allocate
   EG_VTKSP( vtkUnstructuredGrid, dst );
   allocateGrid( dst, num_cells + num_newcells, num_points + num_newpoints );
@@ -975,12 +1015,32 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     }
   }
 
+  CheckSurfaceIntegrity check_surface_integrity_tmp;
+  check_surface_integrity_tmp.setGrid(dst);
+  check_surface_integrity_tmp();
+  if(!check_surface_integrity_tmp.isWaterTight()) {
+    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
+    makeCopy( dst, grid );
+    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+    int final_num_points = grid->GetNumberOfPoints();
+    if ( initial_num_points - final_num_points != DeadNodes.size() ) {
+      EG_BUG;
+    }
+    EG_BUG;
+  }
+  
   makeCopy( dst, grid );
-
+  int final_num_points = grid->GetNumberOfPoints();
+  
   if ( -num_newpoints != DeadNodes.size() ) {
     EG_BUG;
   }
 
+  if ( initial_num_points - final_num_points != DeadNodes.size() ) {
+    EG_BUG;
+  }
+  
   check_surface_integrity();
   if(!check_surface_integrity.isWaterTight()) {
     qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
