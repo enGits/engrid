@@ -253,7 +253,13 @@ int Octree::refineAll()
   } while (N2 > 0);
   N2 = m_Cells.size();
   if (N2 + 8*N1 > m_MaxCells) {
-    EG_ERR_RETURN("maximal number of cells exceeded");
+    QString num;
+    QString msg = "maximal number of cells exceeded\n";
+    num.setNum(N2 + 8*N1);
+    msg += num += " requested and ";
+    num.setNum(m_MaxCells);
+    msg += num + " allowed";
+    EG_ERR_RETURN(msg);
   }
   m_Cells.insert(N2, 8*N1, OctreeCell());
   int Nrefine = N1;
@@ -705,7 +711,7 @@ bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k,
   vec3_t n = g1.cross(g2);
   k = GeometryTools::intersection(x1, x2-x1, a, n);
   bool intersects = false;
-  if ((k > 0 - tol*(x1-x2).abs()) && (k < 1 + tol*(x1-x2).abs())) {
+  if ((k > 0 - tol) && (k < 1 + tol)) {
     vec3_t x = x1 + k*(x2-x1) - a;
     double xg1 = x*g1;
     double xg2 = x*g2;
