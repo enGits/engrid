@@ -30,6 +30,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity()
   EG_TYPENAME;
 }
 
+///@@@ TODO: Improve Gauss-Seidel algorithm here
 void UpdateDesiredMeshDensity::operate()
 {
   static int nStatic_UpdateDesiredMeshDensity;    // Value of nStatic_UpdateDesiredMeshDensity is retained between each function call
@@ -44,7 +45,7 @@ void UpdateDesiredMeshDensity::operate()
   setAllSurfaceCells();
   l2g_t nodes = getPartNodes();
   
-  UpdateNodeType();
+//   UpdateNodeType();
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   

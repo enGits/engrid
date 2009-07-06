@@ -35,18 +35,19 @@
 #include <QPair>
 
 int fileTemplateTest( int argc, char ** argv );
+int fileTemplateTest();
 
 ///@@@ TODO: Improve class structure
 
 class TemplateLine
 {
   public:
-    QString type;
-    QString name;
-    QString options;
-    QString default_value_egc;
-    QString default_value_of;
-    int position;
+    QString m_Type;
+    QString m_Name;
+    QString m_Options;
+    QString m_DefaultValueEgc;
+    QString m_DefaultValueOpenFOAM;
+    int m_Position;
   public:
     void print();
     QString getDefaultValue();
@@ -71,9 +72,9 @@ class FileTemplate
     int process();
     void print();
     QVector <TemplateLine> getLines();
-    void setLines(QVector <TemplateLine> lines);
+    void setLines( QVector <TemplateLine> lines );
     QString getContents();
-    void setContents(QString contents);
+    void setContents( QString contents );
 };
 
 class TemplateFormLayout : public QFormLayout
@@ -81,7 +82,7 @@ class TemplateFormLayout : public QFormLayout
     Q_OBJECT
 
   private:
-    FileTemplate m_file_template;
+    FileTemplate m_FileTemplate;
     QVector <TemplateLine> m_Lines;
 
     QVector <QComboBox*> m_ComboBoxVector;
