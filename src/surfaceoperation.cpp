@@ -874,7 +874,7 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   
   QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
-  UpdateNodeType();
+//   UpdateNodeType();
 
   //src grid info
   int num_points = grid->GetNumberOfPoints();
