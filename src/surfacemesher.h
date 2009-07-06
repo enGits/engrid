@@ -53,6 +53,7 @@ private: // attributes
   QSet<int> m_BCs;
   QVector <VertexMeshDensity> VMDvector;
   int m_NumMaxIter;
+  int m_NumSmoothSteps;
 
 private: // methods
 
