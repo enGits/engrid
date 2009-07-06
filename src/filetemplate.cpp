@@ -109,7 +109,7 @@ int FileTemplate::save_egc()
   QString section = m_Section+m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection(section, contents);
-  GuiMainWindow::pointer()->saveXml();
+//   GuiMainWindow::pointer()->saveXml();
   return( 0 );
 }
 
