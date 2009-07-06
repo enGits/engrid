@@ -30,6 +30,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity()
   EG_TYPENAME;
 }
 
+///@@@ TODO: Improve Gauss-Seidel algorithm here
 void UpdateDesiredMeshDensity::operate()
 {
   static int nStatic_UpdateDesiredMeshDensity;    // Value of nStatic_UpdateDesiredMeshDensity is retained between each function call
