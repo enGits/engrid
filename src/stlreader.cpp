@@ -80,10 +80,15 @@ void StlReader::operate()
     };
     
     EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-    for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
-      bc->SetValue(cellId, 999);
+    EG_VTKDCC(vtkIntArray, orgdir, grid, "cell_orgdir");
+    EG_VTKDCC(vtkIntArray, voldir, grid, "cell_voldir");
+    EG_VTKDCC(vtkIntArray, curdir, grid, "cell_curdir");
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      bc->SetValue(id_cell, 999);
+      orgdir->SetValue(id_cell, 0);
+      voldir->SetValue(id_cell, 0);
+      curdir->SetValue(id_cell, 0);
     };
-    
     CorrectSurfaceOrientation corr_surf;
     corr_surf.setGrid(grid);
     corr_surf();
