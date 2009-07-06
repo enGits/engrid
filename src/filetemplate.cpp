@@ -46,6 +46,17 @@ int fileTemplateTest( int argc, char ** argv )
   return app.exec();
 }
 //=======================================
+// Only works if a file is already loaded in engrid (.egc necessary)
+int fileTemplateTest()
+{
+  QVector <QString> files;
+  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
+  
+  TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
+  
+  return super_gui.exec();
+}
+//=======================================
 QString TemplateLine::getDefaultValue()
 {
   if ( m_DefaultValueEgc == "" ) return m_DefaultValueOpenFOAM;
@@ -100,6 +111,7 @@ int FileTemplate::open( QString filename, QString section )
   m_InText = text_stream.readAll();
   file.close();
   process();
+  this->print();
   return( 0 );
 }
 
@@ -109,7 +121,7 @@ int FileTemplate::save_egc()
   QString section = m_Section + m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection( section, contents );
-//   GuiMainWindow::pointer()->saveXml();
+  GuiMainWindow::pointer()->saveXml("momo.xml");
   return( 0 );
 }
 
@@ -285,6 +297,9 @@ void TemplateFormLayout::addComboBox( TemplateLine line )
     value << L_elements[1].trimmed();
   }
   int current = value.indexOf( line.getDefaultValue().trimmed() );
+  qWarning()<<"value="<<value;
+  qWarning()<<"line.getDefaultValue().trimmed()="<<line.getDefaultValue().trimmed();
+  qWarning()<<"current="<<current;
   combobox->addItems( description );
   combobox-> setCurrentIndex( current );
   this->addRow( line.m_Name, combobox );
@@ -298,7 +313,6 @@ void TemplateFormLayout::addIntLineEdit( TemplateLine line )
   QValidator *validator = new QIntValidator( this );
   QLineEdit* int_lineedit = new QLineEdit;
   int_lineedit->setValidator( validator );
-  line.m_DefaultValueOpenFOAM = line.m_Options;
   int_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.m_Name, int_lineedit );
   m_IntLineEditVector.push_back( int_lineedit );
@@ -310,7 +324,6 @@ void TemplateFormLayout::addDoubleLineEdit( TemplateLine line )
   QValidator *validator = new QDoubleValidator( this );
   QLineEdit* double_lineedit = new QLineEdit;
   double_lineedit->setValidator( validator );
-  line.m_DefaultValueOpenFOAM = line.m_Options;
   double_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.m_Name, double_lineedit );
   m_DoubleLineEditVector.push_back( double_lineedit );
@@ -320,7 +333,6 @@ void TemplateFormLayout::addTextLineEdit( TemplateLine line )
 {
   qDebug() << "Adding a TextLineEdit...";
   QLineEdit* text_lineedit = new QLineEdit;
-  line.m_DefaultValueOpenFOAM = line.m_Options;
   text_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.m_Name, text_lineedit );
   m_TextLineEditVector.push_back( text_lineedit );
@@ -331,7 +343,10 @@ void TemplateFormLayout::addCheckBox( TemplateLine line )
   qDebug() << "Adding a CheckBox...";
   QCheckBox* check_box = new QCheckBox;
   QStringList L = line.m_Options.split( "," );
-  if ( line.getDefaultValue().trimmed() == "yes" ) check_box->setCheckState( Qt::Checked );
+  L[0] = L[0].trimmed();
+  L[1] = L[1].trimmed();
+  int index = L.indexOf(line.getDefaultValue().trimmed());
+  if ( index == 0 ) check_box->setCheckState( Qt::Checked );
   else check_box->setCheckState( Qt::Unchecked );
   QPair < QString, QString > values;
   values.first = L[0];
@@ -349,7 +364,6 @@ void TemplateFormLayout::addSpinBox( TemplateLine line )
   int minimum = L[0].trimmed().toInt();
   int maximum = L[1].trimmed().toInt();
   int step = L[2].trimmed().toInt();
-  line.m_DefaultValueOpenFOAM = L[3];
   int value = line.getDefaultValue().trimmed().toInt();
   spin_box->setRange( minimum, maximum );
   spin_box->setSingleStep( step );
@@ -367,7 +381,6 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
   double maximum = L[1].trimmed().toDouble();
   double step = L[2].trimmed().toDouble();
   int decimals = L[3].trimmed().toInt();
-  line.m_DefaultValueOpenFOAM = L[4];
   double value = line.getDefaultValue().trimmed().toDouble();
   double_spin_box->setRange( minimum, maximum );
   double_spin_box->setSingleStep( step );

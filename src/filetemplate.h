@@ -35,6 +35,7 @@
 #include <QPair>
 
 int fileTemplateTest( int argc, char ** argv );
+int fileTemplateTest();
 
 ///@@@ TODO: Improve class structure
 
