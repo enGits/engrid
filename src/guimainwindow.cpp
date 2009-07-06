@@ -1122,6 +1122,10 @@ void GuiMainWindow::open(QString file_name)
   if (!no_case_file) {
     QFile xml_file(m_CurrentFilename);
     if (!xml_file.open(QIODevice::ReadOnly)) {
+      qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
+      qWarning()<<"QDir::current()="<<QDir::current();
+      qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
+      qWarning()<<"getCwd()="<<getCwd();
       EG_BUG;
     }
     if (!m_XmlDoc.setContent(&xml_file)) {

@@ -156,7 +156,7 @@
       <mainprogram>/data1/home/mtaverne/engrid/src/engrid</mainprogram>
       <programargs>-f ./testing/SurfaceMeshing/Sphere/Sphere_S0.egc</programargs>
       <globaldebugarguments>-f ./testing/SurfaceMeshing/Sphere/Sphere_S0.egc</globaldebugarguments>
-      <globalcwd>.</globalcwd>
+      <globalcwd></globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
