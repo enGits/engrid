@@ -172,6 +172,8 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   return( 0 ); ///@@@ what for???
 }
 
+///@@@ TODO: Find a way to update m_PotentialSnapPoints without changing the node types!!! (secondary field?, i.e. current node_type and original_node_type? or use getNodeType?)
+///@@@ TODO: Add option to deactivate VTK_FEATURE_EDGE_VERTEX
 int SurfaceOperation::UpdateNodeType()
 {
   l2g_t nodes  = getPartNodes();
