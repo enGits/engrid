@@ -23,6 +23,7 @@
 #include "guivolumedelegate.h"
 
 #include <QComboBox>
+#include <QtDebug>
 
 void GuiVolumeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -44,7 +45,7 @@ QWidget *GuiVolumeDelegate::createEditor(QWidget *parent, const QStyleOptionView
     comboBox->addItem("green");
     comboBox->addItem("yellow");
     comboBox->addItem(" ");
-    connect(comboBox, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
+    connect(comboBox, SIGNAL(currentIndexChanged ( int )), this, SLOT(commitAndCloseEditor()));
     return comboBox;
   } else {
     return QItemDelegate::createEditor(parent, option, index);
@@ -74,6 +75,7 @@ void GuiVolumeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 
 void GuiVolumeDelegate::commitAndCloseEditor()
 {
+  qDebug()<<"commitAndCloseEditor called";
   QComboBox *editor = qobject_cast<QComboBox *>(sender());
   emit commitData(editor);
   emit closeEditor(editor);

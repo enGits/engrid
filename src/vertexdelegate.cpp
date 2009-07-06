@@ -60,8 +60,7 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
     if (index.column() == Column) {
         QComboBox *ComboEdit = new QComboBox(parent);
 	foreach(QString str,list) ComboEdit->addItem(str);
-        connect(ComboEdit, SIGNAL(editingFinished()),
-                this, SLOT(commitAndCloseEditor()));
+        connect(ComboEdit, SIGNAL(currentIndexChanged ( int )),this, SLOT(commitAndCloseEditor()));
         return ComboEdit;
     } else {
         return QItemDelegate::createEditor(parent, option, index);
