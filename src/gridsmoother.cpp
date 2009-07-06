@@ -653,7 +653,7 @@ void GridSmoother::operate()
     double f_old     = max(1e-10,F_old);
     double f_max_old = max(1e-10,F_max_old);
     cout << "total prism improvement = " << 100*(1-F_new/f_old) << "%" << endl;
-    cout << "maximal prism improvement = " << 100*(1-F_max_new/f_max_old) << "%" << endl;
+    //cout << "maximal prism improvement = " << 100*(1-F_max_new/f_max_old) << "%" << endl;
   }
   cout << "done" << endl;
 }
@@ -664,6 +664,7 @@ double GridSmoother::improvement()
   double i1 = 1-F_max_new/f_max_old;
   double f_old = max(1e-10,F_old);
   double i2 = 1-F_new/f_old;
-  return max(i1,i2);
+  //return max(i1,i2);
+  return i2;
 }
 
