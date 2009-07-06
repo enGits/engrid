@@ -1900,7 +1900,14 @@ void GuiMainWindow::storeSurfaceProjection()
     file_name.setNum(bc);
     file_name = "OctreeBC" + file_name;
     proj->writeOctree(file_name);
-    proj->setRelaxation(1.0);
     cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
   }
+}
+
+SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
+{
+  if (!m_SurfProj.contains(bc)) {
+    EG_ERR_RETURN("No surface projection found");
+  }
+  return m_SurfProj[bc];
 }

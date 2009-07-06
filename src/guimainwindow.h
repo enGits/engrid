@@ -310,7 +310,7 @@ public: // static methods
   
   QString getFilename() { return(m_CurrentFilename); }
 
-  SurfaceProjection* getSurfProj(int bc) { return m_SurfProj[bc]; }
+  SurfaceProjection* getSurfProj(int bc);
   
 public slots:
 
