@@ -22,6 +22,8 @@
 //
 #include "surfaceoperation.h"
 
+#include "guimainwindow.h"
+
 #include <vtkCharArray.h>
 #include <vtkMath.h>
 #include <vtkCellArray.h>
@@ -137,6 +139,7 @@ stencil_t SurfaceOperation::getStencil( vtkIdType id_cell1, int j1 )
       if ( !p2 ) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
         cout << "S.id_cell1=" << S.id_cell1 << endl;
         cout << "S.id_cell2=" << S.id_cell2 << endl;
+        GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
         EG_BUG;
       }
     }
@@ -825,10 +828,8 @@ bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int&
 
 bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
 {
-  QVector <vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
+  QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
-  QVector<vtkIdType> cells;
-  getAllSurfaceCells( cells, grid );
   UpdateNodeType();
 
   //src grid info
