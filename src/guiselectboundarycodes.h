@@ -39,6 +39,7 @@ private slots:
   
   void selectAll();
   void deselectAll();
+  void saveSelectionAsGrid();
   
 protected: // methods
   

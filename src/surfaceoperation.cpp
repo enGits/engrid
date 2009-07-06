@@ -828,6 +828,14 @@ bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int&
 
 bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
 {
+  CheckSurfaceIntegrity check_surface_integrity;
+  check_surface_integrity();
+  if(!check_surface_integrity.isWaterTight()) {
+    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+    EG_BUG;
+  }
+  
   QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
   UpdateNodeType();
@@ -961,6 +969,13 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     EG_BUG;
   }
 
+  check_surface_integrity();
+  if(!check_surface_integrity.isWaterTight()) {
+    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+    EG_BUG;
+  }
+  
   return( true );
 }
 //End of DeleteSetOfPoints

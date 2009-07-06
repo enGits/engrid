@@ -1,10 +1,11 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>GuiSelectBoundaryCodes</class>
- <widget class="QDialog" name="GuiSelectBoundaryCodes" >
-  <property name="windowModality" >
+ <widget class="QDialog" name="GuiSelectBoundaryCodes">
+  <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -12,38 +13,46 @@
     <height>284</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>select boundary codes</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="engrid.qrc" >:/icons/resources/icons/G.png</iconset>
+  <property name="windowIcon">
+   <iconset resource="engrid.qrc">
+    <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
-    <widget class="QListWidget" name="listWidget" />
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <widget class="QListWidget" name="listWidget"/>
    </item>
-   <item row="0" column="1" >
-    <layout class="QVBoxLayout" >
+   <item row="0" column="1">
+    <layout class="QVBoxLayout">
      <item>
-      <widget class="QPushButton" name="pushButtonSelect" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButtonSelect">
+       <property name="text">
         <string>select all</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonDeselect" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButtonDeselect">
+       <property name="text">
         <string>deselect all</string>
        </property>
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton_SaveSelectionAsGrid">
+       <property name="text">
+        <string>Save selection as grid</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>40</height>
@@ -53,21 +62,21 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="2" >
-    <layout class="QHBoxLayout" >
+   <item row="1" column="0" colspan="2">
+    <layout class="QHBoxLayout">
      <item>
-      <widget class="QPushButton" name="pushButtonHelp" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButtonHelp">
+       <property name="text">
         <string>Help</string>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -76,12 +85,12 @@
       </spacer>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
       </widget>
      </item>
@@ -90,7 +99,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="engrid.qrc" />
+  <include location="engrid.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -99,11 +108,11 @@
    <receiver>GuiSelectBoundaryCodes</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -115,11 +124,11 @@
    <receiver>GuiSelectBoundaryCodes</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
