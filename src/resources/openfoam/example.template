@@ -5,64 +5,30 @@
 |   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
-FoamFile
-{
-  version     <<<SpinBox: version int: 0, 10, 5, 7 : 7 >>>;
-  floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5, 42 : 42 >>>;
-    format      ascii;
-    class       dictionary;
-    object      fvSchemes;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
-{
-  default <<<IntLineEdit: ddtSchemes int : 42 : 42 >>>;
-  default <<<DoubleLineEdit: ddtSchemes double : 3.14 : 3.14 >>>;
-  default <<<TextLineEdit: ddtSchemes text : toto : toto >>>;
-}
+# global format
+# <<< TYPE : NAME : OPTIONS : DEFAULT_VALUE >>>
 
-gradSchemes
-{
-    default         Gauss linear;
-    grad(p)         Gauss linear;
-    grad(U)         Gauss linear;
-}
+# spinboxes
+# <<< TYPE : NAME : MIN, MAX, STEP : DEFAULT_VALUE >>>;
+version          <<<SpinBox: version int: 0, 18, 5 : 18 >>>;
+# <<< TYPE : NAME : MIN, MAX, STEP, NUM_DECIMALS : DEFAULT_VALUE >>>;
+floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5 : 47 >>>;
 
-divSchemes
-{
-    default         	none;
-  div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1): Gauss upwind >>>;
-  div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss linearUpwind Gauss>>>;
-  div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss limitedLinearV 1 >>>;
-}
+# line edits
+# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
+default          <<<IntLineEdit: name1 : : 49 >>>;
+# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
+default          <<<DoubleLineEdit: name2 : : 1.23 >>>;
+# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
+default          <<<TextLineEdit: name3 : : some text >>>;
 
-laplacianSchemes
-{
-    default         			none;
-    laplacian(nuEff,U) 			Gauss linear corrected;
-    laplacian((1|A(U)),p)		Gauss linear corrected;
-    laplacian(DkEff,k) 			Gauss linear corrected;
-    laplacian(DomegaEff,omega) 		Gauss linear corrected;
-    laplacian(1,p)                      Gauss linear corrected;
-}
+# comboboxes
+# <<< TYPE : NAME : (DESCRIPTION 1, VALUE 1),...,(DESCRIPTION N, VALUE N) : DEFAULT_VALUE >>>;
+div(phi,U)       <<<ComboBox: name : (1st order, Gauss), (2nd order, Kramer), (3rd order, Noether): Gauss >>>;
 
-interpolationSchemes
-{
-    default         linear;
-    interpolate(U)  linear;
-}
-
-snGradSchemes
-{
-    default         corrected;
-}
-
-fluxRequired
-{
-  default         <<<CheckBox: fluxRequired 1: checked, yes, no : yes >>>;
-  default         <<<CheckBox: fluxRequired 2: unchecked, yes, no: no >>>;
-    p;
-}
-
-// ************************************************************************* //
+# checkboxes
+# <<< TYPE : NAME : CHECKED_VALUE, UNCHECKED_VALUE : DEFAULT_VALUE >>>;
+default          <<<CheckBox: check1 : yes, no : yes >>>; #checked
+default          <<<CheckBox: check2 : on, off : on >>>; #checked
+default          <<<CheckBox: check3 : no, yes : yes >>>; #unchecked
