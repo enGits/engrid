@@ -139,11 +139,16 @@ void Operation::operator()()
     }
   } else {
     checkGrid();
-    try {
+    const bool gui_thread = QThread::currentThread() == QCoreApplication::instance()->thread();
+    if (gui_thread) {
+      try {
+        operate();
+        //cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
+      } catch (Error err) {
+        err.display();
+      }
+    } else {
       operate();
-      //cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
-    } catch (Error err) {
-      err.display();
     }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->resetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->quickSave();
