@@ -660,27 +660,28 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   l2l_t  n2n   = getPartN2N();
   l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
-  QVector<int> node1_neighbours = n2n[id_node1];
-  QVector<int> node2_neighbours = n2n[id_node2];
+  l2g_t nodes  = getPartNodes();
+  l2g_t cells = getPartCells();
+  
+  QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
+  QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
   QVector<int> intersection;
   qcontIntersection( node1_neighbours, node2_neighbours, intersection );
   int N = intersection.size();
   IsTetra = false;
   if ( N == 2 ) {
-    QVector<int>::const_iterator p1 = intersection.begin();
-    QVector<int>::const_iterator p2 = p1 + 1;
-    vtkIdType intersection1 = _nodes[*p1];
-    vtkIdType intersection2 = _nodes[*p2];
-    if ( n2n[intersection1].contains( intersection2 ) ) { //if there's an edge between intersection1 and intersection2
+    vtkIdType intersection1 = nodes[intersection[0]];
+    vtkIdType intersection2 = nodes[intersection[1]];
+    if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
-      QVector<int> S1 = n2c[intersection1];
-      QVector<int> S2 = n2c[intersection2];
+      QVector<int> S1 = n2c[_nodes[intersection1]];
+      QVector<int> S2 = n2c[_nodes[intersection2]];
       QVector<int> Si;
       qcontIntersection( S1, S2, Si );
       int counter = 0;
-      foreach( vtkIdType id_cell, Si ) {
+      foreach( int i_cell, Si ) {
         vtkIdType num_pts, *pts;
-        grid->GetCellPoints( id_cell, num_pts, pts );
+        grid->GetCellPoints( cells[i_cell], num_pts, pts );
         for ( int i = 0; i < num_pts; ++i ) {
           if ( pts[i] == id_node1 || pts[i] == id_node2 ) counter++;
         }
@@ -718,10 +719,6 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
     EG_BUG;
     return( -1 );
   }
-
-  //grid info
-  int num_points = grid->GetNumberOfPoints();
-  int num_cells = grid->GetNumberOfCells();
 
   vtkIdType SnapPoint = -1;
 
@@ -802,7 +799,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
     }
 
     // TEST 5: survivor check
-    if ( num_cells + num_newcells <= 0 ) {
+    if ( grid->GetNumberOfCells() + num_newcells <= 0 ) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
     }
