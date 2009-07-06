@@ -185,11 +185,10 @@ int main( int argc, char ** argv )
     if (QString(argv[1]) == QString("-f") && argc == 3) {
       QApplication a( argc, argv );
       GuiMainWindow w;
-//       w.show();
+      w.show();
       a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
       GuiMainWindow::pointer()->open(QString(argv[2]));//this could aventually be done with another GuiMainWindow constructor
-      fileTemplateTest();
-//       a.exec();
+      a.exec();
     }
   } else {
     QApplication a( argc, argv );

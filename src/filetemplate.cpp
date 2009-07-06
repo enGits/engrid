@@ -121,7 +121,7 @@ int FileTemplate::save_egc()
   QString section = m_Section + m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection( section, contents );
-  GuiMainWindow::pointer()->saveXml("momo.xml");
+//   GuiMainWindow::pointer()->saveXml("momo.xml");
   return( 0 );
 }
 
