@@ -861,8 +861,8 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     }
 
     //local values
-    int l_num_newpoints;
-    int l_num_newcells;
+    int l_num_newpoints = 0;
+    int l_num_newcells = 0;
     QSet <vtkIdType> l_DeadCells;
     QSet <vtkIdType> l_MutatedCells;
     QSet <vtkIdType> l_MutilatedCells;
@@ -896,17 +896,17 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   //copy undead points
   vtkIdType dst_id_node = 0;
   for ( vtkIdType src_id_node = 0; src_id_node < num_points; src_id_node++ ) {//loop through src points
+    OffSet[src_id_node] = src_id_node - dst_id_node;
     if ( !deadnode_vector.contains( src_id_node ) ) { //if the node isn't dead, copy it
       vec3_t x;
       grid->GetPoints()->GetPoint( src_id_node, x.data() );
       dst->GetPoints()->SetPoint( dst_id_node, x.data() );
       copyNodeData( grid, src_id_node, dst, dst_id_node );
-      OffSet[src_id_node] = src_id_node - dst_id_node;
       dst_id_node++;
     }
     else {
       if ( DebugLevel > 0 ) {
-        cout << "src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
+        cout << "dead node encountered: src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
       }
     }
   }
@@ -914,21 +914,28 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   for ( vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell ) {//loop through src cells
     if ( !all_deadcells.contains( id_cell ) ) { //if the cell isn't dead
       vtkIdType src_num_pts, *src_pts;
-      vtkIdType dst_num_pts, *dst_pts;
+      vtkIdType dst_num_pts, dst_pts[3];
       grid->GetCellPoints( id_cell, src_num_pts, src_pts );
-
       vtkIdType type_cell = grid->GetCellType( id_cell );
-      dst_num_pts = src_num_pts;
-      dst_pts = new vtkIdType[dst_num_pts];
+      
+      dst_num_pts = 3;//src_num_pts;
+//       dst_pts = new vtkIdType[dst_num_pts];
+      
       if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
+        int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
           int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
           if ( DeadIndex != -1 ) {
-            dst_pts[i] = SnapPoint[DeadIndex] - OffSet[SnapPoint[DeadIndex]];
+            dst_pts[i] = SnapPoint[DeadIndex] - OffSet[SnapPoint[DeadIndex]]; // dead node
+            num_deadnode++;
           }
           else {
-            dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
+            dst_pts[i] = src_pts[i] - OffSet[src_pts[i]]; // not a dead node
           }
+        }
+        if(num_deadnode!=1) {
+          qWarning()<<"FATAL ERROR: Mutated cell has more than one dead node!";
+          EG_BUG;
         }
       }
       else if ( all_mutilatedcells.contains( id_cell ) ) { //mutilated cell (ex: square becoming triangle) (WARNING: Not fully functional yet)
@@ -953,13 +960,18 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
           cout << "processing normal cell " << id_cell << endl;
         }
         for ( int i = 0; i < src_num_pts; i++ ) {
+          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
+          if ( DeadIndex != -1 ) {
+            qWarning()<<"FATAL ERROR: Normal cell contains a dead node!";
+            EG_BUG;
+          }
           dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
         }
       }
       // copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
       copyCellData( grid, id_cell, dst, id_new_cell );
-      delete dst_pts;
+//       delete dst_pts;
     }
   }
 
