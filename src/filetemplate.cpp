@@ -117,8 +117,7 @@ int FileTemplate::save_of()
 {
   qDebug() << "Saving OF ...";
   
-  
-  QString section = m_Section+m_FileInfo.completeBaseName();
+  QString section = m_Section + m_FileInfo.completeBaseName();
   QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
   this->setContents(openfoam_string);
   qDebug()<<"=== After reading EGC START ===";

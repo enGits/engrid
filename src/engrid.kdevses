@@ -1,28 +1,46 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="7" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-   <View0 Encoding="" line="29" Type="Source" />
+ <DocsAndViews NumberOfDocuments="13" >
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" line="846" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
-   <View0 Encoding="" line="395" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guivolumedelegate.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.h" >
    <View0 Encoding="" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-   <View0 Encoding="" line="1128" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///opt/shared/Qt/4.5.0/debug/include/QtGui/qlistwidget.h" >
-   <View0 Encoding="" line="89" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/filetemplate.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp.orig" >
-   <View0 Encoding="" line="0" Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/boundarycondition.h" >
+   <View0 Encoding="" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/engrid.h" >
-   <View0 Encoding="" line="191" Type="Source" />
+  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/boundarycondition.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/meshpartition.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/egvtkobject.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc8>
+  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
+   <View0 Encoding="" line="350" Type="Source" />
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/filetemplate.h" >
+   <View0 Encoding="" line="69" Type="Source" />
+  </Doc10>
+  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guisettingsviewer.cpp" >
+   <View0 Encoding="" line="169" Type="Source" />
+  </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/operation.cpp" >
+   <View0 Encoding="" line="153" Type="Source" />
+  </Doc12>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -41,19 +59,23 @@
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
      <mark line="66" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-     <mark line="120" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
      <mark line="408" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
+     <mark line="120" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-     <mark line="552" />
+     <mark line="1144" />
+     <mark line="1161" />
+     <mark line="1076" />
+     <mark line="1026" />
      <mark line="78" />
      <mark line="215" />
+     <mark line="985" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
      <mark line="81" />
