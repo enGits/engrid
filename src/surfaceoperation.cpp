@@ -890,8 +890,8 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_new
   QVector <vtkIdType> DeadNode_vector = Set2Vector( DeadNodes, false );
 
   QVector<vtkIdType> cells;
-  getAllSurfaceCells( cells, grid );
-  UpdatePotentialSnapPoints( false );
+  getAllSurfaceCells(cells, grid);
+  UpdatePotentialSnapPoints(true);
 
   //src grid info
   int N_points = grid->GetNumberOfPoints();

@@ -27,27 +27,25 @@
 
 #include "vertexmeshdensity.h"
 
+
 /// Update desired mesh density, i.e. the field used for surface meshing
+
 class UpdateDesiredMeshDensity : public SurfaceOperation
 {
 
-public: //attributes
+private: //attributes
 
-  QSet<int> m_bcs;
+  QSet<int> m_BCs;
+  double m_ConvLimit;
+  double m_GrowthFactor;
+  int m_MaxIter;
+  QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
 
-public: //attributes with setter functions
-
-  double Convergence_meshdensity;
-  void setConvergence_meshdensity(double C) {Convergence_meshdensity = C; }
-  QVector <VertexMeshDensity> VMDvector; //Vertices of Mass destruction
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector) { VMDvector=a_VMDvector; }
-  int MaxiterDensity; //used for UpdateDesiredMeshDensity operation
-  void setMaxiterDensity(int a) { MaxiterDensity = a; }
-  
 public: //methods
 
   UpdateDesiredMeshDensity();
   virtual void operate();
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
 
 };
 

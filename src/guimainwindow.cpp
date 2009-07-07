@@ -1034,7 +1034,7 @@ void GuiMainWindow::saveBC()
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
     BoundaryCondition bc = bcmap[i];
-    f << "      " << i << " " << bc.getName() << " " << bc.getType() << "\n";
+    f << i << " " << bc.getName() << " " << bc.getType() << "\n";
   }
   foreach (VolumeDefinition V, volmap) {
     QString dirs = "";
@@ -1052,9 +1052,8 @@ void GuiMainWindow::saveBC()
       num.setNum(V.getSign(i));
       dirs += num;
     }
-    f << "      " << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
+    f << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
   }
-  f << "    ";
   setXmlSection("engrid/bc", buffer);
 }
 
@@ -1140,7 +1139,7 @@ void GuiMainWindow::open(QString file_name)
 
 void GuiMainWindow::saveXml()
 {
-  QString buffer = m_XmlDoc.toString(2);
+  QString buffer = m_XmlDoc.toString(0);
   QFile xml_file(m_CurrentFilename);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
@@ -1743,7 +1742,9 @@ void GuiMainWindow::configure()
     // so that the options menu isn't empty at first start.
     GridSmoother tmp01;
     GuiCreateBoundaryLayer tmp02;
-    SurfaceProjection proj;
+    SurfaceProjection tmp03;
+    SurfaceMesher tmp04;
+    UpdateDesiredMeshDensity tmp05;
   }
   GuiSettingsViewer settings(&qset);
   settings.exec();
