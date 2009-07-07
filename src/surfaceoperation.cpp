@@ -40,7 +40,7 @@ SurfaceOperation::SurfaceOperation()
   NumberOfIterations = 20;
   RelaxationFactor = 0.01;
   FeatureEdgeSmoothing = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
-  FeatureAngle = 45;
+  FeatureAngle = 360; ///@@@ remove that for a better solution
   EdgeAngle = 15;
   BoundarySmoothing = 1;
 }
@@ -724,7 +724,10 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
 {
-  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
+  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) {
+    cout << id_node << ',' << m_PotentialSnapPoints.size() << endl;
+    EG_BUG;
+  }
   return m_PotentialSnapPoints[id_node];
 }
 

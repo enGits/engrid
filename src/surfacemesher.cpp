@@ -108,6 +108,8 @@ int SurfaceMesher::insertNodes()
   insert_points.set_insert_FP(false);
   insert_points.set_insert_EP(true);
   insert_points.setVertexMeshDensityVector(VMDvector);
+  UpdateNodeType();
+  cout << "Urgs" << endl;
   insert_points();
   return insert_points.getNumInserted();
 }
@@ -125,13 +127,20 @@ int SurfaceMesher::deleteNodes()
 
 void SurfaceMesher::operate()
 {
+  cout << "ping" << endl;
   updateNodeInfo(true);
+  cout << "ping" << endl;
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
   while (!done) {
+    cout << "ping" << endl;
+    UpdateNodeType();
+    cout << "ping" << endl;
     computeMeshDensity();
+    cout << "ping" << endl;
+    UpdateNodeType();
     num_inserted = insertNodes();
     swap();
     //smooth(4);
@@ -142,12 +151,13 @@ void SurfaceMesher::operate()
       int count = 0;
 
       do {
-        N = deleteNodes();
+        //N = deleteNodes();
         num_deleted += N;
         ++count;
       } while ((N > 0) && (count < 20));
 
     }
+    cout << "ping" << endl;
     for (int i = 0; i < 10; ++i) {
       swap();
       smooth(m_NumSmoothSteps);
