@@ -64,6 +64,7 @@ class SurfaceOperation : public Operation
 
     QVector <vtkIdType> getPotentialSnapPoints( vtkIdType id_node ); ///< Returns a QVector containing neighbour points to which the point id_node can snap.
 
+    /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
     vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );
 
     int UpdateCurrentMeshDensity();
@@ -71,9 +72,13 @@ class SurfaceOperation : public Operation
     /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
     int UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices = false );
 
+    /// deletes node DeadNode
     bool DeletePoint( vtkIdType DeadNode, int& N_newpoints, int& N_newcells );
+    /// deletes set of points DeadNodes
     bool DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells );
-    int NumberOfCommonPoints( vtkIdType node1, vtkIdType node2, bool& IsTetra );
+
+    /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
+    int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
 
     ///returns true if moving id_node to position P leads to flipped cells
     bool FlippedCells( vtkIdType id_node, vec3_t P );

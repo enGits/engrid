@@ -340,14 +340,14 @@ public slots:
   
   ///@@@  TODO: Simplify available save/load functions
 
-  void saveXml();                        ///< Save the case in an XML file
+  void openXml(QString file_name);       ///< Open the case from an XML file
+  void saveXml(QString file_name);       ///< Save the case in an XML file
   void open();                           ///< Open an existing case
-  void open(QString file_name);          ///< Open case file_name
+  void open(QString file_name, bool update_current_filename = true); ///< Open case file_name
   void save();                           ///< Save the current case
   void saveAs();                         ///< Save the current case -- using a different file name
-
-  void quickSave(QString a_filename);    ///< Save the current grid as a_filename
-  void quickLoad(QString a_filename);    ///< Load the current grid from a_filename
+  QString saveAs(QString file_name, bool update_current_filename = true);     ///< Save the current case as file_name. Returns name under which file was saved (with missing .egc extension for example).
+  
   int  quickSave();                      ///< Save the current grid as a_filename_a_operation
   void quickLoad(int a_operation);       ///< Load a_filename_a_operation
   void updateStatusBar();                ///< Update the status bar

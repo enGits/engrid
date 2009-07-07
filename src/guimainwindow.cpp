@@ -138,8 +138,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
   setupVtk();
 
-  m_CurrentFilename = "untitled.egc";
   resetOperationCounter();//clears undo/redo list and disables undo/redo
+  m_CurrentFilename = "untitled.egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
   
   status_bar = new QStatusBar(this);
@@ -167,7 +167,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   dir.mkpath(m_LogDir);
   
   log_file_name = m_LogDir + basename;
-  cout << "log_file_name=" << log_file_name.toLatin1().data() << endl;
+  cout << "log_file_name=" << qPrintable(log_file_name) << endl;
 
   system_stdout = stdout;
   freopen (log_file_name.toAscii().data(), "w", stdout);
@@ -550,7 +550,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
       lut->Build();
       m_SurfaceMapper->SetScalarModeToUsePointFieldData();
-      m_SurfaceMapper->ColorByArrayComponent(ui.comboBox_Field->currentText().toLatin1().data(),0);
+      m_SurfaceMapper->ColorByArrayComponent(qPrintable(ui.comboBox_Field->currentText()),0);
       m_SurfaceMapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
       m_SurfaceMapper->ScalarVisibilityOn();
       if(ui.checkBox_Legend->checkState()) {
@@ -846,59 +846,55 @@ void GuiMainWindow::info()
 int GuiMainWindow::quickSave()
 {
   ///@@@ might be re-activated with RAM support
-  /*
-  if(grid->GetNumberOfPoints()>0)
+  
+/*  if(grid->GetNumberOfPoints()>0)
   {
     current_operation++;
-    QFileInfo fileinfo(current_filename);
+    QFileInfo fileinfo(m_CurrentFilename);
     QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
     last_operation=current_operation;
-    cout<<"Operation "<<current_operation<<endl;//" : Saving as l_filename="<<l_filename.toLatin1().data()<<endl;
-    QuickSave(l_filename);
-    setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
+    cout<<"Operation "<<current_operation<<endl;
+    saveAs(l_filename, false);
     if(current_operation>0) ui.actionUndo->setEnabled(true);
     ui.actionRedo->setEnabled(false);
   }
   else cout<<"No grid to save!"<<endl;
-  return(current_operation);
-  */
+  return(current_operation);*/
+  
   return 0;
 }
 
 void GuiMainWindow::quickLoad(int a_operation)
 {
-  a_operation = a_operation;
   ///@@@ might be re-activated with RAM support
-  /*
-  QFileInfo fileinfo(current_filename);
+  
+/*  QFileInfo fileinfo(m_CurrentFilename);
   QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
-  QuickLoad(l_filename);
-  setWindowTitle(current_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-  */
+  open(l_filename, false);*/
 }
 
 void GuiMainWindow::undo()
 {
   QMessageBox::critical(this, "de-activated", "Undo is not doing anything at the moment!");
-  /*
-  cout << "Undoing operation " << current_operation << endl;
+  
+/*  cout << "Undoing operation " << current_operation << endl;
   current_operation--;
-  QuickLoad(current_operation);
+  quickLoad(current_operation);
   ui.actionRedo->setEnabled(true);
-  if(current_operation<=0) ui.actionUndo->setEnabled(false);
-  */
+  if(current_operation<=0) ui.actionUndo->setEnabled(false);*/
+  
 }
 
 void GuiMainWindow::redo()
 {
   QMessageBox::critical(this, "de-activated", "Redo is not doing anything at the moment!");
-  /*
-  current_operation++;
+  
+/*  current_operation++;
   cout << "Redoing operation " << current_operation << endl;
-  QuickLoad(current_operation);
+  quickLoad(current_operation);
   ui.actionUndo->setEnabled(true);
-  if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);
-  */
+  if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);*/
+  
 }
 
 void GuiMainWindow::resetOperationCounter()
@@ -1034,7 +1030,7 @@ void GuiMainWindow::saveBC()
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
     BoundaryCondition bc = bcmap[i];
-    f << i << " " << bc.getName() << " " << bc.getType() << "\n";
+    f << "      " << i << " " << bc.getName() << " " << bc.getType() << "\n";
   }
   foreach (VolumeDefinition V, volmap) {
     QString dirs = "";
@@ -1052,8 +1048,9 @@ void GuiMainWindow::saveBC()
       num.setNum(V.getSign(i));
       dirs += num;
     }
-    f << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
+    f << "      " << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
   }
+  f << "    ";
   setXmlSection("engrid/bc", buffer);
 }
 
@@ -1061,11 +1058,10 @@ void GuiMainWindow::openGrid(QString file_name)
 {
   file_name += ".vtu";
   EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
-  vtu->SetFileName(file_name.toAscii().data());
+  vtu->SetFileName(qPrintable(file_name));
   vtu->Update();
   grid->DeepCopy(vtu->GetOutput());
   createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
   openBC();
   openPhysicalBoundaryConditions();
   updateBoundaryCodes(true);
@@ -1092,149 +1088,102 @@ void GuiMainWindow::saveGrid(QString file_name)
   vtu->SetInput(grid);
   vtu->Write();
   if(vtu->GetErrorCode()) {
-    QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(m_CurrentFilename));
+    QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(file_name));
   }
 }
-
 
 ///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
-  m_CurrentFilename = QFileDialog::getOpenFileName(NULL, "open grid from file", getCwd(), "enGrid case files/VTK unstr. grid files (*.egc *.EGC *.vtu *.VTU)");
-  if (!m_CurrentFilename.isNull()) {
-    this->open(m_CurrentFilename);
+  QString file_name = QFileDialog::getOpenFileName(NULL, "open grid from file", getCwd(), "enGrid case files/VTK unstr. grid files (*.egc *.EGC *.vtu *.VTU)");
+  if (!file_name.isNull()) {
+    this->open(file_name);
   }
 }
 
-void GuiMainWindow::open(QString file_name)
+void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
-  m_CurrentFilename = file_name;
+  cout << "Opening " << qPrintable(file_name) << endl;
+  QFileInfo file_info(file_name);
   bool no_case_file = false;
-  QString file_extension = getExtension(m_CurrentFilename);
-  QString grid_file_name = m_CurrentFilename;
+  QString file_extension = getExtension(file_name);
+  QString grid_file_name = file_name;
   if (file_extension.toLower() == "vtu") {
     no_case_file = true;
-    grid_file_name = stripFromExtension(m_CurrentFilename);
-    m_CurrentFilename = stripFromExtension(m_CurrentFilename) + ".egc";
+    grid_file_name = stripFromExtension(file_name);
   }
-  GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
+  GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
   if (!no_case_file) {
-    QFile xml_file(m_CurrentFilename);
-    if (!xml_file.open(QIODevice::ReadOnly)) {
-      qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
-      qWarning()<<"QDir::current()="<<QDir::current();
-      qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
-      qWarning()<<"getCwd()="<<getCwd();
-      EG_BUG;
-    }
-    if (!m_XmlDoc.setContent(&xml_file)) {
-      QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(m_CurrentFilename));
-    }
-    xml_file.close();
+    openXml(file_name);
   }
   openGrid(grid_file_name);
   openBC();
   openPhysicalBoundaryConditions();
+  // update current filename
+  if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
+  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
 }
 
-void GuiMainWindow::saveXml()
+void GuiMainWindow::openXml(QString file_name)
 {
-  QString buffer = m_XmlDoc.toString(0);
-  QFile xml_file(m_CurrentFilename);
+  QFile xml_file(file_name);
+  if (!xml_file.open(QIODevice::ReadOnly)) {
+    qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
+    qWarning()<<"QDir::current()="<<QDir::current();
+    qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
+    qWarning()<<"getCwd()="<<getCwd();
+    EG_BUG;
+  }
+  if (!m_XmlDoc.setContent(&xml_file)) {
+    QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+  }
+  xml_file.close();
+}
+
+void GuiMainWindow::saveXml(QString file_name)
+{
+  QString buffer = m_XmlDoc.toString(2);
+  QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
   f << buffer << endl;
 }
 
-void GuiMainWindow::save()
-{
+QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename) {
+  QFileInfo file_info(file_name);
+  if (file_info.suffix().toLower() != "egc") {
+    file_name += ".egc";
+  }
+  GuiMainWindow::setCwd(file_info.absolutePath());
+  cout << "Saving as " << qPrintable(file_name) << endl;
+  saveGrid(file_name);
   saveBC();
   savePhysicalBoundaryConditions();
+  saveXml(file_name);
+  // update current filename
+  if(update_current_filename) m_CurrentFilename = file_name;
+  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
+  return(file_name);
+}
+
+void GuiMainWindow::save()
+{
   if (m_CurrentFilename == "untitled.egc") {
     saveAs();
   } else {
-    cout << "Saving as " << m_CurrentFilename.toAscii().data() << endl;
-    saveGrid(m_CurrentFilename);
-    saveBC();
-    savePhysicalBoundaryConditions();
-    saveXml();
+    saveAs(m_CurrentFilename);
   }
 }
 
 void GuiMainWindow::saveAs()
 {
-  m_CurrentFilename = QFileDialog::getSaveFileName(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
-  if (!m_CurrentFilename.isNull()) {
-    QFileInfo fileinfo(m_CurrentFilename);
-    if (fileinfo.suffix().toLower() != "egc") {
-      m_CurrentFilename += ".egc";
-    }
-    GuiMainWindow::setCwd(QFileInfo(m_CurrentFilename).absolutePath());
-    cout << "Saving as " << m_CurrentFilename.toAscii().data() << endl;
-    saveGrid(m_CurrentFilename);
-    saveBC();
-    savePhysicalBoundaryConditions();
-    saveXml();
+  QString file_name = QFileDialog::getSaveFileName(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
+  if (!file_name.isNull()) {
+    saveAs(file_name);
     //for the undo/redo operations
-    setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
     resetOperationCounter();
     quickSave();
   }
-}
-
-void GuiMainWindow::quickSave(QString file_name)
-{
-  file_name = file_name;
-  /*
-  if(grid->GetNumberOfPoints() > 0) {
-    QFileInfo fileinfo(a_filename);
-    cout<<"a_filename="<<a_filename.toLatin1().data()<<endl;
-    cout<<"fileinfo.suffix()="<<fileinfo.suffix().toLatin1().data()<<endl;
-    if(fileinfo.suffix()!="vtu") a_filename=a_filename + ".vtu";
-    
-    cout << "Saving as " << a_filename.toAscii().data() << endl;
-    
-    EG_VTKDCC(vtkDoubleArray, cell_VA, grid, "cell_VA");
-    for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId) {
-      cell_VA->SetValue(cellId, GeometryTools::cellVA(grid, cellId, true));
-    }
-    EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-    addVtkTypeInfo();
-    createIndices(grid);
-    vtu->SetFileName(a_filename.toAscii().data());
-    vtu->SetDataModeToBinary();
-    vtu->SetInput(grid);
-    vtu->Write();
-    if(vtu->GetErrorCode()) {
-      QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(current_filename));
-    } else {
-      saveBC(a_filename);
-    }
-  }
-  else cout<<"No grid to save!"<<endl;
-  */
-}
-
-void GuiMainWindow::quickLoad(QString file_name)
-{
-  file_name = file_name;
-  /*
-  cout << "Loading " << a_filename.toAscii().data() << endl;
-  if (!a_filename.isNull()) {
-    // GuiMainWindow::setCwd(QFileInfo(a_filename).absolutePath());
-    EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
-    vtu->SetFileName(a_filename.toAscii().data());
-    vtu->Update();
-    grid->DeepCopy(vtu->GetOutput());
-    createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-    setWindowTitle(a_filename + " - enGrid - " + QString("%1").arg(current_operation) );
-    openBC(a_filename);
-    updateBoundaryCodes(true);
-    updateActors();
-    updateStatusBar();
-    zoomAll();
-  }
-  */
 }
 
 void GuiMainWindow::updateStatusBar()
