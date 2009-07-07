@@ -41,6 +41,7 @@ bool RemovePoints::removePointCriteria( vtkIdType id_node )
   return ( result1 );
 }
 
+///@@@ FIXME: mark nodes, not cells
 void RemovePoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
@@ -74,6 +75,7 @@ void RemovePoints::operate()
   foreach( vtkIdType node, selected_nodes ) {
     if ( node_type->GetValue( node ) != VTK_FIXED_VERTEX ) {
       bool marked = false;
+      ///@@@ FIXME: fix n2c usage
       foreach( vtkIdType id_cell, n2c[node] ) {
         if ( marked_cells[id_cell] ) marked = true;
       }

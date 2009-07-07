@@ -791,6 +791,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         if ( pts[i] == PSP ) {
           ContainsSnapPoint = true;
         }
+        ///@@@ FIXME: Fix n2c usage!
         if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[pts[i]].size() <= 1 ) {
           invincible = true;
         }
@@ -818,8 +819,8 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         vec3_t Old_N = triNormal( grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
         vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
 
-        // TEST 4
-        if ( Old_N*New_N<0 || New_N*New_N < Old_N*Old_N*1. / 100. ) { //area + inversion check
+        // TEST 4: area + inversion check
+        if ( Old_N*New_N<0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
           IsValidSnapPoint = false;
         }
