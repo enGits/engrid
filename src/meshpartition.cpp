@@ -162,16 +162,14 @@ void MeshPartition::addPartition(const MeshPartition& part)
     }
     setCells(new_cells);
   } else {
-    cout << "merging two grids" << endl;
     double tol = 1e-3*min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
-    cout << "tolerance = " << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
     loc->SetDataSet(m_Grid);
     loc->BuildLocator();
     QVector<vtkIdType> pnode2node(part.m_Grid->GetNumberOfPoints());
     vtkIdType N = m_Grid->GetNumberOfPoints();
-    foreach (vtkIdType id_pnode, part.m_Nodes) {
+    for (vtkIdType id_pnode = 0; id_pnode < part.m_Grid->GetNumberOfPoints(); ++id_pnode) {
       vec3_t xp, x;
       part.m_Grid->GetPoint(id_pnode, xp.data());
       vtkIdType id_node = loc->FindClosestPoint(xp.data());
@@ -190,7 +188,9 @@ void MeshPartition::addPartition(const MeshPartition& part)
       new_grid->GetPoints()->SetPoint(id_node, x.data());
       copyNodeData(m_Grid, id_node, new_grid, id_node);
     }
-    foreach (vtkIdType id_pnode, part.m_Nodes) {
+    QVector<vtkIdType> part_nodes;
+    getNodesFromCells(part.m_Cells, part_nodes, part.m_Grid);
+    foreach (vtkIdType id_pnode, part_nodes) {
       vec3_t x;
       part.m_Grid->GetPoint(id_pnode, x.data());
       new_grid->GetPoints()->SetPoint(pnode2node[id_pnode], x.data());

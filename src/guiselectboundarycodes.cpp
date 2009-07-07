@@ -24,8 +24,6 @@
 #include <vtkIntArray.h>
 #include <vtkCellData.h>
 
-#include "guimainwindow.h"
-
 GuiSelectBoundaryCodes::GuiSelectBoundaryCodes()
 {
   disableAutoSet();
@@ -48,7 +46,6 @@ void GuiSelectBoundaryCodes::before()
   };
   connect(ui.pushButtonSelect, SIGNAL(clicked()), this, SLOT(selectAll()));
   connect(ui.pushButtonDeselect, SIGNAL(clicked()), this, SLOT(deselectAll()));
-  connect(ui.pushButton_SaveSelectionAsGrid, SIGNAL(clicked()), this, SLOT(saveSelectionAsGrid()));
 };
 
 void GuiSelectBoundaryCodes::operate()
@@ -74,20 +71,6 @@ void GuiSelectBoundaryCodes::deselectAll()
     ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
   };
 };
-
-void GuiSelectBoundaryCodes::saveSelectionAsGrid()
-{
-  display_boundary_codes.clear();
-  for (QSet<int>::iterator i = boundary_codes.begin(); i != boundary_codes.end(); ++i) {
-    if (checkListItem(ui.listWidget,*i)) {
-      display_boundary_codes.insert(*i);
-    };
-  };
-  
-  QVector <vtkIdType> selected_cells;
-  getSurfaceCells(display_boundary_codes, selected_cells, grid);
-  writeCells(grid, selected_cells, GuiMainWindow::pointer()->getFilePath() + "selection.vtu" );
-}
 
 void GuiSelectBoundaryCodes::getSelectedBoundaryCodes(QSet<int> &bcs)
 {

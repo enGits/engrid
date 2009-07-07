@@ -144,7 +144,6 @@ void GuiCreateBoundaryLayer::operate()
     vol();
     vol.getTraceCells(layer_cells);
     if (smooth.improvement() < err_max) break;
-    break;
   }
   //smooth.setAllCells();
   //smooth();

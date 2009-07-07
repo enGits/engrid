@@ -32,6 +32,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceOperation()
 {
   EG_TYPENAME;
   getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
+  getSet("surface meshing", "number of smoothing steps", 1, m_NumSmoothSteps);
 }
 
 void SurfaceMesher::computeMeshDensity()
@@ -133,16 +134,23 @@ void SurfaceMesher::operate()
     computeMeshDensity();
     num_inserted = insertNodes();
     swap();
-    smooth(4);
+    //smooth(4);
     
-    do {
-      num_deleted = deleteNodes();
-      cout << num_deleted << " nodes deleted" << endl;
-    } while (num_deleted > 0);
-    
+    {
+      num_deleted = 0;
+      int N = 0;
+      int count = 0;
+
+      do {
+        N = deleteNodes();
+        num_deleted += N;
+        ++count;
+      } while ((N > 0) && (count < 20));
+
+    }
     for (int i = 0; i < 10; ++i) {
       swap();
-      smooth(1);
+      smooth(m_NumSmoothSteps);
     }
     ++iter;
     done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
