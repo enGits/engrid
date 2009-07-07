@@ -741,7 +741,9 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
   // preparations
   setAllSurfaceCells();
   l2l_t n2c = getPartN2C();
-
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t cells = getPartCells();
+  
   EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
   if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
     cout << "ERROR: unable to remove fixed vertex." << endl;
@@ -775,7 +777,8 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
     DeadCells.clear();
     MutatedCells.clear();
     MutilatedCells.clear();
-    foreach( vtkIdType id_cell, n2c[DeadNode] ) { //loop through potentially dead cells
+    foreach( int i_cell, n2c[_nodes[DeadNode]] ) { //loop through potentially dead cells
+      vtkIdType id_cell = cells[i_cell];
       //get points around cell
       vtkIdType num_pts, *pts;
       grid->GetCellPoints( id_cell, num_pts, pts );
@@ -791,8 +794,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         if ( pts[i] == PSP ) {
           ContainsSnapPoint = true;
         }
-        ///@@@ FIXME: Fix n2c usage!
-        if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[pts[i]].size() <= 1 ) {
+        if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[_nodes[pts[i]]].size() <= 1 ) {
           invincible = true;
         }
       }

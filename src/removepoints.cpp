@@ -41,7 +41,6 @@ bool RemovePoints::removePointCriteria( vtkIdType id_node )
   return ( result1 );
 }
 
-///@@@ FIXME: mark nodes, not cells
 void RemovePoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
