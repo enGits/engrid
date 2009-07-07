@@ -529,7 +529,6 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 //---------------------------------------------------
 //Utility functions used in Roland's formulas
 
-///@@@ TODO: Check that operations using n2n,n2c,c2c are still correct
 ///@@@ TODO: change meshdensity fields to edgelength fields since this is what is mostly used?
 
 /// desired edge length for id_node

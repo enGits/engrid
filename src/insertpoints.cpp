@@ -332,7 +332,7 @@ char InsertPoints::getNewNodeType(stencil_t S)
 
 ///@@@ TODO:
        //============================================
-      ///@@@  TODO: PRIORITY 1: Update node info (densities+type)
+      ///@@@  TODO: Update node info (densities+type) Still necessary?
 // EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
 // EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
 // EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
