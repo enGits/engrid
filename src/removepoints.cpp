@@ -52,8 +52,10 @@ void RemovePoints::operate()
   getNodesFromCells( selected_cells, selected_nodes, grid );
 
   setAllSurfaceCells();
-  l2l_t n2c   = getPartN2C();
-
+  l2l_t n2n = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes = getPartNodes();
+  
   UpdatePotentialSnapPoints(true);
 
   EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
@@ -67,22 +69,21 @@ void RemovePoints::operate()
   QSet <vtkIdType> MutatedCells;
   QSet <vtkIdType> MutilatedCells;
 
-  QMap <vtkIdType, bool> marked_cells;
-  QMap <vtkIdType, bool> marked_nodes;
+  QVector <bool> marked_nodes(nodes.size());
+  marked_nodes.fill(false);
+  
   QSet <vtkIdType> DeadNodes;
 
+  ///@@@ FIXME: Reuse snap_point and avoid sets and maps
   //count
-  foreach( vtkIdType node, selected_nodes ) {
-    if ( node_type->GetValue( node ) != VTK_FIXED_VERTEX ) {
-      bool marked = false;
-      ///@@@ FIXME: fix n2c usage
-      foreach( vtkIdType id_cell, n2c[node] ) {
-        if ( marked_cells[id_cell] ) marked = true;
-      }
-
-      if ( !marked && removePointCriteria( node ) && FindSnapPoint( node, DeadCells, MutatedCells, MutilatedCells, num_newpoints, num_newcells ) != -1 ) {
-        DeadNodes.insert( node );
-        foreach( vtkIdType id_cell, n2c[node] ) marked_cells[id_cell] = true;
+  foreach( vtkIdType id_node, selected_nodes ) {
+    if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {
+      if ( !marked_nodes[id_node] && removePointCriteria( id_node ) ) {
+        vtkIdType snap_point = FindSnapPoint( id_node, DeadCells, MutatedCells, MutilatedCells, num_newpoints, num_newcells );
+        if( snap_point != -1 ) {
+          DeadNodes.insert( id_node );
+          foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) marked_nodes[nodes[i_node_neighbour]] = true;
+        }
       }
     }
   }
