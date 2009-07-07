@@ -36,126 +36,126 @@ struct stencil_t {
   char neighbour_type;//What's the type of the neighbour cell?
 };
 /// Prints out stencil information
-ostream& operator<<(ostream &out, stencil_t S);
+ostream& operator<<( ostream &out, stencil_t S );
 //==============================================
 
 class SurfaceOperation : public Operation
 {
-private:
+  private:
 
-  ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points, all neighbour points in case of simple points and the points belonging to edges in case of fixed points
-  QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
-  
-protected:
+    ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points, all neighbour points in case of simple points and the points belonging to edges in case of fixed points
+    QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
 
-  ///@@@ TODO: Remove useless attributes
-  //attributes for determining node types and for smoothing operations
-  double Convergence;
-  int NumberOfIterations;
-  double RelaxationFactor;
-  int m_AllowFeatureEdgeVertices; ///< if set to 0, feature edge vertices will be deactivated. Use setm_AllowFeatureEdgeVertices(int) to set it.
-  double FeatureAngle;
-  double EdgeAngle;
-  int BoundarySmoothing;
+  protected:
 
-public:
-  SurfaceOperation();
-  virtual void operate();
-  
-  QVector <vtkIdType> getPotentialSnapPoints(vtkIdType id_node); ///< Returns a QVector containing neighbour points to which the point id_node can snap.
-  
-  vtkIdType FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
-  
-  int UpdateCurrentMeshDensity();
-  
-  /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
-  int UpdatePotentialSnapPoints(bool update_node_types, bool allow_feature_edge_vertices = false );
-  
-  bool DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
-  bool DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
-  int NumberOfCommonPoints(vtkIdType node1, vtkIdType node2, bool& IsTetra);
-  
-  ///returns true if moving id_node to position P leads to flipped cells
-  bool FlippedCells(vtkIdType id_node, vec3_t P);
-  
-  //--------------------------------------
-  //Special for UpdatePotentialSnapPoints
-  void setConvergence( double C ) { Convergence=C; }
-  void setNumberOfIterations( int N ) { NumberOfIterations=N; }
-  void setRelaxationFactor( double RF ) { RelaxationFactor=RF; }
-  void setAllowFeatureEdgeVertices( int x ) { m_AllowFeatureEdgeVertices=x; } ///< If x = 0, feature edge vertices will be deactivated.
-  int getAllowFeatureEdgeVertices() { return(m_AllowFeatureEdgeVertices); }
-  void setFeatureAngle( double FA ) { FeatureAngle=FA; }
-  void setEdgeAngle( double EA ) { EdgeAngle=EA; }
-  void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; }
-  //--------------------------------------
-  
-  /// Returns the average distance of id_node to its neighbours
-  double CurrentVertexAvgDist(vtkIdType id_node);
-  
-  /// Returns 1/CurrentVertexAvgDist(id_node)
-  double CurrentMeshDensity(vtkIdType id_node);
-  
-  /// Returns the average of 1./node_meshdensity_desired of the neighbours of id_node
-  double DesiredVertexAvgDist(vtkIdType id_node);
-  
-  /// Returns the average of node_meshdensity_desired of the neighbours of id_node
-  double DesiredMeshDensity(vtkIdType id_node);
-  
-  /// Returns the set of boundary codes next to this node
-  QSet <int> getBCset(vtkIdType a_node);
-  
-  /// Returns the node type
-  char getNodeType(vtkIdType a_node, bool allow_feature_edge_vertices = false );
-  
-  /// Returns the type of the edge [a_node1,a_node2] based on the topology
-  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices);
-  
-  /// Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
-  char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2);
-  
-  /// passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
-  int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QVector <vtkIdType> &EdgeCells);
-  
-  /// passes a set containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
-  int getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <vtkIdType> &EdgeCells);
-  
-  /// Get VertexMeshDensity object
-  VertexMeshDensity getVMD(vtkIdType node);
-  
-  /// returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
-  stencil_t getStencil(vtkIdType id_cell1, int j1);
-  
-  /// returns the closest neighbour node of id_node
-  vtkIdType getClosestNode(vtkIdType id_node);
-  
-  /// returns the farthest neighbour node of id_node
-  vtkIdType getFarthestNode(vtkIdType id_node);
-  
-  //---------------------------------------------------
-  //Utility functions used in Roland's formulas
-  
-  /// perimeter
-  double perimeter(vtkIdType id_cell);
-  
-  /// desired edge length for id_node
-  double desiredEdgeLength(vtkIdType id_node);
-  
-  /// mean desired edge length for id_cell
-  double meanDesiredEdgeLength(vtkIdType id_cell);
-  
-  /// perimeter / sum of the desired edge lengths
-  double Q_L(vtkIdType id_cell);
-  
-  /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
-  double Q_L1(vtkIdType id_node);
-  
-  /// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
-  double Q_L2(vtkIdType id_node);
-  
-  /// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
-  double T_min(int w);
-  
+    ///@@@ TODO: Remove useless attributes
+    //attributes for determining node types and for smoothing operations
+    double Convergence;
+    int NumberOfIterations;
+    double RelaxationFactor;
+    int m_AllowFeatureEdgeVertices; ///< if set to 0, feature edge vertices will be deactivated. Use setm_AllowFeatureEdgeVertices(int) to set it.
+    double FeatureAngle;
+    double EdgeAngle;
+    int BoundarySmoothing;
+
+  public:
+    SurfaceOperation();
+    virtual void operate();
+
+    QVector <vtkIdType> getPotentialSnapPoints( vtkIdType id_node ); ///< Returns a QVector containing neighbour points to which the point id_node can snap.
+
+    vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );
+
+    int UpdateCurrentMeshDensity();
+
+    /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
+    int UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices = false );
+
+    bool DeletePoint( vtkIdType DeadNode, int& N_newpoints, int& N_newcells );
+    bool DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells );
+    int NumberOfCommonPoints( vtkIdType node1, vtkIdType node2, bool& IsTetra );
+
+    ///returns true if moving id_node to position P leads to flipped cells
+    bool FlippedCells( vtkIdType id_node, vec3_t P );
+
+    //--------------------------------------
+    //Special for UpdatePotentialSnapPoints
+    void setConvergence( double C ) { Convergence = C; }
+    void setNumberOfIterations( int N ) { NumberOfIterations = N; }
+    void setRelaxationFactor( double RF ) { RelaxationFactor = RF; }
+    void setAllowFeatureEdgeVertices( int x ) { m_AllowFeatureEdgeVertices = x; } ///< If x = 0, feature edge vertices will be deactivated.
+    int getAllowFeatureEdgeVertices() { return( m_AllowFeatureEdgeVertices ); }
+    void setFeatureAngle( double FA ) { FeatureAngle = FA; }
+    void setEdgeAngle( double EA ) { EdgeAngle = EA; }
+    void setBoundarySmoothing( int BS ) { BoundarySmoothing = BS; }
+    //--------------------------------------
+
+    /// Returns the average distance of id_node to its neighbours
+    double CurrentVertexAvgDist( vtkIdType id_node );
+
+    /// Returns 1/CurrentVertexAvgDist(id_node)
+    double CurrentMeshDensity( vtkIdType id_node );
+
+    /// Returns the average of 1./node_meshdensity_desired of the neighbours of id_node
+    double DesiredVertexAvgDist( vtkIdType id_node );
+
+    /// Returns the average of node_meshdensity_desired of the neighbours of id_node
+    double DesiredMeshDensity( vtkIdType id_node );
+
+    /// Returns the set of boundary codes next to this node
+    QSet <int> getBCset( vtkIdType a_node );
+
+    /// Returns the node type
+    char getNodeType( vtkIdType a_node, bool allow_feature_edge_vertices = false );
+
+    /// Returns the type of the edge [a_node1,a_node2] based on the topology
+    char getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices );
+
+    /// Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
+    char getEdgeType_from_nodes( vtkIdType a_node1, vtkIdType a_node2 );
+
+    /// passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+    int getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QVector <vtkIdType> &EdgeCells );
+
+    /// passes a set containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
+    int getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet <vtkIdType> &EdgeCells );
+
+    /// Get VertexMeshDensity object
+    VertexMeshDensity getVMD( vtkIdType node );
+
+    /// returns the stencil containing id_cell1 and the neighbour cell on side j1 of id_cell1
+    stencil_t getStencil( vtkIdType id_cell1, int j1 );
+
+    /// returns the closest neighbour node of id_node
+    vtkIdType getClosestNode( vtkIdType id_node );
+
+    /// returns the farthest neighbour node of id_node
+    vtkIdType getFarthestNode( vtkIdType id_node );
+
+    //---------------------------------------------------
+    //Utility functions used in Roland's formulas
+
+    /// perimeter
+    double perimeter( vtkIdType id_cell );
+
+    /// desired edge length for id_node
+    double desiredEdgeLength( vtkIdType id_node );
+
+    /// mean desired edge length for id_cell
+    double meanDesiredEdgeLength( vtkIdType id_cell );
+
+    /// perimeter / sum of the desired edge lengths
+    double Q_L( vtkIdType id_cell );
+
+    /// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
+    double Q_L1( vtkIdType id_node );
+
+    /// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
+    double Q_L2( vtkIdType id_node );
+
+    /// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
+    double T_min( int w );
+
 //---------------------------------------------------
 };
 
