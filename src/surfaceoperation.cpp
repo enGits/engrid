@@ -281,7 +281,6 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
   return( 0 );
 }
 
-///@@@  TODO: Optimize
 char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_vertices )
 {
   l2g_t  nodes = getPartNodes();
@@ -586,11 +585,15 @@ double SurfaceOperation::Q_L( vtkIdType id_cell )
 double SurfaceOperation::Q_L1( vtkIdType id_node )
 {
   l2l_t n2n = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes = getPartNodes();
+
   double num_sum = 0;
   double denom_sum = 0;
-  foreach( vtkIdType j, n2n[id_node] ) {
-    num_sum += 2 * distance( grid, j, id_node );
-    denom_sum += desiredEdgeLength( id_node ) + desiredEdgeLength( j );
+  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
+    num_sum += 2 * distance( grid, id_node_neighbour, id_node );
+    denom_sum += desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
   }
   return( num_sum / denom_sum );
 }
@@ -599,11 +602,15 @@ double SurfaceOperation::Q_L1( vtkIdType id_node )
 double SurfaceOperation::Q_L2( vtkIdType id_node )
 {
   l2l_t n2n = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes = getPartNodes();
+
   QVector <double> V;
   double num, denom;
-  foreach( vtkIdType j, n2n[id_node] ) {
-    num = 2 * distance( grid, j, id_node );
-    denom = desiredEdgeLength( id_node ) + desiredEdgeLength( j );
+  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
+    num = 2 * distance( grid, id_node_neighbour, id_node );
+    denom = desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
     V.push_back( num / denom );
   }
   qSort( V.begin(), V.end() );
@@ -626,17 +633,21 @@ double SurfaceOperation::T_min( int w )
 vtkIdType SurfaceOperation::getClosestNode( vtkIdType id_node )
 {
   l2l_t n2n = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes = getPartNodes();
+
   vec3_t C;
   grid->GetPoint( id_node, C.data() );
   vtkIdType id_minlen = -1;
   double minlen = -1;
-  foreach( vtkIdType neighbour, n2n[id_node] ) {
+  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint( neighbour, M.data() );
+    grid->GetPoint( id_node_neighbour, M.data() );
     double len = ( M - C ).abs();
     if ( minlen < 0 or len < minlen ) {
       minlen = len;
-      id_minlen = neighbour;
+      id_minlen = id_node_neighbour;
     }
   }
   return( id_minlen );
@@ -645,17 +656,21 @@ vtkIdType SurfaceOperation::getClosestNode( vtkIdType id_node )
 vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
 {
   l2l_t n2n = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes = getPartNodes();
+
   vec3_t C;
   grid->GetPoint( id_node, C.data() );
   vtkIdType id_maxlen = -1;
   double maxlen = -1;
-  foreach( vtkIdType neighbour, n2n[id_node] ) {
+  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
+    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint( neighbour, M.data() );
+    grid->GetPoint( id_node_neighbour, M.data() );
     double len = ( M - C ).abs();
     if ( maxlen < 0 or len > maxlen ) {
       maxlen = len;
-      id_maxlen = neighbour;
+      id_maxlen = id_node_neighbour;
     }
   }
   return( id_maxlen );
@@ -674,7 +689,7 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   g2l_t _nodes = getPartLocalNodes();
   l2g_t nodes  = getPartNodes();
   l2g_t cells = getPartCells();
-  
+
   QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
   QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
   QVector<int> intersection;
@@ -684,29 +699,29 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   if ( N == 2 ) {
     vtkIdType intersection1 = nodes[intersection[0]];
     vtkIdType intersection2 = nodes[intersection[1]];
-    
+
     // test if id_node1, id_node2 and intersection* form a cell
     QVector <vtkIdType> EdgeCells_1i;
     QVector <vtkIdType> EdgeCells_2i;
     QVector <vtkIdType> inter;
     int N;
-    
+
     // intersection1
     N = getEdgeCells( id_node1, intersection1, EdgeCells_1i );
-    if(N!=2) EG_BUG;
+    if ( N != 2 ) EG_BUG;
     N = getEdgeCells( id_node2, intersection1, EdgeCells_2i );
-    if(N!=2) EG_BUG;
-    qcontIntersection(EdgeCells_1i, EdgeCells_2i, inter);
-    if(inter.size()<=0) EG_BUG;
-    
+    if ( N != 2 ) EG_BUG;
+    qcontIntersection( EdgeCells_1i, EdgeCells_2i, inter );
+    if ( inter.size() <= 0 ) EG_BUG;
+
     // intersection2
     N = getEdgeCells( id_node1, intersection2, EdgeCells_1i );
-    if(N!=2) EG_BUG;
+    if ( N != 2 ) EG_BUG;
     N = getEdgeCells( id_node2, intersection2, EdgeCells_2i );
-    if(N!=2) EG_BUG;
-    qcontIntersection(EdgeCells_1i, EdgeCells_2i, inter);
-    if(inter.size()<=0) EG_BUG;
-    
+    if ( N != 2 ) EG_BUG;
+    qcontIntersection( EdgeCells_1i, EdgeCells_2i, inter );
+    if ( inter.size() <= 0 ) EG_BUG;
+
     // check if DeadNode, PSP and common points form a tetrahedron.
     if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
@@ -735,11 +750,11 @@ bool SurfaceOperation::FlippedCells( vtkIdType id_node, vec3_t P )
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
-  
+
   vec3_t x0_old, x0_new;
   grid->GetPoint( id_node, x0_old.data() );
   x0_new = P;
-  
+
   foreach( int i_cell, n2c[_nodes[id_node]] ) {
     vtkIdType id_cell = cells[i_cell];
     vtkIdType num_pts, *pts;
@@ -755,7 +770,7 @@ bool SurfaceOperation::FlippedCells( vtkIdType id_node, vec3_t P )
     grid->GetPoint( pts[( i+2 )%num_pts], x3.data() );
     vec3_t v2_old = x2 - x0_old;
     vec3_t v3_old = x3 - x0_old;
-    
+
     //top point
     vec3_t S = v2_old.cross( v3_old );
     double V_old = tetraVol( x0_old, S, x2, x3, true );
@@ -774,7 +789,7 @@ bool SurfaceOperation::FlippedCells( vtkIdType id_node, vec3_t P )
 // Mutated cell: the cell's form has changed
 // Mutilated cell: the cell has less points than before
 
-///@@@  TODO: Organize cases and make sure all are considered if possible.
+///@@@  TODO: Clean up this function
 vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& num_newpoints, int& num_newcells )
 {
   // preparations
@@ -782,7 +797,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
   l2l_t n2c = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t cells = getPartCells();
-  
+
   EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
   if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
     cout << "ERROR: unable to remove fixed vertex." << endl;
@@ -797,7 +812,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
     bool IsValidSnapPoint = true;
 
     // TEST 0: DeadNode, PSP and any common point must belong to a cell.
-    
+
     // TEST 1: Number of common points must not exceed 2.
     bool IsTetra = true;
     if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
@@ -826,7 +841,7 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         cout << "ERROR: Non-triangle detected!" << endl;
         EG_BUG;
       }
-      
+
       bool ContainsSnapPoint = false;
       bool invincible = false;
       for ( int i = 0; i < num_pts; ++i ) {
@@ -861,15 +876,15 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
         vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
 
         // TEST 4: area + inversion check
-        if ( Old_N*New_N<0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
+        if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
           IsValidSnapPoint = false;
         }
-        
+
         // TEST 5: flipped cell test from old laplace smoother
         vec3_t P;
         grid->GetPoint( PSP, P.data() );
-        if(FlippedCells( DeadNode, P )) {
+        if ( FlippedCells( DeadNode, P ) ) {
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
           IsValidSnapPoint = false;
         }
@@ -907,18 +922,18 @@ bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int&
 bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
 {
   int initial_num_points = grid->GetNumberOfPoints();
-  
+
   CheckSurfaceIntegrity check_surface_integrity;
   check_surface_integrity();
-  if(!check_surface_integrity.isWaterTight()) {
-    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+  if ( !check_surface_integrity.isWaterTight() ) {
+    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
     EG_BUG;
   }
-  
+
   QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
-  UpdatePotentialSnapPoints(true);
+  UpdatePotentialSnapPoints( true );
 
   //src grid info
   int num_points = grid->GetNumberOfPoints();
@@ -966,10 +981,10 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
 
   }
 
-  if(num_newcells!=2*num_newpoints) {
+  if ( num_newcells != 2*num_newpoints ) {
     EG_BUG;
   }
-  
+
   //allocate
   EG_VTKSP( vtkUnstructuredGrid, dst );
   allocateGrid( dst, num_cells + num_newcells, num_points + num_newpoints );
@@ -1001,10 +1016,10 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
       vtkIdType dst_num_pts, dst_pts[3];
       grid->GetCellPoints( id_cell, src_num_pts, src_pts );
       vtkIdType type_cell = grid->GetCellType( id_cell );
-      
+
       dst_num_pts = 3;//src_num_pts;
 //       dst_pts = new vtkIdType[dst_num_pts];
-      
+
       if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
         int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
@@ -1017,8 +1032,8 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
             dst_pts[i] = src_pts[i] - OffSet[src_pts[i]]; // not a dead node
           }
         }
-        if(num_deadnode!=1) {
-          qWarning()<<"FATAL ERROR: Mutated cell has more than one dead node!";
+        if ( num_deadnode != 1 ) {
+          qWarning() << "FATAL ERROR: Mutated cell has more than one dead node!";
           EG_BUG;
         }
       }
@@ -1046,7 +1061,7 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
         for ( int i = 0; i < src_num_pts; i++ ) {
           int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
           if ( DeadIndex != -1 ) {
-            qWarning()<<"FATAL ERROR: Normal cell contains a dead node!";
+            qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
             EG_BUG;
           }
           dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
@@ -1060,10 +1075,10 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   }
 
   CheckSurfaceIntegrity check_surface_integrity_tmp;
-  check_surface_integrity_tmp.setGrid(dst);
+  check_surface_integrity_tmp.setGrid( dst );
   check_surface_integrity_tmp();
-  if(!check_surface_integrity_tmp.isWaterTight()) {
-    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+  if ( !check_surface_integrity_tmp.isWaterTight() ) {
+    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
     makeCopy( dst, grid );
     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
@@ -1073,7 +1088,7 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     }
     EG_BUG;
   }
-  
+
   makeCopy( dst, grid );
 
   if ( -num_newpoints != DeadNodes.size() ) {
@@ -1084,14 +1099,14 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   if ( initial_num_points - final_num_points != DeadNodes.size() ) {
     EG_BUG;
   }
-  
+
   check_surface_integrity();
-  if(!check_surface_integrity.isWaterTight()) {
-    qWarning()<<"FATAL ERROR: NOT WATERTIGHT!";
+  if ( !check_surface_integrity.isWaterTight() ) {
+    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
     EG_BUG;
   }
-  
+
   return( true );
 }
 //End of DeleteSetOfPoints
