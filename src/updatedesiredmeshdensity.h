@@ -31,10 +31,6 @@
 class UpdateDesiredMeshDensity : public SurfaceOperation
 {
 
-private: // attributes
-
-  double m_StretchFactor;
-
 public: //attributes
 
   QSet<int> m_bcs;
@@ -47,11 +43,7 @@ public: //attributes with setter functions
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & a_VMDvector) { VMDvector=a_VMDvector; }
   int MaxiterDensity; //used for UpdateDesiredMeshDensity operation
   void setMaxiterDensity(int a) { MaxiterDensity = a; }
-
-private: // methods
-
-  double computeAverage(vtkIdType id_node);
-
+  
 public: //methods
 
   UpdateDesiredMeshDensity();

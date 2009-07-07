@@ -32,7 +32,6 @@ SurfaceMesher::SurfaceMesher() : SurfaceOperation()
 {
   EG_TYPENAME;
   getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
-  getSet("surface meshing", "number of smoothing steps", 1, m_NumSmoothSteps);
 }
 
 void SurfaceMesher::computeMeshDensity()
@@ -108,8 +107,6 @@ int SurfaceMesher::insertNodes()
   insert_points.set_insert_FP(false);
   insert_points.set_insert_EP(true);
   insert_points.setVertexMeshDensityVector(VMDvector);
-  UpdateNodeType();
-  cout << "Urgs" << endl;
   insert_points();
   return insert_points.getNumInserted();
 }
@@ -127,40 +124,25 @@ int SurfaceMesher::deleteNodes()
 
 void SurfaceMesher::operate()
 {
-  cout << "ping" << endl;
   updateNodeInfo(true);
-  cout << "ping" << endl;
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
   while (!done) {
-    cout << "ping" << endl;
-    UpdateNodeType();
-    cout << "ping" << endl;
     computeMeshDensity();
-    cout << "ping" << endl;
-    UpdateNodeType();
     num_inserted = insertNodes();
     swap();
-    //smooth(4);
+    smooth(4);
     
-    {
-      num_deleted = 0;
-      int N = 0;
-      int count = 0;
-
-      do {
-        //N = deleteNodes();
-        num_deleted += N;
-        ++count;
-      } while ((N > 0) && (count < 20));
-
-    }
-    cout << "ping" << endl;
+    do {
+      num_deleted = deleteNodes();
+      cout << num_deleted << " nodes deleted" << endl;
+    } while (num_deleted > 0);
+    
     for (int i = 0; i < 10; ++i) {
       swap();
-      smooth(m_NumSmoothSteps);
+      smooth(1);
     }
     ++iter;
     done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);

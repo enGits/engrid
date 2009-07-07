@@ -50,6 +50,7 @@ void GuiCreateVolumeMesh::operate()
     rest.setRemainder(part);
     rest.extractToVtkGrid(rest_grid);
   }
+  //writeGrid(part_grid, "forVolumeMesher");
   mesh_volume.setGrid(part_grid);
   mesh_volume();
   EG_VTKDCC(vtkIntArray, cell_code, part_grid, "cell_code");

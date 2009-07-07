@@ -75,7 +75,7 @@ int InsertPoints::insert_FP_all()
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
-//   UpdateNodeType();
+  UpdateNodeType();
   
   QVector <vtkIdType> l_SelectedCells;
   getSurfaceCells(m_bcs, l_SelectedCells, grid);
@@ -167,7 +167,7 @@ int InsertPoints::insert_EP_all()
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
-//   UpdateNodeType();
+  UpdateNodeType();
   
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   

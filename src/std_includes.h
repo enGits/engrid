@@ -44,7 +44,5 @@
 #include "fixstl.h"
 #include "cgnswriter.h"
 #include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
 
 // -------------------------------------------

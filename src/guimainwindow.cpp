@@ -937,7 +937,6 @@ QString GuiMainWindow::getXmlSection(QString name)
 
 void GuiMainWindow::setXmlSection(QString name, QString contents)
 {
-  contents = QString("\n") + contents.replace("\n", "\n      ");
   QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   try {
@@ -1031,7 +1030,7 @@ void GuiMainWindow::saveBC()
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
     BoundaryCondition bc = bcmap[i];
-    f << i << " " << bc.getName() << " " << bc.getType() << "\n";
+    f << "      " << i << " " << bc.getName() << " " << bc.getType() << "\n";
   }
   foreach (VolumeDefinition V, volmap) {
     QString dirs = "";
@@ -1049,9 +1048,9 @@ void GuiMainWindow::saveBC()
       num.setNum(V.getSign(i));
       dirs += num;
     }
-    f << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
+    f << "      " << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
   }
-  //f << "    ";
+  f << "    ";
   setXmlSection("engrid/bc", buffer);
 }
 
@@ -1693,8 +1692,6 @@ void GuiMainWindow::configure()
     GridSmoother tmp01;
     GuiCreateBoundaryLayer tmp02;
     SurfaceProjection proj;
-    SurfaceMesher smesh;
-    UpdateDesiredMeshDensity md;
   }
   GuiSettingsViewer settings(&qset);
   settings.exec();
@@ -1850,15 +1847,8 @@ void GuiMainWindow::storeSurfaceProjection()
     QString file_name;
     file_name.setNum(bc);
     file_name = "OctreeBC" + file_name;
-    //proj->writeOctree(file_name);
-    //cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
+    proj->writeOctree(file_name);
+    proj->setRelaxation(1.0);
+    cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
   }
-}
-
-SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
-{
-  if (!m_SurfProj.contains(bc)) {
-    EG_ERR_RETURN("No surface projection found");
-  }
-  return m_SurfProj[bc];
 }

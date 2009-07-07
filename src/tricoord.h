@@ -8,13 +8,12 @@ class TriCoord : public EgVtkObject
 
 private: // attributes
 
-  vtkUnstructuredGrid* m_SurfGrid;
-  int m_Sector;
+  vtkUnstructuredGrid *m_SurfGrid;
+
 
 public: // methods
 
-  TriCoord(vtkUnstructuredGrid* surf_grid, vtkIdType id_tri, vec3_t x);
-  void setPosition(vec3_t x);
+  TriCoord();
 
 };
 

@@ -24,7 +24,6 @@
 #include "setboundarycode.h"
 #include "guimainwindow.h"
 
-///@@@ TODO: Add automatic BC generation using feature edges
 void GuiSetBoundaryCode::before()
 {
   //prepare radiobuttons

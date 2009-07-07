@@ -40,7 +40,7 @@ SurfaceOperation::SurfaceOperation()
   NumberOfIterations = 20;
   RelaxationFactor = 0.01;
   FeatureEdgeSmoothing = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
-  FeatureAngle = 360; ///@@@ remove that for a better solution
+  FeatureAngle = 45;
   EdgeAngle = 15;
   BoundarySmoothing = 1;
 }
@@ -172,8 +172,6 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   return( 0 ); ///@@@ what for???
 }
 
-///@@@ TODO: Find a way to update m_PotentialSnapPoints without changing the node types!!! (secondary field?, i.e. current node_type and original_node_type? or use getNodeType?)
-///@@@ TODO: Add option to deactivate VTK_FEATURE_EDGE_VERTEX
 int SurfaceOperation::UpdateNodeType()
 {
   l2g_t nodes  = getPartNodes();
@@ -724,10 +722,7 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
 {
-  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) {
-    cout << id_node << ',' << m_PotentialSnapPoints.size() << endl;
-    EG_BUG;
-  }
+  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
   return m_PotentialSnapPoints[id_node];
 }
 
@@ -879,7 +874,7 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   
   QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
-//   UpdateNodeType();
+  UpdateNodeType();
 
   //src grid info
   int num_points = grid->GetNumberOfPoints();
