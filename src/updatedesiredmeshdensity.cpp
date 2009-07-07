@@ -45,7 +45,7 @@ void UpdateDesiredMeshDensity::operate()
   setAllSurfaceCells();
   l2g_t nodes = getPartNodes();
   
-  UpdateNodeType();
+  UpdatePotentialSnapPoints(false);
   EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");
   

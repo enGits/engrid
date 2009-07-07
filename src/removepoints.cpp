@@ -53,7 +53,7 @@ void RemovePoints::operate()
   setAllSurfaceCells();
   l2l_t n2c   = getPartN2C();
 
-  UpdateNodeType();
+  UpdatePotentialSnapPoints(false);
 
   EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
   EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );

@@ -53,7 +53,7 @@ protected:
   double Convergence;
   int NumberOfIterations;
   double RelaxationFactor;
-  int FeatureEdgeSmoothing;
+  int m_AllowFeatureEdgeVertices; ///< if set to 0, feature edge vertices will be deactivated. Use setm_AllowFeatureEdgeVertices(int) to set it.
   double FeatureAngle;
   double EdgeAngle;
   int BoundarySmoothing;
@@ -67,7 +67,9 @@ public:
   vtkIdType FindSnapPoint(vtkIdType DeadNode,QSet <vtkIdType> & DeadCells,QSet <vtkIdType> & MutatedCells,QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells);
   
   int UpdateCurrentMeshDensity();
-  int UpdateNodeType();
+  
+  /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
+  int UpdatePotentialSnapPoints(bool update_node_types, bool allow_feature_edge_vertices = false );
   
   bool DeletePoint(vtkIdType DeadNode, int& N_newpoints, int& N_newcells);
   bool DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells);
@@ -77,12 +79,12 @@ public:
   bool FlippedCells(vtkIdType id_node, vec3_t P);
   
   //--------------------------------------
-  //Special for UpdateNodeType
+  //Special for UpdatePotentialSnapPoints
   void setConvergence( double C ) { Convergence=C; }
   void setNumberOfIterations( int N ) { NumberOfIterations=N; }
   void setRelaxationFactor( double RF ) { RelaxationFactor=RF; }
-  void setFeatureEdgeSmoothing( int FES ) { FeatureEdgeSmoothing=FES; }
-  int getFeatureEdgeSmoothing() { return(FeatureEdgeSmoothing); }
+  void setAllowFeatureEdgeVertices( int x ) { m_AllowFeatureEdgeVertices=x; } ///< If x = 0, feature edge vertices will be deactivated.
+  int getAllowFeatureEdgeVertices() { return(m_AllowFeatureEdgeVertices); }
   void setFeatureAngle( double FA ) { FeatureAngle=FA; }
   void setEdgeAngle( double EA ) { EdgeAngle=EA; }
   void setBoundarySmoothing( int BS ) { BoundarySmoothing=BS; }
@@ -104,10 +106,10 @@ public:
   QSet <int> getBCset(vtkIdType a_node);
   
   /// Returns the node type
-  char getNodeType(vtkIdType a_node);
+  char getNodeType(vtkIdType a_node, bool allow_feature_edge_vertices = false );
   
   /// Returns the type of the edge [a_node1,a_node2] based on the topology
-  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2);
+  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices);
   
   /// Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
   char getEdgeType_from_nodes(vtkIdType a_node1, vtkIdType a_node2);

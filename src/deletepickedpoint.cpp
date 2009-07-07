@@ -50,7 +50,7 @@ void DeletePickedPoint::operate()
   char type;
   QVector <vtkIdType> PSP;
   
-  UpdateNodeType();
+  UpdatePotentialSnapPoints(true);
   
   QMessageBox msgBox;
   msgBox.setText("Delete point?");

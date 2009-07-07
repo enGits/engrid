@@ -44,9 +44,6 @@ void SurfaceMesher::computeMeshDensity()
   update_desired_mesh_density.setMaxiterDensity(1000);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density();
-
-  //UpdateCurrentMeshDensity();
-  //UpdateNodeType();
 }
 
 void SurfaceMesher::updateNodeInfo(bool update_type)

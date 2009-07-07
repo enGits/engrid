@@ -37,7 +37,7 @@ SurfaceOperation::SurfaceOperation()
   Convergence=0;
   NumberOfIterations=20;
   RelaxationFactor=0.01;
-  FeatureEdgeSmoothing=1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
+  m_AllowFeatureEdgeVertices=1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
   FeatureAngle=45;
   EdgeAngle=15;
   BoundarySmoothing=1;
@@ -169,16 +169,14 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   return(0); ///@@@ what for???
 }
 
-///@@@ TODO: Find a way to update m_PotentialSnapPoints without changing the node types!!! (secondary field?, i.e. current node_type and original_node_type? or use getNodeType?)
-///@@@ TODO: Add option to deactivate VTK_FEATURE_EDGE_VERTEX
-int SurfaceOperation::UpdateNodeType()
+int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool allow_feature_edge_vertices)
 {
   l2g_t nodes  = getPartNodes();
   l2g_t cells  = getPartCells();
   g2l_t _cells = getPartLocalCells();
   l2l_t c2c    = getPartC2C();
 
-  //cout<<"=== UpdateNodeType START ==="<<endl;
+  //cout<<"=== UpdatePotentialSnapPoints START ==="<<endl;
   //prepare
   setAllSurfaceCells();
   
@@ -187,7 +185,7 @@ int SurfaceOperation::UpdateNodeType()
   //initialize default values
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
   foreach(vtkIdType id_node, nodes) {
-    node_type->SetValue(id_node, VTK_SIMPLE_VERTEX);
+    if(update_node_types) node_type->SetValue(id_node, VTK_SIMPLE_VERTEX);
     m_PotentialSnapPoints[id_node].clear();
   }
   
@@ -208,14 +206,14 @@ int SurfaceOperation::UpdateNodeType()
       
       //-----------------------
       //determine edge type
-      char edge = getEdgeType(id_node2,id_node1);
+      char edge = getEdgeType(id_node2, id_node1, allow_feature_edge_vertices);
       //-----------------------
       //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
       if ( edge && node_type->GetValue(id_node1) == VTK_SIMPLE_VERTEX )
       {
         m_PotentialSnapPoints[id_node1].clear();
         m_PotentialSnapPoints[id_node1].push_back(id_node2);
-        node_type->SetValue(id_node1,edge);
+        if(update_node_types) node_type->SetValue(id_node1,edge);
       }
       else if ( (edge && node_type->GetValue(id_node1) == VTK_BOUNDARY_EDGE_VERTEX) ||
                 (edge && node_type->GetValue(id_node1) == VTK_FEATURE_EDGE_VERTEX) ||
@@ -224,7 +222,7 @@ int SurfaceOperation::UpdateNodeType()
         m_PotentialSnapPoints[id_node1].push_back(id_node2);
         if ( node_type->GetValue(id_node1) && edge == VTK_BOUNDARY_EDGE_VERTEX )
         {
-          node_type->SetValue(id_node1, VTK_BOUNDARY_EDGE_VERTEX);//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+          if(update_node_types) node_type->SetValue(id_node1, VTK_BOUNDARY_EDGE_VERTEX);//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
         }
       }
       
@@ -232,7 +230,7 @@ int SurfaceOperation::UpdateNodeType()
       {
         m_PotentialSnapPoints[id_node2].clear();
         m_PotentialSnapPoints[id_node2].push_back(id_node1);
-        node_type->SetValue(id_node2, edge);
+        if(update_node_types) node_type->SetValue(id_node2, edge);
       }
       else if ( (edge && node_type->GetValue(id_node2) == VTK_BOUNDARY_EDGE_VERTEX ) ||
                 (edge && node_type->GetValue(id_node2) == VTK_FEATURE_EDGE_VERTEX) ||
@@ -241,7 +239,7 @@ int SurfaceOperation::UpdateNodeType()
         m_PotentialSnapPoints[id_node2].push_back(id_node1);
         if ( node_type->GetValue(id_node2) && edge == VTK_BOUNDARY_EDGE_VERTEX )
         {
-          node_type->SetValue(id_node2, VTK_BOUNDARY_EDGE_VERTEX);//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+          if(update_node_types) node_type->SetValue(id_node2, VTK_BOUNDARY_EDGE_VERTEX);//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
         }
       }
     }
@@ -261,11 +259,11 @@ int SurfaceOperation::UpdateNodeType()
       if ( !this->BoundarySmoothing && 
            node_type->GetValue(id_node) == VTK_BOUNDARY_EDGE_VERTEX )
       {
-        node_type->SetValue(id_node, VTK_FIXED_VERTEX);
+        if(update_node_types) node_type->SetValue(id_node, VTK_FIXED_VERTEX);
       }
       else if ( m_PotentialSnapPoints[id_node].size() != 2 )
       {
-        node_type->SetValue(id_node, VTK_FIXED_VERTEX);
+        if(update_node_types) node_type->SetValue(id_node, VTK_FIXED_VERTEX);
       }
       else //check angle between edges
       {
@@ -282,18 +280,18 @@ int SurfaceOperation::UpdateNodeType()
              vtkMath::Normalize(l2) >= 0.0 &&
              vtkMath::Dot(l1,l2) < CosEdgeAngle)
         {
-          node_type->SetValue(id_node, VTK_FIXED_VERTEX);
+          if(update_node_types) node_type->SetValue(id_node, VTK_FIXED_VERTEX);
         }
       }//if along edge
     }//if edge vertex
   }
   //cout<<"m_PotentialSnapPoints.size()="<<m_PotentialSnapPoints.size()<<endl;
-  //cout<<"=== UpdateNodeType END ==="<<endl;
+  //cout<<"=== UpdatePotentialSnapPoints END ==="<<endl;
   return(0);
 }
 
 ///@@@  TODO: Optimize
-char SurfaceOperation::getNodeType(vtkIdType id_node)
+char SurfaceOperation::getNodeType(vtkIdType id_node, bool allow_feature_edge_vertices )
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -313,7 +311,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node)
     vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
-    char edge = getEdgeType(id_node2,id_node);
+    char edge = getEdgeType(id_node2, id_node, allow_feature_edge_vertices);
     
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
@@ -368,6 +366,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node)
     }//if along edge
   }//if edge vertex
   
+  if( !allow_feature_edge_vertices && type == VTK_FEATURE_EDGE_VERTEX ) EG_BUG;
   return(type);
 }
 
@@ -412,7 +411,7 @@ int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2,QSet <
   return EdgeCells.size();
 }
 
-char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
+char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices)
 {
   double CosFeatureAngle = cos((double) vtkMath::RadiansFromDegrees(this->FeatureAngle));
   
@@ -429,12 +428,14 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2)
   }
   else if ( numNei >= 2 )
   {
+    qWarning()<<"FATAL ERROR: edge belongs to more than 2 cells! This is not supported yet.";
+    EG_BUG;
     edge = VTK_FEATURE_EDGE_VERTEX;
   }
   else if ( numNei == 1 )
   {
     //check angle between cell1 and cell2 against FeatureAngle
-    if ( this->FeatureEdgeSmoothing && CosAngle(grid,neighbour_cells[0],neighbour_cells[1]) <= CosFeatureAngle )
+    if ( allow_feature_edge_vertices && this->m_AllowFeatureEdgeVertices && CosAngle(grid,neighbour_cells[0],neighbour_cells[1]) <= CosFeatureAngle )
     {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
@@ -906,7 +907,7 @@ bool SurfaceOperation::DeleteSetOfPoints(QSet <vtkIdType> DeadNodes, int& N_newp
   
   QVector<vtkIdType> cells;
   getAllSurfaceCells(cells, grid);
-  UpdateNodeType();
+  UpdatePotentialSnapPoints(false);
   
   //src grid info
   int N_points = grid->GetNumberOfPoints();
