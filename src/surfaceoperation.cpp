@@ -661,6 +661,12 @@ vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
   return( id_maxlen );
 }
 
+QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
+{
+  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
+  return m_PotentialSnapPoints[id_node];
+}
+
 int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra )
 {
   l2l_t  n2n   = getPartN2N();
@@ -678,7 +684,8 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   if ( N == 2 ) {
     vtkIdType intersection1 = nodes[intersection[0]];
     vtkIdType intersection2 = nodes[intersection[1]];
-    // TEST 0: id_node1, id_node2 and intersection* must form a cell
+    
+    // test if id_node1, id_node2 and intersection* form a cell
     QVector <vtkIdType> EdgeCells_1i;
     QVector <vtkIdType> EdgeCells_2i;
     QVector <vtkIdType> inter;
@@ -700,7 +707,7 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
     qcontIntersection(EdgeCells_1i, EdgeCells_2i, inter);
     if(inter.size()<=0) EG_BUG;
     
-    // TEST 1
+    // check if DeadNode, PSP and common points form a tetrahedron.
     if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
       //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
       QVector<int> S1 = n2c[_nodes[intersection1]];
@@ -723,10 +730,42 @@ int SurfaceOperation::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_nod
   return( N );
 }
 
-QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
+bool SurfaceOperation::FlippedCells( vtkIdType id_node, vec3_t P )
 {
-  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
-  return m_PotentialSnapPoints[id_node];
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2c   = getPartN2C();
+  
+  vec3_t x0_old, x0_new;
+  grid->GetPoint( id_node, x0_old.data() );
+  x0_new = P;
+  
+  foreach( int i_cell, n2c[_nodes[id_node]] ) {
+    vtkIdType id_cell = cells[i_cell];
+    vtkIdType num_pts, *pts;
+    grid->GetCellPoints( id_cell, num_pts, pts );
+    int i;
+    for ( i = 0; i < num_pts; i++ ) {
+      if ( pts[i] == id_node ) {
+        break;
+      }
+    }
+    vec3_t x2, x3;
+    grid->GetPoint( pts[( i+1 )%num_pts], x2.data() );
+    grid->GetPoint( pts[( i+2 )%num_pts], x3.data() );
+    vec3_t v2_old = x2 - x0_old;
+    vec3_t v3_old = x3 - x0_old;
+    
+    //top point
+    vec3_t S = v2_old.cross( v3_old );
+    double V_old = tetraVol( x0_old, S, x2, x3, true );
+    double V_new = tetraVol( x0_new, S, x2, x3, true );
+    double prod = V_old * V_new;
+    if ( prod < 0 ) {
+      return ( true );
+    }
+  }
+  return( false );
 }
 
 // DEFINITIONS:
@@ -827,14 +866,13 @@ vtkIdType SurfaceOperation::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> 
           IsValidSnapPoint = false;
         }
         
-        ///@@@ TODO: finish this
         // TEST 5: flipped cell test from old laplace smoother
-//         if(FlippedCells( DeadNode, vec3_t P )) {
-//           qWarning()<<"EPIC FAIL!!!!!!!!!!!!!!!!!! You have flipped cells!";
-//           EG_BUG;
-//           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-//           IsValidSnapPoint = false;
-//         }
+        vec3_t P;
+        grid->GetPoint( PSP, P.data() );
+        if(FlippedCells( DeadNode, P )) {
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          IsValidSnapPoint = false;
+        }
 
         //mutated cell
         MutatedCells.insert( id_cell );
@@ -1057,41 +1095,3 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
   return( true );
 }
 //End of DeleteSetOfPoints
-
-bool SurfaceOperation::FlippedCells( vtkIdType id_node, vec3_t P )
-{
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t  cells = getPartCells();
-  l2l_t  n2c   = getPartN2C();
-
-  vec3_t x0_old, x0_new;
-  grid->GetPoint( id_node, x0_old.data() );
-  x0_new = P;
-
-  foreach( int i_cell, n2c[_nodes[id_node]] ) {
-    vtkIdType id_cell = cells[i_cell];
-    vtkIdType num_pts, *pts;
-    grid->GetCellPoints( id_cell, num_pts, pts );
-    int i;
-    for ( i = 0; i < num_pts; i++ ) {
-      if ( pts[i] == id_node ) {
-        break;
-      }
-    }
-    vec3_t x2, x3;
-    grid->GetPoint( pts[( i+1 )%num_pts], x2.data() );
-    grid->GetPoint( pts[( i+2 )%num_pts], x3.data() );
-    vec3_t v2_old = x2 - x0_old;
-    vec3_t v3_old = x3 - x0_old;
-
-    //top point
-    vec3_t S = v2_old.cross( v3_old );
-    double V_old = tetraVol( x0_old, S, x2, x3, true );
-    double V_new = tetraVol( x0_new, S, x2, x3, true );
-    double prod = V_old * V_new;
-    if ( prod < 0 ) {
-      return ( true );
-    }
-  }
-  return( false );
-}
