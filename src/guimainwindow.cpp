@@ -561,6 +561,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     } else {
       m_SurfaceMapper->SetColorModeToDefault();
       m_SurfaceMapper->ScalarVisibilityOff();
+      m_LegendActor->SetVisibility(0);
     }
     if (forced) {
       m_BCodesFilter->Update();
