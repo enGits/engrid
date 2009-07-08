@@ -922,14 +922,14 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
 {
   int initial_num_points = grid->GetNumberOfPoints();
 
-  CheckSurfaceIntegrity check_surface_integrity;
-  check_surface_integrity.setGrid(grid);
-  if ( !check_surface_integrity.isWaterTight() ) {
-    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-    check_surface_integrity();
-    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-    EG_BUG;
-  }
+//   CheckSurfaceIntegrity check_surface_integrity;
+//   check_surface_integrity.setGrid(grid);
+//   if ( !check_surface_integrity.isWaterTight() ) {
+//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
+//     check_surface_integrity();
+//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+//     EG_BUG;
+//   }
 
   QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
 
@@ -1074,20 +1074,20 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     }
   }
 
-  CheckSurfaceIntegrity check_surface_integrity_tmp;
-  check_surface_integrity_tmp.setGrid( dst );
-  if ( !check_surface_integrity_tmp.isWaterTight() ) {
-    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-    check_surface_integrity_tmp();
-    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
-    makeCopy( dst, grid );
-    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-    int final_num_points = grid->GetNumberOfPoints();
-    if ( initial_num_points - final_num_points != DeadNodes.size() ) {
-      EG_BUG;
-    }
-    EG_BUG;
-  }
+//   CheckSurfaceIntegrity check_surface_integrity_tmp;
+//   check_surface_integrity_tmp.setGrid( dst );
+//   if ( !check_surface_integrity_tmp.isWaterTight() ) {
+//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
+//     check_surface_integrity_tmp();
+//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
+//     makeCopy( dst, grid );
+//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+//     int final_num_points = grid->GetNumberOfPoints();
+//     if ( initial_num_points - final_num_points != DeadNodes.size() ) {
+//       EG_BUG;
+//     }
+//     EG_BUG;
+//   }
 
   makeCopy( dst, grid );
 
@@ -1100,12 +1100,12 @@ bool SurfaceOperation::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_n
     EG_BUG;
   }
 
-  if ( !check_surface_integrity.isWaterTight() ) {
-    qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-    check_surface_integrity();
-    GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-    EG_BUG;
-  }
+//   if ( !check_surface_integrity.isWaterTight() ) {
+//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
+//     check_surface_integrity();
+//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
+//     EG_BUG;
+//   }
 
   return( true );
 }
