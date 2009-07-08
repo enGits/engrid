@@ -67,7 +67,7 @@ using namespace GeometryTools;
 QString GuiMainWindow::cwd = ".";
 QSettings GuiMainWindow::qset("enGits","enGrid");
 GuiMainWindow* GuiMainWindow::THIS = NULL;
-QMutex GuiMainWindow::mutex;
+QMutex GuiMainWindow::m_Mutex;
 
 GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
@@ -140,16 +140,16 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
   resetOperationCounter();//clears undo/redo list and disables undo/redo
   m_CurrentFilename = "untitled.egc";
-  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
+  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   
-  status_bar = new QStatusBar(this);
-  setStatusBar(status_bar);
-  status_label = new QLabel(this);
-  status_bar->addWidget(status_label);
+  m_StatusBar = new QStatusBar(this);
+  setStatusBar(m_StatusBar);
+  m_StatusLabel = new QLabel(this);
+  m_StatusBar->addWidget(m_StatusLabel);
 
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
-  status_label->setText(txt);
+  m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
   QString user = QString(getenv("USER"));
@@ -166,11 +166,11 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   m_LogDir = m_LogDir + "/" + "enGrid_" + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz") + "/";
   dir.mkpath(m_LogDir);
   
-  log_file_name = m_LogDir + basename;
-  cout << "log_file_name=" << qPrintable(log_file_name) << endl;
+  m_LogFileName = m_LogDir + basename;
+  cout << "m_LogFileName=" << qPrintable(m_LogFileName) << endl;
 
-  system_stdout = stdout;
-  freopen (log_file_name.toAscii().data(), "w", stdout);
+  m_SystemStdout = stdout;
+  freopen (m_LogFileName.toAscii().data(), "w", stdout);
   
   busy = false;
   
@@ -180,8 +180,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   updateStatusBar();
   
-  connect(&garbage_timer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
-  garbage_timer.start(1000);
+  connect(&m_GarbageTimer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
+  m_GarbageTimer.start(1000);
   
   connect(&log_timer, SIGNAL(timeout()), this, SLOT(updateOutput()));
   log_timer.start(1000);
@@ -248,30 +248,30 @@ void GuiMainWindow::setupVtk()
   m_Axes->SetVisibility(0);
 
   // surface pipelines
-  backface_property   = vtkProperty::New();
-  surface_filter      = vtkGeometryFilter::New();
+  m_BackfaceProperty  = vtkProperty::New();
+  m_SurfaceFilter     = vtkGeometryFilter::New();
   m_SurfaceMapper     = vtkPolyDataMapper::New();
   m_SurfaceWireMapper = vtkPolyDataMapper::New();
   m_BCodesFilter      = vtkEgBoundaryCodesFilter::New();
-  lut                 = vtkLookupTable::New();
+  m_LookupTable       = vtkLookupTable::New();
   m_SurfaceActor      = vtkActor::New();
   m_SurfaceWireActor  = vtkActor::New();
   m_LegendActor       = vtkScalarBarActor::New();
   //
   m_BCodesFilter->SetBoundaryCodes(m_DisplayBoundaryCodes);
   m_BCodesFilter->SetInput(grid);
-  surface_filter->SetInput(m_BCodesFilter->GetOutput());
-  m_SurfaceMapper->SetInput(surface_filter->GetOutput());
-  m_SurfaceWireMapper->SetInput(surface_filter->GetOutput());
-  m_SurfaceMapper->SetLookupTable(lut);
+  m_SurfaceFilter->SetInput(m_BCodesFilter->GetOutput());
+  m_SurfaceMapper->SetInput(m_SurfaceFilter->GetOutput());
+  m_SurfaceWireMapper->SetInput(m_SurfaceFilter->GetOutput());
+  m_SurfaceMapper->SetLookupTable(m_LookupTable);
   m_SurfaceActor->GetProperty()->SetRepresentationToSurface();
   m_SurfaceActor->GetProperty()->SetColor(0.5,1,0.5);
-  m_SurfaceActor->SetBackfaceProperty(backface_property);
+  m_SurfaceActor->SetBackfaceProperty(m_BackfaceProperty);
   m_SurfaceActor->GetBackfaceProperty()->SetColor(1,1,0.5);
   m_SurfaceActor->SetMapper(m_SurfaceMapper);
   getRenderer()->AddActor(m_SurfaceActor);
   m_SurfaceActor->SetVisibility(1);
-  m_LegendActor->SetLookupTable(lut);
+  m_LegendActor->SetLookupTable(m_LookupTable);
   getRenderer()->AddActor(m_LegendActor);
   m_LegendActor->SetVisibility(0);
   m_SurfaceWireActor->GetProperty()->SetRepresentationToWireframe();
@@ -386,7 +386,7 @@ void GuiMainWindow::setupVtk()
 
 void GuiMainWindow::updateOutput()
 {
-  QFile log_file(log_file_name);
+  QFile log_file(m_LogFileName);
   log_file.open(QIODevice::ReadOnly);
   QByteArray buffer = log_file.readAll();
   if (buffer.size() > N_chars) {
@@ -438,7 +438,7 @@ void GuiMainWindow::scaleToData()
   {
     double range[2];
 
-    surface_filter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
+    m_SurfaceFilter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
     //boundary_pd->GetPointData()->GetArray(current_field-1)->GetRange(range);
     cout<<"current_field="<<current_field<<endl;
     cout<<"range[0]="<<range[0]<<endl;
@@ -508,7 +508,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
 {
   if (ui.checkBoxSurface->isChecked()) {
     if (forced) {
-      surface_filter->Update();
+      m_SurfaceFilter->Update();
     }
 
     // fill node field combobox
@@ -528,7 +528,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     int current_cell_field = ui.comboBox_CellTextField->currentIndex();
     ui.comboBox_CellTextField->clear();
     ui.comboBox_CellTextField->addItem("Cell ID");
-    for (int i = 0; i < surface_filter->GetOutput()->GetCellData()->GetNumberOfArrays(); ++i) {
+    for (int i = 0; i < m_SurfaceFilter->GetOutput()->GetCellData()->GetNumberOfArrays(); ++i) {
       ui.comboBox_CellTextField->addItem(grid->GetCellData()->GetArrayName(i));
     }
     if(current_cell_field == -1) {
@@ -539,16 +539,16 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     current_field = ui.comboBox_Field->currentIndex();
     if(current_field > 0) {
       double range[2];
-      surface_filter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
+      m_SurfaceFilter->GetOutput()->GetPointData()->GetArray(current_field-1)->GetRange(range);
       ui.doubleSpinBox_FieldMin->setRange(range[0],range[1]);
       ui.doubleSpinBox_FieldMax->setRange(range[0],range[1]);
     }
 
     if(ui.comboBox_Field->currentIndex() > 0) {
       m_SurfaceMapper->SetColorModeToMapScalars();
-      lut->SetNumberOfColors(ui.spinBox_Color->value());
-      lut->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
-      lut->Build();
+      m_LookupTable->SetNumberOfColors(ui.spinBox_Color->value());
+      m_LookupTable->SetHueRange(ui.doubleSpinBox_HueMin->value(),ui.doubleSpinBox_HueMax->value());
+      m_LookupTable->Build();
       m_SurfaceMapper->SetScalarModeToUsePointFieldData();
       m_SurfaceMapper->ColorByArrayComponent(qPrintable(ui.comboBox_Field->currentText()),0);
       m_SurfaceMapper->SetScalarRange(ui.doubleSpinBox_FieldMin->value(),ui.doubleSpinBox_FieldMax->value());
@@ -849,17 +849,17 @@ int GuiMainWindow::quickSave()
   
 /*  if(grid->GetNumberOfPoints()>0)
   {
-    current_operation++;
+    m_CurrentOperation++;
     QFileInfo fileinfo(m_CurrentFilename);
-    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(current_operation);
-    last_operation=current_operation;
-    cout<<"Operation "<<current_operation<<endl;
+    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(m_CurrentOperation);
+    m_LastOperation=m_CurrentOperation;
+    cout<<"Operation "<<m_CurrentOperation<<endl;
     saveAs(l_filename, false);
-    if(current_operation>0) ui.actionUndo->setEnabled(true);
+    if(m_CurrentOperation>0) ui.actionUndo->setEnabled(true);
     ui.actionRedo->setEnabled(false);
   }
   else cout<<"No grid to save!"<<endl;
-  return(current_operation);*/
+  return(m_CurrentOperation);*/
   
   return 0;
 }
@@ -877,11 +877,11 @@ void GuiMainWindow::undo()
 {
   QMessageBox::critical(this, "de-activated", "Undo is not doing anything at the moment!");
   
-/*  cout << "Undoing operation " << current_operation << endl;
-  current_operation--;
-  quickLoad(current_operation);
+/*  cout << "Undoing operation " << m_CurrentOperation << endl;
+  m_CurrentOperation--;
+  quickLoad(m_CurrentOperation);
   ui.actionRedo->setEnabled(true);
-  if(current_operation<=0) ui.actionUndo->setEnabled(false);*/
+  if(m_CurrentOperation<=0) ui.actionUndo->setEnabled(false);*/
   
 }
 
@@ -889,18 +889,18 @@ void GuiMainWindow::redo()
 {
   QMessageBox::critical(this, "de-activated", "Redo is not doing anything at the moment!");
   
-/*  current_operation++;
-  cout << "Redoing operation " << current_operation << endl;
-  quickLoad(current_operation);
+/*  m_CurrentOperation++;
+  cout << "Redoing operation " << m_CurrentOperation << endl;
+  quickLoad(m_CurrentOperation);
   ui.actionUndo->setEnabled(true);
-  if(current_operation>=last_operation) ui.actionRedo->setEnabled(false);*/
+  if(m_CurrentOperation>=m_LastOperation) ui.actionRedo->setEnabled(false);*/
   
 }
 
 void GuiMainWindow::resetOperationCounter()
 {
-  current_operation=-1;
-  last_operation=current_operation;
+  m_CurrentOperation=-1;
+  m_LastOperation=m_CurrentOperation;
   ui.actionUndo->setEnabled(false);
   ui.actionRedo->setEnabled(false);
 }
@@ -1121,7 +1121,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   openPhysicalBoundaryConditions();
   // update current filename
   if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
-  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
+  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
 }
 
 void GuiMainWindow::openXml(QString file_name)
@@ -1162,7 +1162,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename) {
   saveXml(file_name);
   // update current filename
   if(update_current_filename) m_CurrentFilename = file_name;
-  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(current_operation) );
+  setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   return(file_name);
 }
 
@@ -1193,7 +1193,7 @@ void GuiMainWindow::updateStatusBar()
     txt = "";
   }
   if (!tryLock()) {
-    status_label->setText(txt);
+    m_StatusLabel->setText(txt);
     ui.label_node_cell_info->setText(txt);
     return;
   }
@@ -1298,7 +1298,7 @@ void GuiMainWindow::updateStatusBar()
   }
   
   ///@@@ TODO: Reduce size of text for small screens or better: allow making the window smaller than the text
-  status_label->setText(txt);
+  m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
 }
@@ -1552,6 +1552,7 @@ void GuiMainWindow::changeSurfaceOrientation()
     for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
   }
   updateActors();
+  grid->Modified();// to make sure VTK notices the changes and changes the cell colors
 }
 
 void GuiMainWindow::checkSurfaceOrientation()

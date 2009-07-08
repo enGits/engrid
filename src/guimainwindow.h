@@ -87,8 +87,8 @@ private: // attributes
   vtkActor* m_HexaActor;
   vtkActor* m_VolumeWireActor;
 
-  vtkProperty*       backface_property;
-  vtkLookupTable*    lut;
+  vtkProperty*       m_BackfaceProperty;
+  vtkLookupTable*    m_LookupTable;
   vtkScalarBarActor* m_LegendActor;
   
   vtkPolyDataMapper* m_SurfaceMapper;
@@ -115,9 +115,9 @@ private: // attributes
   vtkIdType m_PickedCell;       ///< Picked cell
   bool      m_UseVTKInteractor; ///< Boolean value specifying whether the VTK Interactor should be used or not
 
-  static QMutex    mutex;
+  static QMutex    m_Mutex;
 
-  vtkGeometryFilter* surface_filter;  ///< VTK filter to extract the surface of the current grid.
+  vtkGeometryFilter* m_SurfaceFilter;  ///< VTK filter to extract the surface of the current grid.
   double             m_ReferenceSize; ///< Size to use for picker objects and annotations
 
   vector <vtkTextActor*>      m_NodeText;               ///< 2D Text actor to display node IDs
@@ -138,18 +138,18 @@ private: // attributes
   vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
 
   QString      m_CurrentFilename;      ///< The current file name of the grid.
-  int          current_operation;      ///< The current operation number. (used for undo/redo)
-  int          last_operation;         ///< The last operation number. (used for undo/redo)
+  int          m_CurrentOperation;      ///< The current operation number. (used for undo/redo)
+  int          m_LastOperation;         ///< The last operation number. (used for undo/redo)
   QString      m_LogDir;               ///< the log directory
-  QStatusBar*  status_bar;             ///< Status bar of the main window and application
-  QLabel*      status_label;           ///< Label for the information in the status bar
+  QStatusBar*  m_StatusBar;             ///< Status bar of the main window and application
+  QLabel*      m_StatusLabel;           ///< Label for the information in the status bar
   QSet<int>    m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
   QSet<int>    m_AllBoundaryCodes;     ///< A QList with all boundary codes.
   bool         busy;                   ///< flag to indicate that enGrid is busy with an operation
-  QString      log_file_name;          ///< log file to collect program output for display in the output window
+  QString      m_LogFileName;          ///< log file to collect program output for display in the output window
   long int     N_chars;                ///< number of lines that have been read from the log file
-  FILE*        system_stdout;
-  QTimer       garbage_timer;
+  FILE*        m_SystemStdout;
+  QTimer       m_GarbageTimer;
   QTimer       log_timer;
   QDockWidget* dock_widget;
 
@@ -298,9 +298,9 @@ public: // static methods
   void setPhysicalBoundaryConditions(PhysicalBoundaryConditions physical_boundary_conditions);*/
   
   static GuiMainWindow* pointer() { return THIS; }
-  static void lock() { mutex.lock(); }
-  static void unlock() { mutex.unlock(); }
-  static bool tryLock() { return mutex.tryLock(); }
+  static void lock() { m_Mutex.lock(); }
+  static void unlock() { m_Mutex.unlock(); }
+  static bool tryLock() { return m_Mutex.tryLock(); }
   void getAllBoundaryCodes(QSet<int> &bcs);
   void getDisplayBoundaryCodes(QSet<int> &bcs);
   vtkPointPicker* getPointPicker() { return (m_PointPicker);}
