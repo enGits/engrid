@@ -53,8 +53,9 @@ private: // attributes
 protected: // methods
   
   virtual void operate();
-  void         updateVol();
-  void         updatePhysicalBoundaryConditions();
+  void updateVol();
+  void updatePhysicalBoundaryConditions();
+  void setupSolvers();
   
 protected slots:
 
@@ -65,8 +66,6 @@ protected slots:
   void changePhysicalValues();
   void loadPhysicalValues(QString name);
   void savePhysicalValues(QString name, int index);
-  void loadAllPhysicalValues();
-  void saveAllPhysicalValues();
   
 public: // methods
   

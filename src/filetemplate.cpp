@@ -65,12 +65,12 @@ QString TemplateLine::getDefaultValue()
 
 void TemplateLine::print()
 {
-  qDebug() << "type=" << this->m_Type;
-  qDebug() << "name=" << this->m_Name;
-  qDebug() << "options=" << this->m_Options;
+  qDebug() << "m_Type=" << this->m_Type;
+  qDebug() << "m_Name=" << this->m_Name;
+  qDebug() << "m_Options=" << this->m_Options;
   qDebug() << "m_DefaultValueEgc=" << this->m_DefaultValueEgc;
   qDebug() << "m_DefaultValueOpenFOAM=" << this->m_DefaultValueOpenFOAM;
-  qDebug() << "position=" << this->m_Position;
+  qDebug() << "m_Position=" << this->m_Position;
 }
 //=======================================
 
@@ -111,7 +111,6 @@ int FileTemplate::open( QString filename, QString section )
   m_InText = text_stream.readAll();
   file.close();
   process();
-  this->print();
   return( 0 );
 }
 

@@ -28,7 +28,7 @@
 #include "filetemplate.h"
 #include "physicalboundaryconditions.h"
 
-GuiEditBoundaryConditions::GuiEditBoundaryConditions()
+void GuiEditBoundaryConditions::setupSolvers()
 {
   // simpleFoam
   QVector <QString> files_simpleFoam;
@@ -51,6 +51,16 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
     m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
   }
   ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
+  
+  // rhoCentralFoam
+  QWidget *page = new QWidget(ui.multipagewidget_Solver);
+  ui.multipagewidget_Solver->addPage(page);
+  
+}
+
+GuiEditBoundaryConditions::GuiEditBoundaryConditions()
+{
+  setupSolvers();
   
   bcmap = NULL;
   delegate = new GuiVolumeDelegate();
@@ -123,20 +133,6 @@ void GuiEditBoundaryConditions::savePhysicalValues(QString name, int index)
     PBC.m_Temperature = ui.lineEdit_Temperature->text().toDouble();
     PBC.m_Velocity = ui.lineEdit_Velocity->text().toDouble();
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
-  }
-}
-
-void GuiEditBoundaryConditions::loadAllPhysicalValues()
-{
-  for(int i = 0; i<ui.listWidget_BoundaryType->count(); i++) {
-//     loadPhysicalValues(i);
-  }
-}
-
-void GuiEditBoundaryConditions::saveAllPhysicalValues()
-{
-  for(int i = 0; i<ui.listWidget_BoundaryType->count(); i++) {
-//     savePhysicalValues(i);
   }
 }
 
@@ -270,8 +266,6 @@ void GuiEditBoundaryConditions::operate()
     vol_list.append(vols[j]);
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
-  
-  saveAllPhysicalValues();
   
   // PhysicalBoundaryConditions
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
