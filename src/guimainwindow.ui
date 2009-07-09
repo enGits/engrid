@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -150,6 +150,7 @@
      </property>
      <addaction name="actionSimpleFoamWriter"/>
      <addaction name="actionFoamWriter"/>
+     <addaction name="actionFoamCaseWriter"/>
     </widget>
     <addaction name="menuGmsh"/>
     <addaction name="actionExportNeutral"/>
@@ -157,7 +158,6 @@
     <addaction name="actionExportBinaryStl"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
-    <addaction name="actionOpenFOAMcase"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -276,8 +276,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>198</width>
-          <height>485</height>
+          <width>212</width>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -664,8 +664,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>214</width>
-          <height>533</height>
+          <width>228</width>
+          <height>557</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1232,7 +1232,7 @@
      <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
    </property>
    <property name="text">
-    <string>OpenFOAM</string>
+    <string>OpenFOAM (grid only)</string>
    </property>
    <property name="toolTip">
     <string>export to OpenFOAM</string>
@@ -1417,6 +1417,11 @@
   <action name="actionOpenFOAMcase">
    <property name="text">
     <string>edit OpenFOAM case</string>
+   </property>
+  </action>
+  <action name="actionFoamCaseWriter">
+   <property name="text">
+    <string>OpenFOAM (grid+solver parameters)</string>
    </property>
   </action>
  </widget>

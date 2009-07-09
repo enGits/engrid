@@ -35,10 +35,9 @@
 
 void GuiEditBoundaryConditions::setupSolvers()
 {
-  MultiPageWidget *multipagewidget_Solver;
-  multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
-  multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
-  ui.verticalLayout_Solver->addWidget(multipagewidget_Solver);
+  m_multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
+  m_multipagewidget_Solver->setObjectName(QString::fromUtf8("m_multipagewidget_Solver"));
+  ui.verticalLayout_Solver->addWidget(m_multipagewidget_Solver);
   
   QFileInfo fileinfo;
   fileinfo.setFile( ":/resources/solvers/solvers.txt" );
@@ -76,10 +75,10 @@ void GuiEditBoundaryConditions::setupSolvers()
     qDebug()<<"title="<<title;
     qDebug()<<"section="<<section;
     qDebug()<<"files="<<files;
-    MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, multipagewidget_Solver);
+    MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
     m_page_vector.push_back(page);
-    multipagewidget_Solver->addPage( (QWidget*)page );
-    multipagewidget_Solver->setPageTitle(title, idx);
+    m_multipagewidget_Solver->addPage( (QWidget*)page );
+    m_multipagewidget_Solver->setPageTitle(title, idx);
     idx++;
   }
   
@@ -91,13 +90,14 @@ void GuiEditBoundaryConditions::saveSolverParanmeters()
   for(int i = 0; i < m_page_vector.size(); i++) {
     m_page_vector[i]->saveEgc();
   }
+  qDebug()<<m_multipagewidget_Solver->currentIndex();
 }
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
   setupSolvers();
   
-  bcmap = NULL;
+  m_BcMap = NULL;
   delegate = new GuiVolumeDelegate();
   delegate->setFirstCol(3);
   
@@ -112,11 +112,11 @@ GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
 
 void GuiEditBoundaryConditions::before()
 {
-  if (!bcmap) EG_BUG;
+  if (!m_BcMap) EG_BUG;
   resetOrientation(grid);
   while (ui.T->rowCount()) ui.T->removeRow(0);
   foreach (int i, boundary_codes) {
-    BoundaryCondition bc = (*bcmap)[i];
+    BoundaryCondition bc = (*m_BcMap)[i];
     ui.T->insertRow(ui.T->rowCount());
     int r = ui.T->rowCount()-1;
     ui.T->setItem(r,0,new QTableWidgetItem());
@@ -286,7 +286,7 @@ void GuiEditBoundaryConditions::operate()
   for (int i = 0; i < ui.T->rowCount(); ++i) {
     int bc = ui.T->item(i,0)->text().toInt();
     BoundaryCondition BC(ui.T->item(i,1)->text(),ui.T->item(i,2)->text());
-    (*bcmap)[bc] = BC;
+    (*m_BcMap)[bc] = BC;
     for (int j = 3; j < ui.T->columnCount(); ++j) {
       QString vol_name = ui.T->horizontalHeaderItem(j)->text();
       VolumeDefinition V = vols[j];

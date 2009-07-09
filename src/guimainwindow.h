@@ -418,8 +418,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callFoamReader()       { EG_STDREADERSLOT( FoamReader ); }
     void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
     void callSimpleFoamWriter() { EG_STDINTERSLOT( SimpleFoamWriter ); }
+    void callFoamCaseWriter()   { EG_STDINTERSLOT( OpenFOAMcase ); }
     void callCgnsWriter()       { EG_STDINTERSLOT( CgnsWriter ); }
-    void callOpenFOAMcase()     { EG_STDINTERSLOT( OpenFOAMcase ); }
     void callVtkReader()        { EG_STDREADERSLOT( VtkReader ); }
     void callPolyDataReader()   { EG_STDREADERSLOT( PolyDataReader ); }
 

@@ -31,11 +31,10 @@ class GuiEditBoundaryConditions;
 #include "guivolumedelegate.h"
 #include "filetemplate.h"
 #include "multipagewidgetpage.h"
-#include "xmlhandler.h"
+#include "volumedefinition.h"
+#include "multipagewidget.h"
 
 #include "ui_guieditboundaryconditions.h"
-
-#include <QDomDocument>
 
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
@@ -44,14 +43,19 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
   
 private: // attributes
   
-  QMap<int,BoundaryCondition> *bcmap;
+  // variables to store settings locally while changing them. They will be copied over to their GuiMainWindow counterparts once OK is clicked.
+  QMap<int,BoundaryCondition> *m_BcMap;
+  QMap<QString, VolumeDefinition> m_VolMap;
+  QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
+  
+private: // utility attributes
   GuiVolumeDelegate *delegate;
   QVector <MultiPageWidgetPage*> m_page_vector;
   
   int m_PreviousSelected;
-  QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
   QString m_PreviousSelectedName;
   int m_PreviousSelectedIndex;
+  MultiPageWidget* m_multipagewidget_Solver;
   
 protected: // methods
   
@@ -77,7 +81,7 @@ public: // methods
   virtual ~GuiEditBoundaryConditions();
 
   virtual void before();
-  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; }
+  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
   
 };
 
