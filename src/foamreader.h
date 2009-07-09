@@ -26,11 +26,12 @@
 class FoamReader;
 
 #include "iooperation.h"
+#include "foamobject.h"
 
 /**
  * Reader for Foam grids
  */
-class FoamReader : public IOOperation
+class FoamReader : public IOOperation, public FoamObject
 {
   
 protected: // methods
