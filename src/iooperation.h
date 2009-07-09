@@ -45,17 +45,10 @@ class IOOperation : public Operation
   
 private: // attributes
   
-  /** flag to determine if a valid file has been selected */
-  bool valid;
-  
-  /** the file name to read -- normally set by inputReadFileName() */
-  QString filename;
-  
-  /** the file format string (e.g. *.stl, *.vtu, ...) */
-  QString format_txt;
-  
-  /** the file extension for write operations */
-  QString extension_txt;
+  bool valid;            ///< flag to determine if a valid file has been selected
+  QString filename;      ///< file name to read -- normally set by inputReadFileName()
+  QString format_txt;    ///< file format string (e.g. *.stl, *.vtu, ...)
+  QString extension_txt; ///< file extension for write operations
 
 protected: // methods
   
@@ -93,15 +86,11 @@ public: // methods
   
   IOOperation();
   virtual ~IOOperation() {}
-  
-  /// Open a QFileDialog and make the user input a file name for opening or importing. */
-  void readInputFileName();
-  
-  /// Open a QFileDialog and make the user input a file name for saving or exporting. */
-  void readOutputFileName();
-  
-  /// Open a QFileDialog and make the user input a directory name for exporting. */
-  void readOutputDirectory();
+
+  void readInputFileName();                                         ///< Open a QFileDialog and make the user input a file name for opening or importing.
+  void readOutputFileName();                                        ///< Open a QFileDialog and make the user input a file name for saving or exporting.
+  void readOutputDirectory();                                       ///< Open a QFileDialog and make the user input a directory name for exporting.
+  readInputDirectory(QString title_txt = "select input directory"); ///< Open a QFileDialog and make the user input a directory name for importing.
   
 };
 
