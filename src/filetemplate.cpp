@@ -39,7 +39,7 @@ int fileTemplateTest( int argc, char ** argv )
   QVector <QString> files;
   files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
   files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
-  
+
   TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
   super_gui.show();
 
@@ -51,9 +51,9 @@ int fileTemplateTest()
 {
   QVector <QString> files;
   files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  
+
   TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
-  
+
   return super_gui.exec();
 }
 //=======================================
@@ -115,32 +115,25 @@ int FileTemplate::open( QString filename, QString section )
   return( 0 );
 }
 
-int FileTemplate::save_egc()
+int FileTemplate::saveEgc()
 {
   qDebug() << "Saving EGC ... ";
   QString section = m_Section + m_FileInfo.completeBaseName();
   QString contents = this->getContents();
   GuiMainWindow::pointer()->setXmlSection( section, contents );
-//   GuiMainWindow::pointer()->saveXml("momo.xml");
   return( 0 );
 }
 
-int FileTemplate::save_of()
+int FileTemplate::exportToOpenFOAM( QString filename )
 {
-  qDebug() << "Saving OF ...";
+  qDebug() << "Saving openFOAM case as " << filename;
+
+  // set contents
   QString section = m_Section + m_FileInfo.completeBaseName();
   QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section );
   this->setContents( openfoam_string );
-  qDebug() << "=== After reading EGC START ===";
-  this->print();
-  qDebug() << "=== After reading EGC END ===";
-  this->saveAs_of( m_FileInfo.completeBaseName() );
-  return( 0 );
-}
 
-int FileTemplate::saveAs_of( QString filename )
-{
-  qDebug() << "Saving as " << filename;
+  // save
   m_FileInfo.setFile( filename );
   QFile file( m_FileInfo.filePath() );
   if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
@@ -222,7 +215,7 @@ TemplateDialog::TemplateDialog( QVector <QString> files, QString section, QWidge
   QPushButton* saveButton = new QPushButton( "Save", this );
   QPushButton* saveAsButton = new QPushButton( "Save as...", this );
   connect( openButton, SIGNAL( clicked() ), this, SLOT( open() ) );
-  connect( saveButton, SIGNAL( clicked() ), this, SLOT( save_egc() ) );
+  connect( saveButton, SIGNAL( clicked() ), this, SLOT( saveEgc() ) );
   connect( saveAsButton, SIGNAL( clicked() ), this, SLOT( saveAs() ) );
 
   for ( int i = 0; i < files.size(); i++ ) {
@@ -240,20 +233,11 @@ TemplateDialog::TemplateDialog( QVector <QString> files, QString section, QWidge
   mainLayout->addLayout( bottomLayout );
 }
 
-void TemplateDialog::open()
+void TemplateDialog::saveEgc()
 {
-}
-
-void TemplateDialog::save_egc()
-{
-  qDebug() << "Saving...";
   for ( int i = 0; i < m_TemplateFormLayoutVector.size(); i++ ) {
-    m_TemplateFormLayoutVector[i]->save_egc();
+    m_TemplateFormLayoutVector[i]->saveEgc();
   }
-}
-
-void TemplateDialog::saveAs()
-{
 }
 
 //=======================================
@@ -295,9 +279,9 @@ void TemplateFormLayout::addComboBox( TemplateLine line )
     value << L_elements[1].trimmed();
   }
   int current = value.indexOf( line.getDefaultValue().trimmed() );
-  qWarning()<<"value="<<value;
-  qWarning()<<"line.getDefaultValue().trimmed()="<<line.getDefaultValue().trimmed();
-  qWarning()<<"current="<<current;
+  qWarning() << "value=" << value;
+  qWarning() << "line.getDefaultValue().trimmed()=" << line.getDefaultValue().trimmed();
+  qWarning() << "current=" << current;
   combobox->addItems( description );
   combobox-> setCurrentIndex( current );
   this->addRow( line.m_Name, combobox );
@@ -343,7 +327,7 @@ void TemplateFormLayout::addCheckBox( TemplateLine line )
   QStringList L = line.m_Options.split( "," );
   L[0] = L[0].trimmed();
   L[1] = L[1].trimmed();
-  int index = L.indexOf(line.getDefaultValue().trimmed());
+  int index = L.indexOf( line.getDefaultValue().trimmed() );
   if ( index == 0 ) check_box->setCheckState( Qt::Checked );
   else check_box->setCheckState( Qt::Unchecked );
   QPair < QString, QString > values;
@@ -388,19 +372,10 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
   m_DoubleSpinBoxVector.push_back( double_spin_box );
 }
 
-void TemplateFormLayout::open()
+void TemplateFormLayout::saveEgc()
 {
-}
-
-void TemplateFormLayout::save_egc()
-{
-  qDebug() << "Saving...";
   getValues();
-  m_FileTemplate.save_egc();
-}
-
-void TemplateFormLayout::saveAs()
-{
+  m_FileTemplate.saveEgc();
 }
 
 void TemplateFormLayout::getValues()

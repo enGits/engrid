@@ -278,9 +278,9 @@ void GuiEditBoundaryConditions::operate()
   
   //Save solver parameters
   for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
-    m_template_form_layout_simpleFoam_vector[i]->save_egc();
+    m_template_form_layout_simpleFoam_vector[i]->saveEgc();
   }
   for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
-    m_template_form_layout_rhoSimpleFoam_vector[i]->save_egc();
+    m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
   }
 }

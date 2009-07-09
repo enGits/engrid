@@ -65,21 +65,21 @@ class FileTemplate
   public:
     FileTemplate();
     FileTemplate( QString filename, QString section );
-    int open( QString filename, QString section );
-    int save_egc();
-    int save_of();
-    int saveAs_of( QString filename );
     int process();
     void print();
     QVector <TemplateLine> getLines();
     void setLines( QVector <TemplateLine> lines );
     QString getContents();
     void setContents( QString contents );
+  public:
+    int open( QString filename, QString section );
+    int saveEgc();
+    int exportToOpenFOAM( QString filename );
 };
 
 class TemplateFormLayout : public QFormLayout
 {
-    Q_OBJECT
+    Q_OBJECT;
 
   private:
     FileTemplate m_FileTemplate;
@@ -116,23 +116,21 @@ class TemplateFormLayout : public QFormLayout
 
     void getValues();
 
-    void open();
-    void save_egc();
-    void saveAs();
+  public:
+    void saveEgc();
 };
 
 class TemplateDialog : public QDialog
 {
-    Q_OBJECT
+    Q_OBJECT;
+
   public:
     TemplateDialog( QVector <QString> files, QString section, QWidget *parent = 0 );
   private:
     QVector <QFileInfo> m_FileInfo;
     QVector <TemplateFormLayout*> m_TemplateFormLayoutVector;
   private slots:
-    void open();
-    void save_egc();
-    void saveAs();
+    void saveEgc();
 };
 
 #endif
