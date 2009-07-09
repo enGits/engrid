@@ -39,30 +39,24 @@ void GuiEditBoundaryConditions::setupSolvers()
   multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
   ui.verticalLayout_Solver->addWidget(multipagewidget_Solver);
   
-  QWidget* page = new MultiPageWidgetPage(multipagewidget_Solver);
-  multipagewidget_Solver->addPage( page );
-  
   // simpleFoam
-/*  QVector <QString> files_simpleFoam;
-  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
-  for(int i = 0; i < files_simpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i], (char*)"openfoam/simplefoam/standard/");
-    ui.verticalLayout_ScrollArea_Solver->addLayout( template_form_layout_simpleFoam );
-    m_template_form_layout_simpleFoam_vector.push_back(template_form_layout_simpleFoam);
-  }*/
+  QVector <QString> files_simpleFoam;
+  files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes.template" );
+  files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template" );
+  QWidget* page = new MultiPageWidgetPage(files_simpleFoam, multipagewidget_Solver);
+  multipagewidget_Solver->addPage( page );
   multipagewidget_Solver->setPageTitle("simpleFoam",0);
   
-/*  // rhoSimpleFoam
+  // rhoSimpleFoam
   QVector <QString> files_rhoSimpleFoam;
-  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
-  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
-  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
+  files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
+  files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
+  /*  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
     TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i], (char*)"openfoam/rhoSimplefoam/standard/");
     ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
     m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
-  }
-  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);*/
+  }*/
+//   multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
   
   // rhoCentralFoam
 /*  QWidget *page = new QWidget(ui.multipagewidget_Solver);

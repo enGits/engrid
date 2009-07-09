@@ -22,7 +22,7 @@
 //
 #include "multipagewidgetpage.h"
 
-MultiPageWidgetPage::MultiPageWidgetPage( QWidget *parent )
+MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QWidget *parent )
     : QWidget( parent )
 {
   verticalLayout_scrollArea_Solver = new QVBoxLayout( this );
@@ -32,6 +32,7 @@ MultiPageWidgetPage::MultiPageWidgetPage( QWidget *parent )
   scrollArea_Solver = new QScrollArea( this );
   scrollArea_Solver->setObjectName( QString::fromUtf8( "scrollArea_Solver" ) );
   scrollArea_Solver->setWidgetResizable( true );
+  scrollArea_Solver->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   verticalLayout_scrollArea_Solver->addWidget( scrollArea_Solver );
 
   scrollAreaWidgetContents = new QWidget();
@@ -39,12 +40,19 @@ MultiPageWidgetPage::MultiPageWidgetPage( QWidget *parent )
   scrollAreaWidgetContents->setGeometry( QRect( 0, 0, 499, 129 ) );
   scrollArea_Solver->setWidget( scrollAreaWidgetContents );
 
-  widget = new QWidget( scrollAreaWidgetContents );
-  widget->setObjectName( QString::fromUtf8( "widget" ) );
+//   widget = new QWidget( scrollAreaWidgetContents );
+//   widget->setObjectName( QString::fromUtf8( "widget" ) );
 
-  verticalLayout_scrollAreaWidgetContents_Solver = new QVBoxLayout( widget );
+  verticalLayout_scrollAreaWidgetContents_Solver = new QVBoxLayout();//( widget );
   verticalLayout_scrollAreaWidgetContents_Solver->setObjectName( QString::fromUtf8( "verticalLayout_scrollAreaWidgetContents_Solver" ) );
   verticalLayout_scrollAreaWidgetContents_Solver->setContentsMargins( 0, 0, 0, 0 );
+  scrollAreaWidgetContents->setLayout( verticalLayout_scrollAreaWidgetContents_Solver );
+  
+  for(int i = 0; i < files.size(); i++) {
+    TemplateFormLayout* template_form_layout = new TemplateFormLayout(files[i], (char*)"openfoam/simplefoam/standard/");
+    verticalLayout_scrollAreaWidgetContents_Solver->addLayout( template_form_layout );
+    m_template_form_layout_vector.push_back(template_form_layout);
+  }
 }
 
 MultiPageWidgetPage::~MultiPageWidgetPage()

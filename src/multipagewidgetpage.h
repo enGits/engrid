@@ -28,6 +28,8 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
+#include "filetemplate.h"
+
 class MultiPageWidgetPage : public QWidget
 {
     Q_OBJECT
@@ -37,9 +39,10 @@ class MultiPageWidgetPage : public QWidget
     QVBoxLayout *verticalLayout_scrollArea_Solver;
     QWidget *scrollAreaWidgetContents;
     QWidget *widget;
-
+    QVector <TemplateFormLayout*> m_template_form_layout_vector;
+  
   public:
-    MultiPageWidgetPage( QWidget *parent = 0 );
+    MultiPageWidgetPage( QVector <QString> files, QWidget *parent = 0 );
 
     ~MultiPageWidgetPage();
 
