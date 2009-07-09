@@ -76,6 +76,18 @@ class RemovePoints : public SurfaceOperation
 
     int getNumRemoved() { return m_NumRemoved; }
 
+    /// deletes set of points DeadNodes
+    bool DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells );
+  
+    /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
+    vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );
+  
+    ///returns true if moving id_node to position P leads to flipped cells
+    bool FlippedCells( vtkIdType id_node, vec3_t P );
+  
+    /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
+    int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
+  
 };
 
 #endif

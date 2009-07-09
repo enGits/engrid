@@ -58,7 +58,7 @@ void DeletePickedPoint::operate()
   switch (msgBox.exec()) {
   case QMessageBox::Yes:
     cout<<"yes was clicked"<<endl;
-    DeletePoint(nodeId,N_newpoints,N_newcells);
+//     DeletePoint(nodeId,N_newpoints,N_newcells);
     break;
   case QMessageBox::No:
     cout<<"no was clicked"<<endl;
