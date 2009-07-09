@@ -27,21 +27,67 @@
 #include "volumedefinition.h"
 #include "filetemplate.h"
 #include "physicalboundaryconditions.h"
+#include "multipagewidget.h"
+
+#include <QVBoxLayout>
 
 void GuiEditBoundaryConditions::setupSolvers()
 {
+  MultiPageWidget *multipagewidget_Solver;
+  QScrollArea *scrollArea_Solver;
+  QVBoxLayout *verticalLayout_ScrollArea_Solver;
+  QVBoxLayout *verticalLayout_4;
+  QWidget *scrollAreaWidgetContents;
+  QWidget *widget;
+  QWidget *page;
+  
+  multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
+  multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
+  ui.verticalLayout_Solver->addWidget(multipagewidget_Solver);
+  
+  page = new QWidget(multipagewidget_Solver);
+  multipagewidget_Solver->addPage(page);
+  
+  verticalLayout_4 = new QVBoxLayout(page);
+  verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+  verticalLayout_4->setContentsMargins(0, 0, 0, 0);
+  
+  scrollArea_Solver = new QScrollArea(page);
+  scrollArea_Solver->setObjectName(QString::fromUtf8("scrollArea_Solver"));
+  scrollArea_Solver->setWidgetResizable(true);
+  verticalLayout_4->addWidget(scrollArea_Solver);
+  
+  scrollAreaWidgetContents = new QWidget();
+  scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
+  scrollAreaWidgetContents->setGeometry(QRect(0, 0, 499, 129));
+  scrollArea_Solver->setWidget(scrollAreaWidgetContents);
+  
+  widget = new QWidget(scrollAreaWidgetContents);
+  widget->setObjectName(QString::fromUtf8("widget"));
+  
+  verticalLayout_ScrollArea_Solver = new QVBoxLayout(widget);
+  verticalLayout_ScrollArea_Solver->setObjectName(QString::fromUtf8("verticalLayout_ScrollArea_Solver"));
+  verticalLayout_ScrollArea_Solver->setContentsMargins(0, 0, 0, 0);
+  
+/*  MultiPageWidget *multipagewidget_Solver;
+  multipagewidget_Solver = new MultiPageWidget(tab_2);
+  multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
+  page = new QWidget(multipagewidget_Solver);
+  multipagewidget_Solver->addPage(page);
+  gridLayout_2->addWidget(multipagewidget_Solver, 1, 0, 1, 2);*/
+  
   // simpleFoam
-  QVector <QString> files_simpleFoam;
+/*  QVector <QString> files_simpleFoam;
   files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
   files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
   for(int i = 0; i < files_simpleFoam.size(); i++) {
     TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i], (char*)"openfoam/simplefoam/standard/");
-    ui.verticalLayout_simpleFoam->addLayout( template_form_layout_simpleFoam );
+    ui.verticalLayout_ScrollArea_Solver->addLayout( template_form_layout_simpleFoam );
     m_template_form_layout_simpleFoam_vector.push_back(template_form_layout_simpleFoam);
   }
-  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);
+  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);*/
   
-  // rhoSimpleFoam
+/*  // rhoSimpleFoam
   QVector <QString> files_rhoSimpleFoam;
   files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
   files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
@@ -50,12 +96,23 @@ void GuiEditBoundaryConditions::setupSolvers()
     ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
     m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
   }
-  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
+  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);*/
   
   // rhoCentralFoam
-  QWidget *page = new QWidget(ui.multipagewidget_Solver);
-  ui.multipagewidget_Solver->addPage(page);
+/*  QWidget *page = new QWidget(ui.multipagewidget_Solver);
+  ui.multipagewidget_Solver->addPage(page);*/
   
+}
+
+void GuiEditBoundaryConditions::saveSolverParanmeters()
+{
+  //Save solver parameters
+  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
+    m_template_form_layout_simpleFoam_vector[i]->saveEgc();
+  }
+  for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
+    m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
+  }
 }
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
@@ -270,11 +327,5 @@ void GuiEditBoundaryConditions::operate()
   // PhysicalBoundaryConditions
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
   
-  //Save solver parameters
-  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
-    m_template_form_layout_simpleFoam_vector[i]->saveEgc();
-  }
-  for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
-    m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
-  }
+  saveSolverParanmeters();
 }

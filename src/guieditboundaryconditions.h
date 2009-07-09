@@ -56,6 +56,7 @@ protected: // methods
   void updateVol();
   void updatePhysicalBoundaryConditions();
   void setupSolvers();
+  void saveSolverParanmeters();
   
 protected slots:
 
