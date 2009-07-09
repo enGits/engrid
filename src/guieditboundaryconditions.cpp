@@ -40,25 +40,6 @@ void GuiEditBoundaryConditions::setupSolvers()
   multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
   ui.verticalLayout_Solver->addWidget(multipagewidget_Solver);
   
-  // simpleFoam
-  QVector <QString> files_simpleFoam;
-  files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes.template" );
-  files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template" );
-  MultiPageWidgetPage* page_simpleFoam = new MultiPageWidgetPage(files_simpleFoam,"openfoam/simpleFoam/standard/", multipagewidget_Solver);
-  m_page_simpleFoam_vector.push_back(page_simpleFoam);
-  multipagewidget_Solver->addPage( (QWidget*)page_simpleFoam );
-  multipagewidget_Solver->setPageTitle("simpleFoam",0);
-  
-  // rhoSimpleFoam
-  QVector <QString> files_rhoSimpleFoam;
-  files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
-  files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
-  MultiPageWidgetPage* page_rhoSimpleFoam = new MultiPageWidgetPage(files_rhoSimpleFoam, "openfoam/rhoSimpleFoam/standard/", multipagewidget_Solver);
-  m_page_rhoSimpleFoam_vector.push_back(page_rhoSimpleFoam);
-  multipagewidget_Solver->addPage( (QWidget*)page_rhoSimpleFoam );
-  multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
-  
-//   m_xmlhandler.openXml(":/resources/solvers/solvers.txt");
   QFileInfo fileinfo;
   fileinfo.setFile( ":/resources/solvers/solvers.txt" );
   QFile file( fileinfo.filePath() );
@@ -73,8 +54,8 @@ void GuiEditBoundaryConditions::setupSolvers()
   QTextStream text_stream( &file );
   QString intext = text_stream.readAll();
   file.close();
-//   qDebug()<<intext;
   
+  int idx = 0;
   QStringList page_list = intext.split("=");
   foreach(QString page, page_list) {
     QString title;
@@ -86,28 +67,29 @@ void GuiEditBoundaryConditions::setupSolvers()
       if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
       if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
       if(name_value[0].trimmed()=="files") {
-        QStringList file_list = variable.split(",");
+        QStringList file_list = name_value[1].split(",");
         foreach(QString file, file_list) {
-          files.push_back(file.trimmed());
+          files.push_back(":/" + file.trimmed());
         }
       }
     }
     qDebug()<<"title="<<title;
     qDebug()<<"section="<<section;
     qDebug()<<"files="<<files;
+    MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, multipagewidget_Solver);
+    m_page_vector.push_back(page);
+    multipagewidget_Solver->addPage( (QWidget*)page );
+    multipagewidget_Solver->setPageTitle(title, idx);
+    idx++;
   }
-  
   
 }
 
 void GuiEditBoundaryConditions::saveSolverParanmeters()
 {
   //Save solver parameters
-  for(int i = 0; i < m_page_simpleFoam_vector.size(); i++) {
-    m_page_simpleFoam_vector[i]->saveEgc();
-  }
-  for(int i = 0; i < m_page_rhoSimpleFoam_vector.size(); i++) {
-    m_page_rhoSimpleFoam_vector[i]->saveEgc();
+  for(int i = 0; i < m_page_vector.size(); i++) {
+    m_page_vector[i]->saveEgc();
   }
 }
 

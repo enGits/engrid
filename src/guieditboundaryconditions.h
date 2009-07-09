@@ -44,12 +44,9 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
   
 private: // attributes
   
-  XmlHandler m_xmlhandler;
-  
   QMap<int,BoundaryCondition> *bcmap;
   GuiVolumeDelegate *delegate;
-  QVector <MultiPageWidgetPage*> m_page_simpleFoam_vector;
-  QVector <MultiPageWidgetPage*> m_page_rhoSimpleFoam_vector;
+  QVector <MultiPageWidgetPage*> m_page_vector;
   
   int m_PreviousSelected;
   QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
