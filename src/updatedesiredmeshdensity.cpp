@@ -61,13 +61,6 @@ void UpdateDesiredMeshDensity::operate()
       foreach (int i_node_neighbour, n2n[_nodes[id_node]]) {
         vtkIdType id_node_neighbour = nodes[i_node_neighbour];
         double Dmd = node_meshdensity_desired->GetValue(id_node_neighbour) - md0;
-        /*
-        if (Dmd > 0) {
-          Dmd = max(0.0, Dmd - m_GrowthFactor*md0);
-        } else {
-          Dmd = min(0.0, Dmd + m_GrowthFactor*md0);
-        }
-        */
         md_new += md0 + Dmd;
       }
       md_new /= N;
@@ -75,7 +68,6 @@ void UpdateDesiredMeshDensity::operate()
       int idx = m_VMDvector.indexOf(nodeVMD);
       node_specified_density->SetValue(id_node, idx);
       if ( idx != -1) {
-        //md_new = max(md_new, m_VMDvector[idx].density);
         if (md_new > m_VMDvector[idx].density) {
           md_new = m_GrowthFactor*m_VMDvector[idx].density + (1-m_GrowthFactor)*md_new;
         } else {
