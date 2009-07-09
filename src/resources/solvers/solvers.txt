@@ -1,11 +1,11 @@
-openfoam:
-  simplefoam:
-    standard:
-      system/fvSchemes.template
-      system/fvSchemes2.template
-    non-standard:
-      system/fvSchemes.template
-      system/fvSchemes2.template
-  rhoSimpleFoam:
-    system/fvSchemes.template
-    system/fvSchemes2.template
+title : standard simplefoam;
+section : openfoam/simpleFoam/standard/;
+files :
+  system/fvSchemes.template,
+  system/fvSchemes2.template;
+=
+title : rhoSimpleFoam;
+section : openfoam/rhoSimpleFoam/standard/;
+files :
+  system/fvSchemes.template,
+  system/fvSchemes2.template;

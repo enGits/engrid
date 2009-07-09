@@ -31,6 +31,7 @@
 #include "multipagewidgetpage.h"
 
 #include <QVBoxLayout>
+#include <QFileInfo>
 
 void GuiEditBoundaryConditions::setupSolvers()
 {
@@ -56,6 +57,47 @@ void GuiEditBoundaryConditions::setupSolvers()
   m_page_rhoSimpleFoam_vector.push_back(page_rhoSimpleFoam);
   multipagewidget_Solver->addPage( (QWidget*)page_rhoSimpleFoam );
   multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
+  
+//   m_xmlhandler.openXml(":/resources/solvers/solvers.txt");
+  QFileInfo fileinfo;
+  fileinfo.setFile( ":/resources/solvers/solvers.txt" );
+  QFile file( fileinfo.filePath() );
+  if ( !file.exists() ) {
+    qDebug() << "ERROR: " << fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+    qDebug() << "ERROR:  Failed to open file " << fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream( &file );
+  QString intext = text_stream.readAll();
+  file.close();
+//   qDebug()<<intext;
+  
+  QStringList page_list = intext.split("=");
+  foreach(QString page, page_list) {
+    QString title;
+    QString section;
+    QVector <QString> files;
+    QStringList variable_list = page.split(";");
+    foreach(QString variable, variable_list) {
+      QStringList name_value = variable.split(":");
+      if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
+      if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
+      if(name_value[0].trimmed()=="files") {
+        QStringList file_list = variable.split(",");
+        foreach(QString file, file_list) {
+          files.push_back(file.trimmed());
+        }
+      }
+    }
+    qDebug()<<"title="<<title;
+    qDebug()<<"section="<<section;
+    qDebug()<<"files="<<files;
+  }
+  
+  
 }
 
 void GuiEditBoundaryConditions::saveSolverParanmeters()

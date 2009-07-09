@@ -20,68 +20,26 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef guieditboundaryconditions_H
-#define guieditboundaryconditions_H
-
-class GuiEditBoundaryConditions;
-
-#include "boundarycondition.h"
-#include "physicalboundaryconditions.h"
-#include "dialogoperation.h"
-#include "guivolumedelegate.h"
-#include "filetemplate.h"
-#include "multipagewidgetpage.h"
-#include "xmlhandler.h"
-
-#include "ui_guieditboundaryconditions.h"
+#ifndef XMLHANDLER_H
+#define XMLHANDLER_H
 
 #include <QDomDocument>
+#include <QObject>
+#include <QMessageBox>
+#include <QtDebug>
 
-class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
-{
-  
-  Q_OBJECT;
-  
-private: // attributes
-  
-  XmlHandler m_xmlhandler;
-  
-  QMap<int,BoundaryCondition> *bcmap;
-  GuiVolumeDelegate *delegate;
-  QVector <MultiPageWidgetPage*> m_page_simpleFoam_vector;
-  QVector <MultiPageWidgetPage*> m_page_rhoSimpleFoam_vector;
-  
-  int m_PreviousSelected;
-  QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
-  QString m_PreviousSelectedName;
-  int m_PreviousSelectedIndex;
-  
-protected: // methods
-  
-  virtual void operate();
-  void updateVol();
-  void updatePhysicalBoundaryConditions();
-  void setupSolvers();
-  void saveSolverParanmeters();
-  
-protected slots:
-
-  void addVol();
-  void delVol();
-  void addBoundaryType();
-  void deleteBoundaryType();
-  void changePhysicalValues();
-  void loadPhysicalValues(QString name);
-  void savePhysicalValues(QString name, int index);
-  
-public: // methods
-  
-  GuiEditBoundaryConditions();
-  virtual ~GuiEditBoundaryConditions();
-
-  virtual void before();
-  void setMap(QMap<int,BoundaryCondition> *a_bcmap) { bcmap = a_bcmap; }
-  
+class XmlHandler : public QObject {
+  Q_OBJECT
+private:
+  QDomDocument m_XmlDoc; ///< XML document describing the templates to use
+  QObject *m_parent;
+public:
+  XmlHandler(QObject *parent = 0);
+  ~XmlHandler();
+  void openXml(QString file_name);
+  void saveXml(QString file_name);
+  QString getXmlSection(QString name);
+  void setXmlSection(QString name, QString contents);
 };
 
 #endif

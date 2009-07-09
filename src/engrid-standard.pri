@@ -134,7 +134,8 @@ HEADERS = boundarycondition.h \
     multipagewidget.h \
     tricoord.h \
     updatesurfproj.h \
-    multipagewidgetpage.h
+    multipagewidgetpage.h \
+    xmlhandler.h
 
 SOURCES = main.cpp \
     boundarycondition.cpp \
@@ -222,7 +223,8 @@ SOURCES = main.cpp \
     multipagewidget.cpp \
     tricoord.cpp \
     updatesurfproj.cpp \
-    multipagewidgetpage.cpp
+    multipagewidgetpage.cpp \
+    xmlhandler.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

@@ -103,7 +103,7 @@ int FileTemplate::open( QString filename, QString section )
     return( -1 );
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    qDebug() << "ERROR: Failed to open file.";
+    qDebug() << "ERROR:  Failed to open file " << m_FileInfo.filePath();
     EG_BUG;
     return( -1 );
   }
