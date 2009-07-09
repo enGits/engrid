@@ -82,6 +82,7 @@ void GuiEditBoundaryConditions::setupSolvers()
     idx++;
   }
   
+  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getSolverIndex());
 }
 
 void GuiEditBoundaryConditions::saveSolverParanmeters()
@@ -90,7 +91,7 @@ void GuiEditBoundaryConditions::saveSolverParanmeters()
   for(int i = 0; i < m_page_vector.size(); i++) {
     m_page_vector[i]->saveEgc();
   }
-  qDebug()<<m_multipagewidget_Solver->currentIndex();
+  GuiMainWindow::pointer()->setSolverIndex(m_multipagewidget_Solver->currentIndex());
 }
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
