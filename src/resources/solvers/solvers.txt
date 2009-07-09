@@ -1,7 +1,11 @@
 openfoam:
-simplefoam:
-system/fvSchemes.template
-system/fvSchemes2.template
-rhoSimpleFoam:
-system/fvSchemes.template
-system/fvSchemes2.template
+  simplefoam:
+    standard:
+      system/fvSchemes.template
+      system/fvSchemes2.template
+    non-standard:
+      system/fvSchemes.template
+      system/fvSchemes2.template
+  rhoSimpleFoam:
+    system/fvSchemes.template
+    system/fvSchemes2.template

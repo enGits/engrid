@@ -28,7 +28,7 @@ MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QString secti
     : QWidget( parent )
 {
   verticalLayout_scrollArea_Solver = new QVBoxLayout( this );
-  verticalLayout_scrollArea_Solver->setObjectName( QString::fromUtf8( "verticalLayout_4" ) );
+  verticalLayout_scrollArea_Solver->setObjectName( QString::fromUtf8( "verticalLayout_scrollArea_Solver" ) );
   verticalLayout_scrollArea_Solver->setContentsMargins( 0, 0, 0, 0 );
 
   scrollArea_Solver = new QScrollArea( this );
@@ -42,10 +42,7 @@ MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QString secti
   scrollAreaWidgetContents->setGeometry( QRect( 0, 0, 499, 129 ) );
   scrollArea_Solver->setWidget( scrollAreaWidgetContents );
 
-//   widget = new QWidget( scrollAreaWidgetContents );
-//   widget->setObjectName( QString::fromUtf8( "widget" ) );
-
-  verticalLayout_scrollAreaWidgetContents_Solver = new QVBoxLayout();//( widget );
+  verticalLayout_scrollAreaWidgetContents_Solver = new QVBoxLayout();
   verticalLayout_scrollAreaWidgetContents_Solver->setObjectName( QString::fromUtf8( "verticalLayout_scrollAreaWidgetContents_Solver" ) );
   verticalLayout_scrollAreaWidgetContents_Solver->setContentsMargins( 0, 0, 0, 0 );
   scrollAreaWidgetContents->setLayout( verticalLayout_scrollAreaWidgetContents_Solver );
@@ -63,7 +60,6 @@ MultiPageWidgetPage::~MultiPageWidgetPage()
 
 void MultiPageWidgetPage::saveEgc()
 {
-  qDebug()<<"SAVING PRIVATE RYAN!";
   for(int i = 0; i < m_template_form_layout_vector.size(); i++) {
     m_template_form_layout_vector[i]->saveEgc();
   }

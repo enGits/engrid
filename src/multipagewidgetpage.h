@@ -38,14 +38,12 @@ class MultiPageWidgetPage : public QWidget
     QVBoxLayout *verticalLayout_scrollAreaWidgetContents_Solver;
     QVBoxLayout *verticalLayout_scrollArea_Solver;
     QWidget *scrollAreaWidgetContents;
-    QWidget *widget;
     QVector <TemplateFormLayout*> m_template_form_layout_vector;
   
   public:
     MultiPageWidgetPage( QVector <QString> files, QString section, QWidget *parent = 0 );
     void saveEgc();
     ~MultiPageWidgetPage();
-
 };
 
 #endif

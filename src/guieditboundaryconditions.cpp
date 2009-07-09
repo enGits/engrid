@@ -67,12 +67,6 @@ void GuiEditBoundaryConditions::saveSolverParanmeters()
   for(int i = 0; i < m_page_rhoSimpleFoam_vector.size(); i++) {
     m_page_rhoSimpleFoam_vector[i]->saveEgc();
   }
-  /*  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
-    m_template_form_layout_simpleFoam_vector[i]->saveEgc();
-  }
-  for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
-    m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
-  }*/
 }
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
