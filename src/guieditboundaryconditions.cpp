@@ -28,53 +28,19 @@
 #include "filetemplate.h"
 #include "physicalboundaryconditions.h"
 #include "multipagewidget.h"
+#include "multipagewidgetpage.h"
 
 #include <QVBoxLayout>
 
 void GuiEditBoundaryConditions::setupSolvers()
 {
   MultiPageWidget *multipagewidget_Solver;
-  QScrollArea *scrollArea_Solver;
-  QVBoxLayout *verticalLayout_ScrollArea_Solver;
-  QVBoxLayout *verticalLayout_4;
-  QWidget *scrollAreaWidgetContents;
-  QWidget *widget;
-  QWidget *page;
-  
   multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
   multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
   ui.verticalLayout_Solver->addWidget(multipagewidget_Solver);
   
-  page = new QWidget(multipagewidget_Solver);
-  multipagewidget_Solver->addPage(page);
-  
-  verticalLayout_4 = new QVBoxLayout(page);
-  verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-  verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-  
-  scrollArea_Solver = new QScrollArea(page);
-  scrollArea_Solver->setObjectName(QString::fromUtf8("scrollArea_Solver"));
-  scrollArea_Solver->setWidgetResizable(true);
-  verticalLayout_4->addWidget(scrollArea_Solver);
-  
-  scrollAreaWidgetContents = new QWidget();
-  scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-  scrollAreaWidgetContents->setGeometry(QRect(0, 0, 499, 129));
-  scrollArea_Solver->setWidget(scrollAreaWidgetContents);
-  
-  widget = new QWidget(scrollAreaWidgetContents);
-  widget->setObjectName(QString::fromUtf8("widget"));
-  
-  verticalLayout_ScrollArea_Solver = new QVBoxLayout(widget);
-  verticalLayout_ScrollArea_Solver->setObjectName(QString::fromUtf8("verticalLayout_ScrollArea_Solver"));
-  verticalLayout_ScrollArea_Solver->setContentsMargins(0, 0, 0, 0);
-  
-/*  MultiPageWidget *multipagewidget_Solver;
-  multipagewidget_Solver = new MultiPageWidget(tab_2);
-  multipagewidget_Solver->setObjectName(QString::fromUtf8("multipagewidget_Solver"));
-  page = new QWidget(multipagewidget_Solver);
-  multipagewidget_Solver->addPage(page);
-  gridLayout_2->addWidget(multipagewidget_Solver, 1, 0, 1, 2);*/
+  QWidget* page = new MultiPageWidgetPage(multipagewidget_Solver);
+  multipagewidget_Solver->addPage( page );
   
   // simpleFoam
 /*  QVector <QString> files_simpleFoam;
@@ -84,8 +50,8 @@ void GuiEditBoundaryConditions::setupSolvers()
     TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i], (char*)"openfoam/simplefoam/standard/");
     ui.verticalLayout_ScrollArea_Solver->addLayout( template_form_layout_simpleFoam );
     m_template_form_layout_simpleFoam_vector.push_back(template_form_layout_simpleFoam);
-  }
-  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);*/
+  }*/
+  multipagewidget_Solver->setPageTitle("simpleFoam",0);
   
 /*  // rhoSimpleFoam
   QVector <QString> files_rhoSimpleFoam;

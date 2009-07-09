@@ -43,97 +43,97 @@
 
 #include "multipagewidget.h"
 
-MultiPageWidget::MultiPageWidget(QWidget *parent)
-    : QWidget(parent)
+MultiPageWidget::MultiPageWidget( QWidget *parent )
+    : QWidget( parent )
 {
-    comboBox = new QComboBox();
-    comboBox->setObjectName("__qt__passive_comboBox");
-    stackWidget = new QStackedWidget();
+  comboBox = new QComboBox();
+  comboBox->setObjectName( "__qt__passive_comboBox" );
+  stackWidget = new QStackedWidget();
 
-    connect(comboBox, SIGNAL(activated(int)),
-            this, SLOT(setCurrentIndex(int)));
+  connect( comboBox, SIGNAL( activated( int ) ),
+           this, SLOT( setCurrentIndex( int ) ) );
 
-    layout = new QVBoxLayout();
-    layout->addWidget(comboBox);
-    layout->addWidget(stackWidget);
-    setLayout(layout);
+  layout = new QVBoxLayout();
+  layout->addWidget( comboBox );
+  layout->addWidget( stackWidget );
+  setLayout( layout );
 }
 
 QSize MultiPageWidget::sizeHint() const
 {
-    return QSize(200, 150);
+  return QSize( 200, 150 );
 }
 
-void MultiPageWidget::addPage(QWidget *page)
+void MultiPageWidget::addPage( QWidget *page )
 {
-    insertPage(count(), page);
+  insertPage( count(), page );
 }
 
-void MultiPageWidget::removePage(int index)
+void MultiPageWidget::removePage( int index )
 {
-    QWidget *widget = stackWidget->widget(index);
-    stackWidget->removeWidget(widget);
+  QWidget *widget = stackWidget->widget( index );
+  stackWidget->removeWidget( widget );
 
-    comboBox->removeItem(index);
+  comboBox->removeItem( index );
 }
 
 int MultiPageWidget::count() const
 {
-    return stackWidget->count();
+  return stackWidget->count();
 }
 
 int MultiPageWidget::currentIndex() const
 {
-    return stackWidget->currentIndex();
+  return stackWidget->currentIndex();
 }
 
-void MultiPageWidget::insertPage(int index, QWidget *page)
+void MultiPageWidget::insertPage( int index, QWidget *page )
 {
-    page->setParent(stackWidget);
+  page->setParent( stackWidget );
 
-    stackWidget->insertWidget(index, page);
+  stackWidget->insertWidget( index, page );
 
-    QString title = page->windowTitle();
-    if (title.isEmpty()) {
-        title = tr("Page %1").arg(comboBox->count() + 1);
-        page->setWindowTitle(title);
-    }
-    comboBox->insertItem(index, title);
+  QString title = page->windowTitle();
+  if ( title.isEmpty() ) {
+    title = tr( "Page %1" ).arg( comboBox->count() + 1 );
+    page->setWindowTitle( title );
+  }
+  comboBox->insertItem( index, title );
 }
 
-void MultiPageWidget::setCurrentIndex(int index)
+void MultiPageWidget::setCurrentIndex( int index )
 {
-    if (index != currentIndex()) {
-        stackWidget->setCurrentIndex(index);
-        comboBox->setCurrentIndex(index);
-        emit currentIndexChanged(index);
-    }
+  if ( index != currentIndex() ) {
+    stackWidget->setCurrentIndex( index );
+    comboBox->setCurrentIndex( index );
+    emit currentIndexChanged( index );
+  }
 }
 
-QWidget* MultiPageWidget::widget(int index)
+QWidget* MultiPageWidget::widget( int index )
 {
-    return stackWidget->widget(index);
+  return stackWidget->widget( index );
 }
 
 QString MultiPageWidget::pageTitle() const
 {
-    if (const QWidget *currentWidget = stackWidget->currentWidget())
-        return currentWidget->windowTitle();
-    return QString();
+  if ( const QWidget *currentWidget = stackWidget->currentWidget() )
+    return currentWidget->windowTitle();
+  return QString();
 }
 
-void MultiPageWidget::setPageTitle(QString const &newTitle)
+void MultiPageWidget::setPageTitle( QString const &newTitle )
 {
-    comboBox->setItemText(currentIndex(), newTitle);
-    if (QWidget *currentWidget = stackWidget->currentWidget())
-        currentWidget->setWindowTitle(newTitle);
-    emit pageTitleChanged(newTitle);
+  comboBox->setItemText( currentIndex(), newTitle );
+  if ( QWidget *currentWidget = stackWidget->currentWidget() )
+    currentWidget->setWindowTitle( newTitle );
+  emit pageTitleChanged( newTitle );
 }
 
-void MultiPageWidget::setPageTitle(QString const &newTitle, int index)
+void MultiPageWidget::setPageTitle( QString const &newTitle, int index )
 {
-  comboBox->setItemText(index, newTitle);
-  if (QWidget *widget = stackWidget-> widget(index))
-    widget->setWindowTitle(newTitle);
-  emit pageTitleChanged(newTitle);
+  comboBox->setItemText( index, newTitle );
+  if ( QWidget *widget = stackWidget-> widget( index ) )
+    widget->setWindowTitle( newTitle );
+  emit pageTitleChanged( newTitle );
 }
