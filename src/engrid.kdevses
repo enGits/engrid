@@ -1,43 +1,40 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="12" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceoperation.h" >
-   <View0 Encoding="" line="71" Type="Source" />
+ <DocsAndViews NumberOfDocuments="11" >
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/openfoamcase.cpp" >
+   <View0 Encoding="" line="92" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
-   <View0 Encoding="" line="0" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/foamreader.h" >
+   <View0 Encoding="" line="37" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/removepoints.cpp" >
-   <View0 Encoding="" line="486" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/foamreader.cpp" >
+   <View0 Encoding="" line="34" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedcell.cpp" >
-   <View0 Encoding="" line="38" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedpoint.cpp" >
-   <View0 Encoding="" line="61" Type="Source" />
-  </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/filetemplate.h" >
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/std_connections.h" >
    <View0 Encoding="" line="51" Type="Source" />
+  </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/removepoints.cpp" >
+   <View0 Encoding="" line="38" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
+   <View0 Encoding="" line="258" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/filetemplate.cpp" >
-   <View0 Encoding="" line="65" Type="Source" />
+  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" line="213" Type="Source" />
   </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/openfoamcase.cpp" >
-   <View0 Encoding="" line="72" Type="Source" />
+  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
+   <View0 Encoding="" line="111" Type="Source" />
   </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.h" >
-   <View0 Encoding="" line="32" Type="Source" />
+  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/multipagewidget.cpp" >
+   <View0 Encoding="" line="102" Type="Source" />
   </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-   <View0 Encoding="" line="58" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/ui_guieditboundaryconditions.h" >
-   <View0 Encoding="" line="67" Type="Source" />
-  </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/resources/solvers/solvers.txt" >
+  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/simplefoamwriter.h" >
    <View0 Encoding="" line="0" Type="Source" />
-  </Doc11>
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/simplefoamwriter.cpp" >
+   <View0 Encoding="" line="456" Type="Source" />
+  </Doc10>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -54,14 +51,14 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
-     <mark line="66" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
      <mark line="94" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
+     <mark line="66" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-     <mark line="129" />
+     <mark line="171" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
      <mark line="408" />
@@ -70,13 +67,12 @@
      <mark line="104" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-     <mark line="986" />
-     <mark line="1077" />
-     <mark line="1162" />
-     <mark line="1145" />
-     <mark line="1027" />
+     <mark line="988" />
+     <mark line="1079" />
+     <mark line="1164" />
+     <mark line="1029" />
      <mark line="78" />
-     <mark line="215" />
+     <mark line="217" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
      <mark line="81" />

@@ -33,6 +33,62 @@
 #include <QVBoxLayout>
 #include <QFileInfo>
 
+GuiEditBoundaryConditions::GuiEditBoundaryConditions()
+{
+  setupSolvers();
+  
+  m_BcMap = NULL;
+  delegate = new GuiVolumeDelegate();
+  delegate->setFirstCol(3);
+  
+  //set initial tab
+  ui.tabWidget->setCurrentIndex(0);
+}
+
+GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
+{
+  delete delegate;
+}
+
+void GuiEditBoundaryConditions::before()
+{
+  if (!m_BcMap) EG_BUG;
+  resetOrientation(grid);
+  while (ui.T->rowCount()) ui.T->removeRow(0);
+  foreach (int i, boundary_codes) {
+    BoundaryCondition bc = (*m_BcMap)[i];
+    ui.T->insertRow(ui.T->rowCount());
+    int r = ui.T->rowCount()-1;
+    ui.T->setItem(r,0,new QTableWidgetItem());
+    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsSelectable));
+    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsEditable));
+    ui.T->setItem(r,1,new QTableWidgetItem());
+    ui.T->setItem(r,2,new QTableWidgetItem());
+    QString idx;
+    idx.setNum(i);
+    ui.T->item(r,0)->setText(idx);
+    QString name = bc.getName();
+    if (name == "unknown") name = QString("BC") + idx;
+    ui.T->item(r,1)->setText(name);
+    ui.T->item(r,2)->setText(bc.getType());
+  }
+  
+  updateVol();
+  updatePhysicalBoundaryConditions();
+  
+  m_PreviousSelected = 0;
+  ui.listWidget_BoundaryType->setCurrentRow(m_PreviousSelected);
+  if(ui.listWidget_BoundaryType->count()>0) loadPhysicalValues(ui.listWidget_BoundaryType->currentItem()->text());
+  
+  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
+  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
+  connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
+  connect(ui.listWidget_BoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
+  
+  ui.T->setItemDelegate(delegate);
+}
+
 void GuiEditBoundaryConditions::setupSolvers()
 {
   m_multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
@@ -92,62 +148,6 @@ void GuiEditBoundaryConditions::saveSolverParanmeters()
     m_page_vector[i]->saveEgc();
   }
   GuiMainWindow::pointer()->setSolverIndex(m_multipagewidget_Solver->currentIndex());
-}
-
-GuiEditBoundaryConditions::GuiEditBoundaryConditions()
-{
-  setupSolvers();
-  
-  m_BcMap = NULL;
-  delegate = new GuiVolumeDelegate();
-  delegate->setFirstCol(3);
-  
-  //set initial tab
-  ui.tabWidget->setCurrentIndex(0);
-}
-
-GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
-{
-  delete delegate;
-}
-
-void GuiEditBoundaryConditions::before()
-{
-  if (!m_BcMap) EG_BUG;
-  resetOrientation(grid);
-  while (ui.T->rowCount()) ui.T->removeRow(0);
-  foreach (int i, boundary_codes) {
-    BoundaryCondition bc = (*m_BcMap)[i];
-    ui.T->insertRow(ui.T->rowCount());
-    int r = ui.T->rowCount()-1;
-    ui.T->setItem(r,0,new QTableWidgetItem());
-    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsSelectable));
-    ui.T->item(r,0)->setFlags(ui.T->item(r,0)->flags() & (~Qt::ItemIsEditable));
-    ui.T->setItem(r,1,new QTableWidgetItem());
-    ui.T->setItem(r,2,new QTableWidgetItem());
-    QString idx;
-    idx.setNum(i);
-    ui.T->item(r,0)->setText(idx);
-    QString name = bc.getName();
-    if (name == "unknown") name = QString("BC") + idx;
-    ui.T->item(r,1)->setText(name);
-    ui.T->item(r,2)->setText(bc.getType());
-  }
-  
-  updateVol();
-  updatePhysicalBoundaryConditions();
-  
-  m_PreviousSelected = 0;
-  ui.listWidget_BoundaryType->setCurrentRow(m_PreviousSelected);
-  if(ui.listWidget_BoundaryType->count()>0) loadPhysicalValues(ui.listWidget_BoundaryType->currentItem()->text());
-  
-  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
-  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
-  connect(ui.pushButton_AddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
-  connect(ui.pushButton_DeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
-  connect(ui.listWidget_BoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
-  
-  ui.T->setItemDelegate(delegate);
 }
 
 void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
