@@ -133,7 +133,9 @@ HEADERS = boundarycondition.h \
     openfoamcase.h \
     multipagewidget.h \
     tricoord.h \
-    updatesurfproj.h
+    updatesurfproj.h \
+    multipagewidgetpage.h
+
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -219,7 +221,9 @@ SOURCES = main.cpp \
     openfoamcase.cpp \
     multipagewidget.cpp \
     tricoord.cpp \
-    updatesurfproj.cpp
+    updatesurfproj.cpp \
+    multipagewidgetpage.cpp
+
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \

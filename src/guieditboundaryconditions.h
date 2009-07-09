@@ -30,6 +30,7 @@ class GuiEditBoundaryConditions;
 #include "dialogoperation.h"
 #include "guivolumedelegate.h"
 #include "filetemplate.h"
+#include "multipagewidgetpage.h"
 
 #include "ui_guieditboundaryconditions.h"
 
@@ -42,8 +43,8 @@ private: // attributes
   
   QMap<int,BoundaryCondition> *bcmap;
   GuiVolumeDelegate *delegate;
-  QVector <TemplateFormLayout*> m_template_form_layout_simpleFoam_vector;
-  QVector <TemplateFormLayout*> m_template_form_layout_rhoSimpleFoam_vector;
+  QVector <MultiPageWidgetPage*> m_page_simpleFoam_vector;
+  QVector <MultiPageWidgetPage*> m_page_rhoSimpleFoam_vector;
   
   int m_PreviousSelected;
   QMap<QString,PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;

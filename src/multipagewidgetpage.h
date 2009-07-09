@@ -42,8 +42,8 @@ class MultiPageWidgetPage : public QWidget
     QVector <TemplateFormLayout*> m_template_form_layout_vector;
   
   public:
-    MultiPageWidgetPage( QVector <QString> files, QWidget *parent = 0 );
-
+    MultiPageWidgetPage( QVector <QString> files, QString section, QWidget *parent = 0 );
+    void saveEgc();
     ~MultiPageWidgetPage();
 
 };

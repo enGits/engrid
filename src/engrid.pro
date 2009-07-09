@@ -63,7 +63,3 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
 }
 include(engrid-standard.pri)
-HEADERS += multipagewidgetpage.h
-
-SOURCES += multipagewidgetpage.cpp
-

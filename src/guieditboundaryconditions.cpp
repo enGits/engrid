@@ -43,36 +43,36 @@ void GuiEditBoundaryConditions::setupSolvers()
   QVector <QString> files_simpleFoam;
   files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes.template" );
   files_simpleFoam.push_back( ":/resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template" );
-  QWidget* page = new MultiPageWidgetPage(files_simpleFoam, multipagewidget_Solver);
-  multipagewidget_Solver->addPage( page );
+  MultiPageWidgetPage* page_simpleFoam = new MultiPageWidgetPage(files_simpleFoam,"openfoam/simpleFoam/standard/", multipagewidget_Solver);
+  m_page_simpleFoam_vector.push_back(page_simpleFoam);
+  multipagewidget_Solver->addPage( (QWidget*)page_simpleFoam );
   multipagewidget_Solver->setPageTitle("simpleFoam",0);
   
   // rhoSimpleFoam
   QVector <QString> files_rhoSimpleFoam;
   files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
   files_rhoSimpleFoam.push_back( ":/resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
-  /*  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i], (char*)"openfoam/rhoSimplefoam/standard/");
-    ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
-    m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
-  }*/
-//   multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
-  
-  // rhoCentralFoam
-/*  QWidget *page = new QWidget(ui.multipagewidget_Solver);
-  ui.multipagewidget_Solver->addPage(page);*/
-  
+  MultiPageWidgetPage* page_rhoSimpleFoam = new MultiPageWidgetPage(files_rhoSimpleFoam, "openfoam/rhoSimpleFoam/standard/", multipagewidget_Solver);
+  m_page_rhoSimpleFoam_vector.push_back(page_rhoSimpleFoam);
+  multipagewidget_Solver->addPage( (QWidget*)page_rhoSimpleFoam );
+  multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
 }
 
 void GuiEditBoundaryConditions::saveSolverParanmeters()
 {
   //Save solver parameters
-  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
+  for(int i = 0; i < m_page_simpleFoam_vector.size(); i++) {
+    m_page_simpleFoam_vector[i]->saveEgc();
+  }
+  for(int i = 0; i < m_page_rhoSimpleFoam_vector.size(); i++) {
+    m_page_rhoSimpleFoam_vector[i]->saveEgc();
+  }
+  /*  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
     m_template_form_layout_simpleFoam_vector[i]->saveEgc();
   }
   for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
     m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
-  }
+  }*/
 }
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()

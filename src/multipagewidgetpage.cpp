@@ -22,7 +22,9 @@
 //
 #include "multipagewidgetpage.h"
 
-MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QWidget *parent )
+#include <QtDebug>
+
+MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QString section, QWidget *parent )
     : QWidget( parent )
 {
   verticalLayout_scrollArea_Solver = new QVBoxLayout( this );
@@ -49,7 +51,7 @@ MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QWidget *pare
   scrollAreaWidgetContents->setLayout( verticalLayout_scrollAreaWidgetContents_Solver );
   
   for(int i = 0; i < files.size(); i++) {
-    TemplateFormLayout* template_form_layout = new TemplateFormLayout(files[i], (char*)"openfoam/simplefoam/standard/");
+    TemplateFormLayout* template_form_layout = new TemplateFormLayout(files[i], section);
     verticalLayout_scrollAreaWidgetContents_Solver->addLayout( template_form_layout );
     m_template_form_layout_vector.push_back(template_form_layout);
   }
@@ -57,4 +59,12 @@ MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QWidget *pare
 
 MultiPageWidgetPage::~MultiPageWidgetPage()
 {
+}
+
+void MultiPageWidgetPage::saveEgc()
+{
+  qDebug()<<"SAVING PRIVATE RYAN!";
+  for(int i = 0; i < m_template_form_layout_vector.size(); i++) {
+    m_template_form_layout_vector[i]->saveEgc();
+  }
 }
