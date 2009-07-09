@@ -64,8 +64,8 @@ using namespace GeometryTools;
 #include "egvtkinteractorstyle.h"
 #include "showinfo.h"
 
-QString GuiMainWindow::cwd = ".";
-QSettings GuiMainWindow::qset("enGits","enGrid");
+QString GuiMainWindow::m_cwd = ".";
+QSettings GuiMainWindow::m_qset("enGits","enGrid");
 GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
 
@@ -74,8 +74,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
-  setGeometry(qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
-  restoreState(qset.value("dockWidget_states").toByteArray());
+  setGeometry(m_qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
+  restoreState(m_qset.value("dockWidget_states").toByteArray());
   
   connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
   connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
@@ -132,8 +132,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
 # include "std_connections.h"
   
-  if (qset.contains("working_directory")) {
-    cwd = qset.value("working_directory").toString();
+  if (m_qset.contains("working_directory")) {
+    m_cwd = m_qset.value("working_directory").toString();
   }
 
   setupVtk();
@@ -157,8 +157,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   // define temporary path
   QDir dir("/");
-  if (qset.contains("tmp_directory")) {
-    m_LogDir = qset.value("tmp_directory").toString();
+  if (m_qset.contains("tmp_directory")) {
+    m_LogDir = m_qset.value("tmp_directory").toString();
   } else {
     m_LogDir = dir.tempPath();
   }
@@ -172,7 +172,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   m_SystemStdout = stdout;
   freopen (m_LogFileName.toAscii().data(), "w", stdout);
   
-  busy = false;
+  m_Busy = false;
   
   setPickMode(true,true);
   m_PickedPoint = -1;
@@ -183,10 +183,10 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   connect(&m_GarbageTimer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
   m_GarbageTimer.start(1000);
   
-  connect(&log_timer, SIGNAL(timeout()), this, SLOT(updateOutput()));
-  log_timer.start(1000);
+  connect(&m_LogTimer, SIGNAL(timeout()), this, SLOT(updateOutput()));
+  m_LogTimer.start(1000);
   
-  N_chars = 0;
+  m_N_chars = 0;
   
   bool exp_features=false;
   getSet("","enable experimental features",false,exp_features);
@@ -215,8 +215,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
-  qset.setValue("GuiMainWindow", this->geometry());
-  qset.setValue("dockWidget_states", this->saveState());
+  m_qset.setValue("GuiMainWindow", this->geometry());
+  m_qset.setValue("dockWidget_states", this->saveState());
   
 #ifndef QT_DEBUG
   QDirIterator it(m_LogDir);
@@ -237,8 +237,8 @@ GuiMainWindow::~GuiMainWindow()
 void GuiMainWindow::setupVtk()
 {
   grid = vtkUnstructuredGrid::New();
-  renderer = vtkRenderer::New();
-  getRenderWindow()->AddRenderer(renderer);
+  m_Renderer = vtkRenderer::New();
+  getRenderWindow()->AddRenderer(m_Renderer);
 
   // coordinate axes
   m_Axes = vtkCubeAxesActor2D::New();
@@ -283,14 +283,14 @@ void GuiMainWindow::setupVtk()
   // tetra pipline
   m_ExtrTetras   = vtkEgExtractVolumeCells::New();
   m_TetraActor   = vtkActor::New();
-  tetra_geometry = vtkGeometryFilter::New();
+  m_TetraGeometry = vtkGeometryFilter::New();
   m_TetraMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrTetras->SetInput(grid);
   m_ExtrTetras->SetAllOff();
   m_ExtrTetras->SetTetrasOn();;
-  tetra_geometry->SetInput(m_ExtrTetras->GetOutput());
-  m_TetraMapper->SetInput(tetra_geometry->GetOutput());
+  m_TetraGeometry->SetInput(m_ExtrTetras->GetOutput());
+  m_TetraMapper->SetInput(m_TetraGeometry->GetOutput());
   m_TetraActor->SetMapper(m_TetraMapper);
   m_TetraActor->GetProperty()->SetColor(1,0,0);
   getRenderer()->AddActor(m_TetraActor);
@@ -299,14 +299,14 @@ void GuiMainWindow::setupVtk()
   // pyramid pipeline
   m_PyramidActor   = vtkActor::New();
   m_ExtrPyramids   = vtkEgExtractVolumeCells::New();
-  pyramid_geometry = vtkGeometryFilter::New();
+  m_PyramidGeometry = vtkGeometryFilter::New();
   m_PyramidMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrPyramids->SetInput(grid);
   m_ExtrPyramids->SetAllOff();
   m_ExtrPyramids->SetPyramidsOn();
-  pyramid_geometry->SetInput(m_ExtrPyramids->GetOutput());
-  m_PyramidMapper->SetInput(pyramid_geometry->GetOutput());
+  m_PyramidGeometry->SetInput(m_ExtrPyramids->GetOutput());
+  m_PyramidMapper->SetInput(m_PyramidGeometry->GetOutput());
   m_PyramidActor->SetMapper(m_PyramidMapper);
   m_PyramidActor->GetProperty()->SetColor(1,1,0);
   getRenderer()->AddActor(m_PyramidActor);
@@ -315,14 +315,14 @@ void GuiMainWindow::setupVtk()
   // wedge pipeline
   m_WedgeActor   = vtkActor::New();
   m_ExtrWedges   = vtkEgExtractVolumeCells::New();
-  wedge_geometry = vtkGeometryFilter::New();
+  m_WedgeGeometry = vtkGeometryFilter::New();
   m_WedgeMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrWedges->SetInput(grid);
   m_ExtrWedges->SetAllOff();
   m_ExtrWedges->SetWedgesOn();
-  wedge_geometry->SetInput(m_ExtrWedges->GetOutput());
-  m_WedgeMapper->SetInput(wedge_geometry->GetOutput());
+  m_WedgeGeometry->SetInput(m_ExtrWedges->GetOutput());
+  m_WedgeMapper->SetInput(m_WedgeGeometry->GetOutput());
   m_WedgeActor->SetMapper(m_WedgeMapper);
   m_WedgeActor->GetProperty()->SetColor(0,1,0);
   getRenderer()->AddActor(m_WedgeActor);
@@ -331,14 +331,14 @@ void GuiMainWindow::setupVtk()
   // hexa pipeline
   m_HexaActor   = vtkActor::New();
   m_ExtrHexes   = vtkEgExtractVolumeCells::New();
-  hexa_geometry = vtkGeometryFilter::New();
+  m_HexaGeometry = vtkGeometryFilter::New();
   m_HexaMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrHexes->SetInput(grid);
   m_ExtrHexes->SetAllOff();
   m_ExtrHexes->SetHexesOn();
-  hexa_geometry->SetInput(m_ExtrHexes->GetOutput());
-  m_HexaMapper->SetInput(hexa_geometry->GetOutput());
+  m_HexaGeometry->SetInput(m_ExtrHexes->GetOutput());
+  m_HexaMapper->SetInput(m_HexaGeometry->GetOutput());
   m_HexaActor->SetMapper(m_HexaMapper);
   m_HexaActor->GetProperty()->SetColor(0,0.7,1);
   getRenderer()->AddActor(m_HexaActor);
@@ -347,13 +347,13 @@ void GuiMainWindow::setupVtk()
   // volume wire pipeline
   m_VolumeWireActor  = vtkActor::New();
   m_ExtrVol          = vtkEgExtractVolumeCells::New();
-  volume_geometry    = vtkGeometryFilter::New();
+  m_VolumeGeometry    = vtkGeometryFilter::New();
   m_VolumeWireMapper = vtkPolyDataMapper::New();
   //
   m_ExtrVol->SetInput(grid);
   m_ExtrVol->SetAllOn();
-  volume_geometry->SetInput(m_ExtrVol->GetOutput());
-  m_VolumeWireMapper->SetInput(volume_geometry->GetOutput());
+  m_VolumeGeometry->SetInput(m_ExtrVol->GetOutput());
+  m_VolumeWireMapper->SetInput(m_VolumeGeometry->GetOutput());
   m_VolumeWireActor->SetMapper(m_VolumeWireMapper);
   m_VolumeWireActor->GetProperty()->SetRepresentationToWireframe();
   m_VolumeWireActor->GetProperty()->SetColor(0,0,1);
@@ -389,9 +389,9 @@ void GuiMainWindow::updateOutput()
   QFile log_file(m_LogFileName);
   log_file.open(QIODevice::ReadOnly);
   QByteArray buffer = log_file.readAll();
-  if (buffer.size() > N_chars) {
-    QByteArray newchars = buffer.right(buffer.size() - N_chars);
-    N_chars = buffer.size();
+  if (buffer.size() > m_N_chars) {
+    QByteArray newchars = buffer.right(buffer.size() - m_N_chars);
+    m_N_chars = buffer.size();
     QString txt(newchars);
     if (txt.right(1) == "\n") {
       txt = txt.left(txt.size()-1);
@@ -412,7 +412,7 @@ vtkRenderWindow* GuiMainWindow::getRenderWindow()
 
 vtkRenderer* GuiMainWindow::getRenderer()
 {
-  return renderer;
+  return m_Renderer;
 }
 
 QVTKInteractor* GuiMainWindow::getInteractor()
@@ -422,13 +422,13 @@ QVTKInteractor* GuiMainWindow::getInteractor()
 
 QString GuiMainWindow::getCwd()
 {
-  return cwd;
+  return m_cwd;
 }
 
 void GuiMainWindow::setCwd(QString dir)
 {
-  cwd = dir;
-  qset.setValue("working_directory",dir);
+  m_cwd = dir;
+  m_qset.setValue("working_directory",dir);
 }
 
 void GuiMainWindow::scaleToData()
@@ -604,7 +604,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
         m_ExtrTetras->SetClippingOff();
       }
       if (forced) {
-        tetra_geometry->Update();
+        m_TetraGeometry->Update();
       }
       m_TetraActor->SetVisibility(1);
     } else {
@@ -619,7 +619,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
         m_ExtrPyramids->SetClippingOff();
       }
       if (forced) {
-        pyramid_geometry->Update();
+        m_PyramidGeometry->Update();
       }
       m_PyramidActor->SetVisibility(1);
     } else {
@@ -634,7 +634,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
         m_ExtrWedges->SetClippingOff();
       }
       if (forced) {
-        wedge_geometry->Update();
+        m_WedgeGeometry->Update();
       }
       m_WedgeActor->SetVisibility(1);
     } else {
@@ -649,7 +649,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
         m_ExtrHexes->SetClippingOff();
       }
       if (forced) {
-        hexa_geometry->Update();
+        m_HexaGeometry->Update();
       }
       m_HexaActor->SetVisibility(1);
     } else {
@@ -664,7 +664,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       m_ExtrVol->SetClippingOff();
     }
     if (forced) {
-      volume_geometry->Update();
+      m_VolumeGeometry->Update();
     }
     m_VolumeWireActor->SetVisibility(1);
   } else {
@@ -997,8 +997,8 @@ void GuiMainWindow::savePhysicalBoundaryConditions()
 
 void GuiMainWindow::openBC()
 {
-  bcmap.clear();
-  volmap.clear();
+  m_bcmap.clear();
+  m_VolMap.clear();
   QString buffer = getXmlSection("engrid/bc");
   QTextStream f(&buffer, QIODevice::ReadOnly);
   while (!f.atEnd()) {
@@ -1008,7 +1008,7 @@ void GuiMainWindow::openBC()
     if(name!="" && type!="") {
       qWarning()<<"i="<<i<<"name="<<name<<"type="<<type;
       if (i >= 0) {
-        bcmap[i] = BoundaryCondition(name,type);
+        m_bcmap[i] = BoundaryCondition(name,type);
       } else {
         VolumeDefinition V(name, -i);
         QString text = type.replace(",", " ").replace(":", " ");
@@ -1018,7 +1018,7 @@ void GuiMainWindow::openBC()
           s >> bc_txt >> sign_txt;
           V.addBC(bc_txt.toInt(), sign_txt.toInt());
         }
-        volmap[name] = V;
+        m_VolMap[name] = V;
       }
     }
   }
@@ -1030,14 +1030,14 @@ void GuiMainWindow::saveBC()
   QTextStream f(&buffer, QIODevice::WriteOnly);
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
-    BoundaryCondition bc = bcmap[i];
+    BoundaryCondition bc = m_bcmap[i];
     f << "      " << i << " " << bc.getName() << " " << bc.getType() << "\n";
   }
-  foreach (VolumeDefinition V, volmap) {
+  foreach (VolumeDefinition V, m_VolMap) {
     QString dirs = "";
     bool first = true;
     foreach (int i, m_AllBoundaryCodes) {
-      BoundaryCondition bc = bcmap[i];
+      BoundaryCondition bc = m_bcmap[i];
       if (!first) {
         dirs += ",";
       } else {
@@ -1190,7 +1190,7 @@ void GuiMainWindow::saveAs()
 void GuiMainWindow::updateStatusBar()
 {
   QString num, txt = "enGrid is currently busy with an operation ...";
-  if (!busy) {
+  if (!m_Busy) {
     txt = "";
   }
   if (!tryLock()) {
@@ -1682,7 +1682,7 @@ void GuiMainWindow::editBoundaryConditions()
 {
   GuiEditBoundaryConditions editbcs;
   editbcs.setBoundaryCodes(m_AllBoundaryCodes);
-  editbcs.setMap(&bcmap);
+  editbcs.setMap(&m_bcmap);
   editbcs();
 }
 
@@ -1697,7 +1697,7 @@ void GuiMainWindow::configure()
     SurfaceMesher tmp04;
     UpdateDesiredMeshDensity tmp05;
   }
-  GuiSettingsViewer settings(&qset);
+  GuiSettingsViewer settings(&m_qset);
   settings.exec();
 }
 
@@ -1760,7 +1760,7 @@ void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
 QList<VolumeDefinition> GuiMainWindow::getAllVols()
 {
   QList<VolumeDefinition> vols;
-  foreach(VolumeDefinition vol, volmap) {
+  foreach(VolumeDefinition vol, m_VolMap) {
     vols.push_back(vol);
   }
   return vols;
@@ -1768,9 +1768,9 @@ QList<VolumeDefinition> GuiMainWindow::getAllVols()
 
 void GuiMainWindow::setAllVols(QList<VolumeDefinition> vols)
 {
-  volmap.clear();
+  m_VolMap.clear();
   foreach (VolumeDefinition V, vols) {
-    volmap[V.getName()] = V;
+    m_VolMap[V.getName()] = V;
   }
 }
 
