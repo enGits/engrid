@@ -35,12 +35,18 @@ public:
     ~OpenFOAMTools();
 
 public slots:
-  void RunSolver();
-  void RunFoamToVTK();
-  void RunDecomposePar();
-  void RunReconstructPar();
-  void StopProcesses();
+  void runSolver();
+  void runFoamToVTK();
+  void runDecomposePar();
+  void runReconstructPar();
+  void stopProcesses();
+public slots:
+  void errorHandler ( QProcess::ProcessError error );
+  void finishedHandler ( int exitCode, QProcess::ExitStatus exitStatus );
+  void readFromStderr();
   void readFromStdout();
+  void startedHandler ();
+  void stateChangedHandler ( QProcess::ProcessState newState );
 };
 
 #endif

@@ -28,46 +28,77 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent)
 : QObject(parent)
 {
   m_Process = new QProcess(this);
+  
+  connect( m_Process, SIGNAL(error( QProcess::ProcessError )), this, SLOT(errorHandler()));
+  connect( m_Process, SIGNAL(finished ( int , QProcess::ExitStatus )), this, SLOT(finishedHandler()));
+  connect( m_Process, SIGNAL(readyReadStandardError()), this, SLOT(readFromStderr()));
   connect( m_Process, SIGNAL(readyReadStandardOutput()), this, SLOT(readFromStdout()));
+  connect( m_Process, SIGNAL(started()), this, SLOT(startedHandler()));
+  connect( m_Process, SIGNAL(stateChanged( QProcess::ProcessState )), this, SLOT(stateChangedHandler( QProcess::ProcessState )));
 }
 
 OpenFOAMTools::~OpenFOAMTools()
 {
-  this->StopProcesses();
+  this->stopProcesses();
 }
 
-void OpenFOAMTools::RunSolver()
+void OpenFOAMTools::runSolver()
 {
   qDebug()<<"RunSolver";
   m_Process->setWorkingDirectory("/data1/home/mtaverne/Geometries/Testing/tube");
-  QString program = "cd  && ls";
+  QString program = "simpleFoam";
   QStringList arguments;
 //  arguments << "/data1/home/mtaverne/Geometries/Testing/tube"<<"/data1/home/mtaverne/tmp.txt";
   m_Process->start(program, arguments);
 }
 
-void OpenFOAMTools::RunFoamToVTK()
+void OpenFOAMTools::runFoamToVTK()
 {
   qDebug()<<"RunFoamToVTK";
 }
 
-void OpenFOAMTools::RunDecomposePar()
+void OpenFOAMTools::runDecomposePar()
 {
   qDebug()<<"RunDecomposePar";
 }
 
-void OpenFOAMTools::RunReconstructPar()
+void OpenFOAMTools::runReconstructPar()
 {
   qDebug()<<"RunReconstructPar";
 }
 
-void OpenFOAMTools::StopProcesses()
+void OpenFOAMTools::stopProcesses()
 {
   qDebug()<<"StopProcesses";
   m_Process->kill();
 }
 
+void OpenFOAMTools::errorHandler ( QProcess::ProcessError error )
+{
+
+}
+
+void OpenFOAMTools::finishedHandler ( int exitCode, QProcess::ExitStatus exitStatus )
+{
+
+}
+
+void OpenFOAMTools::readFromStderr()
+{
+  qDebug()<<m_Process->readAllStandardError();
+}
+
 void OpenFOAMTools::readFromStdout()
 {
   qDebug()<<m_Process->readAllStandardOutput();
+}
+
+void OpenFOAMTools::startedHandler ()
+{
+
+}
+
+void OpenFOAMTools::stateChangedHandler ( QProcess::ProcessState newState )
+{
+
 }
