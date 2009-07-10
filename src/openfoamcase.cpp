@@ -57,12 +57,14 @@ void OpenFOAMcase::writeSolverParameters()
   QString page = page_list[idx];
   QString title;
   QString section;
+  QString binary;
   QVector <QString> files;
   QStringList variable_list = page.split(";");
   foreach(QString variable, variable_list) {
     QStringList name_value = variable.split(":");
     if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
     if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
+    if(name_value[0].trimmed()=="binary") binary = name_value[1].trimmed();
     if(name_value[0].trimmed()=="files") {
       QStringList file_list = name_value[1].split(",");
       foreach(QString file, file_list) {
@@ -72,6 +74,7 @@ void OpenFOAMcase::writeSolverParameters()
   }
   qDebug()<<"title="<<title;
   qDebug()<<"section="<<section;
+  qDebug()<<"binary="<<binary;
   qDebug()<<"files="<<files;
   
   for ( int i = 0; i < files.size(); i++ ) {

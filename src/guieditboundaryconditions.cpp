@@ -111,17 +111,20 @@ void GuiEditBoundaryConditions::setupSolvers()
   QString intext = text_stream.readAll();
   file.close();
   
+  ///@@@ TODO: Create a special parser method for this so that it can be reused by other classes
   int idx = 0;
   QStringList page_list = intext.split("=");
   foreach(QString page, page_list) {
     QString title;
     QString section;
+    QString binary;
     QVector <QString> files;
     QStringList variable_list = page.split(";");
     foreach(QString variable, variable_list) {
       QStringList name_value = variable.split(":");
       if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
       if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
+      if(name_value[0].trimmed()=="binary") binary = name_value[1].trimmed();
       if(name_value[0].trimmed()=="files") {
         QStringList file_list = name_value[1].split(",");
         foreach(QString file, file_list) {
@@ -131,11 +134,15 @@ void GuiEditBoundaryConditions::setupSolvers()
     }
     qDebug()<<"title="<<title;
     qDebug()<<"section="<<section;
+    qDebug()<<"binary="<<binary;
     qDebug()<<"files="<<files;
+    
+    m_SolverBinary.push_back(binary);
     MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
     m_page_vector.push_back(page);
     m_multipagewidget_Solver->addPage( (QWidget*)page );
     m_multipagewidget_Solver->setPageTitle(title, idx);
+    
     idx++;
   }
   
@@ -149,8 +156,10 @@ void GuiEditBoundaryConditions::saveSolverParameters()
     m_page_vector[i]->saveEgc();
   }
   QString solver_type;
-  solver_type.setNum(m_multipagewidget_Solver->currentIndex());
+  int solver_type_index = m_multipagewidget_Solver->currentIndex();
+  solver_type.setNum(solver_type_index);
   GuiMainWindow::pointer()->setXmlSection("solver/general/solver_type", solver_type);
+  GuiMainWindow::pointer()->setXmlSection("solver/general/solver_binary", m_SolverBinary[solver_type_index]);
 }
 
 void GuiEditBoundaryConditions::loadPhysicalValues(QString name)

@@ -204,9 +204,17 @@ QString FileTemplate::getContents()
 
 void FileTemplate::setContents( QString contents )
 {
+  qWarning()<<"contents="<<contents;
   QStringList L = contents.split( ";" );
+  qWarning()<<"L="<<L;
+  qWarning()<<"L.size()="<<L.size();
   for ( int i = 0; i < L.size() - 1; i++ ) {
     QStringList L_pair = L[i].split( "=" );
+    qWarning()<<"L_pair="<<L_pair;
+    qWarning()<<"L_pair.size()="<<L_pair.size();
+    qWarning()<<"L_pair[0]="<<L_pair[0];
+    qWarning()<<"L_pair[1]="<<L_pair[1];
+    qWarning()<<"m_Lines.size()="<<m_Lines.size();
     m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
   }
 }

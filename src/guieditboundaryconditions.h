@@ -57,6 +57,9 @@ private: // utility attributes
   int m_PreviousSelectedIndex;
   MultiPageWidget* m_multipagewidget_Solver;
   
+  /// vector to hold the binaries
+  QVector <QString> m_SolverBinary;
+  
 protected: // methods
   
   virtual void operate();

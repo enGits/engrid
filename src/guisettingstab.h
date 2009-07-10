@@ -28,6 +28,8 @@
 #include <QtGui>
 #include <QVector>
 
+///@@@ TODO: fix problems with more than one boolean + general tab stuff
+
 /**
  * Creates a QWidget listing all key/value pairs contained in the group "group" 
  * of the QSettings file corresponding to the (org,app) pair.
