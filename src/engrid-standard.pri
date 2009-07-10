@@ -241,5 +241,7 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
+
 OTHER_FILES += checkcomments.py \
     todo.txt
+
