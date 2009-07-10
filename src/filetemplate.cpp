@@ -99,18 +99,20 @@ int FileTemplate::open( QString filename, QString section )
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
     qWarning() << "ERROR: " << m_FileInfo.filePath() << " not found.";
-    try{
-      EG_ERR_RETURN("ERROR: " + m_FileInfo.filePath() + " not found.");
-    } catch (Error err) {
+    try {
+      EG_ERR_RETURN( "ERROR: " + m_FileInfo.filePath() + " not found." );
+    }
+    catch ( Error err ) {
       err.display();
     }
     return( -1 );
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
     qWarning() << "ERROR:  Failed to open file " << m_FileInfo.filePath();
-    try{
-      EG_ERR_RETURN("ERROR:  Failed to open file " + m_FileInfo.filePath());
-    } catch (Error err) {
+    try {
+      EG_ERR_RETURN( "ERROR:  Failed to open file " + m_FileInfo.filePath() );
+    }
+    catch ( Error err ) {
       err.display();
     }
     return( -1 );
@@ -212,7 +214,6 @@ void FileTemplate::setContents( QString contents )
 
 TemplateDialog::TemplateDialog( QVector <QString> files, QString section, QWidget *parent ) : QDialog( parent )
 {
-
   this->setWindowTitle( "Template Viewer" );
 
   QVBoxLayout* mainLayout = new QVBoxLayout( this );
@@ -227,10 +228,10 @@ TemplateDialog::TemplateDialog( QVector <QString> files, QString section, QWidge
 
   for ( int i = 0; i < files.size(); i++ ) {
     m_FileInfo.push_back( QFileInfo( files[i] ) );
-    TemplateFormLayout* box = new TemplateFormLayout( files[i], section );
-    mainLayout->addLayout( box );
-    m_TemplateFormLayoutVector.push_back( box );
   }
+  TemplateFormLayout* box = new TemplateFormLayout( files, section );
+  mainLayout->addLayout( box );
+  m_TemplateFormLayoutVector.push_back( box );
 
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->addStretch();
@@ -249,26 +250,29 @@ void TemplateDialog::saveEgc()
 
 //=======================================
 
-TemplateFormLayout::TemplateFormLayout( QString filename, QString section, char *name, QWidget *parent ) : QFormLayout( parent )
+TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString section, char *name, QWidget *parent ) : QFormLayout( parent )
 {
   GuiMainWindow::pointer();
   QFormLayout::setObjectName( name );
-  m_FileTemplate.open( filename, section );
+  for ( int filename_index = 0; filename_index < filename.size(); filename_index++ ) {
+    FileTemplate file_template( filename[filename_index], section );
 
-  QFileInfo file_info( filename );
-  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section + file_info.completeBaseName() );
-  m_FileTemplate.setContents( openfoam_string );
+    QFileInfo file_info( filename[filename_index] );
+    QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section + file_info.completeBaseName() );
+    file_template.setContents( openfoam_string );
 
-  m_Lines = m_FileTemplate.getLines();
-  for ( int i = 0; i < m_Lines.size(); i++ ) {
-    if ( m_Lines[i].m_Type == "ComboBox" ) addComboBox( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "IntLineEdit" ) addIntLineEdit( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "DoubleLineEdit" ) addDoubleLineEdit( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "TextLineEdit" ) addTextLineEdit( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "CheckBox" ) addCheckBox( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "SpinBox" ) addSpinBox( m_Lines[i] );
-    else if ( m_Lines[i].m_Type == "DoubleSpinBox" ) addDoubleSpinBox( m_Lines[i] );
-    else qDebug() << "Unknown type";
+    m_Lines = file_template.getLines();
+    for ( int i = 0; i < m_Lines.size(); i++ ) {
+      if ( m_Lines[i].m_Type == "ComboBox" ) addComboBox( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "IntLineEdit" ) addIntLineEdit( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "DoubleLineEdit" ) addDoubleLineEdit( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "TextLineEdit" ) addTextLineEdit( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "CheckBox" ) addCheckBox( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "SpinBox" ) addSpinBox( m_Lines[i] );
+      else if ( m_Lines[i].m_Type == "DoubleSpinBox" ) addDoubleSpinBox( m_Lines[i] );
+      else qDebug() << "Unknown type";
+    }
+    m_FileTemplate.push_back( file_template );
   }
 }
 
@@ -381,51 +385,48 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
 
 void TemplateFormLayout::saveEgc()
 {
-  getValues();
-  m_FileTemplate.saveEgc();
-}
-
-void TemplateFormLayout::getValues()
-{
-  int combobox_idx = 0;
-  int intlineedit_idx = 0;
-  int doublelineedit_idx = 0;
-  int textlineedit_idx = 0;
-  int checkbox_idx = 0;
-  int spinbox_idx = 0;
-  int doublespinbox_idx = 0;
-  for ( int i = 0; i < m_Lines.size(); i++ ) {
-    if ( m_Lines[i].m_Type == "ComboBox" ) {
-      m_Lines[i].m_DefaultValueEgc = readComboBox( combobox_idx );
-      combobox_idx++;
+  for ( int file_template_index = 0; file_template_index < m_FileTemplate.size(); file_template_index++ ) {
+    int combobox_idx = 0;
+    int intlineedit_idx = 0;
+    int doublelineedit_idx = 0;
+    int textlineedit_idx = 0;
+    int checkbox_idx = 0;
+    int spinbox_idx = 0;
+    int doublespinbox_idx = 0;
+    for ( int i = 0; i < m_Lines.size(); i++ ) {
+      if ( m_Lines[i].m_Type == "ComboBox" ) {
+        m_Lines[i].m_DefaultValueEgc = readComboBox( combobox_idx );
+        combobox_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "IntLineEdit" ) {
+        m_Lines[i].m_DefaultValueEgc =  readIntLineEdit( intlineedit_idx );
+        intlineedit_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "DoubleLineEdit" ) {
+        m_Lines[i].m_DefaultValueEgc =  readDoubleLineEdit( doublelineedit_idx );
+        doublelineedit_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "TextLineEdit" ) {
+        m_Lines[i].m_DefaultValueEgc =  readTextLineEdit( textlineedit_idx );
+        textlineedit_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "CheckBox" ) {
+        m_Lines[i].m_DefaultValueEgc =  readCheckBox( checkbox_idx );
+        checkbox_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "SpinBox" ) {
+        m_Lines[i].m_DefaultValueEgc =  readSpinBox( spinbox_idx );
+        spinbox_idx++;
+      }
+      else if ( m_Lines[i].m_Type == "DoubleSpinBox" ) {
+        m_Lines[i].m_DefaultValueEgc =  readDoubleSpinBox( doublespinbox_idx );
+        doublespinbox_idx++;
+      }
+      else qDebug() << "Unknown type";
     }
-    else if ( m_Lines[i].m_Type == "IntLineEdit" ) {
-      m_Lines[i].m_DefaultValueEgc =  readIntLineEdit( intlineedit_idx );
-      intlineedit_idx++;
-    }
-    else if ( m_Lines[i].m_Type == "DoubleLineEdit" ) {
-      m_Lines[i].m_DefaultValueEgc =  readDoubleLineEdit( doublelineedit_idx );
-      doublelineedit_idx++;
-    }
-    else if ( m_Lines[i].m_Type == "TextLineEdit" ) {
-      m_Lines[i].m_DefaultValueEgc =  readTextLineEdit( textlineedit_idx );
-      textlineedit_idx++;
-    }
-    else if ( m_Lines[i].m_Type == "CheckBox" ) {
-      m_Lines[i].m_DefaultValueEgc =  readCheckBox( checkbox_idx );
-      checkbox_idx++;
-    }
-    else if ( m_Lines[i].m_Type == "SpinBox" ) {
-      m_Lines[i].m_DefaultValueEgc =  readSpinBox( spinbox_idx );
-      spinbox_idx++;
-    }
-    else if ( m_Lines[i].m_Type == "DoubleSpinBox" ) {
-      m_Lines[i].m_DefaultValueEgc =  readDoubleSpinBox( doublespinbox_idx );
-      doublespinbox_idx++;
-    }
-    else qDebug() << "Unknown type";
+    m_FileTemplate[file_template_index].setLines( m_Lines );
+    m_FileTemplate[file_template_index].saveEgc();
   }
-  m_FileTemplate.setLines( m_Lines );
 }
 
 QString TemplateFormLayout::readComboBox( int idx )
