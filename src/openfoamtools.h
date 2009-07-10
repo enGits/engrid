@@ -24,12 +24,14 @@
 #define OPENFOAMTOOLS_H
 
 #include <QObject>
+#include <QProcess>
 
 class OpenFOAMTools : public QObject{
   Q_OBJECT;
+private:
+  QProcess *m_Process;
 public:
     OpenFOAMTools(QObject *parent = 0);
-
     ~OpenFOAMTools();
 
 public slots:
@@ -38,6 +40,7 @@ public slots:
   void RunDecomposePar();
   void RunReconstructPar();
   void StopProcesses();
+  void readFromStdout();
 };
 
 #endif

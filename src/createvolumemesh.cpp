@@ -281,7 +281,7 @@ void CreateVolumeMesh::computeMeshDensity()
   }
   boxes.clear();
   QString num = "0";
-  cout << "relaxing mesh size : " << num.toAscii().data() << "% done" << endl;
+  cout << "relaxing mesh size : " << qPrintable(num) << "% done" << endl;
   if (N_non_fixed > 0) {
     double DH_max;
     do {
@@ -307,7 +307,7 @@ void CreateVolumeMesh::computeMeshDensity()
       new_num.setNum(100*e,'f',0);
       if (new_num != num) {
         num = new_num;
-        cout << "relaxing mesh size : " << num.toAscii().data() << "% done" << endl;
+        cout << "relaxing mesh size : " << qPrintable(num) << "% done" << endl;
       }
     } while (DH_max > 1e-3*H_min);
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {

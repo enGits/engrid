@@ -36,7 +36,7 @@ void VtkReader::operate()
     readInputFileName();
     if (isValid()) {
       EG_VTKSP(vtkUnstructuredGridReader,vtk);
-      vtk->SetFileName(getFileName().toAscii().data());
+      vtk->SetFileName(qPrintable(getFileName()));
       vtk->Update();
       grid->DeepCopy(vtk->GetOutput());
       createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());

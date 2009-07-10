@@ -107,7 +107,7 @@ void OperationThread::run()
     GuiMainWindow::lock();
     GuiMainWindow::pointer()->setBusy();
     op->operate();
-    cout << "secs. for " << op->getTypeName().toAscii().data() << ": " << op->elapsedTime() << endl;
+    cout << "secs. for " << qPrintable(op->getTypeName()) << ": " << op->elapsedTime() << endl;
   } catch (Error err) {
     op->err = new Error();
     *(op->err) = err;
@@ -143,7 +143,7 @@ void Operation::operator()()
     if (gui_thread) {
       try {
         operate();
-        //cout << "secs. for " << getTypeName().toAscii().data() << ": " << elapsedTime() << endl;
+        //cout << "secs. for " << qPrintable(getTypeName()) << ": " << elapsedTime() << endl;
       } catch (Error err) {
         err.display();
       }

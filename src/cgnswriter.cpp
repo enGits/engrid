@@ -297,7 +297,7 @@ void CgnsWriter::writeBcs()
     for (int i = 0; i < bc_faces.size(); ++i) {
       data[i] = eg2cgns[bc_faces[i]]+1;
     };
-    if (cg_boco_write(fn, B, Z, getBC(bc).getName().toAscii().data(), BCTypeNull, ElementList, bc_faces.size(), data, &BC_cgns)) {
+    if (cg_boco_write(fn, B, Z, qPrintable(getBC(bc).getName()), BCTypeNull, ElementList, bc_faces.size(), data, &BC_cgns)) {
       cout << cg_get_error() << endl;
       EG_ERR_RETURN("error writing boundary condition");
     }
@@ -313,7 +313,7 @@ void CgnsWriter::operate()
     readOutputFileName();
     if (isValid()) {
       QString file_name = getFileName();
-      if (cg_open(file_name.toAscii().data(), MODE_WRITE, &fn)) {
+      if (cg_open(qPrintable(file_name), MODE_WRITE, &fn)) {
         EG_ERR_RETURN("error while opening CGNS file for writing");
       }
       writeGrid();

@@ -42,7 +42,7 @@ void StlWriter::operate()
       triangle->SetInput(geometry->GetOutput());
       EG_VTKSP(vtkSTLWriter, write_stl);
       write_stl->SetInput(triangle->GetOutput());
-      write_stl->SetFileName(getFileName().toAscii().data());
+      write_stl->SetFileName(qPrintable(getFileName()));
       write_stl->SetFileTypeToASCII();
       write_stl->Write();
     };

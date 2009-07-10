@@ -27,16 +27,23 @@
 OpenFOAMTools::OpenFOAMTools(QObject *parent)
 : QObject(parent)
 {
+  m_Process = new QProcess(this);
+  connect( m_Process, SIGNAL(readyReadStandardOutput()), this, SLOT(readFromStdout()));
 }
-
 
 OpenFOAMTools::~OpenFOAMTools()
 {
+  this->StopProcesses();
 }
 
 void OpenFOAMTools::RunSolver()
 {
   qDebug()<<"RunSolver";
+  m_Process->setWorkingDirectory("/data1/home/mtaverne/Geometries/Testing/tube");
+  QString program = "cd  && ls";
+  QStringList arguments;
+//  arguments << "/data1/home/mtaverne/Geometries/Testing/tube"<<"/data1/home/mtaverne/tmp.txt";
+  m_Process->start(program, arguments);
 }
 
 void OpenFOAMTools::RunFoamToVTK()
@@ -57,4 +64,10 @@ void OpenFOAMTools::RunReconstructPar()
 void OpenFOAMTools::StopProcesses()
 {
   qDebug()<<"StopProcesses";
+  m_Process->kill();
+}
+
+void OpenFOAMTools::readFromStdout()
+{
+  qDebug()<<m_Process->readAllStandardOutput();
 }

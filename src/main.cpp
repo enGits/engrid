@@ -124,8 +124,8 @@ void makeDistribution()
         l >> word;
       };
       QString cmd = "cp " + word + " enGrid";
-      system(cmd.toAscii().data());
-      cout << cmd.toAscii().data() << endl;
+      system(qPrintable(cmd));
+      cout << qPrintable(cmd) << endl;
     };
   };
   system ("tar czf enGrid_bin.tar.gz enGrid/*");
@@ -169,11 +169,11 @@ int main( int argc, char ** argv )
     if (QString(argv[1]) == QString("-h")) {
       QFileInfo file_info(argv[0]);
       cout<<"Usage:"<<endl;
-      cout<<file_info.fileName().toLatin1().data()<<" : start engrid"<<endl;
-      cout<<file_info.fileName().toLatin1().data()<<" -f FILE : start engrid and open FILE"<<endl;
-      cout<<file_info.fileName().toLatin1().data()<<" -h : Display usage instructions"<<endl;
-      cout<<file_info.fileName().toLatin1().data()<<" -appendlic FILE1 FILE2 ...: Append license to files"<<endl;
-      cout<<file_info.fileName().toLatin1().data()<<" -distbin : Create binary distribution"<<endl;
+      cout<<qPrintable(file_info.fileName())<<" : start engrid"<<endl;
+      cout<<qPrintable(file_info.fileName())<<" -f FILE : start engrid and open FILE"<<endl;
+      cout<<qPrintable(file_info.fileName())<<" -h : Display usage instructions"<<endl;
+      cout<<qPrintable(file_info.fileName())<<" -appendlic FILE1 FILE2 ...: Append license to files"<<endl;
+      cout<<qPrintable(file_info.fileName())<<" -distbin : Create binary distribution"<<endl;
       exit(0);
     };
     if (QString(argv[1]) == QString("-appendlic")) {

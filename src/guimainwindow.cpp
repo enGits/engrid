@@ -117,7 +117,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   cout << "m_LogFileName=" << qPrintable(m_LogFileName) << endl;
 
   m_SystemStdout = stdout;
-  freopen (m_LogFileName.toAscii().data(), "w", stdout);
+  freopen (qPrintable(m_LogFileName), "w", stdout);
   
   m_Busy = false;
   
@@ -1033,7 +1033,7 @@ void GuiMainWindow::saveGrid(QString file_name)
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   addVtkTypeInfo();
   createIndices(grid);
-  vtu->SetFileName(file_name.toAscii().data());
+  vtu->SetFileName(qPrintable(file_name));
   vtu->SetDataModeToBinary();
   vtu->SetInput(grid);
   vtu->Write();
@@ -1339,7 +1339,7 @@ void GuiMainWindow::viewNodeIDs()
       m_NodeTextVectorText[i]=vtkVectorText::New();
       QString tmp;
       tmp.setNum(i);
-      m_NodeTextVectorText[i]->SetText(tmp.toLatin1().data());
+      m_NodeTextVectorText[i]->SetText(qPrintable(tmp));
       m_NodeTextPolyDataMapper[i]=vtkPolyDataMapper::New();
       m_NodeTextPolyDataMapper[i]->SetInputConnection(m_NodeTextVectorText[i]->GetOutputPort());
       m_NodeTextFollower[i]=vtkFollower::New();
@@ -1389,12 +1389,12 @@ void GuiMainWindow::viewCellIDs()
       if(ui.comboBox_CellTextField->currentIndex()==0) {
         tmp.setNum(id_cell);
       } else if (ui.comboBox_CellTextField->currentIndex()>0) {
-        EG_VTKDCC(vtkIntArray, current_cell_field, grid, ui.comboBox_CellTextField->currentText().toLatin1().data());
+        EG_VTKDCC(vtkIntArray, current_cell_field, grid, qPrintable(ui.comboBox_CellTextField->currentText()));
         tmp.setNum(current_cell_field->GetValue(id_cell));
       }
       else EG_BUG;
       
-      m_CellTextVectorText[id_cell]->SetText(tmp.toLatin1().data());
+      m_CellTextVectorText[id_cell]->SetText(qPrintable(tmp));
       m_CellTextPolyDataMapper[id_cell]=vtkPolyDataMapper::New();
       m_CellTextPolyDataMapper[id_cell]->SetInputConnection(m_CellTextVectorText[id_cell]->GetOutputPort());
       m_CellTextFollower[id_cell]=vtkFollower::New();
@@ -1778,7 +1778,7 @@ QString GuiMainWindow::getFilePath()
 void GuiMainWindow::markOutputLine()
 {
   cout << "\n****************************************\n";
-  cout << QTime::currentTime().toString("hh:mm:ss").toAscii().data();
+  cout << qPrintable(QTime::currentTime().toString("hh:mm:ss"));
   cout << "\n****************************************\n" << endl;
 }
 

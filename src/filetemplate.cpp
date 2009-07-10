@@ -99,12 +99,20 @@ int FileTemplate::open( QString filename, QString section )
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
     qWarning() << "ERROR: " << m_FileInfo.filePath() << " not found.";
-    EG_BUG;
+    try{
+      EG_ERR_RETURN("ERROR: " + m_FileInfo.filePath() + " not found.");
+    } catch (Error err) {
+      err.display();
+    }
     return( -1 );
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
     qWarning() << "ERROR:  Failed to open file " << m_FileInfo.filePath();
-    EG_BUG;
+    try{
+      EG_ERR_RETURN("ERROR:  Failed to open file " + m_FileInfo.filePath());
+    } catch (Error err) {
+      err.display();
+    }
     return( -1 );
   }
   QTextStream text_stream( &file );
