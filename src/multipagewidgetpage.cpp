@@ -47,11 +47,9 @@ MultiPageWidgetPage::MultiPageWidgetPage( QVector <QString> files, QString secti
   verticalLayout_scrollAreaWidgetContents_Solver->setContentsMargins( 0, 0, 0, 0 );
   scrollAreaWidgetContents->setLayout( verticalLayout_scrollAreaWidgetContents_Solver );
   
-  for(int i = 0; i < files.size(); i++) {
-    TemplateFormLayout* template_form_layout = new TemplateFormLayout(files[i], section);
-    verticalLayout_scrollAreaWidgetContents_Solver->addLayout( template_form_layout );
-    m_template_form_layout_vector.push_back(template_form_layout);
-  }
+  TemplateFormLayout* template_form_layout = new TemplateFormLayout(files, section);
+  verticalLayout_scrollAreaWidgetContents_Solver->addLayout( template_form_layout );
+  m_template_form_layout_vector.push_back(template_form_layout);
 }
 
 MultiPageWidgetPage::~MultiPageWidgetPage()

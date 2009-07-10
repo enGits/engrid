@@ -82,7 +82,7 @@ class TemplateFormLayout : public QFormLayout
     Q_OBJECT;
 
   private:
-    FileTemplate m_FileTemplate;
+    QVector <FileTemplate> m_FileTemplate;
     QVector <TemplateLine> m_Lines;
 
     QVector <QComboBox*> m_ComboBoxVector;
@@ -96,7 +96,7 @@ class TemplateFormLayout : public QFormLayout
     QVector <QDoubleSpinBox*> m_DoubleSpinBoxVector;
 
   public:
-    TemplateFormLayout( QString filename, QString section, char *name = 0, QWidget *parent = 0 );
+    TemplateFormLayout( QVector <QString> filename, QString section, char *name = 0, QWidget *parent = 0 );
 
     void addComboBox( TemplateLine line );
     void addIntLineEdit( TemplateLine line );
@@ -113,8 +113,6 @@ class TemplateFormLayout : public QFormLayout
     QString readCheckBox( int idx );
     QString readSpinBox( int idx );
     QString readDoubleSpinBox( int idx );
-
-    void getValues();
 
   public:
     void saveEgc();

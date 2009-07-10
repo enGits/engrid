@@ -7,62 +7,17 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-  version     <<<SpinBox: version int: 0, 18, 5 : 18 >>>;
-  floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5 : 47 >>>;
     format      ascii;
     class       dictionary;
     object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
-{
-  default <<<IntLineEdit: ddtSchemes int : : 49 >>>;
-  default <<<DoubleLineEdit: ddtSchemes double : : 1.23 >>>;
-  default <<<TextLineEdit: ddtSchemes text : : Burma shave! >>>;
-}
-
-gradSchemes
-{
-    default         Gauss linear;
-    grad(p)         Gauss linear;
-    grad(U)         Gauss linear;
-}
-
-divSchemes
-{
-  default      	none;
-  div(phi,U)   	<<<ComboBox: U-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1): Gauss limitedLinearV 1 >>>;
-  div(phi,k)   	<<<ComboBox: k-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss limitedLinearV 1 >>>;
-  div(phi,omega)   	<<<ComboBox: omega-convection-scheme: (1st order upwind, Gauss upwind), (2nd order upwind, Gauss linearUpwind Gauss), (central, Gauss limitedLinearV 1) : Gauss upwind >>>;
-}
-
-laplacianSchemes
-{
-    default         			none;
-    laplacian(nuEff,U) 			Gauss linear corrected;
-    laplacian((1|A(U)),p)		Gauss linear corrected;
-    laplacian(DkEff,k) 			Gauss linear corrected;
-    laplacian(DomegaEff,omega) 		Gauss linear corrected;
-    laplacian(1,p)                      Gauss linear corrected;
-}
-
-interpolationSchemes
-{
-    default         linear;
-    interpolate(U)  linear;
-}
-
-snGradSchemes
-{
-    default         corrected;
-}
-
 fluxRequired
 {
-  default         <<<CheckBox: fluxRequired 1: yes, no : yes >>>;#checked
-    default         <<<CheckBox: fluxRequired 2: on, off : on >>>;#checked
-    default         <<<CheckBox: fluxRequired 3: no, yes : yes >>>;#unchecked
+  default         <<<CheckBox: a : yes, no : yes >>>;#checked
+    default         <<<CheckBox: b : on, off : on >>>;#checked
+    default         <<<CheckBox: c : no, yes : yes >>>;#unchecked
   p;
 }
 
