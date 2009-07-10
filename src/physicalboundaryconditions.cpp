@@ -45,10 +45,7 @@ PhysicalBoundaryConditions::PhysicalBoundaryConditions(QString name, int index, 
   this->m_Index = index;
   setDefaults();
   
-  qWarning()<<"values="<<values;
-  
   QStringList L = values.split(";");
-  qWarning()<<"L="<<L;
   for(int i=0;i<L.size();i++) {
     QStringList L_pair = L[i].split("=");
     if(L_pair[0].trimmed()=="Pressure") m_Pressure = L_pair[1].toDouble();

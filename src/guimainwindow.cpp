@@ -114,7 +114,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   dir.mkpath(m_LogDir);
   
   m_LogFileName = m_LogDir + basename;
-  cout << "m_LogFileName=" << qPrintable(m_LogFileName) << endl;
+  cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
   m_SystemStdout = stdout;
   freopen (qPrintable(m_LogFileName), "w", stdout);
@@ -925,7 +925,6 @@ void GuiMainWindow::openPhysicalBoundaryConditions()
     int i;
     f >> i >> name >> values;
     if(name!="" && values!="") {
-      qWarning()<<"i="<<i<<"name="<<name<<"values="<<values;
       PhysicalBoundaryConditions PBC(name, i, values);
       m_PhysicalBoundaryConditionsMap[name] = PBC;
     }
@@ -955,7 +954,6 @@ void GuiMainWindow::openBC()
     int i;
     f >> i >> name >> type;
     if(name!="" && type!="") {
-      qWarning()<<"i="<<i<<"name="<<name<<"type="<<type;
       if (i >= 0) {
         m_bcmap[i] = BoundaryCondition(name,type);
       } else {
