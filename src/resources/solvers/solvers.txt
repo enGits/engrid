@@ -1,5 +1,5 @@
 title : standard simplefoam;
-section : openfoam/simpleFoam/standard/;
+section : openfoam/simpleFoam/standard;
 files :
   system/controlDict,
   constant/transportProperties,

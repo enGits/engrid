@@ -547,7 +547,7 @@ void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const C &cls, QString fi
   getSubGrid(grid,cls,SubGrid);
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName(file_name.toAscii().data());
+  vtu->SetFileName(qPrintable(file_name));
   vtu->SetDataModeToBinary();
   vtu->SetInput(SubGrid);
   vtu->Write();

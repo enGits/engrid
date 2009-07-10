@@ -77,59 +77,6 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   setGeometry(m_qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
   restoreState(m_qset.value("dockWidget_states").toByteArray());
   
-  connect(ui.actionImportSTL,              SIGNAL(activated()),       this, SLOT(importSTL()));
-  connect(ui.actionImportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh1Ascii()));
-  connect(ui.actionImportGmsh2Ascii,       SIGNAL(activated()),       this, SLOT(importGmsh2Ascii()));
-  connect(ui.actionExportGmsh1Ascii,       SIGNAL(activated()),       this, SLOT(exportGmsh1Ascii()));
-  connect(ui.actionExportGmsh2Ascii,       SIGNAL(activated()),       this, SLOT(exportGmsh2Ascii()));
-  connect(ui.actionExportNeutral,          SIGNAL(activated()),       this, SLOT(exportNeutral()));
-  connect(ui.actionExportAsciiStl,         SIGNAL(activated()),       this, SLOT(exportAsciiStl()));
-  connect(ui.actionExportBinaryStl,        SIGNAL(activated()),       this, SLOT(exportBinaryStl()));
-  connect(ui.actionExit,                   SIGNAL(activated()),       this, SLOT(exit()));
-  connect(ui.actionZoomAll,                SIGNAL(activated()),       this, SLOT(zoomAll()));
-  connect(ui.actionZoomOnPickedObject,     SIGNAL(activated()),       this, SLOT(zoomOnPickedObject()));
-  connect(ui.actionPrintGrid,              SIGNAL(activated()),       this, SLOT(printGrid()));
-  connect(ui.actionShowInfo,               SIGNAL(activated()),       this, SLOT(info()));
-  connect(ui.actionDeselectAll,            SIGNAL(activated()),       this, SLOT(deselectAll()));
-  connect(ui.actionOpen,                   SIGNAL(activated()),       this, SLOT(open()));
-  connect(ui.actionSave,                   SIGNAL(activated()),       this, SLOT(save()));
-  connect(ui.actionSaveAs,                 SIGNAL(activated()),       this, SLOT(saveAs()));
-  connect(ui.actionBoundaryCodes,          SIGNAL(activated()),       this, SLOT(selectBoundaryCodes()));
-  connect(ui.actionNormalExtrusion,        SIGNAL(activated()),       this, SLOT(normalExtrusion()));
-  connect(ui.actionViewAxes,               SIGNAL(changed()),         this, SLOT(setAxesVisibility()));
-  connect(ui.actionViewOrthogonal,         SIGNAL(changed()),         this, SLOT(setViewingMode()));
-  connect(ui.actionViewNodeIDs,            SIGNAL(changed()),         this, SLOT(viewNodeIDs()));
-  connect(ui.actionViewCellIDs,            SIGNAL(changed()),         this, SLOT(viewCellIDs()));
-  connect(ui.actionChangeOrientation,      SIGNAL(activated()),       this, SLOT(changeSurfaceOrientation()));
-  connect(ui.actionCheckOrientation,       SIGNAL(activated()),       this, SLOT(checkSurfaceOrientation()));
-  connect(ui.actionImproveAspectRatio,     SIGNAL(activated()),       this, SLOT(improveAspectRatio()));
-  connect(ui.actionRedraw,                 SIGNAL(activated()),       this, SLOT(updateActors()));
-  connect(ui.actionForcedRedraw,           SIGNAL(activated()),       this, SLOT(forceUpdateActors()));
-  connect(ui.actionScaleToData,            SIGNAL(activated()),       this, SLOT(scaleToData()));
-  connect(ui.actionClearOutputWindow,      SIGNAL(activated()),       this, SLOT(clearOutput()));
-  connect(ui.actionEditBoundaryConditions, SIGNAL(activated()),       this, SLOT(editBoundaryConditions()));
-  connect(ui.actionConfigure,              SIGNAL(activated()),       this, SLOT(configure()));
-  connect(ui.actionAbout,                  SIGNAL(activated()),       this, SLOT(about()));
-  connect(ui.actionStoreGeometry,          SIGNAL(activated()),       this, SLOT(callUpdateSurfProj()));
-  
-  connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
-  
-  connect(ui.actionViewXP, SIGNAL(activated()), this, SLOT(viewXP()));
-  connect(ui.actionViewXM, SIGNAL(activated()), this, SLOT(viewXM()));
-  connect(ui.actionViewYP, SIGNAL(activated()), this, SLOT(viewYP()));
-  connect(ui.actionViewYM, SIGNAL(activated()), this, SLOT(viewYM()));
-  connect(ui.actionViewZP, SIGNAL(activated()), this, SLOT(viewZP()));
-  connect(ui.actionViewZM, SIGNAL(activated()), this, SLOT(viewZM()));
-
-  connect(ui.lineEditClipX, SIGNAL(textChanged(QString)), this, SLOT(setClipX(QString)));
-  connect(ui.lineEditClipY, SIGNAL(textChanged(QString)), this, SLOT(setClipY(QString)));
-  connect(ui.lineEditClipZ, SIGNAL(textChanged(QString)), this, SLOT(setClipZ(QString)));
-  connect(ui.lineEditClipNX, SIGNAL(textChanged(QString)), this, SLOT(setClipNX(QString)));
-  connect(ui.lineEditClipNY, SIGNAL(textChanged(QString)), this, SLOT(setClipNY(QString)));
-  connect(ui.lineEditClipNZ, SIGNAL(textChanged(QString)), this, SLOT(setClipNZ(QString)));
-
-  connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
-  
 # include "std_connections.h"
   
   if (m_qset.contains("working_directory")) {
@@ -170,7 +117,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   cout << "m_LogFileName=" << qPrintable(m_LogFileName) << endl;
 
   m_SystemStdout = stdout;
-  freopen (m_LogFileName.toAscii().data(), "w", stdout);
+  freopen (qPrintable(m_LogFileName), "w", stdout);
   
   m_Busy = false;
   
@@ -1086,7 +1033,7 @@ void GuiMainWindow::saveGrid(QString file_name)
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   addVtkTypeInfo();
   createIndices(grid);
-  vtu->SetFileName(file_name.toAscii().data());
+  vtu->SetFileName(qPrintable(file_name));
   vtu->SetDataModeToBinary();
   vtu->SetInput(grid);
   vtu->Write();
@@ -1392,7 +1339,7 @@ void GuiMainWindow::viewNodeIDs()
       m_NodeTextVectorText[i]=vtkVectorText::New();
       QString tmp;
       tmp.setNum(i);
-      m_NodeTextVectorText[i]->SetText(tmp.toLatin1().data());
+      m_NodeTextVectorText[i]->SetText(qPrintable(tmp));
       m_NodeTextPolyDataMapper[i]=vtkPolyDataMapper::New();
       m_NodeTextPolyDataMapper[i]->SetInputConnection(m_NodeTextVectorText[i]->GetOutputPort());
       m_NodeTextFollower[i]=vtkFollower::New();
@@ -1442,12 +1389,12 @@ void GuiMainWindow::viewCellIDs()
       if(ui.comboBox_CellTextField->currentIndex()==0) {
         tmp.setNum(id_cell);
       } else if (ui.comboBox_CellTextField->currentIndex()>0) {
-        EG_VTKDCC(vtkIntArray, current_cell_field, grid, ui.comboBox_CellTextField->currentText().toLatin1().data());
+        EG_VTKDCC(vtkIntArray, current_cell_field, grid, qPrintable(ui.comboBox_CellTextField->currentText()));
         tmp.setNum(current_cell_field->GetValue(id_cell));
       }
       else EG_BUG;
       
-      m_CellTextVectorText[id_cell]->SetText(tmp.toLatin1().data());
+      m_CellTextVectorText[id_cell]->SetText(qPrintable(tmp));
       m_CellTextPolyDataMapper[id_cell]=vtkPolyDataMapper::New();
       m_CellTextPolyDataMapper[id_cell]->SetInputConnection(m_CellTextVectorText[id_cell]->GetOutputPort());
       m_CellTextFollower[id_cell]=vtkFollower::New();
@@ -1831,7 +1778,7 @@ QString GuiMainWindow::getFilePath()
 void GuiMainWindow::markOutputLine()
 {
   cout << "\n****************************************\n";
-  cout << QTime::currentTime().toString("hh:mm:ss").toAscii().data();
+  cout << qPrintable(QTime::currentTime().toString("hh:mm:ss"));
   cout << "\n****************************************\n" << endl;
 }
 

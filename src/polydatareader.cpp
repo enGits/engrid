@@ -38,7 +38,7 @@ void PolyDataReader::operate()
     if (isValid()) {
       EG_VTKSP(vtkXMLPolyDataReader,vtp);
       EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter,pd2ug);
-      vtp->SetFileName(getFileName().toAscii().data());
+      vtp->SetFileName(qPrintable(getFileName()));
       pd2ug->SetInput(vtp->GetOutput());
       pd2ug->Update();
       grid->DeepCopy(pd2ug->GetOutput());

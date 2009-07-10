@@ -59,8 +59,9 @@ class GuiMainWindow;
 #include "checksurfaceintegrity.h"
 #include "surfaceprojection.h"
 #include "openfoamcase.h"
-#include "std_includes.h"
 #include "guitransform.h"
+#include "openfoamtools.h"
+#include "std_includes.h"
 
 /**
  * This is the main GUI class of enGrid.
@@ -158,7 +159,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
 
-    int m_SolverIndex;
+    int m_SolverIndex;// deprecated
+    OpenFOAMTools m_OpenFoamTools;
   
   private: // static attributes
 
@@ -344,8 +346,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void redo();
 
     void resetOperationCounter();
-
-    ///@@@  TODO: Simplify available save/load functions
 
     void openXml( QString file_name );     ///< Open the case from an XML file
     void saveXml( QString file_name );     ///< Save the case in an XML file

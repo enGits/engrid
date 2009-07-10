@@ -339,7 +339,7 @@ void SurfaceProjection::writeOctree(QString file_name)
     g->SetValue(i, m_G[i]);
   }
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName((GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtu").toAscii().data());
+  vtu->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtu"));
   vtu->SetDataModeToBinary();
   vtu->SetInput(otg);
   vtu->Write();

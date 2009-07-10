@@ -20,30 +20,54 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "vtkreader.h"
+#include "openfoamtools.h"
 
-#include <vtkUnstructuredGridReader.h>
+#include <QtDebug>
 
-VtkReader::VtkReader()
+OpenFOAMTools::OpenFOAMTools(QObject *parent)
+: QObject(parent)
 {
-  setFormat("legacy VTK files(*.vtk)");
-  setExtension(".vtk");
+  m_Process = new QProcess(this);
+  connect( m_Process, SIGNAL(readyReadStandardOutput()), this, SLOT(readFromStdout()));
 }
 
-void VtkReader::operate()
+OpenFOAMTools::~OpenFOAMTools()
 {
-  try {
-    readInputFileName();
-    if (isValid()) {
-      EG_VTKSP(vtkUnstructuredGridReader,vtk);
-      vtk->SetFileName(qPrintable(getFileName()));
-      vtk->Update();
-      grid->DeepCopy(vtk->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
-    }
-  } catch (Error err) {
-    err.display();
-  }
+  this->StopProcesses();
+}
+
+void OpenFOAMTools::RunSolver()
+{
+  qDebug()<<"RunSolver";
+  m_Process->setWorkingDirectory("/data1/home/mtaverne/Geometries/Testing/tube");
+  QString program = "cd  && ls";
+  QStringList arguments;
+//  arguments << "/data1/home/mtaverne/Geometries/Testing/tube"<<"/data1/home/mtaverne/tmp.txt";
+  m_Process->start(program, arguments);
+}
+
+void OpenFOAMTools::RunFoamToVTK()
+{
+  qDebug()<<"RunFoamToVTK";
+}
+
+void OpenFOAMTools::RunDecomposePar()
+{
+  qDebug()<<"RunDecomposePar";
+}
+
+void OpenFOAMTools::RunReconstructPar()
+{
+  qDebug()<<"RunReconstructPar";
+}
+
+void OpenFOAMTools::StopProcesses()
+{
+  qDebug()<<"StopProcesses";
+  m_Process->kill();
+}
+
+void OpenFOAMTools::readFromStdout()
+{
+  qDebug()<<m_Process->readAllStandardOutput();
 }

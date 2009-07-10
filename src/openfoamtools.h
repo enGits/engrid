@@ -20,30 +20,27 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "vtkreader.h"
+#ifndef OPENFOAMTOOLS_H
+#define OPENFOAMTOOLS_H
 
-#include <vtkUnstructuredGridReader.h>
+#include <QObject>
+#include <QProcess>
 
-VtkReader::VtkReader()
-{
-  setFormat("legacy VTK files(*.vtk)");
-  setExtension(".vtk");
-}
+class OpenFOAMTools : public QObject{
+  Q_OBJECT;
+private:
+  QProcess *m_Process;
+public:
+    OpenFOAMTools(QObject *parent = 0);
+    ~OpenFOAMTools();
 
-void VtkReader::operate()
-{
-  try {
-    readInputFileName();
-    if (isValid()) {
-      EG_VTKSP(vtkUnstructuredGridReader,vtk);
-      vtk->SetFileName(qPrintable(getFileName()));
-      vtk->Update();
-      grid->DeepCopy(vtk->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
-    }
-  } catch (Error err) {
-    err.display();
-  }
-}
+public slots:
+  void RunSolver();
+  void RunFoamToVTK();
+  void RunDecomposePar();
+  void RunReconstructPar();
+  void StopProcesses();
+  void readFromStdout();
+};
+
+#endif
