@@ -132,10 +132,6 @@ void GuiEditBoundaryConditions::setupSolvers()
         }
       }
     }
-    qDebug()<<"title="<<title;
-    qDebug()<<"section="<<section;
-    qDebug()<<"binary="<<binary;
-    qDebug()<<"files="<<files;
     
     m_SolverBinary.push_back(binary);
     MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);

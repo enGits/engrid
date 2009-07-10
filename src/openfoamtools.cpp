@@ -98,10 +98,6 @@ int OpenFOAMTools::getArguments()
       }
     }
   }
-  qDebug()<<"title="<<title;
-  qDebug()<<"section="<<section;
-  qDebug()<<"binary="<<binary;
-  qDebug()<<"files="<<files;
   
   m_SolverBinary = binary;
   

@@ -72,10 +72,6 @@ void OpenFOAMcase::writeSolverParameters()
       }
     }
   }
-  qDebug()<<"title="<<title;
-  qDebug()<<"section="<<section;
-  qDebug()<<"binary="<<binary;
-  qDebug()<<"files="<<files;
   
   for ( int i = 0; i < files.size(); i++ ) {
     FileTemplate file_template( ":/resources/solvers/" + section + "/" + files[i], section );
