@@ -75,7 +75,7 @@ void OpenFOAMcase::writeSolverParameters()
   qDebug()<<"files="<<files;
   
   for ( int i = 0; i < files.size(); i++ ) {
-    FileTemplate file_template( ":/resources/solvers/" + section + files[i], section );
+    FileTemplate file_template( ":/resources/solvers/" + section + "/" + files[i], section );
     QFileInfo fileinfo_destination(getFileName() + "/" + files[i]);
     QDir destination_dir = fileinfo_destination.dir();
     QString destination = destination_dir.absolutePath() + "/" + fileinfo_destination.completeBaseName();

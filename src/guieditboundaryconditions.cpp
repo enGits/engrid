@@ -125,7 +125,7 @@ void GuiEditBoundaryConditions::setupSolvers()
       if(name_value[0].trimmed()=="files") {
         QStringList file_list = name_value[1].split(",");
         foreach(QString file, file_list) {
-          files.push_back(":/resources/solvers/" + section + file.trimmed());
+          files.push_back(":/resources/solvers/" + section + "/" + file.trimmed());
         }
       }
     }
