@@ -23,15 +23,18 @@
 #ifndef OPENFOAMCASE_H
 #define OPENFOAMCASE_H
 
-#include "iooperation.h"
+#include "simplefoamwriter.h"
 #include "foamobject.h"
 
-class OpenFOAMcase : public IOOperation, public FoamObject
+class OpenFOAMcase : public SimpleFoamWriter, public FoamObject
 {
 
-protected:
+private: // attributes
+
+protected: // methods
 
   void writeSolverParameters();
+  void createBoundaryFaces();
   void rewriteBoundaryFaces();
 
 public:

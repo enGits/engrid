@@ -53,12 +53,12 @@ protected: // data types
   
 protected: // attributes
   
-  QString path;
-  QVector<face_t> faces;
-  QList<face_t> lfaces;
-  vtkIntArray *bc;
-  int Ncells;
-  QVector<int> eg2of;
+  QString         m_Path;
+  QVector<face_t> m_Faces;
+  QList<face_t>   m_LFaces;
+  vtkIntArray*    m_BC;
+  int             m_NumCells;
+  QVector<int>    m_Eg2Of;
   
 protected: // methods
   

@@ -31,7 +31,6 @@
 using namespace std;
 
 OpenFOAMcase::OpenFOAMcase()
-    : IOOperation()
 {
 }
 
@@ -88,6 +87,40 @@ void OpenFOAMcase::writeSolverParameters()
   }
 }
 
+void OpenFOAMcase::createBoundaryFaces()
+{
+  QVector<int> owner(grid->GetNumberOfCells());
+  {
+    readFile("constant/polyMesh/owner");
+    QTextStream f(getBuffer());
+    int num_faces;
+    f >> num_faces;
+    for (int i = 0; i < num_faces; ++i) {
+      int o;
+      f >> o;
+      if (i >= getFirstBoundaryFace()) {
+        owner[i = getFirstBoundaryFace()] = o;
+      }
+    }
+  }
+  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
+  m_Faces.resize(grid->GetNumberOfCells());
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    face_t F;
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    F.node.resize(N_pts);
+    for (int i = 0; i < N_pts; ++i) {
+      F.node[i] = surfToVol(pts[i]);
+    }
+    F.owner = owner[id_cell];
+    F.bc = bc->GetValue(id_cell);
+    F.neighbour = -1;
+    m_Faces[id_cell] = F;
+  }
+  qSort(m_Faces);
+}
+
 void OpenFOAMcase::rewriteBoundaryFaces()
 {
   setCaseDir(getFileName());
@@ -98,6 +131,9 @@ void OpenFOAMcase::rewriteBoundaryFaces()
     QTextStream f(getBuffer());
     int num_faces;
     f >> num_faces;
+    if (grid->GetNumberOfCells() + getFirstBoundaryFace() != num_faces) {
+      EG_ERR_RETURN("Current surface mesh does not match the OpenFOAM case.");
+    }
     for (int i = 0; i < getFirstBoundaryFace(); ++i) {
       int num_nodes;
       f >> num_nodes;
@@ -140,11 +176,60 @@ void OpenFOAMcase::rewriteBoundaryFaces()
         }
       }
     }
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    createBoundaryFaces();
+    foreach (face_t F, m_Faces) {
+      f << F.node.size() << "(";
+      for (int i = 0; i < F.node.size(); ++i) {
+        f << F.node[i];
+        if (i == F.node.size()-1) {
+          f << ")\n";
+        } else {
+          f << " ";
+        }
+      }
     }
     f << ")\n\n";
     f << "// ************************************************************************* //\n\n\n";
   }
+  {
+    readFile("constant/polyMesh/owner");
+    QTextStream f_in(getBuffer());
+    QString file_name = getFileName() + "/constant/polyMesh/owner";
+    QFile file(file_name);
+    file.open(QIODevice::WriteOnly);
+    QTextStream f_out(&file);
+    int num_faces;
+    f_in >> num_faces;
+    f_out << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
+    f_out << "| =========                 |                                                 |\n";
+    f_out << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
+    f_out << "|  \\    /   O peration     | Version:  1.5                                   |\n";
+    f_out << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
+    f_out << "|    \\/     M anipulation  |                                                 |\n";
+    f_out << "\\*---------------------------------------------------------------------------*/\n\n";
+    f_out << "FoamFile\n";
+    f_out << "{\n";
+    f_out << "    version     2.0;\n";
+    f_out << "    format      ascii;\n";
+    f_out << "    class       labelList;\n";
+    f_out << "    location    \"constant/polyMesh\";\n";
+    f_out << "    object      owner;\n";
+    f_out << "}\n\n";
+    f_out << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
+    f_out << num_faces << "\n(\n";
+    for (int i = 0; i < getFirstBoundaryFace(); ++i) {
+      int owner;
+      f_in >> owner;
+      f_out << owner << "\n";
+    }
+    foreach (face_t F, m_Faces) {
+      f_out << F.owner << "\n";
+    }
+    f_out << ")\n\n";
+    f_out << "// ************************************************************************* //\n\n\n";
+  }
+  m_Path = getFileName() + "/constant/polyMesh/";
+  writeBoundary();
 }
 
 void OpenFOAMcase::operate()
