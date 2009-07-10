@@ -68,6 +68,7 @@ QString GuiMainWindow::m_cwd = ".";
 QSettings GuiMainWindow::m_qset("enGits","enGrid");
 GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
+bool GuiMainWindow::m_UnSaved = true;
 
 GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
@@ -88,6 +89,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   resetOperationCounter();//clears undo/redo list and disables undo/redo
   m_CurrentFilename = "untitled.egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
+  setUnsaved(true);
   
   m_StatusBar = new QStatusBar(this);
   setStatusBar(m_StatusBar);
@@ -378,6 +380,11 @@ void GuiMainWindow::setCwd(QString dir)
 {
   m_cwd = dir;
   m_qset.setValue("working_directory",dir);
+}
+
+void GuiMainWindow::setUnsaved(bool unsaved)
+{
+  m_UnSaved = unsaved;
 }
 
 void GuiMainWindow::scaleToData()
@@ -1070,6 +1077,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   // update current filename
   if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
+  setUnsaved(false);
 }
 
 void GuiMainWindow::openXml(QString file_name)
@@ -1111,12 +1119,13 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename) {
   // update current filename
   if(update_current_filename) m_CurrentFilename = file_name;
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
+  setUnsaved(false);
   return(file_name);
 }
 
 void GuiMainWindow::save()
 {
-  if (m_CurrentFilename == "untitled.egc") {
+  if ( m_CurrentFilename == "untitled.egc" || m_UnSaved ) {
     saveAs();
   } else {
     saveAs(m_CurrentFilename);

@@ -48,6 +48,8 @@ void IOOperation::readInputFileName()
   filename = QFileDialog::getOpenFileName(NULL,"read file",GuiMainWindow::getCwd(),format_txt);
   if (!filename.isNull()) {
     GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
+    GuiMainWindow::setUnsaved(true);
+    GuiMainWindow::pointer()->setFilename(filename);
     valid = true;
   } else {
     valid = false;
@@ -86,6 +88,8 @@ void IOOperation::readInputDirectory(QString title_txt)
   filename = QFileDialog::getExistingDirectory(NULL, title_txt, GuiMainWindow::getCwd());
   if (!filename.isNull()) {
     GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
+    GuiMainWindow::setUnsaved(true);
+    GuiMainWindow::pointer()->setFilename(filename);
     valid = true;
   } else {
     valid = false;
