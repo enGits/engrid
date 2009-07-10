@@ -243,6 +243,7 @@ void GuiEditBoundaryConditions::updateVol()
   }
   QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
   foreach( VolumeDefinition V, vols ) {
+    m_VolMap[V.getName()] = V;
     int c = ui.T->columnCount();
     ui.T->insertColumn( c );
     ui.T->setHorizontalHeaderItem( c, new QTableWidgetItem( V.getName() ) );
@@ -257,29 +258,36 @@ void GuiEditBoundaryConditions::updateVol()
 
 void GuiEditBoundaryConditions::addVol()
 {
+  cout << "Adding volume" << endl;
   QString name = ui.lineEditVolume->text();
-  if ( !name.isEmpty() ) {
+  if ( !name.isEmpty() && !m_VolMap.contains( name ) ) {
     VolumeDefinition NV( name, ui.T->columnCount() - 2 );
-    QList<VolumeDefinition> vols;
-    QList<VolumeDefinition> new_vols;
-    vols = GuiMainWindow::pointer()->getAllVols();
-    foreach( VolumeDefinition V, vols ) {
-      if ( NV.getName() != V.getName() ) {
-        new_vols.push_back( V );
-      }
+    m_VolMap[NV.getName()] = NV;
+    int c = ui.T->columnCount();
+    ui.T->insertColumn( c );
+    ui.T->setHorizontalHeaderItem( c, new QTableWidgetItem( NV.getName() ) );
+    for ( int i = 0; i < ui.T->rowCount(); ++i ) {
+      int bc = ui.T->item( i, 0 )->text().toInt();
+      if ( NV.getSign( bc ) == 1 )  ui.T->setItem( i, c, new QTableWidgetItem( "green" ) );
+      else if ( NV.getSign( bc ) == -1 ) ui.T->setItem( i, c, new QTableWidgetItem( "yellow" ) );
+      else                          ui.T->setItem( i, c, new QTableWidgetItem( " " ) );
     }
-    new_vols.push_back( NV );
-    GuiMainWindow::pointer()->setAllVols( new_vols );
-    updateVol();
   }
 }
 
-///@@@ TODO: Fix bug of reloading all volumes when deleting volumes and then adding new ones
 void GuiEditBoundaryConditions::delVol()
 {
-  int c = ui.T->currentColumn();
-  if ( c > 2 ) {
-    ui.T->removeColumn( c );
+  cout << "Deleting volume" << endl;
+  int col = ui.T->currentColumn();
+  cout << "col=" << col << endl;
+  if ( col > 2 ) {
+    QString name = ui.T->horizontalHeaderItem(col)->text();
+    cout << "name=" << qPrintable(name) << endl;
+    m_VolMap.remove(name);
+    ui.T->removeColumn( col );
+  }
+  else {
+    cout << "Nothing to delete." << endl;
   }
 }
 
@@ -299,9 +307,9 @@ void GuiEditBoundaryConditions::operate()
     for ( int j = 3; j < ui.T->columnCount(); ++j ) {
       QString vol_name = ui.T->horizontalHeaderItem( j )->text();
       VolumeDefinition V = vols[j];
-      if ( ui.T->item( i, j )->text() == "green" )  V.addBC( bc,  1 );
+      if ( ui.T->item( i, j )->text() == "green" ) V.addBC( bc,  1 );
       else if ( ui.T->item( i, j )->text() == "yellow" ) V.addBC( bc, -1 );
-      else                                          V.addBC( bc,  0 );
+      else V.addBC( bc,  0 );
       vols[j] = V;
     }
   }
