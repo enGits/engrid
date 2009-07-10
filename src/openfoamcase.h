@@ -30,6 +30,7 @@ class OpenFOAMcase : public IOOperation
   public:
     OpenFOAMcase();
     virtual void operate();
+    void writeSolverParameters();
 };
 
 #endif

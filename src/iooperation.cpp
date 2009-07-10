@@ -30,8 +30,8 @@ IOOperation::IOOperation()
   EG_TYPENAME;
   setResetOperationCounter(true);
   setQuickSave(true);
+  filename = "";
 }
-
 
 void IOOperation::setFormat(QString format)
 {

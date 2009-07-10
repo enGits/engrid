@@ -35,16 +35,8 @@ OpenFOAMcase::OpenFOAMcase()
 {
 }
 
-void OpenFOAMcase::operate()
+void OpenFOAMcase::writeSolverParameters()
 {
-  try {
-    readOutputDirectory();
-    if (isValid()) {
-    }
-  } catch (Error err) {
-    err.display();
-  }
-  
   int idx = GuiMainWindow::pointer()->getSolverIndex();
   
   QFileInfo solvers_fileinfo;
@@ -86,7 +78,19 @@ void OpenFOAMcase::operate()
   for ( int i = 0; i < files.size(); i++ ) {
     QFileInfo file_info( files[i] );
     FileTemplate file_template( files[i], section );
-    file_template.exportToOpenFOAM( "openfoam.txt" );
+    QFileInfo fileinfo_destination(files[i]);
+    file_template.exportToOpenFOAM( getFileName() + "/" + "openfoam.txt" );
   }
+}
 
+void OpenFOAMcase::operate()
+{
+  try {
+    if(getFileName()=="") readOutputDirectory();
+    if (isValid()) {
+      writeSolverParameters();
+    }
+  } catch (Error err) {
+    err.display();
+  }
 }
