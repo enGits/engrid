@@ -30,9 +30,14 @@
         <file>resources/kde_icons/viewmagfit.png</file>
     </qresource>
     <qresource>
-        <file>resources/openfoam/simpleFoam/system/fvSchemes.template</file>
-        <file>resources/openfoam/simpleFoam/system/fvSchemes2.template</file>
-        <file>resources/openfoam/rhoSimpleFoam/system/fvSchemes.template</file>
-        <file>resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template</file>
+        <file>resources/solvers/solvers.txt</file>
+    </qresource>
+    <qresource>
+        <file>resources/solvers/openfoam/simpleFoam/system/fvSchemes.template</file>
+        <file>resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template</file>
+    </qresource>
+    <qresource>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template</file>
     </qresource>
 </RCC>

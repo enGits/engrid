@@ -98,12 +98,12 @@ int FileTemplate::open( QString filename, QString section )
   m_FileInfo.setFile( filename );
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
-    qDebug() << "ERROR: " << m_FileInfo.filePath() << " not found.";
+    qWarning() << "ERROR: " << m_FileInfo.filePath() << " not found.";
     EG_BUG;
     return( -1 );
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    qDebug() << "ERROR: Failed to open file.";
+    qWarning() << "ERROR:  Failed to open file " << m_FileInfo.filePath();
     EG_BUG;
     return( -1 );
   }

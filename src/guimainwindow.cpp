@@ -209,6 +209,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   // initialise XML document
   QDomElement root = m_XmlDoc.createElement("engridcase");
   m_XmlDoc.appendChild(root);
+  
+  m_SolverIndex = 0;
 }
 
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)

@@ -1,0 +1,16 @@
+<openfoam>
+  <simplefoam>
+    <standard>
+      system/fvSchemes.template;
+      system/fvSchemes2.template;
+    </standard>
+    <non-standard>
+      system/fvSchemes.template;
+      system/fvSchemes2.template;
+    </non-standard>
+  </simplefoam>
+  <rhoSimpleFoam>
+    system/fvSchemes.template;
+    system/fvSchemes2.template;
+  </rhoSimpleFoam>
+</openfoam>

@@ -134,7 +134,10 @@ HEADERS = boundarycondition.h \
     multipagewidget.h \
     tricoord.h \
     updatesurfproj.h \
-    foamobject.h
+    foamobject.h \
+    multipagewidgetpage.h \
+    xmlhandler.h
+
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -221,7 +224,10 @@ SOURCES = main.cpp \
     multipagewidget.cpp \
     tricoord.cpp \
     updatesurfproj.cpp \
-    foamobject.cpp
+    foamobject.cpp \
+    multipagewidgetpage.cpp \
+    xmlhandler.cpp
+
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \

@@ -27,42 +27,17 @@
 #include "volumedefinition.h"
 #include "filetemplate.h"
 #include "physicalboundaryconditions.h"
+#include "multipagewidget.h"
+#include "multipagewidgetpage.h"
 
-void GuiEditBoundaryConditions::setupSolvers()
-{
-  // simpleFoam
-  QVector <QString> files_simpleFoam;
-  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  files_simpleFoam.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
-  for(int i = 0; i < files_simpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_simpleFoam = new TemplateFormLayout(files_simpleFoam[i], (char*)"openfoam/simplefoam/standard/");
-    ui.verticalLayout_simpleFoam->addLayout( template_form_layout_simpleFoam );
-    m_template_form_layout_simpleFoam_vector.push_back(template_form_layout_simpleFoam);
-  }
-  ui.multipagewidget_Solver->setPageTitle("simpleFoam",0);
-  
-  // rhoSimpleFoam
-  QVector <QString> files_rhoSimpleFoam;
-  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes.template" );
-  files_rhoSimpleFoam.push_back( ":/resources/openfoam/rhoSimpleFoam/system/fvSchemes2.template" );
-  for(int i = 0; i < files_rhoSimpleFoam.size(); i++) {
-    TemplateFormLayout* template_form_layout_rhoSimpleFoam = new TemplateFormLayout(files_rhoSimpleFoam[i], (char*)"openfoam/rhoSimplefoam/standard/");
-    ui.verticalLayout_rhoSimpleFoam->addLayout( template_form_layout_rhoSimpleFoam );
-    m_template_form_layout_rhoSimpleFoam_vector.push_back(template_form_layout_rhoSimpleFoam);
-  }
-  ui.multipagewidget_Solver->setPageTitle("rhoSimpleFoam",1);
-  
-  // rhoCentralFoam
-  QWidget *page = new QWidget(ui.multipagewidget_Solver);
-  ui.multipagewidget_Solver->addPage(page);
-  
-}
+#include <QVBoxLayout>
+#include <QFileInfo>
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
   setupSolvers();
   
-  bcmap = NULL;
+  m_BcMap = NULL;
   delegate = new GuiVolumeDelegate();
   delegate->setFirstCol(3);
   
@@ -77,11 +52,11 @@ GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
 
 void GuiEditBoundaryConditions::before()
 {
-  if (!bcmap) EG_BUG;
+  if (!m_BcMap) EG_BUG;
   resetOrientation(grid);
   while (ui.T->rowCount()) ui.T->removeRow(0);
   foreach (int i, boundary_codes) {
-    BoundaryCondition bc = (*bcmap)[i];
+    BoundaryCondition bc = (*m_BcMap)[i];
     ui.T->insertRow(ui.T->rowCount());
     int r = ui.T->rowCount()-1;
     ui.T->setItem(r,0,new QTableWidgetItem());
@@ -112,6 +87,67 @@ void GuiEditBoundaryConditions::before()
   connect(ui.listWidget_BoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
   
   ui.T->setItemDelegate(delegate);
+}
+
+void GuiEditBoundaryConditions::setupSolvers()
+{
+  m_multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
+  m_multipagewidget_Solver->setObjectName(QString::fromUtf8("m_multipagewidget_Solver"));
+  ui.verticalLayout_Solver->addWidget(m_multipagewidget_Solver);
+  
+  QFileInfo fileinfo;
+  fileinfo.setFile( ":/resources/solvers/solvers.txt" );
+  QFile file( fileinfo.filePath() );
+  if ( !file.exists() ) {
+    qDebug() << "ERROR: " << fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+    qDebug() << "ERROR:  Failed to open file " << fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream( &file );
+  QString intext = text_stream.readAll();
+  file.close();
+  
+  int idx = 0;
+  QStringList page_list = intext.split("=");
+  foreach(QString page, page_list) {
+    QString title;
+    QString section;
+    QVector <QString> files;
+    QStringList variable_list = page.split(";");
+    foreach(QString variable, variable_list) {
+      QStringList name_value = variable.split(":");
+      if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
+      if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
+      if(name_value[0].trimmed()=="files") {
+        QStringList file_list = name_value[1].split(",");
+        foreach(QString file, file_list) {
+          files.push_back(":/" + file.trimmed());
+        }
+      }
+    }
+    qDebug()<<"title="<<title;
+    qDebug()<<"section="<<section;
+    qDebug()<<"files="<<files;
+    MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
+    m_page_vector.push_back(page);
+    m_multipagewidget_Solver->addPage( (QWidget*)page );
+    m_multipagewidget_Solver->setPageTitle(title, idx);
+    idx++;
+  }
+  
+  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getSolverIndex());
+}
+
+void GuiEditBoundaryConditions::saveSolverParanmeters()
+{
+  //Save solver parameters
+  for(int i = 0; i < m_page_vector.size(); i++) {
+    m_page_vector[i]->saveEgc();
+  }
+  GuiMainWindow::pointer()->setSolverIndex(m_multipagewidget_Solver->currentIndex());
 }
 
 void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
@@ -251,7 +287,7 @@ void GuiEditBoundaryConditions::operate()
   for (int i = 0; i < ui.T->rowCount(); ++i) {
     int bc = ui.T->item(i,0)->text().toInt();
     BoundaryCondition BC(ui.T->item(i,1)->text(),ui.T->item(i,2)->text());
-    (*bcmap)[bc] = BC;
+    (*m_BcMap)[bc] = BC;
     for (int j = 3; j < ui.T->columnCount(); ++j) {
       QString vol_name = ui.T->horizontalHeaderItem(j)->text();
       VolumeDefinition V = vols[j];
@@ -270,11 +306,5 @@ void GuiEditBoundaryConditions::operate()
   // PhysicalBoundaryConditions
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
   
-  //Save solver parameters
-  for(int i = 0; i < m_template_form_layout_simpleFoam_vector.size(); i++) {
-    m_template_form_layout_simpleFoam_vector[i]->saveEgc();
-  }
-  for(int i = 0; i < m_template_form_layout_rhoSimpleFoam_vector.size(); i++) {
-    m_template_form_layout_rhoSimpleFoam_vector[i]->saveEgc();
-  }
+  saveSolverParanmeters();
 }

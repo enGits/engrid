@@ -37,38 +37,55 @@ OpenFOAMcase::OpenFOAMcase()
 
 void OpenFOAMcase::operate()
 {
-  cout << "OpenFOAMcase::operate()" << endl;
+  try {
+    readOutputDirectory();
+    if (isValid()) {
+    }
+  } catch (Error err) {
+    err.display();
+  }
+  
+  int idx = GuiMainWindow::pointer()->getSolverIndex();
+  
+  QFileInfo solvers_fileinfo;
+  solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
+  QFile file( solvers_fileinfo.filePath() );
+  if ( !file.exists() ) {
+    qDebug() << "ERROR: " << solvers_fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+    qDebug() << "ERROR:  Failed to open file " << solvers_fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream( &file );
+  QString intext = text_stream.readAll();
+  file.close();
+  
+  QStringList page_list = intext.split("=");
+  QString page = page_list[idx];
+  QString title;
+  QString section;
   QVector <QString> files;
-  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes.template" );
-  files.push_back( ":/resources/openfoam/simpleFoam/system/fvSchemes2.template" );
-
-  /*  for(int i = 0; i<files.size(); i++) {
-      QFileInfo file_info(files[i]);
-      FileTemplate file_template(files[i]);
-      QString section = "openfoam/simplefoam/standard/"+file_info.completeBaseName();
-      QString openfoam_string = GuiMainWindow::pointer()->getXmlSection(section);
-      qDebug()<<"=======";
-      qDebug()<<openfoam_string;
-      qDebug()<<"=======";
-      if(openfoam_string == "") {
-        QString contents = file_template.getContents();
-        GuiMainWindow::pointer()->setXmlSection(section, contents);
+  QStringList variable_list = page.split(";");
+  foreach(QString variable, variable_list) {
+    QStringList name_value = variable.split(":");
+    if(name_value[0].trimmed()=="title") title = name_value[1].trimmed();
+    if(name_value[0].trimmed()=="section") section = name_value[1].trimmed();
+    if(name_value[0].trimmed()=="files") {
+      QStringList file_list = name_value[1].split(",");
+      foreach(QString file, file_list) {
+        files.push_back(":/" + file.trimmed());
       }
-      else {
-        file_template.setContents(openfoam_string);
-        qDebug()<<"=== file_template.print(); START ===";
-        file_template.print();
-        qDebug()<<"=== file_template.print(); END ===";
-      }
-    }*/
-
-  TemplateDialog super_gui( files, "openfoam/simplefoam/standard/" );
-  super_gui.exec();
-  qDebug() << "GUI DONE";
-
+    }
+  }
+  qDebug()<<"title="<<title;
+  qDebug()<<"section="<<section;
+  qDebug()<<"files="<<files;
+  
   for ( int i = 0; i < files.size(); i++ ) {
     QFileInfo file_info( files[i] );
-    FileTemplate file_template( files[i], "openfoam/simplefoam/standard/" );
+    FileTemplate file_template( files[i], section );
     file_template.exportToOpenFOAM( "openfoam.txt" );
   }
 

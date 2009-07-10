@@ -158,6 +158,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
 
+    int m_SolverIndex;
+  
   private: // static attributes
 
     /**
@@ -251,6 +253,10 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     /// Returns the path to the currently loaded file
     QString getFilePath();
 
+    /// Returns the index of the solver to use. The index corresponds to the position in solvers.txt .
+    void setSolverIndex(int x) {m_SolverIndex = x;}
+    int getSolverIndex() {return m_SolverIndex;}
+  
   public: // static methods
 
     /**
@@ -420,8 +426,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
     void callSimpleFoamWriter() { EG_STDINTERSLOT( SimpleFoamWriter ); }
+    void callFoamCaseWriter()   { EG_STDINTERSLOT( OpenFOAMcase ); }
     void callCgnsWriter()       { EG_STDINTERSLOT( CgnsWriter ); }
-    void callOpenFOAMcase()     { EG_STDINTERSLOT( OpenFOAMcase ); }
     void callVtkReader()        { EG_STDREADERSLOT( VtkReader ); }
     void callPolyDataReader()   { EG_STDREADERSLOT( PolyDataReader ); }
 
