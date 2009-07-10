@@ -36,6 +36,7 @@
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
   setupSolvers();
+  loadMpiParameters();
   
   m_BcMap = NULL;
   delegate = new GuiVolumeDelegate();
@@ -309,4 +310,17 @@ void GuiEditBoundaryConditions::operate()
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
   
   saveSolverParameters();
+  saveMpiParameters();
+}
+
+void GuiEditBoundaryConditions::saveMpiParameters()
+{
+  GuiMainWindow::pointer()->setXmlSection("solver/general/hostfile", ui.plainTextEdit_HostFile->toPlainText());
+  ui.spinBox_NumProcesses;
+}
+
+void GuiEditBoundaryConditions::loadMpiParameters()
+{
+  ui.plainTextEdit_HostFile->setPlainText(GuiMainWindow::pointer()->getXmlSection("solver/general/hostfile"));
+  ui.spinBox_NumProcesses;
 }
