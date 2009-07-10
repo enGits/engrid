@@ -1,11 +1,9 @@
 title : standard simplefoam;
-section : openfoam/simpleFoam/;
+section : openfoam/simpleFoam/standard/;
 files :
-  system/fvSchemes.template,
-  system/fvSchemes2.template;
-=
-title : rhoSimpleFoam;
-section : openfoam/rhoSimpleFoam/;
-files :
-  system/fvSchemes.template,
-  system/fvSchemes2.template;
+  system/controlDict,
+  constant/transportProperties,
+  constant/RASProperties,
+  system/fvSchemes,
+  system/fvSolution;
+
