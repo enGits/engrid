@@ -86,12 +86,12 @@ void SimpleFoamWriter::addFace(face_t F)
   if (isVolume(F.neighbour,grid)) {
     if (F.neighbour > F.owner) {
       F.bc = 0;
-      lfaces.append(F);
+      m_LFaces.append(F);
     }
   } else {
-    F.bc = bc->GetValue(F.neighbour);
+    F.bc = m_BC->GetValue(F.neighbour);
     F.neighbour = -1;
-    lfaces.append(F);
+    m_LFaces.append(F);
   }
 }
 
@@ -99,10 +99,10 @@ void SimpleFoamWriter::createFaces()
 {
   l2g_t cells = getPartCells();
 
-  lfaces.clear();
+  m_LFaces.clear();
   EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
-  bc = cell_code;
-  eg2of.fill(-1,cells.size());
+  m_BC = cell_code;
+  m_Eg2Of.fill(-1,cells.size());
   int Nvol = 0;
   foreach(int i_cells, cells) {
     vtkIdType *pts;
@@ -114,7 +114,7 @@ void SimpleFoamWriter::createFaces()
     // tetras
     //
     if (type_cell == VTK_TETRA) {
-      eg2of[id_cell] = Nvol++;
+      m_Eg2Of[id_cell] = Nvol++;
       {      
         face_t F(3,id_cell,getNeigh(i_cells,0));
         F.node[0] = pts[2]; F.node[1] = pts[1]; F.node[2] = pts[0];
@@ -140,7 +140,7 @@ void SimpleFoamWriter::createFaces()
     // prisms
     //
     if (type_cell == VTK_WEDGE) {
-      eg2of[id_cell] = Nvol++;
+      m_Eg2Of[id_cell] = Nvol++;
       {
         face_t F(3,id_cell,getNeigh(i_cells,0));
         F.node[0] = pts[0]; F.node[1] = pts[1]; F.node[2] = pts[2];
@@ -171,7 +171,7 @@ void SimpleFoamWriter::createFaces()
     // hexes
     //
     if (type_cell == VTK_HEXAHEDRON) {
-      eg2of[id_cell] = Nvol++;
+      m_Eg2Of[id_cell] = Nvol++;
       {
         face_t F(4,id_cell,getNeigh(i_cells,0),0);
         F.node[0] = pts[3]; F.node[1] = pts[2]; F.node[2] = pts[1]; F.node[3] = pts[0];
@@ -205,9 +205,9 @@ void SimpleFoamWriter::createFaces()
     }
   }
   
-  faces.resize(lfaces.size());
-  qCopy(lfaces.begin(),lfaces.end(),faces.begin());
-  qSort(faces);
+  m_Faces.resize(m_LFaces.size());
+  qCopy(m_LFaces.begin(), m_LFaces.end(), m_Faces.begin());
+  qSort(m_Faces);
   
 }
 
@@ -216,7 +216,7 @@ void SimpleFoamWriter::writePoints()
 {
   l2g_t nodes = getPartNodes();
 
-  QString filename = path + "points";
+  QString filename = m_Path + "points";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -250,7 +250,7 @@ void SimpleFoamWriter::writePoints()
 
 void SimpleFoamWriter::writeFaces()
 {
-  QString filename = path + "faces";
+  QString filename = m_Path + "faces";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -270,8 +270,8 @@ void SimpleFoamWriter::writeFaces()
   f << "    object      faces;\n";
   f << "}\n\n";
   f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-  f << faces.size() << "\n(\n";
-  foreach (face_t F, faces) {
+  f << m_Faces.size() << "\n(\n";
+  foreach (face_t F, m_Faces) {
     f << F.node.size() << "(";
     for (int i = 0; i < F.node.size(); ++i) {
       f << F.node[i];
@@ -288,7 +288,7 @@ void SimpleFoamWriter::writeFaces()
 
 void SimpleFoamWriter::writeOwner()
 {
-  QString filename = path + "owner";
+  QString filename = m_Path + "owner";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -308,9 +308,9 @@ void SimpleFoamWriter::writeOwner()
   f << "    object      owner;\n";
   f << "}\n\n";
   f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-  f << faces.size() << "\n(\n";
-  foreach (face_t F, faces) {
-    f << eg2of[F.owner] << "\n";
+  f << m_Faces.size() << "\n(\n";
+  foreach (face_t F, m_Faces) {
+    f << m_Eg2Of[F.owner] << "\n";
   }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
@@ -318,7 +318,7 @@ void SimpleFoamWriter::writeOwner()
 
 void SimpleFoamWriter::writeNeighbour()
 {
-  QString filename = path + "neighbour";
+  QString filename = m_Path + "neighbour";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -338,12 +338,12 @@ void SimpleFoamWriter::writeNeighbour()
   f << "    object      neighbour;\n";
   f << "}\n\n";
   f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-  f << faces.size() << "\n(\n";
-  foreach (face_t F, faces) {
+  f << m_Faces.size() << "\n(\n";
+  foreach (face_t F, m_Faces) {
     if (F.neighbour == -1) {
       f << "-1\n";
     } else {
-      f << eg2of[F.neighbour] << "\n";
+      f << m_Eg2Of[F.neighbour] << "\n";
     }
   }
   f << ")\n\n";
@@ -352,7 +352,7 @@ void SimpleFoamWriter::writeNeighbour()
 
 void SimpleFoamWriter::writeBoundary()
 {
-  QString filename = path + "boundary";
+  QString filename = m_Path + "boundary";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -373,7 +373,7 @@ void SimpleFoamWriter::writeBoundary()
   f << "}\n\n";
   f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
   QSet<int> bcs;
-  foreach (face_t F, faces) {
+  foreach (face_t F, m_Faces) {
     if (F.bc != 0) {
       bcs.insert(F.bc);
     }
@@ -384,8 +384,8 @@ void SimpleFoamWriter::writeBoundary()
   foreach (int bc, bcs) {
     int nFaces = 0;
     int startFace = -1;
-    for (int i = 0; i < faces.size(); ++i) {
-      if (faces[i].bc == bc) {
+    for (int i = 0; i < m_Faces.size(); ++i) {
+      if (m_Faces[i].bc == bc) {
         ++nFaces;
         if (startFace == -1) {
           startFace = i;
@@ -439,8 +439,8 @@ void SimpleFoamWriter::operate()
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
       }
-      path = getFileName() + "/constant/polyMesh/";
-      if (!QDir(path).exists()) {
+      m_Path = getFileName() + "/constant/polyMesh/";
+      if (!QDir(m_Path).exists()) {
         EG_BUG;
       }
       createFaces();
