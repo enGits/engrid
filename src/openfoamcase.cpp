@@ -84,12 +84,74 @@ void OpenFOAMcase::writeSolverParameters()
   }
 }
 
+void OpenFOAMcase::rewriteBoundaryFaces()
+{
+  setCaseDir(getFileName());
+  buildMaps();
+  QVector<QVector<int> > faces(getFirstBoundaryFace());
+  {
+    readFile("constant/polyMesh/faces");
+    QTextStream f(getBuffer());
+    int num_faces;
+    f >> num_faces;
+    for (int i = 0; i < getFirstBoundaryFace(); ++i) {
+      int num_nodes;
+      f >> num_nodes;
+      faces[i].resize(num_nodes);
+      for (int j = 0; j < num_nodes; ++j) {
+        f >> faces[i][j];
+      }
+    }
+  }
+  {
+    QString file_name = getFileName() + "/constant/polyMesh/faces";
+    QFile file(file_name);
+    file.open(QIODevice::WriteOnly);
+    QTextStream f(&file);
+    f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
+    f << "| =========                 |                                                 |\n";
+    f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
+    f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
+    f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
+    f << "|    \\/     M anipulation  |                                                 |\n";
+    f << "\\*---------------------------------------------------------------------------*/\n\n";
+    f << "FoamFile\n";
+    f << "{\n";
+    f << "    version     2.0;\n";
+    f << "    format      ascii;\n";
+    f << "    class       faceList;\n";
+    f << "    location    \"constant/polyMesh\";\n";
+    f << "    object      faces;\n";
+    f << "}\n\n";
+    f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
+    f << faces.size() + grid->GetNumberOfCells() << "\n(\n";
+    for (int i = 0; i < faces.size(); ++i) {
+      f << faces[i].size() << "(";
+      for (int j = 0; j < faces[i].size(); ++j) {
+        f << faces[i][j];
+        if (j == faces[i].size() - 1) {
+          f << ")\n";
+        } else {
+          f << " ";
+        }
+      }
+    }
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    }
+    f << ")\n\n";
+    f << "// ************************************************************************* //\n\n\n";
+  }
+}
+
 void OpenFOAMcase::operate()
 {
   try {
-    if(getFileName()=="") readOutputDirectory();
+    if (getFileName() == "") {
+      readOutputDirectory();
+    }
     if (isValid()) {
-      writeSolverParameters();
+      //writeSolverParameters();
+      rewriteBoundaryFaces();
     }
   } catch (Error err) {
     err.display();

@@ -24,13 +24,22 @@
 #define OPENFOAMCASE_H
 
 #include "iooperation.h"
+#include "foamobject.h"
 
-class OpenFOAMcase : public IOOperation
+class OpenFOAMcase : public IOOperation, public FoamObject
 {
-  public:
-    OpenFOAMcase();
-    virtual void operate();
-    void writeSolverParameters();
+
+protected:
+
+  void writeSolverParameters();
+  void rewriteBoundaryFaces();
+
+public:
+
+  OpenFOAMcase();
+
+  virtual void operate();
+
 };
 
 #endif
