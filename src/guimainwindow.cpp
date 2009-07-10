@@ -1136,6 +1136,8 @@ void GuiMainWindow::saveAs()
 {
   QFileDialog dialog(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
   dialog.selectFile(m_CurrentFilename);
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
     QString file_name = selected_files[0];

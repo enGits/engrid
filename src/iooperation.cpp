@@ -67,6 +67,8 @@ void IOOperation::readOutputFileName()
 {
   QFileDialog dialog(NULL,"write file",GuiMainWindow::getCwd(),m_format_txt);
   dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
     m_filename = selected_files[0];
