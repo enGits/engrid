@@ -42,6 +42,7 @@ void GuiCreateBoundaryLayer::before()
   populateVolumes(ui.listWidgetVC);
 }
 
+///@@@ TODO: Fix "stop meshing since boundary mesh is overlapping" error here somewhere
 void GuiCreateBoundaryLayer::operate()
 {
   getSelectedItems(ui.listWidgetBC, boundary_codes);
@@ -108,6 +109,8 @@ void GuiCreateBoundaryLayer::operate()
   
   cout << "preparing prismatic layer" << endl;
   
+  GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"pre-GridSmoother.egc", false);
+  
   GridSmoother smooth;
   smooth.setGrid(grid);
   smooth.setBoundaryCodes(boundary_codes);
@@ -115,6 +118,8 @@ void GuiCreateBoundaryLayer::operate()
   //smooth.setNumIterations(5);
   
   SeedSimplePrismaticLayer seed_layer; 
+  
+  GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"pre-CreateVolumeMesh.egc", false);
   
   CreateVolumeMesh vol;
   vol.setGrid(grid);

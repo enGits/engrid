@@ -1,16 +1,46 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="3" >
+ <DocsAndViews NumberOfDocuments="13" >
   <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-   <View0 Encoding="" line="238" Type="Source" />
+   <View0 Encoding="" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guieditboundaryconditions.h" >
-   <View0 Encoding="" line="65" Type="Source" />
+   <View0 Encoding="" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/insertpoints.cpp" >
-   <View0 Encoding="" line="332" Type="Source" />
+   <View0 Encoding="" line="328" Type="Source" />
   </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/iooperation.cpp" >
+   <View0 Encoding="" line="72" Type="Source" />
+  </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" line="1139" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/meshpartition.h" >
+   <View0 Encoding="" line="138" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/std_connections.h" >
+   <View0 Encoding="" line="79" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
+   <View0 Encoding="" line="247" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guicreateboundarylayer.cpp" >
+   <View0 Encoding="" line="147" Type="Source" />
+  </Doc8>
+  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/createvolumemesh.cpp" >
+   <View0 Encoding="" line="511" Type="Source" />
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guitransform.h" >
+   <View0 Encoding="" line="49" Type="Source" />
+  </Doc10>
+  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guitransform.cpp" >
+   <View0 Encoding="" line="115" Type="Source" />
+  </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/seedsimpleprismaticlayer.cpp" >
+   <View0 Encoding="" line="268" Type="Source" />
+  </Doc12>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -27,17 +57,17 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
-     <mark line="66" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
      <mark line="94" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-     <mark line="171" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
+     <mark line="66" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
      <mark line="408" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
+     <mark line="171" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
@@ -48,18 +78,18 @@
      <mark line="1029" />
      <mark line="78" />
      <mark line="217" />
-     <mark line="1169" />
+     <mark line="1171" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
      <mark line="81" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
      <mark line="241" />
      <mark line="174" />
      <mark line="390" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
      <mark line="61" />
