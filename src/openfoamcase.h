@@ -29,19 +29,19 @@
 class OpenFOAMcase : public SimpleFoamWriter, public FoamObject
 {
 
-private: // attributes
+  private: // attributes
 
-protected: // methods
+  protected: // methods
 
-  void writeSolverParameters();
-  void createBoundaryFaces();
-  void rewriteBoundaryFaces();
+    void writeSolverParameters();
+    void createBoundaryFaces();
+    void rewriteBoundaryFaces();
 
-public:
+  public:
 
-  OpenFOAMcase();
+    OpenFOAMcase();
 
-  virtual void operate();
+    virtual void operate();
 
 };
 

@@ -35,12 +35,12 @@ IOOperation::IOOperation()
 
 void IOOperation::setFormat(QString format)
 {
-  format_txt = format;  
+  format_txt = format;
 }
 
 void IOOperation::setExtension(QString extension)
 {
-  extension_txt = extension;  
+  extension_txt = extension;
 }
 
 void IOOperation::readInputFileName()
@@ -106,5 +106,3 @@ QString IOOperation::getFileName()
 {
   return filename;
 }
-
-

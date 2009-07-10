@@ -179,7 +179,7 @@ int FileTemplate::process()
     template_line.m_Position = i;
     m_Lines.push_back( template_line );
   }
-  qWarning()<<"m_Lines.size()="<<m_Lines.size();
+  qWarning() << "m_Lines.size()=" << m_Lines.size();
   return( 0 );
 }
 
@@ -205,19 +205,19 @@ QString FileTemplate::getContents()
 
 void FileTemplate::setContents( QString contents )
 {
-  qWarning()<<"contents="<<contents;
+  qWarning() << "contents=" << contents;
   QStringList L = contents.split( ";" );
-  qWarning()<<"L="<<L;
-  qWarning()<<"L.size()="<<L.size();
+  qWarning() << "L=" << L;
+  qWarning() << "L.size()=" << L.size();
   for ( int i = 0; i < L.size() - 1; i++ ) {
     QStringList L_pair = L[i].split( "=" );
-    qWarning()<<"L_pair="<<L_pair;
-    qWarning()<<"L_pair.size()="<<L_pair.size();
-    qWarning()<<"L_pair[0]="<<L_pair[0];
-    qWarning()<<"L_pair[1]="<<L_pair[1];
-    qWarning()<<"m_Lines.size()="<<m_Lines.size();
-    if(i<m_Lines.size() && L_pair.size()>=2) m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
-    else qDebug()<<"Warning: Your case file may be incompatible with the current file template.";
+    qWarning() << "L_pair=" << L_pair;
+    qWarning() << "L_pair.size()=" << L_pair.size();
+    qWarning() << "L_pair[0]=" << L_pair[0];
+    qWarning() << "L_pair[1]=" << L_pair[1];
+    qWarning() << "m_Lines.size()=" << m_Lines.size();
+    if ( i < m_Lines.size() && L_pair.size() >= 2 ) m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
+    else qDebug() << "Warning: Your case file may be incompatible with the current file template.";
   }
 }
 //=======================================
@@ -268,10 +268,10 @@ TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString sect
     FileTemplate file_template( filename[filename_index], section );
 
     QFileInfo file_info( filename[filename_index] );
-    qWarning()<<"section="<<section;
-    qWarning()<<"filename[filename_index]="<<filename[filename_index];
-    qWarning()<<"section + \"/\" + file_info.completeBaseName()="<<section + "/" + file_info.completeBaseName();
-    
+    qWarning() << "section=" << section;
+    qWarning() << "filename[filename_index]=" << filename[filename_index];
+    qWarning() << "section + \"/\" + file_info.completeBaseName()=" << section + "/" + file_info.completeBaseName();
+
     QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section + "/" + file_info.completeBaseName() );
     file_template.setContents( openfoam_string );
 

@@ -26,41 +26,42 @@
 #include <QObject>
 #include <QProcess>
 
-class OpenFOAMTools : public QObject{
-  Q_OBJECT;
-  
-private:
-  QProcess *m_Process;
-  QString m_SolverBinary;
-  QString m_WorkingDirectory;
-  QString m_NumProcesses;
-  QString m_HostFile;
-  
-private:
-  QString m_Program;
-  QStringList m_Arguments;
-  
-public:
-    OpenFOAMTools(QObject *parent = 0);
+class OpenFOAMTools : public QObject
+{
+    Q_OBJECT;
+
+  private:
+    QProcess *m_Process;
+    QString m_SolverBinary;
+    QString m_WorkingDirectory;
+    QString m_NumProcesses;
+    QString m_HostFile;
+
+  private:
+    QString m_Program;
+    QStringList m_Arguments;
+
+  public:
+    OpenFOAMTools( QObject *parent = 0 );
     ~OpenFOAMTools();
 
-public:
-  int getArguments();
-  
-public slots:
-  void runSolver();
-  void runFoamToVTK();
-  void runDecomposePar();
-  void runReconstructPar();
-  void stopProcesses();
-  
-public slots:
-  void errorHandler ( QProcess::ProcessError error );
-  void finishedHandler ( int exitCode, QProcess::ExitStatus exitStatus );
-  void readFromStderr();
-  void readFromStdout();
-  void startedHandler ();
-  void stateChangedHandler ( QProcess::ProcessState newState );
+  public:
+    int getArguments();
+
+  public slots:
+    void runSolver();
+    void runFoamToVTK();
+    void runDecomposePar();
+    void runReconstructPar();
+    void stopProcesses();
+
+  public slots:
+    void errorHandler( QProcess::ProcessError error );
+    void finishedHandler( int exitCode, QProcess::ExitStatus exitStatus );
+    void readFromStderr();
+    void readFromStdout();
+    void startedHandler();
+    void stateChangedHandler( QProcess::ProcessState newState );
 };
 
 #endif
