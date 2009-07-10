@@ -69,7 +69,7 @@ protected: // methods
   void writeFaces();
   void writeOwner();
   void writeNeighbour();
-  void writeBoundary();
+  void writeBoundary(int faces_offset = 0);
   
   virtual void operate();
   
