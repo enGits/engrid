@@ -104,7 +104,7 @@ int OpenFOAMTools::getArguments()
   // get case directory if it is undefined
 //   m_WorkingDirectory = GuiMainWindow::getCwd();
   if ( m_WorkingDirectory.isEmpty() ) {
-    m_WorkingDirectory = QFileDialog::getExistingDirectory( NULL, "write OpenFOAM mesh", GuiMainWindow::getCwd() );
+    m_WorkingDirectory = QFileDialog::getExistingDirectory( NULL, "select case directory", GuiMainWindow::getCwd() );
     if ( !m_WorkingDirectory.isNull() ) {
       GuiMainWindow::setCwd( QFileInfo( m_WorkingDirectory ).absolutePath() );
     }

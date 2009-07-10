@@ -1134,12 +1134,17 @@ void GuiMainWindow::save()
 
 void GuiMainWindow::saveAs()
 {
-  QString file_name = QFileDialog::getSaveFileName(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
-  if (!file_name.isNull()) {
-    saveAs(file_name);
-    //for the undo/redo operations
-    resetOperationCounter();
-    quickSave();
+  QFileDialog dialog(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
+  dialog.selectFile(m_CurrentFilename);
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    QString file_name = selected_files[0];
+    if (!file_name.isNull()) {
+      saveAs(file_name);
+      //for the undo/redo operations
+      resetOperationCounter();
+      quickSave();
+    }
   }
 }
 
