@@ -67,7 +67,7 @@ void OpenFOAMcase::writeSolverParameters()
     if(name_value[0].trimmed()=="files") {
       QStringList file_list = name_value[1].split(",");
       foreach(QString file, file_list) {
-        files.push_back(":/" + file.trimmed());
+        files.push_back(file.trimmed());
       }
     }
   }
@@ -76,10 +76,11 @@ void OpenFOAMcase::writeSolverParameters()
   qDebug()<<"files="<<files;
   
   for ( int i = 0; i < files.size(); i++ ) {
-    QFileInfo file_info( files[i] );
-    FileTemplate file_template( files[i], section );
-    QFileInfo fileinfo_destination(files[i]);
-    file_template.exportToOpenFOAM( getFileName() + "/" + "openfoam.txt" );
+    FileTemplate file_template( ":/resources/solvers/" + section + files[i], section );
+    QString destination = getFileName() + "/" + files[i];
+    QFileInfo fileinfo_destination(destination);
+    qDebug()<<"Writing to "<<destination;
+//     file_template.exportToOpenFOAM(  );
   }
 }
 
