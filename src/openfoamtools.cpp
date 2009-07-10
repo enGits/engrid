@@ -178,6 +178,7 @@ void OpenFOAMTools::runDecomposePar()
   this->stopProcesses();
 
   m_Program = "decomposePar";
+  m_Arguments << "-force";
   m_Process->start( m_Program, m_Arguments );
 }
 
@@ -208,7 +209,7 @@ void OpenFOAMTools::errorHandler( QProcess::ProcessError error )
 
 void OpenFOAMTools::finishedHandler( int exitCode, QProcess::ExitStatus exitStatus )
 {
-  qDebug() << "=== Process finished. ===";
+  qDebug() << "=== Process finished with exitCode = " << exitCode << " ===";
 }
 
 void OpenFOAMTools::readFromStderr()
