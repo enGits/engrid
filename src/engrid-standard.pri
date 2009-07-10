@@ -136,7 +136,8 @@ HEADERS = boundarycondition.h \
     updatesurfproj.h \
     foamobject.h \
     multipagewidgetpage.h \
-    xmlhandler.h
+    xmlhandler.h \
+    openfoamtools.h
 
 SOURCES = main.cpp \
     boundarycondition.cpp \
@@ -226,7 +227,8 @@ SOURCES = main.cpp \
     updatesurfproj.cpp \
     foamobject.cpp \
     multipagewidgetpage.cpp \
-    xmlhandler.cpp
+    xmlhandler.cpp \
+    openfoamtools.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

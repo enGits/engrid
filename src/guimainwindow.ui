@@ -165,7 +165,6 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionConfigure"/>
-    <addaction name="actionEditBoundaryConditions"/>
     <addaction name="actionPick_cell_point"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionPrintGrid"/>
@@ -173,12 +172,24 @@
     <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
    </widget>
+   <widget class="QMenu" name="menuSimulation">
+    <property name="title">
+     <string>Simulation</string>
+    </property>
+    <addaction name="actionEditBoundaryConditions"/>
+    <addaction name="actionRunSolver"/>
+    <addaction name="actionRunFoamToVTK"/>
+    <addaction name="actionRunDecomposePar"/>
+    <addaction name="actionRunReconstructPar"/>
+    <addaction name="actionStopProcesses"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
    <addaction name="menuExport"/>
    <addaction name="menuView"/>
    <addaction name="menuMesh"/>
    <addaction name="menuTools"/>
+   <addaction name="menuSimulation"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1418,6 +1429,41 @@
   <action name="actionFoamCaseWriter">
    <property name="text">
     <string>OpenFOAM (grid+solver parameters)</string>
+   </property>
+  </action>
+  <action name="actionRunFoamToVTK">
+   <property name="text">
+    <string>Run foamToVTK</string>
+   </property>
+  </action>
+  <action name="actionStopProcesses">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionRunSolver">
+   <property name="text">
+    <string>Run solver</string>
+   </property>
+  </action>
+  <action name="actionRunDecomposePar">
+   <property name="text">
+    <string>Run decomposePar</string>
+   </property>
+  </action>
+  <action name="actionRun_3">
+   <property name="text">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionRun_4">
+   <property name="text">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionRunReconstructPar">
+   <property name="text">
+    <string>Run reconstructPar</string>
    </property>
   </action>
  </widget>
