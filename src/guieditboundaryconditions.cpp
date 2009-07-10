@@ -316,11 +316,13 @@ void GuiEditBoundaryConditions::operate()
 void GuiEditBoundaryConditions::saveMpiParameters()
 {
   GuiMainWindow::pointer()->setXmlSection("solver/general/hostfile", ui.plainTextEdit_HostFile->toPlainText());
-  ui.spinBox_NumProcesses;
+  QString str_num_processes;
+  str_num_processes.setNum(ui.spinBox_NumProcesses->value());
+  GuiMainWindow::pointer()->setXmlSection("solver/general/num_processes", str_num_processes);
 }
 
 void GuiEditBoundaryConditions::loadMpiParameters()
 {
   ui.plainTextEdit_HostFile->setPlainText(GuiMainWindow::pointer()->getXmlSection("solver/general/hostfile"));
-  ui.spinBox_NumProcesses;
+  ui.spinBox_NumProcesses->setValue(GuiMainWindow::pointer()->getXmlSection("solver/general/num_processes").toInt());
 }
