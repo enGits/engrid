@@ -138,7 +138,7 @@ void GuiEditBoundaryConditions::setupSolvers()
     idx++;
   }
   
-  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getSolverIndex());
+  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt());
 }
 
 void GuiEditBoundaryConditions::saveSolverParanmeters()
@@ -147,7 +147,9 @@ void GuiEditBoundaryConditions::saveSolverParanmeters()
   for(int i = 0; i < m_page_vector.size(); i++) {
     m_page_vector[i]->saveEgc();
   }
-  GuiMainWindow::pointer()->setSolverIndex(m_multipagewidget_Solver->currentIndex());
+  QString solver_type;
+  solver_type.setNum(m_multipagewidget_Solver->currentIndex());
+  GuiMainWindow::pointer()->setXmlSection("solver/general/solver_type", solver_type);
 }
 
 void GuiEditBoundaryConditions::loadPhysicalValues(QString name)

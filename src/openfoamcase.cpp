@@ -37,7 +37,7 @@ OpenFOAMcase::OpenFOAMcase()
 
 void OpenFOAMcase::writeSolverParameters()
 {
-  int idx = GuiMainWindow::pointer()->getSolverIndex();
+  int idx = GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt();
   
   QFileInfo solvers_fileinfo;
   solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
