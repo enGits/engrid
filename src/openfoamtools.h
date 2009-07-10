@@ -45,7 +45,7 @@ public:
     ~OpenFOAMTools();
 
 public:
-  void getArguments();
+  int getArguments();
   
 public slots:
   void runSolver();

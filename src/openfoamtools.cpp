@@ -28,6 +28,9 @@
 #include <QFileInfo>
 #include <QFileDialog>
 
+#include <iostream>
+using namespace std;
+
 OpenFOAMTools::OpenFOAMTools(QObject *parent)
 : QObject(parent)
 {
@@ -50,7 +53,7 @@ OpenFOAMTools::~OpenFOAMTools()
   this->stopProcesses();
 }
 
-void OpenFOAMTools::getArguments()
+int OpenFOAMTools::getArguments()
 {
   // resest command-line
   m_Program = "";
@@ -65,10 +68,12 @@ void OpenFOAMTools::getArguments()
   if ( !file.exists() ) {
     qDebug() << "ERROR: " << solvers_fileinfo.filePath() << " not found.";
     EG_BUG;
+    return(-1);
   }
   if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
     qDebug() << "ERROR:  Failed to open file " << solvers_fileinfo.filePath();
     EG_BUG;
+    return(-1);
   }
   QTextStream text_stream( &file );
   QString intext = text_stream.readAll();
@@ -101,11 +106,14 @@ void OpenFOAMTools::getArguments()
   m_SolverBinary = binary;
   
   // get case directory if it is undefined
-  m_WorkingDirectory = GuiMainWindow::getCwd();
+//   m_WorkingDirectory = GuiMainWindow::getCwd();
   if(m_WorkingDirectory.isEmpty()) {
     m_WorkingDirectory = QFileDialog::getExistingDirectory(NULL, "write OpenFOAM mesh",GuiMainWindow::getCwd());
     if (!m_WorkingDirectory.isNull()) {
       GuiMainWindow::setCwd(QFileInfo(m_WorkingDirectory).absolutePath());
+    }
+    else {
+      return(-1);
     }
   }
   
@@ -123,6 +131,7 @@ void OpenFOAMTools::getArguments()
     }
     catch ( Error err ) {
       err.display();
+      return(-1);
     }
   }
   QTextStream out( &hostfile );
@@ -131,6 +140,8 @@ void OpenFOAMTools::getArguments()
   
   // set working directory of the process
   m_Process->setWorkingDirectory(m_WorkingDirectory);
+  
+  return(0);
 }
 
 //=====================================
@@ -140,15 +151,16 @@ void OpenFOAMTools::getArguments()
 void OpenFOAMTools::runSolver()
 {
   qDebug()<<"=== RunSolver ===";
+  if(getArguments()<0) return;
   this->stopProcesses();
-  getArguments();
   
   if(m_NumProcesses.toInt()<=1) {
     m_Program = m_SolverBinary;
+    m_Arguments << "-case" << m_WorkingDirectory;
   }
   else {
     m_Program = "mpirun";
-    m_Arguments << "--hostfile" << m_HostFile << "-np" << m_NumProcesses << m_SolverBinary << m_WorkingDirectory <<"-parallel";
+    m_Arguments << "--hostfile" << m_HostFile << "-np" << m_NumProcesses << m_SolverBinary << "-case" << m_WorkingDirectory <<"-parallel";
   }
   m_Process->start(m_Program, m_Arguments);
 }
@@ -156,8 +168,8 @@ void OpenFOAMTools::runSolver()
 void OpenFOAMTools::runFoamToVTK()
 {
   qDebug()<<"=== RunFoamToVTK ===";
+  if(getArguments()<0) return;
   this->stopProcesses();
-  getArguments();
   
   m_Program = "foamToVTK";
   m_Process->start(m_Program, m_Arguments);
@@ -166,8 +178,8 @@ void OpenFOAMTools::runFoamToVTK()
 void OpenFOAMTools::runDecomposePar()
 {
   qDebug()<<"=== RunDecomposePar ===";
+  if(getArguments()<0) return;
   this->stopProcesses();
-  getArguments();
   
   m_Program = "decomposePar";
   m_Process->start(m_Program, m_Arguments);
@@ -176,8 +188,8 @@ void OpenFOAMTools::runDecomposePar()
 void OpenFOAMTools::runReconstructPar()
 {
   qDebug()<<"=== RunReconstructPar ===";
+  if(getArguments()<0) return;
   this->stopProcesses();
-  getArguments();
   
   m_Program = "reconstructPar";
   m_Process->start(m_Program, m_Arguments);
@@ -205,12 +217,14 @@ void OpenFOAMTools::finishedHandler ( int exitCode, QProcess::ExitStatus exitSta
 
 void OpenFOAMTools::readFromStderr()
 {
-  qDebug()<<m_Process->readAllStandardError();
+//   qDebug()<<m_Process->readAllStandardError();
+  cout<<m_Process->readAllStandardError().data()<<endl;
 }
 
 void OpenFOAMTools::readFromStdout()
 {
-  qDebug()<<m_Process->readAllStandardOutput();
+//   qDebug()<<m_Process->readAllStandardOutput();
+  cout<<m_Process->readAllStandardOutput().data()<<endl;
 }
 
 void OpenFOAMTools::startedHandler ()
@@ -218,7 +232,7 @@ void OpenFOAMTools::startedHandler ()
   qDebug()<<"=== Started process with PID = "<<m_Process->pid()<<"===";
   QString cmd = m_Program;
   foreach(QString arg, m_Arguments) cmd += " "+arg;
-  qDebug() << "[" << m_WorkingDirectory << "]$ " << cmd;
+  cout << "[" << qPrintable(m_WorkingDirectory) << "]$ " << qPrintable(cmd) << endl;
 }
 
 void OpenFOAMTools::stateChangedHandler ( QProcess::ProcessState newState )
