@@ -63,7 +63,7 @@ protected: // methods
   void updateVol();
   void updatePhysicalBoundaryConditions();
   void setupSolvers();
-  void saveSolverParanmeters();
+  void saveSolverParameters();
   
 protected slots:
 

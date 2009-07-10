@@ -141,7 +141,7 @@ void GuiEditBoundaryConditions::setupSolvers()
   m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt());
 }
 
-void GuiEditBoundaryConditions::saveSolverParanmeters()
+void GuiEditBoundaryConditions::saveSolverParameters()
 {
   //Save solver parameters
   for(int i = 0; i < m_page_vector.size(); i++) {
@@ -308,5 +308,5 @@ void GuiEditBoundaryConditions::operate()
   // PhysicalBoundaryConditions
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
   
-  saveSolverParanmeters();
+  saveSolverParameters();
 }
