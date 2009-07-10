@@ -1,11 +1,11 @@
 title : standard simplefoam;
-section : openfoam/simpleFoam/standard/;
+section : openfoam/simpleFoam/;
 files :
-  resources/solvers/openfoam/simpleFoam/system/fvSchemes.template,
-  resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template;
+  system/fvSchemes.template,
+  system/fvSchemes2.template;
 =
 title : rhoSimpleFoam;
-section : openfoam/rhoSimpleFoam/standard/;
+section : openfoam/rhoSimpleFoam/;
 files :
-  resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template,
-  resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template;
+  system/fvSchemes.template,
+  system/fvSchemes2.template;

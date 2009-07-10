@@ -36,6 +36,7 @@
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
   setupSolvers();
+  loadMpiParameters();
   
   m_BcMap = NULL;
   delegate = new GuiVolumeDelegate();
@@ -124,7 +125,7 @@ void GuiEditBoundaryConditions::setupSolvers()
       if(name_value[0].trimmed()=="files") {
         QStringList file_list = name_value[1].split(",");
         foreach(QString file, file_list) {
-          files.push_back(":/" + file.trimmed());
+          files.push_back(":/resources/solvers/" + section + file.trimmed());
         }
       }
     }
@@ -138,16 +139,18 @@ void GuiEditBoundaryConditions::setupSolvers()
     idx++;
   }
   
-  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getSolverIndex());
+  m_multipagewidget_Solver->setCurrentIndex(GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt());
 }
 
-void GuiEditBoundaryConditions::saveSolverParanmeters()
+void GuiEditBoundaryConditions::saveSolverParameters()
 {
   //Save solver parameters
   for(int i = 0; i < m_page_vector.size(); i++) {
     m_page_vector[i]->saveEgc();
   }
-  GuiMainWindow::pointer()->setSolverIndex(m_multipagewidget_Solver->currentIndex());
+  QString solver_type;
+  solver_type.setNum(m_multipagewidget_Solver->currentIndex());
+  GuiMainWindow::pointer()->setXmlSection("solver/general/solver_type", solver_type);
 }
 
 void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
@@ -306,5 +309,20 @@ void GuiEditBoundaryConditions::operate()
   // PhysicalBoundaryConditions
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
   
-  saveSolverParanmeters();
+  saveSolverParameters();
+  saveMpiParameters();
+}
+
+void GuiEditBoundaryConditions::saveMpiParameters()
+{
+  GuiMainWindow::pointer()->setXmlSection("solver/general/hostfile", ui.plainTextEdit_HostFile->toPlainText());
+  QString str_num_processes;
+  str_num_processes.setNum(ui.spinBox_NumProcesses->value());
+  GuiMainWindow::pointer()->setXmlSection("solver/general/num_processes", str_num_processes);
+}
+
+void GuiEditBoundaryConditions::loadMpiParameters()
+{
+  ui.plainTextEdit_HostFile->setPlainText(GuiMainWindow::pointer()->getXmlSection("solver/general/hostfile"));
+  ui.spinBox_NumProcesses->setValue(GuiMainWindow::pointer()->getXmlSection("solver/general/num_processes").toInt());
 }

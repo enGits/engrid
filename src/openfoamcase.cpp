@@ -36,7 +36,7 @@ OpenFOAMcase::OpenFOAMcase()
 
 void OpenFOAMcase::writeSolverParameters()
 {
-  int idx = GuiMainWindow::pointer()->getSolverIndex();
+  int idx = GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt();
   
   QFileInfo solvers_fileinfo;
   solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
@@ -66,7 +66,7 @@ void OpenFOAMcase::writeSolverParameters()
     if(name_value[0].trimmed()=="files") {
       QStringList file_list = name_value[1].split(",");
       foreach(QString file, file_list) {
-        files.push_back(":/" + file.trimmed());
+        files.push_back(file.trimmed());
       }
     }
   }
@@ -75,10 +75,15 @@ void OpenFOAMcase::writeSolverParameters()
   qDebug()<<"files="<<files;
   
   for ( int i = 0; i < files.size(); i++ ) {
-    QFileInfo file_info( files[i] );
-    FileTemplate file_template( files[i], section );
-    QFileInfo fileinfo_destination(files[i]);
-    file_template.exportToOpenFOAM( getFileName() + "/" + "openfoam.txt" );
+    FileTemplate file_template( ":/resources/solvers/" + section + files[i], section );
+    QFileInfo fileinfo_destination(getFileName() + "/" + files[i]);
+    QDir destination_dir = fileinfo_destination.dir();
+    QString destination = destination_dir.absolutePath() + "/" + fileinfo_destination.completeBaseName();
+    if(!destination_dir.mkpath(destination_dir.absolutePath())) {
+      EG_ERR_RETURN("ERROR: Could not create directory \n" + destination_dir.absolutePath());
+    }
+    qDebug()<<"Writing to "<<destination;
+    file_template.exportToOpenFOAM(destination);
   }
 }
 
@@ -234,8 +239,8 @@ void OpenFOAMcase::operate()
       readOutputDirectory();
     }
     if (isValid()) {
-      //writeSolverParameters();
-      rewriteBoundaryFaces();
+      writeSolverParameters();
+//       rewriteBoundaryFaces();
     }
   } catch (Error err) {
     err.display();
