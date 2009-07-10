@@ -132,6 +132,7 @@
     <addaction name="separator"/>
     <addaction name="actionSmoothVolumeGrid"/>
     <addaction name="actionStoreGeometry"/>
+    <addaction name="actionDelaunaySwap"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -1464,6 +1465,11 @@
   <action name="actionRunReconstructPar">
    <property name="text">
     <string>Run reconstructPar</string>
+   </property>
+  </action>
+  <action name="actionDelaunaySwap">
+   <property name="text">
+    <string>Delaunay swap</string>
    </property>
   </action>
  </widget>

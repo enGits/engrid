@@ -138,17 +138,27 @@ void GuiCreateBoundaryLayer::operate()
   seed_layer();
   seed_layer.getLayerCells(layer_cells);
   
+  GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-CreateVolumeMesh.egc", false);
+  
+  QString tmp;
   for (int j = 0; j < max_iter; ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << max_iter << endl;
+    tmp.setNum(j);
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"pre-iteration-"+tmp, false);
     smooth.setAllCells();
     smooth();
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-smooth-"+tmp, false);
     del.setAllCells();
     del();
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-del-"+tmp, false);
     swap();
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-swap-"+tmp, false);
     vol.setTraceCells(layer_cells);
     vol();
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-vol-"+tmp, false);
     vol.getTraceCells(layer_cells);
     if (smooth.improvement() < err_max) break;
+    GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"post-iteration-"+tmp, false);
   }
   //smooth.setAllCells();
   //smooth();

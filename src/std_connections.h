@@ -101,6 +101,8 @@ connect(ui.actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 connect(ui.actionRedo, SIGNAL(activated()), this, SLOT(redo()));
 connect(ui.actionImportOpenFoamCase, SIGNAL(activated()), this, SLOT(callImportOpenFoamCase()));
 
+connect(ui.actionDelaunaySwap,SIGNAL(activated()),this,SLOT(callDelaunaySwap()));
+
 // OpenFOAMtools
 connect(ui.actionRunSolver, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runSolver()));
 connect(ui.actionRunFoamToVTK, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runFoamToVTK()));
