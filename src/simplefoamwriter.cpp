@@ -350,7 +350,7 @@ void SimpleFoamWriter::writeNeighbour()
   f << "// ************************************************************************* //\n\n\n";
 }
 
-void SimpleFoamWriter::writeBoundary()
+void SimpleFoamWriter::writeBoundary(int faces_offset)
 {
   QString filename = m_Path + "boundary";
   QFile file(filename);
@@ -405,11 +405,17 @@ void SimpleFoamWriter::writeBoundary()
   qSort(patch);
   foreach (patch_t P, patch) {
     BoundaryCondition BC = getBC(P.bc);
-    f << "    " << BC.getName() << "\n";
+    QString num;
+    num.setNum(P.bc);
+    QString name = BC.getName();
+    if (name == "unknown") {
+      name = "BC_" + num;
+    }
+    f << "    " << name << "\n";
     f << "    {\n";
     f << "        type        " << BC.getType() << ";\n";
     f << "        nFaces      " << P.nFaces << ";\n";
-    f << "        startFace   " << P.startFace << ";\n";
+    f << "        startFace   " << P.startFace + faces_offset << ";\n";
     f << "    }\n";
   }
   f << ")\n\n";

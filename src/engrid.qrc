@@ -29,15 +29,12 @@
         <file>resources/kde_icons/reload.png</file>
         <file>resources/kde_icons/viewmagfit.png</file>
     </qresource>
-    <qresource>
+    <qresource prefix="/" >
         <file>resources/solvers/solvers.txt</file>
-    </qresource>
-    <qresource>
-        <file>resources/solvers/openfoam/simpleFoam/system/fvSchemes.template</file>
-        <file>resources/solvers/openfoam/simpleFoam/system/fvSchemes2.template</file>
-    </qresource>
-    <qresource>
-        <file>resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes.template</file>
-        <file>resources/solvers/openfoam/rhoSimpleFoam/system/fvSchemes2.template</file>
+        <file>resources/solvers/openfoam/simpleFoam/standard/constant/RASProperties</file>
+        <file>resources/solvers/openfoam/simpleFoam/standard/constant/transportProperties</file>
+        <file>resources/solvers/openfoam/simpleFoam/standard/system/controlDict</file>
+        <file>resources/solvers/openfoam/simpleFoam/standard/system/fvSchemes</file>
+        <file>resources/solvers/openfoam/simpleFoam/standard/system/fvSolution</file>
     </qresource>
 </RCC>

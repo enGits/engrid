@@ -99,7 +99,7 @@ void OpenFOAMcase::createBoundaryFaces()
       int o;
       f >> o;
       if (i >= getFirstBoundaryFace()) {
-        owner[i = getFirstBoundaryFace()] = o;
+        owner[i - getFirstBoundaryFace()] = o;
       }
     }
   }
@@ -229,7 +229,7 @@ void OpenFOAMcase::rewriteBoundaryFaces()
     f_out << "// ************************************************************************* //\n\n\n";
   }
   m_Path = getFileName() + "/constant/polyMesh/";
-  writeBoundary();
+  writeBoundary(getFirstBoundaryFace());
 }
 
 void OpenFOAMcase::operate()
@@ -239,8 +239,8 @@ void OpenFOAMcase::operate()
       readOutputDirectory();
     }
     if (isValid()) {
-      writeSolverParameters();
-//       rewriteBoundaryFaces();
+      //writeSolverParameters();
+      rewriteBoundaryFaces();
     }
   } catch (Error err) {
     err.display();
