@@ -20,28 +20,54 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef foamreader_H
-#define foamreader_H
 
-class FoamReader;
+#ifndef FOAMOBJECT_H
+#define FOAMOBJECT_H
 
-#include "iooperation.h"
-#include "foamobject.h"
+#include <QString>
+#include <QVector>
+#include <QFile>
+#include <QTextStream>
 
-/**
- * Reader for Foam grids
- */
-class FoamReader : public IOOperation, public FoamObject
+#include "engrid.h"
+
+
+class FoamObject
 {
-  
+
+private: // attributes
+
+  QString      m_CaseDir;
+  QVector<int> m_VolToSurfMap;
+  QVector<int> m_SurfToVolMap;
+  int          m_FirstBoundaryFace;
+  QString      m_Buffer;
+
+
+private: // methods
+
+  int  deleteBetween(int i, QString str1, QString str2);
+  void stripBuffer();
+
+
 protected: // methods
-  
-  virtual void operate();
-  
-public: // methods
-  
-  FoamReader();
-  
+
+  void readFile(QString file_name);
+  QString* getBuffer() { return &m_Buffer; }
+  void buildMaps();
+  int numVolNodes() { return m_VolToSurfMap.size(); }
+  int numSurfNodes() { return m_SurfToVolMap.size(); }
+  int surfToVol(int i) { return m_SurfToVolMap[i]; }
+  int volToSurf(int i) { return m_VolToSurfMap[i]; }
+  int getFirstBoundaryFace() { return m_FirstBoundaryFace; }
+
+
+public:
+
+  FoamObject();
+
+  void setCaseDir (QString case_dir) { m_CaseDir = case_dir; }
+
 };
 
-#endif
+#endif // FOAMOBJECT_H

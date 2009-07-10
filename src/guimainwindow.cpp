@@ -1145,7 +1145,7 @@ void GuiMainWindow::openXml(QString file_name)
 
 void GuiMainWindow::saveXml(QString file_name)
 {
-  QString buffer = m_XmlDoc.toString(2);
+  QString buffer = m_XmlDoc.toString(0);
   QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);

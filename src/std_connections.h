@@ -30,7 +30,6 @@ connect(ui.actionDeleteVolumeGrid,SIGNAL(activated()),this,SLOT(callDeleteTetras
 connect(ui.actionFixSTL,SIGNAL(activated()),this,SLOT(callFixSTL()));
 connect(ui.actionCreateVolumeMesh,SIGNAL(activated()),this,SLOT(callCreateVolumeMesh()));
 connect(ui.actionSmoothVolumeGrid,SIGNAL(activated()),this,SLOT(callSmoothVolumeGrid()));
-connect(ui.actionFoamReader,SIGNAL(activated()),this,SLOT(callFoamReader()));
 connect(ui.actionVtkReader,SIGNAL(activated()),this,SLOT(callVtkReader()));
 connect(ui.actionPolyDataReader,SIGNAL(activated()),this,SLOT(callPolyDataReader()));
 connect(ui.actionSetBoundaryCode,SIGNAL(activated()),this,SLOT(callSetBoundaryCode()));
@@ -47,5 +46,6 @@ connect(ui.actionTransform, SIGNAL(activated()), this, SLOT(callTransform()));
 connect(ui.actionExportCGNS, SIGNAL(activated()), this, SLOT(callCgnsWriter()));
 connect(ui.actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 connect(ui.actionRedo, SIGNAL(activated()), this, SLOT(redo()));
+connect(ui.actionImportOpenFoamCase, SIGNAL(activated()), this, SLOT(callImportOpenFoamCase()));
 
 // -------------------------------------------

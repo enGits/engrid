@@ -134,6 +134,7 @@ HEADERS = boundarycondition.h \
     multipagewidget.h \
     tricoord.h \
     updatesurfproj.h \
+    foamobject.h \
     multipagewidgetpage.h \
     xmlhandler.h
 
@@ -223,6 +224,7 @@ SOURCES = main.cpp \
     multipagewidget.cpp \
     tricoord.cpp \
     updatesurfproj.cpp \
+    foamobject.cpp \
     multipagewidgetpage.cpp \
     xmlhandler.cpp
 

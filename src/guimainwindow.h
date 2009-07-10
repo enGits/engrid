@@ -290,6 +290,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     BoundaryCondition getBC( int bc ) { return m_bcmap[bc]; }
     VolumeDefinition  getVol( QString volname ) { return m_VolMap[volname]; }
+    void clearBCs() { m_bcmap.clear(); }
+    void addBC(int bc, BoundaryCondition BC) { m_bcmap[bc] = BC; }
 
     QList<VolumeDefinition> getAllVols();
     void setAllVols( QList<VolumeDefinition> vols );
@@ -418,10 +420,10 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPick_cell_point() { EG_STDINTERSLOT( GuiPick ); }
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
     void callUpdateSurfProj() { EG_STDSLOT( UpdateSurfProj ); }
+    void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
 
     void callFixSTL();
 
-    void callFoamReader()       { EG_STDREADERSLOT( FoamReader ); }
     void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
     void callSimpleFoamWriter() { EG_STDINTERSLOT( SimpleFoamWriter ); }
     void callFoamCaseWriter()   { EG_STDINTERSLOT( OpenFOAMcase ); }

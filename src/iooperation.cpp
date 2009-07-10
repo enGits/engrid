@@ -81,6 +81,17 @@ void IOOperation::readOutputDirectory()
   }
 }
 
+void IOOperation::readInputDirectory(QString title_txt)
+{
+  filename = QFileDialog::getExistingDirectory(NULL, title_txt, GuiMainWindow::getCwd());
+  if (!filename.isNull()) {
+    GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
+    valid = true;
+  } else {
+    valid = false;
+  }
+}
+
 bool IOOperation::isValid()
 {
   return valid;
