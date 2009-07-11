@@ -158,9 +158,9 @@ void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
   if(m_PhysicalBoundaryConditionsMap.contains(name)) {
     PhysicalBoundaryConditions PBC = m_PhysicalBoundaryConditionsMap[name];
     QString str;
-    str.setNum(PBC.m_Pressure); ui.lineEdit_Pressure->setText(str);
-    str.setNum(PBC.m_Temperature); ui.lineEdit_Temperature->setText(str);
-    str.setNum(PBC.m_Velocity); ui.lineEdit_Velocity->setText(str);
+    str.setNum(PBC.m_Pressure); ui.lineEditPressure->setText(str);
+    str.setNum(PBC.m_Temperature); ui.lineEditTemperature->setText(str);
+    str.setNum(PBC.m_Velocity); ui.lineEditVelocity->setText(str);
   }
 }
 
@@ -168,9 +168,9 @@ void GuiEditBoundaryConditions::savePhysicalValues(QString name, int index)
 {
   if(m_PhysicalBoundaryConditionsMap.contains(name)) {
     PhysicalBoundaryConditions PBC(name, index);
-    PBC.m_Pressure = ui.lineEdit_Pressure->text().toDouble();
-    PBC.m_Temperature = ui.lineEdit_Temperature->text().toDouble();
-    PBC.m_Velocity = ui.lineEdit_Velocity->text().toDouble();
+    PBC.m_Pressure = ui.lineEditPressure->text().toDouble();
+    PBC.m_Temperature = ui.lineEditTemperature->text().toDouble();
+    PBC.m_Velocity = ui.lineEditVelocity->text().toDouble();
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
 }
