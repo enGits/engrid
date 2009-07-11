@@ -239,7 +239,7 @@ void OpenFOAMcase::operate()
       readOutputDirectory();
     }
     if (isValid()) {
-      //writeSolverParameters();
+      writeSolverParameters();
       rewriteBoundaryFaces();
     }
   } catch (Error err) {
