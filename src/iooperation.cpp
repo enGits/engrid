@@ -30,81 +30,110 @@ IOOperation::IOOperation()
   EG_TYPENAME;
   setResetOperationCounter(true);
   setQuickSave(true);
-  filename = "";
+  m_filename = "";
 }
 
 void IOOperation::setFormat(QString format)
 {
-  format_txt = format;  
+  m_format_txt = format;
 }
 
 void IOOperation::setExtension(QString extension)
 {
-  extension_txt = extension;  
+  m_extension_txt = extension;
 }
 
+///@@@ TODO: Low priority: add default name argument so that it doesn't offer a file/directory of the wrong type by default. Must be done in GuiMainWindow too.
 void IOOperation::readInputFileName()
 {
-  filename = QFileDialog::getOpenFileName(NULL,"read file",GuiMainWindow::getCwd(),format_txt);
-  if (!filename.isNull()) {
-    GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
-    valid = true;
-  } else {
-    valid = false;
+  QFileDialog dialog(NULL,"read file",GuiMainWindow::getCwd(),m_format_txt);
+  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    m_filename = selected_files[0];
+    if (!m_filename.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
+      GuiMainWindow::setUnsaved(true);
+      GuiMainWindow::pointer()->setFilename(m_filename);
+      m_valid = true;
+    } else {
+      m_valid = false;
+    }
   }
+  else m_valid = false;
 }
 
 void IOOperation::readOutputFileName()
 {
-  filename = QFileDialog::getSaveFileName(NULL,"write file",GuiMainWindow::getCwd(),format_txt);
-  if (!filename.isNull()) {
-    GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
-    if (filename.right(4) != extension_txt.toLower()) {
-      if (filename.right(4) != extension_txt.toUpper()) {
-        filename += extension_txt.toLower();
+  QFileDialog dialog(NULL,"write file",GuiMainWindow::getCwd(),m_format_txt);
+  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setConfirmOverwrite(true);
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    m_filename = selected_files[0];
+    if (!m_filename.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
+      if (m_filename.right(4) != m_extension_txt.toLower()) {
+        if (m_filename.right(4) != m_extension_txt.toUpper()) {
+          m_filename += m_extension_txt.toLower();
+        }
       }
+      m_valid = true;
+    } else {
+      m_valid = false;
     }
-    valid = true;
-  } else {
-    valid = false;
   }
+  else m_valid = false;
 }
 
 void IOOperation::readOutputDirectory()
 {
-  filename = QFileDialog::getExistingDirectory(NULL, "write OpenFOAM mesh",GuiMainWindow::getCwd());
-  if (!filename.isNull()) {
-    GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
-    valid = true;
-  } else {
-    valid = false;
+  QFileDialog dialog(NULL, "write OpenFOAM mesh",GuiMainWindow::getCwd());
+  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    m_filename = selected_files[0];
+    if (!m_filename.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
+      m_valid = true;
+    } else {
+      m_valid = false;
+    }
   }
+  else m_valid = false;
 }
 
 void IOOperation::readInputDirectory(QString title_txt)
 {
-  filename = QFileDialog::getExistingDirectory(NULL, title_txt, GuiMainWindow::getCwd());
-  if (!filename.isNull()) {
-    GuiMainWindow::setCwd(QFileInfo(filename).absolutePath());
-    valid = true;
-  } else {
-    valid = false;
+  QFileDialog dialog(NULL, title_txt, GuiMainWindow::getCwd());
+  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    m_filename = selected_files[0];
+    if (!m_filename.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
+      GuiMainWindow::setUnsaved(true);
+      GuiMainWindow::pointer()->setFilename(m_filename);
+      m_valid = true;
+    } else {
+      m_valid = false;
+    }
   }
+  else m_valid = false;
 }
 
 bool IOOperation::isValid()
 {
-  return valid;
+  return m_valid;
 }
 
-char* IOOperation::getCFileName()
+const char* IOOperation::getCFileName()
 {
-  return filename.toAscii().data();
+  return qPrintable(m_filename);
 }
 
 QString IOOperation::getFileName()
 {
-  return filename;
+  return m_filename;
 }
-
-

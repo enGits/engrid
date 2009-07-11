@@ -30,6 +30,9 @@
 #include "guimainwindow.h"
 #include "filetemplate.h"
 
+#include "geometrytools.h"
+using namespace GeometryTools;
+
 ///@@@ TODO: replace with shellscript?
 void appendLicense(int argc, char ** argv)
 {

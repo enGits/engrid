@@ -73,39 +73,41 @@ void SwapTriangles::operate()
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
                   if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
-                    vec3_t n = n1 + n2;
-                    n.normalise();
-                    vec3_t ex = orthogonalVector(n);
-                    vec3_t ey = ex.cross(n);
-                    for (int k = 0; k < 4; ++k) {
-                      x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
-                    }
-                    vec2_t r1, r2, r3, u1, u2, u3;
-                    r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
-                    r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
-                    r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
-                    double k, l;
-                    vec2_t xm1, xm2;
-                    bool ok = true;
-                    if (intersection(k, l, r1, u1, r3, u3)) {
-                      xm1 = r1 + k*u1;
-                      if (intersection(k, l, r2, u2, r3, u3)) {
-                        xm2 = r2 + k*u2;
+                    if(testSwap(S)) {
+                      vec3_t n = n1 + n2;
+                      n.normalise();
+                      vec3_t ex = orthogonalVector(n);
+                      vec3_t ey = ex.cross(n);
+                      for (int k = 0; k < 4; ++k) {
+                        x[k] = vec2_t(x3[k]*ex, x3[k]*ey);
+                      }
+                      vec2_t r1, r2, r3, u1, u2, u3;
+                      r1 = 0.5*(x[0] + x[1]); u1 = turnLeft(x[1] - x[0]);
+                      r2 = 0.5*(x[1] + x[2]); u2 = turnLeft(x[2] - x[1]);
+                      r3 = 0.5*(x[1] + x[3]); u3 = turnLeft(x[3] - x[1]);
+                      double k, l;
+                      vec2_t xm1, xm2;
+                      bool ok = true;
+                      if (intersection(k, l, r1, u1, r3, u3)) {
+                        xm1 = r1 + k*u1;
+                        if (intersection(k, l, r2, u2, r3, u3)) {
+                          xm2 = r2 + k*u2;
+                        } else {
+                          ok = false;
+                        }
                       } else {
                         ok = false;
-                      }
-                    } else {
-                      ok = false;
-                      swap = true;
-                    }
-                    if (ok) {
-                      if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
                         swap = true;
                       }
-                      if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
-                        swap = true;
+                      if (ok) {
+                        if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
+                          swap = true;
+                        }
+                        if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
+                          swap = true;
+                        }
                       }
-                    }
+                    }// end of testswap
                   } //end of if feature angle
                 } //end of if l_marked
               } //end of if TestSwap
@@ -148,7 +150,7 @@ void SwapTriangles::operate()
   //cout << N_total << " triangles have been swapped" << endl;
 }
 
-bool SwapTriangles::TestSwap(stencil_t S)
+bool SwapTriangles::testSwap(stencil_t S)
 {
   //old triangles
   vec3_t n1_old=triNormal(grid,S.p[0],S.p[1],S.p[3]);

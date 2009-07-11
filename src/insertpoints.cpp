@@ -330,7 +330,6 @@ char InsertPoints::getNewNodeType(stencil_t S)
   }
 }
 
-///@@@ TODO:
        //============================================
       ///@@@  TODO: Update node info (densities+type) Still necessary?
 // EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table

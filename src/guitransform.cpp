@@ -114,4 +114,5 @@ void GuiTransform::operate()
     
     grid->GetPoints()->SetPoint(id_node, x.data());
   }
+  grid->Modified();// to force a drawing update
 };

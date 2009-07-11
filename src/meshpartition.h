@@ -130,7 +130,7 @@ public: // methods
 
   /**
    * Add another partition to this one.
-   * At the moment overlapping partitions on two fifferent grids will not be handled well.
+   * At the moment overlapping partitions on two different grids will not be handled well.
    * If both partitions do not have the same underlying grid the grid will be extended in order
    * to add the other partition.
    * @param part the partition to add

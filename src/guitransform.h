@@ -47,11 +47,6 @@ protected: // methods
   
   virtual void before();
   virtual void operate();
-/*  void scale();
-  void translate();
-  void rotate();
-  void transform();*/
-  
 };
 
 #endif

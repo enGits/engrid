@@ -1,9 +1,9 @@
 title : standard simplefoam;
 section : openfoam/simpleFoam/standard;
+binary : simpleFoam;
 files :
   system/controlDict,
   constant/transportProperties,
   constant/RASProperties,
   system/fvSchemes,
   system/fvSolution;
-

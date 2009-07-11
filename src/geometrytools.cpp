@@ -107,18 +107,17 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 
 vec3_t orthogonalVector(vec3_t v)
 {
-  v.normalise();
-  vec3_t u = v;
-  int i_min = 0;
-  int i_max = 0;
-  for (int i = 1; i < 3; ++i) {
-    if (v[i] > v[i_max]) i_max = i;
-    if (v[i] < v[i_min]) i_min = i;
+  // get absolute values
+  double xx = v[0] < 0.0 ? -v[0] : v[0];
+  double yy = v[1] < 0.0 ? -v[1] : v[1];
+  double zz = v[2] < 0.0 ? -v[2] : v[2];
+  // switch both biggest values and set the other one to zero
+  vec3_t u;
+  if (xx < yy) {
+    u = xx < zz ? vec3_t(0,v[2],-v[1]) : vec3_t(v[1],-v[0],0);
+  } else {
+    u = yy < zz ? vec3_t(-v[2],0,v[0]) : vec3_t(v[1],-v[0],0);
   }
-  double h = u[i_min];
-  u[i_min] = u[i_max];
-  u[i_max] = h;
-  u -= (u*v)*v;
   u.normalise();
   return u;
 }

@@ -177,6 +177,11 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      */
     static QString m_cwd;
 
+    /**
+     * Is the current case unsaved?
+     */
+    static bool m_UnSaved;
+  
     /** a static this pointer (somewhat ugly, but there is only one MainWindow) */
     static GuiMainWindow* THIS;
 
@@ -269,10 +274,16 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     /**
      * Set the current working directory
-     * @param cwd the current working directory
+     * @param dir the current working directory
      */
     static void setCwd( QString dir );
 
+    /**
+     * Set m_UnSaved.
+     * @param unsaved Do you want to be asked where to save when clicking on save next time?
+     */
+    static void setUnsaved( bool unsaved );
+  
     /**
      * Get the currently picked cell.
      * @return the picked cell ID or -1 if no cell has been picked
@@ -318,7 +329,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     bool pickCell( vtkIdType id_cell );
 
     QString getFilename() { return( m_CurrentFilename ); }
-
+    void setFilename(QString filename) { m_CurrentFilename = filename; }
+  
     SurfaceProjection* getSurfProj( int bc );
 
   public slots:
@@ -421,7 +433,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
     void callUpdateSurfProj() { EG_STDSLOT( UpdateSurfProj ); }
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
-
+    
     void callFixSTL();
 
     void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
