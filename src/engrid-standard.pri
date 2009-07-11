@@ -73,7 +73,7 @@ HEADERS = boundarycondition.h \
     nodelayeriterator.h \
     operation.h \
     optimisation.h \
-    physicalboundaryconditions.h \
+    physicalboundarycondition.h \
     polydatareader.h \
     polymesh.h \
     seedsimpleprismaticlayer.h \
@@ -169,7 +169,7 @@ SOURCES = main.cpp \
     nodelayeriterator.cpp \
     operation.cpp \
     optimisation.cpp \
-    physicalboundaryconditions.cpp \
+    physicalboundarycondition.cpp \
     polydatareader.cpp \
     polymesh.cpp \
     seedsimpleprismaticlayer.cpp \
