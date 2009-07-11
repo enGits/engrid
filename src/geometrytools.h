@@ -40,6 +40,7 @@ void rotate(vec3_t g1, vec3_t g2, vec3_t g3, vec3_t &b, double theta);
 /** Rotates vector v around vector axis by an angle theta */
 vec3_t rotate(vec3_t v, vec3_t axis, double theta);
 
+/** Returns a normalized vector orthogonal to v */
 vec3_t orthogonalVector(vec3_t v);
 
 double intersection(vec3_t x_straight, vec3_t v_straight, 
