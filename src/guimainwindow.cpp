@@ -57,6 +57,7 @@
 #include <stdio.h>
 
 #include "geometrytools.h"
+
 using namespace GeometryTools;
 
 #include "guisettingsviewer.h"
@@ -928,11 +929,19 @@ void GuiMainWindow::openPhysicalBoundaryConditions()
   QString buffer = getXmlSection("engrid/physical");
   QTextStream f(&buffer, QIODevice::ReadOnly);
   while (!f.atEnd()) {
-    QString name, values;
-    int i;
-    f >> i >> name >> values;
-    if(name!="" && values!="") {
-      PhysicalBoundaryConditions PBC(name, i, values);
+    QString name, type;
+    int index;
+    f >> index >> name >> type;
+    if ((name != "") && (type != "")) {
+      PhysicalBoundaryCondition PBC;
+      PBC.setName(name);
+      PBC.setIndex(index);
+      PBC.setType(type);
+      for (int i = 0; i < PBC.getNumVars(); ++i) {
+        double v;
+        f >> v;
+        PBC.setValue(i, v);
+      }
       m_PhysicalBoundaryConditionsMap[name] = PBC;
     }
   }
@@ -943,10 +952,13 @@ void GuiMainWindow::savePhysicalBoundaryConditions()
   QString buffer("");
   QTextStream f(&buffer, QIODevice::WriteOnly);
   f << "\n";
-  foreach (PhysicalBoundaryConditions PBC, m_PhysicalBoundaryConditionsMap) {
-    f << "      " << PBC.getIndex() << " " << PBC.getName() << " " << PBC.getValues() << "\n";
+  foreach (PhysicalBoundaryCondition PBC, m_PhysicalBoundaryConditionsMap) {
+    f << PBC.getIndex() << " " << PBC.getName() << " " << PBC.getType();
+    for (int i = 0; i < PBC.getNumVars(); ++i) {
+      f << " " << PBC.getVarValue(i);
+    }
+    f << "\n";
   }
-  f << "    ";
   setXmlSection("engrid/physical", buffer);
 }
 
@@ -1737,36 +1749,26 @@ void GuiMainWindow::setAllVols(QList<VolumeDefinition> vols)
   }
 }
 
-QList<PhysicalBoundaryConditions> GuiMainWindow::getAllPhysicalBoundaryConditions()
+QList<PhysicalBoundaryCondition> GuiMainWindow::getAllPhysicalBoundaryConditions()
 {
-  QList<PhysicalBoundaryConditions> physical_boundary_conditions;
-  foreach(PhysicalBoundaryConditions PBC, m_PhysicalBoundaryConditionsMap) {
+  QList<PhysicalBoundaryCondition> physical_boundary_conditions;
+  foreach(PhysicalBoundaryCondition PBC, m_PhysicalBoundaryConditionsMap) {
     physical_boundary_conditions.push_back(PBC);
   }
   return physical_boundary_conditions;
 }
 
-void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryConditions> physical_boundary_conditions)
+void GuiMainWindow::setAllPhysicalBoundaryConditions(QList<PhysicalBoundaryCondition> physical_boundary_conditions)
 {
   m_PhysicalBoundaryConditionsMap.clear();
-  foreach (PhysicalBoundaryConditions PBC, physical_boundary_conditions) {
+  foreach (PhysicalBoundaryCondition PBC, physical_boundary_conditions) {
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
 }
 
-void GuiMainWindow::setAllPhysicalBoundaryConditions(QMap<QString,PhysicalBoundaryConditions> physical_boundary_conditions) {
+void GuiMainWindow::setAllPhysicalBoundaryConditions(QMap<QString,PhysicalBoundaryCondition> physical_boundary_conditions) {
   m_PhysicalBoundaryConditionsMap = physical_boundary_conditions;
 }
-
-// PhysicalBoundaryConditions GuiMainWindow::getPhysicalBoundaryConditions(QString name)
-// {
-//   return m_PhysicalBoundaryConditionsMap[name];
-// }
-// 
-// void GuiMainWindow::setPhysicalBoundaryConditions(PhysicalBoundaryConditions physical_boundary_conditions)
-// {
-//   m_PhysicalBoundaryConditionsMap[physical_boundary_conditions.getName()] = physical_boundary_conditions;
-// }
 
 void GuiMainWindow::createDefaultVol()
 {

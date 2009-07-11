@@ -20,7 +20,9 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+
 #include "simplefoamwriter.h"
+#include "guimainwindow.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -408,12 +410,17 @@ void SimpleFoamWriter::writeBoundary(int faces_offset)
     QString num;
     num.setNum(P.bc);
     QString name = BC.getName();
+    QString type = BC.getType();
+    if (GuiMainWindow::pointer()->physicalTypeDefined(type)) {
+      PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(type);
+      type = PBC.getFoamType();
+    }
     if (name == "unknown") {
       name = "BC_" + num;
     }
     f << "    " << name << "\n";
     f << "    {\n";
-    f << "        type        " << BC.getType() << ";\n";
+    f << "        type        " << type << ";\n";
     f << "        nFaces      " << P.nFaces << ";\n";
     f << "        startFace   " << P.startFace + faces_offset << ";\n";
     f << "    }\n";

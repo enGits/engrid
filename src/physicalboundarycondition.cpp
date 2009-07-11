@@ -20,64 +20,207 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "physicalboundaryconditions.h"
+#include "physicalboundarycondition.h"
 
 #include <QStringList>
 #include <QtDebug>
 
-PhysicalBoundaryConditions::PhysicalBoundaryConditions()
+PhysicalBoundaryCondition::PhysicalBoundaryCondition()
 {
-  this->m_Name = "unknown";
-  this->m_Index = -1;
-  setDefaults();
+  m_Name = "unknown";
+  m_Index = -1;
+  m_Type = "unknown";
 }
 
-PhysicalBoundaryConditions::PhysicalBoundaryConditions(QString name, int index)
+void PhysicalBoundaryCondition::setType(QString type)
 {
-  this->m_Name = name;
-  this->m_Index = index;
-  setDefaults();
-}
-
-PhysicalBoundaryConditions::PhysicalBoundaryConditions(QString name, int index, QString values)
-{
-  this->m_Name = name;
-  this->m_Index = index;
-  setDefaults();
-  
-  QStringList L = values.split(";");
-  for(int i=0;i<L.size();i++) {
-    QStringList L_pair = L[i].split("=");
-    if(L_pair[0].trimmed()=="Pressure") m_Pressure = L_pair[1].toDouble();
-    if(L_pair[0].trimmed()=="Temperature") m_Temperature = L_pair[1].toDouble();
-    if(L_pair[0].trimmed()=="Velocity") m_Velocity = L_pair[1].toDouble();
+  m_Type = type;
+  m_VarNames.clear();
+  m_VarValues.clear();
+  if (m_Type == "symmetry") {
+  }
+  if (m_Type == "wall") {
+  }
+  if (m_Type == "slip") {
+  }
+  if (m_Type == "inlet") {
+    m_VarNames.push_back("velocity");
+    m_VarValues.push_back(0);
+    m_VarNames.push_back("turbulent-intensity");
+    m_VarValues.push_back(0.04);
+    m_VarNames.push_back("turbulent-length-scale");
+    m_VarValues.push_back(1);
+    m_VarNames.push_back("temperature");
+    m_VarValues.push_back(300);
+  }
+  if (m_Type == "outlet") {
+    m_VarNames.push_back("pressure");
+    m_VarValues.push_back(0);
   }
 }
 
-void PhysicalBoundaryConditions::setDefaults()
+QString PhysicalBoundaryCondition::getFoamEpsilon()
 {
-  m_Pressure = 1;
-  m_Temperature = 2;
-  m_Velocity = 3;
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    double k       = 1.5*sqr(getVarValue(0)*getVarValue(1));
+    double epsilon = (pow(0.09, 0.75)*pow(k, 1.5))/getVarValue(2);
+    s << "        type  fixedValue;\n";
+    s << "        value uniform " << epsilon << ";\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
 }
 
-QString PhysicalBoundaryConditions::getIndex()
+QString PhysicalBoundaryCondition::getFoamK()
 {
-  QString ret;
-  ret.setNum(m_Index);
-  return(ret);
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    double k       = 1.5*sqr(getVarValue(0)*getVarValue(1));
+    double epsilon = (pow(0.09, 0.75)*pow(k, 1.5))/getVarValue(2);
+    s << "        type  fixedValue;\n";
+    s << "        value uniform " << k << ";\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
 }
 
-QString PhysicalBoundaryConditions::getName()
+QString PhysicalBoundaryCondition::getFoamOmega()
 {
-  return(m_Name);
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    double k       = 1.5*sqr(getVarValue(0)*getVarValue(1));
+    double epsilon = (pow(0.09, 0.75)*pow(k, 1.5))/getVarValue(2);
+    double omega   = epsilon/(0.09*k);
+    s << "        type  fixedValue;\n";
+    s << "        value uniform " << omega << ";\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
 }
 
-QString PhysicalBoundaryConditions::getValues()
+QString PhysicalBoundaryCondition::getFoamP()
 {
-  QString ret("");
-  QString str_Pressure; str_Pressure.setNum(m_Pressure); ret += "Pressure=" + str_Pressure + ";";
-  QString str_Temperature; str_Temperature.setNum(m_Temperature); ret += "Temperature=" + str_Temperature + ";";
-  QString str_Velocity; str_Velocity.setNum(m_Velocity); ret += "Velocity=" + str_Velocity + ";";
-  return(ret);
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type  fixedValue;\n";
+    s << "        value uniform " << getVarValue(0) << ";\n";
+  }
+  return str;
+}
+
+QString PhysicalBoundaryCondition::getFoamU(vec3_t n)
+{
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type  fixedValue;\n";
+    s << "        value uniform (0 0 0);\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type slip;\n";
+  }
+  if (m_Type == "inlet") {
+    s << "        type  fixedValue;\n";
+    s << "        value uniform (" << getVarValue(0)*n[0] << " " << getVarValue(0)*n[1] << " " << getVarValue(0)*n[2] << ");\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
+}
+
+QString PhysicalBoundaryCondition::getFoamT()
+{
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    s << "        type  fixedValue;\n";
+    s << "        value uniform " << getVarValue(3) << ";\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
+}
+
+QString PhysicalBoundaryCondition::getFoamType()
+{
+  if (m_Type == "symmetry") {
+    return ("symmetryPlane");
+  }
+  if (m_Type == "wall") {
+    return ("wall");
+  }
+  if (m_Type == "slip") {
+    return ("patch");
+  }
+  if (m_Type == "inlet") {
+    return ("patch");
+  }
+  if (m_Type == "outlet") {
+    return ("patch");
+  }
+  return ("patch");
 }

@@ -1,6 +1,6 @@
 // Gmsh project created on Mon Jun  8 07:21:57 2009
 
-Ncells = 500000;
+Ncells = 1;
 
 L = 1.0;
 N = Ncells^(1.0/3.0)+2;

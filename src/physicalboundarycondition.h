@@ -20,37 +20,52 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef PHYSICALBOUNDARYCONDITIONS_H
-#define PHYSICALBOUNDARYCONDITIONS_H
+#ifndef PHYSICALBOUNDARYCONDITION_H
+#define PHYSICALBOUNDARYCONDITION_H
 
 #include <QString>
+#include <QVector>
 
-class PhysicalBoundaryConditions
+#include "engrid.h"
+
+class PhysicalBoundaryCondition
 {
 
-public:
+private: // attributes
 
-  QString m_Name;
-  int m_Index;
+  QString          m_Name;
+  QString          m_Type;
+  int              m_Index;
+  QVector<QString> m_VarNames;
+  QVector<double>  m_VarValues;
 
-public:
+protected: // methods
 
-  double m_Pressure;
-  double m_Temperature;
-  double m_Velocity;
+public: // methods
 
-public:
+  PhysicalBoundaryCondition();
 
-  PhysicalBoundaryConditions();
-  PhysicalBoundaryConditions(QString name, int index);
-  PhysicalBoundaryConditions(QString name, int index, QString values);
+  void setName(QString name) { m_Name = name; }
+  void setIndex(int index) { m_Index = index; }
+  void setValue(int i, double v) { m_VarValues[i] = v; }
+  void setType(QString type);
 
-public:
+  QString getName()  { return m_Name; }
+  QString getType()  { return m_Type; }
+  int     getIndex() { return m_Index; }
+  double  getVarValue(int i) { return m_VarValues[i]; }
+  QString getVarName(int i)  { return m_VarNames[i]; }
+  int     getNumVars()       { return m_VarValues.size(); }
 
-  QString getName();
-  QString getIndex();
-  QString getValues();
-  void setDefaults();
+  QString getFoamP();
+  QString getFoamU(vec3_t n);
+  QString getFoamK();
+  QString getFoamEpsilon();
+  QString getFoamOmega();
+  QString getFoamT();
+
+  QString getFoamType();
+
 };
 
 #endif

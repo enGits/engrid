@@ -26,7 +26,7 @@
 #include "guimainwindow.h"
 #include "volumedefinition.h"
 #include "filetemplate.h"
-#include "physicalboundaryconditions.h"
+#include "physicalboundarycondition.h"
 #include "multipagewidget.h"
 #include "multipagewidgetpage.h"
 
@@ -78,14 +78,14 @@ void GuiEditBoundaryConditions::before()
   updatePhysicalBoundaryConditions();
 
   m_PreviousSelected = 0;
-  ui.listWidget_BoundaryType->setCurrentRow( m_PreviousSelected );
-  if ( ui.listWidget_BoundaryType->count() > 0 ) loadPhysicalValues( ui.listWidget_BoundaryType->currentItem()->text() );
+  ui.listWidgetBoundaryType->setCurrentRow( m_PreviousSelected );
+  if ( ui.listWidgetBoundaryType->count() > 0 ) loadPhysicalValues( ui.listWidgetBoundaryType->currentItem()->text() );
 
   connect( ui.pushButtonAdd, SIGNAL( clicked() ), this, SLOT( addVol() ) );
   connect( ui.pushButtonDelete, SIGNAL( clicked() ), this, SLOT( delVol() ) );
-  connect( ui.pushButton_AddBoundaryType, SIGNAL( clicked() ), this, SLOT( addBoundaryType() ) );
-  connect( ui.pushButton_DeleteBoundaryType, SIGNAL( clicked() ), this, SLOT( deleteBoundaryType() ) );
-  connect( ui.listWidget_BoundaryType, SIGNAL( itemSelectionChanged() ), this, SLOT( changePhysicalValues() ) );
+  connect( ui.pushButtonAddBoundaryType, SIGNAL( clicked() ), this, SLOT( addBoundaryType() ) );
+  connect( ui.pushButtonDeleteBoundaryType, SIGNAL( clicked() ), this, SLOT( deleteBoundaryType() ) );
+  connect( ui.listWidgetBoundaryType, SIGNAL( itemSelectionChanged() ), this, SLOT( changePhysicalValues() ) );
 
   ui.T->setItemDelegate( delegate );
 }
@@ -158,33 +158,46 @@ void GuiEditBoundaryConditions::saveSolverParameters()
   GuiMainWindow::pointer()->setXmlSection( "solver/general/solver_binary", m_SolverBinary[solver_type_index] );
 }
 
-void GuiEditBoundaryConditions::loadPhysicalValues( QString name )
+void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
 {
-  if ( m_PhysicalBoundaryConditionsMap.contains( name ) ) {
-    PhysicalBoundaryConditions PBC = m_PhysicalBoundaryConditionsMap[name];
+  if (m_PhysicalBoundaryConditionsMap.contains(name)) {
+    PhysicalBoundaryCondition PBC = m_PhysicalBoundaryConditionsMap[name];
     QString str;
-    str.setNum(PBC.m_Pressure); ui.lineEditPressure->setText(str);
-    str.setNum(PBC.m_Temperature); ui.lineEditTemperature->setText(str);
-    str.setNum(PBC.m_Velocity); ui.lineEditVelocity->setText(str);
+    while (ui.tableWidgetPBC->rowCount()) {
+      ui.T->removeRow(0);
+    }
+    for (int i = 0; i < PBC.getNumVars(); ++i) {
+      str.setNum(PBC.getVarValue(i));
+      ui.tableWidgetPBC->insertRow(ui.tableWidgetPBC->rowCount());
+      int r = ui.tableWidgetPBC->rowCount() - 1;
+      ui.tableWidgetPBC->setItem(r, 0, new QTableWidgetItem());
+      ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
+      ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsEditable));
+      ui.tableWidgetPBC->setItem(r, 1, new QTableWidgetItem());
+      ui.tableWidgetPBC->item(r, 0)->setText(PBC.getVarName(i));
+      ui.tableWidgetPBC->item(r, 1)->setText(str);
+    }
+    ui.tableWidgetPBC->resizeColumnsToContents();
   }
 }
 
-void GuiEditBoundaryConditions::savePhysicalValues( QString name, int index )
+void GuiEditBoundaryConditions::savePhysicalValues(QString name, int index)
 {
   if(m_PhysicalBoundaryConditionsMap.contains(name)) {
-    PhysicalBoundaryConditions PBC(name, index);
-    PBC.m_Pressure = ui.lineEditPressure->text().toDouble();
-    PBC.m_Temperature = ui.lineEditTemperature->text().toDouble();
-    PBC.m_Velocity = ui.lineEditVelocity->text().toDouble();
+    PhysicalBoundaryCondition PBC = m_PhysicalBoundaryConditionsMap[name];
+    PBC.setIndex(index);
+    for (int i = 0; i < PBC.getNumVars(); ++i) {
+      PBC.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
+    }
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
 }
 
 void GuiEditBoundaryConditions::changePhysicalValues()
 {
-  if ( ui.listWidget_BoundaryType->count() > 0 ) {
-    int index = ui.listWidget_BoundaryType->currentRow();
-    QString name = ui.listWidget_BoundaryType->currentItem()->text();
+  if ( ui.listWidgetBoundaryType->count() > 0 ) {
+    int index = ui.listWidgetBoundaryType->currentRow();
+    QString name = ui.listWidgetBoundaryType->currentItem()->text();
 
     cout << "switching to index = " << index << " name = " << qPrintable( name ) << endl;
 
@@ -198,40 +211,37 @@ void GuiEditBoundaryConditions::changePhysicalValues()
 
 void GuiEditBoundaryConditions::addBoundaryType()
 {
-  cout << "Adding BT" << endl;
-  QString name = ui.lineEdit_BoundaryTypes->text();
-  if ( !name.isEmpty() && !m_PhysicalBoundaryConditionsMap.contains( name ) ) {
-    PhysicalBoundaryConditions PBC( name, ui.listWidget_BoundaryType->count() );
+  QString name = ui.lineEditBoundaryType->text();
+  if (!name.isEmpty() && !m_PhysicalBoundaryConditionsMap.contains(name)) {
+    PhysicalBoundaryCondition PBC;
+    PBC.setName(ui.lineEditBoundaryType->text());
+    PBC.setIndex(ui.listWidgetBoundaryType->count());
+    PBC.setType(ui.comboBoxBoundaryType->currentText());
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
-    ui.listWidget_BoundaryType->addItem( PBC.getName() );
+    ui.listWidgetBoundaryType->addItem(PBC.getName());
   }
 }
 
 void GuiEditBoundaryConditions::deleteBoundaryType()
 {
-  cout << "Deleting BT" << endl;
-  int row = ui.listWidget_BoundaryType->currentRow();
-  cout << "row=" << row << endl;
-  if ( ui.listWidget_BoundaryType->count() <= 1 ) {
-    ui.listWidget_BoundaryType->clear();
+  EG_BUG;
+  int row = ui.listWidgetBoundaryType->currentRow();
+  if (ui.listWidgetBoundaryType->count() <= 1) {
+    ui.listWidgetBoundaryType->clear();
     m_PhysicalBoundaryConditionsMap.clear();
-  }
-  else if ( 0 <= row && row < ui.listWidget_BoundaryType->count() ) {
-    QListWidgetItem* list_widget_item = ui.listWidget_BoundaryType->takeItem( row );
+  } else if ( 0 <= row && row < ui.listWidgetBoundaryType->count() ) {
+    QListWidgetItem* list_widget_item = ui.listWidgetBoundaryType->takeItem( row );
     m_PhysicalBoundaryConditionsMap.remove( list_widget_item->text() );
     delete list_widget_item;
-  }
-  else {
-    cout << "Nothing to delete." << endl;
   }
 }
 
 void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
 {
-  ui.listWidget_BoundaryType->clear();
-  QList<PhysicalBoundaryConditions> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
-  foreach( PhysicalBoundaryConditions PBC, physical_boundary_conditions ) {
-    ui.listWidget_BoundaryType->addItem( PBC.getName() );
+  ui.listWidgetBoundaryType->clear();
+  QList<PhysicalBoundaryCondition> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
+  foreach (PhysicalBoundaryCondition PBC, physical_boundary_conditions) {
+    ui.listWidgetBoundaryType->addItem(PBC.getName());
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
 }
@@ -249,9 +259,9 @@ void GuiEditBoundaryConditions::updateVol()
     ui.T->setHorizontalHeaderItem( c, new QTableWidgetItem( V.getName() ) );
     for ( int i = 0; i < ui.T->rowCount(); ++i ) {
       int bc = ui.T->item( i, 0 )->text().toInt();
-      if ( V.getSign( bc ) == 1 )  ui.T->setItem( i, c, new QTableWidgetItem( "green" ) );
-      else if ( V.getSign( bc ) == -1 ) ui.T->setItem( i, c, new QTableWidgetItem( "yellow" ) );
-      else                          ui.T->setItem( i, c, new QTableWidgetItem( " " ) );
+      if      (V.getSign( bc ) ==  1) ui.T->setItem(i, c, new QTableWidgetItem( "green"));
+      else if (V.getSign( bc ) == -1) ui.T->setItem(i, c, new QTableWidgetItem( "yellow"));
+      else                            ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
 }
@@ -307,9 +317,9 @@ void GuiEditBoundaryConditions::operate()
     for ( int j = 3; j < ui.T->columnCount(); ++j ) {
       QString vol_name = ui.T->horizontalHeaderItem( j )->text();
       VolumeDefinition V = vols[j];
-      if ( ui.T->item( i, j )->text() == "green" ) V.addBC( bc,  1 );
-      else if ( ui.T->item( i, j )->text() == "yellow" ) V.addBC( bc, -1 );
-      else V.addBC( bc,  0 );
+      if      (ui.T->item(i, j)->text() == "green")  V.addBC(bc,  1);
+      else if (ui.T->item(i, j)->text() == "yellow") V.addBC(bc, -1);
+      else                                           V.addBC(bc,  0);
       vols[j] = V;
     }
   }
@@ -320,7 +330,7 @@ void GuiEditBoundaryConditions::operate()
   GuiMainWindow::pointer()->setAllVols( vol_list );
 
   // PhysicalBoundaryConditions
-  GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions( m_PhysicalBoundaryConditionsMap );
+  GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
 
   saveSolverParameters();
   saveMpiParameters();

@@ -26,7 +26,7 @@
 class GuiEditBoundaryConditions;
 
 #include "boundarycondition.h"
-#include "physicalboundaryconditions.h"
+#include "physicalboundarycondition.h"
 #include "dialogoperation.h"
 #include "guivolumedelegate.h"
 #include "filetemplate.h"
@@ -46,9 +46,10 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     // variables to store settings locally while changing them. They will be copied over to their GuiMainWindow counterparts once OK is clicked.
     QMap<int, BoundaryCondition> *m_BcMap;
     QMap<QString, VolumeDefinition> m_VolMap;
-    QMap<QString, PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;
+    QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;
 
   private: // utility attributes
+
     GuiVolumeDelegate *delegate;
     QVector <MultiPageWidgetPage*> m_page_vector;
 

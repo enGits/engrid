@@ -233,6 +233,34 @@ void OpenFOAMcase::rewriteBoundaryFaces()
   writeBoundary( getFirstBoundaryFace() );
 }
 
+void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
+{
+  QFile file(getFileName() + "/0/" + file_name);
+  if (file.exists()) {
+    QString buffer;
+    {
+      file.open(QIODevice::ReadOnly);
+      QTextStream f(&file);
+      buffer = f.readAll();
+    }
+  }
+}
+
+void OpenFOAMcase::writeBoundaryConditions()
+{
+  QSet<int> bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  foreach (int bc, bcs) {
+    BoundaryCondition BC = GuiMainWindow::getBC(bc);
+    if (!GuiMainWindow::pointer()->physicalTypeDefined(BC.getType())) {
+      QString msg;
+      msg.setNum(bc);
+      msg += " has not been properly defined";
+      EG_ERR_RETURN(msg);
+    }
+  }
+}
+
 void OpenFOAMcase::operate()
 {
   try {

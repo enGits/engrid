@@ -55,7 +55,7 @@ class GuiMainWindow;
 #include "egvtkobject.h"
 #include "boundarycondition.h"
 #include "volumedefinition.h"
-#include "physicalboundaryconditions.h"
+#include "physicalboundarycondition.h"
 #include "checksurfaceintegrity.h"
 #include "surfaceprojection.h"
 #include "openfoamcase.h"
@@ -155,7 +155,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QMap<int, BoundaryCondition>    m_bcmap;     ///< mapping between numerical and symbolic boundary codes
     QMap<QString, VolumeDefinition> m_VolMap;    ///< all volume definitions
-    QMap<QString, PhysicalBoundaryConditions> m_PhysicalBoundaryConditionsMap;    ///< all physical boundary conditions definitions
+    QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;    ///< all physical boundary conditions definitions
 
     QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
 
@@ -310,12 +310,11 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void setAllVols( QList<VolumeDefinition> vols );
     void createDefaultVol();
 
-    QList<PhysicalBoundaryConditions> getAllPhysicalBoundaryConditions();
-    void setAllPhysicalBoundaryConditions( QList<PhysicalBoundaryConditions> physical_boundary_conditions );
-    void setAllPhysicalBoundaryConditions( QMap<QString, PhysicalBoundaryConditions> physical_boundary_conditions );
-
-    /*  PhysicalBoundaryConditions getPhysicalBoundaryConditions(QString name);
-      void setPhysicalBoundaryConditions(PhysicalBoundaryConditions physical_boundary_conditions);*/
+    QList<PhysicalBoundaryCondition> getAllPhysicalBoundaryConditions();
+    void setAllPhysicalBoundaryConditions (QList<PhysicalBoundaryCondition> physical_boundary_conditions);
+    void setAllPhysicalBoundaryConditions (QMap<QString, PhysicalBoundaryCondition> physical_boundary_conditions);
+    bool physicalTypeDefined(QString name) { return m_PhysicalBoundaryConditionsMap.contains(name); };
+    PhysicalBoundaryCondition getPhysicalBoundaryCondition(QString name) { return m_PhysicalBoundaryConditionsMap[name]; }
 
     static GuiMainWindow* pointer() { return THIS; }
     static void lock() { m_Mutex.lock(); }
