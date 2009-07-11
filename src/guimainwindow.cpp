@@ -1641,24 +1641,6 @@ void GuiMainWindow::callFixSTL()
   updateActors();
 }
 
-void::GuiMainWindow::callDelaunaySwap()
-{
-  SwapTriangles swap;
-  swap.setGrid(grid);
-  QSet<int> rest_bcs;
-  QSet<int> BCs;
-  BCs.insert(1);
-  GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
-  rest_bcs -= BCs;
-  swap.setBoundaryCodes(rest_bcs);
-  swap();
-  if(grid->GetNumberOfPoints()) updateBoundaryCodes(true);
-  updateActors();
-  updateStatusBar();
-  zoomAll();
-  grid->Modified();
-}
-
 void GuiMainWindow::editBoundaryConditions()
 {
   GuiEditBoundaryConditions editbcs;

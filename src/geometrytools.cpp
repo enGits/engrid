@@ -120,23 +120,6 @@ vec3_t orthogonalVector(vec3_t v)
   }
   u.normalise();
   return u;
-/*  v.normalise();
-  vec3_t u = v;
-  int i_min = 0;
-  int i_max = 0;
-  for (int i = 1; i < 3; ++i) {
-    if (v[i] > v[i_max]) i_max = i;
-    if (v[i] < v[i_min]) i_min = i;
-  }
-  double h = u[i_min];
-  u[i_min] = u[i_max];
-  u[i_max] = h;
-  cout<<"u="<<u<<endl;
-  cout<<"v="<<v<<endl;
-  u -= (u*v)*v;
-  cout<<"u="<<u<<endl;
-  u.normalise();*/
-//   return u;
 }
 
 

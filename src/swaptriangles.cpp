@@ -37,7 +37,6 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
 
 void SwapTriangles::operate()
 {
-  int toto = 0;
   //cout << "swapping edges of boundary triangles (Delaunay)" << endl;
   
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
@@ -138,10 +137,6 @@ void SwapTriangles::operate()
               old_pts2[2] = S.p[1];
               grid->ReplaceCell(S.id_cell1, 3, new_pts1);
               grid->ReplaceCell(S.id_cell2, 3, new_pts2);
-/*              QString tmp;
-              tmp.setNum(toto);
-              GuiMainWindow::pointer()->saveAs(GuiMainWindow::pointer()->getFilePath()+"after-swap-"+tmp+".egc");
-              toto++;*/
               ++N_swaps;
               ++N_total;
               break;

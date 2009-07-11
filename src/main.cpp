@@ -164,12 +164,6 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 
 int main( int argc, char ** argv )
 {
-/*  vec3_t v(1,1,1);
-  vec3_t u = orthogonalVector(v);
-  cout<<"u="<<u<<endl;
-  cout<<"v="<<v<<endl;
-  exit(0);*/
-  
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   
