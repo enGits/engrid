@@ -30,61 +30,61 @@ IOOperation::IOOperation()
   EG_TYPENAME;
   setResetOperationCounter(true);
   setQuickSave(true);
-  m_filename = "";
+  m_FileName = "";
 }
 
 void IOOperation::setFormat(QString format)
 {
-  m_format_txt = format;
+  m_FormatTxt = format;
 }
 
 void IOOperation::setExtension(QString extension)
 {
-  m_extension_txt = extension;
+  m_ExtensionTxt = extension;
 }
 
 ///@@@ TODO: Low priority: add default name argument so that it doesn't offer a file/directory of the wrong type by default. Must be done in GuiMainWindow too.
 void IOOperation::readInputFileName()
 {
-  QFileDialog dialog(NULL,"read file",GuiMainWindow::getCwd(),m_format_txt);
+  QFileDialog dialog(NULL, "read file", GuiMainWindow::getCwd(), m_FormatTxt);
   dialog.selectFile(GuiMainWindow::pointer()->getFilename());
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
-    m_filename = selected_files[0];
-    if (!m_filename.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
+    m_FileName = selected_files[0];
+    if (!m_FileName.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
       GuiMainWindow::setUnsaved(true);
-      GuiMainWindow::pointer()->setFilename(m_filename);
-      m_valid = true;
+      GuiMainWindow::pointer()->setFilename(m_FileName);
+      m_Valid = true;
     } else {
-      m_valid = false;
+      m_Valid = false;
     }
   }
-  else m_valid = false;
+  else m_Valid = false;
 }
 
 void IOOperation::readOutputFileName()
 {
-  QFileDialog dialog(NULL,"write file",GuiMainWindow::getCwd(),m_format_txt);
+  QFileDialog dialog(NULL, "write file", GuiMainWindow::getCwd(), m_FormatTxt);
   dialog.selectFile(GuiMainWindow::pointer()->getFilename());
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
-    m_filename = selected_files[0];
-    if (!m_filename.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
-      if (m_filename.right(4) != m_extension_txt.toLower()) {
-        if (m_filename.right(4) != m_extension_txt.toUpper()) {
-          m_filename += m_extension_txt.toLower();
+    m_FileName = selected_files[0];
+    if (!m_FileName.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
+      if (m_FileName.right(4) != m_ExtensionTxt.toLower()) {
+        if (m_FileName.right(4) != m_ExtensionTxt.toUpper()) {
+          m_FileName += m_ExtensionTxt.toLower();
         }
       }
-      m_valid = true;
+      m_Valid = true;
     } else {
-      m_valid = false;
+      m_Valid = false;
     }
   }
-  else m_valid = false;
+  else m_Valid = false;
 }
 
 void IOOperation::readOutputDirectory()
@@ -93,47 +93,39 @@ void IOOperation::readOutputDirectory()
   dialog.selectFile(GuiMainWindow::pointer()->getFilename());
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
-    m_filename = selected_files[0];
-    if (!m_filename.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
-      m_valid = true;
+    m_FileName = selected_files[0];
+    if (!m_FileName.isNull()) {
+      GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
+      m_Valid = true;
     } else {
-      m_valid = false;
+      m_Valid = false;
     }
   }
-  else m_valid = false;
+  else m_Valid = false;
 }
 
 void IOOperation::readInputDirectory(QString title_txt)
 {
-  QFileDialog dialog(NULL, title_txt, GuiMainWindow::getCwd());
-  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
-  if (dialog.exec()) {
-    QStringList selected_files = dialog.selectedFiles();
-    m_filename = selected_files[0];
-    if (!m_filename.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(m_filename).absolutePath());
-      GuiMainWindow::setUnsaved(true);
-      GuiMainWindow::pointer()->setFilename(m_filename);
-      m_valid = true;
-    } else {
-      m_valid = false;
-    }
+  m_FileName = QFileDialog::getExistingDirectory(NULL, title_txt, GuiMainWindow::getCwd());
+  if (!m_FileName.isNull()) {
+    GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
+    m_Valid = true;
+  } else {
+    m_Valid = false;
   }
-  else m_valid = false;
 }
 
 bool IOOperation::isValid()
 {
-  return m_valid;
+  return m_Valid;
 }
 
 const char* IOOperation::getCFileName()
 {
-  return qPrintable(m_filename);
+  return qPrintable(m_FileName);
 }
 
 QString IOOperation::getFileName()
 {
-  return m_filename;
+  return m_FileName;
 }

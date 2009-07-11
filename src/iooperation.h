@@ -45,10 +45,10 @@ class IOOperation : public Operation
   
 private: // attributes
   
-  bool m_valid;            ///< flag to determine if a valid file has been selected
-  QString m_filename;      ///< file name to read -- normally set by inputReadFileName()
-  QString m_format_txt;    ///< file format string (e.g. *.stl, *.vtu, ...)
-  QString m_extension_txt; ///< file extension for write operations
+  bool    m_Valid;        ///< flag to determine if a valid file has been selected
+  QString m_FileName;     ///< file name to read -- normally set by inputReadFileName()
+  QString m_FormatTxt;    ///< file format string (e.g. *.stl, *.vtu, ...)
+  QString m_ExtensionTxt; ///< file extension for write operations
 
 protected: // methods
   
