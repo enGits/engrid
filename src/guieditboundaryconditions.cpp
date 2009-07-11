@@ -164,7 +164,7 @@ void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
     PhysicalBoundaryCondition PBC = m_PhysicalBoundaryConditionsMap[name];
     QString str;
     while (ui.tableWidgetPBC->rowCount()) {
-      ui.T->removeRow(0);
+      ui.tableWidgetPBC->removeRow(0);
     }
     for (int i = 0; i < PBC.getNumVars(); ++i) {
       str.setNum(PBC.getVarValue(i));
@@ -198,12 +198,8 @@ void GuiEditBoundaryConditions::changePhysicalValues()
   if ( ui.listWidgetBoundaryType->count() > 0 ) {
     int index = ui.listWidgetBoundaryType->currentRow();
     QString name = ui.listWidgetBoundaryType->currentItem()->text();
-
-    cout << "switching to index = " << index << " name = " << qPrintable( name ) << endl;
-
     savePhysicalValues( m_PreviousSelectedName, m_PreviousSelectedIndex );
     loadPhysicalValues( name );
-
     m_PreviousSelectedName = name;
     m_PreviousSelectedIndex = index;
   }
@@ -224,7 +220,6 @@ void GuiEditBoundaryConditions::addBoundaryType()
 
 void GuiEditBoundaryConditions::deleteBoundaryType()
 {
-  EG_BUG;
   int row = ui.listWidgetBoundaryType->currentRow();
   if (ui.listWidgetBoundaryType->count() <= 1) {
     ui.listWidgetBoundaryType->clear();

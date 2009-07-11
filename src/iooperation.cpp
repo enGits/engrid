@@ -89,19 +89,13 @@ void IOOperation::readOutputFileName()
 
 void IOOperation::readOutputDirectory()
 {
-  QFileDialog dialog(NULL, "write OpenFOAM mesh",GuiMainWindow::getCwd());
-  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
-  if (dialog.exec()) {
-    QStringList selected_files = dialog.selectedFiles();
-    m_FileName = selected_files[0];
-    if (!m_FileName.isNull()) {
-      GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
-      m_Valid = true;
-    } else {
-      m_Valid = false;
-    }
+  m_FileName = QFileDialog::getExistingDirectory(NULL, "write OpenFOAM mesh", GuiMainWindow::getCwd());
+  if (!m_FileName.isNull()) {
+    GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
+    m_Valid = true;
+  } else {
+    m_Valid = false;
   }
-  else m_Valid = false;
 }
 
 void IOOperation::readInputDirectory(QString title_txt)

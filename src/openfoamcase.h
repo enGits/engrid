@@ -34,7 +34,7 @@ class OpenFOAMcase : public SimpleFoamWriter, public FoamObject
   protected: // methods
 
     void writeSolverParameters();
-    void upateVarFile(QString file_name);
+    void upateVarFile(QString file_name, QString bc_txt);
     void writeBoundaryConditions();
     void createBoundaryFaces();
     void rewriteBoundaryFaces();

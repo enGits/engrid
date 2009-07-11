@@ -242,6 +242,14 @@ void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
       file.open(QIODevice::ReadOnly);
       QTextStream f(&file);
       buffer = f.readAll();
+      file.close();
+    }
+    buffer = buffer.replace("$$$", bc_txt);
+    {
+      file.open(QIODevice::WriteOnly);
+      QTextStream f(&file);
+      f << buffer << "\n";
+      file.close();
     }
   }
 }
@@ -249,16 +257,45 @@ void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
 void OpenFOAMcase::writeBoundaryConditions()
 {
   QSet<int> bcs;
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  QString U_buffer = "";
+  QString p_buffer = "";
+  QString T_buffer = "";
+  QString k_buffer = "";
+  QString epsilon_buffer = "";
+  QString omega_buffer = "";
   foreach (int bc, bcs) {
-    BoundaryCondition BC = GuiMainWindow::getBC(bc);
+    BoundaryCondition BC = GuiMainWindow::pointer()->getBC(bc);
     if (!GuiMainWindow::pointer()->physicalTypeDefined(BC.getType())) {
       QString msg;
       msg.setNum(bc);
-      msg += " has not been properly defined";
+      msg = "boundary code " + msg + " has not been properly defined";
       EG_ERR_RETURN(msg);
     }
+    vec3_t n(0,0,0);
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, grid)) {
+        if (cell_code->GetValue(id_cell) == bc) {
+          n += GeometryTools::cellNormal(grid, id_cell);
+        }
+      }
+    }
+    n.normalise();
+    PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(BC.getType());
+    U_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamU(n)      + "    }\n";
+    p_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamP()       + "    }\n";
+    T_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamT()       + "    }\n";
+    k_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamK()       + "    }\n";
+    epsilon_buffer += "    " + BC.getName() + "\n    {\n" + PBC.getFoamEpsilon() + "    }\n";
+    omega_buffer   += "    " + BC.getName() + "\n    {\n" + PBC.getFoamOmega()   + "    }\n";
   }
+  upateVarFile("U", U_buffer);
+  upateVarFile("p", p_buffer);
+  upateVarFile("T", T_buffer);
+  upateVarFile("k", k_buffer);
+  upateVarFile("epsilon", epsilon_buffer);
+  upateVarFile("omega", omega_buffer);
 }
 
 void OpenFOAMcase::operate()
@@ -270,6 +307,7 @@ void OpenFOAMcase::operate()
     if (isValid()) {
       writeSolverParameters();
       rewriteBoundaryFaces();
+      writeBoundaryConditions();
     }
   }
   catch ( Error err ) {

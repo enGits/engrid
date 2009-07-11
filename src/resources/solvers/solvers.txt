@@ -1,8 +1,13 @@
 title : standard simplefoam;
-section : openfoam/simpleFoam/standard;
+section : openfoam/simpleFoam/standard/;
 binary : simpleFoam;
 files :
   system/controlDict,
+  0/U,
+  0/p,
+  0/k,
+  0/epsilon,
+  0/omega,
   constant/transportProperties,
   constant/RASProperties,
   system/fvSchemes,
