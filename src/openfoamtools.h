@@ -36,15 +36,17 @@ private: // attributes
   QProcess*   m_ToolsProcess;
   QString     m_SolverBinary;
   QString     m_WorkingDirectory;
-  QString     m_NumProcesses;
+  int         m_NumProcesses;
   QString     m_HostFile;
   QString     m_Program;
   QStringList m_Arguments;
   QString     m_OpenFoamPath;
   QString     m_OpenFoamArch;
+  QString     m_MainHost;
 
 private: // methods
 
+  void    writeMpiParameters();
   int     getArguments();
   void    runTool(QString path, QString name, QStringList args = QStringList());
   QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };

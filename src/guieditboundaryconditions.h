@@ -105,9 +105,13 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
   protected:
     void loadMpiParameters();
     void saveMpiParameters();
+    QString tableToString();
+    void stringToTable(QString hostfile_txt);
   protected slots:
     void addProcess();
     void deleteProcess();
+    void importHostFile();
+    void exportHostFile();
 };
 
 #endif

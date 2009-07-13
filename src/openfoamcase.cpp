@@ -34,6 +34,42 @@ OpenFOAMcase::OpenFOAMcase()
 {
 }
 
+///@@@ TODO: Finish this by adding decomposeParDict creation and calling writeMpiParameters from operate
+void OpenFOAMcase::writeMpiParameters()
+{
+  QString hostfile_text = GuiMainWindow::pointer()->getXmlSection( "solver/general/host_weight_list" );
+  
+  QVector <QString> host;
+  QVector <QString> weight;
+  
+  QStringList host_weight_list = hostfile_text.split(",");
+  foreach(QString host_weight, host_weight_list) {
+    if(!host_weight.isEmpty()){
+      QStringList values = host_weight.split(":");
+      qWarning()<<"values="<<values;
+      host.push_back(values[0].trimmed());
+      weight.push_back(values[1].trimmed());
+    }
+  }
+  
+  // create the hostfile
+  QFileInfo fileinfo( getFileName() + "/" + "hostfile.txt" );
+  QFile hostfile( fileinfo.filePath() );
+  if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    try {
+      EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
+    } catch ( Error err ) {
+      err.display();
+    }
+  }
+  QTextStream out( &hostfile );
+  for(int i = 0; i < host.size(); i++) {
+    out << host[i] << endl;
+  }
+  hostfile.close();
+  
+}
+
 void OpenFOAMcase::writeSolverParameters()
 {
   int idx = GuiMainWindow::pointer()->getXmlSection( "solver/general/solver_type" ).toInt();
