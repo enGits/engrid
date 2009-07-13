@@ -17,7 +17,7 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (<<<DoubleLineEdit: initial u: : 0>>> <<<DoubleLineEdit: initial v: : 0>>> <<<DoubleLineEdit: initial w: : 0>>>);
+internalField   uniform ({{{DoubleLineEdit: initial u: : 0}}} {{{DoubleLineEdit: initial v: : 0}}} {{{DoubleLineEdit: initial w: : 0}}});
 
 boundaryField
 {

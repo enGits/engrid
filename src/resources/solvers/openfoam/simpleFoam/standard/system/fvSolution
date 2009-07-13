@@ -62,16 +62,16 @@ solvers
 
 SIMPLE
 {
-    nNonOrthogonalCorrectors <<<SpinBox: non-orthogonal correctors: 0,10,1: 2>>>;
+    nNonOrthogonalCorrectors {{{SpinBox: non-orthogonal correctors: 0,10,1: 2}}};
 }
 
 relaxationFactors
 {
-    p       <<<DoubleSpinBox: p relaxation factor      : 0,1,0.05,2: 0.3>>>;
-    U       <<<DoubleSpinBox: U relaxation factor      : 0,1,0.05,2: 0.7>>>;
-    k       <<<DoubleSpinBox: k relaxation factor      : 0,1,0.05,2: 0.7>>>;
-    epsilon <<<DoubleSpinBox: epsilon relaxation factor: 0,1,0.05,2: 0.7>>>;
-    omega   <<<DoubleSpinBox: omega relaxation factor  : 0,1,0.05,2: 0.7>>>;
+    p       {{{DoubleSpinBox: p relaxation factor      : 0,1,0.05,2: 0.3}}};
+    U       {{{DoubleSpinBox: U relaxation factor      : 0,1,0.05,2: 0.7}}};
+    k       {{{DoubleSpinBox: k relaxation factor      : 0,1,0.05,2: 0.7}}};
+    epsilon {{{DoubleSpinBox: epsilon relaxation factor: 0,1,0.05,2: 0.7}}};
+    omega   {{{DoubleSpinBox: omega relaxation factor  : 0,1,0.05,2: 0.7}}};
 }
 
 

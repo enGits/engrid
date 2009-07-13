@@ -7,28 +7,28 @@
 \*---------------------------------------------------------------------------*/
 
 # global format
-# <<< TYPE : NAME : OPTIONS : DEFAULT_VALUE >>>
+# {{{ TYPE : NAME : OPTIONS : DEFAULT_VALUE }}}
 
 # spinboxes
-# <<< TYPE : NAME : MIN, MAX, STEP : DEFAULT_VALUE >>>;
-version          <<<SpinBox: version int: 0, 18, 5 : 18 >>>;
-# <<< TYPE : NAME : MIN, MAX, STEP, NUM_DECIMALS : DEFAULT_VALUE >>>;
-floatversion     <<<DoubleSpinBox: version double: 0, 100, 0.5, 5 : 47 >>>;
+# {{{ TYPE : NAME : MIN, MAX, STEP : DEFAULT_VALUE }}};
+version          {{{SpinBox: version int: 0, 18, 5 : 18 }}};
+# {{{ TYPE : NAME : MIN, MAX, STEP, NUM_DECIMALS : DEFAULT_VALUE }}};
+floatversion     {{{DoubleSpinBox: version double: 0, 100, 0.5, 5 : 47 }}};
 
 # line edits
-# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
-default          <<<IntLineEdit: name1 : : 49 >>>;
-# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
-default          <<<DoubleLineEdit: name2 : : 1.23 >>>;
-# <<< TYPE : NAME : : DEFAULT_VALUE >>>;
-default          <<<TextLineEdit: name3 : : some text >>>;
+# {{{ TYPE : NAME : : DEFAULT_VALUE }}};
+default          {{{IntLineEdit: name1 : : 49 }}};
+# {{{ TYPE : NAME : : DEFAULT_VALUE }}};
+default          {{{DoubleLineEdit: name2 : : 1.23 }}};
+# {{{ TYPE : NAME : : DEFAULT_VALUE }}};
+default          {{{TextLineEdit: name3 : : some text }}};
 
 # comboboxes
-# <<< TYPE : NAME : (DESCRIPTION 1, VALUE 1),...,(DESCRIPTION N, VALUE N) : DEFAULT_VALUE >>>;
-div(phi,U)       <<<ComboBox: name : (1st order, Gauss), (2nd order, Kramer), (3rd order, Noether): Gauss >>>;
+# {{{ TYPE : NAME : (DESCRIPTION 1, VALUE 1),...,(DESCRIPTION N, VALUE N) : DEFAULT_VALUE }}};
+div(phi,U)       {{{ComboBox: name : (1st order, Gauss), (2nd order, Kramer), (3rd order, Noether): Gauss }}};
 
 # checkboxes
-# <<< TYPE : NAME : CHECKED_VALUE, UNCHECKED_VALUE : DEFAULT_VALUE >>>;
-default          <<<CheckBox: check1 : yes, no : yes >>>; #checked
-default          <<<CheckBox: check2 : on, off : on >>>; #checked
-default          <<<CheckBox: check3 : no, yes : yes >>>; #unchecked
+# {{{ TYPE : NAME : CHECKED_VALUE, UNCHECKED_VALUE : DEFAULT_VALUE }}};
+default          {{{CheckBox: check1 : yes, no : yes }}}; #checked
+default          {{{CheckBox: check2 : on, off : on }}}; #checked
+default          {{{CheckBox: check3 : no, yes : yes }}}; #unchecked

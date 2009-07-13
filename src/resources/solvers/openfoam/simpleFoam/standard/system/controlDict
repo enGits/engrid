@@ -16,13 +16,13 @@ FoamFile
 
 application simpleFoam;
 
-startFrom         <<<ComboBox: start from: (specified iteration, startTime), (last iteration, latestTime): startTime>>>;
-startTime         <<<IntLineEdit: start iteration: : 0>>>;
+startFrom         {{{ComboBox: start from: (specified iteration, startTime), (last iteration, latestTime): startTime}}};
+startTime         {{{IntLineEdit: start iteration: : 0}}};
 stopAt            endTime;
-endTime           <<<IntLineEdit: last iteration: : 1000>>>;
+endTime           {{{IntLineEdit: last iteration: : 1000}}};
 deltaT            1;
 writeControl      timeStep;
-writeInterval     <<<IntLineEdit: write interval: : 100>>>;
+writeInterval     {{{IntLineEdit: write interval: : 100}}};
 purgeWrite        0;
 writeFormat       binary;
 writePrecision    6;
