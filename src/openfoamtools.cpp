@@ -71,6 +71,41 @@ OpenFOAMTools::~OpenFOAMTools()
   this->stopSolverProcess();
 }
 
+void OpenFOAMTools::writeMpiParameters()
+{
+  QString hostfile_text = GuiMainWindow::pointer()->getXmlSection( "solver/general/host_weight_list" );
+  
+  QVector <QString> host;
+  QVector <QString> weight;
+  
+  QStringList host_weight_list = hostfile_text.split(",");
+  foreach(QString host_weight, host_weight_list) {
+    if(!host_weight.isEmpty()){
+      QStringList values = host_weight.split(":");
+      qWarning()<<"values="<<values;
+      host.push_back(values[0].trimmed());
+      weight.push_back(values[1].trimmed());
+    }
+  }
+  
+  // create the hostfile
+  QFileInfo fileinfo( m_WorkingDirectory + "/" + m_HostFile );
+  QFile hostfile( fileinfo.filePath() );
+  if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    try {
+      EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
+    } catch ( Error err ) {
+      err.display();
+    }
+  }
+  QTextStream out( &hostfile );
+  for(int i = 0; i < host.size(); i++) {
+    out << host[i] << endl;
+  }
+  hostfile.close();
+  
+}
+
 int OpenFOAMTools::getArguments()
 {
   // resest command-line
@@ -131,23 +166,9 @@ int OpenFOAMTools::getArguments()
   // get number of processes
   m_NumProcesses = GuiMainWindow::pointer()->getXmlSection("solver/general/num_processes");
 
-  // create the hostfile
-  QString hostfile_text = GuiMainWindow::pointer()->getXmlSection( "solver/general/hostfile" );
-
-  QFileInfo fileinfo( m_WorkingDirectory + "/" + m_HostFile );
-  QFile hostfile( fileinfo.filePath() );
-  if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    try {
-      EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
-    } catch ( Error err ) {
-      err.display();
-      return( -1 );
-    }
-  }
-  QTextStream out( &hostfile );
-  out << hostfile_text;
-  hostfile.close();
-
+  // create hostfile + decomposeParDict + get necessary parameters
+  writeMpiParameters();
+  
   // set working directory of the process
   m_SolverProcess->setWorkingDirectory(m_WorkingDirectory);
 
