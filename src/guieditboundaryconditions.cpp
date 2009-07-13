@@ -87,10 +87,6 @@ void GuiEditBoundaryConditions::before()
   updateVol();
   updatePhysicalBoundaryConditions();
 
-  m_PreviousSelected = 0;
-  ui.listWidgetBoundaryType->setCurrentRow(m_PreviousSelected);
-  if (ui.listWidgetBoundaryType->count() > 0) loadPhysicalValues(ui.listWidgetBoundaryType->currentItem()->text());
-
   ui.T->setItemDelegate(delegate);
 }
 
@@ -123,6 +119,7 @@ void GuiEditBoundaryConditions::operate()
   GuiMainWindow::pointer()->setAllVols(vol_list);
 
   // PhysicalBoundaryConditions
+  savePhysicalValues();
   GuiMainWindow::pointer()->setAllPhysicalBoundaryConditions(m_PhysicalBoundaryConditionsMap);
 
   saveSolverParameters();
@@ -188,50 +185,47 @@ void GuiEditBoundaryConditions::delVol()
 
 //==========================
 
-void GuiEditBoundaryConditions::loadPhysicalValues(QString name)
+void GuiEditBoundaryConditions::loadPhysicalValues()
 {
-  if (m_PhysicalBoundaryConditionsMap.contains(name)) {
-    PhysicalBoundaryCondition PBC = m_PhysicalBoundaryConditionsMap[name];
-    QString str;
-    while (ui.tableWidgetPBC->rowCount()) {
-      ui.tableWidgetPBC->removeRow(0);
-    }
-    for (int i = 0; i < PBC.getNumVars(); ++i) {
-      str.setNum(PBC.getVarValue(i));
-      ui.tableWidgetPBC->insertRow(ui.tableWidgetPBC->rowCount());
-      int r = ui.tableWidgetPBC->rowCount() - 1;
-      ui.tableWidgetPBC->setItem(r, 0, new QTableWidgetItem());
-      ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
-      ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsEditable));
-      ui.tableWidgetPBC->setItem(r, 1, new QTableWidgetItem());
-      ui.tableWidgetPBC->item(r, 0)->setText(PBC.getVarName(i));
-      ui.tableWidgetPBC->item(r, 1)->setText(str);
-    }
-    ui.tableWidgetPBC->resizeColumnsToContents();
+  while (ui.tableWidgetPBC->rowCount()) {
+    ui.tableWidgetPBC->removeRow(0);
   }
+  for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
+    QString str;
+    str.setNum(m_PBC_current.getVarValue(i));
+    ui.tableWidgetPBC->insertRow(ui.tableWidgetPBC->rowCount());
+    int r = ui.tableWidgetPBC->rowCount() - 1;
+    ui.tableWidgetPBC->setItem(r, 0, new QTableWidgetItem());
+    ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
+    ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsEditable));
+    ui.tableWidgetPBC->setItem(r, 1, new QTableWidgetItem());
+    ui.tableWidgetPBC->item(r, 0)->setText(m_PBC_current.getVarName(i));
+    ui.tableWidgetPBC->item(r, 1)->setText(str);
+  }
+  ui.tableWidgetPBC->resizeColumnsToContents();
 }
 
-void GuiEditBoundaryConditions::savePhysicalValues(QString name, int index)
+void GuiEditBoundaryConditions::savePhysicalValues()
 {
-  if (m_PhysicalBoundaryConditionsMap.contains(name)) {
-    PhysicalBoundaryCondition PBC = m_PhysicalBoundaryConditionsMap[name];
-    PBC.setIndex(index);
-    for (int i = 0; i < PBC.getNumVars(); ++i) {
-      PBC.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
-    }
-    m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
+  for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
+    m_PBC_current.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
   }
+  m_PhysicalBoundaryConditionsMap[m_PBC_current.getName()] = m_PBC_current;
 }
 
 void GuiEditBoundaryConditions::changePhysicalValues()
 {
+  qDebug()<<"void GuiEditBoundaryConditions::changePhysicalValues() called";
   if (ui.listWidgetBoundaryType->count() > 0) {
     int index = ui.listWidgetBoundaryType->currentRow();
     QString name = ui.listWidgetBoundaryType->currentItem()->text();
-    savePhysicalValues(m_PreviousSelectedName, m_PreviousSelectedIndex);
-    loadPhysicalValues(name);
-    m_PreviousSelectedName = name;
-    m_PreviousSelectedIndex = index;
+    savePhysicalValues();
+    if(m_PhysicalBoundaryConditionsMap.contains(name)) {
+      m_PBC_current = m_PhysicalBoundaryConditionsMap[name];
+      m_PBC_current.setIndex(index);
+    }
+    else EG_BUG;
+    loadPhysicalValues();
   }
 }
 
@@ -264,11 +258,26 @@ void GuiEditBoundaryConditions::deleteBoundaryType()
 
 void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
 {
+  // clear list
   ui.listWidgetBoundaryType->clear();
+  
+  // fill list
   QList<PhysicalBoundaryCondition> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
   foreach(PhysicalBoundaryCondition PBC, physical_boundary_conditions) {
     ui.listWidgetBoundaryType->addItem(PBC.getName());
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
+  }
+  
+  // select and load first item
+  if (ui.listWidgetBoundaryType->count() > 0) {
+    ui.listWidgetBoundaryType->setCurrentRow(0);
+    QString name = ui.listWidgetBoundaryType->currentItem()->text();
+    if(m_PhysicalBoundaryConditionsMap.contains(name)) {
+      m_PBC_current = m_PhysicalBoundaryConditionsMap[name];
+      m_PBC_current.setIndex(0);
+    }
+    else EG_BUG;
+    loadPhysicalValues();
   }
 }
 
