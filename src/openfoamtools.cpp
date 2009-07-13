@@ -215,6 +215,7 @@ int OpenFOAMTools::getArguments()
 
   m_SolverBinary = m_OpenFoamPath + "/applications/bin/" + m_OpenFoamArch + "/" + binary;
 
+  m_WorkingDirectory = GuiMainWindow::pointer()->getXmlSection("openfoam/CaseDir");
   if ( m_WorkingDirectory.isEmpty() ) {
     m_WorkingDirectory = QFileDialog::getExistingDirectory( NULL, "select case directory", GuiMainWindow::getCwd() );
     if ( !m_WorkingDirectory.isNull() ) {

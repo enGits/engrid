@@ -24,8 +24,11 @@
 #include "foamobject.h"
 #include <iostream>
 
+#include "guimainwindow.h"
+
 FoamObject::FoamObject()
 {
+  m_CaseDir = "";
 }
 
 int FoamObject::deleteBetween(int i, QString str1, QString str2)
@@ -132,4 +135,10 @@ void FoamObject::buildMaps()
       EG_BUG;
     }
   }
+}
+
+void FoamObject::setCaseDir(QString case_dir)
+{
+  m_CaseDir = case_dir;
+  GuiMainWindow::pointer()->setXmlSection("openfoam/CaseDir",m_CaseDir);
 }

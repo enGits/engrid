@@ -208,10 +208,12 @@ void GuiEditBoundaryConditions::loadPhysicalValues()
 
 void GuiEditBoundaryConditions::savePhysicalValues()
 {
-  for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
-    m_PBC_current.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
+  if(m_PhysicalBoundaryConditionsMap.contains(m_PBC_current.getName())) {
+    for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
+      m_PBC_current.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
+    }
+    m_PhysicalBoundaryConditionsMap[m_PBC_current.getName()] = m_PBC_current;
   }
-  m_PhysicalBoundaryConditionsMap[m_PBC_current.getName()] = m_PBC_current;
 }
 
 void GuiEditBoundaryConditions::changePhysicalValues()
