@@ -256,7 +256,8 @@ void TemplateDialog::saveEgc()
 TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString section, char *name, QWidget *parent ) : QFormLayout( parent )
 {
   GuiMainWindow::pointer();
-  QFormLayout::setObjectName( name );
+  this->setObjectName( name );
+  this->setLabelAlignment(Qt::AlignLeft);
   for ( int filename_index = 0; filename_index < filename.size(); filename_index++ ) {
     FileTemplate file_template( filename[filename_index], section );
 
@@ -370,6 +371,7 @@ void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
   double_spin_box->setValue( value );
   this->addRow( line.m_Name, double_spin_box );
   m_DoubleSpinBoxVector.push_back( double_spin_box );
+//   this->itemAt(this->rowCount()-1)->setAlignment(Qt::AlignRight);
 }
 
 void TemplateFormLayout::saveEgc()
