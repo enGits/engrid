@@ -83,7 +83,7 @@ class TemplateFormLayout : public QFormLayout
 
   private:
     QVector <FileTemplate> m_FileTemplate;
-    QVector <TemplateLine> m_Lines;
+//     QVector < QVector <TemplateLine> > m_Lines;
 
     QVector <QComboBox*> m_ComboBoxVector;
     QVector <QStringList> m_ComboboxValues;
