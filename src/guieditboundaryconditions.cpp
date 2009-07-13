@@ -124,6 +124,7 @@ void GuiEditBoundaryConditions::operate()
 
   saveSolverParameters();
   saveMpiParameters();
+
 }
 
 //==========================
@@ -143,7 +144,7 @@ void GuiEditBoundaryConditions::updateVol()
       int bc = ui.T->item(i, 0)->text().toInt();
       if (V.getSign(bc) ==  1) ui.T->setItem(i, c, new QTableWidgetItem("green"));
       else if (V.getSign(bc) == -1) ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
-      else                            ui.T->setItem(i, c, new QTableWidgetItem(" "));
+      else                          ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
 }
@@ -162,7 +163,7 @@ void GuiEditBoundaryConditions::addVol()
       int bc = ui.T->item(i, 0)->text().toInt();
       if (NV.getSign(bc) == 1)  ui.T->setItem(i, c, new QTableWidgetItem("green"));
       else if (NV.getSign(bc) == -1) ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
-      else                          ui.T->setItem(i, c, new QTableWidgetItem(" "));
+      else                           ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
 }

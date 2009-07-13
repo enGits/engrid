@@ -24,7 +24,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_BoundaryConditions">
       <attribute name="title">
@@ -190,7 +190,7 @@
        <string>Solver</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <layout class="QVBoxLayout" name="verticalLayout_Solver"/>
        </item>
       </layout>
