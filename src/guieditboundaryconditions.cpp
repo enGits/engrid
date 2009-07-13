@@ -383,25 +383,55 @@ void GuiEditBoundaryConditions::exportHostFile()
 
 void GuiEditBoundaryConditions::loadMpiParameters()
 {
-  QString hostfile_txt = GuiMainWindow::pointer()->getXmlSection( "solver/general/hostfile" );
+  QString hostfile_txt = GuiMainWindow::pointer()->getXmlSection( "solver/general/host_weight_list" );
   stringToTable(hostfile_txt);
 }
 
 void GuiEditBoundaryConditions::saveMpiParameters()
 {
   QString hostfile_txt = tableToString();
-  GuiMainWindow::pointer()->setXmlSection( "solver/general/hostfile", hostfile_txt );
-  QString str_num_processes;
-  str_num_processes.setNum( ui.tableWidget_Processes->rowCount() );
-  GuiMainWindow::pointer()->setXmlSection( "solver/general/num_processes", str_num_processes );
+  GuiMainWindow::pointer()->setXmlSection( "solver/general/host_weight_list", hostfile_txt );
 }
 
 QString GuiEditBoundaryConditions::tableToString()
 {
-
+  QString hostfile_txt;
+  for(int row = 0; row < ui.tableWidget_Processes->rowCount(); row++) {
+    QString host, weight;
+    host = ui.tableWidget_Processes->item(row, 0)->text();
+    weight = ui.tableWidget_Processes->item(row, 1)->text();
+    hostfile_txt += host + ":" + weight;
+    if(row!=ui.tableWidget_Processes->rowCount()-1) hostfile_txt += ",";
+  }
+  return(hostfile_txt);
 }
 
 void GuiEditBoundaryConditions::stringToTable(QString hostfile_txt)
 {
-
+  QVector <QString> host;
+  QVector <QString> weight;
+  
+  QStringList host_weight_list = hostfile_txt.split(",");
+  foreach(QString host_weight, host_weight_list) {
+    if(!host_weight.isEmpty()){
+      QStringList values = host_weight.split(":");
+      qWarning()<<"values="<<values;
+      host.push_back(values[0].trimmed());
+      weight.push_back(values[1].trimmed());
+    }
+  }
+  
+  while (ui.tableWidget_Processes->rowCount()) {
+    ui.tableWidget_Processes->removeRow(0);
+  }
+  
+  for(int i = 0; i < host.size(); i++) {
+    int row = ui.tableWidget_Processes->rowCount();
+    ui.tableWidget_Processes->insertRow(row);
+    ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
+    ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
+    ui.tableWidget_Processes->item(row, 0)->setText(host[i]);
+    ui.tableWidget_Processes->item(row, 1)->setText(weight[i]);
+    ui.tableWidget_Processes->resizeColumnsToContents();
+  }
 }
