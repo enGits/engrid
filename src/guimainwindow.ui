@@ -76,6 +76,7 @@
     <addaction name="menuGmsh_2"/>
     <addaction name="menuVTK"/>
     <addaction name="actionImportOpenFoamCase"/>
+    <addaction name="actionImportFluentCase"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1460,6 +1461,14 @@
   <action name="actionPreparePostProcessing">
    <property name="text">
     <string>Prepare post-processing</string>
+   </property>
+  </action>
+  <action name="actionImportFluentCase">
+   <property name="text">
+    <string>FLUENT case</string>
+   </property>
+   <property name="toolTip">
+    <string>import FLUENT case</string>
    </property>
   </action>
  </widget>

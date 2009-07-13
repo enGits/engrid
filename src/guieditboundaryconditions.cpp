@@ -218,7 +218,6 @@ void GuiEditBoundaryConditions::savePhysicalValues()
 
 void GuiEditBoundaryConditions::changePhysicalValues()
 {
-  qDebug()<<"void GuiEditBoundaryConditions::changePhysicalValues() called";
   if (ui.listWidgetBoundaryType->count() > 0) {
     int index = ui.listWidgetBoundaryType->currentRow();
     QString name = ui.listWidgetBoundaryType->currentItem()->text();
