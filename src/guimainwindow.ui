@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -178,10 +178,8 @@
     </property>
     <addaction name="actionEditBoundaryConditions"/>
     <addaction name="actionRunSolver"/>
-    <addaction name="actionRunFoamToVTK"/>
-    <addaction name="actionRunDecomposePar"/>
-    <addaction name="actionRunReconstructPar"/>
     <addaction name="actionStopProcesses"/>
+    <addaction name="actionPreparePostProcessing"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
@@ -208,7 +206,7 @@
    <addaction name="actionSaveAs"/>
    <addaction name="actionExit"/>
    <addaction name="separator"/>
-   <addaction name="actionSimpleFoamWriter"/>
+   <addaction name="actionFoamCaseWriter"/>
    <addaction name="actionExportCGNS"/>
    <addaction name="separator"/>
    <addaction name="actionZoomAll"/>
@@ -288,8 +286,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>212</width>
-          <height>501</height>
+          <width>198</width>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -676,8 +674,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>228</width>
-          <height>557</height>
+          <width>214</width>
+          <height>533</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1231,10 +1229,6 @@
    </property>
   </action>
   <action name="actionSimpleFoamWriter">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
-   </property>
    <property name="text">
     <string>OpenFOAM (grid only)</string>
    </property>
@@ -1427,8 +1421,15 @@
    </property>
   </action>
   <action name="actionFoamCaseWriter">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
+   </property>
    <property name="text">
     <string>OpenFOAM (grid+solver parameters)</string>
+   </property>
+   <property name="toolTip">
+    <string>OpenFOAM (complete case)</string>
    </property>
   </action>
   <action name="actionRunFoamToVTK">
@@ -1438,27 +1439,12 @@
   </action>
   <action name="actionStopProcesses">
    <property name="text">
-    <string>Stop</string>
+    <string>Stop solver</string>
    </property>
   </action>
   <action name="actionRunSolver">
    <property name="text">
     <string>Run solver</string>
-   </property>
-  </action>
-  <action name="actionRunDecomposePar">
-   <property name="text">
-    <string>Run decomposePar</string>
-   </property>
-  </action>
-  <action name="actionRun_3">
-   <property name="text">
-    <string>Run</string>
-   </property>
-  </action>
-  <action name="actionRun_4">
-   <property name="text">
-    <string>Run</string>
    </property>
   </action>
   <action name="actionRunReconstructPar">
@@ -1469,6 +1455,11 @@
   <action name="actionDelaunaySwap">
    <property name="text">
     <string>Delaunay swap</string>
+   </property>
+  </action>
+  <action name="actionPreparePostProcessing">
+   <property name="text">
+    <string>Prepare post-processing</string>
    </property>
   </action>
  </widget>
