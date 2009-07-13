@@ -16,7 +16,7 @@ FoamFile
 
 application simpleFoam;
 
-startFrom         <<<ComboBox: start from: (specified iteration, startTime), (last iteration, lastTime): startTime>>>;
+startFrom         <<<ComboBox: start from: (specified iteration, startTime), (last iteration, latestTime): startTime>>>;
 startTime         <<<IntLineEdit: start iteration: : 0>>>;
 stopAt            endTime;
 endTime           <<<IntLineEdit: last iteration: : 1000>>>;
@@ -29,6 +29,6 @@ writePrecision    6;
 writeCompression  uncompressed;
 timeFormat        general;
 timePrecision     6;
-runTimeModifiable no;
+runTimeModifiable yes;
 
 // ************************************************************************* //

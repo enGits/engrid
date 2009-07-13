@@ -72,7 +72,6 @@ relaxationFactors
     k       <<<DoubleSpinBox: k relaxation factor      : 0,1,0.05,2: 0.7>>>;
     epsilon <<<DoubleSpinBox: epsilon relaxation factor: 0,1,0.05,2: 0.7>>>;
     omega   <<<DoubleSpinBox: omega relaxation factor  : 0,1,0.05,2: 0.7>>>;
-    U       <<<DoubleSpinBox: U relaxation factor      : 0,1,0.05,2: 0.7>>>;
 }
 
 

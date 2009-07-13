@@ -1,4 +1,4 @@
-title : standard simplefoam;
+title : standard simpleFoam;
 section : openfoam/simpleFoam/standard;
 binary : simpleFoam;
 files :
@@ -12,3 +12,21 @@ files :
   constant/RASProperties,
   system/fvSchemes,
   system/fvSolution;
+=
+title : standard rhoSimpleFoam;
+section : openfoam/rhoSimpleFoam/standard;
+binary : rhoSimpleFoam;
+files :
+  system/controlDict,
+  0/U,
+  0/p,
+  0/T,
+  0/k,
+  0/epsilon,
+  0/omega,
+  constant/thermophysicalProperties,
+  constant/RASProperties,
+  system/fvSchemes,
+  system/fvSolution;
+
+

@@ -33,6 +33,7 @@ divSchemes
     div(phi,k)       Gauss <<<ComboBox: k convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind>>>;
     div(phi,epsilon) Gauss <<<ComboBox: epsilon convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind>>>;
     div(phi,omega)   Gauss <<<ComboBox: omega convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind>>>;
+    div((nuEff*dev(grad(U).T()))) Gauss linear;
 }
 
 laplacianSchemes
