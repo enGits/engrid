@@ -23,6 +23,9 @@
 #include "gmshreader.h"
 #include "correctsurfaceorientation.h"
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
 {
   vtkIdType Nnodes, Ncells;
@@ -218,7 +221,8 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
 void GmshReader::operate()
 {
   try {
-    readInputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readInputFileName(file_info.completeBaseName() + ".msh");
     if (isValid()) {
       if (format == ascii1) {
         readAscii1(grid);

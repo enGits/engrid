@@ -24,6 +24,9 @@
 
 #include <vtkUnstructuredGridReader.h>
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 VtkReader::VtkReader()
 {
   setFormat("legacy VTK files(*.vtk)");
@@ -33,7 +36,8 @@ VtkReader::VtkReader()
 void VtkReader::operate()
 {
   try {
-    readInputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readInputFileName(file_info.completeBaseName() + ".vtk");
     if (isValid()) {
       EG_VTKSP(vtkUnstructuredGridReader,vtk);
       vtk->SetFileName(qPrintable(getFileName()));

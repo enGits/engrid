@@ -43,11 +43,10 @@ void IOOperation::setExtension(QString extension)
   m_ExtensionTxt = extension;
 }
 
-///@@@ TODO: Low priority: add default name argument so that it doesn't offer a file/directory of the wrong type by default. Must be done in GuiMainWindow too.
-void IOOperation::readInputFileName()
+void IOOperation::readInputFileName(QString default_filename)
 {
   QFileDialog dialog(NULL, "read file", GuiMainWindow::getCwd(), m_FormatTxt);
-  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  dialog.selectFile(default_filename);
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
     m_FileName = selected_files[0];
@@ -63,10 +62,10 @@ void IOOperation::readInputFileName()
   else m_Valid = false;
 }
 
-void IOOperation::readOutputFileName()
+void IOOperation::readOutputFileName(QString default_filename)
 {
   QFileDialog dialog(NULL, "write file", GuiMainWindow::getCwd(), m_FormatTxt);
-  dialog.selectFile(GuiMainWindow::pointer()->getFilename());
+  dialog.selectFile(default_filename);
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
