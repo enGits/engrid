@@ -36,6 +36,12 @@ class GuiEditBoundaryConditions;
 
 #include "ui_guieditboundaryconditions.h"
 
+// tabs:
+// boundary conditions -> add/del/update
+// boundary types -> add/del/update + change/load/save
+// solver ->setup/save
+// MPI -> add/del/update
+
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
 
@@ -61,34 +67,47 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     /// vector to hold the binaries
     QVector <QString> m_SolverBinary;
 
+  public:
+    GuiEditBoundaryConditions();
+    virtual ~GuiEditBoundaryConditions();
+    void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
+
+  private:
+    virtual void before();
+
   protected: // methods
-
     virtual void operate();
+
+    // Boundary conditions tab
+  protected:
     void updateVol();
-    void updatePhysicalBoundaryConditions();
-    void setupSolvers();
-    void saveSolverParameters();
-    void saveMpiParameters();
-    void loadMpiParameters();
-
   protected slots:
-
     void addVol();
     void delVol();
+
+    // Boundary types tab
+  protected:
+    void updatePhysicalBoundaryConditions();
+    void loadPhysicalValues(QString name);
+    void savePhysicalValues(QString name, int index);
+  protected slots:
     void addBoundaryType();
     void deleteBoundaryType();
     void changePhysicalValues();
-    void loadPhysicalValues( QString name );
-    void savePhysicalValues( QString name, int index );
 
-  public: // methods
+    // Solver tab
+  protected:
+    void setupSolvers();
+    void saveSolverParameters();
+  protected slots:
 
-    GuiEditBoundaryConditions();
-    virtual ~GuiEditBoundaryConditions();
-
-    virtual void before();
-    void setMap( QMap<int, BoundaryCondition> *a_bcmap ) { m_BcMap = a_bcmap; }
-
+    // MPI configuration tab
+  protected:
+    void loadMpiParameters();
+    void saveMpiParameters();
+  protected slots:
+    void addProcess();
+    void deleteProcess();
 };
 
 #endif

@@ -93,9 +93,10 @@ void FileTemplate::print()
 
 int FileTemplate::open( QString filename, QString section )
 {
-  m_Section = section;
-  qWarning() << "Opening " << filename;
+  qDebug() << "Opening " << filename;
   m_FileInfo.setFile( filename );
+  m_Section = section + "/" + m_FileInfo.completeBaseName();
+  qDebug() << "m_Section = " << m_Section;
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
     qWarning() << "ERROR: " << m_FileInfo.filePath() << " not found.";
@@ -120,16 +121,19 @@ int FileTemplate::open( QString filename, QString section )
   QTextStream text_stream( &file );
   m_InText = text_stream.readAll();
   file.close();
-  process();
+  
+  processTemplate();
+  
+  this->getValuesFromEgc();
+  
   return( 0 );
 }
 
 int FileTemplate::saveEgc()
 {
   qWarning() << "Saving EGC ... ";
-  QString section = m_Section + m_FileInfo.completeBaseName();
   QString contents = this->getContents();
-  GuiMainWindow::pointer()->setXmlSection( section, contents );
+  GuiMainWindow::pointer()->setXmlSection( m_Section, contents );
   return( 0 );
 }
 
@@ -138,9 +142,7 @@ int FileTemplate::exportToOpenFOAM( QString filename )
   qWarning() << "Saving openFOAM case as " << filename;
 
   // set contents
-  QString section = m_Section + m_FileInfo.completeBaseName();
-  QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section );
-  this->setContents( openfoam_string );
+  this->getValuesFromEgc();
 
   // save
   m_FileInfo.setFile( filename );
@@ -163,7 +165,7 @@ int FileTemplate::exportToOpenFOAM( QString filename )
   return( 0 );
 }
 
-int FileTemplate::process()
+int FileTemplate::processTemplate()
 {
   qWarning() << "Processing...";
   m_Lines.clear();
@@ -203,19 +205,13 @@ QString FileTemplate::getContents()
   return ret;
 }
 
-void FileTemplate::setContents( QString contents )
+void FileTemplate::getValuesFromEgc()
 {
-  qWarning() << "contents=" << contents;
+  QString contents = GuiMainWindow::pointer()->getXmlSection( m_Section );
+  
   QStringList L = contents.split( ";" );
-  qWarning() << "L=" << L;
-  qWarning() << "L.size()=" << L.size();
   for ( int i = 0; i < L.size() - 1; i++ ) {
     QStringList L_pair = L[i].split( "=" );
-    qWarning() << "L_pair=" << L_pair;
-    qWarning() << "L_pair.size()=" << L_pair.size();
-    qWarning() << "L_pair[0]=" << L_pair[0];
-    qWarning() << "L_pair[1]=" << L_pair[1];
-    qWarning() << "m_Lines.size()=" << m_Lines.size();
     if ( i < m_Lines.size() && L_pair.size() >= 2 ) m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
     else qDebug() << "Warning: Your case file may be incompatible with the current file template.";
   }
@@ -267,14 +263,6 @@ TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString sect
   for ( int filename_index = 0; filename_index < filename.size(); filename_index++ ) {
     FileTemplate file_template( filename[filename_index], section );
 
-    QFileInfo file_info( filename[filename_index] );
-    qWarning() << "section=" << section;
-    qWarning() << "filename[filename_index]=" << filename[filename_index];
-    qWarning() << "section + \"/\" + file_info.completeBaseName()=" << section + "/" + file_info.completeBaseName();
-
-    QString openfoam_string = GuiMainWindow::pointer()->getXmlSection( section + "/" + file_info.completeBaseName() );
-    file_template.setContents( openfoam_string );
-
     QVector <TemplateLine> lines = file_template.getLines();
     for ( int i = 0; i < lines.size(); i++ ) {
       if ( lines[i].m_Type == "ComboBox" ) addComboBox( lines[i] );
@@ -304,9 +292,6 @@ void TemplateFormLayout::addComboBox( TemplateLine line )
     value << L_elements[1].trimmed();
   }
   int current = value.indexOf( line.getDefaultValue().trimmed() );
-  qWarning() << "value=" << value;
-  qWarning() << "line.getDefaultValue().trimmed()=" << line.getDefaultValue().trimmed();
-  qWarning() << "current=" << current;
   combobox->addItems( description );
   combobox-> setCurrentIndex( current );
   this->addRow( line.m_Name, combobox );
