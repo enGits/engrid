@@ -28,6 +28,9 @@
         <file>resources/kde_icons/filesaveas.png</file>
         <file>resources/kde_icons/reload.png</file>
         <file>resources/kde_icons/viewmagfit.png</file>
+        <file>resources/kde_icons/launch.png</file>
+        <file>resources/kde_icons/stop.png</file>
+        <file>resources/icons/paraview.png</file>
     </qresource>
     <qresource prefix="/" >
         <file>resources/solvers/solvers.txt</file>
