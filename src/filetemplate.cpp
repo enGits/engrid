@@ -93,10 +93,8 @@ void FileTemplate::print()
 
 int FileTemplate::open( QString filename, QString section )
 {
-  qDebug() << "Opening " << filename;
   m_FileInfo.setFile( filename );
   m_Section = section + "/" + m_FileInfo.completeBaseName();
-  qDebug() << "m_Section = " << m_Section;
   QFile file( m_FileInfo.filePath() );
   if ( !file.exists() ) {
     qWarning() << "ERROR: " << m_FileInfo.filePath() << " not found.";
@@ -139,8 +137,6 @@ int FileTemplate::saveEgc()
 
 int FileTemplate::exportToOpenFOAM( QString filename )
 {
-  qWarning() << "Saving openFOAM case as " << filename;
-
   // set contents
   this->getValuesFromEgc();
 
@@ -167,7 +163,6 @@ int FileTemplate::exportToOpenFOAM( QString filename )
 
 int FileTemplate::processTemplate()
 {
-  qWarning() << "Processing...";
   m_Lines.clear();
   QStringList L_open = m_InText.split( "{{{" );
   for ( int i = 1; i < L_open.size(); i++ ) {
@@ -181,7 +176,6 @@ int FileTemplate::processTemplate()
     template_line.m_Position = i;
     m_Lines.push_back( template_line );
   }
-  qWarning() << "m_Lines.size()=" << m_Lines.size();
   return( 0 );
 }
 
@@ -212,8 +206,11 @@ void FileTemplate::getValuesFromEgc()
   QStringList L = contents.split( ";" );
   for ( int i = 0; i < L.size() - 1; i++ ) {
     QStringList L_pair = L[i].split( "=" );
-    if ( i < m_Lines.size() && L_pair.size() >= 2 ) m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
-    else qDebug() << "Warning: Your case file may be incompatible with the current file template.";
+    if ( i < m_Lines.size() && L_pair.size() >= 2 ) {
+      m_Lines[i].m_DefaultValueEgc = L_pair[1].trimmed();
+    } else {
+      qDebug() << "Warning: Your case file may be incompatible with the current file template.";
+    }
   }
 }
 //=======================================
@@ -265,13 +262,13 @@ TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString sect
 
     QVector <TemplateLine> lines = file_template.getLines();
     for ( int i = 0; i < lines.size(); i++ ) {
-      if ( lines[i].m_Type == "ComboBox" ) addComboBox( lines[i] );
-      else if ( lines[i].m_Type == "IntLineEdit" ) addIntLineEdit( lines[i] );
+      if      ( lines[i].m_Type == "ComboBox" )       addComboBox( lines[i] );
+      else if ( lines[i].m_Type == "IntLineEdit" )    addIntLineEdit( lines[i] );
       else if ( lines[i].m_Type == "DoubleLineEdit" ) addDoubleLineEdit( lines[i] );
-      else if ( lines[i].m_Type == "TextLineEdit" ) addTextLineEdit( lines[i] );
-      else if ( lines[i].m_Type == "CheckBox" ) addCheckBox( lines[i] );
-      else if ( lines[i].m_Type == "SpinBox" ) addSpinBox( lines[i] );
-      else if ( lines[i].m_Type == "DoubleSpinBox" ) addDoubleSpinBox( lines[i] );
+      else if ( lines[i].m_Type == "TextLineEdit" )   addTextLineEdit( lines[i] );
+      else if ( lines[i].m_Type == "CheckBox" )       addCheckBox( lines[i] );
+      else if ( lines[i].m_Type == "SpinBox" )        addSpinBox( lines[i] );
+      else if ( lines[i].m_Type == "DoubleSpinBox" )  addDoubleSpinBox( lines[i] );
       else qWarning() << "Unknown type";
     }
     m_FileTemplate.push_back( file_template );
@@ -280,7 +277,6 @@ TemplateFormLayout::TemplateFormLayout( QVector <QString> filename, QString sect
 
 void TemplateFormLayout::addComboBox( TemplateLine line )
 {
-  qWarning() << "Adding a ComboBox...";
   QComboBox* combobox = new QComboBox;
   QStringList description;
   QStringList value;
@@ -301,7 +297,6 @@ void TemplateFormLayout::addComboBox( TemplateLine line )
 
 void TemplateFormLayout::addIntLineEdit( TemplateLine line )
 {
-  qWarning() << "Adding a IntLineEdit...";
   QValidator *validator = new QIntValidator( this );
   QLineEdit* int_lineedit = new QLineEdit;
   int_lineedit->setValidator( validator );
@@ -312,7 +307,6 @@ void TemplateFormLayout::addIntLineEdit( TemplateLine line )
 
 void TemplateFormLayout::addDoubleLineEdit( TemplateLine line )
 {
-  qWarning() << "Adding a DoubleLineEdit...";
   QValidator *validator = new QDoubleValidator( this );
   QLineEdit* double_lineedit = new QLineEdit;
   double_lineedit->setValidator( validator );
@@ -323,7 +317,6 @@ void TemplateFormLayout::addDoubleLineEdit( TemplateLine line )
 
 void TemplateFormLayout::addTextLineEdit( TemplateLine line )
 {
-  qWarning() << "Adding a TextLineEdit...";
   QLineEdit* text_lineedit = new QLineEdit;
   text_lineedit->setText( line.getDefaultValue().trimmed() );
   this->addRow( line.m_Name, text_lineedit );
@@ -332,7 +325,6 @@ void TemplateFormLayout::addTextLineEdit( TemplateLine line )
 
 void TemplateFormLayout::addCheckBox( TemplateLine line )
 {
-  qWarning() << "Adding a CheckBox...";
   QCheckBox* check_box = new QCheckBox;
   QStringList L = line.m_Options.split( "," );
   L[0] = L[0].trimmed();
@@ -350,7 +342,6 @@ void TemplateFormLayout::addCheckBox( TemplateLine line )
 
 void TemplateFormLayout::addSpinBox( TemplateLine line )
 {
-  qWarning() << "Adding a SpinBox...";
   QSpinBox* spin_box = new QSpinBox;
   QStringList L = line.m_Options.split( "," );
   int minimum = L[0].trimmed().toInt();
@@ -366,7 +357,6 @@ void TemplateFormLayout::addSpinBox( TemplateLine line )
 
 void TemplateFormLayout::addDoubleSpinBox( TemplateLine line )
 {
-  qWarning() << "Adding a DoubleSpinBox...";
   QDoubleSpinBox* double_spin_box = new QDoubleSpinBox;
   QStringList L = line.m_Options.split( "," );
   double minimum = L[0].trimmed().toDouble();

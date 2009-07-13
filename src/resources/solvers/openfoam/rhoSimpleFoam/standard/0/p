@@ -15,9 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions      [1 -1 -2 0 0 0 0];
 
-internalField   uniform {{{DoubleLineEdit: initial pressure: : 0}}};
+internalField   uniform {{{DoubleLineEdit: initial pressure: : 100000}}};
 
 boundaryField
 {
