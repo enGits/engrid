@@ -282,6 +282,7 @@ void OpenFOAMcase::writeBoundaryConditions()
       }
     }
     n.normalise();
+    n *= -1;
     PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(BC.getType());
     U_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamU(n)      + "    }\n";
     p_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamP()       + "    }\n";
@@ -306,7 +307,17 @@ void OpenFOAMcase::operate()
     }
     if (isValid()) {
       writeSolverParameters();
-      rewriteBoundaryFaces();
+      bool has_volume = false;
+      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+        if (isVolume(id_cell, grid)) {
+          has_volume = true;
+        }
+      }
+      if (has_volume) {
+        SimpleFoamWriter::operateOnGivenFileName();
+      } else {
+        rewriteBoundaryFaces();
+      }
       writeBoundaryConditions();
     }
   }
