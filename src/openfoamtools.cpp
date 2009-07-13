@@ -254,12 +254,16 @@ void OpenFOAMTools::runSolver()
     }
   } else {
     runDecomposePar();
-    if(m_SolverProcess->waitForFinished()) {
+    if(m_SolverProcess->waitForFinished() && m_SolverProcess->exitCode() == 0 ) {
       QString numprocesses_str;
       numprocesses_str.setNum(m_NumProcesses);
       m_Arguments.clear();
       m_Program = "mpirun";
       m_Arguments << "--hostfile" << m_HostFile << "-np" << numprocesses_str << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
+    }
+    else {
+      qDebug()<<"ERROR: decomposePar failed.";
+      return;
     }
   }
   m_SolverProcess->start(m_Program, m_Arguments);
