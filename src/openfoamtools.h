@@ -32,38 +32,44 @@ class OpenFOAMTools : public QObject
 
 private: // attributes
 
-  QProcess*   m_Process;
+  QProcess*   m_SolverProcess;
+  QProcess*   m_ToolsProcess;
   QString     m_SolverBinary;
   QString     m_WorkingDirectory;
   QString     m_NumProcesses;
   QString     m_HostFile;
   QString     m_Program;
   QStringList m_Arguments;
+  QString     m_OpenFoamPath;
+  QString     m_OpenFoamArch;
+
+private: // methods
+
+  int     getArguments();
+  void    runTool(QString path, QString name, QStringList args = QStringList());
+  QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };
 
 public:
 
-  OpenFOAMTools (QObject *parent = 0);
+  OpenFOAMTools(QObject *parent = 0);
   ~OpenFOAMTools();
 
 public: // methods
 
-  int getArguments();
 
 
 public slots:
 
   void runSolver();
-  void runFoamToVTK();
   void runDecomposePar();
-  void runReconstructPar();
-  void stopProcesses();
+  void runPostProcessingTools();
 
-  void errorHandler( QProcess::ProcessError error );
-  void finishedHandler( int exitCode, QProcess::ExitStatus exitStatus );
+  void stopSolverProcess();
+
+  void finishedHandler(int exitCode, QProcess::ExitStatus exitStatus);
   void readFromStderr();
   void readFromStdout();
   void startedHandler();
-  void stateChangedHandler( QProcess::ProcessState newState );
 
 };
 

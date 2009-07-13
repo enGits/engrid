@@ -29,28 +29,46 @@
 #include <QFileDialog>
 
 #include <iostream>
+#include <cstdlib>
+
 using namespace std;
 
-OpenFOAMTools::OpenFOAMTools( QObject *parent )
-    : QObject( parent )
+OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject( parent )
 {
-  m_Process = new QProcess( this );
+  m_SolverProcess = new QProcess(this);
+  m_ToolsProcess = new QProcess(this);
 
-  connect( m_Process, SIGNAL( error( QProcess::ProcessError ) ), this, SLOT( errorHandler( QProcess::ProcessError ) ) );
-  connect( m_Process, SIGNAL( finished( int , QProcess::ExitStatus ) ), this, SLOT( finishedHandler( int , QProcess::ExitStatus ) ) );
-  connect( m_Process, SIGNAL( readyReadStandardError() ), this, SLOT( readFromStderr() ) );
-  connect( m_Process, SIGNAL( readyReadStandardOutput() ), this, SLOT( readFromStdout() ) );
-  connect( m_Process, SIGNAL( started() ), this, SLOT( startedHandler() ) );
-  connect( m_Process, SIGNAL( stateChanged( QProcess::ProcessState ) ), this, SLOT( stateChangedHandler( QProcess::ProcessState ) ) );
+  connect(m_SolverProcess, SIGNAL(error(QProcess::ProcessError)),        this, SLOT(errorHandler(QProcess::ProcessError)));
+  connect(m_SolverProcess, SIGNAL(finished(int, QProcess::ExitStatus)),  this, SLOT(finishedHandler(int, QProcess::ExitStatus)));
+  connect(m_SolverProcess, SIGNAL(readyReadStandardError()),             this, SLOT(readFromStderr()));
+  connect(m_SolverProcess, SIGNAL(readyReadStandardOutput()),            this, SLOT(readFromStdout()));
+  connect(m_SolverProcess, SIGNAL(started()),                            this, SLOT(startedHandler()));
+  connect(m_SolverProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(stateChangedHandler(QProcess::ProcessState)));
 
   m_SolverBinary = "";
   m_WorkingDirectory = "";
   m_HostFile = "hostfile.txt";
+
+  QSettings *settings = GuiMainWindow::pointer()->settings();
+  if (settings->contains("openfoam_directory")) {
+    m_OpenFoamPath = settings->value("openfoam_directory").toString();
+  } else {
+    m_OpenFoamPath = getenv("HOME");
+    m_OpenFoamPath += "/OpenFOAM/OpenFOAM-1.5";
+    settings->setValue("openfoam_directory", m_OpenFoamPath);
+  }
+  if (settings->contains("openfoam_architecture")) {
+    m_OpenFoamArch = settings->value("openfoam_architecture").toString();
+  } else {
+    m_OpenFoamArch = "linux64GccDPOpt";
+    settings->setValue("openfoam_architecture", m_OpenFoamArch);
+  }
+
 }
 
 OpenFOAMTools::~OpenFOAMTools()
 {
-  this->stopProcesses();
+  this->stopSolverProcess();
 }
 
 int OpenFOAMTools::getArguments()
@@ -60,10 +78,10 @@ int OpenFOAMTools::getArguments()
   m_Arguments.clear();
 
   // get binary name
-  int solver_type = GuiMainWindow::pointer()->getXmlSection( "solver/general/solver_type" ).toInt();
+  int solver_type = GuiMainWindow::pointer()->getXmlSection("solver/general/solver_type").toInt();
 
   QFileInfo solvers_fileinfo;
-  solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
+  solvers_fileinfo.setFile(":/resources/solvers/solvers.txt");
   QFile file( solvers_fileinfo.filePath() );
   if ( !file.exists() ) {
     qDebug() << "ERROR: " << solvers_fileinfo.filePath() << " not found.";
@@ -99,33 +117,29 @@ int OpenFOAMTools::getArguments()
     }
   }
 
-  m_SolverBinary = binary;
+  m_SolverBinary = m_OpenFoamPath + "/applications/bin/" + m_OpenFoamArch + "/" + binary;
 
-  // get case directory if it is undefined
-//   m_WorkingDirectory = GuiMainWindow::getCwd();
   if ( m_WorkingDirectory.isEmpty() ) {
     m_WorkingDirectory = QFileDialog::getExistingDirectory( NULL, "select case directory", GuiMainWindow::getCwd() );
     if ( !m_WorkingDirectory.isNull() ) {
       GuiMainWindow::setCwd( QFileInfo( m_WorkingDirectory ).absolutePath() );
-    }
-    else {
-      return( -1 );
+    } else {
+      return(-1);
     }
   }
 
   // get number of processes
-  m_NumProcesses = GuiMainWindow::pointer()->getXmlSection( "solver/general/num_processes" );
+  m_NumProcesses = GuiMainWindow::pointer()->getXmlSection("solver/general/num_processes");
 
   // create the hostfile
   QString hostfile_text = GuiMainWindow::pointer()->getXmlSection( "solver/general/hostfile" );
 
   QFileInfo fileinfo( m_WorkingDirectory + "/" + m_HostFile );
   QFile hostfile( fileinfo.filePath() );
-  if ( !hostfile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
+  if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
     try {
       EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
-    }
-    catch ( Error err ) {
+    } catch ( Error err ) {
       err.display();
       return( -1 );
     }
@@ -135,9 +149,9 @@ int OpenFOAMTools::getArguments()
   hostfile.close();
 
   // set working directory of the process
-  m_Process->setWorkingDirectory( m_WorkingDirectory );
+  m_SolverProcess->setWorkingDirectory(m_WorkingDirectory);
 
-  return( 0 );
+  return(0);
 }
 
 //=====================================
@@ -146,93 +160,82 @@ int OpenFOAMTools::getArguments()
 
 void OpenFOAMTools::runSolver()
 {
-  qDebug() << "=== RunSolver ===";
-  if ( getArguments() < 0 ) return;
-  this->stopProcesses();
-
-  if ( m_NumProcesses.toInt() <= 1 ) {
+  runDecomposePar();
+  if (getArguments() < 0) {
+    return;
+  }
+  this->stopSolverProcess();
+  if (m_NumProcesses.toInt() <= 1) {
     m_Program = m_SolverBinary;
     m_Arguments << "-case" << m_WorkingDirectory;
-  }
-  else {
+  } else {
     m_Program = "mpirun";
     m_Arguments << "--hostfile" << m_HostFile << "-np" << m_NumProcesses << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
   }
-  m_Process->start( m_Program, m_Arguments );
+  m_SolverProcess->start(m_Program, m_Arguments);
 }
 
-void OpenFOAMTools::runFoamToVTK()
+void OpenFOAMTools::runTool(QString path, QString name, QStringList args)
 {
-  qDebug() << "=== RunFoamToVTK ===";
-  if ( getArguments() < 0 ) return;
-  this->stopProcesses();
-
-  m_Program = "foamToVTK";
-  m_Process->start( m_Program, m_Arguments );
+  m_ToolsProcess->start(m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name, args);
+  do {
+    m_ToolsProcess->waitForFinished(500);
+    QApplication::processEvents();
+  } while (m_ToolsProcess->state() == QProcess::Running);
+  cout << m_ToolsProcess->readAllStandardOutput().data();
+  flush(cout);
 }
 
 void OpenFOAMTools::runDecomposePar()
 {
-  qDebug() << "=== RunDecomposePar ===";
-  if ( getArguments() < 0 ) return;
-  this->stopProcesses();
-
-  m_Program = "decomposePar";
+  if (getArguments() < 0) {
+    return;
+  }
+  this->stopSolverProcess();
+  m_Program = getBinary("applications/bin", "decomposePar");
   m_Arguments << "-force";
-  m_Process->start( m_Program, m_Arguments );
+  m_SolverProcess->start(m_Program, m_Arguments);
 }
 
-void OpenFOAMTools::runReconstructPar()
+void OpenFOAMTools::runPostProcessingTools()
 {
-  qDebug() << "=== RunReconstructPar ===";
-  if ( getArguments() < 0 ) return;
-  this->stopProcesses();
-
-  m_Program = "reconstructPar";
-  m_Process->start( m_Program, m_Arguments );
+  runTool("applications/bin", "reconstructPar");
+  runTool("applications/bin", "foamToVTK");
 }
 
-void OpenFOAMTools::stopProcesses()
+void OpenFOAMTools::stopSolverProcess()
 {
-  qDebug() << "=== Stopping processes ===";
-  m_Process->kill();
+  m_SolverProcess->kill();
 }
 
 //=====================================
 // Handlers
 //=====================================
 
-void OpenFOAMTools::errorHandler( QProcess::ProcessError error )
+void OpenFOAMTools::finishedHandler(int exitCode, QProcess::ExitStatus exitStatus)
 {
-  qDebug() << "=== A process error occured. ===";
-}
-
-void OpenFOAMTools::finishedHandler( int exitCode, QProcess::ExitStatus exitStatus )
-{
-  qDebug() << "=== Process finished with exitCode = " << exitCode << " ===";
+  qDebug() << "=== solver-process finished with exit-code = " << exitCode << " ===";
 }
 
 void OpenFOAMTools::readFromStderr()
 {
-//   qDebug()<<m_Process->readAllStandardError();
-  cout << m_Process->readAllStandardError().data() << endl;
+  cout << m_SolverProcess->readAllStandardError().data();
+  flush(cout);
 }
 
 void OpenFOAMTools::readFromStdout()
 {
-//   qDebug()<<m_Process->readAllStandardOutput();
-  cout << m_Process->readAllStandardOutput().data() << endl;
+  cout << m_SolverProcess->readAllStandardOutput().data();
+  flush(cout);
 }
 
 void OpenFOAMTools::startedHandler()
 {
-  qDebug() << "=== Started process with PID = " << m_Process->pid() << "===";
+  qDebug() << "=== started solver-process with PID = " << m_SolverProcess->pid() << "===";
   QString cmd = m_Program;
-  foreach( QString arg, m_Arguments ) cmd += " " + arg;
-  cout << "[" << qPrintable( m_WorkingDirectory ) << "]$ " << qPrintable( cmd ) << endl;
+  foreach(QString arg, m_Arguments) {
+    cmd += " " + arg;
+  }
+  cout << "[" << qPrintable(m_WorkingDirectory) << "]$ " << qPrintable(cmd) << endl;
 }
 
-void OpenFOAMTools::stateChangedHandler( QProcess::ProcessState newState )
-{
-  qDebug() << "=== Process state changed. ===";
-}
