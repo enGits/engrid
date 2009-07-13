@@ -247,10 +247,9 @@ void OpenFOAMTools::runSolver()
     if(m_MainHost.isEmpty()) {
       m_Program = m_SolverBinary;
       m_Arguments << "-case" << m_WorkingDirectory;
-    }
-    else {
+    } else {
       m_Program = "ssh";
-      m_Arguments <<m_MainHost<<m_SolverBinary<<"-case"<<m_WorkingDirectory;
+      m_Arguments << m_MainHost << m_SolverBinary << "-case" << m_WorkingDirectory;
     }
   } else {
     runDecomposePar();
@@ -258,8 +257,12 @@ void OpenFOAMTools::runSolver()
       QString numprocesses_str;
       numprocesses_str.setNum(m_NumProcesses);
       m_Arguments.clear();
-      m_Program = "mpirun";
-      m_Arguments << "--hostfile" << m_HostFile << "-np" << numprocesses_str << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
+      //m_Program = "mpirun";
+      //m_Arguments << "--hostfile" << m_HostFile << "-np" << numprocesses_str << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
+      m_Program = "ssh";
+      m_Arguments << m_MainHost << "mpirun";
+      m_Arguments << "--hostfile" << m_WorkingDirectory + "/" + m_HostFile;
+      m_Arguments << "-np" << numprocesses_str << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
     }
     else {
       qDebug()<<"ERROR: decomposePar failed.";
@@ -293,8 +296,10 @@ void OpenFOAMTools::runDecomposePar()
 
 void OpenFOAMTools::runPostProcessingTools()
 {
-  runTool("applications/bin", "reconstructPar");
-  runTool("applications/bin", "foamToVTK");
+  QStringList args;
+  args << "-latestTime";
+  runTool("applications/bin", "reconstructPar", args);
+  runTool("applications/bin", "foamToVTK", args);
 }
 
 void OpenFOAMTools::stopSolverProcess()
