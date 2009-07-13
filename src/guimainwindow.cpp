@@ -1117,13 +1117,13 @@ void GuiMainWindow::saveXml(QString file_name)
   f << buffer << endl;
 }
 
-QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename) {
+QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
+{
   QFileInfo file_info(file_name);
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
   }
   GuiMainWindow::setCwd(file_info.absolutePath());
-  cout << "Saving as " << qPrintable(file_name) << endl;
   saveGrid(file_name);
   saveBC();
   savePhysicalBoundaryConditions();
