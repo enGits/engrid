@@ -66,7 +66,7 @@ public:
 
   FoamObject();
 
-  void setCaseDir (QString case_dir) { m_CaseDir = case_dir; }
+  void setCaseDir (QString case_dir);
 
 };
 
