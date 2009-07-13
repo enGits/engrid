@@ -38,7 +38,7 @@ class GuiEditBoundaryConditions;
 
 // tabs:
 // boundary conditions -> add/del/update
-// boundary types -> add/del/update
+// boundary types -> add/del/update + change/load/save
 // solver ->setup/save
 // MPI -> add/del/update
 
@@ -67,6 +67,14 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     /// vector to hold the binaries
     QVector <QString> m_SolverBinary;
 
+  public:
+    GuiEditBoundaryConditions();
+    virtual ~GuiEditBoundaryConditions();
+    void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
+
+  private:
+    virtual void before();
+
   protected: // methods
     virtual void operate();
 
@@ -93,23 +101,13 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     void saveSolverParameters();
   protected slots:
 
-// MPI configuration tab
+    // MPI configuration tab
   protected:
-    void updateProcesses();
     void loadMpiParameters();
     void saveMpiParameters();
   protected slots:
-    void addProcess() {};
-    void deleteProcess() {};
-
-  public: // methods
-    GuiEditBoundaryConditions();
-    virtual ~GuiEditBoundaryConditions();
-    void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
-
-  private:
-    virtual void before();
-
+    void addProcess();
+    void deleteProcess();
 };
 
 #endif
