@@ -27,6 +27,7 @@
 #include <QtDebug>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QInputDialog>
 
 #include <iostream>
 #include <cstdlib>
@@ -314,9 +315,11 @@ void OpenFOAMTools::runPostProcessingTools()
 
 void OpenFOAMTools::stopSolverProcess()
 {
-  m_SolverProcess->kill();
-  QString cmd = "ssh " + m_MainHost + " killall -9 " + m_StrippedSolverBinary;
-  system(cmd.toAscii().data());
+  if (m_SolverProcess->state() == QProcess::Running) {
+    m_SolverProcess->kill();
+    QString cmd = "ssh " + m_MainHost + " killall -9 " + m_StrippedSolverBinary;
+    system(cmd.toAscii().data());
+  }
 }
 
 void OpenFOAMTools::runImportFluentCase()
@@ -330,56 +333,74 @@ void OpenFOAMTools::runImportFluentCase()
       QDir d1(p1);
       QDir d2(p2);
       if (d1.exists()) {
-        if (!d2.exists()) {
-          d1.mkdir("system");
-          d2 = QDir(p2);
-        }
-        QStringList args;
-        args << fluent_file_name;
-        m_WorkingDirectory = foam_case_dir;
-        QFile file(m_WorkingDirectory + "/system/controlDict");
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-          try {
-            EG_ERR_RETURN( "ERROR: Failed to open file " + foam_case_dir + "/system/controlDict");
-          } catch (Error err) {
-            err.display();
+        QStringList items;
+        items << tr("millimetres") << tr("centimetres") << tr("metres") << tr("inches");
+        bool ok;
+        QString scale_txt = QInputDialog::getItem(NULL, tr("Select scale"), tr("scale:"), items, 0, false, &ok);
+        if (ok && !scale_txt.isEmpty()) {
+          if (!d2.exists()) {
+            d1.mkdir("system");
+            d2 = QDir(p2);
           }
+          QStringList args;
+          args << fluent_file_name;
+          args << "-scale";
+          if (scale_txt == "millimetres") {
+            args << "0.001";
+          } else if (scale_txt == "centimetres") {
+            args << "0.01";
+          } else if (scale_txt == "metres") {
+            args << "1";
+          } else if (scale_txt == "inches") {
+            args << "0.0254";
+          } else {
+            args << "1";
+          }
+          m_WorkingDirectory = foam_case_dir;
+          QFile file(m_WorkingDirectory + "/system/controlDict");
+          if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            try {
+              EG_ERR_RETURN( "ERROR: Failed to open file " + foam_case_dir + "/system/controlDict");
+            } catch (Error err) {
+              err.display();
+            }
+          }
+          QTextStream f(&file);
+          f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
+          f << "| =========                 |                                                 |\n";
+          f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
+          f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
+          f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
+          f << "|    \\/     M anipulation  |                                                 |\n";
+          f << "\\*---------------------------------------------------------------------------*/\n";
+          f << "FoamFile\n";
+          f << "{\n";
+          f << "    version     2.0;\n";
+          f << "    format      ascii;\n";
+          f << "    class       dictionary;\n";
+          f << "    object      controlDict;\n";
+          f << "}\n";
+          f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n";
+          f << "\n";
+          f << "application simpleFoam;\n";
+          f << "\n";
+          f << "startFrom         startTime;\n";
+          f << "startTime         0;\n";
+          f << "stopAt            endTime;\n";
+          f << "endTime           1000;\n";
+          f << "deltaT            1;\n";
+          f << "writeControl      timeStep;\n";
+          f << "writeInterval     100;\n";
+          f << "purgeWrite        0;\n";
+          f << "writeFormat       ascii;\n";
+          f << "writePrecision    6;\n";
+          f << "writeCompression  uncompressed;\n";
+          f << "timeFormat        general;\n";
+          f << "timePrecision     6;\n";
+          f << "runTimeModifiable yes;\n";
+          file.close();
+          runTool("applications/bin", "fluentMeshToFoam", args);
         }
-        QTextStream f(&file);
-        f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
-        f << "| =========                 |                                                 |\n";
-        f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
-        f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
-        f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
-        f << "|    \\/     M anipulation  |                                                 |\n";
-        f << "\\*---------------------------------------------------------------------------*/\n";
-        f << "FoamFile\n";
-        f << "{\n";
-        f << "    version     2.0;\n";
-        f << "    format      ascii;\n";
-        f << "    class       dictionary;\n";
-        f << "    object      controlDict;\n";
-        f << "}\n";
-        f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n";
-        f << "\n";
-        f << "application simpleFoam;\n";
-        f << "\n";
-        f << "startFrom         startTime;\n";
-        f << "startTime         0;\n";
-        f << "stopAt            endTime;\n";
-        f << "endTime           1000;\n";
-        f << "deltaT            1;\n";
-        f << "writeControl      timeStep;\n";
-        f << "writeInterval     100;\n";
-        f << "purgeWrite        0;\n";
-        f << "writeFormat       ascii;\n";
-        f << "writePrecision    6;\n";
-        f << "writeCompression  uncompressed;\n";
-        f << "timeFormat        general;\n";
-        f << "timePrecision     6;\n";
-        f << "runTimeModifiable yes;\n";
-        file.close();
-        runTool("applications/bin", "fluentMeshToFoam", args);
       }
     }
   }
