@@ -208,10 +208,10 @@
    <addaction name="actionExit"/>
    <addaction name="separator"/>
    <addaction name="actionFoamCaseWriter"/>
-   <addaction name="actionExportCGNS"/>
+   <addaction name="actionPreparePostProcessing"/>
    <addaction name="separator"/>
-   <addaction name="actionZoomAll"/>
-   <addaction name="actionRedraw"/>
+   <addaction name="actionRunSolver"/>
+   <addaction name="actionStopProcesses"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
@@ -226,13 +226,6 @@
    <addaction name="actionDeleteVolumeGrid"/>
    <addaction name="actionCreateBoundaryLayer"/>
    <addaction name="actionDivideBoundaryLayer"/>
-   <addaction name="separator"/>
-   <addaction name="actionViewZP"/>
-   <addaction name="actionViewZM"/>
-   <addaction name="actionViewXM"/>
-   <addaction name="actionViewXP"/>
-   <addaction name="actionViewYP"/>
-   <addaction name="actionViewYM"/>
    <addaction name="actionCreateSurfaceMesh"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
@@ -870,6 +863,26 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="toolBarMain">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionZoomAll"/>
+   <addaction name="actionRedraw"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewZP"/>
+   <addaction name="actionViewZM"/>
+   <addaction name="actionViewXM"/>
+   <addaction name="actionViewXP"/>
+   <addaction name="actionViewYP"/>
+   <addaction name="actionViewYM"/>
+  </widget>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="engrid.qrc">
@@ -1439,11 +1452,20 @@
    </property>
   </action>
   <action name="actionStopProcesses">
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/resources/kde_icons/stop.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Stop solver</string>
    </property>
   </action>
   <action name="actionRunSolver">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/kde_icons/launch.png</normaloff>:/icons/resources/kde_icons/launch.png</iconset>
+   </property>
    <property name="text">
     <string>Run solver</string>
    </property>
@@ -1459,6 +1481,10 @@
    </property>
   </action>
   <action name="actionPreparePostProcessing">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
+   </property>
    <property name="text">
     <string>Prepare post-processing</string>
    </property>
