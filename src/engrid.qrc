@@ -41,5 +41,16 @@
         <file>resources/solvers/openfoam/simpleFoam/standard/0/U</file>
         <file>resources/solvers/openfoam/simpleFoam/standard/system/controlDict</file>
         <file>resources/solvers/openfoam/simpleFoam/standard/system/fvSchemes</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/epsilon</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/k</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/omega</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/p</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/T</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/0/U</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/constant/RASProperties</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/constant/thermophysicalProperties</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/system/controlDict</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/system/fvSchemes</file>
+        <file>resources/solvers/openfoam/rhoSimpleFoam/standard/system/fvSolution</file>
     </qresource>
 </RCC>
