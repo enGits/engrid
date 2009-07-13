@@ -14,8 +14,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-RASModel       <<<ComboBox: turbulence model: (laminar, laminar), (k-epsilon, kEpsilon), (RNG k-epsilon, RNGkEpsilon), (realizable k-epsilon, realizableKE), (SST, kOmegaSST): kOmegaSST>>>;
-turbulence     <<<ComboBox: freeze turbulent properties: (yes, off), (no, on): on>>>;
+RASModel       {{{ComboBox: turbulence model: (laminar, laminar), (k-epsilon, kEpsilon), (RNG k-epsilon, RNGkEpsilon), (realizable k-epsilon, realizableKE), (SST, kOmegaSST): kOmegaSST}}};
+turbulence     {{{ComboBox: freeze turbulent properties: (yes, off), (no, on): on}}};
 printCoeffs    on;
 
 laminarCoeffs
