@@ -36,6 +36,12 @@ class GuiEditBoundaryConditions;
 
 #include "ui_guieditboundaryconditions.h"
 
+// tabs:
+// boundary conditions -> add/del/update
+// boundary types -> add/del/update
+// solver ->setup/save
+// MPI -> add/del/update
+
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
 
@@ -62,25 +68,29 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     QVector <QString> m_SolverBinary;
 
   protected: // methods
-
     virtual void operate();
+  
+  protected: // methods
     void updateVol();
     void updatePhysicalBoundaryConditions();
     void setupSolvers();
     void saveSolverParameters();
-    void saveMpiParameters();
     void loadMpiParameters();
-
+    void saveMpiParameters();
+    void loadPhysicalValues( QString name );
+    void savePhysicalValues( QString name, int index );
+    void updateProcesses();
+  
   protected slots:
 
     void addVol();
     void delVol();
     void addBoundaryType();
     void deleteBoundaryType();
+    void addProcess(){};
+    void deleteProcess(){};
     void changePhysicalValues();
-    void loadPhysicalValues( QString name );
-    void savePhysicalValues( QString name, int index );
-
+  
   public: // methods
 
     GuiEditBoundaryConditions();

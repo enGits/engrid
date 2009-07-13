@@ -62,15 +62,18 @@ class FileTemplate
     QString m_OutText;
     QString m_Section;
 
+  private:
+    int processTemplate();
+    QString getContents();
+    void getValuesFromEgc();
+  
   public:
     FileTemplate();
     FileTemplate( QString filename, QString section );
-    int process();
     void print();
     QVector <TemplateLine> getLines();
     void setLines( QVector <TemplateLine> lines );
-    QString getContents();
-    void setContents( QString contents );
+  
   public:
     int open( QString filename, QString section );
     int saveEgc();
