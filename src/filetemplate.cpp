@@ -153,11 +153,11 @@ int FileTemplate::exportToOpenFOAM( QString filename )
   }
   QTextStream out( &file );
   m_OutText = m_InText;
-  QRegExp regexp( "<<<.*>>>" );
+  QRegExp regexp( "{{{.*}}}" );
   regexp.setMinimal( true );
   for ( int i = 0; i < m_Lines.size(); i++ ) {
-    int idx1 = m_OutText.indexOf( "<<<" );
-    int idx2 = m_OutText.indexOf( ">>>" );
+    int idx1 = m_OutText.indexOf( "{{{" );
+    int idx2 = m_OutText.indexOf( "}}}" );
     m_OutText.replace( idx1, idx2 - idx1 + 3, m_Lines[i].getDefaultValue() );
   }
   out << m_OutText;
@@ -169,9 +169,9 @@ int FileTemplate::processTemplate()
 {
   qWarning() << "Processing...";
   m_Lines.clear();
-  QStringList L_open = m_InText.split( "<<<" );
+  QStringList L_open = m_InText.split( "{{{" );
   for ( int i = 1; i < L_open.size(); i++ ) {
-    QStringList L_close = L_open[i].split( ">>>" );
+    QStringList L_close = L_open[i].split( "}}}" );
     QStringList L_elements = L_close[0].split( ":" );
     TemplateLine template_line;
     template_line.m_Type = L_elements[0];
