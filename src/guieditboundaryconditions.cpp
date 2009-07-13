@@ -35,6 +35,16 @@
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
+  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
+  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  connect(ui.pushButtonAddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
+  connect(ui.pushButtonDeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
+  connect(ui.listWidgetBoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
+  connect(ui.pushButton_AddProcess, SIGNAL(clicked()), this, SLOT(addProcess()));
+  connect(ui.pushButton_RemoveProcess, SIGNAL(clicked()), this, SLOT(deleteProcess()));
+  connect(ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()()));
+  connect(ui.pushButton_ExportHostFile, SIGNAL(clicked()), this, SLOT(exportHostFile()));
+  
   setupSolvers();
   loadMpiParameters();
 
@@ -80,12 +90,6 @@ void GuiEditBoundaryConditions::before()
   m_PreviousSelected = 0;
   ui.listWidgetBoundaryType->setCurrentRow(m_PreviousSelected);
   if (ui.listWidgetBoundaryType->count() > 0) loadPhysicalValues(ui.listWidgetBoundaryType->currentItem()->text());
-
-  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
-  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
-  connect(ui.pushButtonAddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
-  connect(ui.pushButtonDeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
-  connect(ui.listWidgetBoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
 
   ui.T->setItemDelegate(delegate);
 }
@@ -342,24 +346,62 @@ void GuiEditBoundaryConditions::saveSolverParameters()
 
 void GuiEditBoundaryConditions::addProcess()
 {
-  /*  GuiMainWindow::pointer()->setXmlSection( "solver/general/hostfile", ui.plainTextEdit_HostFile->toPlainText() );
-    QString str_num_processes;
-    str_num_processes.setNum( ui.spinBox_NumProcesses->value() );
-    GuiMainWindow::pointer()->setXmlSection( "solver/general/num_processes", str_num_processes );*/
+  int row = ui.tableWidget_Processes->currentRow();
+  QString host, weight;
+  if(row<0) {
+    row = 0;
+    host = "host";
+    weight = "1";
+  }
+  else {
+    host = ui.tableWidget_Processes->item(row, 0)->text();
+    weight = ui.tableWidget_Processes->item(row, 1)->text();
+  }
+  qDebug()<<"row="<<row;
+  ui.tableWidget_Processes->insertRow(row);
+  ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
+  ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
+  ui.tableWidget_Processes->item(row, 0)->setText(host);
+  ui.tableWidget_Processes->item(row, 1)->setText(weight);
+  ui.tableWidget_Processes->resizeColumnsToContents();
 }
 
 void GuiEditBoundaryConditions::deleteProcess()
 {
-  /*  ui.plainTextEdit_HostFile->setPlainText( GuiMainWindow::pointer()->getXmlSection( "solver/general/hostfile" ) );
-    ui.spinBox_NumProcesses->setValue( GuiMainWindow::pointer()->getXmlSection( "solver/general/num_processes" ).toInt() );*/
+  ui.tableWidget_Processes->removeRow(ui.tableWidget_Processes->currentRow());
 }
 
-void GuiEditBoundaryConditions::loadMpiParameters()
+void GuiEditBoundaryConditions::importHostFile()
 {
 
 }
 
+void GuiEditBoundaryConditions::exportHostFile()
+{
+
+}
+
+void GuiEditBoundaryConditions::loadMpiParameters()
+{
+  QString hostfile_txt = GuiMainWindow::pointer()->getXmlSection( "solver/general/hostfile" );
+  stringToTable(hostfile_txt);
+}
+
 void GuiEditBoundaryConditions::saveMpiParameters()
+{
+  QString hostfile_txt = tableToString();
+  GuiMainWindow::pointer()->setXmlSection( "solver/general/hostfile", hostfile_txt );
+  QString str_num_processes;
+  str_num_processes.setNum( ui.tableWidget_Processes->rowCount() );
+  GuiMainWindow::pointer()->setXmlSection( "solver/general/num_processes", str_num_processes );
+}
+
+QString GuiEditBoundaryConditions::tableToString()
+{
+
+}
+
+void GuiEditBoundaryConditions::stringToTable(QString hostfile_txt)
 {
 
 }
