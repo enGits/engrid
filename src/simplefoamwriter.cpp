@@ -429,6 +429,40 @@ void SimpleFoamWriter::writeBoundary(int faces_offset)
   f << "// ************************************************************************* //\n\n\n";
 }
 
+void SimpleFoamWriter::operateOnGivenFileName()
+{
+  if (isValid()) {
+    QString p1 = getFileName();
+    QString p2 = p1 + "/constant";
+    QDir d1(p1);
+    QDir d2(p2);
+    if (!d1.exists()) {
+      EG_BUG;
+    }
+    if (!d2.exists()) {
+      d1.mkdir("constant");
+      d2 = QDir(p2);
+    }
+    d1 = d2;
+    p1 = p2;
+    p2 = p1 + "/polyMesh";
+    d2 = QDir(p2);
+    if (!d2.exists()) {
+      d1.mkdir("polyMesh");
+    }
+    m_Path = getFileName() + "/constant/polyMesh/";
+    if (!QDir(m_Path).exists()) {
+      EG_BUG;
+    }
+    createFaces();
+    writePoints();
+    writeFaces();
+    writeOwner();
+    writeNeighbour();
+    writeBoundary();
+  }
+}
+
 void SimpleFoamWriter::operate()
 {
   try {

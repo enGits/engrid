@@ -71,6 +71,7 @@ protected: // methods
   void writeNeighbour();
   void writeBoundary(int faces_offset = 0);
   
+  void operateOnGivenFileName();
   virtual void operate();
   
 public: // methods
