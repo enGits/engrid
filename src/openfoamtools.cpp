@@ -48,7 +48,9 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject( parent )
   m_SolverBinary = "";
   m_WorkingDirectory = "";
   m_HostFile = "hostfile.txt";
-
+  m_NumProcesses = 1;
+  m_MainHost = "";
+  
   QSettings *settings = GuiMainWindow::pointer()->settings();
   if (settings->contains("openfoam_directory")) {
     m_OpenFoamPath = settings->value("openfoam_directory").toString();
@@ -88,22 +90,81 @@ void OpenFOAMTools::writeMpiParameters()
     }
   }
   
+  if(host.size()>=1) {
   // create the hostfile
-  QFileInfo fileinfo( m_WorkingDirectory + "/" + m_HostFile );
-  QFile hostfile( fileinfo.filePath() );
-  if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    try {
-      EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
-    } catch ( Error err ) {
-      err.display();
+    QFileInfo fileinfo( m_WorkingDirectory + "/" + m_HostFile );
+    QFile hostfile( fileinfo.filePath() );
+    if (!hostfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      try {
+        EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo.filePath() );
+      } catch ( Error err ) {
+        err.display();
+      }
     }
+    QTextStream out( &hostfile );
+    for(int i = 0; i < host.size(); i++) {
+      out << host[i] << endl;
+    }
+    hostfile.close();
+    
+  // create the decomposeParDict file
+    QFileInfo fileinfo_decomposeParDict( m_WorkingDirectory + "/system/decomposeParDict"  );
+    QFile decomposeParDict( fileinfo_decomposeParDict.filePath() );
+    if (!decomposeParDict.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      try {
+        EG_ERR_RETURN( "ERROR: Failed to open file " + fileinfo_decomposeParDict.filePath() );
+      } catch ( Error err ) {
+        err.display();
+      }
+    }
+    QTextStream out_decomposeParDict( &decomposeParDict );
+    out_decomposeParDict << "/*--------------------------------*- C++ -*----------------------------------*\\" << endl;
+    out_decomposeParDict << "| =========                 |                                                 |" << endl;
+    out_decomposeParDict << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |" << endl;
+    out_decomposeParDict << "|  \\    /   O peration     | Version:  1.5                                   |" << endl;
+    out_decomposeParDict << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |" << endl;
+    out_decomposeParDict << "|    \\/     M anipulation  |                                                 |" << endl;
+    out_decomposeParDict << "\\*---------------------------------------------------------------------------*/" << endl;
+    out_decomposeParDict << "FoamFile" << endl;
+    out_decomposeParDict << "{" << endl;
+    out_decomposeParDict << "    version     2.0;" << endl;
+    out_decomposeParDict << "    format      ascii;" << endl;
+    out_decomposeParDict << "    class       dictionary;" << endl;
+    out_decomposeParDict << "    object      decomposeParDict;" << endl;
+    out_decomposeParDict << "}" << endl;
+    out_decomposeParDict << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "numberOfSubdomains "<<weight.size()<<";" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "method          metis;" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "metisCoeffs" << endl;
+    out_decomposeParDict << "{" << endl;
+    out_decomposeParDict << "    processorWeights " << endl;
+    out_decomposeParDict << "    (" << endl;
+    for(int i = 0; i < weight.size(); i++) {
+      out_decomposeParDict << "        "<<weight[i]<<"" << endl;
+    }
+    out_decomposeParDict << "    );" << endl;
+    out_decomposeParDict << "}" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "distributed     no;" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "roots           " << endl;
+    out_decomposeParDict << "(" << endl;
+    out_decomposeParDict << ");" << endl;
+    out_decomposeParDict << "" << endl;
+    out_decomposeParDict << "// ************************************************************************* //" << endl;
+    out_decomposeParDict << "" << endl;
+    decomposeParDict.close();
+    
+    m_NumProcesses = weight.size();
+    m_MainHost = host[0];
   }
-  QTextStream out( &hostfile );
-  for(int i = 0; i < host.size(); i++) {
-    out << host[i] << endl;
+  else {
+    m_NumProcesses = 1;
+    m_MainHost = "";
   }
-  hostfile.close();
-  
 }
 
 int OpenFOAMTools::getArguments()

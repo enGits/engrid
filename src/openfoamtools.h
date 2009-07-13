@@ -42,6 +42,7 @@ private: // attributes
   QStringList m_Arguments;
   QString     m_OpenFoamPath;
   QString     m_OpenFoamArch;
+  QString     m_MainHost;
 
 private: // methods
 
