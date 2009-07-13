@@ -103,8 +103,6 @@
     <addaction name="actionClearOutputWindow"/>
     <addaction name="actionViewAxes"/>
     <addaction name="actionViewOrthogonal"/>
-    <addaction name="actionViewNodeIDs"/>
-    <addaction name="actionViewCellIDs"/>
     <addaction name="actionShow_display_options"/>
     <addaction name="actionShow_output"/>
     <addaction name="actionShow_node_cell_info"/>
@@ -119,20 +117,15 @@
     <addaction name="actionCheckOrientation"/>
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
-    <addaction name="actionDeleteBadAspectTris"/>
-    <addaction name="actionDeletePickedPoint"/>
-    <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
-    <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="separator"/>
     <addaction name="actionSmoothVolumeGrid"/>
-    <addaction name="actionStoreGeometry"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -167,10 +160,6 @@
     </property>
     <addaction name="actionConfigure"/>
     <addaction name="actionPick_cell_point"/>
-    <addaction name="actionDeletePickedPoint"/>
-    <addaction name="actionPrintGrid"/>
-    <addaction name="actionShowInfo"/>
-    <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
@@ -226,7 +215,6 @@
    <addaction name="actionDeleteVolumeGrid"/>
    <addaction name="actionCreateBoundaryLayer"/>
    <addaction name="actionDivideBoundaryLayer"/>
-   <addaction name="actionCreateSurfaceMesh"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
@@ -281,7 +269,7 @@
           <x>0</x>
           <y>0</y>
           <width>198</width>
-          <height>485</height>
+          <height>491</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -561,6 +549,19 @@
             </item>
            </layout>
           </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonRedraw">
@@ -1236,7 +1237,7 @@
   </action>
   <action name="actionEditBoundaryConditions">
    <property name="text">
-    <string>Edit boundary conditions</string>
+    <string>Edit parameters</string>
    </property>
    <property name="shortcut">
     <string>E</string>
