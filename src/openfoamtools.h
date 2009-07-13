@@ -36,7 +36,7 @@ private: // attributes
   QProcess*   m_ToolsProcess;
   QString     m_SolverBinary;
   QString     m_WorkingDirectory;
-  QString     m_NumProcesses;
+  int         m_NumProcesses;
   QString     m_HostFile;
   QString     m_Program;
   QStringList m_Arguments;

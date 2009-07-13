@@ -106,5 +106,5 @@ connect(ui.actionRunSolver, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runSolve
 connect(ui.actionRunFoamToVTK, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runFoamToVTK()));
 connect(ui.actionRunDecomposePar, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runDecomposePar()));
 connect(ui.actionRunReconstructPar, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runReconstructPar()));
-connect(ui.actionStopProcesses, SIGNAL(activated()), &m_OpenFoamTools, SLOT(stopProcesses()));
+connect(ui.actionStopProcesses, SIGNAL(activated()), &m_OpenFoamTools, SLOT(stopSolverProcess()));
 // -------------------------------------------

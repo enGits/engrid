@@ -224,9 +224,6 @@ int OpenFOAMTools::getArguments()
     }
   }
 
-  // get number of processes
-  m_NumProcesses = GuiMainWindow::pointer()->getXmlSection("solver/general/num_processes");
-
   // create hostfile + decomposeParDict + get necessary parameters
   writeMpiParameters();
   
@@ -242,17 +239,28 @@ int OpenFOAMTools::getArguments()
 
 void OpenFOAMTools::runSolver()
 {
-  runDecomposePar();
   if (getArguments() < 0) {
     return;
   }
   this->stopSolverProcess();
-  if (m_NumProcesses.toInt() <= 1) {
-    m_Program = m_SolverBinary;
-    m_Arguments << "-case" << m_WorkingDirectory;
+  if (m_NumProcesses <= 1) {
+    if(m_MainHost.isEmpty()) {
+      m_Program = m_SolverBinary;
+      m_Arguments << "-case" << m_WorkingDirectory;
+    }
+    else {
+      m_Program = "ssh";
+      m_Arguments <<m_MainHost<<m_SolverBinary<<"-case"<<m_WorkingDirectory;
+    }
   } else {
-    m_Program = "mpirun";
-    m_Arguments << "--hostfile" << m_HostFile << "-np" << m_NumProcesses << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
+    runDecomposePar();
+    if(m_SolverProcess->waitForFinished()) {
+      QString numprocesses_str;
+      numprocesses_str.setNum(m_NumProcesses);
+      m_Arguments.clear();
+      m_Program = "mpirun";
+      m_Arguments << "--hostfile" << m_HostFile << "-np" << numprocesses_str << m_SolverBinary << "-case" << m_WorkingDirectory << "-parallel";
+    }
   }
   m_SolverProcess->start(m_Program, m_Arguments);
 }
@@ -287,6 +295,7 @@ void OpenFOAMTools::runPostProcessingTools()
 
 void OpenFOAMTools::stopSolverProcess()
 {
+  cout<<"===>void OpenFOAMTools::stopSolverProcess() called"<<endl;
   m_SolverProcess->kill();
 }
 
@@ -320,4 +329,3 @@ void OpenFOAMTools::startedHandler()
   }
   cout << "[" << qPrintable(m_WorkingDirectory) << "]$ " << qPrintable(cmd) << endl;
 }
-
