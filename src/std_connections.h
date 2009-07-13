@@ -104,7 +104,6 @@ connect(ui.actionImportOpenFoamCase, SIGNAL(activated()), this, SLOT(callImportO
 // OpenFOAMtools
 connect(ui.actionRunSolver, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runSolver()));
 connect(ui.actionRunFoamToVTK, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runFoamToVTK()));
-connect(ui.actionRunDecomposePar, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runDecomposePar()));
-connect(ui.actionRunReconstructPar, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runReconstructPar()));
-connect(ui.actionStopProcesses, SIGNAL(activated()), &m_OpenFoamTools, SLOT(stopProcesses()));
+connect(ui.actionPreparePostProcessing, SIGNAL(activated()), &m_OpenFoamTools, SLOT(runPostProcessingTools()));
+connect(ui.actionStopProcesses, SIGNAL(activated()), &m_OpenFoamTools, SLOT(stopSolverProcess()));
 // -------------------------------------------
