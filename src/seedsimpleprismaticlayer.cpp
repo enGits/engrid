@@ -233,9 +233,9 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
               } else if (cell_voldir->GetValue(bcells[i_bcells]) != vol_dir) {
                 EG_BUG;
               }
-              if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
+/*              if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc1.insert(cell_code->GetValue(bcells[i_bcells]));
-              }
+              }*/
               if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc2.insert(cell_code->GetValue(bcells[i_bcells]));
               }
@@ -443,6 +443,8 @@ void SeedSimplePrismaticLayer::operate()
     }
   }
   
+//   writeGrid(new_grid, "pre-cellcopy");
+  
   // copy old cells to the new grid
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType *pts, N_pts;
@@ -456,6 +458,8 @@ void SeedSimplePrismaticLayer::operate()
     vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
     copyCellData(grid, id_cell, new_grid, id_new_cell);
   }
+  
+//   writeGrid(new_grid, "pre-createBoundaryElements");
   
   createBoundaryElements(new_grid);
   UpdateCellIndex(new_grid);
