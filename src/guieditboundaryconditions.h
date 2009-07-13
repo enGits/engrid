@@ -58,10 +58,8 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
 
     GuiVolumeDelegate *delegate;
     QVector <MultiPageWidgetPage*> m_page_vector;
+    PhysicalBoundaryCondition m_PBC_current;
 
-    int m_PreviousSelected;
-    QString m_PreviousSelectedName;
-    int m_PreviousSelectedIndex;
     MultiPageWidget* m_multipagewidget_Solver;
 
     /// vector to hold the binaries
@@ -88,8 +86,8 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
     // Boundary types tab
   protected:
     void updatePhysicalBoundaryConditions();
-    void loadPhysicalValues(QString name);
-    void savePhysicalValues(QString name, int index);
+    void loadPhysicalValues();
+    void savePhysicalValues();
   protected slots:
     void addBoundaryType();
     void deleteBoundaryType();
