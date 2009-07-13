@@ -104,7 +104,6 @@ void RemovePoints::operate()
 vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& num_newpoints, int& num_newcells )
 {
   // preparations
-  setAllSurfaceCells();
   l2l_t n2c = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t cells = getPartCells();
