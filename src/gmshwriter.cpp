@@ -22,6 +22,9 @@
 //
 #include "gmshwriter.h"
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 GmshWriter::GmshWriter()
 {
   setFormat("Gmsh files(*.msh)");
@@ -155,7 +158,8 @@ void GmshWriter::writeAscii2(vtkUnstructuredGrid *grid)
 void GmshWriter::operate()
 {
   try {
-    readOutputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readOutputFileName(file_info.completeBaseName() + ".msh");
     if (isValid()) {
       if      (format == ascii1) writeAscii1(grid);
       else if (format == ascii2) writeAscii2(grid);

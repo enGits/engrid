@@ -39,12 +39,12 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject( parent )
   m_SolverProcess = new QProcess(this);
   m_ToolsProcess = new QProcess(this);
 
-  connect(m_SolverProcess, SIGNAL(error(QProcess::ProcessError)),        this, SLOT(errorHandler(QProcess::ProcessError)));
+//   connect(m_SolverProcess, SIGNAL(error(QProcess::ProcessError)),        this, SLOT(errorHandler(QProcess::ProcessError)));
   connect(m_SolverProcess, SIGNAL(finished(int, QProcess::ExitStatus)),  this, SLOT(finishedHandler(int, QProcess::ExitStatus)));
   connect(m_SolverProcess, SIGNAL(readyReadStandardError()),             this, SLOT(readFromStderr()));
   connect(m_SolverProcess, SIGNAL(readyReadStandardOutput()),            this, SLOT(readFromStdout()));
   connect(m_SolverProcess, SIGNAL(started()),                            this, SLOT(startedHandler()));
-  connect(m_SolverProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(stateChangedHandler(QProcess::ProcessState)));
+//   connect(m_SolverProcess, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(stateChangedHandler(QProcess::ProcessState)));
 
   m_SolverBinary = "";
   m_WorkingDirectory = "";

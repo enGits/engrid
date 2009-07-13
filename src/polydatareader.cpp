@@ -25,6 +25,9 @@
 
 #include <vtkXMLPolyDataReader.h>
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 PolyDataReader::PolyDataReader()
 {
   setFormat("VTK poly data files(*.vtp)");
@@ -34,7 +37,8 @@ PolyDataReader::PolyDataReader()
 void PolyDataReader::operate()
 {
   try {
-    readInputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readInputFileName(file_info.completeBaseName() + ".vtp");
     if (isValid()) {
       EG_VTKSP(vtkXMLPolyDataReader,vtp);
       EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter,pd2ug);

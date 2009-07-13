@@ -310,7 +310,8 @@ void CgnsWriter::operate()
 {
 #ifdef CGNS_SUPPORT
   try {
-    readOutputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readOutputFileName(file_info.completeBaseName() + ".cgns");
     if (isValid()) {
       QString file_name = getFileName();
       if (cg_open(qPrintable(file_name), MODE_WRITE, &fn)) {

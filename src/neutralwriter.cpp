@@ -22,6 +22,9 @@
 //
 #include "neutralwriter.h"
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 NeutralWriter::NeutralWriter()
 {
   setFormat("Neutral mesh files(*.mesh)");
@@ -30,7 +33,8 @@ NeutralWriter::NeutralWriter()
 void NeutralWriter::operate()
 {
   try {
-    readOutputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readOutputFileName(file_info.completeBaseName() + ".mesh");
     if (isValid()) {
       QFile file(getFileName());
       file.open(QIODevice::WriteOnly | QIODevice::Text);

@@ -27,6 +27,9 @@
 #include <vtkSTLReader.h>
 #include <vtkCleanPolyData.h>
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 StlReader::StlReader()
 {
   setFormat("STL files(*.stl *.STL)");
@@ -34,7 +37,8 @@ StlReader::StlReader()
 
 void StlReader::operate()
 {
-  readInputFileName();
+  QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+  readInputFileName(file_info.completeBaseName() + ".stl");
   if (isValid()) {
     vtkSTLReader *stl = vtkSTLReader::New();
     stl->MergingOn();

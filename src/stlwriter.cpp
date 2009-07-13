@@ -26,6 +26,9 @@
 #include <vtkGeometryFilter.h>
 #include <vtkTriangleFilter.h>
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 StlWriter::StlWriter()
 {
   setFormat("stereolithography files (*.stl *.STL)");
@@ -34,7 +37,8 @@ StlWriter::StlWriter()
 void StlWriter::operate()
 {
   try {
-    readOutputFileName();
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readOutputFileName(file_info.completeBaseName() + ".stl");
     if (isValid()) {
       EG_VTKSP(vtkGeometryFilter, geometry);
       geometry->SetInput(grid);
