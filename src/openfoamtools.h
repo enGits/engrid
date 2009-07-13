@@ -35,6 +35,7 @@ private: // attributes
   QProcess*   m_SolverProcess;
   QProcess*   m_ToolsProcess;
   QString     m_SolverBinary;
+  QString     m_StrippedSolverBinary;
   QString     m_WorkingDirectory;
   int         m_NumProcesses;
   QString     m_HostFile;
@@ -65,6 +66,7 @@ public slots:
   void runSolver();
   void runDecomposePar();
   void runPostProcessingTools();
+  void runImportFluentCase();
 
   void stopSolverProcess();
 
