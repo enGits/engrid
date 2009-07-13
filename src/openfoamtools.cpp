@@ -215,13 +215,15 @@ void OpenFOAMTools::finishedHandler( int exitCode, QProcess::ExitStatus exitStat
 void OpenFOAMTools::readFromStderr()
 {
 //   qDebug()<<m_Process->readAllStandardError();
-  cout << m_Process->readAllStandardError().data() << endl;
+  cout << m_Process->readAllStandardError().data();
+  flush(cout);
 }
 
 void OpenFOAMTools::readFromStdout()
 {
 //   qDebug()<<m_Process->readAllStandardOutput();
-  cout << m_Process->readAllStandardOutput().data() << endl;
+  cout << m_Process->readAllStandardOutput().data();
+  flush(cout);
 }
 
 void OpenFOAMTools::startedHandler()
