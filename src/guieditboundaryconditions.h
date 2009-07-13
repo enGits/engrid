@@ -69,35 +69,46 @@ class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryCond
 
   protected: // methods
     virtual void operate();
-  
-  protected: // methods
-    void updateVol();
-    void updatePhysicalBoundaryConditions();
-    void setupSolvers();
-    void saveSolverParameters();
-    void loadMpiParameters();
-    void saveMpiParameters();
-    void loadPhysicalValues( QString name );
-    void savePhysicalValues( QString name, int index );
-    void updateProcesses();
-  
-  protected slots:
 
+    // Boundary conditions tab
+  protected:
+    void updateVol();
+  protected slots:
     void addVol();
     void delVol();
+
+    // Boundary types tab
+  protected:
+    void updatePhysicalBoundaryConditions();
+    void loadPhysicalValues(QString name);
+    void savePhysicalValues(QString name, int index);
+  protected slots:
     void addBoundaryType();
     void deleteBoundaryType();
-    void addProcess(){};
-    void deleteProcess(){};
     void changePhysicalValues();
-  
-  public: // methods
 
+    // Solver tab
+  protected:
+    void setupSolvers();
+    void saveSolverParameters();
+  protected slots:
+
+// MPI configuration tab
+  protected:
+    void updateProcesses();
+    void loadMpiParameters();
+    void saveMpiParameters();
+  protected slots:
+    void addProcess() {};
+    void deleteProcess() {};
+
+  public: // methods
     GuiEditBoundaryConditions();
     virtual ~GuiEditBoundaryConditions();
+    void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
 
+  private:
     virtual void before();
-    void setMap( QMap<int, BoundaryCondition> *a_bcmap ) { m_BcMap = a_bcmap; }
 
 };
 

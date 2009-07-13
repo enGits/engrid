@@ -63,7 +63,7 @@
 #--break-blocks=all
 
 #PadParenthesesIn="1"
---pad-paren-in
+#--pad-paren-in
 
 #IndentClasses="1"
 --indent-classes
