@@ -1143,6 +1143,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
   }
+  cout << "Saving as " << qPrintable(file_name) << endl;
   GuiMainWindow::setCwd(file_info.absolutePath());
   saveGrid(file_name);
   saveBC();
