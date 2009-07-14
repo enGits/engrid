@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -230,15 +230,15 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-     <horstretch>200</horstretch>
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>112</width>
-     <height>132</height>
+     <width>250</width>
+     <height>0</height>
     </size>
    </property>
    <property name="floating">
@@ -280,8 +280,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>198</width>
-          <height>485</height>
+          <width>212</width>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -641,12 +641,6 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DebuggingUtilities">
-   <property name="minimumSize">
-    <size>
-     <width>112</width>
-     <height>132</height>
-    </size>
-   </property>
    <property name="windowTitle">
     <string>Debugging utilities</string>
    </property>
@@ -668,8 +662,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>214</width>
-          <height>533</height>
+          <width>228</width>
+          <height>557</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
