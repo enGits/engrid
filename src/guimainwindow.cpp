@@ -108,11 +108,8 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
   
-//   m_StatusBar = new QStatusBar(this);
-//   setStatusBar(m_StatusBar);
   m_StatusLabel = new QLabel(this);
-//   m_StatusBar->addWidget(m_StatusLabel);
-  statusBar()->addWidget(m_StatusLabel,1);
+  statusBar()->addWidget(m_StatusLabel);
   
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
