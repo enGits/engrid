@@ -35,10 +35,8 @@ class UpdateDesiredMeshDensity : public SurfaceOperation
 
 private: //attributes
 
-  QSet<int> m_BCs;
-  double m_ConvLimit;
-  double m_GrowthFactor;
-  int m_MaxIter;
+  QSet<int>                   m_BCs;
+  double                      m_GrowthFactor;
   QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
 
 public: //methods
