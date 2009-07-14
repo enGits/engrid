@@ -142,7 +142,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
-    QStatusBar*  m_StatusBar;            ///< Status bar of the main window and application
+  //    QStatusBar*  m_StatusBar;            ///< Status bar of the main window and application
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
     QSet<int>    m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
     QSet<int>    m_AllBoundaryCodes;     ///< A QList with all boundary codes.

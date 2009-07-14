@@ -76,8 +76,15 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
-  setGeometry(m_qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
+  if(m_qset.contains("GuiMainWindow")) {
+    setGeometry(m_qset.value("GuiMainWindow").toRect());
+  }
+  else {
+    this->setWindowState(Qt::WindowMaximized);
+  }
+  
   restoreState(m_qset.value("dockWidget_states").toByteArray());
+  
   
 # include "std_connections.h"
   
@@ -92,11 +99,12 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
   
-  m_StatusBar = new QStatusBar(this);
-  setStatusBar(m_StatusBar);
+//   m_StatusBar = new QStatusBar(this);
+//   setStatusBar(m_StatusBar);
   m_StatusLabel = new QLabel(this);
-  m_StatusBar->addWidget(m_StatusLabel);
-
+//   m_StatusBar->addWidget(m_StatusLabel);
+  statusBar()->addWidget(m_StatusLabel,1);
+  
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
   m_StatusLabel->setText(txt);
