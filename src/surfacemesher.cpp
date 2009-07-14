@@ -102,7 +102,6 @@ int SurfaceMesher::insertNodes()
   insert_points.setBCS(m_BCs);
   insert_points.set_insert_FP(false);
   insert_points.set_insert_EP(true);
-  insert_points.setVertexMeshDensityVector(VMDvector);
   insert_points();
   return insert_points.getNumInserted();
 }
@@ -137,12 +136,15 @@ void SurfaceMesher::operate()
     int N = 0;
     int count = 0;
 
+    /*
     do {
       N = deleteNodes();
       num_deleted += N;
       ++count;
     } while ((N > 0) && (count < 20));
-    for (int i = 0; i < 10; ++i) {
+    */
+
+    for (int i = 0; i < 5; ++i) {
       swap();
       smooth(m_NumSmoothSteps);
     }
@@ -156,5 +158,6 @@ void SurfaceMesher::operate()
   }
   createIndices(grid);
   updateNodeInfo(true);
+  computeMeshDensity();
 }
 
