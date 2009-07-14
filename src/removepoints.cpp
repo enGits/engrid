@@ -239,6 +239,13 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & De
 
 bool RemovePoints::DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QSet <vtkIdType> & all_deadcells, QSet <vtkIdType> & all_mutatedcells, QSet <vtkIdType> & all_mutilatedcells, int& num_newpoints, int& num_newcells)
 {
+  QVector <vtkIdType> inter_vector;
+  QSet <vtkIdType> inter_set;
+  qcontIntersection(deadnode_vector, snappoint_vector, inter_vector); if(inter_vector.size()>0) EG_BUG;
+  qcontIntersection(all_deadcells, all_mutatedcells, inter_set); if(inter_set.size()>0) EG_BUG;
+  qcontIntersection(all_deadcells, all_mutilatedcells, inter_set); if(inter_set.size()>0) EG_BUG;
+  qcontIntersection(all_mutatedcells, all_mutilatedcells, inter_set); if(inter_set.size()>0) EG_BUG;
+  
   int initial_num_points = grid->GetNumberOfPoints();
   
   //src grid info
