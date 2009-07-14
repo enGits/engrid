@@ -22,6 +22,9 @@
 //
 #include "cgnswriter.h"
 
+#include <QFileInfo>
+#include "guimainwindow.h"
+
 CgnsWriter::CgnsWriter()
 {
   EG_TYPENAME;
