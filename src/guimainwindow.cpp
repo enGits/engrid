@@ -76,6 +76,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
+  // restore window size
   if(m_qset.contains("GuiMainWindow")) {
     setGeometry(m_qset.value("GuiMainWindow").toRect());
   }
@@ -83,8 +84,16 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
     this->setWindowState(Qt::WindowMaximized);
   }
   
-  restoreState(m_qset.value("dockWidget_states").toByteArray());
-  
+  // restore dockwidget positions
+  if(m_qset.contains("dockWidget_states")) {
+    restoreState(m_qset.value("dockWidget_states").toByteArray());
+  }
+  else {
+    tabifyDockWidget(ui.dockWidget_output, ui.dockWidget_node_cell_info);
+    tabifyDockWidget(ui.dockWidget_DisplayOptions, ui.dockWidget_DebuggingUtilities);
+    ui.dockWidget_node_cell_info->hide();
+    ui.dockWidget_DebuggingUtilities->hide();
+  }
   
 # include "std_connections.h"
   
