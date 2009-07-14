@@ -77,7 +77,7 @@ class RemovePoints : public SurfaceOperation
     int getNumRemoved() { return m_NumRemoved; }
 
     /// deletes set of points DeadNodes
-    bool DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells );
+  bool DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QSet <vtkIdType> & all_deadcells, QSet <vtkIdType> & all_mutatedcells, QSet <vtkIdType> & all_mutilatedcells, int& num_newpoints, int& num_newcells);
   
     /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
     vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );

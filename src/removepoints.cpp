@@ -34,9 +34,9 @@ bool RemovePoints::removePointCriteria( vtkIdType id_node )
   double QL2max = 0.5;
   bool result1 = Q_L1( id_node ) < QL1max && Q_L2( id_node ) < QL2max;
 
-  QVector <vtkIdType> PSP = getPotentialSnapPoints( id_node );
-  double Lmean = CurrentVertexAvgDist( id_node );
-  bool result2 = Lmean < desiredEdgeLength( PSP[0] ) && Lmean < desiredEdgeLength( PSP[1] );
+//   QVector <vtkIdType> PSP = getPotentialSnapPoints( id_node );
+//   double Lmean = CurrentVertexAvgDist( id_node );
+//   bool result2 = Lmean < desiredEdgeLength( PSP[0] ) && Lmean < desiredEdgeLength( PSP[1] );
 
   return ( result1 );
 }
@@ -56,31 +56,48 @@ void RemovePoints::operate()
   l2g_t nodes = getPartNodes();
   
   UpdatePotentialSnapPoints(true);
-
+  
   EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
   EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
   EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
 
-  //for FindSnapPoint + DeleteSetOfPoints
+  // global values
+  QSet <vtkIdType> all_deadcells;
+  QSet <vtkIdType> all_mutatedcells;
+  QSet <vtkIdType> all_mutilatedcells;
   int num_newpoints = 0;
   int num_newcells = 0;
-  QSet <vtkIdType> DeadCells;
-  QSet <vtkIdType> MutatedCells;
-  QSet <vtkIdType> MutilatedCells;
-
+  
   QVector <bool> marked_nodes(nodes.size());
   marked_nodes.fill(false);
   
-  QSet <vtkIdType> DeadNodes;
-
+  QVector <vtkIdType> deadnode_vector;
+  QVector <vtkIdType> snappoint_vector;
+  
+  
   ///@@@ FIXME: Reuse snap_point and avoid sets and maps
   //count
   foreach( vtkIdType id_node, selected_nodes ) {
     if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {
       if ( !marked_nodes[id_node] && removePointCriteria( id_node ) ) {
-        vtkIdType snap_point = FindSnapPoint( id_node, DeadCells, MutatedCells, MutilatedCells, num_newpoints, num_newcells );
-        if( snap_point != -1 ) {
-          DeadNodes.insert( id_node );
+        // local values
+        QSet <vtkIdType> l_deadcells;
+        QSet <vtkIdType> l_mutatedcells;
+        QSet <vtkIdType> l_mutilatedcells;
+        int l_num_newpoints = 0;
+        int l_num_newcells = 0;
+        vtkIdType snap_point = FindSnapPoint( id_node, l_deadcells, l_mutatedcells, l_mutilatedcells, l_num_newpoints, l_num_newcells );
+        if( snap_point >= 0 ) {
+          // add deadnode/snappoint pair
+          deadnode_vector.push_back( id_node );
+          snappoint_vector.push_back( snap_point );
+          // update global values
+          num_newpoints += l_num_newpoints;
+          num_newcells += l_num_newcells;
+          all_deadcells.unite( l_deadcells ); //all_deadcells unite! Kill the living! :D
+          all_mutatedcells.unite( l_mutatedcells );
+          all_mutilatedcells.unite( l_mutilatedcells );
+          // mark neighbour nodes
           foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) marked_nodes[nodes[i_node_neighbour]] = true;
         }
       }
@@ -88,7 +105,7 @@ void RemovePoints::operate()
   }
 
   //delete
-  DeleteSetOfPoints( DeadNodes, num_newpoints, num_newcells );
+  DeleteSetOfPoints( deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, all_mutilatedcells, num_newpoints, num_newcells );
 
   int N2 = grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
@@ -220,68 +237,13 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & De
 }
 //End of FindSnapPoint
 
-bool RemovePoints::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
+bool RemovePoints::DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QSet <vtkIdType> & all_deadcells, QSet <vtkIdType> & all_mutatedcells, QSet <vtkIdType> & all_mutilatedcells, int& num_newpoints, int& num_newcells)
 {
   int initial_num_points = grid->GetNumberOfPoints();
-  
-//   CheckSurfaceIntegrity check_surface_integrity;
-//   check_surface_integrity.setGrid(grid);
-//   if ( !check_surface_integrity.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     EG_BUG;
-//   }
-  
-  QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
-  
-  UpdatePotentialSnapPoints( true );
   
   //src grid info
   int num_points = grid->GetNumberOfPoints();
   int num_cells = grid->GetNumberOfCells();
-  
-  QSet <vtkIdType> all_deadcells;
-  QSet <vtkIdType> all_mutatedcells;
-  QSet <vtkIdType> all_mutilatedcells;
-  QVector <vtkIdType> SnapPoint( deadnode_vector.size() );
-  
-  //counter init
-  num_newpoints = 0;
-  num_newcells = 0;
-  
-  for ( int i = 0; i < deadnode_vector.size(); i++ ) {
-    if ( deadnode_vector[i] < 0 || deadnode_vector[i] >= num_points ) {
-      cout << "Warning: Point out of range: deadnode_vector[i]=" << deadnode_vector[i] << " num_points=" << num_points << endl;
-      EG_BUG;
-      return ( false );
-    }
-    
-    //local values
-    int l_num_newpoints = 0;
-    int l_num_newcells = 0;
-    QSet <vtkIdType> l_DeadCells;
-    QSet <vtkIdType> l_MutatedCells;
-    QSet <vtkIdType> l_MutilatedCells;
-    
-    SnapPoint[i] = FindSnapPoint( deadnode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_num_newpoints, l_num_newcells );
-    //global values
-    num_newpoints += l_num_newpoints;
-    num_newcells += l_num_newcells;
-    all_deadcells.unite( l_DeadCells ); //all_deadcells unite! Kill the living! :D
-    all_mutatedcells.unite( l_MutatedCells );
-    all_mutilatedcells.unite( l_MutilatedCells );
-    
-    if ( DebugLevel > 0 ) {
-      cout << "===>deadnode_vector[i]=" << deadnode_vector[i] << " moving to SNAPPOINT=" << SnapPoint[i] << " DebugLevel=" << DebugLevel << endl;
-    }
-    if ( SnapPoint[i] < 0 ) {
-      cout << "ERROR: no possible SnapPoint found." << endl;
-      EG_BUG;
-      return( false );
-    }
-    
-  }
   
   if ( num_newcells != 2*num_newpoints ) {
     EG_BUG;
@@ -320,14 +282,13 @@ bool RemovePoints::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpo
       vtkIdType type_cell = grid->GetCellType( id_cell );
       
       dst_num_pts = 3;//src_num_pts;
-//       dst_pts = new vtkIdType[dst_num_pts];
       
       if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
         int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
           int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
           if ( DeadIndex != -1 ) {
-            dst_pts[i] = SnapPoint[DeadIndex] - OffSet[SnapPoint[DeadIndex]]; // dead node
+            dst_pts[i] = snappoint_vector[DeadIndex] - OffSet[snappoint_vector[DeadIndex]]; // dead node
             num_deadnode++;
           }
           else {
@@ -372,42 +333,19 @@ bool RemovePoints::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpo
       // copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
       copyCellData( grid, id_cell, dst, id_new_cell );
-//       delete dst_pts;
     }
   }
   
-//   CheckSurfaceIntegrity check_surface_integrity_tmp;
-//   check_surface_integrity_tmp.setGrid( dst );
-//   if ( !check_surface_integrity_tmp.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity_tmp();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
-//     makeCopy( dst, grid );
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     int final_num_points = grid->GetNumberOfPoints();
-//     if ( initial_num_points - final_num_points != DeadNodes.size() ) {
-//       EG_BUG;
-//     }
-//     EG_BUG;
-//   }
-  
   makeCopy( dst, grid );
   
-  if ( -num_newpoints != DeadNodes.size() ) {
+  if ( -num_newpoints != deadnode_vector.size() ) {
     EG_BUG;
   }
   
   int final_num_points = grid->GetNumberOfPoints();
-  if ( initial_num_points - final_num_points != DeadNodes.size() ) {
+  if ( initial_num_points - final_num_points != deadnode_vector.size() ) {
     EG_BUG;
   }
-  
-//   if ( !check_surface_integrity.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     EG_BUG;
-//   }
   
   return( true );
 }

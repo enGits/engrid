@@ -1294,7 +1294,6 @@ void GuiMainWindow::updateStatusBar()
     txt += pick_txt;
   }
   
-  ///@@@ TODO: Reduce size of text for small screens or better: allow making the window smaller than the text
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
