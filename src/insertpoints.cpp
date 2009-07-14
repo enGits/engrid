@@ -58,6 +58,7 @@ bool InsertPoints::insert_fieldpoint(vtkIdType id_cell)
 
 bool InsertPoints::insert_edgepoint(vtkIdType id_node1, vtkIdType id_node2)
 {
+  EG_BUG;
   bool result = distance(grid, id_node1, id_node2) > 0.5 * ( desiredEdgeLength(id_node1) + desiredEdgeLength(id_node2) );
   return ( result );
 }
@@ -174,7 +175,7 @@ int InsertPoints::insert_EP_all()
   int num_newpoints=0;
   int num_newcells=0;
   
-  QVector <int> marked_cells(cells.size());
+  QVector <int> marked_cells(cells.size(), 0);
   QVector <stencil_t> stencil_vector(cells.size());
   
   //counter
