@@ -76,8 +76,24 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   ui.setupUi(this);
   THIS = this;
   
-  setGeometry(m_qset.value("GuiMainWindow", QRect(200,200,400,400)).toRect());
-  restoreState(m_qset.value("dockWidget_states").toByteArray());
+  // restore window size
+  if(m_qset.contains("GuiMainWindow")) {
+    setGeometry(m_qset.value("GuiMainWindow").toRect());
+  }
+  else {
+    this->setWindowState(Qt::WindowMaximized);
+  }
+  
+  // restore dockwidget positions
+  if(m_qset.contains("dockWidget_states")) {
+    restoreState(m_qset.value("dockWidget_states").toByteArray());
+  }
+  else {
+    tabifyDockWidget(ui.dockWidget_output, ui.dockWidget_node_cell_info);
+    tabifyDockWidget(ui.dockWidget_DisplayOptions, ui.dockWidget_DebuggingUtilities);
+    ui.dockWidget_node_cell_info->hide();
+    ui.dockWidget_DebuggingUtilities->hide();
+  }
   
 # include "std_connections.h"
   
@@ -92,11 +108,9 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
   
-  m_StatusBar = new QStatusBar(this);
-  setStatusBar(m_StatusBar);
   m_StatusLabel = new QLabel(this);
-  m_StatusBar->addWidget(m_StatusLabel);
-
+  statusBar()->addWidget(m_StatusLabel);
+  
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
   m_StatusLabel->setText(txt);
@@ -1129,6 +1143,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
   }
+  cout << "Saving as " << qPrintable(file_name) << endl;
   GuiMainWindow::setCwd(file_info.absolutePath());
   saveGrid(file_name);
   saveBC();
@@ -1280,7 +1295,6 @@ void GuiMainWindow::updateStatusBar()
     txt += pick_txt;
   }
   
-  ///@@@ TODO: Reduce size of text for small screens or better: allow making the window smaller than the text
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();

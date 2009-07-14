@@ -1,10 +1,25 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="1" >
+ <DocsAndViews NumberOfDocuments="6" >
   <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-   <View0 Encoding="" line="80" Type="Source" />
+   <View0 Encoding="" line="112" Type="Source" />
   </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/cgnswriter.cpp" >
+   <View0 Encoding="" line="0" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/stlreader.cpp" >
+   <View0 Encoding="" line="31" Type="Source" />
+  </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
+   <View0 Encoding="" line="144" Type="Source" />
+  </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/engrid.h" >
+   <View0 Encoding="" line="205" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/openfoamtools.cpp" >
+   <View0 Encoding="" line="412" Type="Source" />
+  </Doc5>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -51,39 +66,38 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
-     <mark line="94" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
      <mark line="66" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
-     <mark line="408" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
+     <mark line="94" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
      <mark line="199" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
+     <mark line="408" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-     <mark line="988" />
-     <mark line="1178" />
-     <mark line="1029" />
-     <mark line="1064" />
-     <mark line="78" />
-     <mark line="217" />
+     <mark line="1192" />
+     <mark line="1043" />
+     <mark line="1078" />
+     <mark line="231" />
+     <mark line="1002" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
      <mark line="81" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
      <mark line="241" />
      <mark line="174" />
      <mark line="390" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
      <mark line="61" />
