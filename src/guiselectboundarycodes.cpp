@@ -42,7 +42,7 @@ void GuiSelectBoundaryCodes::setDisplayBoundaryCodes(const QSet<int> &bcs)
 
 void GuiSelectBoundaryCodes::before()
 {
-  for (QSet<int>::iterator i = boundary_codes.begin(); i != boundary_codes.end(); ++i) {
+  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
     bool checked = display_boundary_codes.contains(*i);
     addListItem(ui.listWidget,*i,checked);
   };
@@ -54,7 +54,7 @@ void GuiSelectBoundaryCodes::before()
 void GuiSelectBoundaryCodes::operate()
 {
   display_boundary_codes.clear();
-  for (QSet<int>::iterator i = boundary_codes.begin(); i != boundary_codes.end(); ++i) {
+  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
     if (checkListItem(ui.listWidget,*i)) {
       display_boundary_codes.insert(*i);
     };
@@ -78,7 +78,7 @@ void GuiSelectBoundaryCodes::deselectAll()
 void GuiSelectBoundaryCodes::saveSelectionAsGrid()
 {
   display_boundary_codes.clear();
-  for (QSet<int>::iterator i = boundary_codes.begin(); i != boundary_codes.end(); ++i) {
+  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
     if (checkListItem(ui.listWidget,*i)) {
       display_boundary_codes.insert(*i);
     };

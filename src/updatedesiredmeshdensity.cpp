@@ -75,14 +75,19 @@ void UpdateDesiredMeshDensity::operate()
     num_updated = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (md_set[i_nodes]) {
+        vec3_t xi;
+        grid->GetPoint(nodes[i_nodes], xi.data());
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           int j_nodes = n2n[i_nodes][j];
           if (!md_set[j_nodes]) {
+            vec3_t xj;
+            grid->GetPoint(nodes[j_nodes], xj.data());
             if (!md_preset[j_nodes]) {
               md_preset[j_nodes] = true;
               ++num_updated;
             }
-            md_desired->SetValue(nodes[j_nodes], max(md_desired->GetValue(nodes[j_nodes]), md_desired->GetValue(nodes[i_nodes])/m_GrowthFactor));
+            double L_new = 1.0/md_desired->GetValue(nodes[i_nodes]) + (m_GrowthFactor - 1)*(xi-xj).abs();
+            md_desired->SetValue(nodes[j_nodes], max(md_desired->GetValue(nodes[j_nodes]), 1.0/L_new));
           }
         }
       }

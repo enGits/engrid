@@ -909,10 +909,10 @@ int EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2
 ///@@@ TODO: Why not simply use boundary_codes = bcs ?
 void EgVtkObject::setBoundaryCodes(const QSet<int> &bcs)
 {
-  boundary_codes.clear();
+  m_BoundaryCodes.clear();
   int bc;
   foreach(bc, bcs) {
-    boundary_codes.insert(bc);
+    m_BoundaryCodes.insert(bc);
   }
 }
 

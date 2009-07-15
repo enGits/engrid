@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -181,6 +181,7 @@
     <addaction name="actionRunSolver"/>
     <addaction name="actionStopProcesses"/>
     <addaction name="actionPreparePostProcessing"/>
+    <addaction name="actionStartParaView"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
@@ -208,6 +209,7 @@
    <addaction name="separator"/>
    <addaction name="actionFoamCaseWriter"/>
    <addaction name="actionPreparePostProcessing"/>
+   <addaction name="actionStartParaView"/>
    <addaction name="separator"/>
    <addaction name="actionRunSolver"/>
    <addaction name="actionStopProcesses"/>
@@ -237,7 +239,7 @@
    <property name="minimumSize">
     <size>
      <width>250</width>
-     <height>0</height>
+     <height>132</height>
     </size>
    </property>
    <property name="floating">
@@ -280,7 +282,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>501</height>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -661,8 +663,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>228</width>
-          <height>557</height>
+          <width>214</width>
+          <height>533</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1476,10 +1478,13 @@
   <action name="actionPreparePostProcessing">
    <property name="icon">
     <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
+     <normaloff>:/icons/resources/icons/vtk.png</normaloff>:/icons/resources/icons/vtk.png</iconset>
    </property>
    <property name="text">
-    <string>Prepare post-processing</string>
+    <string>Prepare VTK post-processing</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare VTK post-processing</string>
    </property>
   </action>
   <action name="actionImportFluentCase">
@@ -1488,6 +1493,15 @@
    </property>
    <property name="toolTip">
     <string>import FLUENT case</string>
+   </property>
+  </action>
+  <action name="actionStartParaView">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start ParaView</string>
    </property>
   </action>
  </widget>
