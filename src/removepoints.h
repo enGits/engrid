@@ -56,15 +56,12 @@ class RemovePoints : public SurfaceOperation
 {
   private:
     int m_NumRemoved;
-
-    //attributes with setter functions
-  public:
     QSet<int> m_bcs;
+  
+  // setter functions
+  public:
+  ///@@@ TODO: Use EgVtkObject::setBoundaryCodes instead?
     void setBCS( QSet<int> a_bcs ) { m_bcs = a_bcs;}
-    bool remove_FP;
-    void set_remove_FP( bool B ) { remove_FP = B;}
-    bool remove_EP;
-    void set_remove_EP( bool B ) { remove_EP = B;}
 
   public:
 

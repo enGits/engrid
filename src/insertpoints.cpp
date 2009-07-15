@@ -169,7 +169,7 @@ int InsertPoints::insert_EP_all()
   g2l_t _cells = getPartLocalCells();
   
   UpdatePotentialSnapPoints(true);
-  
+   
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
   int num_newpoints=0;
