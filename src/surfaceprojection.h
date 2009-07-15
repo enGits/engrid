@@ -100,9 +100,11 @@ public: // methods
 
   template <class C>
   void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells);
+
   vec3_t project(vec3_t x);
   int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
   void writeOctree(QString file_name);
+  bool usesLevelSet() { return m_UseLevelSet; };
 
 };
 
