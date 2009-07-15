@@ -127,10 +127,12 @@ void SurfaceMesher::operate()
   while (!done) {
     computeMeshDensity();
     num_inserted = insertNodes();
+    computeMeshDensity();
     swap();
     num_deleted = 0;
     int N = 0;
     int count = 0;
+
 
     do {
       N = deleteNodes();
@@ -138,12 +140,16 @@ void SurfaceMesher::operate()
       ++count;
     } while ((N > 0) && (count < 20));
 
+
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       swap();
       smooth(1);
     }
     ++iter;
-    done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
+    //done = true;
+    done = (iter >= m_NumMaxIter);
+    //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
+    //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
     cout << "surface mesher iteration " << iter << ":" << endl;
     cout << "  inserted nodes : " << num_inserted << endl;
     cout << "  deleted nodes  : " << num_deleted << endl;
