@@ -115,7 +115,6 @@ int SurfaceMesher::deleteNodes()
 
 void SurfaceMesher::operate()
 {
-  int Ndeleterun = 0;
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     md->SetValue(id_node, 1e-6);
@@ -134,12 +133,7 @@ void SurfaceMesher::operate()
     int count = 0;
 
     do {
-      QString Ndeleterun_str;
-      Ndeleterun_str.setNum(Ndeleterun);
-      writeGrid(grid, "pre-delete-" + Ndeleterun_str );
       N = deleteNodes();
-      writeGrid(grid, "post-delete-" + Ndeleterun_str );
-      Ndeleterun++;
       num_deleted += N;
       ++count;
     } while ((N > 0) && (count < 20));
@@ -159,5 +153,4 @@ void SurfaceMesher::operate()
   createIndices(grid);
   updateNodeInfo(true);
   computeMeshDensity();
-  cout << "Ndeleterun =" << Ndeleterun << endl;
 }
