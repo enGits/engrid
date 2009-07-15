@@ -28,10 +28,10 @@
 
 #include <QTime>
 
-InsertPoints::InsertPoints()
-: SurfaceOperation()
+InsertPoints::InsertPoints() : SurfaceOperation()
 {
   setQuickSave(true);
+  getSet("surface meshing", "point insertion threshold", 1, m_Threshold);
 }
 
 void InsertPoints::operate()
@@ -55,7 +55,8 @@ int InsertPoints::insertPoints()
   UpdatePotentialSnapPoints(true);
    
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired");
+
   int num_newpoints=0;
   int num_newcells=0;
   
@@ -73,8 +74,10 @@ int InsertPoints::insertPoints()
       for (int j = 0; j < 3; ++j) {
         vtkIdType id_node1 = pts[j];
         vtkIdType id_node2 = pts[(j+1)%N_pts];
-        double L = distance(grid, id_node1, id_node2);
-        if (L > 1.5*max(desiredEdgeLength(id_node1), desiredEdgeLength(id_node2))) {
+        double L  = distance(grid, id_node1, id_node2);
+        double L1 = cl->GetValue(id_node1);
+        double L2 = cl->GetValue(id_node2);
+        if (L > m_Threshold*min(L1,L2)) {
           if (L > L_max) {
             j_split = j;
             L_max = L;
@@ -102,6 +105,7 @@ int InsertPoints::insertPoints()
             split = true;
           }
         }
+        /*
         if (split) {
           for (int i = 0; i < n2c[_nodes[S.p[1]]].size(); ++i) {
             vtkIdType id_cell = cells[n2c[_nodes[S.p[1]]][i]];
@@ -116,6 +120,7 @@ int InsertPoints::insertPoints()
             }
           }
         }
+        */
       } //end of loop through sides
     } //end of if selected and triangle cell
   } //end of counter loop
@@ -145,7 +150,7 @@ int InsertPoints::insertPoints()
       //M=project(M);
       //add point
       grid_tmp->GetPoints()->SetPoint(id_new_node, M.data());
-      copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node);
+      copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node); ///@@@ maybe trouble
       
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");

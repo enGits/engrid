@@ -43,7 +43,8 @@ class InsertPoints : public SurfaceOperation
 
 private:
 
-  int m_NumInserted;
+  int    m_NumInserted;
+  double m_Threshold;
 
 private: // methods
   
