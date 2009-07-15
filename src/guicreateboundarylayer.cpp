@@ -44,10 +44,10 @@ void GuiCreateBoundaryLayer::before()
 
 void GuiCreateBoundaryLayer::operate()
 {
-  getSelectedItems(ui.listWidgetBC, boundary_codes);
+  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes);
   QString volume_name = getSelectedVolume(ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
-  foreach (int bc, boundary_codes) {
+  foreach (int bc, m_BoundaryCodes) {
     if (V.getSign(bc) == 0) {
       QString msg;
       msg.setNum(bc);
@@ -73,7 +73,7 @@ void GuiCreateBoundaryLayer::operate()
   l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2c   = getPartN2C();
-  getSurfaceCells(boundary_codes, layer_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, layer_cells, grid);
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
@@ -87,7 +87,7 @@ void GuiCreateBoundaryLayer::operate()
       foreach (int i_neigh_cells, n2c[_nodes[id_node]]) {
         vtkIdType id_neigh_cell = cells[i_neigh_cells];
         if (isSurface(id_neigh_cell, grid)) {
-          if (boundary_codes.contains(bc->GetValue(id_neigh_cell))) {
+          if (m_BoundaryCodes.contains(bc->GetValue(id_neigh_cell))) {
             bcs.insert(bc->GetValue(id_neigh_cell));
           }
         }
@@ -110,7 +110,7 @@ void GuiCreateBoundaryLayer::operate()
   
   GridSmoother smooth;
   smooth.setGrid(grid);
-  smooth.setBoundaryCodes(boundary_codes);
+  smooth.setBoundaryCodes(m_BoundaryCodes);
   smooth.prismsOn();
   //smooth.setNumIterations(5);
   
@@ -120,7 +120,7 @@ void GuiCreateBoundaryLayer::operate()
   vol.setGrid(grid);
   SwapTriangles swap;
   swap.setGrid(grid);
-  swap.setBoundaryCodes(boundary_codes);
+  swap.setBoundaryCodes(m_BoundaryCodes);
   DeleteTetras del;
   del.setGrid(grid);
   
@@ -129,7 +129,7 @@ void GuiCreateBoundaryLayer::operate()
   vol();
   seed_layer.setAllCells();
   seed_layer.setLayerCells(layer_cells);
-  seed_layer.setBoundaryCodes(boundary_codes);
+  seed_layer.setBoundaryCodes(m_BoundaryCodes);
   seed_layer();
   seed_layer.getLayerCells(layer_cells);
   

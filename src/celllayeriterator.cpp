@@ -31,7 +31,7 @@ void CellLayerIterator::operate()
   getAllCells(cells, grid);
   getCells();
   
-  getSurfaceCells(boundary_codes, surf_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, surf_cells, grid);
   getNodesFromCells(surf_cells, surf_nodes, grid);
   createNodeMapping(surf_nodes, _surf_nodes, grid);
   

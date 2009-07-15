@@ -99,9 +99,7 @@ int SurfaceMesher::insertNodes()
 {
   InsertPoints insert_points;
   insert_points.setGrid(grid);
-  insert_points.setBCS(m_BCs);
-  insert_points.set_insert_FP(false);
-  insert_points.set_insert_EP(true);
+  insert_points.setBoundaryCodes(m_BCs);
   insert_points();
   return insert_points.getNumInserted();
 }
@@ -136,17 +134,15 @@ void SurfaceMesher::operate()
     int N = 0;
     int count = 0;
 
-    /*
     do {
       N = deleteNodes();
       num_deleted += N;
       ++count;
     } while ((N > 0) && (count < 20));
-    */
 
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
       swap();
-      smooth(m_NumSmoothSteps);
+      smooth(1);
     }
     ++iter;
     done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);

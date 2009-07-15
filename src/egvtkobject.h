@@ -80,7 +80,7 @@ private: // methods
 
 protected: // attributes
   
-  QSet<int> boundary_codes;
+  QSet<int> m_BoundaryCodes;
   static int DebugLevel;
   
 protected: // methods

@@ -37,131 +37,13 @@ InsertPoints::InsertPoints()
 void InsertPoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
-  if(insert_FP) insert_FP_all();
-  if(insert_EP) insert_EP_all();
+  insertPoints();
   int N2 = grid->GetNumberOfPoints();
   m_NumInserted = N2 - N1;
 }
 
-bool InsertPoints::insert_fieldpoint(vtkIdType id_cell)
+int InsertPoints::insertPoints()
 {
-  double Fred1=1.0/sqrt(3);
-  double Qmin=1.1;//1.189;
-  double total=0;
-  for(int i=0;i<3;i++)
-  {
-    vtkIdType cell = getPartC2C()[id_cell][i];
-    if( cell != -1 ) total += Q_L(cell);
-  }
-  return ( Q_L(id_cell)>1.0/Fred1 && total>3*Qmin );
-}
-
-bool InsertPoints::insert_edgepoint(vtkIdType id_node1, vtkIdType id_node2)
-{
-  EG_BUG;
-  bool result = distance(grid, id_node1, id_node2) > 0.5 * ( desiredEdgeLength(id_node1) + desiredEdgeLength(id_node2) );
-  return ( result );
-}
-
-bool InsertPoints::SplitSide(vtkIdType id_cell,int side)
-{
-  vtkIdType N_pts,*pts;
-  grid->GetCellPoints(id_cell,N_pts,pts);
-  return( insert_edgepoint(pts[side],pts[(side+1)%N_pts]) );
-}
-
-int InsertPoints::insert_FP_all()
-{
-  //cout<<"===insert_FP_all START==="<<endl;
-  QTime start = QTime::currentTime();
-  
-  setAllSurfaceCells();
-  UpdatePotentialSnapPoints(true);
-  
-  QVector <vtkIdType> l_SelectedCells;
-  getSurfaceCells(m_bcs, l_SelectedCells, grid);
-  
-  QVector <bool> l_marked_cells(l_SelectedCells.size());
-  
-  int l_N_newpoints=0;
-  int l_N_newcells=0;
-  
-  //counter
-  for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
-  {
-    vtkIdType id_cell = l_SelectedCells[i_cell];
-    if( insert_fieldpoint(id_cell) )
-    {
-      l_marked_cells[i_cell] = true;
-      l_N_newcells += 2;
-      l_N_newpoints += 1;
-    }
-  }
-  
-  //initialize grid_tmp
-  int l_N_points = grid->GetNumberOfPoints();
-  int l_N_cells = grid->GetNumberOfCells();
-  EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
-  allocateGrid(grid_tmp,l_N_cells+l_N_newcells,l_N_points+l_N_newpoints);
-  makeCopyNoAlloc(grid, grid_tmp);
-  
-  //initialize new node counter
-  vtkIdType l_newNodeId = l_N_points;
-
-  //actor
-  for(int i_cell=0;i_cell<l_SelectedCells.size();i_cell++)
-  {
-    vtkIdType id_cell = l_SelectedCells[i_cell];
-    if( l_marked_cells[i_cell] )
-    {
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      vec3_t C(0,0,0);
-      for(int i=0;i<N_pts;i++)
-      {
-        vec3_t corner;
-        grid->GetPoints()->GetPoint(pts[i], corner.data());
-        C+=corner;
-      }
-      C=(1/(double)N_pts)*C;
-      
-      //C=project(C);
-      grid_tmp->GetPoints()->SetPoint(l_newNodeId,C.data());
-      copyNodeData(grid_tmp,pts[0],grid_tmp,l_newNodeId);
-      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
-      node_type->SetValue(l_newNodeId, VTK_SIMPLE_VERTEX);
-      
-      for(int i=0;i<N_pts;i++)
-      {
-        vtkIdType pts_triangle[3];
-        pts_triangle[0]=pts[i];
-        pts_triangle[1]=pts[(i+1)%N_pts];
-        pts_triangle[2]=l_newNodeId;
-        if(i==0)
-        {
-          grid_tmp->ReplaceCell(id_cell , 3, pts_triangle);
-        }
-        else
-        {
-          vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle);
-          copyCellData(grid_tmp,id_cell,grid_tmp,newCellId);
-        }
-      }
-      l_newNodeId++;
-    }
-  }
-  
-  //update grid
-  makeCopy(grid_tmp,grid);
-  
-  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  //cout<<"===insert_FP_all END==="<<endl;
-  return(0);
-}
-
-int InsertPoints::insert_EP_all()
-{
-  //cout<<"===insert_EP_all START==="<<endl;
   QTime start = QTime::currentTime();
   
   setAllSurfaceCells();
@@ -181,7 +63,7 @@ int InsertPoints::insert_EP_all()
   //counter
   for (int i = 0; i < cells.size(); ++i) {
     vtkIdType id_cell = cells[i];
-    if (m_bcs.contains(cell_code->GetValue(id_cell)) && (grid->GetCellType(id_cell) == VTK_TRIANGLE)) {//if selected and triangle cell
+    if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && (grid->GetCellType(id_cell) == VTK_TRIANGLE)) {//if selected and triangle cell
       int j_split = -1;
       double L_max = 0;
       vtkIdType N_pts, *pts;
@@ -320,60 +202,12 @@ char InsertPoints::getNewNodeType(stencil_t S)
       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
       if( cell_code->GetValue(S.id_cell1) != cell_code->GetValue(S.id_cell2) ) {
         return VTK_BOUNDARY_EDGE_VERTEX;
-      }
-      else {
+      } else {
         return VTK_FEATURE_EDGE_VERTEX;
       }
-    }
-    else {
+    } else {
       return VTK_SIMPLE_VERTEX;
     }
   }
 }
 
-       //============================================
-      ///@@@  TODO: Update node info (densities+type) Still necessary?
-// EG_VTKDCN(vtkIntArray, node_specified_density, grid_tmp, "node_specified_density");//density index from table
-// EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid_tmp, "node_meshdensity_desired");//what we want
-// EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid_tmp, "node_meshdensity_current");//what we have
-// EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");//node type
-      //============================================
-
-//       //part 1
-//       node_type->SetValue(l_newNodeId,VTK_SIMPLE_VERTEX);
-// 
-//       //part 2
-//       double total_dist=0;
-//       double avg_dist=0;
-//       for(int i=0;i<N_pts;i++)
-//       {
-//         double dist=(corner[i]-C).abs();
-//         total_dist+=dist;
-//         node_meshdensity_current->SetValue(pts[i],NewCurrentMeshDensity(pts[i],dist));
-//       }
-//       avg_dist=total_dist/(double)N_pts;
-//       node_meshdensity_current->SetValue(l_newNodeId,1./avg_dist);
-// 
-//       //part 3
-//       VertexMeshDensity nodeVMD;
-//       nodeVMD.type=node_type->GetValue(l_newNodeId);
-//       nodeVMD.density=0;
-//       nodeVMD.CurrentNode=l_newNodeId;
-//       EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-//       nodeVMD.BCmap[cell_code->GetValue(id_cell)]=2;
-// 
-//       int idx=VMDvector.indexOf(nodeVMD);
-//       node_specified_density->SetValue(l_newNodeId, idx);
-// 
-//       //part 4
-//       if(idx!=-1)//specified
-//       {
-//         node_meshdensity_desired->SetValue(l_newNodeId, VMDvector[idx].density);
-//       }
-//       else//unspecified
-//       {
-//         double D=DesiredMeshDensity(l_newNodeId);
-//         node_meshdensity_desired->SetValue(l_newNodeId, D);
-//       }
-
-      //============================================

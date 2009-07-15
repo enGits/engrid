@@ -66,7 +66,7 @@ void GuiEditBoundaryConditions::before()
   if (!m_BcMap) EG_BUG;
   resetOrientation(grid);
   while (ui.T->rowCount()) ui.T->removeRow(0);
-  foreach(int i, boundary_codes) {
+  foreach(int i, m_BoundaryCodes) {
     BoundaryCondition bc = (*m_BcMap)[i];
     ui.T->insertRow(ui.T->rowCount());
     int r = ui.T->rowCount() - 1;

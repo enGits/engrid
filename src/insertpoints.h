@@ -40,40 +40,20 @@ using namespace std;
 
 class InsertPoints : public SurfaceOperation
 {
+
 private:
-  bool insert_FP;
-  bool insert_EP;
 
   int m_NumInserted;
-  
-  //attributes with setter functions
-public:
-  QSet<int> m_bcs;
-  void setBCS(QSet<int> a_bcs) {m_bcs=a_bcs;}
-  
-public:
-  InsertPoints();
-  
-  virtual void operate();
-  
-  void set_insert_FP(bool B) {insert_FP=B;}
-  void set_insert_EP(bool B) {insert_EP=B;}
-  
-  int insert_FP_all();
-  int insert_EP_all();
-  
-  ///Check if a field point needs to be inserted
-  bool insert_fieldpoint(vtkIdType id_cell);
-  
-  ///Check if an edge point needs to be inserted
-  bool insert_edgepoint(vtkIdType id_node1, vtkIdType id_node2);
-  
-  ///Check if an edge point needs to be inserted
-  bool SplitSide(vtkIdType id_cell,int side);
-  
-  ///Returns the type of the node inserted on the edge S.p[1],S.p[3] from stencil_t S
-  char getNewNodeType(stencil_t S);
 
+private: // methods
+  
+  char getNewNodeType(stencil_t S); ///< Returns the type of the node inserted on the edge S.p[1],S.p[3] from stencil_t S
+
+public:
+
+  InsertPoints();
+  virtual void operate();
+  int insertPoints();
   int getNumInserted() { return m_NumInserted; }
   
 };

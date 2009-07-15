@@ -56,7 +56,7 @@ void SwapTriangles::operate()
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
-      if (!boundary_codes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
+      if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
         if (!l_marked[_cells[id_cell]]) {
           for (int j = 0; j < 3; ++j) {
             bool swap = false;
