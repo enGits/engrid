@@ -27,13 +27,16 @@
 
 class DeletePickedPoint : public RemovePoints
 {
-  protected: // methods
-    virtual void operate();
-    /// deletes node DeadNode
-    bool DeletePoint( vtkIdType id_node );
+
+protected: // methods
+
+  virtual void operate();
+  bool DeletePoint( vtkIdType id_node ); ///< deletes node DeadNode
   
-  public:
-    DeletePickedPoint();
+public:
+
+  DeletePickedPoint();
+
 };
 
 #endif

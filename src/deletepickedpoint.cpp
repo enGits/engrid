@@ -71,14 +71,14 @@ void DeletePickedPoint::operate()
   
 };
 
-bool DeletePickedPoint::DeletePoint( vtkIdType id_node )
+bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
 {
   int N1 = grid->GetNumberOfPoints();
   
   QVector<vtkIdType> selected_cells;
-  getSurfaceCells( m_bcs, selected_cells, grid );
+  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
   QVector <vtkIdType> selected_nodes;
-  getNodesFromCells( selected_cells, selected_nodes, grid );
+  getNodesFromCells(selected_cells, selected_nodes, grid);
   
   setAllSurfaceCells();
   l2l_t n2n = getPartN2N();
@@ -104,8 +104,8 @@ bool DeletePickedPoint::DeletePoint( vtkIdType id_node )
   QVector <vtkIdType> deadnode_vector;
   QVector <vtkIdType> snappoint_vector;
   
-  if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {
-    if ( !marked_nodes[id_node] && removePointCriteria( id_node ) ) {
+  if (node_type->GetValue( id_node ) != VTK_FIXED_VERTEX) {
+    if (!marked_nodes[id_node]) {
       // local values
       QSet <vtkIdType> l_deadcells;
       QSet <vtkIdType> l_mutatedcells;
