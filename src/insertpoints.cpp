@@ -49,6 +49,8 @@ int InsertPoints::insertPoints()
   setAllSurfaceCells();
   l2g_t  cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
+  g2l_t _nodes = getPartLocalNodes();
+  l2l_t  n2c   = getPartN2C();
   
   UpdatePotentialSnapPoints(true);
    
@@ -72,7 +74,7 @@ int InsertPoints::insertPoints()
         vtkIdType id_node1 = pts[j];
         vtkIdType id_node2 = pts[(j+1)%N_pts];
         double L = distance(grid, id_node1, id_node2);
-        if (L > max(desiredEdgeLength(id_node1), desiredEdgeLength(id_node2))) {
+        if (L > 1.5*max(desiredEdgeLength(id_node1), desiredEdgeLength(id_node2))) {
           if (L > L_max) {
             j_split = j;
             L_max = L;
@@ -81,20 +83,37 @@ int InsertPoints::insertPoints()
       }
       if (j_split != -1) {
         stencil_t S = getStencil(id_cell, j_split);
+        bool split = false;
         if (S.twocells && (S.neighbour_type == VTK_TRIANGLE)) {
           if (!marked_cells[i]  && !marked_cells[_cells[S.id_cell2]]) {
             stencil_vector[i] = S;
             marked_cells[i] = 1;
             marked_cells[_cells[S.id_cell2]] = 2;
-            num_newpoints++;
+            ++num_newpoints;
             num_newcells += 2;
+            split = true;
           }
         } else if (!S.twocells) {
           if (!marked_cells[i]) {
             stencil_vector[i] = S;
             marked_cells[i] = 1;
-            num_newpoints++;
-            num_newcells+=1;
+            ++num_newpoints;
+            num_newcells += 1;
+            split = true;
+          }
+        }
+        if (split) {
+          for (int i = 0; i < n2c[_nodes[S.p[1]]].size(); ++i) {
+            vtkIdType id_cell = cells[n2c[_nodes[S.p[1]]][i]];
+            if (!marked_cells[id_cell]) {
+              marked_cells[id_cell] = 3;
+            }
+          }
+          for (int i = 0; i < n2c[_nodes[S.p[3]]].size(); ++i) {
+            vtkIdType id_cell = cells[n2c[_nodes[S.p[3]]][i]];
+            if (!marked_cells[id_cell]) {
+              marked_cells[id_cell] = 3;
+            }
           }
         }
       } //end of loop through sides
@@ -109,7 +128,7 @@ int InsertPoints::insertPoints()
   makeCopyNoAlloc(grid, grid_tmp);
   
   //initialize new node counter
-  vtkIdType l_newNodeId = l_N_points;
+  vtkIdType id_new_node = l_N_points;
   
   //actor
   for (int i = 0; i < cells.size(); i++) {
@@ -125,21 +144,20 @@ int InsertPoints::insertPoints()
       //project point
       //M=project(M);
       //add point
-      grid_tmp->GetPoints()->SetPoint(l_newNodeId, M.data());
-      copyNodeData(grid_tmp,S.p[1],grid_tmp,l_newNodeId);
+      grid_tmp->GetPoints()->SetPoint(id_new_node, M.data());
+      copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node);
       
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
-      node_type->SetValue(l_newNodeId, getNewNodeType(S) );
+      node_type->SetValue(id_new_node, getNewNodeType(S) );
       
-      if(S.twocells && S.neighbour_type==VTK_TRIANGLE){//2 triangles
+      if(S.twocells && S.neighbour_type==VTK_TRIANGLE) { //2 triangles
         //four new triangles
         vtkIdType pts_triangle[4][3];
-        for(int i=0;i<4;i++)
-        {
-          pts_triangle[i][0]=S.p[i];
-          pts_triangle[i][1]=S.p[(i+1)%4];
-          pts_triangle[i][2]=l_newNodeId;
+        for(int i = 0; i < 4; ++i) {
+          pts_triangle[i][0] = S.p[i];
+          pts_triangle[i][1] = S.p[(i+1)%4];
+          pts_triangle[i][2] = id_new_node;
         }
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
@@ -152,30 +170,28 @@ int InsertPoints::insertPoints()
         
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
         copyCellData(grid_tmp,S.id_cell1,grid_tmp,newCellId);
-      }
-      else if(!S.twocells) {//1 triangle
+      } else if(!S.twocells) { //1 triangle
         //two new triangles
         vtkIdType pts_triangle[2][3];
-        pts_triangle[0][0]=S.p[0];
-        pts_triangle[0][1]=S.p[1];
-        pts_triangle[0][2]=l_newNodeId;
-        pts_triangle[1][0]=S.p[3];
-        pts_triangle[1][1]=S.p[0];
-        pts_triangle[1][2]=l_newNodeId;
+        pts_triangle[0][0] = S.p[0];
+        pts_triangle[0][1] = S.p[1];
+        pts_triangle[0][2] = id_new_node;
+        pts_triangle[1][0] = S.p[3];
+        pts_triangle[1][1] = S.p[0];
+        pts_triangle[1][2] = id_new_node;
         
         grid_tmp->ReplaceCell(S.id_cell1 , 3, pts_triangle[0]);
         
         vtkIdType newCellId;
         newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[1]);
         copyCellData(grid_tmp,S.id_cell1,grid_tmp,newCellId);
-      }
-      else {
+      } else {
         cout<<"I DON'T KNOW HOW TO SPLIT THIS CELL!!!"<<endl;
         EG_BUG;
       }
       
       //increment ID
-      l_newNodeId++;
+      id_new_node++;
     }
   }
   
