@@ -680,12 +680,3 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node 
   if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
   return m_PotentialSnapPoints[id_node];
 }
-
-// bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int& num_newcells )
-// {
-//   QSet <vtkIdType> DeadNodes;
-//   DeadNodes.insert( DeadNode );
-//   bool ret = DeleteSetOfPoints( DeadNodes, num_newpoints, num_newcells );
-//   return( ret );
-// }
-// //End of DeletePoint

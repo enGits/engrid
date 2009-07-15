@@ -160,4 +160,3 @@ void SurfaceMesher::operate()
   updateNodeInfo(true);
   computeMeshDensity();
 }
-

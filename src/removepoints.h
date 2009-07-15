@@ -35,26 +35,9 @@
 #include <QTextStream>
 #include <QTime>
 
-#include "egvtkobject.h"
-#include "operation.h"
-#include "vertexmeshdensity.h"
-#include "smoothingutilities.h"
-#include "swaptriangles.h"
-#include "laplacesmoother.h"
-#include "guimainwindow.h"
-
-#include "geometrytools.h"
-using namespace GeometryTools;
-
-#include <cmath>
-using namespace std;
-
-#include <iostream>
-using namespace std;
-
 class RemovePoints : public SurfaceOperation
 {
-  private:
+  protected:
     int m_NumRemoved;
     QSet<int> m_bcs;
   
@@ -69,12 +52,13 @@ class RemovePoints : public SurfaceOperation
 
     virtual void operate();
 
+    int getNumRemoved() { return m_NumRemoved; }
+  
+  protected:
     bool removePointCriteria( vtkIdType id_node ); ///< Check if a point needs to be removed
 
-    int getNumRemoved() { return m_NumRemoved; }
-
     /// deletes set of points DeadNodes
-  bool DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QSet <vtkIdType> & all_deadcells, QSet <vtkIdType> & all_mutatedcells, QSet <vtkIdType> & all_mutilatedcells, int& num_newpoints, int& num_newcells);
+    bool DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QSet <vtkIdType> & all_deadcells, QSet <vtkIdType> & all_mutatedcells, QSet <vtkIdType> & all_mutilatedcells, int& num_newpoints, int& num_newcells);
   
     /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
     vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );
