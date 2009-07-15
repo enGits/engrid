@@ -38,63 +38,63 @@ void UpdateDesiredMeshDensity::operate()
   l2g_t nodes = getPartNodes();
   l2l_t n2n   = getPartN2N();
 
-  EG_VTKDCN(vtkDoubleArray, md_desired,   grid, "node_meshdensity_desired");
-  EG_VTKDCN(vtkIntArray,    md_specified, grid, "node_specified_density");
+  EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
 
-  QVector<bool> md_set(nodes.size(), false);
-  QVector<bool> md_preset(nodes.size(), false);
+  QVector<bool> cl_set(nodes.size(), false);
+  QVector<bool> cl_preset(nodes.size(), false);
 
   // set everything to desired mesh density and find maximal mesh-density
-  double md_max = 0;
-  int i_nodes_max = -1;
+  double cl_min = 1e99;
+  int i_nodes_min = -1;
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     vtkIdType id_node = nodes[i_nodes];
-    double md = 1e-10;
-    int idx = md_specified->GetValue(id_node);
+    double cl = 1e99;
+    int idx = cl_specified->GetValue(id_node);
     if (idx != -1) {
       if (idx >= m_VMDvector.size()) {
         EG_BUG;
       }
-      md = m_VMDvector[idx].density;
+      cl = 1.0/m_VMDvector[idx].density;
     }
-    md_desired->SetValue(id_node, md);
-    if (md > md_max) {
-      md_max = md;
-      i_nodes_max = i_nodes;
+    cl_desired->SetValue(id_node, cl);
+    if (cl < cl_min) {
+      cl_min = cl;
+      i_nodes_min = i_nodes;
     }
   }
-  if (i_nodes_max == -1) {
+  if (i_nodes_min == -1) {
     EG_BUG;
   }
-  md_set[i_nodes_max] = true;
+  cl_set[i_nodes_min] = true;
 
-  // start from highest mesh density and loop as long as nodes are updated
+  // start from smallest characteristic length and loop as long as nodes are updated
   int num_updated = 0;
 
   do {
     num_updated = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (md_set[i_nodes]) {
+      if (cl_set[i_nodes]) {
         vec3_t xi;
         grid->GetPoint(nodes[i_nodes], xi.data());
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           int j_nodes = n2n[i_nodes][j];
-          if (!md_set[j_nodes]) {
+          if (!cl_set[j_nodes]) {
             vec3_t xj;
             grid->GetPoint(nodes[j_nodes], xj.data());
-            if (!md_preset[j_nodes]) {
-              md_preset[j_nodes] = true;
+            if (!cl_preset[j_nodes]) {
+              cl_preset[j_nodes] = true;
               ++num_updated;
             }
-            double L_new = 1.0/md_desired->GetValue(nodes[i_nodes]) + (m_GrowthFactor - 1)*(xi-xj).abs();
-            md_desired->SetValue(nodes[j_nodes], max(md_desired->GetValue(nodes[j_nodes]), 1.0/L_new));
+            double L_new = cl_desired->GetValue(nodes[i_nodes]) + (m_GrowthFactor - 1)*(xi-xj).abs();
+            cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
           }
         }
       }
     }
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (md_preset[i_nodes]) {
-        md_set[i_nodes] = true;
+      if (cl_preset[i_nodes]) {
+        cl_set[i_nodes] = true;
       }
     }
   } while (num_updated > 0);
