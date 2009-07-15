@@ -109,8 +109,6 @@ int SurfaceMesher::deleteNodes()
   RemovePoints remove_points;
   remove_points.setGrid(grid);
   remove_points.setBCS(m_BCs);
-  remove_points.set_remove_FP(true);
-  remove_points.set_remove_EP(true);
   remove_points();
   return remove_points.getNumRemoved();
 }
