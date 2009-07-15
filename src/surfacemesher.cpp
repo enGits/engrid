@@ -54,7 +54,7 @@ void SurfaceMesher::updateNodeInfo(bool update_type)
       node_type->SetValue(node, getNodeType(node));
     }
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
-    node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
+    node_meshdensity_current->SetValue(node, CurrentVertexAvgDist(node));
 
     EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(node);
@@ -108,7 +108,7 @@ int SurfaceMesher::deleteNodes()
 {
   RemovePoints remove_points;
   remove_points.setGrid(grid);
-  remove_points.setBCS(m_BCs);
+  remove_points.setBoundaryCodes(m_BCs);
   remove_points();
   return remove_points.getNumRemoved();
 }
@@ -127,23 +127,28 @@ void SurfaceMesher::operate()
   while (!done) {
     computeMeshDensity();
     num_inserted = insertNodes();
-    computeMeshDensity();
     swap();
+    computeMeshDensity();
+
     num_deleted = 0;
     int N = 0;
     int count = 0;
 
+    num_deleted = deleteNodes();
+    swap();
+    computeMeshDensity();
 
+    /*
     do {
       N = deleteNodes();
       num_deleted += N;
       ++count;
     } while ((N > 0) && (count < 20));
-
+    */
 
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      swap();
       smooth(1);
+      swap();
     }
     ++iter;
     //done = true;
@@ -157,6 +162,6 @@ void SurfaceMesher::operate()
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
   createIndices(grid);
-  updateNodeInfo(true);
+  updateNodeInfo(false);
   computeMeshDensity();
 }
