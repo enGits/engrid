@@ -31,23 +31,10 @@ using namespace std;
 #include <iostream>
 using namespace std;
 
-RemovePoints::RemovePoints()
-    : SurfaceOperation()
+RemovePoints::RemovePoints() : SurfaceOperation()
 {
   setQuickSave( true );
-}
-
-bool RemovePoints::removePointCriteria( vtkIdType id_node )
-{
-  double QL1max = 0.8;
-  double QL2max = 0.5;
-  bool result1 = Q_L1( id_node ) < QL1max && Q_L2( id_node ) < QL2max;
-
-//   QVector <vtkIdType> PSP = getPotentialSnapPoints( id_node );
-//   double Lmean = CurrentVertexAvgDist( id_node );
-//   bool result2 = Lmean < desiredEdgeLength( PSP[0] ) && Lmean < desiredEdgeLength( PSP[1] );
-
-  return ( result1 );
+  getSet("surface meshing", "point removal threshold", 1, m_Threshold);
 }
 
 ///@@@ TODO: Replace sets with vectors if possible
@@ -56,20 +43,20 @@ void RemovePoints::operate()
   int N1 = grid->GetNumberOfPoints();
 
   QVector<vtkIdType> selected_cells;
-  getSurfaceCells( m_bcs, selected_cells, grid );
-  QVector <vtkIdType> selected_nodes;
-  getNodesFromCells( selected_cells, selected_nodes, grid );
+  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
+  QVector<vtkIdType> selected_nodes;
+  getNodesFromCells(selected_cells, selected_nodes, grid);
 
   setAllSurfaceCells();
-  l2l_t n2n = getPartN2N();
+  l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
+  l2g_t  nodes = getPartNodes();
   
-  UpdatePotentialSnapPoints(true);
+  UpdatePotentialSnapPoints(false);
   
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
-  EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
 
   // global values
   QSet <vtkIdType> all_deadcells;
@@ -78,42 +65,62 @@ void RemovePoints::operate()
   int num_newpoints = 0;
   int num_newcells = 0;
   
-  QVector <bool> marked_nodes(nodes.size());
-  marked_nodes.fill(false);
+  QVector <bool> marked_nodes(nodes.size(), false);
   
   QVector <vtkIdType> deadnode_vector;
   QVector <vtkIdType> snappoint_vector;
   
   //count
-  foreach( vtkIdType id_node, selected_nodes ) {
-    if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {
-      if ( !marked_nodes[id_node] && removePointCriteria( id_node ) ) {
-        // local values
-        QSet <vtkIdType> l_deadcells;
-        QSet <vtkIdType> l_mutatedcells;
-        QSet <vtkIdType> l_mutilatedcells;
-        int l_num_newpoints = 0;
-        int l_num_newcells = 0;
-        vtkIdType snap_point = FindSnapPoint( id_node, l_deadcells, l_mutatedcells, l_mutilatedcells, l_num_newpoints, l_num_newcells );
-        if( snap_point >= 0 ) {
-          // add deadnode/snappoint pair
-          deadnode_vector.push_back( id_node );
-          snappoint_vector.push_back( snap_point );
-          // update global values
-          num_newpoints += l_num_newpoints;
-          num_newcells += l_num_newcells;
-          all_deadcells.unite( l_deadcells ); //all_deadcells unite! Kill the living! :D
-          all_mutatedcells.unite( l_mutatedcells );
-          all_mutilatedcells.unite( l_mutilatedcells );
-          // mark neighbour nodes
-          foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) marked_nodes[nodes[i_node_neighbour]] = true;
+  for (int i_selected_nodes = 0; i_selected_nodes < selected_nodes.size(); ++i_selected_nodes) {
+    vtkIdType id_node = selected_nodes[i_selected_nodes];
+    int i_nodes = _nodes[id_node];
+    if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+      if (!marked_nodes[i_nodes]) {
+        vec3_t xi;
+        grid->GetPoint(id_node, xi.data());
+        double cl_node = cl->GetValue(id_node);
+        bool remove_node = true;
+        for (int j = 0; j < n2n[i_nodes].size(); ++j) {
+          vtkIdType id_neigh = nodes[n2n[i_nodes][j]];
+          double cl_neigh = cl->GetValue(id_neigh);
+          vec3_t xj;
+          grid->GetPoint(id_neigh, xj.data());
+          double L = (xi-xj).abs();
+          if ((L < cl_node*m_Threshold) || (L < cl_neigh*m_Threshold)) {
+            remove_node = false;
+            break;
+          }
+        }
+        if (remove_node) {
+          // local values
+          QSet <vtkIdType> dead_cells;
+          QSet <vtkIdType> mutated_cells;
+          QSet <vtkIdType> mutilated_cells;
+          int l_num_newpoints = 0;
+          int l_num_newcells = 0;
+          vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, mutilated_cells, l_num_newpoints, l_num_newcells);
+          if(snap_point >= 0) {
+            // add deadnode/snappoint pair
+            deadnode_vector.push_back(id_node);
+            snappoint_vector.push_back(snap_point);
+            // update global values
+            num_newpoints += l_num_newpoints;
+            num_newcells  += l_num_newcells;
+            all_deadcells.unite(dead_cells);
+            all_mutatedcells.unite(mutated_cells);
+            all_mutilatedcells.unite(mutilated_cells);
+            // mark neighbour nodes
+            foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
+              marked_nodes[nodes[i_node_neighbour]] = true;
+            }
+          }
         }
       }
     }
   }
 
   //delete
-  DeleteSetOfPoints( deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, all_mutilatedcells, num_newpoints, num_newcells );
+  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, all_mutilatedcells, num_newpoints, num_newcells);
 
   int N2 = grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
