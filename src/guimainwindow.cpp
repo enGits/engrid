@@ -1825,7 +1825,7 @@ void GuiMainWindow::storeSurfaceProjection()
     delete proj;
   }
   m_SurfProj.clear();
-  cout << "creating octrees for surface projection:" << endl;
+  cout << "storing background grid for surface projection:" << endl;
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection();
     m_SurfProj[bc] = proj;
@@ -1834,11 +1834,13 @@ void GuiMainWindow::storeSurfaceProjection()
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, grid);
     proj->setBackgroundGrid(grid, cls);
-    QString file_name;
-    file_name.setNum(bc);
-    file_name = "OctreeBC" + file_name;
-    proj->writeOctree(file_name);
-    cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
+    if (proj->usesLevelSet()) {
+      QString file_name;
+      file_name.setNum(bc);
+      file_name = "OctreeBC" + file_name;
+      proj->writeOctree(file_name);
+      cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
+    }
   }
 }
 
