@@ -23,15 +23,14 @@
 #ifndef deletepickedpoint_H
 #define deletepickedpoint_H
 
-class DeletePickedPoint;
+#include "removepoints.h"
 
-#include "surfaceoperation.h"
-
-class DeletePickedPoint : public SurfaceOperation
+class DeletePickedPoint : public RemovePoints
 {
-
   protected: // methods
     virtual void operate();
+    /// deletes node DeadNode
+    bool DeletePoint( vtkIdType id_node );
   
   public:
     DeletePickedPoint();

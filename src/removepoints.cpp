@@ -22,6 +22,15 @@
 //
 #include "removepoints.h"
 
+#include "geometrytools.h"
+using namespace GeometryTools;
+
+#include <cmath>
+using namespace std;
+
+#include <iostream>
+using namespace std;
+
 RemovePoints::RemovePoints()
     : SurfaceOperation()
 {
@@ -41,6 +50,7 @@ bool RemovePoints::removePointCriteria( vtkIdType id_node )
   return ( result1 );
 }
 
+///@@@ TODO: Replace sets with vectors if possible
 void RemovePoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
@@ -74,8 +84,6 @@ void RemovePoints::operate()
   QVector <vtkIdType> deadnode_vector;
   QVector <vtkIdType> snappoint_vector;
   
-  
-  ///@@@ FIXME: Reuse snap_point and avoid sets and maps
   //count
   foreach( vtkIdType id_node, selected_nodes ) {
     if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {

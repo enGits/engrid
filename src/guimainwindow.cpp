@@ -1674,6 +1674,11 @@ void GuiMainWindow::callFixSTL()
   updateActors();
 }
 
+void GuiMainWindow::callDeletePickedPoint()
+{
+  EG_STDINTERSLOT( DeletePickedPoint );
+}
+
 void GuiMainWindow::editBoundaryConditions()
 {
   GuiEditBoundaryConditions editbcs;

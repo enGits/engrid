@@ -69,9 +69,6 @@ class SurfaceOperation : public Operation
     /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
     int UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices = false );
 
-    /// deletes node DeadNode
-//     bool DeletePoint( vtkIdType DeadNode, int& N_newpoints, int& N_newcells );
-
     //--------------------------------------
     //Special for UpdatePotentialSnapPoints
     void setConvergence( double C ) { Convergence = C; }
