@@ -86,7 +86,7 @@ void RemovePoints::operate()
           vec3_t xj;
           grid->GetPoint(id_neigh, xj.data());
           double L = (xi-xj).abs();
-          if ((L < cl_node*m_Threshold) || (L < cl_neigh*m_Threshold)) {
+          if (L > 0.5*(cl_node+cl_neigh)/m_Threshold) {
             remove_node = false;
             break;
           }
