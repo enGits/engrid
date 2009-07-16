@@ -63,7 +63,7 @@ private: // methods
   int deleteNodes();
 
   void computeMeshDensity();
-  void updateNodeInfo(bool update_type);
+  void updateNodeInfo(bool update_type = false);
 
 public:
 

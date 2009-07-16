@@ -127,25 +127,16 @@ void SurfaceMesher::operate()
   while (!done) {
     computeMeshDensity();
     num_inserted = insertNodes();
+    updateNodeInfo();
     swap();
     computeMeshDensity();
-
-    num_deleted = 0;
-    int N = 0;
-    int count = 0;
-
-    num_deleted = deleteNodes();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      smooth(1);
+      swap();
+    }
+    int num_deleted = deleteNodes();
     swap();
     computeMeshDensity();
-
-    /*
-    do {
-      N = deleteNodes();
-      num_deleted += N;
-      ++count;
-    } while ((N > 0) && (count < 20));
-    */
-
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1);
       swap();
