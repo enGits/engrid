@@ -41,7 +41,18 @@ using namespace std;
 class InsertPoints : public SurfaceOperation
 {
 
-private:
+private: // data-types
+
+  struct edge_t
+  {
+    stencil_t S;
+    int i_edge;
+    double L1, L2, L12;
+    double quality() const { return 0.5*min(L1,L2)/L12; }
+    bool operator< (const edge_t& E) const { return quality() < E.quality(); }
+  };
+
+private: // attributes
 
   int    m_NumInserted;
   double m_Threshold;

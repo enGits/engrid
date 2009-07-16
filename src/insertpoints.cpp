@@ -63,10 +63,13 @@ int InsertPoints::insertPoints()
   QVector <int> marked_cells(cells.size(), 0);
   QVector <stencil_t> stencil_vector(cells.size());
   
-  //counter
+  // find potential edges for splitting
+  QList<edge_t> edges;
   for (int i = 0; i < cells.size(); ++i) {
     vtkIdType id_cell = cells[i];
-    if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && (grid->GetCellType(id_cell) == VTK_TRIANGLE)) {//if selected and triangle cell
+
+    // if cell is selected and a triangle
+    if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && (grid->GetCellType(id_cell) == VTK_TRIANGLE)) {
       int j_split = -1;
       double L_max = 0;
       vtkIdType N_pts, *pts;
@@ -86,45 +89,41 @@ int InsertPoints::insertPoints()
       }
       if (j_split != -1) {
         stencil_t S = getStencil(id_cell, j_split);
-        bool split = false;
-        if (S.twocells && (S.neighbour_type == VTK_TRIANGLE)) {
-          if (!marked_cells[i]  && !marked_cells[_cells[S.id_cell2]]) {
-            stencil_vector[i] = S;
-            marked_cells[i] = 1;
-            marked_cells[_cells[S.id_cell2]] = 2;
-            ++num_newpoints;
-            num_newcells += 2;
-            split = true;
-          }
-        } else if (!S.twocells) {
-          if (!marked_cells[i]) {
-            stencil_vector[i] = S;
-            marked_cells[i] = 1;
-            ++num_newpoints;
-            num_newcells += 1;
-            split = true;
-          }
-        }
-        /*
-        if (split) {
-          for (int i = 0; i < n2c[_nodes[S.p[1]]].size(); ++i) {
-            vtkIdType id_cell = cells[n2c[_nodes[S.p[1]]][i]];
-            if (!marked_cells[id_cell]) {
-              marked_cells[id_cell] = 3;
-            }
-          }
-          for (int i = 0; i < n2c[_nodes[S.p[3]]].size(); ++i) {
-            vtkIdType id_cell = cells[n2c[_nodes[S.p[3]]][i]];
-            if (!marked_cells[id_cell]) {
-              marked_cells[id_cell] = 3;
-            }
-          }
-        }
-        */
-      } //end of loop through sides
-    } //end of if selected and triangle cell
-  } //end of counter loop
-  
+        edge_t E;
+        E.S = S;
+        E.L1 = cl->GetValue(S.p[1]);
+        E.L2 = cl->GetValue(S.p[3]);
+        E.L12 = distance(grid, S.p[1], S.p[3]);
+        edges.push_back(E);
+      }
+    }
+  }
+
+  qSort(edges);
+
+  //counter
+  foreach (edge_t E, edges) {
+    if (E.S.twocells && (E.S.neighbour_type == VTK_TRIANGLE)) {
+      int i_cells1 = _cells[E.S.id_cell1];
+      int i_cells2 = _cells[E.S.id_cell2];
+      if (!marked_cells[i_cells1]  && !marked_cells[i_cells2]) {
+        stencil_vector[i_cells1] = E.S;
+        marked_cells[i_cells1] = 1;
+        marked_cells[i_cells2] = 2;
+        ++num_newpoints;
+        num_newcells += 2;
+      }
+    } else if (!E.S.twocells) {
+      int i_cells1 = _cells[E.S.id_cell1];
+      if (!marked_cells[i_cells1]) {
+        stencil_vector[i_cells1] = E.S;
+        marked_cells[i_cells1] = 1;
+        ++num_newpoints;
+        num_newcells += 1;
+      }
+    }
+  }
+
   //initialize grid_tmp
   int l_N_points=grid->GetNumberOfPoints();
   int l_N_cells=grid->GetNumberOfCells();
@@ -146,8 +145,6 @@ int InsertPoints::insertPoints()
       grid_tmp->GetPoint(S.p[3],B.data());
       vec3_t M=0.5*(A+B);
       
-      //project point
-      //M=project(M);
       //add point
       grid_tmp->GetPoints()->SetPoint(id_new_node, M.data());
       copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node); ///@@@ maybe trouble
@@ -203,8 +200,6 @@ int InsertPoints::insertPoints()
   //update grid
   makeCopy(grid_tmp,grid);
   
-  //cout << start.msecsTo(QTime::currentTime()) << " milliseconds elapsed" << endl;
-  //cout<<"===insert_EP_all END==="<<endl;
   return(0);
 }
 
