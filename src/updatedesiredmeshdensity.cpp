@@ -41,9 +41,6 @@ void UpdateDesiredMeshDensity::operate()
   EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
 
-  QVector<bool> cl_set(nodes.size(), false);
-  QVector<bool> cl_preset(nodes.size(), false);
-
   // set everything to desired mesh density and find maximal mesh-density
   double cl_min = 1e99;
   int i_nodes_min = -1;
@@ -66,7 +63,6 @@ void UpdateDesiredMeshDensity::operate()
   if (i_nodes_min == -1) {
     EG_BUG;
   }
-  cl_set[i_nodes_min] = true;
 
   // start from smallest characteristic length and loop as long as nodes are updated
   int num_updated = 0;
@@ -74,29 +70,24 @@ void UpdateDesiredMeshDensity::operate()
   do {
     num_updated = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (cl_set[i_nodes]) {
+      double cli = cl_desired->GetValue(nodes[i_nodes]);
+      if (cli <= cl_min) {
         vec3_t xi;
         grid->GetPoint(nodes[i_nodes], xi.data());
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           int j_nodes = n2n[i_nodes][j];
-          if (!cl_set[j_nodes]) {
+          double clj = cl_desired->GetValue(nodes[j_nodes]);
+          if (clj > cli && clj > cl_min) {
             vec3_t xj;
             grid->GetPoint(nodes[j_nodes], xj.data());
-            if (!cl_preset[j_nodes]) {
-              cl_preset[j_nodes] = true;
-              ++num_updated;
-            }
-            double L_new = cl_desired->GetValue(nodes[i_nodes]) + (m_GrowthFactor - 1)*(xi-xj).abs();
+            ++num_updated;
+            double L_new = cli * m_GrowthFactor;
             cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
           }
         }
       }
     }
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (cl_preset[i_nodes]) {
-        cl_set[i_nodes] = true;
-      }
-    }
+    cl_min *= m_GrowthFactor;
   } while (num_updated > 0);
 
 }
