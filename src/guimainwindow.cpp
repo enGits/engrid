@@ -1011,7 +1011,7 @@ void GuiMainWindow::saveBC()
   f << "\n";
   foreach (int i, m_AllBoundaryCodes) {
     BoundaryCondition bc = m_bcmap[i];
-    f << "      " << i << " " << bc.getName() << " " << bc.getType() << "\n";
+    f << i << " " << bc.getName() << " " << bc.getType() << "\n";
   }
   foreach (VolumeDefinition V, m_VolMap) {
     QString dirs = "";
@@ -1029,9 +1029,8 @@ void GuiMainWindow::saveBC()
       num.setNum(V.getSign(i));
       dirs += num;
     }
-    f << "      " << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
+    f << "-" << V.getVC() << " " << V.getName() << " " << dirs << "\n";
   }
-  f << "    ";
   setXmlSection("engrid/bc", buffer);
 }
 
@@ -1076,7 +1075,7 @@ void GuiMainWindow::saveGrid(QString file_name)
 ///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
-  QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files/VTK unstr. grid files (*.egc *.EGC *.vtu *.VTU)");
+  QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC)");
   QFileInfo file_info(m_CurrentFilename);
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
