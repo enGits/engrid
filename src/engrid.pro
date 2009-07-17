@@ -14,15 +14,16 @@ CONFIG += qt \
     debug_and_release \
     thread
 
-# DEFINES += QT_NO_DEBUG
+#DEFINES += QT_NO_DEBUG
 # DEFINES += QT_DEBUG
 # QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
 # get "git revision number"
 QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
     describe`\\\"
 QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -pg
-QMAKE_LFLAGS += -pg
+#QMAKE_CXXFLAGS += -pg
+#QMAKE_CXXFLAGS += -O3
+#QMAKE_LFLAGS += -pg
 QT += xml \
     network \
     opengl
