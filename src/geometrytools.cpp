@@ -194,38 +194,15 @@ void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<
 }
 
 
-double tetraVol(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3, bool neg)
+double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg)
 {
-  vec3_t v1 = x1-x0;
-  vec3_t v2 = x2-x0;
-  vec3_t v3 = x3-x0;
-  double V = v1*(v2.cross(v3));
-  V /= 6.0;
+  static double f16 = 1.0/6.0;
+  vec3_t v1(x1[0]-x0[0], x1[1]-x0[1], x1[2]-x0[2]);
+  vec3_t v2(x2[0]-x0[0], x2[1]-x0[1], x2[2]-x0[2]);
+  vec3_t v3(x3[0]-x0[0], x3[1]-x0[1], x3[2]-x0[2]);
+  double V = v1[0]*(v2[1]*v3[2]-v2[2]*v3[1]) + v1[1]*(v2[2]*v3[0]-v2[0]*v3[2]) + v1[2]*(v2[0]*v3[1]-v2[1]*v3[0]);
+  V *= f16;
   if (!neg && (V < 0)) {
-/*    vec3_t v4 = x2-x1;
-    vec3_t v5 = x3-x1;
-    vec3_t v6 = x3-x2;
-    double Lmin = 1e99;
-    double Lmax = 0;
-    Lmin = min(Lmin,v1.abs());
-    Lmin = min(Lmin,v2.abs());
-    Lmin = min(Lmin,v3.abs());
-    Lmin = min(Lmin,v4.abs());
-    Lmin = min(Lmin,v5.abs());
-    Lmin = min(Lmin,v6.abs());
-    Lmax = max(Lmax,v1.abs());
-    Lmax = max(Lmax,v2.abs());
-    Lmax = max(Lmax,v3.abs());
-    Lmax = max(Lmax,v4.abs());
-    Lmax = max(Lmax,v5.abs());
-    Lmax = max(Lmax,v6.abs());*/
-/*    if (Lmin/Lmax < 1e-6) {
-      V = 0;
-      V = -1e99;
-    } else {
-      V = -1e99;
-    }*/
-    //V *= 1e6;
     V = -1e99;
   }
   return V; //fabs(V);
