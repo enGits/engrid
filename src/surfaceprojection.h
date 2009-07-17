@@ -41,6 +41,7 @@ private: // data-types
     vec3_t g1, g2, g3;
     mat3_t G, GI;
     double A;
+    double smallest_length;
   };
 
   struct Edge
@@ -54,6 +55,8 @@ private: // data-types
 private: // attributes
 
   vtkUnstructuredGrid*   m_BGrid;
+  QVector<vtkIdType>     m_ProjTriangles;
+  vtkUnstructuredGrid*   m_FGrid;
   QVector<double>        m_EdgeLength;
   QVector<vtkIdType>     m_Cells;
   QVector<vtkIdType>     m_Nodes;
@@ -76,6 +79,8 @@ private: // attributes
   double                 m_ConvLimit;
   double                 m_RadiusFactor;
   bool                   m_UseLevelSet;
+  int                    m_NumDirect;
+  int                    m_NumFull;
 
 private: // methods
 
@@ -92,7 +97,9 @@ private: // methods
   double calcG(vec3_t x);
 
   vec3_t projectWithLevelSet(vec3_t x);
-  vec3_t projectWithGeometry(vec3_t x);
+
+  bool   projectOnTriangle(vec3_t xp, vec3_t &xi, double &d, const Triangle& T);
+  vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
 
 public: // methods
 
@@ -101,10 +108,15 @@ public: // methods
   template <class C>
   void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells);
 
-  vec3_t project(vec3_t x);
+  void setForegroundGrid(vtkUnstructuredGrid* grid) {m_FGrid = grid; }
+
+  vec3_t project(vec3_t x, vtkIdType id_node = -1);
   int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
   void writeOctree(QString file_name);
   bool usesLevelSet() { return m_UseLevelSet; };
+
+  int getNumDirectProjections() { return m_NumDirect; }
+  int getNumFullSearches() { return m_NumFull; }
 
 };
 
@@ -187,6 +199,9 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
       m_Triangles[id_cell].G.column(1, m_Triangles[id_cell].g2);
       m_Triangles[id_cell].G.column(2, m_Triangles[id_cell].g3);
       m_Triangles[id_cell].GI = m_Triangles[id_cell].G.inverse();
+      m_Triangles[id_cell].smallest_length = (m_Triangles[id_cell].b - m_Triangles[id_cell].a).abs();
+      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].c - m_Triangles[id_cell].b).abs());
+      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].a - m_Triangles[id_cell].c).abs());
     } else {
       EG_ERR_RETURN("only triangles allowed at the moment");
     }

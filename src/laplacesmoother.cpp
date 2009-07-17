@@ -36,6 +36,11 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 
 void LaplaceSmoother::operate()
 {
+  QSet<int> bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  foreach (int bc, bcs) {
+    GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(grid);
+  }
   UpdatePotentialSnapPoints(false, false);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
@@ -73,9 +78,14 @@ void LaplaceSmoother::operate()
               x_new += x;
             }
             x_new *= 1.0/snap_points.size();
-            for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-              foreach (int bc, n2bc[_nodes[id_node]]) {
-                x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new);
+            if (n2bc[_nodes[id_node]].size() == 1) {
+              int bc = n2bc[_nodes[id_node]][0];
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+            } else {
+              for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+                foreach (int bc, n2bc[_nodes[id_node]]) {
+                  x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+                }
               }
             }
             grid->GetPoints()->SetPoint(id_node, x_new.data());

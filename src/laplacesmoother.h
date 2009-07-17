@@ -31,8 +31,8 @@ class LaplaceSmoother : public SurfaceOperation
 
 private:
 
-  QSet<int>         m_BCs;
-  int               m_NumberOfIterations;
+  QSet<int> m_BCs;
+  int       m_NumberOfIterations;
 
 public:
 

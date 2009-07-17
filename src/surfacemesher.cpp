@@ -116,6 +116,11 @@ int SurfaceMesher::deleteNodes()
 
 void SurfaceMesher::operate()
 {
+  static bool first = false;
+  if (first) {
+    swap();
+    return;
+  }
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     md->SetValue(id_node, 1e-6);
@@ -140,12 +145,13 @@ void SurfaceMesher::operate()
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1);
-      swap();
+      //swap();
     }
     ++iter;
     //done = true;
-    done = (iter >= m_NumMaxIter);
-    //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
+    //done = (iter >= m_NumMaxIter);
+    int N_crit = grid->GetNumberOfPoints()/20;
+    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
     cout << "surface mesher iteration " << iter << ":" << endl;
     cout << "  inserted nodes : " << num_inserted << endl;
@@ -156,4 +162,18 @@ void SurfaceMesher::operate()
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();
+  {
+    int N1 = 0;
+    int N2 = 0;
+    QSet<int> bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+    foreach (int bc, bcs) {
+      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
+      N1 += proj->getNumDirectProjections();
+      N2 += proj->getNumFullSearches();
+    }
+    cout << N1 << " direct projections" << endl;
+    cout << N2 << " full searches" << endl;
+  }
+  first = false;
 }

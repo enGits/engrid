@@ -37,11 +37,8 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
 
 void SwapTriangles::operate()
 {
-  //cout << "swapping edges of boundary triangles (Delaunay)" << endl;
-  
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
   nStatic_SwapTriangles++;
-  //cout << "nStatic_SwapTriangles is " << nStatic_SwapTriangles << endl;
   
   int N_swaps;
   int N_total = 0;
@@ -152,27 +149,30 @@ void SwapTriangles::operate()
 
 bool SwapTriangles::testSwap(stencil_t S)
 {
-  //old triangles
-  vec3_t n1_old=triNormal(grid,S.p[0],S.p[1],S.p[3]);
-  vec3_t n2_old=triNormal(grid,S.p[2],S.p[3],S.p[1]);
+  // old triangles
+  vec3_t n1_old = triNormal(grid, S.p[0], S.p[1], S.p[3]);
+  vec3_t n2_old = triNormal(grid, S.p[2], S.p[3], S.p[1]);
   
-  //new triangles
-  vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
-  vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
+  // new triangles
+  vec3_t n1_new = triNormal(grid, S.p[1], S.p[2], S.p[0]);
+  vec3_t n2_new = triNormal(grid, S.p[3], S.p[0], S.p[2]);
   
-  //top point
-  vec3_t Summit=n1_old+n2_old;
-  vec3_t M[4];
+  // top point
+  vec3_t x_summit(0,0,0);
+  vec3_t x[4];
   for (int k = 0; k < 4; ++k) {
-    grid->GetPoints()->GetPoint(S.p[k], M[k].data());
+    grid->GetPoints()->GetPoint(S.p[k], x[k].data());
+    x_summit += x[k];
   }
-  
-  //old volumes
-  double V1_old=tetraVol(M[0], Summit, M[1], M[3], true);
-  double V2_old=tetraVol(M[2], Summit, M[3], M[1], true);
-  //new volumes
-  double V1_new=tetraVol(M[1], Summit, M[2], M[0], true);
-  double V2_new=tetraVol(M[3], Summit, M[0], M[2], true);
+  x_summit *= 0.25;
+  x_summit += n1_old + n2_old;
+
+  // old volumes
+  double V1_old = tetraVol(x[0], x[1], x[3], x_summit, true);
+  double V2_old = tetraVol(x[2], x[3], x[1], x_summit, true);
+  // new volumes
+  double V1_new = tetraVol(x[1], x[2], x[0], x_summit, true);
+  double V2_new = tetraVol(x[3], x[0], x[2], x_summit, true);
 
   return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
 }
