@@ -54,6 +54,7 @@ private: // attributes
   QVector <VertexMeshDensity> VMDvector;
   int m_NumMaxIter;
   int m_NumSmoothSteps;
+  double m_MaxEdgeLength;
 
 private: // methods
 
@@ -75,6 +76,8 @@ public:
 
   //Used for UpdateDesiredMeshDensity operation
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
+
+  void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
 
 };
 

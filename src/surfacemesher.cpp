@@ -41,6 +41,7 @@ void SurfaceMesher::computeMeshDensity()
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setGrid(grid);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density();
 }
 
