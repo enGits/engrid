@@ -38,12 +38,14 @@ private: //attributes
   QSet<int>                   m_BCs;
   double                      m_GrowthFactor;
   QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
+  double                      m_MaxEdgeLength;
 
 public: //methods
 
   UpdateDesiredMeshDensity();
   virtual void operate();
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
+  void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
 
 };
 

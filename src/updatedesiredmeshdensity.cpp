@@ -28,6 +28,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 {
   EG_TYPENAME;
   getSet("surface meshing", "cell growth factor", 0, m_GrowthFactor);
+  m_MaxEdgeLength = 1e99;
 }
 
 void UpdateDesiredMeshDensity::operate()
@@ -52,7 +53,7 @@ void UpdateDesiredMeshDensity::operate()
       if (idx >= m_VMDvector.size()) {
         EG_BUG;
       }
-      cl = 1.0/m_VMDvector[idx].density;
+      cl = m_VMDvector[idx].density;
     }
     cl_desired->SetValue(id_node, cl);
     if (cl < cl_min) {
@@ -81,7 +82,7 @@ void UpdateDesiredMeshDensity::operate()
             vec3_t xj;
             grid->GetPoint(nodes[j_nodes], xj.data());
             ++num_updated;
-            double L_new = cli * m_GrowthFactor;
+            double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
             cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
           }
         }
