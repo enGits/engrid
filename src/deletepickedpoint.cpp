@@ -73,6 +73,7 @@ void DeletePickedPoint::operate()
 
 bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
 {
+  /*
   int N1 = grid->GetNumberOfPoints();
   
   QVector<vtkIdType> selected_cells;
@@ -136,4 +137,5 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   m_NumRemoved = N1 - N2;
   
   return( m_NumRemoved == 1 );
+  */
 }
