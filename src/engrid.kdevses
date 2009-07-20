@@ -1,7 +1,7 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="12" >
+ <DocsAndViews NumberOfDocuments="23" >
   <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedpoint.h" >
    <View0 Encoding="" Type="Source" />
   </Doc0>
@@ -9,13 +9,13 @@
    <View0 Encoding="" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/removepoints.cpp" >
-   <View0 Encoding="" line="67" Type="Source" />
+   <View0 Encoding="" Type="Source" />
   </Doc2>
   <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedpoint.cpp" >
    <View0 Encoding="" Type="Source" />
   </Doc3>
   <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfacemesher.cpp" >
-   <View0 Encoding="" line="156" Type="Source" />
+   <View0 Encoding="" Type="Source" />
   </Doc4>
   <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
    <View0 Encoding="" Type="Source" />
@@ -27,7 +27,7 @@
    <View0 Encoding="" Type="Source" />
   </Doc7>
   <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/swaptriangles.cpp" >
-   <View0 Encoding="" Type="Source" />
+   <View0 Encoding="" line="170" Type="Source" />
   </Doc8>
   <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
    <View0 Encoding="" Type="Source" />
@@ -36,8 +36,41 @@
    <View0 Encoding="" Type="Source" />
   </Doc10>
   <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/insertpoints.cpp" >
-   <View0 Encoding="" line="170" Type="Source" />
+   <View0 Encoding="" Type="Source" />
   </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/seedsimpleprismaticlayer.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc12>
+  <Doc13 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc13>
+  <Doc14 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/operation.h" >
+   <View0 Encoding="" Type="Source" />
+  </Doc14>
+  <Doc15 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guisetboundarycode.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc15>
+  <Doc16 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc16>
+  <Doc17 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/laplacesmoother.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc17>
+  <Doc18 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/updatedesiredmeshdensity.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc18>
+  <Doc19 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/operation.cpp" >
+   <View0 Encoding="" Type="Source" />
+  </Doc19>
+  <Doc20 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/geometrytools.h" >
+   <View0 Encoding="" Type="Source" />
+  </Doc20>
+  <Doc21 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
+   <View0 Encoding="" Type="Source" />
+  </Doc21>
+  <Doc22 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/geometrytools.cpp" >
+   <View0 Encoding="" line="107" Type="Source" />
+  </Doc22>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -50,23 +83,20 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
-     <mark line="94" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
      <mark line="66" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
-     <mark line="408" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
+     <mark line="94" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
      <mark line="199" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
+     <mark line="408" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
-     <mark line="81" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
      <mark line="1192" />
@@ -75,13 +105,16 @@
      <mark line="231" />
      <mark line="1002" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/insertpoints.cpp" >
+     <mark line="81" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
      <mark line="241" />
      <mark line="174" />
      <mark line="390" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
      <mark line="61" />

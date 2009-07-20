@@ -2,7 +2,7 @@
 set -ex
 
 #set up environment
-PATH=/usr/bin:/opt/shared/Qt/4.5.0/debug/bin:$PATH
+PATH=/usr/bin:/opt/shared/Qt/4.5.1/debug/bin:$PATH
 source ./scripts/setup_paths.cgns.sh engits
 
 echo "PATHS:"
