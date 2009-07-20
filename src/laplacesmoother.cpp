@@ -34,6 +34,58 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   setQuickSave(true);
 }
 
+bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
+{
+  using namespace GeometryTools;
+
+  vec3_t x_old;
+  grid->GetPoint(id_node, x_old.data());
+  grid->GetPoints()->SetPoint(id_node, x_new.data());
+  bool move = true;
+
+  vec3_t n(0,0,0);
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    n += GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+  }
+  vec3_t x_summit = x_old + n;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    vec3_t x[3];
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
+    if (N_pts != 3) {
+      EG_BUG;
+    }
+    for (int j = 0; j < N_pts; ++j) {
+      grid->GetPoint(pts[j], x[j].data());
+    }
+    if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+      move = false;
+      break;
+    }
+  }
+
+  if (!move) {
+    grid->GetPoints()->SetPoint(id_node, x_old.data());
+  }
+  return move;
+}
+
+bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
+{
+  vec3_t x_old;
+  grid->GetPoint(id_node, x_old.data());
+  bool moved = false;
+  for (int i_relaxation = 0; i_relaxation < 5; ++i_relaxation) {
+    if (setNewPosition(id_node, x_old + Dx)) {
+      moved = true;
+      break;
+    }
+    Dx *= 0.5;
+  }
+  return moved;
+}
+
+
 void LaplaceSmoother::operate()
 {
   QSet<int> bcs;
@@ -88,7 +140,8 @@ void LaplaceSmoother::operate()
                 }
               }
             }
-            grid->GetPoints()->SetPoint(id_node, x_new.data());
+            vec3_t Dx = x_new - x_old;
+            moveNode(id_node, Dx);
           }
         }
       }

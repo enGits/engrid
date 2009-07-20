@@ -34,6 +34,13 @@ private:
   QSet<int> m_BCs;
   int       m_NumberOfIterations;
 
+
+private: // methods
+
+  bool setNewPosition(vtkIdType id_node, vec3_t x_new);
+  bool moveNode(vtkIdType id_node, vec3_t &Dx);
+
+
 public:
 
   LaplaceSmoother();
