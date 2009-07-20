@@ -2,10 +2,12 @@
 
 # Check if all parameters are present
 # If no, exit
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
         echo "usage :"
-        echo "source `basename $0` engits / debian / ubuntu / opensuse / debian_etch"
+        echo "source `basename $0` CONFIGURATION ENABLE_CGNS"
+        echo "CONFIGURATION = engits / debian / ubuntu / opensuse / debian_etch"
+        echo "ENABLE_CGNS = yes/no"
         exit 0
 fi
 
@@ -46,8 +48,11 @@ then
   export QTDIR=/opt/shared/Qt/4.5.1/debug
   export VTKLIBDIR=/opt/shared/VTK/lib/vtk-5.4/
   export VTKINCDIR=/opt/shared/VTK/include/vtk-5.4/
-  export CGNSINCDIR=/opt/shared/cgns/include/
-  export CGNSLIBDIR=/opt/shared/cgns/lib/
+  if [ $2 = 'yes' ]
+  then
+    export CGNSINCDIR=/opt/shared/cgns/include/
+    export CGNSLIBDIR=/opt/shared/cgns/lib/
+  fi
 fi
 
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH

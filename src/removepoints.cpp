@@ -214,7 +214,7 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
     vec3_t v3_old = x3 - x0_old;
     
     //top point
-    vec3_t S = v2_old.cross( v3_old );
+    vec3_t S = x0_old + v2_old.cross( v3_old );
     double V_old = tetraVol( x0_old, S, x2, x3, true );
     double V_new = tetraVol( x0_new, S, x2, x3, true );
     double prod = V_old * V_new;

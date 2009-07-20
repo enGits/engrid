@@ -3,9 +3,20 @@ set -ex
 
 #set up environment
 PATH=/usr/bin:/opt/shared/Qt/4.5.1/debug/bin:$PATH
-source ./scripts/setup_paths.cgns.sh engits
+source ./scripts/setup_paths.sh engits yes
+
+echo "BUILDING TOOLS":
+echo "gcc= $(which gcc)"
+echo "g++= $(which g++)"
+echo "qmake= $(which qmake)"
+echo "make= $(which make)"
+gcc -v
+g++ -v
+qmake -v
+make -v
 
 echo "PATHS:"
+echo PATH = $PATH
 echo QTDIR = $QTDIR
 echo VTKLIBDIR = $VTKLIBDIR
 echo VTKINCDIR = $VTKINCDIR
