@@ -24,8 +24,6 @@
 
 #include "checksurfaceintegrity.h"
 
-#include <QSet>
-
 #include "geometrytools.h"
 using namespace GeometryTools;
 
@@ -41,7 +39,6 @@ RemovePoints::RemovePoints() : SurfaceOperation()
   getSet("surface meshing", "point removal threshold", 1, m_Threshold);
 }
 
-///@@@ TODO: Replace sets with vectors if possible
 void RemovePoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
