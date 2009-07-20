@@ -56,24 +56,24 @@ protected:
   /// deletes set of points DeadNodes
   bool DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector,
                           QVector <vtkIdType> snappoint_vector,
-                          QSet <vtkIdType> & all_deadcells,
-                          QSet <vtkIdType> & all_mutatedcells,
-                          QSet <vtkIdType> & all_mutilatedcells,
+                          QVector <vtkIdType> & all_deadcells,
+                          QVector <vtkIdType> & all_mutatedcells,
                           int& num_newpoints,
                           int& num_newcells);
   
   /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
   vtkIdType FindSnapPoint( vtkIdType DeadNode,
-                           QSet <vtkIdType> & DeadCells,
-                           QSet <vtkIdType> & MutatedCells,
-                           QSet <vtkIdType> & MutilatedCells,
-                           int& N_newpoints, int& N_newcells);
+                           QVector <vtkIdType> & DeadCells,
+                           QVector <vtkIdType> & MutatedCells,
+                           int& N_newpoints, int& N_newcells, QVector <bool> marked_nodes);
   
   /// returns true if moving id_node to position P leads to flipped cells
   bool FlippedCells( vtkIdType id_node, vec3_t P );
   
   /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
   int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
+  
+  bool duplicates(QVector <vtkIdType> V);
   
 };
 
