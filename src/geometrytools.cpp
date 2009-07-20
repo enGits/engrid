@@ -22,6 +22,7 @@
 //
 #include "geometrytools.h"
 #include "containertricks.h"
+#include "engrid.h"
 
 #include <vtkCellType.h>
 #include <cmath>
@@ -311,11 +312,15 @@ vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
 {
   vtkIdType *pts;
   vtkIdType npts;
-  vec3_t n;
-  clinit(n) = 0,0,0;
-  grid->GetCellPoints(i,npts,pts);
-  if      (npts == 3) return triNormal(grid,pts[0],pts[1],pts[2]);
-  else if (npts == 4) return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
+  vec3_t n(0,0,0);
+  grid->GetCellPoints(i, npts, pts);
+  if (npts == 3) {
+    return triNormal(grid,pts[0],pts[1],pts[2]);
+  } else if (npts == 4) {
+    return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
+  } else {
+    EG_BUG;
+  }
   return n;
 }
 
