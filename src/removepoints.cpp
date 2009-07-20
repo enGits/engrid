@@ -361,27 +361,11 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector <vtkIdType> &
 }
 //End of FindSnapPoint
 
-bool RemovePoints::duplicates(QVector <vtkIdType> a_vector)
-{
-  QSet <vtkIdType> l_set;
-  foreach(vtkIdType element, a_vector) l_set.insert(element);
-  return l_set.size()!=a_vector.size();
-}
-
 bool RemovePoints::DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QVector <vtkIdType> & all_deadcells, QVector <vtkIdType> & all_mutatedcells, int& num_newpoints, int& num_newcells)
 {
-  CheckSurfaceIntegrity check_surface_integrity;
-  check_surface_integrity.setGrid(grid);
-  if(!check_surface_integrity.isWaterTight()) EG_BUG;
-  
   QVector <vtkIdType> inter_vector;
   qcontIntersection(deadnode_vector, snappoint_vector, inter_vector); if(inter_vector.size()>0) EG_BUG;
   qcontIntersection(all_deadcells, all_mutatedcells, inter_vector); if(inter_vector.size()>0) EG_BUG;
-  
-  if(duplicates(deadnode_vector)) EG_BUG;
-//   if(duplicates(snappoint_vector)) EG_BUG;
-  if(duplicates(all_deadcells)) EG_BUG;
-  if(duplicates(all_mutatedcells)) EG_BUG;
   
   int initial_num_points = grid->GetNumberOfPoints();
   
@@ -461,31 +445,6 @@ bool RemovePoints::DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVect
       vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
       copyCellData( grid, id_cell, dst, id_new_cell );
     }
-  }
-  
-  CheckSurfaceIntegrity check_surface_integrity_dst;
-  check_surface_integrity_dst.setGrid(dst);
-  if(!check_surface_integrity_dst.isWaterTight()) {
-    
-    qDebug()<<"=== EG_BUG ===";
-    check_surface_integrity_dst();
-    qDebug()<<"deadnode_vector="<<deadnode_vector;
-    qDebug()<<"snappoint_vector="<<snappoint_vector;
-    qDebug()<<"all_deadcells="<<all_deadcells;
-    qDebug()<<"all_mutatedcells="<<all_mutatedcells;
-    qDebug()<<"deadnode_vector.size()="<<deadnode_vector.size();
-    qDebug()<<"snappoint_vector.size()="<<snappoint_vector.size();
-    qDebug()<<"all_deadcells.size()="<<all_deadcells.size();
-    qDebug()<<"all_mutatedcells.size()="<<all_mutatedcells.size();
-    qDebug()<<"num_newpoints="<<num_newpoints;
-    qDebug()<<"num_newcells="<<num_newcells;
-    writeGrid(grid,"before");
-    writeGrid(dst,"after");
-    qDebug()<<"=== EG_BUG ===";
-    if(duplicates(snappoint_vector)) qDebug()<<"THERE ARE DUPLICATES!!!";
-    
-    qDebug()<<"=== EG_BUG ===";
-    EG_BUG;
   }
   
   makeCopy( dst, grid );

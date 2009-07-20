@@ -29,7 +29,6 @@
 #include <vtkPolyData.h>
 #include <vtkCharArray.h>
 
-#include <QSet>
 #include <QVector>
 #include <QString>
 #include <QTextStream>
@@ -72,9 +71,6 @@ protected:
   
   /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
   int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
-  
-  bool duplicates(QVector <vtkIdType> V);
-  
 };
 
 #endif
