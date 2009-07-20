@@ -231,7 +231,7 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
 // Mutated cell: the cell's form has changed
 
 ///@@@  TODO: Clean up this function
-vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector <vtkIdType> & DeadCells, QVector <vtkIdType> & MutatedCells, int& num_newpoints, int& num_newcells, QVector <bool> marked_nodes)
+vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& DeadCells, QVector<vtkIdType>& MutatedCells, int& num_newpoints, int& num_newcells, QVector<bool>& marked_nodes)
 {
   // preparations
   l2l_t n2c = getPartN2C();
@@ -361,7 +361,7 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector <vtkIdType> &
 }
 //End of FindSnapPoint
 
-bool RemovePoints::DeleteSetOfPoints( QVector <vtkIdType> deadnode_vector, QVector <vtkIdType> snappoint_vector, QVector <vtkIdType> & all_deadcells, QVector <vtkIdType> & all_mutatedcells, int& num_newpoints, int& num_newcells)
+bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVector<vtkIdType>& snappoint_vector, QVector<vtkIdType>& all_deadcells, QVector<vtkIdType>& all_mutatedcells, int& num_newpoints, int& num_newcells)
 {
   QVector <vtkIdType> inter_vector;
   qcontIntersection(deadnode_vector, snappoint_vector, inter_vector); if(inter_vector.size()>0) EG_BUG;

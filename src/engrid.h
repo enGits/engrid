@@ -214,7 +214,7 @@ updateStatusBar(); \
 zoomAll();
 
 #define EG_STDCONNECT(OPER) \
-connect(ui.action ## OPER, SIGNAL(activated()), this, SLOT(call ## OPER ()));
+connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
 
 #define EG_GETPTS(PTS,CELLID,GRID) \
 vtkIdType *PTS; \
