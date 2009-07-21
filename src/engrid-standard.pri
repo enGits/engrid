@@ -122,6 +122,7 @@ HEADERS = boundarycondition.h \
     egvtkinteractorstyle.h \
     insertpoints.h \
     removepoints.h \
+    reducedpolydatareader.h \
     showinfo.h \
     surfacemesher.h \
     updatedesiredmeshdensity.h \
@@ -230,6 +231,7 @@ SOURCES = main.cpp \
     foamobject.cpp \
     multipagewidgetpage.cpp \
     xmlhandler.cpp \
+    reducedpolydatareader.cpp \
     openfoamtools.cpp
 
 FORMS = guicreateboundarylayer.ui \
