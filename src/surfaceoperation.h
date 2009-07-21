@@ -31,9 +31,9 @@ struct stencil_t {
   vtkIdType id_cell1;
   vtkIdType id_cell2;
   vtkIdType p[4];
-  bool sameBC;//do both cells have the same BCs?
-  bool twocells;//Do we have 2 cells?
-  char neighbour_type;//What's the type of the neighbour cell?
+  bool sameBC;         ///< do both cells have the same BCs?
+  bool twocells;       ///< Do we have 2 cells?
+  char neighbour_type; ///< What's the type of the neighbour cell?
 };
 /// Prints out stencil information
 ostream& operator<<( ostream &out, stencil_t S );
@@ -68,9 +68,6 @@ class SurfaceOperation : public Operation
 
     /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
     int UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices = false );
-
-    /// deletes node DeadNode
-//     bool DeletePoint( vtkIdType DeadNode, int& N_newpoints, int& N_newcells );
 
     //--------------------------------------
     //Special for UpdatePotentialSnapPoints

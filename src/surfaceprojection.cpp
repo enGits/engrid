@@ -39,6 +39,8 @@ SurfaceProjection::SurfaceProjection()
   double max_cells;
   getSet("surface meshing", "octree maximal number of cells", 2000, max_cells);
   m_MaxOTCells = int(max_cells);
+  m_NumDirect = 0;
+  m_NumFull = 0;
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -365,97 +367,141 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
-vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp)
+bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, double &d, const Triangle& T)
 {
-  vec3_t x_proj(1e99,1e99,1e99);
-  double d_min = 1e99;
-  foreach (Triangle T, m_Triangles) {
-    vec3_t xi(1e99,1e99,1e99);
-    vec3_t ri;
-    double scal = (xp - T.a)*T.g3;
-    vec3_t x1, x2;
-    if (scal > 0) {
-      x1 = xp + T.g3;
-      x2 = xp - scal*T.g3 - T.g3;
-    } else {
-      x1 = xp - T.g3;
-      x2 = xp - scal*T.g3 + T.g3;
-    }
-    double d = 1e99;
-    bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri);
-    if (intersects_face) {
-      vec3_t dx = xp - T.a;
-      d = fabs(dx*T.g3);
-    } else {
-      double kab = GeometryTools::intersection(T.a, T.b - T.a, xp, T.b - T.a);
-      double kac = GeometryTools::intersection(T.a, T.c - T.a, xp, T.c - T.a);
-      double kbc = GeometryTools::intersection(T.b, T.c - T.b, xp, T.c - T.b);
-      double dab = (T.a + kab*(T.b-T.a) - xp).abs();
-      double dac = (T.a + kac*(T.c-T.a) - xp).abs();
-      double dbc = (T.b + kbc*(T.c-T.b) - xp).abs();
-      bool set = false;
-      if ((kab >= 0) && (kab <= 1)) {
-        if (dab < d) {
-          xi = T.a + kab*(T.b-T.a);
-          d = dab;
-          set = true;
-        }
-      }
-      if ((kac >= 0) && (kac <= 1)) {
-        if (dac < d) {
-          xi = T.a + kac*(T.c-T.a);
-          d = dac;
-          set = true;
-        }
-      }
-      if ((kbc >= 0) && (kbc <= 1)) {
-        if (dbc < d) {
-          xi = T.b + kbc*(T.c-T.b);
-          d = dbc;
-          set = true;
-        }
-      }
-      double da = (T.a - xp).abs();
-      double db = (T.b - xp).abs();
-      double dc = (T.c - xp).abs();
-      if (da < d) {
-        xi = T.a;
-        d = da;
+  xi = vec3_t(1e99,1e99,1e99);
+  vec3_t ri;
+  double scal = (xp - T.a)*T.g3;
+  vec3_t x1, x2;
+  if (scal > 0) {
+    x1 = xp + T.g3;
+    x2 = xp - scal*T.g3 - T.g3;
+  } else {
+    x1 = xp - T.g3;
+    x2 = xp - scal*T.g3 + T.g3;
+  }
+  d = 1e99;
+  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri);
+  if (intersects_face) {
+    vec3_t dx = xp - T.a;
+    d = fabs(dx*T.g3);
+  } else {
+    double kab = GeometryTools::intersection(T.a, T.b - T.a, xp, T.b - T.a);
+    double kac = GeometryTools::intersection(T.a, T.c - T.a, xp, T.c - T.a);
+    double kbc = GeometryTools::intersection(T.b, T.c - T.b, xp, T.c - T.b);
+    double dab = (T.a + kab*(T.b-T.a) - xp).abs();
+    double dac = (T.a + kac*(T.c-T.a) - xp).abs();
+    double dbc = (T.b + kbc*(T.c-T.b) - xp).abs();
+    bool set = false;
+    if ((kab >= 0) && (kab <= 1)) {
+      if (dab < d) {
+        xi = T.a + kab*(T.b-T.a);
+        d = dab;
         set = true;
       }
-      if (db < d) {
-        xi = T.b;
-        d = db;
-      }
-      if (dc < d) {
-        xi = T.c;
-        d = dc;
+    }
+    if ((kac >= 0) && (kac <= 1)) {
+      if (dac < d) {
+        xi = T.a + kac*(T.c-T.a);
+        d = dac;
         set = true;
       }
-      if (!set) {
-        EG_BUG;
+    }
+    if ((kbc >= 0) && (kbc <= 1)) {
+      if (dbc < d) {
+        xi = T.b + kbc*(T.c-T.b);
+        d = dbc;
+        set = true;
       }
     }
-    if (xi[0] > 1e98) {
+    double da = (T.a - xp).abs();
+    double db = (T.b - xp).abs();
+    double dc = (T.c - xp).abs();
+    if (da < d) {
+      xi = T.a;
+      d = da;
+      set = true;
+    }
+    if (db < d) {
+      xi = T.b;
+      d = db;
+    }
+    if (dc < d) {
+      xi = T.c;
+      d = dc;
+      set = true;
+    }
+    if (!set) {
       EG_BUG;
     }
-    if (d < d_min) {
-      x_proj = xi;
-      d_min = d;
+  }
+  if (xi[0] > 1e98) {
+    EG_BUG;
+  }
+  return intersects_face;
+}
+
+vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
+{
+  vec3_t x_proj(1e99,1e99,1e99);
+  bool need_full_search = false;
+  if (id_node >= m_ProjTriangles.size()) {
+    int old_size = m_ProjTriangles.size();
+    m_ProjTriangles.resize(m_FGrid->GetNumberOfPoints());
+    for (int i = old_size; i < m_ProjTriangles.size(); ++i) {
+      m_ProjTriangles[i] = -1;
+    }
+    need_full_search = true;
+  } else {
+    int i_triangles = m_ProjTriangles[id_node];
+    if (i_triangles < 0) {
+      need_full_search = true;
+    } else {
+      if (i_triangles >= m_Triangles.size()) {
+        EG_BUG;
+      }
+      Triangle T = m_Triangles[i_triangles];
+      vec3_t xi;
+      double d;
+      bool intersects = projectOnTriangle(xp, xi, d, T);
+      if (!intersects || (d > 0.5*T.smallest_length)) {
+        need_full_search = true;
+      } else {
+        x_proj = xi;
+        ++m_NumDirect;
+      }
     }
   }
-  if (x_proj[0] > 1e98) {
-    EG_BUG;
+  if (need_full_search) {
+    ++m_NumFull;
+    double d_min = 1e99;
+    for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
+      Triangle T = m_Triangles[i_triangles];
+      double d;
+      vec3_t xi;
+      projectOnTriangle(xp, xi, d, T);
+      if (d < d_min) {
+        x_proj = xi;
+        d_min = d;
+        m_ProjTriangles[id_node] = i_triangles;
+      }
+    }
+    if (x_proj[0] > 1e98) {
+      EG_BUG;
+    }
   }
   return x_proj;
 }
 
-vec3_t SurfaceProjection::project(vec3_t x)
+vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 {
   if (m_UseLevelSet) {
     x = projectWithLevelSet(x);
   } else {
-    x = projectWithGeometry(x);
+    if (id_node < 0) {
+      EG_BUG;
+    }
+    x = projectWithGeometry(x, id_node);
   }
   return x;
 }

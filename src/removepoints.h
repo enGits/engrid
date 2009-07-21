@@ -29,65 +29,49 @@
 #include <vtkPolyData.h>
 #include <vtkCharArray.h>
 
-#include <QSet>
 #include <QVector>
 #include <QString>
 #include <QTextStream>
 #include <QTime>
 
-#include "egvtkobject.h"
-#include "operation.h"
-#include "vertexmeshdensity.h"
-#include "smoothingutilities.h"
-#include "swaptriangles.h"
-#include "laplacesmoother.h"
-#include "guimainwindow.h"
-
-#include "geometrytools.h"
-using namespace GeometryTools;
-
-#include <cmath>
-using namespace std;
-
-#include <iostream>
-using namespace std;
-
 class RemovePoints : public SurfaceOperation
 {
-  private:
-    int m_NumRemoved;
 
-    //attributes with setter functions
-  public:
-    QSet<int> m_bcs;
-    void setBCS( QSet<int> a_bcs ) { m_bcs = a_bcs;}
-    bool remove_FP;
-    void set_remove_FP( bool B ) { remove_FP = B;}
-    bool remove_EP;
-    void set_remove_EP( bool B ) { remove_EP = B;}
+protected:
 
-  public:
+  int    m_NumRemoved;
+  double m_Threshold;
 
-    RemovePoints();
+public:
 
-    virtual void operate();
+  RemovePoints();
 
-    bool removePointCriteria( vtkIdType id_node ); ///< Check if a point needs to be removed
+  virtual void operate();
 
-    int getNumRemoved() { return m_NumRemoved; }
-
-    /// deletes set of points DeadNodes
-    bool DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& N_newpoints, int& N_newcells );
+  int getNumRemoved() { return m_NumRemoved; }
   
-    /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
-    vtkIdType FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& N_newpoints, int& N_newcells );
+protected:
+
+  /// deletes set of points DeadNodes
+  bool DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector,
+                          QVector<vtkIdType>& snappoint_vector,
+                          QVector<vtkIdType>& all_deadcells,
+                          QVector<vtkIdType>& all_mutatedcells,
+                          int& num_newpoints,
+                          int& num_newcells);
   
-    ///returns true if moving id_node to position P leads to flipped cells
-    bool FlippedCells( vtkIdType id_node, vec3_t P );
+  /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
+  vtkIdType FindSnapPoint( vtkIdType DeadNode,
+                           QVector<vtkIdType>& DeadCells,
+                           QVector<vtkIdType>& MutatedCells,
+                           int& N_newpoints, int & N_newcells,
+                           QVector<bool>& marked_nodes);
   
-    /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
-    int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
+  /// returns true if moving id_node to position P leads to flipped cells
+  bool FlippedCells( vtkIdType id_node, vec3_t P );
   
+  /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
+  int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
 };
 
 #endif

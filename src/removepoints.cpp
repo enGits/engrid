@@ -22,23 +22,21 @@
 //
 #include "removepoints.h"
 
-RemovePoints::RemovePoints()
-    : SurfaceOperation()
+#include "checksurfaceintegrity.h"
+
+#include "geometrytools.h"
+using namespace GeometryTools;
+
+#include <cmath>
+using namespace std;
+
+#include <iostream>
+using namespace std;
+
+RemovePoints::RemovePoints() : SurfaceOperation()
 {
   setQuickSave( true );
-}
-
-bool RemovePoints::removePointCriteria( vtkIdType id_node )
-{
-  double QL1max = 0.8;
-  double QL2max = 0.5;
-  bool result1 = Q_L1( id_node ) < QL1max && Q_L2( id_node ) < QL2max;
-
-  QVector <vtkIdType> PSP = getPotentialSnapPoints( id_node );
-  double Lmean = CurrentVertexAvgDist( id_node );
-  bool result2 = Lmean < desiredEdgeLength( PSP[0] ) && Lmean < desiredEdgeLength( PSP[1] );
-
-  return ( result1 );
+  getSet("surface meshing", "point removal threshold", 1, m_Threshold);
 }
 
 void RemovePoints::operate()
@@ -46,372 +44,85 @@ void RemovePoints::operate()
   int N1 = grid->GetNumberOfPoints();
 
   QVector<vtkIdType> selected_cells;
-  getSurfaceCells( m_bcs, selected_cells, grid );
-  QVector <vtkIdType> selected_nodes;
-  getNodesFromCells( selected_cells, selected_nodes, grid );
+  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
+  QVector<vtkIdType> selected_nodes;
+  getNodesFromCells(selected_cells, selected_nodes, grid);
 
   setAllSurfaceCells();
-  l2l_t n2n = getPartN2N();
+  l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
+  l2g_t  nodes = getPartNodes();
   
-  UpdatePotentialSnapPoints(true);
+  UpdatePotentialSnapPoints(false);
+  
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
 
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
-  EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
-
-  //for FindSnapPoint + DeleteSetOfPoints
+  // global values
+  QVector <vtkIdType> all_deadcells;
+  QVector <vtkIdType> all_mutatedcells;
   int num_newpoints = 0;
   int num_newcells = 0;
-  QSet <vtkIdType> DeadCells;
-  QSet <vtkIdType> MutatedCells;
-  QSet <vtkIdType> MutilatedCells;
-
-  QVector <bool> marked_nodes(nodes.size());
-  marked_nodes.fill(false);
   
-  QSet <vtkIdType> DeadNodes;
-
-  ///@@@ FIXME: Reuse snap_point and avoid sets and maps
+  QVector <bool> marked_nodes(nodes.size(), false);
+  
+  QVector <vtkIdType> deadnode_vector;
+  QVector <vtkIdType> snappoint_vector;
+  
   //count
-  foreach( vtkIdType id_node, selected_nodes ) {
-    if ( node_type->GetValue( id_node ) != VTK_FIXED_VERTEX ) {
-      if ( !marked_nodes[id_node] && removePointCriteria( id_node ) ) {
-        vtkIdType snap_point = FindSnapPoint( id_node, DeadCells, MutatedCells, MutilatedCells, num_newpoints, num_newcells );
-        if( snap_point != -1 ) {
-          DeadNodes.insert( id_node );
-          foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) marked_nodes[nodes[i_node_neighbour]] = true;
+  for (int i_selected_nodes = 0; i_selected_nodes < selected_nodes.size(); ++i_selected_nodes) {
+    vtkIdType id_node = selected_nodes[i_selected_nodes];
+    int i_nodes = _nodes[id_node];
+    if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+      if (!marked_nodes[i_nodes]) {
+        vec3_t xi;
+        grid->GetPoint(id_node, xi.data());
+        double cl_node = cl->GetValue(id_node);
+        bool remove_node = true;
+        for (int j = 0; j < n2n[i_nodes].size(); ++j) {
+          vtkIdType id_neigh = nodes[n2n[i_nodes][j]];
+          double cl_neigh = cl->GetValue(id_neigh);
+          vec3_t xj;
+          grid->GetPoint(id_neigh, xj.data());
+          double L = (xi-xj).abs();
+          if (L > 0.5*(cl_node+cl_neigh)/m_Threshold) {
+            remove_node = false;
+            break;
+          }
+        }
+        if (remove_node) {
+          // local values
+          QVector <vtkIdType> dead_cells;
+          QVector <vtkIdType> mutated_cells;
+          int l_num_newpoints = 0;
+          int l_num_newcells = 0;
+          vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+          if(snap_point >= 0) {
+            // add deadnode/snappoint pair
+            deadnode_vector.push_back(id_node);
+            snappoint_vector.push_back(snap_point);
+            // update global values
+            num_newpoints += l_num_newpoints;
+            num_newcells  += l_num_newcells;
+            all_deadcells += dead_cells;
+            all_mutatedcells += mutated_cells;
+            // mark neighbour nodes
+            foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
+              marked_nodes[nodes[i_node_neighbour]] = true;
+            }
+          }
         }
       }
     }
   }
 
   //delete
-  DeleteSetOfPoints( DeadNodes, num_newpoints, num_newcells );
+  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
 
   int N2 = grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
 }
-
-// DEFINITIONS:
-// Normal cell: nothing has changed
-// Dead cell: the cell does not exist anymore
-// Mutated cell: the cell's form has changed
-// Mutilated cell: the cell has less points than before
-
-///@@@  TODO: Clean up this function
-vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QSet <vtkIdType> & DeadCells, QSet <vtkIdType> & MutatedCells, QSet <vtkIdType> & MutilatedCells, int& num_newpoints, int& num_newcells )
-{
-  // preparations
-  l2l_t n2c = getPartN2C();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t cells = getPartCells();
-  
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
-  if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
-    cout << "ERROR: unable to remove fixed vertex." << endl;
-    EG_BUG;
-    return( -1 );
-  }
-  
-  vtkIdType SnapPoint = -1;
-  
-  QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( DeadNode );
-  foreach( vtkIdType PSP, PSP_vector ) {
-    bool IsValidSnapPoint = true;
-    
-    // TEST 0: DeadNode, PSP and any common point must belong to a cell.
-    
-    // TEST 1: Number of common points must not exceed 2.
-    bool IsTetra = true;
-    if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
-    }
-    // TEST 2: DeadNode, PSP and common points must not form a tetrahedron.
-    if ( IsTetra ) { //tetra check
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
-    }
-    
-    //count number of points and cells to remove + analyse cell transformations
-    num_newpoints = -1;
-    num_newcells = 0;
-    DeadCells.clear();
-    MutatedCells.clear();
-    MutilatedCells.clear();
-    foreach( int i_cell, n2c[_nodes[DeadNode]] ) { //loop through potentially dead cells
-      vtkIdType id_cell = cells[i_cell];
-      //get points around cell
-      vtkIdType num_pts, *pts;
-      grid->GetCellPoints( id_cell, num_pts, pts );
-      
-      if ( num_pts != 3 ) {
-        cout << "ERROR: Non-triangle detected!" << endl;
-        EG_BUG;
-      }
-      
-      bool ContainsSnapPoint = false;
-      bool invincible = false;
-      for ( int i = 0; i < num_pts; ++i ) {
-        if ( pts[i] == PSP ) {
-          ContainsSnapPoint = true;
-        }
-        if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[_nodes[pts[i]]].size() <= 1 ) {
-          invincible = true;
-        }
-      }
-      if ( ContainsSnapPoint ) { // potential dead cell
-        if ( invincible ) {
-          // TEST 3: Check that empty lines aren't left behind when a cell is killed
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
-        }
-        else {
-          DeadCells.insert( id_cell );
-          num_newcells -= 1;
-        }
-      }
-      else { // if the cell does not contain the SnapPoint (potential mutated cell)
-        
-        vtkIdType OldTriangle[3];
-        vtkIdType NewTriangle[3];
-        
-        for ( int i = 0; i < num_pts; ++i ) {
-          OldTriangle[i] = pts[i];
-          NewTriangle[i] = (( pts[i] == DeadNode ) ? PSP : pts[i] );
-        }
-        vec3_t Old_N = triNormal( grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
-        vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
-        
-        // TEST 4: area + inversion check
-        if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
-        }
-        
-        // TEST 5: flipped cell test from old laplace smoother
-        vec3_t P;
-        grid->GetPoint( PSP, P.data() );
-        if ( FlippedCells( DeadNode, P ) ) {
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
-        }
-        
-        //mutated cell
-        MutatedCells.insert( id_cell );
-      }
-    }
-    
-    // TEST 5: survivor check
-    if ( grid->GetNumberOfCells() + num_newcells <= 0 ) {
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
-    }
-    
-    if ( IsValidSnapPoint ) {
-      SnapPoint = PSP;
-      break;
-    }
-  } //end of loop through potential SnapPoints
-  
-  return ( SnapPoint );
-}
-//End of FindSnapPoint
-
-bool RemovePoints::DeleteSetOfPoints( QSet <vtkIdType> DeadNodes, int& num_newpoints, int& num_newcells )
-{
-  int initial_num_points = grid->GetNumberOfPoints();
-  
-//   CheckSurfaceIntegrity check_surface_integrity;
-//   check_surface_integrity.setGrid(grid);
-//   if ( !check_surface_integrity.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     EG_BUG;
-//   }
-  
-  QVector<vtkIdType> deadnode_vector = Set2Vector( DeadNodes, false );
-  
-  UpdatePotentialSnapPoints( true );
-  
-  //src grid info
-  int num_points = grid->GetNumberOfPoints();
-  int num_cells = grid->GetNumberOfCells();
-  
-  QSet <vtkIdType> all_deadcells;
-  QSet <vtkIdType> all_mutatedcells;
-  QSet <vtkIdType> all_mutilatedcells;
-  QVector <vtkIdType> SnapPoint( deadnode_vector.size() );
-  
-  //counter init
-  num_newpoints = 0;
-  num_newcells = 0;
-  
-  for ( int i = 0; i < deadnode_vector.size(); i++ ) {
-    if ( deadnode_vector[i] < 0 || deadnode_vector[i] >= num_points ) {
-      cout << "Warning: Point out of range: deadnode_vector[i]=" << deadnode_vector[i] << " num_points=" << num_points << endl;
-      EG_BUG;
-      return ( false );
-    }
-    
-    //local values
-    int l_num_newpoints = 0;
-    int l_num_newcells = 0;
-    QSet <vtkIdType> l_DeadCells;
-    QSet <vtkIdType> l_MutatedCells;
-    QSet <vtkIdType> l_MutilatedCells;
-    
-    SnapPoint[i] = FindSnapPoint( deadnode_vector[i], l_DeadCells, l_MutatedCells, l_MutilatedCells, l_num_newpoints, l_num_newcells );
-    //global values
-    num_newpoints += l_num_newpoints;
-    num_newcells += l_num_newcells;
-    all_deadcells.unite( l_DeadCells ); //all_deadcells unite! Kill the living! :D
-    all_mutatedcells.unite( l_MutatedCells );
-    all_mutilatedcells.unite( l_MutilatedCells );
-    
-    if ( DebugLevel > 0 ) {
-      cout << "===>deadnode_vector[i]=" << deadnode_vector[i] << " moving to SNAPPOINT=" << SnapPoint[i] << " DebugLevel=" << DebugLevel << endl;
-    }
-    if ( SnapPoint[i] < 0 ) {
-      cout << "ERROR: no possible SnapPoint found." << endl;
-      EG_BUG;
-      return( false );
-    }
-    
-  }
-  
-  if ( num_newcells != 2*num_newpoints ) {
-    EG_BUG;
-  }
-  
-  //allocate
-  EG_VTKSP( vtkUnstructuredGrid, dst );
-  allocateGrid( dst, num_cells + num_newcells, num_points + num_newpoints );
-  
-  //vector used to redefine the new point IDs
-  QVector <vtkIdType> OffSet( num_points );
-  
-  //copy undead points
-  vtkIdType dst_id_node = 0;
-  for ( vtkIdType src_id_node = 0; src_id_node < num_points; src_id_node++ ) {//loop through src points
-    OffSet[src_id_node] = src_id_node - dst_id_node;
-    if ( !deadnode_vector.contains( src_id_node ) ) { //if the node isn't dead, copy it
-      vec3_t x;
-      grid->GetPoints()->GetPoint( src_id_node, x.data() );
-      dst->GetPoints()->SetPoint( dst_id_node, x.data() );
-      copyNodeData( grid, src_id_node, dst, dst_id_node );
-      dst_id_node++;
-    }
-    else {
-      if ( DebugLevel > 0 ) {
-        cout << "dead node encountered: src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
-      }
-    }
-  }
-  //Copy undead cells
-  for ( vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell ) {//loop through src cells
-    if ( !all_deadcells.contains( id_cell ) ) { //if the cell isn't dead
-      vtkIdType src_num_pts, *src_pts;
-      vtkIdType dst_num_pts, dst_pts[3];
-      grid->GetCellPoints( id_cell, src_num_pts, src_pts );
-      vtkIdType type_cell = grid->GetCellType( id_cell );
-      
-      dst_num_pts = 3;//src_num_pts;
-//       dst_pts = new vtkIdType[dst_num_pts];
-      
-      if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
-        int num_deadnode = 0;
-        for ( int i = 0; i < src_num_pts; i++ ) {
-          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
-          if ( DeadIndex != -1 ) {
-            dst_pts[i] = SnapPoint[DeadIndex] - OffSet[SnapPoint[DeadIndex]]; // dead node
-            num_deadnode++;
-          }
-          else {
-            dst_pts[i] = src_pts[i] - OffSet[src_pts[i]]; // not a dead node
-          }
-        }
-        if ( num_deadnode != 1 ) {
-          qWarning() << "FATAL ERROR: Mutated cell has more than one dead node!";
-          EG_BUG;
-        }
-      }
-      else if ( all_mutilatedcells.contains( id_cell ) ) { //mutilated cell (ex: square becoming triangle) (WARNING: Not fully functional yet)
-        cout << "FATAL ERROR: Quads not supported yet." << endl;
-        EG_BUG;
-        if ( type_cell == VTK_QUAD ) {
-          type_cell = VTK_TRIANGLE;
-          dst_num_pts -= 1;
-        }
-        else {
-          cout << "FATAL ERROR: Unknown mutilated cell detected! It is not a quad! Potential xenomorph infestation!" << endl;
-          EG_BUG;
-        }
-        // merge points
-        for ( int i = 0; i < src_num_pts; i++ ) {
-          ///@@@ TODO: finish this eventually for quad support
-          //do nothing in case of deadnode_vector[i]
-        }
-      }
-      else { //normal cell
-        if ( DebugLevel > 10 ) {
-          cout << "processing normal cell " << id_cell << endl;
-        }
-        for ( int i = 0; i < src_num_pts; i++ ) {
-          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
-          if ( DeadIndex != -1 ) {
-            qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
-            EG_BUG;
-          }
-          dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
-        }
-      }
-      // copy the cell
-      vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
-      copyCellData( grid, id_cell, dst, id_new_cell );
-//       delete dst_pts;
-    }
-  }
-  
-//   CheckSurfaceIntegrity check_surface_integrity_tmp;
-//   check_surface_integrity_tmp.setGrid( dst );
-//   if ( !check_surface_integrity_tmp.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity_tmp();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "pre_abort.egc", false );
-//     makeCopy( dst, grid );
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     int final_num_points = grid->GetNumberOfPoints();
-//     if ( initial_num_points - final_num_points != DeadNodes.size() ) {
-//       EG_BUG;
-//     }
-//     EG_BUG;
-//   }
-  
-  makeCopy( dst, grid );
-  
-  if ( -num_newpoints != DeadNodes.size() ) {
-    EG_BUG;
-  }
-  
-  int final_num_points = grid->GetNumberOfPoints();
-  if ( initial_num_points - final_num_points != DeadNodes.size() ) {
-    EG_BUG;
-  }
-  
-//   if ( !check_surface_integrity.isWaterTight() ) {
-//     qWarning() << "FATAL ERROR: NOT WATERTIGHT!";
-//     check_surface_integrity();
-//     GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-//     EG_BUG;
-//   }
-  
-  return( true );
-}
-//End of DeleteSetOfPoints
 
 int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra )
 {
@@ -503,7 +214,7 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
     vec3_t v3_old = x3 - x0_old;
     
     //top point
-    vec3_t S = v2_old.cross( v3_old );
+    vec3_t S = x0_old + v2_old.cross( v3_old );
     double V_old = tetraVol( x0_old, S, x2, x3, true );
     double V_new = tetraVol( x0_new, S, x2, x3, true );
     double prod = V_old * V_new;
@@ -513,3 +224,240 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
   }
   return( false );
 }
+
+// DEFINITIONS:
+// Normal cell: nothing has changed
+// Dead cell: the cell does not exist anymore
+// Mutated cell: the cell's form has changed
+
+///@@@  TODO: Clean up this function
+vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& DeadCells, QVector<vtkIdType>& MutatedCells, int& num_newpoints, int& num_newcells, QVector<bool>& marked_nodes)
+{
+  // preparations
+  l2l_t n2c = getPartN2C();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t cells = getPartCells();
+  
+  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
+  if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
+    cout << "ERROR: unable to remove fixed vertex." << endl;
+    EG_BUG;
+    return( -1 );
+  }
+  
+  vtkIdType SnapPoint = -1;
+  
+  QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( DeadNode );
+  foreach( vtkIdType PSP, PSP_vector ) {
+    bool IsValidSnapPoint = true;
+    
+    // TEST -1 : TOPOLOGICAL : Is the node already marked?
+    if(marked_nodes[PSP]) {
+      IsValidSnapPoint = false;
+    }
+    
+    // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
+    
+    // TEST 1: TOPOLOGICAL: Number of common points must not exceed 2.
+    bool IsTetra = true;
+    if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
+      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      IsValidSnapPoint = false;
+    }
+    // TEST 2: TOPOLOGICAL: DeadNode, PSP and common points must not form a tetrahedron.
+    if ( IsTetra ) { //tetra check
+      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      IsValidSnapPoint = false;
+    }
+    
+    //count number of points and cells to remove + analyse cell transformations
+    num_newpoints = -1;
+    num_newcells = 0;
+    DeadCells.clear();
+    MutatedCells.clear();
+    foreach( int i_cell, n2c[_nodes[DeadNode]] ) { //loop through potentially dead cells
+      vtkIdType id_cell = cells[i_cell];
+      //get points around cell
+      vtkIdType num_pts, *pts;
+      grid->GetCellPoints( id_cell, num_pts, pts );
+      
+      if ( num_pts != 3 ) {
+        cout << "ERROR: Non-triangle detected!" << endl;
+        EG_BUG;
+      }
+      
+      bool ContainsSnapPoint = false;
+      bool invincible = false;
+      for ( int i = 0; i < num_pts; ++i ) {
+        if ( pts[i] == PSP ) {
+          ContainsSnapPoint = true;
+        }
+        if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[_nodes[pts[i]]].size() <= 1 ) {
+          invincible = true;
+        }
+      }
+      if ( ContainsSnapPoint ) { // potential dead cell
+        if ( invincible ) {
+          // TEST 3: TOPOLOGICAL: Check that empty lines aren't left behind when a cell is killed
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          IsValidSnapPoint = false;
+        }
+        else {
+          if(IsValidSnapPoint) {
+            DeadCells.push_back( id_cell );
+            num_newcells -= 1;
+          }
+        }
+      }
+      else { // if the cell does not contain the SnapPoint (potential mutated cell)
+        
+        vtkIdType OldTriangle[3];
+        vtkIdType NewTriangle[3];
+        
+        for ( int i = 0; i < num_pts; ++i ) {
+          OldTriangle[i] = pts[i];
+          NewTriangle[i] = (( pts[i] == DeadNode ) ? PSP : pts[i] );
+        }
+        vec3_t Old_N = triNormal( grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
+        vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
+        
+        // TEST 4: GEOMETRICAL: area + inversion check
+        if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          IsValidSnapPoint = false;
+        }
+        
+        // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
+        vec3_t P;
+        grid->GetPoint( PSP, P.data() );
+        if ( FlippedCells( DeadNode, P ) ) {
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          IsValidSnapPoint = false;
+        }
+        
+        //mutated cell
+        if(IsValidSnapPoint) MutatedCells.push_back( id_cell );
+      }
+    }
+    
+    // TEST 5: TOPOLOGICAL: survivor check
+    if ( grid->GetNumberOfCells() + num_newcells <= 0 ) {
+      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      IsValidSnapPoint = false;
+    }
+    
+    if ( IsValidSnapPoint ) {
+      SnapPoint = PSP;
+      break;
+    }
+  } //end of loop through potential SnapPoints
+  
+  if(SnapPoint>=0 && DeadCells.size()!=2) {
+    qDebug()<<"SnapPoint>=0 && DeadCells.size()!=2";
+    EG_BUG;
+  }
+  
+  return ( SnapPoint );
+}
+//End of FindSnapPoint
+
+bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVector<vtkIdType>& snappoint_vector, QVector<vtkIdType>& all_deadcells, QVector<vtkIdType>& all_mutatedcells, int& num_newpoints, int& num_newcells)
+{
+  QVector <vtkIdType> inter_vector;
+  qcontIntersection(deadnode_vector, snappoint_vector, inter_vector); if(inter_vector.size()>0) EG_BUG;
+  qcontIntersection(all_deadcells, all_mutatedcells, inter_vector); if(inter_vector.size()>0) EG_BUG;
+  
+  int initial_num_points = grid->GetNumberOfPoints();
+  
+  //src grid info
+  int num_points = grid->GetNumberOfPoints();
+  int num_cells = grid->GetNumberOfCells();
+  
+  if ( num_newcells != 2*num_newpoints ) {
+    EG_BUG;
+  }
+  
+  //allocate
+  EG_VTKSP( vtkUnstructuredGrid, dst );
+  allocateGrid( dst, num_cells + num_newcells, num_points + num_newpoints );
+  
+  //vector used to redefine the new point IDs
+  QVector <vtkIdType> OffSet( num_points );
+  
+  //copy undead points
+  vtkIdType dst_id_node = 0;
+  for ( vtkIdType src_id_node = 0; src_id_node < num_points; src_id_node++ ) {//loop through src points
+    OffSet[src_id_node] = src_id_node - dst_id_node;
+    if ( !deadnode_vector.contains( src_id_node ) ) { //if the node isn't dead, copy it
+      vec3_t x;
+      grid->GetPoints()->GetPoint( src_id_node, x.data() );
+      dst->GetPoints()->SetPoint( dst_id_node, x.data() );
+      copyNodeData( grid, src_id_node, dst, dst_id_node );
+      dst_id_node++;
+    }
+    else {
+      if ( DebugLevel > 0 ) {
+        cout << "dead node encountered: src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
+      }
+    }
+  }
+  //Copy undead cells
+  for ( vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell ) {//loop through src cells
+    if ( !all_deadcells.contains( id_cell ) ) { //if the cell isn't dead
+      vtkIdType src_num_pts, *src_pts;
+      vtkIdType dst_num_pts, dst_pts[3];
+      grid->GetCellPoints( id_cell, src_num_pts, src_pts );
+      vtkIdType type_cell = grid->GetCellType( id_cell );
+      
+      dst_num_pts = 3;//src_num_pts;
+      
+      if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
+        int num_deadnode = 0;
+        for ( int i = 0; i < src_num_pts; i++ ) {
+          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
+          if ( DeadIndex != -1 ) {
+            dst_pts[i] = snappoint_vector[DeadIndex] - OffSet[snappoint_vector[DeadIndex]]; // dead node
+            num_deadnode++;
+          }
+          else {
+            dst_pts[i] = src_pts[i] - OffSet[src_pts[i]]; // not a dead node
+          }
+        }
+        if ( num_deadnode != 1 ) {
+          qWarning() << "FATAL ERROR: Mutated cell has more than one dead node!";
+          EG_BUG;
+        }
+      }
+      else { //normal cell
+        if ( DebugLevel > 10 ) {
+          cout << "processing normal cell " << id_cell << endl;
+        }
+        for ( int i = 0; i < src_num_pts; i++ ) {
+          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
+          if ( DeadIndex != -1 ) {
+            qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
+            EG_BUG;
+          }
+          dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
+        }
+      }
+      // copy the cell
+      vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
+      copyCellData( grid, id_cell, dst, id_new_cell );
+    }
+  }
+  
+  makeCopy( dst, grid );
+  
+  if ( -num_newpoints != deadnode_vector.size() ) {
+    EG_BUG;
+  }
+  
+  int final_num_points = grid->GetNumberOfPoints();
+  if ( initial_num_points - final_num_points != deadnode_vector.size() ) {
+    EG_BUG;
+  }
+  
+  return( true );
+}
+//End of DeleteSetOfPoints

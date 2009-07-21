@@ -34,9 +34,68 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   setQuickSave(true);
 }
 
+bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
+{
+  using namespace GeometryTools;
+
+  vec3_t x_old;
+  grid->GetPoint(id_node, x_old.data());
+  grid->GetPoints()->SetPoint(id_node, x_new.data());
+  bool move = true;
+
+  vec3_t n(0,0,0);
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    n += GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+  }
+  vec3_t x_summit = x_old + n;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    vec3_t x[3];
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
+    if (N_pts != 3) {
+      EG_BUG;
+    }
+    for (int j = 0; j < N_pts; ++j) {
+      grid->GetPoint(pts[j], x[j].data());
+    }
+    if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+      move = false;
+      break;
+    }
+  }
+
+  if (!move) {
+    grid->GetPoints()->SetPoint(id_node, x_old.data());
+  }
+  return move;
+}
+
+bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
+{
+  vec3_t x_old;
+  grid->GetPoint(id_node, x_old.data());
+  bool moved = false;
+  for (int i_relaxation = 0; i_relaxation < 5; ++i_relaxation) {
+    if (setNewPosition(id_node, x_old + Dx)) {
+      moved = true;
+      break;
+    }
+    Dx *= 0.5;
+  }
+  return moved;
+}
+
+
 void LaplaceSmoother::operate()
 {
+  QSet<int> bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  foreach (int bc, bcs) {
+    GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(grid);
+  }
+  UpdatePotentialSnapPoints(false, false);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
   QVector<vtkIdType> smooth_node(grid->GetNumberOfPoints(), false);
   {
     l2g_t nodes = m_Part.getNodes();
@@ -45,7 +104,8 @@ void LaplaceSmoother::operate()
     }
   }
   setAllSurfaceCells();
-  l2g_t nodes = m_Part.getNodes();
+  l2g_t  nodes = m_Part.getNodes();
+  g2l_t _nodes = m_Part.getLocalNodes();
   QVector<QVector<int> > n2bc(nodes.size());
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     QSet<int> bcs;
@@ -56,39 +116,33 @@ void LaplaceSmoother::operate()
     qCopy(bcs.begin(), bcs.end(), n2bc[i_nodes].begin());
   }
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
-    //cout << "laplace smoother: " << i_iter+1 << "/" << m_NumberOfIterations << endl;
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if ((n2bc[i_nodes].size() < 3) && smooth_node[nodes[i_nodes]]) {
-        vec3_t x_old;
-        vec3_t x_new(0,0,0);
-        vec3_t x;
-        int N = 0;
-        grid->GetPoint(nodes[i_nodes], x_old.data());
-        for (int j = 0; j < m_Part.n2nLSize(i_nodes); ++j) {
-          bool use_node = true;
-          int j_nodes = m_Part.n2nLL(i_nodes, j);
-          foreach (int bc, n2bc[i_nodes]) {
-            if (!n2bc[j_nodes].contains(bc)) {
-              use_node = false;
-              break;
+    foreach (vtkIdType id_node, nodes) {
+      if (smooth_node[id_node]) {
+        if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+          QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
+          if (snap_points.size() > 0) {
+            vec3_t x_old;
+            vec3_t x_new(0,0,0);
+            vec3_t x;
+            grid->GetPoint(id_node, x_old.data());
+            foreach (vtkIdType id_snap_node, snap_points) {
+              grid->GetPoint(id_snap_node, x.data());
+              x_new += x;
             }
-          }
-          if (use_node) {
-            grid->GetPoint(nodes[j_nodes], x.data());
-            x_new += x;
-            ++N;
-          }
-        }
-        if (N > 0) {
-          x_new *= 1.0/N;
-
-          for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-            foreach (int bc, n2bc[i_nodes]) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new);
+            x_new *= 1.0/snap_points.size();
+            if (n2bc[_nodes[id_node]].size() == 1) {
+              int bc = n2bc[_nodes[id_node]][0];
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+            } else {
+              for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+                foreach (int bc, n2bc[_nodes[id_node]]) {
+                  x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+                }
+              }
             }
+            vec3_t Dx = x_new - x_old;
+            moveNode(id_node, Dx);
           }
-
-          grid->GetPoints()->SetPoint(nodes[i_nodes], x_new.data());
         }
       }
     }

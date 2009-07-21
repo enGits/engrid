@@ -174,14 +174,12 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
 
 int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices )
 {
+  setAllSurfaceCells();
+
   l2g_t nodes  = getPartNodes();
   l2g_t cells  = getPartCells();
   g2l_t _cells = getPartLocalCells();
   l2l_t c2c    = getPartC2C();
-
-  //cout<<"=== UpdatePotentialSnapPoints START ==="<<endl;
-  //prepare
-  setAllSurfaceCells();
 
   m_PotentialSnapPoints.resize( nodes.size() );
 
@@ -677,15 +675,8 @@ vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
 {
-  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
+  if ((id_node < 0) || (id_node >= m_PotentialSnapPoints.size())) {
+    EG_BUG;
+  }
   return m_PotentialSnapPoints[id_node];
 }
-
-// bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int& num_newcells )
-// {
-//   QSet <vtkIdType> DeadNodes;
-//   DeadNodes.insert( DeadNode );
-//   bool ret = DeleteSetOfPoints( DeadNodes, num_newpoints, num_newcells );
-//   return( ret );
-// }
-// //End of DeletePoint

@@ -505,7 +505,7 @@ void GridSmoother::operate()
       bool smooth = node_marked[nodes[i_nodes]];
       if (smooth) {
         foreach (int bc, n2bc[i_nodes]) {
-          if (boundary_codes.contains(bc) || (boundary_codes.size() ==0)) {
+          if (m_BoundaryCodes.contains(bc) || (m_BoundaryCodes.size() ==0)) {
             smooth = false;
           }
         }

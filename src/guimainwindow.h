@@ -142,7 +142,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
-    QStatusBar*  m_StatusBar;            ///< Status bar of the main window and application
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
     QSet<int>    m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
     QSet<int>    m_AllBoundaryCodes;     ///< A QList with all boundary codes.
@@ -425,7 +424,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSetBoundaryCode()  { EG_STDINTERSLOT( GuiSetBoundaryCode ); }
     void callDeleteBadAspectTris() { EG_STDINTERSLOT( GuiDeleteBadAspectTris ); }
     void callDeletePickedCell() { EG_STDSLOT( DeletePickedCell ); }
-    void callDeletePickedPoint() { EG_STDINTERSLOT( DeletePickedPoint ); }
+    void callDeletePickedPoint();
     void callBoxSelect() { EG_STDINTERSLOT( BoxSelect ); }
     void callCheckSurfaceIntegrity() { EG_STDINTERSLOT( CheckSurfaceIntegrity ); }
     void callPick_cell_point() { EG_STDINTERSLOT( GuiPick ); }

@@ -27,11 +27,8 @@
 #include <QVector>
 
 #include "guimainwindow.h"
-#include "egvtkobject.h"
-#include "geometrytools.h"
-using namespace GeometryTools;
 
-DeletePickedPoint::DeletePickedPoint() : SurfaceOperation()
+DeletePickedPoint::DeletePickedPoint() : RemovePoints()
 {
   EG_TYPENAME;
   //Activate undo/redo
@@ -40,13 +37,9 @@ DeletePickedPoint::DeletePickedPoint() : SurfaceOperation()
 
 void DeletePickedPoint::operate()
 {
-  vtkIdType nodeId = GuiMainWindow::pointer()->getPickedPoint();
-  cout<<"You picked "<<nodeId<<endl;
+  vtkIdType id_node = GuiMainWindow::pointer()->getPickedPoint();
+  cout << "You picked " << id_node << endl;
 
-  int N_newpoints;
-  int N_newcells;
-  
-  vtkIdType id_node;
   char type;
   QVector <vtkIdType> PSP;
   
@@ -58,11 +51,10 @@ void DeletePickedPoint::operate()
   switch (msgBox.exec()) {
   case QMessageBox::Yes:
     cout<<"yes was clicked"<<endl;
-//     DeletePoint(nodeId,N_newpoints,N_newcells);
+    DeletePoint(id_node);
     break;
   case QMessageBox::No:
     cout<<"no was clicked"<<endl;
-    id_node=nodeId;
     cout<<"=== Topological neighbours ==="<<endl;
     PSP = getPotentialSnapPoints(id_node);
     cout<<"id_node="<<id_node<<" PSP="<<PSP<<endl;
@@ -78,3 +70,66 @@ void DeletePickedPoint::operate()
   }
   
 };
+
+bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
+{
+  int N1 = grid->GetNumberOfPoints();
+  
+  QVector<vtkIdType> selected_cells;
+  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
+  QVector<vtkIdType> selected_nodes;
+  getNodesFromCells(selected_cells, selected_nodes, grid);
+  
+  setAllSurfaceCells();
+  l2l_t  n2n   = getPartN2N();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  nodes = getPartNodes();
+  
+  UpdatePotentialSnapPoints(false);
+  
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  
+  // global values
+  QVector <vtkIdType> all_deadcells;
+  QVector <vtkIdType> all_mutatedcells;
+  int num_newpoints = 0;
+  int num_newcells = 0;
+  
+  QVector <bool> marked_nodes(nodes.size(), false);
+  
+  QVector <vtkIdType> deadnode_vector;
+  QVector <vtkIdType> snappoint_vector;
+  
+  if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+      // local values
+      QVector <vtkIdType> dead_cells;
+      QVector <vtkIdType> mutated_cells;
+      int l_num_newpoints = 0;
+      int l_num_newcells = 0;
+      vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+      if(snap_point >= 0) {
+        // add deadnode/snappoint pair
+        deadnode_vector.push_back(id_node);
+        snappoint_vector.push_back(snap_point);
+        // update global values
+        num_newpoints += l_num_newpoints;
+        num_newcells  += l_num_newcells;
+        all_deadcells += dead_cells;
+        all_mutatedcells += mutated_cells;
+        // mark neighbour nodes
+        foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
+          marked_nodes[nodes[i_node_neighbour]] = true;
+        }
+      }
+    }
+  
+  //delete
+  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
+  
+  int N2 = grid->GetNumberOfPoints();
+  m_NumRemoved = N1 - N2;
+  
+  return( m_NumRemoved == 1 );
+}

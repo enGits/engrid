@@ -41,6 +41,7 @@ void SurfaceMesher::computeMeshDensity()
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setGrid(grid);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density();
 }
 
@@ -54,7 +55,7 @@ void SurfaceMesher::updateNodeInfo(bool update_type)
       node_type->SetValue(node, getNodeType(node));
     }
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
-    node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
+    node_meshdensity_current->SetValue(node, CurrentVertexAvgDist(node));
 
     EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(node);
@@ -99,10 +100,7 @@ int SurfaceMesher::insertNodes()
 {
   InsertPoints insert_points;
   insert_points.setGrid(grid);
-  insert_points.setBCS(m_BCs);
-  insert_points.set_insert_FP(false);
-  insert_points.set_insert_EP(true);
-  insert_points.setVertexMeshDensityVector(VMDvector);
+  insert_points.setBoundaryCodes(m_BCs);
   insert_points();
   return insert_points.getNumInserted();
 }
@@ -111,15 +109,18 @@ int SurfaceMesher::deleteNodes()
 {
   RemovePoints remove_points;
   remove_points.setGrid(grid);
-  remove_points.setBCS(m_BCs);
-  remove_points.set_remove_FP(true);
-  remove_points.set_remove_EP(true);
+  remove_points.setBoundaryCodes(m_BCs);
   remove_points();
   return remove_points.getNumRemoved();
 }
 
 void SurfaceMesher::operate()
 {
+  static bool first = false;
+  if (first) {
+    swap();
+    return;
+  }
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     md->SetValue(id_node, 1e-6);
@@ -132,22 +133,26 @@ void SurfaceMesher::operate()
   while (!done) {
     computeMeshDensity();
     num_inserted = insertNodes();
+    updateNodeInfo();
     swap();
-    num_deleted = 0;
-    int N = 0;
-    int count = 0;
-
-    do {
-      N = deleteNodes();
-      num_deleted += N;
-      ++count;
-    } while ((N > 0) && (count < 20));
-    for (int i = 0; i < 10; ++i) {
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      smooth(1);
       swap();
-      smooth(m_NumSmoothSteps);
+    }
+    int num_deleted = deleteNodes();
+    swap();
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      smooth(1);
+      //swap();
     }
     ++iter;
-    done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
+    //done = true;
+    //done = (iter >= m_NumMaxIter);
+    int N_crit = grid->GetNumberOfPoints()/20;
+    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
     cout << "surface mesher iteration " << iter << ":" << endl;
     cout << "  inserted nodes : " << num_inserted << endl;
     cout << "  deleted nodes  : " << num_deleted << endl;
@@ -155,6 +160,20 @@ void SurfaceMesher::operate()
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
   createIndices(grid);
-  updateNodeInfo(true);
+  updateNodeInfo(false);
+  computeMeshDensity();
+  {
+    int N1 = 0;
+    int N2 = 0;
+    QSet<int> bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+    foreach (int bc, bcs) {
+      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
+      N1 += proj->getNumDirectProjections();
+      N2 += proj->getNumFullSearches();
+    }
+    cout << N1 << " direct projections" << endl;
+    cout << N2 << " full searches" << endl;
+  }
+  first = false;
 }
-

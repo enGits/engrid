@@ -80,7 +80,7 @@ private: // methods
 
 protected: // attributes
   
-  QSet<int> boundary_codes;
+  QSet<int> m_BoundaryCodes;
   static int DebugLevel;
   
 protected: // methods
@@ -723,10 +723,18 @@ QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
 template <class T>
 QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
 {
-  QSet <T> l_set(a_vector.size());
-  qCopy(a_vector.begin(),a_vector.end(),l_set.begin());
+  QSet <T> l_set;
+  foreach(T element, a_vector) l_set.insert(element);
   if(a_sort) qSort(l_set.begin(),l_set.end());
   return(l_set);
+}
+
+template <class T>
+bool duplicates(QVector <T> a_vector)
+{
+  QSet <T> l_set;
+  foreach(T element, a_vector) l_set.insert(element);
+  return l_set.size()!=a_vector.size();
 }
 
 ///////////////////////////////////////////
