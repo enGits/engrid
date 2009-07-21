@@ -11,7 +11,7 @@ RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
 
 #test build
-touch build
+touch build.log
 pwd
 ./scripts/rebuild.sh 1>build.log 2>&1
 if [ $? -ne 0 ]
