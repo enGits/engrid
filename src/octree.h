@@ -65,7 +65,7 @@ public:
   bool hasChildren ()      { return m_Child[0] != -1; }
 
   void getFaceNodes(int i, QVector<int>& face_nodes);
-  void getFaceNodes(int i, QVector<QVector<int> >& face_nodes);
+  void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes);
 
 };
 
@@ -74,6 +74,8 @@ public:
 
 class Octree : public EgVtkObject
 {
+
+  friend class OctreeCell;
 
 private: // attributes
 
@@ -101,8 +103,11 @@ private: // methods
   void mergeNodes_updateCells();
   void mergeNodes();
   void checkNeighbours();
-  void toHangingNodesVtkGrid(vtkUnstructuredGrid *grid);
-  void toConformingVtkGrid(vtkUnstructuredGrid *grid);
+
+  int  opposingFace(int i);
+
+  void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid);
+  void toVtkGrid_Conforming(vtkUnstructuredGrid *grid);
 
 
 public: // methods

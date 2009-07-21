@@ -70,6 +70,48 @@ void OctreeCell::getFaceNodes(int i, QVector<int>& face_nodes)
     face_nodes[3] = m_Node[6];
   }
 }
+
+void OctreeCell::getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes)
+{
+  if (hasChildren()) {
+    face_nodes.resize(4);
+    if (i == 0) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(0, face_nodes[0]);
+      octree->m_Cells[m_Child[2]].getFaceNodes(0, face_nodes[1]);
+      octree->m_Cells[m_Child[4]].getFaceNodes(0, face_nodes[2]);
+      octree->m_Cells[m_Child[5]].getFaceNodes(0, face_nodes[3]);
+    } else if (i == 1) {
+      octree->m_Cells[m_Child[1]].getFaceNodes(1, face_nodes[0]);
+      octree->m_Cells[m_Child[3]].getFaceNodes(1, face_nodes[1]);
+      octree->m_Cells[m_Child[5]].getFaceNodes(1, face_nodes[2]);
+      octree->m_Cells[m_Child[6]].getFaceNodes(1, face_nodes[3]);
+    } else if (i == 2) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(2, face_nodes[0]);
+      octree->m_Cells[m_Child[1]].getFaceNodes(2, face_nodes[1]);
+      octree->m_Cells[m_Child[4]].getFaceNodes(2, face_nodes[2]);
+      octree->m_Cells[m_Child[5]].getFaceNodes(2, face_nodes[3]);
+    } else if (i == 3) {
+      octree->m_Cells[m_Child[2]].getFaceNodes(3, face_nodes[0]);
+      octree->m_Cells[m_Child[3]].getFaceNodes(3, face_nodes[1]);
+      octree->m_Cells[m_Child[6]].getFaceNodes(3, face_nodes[2]);
+      octree->m_Cells[m_Child[7]].getFaceNodes(3, face_nodes[3]);
+    } else if (i == 4) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(4, face_nodes[0]);
+      octree->m_Cells[m_Child[2]].getFaceNodes(4, face_nodes[1]);
+      octree->m_Cells[m_Child[4]].getFaceNodes(4, face_nodes[2]);
+      octree->m_Cells[m_Child[6]].getFaceNodes(4, face_nodes[3]);
+    } else if (i == 5) {
+      octree->m_Cells[m_Child[1]].getFaceNodes(5, face_nodes[0]);
+      octree->m_Cells[m_Child[3]].getFaceNodes(5, face_nodes[1]);
+      octree->m_Cells[m_Child[5]].getFaceNodes(5, face_nodes[2]);
+      octree->m_Cells[m_Child[7]].getFaceNodes(5, face_nodes[3]);
+    }
+  } else {
+    face_nodes.resize(1);
+    getFaceNodes(i, face_nodes[0]);
+  }
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Octree::Octree()
@@ -582,7 +624,7 @@ int Octree::refineAll()
   return Nrefine;
 }
 
-void Octree::toHangingNodesVtkGrid(vtkUnstructuredGrid *grid)
+void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid)
 {
   int N = 0;
   for (int i = 0; i < m_Cells.size(); ++i) {
@@ -590,7 +632,7 @@ void Octree::toHangingNodesVtkGrid(vtkUnstructuredGrid *grid)
       ++N;
     }
   }
-  allocateGrid(grid, N, m_Nodes.size());
+  allocateGrid(grid, N, m_Nodes.size(), false);
   for (int id_node = 0; id_node < m_Nodes.size(); ++id_node) {
     grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].m_Position.data());
   }
@@ -616,32 +658,106 @@ void Octree::toHangingNodesVtkGrid(vtkUnstructuredGrid *grid)
   }
 }
 
-void Octree::toConformingVtkGrid(vtkUnstructuredGrid* grid)
+int Octree::opposingFace(int i)
+{
+  if (i == 0) return 1;
+  if (i == 1) return 0;
+  if (i == 2) return 3;
+  if (i == 3) return 2;
+  if (i == 4) return 5;
+  if (i == 5) return 4;
+  EG_BUG;
+  return -1;
+}
+
+void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid)
 {
   if (!m_SmoothTransition) {
     EG_BUG;
   }
-  QList<int> new_nodes;
-  int i_new_node = m_Nodes.size();
-  // if neighbour has children -> create pyramids
+  int num_new_nodes = 0;
+  int num_pyramids = 0;
+  int num_hexes = 0;
   foreach (OctreeCell cell, m_Cells) {
     if (!cell.hasChildren()) {
-      QList<QVector<int> > faces;
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
       for (int i = 0; i < 6; ++i) {
-        if (m_Cells[cell.getNeighbour(i)].hasChildren()) {
-
+        if (cell.getNeighbour(i) != -1) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+        } else {
+          cell.getFaceNodes(i, this, faces);
         }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      if (all_faces.size() < 6) {
+        EG_BUG;
+      }
+      if (all_faces.size() > 6) {
+        num_pyramids += all_faces.size();
+        ++num_new_nodes;
+      } else {
+        ++num_hexes;
       }
     }
   }
+  allocateGrid(grid, num_hexes + num_pyramids, m_Nodes.size() + num_new_nodes, false);
+  vtkIdType id_node = 0;
+  for (int i = 0; i < m_Nodes.size(); ++i) {
+    grid->GetPoints()->SetPoint(id_node, m_Nodes[i].getPosition().data());
+    ++id_node;
+  }
+  for (int i_cells = 0; i_cells < m_Cells.size(); ++i_cells) {
+    OctreeCell cell = m_Cells[i_cells];
+    if (!cell.hasChildren()) {
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        if (cell.getNeighbour(i) != -1) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+        } else {
+          cell.getFaceNodes(i, this, faces);
+        }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      if (all_faces.size() > 6) {
+        grid->GetPoints()->SetPoint(id_node, getCellCentre(i_cells).data());
+        foreach (QVector<int> face, all_faces) {
+          vtkIdType pts[5];
+          for (int i = 0; i < 4; ++i) {
+            pts[i] = face[i];
+          }
+          pts[4] = id_node;
+          grid->InsertNextCell(VTK_PYRAMID, 5, pts);
+        }
+        ++id_node;
+      } else {
+        vtkIdType pts[8];
+        pts[0] = cell.m_Node[0];
+        pts[1] = cell.m_Node[1];
+        pts[2] = cell.m_Node[3];
+        pts[3] = cell.m_Node[2];
+        pts[4] = cell.m_Node[4];
+        pts[5] = cell.m_Node[5];
+        pts[6] = cell.m_Node[7];
+        pts[7] = cell.m_Node[6];
+        grid->InsertNextCell(VTK_HEXAHEDRON, 8, pts);
+      }
+    }
+  }
+
 }
 
 void Octree::toVtkGrid(vtkUnstructuredGrid* grid, bool hanging_nodes)
 {
   if (hanging_nodes) {
-    toHangingNodesVtkGrid(grid);
+    toVtkGrid_HangingNodes(grid);
   } else {
-    toConformingVtkGrid(grid);
+    toVtkGrid_Conforming(grid);
   }
 }
 
