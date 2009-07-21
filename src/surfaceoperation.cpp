@@ -36,13 +36,14 @@ SurfaceOperation::SurfaceOperation()
     : Operation()
 {
   //default values for determining node types and for smoothing operations
-  Convergence = 0;
-  NumberOfIterations = 20;
-  RelaxationFactor = 0.01;
+  m_Convergence = 0;
+  m_NumberOfIterations = 20;
+  m_RelaxationFactor = 0.01;
   m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
-  FeatureAngle = 45;
-  EdgeAngle = 15;
-  BoundarySmoothing = 1;
+  m_FeatureAngle = 45;
+  m_EdgeAngle = 15;
+  getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
+  m_BoundarySmoothing = 1;
 }
 
 void SurfaceOperation::operate()
@@ -244,17 +245,15 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
   //-----------------------
   //determine node type post-processing
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->EdgeAngle ) );
+  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_EdgeAngle ) );
   //cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach( vtkIdType id_node, nodes ) {
     if ( node_type->GetValue( id_node ) == VTK_FEATURE_EDGE_VERTEX || node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
-      if ( !this->BoundarySmoothing &&
-           node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) {
+      if ( !this->m_BoundarySmoothing && node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) {
         if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
-      }
-      else if ( m_PotentialSnapPoints[id_node].size() != 2 ) {
+      } else if ( m_PotentialSnapPoints[id_node].size() != 2 ) {
         if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
       }
       else { //check angle between edges
@@ -292,7 +291,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
 
   QVector <vtkIdType> edges;
 
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->EdgeAngle ) );
+  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_EdgeAngle ) );
 
   foreach( int i_node2, n2n[_nodes[id_node]] ) {
     vtkIdType id_node2 = nodes[i_node2];
@@ -320,8 +319,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
   //determine node type post-processing
   if ( type == VTK_FEATURE_EDGE_VERTEX || type == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
-    if ( !this->BoundarySmoothing &&
-         type == VTK_BOUNDARY_EDGE_VERTEX ) {
+    if ( !this->m_BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ) {
       type = VTK_FIXED_VERTEX;
     }
     else if ( edges.size() != 2 ) {
@@ -391,7 +389,7 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
 
 char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices )
 {
-  double CosFeatureAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->FeatureAngle ) );
+  double CosFeatureAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_FeatureAngle ) );
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
