@@ -26,6 +26,7 @@
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include <vtkSTLReader.h>
 #include <vtkCleanPolyData.h>
+#include <vtkFeatureEdges.h>
 
 #include <QFileInfo>
 #include "guimainwindow.h"
@@ -62,10 +63,34 @@ void StlReader::operate()
         L = min(L, (x1-x2).abs());
       };
     };
+    double tol = 1e-10;//0.01*L;
+    cout << "cleaning STL geometry:" << endl;
     EG_VTKSP(vtkCleanPolyData, poly_clean);
-    poly_clean->ToleranceIsAbsoluteOn();
-    poly_clean->SetAbsoluteTolerance(0.5*L);
+    EG_VTKSP(vtkFeatureEdges, topo_check);
+    double bounds[6];
+    poly->GetBounds(bounds);
+    double L_diag = sqrt(sqr(bounds[1]-bounds[0]) + sqr(bounds[3]-bounds[2]) + sqr(bounds[5]-bounds[4]));
+    poly_clean->ToleranceIsAbsoluteOff();
     poly_clean->SetInput(poly);
+    topo_check->SetInput(poly_clean->GetOutput());
+    topo_check->BoundaryEdgesOn();
+    topo_check->ManifoldEdgesOff();
+    topo_check->FeatureEdgesOff();
+    topo_check->NonManifoldEdgesOn();
+    bool check_passed;
+    do {
+      cout << "  tolerance = " << tol << endl;
+      poly_clean->SetAbsoluteTolerance(tol);
+      topo_check->Update();
+      tol *= 1.5;
+      check_passed = topo_check->GetOutput()->GetNumberOfPoints() == 0;
+    } while (tol < 1 && !check_passed);
+    if (check_passed) {
+      cout << "The STL geometry seems to be clean." << endl;
+    } else {
+      cout << "The STL geometry could not be cleaned." << endl;
+    }
+    // with a tolerance of " << 0.5*L << endl;
     EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, poly2ugrid);
     poly2ugrid->SetInput(poly_clean->GetOutput());
     poly2ugrid->Update();
