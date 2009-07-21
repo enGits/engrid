@@ -29,6 +29,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   EG_TYPENAME;
   getSet("surface meshing", "cell growth factor", 0, m_GrowthFactor);
   m_MaxEdgeLength = 1e99;
+  m_NodesPerQuarterCircle = 0;
 }
 
 void UpdateDesiredMeshDensity::operate()
@@ -36,11 +37,58 @@ void UpdateDesiredMeshDensity::operate()
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
   setAllSurfaceCells();
-  l2g_t nodes = getPartNodes();
-  l2l_t n2n   = getPartN2N();
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
 
   EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
+
+  QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
+  QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
+  QVector<double> cl_radius(nodes.size(), 1e99);
+
+  if (m_NodesPerQuarterCircle > 1e-3) {
+
+    // compute node normals
+    for (int i_cells; i_cells < cells.size(); ++i_cells) {
+      normals[i_cells] = GeometryTools::cellNormal(grid, cells[i_cells]);
+      normals[i_cells].normalise();
+      centres[i_cells] = cellCentre(grid, cells[i_cells]);
+    }
+
+    // compute characteristic length according to nodes per quarter circle
+    for (int i_cells; i_cells < cells.size(); ++i_cells) {
+      vec3_t xi = centres[i_cells];
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(cells[i_cells], N_pts, pts);
+      for (int j = 0; j < c2c[i_cells].size(); ++j) {
+        int j_cells = c2c[i_cells][j];
+        if (cell_code->GetValue(cells[i_cells]) == cell_code->GetValue(cells[j_cells])) {
+          vec3_t xj = centres[j_cells];
+          double cosa  = normals[i_cells]*normals[j_cells];
+          double alpha = acos(cosa);
+          if (alpha > 0.01*M_PI) {
+            vec3_t va = xi - xj;
+            vec3_t n1 = normals[i_cells] + normals[j_cells];
+            vec3_t n2 = GeometryTools::orthogonalVector(n1);
+            n2.normalise();
+            va -= (va*n2)*n2;
+            double a     = va.abs();
+            double R     = 0.5*a/sin(alpha);
+            double cl    = 0.5*R*M_PI/m_NodesPerQuarterCircle;
+            cout << centres[i_cells] << ',' << 0.5*R*M_PI << ',' << a << ',' << R << endl;
+            for (int k = 0; k < N_pts; ++k) {
+              cl_radius[_nodes[pts[k]]] = min(cl_radius[_nodes[pts[k]]], cl);
+            }
+          }
+        }
+      }
+    }
+  }
 
   // set everything to desired mesh density and find maximal mesh-density
   double cl_min = 1e99;
@@ -55,6 +103,7 @@ void UpdateDesiredMeshDensity::operate()
       }
       cl = m_VMDvector[idx].density;
     }
+    cl = min(cl_radius[i_nodes], cl);
     cl_desired->SetValue(id_node, cl);
     if (cl < cl_min) {
       cl_min = cl;
