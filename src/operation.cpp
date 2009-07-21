@@ -218,7 +218,7 @@ void Operation::populateBoundaryCodes(QListWidget *lw)
     lwi->setCheckState(Qt::Unchecked);
     QString text = "";
     QTextStream ts(&text);
-    ts << bc;
+    ts << bc << " : " << GuiMainWindow::pointer()->getBC(bc).getName();
     lwi->setText(text);
     lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
   }
