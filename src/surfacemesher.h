@@ -55,6 +55,7 @@ private: // attributes
   int m_NumMaxIter;
   int m_NumSmoothSteps;
   double m_MaxEdgeLength;
+  double m_NodesPerQuarterCircle;
 
 private: // methods
 
@@ -78,6 +79,7 @@ public:
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
 
   void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
+  void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
 
 };
 

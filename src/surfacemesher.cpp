@@ -33,6 +33,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceOperation()
   EG_TYPENAME;
   getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
   getSet("surface meshing", "number of smoothing steps", 1, m_NumSmoothSteps);
+  m_NodesPerQuarterCircle = 0;
 }
 
 void SurfaceMesher::computeMeshDensity()
@@ -42,6 +43,7 @@ void SurfaceMesher::computeMeshDensity()
   update_desired_mesh_density.setGrid(grid);
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
+  update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
   update_desired_mesh_density();
 }
 
