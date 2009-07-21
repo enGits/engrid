@@ -28,16 +28,20 @@ echo "Building netgen"
 
 MAKEOPTIONS=""
 
-echo "Building engrid.pro release version"
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS release || exit 1
+MSG="Building engrid.pro release version"
+echo $MSG
+qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS release || ( echo "$MSG failed." && exit 1 )
 
-echo "Building engrid.pro.cgns release version"
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS release || exit 1
+MSG="Building engrid.pro.cgns release version"
+echo $MSG
+qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS release || ( echo "$MSG failed." && exit 1 )
 
-echo "Building engrid.pro debug version"
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS debug || exit 1
+MSG="Building engrid.pro debug version"
+echo $MSG
+qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS debug || ( echo "$MSG failed." && exit 1 )
 
-echo "Building engrid.pro.cgns debug version"
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS debug || exit 1
+MSG="Building engrid.pro.cgns debug version"
+echo $MSG
+qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS debug || ( echo "$MSG failed." && exit 1 )
 
 echo "SUCCESS: Everything compiles."
