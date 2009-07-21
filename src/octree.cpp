@@ -35,6 +35,41 @@ OctreeCell::OctreeCell()
   m_Level = 0;
 }
 
+void OctreeCell::getFaceNodes(int i, QVector<int>& face_nodes)
+{
+  face_nodes.resize(4);
+  if (i == 0) {
+    face_nodes[0] = m_Node[0];
+    face_nodes[1] = m_Node[4];
+    face_nodes[2] = m_Node[6];
+    face_nodes[3] = m_Node[2];
+  } else if (i == 1) {
+    face_nodes[0] = m_Node[1];
+    face_nodes[1] = m_Node[3];
+    face_nodes[2] = m_Node[7];
+    face_nodes[3] = m_Node[5];
+  } else if (i == 2) {
+    face_nodes[0] = m_Node[0];
+    face_nodes[1] = m_Node[1];
+    face_nodes[2] = m_Node[5];
+    face_nodes[3] = m_Node[4];
+  } else if (i == 3) {
+    face_nodes[0] = m_Node[3];
+    face_nodes[1] = m_Node[2];
+    face_nodes[2] = m_Node[6];
+    face_nodes[3] = m_Node[7];
+  } else if (i == 4) {
+    face_nodes[0] = m_Node[0];
+    face_nodes[1] = m_Node[2];
+    face_nodes[2] = m_Node[3];
+    face_nodes[3] = m_Node[1];
+  } else if (i == 5) {
+    face_nodes[0] = m_Node[4];
+    face_nodes[1] = m_Node[5];
+    face_nodes[2] = m_Node[7];
+    face_nodes[3] = m_Node[6];
+  }
+}
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Octree::Octree()
@@ -547,7 +582,7 @@ int Octree::refineAll()
   return Nrefine;
 }
 
-void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
+void Octree::toHangingNodesVtkGrid(vtkUnstructuredGrid *grid)
 {
   int N = 0;
   for (int i = 0; i < m_Cells.size(); ++i) {
@@ -578,6 +613,35 @@ void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
       }
       grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
     }
+  }
+}
+
+void Octree::toConformingVtkGrid(vtkUnstructuredGrid* grid)
+{
+  if (!m_SmoothTransition) {
+    EG_BUG;
+  }
+  QList<int> new_nodes;
+  int i_new_node = m_Nodes.size();
+  // if neighbour has children -> create pyramids
+  foreach (OctreeCell cell, m_Cells) {
+    if (!cell.hasChildren()) {
+      QList<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        if (m_Cells[cell.getNeighbour(i)].hasChildren()) {
+
+        }
+      }
+    }
+  }
+}
+
+void Octree::toVtkGrid(vtkUnstructuredGrid* grid, bool hanging_nodes)
+{
+  if (hanging_nodes) {
+    toHangingNodesVtkGrid(grid);
+  } else {
+    toConformingVtkGrid(grid);
   }
 }
 

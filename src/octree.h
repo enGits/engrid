@@ -60,10 +60,15 @@ public:
 
   OctreeCell();
 
-  int    getNode     (int i) { return m_Node[i]; }
-  int    getNeighbour(int i) { return m_Neighbour[i]; }
+  int  getNode     (int i) { return m_Node[i]; }
+  int  getNeighbour(int i) { return m_Neighbour[i]; }
+  bool hasChildren ()      { return m_Child[0] != -1; }
+
+  void getFaceNodes(int i, QVector<int>& face_nodes);
+  void getFaceNodes(int i, QVector<QVector<int> >& face_nodes);
 
 };
+
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -95,8 +100,10 @@ private: // methods
   void mergeNodes_compactNodes();
   void mergeNodes_updateCells();
   void mergeNodes();
-
   void checkNeighbours();
+  void toHangingNodesVtkGrid(vtkUnstructuredGrid *grid);
+  void toConformingVtkGrid(vtkUnstructuredGrid *grid);
+
 
 public: // methods
 
@@ -135,7 +142,7 @@ public: // methods
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
 
-  void toVtkGrid(vtkUnstructuredGrid *grid);
+  void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true);
 
 };
 
