@@ -204,11 +204,11 @@ QVariant Cell::value() const
       cachedValue = Invalid;
       QString expr = formulaStr.mid(1);
       expr.replace(" ", "");
-      expr.append(QChar::Null);
+      expr.append(0x0000);
       
       int pos = 0;
       cachedValue = evalExpression(expr, pos);
-      if (expr[pos] != QChar::Null)
+      if (expr[pos] != 0x0000)
         cachedValue = Invalid;
     } else {
       bool ok;
@@ -226,7 +226,7 @@ QVariant Cell::value() const
 QVariant Cell::evalExpression(const QString &str, int &pos) const
 {
   QVariant result = evalTerm(str, pos);
-  while (str[pos] != QChar::Null) {
+  while (str[pos] != 0x0000) {
     QChar op = str[pos];
     if (op != '+' && op != '-')
       return result;
@@ -250,7 +250,7 @@ QVariant Cell::evalExpression(const QString &str, int &pos) const
 QVariant Cell::evalTerm(const QString &str, int &pos) const
 {
   QVariant result = evalFactor(str, pos);
-  while (str[pos] != QChar::Null) {
+  while (str[pos] != 0x0000) {
     QChar op = str[pos];
     if (op != '*' && op != '/')
       return result;
