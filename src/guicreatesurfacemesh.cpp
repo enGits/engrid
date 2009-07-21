@@ -91,9 +91,8 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   m_tableWidget->setItemDelegate(item_delegate);
   
   QStringList L;
-  for(int i=0;i<Nbc;i++)
-  {
-    L<<ui.listWidget->item(i)->text();
+  for(int i = 0; i < Nbc; ++i) {
+    L << ui.listWidget->item(i)->text().split(":")[0];
   }
   L<<"Vertex Type";
   L<<"Nodelist";
@@ -129,6 +128,9 @@ int GuiCreateSurfaceMesh::readSettings()
   QString str;
   in >> str;
   ui.lineEditMaximalEdgeLength->setText(str);
+  double nodes_per_quarter_circle;
+  in >> nodes_per_quarter_circle;
+  ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
   int num_bcs;
   in >> num_bcs;
   if (num_bcs == ui.listWidget->count()) {
@@ -152,6 +154,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     QTextStream out(&buffer, QIODevice::WriteOnly);
     out << "\n";
     out << ui.lineEditMaximalEdgeLength->text() << "\n";
+    out << ui.doubleSpinBoxCurvature->value() << "\n";
     out << ui.listWidget->count() << "\n";
     for (int i = 0; i < ui.listWidget->count(); ++i) {
       if (ui.listWidget->item(i)->checkState() == Qt::Checked) {
@@ -287,6 +290,7 @@ void GuiCreateSurfaceMesh::operate()
   surfacemesher.setBoundaryCodes(bcs);
   surfacemesher.setVertexMeshDensityVector(VMDvector);
   surfacemesher.setMaxEdgeLength(ui.lineEditMaximalEdgeLength->text().toDouble());
+  surfacemesher.setNodesPerQuarterCircle(ui.doubleSpinBoxCurvature->value());
 
   surfacemesher();
 
