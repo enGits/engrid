@@ -2,26 +2,25 @@
 set -ex
 
 #set up environment
-PATH=/usr/bin:/opt/shared/Qt/4.5.1/debug/bin:/opt/shared/bin/:$PATH
 source ./scripts/setup_paths.sh engits yes
 
 echo "BUILDING TOOLS":
-echo "gcc= $(which gcc)"
-echo "g++= $(which g++)"
-echo "qmake= $(which qmake)"
-echo "make= $(which make)"
+echo "gcc = $(which gcc)"
+echo "g++ = $(which g++)"
+echo "qmake = $(which qmake)"
+echo "make = $(which make)"
 gcc -v
 g++ -v
 qmake -v
 make -v
 
 echo "PATHS:"
-echo PATH = $PATH
 echo QTDIR = $QTDIR
 echo VTKLIBDIR = $VTKLIBDIR
 echo VTKINCDIR = $VTKINCDIR
 echo CGNSINCDIR = $CGNSINCDIR
 echo CGNSLIBDIR = $CGNSLIBDIR
+echo PATH = $PATH
 echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
 
 echo "Building netgen"

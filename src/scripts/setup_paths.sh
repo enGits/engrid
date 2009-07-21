@@ -7,7 +7,7 @@ then
         echo "usage :"
         echo "source `basename $0` CONFIGURATION ENABLE_CGNS"
         echo "CONFIGURATION = engits / debian / ubuntu / opensuse / debian_etch"
-        echo "ENABLE_CGNS = yes/no"
+        echo "ENABLE_CGNS = yes / no"
         exit 0
 fi
 
@@ -53,6 +53,10 @@ then
     export CGNSINCDIR=/opt/shared/cgns/include/
     export CGNSLIBDIR=/opt/shared/cgns/lib/
   fi
+  #compiler and other build tools
+  export PATH=/usr/bin:/opt/shared/Qt/4.5.1/debug/bin:$PATH
+  export PATH=/opt/shared/OpenFOAM/ThirdParty/gcc-4.3.1/platforms/linux64/bin:$PATH
+  export LD_LIBRARY_PATH=/opt/shared/OpenFOAM/ThirdParty/gcc-4.3.1/platforms/linux64/lib:$LD_LIBRARY_PATH
 fi
 
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
