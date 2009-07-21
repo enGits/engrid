@@ -95,6 +95,7 @@ HEADERS = boundarycondition.h \
     vtkEgGridFilter.h \
     vtkEgNormalExtrusion.h \
     vtkEgPolyDataToUnstructuredGridFilter.h \
+    vtkImplicitPolyData.h \
     guicreateboundarylayer.h \
     guicreatevolumemesh.h \
     guideletebadaspecttris.h \
@@ -186,6 +187,7 @@ SOURCES = main.cpp \
     vtkEgGridFilter.cxx \
     vtkEgNormalExtrusion.cxx \
     vtkEgPolyDataToUnstructuredGridFilter.cxx \
+    vtkImplicitPolyData.cpp \
     guicreateboundarylayer.cpp \
     guicreatevolumemesh.cpp \
     guideletebadaspecttris.cpp \
