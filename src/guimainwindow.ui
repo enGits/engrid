@@ -71,6 +71,7 @@
      </property>
      <addaction name="actionVtkReader"/>
      <addaction name="actionPolyDataReader"/>
+     <addaction name="actionReducedPolyDataReader"/>
     </widget>
     <addaction name="actionImportSTL"/>
     <addaction name="menuGmsh_2"/>
@@ -1502,6 +1503,11 @@
    </property>
    <property name="text">
     <string>Start ParaView</string>
+   </property>
+  </action>
+  <action name="actionReducedPolyDataReader">
+   <property name="text">
+    <string>vtkPolyData in legacy file format (will be reduced after loading)</string>
    </property>
   </action>
  </widget>

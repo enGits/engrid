@@ -46,5 +46,6 @@
 #include "updatesurfproj.h"
 #include "surfacemesher.h"
 #include "updatedesiredmeshdensity.h"
+#include "reducedpolydatareader.h"
 
 // -------------------------------------------

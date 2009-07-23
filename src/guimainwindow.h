@@ -434,12 +434,13 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     
     void callFixSTL();
 
-    void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
-    void callSimpleFoamWriter() { EG_STDINTERSLOT( SimpleFoamWriter ); }
-    void callFoamCaseWriter()   { EG_STDINTERSLOT( OpenFOAMcase ); }
-    void callCgnsWriter()       { EG_STDINTERSLOT( CgnsWriter ); }
-    void callVtkReader()        { EG_STDREADERSLOT( VtkReader ); }
-    void callPolyDataReader()   { EG_STDREADERSLOT( PolyDataReader ); }
+    void callFoamWriter()              { EG_STDINTERSLOT( FoamWriter ); }
+    void callSimpleFoamWriter()        { EG_STDINTERSLOT( SimpleFoamWriter ); }
+    void callFoamCaseWriter()          { EG_STDINTERSLOT( OpenFOAMcase ); }
+    void callCgnsWriter()              { EG_STDINTERSLOT( CgnsWriter ); }
+    void callVtkReader()               { EG_STDREADERSLOT( VtkReader ); }
+    void callPolyDataReader()          { EG_STDREADERSLOT( PolyDataReader ); }
+    void callReducedPolyDataReader()   { EG_STDREADERSLOT( ReducedPolyDataReader ); }
 
 };
 
