@@ -64,8 +64,9 @@ public:
   int  getNeighbour(int i) { return m_Neighbour[i]; }
   bool hasChildren ()      { return m_Child[0] != -1; }
 
-  void getFaceNodes(int i, QVector<int>& face_nodes);
-  void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes);
+  int getEdgeNode(Octree* octree, int n1, int n2, int f);
+  void getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse = false);
+  void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes, bool reverse = false);
 
 };
 
@@ -106,8 +107,8 @@ private: // methods
 
   int  opposingFace(int i);
 
-  void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid);
-  void toVtkGrid_Conforming(vtkUnstructuredGrid *grid);
+  void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields);
+  void toVtkGrid_Conforming(vtkUnstructuredGrid *grid, bool create_fields);
 
 
 public: // methods
@@ -147,7 +148,7 @@ public: // methods
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
 
-  void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true);
+  void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true, bool create_fields = false);
 
 };
 
