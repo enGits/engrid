@@ -80,7 +80,6 @@ void UpdateDesiredMeshDensity::operate()
             double a     = va.abs();
             double R     = 0.5*a/sin(alpha);
             double cl    = 0.5*R*M_PI/m_NodesPerQuarterCircle;
-            cout << centres[i_cells] << ',' << 0.5*R*M_PI << ',' << a << ',' << R << endl;
             for (int k = 0; k < N_pts; ++k) {
               cl_radius[_nodes[pts[k]]] = min(cl_radius[_nodes[pts[k]]], cl);
             }
