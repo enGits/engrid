@@ -80,8 +80,8 @@ public:
   void setRelaxationFactor( double RF )     { m_RelaxationFactor = RF; }
   void setAllowFeatureEdgeVertices( int x ) { m_AllowFeatureEdgeVertices = x; } ///< If x = 0, feature edge vertices will be deactivated.
   int getAllowFeatureEdgeVertices() { return( m_AllowFeatureEdgeVertices ); }
-  void setFeatureAngle( double FA )   { m_FeatureAngle = FA; }
-  void setEdgeAngle( double EA )      { m_EdgeAngle = EA; }
+  void setFeatureAngle( double FA )   { m_FeatureAngle = M_PI*FA/180.0; }
+  void setEdgeAngle( double EA )      { m_EdgeAngle = M_PI*EA/180.0; }
   void setBoundarySmoothing( int BS ) { m_BoundarySmoothing = BS; }
   //--------------------------------------
 

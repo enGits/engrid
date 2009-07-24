@@ -41,8 +41,9 @@ SurfaceOperation::SurfaceOperation()
   m_RelaxationFactor = 0.01;
   m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
   m_FeatureAngle = 45;
-  m_EdgeAngle = 15;
+  setFeatureAngle(45);
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
+  setEdgeAngle(m_EdgeAngle);
   m_BoundarySmoothing = 1;
 }
 
