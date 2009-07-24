@@ -133,31 +133,32 @@ void SurfaceMesher::operate()
   int iter = 0;
   bool done = false;
   while (!done) {
+    ++iter;
+    cout << "surface mesher iteration " << iter << ":" << endl;
     computeMeshDensity();
     num_inserted = insertNodes();
+    cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
     swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
       swap();
     }
     int num_deleted = deleteNodes();
+    cout << "  deleted nodes  : " << num_deleted << endl;
     swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1);
       //swap();
     }
-    ++iter;
     //done = true;
     //done = (iter >= m_NumMaxIter);
     int N_crit = grid->GetNumberOfPoints()/20;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
-    cout << "surface mesher iteration " << iter << ":" << endl;
-    cout << "  inserted nodes : " << num_inserted << endl;
-    cout << "  deleted nodes  : " << num_deleted << endl;
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
