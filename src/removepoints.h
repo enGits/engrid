@@ -41,6 +41,9 @@ protected:
 
   int    m_NumRemoved;
   double m_Threshold;
+  bool   m_ProtectFeatureEdges;
+
+  QVector<bool> m_IsFeatureNode;
 
 public:
 
@@ -49,8 +52,12 @@ public:
   virtual void operate();
 
   int getNumRemoved() { return m_NumRemoved; }
-  
+  void setProtectFeatureEdgesOn()  { m_ProtectFeatureEdges = true; }
+  void setProtectFeatureEdgesOff() { m_ProtectFeatureEdges = false; }
+
 protected:
+
+  void markFeatureEdges();
 
   /// deletes set of points DeadNodes
   bool DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector,
@@ -72,6 +79,7 @@ protected:
   
   /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
   int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
+
 };
 
 #endif

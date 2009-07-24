@@ -37,12 +37,47 @@ RemovePoints::RemovePoints() : SurfaceOperation()
 {
   setQuickSave( true );
   getSet("surface meshing", "point removal threshold", 1, m_Threshold);
+  m_ProtectFeatureEdges = false;
+}
+
+void RemovePoints::markFeatureEdges()
+{
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  c2c   = getPartC2C();
+  m_IsFeatureNode.resize(nodes.size());
+  for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
+    m_IsFeatureNode[i] = false;
+  }
+  if (m_ProtectFeatureEdges) {
+    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+      vtkIdType id_cell1 = cells[i_cells];
+      for (int j = 0; j < c2c[i_cells].size(); ++j) {
+        int j_cells = c2c[i_cells][j];
+        vtkIdType id_cell2 = cells[j_cells];
+        vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
+        vec3_t n2 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell2);
+        if (GeometryTools::angle(n1, n2) > m_FeatureAngle) {
+          vtkIdType N_pts, *pts;
+          m_Part.getGrid()->GetCellPoints(id_cell1, N_pts, pts);
+          vtkIdType i_nodes1 = _nodes[pts[j]];
+          vtkIdType i_nodes2 = _nodes[pts[0]];
+          if (j < c2c[i_cells].size()-1) {
+            i_nodes2 = _nodes[pts[j+1]];
+          }
+        }
+      }
+    }
+  }
 }
 
 void RemovePoints::operate()
 {
   int N1 = grid->GetNumberOfPoints();
-
+  
+  markFeatureEdges();
+  
   QVector<vtkIdType> selected_cells;
   getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
   QVector<vtkIdType> selected_nodes;
@@ -55,9 +90,9 @@ void RemovePoints::operate()
   
   UpdatePotentialSnapPoints(false);
   
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkCharArray,   node_type, grid, "node_type" );
+  EG_VTKDCC(vtkIntArray,    cell_code, grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, cl,        grid, "node_meshdensity_desired" );
 
   // global values
   QVector <vtkIdType> all_deadcells;
