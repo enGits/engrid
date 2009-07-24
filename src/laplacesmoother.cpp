@@ -118,6 +118,7 @@ void LaplaceSmoother::operate()
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
     foreach (vtkIdType id_node, nodes) {
       if (smooth_node[id_node]) {
+        //cout << id_node << "/" << nodes.size() << endl;
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
           if (snap_points.size() > 0) {
@@ -132,11 +133,11 @@ void LaplaceSmoother::operate()
             x_new *= 1.0/snap_points.size();
             if (n2bc[_nodes[id_node]].size() == 1) {
               int bc = n2bc[_nodes[id_node]][0];
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+              //x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
             } else {
               for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
                 foreach (int bc, n2bc[_nodes[id_node]]) {
-                  x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+                  //x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
                 }
               }
             }
