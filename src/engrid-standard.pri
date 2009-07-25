@@ -251,3 +251,8 @@ FORMS = guicreateboundarylayer.ui \
 OTHER_FILES += checkcomments.py \
     todo.txt
 
+HEADERS += surfacealgorithm.h
+SOURCES += surfacealgorithm.cpp
+HEADERS += reducesurfacetriangulation.h
+SOURCES += reducesurfacetriangulation.cpp
+

@@ -47,5 +47,7 @@
 #include "surfacemesher.h"
 #include "updatedesiredmeshdensity.h"
 #include "reducedpolydatareader.h"
+#include "surfacemesher.h"
+#include "reducesurfacetriangulation.h"
 
 // -------------------------------------------

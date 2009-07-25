@@ -29,13 +29,14 @@
 #include <QString>
 #include "egvtkobject.h"
 
-class VertexMeshDensity{
-public:
-  VertexMeshDensity();
-//   ~VertexMeshDensity();
+class VertexMeshDensity
+{
 
-public:
-  QVector <Qt::CheckState> BClist_value;
+public: // methods
+
+  VertexMeshDensity();
+
+  QVector<Qt::CheckState> BClist_value;
   QMap <int,int> BCmap;
   char type;
   QSet <vtkIdType> nodeset;
@@ -43,6 +44,7 @@ public:
   vtkIdType CurrentNode;
   bool operator==(const VertexMeshDensity & VMD) const;
   void setNodes(QString str);
+
 };
 
 ostream& operator<<(ostream &out, VertexMeshDensity A);

@@ -133,11 +133,11 @@ void LaplaceSmoother::operate()
             x_new *= 1.0/snap_points.size();
             if (n2bc[_nodes[id_node]].size() == 1) {
               int bc = n2bc[_nodes[id_node]][0];
-              //x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
             } else {
               for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
                 foreach (int bc, n2bc[_nodes[id_node]]) {
-                  //x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+                  x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
                 }
               }
             }

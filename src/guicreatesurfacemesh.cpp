@@ -279,7 +279,9 @@ void GuiCreateSurfaceMesh::operate()
   writeSettings();
 
   m_tableWidget->writeFile();
-  
+  return;
+
+
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
 

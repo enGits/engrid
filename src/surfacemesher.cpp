@@ -20,109 +20,18 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+
 #include "surfacemesher.h"
+#include "guimainwindow.h"
 
-#include "insertpoints.h"
-#include "removepoints.h"
-#include "updatedesiredmeshdensity.h"
-
-#include <vtkSmoothPolyDataFilter.h>
-
-SurfaceMesher::SurfaceMesher() : SurfaceOperation()
+SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
-  getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
-  getSet("surface meshing", "number of smoothing steps", 1, m_NumSmoothSteps);
-  m_NodesPerQuarterCircle = 0;
-}
-
-void SurfaceMesher::computeMeshDensity()
-{
-  ///@@@  TODO: Optimize by using only one loop through nodes!
-  UpdateDesiredMeshDensity update_desired_mesh_density;
-  update_desired_mesh_density.setGrid(grid);
-  update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
-  update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
-  update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
-  update_desired_mesh_density();
-}
-
-void SurfaceMesher::updateNodeInfo(bool update_type)
-{
-  setAllCells();
-  l2g_t nodes = getPartNodes();
-  foreach(vtkIdType node, nodes) {
-    if(update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
-      node_type->SetValue(node, getNodeType(node));
-    }
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
-    node_meshdensity_current->SetValue(node, CurrentVertexAvgDist(node));
-
-    EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
-    VertexMeshDensity nodeVMD = getVMD(node);
-    int idx=VMDvector.indexOf(nodeVMD);
-    node_specified_density->SetValue(node, idx);
-    
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");//what we want
-    if(idx!=-1) { //specified
-      //node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
-    } else { //unspecified
-      //double D=DesiredMeshDensity(node);
-      //node_meshdensity_desired->SetValue(node, D);
-    }
-  }
-}
-
-void SurfaceMesher::swap()
-{
-  SwapTriangles swap;
-  swap.setGrid(grid);
-  swap.setRespectBC(true);
-  swap.setFeatureSwap(true);
-  QSet<int> rest_bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
-  rest_bcs -= m_BCs;
-  swap.setBoundaryCodes(rest_bcs);
-  swap();
-}
-
-void SurfaceMesher::smooth(int N_iter)
-{
-  LaplaceSmoother lap;
-  lap.setGrid(grid);
-  QVector<vtkIdType> cls;
-  getSurfaceCells(m_BCs, cls, grid);
-  lap.setCells(cls);
-  lap.setNumberOfIterations(N_iter);
-  lap();
-}
-
-int SurfaceMesher::insertNodes()
-{
-  InsertPoints insert_points;
-  insert_points.setGrid(grid);
-  insert_points.setBoundaryCodes(m_BCs);
-  insert_points();
-  return insert_points.getNumInserted();
-}
-
-int SurfaceMesher::deleteNodes()
-{
-  RemovePoints remove_points;
-  remove_points.setGrid(grid);
-  remove_points.setBoundaryCodes(m_BCs);
-  remove_points();
-  return remove_points.getNumRemoved();
 }
 
 void SurfaceMesher::operate()
 {
-  static bool first = false;
-  if (first) {
-    swap();
-    return;
-  }
+  prepare();
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     md->SetValue(id_node, 1e-6);
@@ -152,7 +61,7 @@ void SurfaceMesher::operate()
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1);
-      //swap();
+      swap();
     }
     //done = true;
     //done = (iter >= m_NumMaxIter);
@@ -178,5 +87,4 @@ void SurfaceMesher::operate()
     cout << N1 << " direct projections" << endl;
     cout << N2 << " full searches" << endl;
   }
-  first = false;
 }

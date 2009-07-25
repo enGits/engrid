@@ -120,6 +120,8 @@
     <addaction name="actionCheckOrientation"/>
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
+    <addaction name="actionSurfaceMesher"/>
+    <addaction name="actionReduceSurfaceTriangulation"/>
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
@@ -1508,6 +1510,22 @@
   <action name="actionReducedPolyDataReader">
    <property name="text">
     <string>vtkPolyData in legacy file format (will be reduced after loading)</string>
+   </property>
+  </action>
+  <action name="actionSurfaceMesher">
+   <property name="text">
+    <string>create/improve surface mesh</string>
+   </property>
+   <property name="toolTip">
+    <string>create/improve surface mesh</string>
+   </property>
+  </action>
+  <action name="actionReduceSurfaceTriangulation">
+   <property name="text">
+    <string>reduce surface triangulation</string>
+   </property>
+   <property name="toolTip">
+    <string>reduce surface triangulation</string>
    </property>
   </action>
  </widget>
