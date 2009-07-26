@@ -66,6 +66,8 @@ void RemovePoints::markFeatureEdges()
           if (j < c2c[i_cells].size()-1) {
             i_nodes2 = _nodes[pts[j+1]];
           }
+          m_IsFeatureNode[i_nodes1] = true;
+          m_IsFeatureNode[i_nodes2] = true;
         }
       }
     }
@@ -110,7 +112,7 @@ void RemovePoints::operate()
     vtkIdType id_node = selected_nodes[i_selected_nodes];
     int i_nodes = _nodes[id_node];
     if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-      if (!marked_nodes[i_nodes]) {
+      if (!marked_nodes[i_nodes] && !m_IsFeatureNode[i_nodes]) {
         vec3_t xi;
         grid->GetPoint(id_node, xi.data());
         double cl_node = cl->GetValue(id_node);
