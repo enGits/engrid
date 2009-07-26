@@ -64,4 +64,5 @@ void ReduceSurfaceTriangulation::operate()
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();
+  writeGrid(grid, "after_reduction");
 }
