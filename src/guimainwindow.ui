@@ -122,6 +122,7 @@
     <addaction name="actionCreateSurfaceMesh"/>
     <addaction name="actionSurfaceMesher"/>
     <addaction name="actionReduceSurfaceTriangulation"/>
+    <addaction name="actionEliminateSmallBranches"/>
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
@@ -1526,6 +1527,11 @@
    </property>
    <property name="toolTip">
     <string>reduce surface triangulation</string>
+   </property>
+  </action>
+  <action name="actionEliminateSmallBranches">
+   <property name="text">
+    <string>eliminate small branches</string>
    </property>
   </action>
  </widget>

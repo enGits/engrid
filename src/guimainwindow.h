@@ -443,6 +443,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
+    void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
 
 };
 

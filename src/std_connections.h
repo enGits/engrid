@@ -103,6 +103,7 @@ connect(ui.actionImportOpenFoamCase, SIGNAL(triggered()), this, SLOT(callImportO
 connect(ui.actionReducedPolyDataReader, SIGNAL(triggered()), this, SLOT(callReducedPolyDataReader()));
 connect(ui.actionSurfaceMesher, SIGNAL(triggered()), this, SLOT(callSurfaceMesher()));
 connect(ui.actionReduceSurfaceTriangulation, SIGNAL(triggered()), this, SLOT(callReduceSurfaceTriangulation()));
+connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEliminateSmallBranches()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));

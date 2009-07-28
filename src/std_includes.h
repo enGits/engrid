@@ -49,5 +49,6 @@
 #include "reducedpolydatareader.h"
 #include "surfacemesher.h"
 #include "reducesurfacetriangulation.h"
+#include "eliminatesmallbranches.h"
 
 // -------------------------------------------
