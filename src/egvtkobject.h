@@ -392,7 +392,7 @@ protected: // methods
    * @param n2n the node to cell structure for this grid
    * @return the id of the corresponding volume cell (or -1 if not found)
    */
-  int findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
+  vtkIdType findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
 
   /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".

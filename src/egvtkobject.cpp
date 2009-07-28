@@ -880,7 +880,7 @@ void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
   }
 }
 
-int EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
+vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
 {
   vtkIdType N_pts, *pts;
   if (_cells.size()) N_pts = N_pts; // dummy statement to get rid of compiler warning ...
