@@ -255,4 +255,6 @@ HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
 SOURCES += reducesurfacetriangulation.cpp
+HEADERS += eliminatesmallbranches.h
+SOURCES += eliminatesmallbranches.cpp
 
