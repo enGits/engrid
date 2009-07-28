@@ -42,6 +42,7 @@ protected:
   int    m_NumRemoved;
   double m_Threshold;
   bool   m_ProtectFeatureEdges;
+  bool   m_PerformGeometricChecks;
 
   QVector<bool> m_IsFeatureNode;
 
@@ -54,6 +55,8 @@ public:
   int getNumRemoved() { return m_NumRemoved; }
   void setProtectFeatureEdgesOn()  { m_ProtectFeatureEdges = true; }
   void setProtectFeatureEdgesOff() { m_ProtectFeatureEdges = false; }
+  void setPerformGeometricChecksOn()  { m_PerformGeometricChecks = true; }
+  void setPerformGeometricChecksOff() { m_PerformGeometricChecks = false; }
 
 protected:
 

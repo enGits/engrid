@@ -38,6 +38,7 @@ RemovePoints::RemovePoints() : SurfaceOperation()
   setQuickSave( true );
   getSet("surface meshing", "point removal threshold", 1, m_Threshold);
   m_ProtectFeatureEdges = false;
+  m_PerformGeometricChecks = true;
 }
 
 void RemovePoints::markFeatureEdges()
@@ -46,6 +47,7 @@ void RemovePoints::markFeatureEdges()
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  c2c   = getPartC2C();
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
   m_IsFeatureNode.resize(nodes.size());
   for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
     m_IsFeatureNode[i] = false;
@@ -53,24 +55,38 @@ void RemovePoints::markFeatureEdges()
   if (m_ProtectFeatureEdges) {
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       vtkIdType id_cell1 = cells[i_cells];
+      vtkIdType N_pts, *pts;
+      m_Part.getGrid()->GetCellPoints(id_cell1, N_pts, pts);
       for (int j = 0; j < c2c[i_cells].size(); ++j) {
         int j_cells = c2c[i_cells][j];
         vtkIdType id_cell2 = cells[j_cells];
-        vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
-        vec3_t n2 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell2);
-        if (GeometryTools::angle(n1, n2) > m_FeatureAngle) {
-          vtkIdType N_pts, *pts;
-          m_Part.getGrid()->GetCellPoints(id_cell1, N_pts, pts);
-          vtkIdType i_nodes1 = _nodes[pts[j]];
-          vtkIdType i_nodes2 = _nodes[pts[0]];
-          if (j < c2c[i_cells].size()-1) {
-            i_nodes2 = _nodes[pts[j+1]];
+        vtkIdType id_node1 = pts[j];
+        vtkIdType id_node2 = pts[0];
+        if (j < c2c[i_cells].size()-1) {
+          id_node2 = pts[j+1];
+        }
+        vec3_t x1, x2;
+        grid->GetPoint(id_node1, x1.data());
+        grid->GetPoint(id_node2, x2.data());
+        double L = (x1-x2).abs();
+        //if (L > 0.5*cl->GetValue(id_node1)) {
+        {
+          vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
+          vec3_t n2 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell2);
+          if (GeometryTools::angle(n1, n2) > m_FeatureAngle) {
+            m_IsFeatureNode[_nodes[id_node1]] = true;
+            m_IsFeatureNode[_nodes[id_node2]] = true;
           }
-          m_IsFeatureNode[i_nodes1] = true;
-          m_IsFeatureNode[i_nodes2] = true;
         }
       }
     }
+    int N = 0;
+    for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
+      if (m_IsFeatureNode[i]) {
+        ++N;
+      }
+    }
+    cout << N << " nodes on feature edges (angle >= " << GeometryTools::rad2deg(m_FeatureAngle) << "deg)" << endl;
   }
 }
 
@@ -359,17 +375,19 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& D
         vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
         
         // TEST 4: GEOMETRICAL: area + inversion check
-        if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
-        }
-        
-        // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
-        vec3_t P;
-        grid->GetPoint( PSP, P.data() );
-        if ( FlippedCells( DeadNode, P ) ) {
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
+        if (m_PerformGeometricChecks) {
+          if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
+            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+            IsValidSnapPoint = false;
+          }
+
+          // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
+          vec3_t P;
+          grid->GetPoint( PSP, P.data() );
+          if ( FlippedCells( DeadNode, P ) ) {
+            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+            IsValidSnapPoint = false;
+          }
         }
         
         //mutated cell
