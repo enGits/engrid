@@ -52,6 +52,8 @@ protected: // attributes
   double m_NodesPerQuarterCircle;
   bool   m_RespectFeatureEdgesForDeleteNodes;
   double m_FeatureAngleForDeleteNodes;
+  bool   m_PerformGeometricTests;
+  bool   m_UseProjectionForSmoothing;
 
 
 private: // methods

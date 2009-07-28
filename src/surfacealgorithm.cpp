@@ -17,6 +17,8 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_NodesPerQuarterCircle = 0;
   m_RespectFeatureEdgesForDeleteNodes = false;
   m_FeatureAngleForDeleteNodes = deg2rad(45);
+  m_PerformGeometricTests = true;
+  m_UseProjectionForSmoothing = true;
 }
 
 void SurfaceAlgorithm::readVMD()
@@ -34,7 +36,7 @@ void SurfaceAlgorithm::readVMD()
       QString formula;
       foreach (int bc, m_BoundaryCodes) {
         in >> row >> column >> formula;
-        VMDvector[column].BCmap[bc] = formula.toInt();
+        VMDvector[row].BCmap[bc] = formula.toInt();
       }
       in >> row >> column >> formula;
       VMDvector[row].type = Str2VertexType(formula);
@@ -130,6 +132,11 @@ void SurfaceAlgorithm::smooth(int N_iter)
   getSurfaceCells(m_BoundaryCodes, cls, grid);
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
+  if (m_UseProjectionForSmoothing) {
+    lap.setUseProjectionForSmoothingOn();
+  } else {
+    lap.setUseProjectionForSmoothingOff();
+  }
   lap();
 }
 
@@ -153,6 +160,11 @@ int SurfaceAlgorithm::deleteNodes()
     remove_points.setProtectFeatureEdgesOff();
   }
   remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
+  if (m_PerformGeometricTests) {
+    remove_points.setPerformGeometricChecksOn();
+  } else {
+    remove_points.setPerformGeometricChecksOff();
+  }
   remove_points();
   return remove_points.getNumRemoved();
 }
