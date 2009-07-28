@@ -33,6 +33,8 @@ private:
 
   QSet<int> m_BCs;
   int       m_NumberOfIterations;
+  bool      m_UseProjection;
+  bool      m_UseNormalCorrection;
 
 
 private: // methods
@@ -46,7 +48,11 @@ public:
   LaplaceSmoother();
   virtual void operate();
   void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
-  
+  void setUseProjectionOn() { m_UseProjection = true; }
+  void setUseProjectionOff() { m_UseProjection = false; }
+  void setUseNormalCorrectionOn() { m_UseNormalCorrection = true; }
+  void setUseNormalCorrectionOff() { m_UseNormalCorrection = false; }
+
 };
 
 #endif

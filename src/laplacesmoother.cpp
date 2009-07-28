@@ -32,6 +32,8 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 {
   DebugLevel = 0;
   setQuickSave(true);
+  m_UseProjection = true;
+  m_UseNormalCorrection = false;
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -90,8 +92,10 @@ void LaplaceSmoother::operate()
 {
   QSet<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
-  foreach (int bc, bcs) {
-    GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(grid);
+  if (m_UseProjectionForSmoothing) {
+    foreach (int bc, bcs) {
+      GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(grid);
+    }
   }
   UpdatePotentialSnapPoints(false, false);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -131,13 +135,15 @@ void LaplaceSmoother::operate()
               x_new += x;
             }
             x_new *= 1.0/snap_points.size();
-            if (n2bc[_nodes[id_node]].size() == 1) {
-              int bc = n2bc[_nodes[id_node]][0];
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
-            } else {
-              for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-                foreach (int bc, n2bc[_nodes[id_node]]) {
-                  x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+            if (m_UseProjectionForSmoothing) {
+              if (n2bc[_nodes[id_node]].size() == 1) {
+                int bc = n2bc[_nodes[id_node]][0];
+                x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+              } else {
+                for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+                  foreach (int bc, n2bc[_nodes[id_node]]) {
+                    x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+                  }
                 }
               }
             }

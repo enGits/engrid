@@ -27,7 +27,9 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
   EG_TYPENAME;
   m_RespectFeatureEdgesForDeleteNodes = true;
-  m_FeatureAngleForDeleteNodes = GeometryTools::deg2rad(20.0);
+  m_FeatureAngleForDeleteNodes = GeometryTools::deg2rad(90.0);
+  m_PerformGeometricTests = true;
+  m_UseProjectionForSmoothing = false;
 }
 
 void ReduceSurfaceTriangulation::operate()
@@ -40,27 +42,21 @@ void ReduceSurfaceTriangulation::operate()
     ++iter;
     cout << "reduce surface triangulation iteration " << iter << ":" << endl;
     computeMeshDensity();
-    /*
-    for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      smooth(1);
-      swap();
-    }
-    */
     int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     swap();
+    //smooth(1);
     computeMeshDensity();
-    /*
-    for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      smooth(1);
-      swap();
-    }
-    */
     done = num_deleted == 0;
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
+  /*
+  for (int i = 0; i < 3; ++i) {
+    smooth(1);
+    swap();
+  }
+  */
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();
