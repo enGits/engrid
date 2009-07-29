@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+FAILURE=0
+
 #set up environment
 source ./scripts/setup_paths.sh engits yes
 
@@ -30,18 +32,38 @@ MAKEOPTIONS=""
 
 MSG="Building engrid.pro release version"
 echo $MSG
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS release || ( echo "$MSG failed." && exit 1 )
+qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS release || FAILURE=1
+if [ $FAILURE -eq 1 ]
+then
+  echo "$MSG failed."
+  exit 1
+fi
 
 MSG="Building engrid.pro.cgns release version"
 echo $MSG
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS release || ( echo "$MSG failed." && exit 1 )
+qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS release || FAILURE=1
+if [ $FAILURE -eq 1 ]
+then
+  echo "$MSG failed."
+  exit 1
+fi
 
 MSG="Building engrid.pro debug version"
 echo $MSG
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS debug || ( echo "$MSG failed." && exit 1 )
+qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS debug || FAILURE=1
+if [ $FAILURE -eq 1 ]
+then
+  echo "$MSG failed."
+  exit 1
+fi
 
 MSG="Building engrid.pro.cgns debug version"
 echo $MSG
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS debug || ( echo "$MSG failed." && exit 1 )
+qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS debug || FAILURE=1
+if [ $FAILURE -eq 1 ]
+then
+  echo "$MSG failed."
+  exit 1
+fi
 
 echo "SUCCESS: Everything compiles."
