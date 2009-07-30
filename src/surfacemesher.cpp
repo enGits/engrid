@@ -27,6 +27,10 @@
 SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
+  m_PerformGeometricTests = true;
+  m_UseProjectionForSmoothing = true;
+  m_UseNormalCorrectionForSmoothing = true;
+  m_FeatureAngle = GeometryTools::deg2rad(200);
 }
 
 void SurfaceMesher::operate()
@@ -60,6 +64,7 @@ void SurfaceMesher::operate()
     swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
       swap();
     }
