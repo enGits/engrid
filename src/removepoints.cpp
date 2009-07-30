@@ -416,12 +416,12 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& D
 }
 //End of FindSnapPoint
 
-bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVector<vtkIdType>& snappoint_vector, QVector<vtkIdType>& all_deadcells, QVector<vtkIdType>& all_mutatedcells, int& num_newpoints, int& num_newcells)
+bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
+                                     const QVector<vtkIdType>& snappoint_vector,
+                                     const QVector<vtkIdType>& all_deadcells,
+                                     const QVector<vtkIdType>& all_mutatedcells,
+                                     int& num_newpoints, int& num_newcells)
 {
-  QVector <vtkIdType> inter_vector;
-  qcontIntersection(deadnode_vector, snappoint_vector, inter_vector); if(inter_vector.size()>0) EG_BUG;
-  qcontIntersection(all_deadcells, all_mutatedcells, inter_vector); if(inter_vector.size()>0) EG_BUG;
-  
   int initial_num_points = grid->GetNumberOfPoints();
   
   //src grid info
@@ -440,25 +440,43 @@ bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVect
   QVector <vtkIdType> OffSet( num_points );
   
   //copy undead points
+  QVector<bool> is_deadnode(grid->GetNumberOfPoints(), false);
+  QVector<int> glob2dead(grid->GetNumberOfPoints(), -1);
+  for (int i_deadnodes = 0; i_deadnodes < deadnode_vector.size(); ++i_deadnodes) {
+    vtkIdType id_node = deadnode_vector[i_deadnodes];
+    if (id_node > grid->GetNumberOfPoints()) {
+      EG_BUG;
+    }
+    is_deadnode[id_node] = true;
+    glob2dead[id_node] = i_deadnodes;
+  }
   vtkIdType dst_id_node = 0;
-  for ( vtkIdType src_id_node = 0; src_id_node < num_points; src_id_node++ ) {//loop through src points
+  for (vtkIdType src_id_node = 0; src_id_node < num_points; ++src_id_node) {//loop through src points
     OffSet[src_id_node] = src_id_node - dst_id_node;
-    if ( !deadnode_vector.contains( src_id_node ) ) { //if the node isn't dead, copy it
+    if (!is_deadnode[src_id_node]) { //if the node isn't dead, copy it
       vec3_t x;
       grid->GetPoints()->GetPoint( src_id_node, x.data() );
       dst->GetPoints()->SetPoint( dst_id_node, x.data() );
       copyNodeData( grid, src_id_node, dst, dst_id_node );
       dst_id_node++;
-    }
-    else {
+    } else {
       if ( DebugLevel > 0 ) {
         cout << "dead node encountered: src_id_node=" << src_id_node << " dst_id_node=" << dst_id_node << endl;
       }
     }
   }
+
   //Copy undead cells
-  for ( vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell ) {//loop through src cells
-    if ( !all_deadcells.contains( id_cell ) ) { //if the cell isn't dead
+  QVector<bool> is_alldeadcell(grid->GetNumberOfCells(), false);
+  foreach (vtkIdType id_cell, all_deadcells) {
+    is_alldeadcell[id_cell] = true;
+  }
+  QVector<bool> is_allmutatedcell(grid->GetNumberOfCells(), false);
+  foreach (vtkIdType id_cell, all_mutatedcells) {
+    is_allmutatedcell[id_cell] = true;
+  }
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
+    if (!is_alldeadcell[id_cell]) { //if the cell isn't dead
       vtkIdType src_num_pts, *src_pts;
       vtkIdType dst_num_pts, dst_pts[3];
       grid->GetCellPoints( id_cell, src_num_pts, src_pts );
@@ -466,15 +484,14 @@ bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVect
       
       dst_num_pts = 3;//src_num_pts;
       
-      if ( all_mutatedcells.contains( id_cell ) ) { //mutated cell
+      if (is_allmutatedcell[id_cell]) { //mutated cell
         int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
-          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
-          if ( DeadIndex != -1 ) {
+          int DeadIndex = glob2dead[src_pts[i]];
+          if (DeadIndex != -1) {
             dst_pts[i] = snappoint_vector[DeadIndex] - OffSet[snappoint_vector[DeadIndex]]; // dead node
             num_deadnode++;
-          }
-          else {
+          } else {
             dst_pts[i] = src_pts[i] - OffSet[src_pts[i]]; // not a dead node
           }
         }
@@ -482,14 +499,12 @@ bool RemovePoints::DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector, QVect
           qWarning() << "FATAL ERROR: Mutated cell has more than one dead node!";
           EG_BUG;
         }
-      }
-      else { //normal cell
+      } else { //normal cell
         if ( DebugLevel > 10 ) {
           cout << "processing normal cell " << id_cell << endl;
         }
         for ( int i = 0; i < src_num_pts; i++ ) {
-          int DeadIndex = deadnode_vector.indexOf( src_pts[i] );
-          if ( DeadIndex != -1 ) {
+          if (is_deadnode[src_pts[i]]) {
             qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
             EG_BUG;
           }

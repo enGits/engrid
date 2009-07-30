@@ -63,12 +63,12 @@ protected:
   void markFeatureEdges();
 
   /// deletes set of points DeadNodes
-  bool DeleteSetOfPoints( QVector<vtkIdType>& deadnode_vector,
-                          QVector<vtkIdType>& snappoint_vector,
-                          QVector<vtkIdType>& all_deadcells,
-                          QVector<vtkIdType>& all_mutatedcells,
-                          int& num_newpoints,
-                          int& num_newcells);
+  bool DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
+                         const QVector<vtkIdType>& snappoint_vector,
+                         const QVector<vtkIdType>& all_deadcells,
+                         const QVector<vtkIdType>& all_mutatedcells,
+                         int& num_newpoints,
+                         int& num_newcells);
   
   /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
   vtkIdType FindSnapPoint( vtkIdType DeadNode,
