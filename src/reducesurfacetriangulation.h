@@ -31,7 +31,9 @@ class ReduceSurfaceTriangulation : public SurfaceAlgorithm
 
 protected: // methods
 
-    virtual void operate();
+  void pass1();
+  void pass2();
+  virtual void operate();
 
 
 public: // methods

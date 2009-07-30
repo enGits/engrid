@@ -26,39 +26,61 @@
 ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
   EG_TYPENAME;
-  m_RespectFeatureEdgesForDeleteNodes = true;
-  m_FeatureAngleForDeleteNodes = GeometryTools::deg2rad(90.0);
   m_PerformGeometricTests = true;
-  m_UseProjectionForSmoothing = false;
+  m_UseProjectionForSmoothing = true;
+  m_UseNormalCorrectionForSmoothing = true;
+  m_FeatureAngle = GeometryTools::deg2rad(15);
+  m_AllowFeatureEdgeSwapping = false;
+}
+
+void ReduceSurfaceTriangulation::pass1()
+{
+  cout << "\nFirst pass of surface reduction:\n(This is the expensive part...)" << endl;
+  int iter = 0;
+  bool done = false;
+  m_UseNormalCorrectionForSmoothing = true;
+  m_RespectFeatureEdgesForDeleteNodes = false;
+  int num_initial_nodes = grid->GetNumberOfPoints();
+  int num_del_max = 0;
+  while (!done) {
+    ++iter;
+    cout << "\npass-1 iteration-" << iter << ":" << endl;
+    cout << "computing 'snap-points'" << endl;
+    UpdatePotentialSnapPoints(true, false);
+    cout << "computing characteristic length" << endl;
+    computeMeshDensity();
+    cout << "removing nodes" << endl;
+    int num_deleted = deleteNodes();
+    num_del_max = max(num_del_max, num_deleted);
+    cout << "deleted nodes  : " << num_deleted << endl;
+    cout << "performing delaunay swap" << endl;
+    swap();
+    cout << "computing 'snap-points'" << endl;
+    UpdatePotentialSnapPoints(true, false);
+    cout << "smoothing" << endl;
+    smooth(1);
+    done = num_deleted < num_del_max/100;
+    cout << "total nodes : " << grid->GetNumberOfPoints() << endl;
+    cout << "total cells : " << grid->GetNumberOfCells() << endl;
+  }
+}
+
+void ReduceSurfaceTriangulation::pass2()
+{
+  cout << "\n\nSecond pass of surface reduction:\n(This should be quick...)" << endl;
+  m_UseNormalCorrectionForSmoothing = false;
+  smooth(2);
 }
 
 void ReduceSurfaceTriangulation::operate()
 {
   prepare();
+  writeGrid(grid, "take1");
   updateNodeInfo(true);
-  int iter = 0;
-  bool done = false;
-  while (!done) {
-    ++iter;
-    cout << "reduce surface triangulation iteration " << iter << ":" << endl;
-    computeMeshDensity();
-    int num_deleted = deleteNodes();
-    cout << "  deleted nodes  : " << num_deleted << endl;
-    swap();
-    //smooth(1);
-    computeMeshDensity();
-    done = num_deleted == 0;
-    cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
-    cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
-  }
-  /*
-  for (int i = 0; i < 3; ++i) {
-    smooth(1);
-    swap();
-  }
-  */
+  writeGrid(grid, "take2");
+  pass1();
+  pass2();
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();
-  writeGrid(grid, "after_reduction");
 }
