@@ -50,5 +50,8 @@
 #include "surfacemesher.h"
 #include "reducesurfacetriangulation.h"
 #include "eliminatesmallbranches.h"
+#include "smoothandswapsurface.h"
+#include "removepoints.h"
+#include "insertpoints.h"
 
 // -------------------------------------------

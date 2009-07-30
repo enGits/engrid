@@ -104,6 +104,7 @@ connect(ui.actionReducedPolyDataReader, SIGNAL(triggered()), this, SLOT(callRedu
 connect(ui.actionSurfaceMesher, SIGNAL(triggered()), this, SLOT(callSurfaceMesher()));
 connect(ui.actionReduceSurfaceTriangulation, SIGNAL(triggered()), this, SLOT(callReduceSurfaceTriangulation()));
 connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEliminateSmallBranches()));
+connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoothAndSwapSurface()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));
