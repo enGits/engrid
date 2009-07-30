@@ -31,8 +31,9 @@ using namespace GeometryTools;
 
 SwapTriangles::SwapTriangles() : SurfaceOperation()
 {
-  m_RespectBC   = false;
+  m_RespectBC = false;
   m_FeatureSwap = false;
+  m_FeatureAngle = GeometryTools::deg2rad(30);
 }
 
 void SwapTriangles::operate()
@@ -69,7 +70,7 @@ void SwapTriangles::operate()
                   }
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
-                  if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
+                  if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle) {
                     if(testSwap(S)) {
                       vec3_t n = n1 + n2;
                       n.normalise();
@@ -175,6 +176,7 @@ bool SwapTriangles::testSwap(stencil_t S)
   double V2_new = tetraVol(x[3], x[0], x[2], x_summit, true);
 
   return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
+  //return(V1_new > 0 && V2_new > 0);
 }
 
 bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
