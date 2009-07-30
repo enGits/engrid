@@ -54,6 +54,8 @@ protected: // attributes
   double m_FeatureAngleForDeleteNodes;
   bool   m_PerformGeometricTests;
   bool   m_UseProjectionForSmoothing;
+  bool   m_UseNormalCorrectionForSmoothing;
+  bool   m_AllowFeatureEdgeSwapping;
 
 
 private: // methods

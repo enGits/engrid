@@ -19,22 +19,26 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_FeatureAngleForDeleteNodes = deg2rad(45);
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = true;
+  m_UseNormalCorrectionForSmoothing = false;
+  m_AllowFeatureEdgeSwapping = true;
 }
 
 void SurfaceAlgorithm::readVMD()
 {
-  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table");
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table").replace("\n", " ");
   QTextStream in(&buffer, QIODevice::ReadOnly);
   int row_count = 0;
   int column_count = 0;
   in >> row_count >> column_count;
+  QSet<int> tmp_bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
   VMDvector.clear();
-  if (column_count == m_BoundaryCodes.size() + 3) {
+  if (column_count == tmp_bcs.size() + 3) {
     VMDvector.fill(VertexMeshDensity(), row_count);
     for (int i = 0; i < row_count; ++i) {
       int row, column;
       QString formula;
-      foreach (int bc, m_BoundaryCodes) {
+      foreach (int bc, tmp_bcs) {
         in >> row >> column >> formula;
         VMDvector[row].BCmap[bc] = formula.toInt();
       }
@@ -47,17 +51,18 @@ void SurfaceAlgorithm::readVMD()
       VMDvector[i].setNodes(formula);
       in >> row >> column >> formula;
       VMDvector[i].density = formula.toDouble();
+      cout << VMDvector[i] << endl;
     }
+  } else {
+    EG_ERR_RETURN("The number of boundary conditions don't match between the mesh and the settings table");
   }
 }
 
 void SurfaceAlgorithm::readSettings()
 {
-  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings");
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
   QTextStream in(&buffer, QIODevice::ReadOnly);
-  QString str;
-  in >> str;
-  m_MaxEdgeLength = str.toDouble();
+  in >> m_MaxEdgeLength;
   in >> m_NodesPerQuarterCircle;
   int num_bcs;
   in >> num_bcs;
@@ -77,8 +82,10 @@ void SurfaceAlgorithm::readSettings()
 
 void SurfaceAlgorithm::prepare()
 {
+  setAllCells();
   readSettings();
   readVMD();
+  updateNodeInfo(true);
 }
 
 void SurfaceAlgorithm::computeMeshDensity()
@@ -106,9 +113,10 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 
     EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(id_node);
-    int idx=VMDvector.indexOf(nodeVMD);
+    int idx = VMDvector.indexOf(nodeVMD);
     node_specified_density->SetValue(id_node, idx);
   }
+  writeGrid(grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
@@ -116,7 +124,8 @@ void SurfaceAlgorithm::swap()
   SwapTriangles swap;
   swap.setGrid(grid);
   swap.setRespectBC(true);
-  swap.setFeatureSwap(true);
+  swap.setFeatureSwap(m_AllowFeatureEdgeSwapping);
+  swap.setFeatureAngle(m_FeatureAngle);
   QSet<int> rest_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
   rest_bcs -= m_BoundaryCodes;
@@ -133,9 +142,14 @@ void SurfaceAlgorithm::smooth(int N_iter)
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
   if (m_UseProjectionForSmoothing) {
-    lap.setUseProjectionForSmoothingOn();
+    lap.setProjectionOn();
   } else {
-    lap.setUseProjectionForSmoothingOff();
+    lap.setProjectionOff();
+  }
+  if (m_UseNormalCorrectionForSmoothing) {
+    lap.setNormalCorrectionOn();
+  } else {
+    lap.setNormalCorrectionOff();
   }
   lap();
 }
