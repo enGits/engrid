@@ -257,4 +257,6 @@ HEADERS += reducesurfacetriangulation.h
 SOURCES += reducesurfacetriangulation.cpp
 HEADERS += eliminatesmallbranches.h
 SOURCES += eliminatesmallbranches.cpp
+HEADERS += smoothandswapsurface.h
+SOURCES += smoothandswapsurface.cpp
 

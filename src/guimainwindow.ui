@@ -122,6 +122,7 @@
     <addaction name="actionCreateSurfaceMesh"/>
     <addaction name="actionSurfaceMesher"/>
     <addaction name="actionReduceSurfaceTriangulation"/>
+    <addaction name="actionSmoothAndSwapSurface"/>
     <addaction name="actionEliminateSmallBranches"/>
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
@@ -1067,7 +1068,7 @@
      <normaloff>:/icons/resources/icons/smoothsurf.png</normaloff>:/icons/resources/icons/smoothsurf.png</iconset>
    </property>
    <property name="text">
-    <string>create/improve surface mesh</string>
+    <string>edit surface parameters</string>
    </property>
    <property name="toolTip">
     <string>create/improve surface mesh</string>
@@ -1532,6 +1533,11 @@
   <action name="actionEliminateSmallBranches">
    <property name="text">
     <string>eliminate small branches</string>
+   </property>
+  </action>
+  <action name="actionSmoothAndSwapSurface">
+   <property name="text">
+    <string>smooth surface grid</string>
    </property>
   </action>
  </widget>

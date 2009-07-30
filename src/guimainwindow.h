@@ -444,6 +444,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
+    void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
 };
 
