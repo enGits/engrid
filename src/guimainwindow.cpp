@@ -1696,6 +1696,8 @@ void GuiMainWindow::configure()
     SurfaceProjection tmp03;
     SurfaceMesher tmp04;
     UpdateDesiredMeshDensity tmp05;
+    InsertPoints tmp06;
+    RemovePoints tmp07;
   }
   GuiSettingsViewer settings(&m_qset);
   settings.exec();
