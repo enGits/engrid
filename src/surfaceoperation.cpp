@@ -247,7 +247,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
   //-----------------------
   //determine node type post-processing
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_EdgeAngle ) );
+  double CosEdgeAngle = cos(this->m_EdgeAngle);
   //cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach( vtkIdType id_node, nodes ) {
@@ -391,7 +391,7 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
 
 char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices )
 {
-  double CosFeatureAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_FeatureAngle ) );
+  double CosFeatureAngle = cos(this->m_FeatureAngle);
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
