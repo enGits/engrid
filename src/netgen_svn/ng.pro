@@ -57,7 +57,7 @@ netgen-mesher/netgen/libsrc/gprim/transform3d.cpp \
 netgen-mesher/netgen/libsrc/gprim/geomfuncs.cpp \
 netgen-mesher/netgen/libsrc/linalg/polynomial.cpp \
 netgen-mesher/netgen/libsrc/linalg/densemat.cpp \
-netgen-mesher/netgen/libsrc/linalg/vector.cpp \
+#netgen-mesher/netgen/libsrc/linalg/vector.cpp \
 netgen-mesher/netgen/libsrc/linalg/linopt.cpp \
 netgen-mesher/netgen/libsrc/linalg/bfgs.cpp \
 netgen-mesher/netgen/libsrc/linalg/linsearch.cpp \

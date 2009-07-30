@@ -23,8 +23,6 @@
 
 cd ${0%/*} || exit 1    # run from this directory
 
-revision=148
-
 package=netgen-mesher
 (
 
@@ -32,12 +30,11 @@ package=netgen-mesher
 
     if [ -d netgen-mesher/.svn ]
     then
-        echo "updating disabled"
-        #echo "updating NETGEN from SVN repository (sourceforge.net) -- please wait"
-        #svn up $package
+        echo "updating NETGEN from SVN repository (sourceforge.net) -- please wait"
+        svn up $package
     else
         echo "downloading NETGEN from SVN repository (sourceforge.net) -- please wait"
-        svn co -r $revision https://netgen-mesher.svn.sourceforge.net/svnroot/$package $package
+        svn co https://netgen-mesher.svn.sourceforge.net/svnroot/$package $package
     fi
 
     echo
