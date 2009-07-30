@@ -48,10 +48,10 @@ public:
   LaplaceSmoother();
   virtual void operate();
   void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
-  void setUseProjectionOn() { m_UseProjection = true; }
-  void setUseProjectionOff() { m_UseProjection = false; }
-  void setUseNormalCorrectionOn() { m_UseNormalCorrection = true; }
-  void setUseNormalCorrectionOff() { m_UseNormalCorrection = false; }
+  void setProjectionOn() { m_UseProjection = true; }
+  void setProjectionOff() { m_UseProjection = false; }
+  void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
+  void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
 
 };
 
