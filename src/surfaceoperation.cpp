@@ -293,7 +293,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
 
   QVector <vtkIdType> edges;
 
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->m_EdgeAngle ) );
+  double CosEdgeAngle = cos(this->m_EdgeAngle) ;
 
   foreach( int i_node2, n2n[_nodes[id_node]] ) {
     vtkIdType id_node2 = nodes[i_node2];
