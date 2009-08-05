@@ -175,7 +175,7 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   return( 0 ); ///@@@ what for???
 }
 
-int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices )
+int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices, bool fix_unselected )
 {
   setAllSurfaceCells();
 
@@ -210,7 +210,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
       //-----------------------
       //determine edge type
-      char edge = getEdgeType( id_node2, id_node1, allow_feature_edge_vertices );
+      char edge = getEdgeType( id_node2, id_node1, allow_feature_edge_vertices, fix_unselected );
       //-----------------------
       //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
       if ( edge && node_type->GetValue( id_node1 ) == VTK_SIMPLE_VERTEX ) {
@@ -280,7 +280,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
   return( 0 );
 }
 
-char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_vertices )
+char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_vertices, bool fix_unselected )
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -299,7 +299,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
     vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
-    char edge = getEdgeType( id_node2, id_node, allow_feature_edge_vertices );
+    char edge = getEdgeType( id_node2, id_node, allow_feature_edge_vertices, fix_unselected );
 
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)

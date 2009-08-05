@@ -51,6 +51,7 @@ int InsertPoints::insertPoints()
   g2l_t _cells = getPartLocalCells();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c = getPartC2C();
   
   UpdatePotentialSnapPoints(true);
    
@@ -74,16 +75,22 @@ int InsertPoints::insertPoints()
       double L_max = 0;
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
+      //find best side to split (longest)
       for (int j = 0; j < 3; ++j) {
-        vtkIdType id_node1 = pts[j];
-        vtkIdType id_node2 = pts[(j+1)%N_pts];
-        double L  = distance(grid, id_node1, id_node2);
-        double L1 = cl->GetValue(id_node1);
-        double L2 = cl->GetValue(id_node2);
-        if (L > m_Threshold*min(L1,L2)) {
-          if (L > L_max) {
-            j_split = j;
-            L_max = L;
+        //check if neighbour cell on this side is also selected
+        int i_cell_neighbour = c2c[_cells[id_cell]][j];
+        vtkIdType id_cell_neighbour = cells[i_cell_neighbour];
+        if(m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) {
+          vtkIdType id_node1 = pts[j];
+          vtkIdType id_node2 = pts[(j+1)%N_pts];
+          double L  = distance(grid, id_node1, id_node2);
+          double L1 = cl->GetValue(id_node1);
+          double L2 = cl->GetValue(id_node2);
+          if (L > m_Threshold*min(L1,L2)) {
+            if (L > L_max) {
+              j_split = j;
+              L_max = L;
+            }
           }
         }
       }
