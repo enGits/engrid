@@ -1743,8 +1743,10 @@ void GuiMainWindow::about()
   
 }
 
+///@@@ TODO: Why not use bcs = m_AllBoundaryCodes ?
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
+  qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
   bcs.clear();
   foreach (int bc, m_AllBoundaryCodes) {
     bcs.insert(bc);

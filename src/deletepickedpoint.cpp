@@ -43,6 +43,16 @@ void DeletePickedPoint::operate()
   char type;
   QVector <vtkIdType> PSP;
   
+/*  QSet <int> bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  qWarning()<<"bcs="<<bcs;*/
+  
+  GuiMainWindow::pointer()->getAllBoundaryCodes(this->m_BoundaryCodes);//IMPORTANT: to make sure only unselected nodes become fixed (redundant with previous line, but more readable)
+  qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
+  
+//   this->setBoundaryCodes(m_BoundaryCodes);
+//   qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
+  
   UpdatePotentialSnapPoints(true);
   
   QMessageBox msgBox;

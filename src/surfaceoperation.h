@@ -104,10 +104,11 @@ public:
   char getNodeType( vtkIdType a_node, bool allow_feature_edge_vertices = false );
 
   /// Returns the type of the edge [a_node1,a_node2] based on the topology
-  char getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices );
+  char getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices, bool fix_unselected=true );
 
-  /// Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
-  char getEdgeType_from_nodes( vtkIdType a_node1, vtkIdType a_node2 );
+  // Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
+  // deprecated?
+//   char getEdgeType_from_nodes( vtkIdType a_node1, vtkIdType a_node2 );
 
   /// passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
   int getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QVector <vtkIdType> &EdgeCells );

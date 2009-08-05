@@ -141,6 +141,7 @@ void SurfaceAlgorithm::smooth(int N_iter)
   getSurfaceCells(m_BoundaryCodes, cls, grid);
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
+  lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
   if (m_UseProjectionForSmoothing) {
     lap.setProjectionOn();
   } else {

@@ -389,7 +389,7 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
   return EdgeCells.size();
 }
 
-char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices )
+char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices, bool fix_unselected )
 {
   double CosFeatureAngle = cos(this->m_FeatureAngle);
 
@@ -415,8 +415,17 @@ char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool a
     }
     //check the boundary codes
     EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-    if ( cell_code->GetValue( neighbour_cells[0] ) !=  cell_code->GetValue( neighbour_cells[1] ) ) {
+    int cell_code_0 = cell_code->GetValue( neighbour_cells[0] );
+    int cell_code_1 = cell_code->GetValue( neighbour_cells[1] );
+    if ( cell_code_0 !=  cell_code_1 ) {
       edge = VTK_BOUNDARY_EDGE_VERTEX;
+    }
+//     qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
+    if(m_BoundaryCodes.isEmpty()) abort();
+    if(fix_unselected) {
+      if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {
+        edge = VTK_FIXED_VERTEX;// does not make sense, but should make the points of the edge fixed
+      }
     }
   }
 
