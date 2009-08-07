@@ -59,7 +59,7 @@ void ReduceSurfaceTriangulation::pass1()
     UpdatePotentialSnapPoints(true, false);
     cout << "smoothing" << endl;
     smooth(1);
-    done = num_deleted < num_del_max/100;
+    done = num_deleted <= num_del_max/100;
     cout << "total nodes : " << grid->GetNumberOfPoints() << endl;
     cout << "total cells : " << grid->GetNumberOfCells() << endl;
   }

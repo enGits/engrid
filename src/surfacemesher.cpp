@@ -70,7 +70,7 @@ void SurfaceMesher::operate()
     }
     //done = true;
     //done = (iter >= m_NumMaxIter);
-    int N_crit = grid->GetNumberOfPoints()/20;
+    int N_crit = grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
