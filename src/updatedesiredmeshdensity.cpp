@@ -54,14 +54,14 @@ void UpdateDesiredMeshDensity::operate()
   if (m_NodesPerQuarterCircle > 1e-3) {
 
     // compute node normals
-    for (int i_cells=0; i_cells < cells.size(); ++i_cells) {
+    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       normals[i_cells] = GeometryTools::cellNormal(grid, cells[i_cells]);
       normals[i_cells].normalise();
       centres[i_cells] = cellCentre(grid, cells[i_cells]);
     }
 
     // compute characteristic length according to nodes per quarter circle
-    for (int i_cells=0; i_cells < cells.size(); ++i_cells) {
+    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       vec3_t xi = centres[i_cells];
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(cells[i_cells], N_pts, pts);
