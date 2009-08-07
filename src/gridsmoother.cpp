@@ -149,8 +149,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 {
-  QVector<vtkIdType> nodes = m_Part.getNodes();
-  QVector<QVector<int> > n2c = m_Part.getN2C();
+  l2g_t nodes = m_Part.getNodes();
+  l2l_t n2c   = m_Part.getN2C();
 
   for (int i_boundary_correction = 0; i_boundary_correction < N_boundary_corrections; ++i_boundary_correction) {
     foreach (vtkIdType id_cell, n2c[i_nodes]) {
@@ -272,7 +272,7 @@ double GridSmoother::func(vec3_t x)
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
-      if (type_cell == VTK_TETRA) {
+      if (type_cell == VTK_TETRA && w_tet > 1e-6) {
         double L = 0;
         L += (xn[0]-xn[1]).abs();
         L += (xn[0]-xn[2]).abs();
@@ -337,87 +337,91 @@ double GridSmoother::func(vec3_t x)
         if (h1 > 0.5*L) h1 = max(v1.abs(),h1);
         if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
 
-        {
-          
+        if (w_h > 1e-6) {
           double e1 = errThickness(h0/L);
           double e2 = errThickness(h1/L);
           double e3 = errThickness(h2/L);
           double e  = max(e1,max(e2,e3));
-          //f += w_h*f13*e1;
-          //f += w_h*f13*e2;
-          //f += w_h*f13*e3;
-          //err_pria->SetValue(id_cell,f13*(e1+e2+e3));
-          
           f += w_h*e;
         }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          v0.normalise();
-          v1.normalise();
-          v2.normalise();
-          double e1 = f13*(1-v0*v1);
-          double e2 = f13*(1-v0*v2);
-          double e3 = f13*(1-v1*v2);
-          f += w_par*e1;
-          f += w_par*e2;
-          f += w_par*e3;
+        if (w_par > 1e-6) {
+          if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+            v0.normalise();
+            v1.normalise();
+            v2.normalise();
+            double e1 = f13*(1-v0*v1);
+            double e2 = f13*(1-v0*v2);
+            double e3 = f13*(1-v1*v2);
+            f += w_par*e1;
+            f += w_par*e2;
+            f += w_par*e3;
+          }
         }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = (1+n_face[0]*n_face[1]);
-          f += w_n*e;
+        if (w_n  > 1e-6) {
+          if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+            double e = (1+n_face[0]*n_face[1]);
+            f += w_n*e;
+          }
         }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = sqr((A1-A2)/(A1+A2));
-          f += w_A*e;
+        if (w_A > 1e-6) {
+          if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+            double e = sqr((A1-A2)/(A1+A2));
+            f += w_A*e;
+          }
         }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e_skew = 0;
-          double e_orth = 0;
-          int N = 0;
-          vec3_t xc = cellCentre(grid, id_cell);
-          for (int i_face = 0; i_face < 5; ++i_face) {
-            int i_cells_neigh = c2c[i_cells][i_face];
-            if (i_cells_neigh != -1) {
-              vtkIdType id_neigh_cell = cells[i_cells_neigh];
-              if (isVolume(id_neigh_cell, grid)) {
-                vec3_t vc = cellCentre(grid, id_neigh_cell) - xc;
-                vec3_t vf = x_face[i_face] - xc;
-                vc.normalise();
-                vf.normalise();
-                e_skew += (1-vc*vf);
-                e_orth += (1-vc*n_face[i_face]);
-                ++N;
+        if (w_skew > 1e-6 || w_orth > 1e-6) {
+          if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+            double e_skew = 0;
+            double e_orth = 0;
+            int N = 0;
+            vec3_t xc = cellCentre(grid, id_cell);
+            for (int i_face = 0; i_face < 5; ++i_face) {
+              int i_cells_neigh = c2c[i_cells][i_face];
+              if (i_cells_neigh != -1) {
+                vtkIdType id_neigh_cell = cells[i_cells_neigh];
+                if (isVolume(id_neigh_cell, grid)) {
+                  vec3_t vc = cellCentre(grid, id_neigh_cell) - xc;
+                  vec3_t vf = x_face[i_face] - xc;
+                  vc.normalise();
+                  vf.normalise();
+                  e_skew += (1-vc*vf);
+                  e_orth += (1-vc*n_face[i_face]);
+                  ++N;
+                }
               }
             }
+            e_skew /= N;
+            e_orth /= N;
+            f += w_skew*e_skew + w_orth*e_orth;
           }
-          e_skew /= N;
-          e_orth /= N;
-          f += w_skew*e_skew + w_orth*e_orth;
         }
         
-        double f_sharp2 = 0;
-        for (int j = 2; j <= 4; ++j) {
-          vtkIdType id_ncell = c2c[id_cell][j];
-          if (id_ncell != -1) {
-            if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
-              vtkIdType N_pts, *pts;
-              grid->GetCellPoints(id_ncell, N_pts, pts);
-              QVector<vec3_t> x(3);
-              for (int i_pts = 3; i_pts <= 5; ++i_pts) {
-                grid->GetPoint(pts[i_pts],x[i_pts-3].data());
+        if (w_sharp2 > 1e-6) {
+          double f_sharp2 = 0;
+          for (int j = 2; j <= 4; ++j) {
+            vtkIdType id_ncell = c2c[id_cell][j];
+            if (id_ncell != -1) {
+              if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
+                vtkIdType N_pts, *pts;
+                grid->GetCellPoints(id_ncell, N_pts, pts);
+                QVector<vec3_t> x(3);
+                for (int i_pts = 3; i_pts <= 5; ++i_pts) {
+                  grid->GetPoint(pts[i_pts],x[i_pts-3].data());
+                }
+                vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
+                n.normalise();
+                f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
               }
-              vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
-              n.normalise();
-              f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
             }
           }
+          f += w_sharp2*f_sharp2;
         }
-        f += w_sharp2*f_sharp2;
       }
     }
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
-  {
+  if (w_sharp1 > 1e-6) {
     double f_sharp1 = 0;
     foreach (vec3_t n, n_pri) {
       f_sharp1 += pow(fabs(1-n_node*n), e_sharp1);
