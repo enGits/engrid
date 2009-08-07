@@ -441,6 +441,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callVtkReader()                  { EG_STDREADERSLOT( VtkReader ); }
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
+    void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
     void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }

@@ -78,6 +78,7 @@
     <addaction name="menuVTK"/>
     <addaction name="actionImportOpenFoamCase"/>
     <addaction name="actionImportFluentCase"/>
+    <addaction name="actionImportSeligAirfoil"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1538,6 +1539,11 @@
   <action name="actionSmoothAndSwapSurface">
    <property name="text">
     <string>smooth surface grid</string>
+   </property>
+  </action>
+  <action name="actionImportSeligAirfoil">
+   <property name="text">
+    <string>Selig airfoil</string>
    </property>
   </action>
  </widget>

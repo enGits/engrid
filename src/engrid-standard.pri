@@ -259,4 +259,6 @@ HEADERS += eliminatesmallbranches.h
 SOURCES += eliminatesmallbranches.cpp
 HEADERS += smoothandswapsurface.h
 SOURCES += smoothandswapsurface.cpp
+HEADERS += seligairfoilreader.h
+SOURCES += seligairfoilreader.cpp
 
