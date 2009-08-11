@@ -39,6 +39,7 @@ VTKDIR = $(ParaView_DIR)
     INCLUDEPATH += $(ParaView_INST_DIR)/VTK/IO
     INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Rendering
     INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Utilities
+    INCLUDEPATH += $(ParaView_INST_DIR)/VTK/Widgets
     INCLUDEPATH += $(ParaView_DIR)/VTK
     INCLUDEPATH += $(ParaView_DIR)/VTK/GUISupport/Qt
     INCLUDEPATH += $(ParaView_DIR)/VTK/Utilities
