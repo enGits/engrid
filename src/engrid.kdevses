@@ -1,58 +1,28 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="17" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceoperation.h" >
-   <View0 Encoding="" line="8" Type="Source" />
+ <DocsAndViews NumberOfDocuments="7" >
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/egvtkobject.h" >
+   <View0 Encoding="" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/egvtkobject.cpp" >
    <View0 Encoding="" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guicreateboundarylayer.cpp" >
-   <View0 Encoding="" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guisettingsviewer.cpp" >
+   <View0 Encoding="" line="0" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/egvtkobject.h" >
-   <View0 Encoding="" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guisettingsviewer.h" >
+   <View0 Encoding="" line="39" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfacemesher.h" >
-   <View0 Encoding="" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" line="169" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfacemesher.cpp" >
-   <View0 Encoding="" Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.h" >
+   <View0 Encoding="" line="395" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/updatedesiredmeshdensity.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///opt/shared/Qt/4.5.1/debug/include/QtCore/qvector.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfaceprojection.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/laplacesmoother.cpp" >
-   <View0 Encoding="" line="193" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/surfacealgorithm.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedpoint.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc11>
-  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/deletepickedpoint.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc12>
-  <Doc13 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc13>
-  <Doc14 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/guiselectboundarycodes.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc14>
-  <Doc15 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/egvtkobject.cpp" >
-   <View0 Encoding="" Type="Source" />
-  </Doc15>
-  <Doc16 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/insertpoints.h" >
+  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/engrid/src/std_connections.h" >
    <View0 Encoding="" line="56" Type="Source" />
-  </Doc16>
+  </Doc6>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>

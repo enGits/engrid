@@ -33,6 +33,12 @@
 // class QTreeWidget;
 // class QTreeWidgetItem;
 
+// IMPORTANT:
+// Setting keys can contain any Unicode characters. The Windows registry and INI files use case-insensitive keys, whereas the Carbon Preferences API on Mac OS X uses case-sensitive keys. To avoid portability problems, follow these two simple rules:
+// Always refer to the same key using the same case. For example, if you refer to a key as "text fonts" in one place in your code, don't refer to it as "Text Fonts" somewhere else.
+//   Avoid key names that are identical except for the case. For example, if you have a key called "MainWindow", don't try to save another key as "mainwindow".
+//     Do not use slashes ('/' and '\') in key names; the backslash character is used to separate sub keys (see below). On windows '\' are converted by QSettings to '/', which makes them identical.
+
 /**
   * Creates a QWidget with one tab per main group found in the specified QSettingsm file. each of those tabs is a SettingsTab .
   */
@@ -40,33 +46,35 @@ class GuiSettingsViewer : public QDialog
 {
     Q_OBJECT
 
-public:
-    
-  // constructors
-  /**
-   * Constructor using the (org,app) pair to determine QSettings
-   * @param org organization
-   * @param app application
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsViewer(QString org, QString app,QWidget *parent = 0);
-  /**
-   * Constructor taking a QSettings argument to build the widget.
-   * @param Set QSettings to use
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsViewer(QSettings* Set,QWidget *parent = 0);
-  
-private slots:
+  public:
+
+    // constructors
+    /**
+     * Constructor using the (org,app) pair to determine QSettings
+     * @param org organization
+     * @param app application
+     * @param group group
+     * @param parent Parent QWidget
+     */
+    GuiSettingsViewer(QString org, QString app, QWidget *parent = 0);
+    /**
+     * Constructor taking a QSettings argument to build the widget.
+     * @param Set QSettings to use
+     * @param group group
+     * @param parent Parent QWidget
+     */
+    GuiSettingsViewer(QSettings* Set, QWidget *parent = 0);
+
+  public:
+    void CreateViewer();
+
+  private slots:
     void open();
     void save();
-    void CreateViewer();
     void readSettings();
     void addChildSettings();
 
-private:
+  private:
 
     QPushButton *openButton;
     QPushButton *saveButton;
@@ -74,7 +82,7 @@ private:
 
     QTabWidget tabWidget;
     QVector<GuiSettingsTab> tabs;
-  
+
     QString organization;
     QString application;
     QSettings* settings;
