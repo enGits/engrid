@@ -58,6 +58,7 @@ protected: // attributes
   double w_tet;
   double w_tet_save;
   double w_h;
+  double e_h;
   double w_par;
   double w_n;
   double w_A;

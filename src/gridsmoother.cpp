@@ -41,6 +41,7 @@ GridSmoother::GridSmoother()
   
   getSet("boundary layer", "tetra weighting", 1.0, w_tet);
   getSet("boundary layer", "layer height weighting", 1.0, w_h);
+  getSet("boundary layer", "layer height exponent", 1.0, e_h);
   getSet("boundary layer", "parallel edges weighting", 3.0, w_par);
   getSet("boundary layer", "parallel faces weighting", 5.0, w_n);
   getSet("boundary layer", "similar face area weighting", 5.0, w_A);
@@ -240,7 +241,7 @@ double GridSmoother::errThickness(double x)
   double a     = 5.0;
   double err   = 0;
   if      (x < 0) err = 1.0/delta - 1.0/(a+delta);
-  else if (x < 1) err = 1/(a*x+delta) - 1.0/(a+delta);
+  else if (x < 1) err = abs(1/(a*x+delta) - 1.0/(a+delta));
     
   return err;
 }
@@ -249,6 +250,7 @@ double GridSmoother::func(vec3_t x)
 {
   l2g_t nodes = getPartNodes();
   l2l_t n2c   = getPartN2C();
+  l2l_t n2n   = getPartN2N();
   l2g_t cells = getPartCells();
   l2l_t c2c   = getPartC2C();
 
@@ -333,9 +335,9 @@ double GridSmoother::func(vec3_t x)
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        if (h0 > 0.5*L) h0 = max(v0.abs(),h0);
-        if (h1 > 0.5*L) h1 = max(v1.abs(),h1);
-        if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
+        if (h0 > 0.05*L) h0 = max(v0.abs(),h0);
+        if (h1 > 0.05*L) h1 = max(v1.abs(),h1);
+        if (h2 > 0.05*L) h2 = max(v2.abs(),h2);
 
         if (w_h > 1e-6) {
           double e1 = errThickness(h0/L);
@@ -343,6 +345,17 @@ double GridSmoother::func(vec3_t x)
           double e3 = errThickness(h2/L);
           double e  = max(e1,max(e2,e3));
           f += w_h*e;
+          /*
+          double f_h = 0;
+          if (nodes[i_nodes_opt] == pts[3]) {
+            f_h = fabs(1-h0/L);
+          } else if (nodes[i_nodes_opt] == pts[4]) {
+            f_h = fabs(1-h1/L);
+          } else if (nodes[i_nodes_opt] == pts[5]) {
+            f_h = fabs(1-h2/L);
+          }
+          f += w_h*pow(f_h, e_h);
+          */
         }
         if (w_par > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -398,6 +411,7 @@ double GridSmoother::func(vec3_t x)
         
         if (w_sharp2 > 1e-6) {
           double f_sharp2 = 0;
+          int num_sharp2 = 0;
           for (int j = 2; j <= 4; ++j) {
             vtkIdType id_ncell = c2c[id_cell][j];
             if (id_ncell != -1) {
@@ -410,11 +424,16 @@ double GridSmoother::func(vec3_t x)
                 }
                 vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
                 n.normalise();
-                f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
+                double scal = max(-1.0, min(1.0, n_face[1]*n));
+                f_sharp2 += pow(acos(scal)/M_PI, e_sharp2);
+                //f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
+                ++num_sharp2;
               }
             }
           }
-          f += w_sharp2*f_sharp2;
+          if (num_sharp2 > 0) {
+            f += w_sharp2*f_sharp2/num_sharp2;
+          }
         }
       }
     }
@@ -422,11 +441,41 @@ double GridSmoother::func(vec3_t x)
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
   if (w_sharp1 > 1e-6) {
+
+
     double f_sharp1 = 0;
+    int num_sharp1 = 0;
     foreach (vec3_t n, n_pri) {
-      f_sharp1 += pow(fabs(1-n_node*n), e_sharp1);
+      double scal = n_node*n;
+      f_sharp1 = max(f_sharp1, pow(acos(scal)/M_PI, e_sharp1));
+      ++num_sharp1;
     }
     f += w_sharp1*f_sharp1;
+
+
+    /*
+    double f_sharp1 = 0;
+    int num_sharp1 = 0;
+    for (int i = 0; i < n2n[i_nodes_opt].size(); ++i) {
+      vec3_t vi;
+      grid->GetPoint(nodes[n2n[i_nodes_opt][i]], vi.data());
+      vi -= x;
+      for (int j = 0; j < n2n[i_nodes_opt].size(); ++j) {
+        if (i != j) {
+          vec3_t vj;
+          grid->GetPoint(nodes[n2n[i_nodes_opt][j]], vj.data());
+          vj -= x;
+          double scal = vi*vj;
+          double fs = pow(acos(-scal)/M_PI, e_sharp1);
+          f_sharp1 = max(f_sharp1, fs);
+          ++num_sharp1;
+        }
+      }
+    }
+    if (num_sharp1 > 0) {
+      f += w_sharp1*f_sharp1/num_sharp1;
+    }
+    */
   }
   return f;
 }
