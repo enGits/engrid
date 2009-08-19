@@ -46,8 +46,11 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   bool move = true;
 
   vec3_t n(0,0,0);
+  QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    n += GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+    cell_normals[i] = GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+    n += cell_normals[i];
+    cell_normals[i].normalise();
   }
   vec3_t x_summit = x_old + n;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -63,6 +66,16 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
       move = false;
       break;
+    }
+  }
+  if (move) {
+    for (int i = 0; i < cell_normals.size(); ++i) {
+      for (int j = 0; j < cell_normals.size(); ++j) {
+        if (cell_normals[i]*cell_normals[j] < 0.1) {
+          move = false;
+          break;
+        }
+      }
     }
   }
 
