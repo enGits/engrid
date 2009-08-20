@@ -335,9 +335,9 @@ double GridSmoother::func(vec3_t x)
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        if (h0 > 0.05*L) h0 = max(v0.abs(),h0);
-        if (h1 > 0.05*L) h1 = max(v1.abs(),h1);
-        if (h2 > 0.05*L) h2 = max(v2.abs(),h2);
+        if (h0 > 0.5*L) h0 = max(v0.abs(),h0);
+        if (h1 > 0.5*L) h1 = max(v1.abs(),h1);
+        if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
 
         if (w_h > 1e-6) {
           double e1 = errThickness(h0/L);
