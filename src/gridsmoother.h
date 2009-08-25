@@ -81,6 +81,9 @@ protected: // attributes
   double sum_C;
   int i_nodes_opt;
   QList<stencil_node_t> stencil;
+
+  QVector<vtkIdType> m_IdFoot;
+  QVector<double> m_L;
   
 protected: // methods
   

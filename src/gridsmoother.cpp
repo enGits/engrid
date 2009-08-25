@@ -106,40 +106,49 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   bool move = true;
   Elements E;
 
-  l2g_t cells = getPartCells();
-  l2l_t n2c   = getPartN2C();
-
-  foreach (int i_cells, n2c[id_node]) {
-    vtkIdType id_cell = cells[i_cells];
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if (type_cell == VTK_TETRA) {
-      if (GeometryTools::cellVA(grid, id_cell) < 0) {
-        move = false;
-        //if (dbg) cout << id_node << " : tetra negative" << endl;
-      }
+  if (m_IdFoot[id_node] != -1) {
+    vec3_t x_foot;
+    grid->GetPoint(m_IdFoot[id_node], x_foot.data());
+    if ((x_new - x_foot).abs() > 2*m_L[id_node]) {
+      move = false;
     }
-    if (type_cell == VTK_WEDGE) {
-      vtkIdType N_pts, *pts;
-      vec3_t xtet[4];
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      bool ok = true;
-      for (int i = 0; i < 4; ++i) {     // variation
-        ok = true;
-        for (int j = 0; j < 3; ++j) {   // tetrahedron
-          for (int k = 0; k < 4; ++k) { // node
-            grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
-          }
-          if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
-            ok = false;
-            //if (dbg) cout << id_node << " : prism negative" << endl;
-          }
-        }
-        if (ok) {
-          break;
+  }
+
+  if (move) {
+    l2g_t cells = getPartCells();
+    l2l_t n2c   = getPartN2C();
+    foreach (int i_cells, n2c[id_node]) {
+      vtkIdType id_cell = cells[i_cells];
+      vtkIdType type_cell = grid->GetCellType(id_cell);
+      if (type_cell == VTK_TETRA) {
+        if (GeometryTools::cellVA(grid, id_cell) < 0) {
+          move = false;
+          //if (dbg) cout << id_node << " : tetra negative" << endl;
         }
       }
-      if (!ok) {
-        move = false;
+      if (type_cell == VTK_WEDGE) {
+        vtkIdType N_pts, *pts;
+        vec3_t xtet[4];
+        grid->GetCellPoints(id_cell, N_pts, pts);
+        bool ok = true;
+        for (int i = 0; i < 4; ++i) {     // variation
+          ok = true;
+          for (int j = 0; j < 3; ++j) {   // tetrahedron
+            for (int k = 0; k < 4; ++k) { // node
+              grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
+            }
+            if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
+              ok = false;
+              //if (dbg) cout << id_node << " : prism negative" << endl;
+            }
+          }
+          if (ok) {
+            break;
+          }
+        }
+        if (!ok) {
+          move = false;
+        }
       }
     }
   }
@@ -204,6 +213,15 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
   grid->GetPoint(id_node, x_old.data());
+  if (m_IdFoot[id_node] != -1) {
+    vec3_t x_foot;
+    grid->GetPoint(m_IdFoot[id_node], x_foot.data());
+    Dx += x_old - x_foot;
+    if (Dx.abs() > 2*m_L[id_node]) {
+      Dx.normalise();
+      Dx *= 2*m_L[id_node];
+    }
+  }
   bool moved = false;
   for (int i_relaxation = 0; i_relaxation < N_relaxations; ++i_relaxation) {
     if (setNewPosition(id_node, x_old + Dx)) {
@@ -266,11 +284,11 @@ double GridSmoother::func(vec3_t x)
   QList<vec3_t> n_pri;
 
   double height_error = 0;
-  vec3_t x_foot;
-  vtkIdType id_foot = -1;
-  double L_total = 0;
-  int L_count = 0;
-  //EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+//  vec3_t x_foot;
+//  vtkIdType id_foot = -1;
+//  double L_total = 0;
+//  int L_count = 0;
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
 
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
@@ -297,22 +315,21 @@ double GridSmoother::func(vec3_t x)
         f += w_tet*e;
       }
       if (type_cell == VTK_WEDGE) {
-
+        /*
         double L = 0;
         L += (xn[0]-xn[1]).abs();
         L += (xn[0]-xn[2]).abs();
         L += (xn[1]-xn[2]).abs();
         L *= H/3.0;
-        L_total += L;
-        ++L_count;
+        */
 
-        /*
         double L = 0;
         L += cl->GetValue(pts[0]);
         L += cl->GetValue(pts[1]);
         L += cl->GetValue(pts[2]);
         L *= H/3.0;
-        */
+
+        m_L[nodes[i_nodes_opt]] = L;
 
         vec3_t a  = xn[2]-xn[0];
         vec3_t b  = xn[1]-xn[0];
@@ -336,21 +353,18 @@ double GridSmoother::func(vec3_t x)
         for (int i_face = 0; i_face < 5; ++i_face) {
           n_face[i_face].normalise();
         }
+        m_IdFoot[pts[3]] = pts[0];
+        m_IdFoot[pts[4]] = pts[1];
+        m_IdFoot[pts[5]] = pts[2];
         if (nodes[i_nodes_opt] == pts[3]) {
-          id_foot = pts[0];
-          x_foot = xn[0];
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
         }
         if (nodes[i_nodes_opt] == pts[4]) {
-          id_foot = pts[1];
-          x_foot = xn[1];
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
         }
         if (nodes[i_nodes_opt] == pts[5]) {
-          id_foot = pts[2];
-          x_foot = xn[2];
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
         }
@@ -366,12 +380,12 @@ double GridSmoother::func(vec3_t x)
         if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
 
         if (w_h > 1e-6) {
-          //double e0 = errThickness(h0/L);
-          //double e1 = errThickness(h1/L);
-          //double e2 = errThickness(h2/L);
-          double e0 = pow(fabs(1.0 - h0/L), e_h);
-          double e1 = pow(fabs(1.0 - h1/L), e_h);
-          double e2 = pow(fabs(1.0 - h2/L), e_h);
+          double e0 = errThickness(h0/L);
+          double e1 = errThickness(h1/L);
+          double e2 = errThickness(h2/L);
+          //double e0 = pow(fabs(1.0 - h0/L), e_h);
+          //double e1 = pow(fabs(1.0 - h1/L), e_h);
+          //double e2 = pow(fabs(1.0 - h2/L), e_h);
           double e  = max(e0, max(e1, e2));
           f += w_h*e;
           height_error += max(height_error, e);
@@ -460,6 +474,7 @@ double GridSmoother::func(vec3_t x)
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
 
+  /*
   if (L_count > 0) {
     double L = L_total/L_count;
     double scal_min = 1;
@@ -474,6 +489,7 @@ double GridSmoother::func(vec3_t x)
     //height_error = scal_min*height_error + (1.0 - scal_min)*errThickness((x - x_foot).abs()/L);
     //f += w_h*L_count*height_error;
   }
+  */
 
   if (w_sharp1 > 1e-6) {
 
@@ -531,6 +547,8 @@ void GridSmoother::addToStencil(double C, vec3_t x)
 void GridSmoother::operate()
 {
   markNodes();
+  m_IdFoot.fill(-1, grid->GetNumberOfPoints());
+  m_L.fill(0, grid->GetNumberOfPoints());
   
   EG_VTKDCC(vtkIntArray,    bc,          grid, "cell_code");
   EG_VTKDCN(vtkIntArray,    node_status, grid, "node_status");
