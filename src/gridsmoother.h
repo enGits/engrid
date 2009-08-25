@@ -69,6 +69,8 @@ protected: // attributes
   double w_sharp2;
   double e_sharp2;
   double H;
+
+  double under_relaxation;
   
   struct stencil_node_t {
     vec3_t x;
@@ -107,6 +109,7 @@ public: // methods
   void prismsOff() { smooth_prisms = false; };
   
   double improvement();
+  double lastTotalError() { return F_new; }
   
 };
 

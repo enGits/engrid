@@ -53,7 +53,8 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "sharp features on edges exponent", 1.3, e_sharp2);
   getSet("boundary layer", "relative height of boundary layer", 1.5, H);
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
-  
+  getSet("boundary layer", "under relaxation", 0.5, under_relaxation);
+
 }
 
 void GridSmoother::markNodes()
@@ -263,7 +264,14 @@ double GridSmoother::func(vec3_t x)
   
   vec3_t n_node(1,0,0);
   QList<vec3_t> n_pri;
-  
+
+  double height_error = 0;
+  vec3_t x_foot;
+  vtkIdType id_foot = -1;
+  double L_total = 0;
+  int L_count = 0;
+  //EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
     if (isVolume(id_cell, grid)) {
@@ -289,11 +297,23 @@ double GridSmoother::func(vec3_t x)
         f += w_tet*e;
       }
       if (type_cell == VTK_WEDGE) {
+
         double L = 0;
         L += (xn[0]-xn[1]).abs();
         L += (xn[0]-xn[2]).abs();
         L += (xn[1]-xn[2]).abs();
         L *= H/3.0;
+        L_total += L;
+        ++L_count;
+
+        /*
+        double L = 0;
+        L += cl->GetValue(pts[0]);
+        L += cl->GetValue(pts[1]);
+        L += cl->GetValue(pts[2]);
+        L *= H/3.0;
+        */
+
         vec3_t a  = xn[2]-xn[0];
         vec3_t b  = xn[1]-xn[0];
         vec3_t c  = xn[5]-xn[3];
@@ -317,14 +337,20 @@ double GridSmoother::func(vec3_t x)
           n_face[i_face].normalise();
         }
         if (nodes[i_nodes_opt] == pts[3]) {
+          id_foot = pts[0];
+          x_foot = xn[0];
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
         }
         if (nodes[i_nodes_opt] == pts[4]) {
+          id_foot = pts[1];
+          x_foot = xn[1];
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
         }
         if (nodes[i_nodes_opt] == pts[5]) {
+          id_foot = pts[2];
+          x_foot = xn[2];
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
         }
@@ -340,22 +366,15 @@ double GridSmoother::func(vec3_t x)
         if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
 
         if (w_h > 1e-6) {
-          double e1 = errThickness(h0/L);
-          double e2 = errThickness(h1/L);
-          double e3 = errThickness(h2/L);
-          double e  = max(e1,max(e2,e3));
+          //double e0 = errThickness(h0/L);
+          //double e1 = errThickness(h1/L);
+          //double e2 = errThickness(h2/L);
+          double e0 = pow(fabs(1.0 - h0/L), 2.0);
+          double e1 = pow(fabs(1.0 - h1/L), 2.0);
+          double e2 = pow(fabs(1.0 - h2/L), 2.0);
+          double e  = max(e0, max(e1, e2));
           f += w_h*e;
-          /*
-          double f_h = 0;
-          if (nodes[i_nodes_opt] == pts[3]) {
-            f_h = fabs(1-h0/L);
-          } else if (nodes[i_nodes_opt] == pts[4]) {
-            f_h = fabs(1-h1/L);
-          } else if (nodes[i_nodes_opt] == pts[5]) {
-            f_h = fabs(1-h2/L);
-          }
-          f += w_h*pow(f_h, e_h);
-          */
+          height_error += max(height_error, e);
         }
         if (w_par > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -440,6 +459,22 @@ double GridSmoother::func(vec3_t x)
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
+
+  if (L_count > 0) {
+    double L = L_total/L_count;
+    double scal_min = 1;
+    for (int i = 0; i < n_pri.size(); ++i) {
+      for (int j = 0; j < n_pri.size(); ++j) {
+        scal_min = min(scal_min, n_pri[i]*n_pri[j]);
+      }
+    }
+    scal_min += 1;
+    scal_min *= 0.5;
+    scal_min = max(0.0, scal_min);
+    //height_error = scal_min*height_error + (1.0 - scal_min)*errThickness((x - x_foot).abs()/L);
+    //f += w_h*L_count*height_error;
+  }
+
   if (w_sharp1 > 1e-6) {
 
 
@@ -605,7 +640,7 @@ void GridSmoother::operate()
         setDeltas(1e-3*L0);
         i_nodes_opt = i_nodes;
         vec3_t Dx2(0,0,0);
-        Dx2 = optimise(x_old);
+        Dx2 = under_relaxation*optimise(x_old);
         vec3_t Dx3 = (-10e-4/func(x_old))*grad_f;
         correctDx(i_nodes, Dx1);
         correctDx(i_nodes, Dx2);
