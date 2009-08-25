@@ -369,9 +369,9 @@ double GridSmoother::func(vec3_t x)
           //double e0 = errThickness(h0/L);
           //double e1 = errThickness(h1/L);
           //double e2 = errThickness(h2/L);
-          double e0 = pow(fabs(1.0 - h0/L), 2.0);
-          double e1 = pow(fabs(1.0 - h1/L), 2.0);
-          double e2 = pow(fabs(1.0 - h2/L), 2.0);
+          double e0 = pow(fabs(1.0 - h0/L), e_h);
+          double e1 = pow(fabs(1.0 - h1/L), e_h);
+          double e2 = pow(fabs(1.0 - h2/L), e_h);
           double e  = max(e0, max(e1, e2));
           f += w_h*e;
           height_error += max(height_error, e);
