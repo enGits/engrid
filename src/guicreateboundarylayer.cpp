@@ -143,7 +143,7 @@ void GuiCreateBoundaryLayer::operate()
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
-    if (fabs(smooth.improvement()) < err_max) break;
+    if (smooth.improvement() < err_max) break;
   }
   double mesh_error = smooth.lastTotalError();
   //smooth.setAllCells();
