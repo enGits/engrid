@@ -95,7 +95,6 @@ netgen-mesher/netgen/libsrc/stlgeom/stlgeom.cpp \
 netgen-mesher/netgen/libsrc/stlgeom/stlgeomchart.cpp \
 netgen-mesher/netgen/libsrc/stlgeom/stlgeommesh.cpp \
 netgen-mesher/netgen/libsrc/general/dynamicmem.cpp \
-netgen-mesher/netgen/libsrc/general/moveablemem.cpp \
 netgen-mesher/netgen/libsrc/general/ngexception.cpp \
 netgen-mesher/netgen/libsrc/general/table.cpp \
 netgen-mesher/netgen/libsrc/general/optmem.cpp \
