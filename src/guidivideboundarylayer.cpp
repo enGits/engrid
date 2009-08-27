@@ -118,7 +118,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
     grid->GetCellPoints(id_cell,N_pts,pts);
     
     insert_cell[id_cell] = false;
-    
+
     if (type_cell == VTK_WEDGE) {
       
       // prisms
@@ -486,6 +486,18 @@ void GuiDivideBoundaryLayer::operate()
   EG_VTKSP(vtkUnstructuredGrid,new_grid);
   allocateGrid(new_grid, grid->GetNumberOfCells() + (N_prisms + N_quads)*(N_layers-1), grid->GetNumberOfPoints() + pairs.size()*(N_layers-1));
   
+
+  EG_VTKDCC(vtkIntArray, old_orgdir, grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, old_voldir, grid, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, old_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, new_orgdir, new_grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, new_voldir, new_grid, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, new_curdir, new_grid, "cell_curdir");
+
+  int orgdir = -99;
+  int curdir = -99;
+  int voldir = -99;
+
   // copy existing mesh without prisms and adjacent cells
   vtkIdType id_new_node = 0;
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -500,8 +512,24 @@ void GuiDivideBoundaryLayer::operate()
     vtkIdType N_pts, *pts;
     grid->GetCellPoints(id_cell, N_pts, pts);
     bool insert_cell = true;
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) insert_cell = false;
-    if (grid->GetCellType(id_cell) == VTK_QUAD) insert_cell = false;
+    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      insert_cell = false;
+    }
+    if (grid->GetCellType(id_cell) == VTK_QUAD) {
+      insert_cell = false;
+      if (orgdir != -99 && old_orgdir->GetValue(id_cell) != orgdir) {
+        EG_BUG;
+      }
+      if (voldir != -99 && old_voldir->GetValue(id_cell) != voldir) {
+        EG_BUG;
+      }
+      if (curdir != -99 && old_curdir->GetValue(id_cell) != curdir) {
+        EG_BUG;
+      }
+      orgdir = old_orgdir->GetValue(id_cell);
+      voldir = old_voldir->GetValue(id_cell);
+      curdir = old_curdir->GetValue(id_cell);
+    }
     if (insert_cell) {
       id_new_cell = new_grid->InsertNextCell(grid->GetCellType(id_cell), N_pts, pts);
       copyCellData(grid, id_cell, new_grid, id_new_cell);
@@ -539,6 +567,9 @@ void GuiDivideBoundaryLayer::operate()
           p[3] = edges[old2edge[pts[0]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, p);
           copyCellData(grid, id_cell, new_grid, id_new_cell);
+          new_orgdir->SetValue(id_new_cell, orgdir);
+          new_voldir->SetValue(id_new_cell, voldir);
+          new_curdir->SetValue(id_new_cell, curdir);
         }
       }
     }

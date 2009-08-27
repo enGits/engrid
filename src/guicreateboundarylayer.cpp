@@ -143,8 +143,9 @@ void GuiCreateBoundaryLayer::operate()
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
-    if (smooth.improvement() < err_max) break;
+    //if (smooth.improvement() < err_max) break;
   }
+  double mesh_error = smooth.lastTotalError();
   //smooth.setAllCells();
   //smooth();
   
@@ -172,4 +173,6 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(grid);
   createIndices(grid);
+  cout << "total mesh error: " << mesh_error << endl;
+  cout << "maximal height error = " << smooth.maxHeightError() << endl;
 }

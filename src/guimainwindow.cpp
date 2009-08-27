@@ -153,11 +153,11 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   m_N_chars = 0;
   
   bool exp_features=false;
-  getSet("","enable experimental features",false,exp_features);
+  getSet("General","enable experimental features",false,exp_features);
   bool undo_redo;
-  getSet("","enable undo/redo",false,undo_redo);
+  getSet("General","enable undo+redo",false,undo_redo);
   bool undo_redo_mode;
-  getSet("","use RAM for undo/redo oprations",false,undo_redo_mode);
+  getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
   
   ui.actionFoamWriter->setEnabled(exp_features);
   
@@ -1700,6 +1700,7 @@ void GuiMainWindow::configure()
     RemovePoints tmp07;
   }
   GuiSettingsViewer settings(&m_qset);
+  settings.CreateViewer();
   settings.exec();
 }
 
@@ -1855,9 +1856,12 @@ void GuiMainWindow::storeSurfaceProjection()
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 {
   if (!m_SurfProj.contains(bc)) {
-    QString bc_txt;
-    bc_txt.setNum(bc);
-    EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
+    storeSurfaceProjection();
+    if (!m_SurfProj.contains(bc)) {
+      QString bc_txt;
+      bc_txt.setNum(bc);
+      EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
+    }
   }
   return m_SurfProj[bc];
 }

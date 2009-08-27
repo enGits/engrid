@@ -21,6 +21,7 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = false;
   m_AllowFeatureEdgeSwapping = true;
+  m_GrowthFactor = 1.5;
 }
 
 void SurfaceAlgorithm::readVMD()
@@ -63,6 +64,7 @@ void SurfaceAlgorithm::readSettings()
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
   QTextStream in(&buffer, QIODevice::ReadOnly);
   in >> m_MaxEdgeLength;
+  in >> m_GrowthFactor;
   in >> m_NodesPerQuarterCircle;
   int num_bcs;
   in >> num_bcs;
@@ -96,6 +98,7 @@ void SurfaceAlgorithm::computeMeshDensity()
   update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
   update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
+  update_desired_mesh_density.setCellGrowthFactor(m_GrowthFactor);
   update_desired_mesh_density();
 }
 

@@ -25,20 +25,19 @@
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
-  getSet("surface meshing", "projection relaxation", 0.9, m_Relax);
-  getSet("surface meshing", "projection distance weighting", 1.0, m_DistWeight);
-  getSet("surface meshing", "projection distance exponent", 1.0, m_DistExp);
-  getSet("surface meshing", "projection direction weighting", 1.0, m_DirWeight);
-  getSet("surface meshing", "projection direction exponent", 1.0, m_DirExp);
-  getSet("surface meshing", "projection weight offset", 0.001, m_WeightOffset);
-  getSet("surface meshing", "octree minimal scale", 0.0, m_MinOTLength);
-  getSet("surface meshing", "projection maximum number of iterations", 10, m_MaxIter);
-  getSet("surface meshing", "projection convergence criterion", 0.1, m_ConvLimit);
-  getSet("surface meshing", "projection radius factor", 0.2, m_RadiusFactor);
-  getSet("surface meshing", "projection using level-set", false, m_UseLevelSet);
+  m_Relax = 0.9;
+  m_DistWeight = 1.0;
+  m_DistExp = 1.0;
+  m_DirWeight = 1.0;
+  m_DirExp = 1.0;
+  m_WeightOffset = 0.001;
+  m_MinOTLength = 0.0;
+  m_MaxIter = 10;
+  m_ConvLimit = 0.1;
+  m_RadiusFactor = 0.2;
+  m_UseLevelSet = false;
   double max_cells;
-  getSet("surface meshing", "octree maximal number of cells", 2000, max_cells);
-  m_MaxOTCells = int(max_cells);
+  m_MaxOTCells = 2000;
   m_NumDirect = 0;
   m_NumFull = 0;
 }

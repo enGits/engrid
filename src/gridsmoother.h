@@ -55,19 +55,30 @@ protected: // attributes
   double F_max_old;
   double F_max_new;
   
-  double w_tet;
-  double w_tet_save;
-  double w_h;
-  double w_par;
-  double w_n;
-  double w_A;
-  double w_skew;
-  double w_orth;
-  double w_sharp1;
-  double e_sharp1;
-  double w_sharp2;
-  double e_sharp2;
-  double H;
+  double m_MaxRelLength;
+  double m_RelativeHeight;
+  double m_TetraWeighting;
+  double m_TetraWeightingSaved;
+  double m_HeightWeighting;
+  double m_ParallelEdgesWeighting;
+  double m_ParallelFacesWeighting;
+  double m_SharpNodesWeighting;
+  double m_SharpNodesExponent;
+  double m_SharpEdgesWeighting;
+  double m_SharpEdgesExponent;
+  double m_SimilarFaceAreaWeighting;
+
+  double m_MaxHeightError;
+  double m_MaxTetError;
+  double m_MaxSharpNodesError;
+  double m_MaxSharpEdgesError;
+  double m_MaxParallelEdgesError;
+  double m_MaxParallelFacesError;
+  double m_MaxFaceAreaError;
+
+  double m_UnderRelaxation;
+
+  bool m_StrictPrismChecking;
   
   struct stencil_node_t {
     vec3_t x;
@@ -78,6 +89,9 @@ protected: // attributes
   double sum_C;
   int i_nodes_opt;
   QList<stencil_node_t> stencil;
+
+  QVector<vtkIdType> m_IdFoot;
+  QVector<double> m_L;
   
 protected: // methods
   
@@ -85,15 +99,16 @@ protected: // methods
   virtual double func(vec3_t x);
   
   double errThickness(double x);
-  
+  double errLimit(double x);
+
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
   void resetStencil();
   void addToStencil(double C, vec3_t x);
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
-  void setPrismWeighting() { w_tet_save = w_tet; w_tet = 0; };
-  void setAllWeighting() { w_tet = w_tet_save; };
+  void setPrismWeighting() { m_TetraWeightingSaved = m_TetraWeighting; m_TetraWeighting = 0; };
+  void setAllWeighting() { m_TetraWeighting = m_TetraWeightingSaved; };
     
 public: // methods
   
@@ -106,6 +121,8 @@ public: // methods
   void prismsOff() { smooth_prisms = false; };
   
   double improvement();
+  double lastTotalError() { return F_new; }
+  double maxHeightError() { return m_MaxHeightError; }
   
 };
 

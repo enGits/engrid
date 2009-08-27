@@ -27,7 +27,6 @@
 UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 {
   EG_TYPENAME;
-  getSet("surface meshing", "cell growth factor", 1.5, m_GrowthFactor);
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
 }

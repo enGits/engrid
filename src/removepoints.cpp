@@ -36,7 +36,7 @@ using namespace std;
 RemovePoints::RemovePoints() : SurfaceOperation()
 {
   setQuickSave( true );
-  getSet("surface meshing", "point removal threshold", 1, m_Threshold);
+  getSet("surface meshing", "point removal threshold", 2, m_Threshold);
   m_ProtectFeatureEdges = false;
   m_PerformGeometricChecks = true;
 }

@@ -110,7 +110,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>maximal edge length</string>
+            <string>maximal edge length:</string>
            </property>
           </widget>
          </item>
@@ -122,17 +122,18 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>cell growth factor:</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditGrowthFactor">
+           <property name="text">
+            <string>1.5</string>
            </property>
-          </spacer>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_2">
@@ -143,11 +144,14 @@
          </item>
          <item>
           <widget class="QDoubleSpinBox" name="doubleSpinBoxCurvature">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="singleStep">
             <double>0.100000000000000</double>
            </property>
            <property name="value">
-            <double>2.000000000000000</double>
+            <double>0.000000000000000</double>
            </property>
           </widget>
          </item>

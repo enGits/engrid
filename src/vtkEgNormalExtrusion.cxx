@@ -137,7 +137,10 @@ void vtkEgNormalExtrusion::ExecuteEg()
   // boundary conditions
   EG_VTKDCC(vtkIntArray, cell_code1, m_Input, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_code2, m_Output, "cell_code");
-  
+  EG_VTKDCC(vtkIntArray, orgdir, m_Output, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, voldir, m_Output, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, curdir, m_Output, "cell_curdir");
+
   int new_bc = 1;
   for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
     if (isSurface(id_cell, m_Input)) {
@@ -235,6 +238,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
           quad_pts[3] = n2[p1];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_QUAD,4,quad_pts);
           cell_code2->SetValue(id_new_cell, new_bc);
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
         }
       }
       if (Npts == 3) {
@@ -248,6 +254,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
           pri_pts[5] = n2[surf_pts[1]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_WEDGE,6,pri_pts);
           cell_code2->SetValue(id_new_cell, 0);
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
         }
         if (i_layer == layer_y.size() - 2) {
           vtkIdType tri_pts[3];
@@ -256,6 +265,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
           tri_pts[2] = n2[surf_pts[2]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_TRIANGLE,3,tri_pts);
           cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
         }
       }
       if (Npts == 4) {
@@ -271,6 +283,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
           pri_pts[7] = n2[surf_pts[3]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_HEXAHEDRON,8,pri_pts);
           cell_code2->SetValue(id_new_cell, 0);
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
         }
         if (i_layer == layer_y.size() - 2) {
           vtkIdType quad_pts[4];
@@ -280,6 +295,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
           quad_pts[3] = n2[surf_pts[3]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_QUAD,4,quad_pts);
           cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
         }
       }
     }

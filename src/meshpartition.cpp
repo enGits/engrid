@@ -96,8 +96,10 @@ void MeshPartition::setVolumeOrientation()
   EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
   EG_VTKDCC(vtkIntArray, cell_voldir, m_Grid, "cell_voldir");
   foreach (vtkIdType id_cell, m_Cells) {
-    if (cell_curdir->GetValue(id_cell) != cell_voldir->GetValue(id_cell)) {
-      reorientateFace(m_Grid, id_cell);
+    if (isSurface(id_cell, m_Grid)) {
+      if (cell_curdir->GetValue(id_cell) != cell_voldir->GetValue(id_cell)) {
+        reorientateFace(m_Grid, id_cell);
+      }
     }
   }
 }
@@ -107,8 +109,10 @@ void MeshPartition::setOriginalOrientation()
   EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
   EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
   foreach (vtkIdType id_cell, m_Cells) {
-    if (cell_curdir->GetValue(id_cell) != cell_orgdir->GetValue(id_cell)) {
-      reorientateFace(m_Grid, id_cell);
+    if (isSurface(id_cell, m_Grid)) {
+      if (cell_curdir->GetValue(id_cell) != cell_orgdir->GetValue(id_cell)) {
+        reorientateFace(m_Grid, id_cell);
+      }
     }
   }
 }
