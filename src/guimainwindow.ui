@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -137,7 +137,6 @@
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="separator"/>
-    <addaction name="actionSmoothVolumeGrid"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
    <widget class="QMenu" name="menuExport">
@@ -224,16 +223,17 @@
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
    <addaction name="actionSetBoundaryCode"/>
+   <addaction name="actionEditBoundaryConditions"/>
    <addaction name="actionChangeOrientation"/>
    <addaction name="actionCheckOrientation"/>
+   <addaction name="actionCreateSurfaceMesh"/>
+   <addaction name="actionSurfaceMesher"/>
    <addaction name="separator"/>
    <addaction name="actionNormalExtrusion"/>
    <addaction name="actionCreateVolumeMesh"/>
-   <addaction name="actionSmoothVolumeGrid"/>
    <addaction name="actionDeleteVolumeGrid"/>
    <addaction name="actionCreateBoundaryLayer"/>
    <addaction name="actionDivideBoundaryLayer"/>
-   <addaction name="actionCreateSurfaceMesh"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
@@ -1066,7 +1066,7 @@
   <action name="actionCreateSurfaceMesh">
    <property name="icon">
     <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/smoothsurf.png</normaloff>:/icons/resources/icons/smoothsurf.png</iconset>
+     <normaloff>:/icons/resources/icons/editsurfaceparameters.png</normaloff>:/icons/resources/icons/editsurfaceparameters.png</iconset>
    </property>
    <property name="text">
     <string>edit surface parameters</string>
@@ -1117,7 +1117,10 @@
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
    </property>
    <property name="text">
-    <string>delete volume grid</string>
+    <string>delete tetras</string>
+   </property>
+   <property name="toolTip">
+    <string>delete tetras</string>
    </property>
   </action>
   <action name="actionDivideBoundaryLayer">
@@ -1236,6 +1239,10 @@
    </property>
   </action>
   <action name="actionEditBoundaryConditions">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/editbc.png</normaloff>:/icons/resources/icons/editbc.png</iconset>
+   </property>
    <property name="text">
     <string>Edit boundary conditions</string>
    </property>
@@ -1516,6 +1523,10 @@
    </property>
   </action>
   <action name="actionSurfaceMesher">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/createsurfacemesh.png</normaloff>:/icons/resources/icons/createsurfacemesh.png</iconset>
+   </property>
    <property name="text">
     <string>create/improve surface mesh</string>
    </property>

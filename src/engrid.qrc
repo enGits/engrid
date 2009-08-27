@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/icons" >
+    <file>resources/icons/editbc.png</file>
+    <file>resources/icons/editsurfaceparameters.png</file>
+    <file>resources/icons/createsurfacemesh.png</file>
     <file>resources/icons/vtk.png</file>
     <file>resources/kde_icons/undo.png</file>
     <file>resources/kde_icons/redo.png</file>
