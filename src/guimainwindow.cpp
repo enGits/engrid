@@ -1856,9 +1856,12 @@ void GuiMainWindow::storeSurfaceProjection()
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 {
   if (!m_SurfProj.contains(bc)) {
-    QString bc_txt;
-    bc_txt.setNum(bc);
-    EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
+    storeSurfaceProjection();
+    if (!m_SurfProj.contains(bc)) {
+      QString bc_txt;
+      bc_txt.setNum(bc);
+      EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
+    }
   }
   return m_SurfProj[bc];
 }
