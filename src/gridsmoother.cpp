@@ -33,14 +33,14 @@ GridSmoother::GridSmoother()
   N_relaxations = 5;
   N_boundary_corrections = 20;
   N_search = 10;
-  L_search = 0.5;
+  L_search = 0.05;
   smooth_prisms = true;
   dbg = false;
   F_old = 0;
   F_new = 0;
   
   getSet("boundary layer", "tetra weighting", 1.0, m_TetraWeighting);
-  getSet("boundary layer", "layer height weighting", 10.0, m_HeightWeighting);
+  getSet("boundary layer", "layer height weighting", 100.0, m_HeightWeighting);
   getSet("boundary layer", "parallel edges weighting", 3.0, m_ParallelEdgesWeighting);
   getSet("boundary layer", "parallel faces weighting", 5.0, m_ParallelFacesWeighting);
   getSet("boundary layer", "similar face area weighting", 5.0, m_SimilarFaceAreaWeighting);
@@ -48,10 +48,11 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "sharp features on nodes exponent", 2.0, m_SharpNodesExponent);
   getSet("boundary layer", "sharp features on edges weighting", 3.0, m_SharpEdgesWeighting);
   getSet("boundary layer", "sharp features on edges exponent", 1.3, m_SharpEdgesExponent);
-  getSet("boundary layer", "relative height of boundary layer", 1.5, m_RelativeHeight);
+  getSet("boundary layer", "relative height of boundary layer", 0.6, m_RelativeHeight);
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
   getSet("boundary layer", "under relaxation", 1.0, m_UnderRelaxation);
-  getSet("boundary layer", "maximal relative edge length", 2.0, m_MaxRelLength);
+  getSet("boundary layer", "maximal relative edge length", 1.5, m_MaxRelLength);
+  getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
 
 }
 
@@ -115,7 +116,7 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
           //if (dbg) cout << id_node << " : tetra negative" << endl;
         }
       }
-      if (type_cell == VTK_WEDGE) {
+      if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
         vtkIdType N_pts, *pts;
         vec3_t xtet[4];
         grid->GetCellPoints(id_cell, N_pts, pts);
@@ -225,7 +226,7 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
       moved = true;
       break;
     }
-    Dx *= 0.5;
+    Dx *= 0.1;
   }
   return moved;
 }
@@ -233,13 +234,18 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 double GridSmoother::errThickness(double x) 
 {
   if (x > 1) x = 2 - x;
-  double delta = 0.01;
-  double a     = 5.0;
+  const double delta = 0.01;
+  const double a     = 5.0;
+  const double b     = 1.0;
+  const double m0    = -b*a/sqr(a+delta);
+  const double err0  = 1.0/delta - 1.0/(a+delta);
+
   double err   = 0;
-  if      (x < 0) err = 1.0/delta - 1.0/(a+delta);
+
+  if      (x < 0) err = err0 + x*m0;
   else if (x < 1) err = abs(1/(a*x+delta) - 1.0/(a+delta));
     
-  return err;
+  return err/err0;
 }
 
 double GridSmoother::errLimit(double x)
@@ -274,8 +280,10 @@ double GridSmoother::func(vec3_t x)
   vec3_t n_node(1,0,0);
   QList<vec3_t> n_pri;
 
-  double height_error = 0;
+  double tetra_error = 0;
+  bool tets_only = true;
   EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  double max_herr = 0;
 
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
@@ -287,7 +295,7 @@ double GridSmoother::func(vec3_t x)
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
-      if (type_cell == VTK_TETRA && m_TetraWeighting > 1e-6) {
+      if (type_cell == VTK_TETRA) {
         double L = 0;
         L += (xn[0]-xn[1]).abs();
         L += (xn[0]-xn[2]).abs();
@@ -299,9 +307,12 @@ double GridSmoother::func(vec3_t x)
         double V1 = GeometryTools::cellVA(grid, id_cell, true);
         double V2 = sqrt(1.0/72.0)*L*L*L;
         double e = sqr((V1-V2)/V2);
+        m_MaxTetError = max(m_MaxTetError, e);
         f += m_TetraWeighting*e;
+        tetra_error += e;
       }
       if (type_cell == VTK_WEDGE) {
+        tets_only = false;
         vec3_t a  = xn[2]-xn[0];
         vec3_t b  = xn[1]-xn[0];
         vec3_t c  = xn[5]-xn[3];
@@ -328,20 +339,24 @@ double GridSmoother::func(vec3_t x)
         m_IdFoot[pts[4]] = pts[1];
         m_IdFoot[pts[5]] = pts[2];
         double L = 0;
+        int i_foot = -1;
         if (nodes[i_nodes_opt] == pts[3]) {
           L = m_RelativeHeight*cl->GetValue(pts[0]);
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
+          i_foot = 0;
         }
         if (nodes[i_nodes_opt] == pts[4]) {
           L = m_RelativeHeight*cl->GetValue(pts[1]);
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
+          i_foot = 1;
         }
         if (nodes[i_nodes_opt] == pts[5]) {
           L = m_RelativeHeight*cl->GetValue(pts[2]);
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
+          i_foot = 2;
         }
         m_L[nodes[i_nodes_opt]] = L;
         vec3_t v0 = xn[0]-xn[3];
@@ -351,13 +366,26 @@ double GridSmoother::func(vec3_t x)
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        if (m_HeightWeighting > 1e-6 && L > 0) {
-          double e0 = errThickness(h0/L);
-          double e1 = errThickness(h1/L);
-          double e2 = errThickness(h2/L);
-          double e  = max(e0, max(e1, e2));
+        //if (h0 < 0.1*L) h0 = v0.abs();
+        //if (h1 < 0.1*L) h1 = v1.abs();
+        //if (h2 < 0.1*L) h2 = v2.abs();
+        if (m_HeightWeighting > 1e-6 && i_foot != -1) {
+          //double e0 = errThickness(h0/L);
+          //double e1 = errThickness(h1/L);
+          //double e2 = errThickness(h2/L);
+          //double e  = max(e0, max(e1, e2));
+
+          double e = 0;
+          if (i_foot == 0) {
+            e = errThickness(h0/L);
+          } else if (i_foot == 1) {
+            e = errThickness(h1/L);
+          } else if (i_foot == 2) {
+            e = errThickness(h2/L);
+          }
+          max_herr = max(max_herr, e);
           f += m_HeightWeighting*e;
-          height_error += max(height_error, e);
+          m_MaxHeightError = max(m_MaxHeightError, e);
         }
         if (m_ParallelEdgesWeighting > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -370,18 +398,21 @@ double GridSmoother::func(vec3_t x)
             f += m_ParallelEdgesWeighting*e1;
             f += m_ParallelEdgesWeighting*e2;
             f += m_ParallelEdgesWeighting*e3;
+            m_MaxParallelEdgesError = max(m_MaxParallelEdgesError, e1 + e2 + e3);
           }
         }
         if (m_ParallelFacesWeighting  > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
             double e = (1+n_face[0]*n_face[1]);
             f += m_ParallelFacesWeighting*e;
+            m_MaxParallelFacesError = max(m_MaxParallelFacesError, e);
           }
         }
         if (m_SimilarFaceAreaWeighting > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
             double e = sqr((A1-A2)/(A1+A2));
             f += m_SimilarFaceAreaWeighting*e;
+            m_MaxFaceAreaError = max(m_MaxFaceAreaError, e);
           }
         }
         if (m_SharpEdgesWeighting > 1e-6) {
@@ -407,6 +438,7 @@ double GridSmoother::func(vec3_t x)
           }
           if (num_sharp2 > 0) {
             f += m_SharpEdgesWeighting*f_sharp2/num_sharp2;
+            m_MaxSharpEdgesError = max(m_MaxSharpEdgesError, f_sharp2/num_sharp2);
           }
         }
       }
@@ -423,6 +455,12 @@ double GridSmoother::func(vec3_t x)
       ++num_sharp1;
     }
     f += m_SharpNodesExponent*f_sharp1;
+    m_MaxSharpNodesError = max(m_MaxSharpNodesError, f_sharp1);
+  }
+  if (tets_only) {
+    f = tetra_error;
+  } else {
+    //f += 50*tetra_error*max_herr*m_TetraWeighting;
   }
   return f;
 }
@@ -480,6 +518,7 @@ void GridSmoother::operate()
   F_old = 0;
   F_max_old = 0;
   setPrismWeighting();
+  m_MaxHeightError = 0;
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (prism_node[i_nodes]) {
       vec3_t x;
@@ -493,6 +532,7 @@ void GridSmoother::operate()
   setAllWeighting();
   
   cout << "\nsmoothing volume mesh (" << N_marked_nodes << " nodes)" << endl;
+  m_MaxHeightError = 0;
   for (int i_iterations = 0; i_iterations < N_iterations; ++i_iterations) {
     cout << "iteration " << i_iterations+1 << "/" << N_iterations << endl;
     int N_blocked  = 0;
@@ -551,11 +591,12 @@ void GridSmoother::operate()
         L0 /= sum_C;
         x_new1 *= 1.0/sum_C;
         vec3_t Dx1 = x_new1 - x_old;
-        setDeltas(1e-3*L0);
+        setDeltas(1e-6*L0);
+        //setDeltas(1e-6);
         i_nodes_opt = i_nodes;
         vec3_t Dx2(0,0,0);
         Dx2 = m_UnderRelaxation*optimise(x_old);
-        vec3_t Dx3 = (-10e-4/func(x_old))*grad_f;
+        vec3_t Dx3 = (-1e-4/func(x_old))*grad_f;
         correctDx(i_nodes, Dx1);
         correctDx(i_nodes, Dx2);
         correctDx(i_nodes, Dx3);
@@ -580,10 +621,6 @@ void GridSmoother::operate()
 
         if (!moveNode(i_nodes, Dx)) {
           // search for a better place
-          vec3_t x_foot;
-          if (m_IdFoot[id_node] != -1) {
-            grid->GetPoint(m_IdFoot[id_node], x_foot.data());
-          }
           vec3_t x_save = x_old;
           vec3_t ex(L_search*L0/N_search,0,0);
           vec3_t ey(0,L_search*L0/N_search,0);
@@ -602,21 +639,14 @@ void GridSmoother::operate()
                   vec3_t Dx = double(i)*ex + double(j)*ey + double(k)*ez;
                   correctDx(i_nodes, Dx);
                   vec3_t x = x_old + x;
-                  bool try_pos = true;
-                  if ((x - x_foot).abs() > m_MaxRelLength*m_L[id_node]) {
-                    try_pos = false;
-                  }
-                  try_pos = true;
-                  if (try_pos) {
-                    if (setNewPosition(id_node, x)) {
-                      grid->GetPoints()->SetPoint(id_node, x_old.data());
-                      double f = func(x);
-                      if (f < f_min) {
-                        f_min = f;
-                        x_best = x;
-                        found = true;
-                        illegal = false;
-                      }
+                  if (setNewPosition(id_node, x)) {
+                    grid->GetPoints()->SetPoint(id_node, x_old.data());
+                    double f = func(x);
+                    if (f < f_min) {
+                      f_min = f;
+                      x_best = x;
+                      found = true;
+                      illegal = false;
                     }
                   }
                 }
@@ -643,11 +673,20 @@ void GridSmoother::operate()
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
-    
+    cout << N_searched << " type X movements (search)" << endl;
+    cout << N_blocked << " type 0 movements (failure)" << endl;
+
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
     F_new = 0;
     F_max_new = 0;
-    setPrismWeighting();
+    //setPrismWeighting();
+    m_MaxHeightError = 0;
+    m_MaxTetError = 0;
+    m_MaxSharpNodesError = 0;
+    m_MaxSharpEdgesError = 0;
+    m_MaxParallelEdgesError = 0;
+    m_MaxParallelFacesError = 0;
+    m_MaxFaceAreaError = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (prism_node[i_nodes]) {
         vec3_t x;
@@ -658,11 +697,18 @@ void GridSmoother::operate()
         F_max_new = max(F_max_new,f);
       }
     }
-    setAllWeighting();
+    //setAllWeighting();
     cout << "total prism error (old) = " << F_old << endl;
     cout << "total prism error (new) = " << F_new << endl;
     double f_old = max(1e-10,F_old);
     cout << "total prism improvement = " << 100*(1-F_new/f_old) << "%" << endl;
+    cout << "maximal height error = " << m_MaxHeightError << endl;
+    cout << "maximal tetra error = " << m_MaxTetError << endl;
+    cout << "maximal sharp nodes error = " << m_MaxSharpNodesError << endl;
+    cout << "maximal sharp edges error = " << m_MaxSharpEdgesError << endl;
+    cout << "maximal parallel edges error = " << m_MaxParallelEdgesError << endl;
+    cout << "maximal parallel faces error = " << m_MaxParallelFacesError << endl;
+    cout << "maximal face area error = " << m_MaxFaceAreaError << endl;
   }
   cout << "done" << endl;
 }

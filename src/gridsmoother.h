@@ -68,7 +68,17 @@ protected: // attributes
   double m_SharpEdgesExponent;
   double m_SimilarFaceAreaWeighting;
 
+  double m_MaxHeightError;
+  double m_MaxTetError;
+  double m_MaxSharpNodesError;
+  double m_MaxSharpEdgesError;
+  double m_MaxParallelEdgesError;
+  double m_MaxParallelFacesError;
+  double m_MaxFaceAreaError;
+
   double m_UnderRelaxation;
+
+  bool m_StrictPrismChecking;
   
   struct stencil_node_t {
     vec3_t x;
@@ -112,6 +122,7 @@ public: // methods
   
   double improvement();
   double lastTotalError() { return F_new; }
+  double maxHeightError() { return m_MaxHeightError; }
   
 };
 
