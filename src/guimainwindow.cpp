@@ -1075,7 +1075,7 @@ void GuiMainWindow::saveGrid(QString file_name)
 ///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
-  QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC)");
+  QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
   QFileInfo file_info(m_CurrentFilename);
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
