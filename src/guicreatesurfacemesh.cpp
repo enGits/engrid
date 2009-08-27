@@ -128,8 +128,11 @@ int GuiCreateSurfaceMesh::readSettings()
   QString str;
   in >> str;
   ui.lineEditMaximalEdgeLength->setText(str);
+  in >> str;
+  ui.lineEditGrowthFactor->setText(str);
   double nodes_per_quarter_circle;
   in >> nodes_per_quarter_circle;
+  nodes_per_quarter_circle = 0; ///@@@ TODO: implement curvature resolution
   ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
   int num_bcs;
   in >> num_bcs;
@@ -154,6 +157,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     QTextStream out(&buffer, QIODevice::WriteOnly);
     out << "\n";
     out << ui.lineEditMaximalEdgeLength->text() << "\n";
+    out << ui.lineEditGrowthFactor->text() << "\n";
     out << ui.doubleSpinBoxCurvature->value() << "\n";
     out << ui.listWidget->count() << "\n";
     for (int i = 0; i < ui.listWidget->count(); ++i) {

@@ -56,6 +56,7 @@ protected: // attributes
   bool   m_UseProjectionForSmoothing;
   bool   m_UseNormalCorrectionForSmoothing;
   bool   m_AllowFeatureEdgeSwapping;
+  double m_GrowthFactor;
 
 
 private: // methods
@@ -82,6 +83,7 @@ public:
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
   void setMaxEdgeLength(double l)         { m_MaxEdgeLength = l; }
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
+  void setCellGrowthFactor(double cgf)    { m_GrowthFactor = cgf; }
 
 };
 
