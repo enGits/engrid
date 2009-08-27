@@ -1072,7 +1072,7 @@
     <string>edit surface parameters</string>
    </property>
    <property name="toolTip">
-    <string>create/improve surface mesh</string>
+    <string>edit surface parameters</string>
    </property>
   </action>
   <action name="actionExportNeutral">
