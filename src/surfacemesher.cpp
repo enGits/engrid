@@ -35,6 +35,9 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 
 void SurfaceMesher::operate()
 {
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
   prepare();
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -68,11 +71,8 @@ void SurfaceMesher::operate()
       smooth(1);
       swap();
     }
-    //done = true;
-    //done = (iter >= m_NumMaxIter);
     int N_crit = grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
-    //done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted <= 0);
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }

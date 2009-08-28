@@ -329,7 +329,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
   
-    SurfaceProjection* getSurfProj( int bc );
+    SurfaceProjection* getSurfProj(int bc);
+    bool checkSurfProj();
 
   public slots:
 

@@ -35,6 +35,7 @@
 #include "stlwriter.h"
 #include "correctsurfaceorientation.h"
 #include "guieditboundaryconditions.h"
+#include "laplacesmoother.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -1698,6 +1699,7 @@ void GuiMainWindow::configure()
     UpdateDesiredMeshDensity tmp05;
     InsertPoints tmp06;
     RemovePoints tmp07;
+    LaplaceSmoother tmp08;
   }
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
@@ -1856,12 +1858,21 @@ void GuiMainWindow::storeSurfaceProjection()
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 {
   if (!m_SurfProj.contains(bc)) {
-    storeSurfaceProjection();
-    if (!m_SurfProj.contains(bc)) {
-      QString bc_txt;
-      bc_txt.setNum(bc);
-      EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
-    }
+    QString bc_txt;
+    bc_txt.setNum(bc);
+    EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
   return m_SurfProj[bc];
+}
+
+bool GuiMainWindow::checkSurfProj()
+{
+  bool ok = true;
+  foreach (int bc, m_AllBoundaryCodes) {
+    if (!m_SurfProj.contains(bc)) {
+      ok = false;
+      break;
+    }
+  }
+  return ok;
 }
