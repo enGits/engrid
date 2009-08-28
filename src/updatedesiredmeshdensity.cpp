@@ -21,6 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "updatedesiredmeshdensity.h"
+#include "guimainwindow.h"
 
 #include <vtkCharArray.h>
 
@@ -29,6 +30,48 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   EG_TYPENAME;
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
+}
+
+
+void UpdateDesiredMeshDensity::computeExistingLengths()
+{
+  QSet<int> all_bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(all_bcs);
+  QSet<int> fixed_bcs = all_bcs - m_BoundaryCodes;
+  QVector<double> edge_length(grid->GetNumberOfPoints(), 0);
+  QVector<int> edge_count(grid->GetNumberOfPoints(), 0);
+  m_Fixed.fill(false, grid->GetNumberOfPoints());
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      if (fixed_bcs.contains(cell_code->GetValue(id_cell))) {
+        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(id_cell, N_pts, pts);
+        vec3_t x[N_pts];
+        for (int i = 0; i < N_pts; ++i) {
+          grid->GetPoint(pts[i], x[i].data());
+          m_Fixed[pts[i]] = true;
+        }
+        for (int i = 0; i < N_pts; ++i) {
+          int j = i + 1;
+          if (j >= N_pts) {
+            j = 0;
+          }
+          double L = (x[i] - x[j]).abs();
+          edge_length[pts[i]] += L;
+          edge_length[pts[j]] += L;
+          ++edge_count[pts[i]];
+          ++edge_count[pts[j]];
+        }
+      }
+    }
+  }
+  EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    if (edge_count[id_node] > 0) {
+      cl_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
+    }
+  }
 }
 
 void UpdateDesiredMeshDensity::operate()
@@ -40,16 +83,16 @@ void UpdateDesiredMeshDensity::operate()
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2n   = getPartN2N();
-  l2l_t  n2c   = getPartN2C();
   l2l_t  c2c   = getPartC2C();
 
   EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
-  EG_VTKDCN(vtkCharArray,   node_type,    grid, "node_type" );
 
   QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
   QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
   QVector<double> cl_radius(nodes.size(), 1e99);
+
+  computeExistingLengths();
 
   if (m_NodesPerQuarterCircle > 1e-3) {
 
@@ -77,9 +120,9 @@ void UpdateDesiredMeshDensity::operate()
             vec3_t n2 = GeometryTools::orthogonalVector(n1);
             n2.normalise();
             va -= (va*n2)*n2;
-            double a     = va.abs();
-            double R     = 0.5*a/sin(alpha);
-            double cl    = 0.5*R*M_PI/m_NodesPerQuarterCircle;
+            double a  = va.abs();
+            double R  = 0.5*a/sin(alpha);
+            double cl = 0.5*R*M_PI/m_NodesPerQuarterCircle;
             for (int k = 0; k < N_pts; ++k) {
               cl_radius[_nodes[pts[k]]] = min(cl_radius[_nodes[pts[k]]], cl);
             }
@@ -101,6 +144,9 @@ void UpdateDesiredMeshDensity::operate()
         EG_BUG;
       }
       cl = m_VMDvector[idx].density;
+    }
+    if (m_Fixed[id_node]) {
+      cl = cl_desired->GetValue(id_node);
     }
     cl = min(cl_radius[i_nodes], cl);
     cl_desired->SetValue(id_node, cl);
@@ -131,7 +177,9 @@ void UpdateDesiredMeshDensity::operate()
             grid->GetPoint(nodes[j_nodes], xj.data());
             ++num_updated;
             double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
-            cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
+            if (!m_Fixed[nodes[j_nodes]]) {
+              cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
+            }
           }
         }
       }
