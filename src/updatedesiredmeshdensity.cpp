@@ -45,6 +45,7 @@ void UpdateDesiredMeshDensity::operate()
 
   EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
+  EG_VTKDCN(vtkCharArray,   node_type,    grid, "node_type" );
 
   QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
   QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
