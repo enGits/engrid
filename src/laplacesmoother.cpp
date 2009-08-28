@@ -34,6 +34,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   setQuickSave(true);
   m_UseProjection = true;
   m_UseNormalCorrection = false;
+  getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -53,6 +54,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     cell_normals[i].normalise();
   }
   vec3_t x_summit = x_old + n;
+
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     vec3_t x[3];
     vtkIdType N_pts, *pts;
@@ -71,7 +73,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   if (move) {
     for (int i = 0; i < cell_normals.size(); ++i) {
       for (int j = 0; j < cell_normals.size(); ++j) {
-        if (cell_normals[i]*cell_normals[j] < 0.1) {
+        if (cell_normals[i]*cell_normals[j] < -1000*0.1) {
           move = false;
           break;
         }
@@ -90,8 +92,9 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   vec3_t x_old;
   grid->GetPoint(id_node, x_old.data());
   bool moved = false;
-  for (int i_relaxation = 0; i_relaxation < 5; ++i_relaxation) {
-    if (setNewPosition(id_node, x_old + Dx)) {
+  for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
+    vec3_t x_new = x_old + Dx;
+    if (setNewPosition(id_node, x_new)) {
       moved = true;
       break;
     }
@@ -137,6 +140,8 @@ void LaplaceSmoother::operate()
 
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
 
+    m_Success = true;
+
     QVector<vec3_t> node_normals;
     if (m_UseNormalCorrection) {
       node_normals.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
@@ -151,7 +156,7 @@ void LaplaceSmoother::operate()
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
-      if (smooth_node[id_node]) {
+      if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
           vec3_t n(0,0,0);
@@ -172,6 +177,7 @@ void LaplaceSmoother::operate()
               dx = (dx*n)*n;
               x_new[i_nodes] -= dx;
             }
+
             if (m_UseProjection) {
               if (n2bc[_nodes[id_node]].size() == 1) {
                 int bc = n2bc[_nodes[id_node]][0];
@@ -184,24 +190,22 @@ void LaplaceSmoother::operate()
                 }
               }
             }
+
             vec3_t Dx = x_new[i_nodes] - x_old;
+            Dx *= m_UnderRelaxation;
             if (moveNode(id_node, Dx)) {
               x_new[i_nodes] = x_old + Dx;
-              grid->GetPoints()->SetPoint(id_node, x_old.data());
             } else {
               x_new[i_nodes] = x_old;
+              m_Success = false;
             };
           }
         }
       }
     }
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      vtkIdType id_node = nodes[i_nodes];
-      if (smooth_node[id_node]) {
-        if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-          grid->GetPoints()->SetPoint(id_node, x_new[i_nodes].data());
-        }
-      }
+    if (m_Success) {
+      break;
     }
+
   }
 }

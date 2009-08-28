@@ -35,6 +35,8 @@ private:
   int       m_NumberOfIterations;
   bool      m_UseProjection;
   bool      m_UseNormalCorrection;
+  double    m_UnderRelaxation;
+  bool      m_Success;
 
 
 private: // methods
@@ -52,6 +54,7 @@ public:
   void setProjectionOff() { m_UseProjection = false; }
   void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
   void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
+  bool succeeded() { return m_Success; }
 
 };
 
