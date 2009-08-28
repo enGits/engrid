@@ -34,6 +34,7 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_RespectBC = false;
   m_FeatureSwap = false;
   m_FeatureAngle = GeometryTools::deg2rad(30);
+  m_MaxNumLoops = 20;
 }
 
 void SwapTriangles::operate()
@@ -144,7 +145,7 @@ void SwapTriangles::operate()
       } //end of if selected triangle
     } //end of loop through cells
     ++loop;
-  } while ((N_swaps > 0) && (loop <= 20));
+  } while ((N_swaps > 0) && (loop <= m_MaxNumLoops));
   //cout << N_total << " triangles have been swapped" << endl;
 }
 
@@ -161,12 +162,23 @@ bool SwapTriangles::testSwap(stencil_t S)
   // top point
   vec3_t x_summit(0,0,0);
   vec3_t x[4];
+  double l_max = 0;
   for (int k = 0; k < 4; ++k) {
     grid->GetPoints()->GetPoint(S.p[k], x[k].data());
     x_summit += x[k];
   }
+  for (int k = 0; k < 4; ++k) {
+    int i = k;
+    int j = k + 1;
+    if (j == 4) {
+      j = 0;
+    }
+    l_max = max(l_max, (x[i]-x[j]).abs());
+  }
   x_summit *= 0.25;
-  x_summit += n1_old + n2_old;
+  vec3_t n = n1_old + n2_old;
+  n.normalise();
+  x_summit += 3*l_max*n;
 
   // old volumes
   double V1_old = tetraVol(x[0], x[1], x[3], x_summit, true);
