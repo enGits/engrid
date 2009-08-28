@@ -93,6 +93,9 @@ void UpdateDesiredMeshDensity::operate()
   QVector<double> cl_radius(nodes.size(), 1e99);
 
   computeExistingLengths();
+  if (m_BoundaryCodes.size() == 0) {
+    return;
+  }
 
   if (m_NodesPerQuarterCircle > 1e-3) {
 
@@ -138,12 +141,14 @@ void UpdateDesiredMeshDensity::operate()
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     vtkIdType id_node = nodes[i_nodes];
     double cl = 1e99;
-    int idx = cl_specified->GetValue(id_node);
-    if (idx != -1) {
-      if (idx >= m_VMDvector.size()) {
-        EG_BUG;
+    if (m_BoundaryCodes.size() > 0) {
+      int idx = cl_specified->GetValue(id_node);
+      if (idx != -1) {
+        if (idx >= m_VMDvector.size()) {
+          EG_BUG;
+        }
+        cl = m_VMDvector[idx].density;
       }
-      cl = m_VMDvector[idx].density;
     }
     if (m_Fixed[id_node]) {
       cl = cl_desired->GetValue(id_node);

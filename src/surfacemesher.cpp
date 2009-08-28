@@ -38,6 +38,10 @@ void SurfaceMesher::operate()
   if (!GuiMainWindow::pointer()->checkSurfProj()) {
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
+  computeMeshDensity();
+  if (m_BoundaryCodes.size() == 0) {
+    return;
+  }
   prepare();
   EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
