@@ -14,6 +14,7 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   EG_TYPENAME;
   getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
   getSet("surface meshing", "number of smoothing steps"   ,  1, m_NumSmoothSteps);
+  getSet("surface meshing", "number of Delaunay sweeps"   ,  1, m_NumDelaunaySweeps);
   m_NodesPerQuarterCircle = 0;
   m_RespectFeatureEdgesForDeleteNodes = false;
   m_FeatureAngleForDeleteNodes = deg2rad(45);
@@ -129,6 +130,7 @@ void SurfaceAlgorithm::swap()
   swap.setRespectBC(true);
   swap.setFeatureSwap(m_AllowFeatureEdgeSwapping);
   swap.setFeatureAngle(m_FeatureAngle);
+  swap.setMaxNumLoops(m_NumDelaunaySweeps);
   QSet<int> rest_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
   rest_bcs -= m_BoundaryCodes;
@@ -156,6 +158,7 @@ void SurfaceAlgorithm::smooth(int N_iter)
     lap.setNormalCorrectionOff();
   }
   lap();
+  m_SmoothSuccess = lap.succeeded();
 }
 
 int SurfaceAlgorithm::insertNodes()

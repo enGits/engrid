@@ -57,6 +57,8 @@ protected: // attributes
   bool   m_UseNormalCorrectionForSmoothing;
   bool   m_AllowFeatureEdgeSwapping;
   double m_GrowthFactor;
+  bool   m_SmoothSuccess;
+  int    m_NumDelaunaySweeps;
 
 
 private: // methods
