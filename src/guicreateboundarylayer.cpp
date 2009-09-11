@@ -174,5 +174,5 @@ void GuiCreateBoundaryLayer::operate()
   resetOrientation(grid);
   createIndices(grid);
   cout << "total mesh error: " << mesh_error << endl;
-  cout << "maximal height error = " << smooth.maxHeightError() << endl;
+  cout << "maximal height error = " << smooth.maxHeightError() << " at x = " << smooth.posMaxHeightError() << endl;
 }
