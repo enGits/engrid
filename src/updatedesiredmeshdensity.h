@@ -40,6 +40,13 @@ private: //attributes
   QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
   double                      m_MaxEdgeLength;
   double                      m_NodesPerQuarterCircle;
+  QVector<bool>               m_Fixed;
+
+
+protected: // methods
+
+  void computeExistingLengths();
+
 
 public: //methods
 

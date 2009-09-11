@@ -100,6 +100,7 @@ void SurfaceAlgorithm::computeMeshDensity()
   update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
   update_desired_mesh_density.setCellGrowthFactor(m_GrowthFactor);
+  update_desired_mesh_density.setBoundaryCodes(m_BoundaryCodes);
   update_desired_mesh_density();
 }
 
