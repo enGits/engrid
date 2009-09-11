@@ -40,9 +40,10 @@ GridSmoother::GridSmoother()
   F_new = 0;
   
   getSet("boundary layer", "tetra weighting", 1.0, m_TetraWeighting);
-  getSet("boundary layer", "layer height weighting", 100.0, m_HeightWeighting);
-  getSet("boundary layer", "parallel edges weighting", 3.0, m_ParallelEdgesWeighting);
-  getSet("boundary layer", "parallel faces weighting", 5.0, m_ParallelFacesWeighting);
+  getSet("boundary layer", "layer height weighting 1", 100.0, m_HeightWeighting1);
+  getSet("boundary layer", "layer height weighting 2", 1.0, m_HeightWeighting2);
+  getSet("boundary layer", "parallel edges weighting", 9.0, m_ParallelEdgesWeighting);
+  getSet("boundary layer", "parallel faces weighting", 15.0, m_ParallelFacesWeighting);
   getSet("boundary layer", "similar face area weighting", 5.0, m_SimilarFaceAreaWeighting);
   getSet("boundary layer", "sharp features on nodes weighting", 8.0, m_SharpNodesWeighting);
   getSet("boundary layer", "sharp features on nodes exponent", 2.0, m_SharpNodesExponent);
@@ -207,11 +208,6 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   if (m_IdFoot[id_node] != -1) {
     vec3_t x_foot;
     grid->GetPoint(m_IdFoot[id_node], x_foot.data());
-    /*
-    if (m_IdFoot[id_node] == 71) {
-      cout << Dx << ',' << x_old << ',' << x_foot << endl;
-    }
-    */
     Dx += x_old - x_foot;
     if (Dx.abs() > m_MaxRelLength*m_L[id_node]) {
       Dx.normalise();
@@ -233,6 +229,8 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 
 double GridSmoother::errThickness(double x) 
 {
+  //return fabs(1-x);
+
   if (x > 1) x = 2 - x;
   const double delta = 0.01;
   const double a     = 5.0;
@@ -283,7 +281,6 @@ double GridSmoother::func(vec3_t x)
   double tetra_error = 0;
   bool tets_only = true;
   EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
-  double max_herr = 0;
 
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
@@ -369,23 +366,30 @@ double GridSmoother::func(vec3_t x)
         //if (h0 < 0.1*L) h0 = v0.abs();
         //if (h1 < 0.1*L) h1 = v1.abs();
         //if (h2 < 0.1*L) h2 = v2.abs();
-        if (m_HeightWeighting > 1e-6 && i_foot != -1) {
+        if (i_foot != -1) {
           //double e0 = errThickness(h0/L);
           //double e1 = errThickness(h1/L);
           //double e2 = errThickness(h2/L);
           //double e  = max(e0, max(e1, e2));
 
-          double e = 0;
+          double e1 = 0;
+          double e2 = 0;
           if (i_foot == 0) {
-            e = errThickness(h0/L);
+            e1 = errThickness(h0/L);
+            e2 = fabs(1.0 - h0/L);
           } else if (i_foot == 1) {
-            e = errThickness(h1/L);
+            e1 = errThickness(h1/L);
+            e2 = fabs(1.0 - h1/L);
           } else if (i_foot == 2) {
-            e = errThickness(h2/L);
+            e1 = errThickness(h2/L);
+            e2 = fabs(1.0 - h2/L);
           }
-          max_herr = max(max_herr, e);
-          f += m_HeightWeighting*e;
-          m_MaxHeightError = max(m_MaxHeightError, e);
+          if (e2 > m_MaxHeightError) {
+            m_MaxHeightError = e2;
+            m_PosMaxHeightError = xn[i_foot+3];
+          }
+          f += m_HeightWeighting1*e1;
+          f += m_HeightWeighting2*e2;
         }
         if (m_ParallelEdgesWeighting > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {

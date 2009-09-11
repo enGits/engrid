@@ -59,7 +59,8 @@ protected: // attributes
   double m_RelativeHeight;
   double m_TetraWeighting;
   double m_TetraWeightingSaved;
-  double m_HeightWeighting;
+  double m_HeightWeighting1;
+  double m_HeightWeighting2;
   double m_ParallelEdgesWeighting;
   double m_ParallelFacesWeighting;
   double m_SharpNodesWeighting;
@@ -75,6 +76,7 @@ protected: // attributes
   double m_MaxParallelEdgesError;
   double m_MaxParallelFacesError;
   double m_MaxFaceAreaError;
+  vec3_t m_PosMaxHeightError;
 
   double m_UnderRelaxation;
 
@@ -123,7 +125,8 @@ public: // methods
   double improvement();
   double lastTotalError() { return F_new; }
   double maxHeightError() { return m_MaxHeightError; }
-  
+  vec3_t posMaxHeightError() { return m_PosMaxHeightError; }
+
 };
 
 
