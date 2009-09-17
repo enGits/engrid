@@ -279,6 +279,7 @@ double GridSmoother::func(vec3_t x)
   QList<vec3_t> n_pri;
 
   double tetra_error = 0;
+  double total_tet_weight = 0;
   bool tets_only = true;
   EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
 
@@ -305,8 +306,8 @@ double GridSmoother::func(vec3_t x)
         double V2 = sqrt(1.0/72.0)*L*L*L;
         double e = sqr((V1-V2)/V2);
         m_MaxTetError = max(m_MaxTetError, e);
-        f += m_TetraWeighting*e;
         tetra_error += e;
+        total_tet_weight += 1.0;
       }
       if (type_cell == VTK_WEDGE) {
         tets_only = false;
@@ -461,10 +462,13 @@ double GridSmoother::func(vec3_t x)
     f += m_SharpNodesExponent*f_sharp1;
     m_MaxSharpNodesError = max(m_MaxSharpNodesError, f_sharp1);
   }
+  if (tetra_error > 0) {
+    tetra_error /= total_tet_weight;
+  }
   if (tets_only) {
     f = tetra_error;
   } else {
-    //f += 50*tetra_error*max_herr*m_TetraWeighting;
+    f += m_TetraWeighting*tetra_error;
   }
   return f;
 }
