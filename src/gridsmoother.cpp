@@ -283,6 +283,15 @@ double GridSmoother::func(vec3_t x)
   bool tets_only = true;
   EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
 
+  bool base_triangle_found = false;
+  bool consider_height_error = false;
+
+  double height1 = 0;
+  double height2 = 0;
+  vec3_t n_base(0,0,0);
+  vec3_t x_base(0,0,0);
+  int N_prisms = 0;
+
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
     if (isVolume(id_cell, grid)) {
@@ -310,6 +319,7 @@ double GridSmoother::func(vec3_t x)
         total_tet_weight += 1.0;
       }
       if (type_cell == VTK_WEDGE) {
+        ++N_prisms;
         tets_only = false;
         vec3_t a  = xn[2]-xn[0];
         vec3_t b  = xn[1]-xn[0];
@@ -364,33 +374,37 @@ double GridSmoother::func(vec3_t x)
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        //if (h0 < 0.1*L) h0 = v0.abs();
-        //if (h1 < 0.1*L) h1 = v1.abs();
-        //if (h2 < 0.1*L) h2 = v2.abs();
-        if (i_foot != -1) {
-          //double e0 = errThickness(h0/L);
-          //double e1 = errThickness(h1/L);
-          //double e2 = errThickness(h2/L);
-          //double e  = max(e0, max(e1, e2));
 
-          double e1 = 0;
-          double e2 = 0;
+        {
+          n_base += n_face[0];
+          vec3_t n = n_face[0];
+          n.normalise();
+          vec3_t v = x - xn[0];
+          v -= (v*n)*n;
+          vec3_t x0 = xn[0] + v;
+          vec3_t x1 = x0 + n;
+          vec3_t x2 = x0 - n;
+          vec3_t xi, ri;
+          if (intersectEdgeAndTriangle(xn[0], xn[1], xn[2], x1, x2, xi, ri, 0.1)) {
+            base_triangle_found = true;
+          }
+        }
+
+        if (i_foot != -1) {
+          consider_height_error = true;
           if (i_foot == 0) {
-            e1 = errThickness(h0/L);
-            e2 = fabs(1.0 - h0/L);
+            height1 += h0/L;
+            x_base = xn[0];
+            height2 = L;
           } else if (i_foot == 1) {
-            e1 = errThickness(h1/L);
-            e2 = fabs(1.0 - h1/L);
+            height1 += h1/L;
+            x_base = xn[1];
+            height2 = L;
           } else if (i_foot == 2) {
-            e1 = errThickness(h2/L);
-            e2 = fabs(1.0 - h2/L);
+            height1 += h2/L;
+            x_base = xn[2];
+            height2 = L;
           }
-          if (e2 > m_MaxHeightError) {
-            m_MaxHeightError = e2;
-            m_PosMaxHeightError = xn[i_foot+3];
-          }
-          f += m_HeightWeighting1*e1;
-          f += m_HeightWeighting2*e2;
         }
         if (m_ParallelEdgesWeighting > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -448,6 +462,22 @@ double GridSmoother::func(vec3_t x)
         }
       }
     }
+  }
+  if (consider_height_error) {
+    if (N_prisms == 0) {
+      EG_BUG;
+    }
+    n_base.normalise();
+    double h = (x_base - x)*n_base;
+    h /= height2;
+    double e1 = errThickness(h);
+    double e2 = pow(fabs(1.0 - h), 2.0);
+    if (e2 > m_MaxHeightError) {
+      m_MaxHeightError = e2;
+      m_PosMaxHeightError = x;
+    }
+    f += m_HeightWeighting1*e1;
+    f += m_HeightWeighting2*e2;
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
