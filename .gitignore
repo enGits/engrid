@@ -70,3 +70,8 @@ docs
 
 # ignore the persistent .build tag in the main directory
 /.build
+
+*.exe
+*.Debug
+*.Release
+
