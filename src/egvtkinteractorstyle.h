@@ -34,7 +34,11 @@
 #include <iostream>
 using namespace std;
 
-class VTK_RENDERING_EXPORT egvtkInteractorStyle : public vtkInteractorStyle
+class 
+#ifndef WIN32
+	VTK_RENDERING_EXPORT
+#endif
+egvtkInteractorStyle : public vtkInteractorStyle
 {
 public:
   

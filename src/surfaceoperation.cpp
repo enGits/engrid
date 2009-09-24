@@ -158,7 +158,7 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   QVector<vtkIdType> cells;
   getAllSurfaceCells( cells, grid );
   EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   setGrid( grid );
   setCells( cells );
   if ( DebugLevel > 5 ) {
@@ -503,11 +503,11 @@ double SurfaceOperation::DesiredVertexAvgDist( vtkIdType id_node )
 
   double total_dist = 0;
   double avg_dist = 0;
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_dist += 1. / node_meshdensity_desired->GetValue( id_node_neighbour );
+    total_dist += 1. / characteristic_length_desired->GetValue( id_node_neighbour );
   }
   avg_dist = total_dist / ( double )N;
   return( avg_dist );
@@ -521,11 +521,11 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 
   double total_density = 0;
   double avg_density = 0;
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_density += node_meshdensity_desired->GetValue( id_node_neighbour );
+    total_density += characteristic_length_desired->GetValue( id_node_neighbour );
   }
   avg_density = total_density / ( double )N;
   return( avg_density );
@@ -541,8 +541,8 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 /// desired edge length for id_node
 double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
 {
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
-  return( 1.0 / node_meshdensity_desired->GetValue( id_node ) );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  return( 1.0 / characteristic_length_desired->GetValue( id_node ) );
 }
 
 //other functions

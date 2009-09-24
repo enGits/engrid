@@ -281,7 +281,7 @@ double GridSmoother::func(vec3_t x)
   double tetra_error = 0;
   double total_tet_weight = 0;
   bool tets_only = true;
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
 
   bool base_triangle_found = false;
   bool consider_height_error = false;
@@ -349,19 +349,19 @@ double GridSmoother::func(vec3_t x)
         double L = 0;
         int i_foot = -1;
         if (nodes[i_nodes_opt] == pts[3]) {
-          L = m_RelativeHeight*cl->GetValue(pts[0]);
+          L = m_RelativeHeight*characteristic_length_desired->GetValue(pts[0]);
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
           i_foot = 0;
         }
         if (nodes[i_nodes_opt] == pts[4]) {
-          L = m_RelativeHeight*cl->GetValue(pts[1]);
+          L = m_RelativeHeight*characteristic_length_desired->GetValue(pts[1]);
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
           i_foot = 1;
         }
         if (nodes[i_nodes_opt] == pts[5]) {
-          L = m_RelativeHeight*cl->GetValue(pts[2]);
+          L = m_RelativeHeight*characteristic_length_desired->GetValue(pts[2]);
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
           i_foot = 2;

@@ -43,9 +43,9 @@ void SurfaceMesher::operate()
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
-  EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    md->SetValue(id_node, 1e-6);
+    characteristic_length_desired->SetValue(id_node, 1e-6);
   }
   updateNodeInfo(true);
   int num_inserted = 0;

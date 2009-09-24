@@ -1277,8 +1277,8 @@ void GuiMainWindow::updateStatusBar()
       }
       pick_txt += "]";
       QString tmp;
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");
-      tmp.setNum(node_meshdensity_desired->GetValue(id_node));
+      EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
+      tmp.setNum(characteristic_length_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
       EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");
       tmp.setNum(node_meshdensity_current->GetValue(id_node));

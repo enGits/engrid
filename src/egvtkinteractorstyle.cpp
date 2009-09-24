@@ -35,7 +35,10 @@
 
 
 
-vtkCxxRevisionMacro(egvtkInteractorStyle, "$Revision: 1.37 $");
+#ifndef WIN32
+	vtkCxxRevisionMacro(egvtkInteractorStyle, "$Revision: 1.37 $");
+#endif
+
 vtkStandardNewMacro(egvtkInteractorStyle);
 
 //----------------------------------------------------------------------------
