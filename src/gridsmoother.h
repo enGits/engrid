@@ -41,6 +41,14 @@ private: // attributes
   QVector<bool> node_marked;
   int N_marked_nodes;
   bool dbg;
+
+private: // data types
+
+  struct edge_t
+  {
+    vtkIdType n1, n2;
+    bool operator==(const edge_t &e) { return n1 == e.n1 && n2 == e.n2; }
+  };
   
 protected: // attributes
   

@@ -292,6 +292,8 @@ double GridSmoother::func(vec3_t x)
   vec3_t x_base(0,0,0);
   int N_prisms = 0;
 
+  QSet<edge_t> edges;
+
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
     if (isVolume(id_cell, grid)) {
@@ -390,18 +392,19 @@ double GridSmoother::func(vec3_t x)
           }
         }
 
+        height1 = 1e99;
         if (i_foot != -1) {
           consider_height_error = true;
           if (i_foot == 0) {
-            height1 += h0/L;
+            height1 = min(h0/L, height1);
             x_base = xn[0];
             height2 = L;
           } else if (i_foot == 1) {
-            height1 += h1/L;
+            height1 = min(h1/L, height1);
             x_base = xn[1];
             height2 = L;
           } else if (i_foot == 2) {
-            height1 += h2/L;
+            height1 = min(h2/L, height1);
             x_base = xn[2];
             height2 = L;
           }
@@ -463,21 +466,33 @@ double GridSmoother::func(vec3_t x)
       }
     }
   }
+  if (!base_triangle_found) {
+    //height_amplification = 2;
+  }
   if (consider_height_error) {
     if (N_prisms == 0) {
       EG_BUG;
     }
     n_base.normalise();
+    double height_amplification = 1;
+    if (height1 < 0.1) {
+      height_amplification = 10;
+    }
     double h = (x_base - x)*n_base;
     h /= height2;
-    double e1 = errThickness(h);
-    double e2 = pow(fabs(1.0 - h), 2.0);
+    //double e1 = errThickness(h);
+    if (fabs(1-h) > m_MaxHeightError) {
+      m_MaxHeightError = fabs(1-h);
+      m_PosMaxHeightError = x;
+    }
+    h /= height_amplification;
+    double e1 = max(0.0, -m_HeightWeighting1*(h - 0.2));
+    double e2 = fabs(1 - h);;
     if (e2 > m_MaxHeightError) {
       m_MaxHeightError = e2;
       m_PosMaxHeightError = x;
     }
-    f += m_HeightWeighting1*e1;
-    f += m_HeightWeighting2*e2;
+    f += max(e1, m_HeightWeighting2*e2);
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
