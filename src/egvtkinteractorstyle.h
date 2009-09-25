@@ -72,7 +72,7 @@ public:
   vtkGetStringMacro(KeySym);
   
   static egvtkInteractorStyle *New();
-  vtkTypeRevisionMacro(egvtkInteractorStyle,vtkInteractorStyle);
+//   vtkTypeRevisionMacro(egvtkInteractorStyle,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 //   vtkGetMacro(ShiftKey,int);
