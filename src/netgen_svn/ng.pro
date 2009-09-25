@@ -1,11 +1,22 @@
-TEMPLATE     = lib
+QT       -= gui
+
+win32 {
+	TARGET = superman
+}
+
+TEMPLATE = lib
+CONFIG += staticlib
+
 LANGUAGE     = C++
-CONFIG      += debug staticlib warn_on
+CONFIG      += debug warn_on
 INCLUDEPATH += netgen-mesher/netgen/libsrc/include
 INCLUDEPATH += .
 DEFINES     += NO_PARALLEL_THREADS
 DEFINES     += NGLIB_EXPORTS
+DEFINES     += DLL_EXPORT
 DEFINES     += vtkRendering_EXPORTS
+#DEFINES     += PIC
+#DEFINES     += HAVE_CONFIG_H
 
 #PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
 #PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"

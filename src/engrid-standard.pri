@@ -5,7 +5,7 @@ QT += xml \
 RESOURCES += engrid.qrc
 
 # netgen lib
-LIBS += -lng
+# LIBS += -lng
 
 # VTK libs
 LIBS += -lQVTK
