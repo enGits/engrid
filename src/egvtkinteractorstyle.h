@@ -57,26 +57,9 @@ public:
   int   TimerEventType;
   int   TimerEventDuration;
   int   TimerEventPlatformId;
-  
-/*  vtkSetMacro(AltKey, int);
-  vtkGetMacro(AltKey, int);
-  vtkSetMacro(ControlKey, int);
-  vtkGetMacro(ControlKey, int);
-  vtkSetMacro(ShiftKey, int);
-  vtkGetMacro(ShiftKey, int);
-  vtkSetMacro(KeyCode, char);
-  vtkGetMacro(KeyCode, char);
-  vtkSetMacro(RepeatCount, int);
-  vtkGetMacro(RepeatCount, int);
-  vtkSetStringMacro(KeySym);
-  vtkGetStringMacro(KeySym);*/
-  
+    
   static egvtkInteractorStyle *New();
-//   vtkTypeRevisionMacro(egvtkInteractorStyle,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-//   vtkGetMacro(ShiftKey,int);
-//   vtkGetMacro(CtrlKey,int);
   
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
@@ -120,8 +103,6 @@ public:
   
   // Description:
   // Set the apparent sensitivity of the interactor style to mouse motion.
-//   vtkSetMacro(MotionFactor,double);
-//   vtkGetMacro(MotionFactor,double);
   
 protected:
   egvtkInteractorStyle();
