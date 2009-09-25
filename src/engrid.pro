@@ -17,10 +17,10 @@ CONFIG += qt \
 # DEFINES += QT_NO_DEBUG
 # DEFINES += QT_DEBUG
 # QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
-# get "git revision number"
 
 ################################
 # VERSION INFO
+# get "git revision number"
 win32 {
     QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"alpha\\\"
 }
@@ -31,7 +31,7 @@ else {
 
 #to get rid of deprecated header warnings caused by including QVTKwidget.h
 # DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
-DEFINES += VTK_LEGACY_REMOVE
+# DEFINES += VTK_LEGACY_REMOVE
 
 QMAKE_CXXFLAGS += -Wall
 
@@ -43,57 +43,31 @@ QT += xml \
     opengl
 
 ########################
-#VTK
+# VTK
 INCLUDEPATH += $(VTKINCDIR)
 LIBS += -L$(VTKLIBDIR)
-LIBS += -lQVTK
-LIBS += -lvtkRendering
-LIBS += -lvtkGraphics
-LIBS += -lvtkIO
-LIBS += -lvtkCommon
-LIBS += -lvtkQtChart
-LIBS += -lvtkViews
-LIBS += -lvtkInfovis
-LIBS += -lvtkWidgets
-LIBS += -lvtkHybrid
-LIBS += -lvtkverdict
-LIBS += -lvtkImaging
-LIBS += -lvtkftgl
-LIBS += -lvtkfreetype
-LIBS += -lvtkFiltering
-LIBS += -lvtkDICOMParser
-LIBS += -lvtkmetaio
-LIBS += -lvtksqlite
-LIBS += -lvtkpng
-LIBS += -lvtktiff
-LIBS += -lvtkjpeg
-LIBS += -lvtkexpat
-LIBS += -lvtksys
-LIBS += -lvtkexoIIc
-LIBS += -lvtkNetCDF
-LIBS += -lvtklibxml2
-LIBS += -lvtkzlib
-LIBS += -lvtkalglib
-LIBS += -lvtkGeovis
-LIBS += -lvtkproj4
+########################
+
+########################
+# NETGEN
+INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
+INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 ########################
 
 !win32 {
     LIBS += -L./netgen_svn
-    LIBS += -L$(VTKLIBDIR)
-
     # LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
-    INCLUDEPATH += $(VTKINCDIR)
-    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
-INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-LIBS += -Lnetgen_svn\release
-LIBS += -lnglib
 
-#Z:\mtaverne\Development\engrid\src\netgen_svn\release
+win32 {
+	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
+	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
+	LIBS += -Lnetgen_svn\release
+	LIBS += -lnglib
+
+	#Z:\mtaverne\Development\engrid\src\netgen_svn\release
+}
 
 #win32 {
 #    VTK_DIR = C:\VTK
