@@ -69,7 +69,9 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     if (edge_count[id_node] > 0) {
-      characteristic_length_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
+      double toto = edge_length[id_node]/edge_count[id_node];
+      if(toto==0) EG_BUG;
+      characteristic_length_desired->SetValue(id_node, toto);
     }
   }
 }
@@ -154,7 +156,11 @@ void UpdateDesiredMeshDensity::operate()
       cl = characteristic_length_desired->GetValue(id_node);
     }
     cl = min(cl_radius[i_nodes], cl);
-    characteristic_length_desired->SetValue(id_node, cl);
+    
+    double toto = cl;
+    if(toto==0) EG_BUG;
+    characteristic_length_desired->SetValue(id_node, toto);
+    
     if (cl < cl_min) {
       cl_min = cl;
       i_nodes_min = i_nodes;
@@ -183,7 +189,23 @@ void UpdateDesiredMeshDensity::operate()
             ++num_updated;
             double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
             if (!m_Fixed[nodes[j_nodes]]) {
-              characteristic_length_desired->SetValue(nodes[j_nodes], min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new));
+              
+              double toto = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
+/*              qDebug()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
+              qDebug()<<"cli="<<cli;
+              qDebug()<<"m_GrowthFactor="<<m_GrowthFactor;
+              qDebug()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
+              qDebug()<<"L_new="<<L_new;*/
+              if(toto==0) {
+                qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
+                qWarning()<<"cli="<<cli;
+                qWarning()<<"m_GrowthFactor="<<m_GrowthFactor;
+                qWarning()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
+                qWarning()<<"L_new="<<L_new;
+                EG_BUG;
+              }
+              characteristic_length_desired->SetValue(nodes[j_nodes], toto);
+              
             }
           }
         }

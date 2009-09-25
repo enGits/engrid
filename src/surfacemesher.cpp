@@ -30,7 +30,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = true;
-  m_FeatureAngle = GeometryTools::deg2rad(200);
+  m_FeatureAngle = GeometryTools::deg2rad(200);//this angle is also used by swaptriangles!!!
 }
 
 void SurfaceMesher::operate()
