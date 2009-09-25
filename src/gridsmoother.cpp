@@ -39,22 +39,91 @@ GridSmoother::GridSmoother()
   F_old = 0;
   F_new = 0;
   
-  getSet("boundary layer", "tetra weighting", 1.0, m_TetraWeighting);
-  getSet("boundary layer", "layer height weighting 1", 100.0, m_HeightWeighting1);
-  getSet("boundary layer", "layer height weighting 2", 1.0, m_HeightWeighting2);
-  getSet("boundary layer", "parallel edges weighting", 9.0, m_ParallelEdgesWeighting);
-  getSet("boundary layer", "parallel faces weighting", 15.0, m_ParallelFacesWeighting);
-  getSet("boundary layer", "similar face area weighting", 5.0, m_SimilarFaceAreaWeighting);
-  getSet("boundary layer", "sharp features on nodes weighting", 8.0, m_SharpNodesWeighting);
-  getSet("boundary layer", "sharp features on nodes exponent", 2.0, m_SharpNodesExponent);
-  getSet("boundary layer", "sharp features on edges weighting", 3.0, m_SharpEdgesWeighting);
-  getSet("boundary layer", "sharp features on edges exponent", 1.3, m_SharpEdgesExponent);
-  getSet("boundary layer", "relative height of boundary layer", 0.6, m_RelativeHeight);
+  getSet("boundary layer", "tetra weighting 1",              1000.0,  m_TetraWeighting1);
+  getSet("boundary layer", "tetra weighting 2",                 0.1,  m_TetraWeighting2);
+  getSet("boundary layer", "tetra switching",                   0.05, m_TetraSwitch);
+  getSet("boundary layer", "layer height weighting 1",        100.0,  m_HeightWeighting1);
+  getSet("boundary layer", "layer height weighting 2",          2.0,  m_HeightWeighting2);
+  getSet("boundary layer", "layer height switching",            0.2,  m_HeightSwitch);
+  getSet("boundary layer", "parallel edges weighting",          9.0,  m_ParallelEdgesWeighting);
+  getSet("boundary layer", "parallel faces weighting",         15.0,  m_ParallelFacesWeighting);
+  getSet("boundary layer", "similar face area weighting",       5.0,  m_SimilarFaceAreaWeighting);
+  getSet("boundary layer", "sharp features on nodes weighting", 8.0,  m_SharpNodesWeighting);
+  getSet("boundary layer", "sharp features on nodes exponent",  2.0,  m_SharpNodesExponent);
+  getSet("boundary layer", "sharp features on edges weighting", 3.0,  m_SharpEdgesWeighting);
+  getSet("boundary layer", "sharp features on edges exponent",  1.3,  m_SharpEdgesExponent);
+  getSet("boundary layer", "relative height of boundary layer", 0.6,  m_RelativeHeight);
+  getSet("boundary layer", "under relaxation",                  1.0,  m_UnderRelaxation);
+  getSet("boundary layer", "maximal relative edge length",      1.5,  m_MaxRelLength);
+
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
-  getSet("boundary layer", "under relaxation", 1.0, m_UnderRelaxation);
-  getSet("boundary layer", "maximal relative edge length", 1.5, m_MaxRelLength);
   getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
 
+  m_CritAngle = GeometryTools::deg2rad(450.0);
+
+}
+
+void GridSmoother::computeAngles()
+{
+  m_MaxAngle.fill(0.0, grid->GetNumberOfPoints());
+  m_NodeNormal.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
+  QVector<double> angle_weight(grid->GetNumberOfPoints(), 0.0);
+  QVector<bool> angle_set(grid->GetNumberOfPoints(), false);
+  for (vtkIdType id_cell1 = 0; id_cell1 < grid->GetNumberOfCells(); ++id_cell1) {
+    if (isSurface(id_cell1, grid)) {
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell1, N_pts, pts);
+      if (N_pts == 3) {
+        vec3_t n1 = cellNormal(grid, id_cell1);
+        for (int i = 0; i < N_pts; ++i) {
+          vtkIdType id_node1 = pts[i];
+          vtkIdType id_node2 = pts[0];
+          vtkIdType id_node3 = pts[1];
+          if (i < N_pts - 1) {
+            id_node2 = pts[i+1];
+            id_node3 = pts[0];
+            if (i < N_pts - 2) {
+              id_node3 = pts[i+2];
+            }
+          }
+          vtkIdType id_cell2 = m_Part.c2cGG(id_cell1, i);
+          if (id_cell2 != -1) {
+            vec3_t n2 = cellNormal(grid, id_cell2);
+            double alpha = GeometryTools::angle(n1, n2);
+            m_MaxAngle[id_node1] = max(alpha, m_MaxAngle[id_node1]);
+            m_MaxAngle[id_node2] = max(alpha, m_MaxAngle[id_node2]);
+          }
+          vec3_t x1, x2, x3;
+          grid->GetPoint(id_node1, x1.data());
+          grid->GetPoint(id_node2, x2.data());
+          grid->GetPoint(id_node3, x3.data());
+          vec3_t u = x2 - x1;
+          vec3_t v = x3 - x2;
+          double alpha = fabs(GeometryTools::angle(x1-x2, x3-x2));
+          vec3_t n = v.cross(u);
+          n.normalise();
+          //if (id_node2 == 18) cout << id_node1 << ',' << id_node2 << ',' << id_node3 << ",   " << n << endl;
+          m_NodeNormal[id_node2] += alpha*n;
+          angle_weight[id_node2] += alpha;
+          angle_set[id_node2] = true;
+        }
+      }
+    }
+  }
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    if (angle_set[id_node]) {
+      //cout << m_NodeNormal[id_node] << ", " << angle_weight[id_node] << endl;
+
+      m_NodeNormal[id_node] *= 1.0/angle_weight[id_node];
+      m_NodeNormal[id_node].normalise();
+/*
+      if (id_node == 16) {
+        cout << m_NodeNormal[id_node] << endl;
+        EG_BUG;
+      }
+*/
+    }
+  }
 }
 
 void GridSmoother::markNodes()
@@ -288,9 +357,10 @@ double GridSmoother::func(vec3_t x)
 
   double height1 = 0;
   double height2 = 0;
-  vec3_t n_base(0,0,0);
+  //vec3_t n_base(0,0,0);
   vec3_t x_base(0,0,0);
   int N_prisms = 0;
+  vtkIdType id_foot = -1;
 
   QSet<edge_t> edges;
 
@@ -306,18 +376,32 @@ double GridSmoother::func(vec3_t x)
       }
       if (type_cell == VTK_TETRA) {
         double L = 0;
-        L += (xn[0]-xn[1]).abs();
-        L += (xn[0]-xn[2]).abs();
-        L += (xn[0]-xn[3]).abs();
-        L += (xn[1]-xn[2]).abs();
-        L += (xn[1]-xn[3]).abs();
-        L += (xn[2]-xn[3]).abs();
-        L /= 6;
-        double V1 = GeometryTools::cellVA(grid, id_cell, true);
-        double V2 = sqrt(1.0/72.0)*L*L*L;
-        double e = sqr((V1-V2)/V2);
-        m_MaxTetError = max(m_MaxTetError, e);
-        tetra_error += e;
+        L = max(L, (xn[0]-xn[1]).abs());
+        L = max(L, (xn[0]-xn[2]).abs());
+        L = max(L, (xn[0]-xn[3]).abs());
+        L = max(L, (xn[1]-xn[2]).abs());
+        L = max(L, (xn[1]-xn[3]).abs());
+        L = max(L, (xn[2]-xn[3]).abs());
+        double H = sqrt(2.0/3.0)*L;
+
+        vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
+        vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
+        vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
+        vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
+        n012.normalise();
+        n031.normalise();
+        n023.normalise();
+        n213.normalise();
+        double h = 1e99;
+        h = min(h, fabs((xn[0]-xn[3])*n012));
+        h = min(h, fabs((xn[0]-xn[2])*n031));
+        h = min(h, fabs((xn[0]-xn[1])*n023));
+        h = min(h, fabs((xn[0]-xn[3])*n213));
+        h /= H;
+        double e1 = max(0.0, -m_TetraWeighting1*(h - m_TetraSwitch));
+        double e2 = fabs(1 - h);
+        m_MaxTetError = max(m_MaxTetError, e2);
+        tetra_error += max(e1, m_TetraWeighting2*e2);
         total_tet_weight += 1.0;
       }
       if (type_cell == VTK_WEDGE) {
@@ -355,18 +439,21 @@ double GridSmoother::func(vec3_t x)
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
           i_foot = 0;
+          id_foot = pts[0];
         }
         if (nodes[i_nodes_opt] == pts[4]) {
           L = m_RelativeHeight*cl->GetValue(pts[1]);
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
           i_foot = 1;
+          id_foot = pts[1];
         }
         if (nodes[i_nodes_opt] == pts[5]) {
           L = m_RelativeHeight*cl->GetValue(pts[2]);
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
           i_foot = 2;
+          id_foot = pts[2];
         }
         m_L[nodes[i_nodes_opt]] = L;
         vec3_t v0 = xn[0]-xn[3];
@@ -378,7 +465,7 @@ double GridSmoother::func(vec3_t x)
         double h2 = v2*n_face[0];
 
         {
-          n_base += n_face[0];
+          //n_base += n_face[0];
           vec3_t n = n_face[0];
           n.normalise();
           vec3_t v = x - xn[0];
@@ -469,30 +556,26 @@ double GridSmoother::func(vec3_t x)
   if (!base_triangle_found) {
     //height_amplification = 2;
   }
-  if (consider_height_error) {
+  double amp = 1.0;
+  if (id_foot != -1) {
     if (N_prisms == 0) {
       EG_BUG;
     }
-    n_base.normalise();
-    double height_amplification = 1;
-    if (height1 < 0.1) {
-      height_amplification = 10;
-    }
-    double h = (x_base - x)*n_base;
-    h /= height2;
-    //double e1 = errThickness(h);
+    //n_base.normalise();
+    double h = 0;
+    //cout << GeometryTools::rad2deg(m_MaxAngle[id_foot]) << endl;
+    if (m_NodeNormal[id_foot].abs() < 0.5) EG_BUG;
+    double sina = max(1.0/m_MaxRelLength, sin(m_MaxAngle[id_foot]));
+    double H = m_RelativeHeight*cl->GetValue(id_foot)/sina;
+    h = (x - x_base)*m_NodeNormal[id_foot];
+    h /= H;
+    double e1 = max(0.0, -m_HeightWeighting1*(h - m_HeightSwitch));
+    double e2 = fabs(1 - h);;
     if (fabs(1-h) > m_MaxHeightError) {
       m_MaxHeightError = fabs(1-h);
       m_PosMaxHeightError = x;
     }
-    h /= height_amplification;
-    double e1 = max(0.0, -m_HeightWeighting1*(h - 0.2));
-    double e2 = fabs(1 - h);;
-    if (e2 > m_MaxHeightError) {
-      m_MaxHeightError = e2;
-      m_PosMaxHeightError = x;
-    }
-    f += max(e1, m_HeightWeighting2*e2);
+    f += amp*max(e1, m_HeightWeighting2*e2);
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
@@ -513,7 +596,7 @@ double GridSmoother::func(vec3_t x)
   if (tets_only) {
     f = tetra_error;
   } else {
-    f += m_TetraWeighting*tetra_error;
+    f += tetra_error;
   }
   return f;
 }
@@ -534,6 +617,7 @@ void GridSmoother::addToStencil(double C, vec3_t x)
 void GridSmoother::operate()
 {
   markNodes();
+  computeAngles();
   m_IdFoot.fill(-1, grid->GetNumberOfPoints());
   m_L.fill(0, grid->GetNumberOfPoints());
   
@@ -570,7 +654,6 @@ void GridSmoother::operate()
   
   F_old = 0;
   F_max_old = 0;
-  setPrismWeighting();
   m_MaxHeightError = 0;
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (prism_node[i_nodes]) {
@@ -582,7 +665,6 @@ void GridSmoother::operate()
       F_max_old = max(F_max_old,f);
     }
   }
-  setAllWeighting();
   
   cout << "\nsmoothing volume mesh (" << N_marked_nodes << " nodes)" << endl;
   m_MaxHeightError = 0;

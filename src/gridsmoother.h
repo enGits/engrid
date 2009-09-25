@@ -65,10 +65,13 @@ protected: // attributes
   
   double m_MaxRelLength;
   double m_RelativeHeight;
-  double m_TetraWeighting;
+  double m_TetraWeighting1;
+  double m_TetraWeighting2;
+  double m_TetraSwitch;
   double m_TetraWeightingSaved;
   double m_HeightWeighting1;
   double m_HeightWeighting2;
+  double m_HeightSwitch;
   double m_ParallelEdgesWeighting;
   double m_ParallelFacesWeighting;
   double m_SharpNodesWeighting;
@@ -84,6 +87,7 @@ protected: // attributes
   double m_MaxParallelEdgesError;
   double m_MaxParallelFacesError;
   double m_MaxFaceAreaError;
+  double m_CritAngle;
   vec3_t m_PosMaxHeightError;
 
   double m_UnderRelaxation;
@@ -102,6 +106,8 @@ protected: // attributes
 
   QVector<vtkIdType> m_IdFoot;
   QVector<double> m_L;
+  QVector<double> m_MaxAngle;
+  QVector<vec3_t> m_NodeNormal;
   
 protected: // methods
   
@@ -117,8 +123,7 @@ protected: // methods
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
-  void setPrismWeighting() { m_TetraWeightingSaved = m_TetraWeighting; m_TetraWeighting = 0; };
-  void setAllWeighting() { m_TetraWeighting = m_TetraWeightingSaved; };
+  void computeAngles();
     
 public: // methods
   
