@@ -1,10 +1,11 @@
 TEMPLATE     = lib
 LANGUAGE     = C++
-CONFIG      += release staticlib warn_off
-INCLUDEPATH += netgen-mesher/netgen/libsrc/include 
+CONFIG      += debug staticlib warn_on
+INCLUDEPATH += netgen-mesher/netgen/libsrc/include
 INCLUDEPATH += .
 DEFINES     += NO_PARALLEL_THREADS
 DEFINES     += NGLIB_EXPORTS
+DEFINES     += vtkRendering_EXPORTS
 
 #PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
 #PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
