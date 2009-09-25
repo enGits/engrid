@@ -120,8 +120,8 @@ public:
   
   // Description:
   // Set the apparent sensitivity of the interactor style to mouse motion.
-  vtkSetMacro(MotionFactor,double);
-  vtkGetMacro(MotionFactor,double);
+//   vtkSetMacro(MotionFactor,double);
+//   vtkGetMacro(MotionFactor,double);
   
 protected:
   egvtkInteractorStyle();
