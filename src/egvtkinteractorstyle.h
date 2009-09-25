@@ -58,7 +58,7 @@ public:
   int   TimerEventDuration;
   int   TimerEventPlatformId;
   
-  vtkSetMacro(AltKey, int);
+/*  vtkSetMacro(AltKey, int);
   vtkGetMacro(AltKey, int);
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
@@ -69,7 +69,7 @@ public:
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
   vtkSetStringMacro(KeySym);
-  vtkGetStringMacro(KeySym);
+  vtkGetStringMacro(KeySym);*/
   
   static egvtkInteractorStyle *New();
 //   vtkTypeRevisionMacro(egvtkInteractorStyle,vtkInteractorStyle);
