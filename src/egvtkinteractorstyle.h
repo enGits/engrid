@@ -81,30 +81,30 @@ public:
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
-  virtual void OnMouseWheelForward();
-  virtual void OnMouseWheelBackward();
-  virtual void OnChar();
+   void OnMouseMove();
+   void OnLeftButtonDown();
+   void OnLeftButtonUp();
+   void OnMiddleButtonDown();
+   void OnMiddleButtonUp();
+   void OnRightButtonDown();
+   void OnRightButtonUp();
+   void OnMouseWheelForward();
+   void OnMouseWheelBackward();
+   void OnChar();
   
-/*  virtual void 	OnKeyDown (){
+/*   void 	OnKeyDown (){
     cout<<"OnKeyDown "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
   };
-  virtual void 	OnKeyUp (){
+   void 	OnKeyUp (){
     cout<<"OnKeyUp "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
   };
-  virtual void 	OnKeyPress (){
+   void 	OnKeyPress (){
     cout<<"OnKeyPress "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
   };
-  virtual void 	OnKeyRelease (){
+   void 	OnKeyRelease (){
     cout<<"OnKeyRelease "<<this->Interactor->GetKeyCode()<<endl;
     this->EventCallbackCommand->SetAbortFlag(1);
   };*/
@@ -113,10 +113,10 @@ public:
   // are overridden in subclasses to perform the correct motion. Since
   // they are called by OnTimer, they do not have mouse coord parameters
   // (use interactor's GetEventPosition and GetLastEventPosition)
-  virtual void Rotate();
-  virtual void Spin();
-  virtual void Pan();
-  virtual void Dolly();
+   void Rotate();
+   void Spin();
+   void Pan();
+   void Dolly();
   
   // Description:
   // Set the apparent sensitivity of the interactor style to mouse motion.
@@ -129,7 +129,7 @@ protected:
   
   double MotionFactor;
   
-  virtual void Dolly(double factor);
+   void Dolly(double factor);
   
 private:
   egvtkInteractorStyle(const egvtkInteractorStyle&);  // Not implemented.
