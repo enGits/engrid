@@ -56,7 +56,8 @@ INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 
 !win32 {
     LIBS += -L./netgen_svn
-    # LIBS += -Wl,-rpath
+    LIBS += -lng
+#   LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
 
