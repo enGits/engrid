@@ -99,7 +99,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   
   // global values
   QVector <vtkIdType> all_deadcells;

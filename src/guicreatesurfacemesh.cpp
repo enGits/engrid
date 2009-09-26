@@ -124,26 +124,28 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 int GuiCreateSurfaceMesh::readSettings()
 {
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings");
-  QTextStream in(&buffer, QIODevice::ReadOnly);
-  QString str;
-  in >> str;
-  ui.lineEditMaximalEdgeLength->setText(str);
-  in >> str;
-  ui.lineEditGrowthFactor->setText(str);
-  double nodes_per_quarter_circle;
-  in >> nodes_per_quarter_circle;
-  nodes_per_quarter_circle = 0; ///@@@ TODO: implement curvature resolution
-  ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
-  int num_bcs;
-  in >> num_bcs;
-  if (num_bcs == ui.listWidget->count()) {
-    int check_state;
-    for (int i = 0; i < ui.listWidget->count(); ++i) {
-      in >> check_state;
-      if (check_state == 1) {
-        ui.listWidget->item(i)->setCheckState(Qt::Checked);
-      } else {
-        ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+  if(!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    QString str;
+    in >> str;
+    ui.lineEditMaximalEdgeLength->setText(str);
+    in >> str;
+    ui.lineEditGrowthFactor->setText(str);
+    double nodes_per_quarter_circle;
+    in >> nodes_per_quarter_circle;
+    nodes_per_quarter_circle = 0; ///@@@ TODO: implement curvature resolution
+    ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
+    int num_bcs;
+    in >> num_bcs;
+    if (num_bcs == ui.listWidget->count()) {
+      int check_state;
+      for (int i = 0; i < ui.listWidget->count(); ++i) {
+        in >> check_state;
+        if (check_state == 1) {
+          ui.listWidget->item(i)->setCheckState(Qt::Checked);
+        } else {
+          ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+        }
       }
     }
   }

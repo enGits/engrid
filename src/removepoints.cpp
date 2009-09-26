@@ -47,7 +47,7 @@ void RemovePoints::markFeatureEdges()
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  c2c   = getPartC2C();
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   m_IsFeatureNode.resize(nodes.size());
   for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
     m_IsFeatureNode[i] = false;
@@ -69,7 +69,7 @@ void RemovePoints::markFeatureEdges()
         grid->GetPoint(id_node1, x1.data());
         grid->GetPoint(id_node2, x2.data());
         double L = (x1-x2).abs();
-        //if (L > 0.5*cl->GetValue(id_node1)) {
+        //if (L > 0.5*characteristic_length_desired->GetValue(id_node1)) {
         {
           vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
           vec3_t n2 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell2);
@@ -110,7 +110,7 @@ void RemovePoints::operate()
   
   EG_VTKDCN(vtkCharArray,   node_type, grid, "node_type" );
   EG_VTKDCC(vtkIntArray,    cell_code, grid, "cell_code" );
-  EG_VTKDCN(vtkDoubleArray, cl,        grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,        grid, "node_meshdensity_desired" );
 
   // global values
   QVector <vtkIdType> all_deadcells;
@@ -131,11 +131,11 @@ void RemovePoints::operate()
       if (!marked_nodes[i_nodes] && !m_IsFeatureNode[i_nodes]) {
         vec3_t xi;
         grid->GetPoint(id_node, xi.data());
-        double cl_node = cl->GetValue(id_node);
+        double cl_node = characteristic_length_desired->GetValue(id_node);
         bool remove_node = true;
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           vtkIdType id_neigh = nodes[n2n[i_nodes][j]];
-          double cl_neigh = cl->GetValue(id_neigh);
+          double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
           vec3_t xj;
           grid->GetPoint(id_neigh, xj.data());
           double L = (xi-xj).abs();

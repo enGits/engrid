@@ -71,6 +71,9 @@ void SwapTriangles::operate()
                   }
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
+                  
+//                   qDebug()<<"m_FeatureAngle="<<rad2deg(m_FeatureAngle);
+                  
                   if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle) {
                     if(testSwap(S)) {
                       vec3_t n = n1 + n2;

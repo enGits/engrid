@@ -66,10 +66,12 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
       }
     }
   }
-  EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     if (edge_count[id_node] > 0) {
-      cl_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
+      double toto = edge_length[id_node]/edge_count[id_node];
+      if(toto==0) EG_BUG;
+      characteristic_length_desired->SetValue(id_node, toto);
     }
   }
 }
@@ -85,8 +87,8 @@ void UpdateDesiredMeshDensity::operate()
   l2l_t  n2n   = getPartN2N();
   l2l_t  c2c   = getPartC2C();
 
-  EG_VTKDCN(vtkDoubleArray, cl_desired,   grid, "node_meshdensity_desired");
-  EG_VTKDCN(vtkIntArray,    cl_specified, grid, "node_specified_density");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, grid, "node_specified_density");
 
   QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
   QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
@@ -142,7 +144,7 @@ void UpdateDesiredMeshDensity::operate()
     vtkIdType id_node = nodes[i_nodes];
     double cl = 1e99;
     if (m_BoundaryCodes.size() > 0) {
-      int idx = cl_specified->GetValue(id_node);
+      int idx = characteristic_length_specified->GetValue(id_node);
       if (idx != -1) {
         if (idx >= m_VMDvector.size()) {
           EG_BUG;
@@ -151,10 +153,14 @@ void UpdateDesiredMeshDensity::operate()
       }
     }
     if (m_Fixed[id_node]) {
-      cl = cl_desired->GetValue(id_node);
+      cl = characteristic_length_desired->GetValue(id_node);
     }
     cl = min(cl_radius[i_nodes], cl);
-    cl_desired->SetValue(id_node, cl);
+    
+    double toto = cl;
+    if(toto==0) EG_BUG;
+    characteristic_length_desired->SetValue(id_node, toto);
+    
     if (cl < cl_min) {
       cl_min = cl;
       i_nodes_min = i_nodes;
@@ -170,20 +176,36 @@ void UpdateDesiredMeshDensity::operate()
   do {
     num_updated = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      double cli = cl_desired->GetValue(nodes[i_nodes]);
+      double cli = characteristic_length_desired->GetValue(nodes[i_nodes]);
       if (cli <= cl_min) {
         vec3_t xi;
         grid->GetPoint(nodes[i_nodes], xi.data());
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           int j_nodes = n2n[i_nodes][j];
-          double clj = cl_desired->GetValue(nodes[j_nodes]);
+          double clj = characteristic_length_desired->GetValue(nodes[j_nodes]);
           if (clj > cli && clj > cl_min) {
             vec3_t xj;
             grid->GetPoint(nodes[j_nodes], xj.data());
             ++num_updated;
             double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
             if (!m_Fixed[nodes[j_nodes]]) {
-              cl_desired->SetValue(nodes[j_nodes], min(cl_desired->GetValue(nodes[j_nodes]), L_new));
+              
+              double toto = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
+/*              qDebug()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
+              qDebug()<<"cli="<<cli;
+              qDebug()<<"m_GrowthFactor="<<m_GrowthFactor;
+              qDebug()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
+              qDebug()<<"L_new="<<L_new;*/
+              if(toto==0) {
+                qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
+                qWarning()<<"cli="<<cli;
+                qWarning()<<"m_GrowthFactor="<<m_GrowthFactor;
+                qWarning()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
+                qWarning()<<"L_new="<<L_new;
+                EG_BUG;
+              }
+              characteristic_length_desired->SetValue(nodes[j_nodes], toto);
+              
             }
           }
         }

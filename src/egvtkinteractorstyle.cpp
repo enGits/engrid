@@ -33,9 +33,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-
-vtkCxxRevisionMacro(egvtkInteractorStyle, "$Revision: 1.37 $");
 vtkStandardNewMacro(egvtkInteractorStyle);
 
 //----------------------------------------------------------------------------

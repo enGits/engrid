@@ -56,7 +56,7 @@ int InsertPoints::insertPoints()
   UpdatePotentialSnapPoints(true);
    
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
 
   int num_newpoints=0;
   int num_newcells=0;
@@ -84,8 +84,8 @@ int InsertPoints::insertPoints()
           vtkIdType id_node1 = pts[j];
           vtkIdType id_node2 = pts[(j+1)%N_pts];
           double L  = distance(grid, id_node1, id_node2);
-          double L1 = cl->GetValue(id_node1);
-          double L2 = cl->GetValue(id_node2);
+          double L1 = characteristic_length_desired->GetValue(id_node1);
+          double L2 = characteristic_length_desired->GetValue(id_node2);
           if (L > m_Threshold*min(L1,L2)) {
             if (L > L_max) {
               j_split = j;
@@ -98,8 +98,8 @@ int InsertPoints::insertPoints()
         stencil_t S = getStencil(id_cell, j_split);
         edge_t E;
         E.S = S;
-        E.L1 = cl->GetValue(S.p[1]);
-        E.L2 = cl->GetValue(S.p[3]);
+        E.L1 = characteristic_length_desired->GetValue(S.p[1]);
+        E.L2 = characteristic_length_desired->GetValue(S.p[3]);
         E.L12 = distance(grid, S.p[1], S.p[3]);
         edges.push_back(E);
       }

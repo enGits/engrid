@@ -337,7 +337,7 @@ void CreateVolumeMesh::operate()
   if (grid->GetNumberOfCells() == 0) {
     EG_ERR_RETURN("The grid appears to be empty.");
   }
-  Ng_Init();
+  nglib::Ng_Init();
   Ng_Meshing_Parameters mp;
   mp.maxh = maxh;
   mp.fineness = fineness;
