@@ -355,12 +355,12 @@ double GridSmoother::func(vec3_t x)
   bool base_triangle_found = false;
   bool consider_height_error = false;
 
-  double height1 = 0;
-  double height2 = 0;
+  //double height1 = 0;
+  //double height2 = 0;
   //vec3_t n_base(0,0,0);
-  vec3_t x_base(0,0,0);
+  //vec3_t x_base(0,0,0);
   int N_prisms = 0;
-  vtkIdType id_foot = -1;
+  //vtkIdType id_foot = -1;
 
   QSet<edge_t> edges;
 
@@ -439,27 +439,25 @@ double GridSmoother::func(vec3_t x)
           n_node = xn[3]-xn[0];
           n_pri.append(n_face[1]);
           i_foot = 0;
-          id_foot = pts[0];
+          //id_foot = pts[0];
         }
         if (nodes[i_nodes_opt] == pts[4]) {
           L = m_RelativeHeight*cl->GetValue(pts[1]);
           n_node = xn[4]-xn[1];
           n_pri.append(n_face[1]);
           i_foot = 1;
-          id_foot = pts[1];
+          //id_foot = pts[1];
         }
         if (nodes[i_nodes_opt] == pts[5]) {
           L = m_RelativeHeight*cl->GetValue(pts[2]);
           n_node = xn[5]-xn[2];
           n_pri.append(n_face[1]);
           i_foot = 2;
-          id_foot = pts[2];
+          //id_foot = pts[2];
         }
-        m_L[nodes[i_nodes_opt]] = L;
         vec3_t v0 = xn[0]-xn[3];
         vec3_t v1 = xn[1]-xn[4];
         vec3_t v2 = xn[2]-xn[5];
-        
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
@@ -479,23 +477,26 @@ double GridSmoother::func(vec3_t x)
           }
         }
 
-        height1 = 1e99;
+        //height1 = 1e99;
+        double h = 0;
         if (i_foot != -1) {
-          consider_height_error = true;
+          m_L[nodes[i_nodes_opt]] = L;
           if (i_foot == 0) {
-            height1 = min(h0/L, height1);
-            x_base = xn[0];
-            height2 = L;
+            h = h0/L;
           } else if (i_foot == 1) {
-            height1 = min(h1/L, height1);
-            x_base = xn[1];
-            height2 = L;
+            h = h1/L;
           } else if (i_foot == 2) {
-            height1 = min(h2/L, height1);
-            x_base = xn[2];
-            height2 = L;
+            h = h2/L;
           }
+          double e1 = max(0.0, -m_HeightWeighting1*(h - m_HeightSwitch));
+          double e2 = fabs(1 - h);
+          if (fabs(1-h) > m_MaxHeightError) {
+            m_MaxHeightError = fabs(1-h);
+            m_PosMaxHeightError = x;
+          }
+          f += max(e1, m_HeightWeighting2*e2);
         }
+
         if (m_ParallelEdgesWeighting > 1e-6) {
           if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
             v0.normalise();
@@ -552,30 +553,6 @@ double GridSmoother::func(vec3_t x)
         }
       }
     }
-  }
-  if (!base_triangle_found) {
-    //height_amplification = 2;
-  }
-  double amp = 1.0;
-  if (id_foot != -1) {
-    if (N_prisms == 0) {
-      EG_BUG;
-    }
-    //n_base.normalise();
-    double h = 0;
-    //cout << GeometryTools::rad2deg(m_MaxAngle[id_foot]) << endl;
-    if (m_NodeNormal[id_foot].abs() < 0.5) EG_BUG;
-    double sina = max(1.0/m_MaxRelLength, sin(m_MaxAngle[id_foot]));
-    double H = m_RelativeHeight*cl->GetValue(id_foot)/sina;
-    h = (x - x_base)*m_NodeNormal[id_foot];
-    h /= H;
-    double e1 = max(0.0, -m_HeightWeighting1*(h - m_HeightSwitch));
-    double e2 = fabs(1 - h);;
-    if (fabs(1-h) > m_MaxHeightError) {
-      m_MaxHeightError = fabs(1-h);
-      m_PosMaxHeightError = x;
-    }
-    f += amp*max(e1, m_HeightWeighting2*e2);
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
