@@ -21,6 +21,32 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "optimisation.h"
+#include "guimainwindow.h"
+
+ErrorFunction::ErrorFunction()
+{
+  m_Weighting1 = 1.0;
+  m_Weighting2 = 1.0;
+  m_XSwitch = 0.5;
+}
+
+void ErrorFunction::set(QString settings_txt)
+{
+  QStringList items = settings_txt.split(',');
+  if (items.size() != 3) {
+    EG_ERR_RETURN("syntax error for error weighting");
+  }
+  m_Weighting1 = items[0].trimmed().toDouble();
+
+}
+
+double ErrorFunction::operator ()(double x)
+{
+  double e1 = max(0.0, -m_Weighting1*(x - m_XSwitch));
+  double e2 = fabs(1 - x);
+  return max(e1, m_Weighting2*e2);
+}
+
 
 Optimisation::Optimisation()
 {
@@ -33,6 +59,31 @@ Optimisation::Optimisation()
     };
   };
 };
+
+void Optimisation::getErrSet(QString group, QString key, double w1, double w2, double s, ErrorFunction &err_func)
+{
+  QString w1_txt, w2_txt, s_txt;
+  w1_txt.setNum(w1);
+  w2_txt.setNum(w2);
+  s_txt.setNum(s);
+  QString value = w1_txt + "," + w2_txt + "," + s_txt;
+  QString variable;
+  QSettings *qset = GuiMainWindow::settings();
+  QString typed_key = "string/" + key;
+  if (group != QObject::tr("General")) {
+    qset->beginGroup(group);
+  }
+  if (!qset->contains(typed_key)) {
+    qset->setValue(typed_key, value);
+  }
+  variable = (qset->value(typed_key,variable)).toString();
+  if (group != QObject::tr("General")) {
+    qset->endGroup();
+  }
+  cout << variable.toAscii().data() << endl;
+  EG_BUG;
+  err_func.set(variable);
+}
 
 void Optimisation::computeDerivatives(vec3_t x)
 {

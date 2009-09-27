@@ -90,6 +90,8 @@ protected: // attributes
   double m_CritAngle;
   vec3_t m_PosMaxHeightError;
 
+  ErrorFunction m_HeightError;
+
   double m_UnderRelaxation;
 
   bool m_StrictPrismChecking;
