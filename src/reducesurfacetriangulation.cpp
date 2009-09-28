@@ -27,7 +27,7 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
   EG_TYPENAME;
   m_PerformGeometricTests = true;
-  m_UseProjectionForSmoothing = true;
+  m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = true;
   m_FeatureAngle = GeometryTools::deg2rad(15);
   m_AllowFeatureEdgeSwapping = false;
