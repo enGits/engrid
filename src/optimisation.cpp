@@ -80,8 +80,6 @@ void Optimisation::getErrSet(QString group, QString key, double w1, double w2, d
   if (group != QObject::tr("General")) {
     qset->endGroup();
   }
-  cout << variable.toAscii().data() << endl;
-  EG_BUG;
   err_func.set(variable);
 }
 
