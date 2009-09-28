@@ -104,6 +104,12 @@ protected: // methods
   bool getSet(QString group, QString key, bool value, bool& variable);
   
   /**
+   * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
+   * Version for string variables
+   */
+  QString getSet(QString group, QString key, QString value, QString& variable);
+
+  /**
    * Update the cell index array.
    */
   void UpdateCellIndex(vtkUnstructuredGrid *grid);

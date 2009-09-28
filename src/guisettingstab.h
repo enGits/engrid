@@ -50,9 +50,12 @@ public:
   QVector<QString> checkbox_name;
   QVector<QCheckBox*> checkbox;
   
-  QVector<QString> lineedit_name;
-  QVector<QLineEdit*> lineedit;
+  QVector<QString> double_lineedit_name;
+  QVector<QLineEdit*> double_lineedit;
   
+  QVector<QString> string_lineedit_name;
+  QVector<QLineEdit*> string_lineedit;
+
 public:
 	//constructors
   /**

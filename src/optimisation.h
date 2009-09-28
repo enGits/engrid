@@ -27,9 +27,27 @@ class Optimisation;
 
 #include "engrid.h"
 
+class ErrorFunction
+{
+
+private: // attributes
+
+  double m_Weighting1;
+  double m_Weighting2;
+  double m_XSwitch;
+
+public: // methods
+
+  ErrorFunction();
+  void set(QString settings_txt);
+  double operator()(double x);
+
+};
+
+
 class Optimisation
 {
-  
+
 protected: // attributes
   
   double ***F;
@@ -44,6 +62,8 @@ protected: // methods
   virtual double func(vec3_t x) = 0;
   virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
   virtual void computeDerivatives(vec3_t x);
+
+  void getErrSet(QString group, QString key, double w1, double w2, double s, ErrorFunction &err_func);
   
 public: // methods
   

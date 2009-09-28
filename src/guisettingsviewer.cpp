@@ -100,11 +100,20 @@ void GuiSettingsViewer::save()
       settings->endGroup();
     }
 
-    N = (ST->lineedit_name).size();
+    N = (ST->double_lineedit_name).size();
     for (int i = 0; i < N; i++) {
       settings->beginGroup("double");
-      key = ST->lineedit_name[i];
-      double value = (ST->lineedit[i]->text()).toDouble();
+      key = ST->double_lineedit_name[i];
+      double value = (ST->double_lineedit[i]->text()).toDouble();
+      settings->setValue(key, value);
+      settings->endGroup();
+    }
+
+    N = (ST->string_lineedit_name).size();
+    for (int i = 0; i < N; i++) {
+      settings->beginGroup("string");
+      key = ST->string_lineedit_name[i];
+      QString value = (ST->string_lineedit[i]->text());
       settings->setValue(key, value);
       settings->endGroup();
     }

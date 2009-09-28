@@ -60,10 +60,20 @@ GuiSettingsTab::GuiSettingsTab(QString org, QString app, QString group, QWidget 
     double D=settings.value(key).toDouble();
     QString s;
     s.sprintf("%.2f", D);
-    lineedit.append(new QLineEdit);
-    lineedit_name.append(key);
-    lineedit.back()->setText(s);
-    permissionsLayout->addRow(key, lineedit.back());
+    double_lineedit.append(new QLineEdit);
+    double_lineedit_name.append(key);
+    double_lineedit.back()->setText(s);
+    permissionsLayout->addRow(key, double_lineedit.back());
+  }
+  settings.endGroup();
+
+  settings.beginGroup("string");
+  foreach (QString key, settings.childKeys()) {
+    QString s = settings.value(key).toString();
+    string_lineedit.append(new QLineEdit);
+    string_lineedit_name.append(key);
+    string_lineedit.back()->setText(s);
+    permissionsLayout->addRow(key, string_lineedit.back());
   }
   settings.endGroup();
 
