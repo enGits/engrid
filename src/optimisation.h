@@ -24,6 +24,7 @@
 #define optimisation_H
 
 class Optimisation;
+class ErrorFunction;
 
 #include "engrid.h"
 
@@ -35,12 +36,17 @@ private: // attributes
   double m_Weighting1;
   double m_Weighting2;
   double m_XSwitch;
+  double m_Exponent;
+  double m_MaxErr;
 
 public: // methods
 
   ErrorFunction();
   void set(QString settings_txt);
   double operator()(double x);
+  double maxError() { return m_MaxErr; }
+  void reset() { m_MaxErr = 0; }
+  bool active() { return (m_Weighting1 > 1e-10) || (m_Weighting2 > 1e-10); }
 
 };
 
@@ -63,7 +69,8 @@ protected: // methods
   virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
   virtual void computeDerivatives(vec3_t x);
 
-  void getErrSet(QString group, QString key, double w1, double w2, double s, ErrorFunction &err_func);
+  void getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func);
+  double angleX(const vec3_t &v1, const vec3_t &v2);
   
 public: // methods
   

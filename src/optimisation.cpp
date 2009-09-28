@@ -28,23 +28,28 @@ ErrorFunction::ErrorFunction()
   m_Weighting1 = 1.0;
   m_Weighting2 = 1.0;
   m_XSwitch = 0.5;
+  m_Exponent = 1.0;
 }
 
 void ErrorFunction::set(QString settings_txt)
 {
   QStringList items = settings_txt.split(',');
-  if (items.size() != 3) {
+  if (items.size() != 4) {
     EG_ERR_RETURN("syntax error for error weighting");
   }
   m_Weighting1 = items[0].trimmed().toDouble();
-
+  m_Weighting2 = items[1].trimmed().toDouble();
+  m_Exponent   = items[2].trimmed().toDouble();
+  m_XSwitch    = items[3].trimmed().toDouble();
 }
 
 double ErrorFunction::operator ()(double x)
 {
   double e1 = max(0.0, -m_Weighting1*(x - m_XSwitch));
   double e2 = fabs(1 - x);
-  return max(e1, m_Weighting2*e2);
+  double e  = max(e1, m_Weighting2*pow(e2, m_Exponent));
+  m_MaxErr = max(m_MaxErr, e2);
+  return e;
 }
 
 
@@ -60,13 +65,14 @@ Optimisation::Optimisation()
   };
 };
 
-void Optimisation::getErrSet(QString group, QString key, double w1, double w2, double s, ErrorFunction &err_func)
+void Optimisation::getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func)
 {
-  QString w1_txt, w2_txt, s_txt;
+  QString w1_txt, w2_txt, s_txt, e_txt;
   w1_txt.setNum(w1);
   w2_txt.setNum(w2);
   s_txt.setNum(s);
-  QString value = w1_txt + "," + w2_txt + "," + s_txt;
+  e_txt.setNum(e);
+  QString value = w1_txt + ", " + w2_txt + ", " + e_txt + ", " + s_txt;
   QString variable;
   QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "string/" + key;
@@ -81,6 +87,13 @@ void Optimisation::getErrSet(QString group, QString key, double w1, double w2, d
     qset->endGroup();
   }
   err_func.set(variable);
+}
+
+double Optimisation::angleX(const vec3_t &v1, const vec3_t &v2)
+{
+  double scal = v1*v2;
+  double alpha = acos(scal);
+  return fabs(1 - alpha/M_PI);
 }
 
 void Optimisation::computeDerivatives(vec3_t x)
