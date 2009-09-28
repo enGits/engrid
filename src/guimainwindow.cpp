@@ -1692,14 +1692,18 @@ void GuiMainWindow::configure()
   {
     // Just to create initial entries in the settings file 
     // so that the options menu isn't empty at first start.
-    GridSmoother tmp01;
-    GuiCreateBoundaryLayer tmp02;
-    SurfaceProjection tmp03;
-    SurfaceMesher tmp04;
-    UpdateDesiredMeshDensity tmp05;
-    InsertPoints tmp06;
-    RemovePoints tmp07;
-    LaplaceSmoother tmp08;
+    try {
+      GridSmoother tmp01;
+      GuiCreateBoundaryLayer tmp02;
+      SurfaceProjection tmp03;
+      SurfaceMesher tmp04;
+      UpdateDesiredMeshDensity tmp05;
+      InsertPoints tmp06;
+      RemovePoints tmp07;
+      LaplaceSmoother tmp08;
+    } catch (Error err) {
+      err.display();
+    }
   }
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
