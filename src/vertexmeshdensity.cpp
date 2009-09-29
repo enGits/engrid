@@ -27,6 +27,8 @@ using namespace std;
 
 VertexMeshDensity::VertexMeshDensity()
 {
+  type = VTK_SIMPLE_VERTEX;
+  CurrentNode = 0;
 }
 
 //this=user defined

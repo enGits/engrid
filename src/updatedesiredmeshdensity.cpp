@@ -163,6 +163,7 @@ void UpdateDesiredMeshDensity::operate()
     if(toto==0) EG_BUG;
     characteristic_length_desired->SetValue(id_node, toto);
     
+    qWarning()<<cl<<" < "<<cl_min;
     if (cl < cl_min) {
       cl_min = cl;
       i_nodes_min = i_nodes;

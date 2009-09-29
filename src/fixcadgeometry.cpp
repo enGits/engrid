@@ -56,8 +56,10 @@ void fixCadGeometry::operate()
   VertexMeshDensity VMD;
   VMD.density = 9000;
   VMD.BCmap = BCmap;
-  cout<<"VMD="<<VMD;
+  cout<<"VMD="<<VMD<<endl;
+  qWarning()<<"VMD.BCmap="<<VMD.BCmap;
   m_VMDvector.push_back(VMD);
+  cout<<"m_VMDvector="<<m_VMDvector<<endl;
   
   //update node info
   updateNodeInfo(true);
@@ -66,7 +68,8 @@ void fixCadGeometry::operate()
   setGrid(grid);
   setBoundaryCodes(bcs);
   setVertexMeshDensityVector(m_VMDvector);
-  mesher();
+  computeMeshDensity();
+//   mesher();
 
   // finalize
   createIndices(grid);
@@ -76,11 +79,11 @@ void fixCadGeometry::operate()
 
 void fixCadGeometry::mesher()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+/*  if (!GuiMainWindow::pointer()->checkSurfProj()) {
     GuiMainWindow::pointer()->storeSurfaceProjection();
-  }
+  }*/
   computeMeshDensity();
-  prepare();
+//   prepare();
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
@@ -88,7 +91,7 @@ void fixCadGeometry::mesher()
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
-  updateNodeInfo(true);
+//   updateNodeInfo(true);
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
@@ -97,15 +100,15 @@ void fixCadGeometry::mesher()
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
     computeMeshDensity();
-    num_inserted = insertNodes();
+//     num_inserted = insertNodes();
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
-    swap();
+//     swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      smooth(1);
-      swap();
+//       smooth(1);
+//       swap();
     }
     int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
@@ -113,8 +116,8 @@ void fixCadGeometry::mesher()
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      smooth(1);
-      swap();
+//       smooth(1);
+//       swap();
     }
     int N_crit = grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
