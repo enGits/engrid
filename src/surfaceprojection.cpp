@@ -366,10 +366,15 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
-bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, double &d, const Triangle& T)
+vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
+{
+  vec3_t x(0,0,0);
+  return x;
+}
+
+bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T)
 {
   xi = vec3_t(1e99,1e99,1e99);
-  vec3_t ri;
   double scal = (xp - T.a)*T.g3;
   vec3_t x1, x2;
   if (scal > 0) {
@@ -442,7 +447,8 @@ bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, double &d, cons
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
-  vec3_t x_proj(1e99,1e99,1e99);
+  vec3_t x_proj(1e99,1e99,1e99), r_proj;
+  bool on_triangle = false;
   bool need_full_search = false;
   if (id_node >= m_ProjTriangles.size()) {
     int old_size = m_ProjTriangles.size();
@@ -460,13 +466,15 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
         EG_BUG;
       }
       Triangle T = m_Triangles[i_triangles];
-      vec3_t xi;
+      vec3_t xi, ri;
       double d;
-      bool intersects = projectOnTriangle(xp, xi, d, T);
+      bool intersects = projectOnTriangle(xp, xi, ri, d, T);
       if (!intersects || (d > 0.5*T.smallest_length)) {
         need_full_search = true;
       } else {
         x_proj = xi;
+        r_proj = ri;
+        on_triangle = intersects;
         ++m_NumDirect;
       }
     }
@@ -477,17 +485,22 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
       Triangle T = m_Triangles[i_triangles];
       double d;
-      vec3_t xi;
-      projectOnTriangle(xp, xi, d, T);
+      vec3_t xi, ri;
+      bool intersects = projectOnTriangle(xp, xi, ri, d, T);
       if (d < d_min) {
         x_proj = xi;
+        r_proj = ri;
         d_min = d;
         m_ProjTriangles[id_node] = i_triangles;
+        on_triangle = intersects;
       }
     }
     if (x_proj[0] > 1e98) {
       EG_BUG;
     }
+  }
+  if (on_triangle) {
+    //x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }

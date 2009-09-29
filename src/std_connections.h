@@ -107,7 +107,7 @@ connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEli
 connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoothAndSwapSurface()));
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
 
-connect(ui.actionFix_CAD_geometry,SIGNAL(triggered()),this,SLOT(callFix_CAD_geometry()));
+connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));
