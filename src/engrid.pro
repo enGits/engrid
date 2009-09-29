@@ -55,3 +55,7 @@ INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 ########################
 
 include(engrid-standard.pri)
+HEADERS += fixcadgeometry.h
+
+SOURCES += fixcadgeometry.cpp
+

@@ -30,6 +30,7 @@
 
 #include <QFileInfo>
 #include "guimainwindow.h"
+#include "swaptriangles.h"
 
 StlReader::StlReader()
 {
@@ -121,5 +122,12 @@ void StlReader::operate()
     corr_surf.setGrid(grid);
     corr_surf();
     
+    SwapTriangles swap;
+    swap.setGrid(grid);
+    swap();
+    
   };
+  
+  
+  
 };

@@ -56,7 +56,7 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "under relaxation",                  1.0,  m_UnderRelaxation);
   getSet("boundary layer", "maximal relative edge length",      1.5,  m_MaxRelLength);
 
-  getErrSet("boundary layer", "height weighting", 100, 2, 0.2, m_HeightError);
+//   getErrSet("boundary layer", "height weighting", 100, 2, 0.2, m_HeightError);
 
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
   getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
