@@ -75,8 +75,9 @@ protected: // methods
   int  insertNodes();
   int  deleteNodes();
   void computeMeshDensity();
+  
+  /** Updates node_type (if update_type = true), node_meshdensity_current, node_specified_density for all nodes. */
   void updateNodeInfo(bool update_type = false);
-
 
 public:
 

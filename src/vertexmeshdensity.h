@@ -34,21 +34,40 @@ class VertexMeshDensity
 
 public: // methods
 
-  VertexMeshDensity();
+  VertexMeshDensity();/// Default constructor
 
-  QVector<Qt::CheckState> BClist_value;
+  // node requirements
+  /** Acceptable boundary codes for neighbour nodes. Unchecked=not allowed, checked=required
+   * the first element is the boundary code
+   * the second element is the acceptance value: 0=unchecked=not allowed, 1=partially checked=does not matter, 2=checked=required
+   */
   QMap <int,int> BCmap;
-  char type;
-  QSet <vtkIdType> nodeset;
-  double density;
-  vtkIdType CurrentNode;
+  
+  char type;/// Type of the node
+  QSet <vtkIdType> nodeset;/// Set of acceptable node IDs
+  // QVector<Qt::CheckState> BClist_value;// deprecated, replaced by BCmap
+  
+  // density
+  double density;/// desired density for nodes matching all requirements
+ 
+  // properties
+  vtkIdType CurrentNode;/// ID of the current node
+  
+  /** operator to compare two VertexMeshDensity objects
+   * this=user defined
+   * VMD=VMD of current node
+   * This operator is NOT SYMMETRICAL. But it can be used with indexOf.
+ */
   bool operator==(const VertexMeshDensity & VMD) const;
-  void setNodes(QString str);
+  
+  void setNodes(QString str);/// set nodeset by passing a string of the form "id1,id2,..."
 
 };
 
+/// ostream operator to print out a VertexMeshDensity object
 ostream& operator<<(ostream &out, VertexMeshDensity A);
 
+/// ostream operator to print out a vector of VertexMeshDensity objects
 ostream& operator<<(ostream &out, QVector<VertexMeshDensity> VMDvector);
 
 #endif
