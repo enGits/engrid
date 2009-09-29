@@ -99,6 +99,7 @@ void EgVtkObject::createNodeToBcMapping
   vtkUnstructuredGrid  *grid
 )
 {
+  EG_BUG;
   bcs.fill(QSet<int>(), grid->GetNumberOfPoints());
   grid->BuildLinks();
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
