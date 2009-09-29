@@ -68,22 +68,18 @@ void fixCadGeometry::operate()
   setGrid(grid);
   setBoundaryCodes(bcs);
   setVertexMeshDensityVector(m_VMDvector);
-  computeMeshDensity();
-//   mesher();
+//   setDesiredLength();
+  mesher();
 
   // finalize
   createIndices(grid);
   updateNodeInfo(false);
-  computeMeshDensity();
+  setDesiredLength();
 }
 
 void fixCadGeometry::mesher()
 {
-/*  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
-  }*/
-  computeMeshDensity();
-//   prepare();
+  setDesiredLength();
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
@@ -91,7 +87,6 @@ void fixCadGeometry::mesher()
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
-//   updateNodeInfo(true);
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
@@ -99,26 +94,14 @@ void fixCadGeometry::mesher()
   while (!done) {
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
-    computeMeshDensity();
-//     num_inserted = insertNodes();
+    setDesiredLength();
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
-//     swap();
-    computeMeshDensity();
-    for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-//       smooth(1);
-//       swap();
-    }
+    setDesiredLength();
     int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     swap();
-    computeMeshDensity();
-    for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-//       smooth(1);
-//       swap();
-    }
+    setDesiredLength();
     int N_crit = grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
@@ -126,18 +109,24 @@ void fixCadGeometry::mesher()
   }
   createIndices(grid);
   updateNodeInfo(false);
-  computeMeshDensity();
-  {
-    int N1 = 0;
-    int N2 = 0;
-    QSet<int> bcs;
-    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
-    foreach (int bc, bcs) {
-      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
-      N1 += proj->getNumDirectProjections();
-      N2 += proj->getNumFullSearches();
-    }
-    cout << N1 << " direct projections" << endl;
-    cout << N2 << " full searches" << endl;
+  setDesiredLength();
+}
+
+void fixCadGeometry::setDesiredLength(double L)
+{
+  setAllSurfaceCells();
+  l2g_t  nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  c2c   = getPartC2C();
+  
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, grid, "node_specified_density");
+  
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vtkIdType id_node = nodes[i_nodes];
+    characteristic_length_specified->SetValue(id_node, 0);
+    characteristic_length_desired->SetValue(id_node, L);
   }
 }

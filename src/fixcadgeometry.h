@@ -37,6 +37,7 @@ public: // methods
   
   fixCadGeometry();
   void mesher();
+  void setDesiredLength(double L=9000);
 };
 
 #endif
