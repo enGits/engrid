@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>322</width>
-    <height>272</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -67,7 +67,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPushButton" name="pushButtonHelp">
@@ -100,6 +100,50 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>number of iterations</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSpinBox" name="spinBoxIterations">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="checkBoxImprove">
+     <property name="text">
+      <string>improve existing layer?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxHeight">
+     <property name="maximum">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>relative height of layer</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
