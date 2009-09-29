@@ -36,8 +36,7 @@ protected: // methods
 public: // methods
   
   fixCadGeometry();
-  
-  
+  void mesher();
 };
 
 #endif

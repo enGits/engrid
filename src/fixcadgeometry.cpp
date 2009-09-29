@@ -25,17 +25,26 @@
 #include "vertexmeshdensity.h"
 #include "guimainwindow.h"
 
+#include <QtDebug>
+#include <iostream>
+using namespace std;
+
 fixCadGeometry::fixCadGeometry()
 {
   EG_TYPENAME;
+  m_PerformGeometricTests = true;
+  m_UseProjectionForSmoothing = true;
+  m_UseNormalCorrectionForSmoothing = true;
+  m_FeatureAngle = GeometryTools::deg2rad(200);//this angle is also used by swaptriangles!!!
 }
 
 void fixCadGeometry::operate()
 {
   qDebug()<<"==>fixing CAD geometry...";
-  
-  //update node info
-  updateNodeInfo(true);
+//   prepare();
+  setAllCells();
+  readSettings();
+//   readVMD();
   
   //prepare BCmap
   QSet <int> bcs;
@@ -44,22 +53,88 @@ void fixCadGeometry::operate()
   foreach(int bc, bcs) BCmap[bc]=1;
   
   //set density infinite
-  QVector <VertexMeshDensity> VMDvector;
   VertexMeshDensity VMD;
   VMD.density = 9000;
   VMD.BCmap = BCmap;
-  qDebug()<<"VMD="<<VMD;
-  VMDvector.push_back(VMD);
+  cout<<"VMD="<<VMD;
+  m_VMDvector.push_back(VMD);
+  
+  //update node info
+  updateNodeInfo(true);
   
   //call surface mesher
-  SurfaceMesher mesher;
-  mesher.setGrid(grid);
-  mesher.setBoundaryCodes(bcs);
-  mesher.setVertexMeshDensityVector(VMDvector);
+  setGrid(grid);
+  setBoundaryCodes(bcs);
+  setVertexMeshDensityVector(m_VMDvector);
   mesher();
 
   // finalize
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();
+}
+
+void fixCadGeometry::mesher()
+{
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
+  computeMeshDensity();
+  prepare();
+  if (m_BoundaryCodes.size() == 0) {
+    return;
+  }
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    characteristic_length_desired->SetValue(id_node, 1e-6);
+  }
+  updateNodeInfo(true);
+  int num_inserted = 0;
+  int num_deleted = 0;
+  int iter = 0;
+  bool done = false;
+  while (!done) {
+    ++iter;
+    cout << "surface mesher iteration " << iter << ":" << endl;
+    computeMeshDensity();
+    num_inserted = insertNodes();
+    cout << "  inserted nodes : " << num_inserted << endl;
+    updateNodeInfo();
+    swap();
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      smooth(1);
+      swap();
+    }
+    int num_deleted = deleteNodes();
+    cout << "  deleted nodes  : " << num_deleted << endl;
+    swap();
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      smooth(1);
+      swap();
+    }
+    int N_crit = grid->GetNumberOfPoints()/100;
+    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
+    cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
+  }
+  createIndices(grid);
+  updateNodeInfo(false);
+  computeMeshDensity();
+  {
+    int N1 = 0;
+    int N2 = 0;
+    QSet<int> bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+    foreach (int bc, bcs) {
+      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
+      N1 += proj->getNumDirectProjections();
+      N2 += proj->getNumFullSearches();
+    }
+    cout << N1 << " direct projections" << endl;
+    cout << N2 << " full searches" << endl;
+  }
 }

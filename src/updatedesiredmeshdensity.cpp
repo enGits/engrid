@@ -147,6 +147,8 @@ void UpdateDesiredMeshDensity::operate()
       int idx = characteristic_length_specified->GetValue(id_node);
       if (idx != -1) {
         if (idx >= m_VMDvector.size()) {
+          qWarning()<<"idx="<<idx;
+          qWarning()<<"m_VMDvector.size()="<<m_VMDvector.size();
           EG_BUG;
         }
         cl = m_VMDvector[idx].density;

@@ -34,26 +34,26 @@ void SurfaceAlgorithm::readVMD()
   in >> row_count >> column_count;
   QSet<int> tmp_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
-  VMDvector.clear();
+  m_VMDvector.clear();
   if (column_count == tmp_bcs.size() + 3) {
-    VMDvector.fill(VertexMeshDensity(), row_count);
+    m_VMDvector.fill(VertexMeshDensity(), row_count);
     for (int i = 0; i < row_count; ++i) {
       int row, column;
       QString formula;
       foreach (int bc, tmp_bcs) {
         in >> row >> column >> formula;
-        VMDvector[row].BCmap[bc] = formula.toInt();
+        m_VMDvector[row].BCmap[bc] = formula.toInt();
       }
       in >> row >> column >> formula;
-      VMDvector[row].type = Str2VertexType(formula);
+      m_VMDvector[row].type = Str2VertexType(formula);
       in >> row >> column >> formula;
       if (formula == "{{{empty}}}") {
         formula = "";
       }
-      VMDvector[i].setNodes(formula);
+      m_VMDvector[i].setNodes(formula);
       in >> row >> column >> formula;
-      VMDvector[i].density = formula.toDouble();
-      cout << VMDvector[i] << endl;
+      m_VMDvector[i].density = formula.toDouble();
+      cout << m_VMDvector[i] << endl;
     }
   } else {
     EG_ERR_RETURN("The number of boundary conditions don't match between the mesh and the settings table");
@@ -96,7 +96,7 @@ void SurfaceAlgorithm::computeMeshDensity()
   ///@@@  TODO: Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setGrid(grid);
-  update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
+  update_desired_mesh_density.setVertexMeshDensityVector(m_VMDvector);
   update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
   update_desired_mesh_density.setCellGrowthFactor(m_GrowthFactor);
@@ -118,7 +118,7 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 
     EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(id_node);
-    int idx = VMDvector.indexOf(nodeVMD);
+    int idx = m_VMDvector.indexOf(nodeVMD);
     node_specified_density->SetValue(id_node, idx);
   }
   writeGrid(grid, "info");

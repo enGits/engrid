@@ -45,7 +45,7 @@ class SurfaceAlgorithm : public SurfaceOperation
 
 protected: // attributes
 
-  QVector <VertexMeshDensity> VMDvector;
+  QVector <VertexMeshDensity> m_VMDvector;
   int    m_NumMaxIter;
   int    m_NumSmoothSteps;
   double m_MaxEdgeLength;
@@ -61,7 +61,7 @@ protected: // attributes
   int    m_NumDelaunaySweeps;
 
 
-private: // methods
+protected: // methods
 
   void readSettings();
   void readVMD();
@@ -83,7 +83,7 @@ public:
 
   SurfaceAlgorithm();
 
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
+  void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { m_VMDvector = a_VMDvector; }
   void setMaxEdgeLength(double l)         { m_MaxEdgeLength = l; }
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf)    { m_GrowthFactor = cgf; }
