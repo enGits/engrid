@@ -278,4 +278,6 @@ HEADERS += smoothandswapsurface.h
 SOURCES += smoothandswapsurface.cpp
 HEADERS += seligairfoilreader.h
 SOURCES += seligairfoilreader.cpp
+HEADERS += fixcadgeometry.h
+SOURCES += fixcadgeometry.cpp
 

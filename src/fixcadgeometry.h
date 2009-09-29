@@ -25,26 +25,20 @@
 
 #include "surfacealgorithm.h"
 
-class fixCadGeometry: public SurfaceAlgorithm
+class FixCadGeometry: public SurfaceAlgorithm
 {
   
 protected: // methods
   
+  void customUpdateNodeInfo();
   virtual void operate();
   
   
 public: // methods
   
-  fixCadGeometry();
+  FixCadGeometry();
   void mesher();
-  void setDesiredLength(double L=9000);
-  void customUpdateNodeInfo(bool update_type = false);
-  
-  /// Returns the node type
-  char custom_getNodeType( vtkIdType a_node, bool allow_feature_edge_vertices = false, bool fix_unselected = true );
-  
-  /// Returns the type of the edge [a_node1,a_node2] based on the topology
-  char custom_getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices, bool fix_unselected );
+  void setDesiredLength(double L = 1e99);
   
 };
 

@@ -449,7 +449,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
-    void callFix_CAD_geometry()           { EG_STDSLOT(fixCadGeometry); }
+    void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 };
 
 #endif

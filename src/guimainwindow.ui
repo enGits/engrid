@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -177,7 +177,7 @@
     <addaction name="actionShowInfo"/>
     <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
-    <addaction name="actionFix_CAD_geometry"/>
+    <addaction name="actionFixCADgeometry"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -289,7 +289,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>501</height>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -670,8 +670,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>228</width>
-          <height>557</height>
+          <width>214</width>
+          <height>533</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1558,7 +1558,7 @@
     <string>Selig airfoil</string>
    </property>
   </action>
-  <action name="actionFix_CAD_geometry">
+  <action name="actionFixCADgeometry">
    <property name="text">
     <string>fix CAD geometry</string>
    </property>
