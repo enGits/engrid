@@ -98,8 +98,9 @@ private: // methods
 
   vec3_t projectWithLevelSet(vec3_t x);
 
-  bool   projectOnTriangle(vec3_t xp, vec3_t &xi, double &d, const Triangle& T);
+  bool   projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T);
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
+  vec3_t correctCurvature(int i_tri, vec3_t r);
 
 public: // methods
 
