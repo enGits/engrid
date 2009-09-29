@@ -45,6 +45,19 @@ fixCadGeometry::fixCadGeometry()
 
 void fixCadGeometry::operate()
 {
+/*  prepare();
+  QSet <int> bcs2;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs2);
+  setBoundaryCodes(bcs2);
+  this->setFeatureAngle(45);
+  this->setEdgeAngle(15);
+  this->setAllowFeatureEdgeVertices(1);
+  qDebug()<<"fixCadGeometry: this->getAllowFeatureEdgeVertices()"<<this->getAllowFeatureEdgeVertices();
+  updateNodeInfo(true);
+  qDebug()<<"fixCadGeometry: this->getAllowFeatureEdgeVertices()"<<this->getAllowFeatureEdgeVertices();
+  return;
+  abort();*/
+  
   qDebug()<<"==>fixing CAD geometry...";
 //   prepare();
   setAllCells();

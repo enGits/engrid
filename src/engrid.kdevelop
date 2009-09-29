@@ -154,8 +154,8 @@
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>/data1/home/mtaverne/Development/engrid/src/engrid</mainprogram>
-      <programargs>-f /data1/projects/CN-001-enGits-internal/PN-001-014-ENGRID/simulations/testing/AwkwardGeometries/Geometry_01/Geometry_01_S1.egc</programargs>
-      <globaldebugarguments>-f /data1/projects/CN-001-enGits-internal/PN-001-014-ENGRID/simulations/testing/AwkwardGeometries/Geometry_01/Geometry_01_S1.egc</globaldebugarguments>
+      <programargs>-f ~/Geometries/uglyCAD.egc</programargs>
+      <globaldebugarguments>-f ~/Geometries/uglyCAD.egc</globaldebugarguments>
       <globalcwd>/data1/home/mtaverne/Development/engrid/src</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
