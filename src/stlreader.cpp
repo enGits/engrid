@@ -69,7 +69,7 @@ void StlReader::operate()
     EG_VTKSP(vtkFeatureEdges, topo_check);
     double bounds[6];
     poly->GetBounds(bounds);
-    poly_clean->ToleranceIsAbsoluteOff();
+    poly_clean->ToleranceIsAbsoluteOn();
     poly_clean->SetInput(poly);
     topo_check->SetInput(poly_clean->GetOutput());
     topo_check->BoundaryEdgesOn();
