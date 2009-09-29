@@ -217,4 +217,20 @@ void UpdateDesiredMeshDensity::operate()
     cl_min *= m_GrowthFactor;
   } while (num_updated > 0);
 
+  // do a simple averaging step
+  /*
+  QVector<double> cl_save(grid->GetNumberOfPoints(), 0.0);
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    cl_save[id_node] = characteristic_length_desired->GetValue(id_node);
+  }
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    double cl_new = 0;
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      cl_new += cl_save[m_Part.n2nGG(id_node, i)];
+    }
+    if (m_Part.n2nGSize(id_node) > 0) {
+      characteristic_length_desired->SetValue(id_node, cl_new/m_Part.n2nGSize(id_node));
+    }
+  }
+  */
 }

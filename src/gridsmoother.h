@@ -65,32 +65,21 @@ protected: // attributes
   
   double m_MaxRelLength;
   double m_RelativeHeight;
-  double m_TetraWeighting1;
-  double m_TetraWeighting2;
-  double m_TetraSwitch;
-  double m_TetraWeightingSaved;
-  double m_HeightWeighting1;
-  double m_HeightWeighting2;
-  double m_HeightSwitch;
-  double m_ParallelEdgesWeighting;
-  double m_ParallelFacesWeighting;
-  double m_SharpNodesWeighting;
-  double m_SharpNodesExponent;
-  double m_SharpEdgesWeighting;
-  double m_SharpEdgesExponent;
-  double m_SimilarFaceAreaWeighting;
 
-  double m_MaxHeightError;
-  double m_MaxTetError;
-  double m_MaxSharpNodesError;
-  double m_MaxSharpEdgesError;
-  double m_MaxParallelEdgesError;
-  double m_MaxParallelFacesError;
-  double m_MaxFaceAreaError;
   double m_CritAngle;
-  vec3_t m_PosMaxHeightError;
 
   ErrorFunction m_HeightError;
+  ErrorFunction m_TetraError;
+  ErrorFunction m_ParallelEdgesError;
+  ErrorFunction m_ParallelFacesError;
+  ErrorFunction m_SharpNodesError;
+  ErrorFunction m_SharpEdgesError;
+  ErrorFunction m_SimilarFaceAreaError;
+  ErrorFunction m_EdgeLengthError;
+  ErrorFunction m_EdgeDirectionError;
+  ErrorFunction m_FeatureLineError;
+
+  QVector<QSet<int> > m_Node2BC;
 
   double m_UnderRelaxation;
 
@@ -133,14 +122,14 @@ public: // methods
   void setNumIterations         (int N) { N_iterations  = N; };
   void setNumRelaxations        (int N) { N_relaxations = N; };
   void setNumBoundaryCorrections(int N) { N_boundary_corrections = N; };
-  
+  void setRelativeHeight        (double h) { m_RelativeHeight = h; }
+
   void prismsOn() { smooth_prisms = true; };
   void prismsOff() { smooth_prisms = false; };
   
   double improvement();
   double lastTotalError() { return F_new; }
-  double maxHeightError() { return m_MaxHeightError; }
-  vec3_t posMaxHeightError() { return m_PosMaxHeightError; }
+  void   printMaxErrors();
 
 };
 

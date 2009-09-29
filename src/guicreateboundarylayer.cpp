@@ -33,13 +33,19 @@
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "maximal relative error", 0.01, err_max);
-  getSet("boundary layer", "maximal number of smoothing iterations", 10, max_iter);
+  getSet("boundary layer", "maximal number of smoothing iterations", 5, max_iter);
 }
 
 void GuiCreateBoundaryLayer::before()
 {
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
+  ui.spinBoxIterations->setValue(max_iter);
+  double h;
+  getSet("boundary layer", "relative height of boundary layer", 0.75, h);
+  int hi = 20*h;
+  h = 0.05*hi;
+  ui.doubleSpinBoxHeight->setValue(h);
 }
 
 void GuiCreateBoundaryLayer::operate()
@@ -77,7 +83,7 @@ void GuiCreateBoundaryLayer::operate()
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
-  {
+  if (!ui.checkBoxImprove->isChecked()) {
     EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
     EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
     EG_VTKDCC(vtkIntArray, bc,          grid, "cell_code");
@@ -106,7 +112,6 @@ void GuiCreateBoundaryLayer::operate()
     }
   }
   
-  cout << "preparing prismatic layer" << endl;
   
   GridSmoother smooth;
   smooth.setGrid(grid);
@@ -124,17 +129,22 @@ void GuiCreateBoundaryLayer::operate()
   DeleteTetras del;
   del.setGrid(grid);
   
-  seed_layer.setGrid(grid);
-  del();
-  vol();
-  seed_layer.setAllCells();
-  seed_layer.setLayerCells(layer_cells);
-  seed_layer.setBoundaryCodes(m_BoundaryCodes);
-  seed_layer();
-  seed_layer.getLayerCells(layer_cells);
+  if (!ui.checkBoxImprove->isChecked()) {
+    cout << "preparing prismatic layer" << endl;
+    seed_layer.setGrid(grid);
+    del();
+    vol();
+    seed_layer.setAllCells();
+    seed_layer.setLayerCells(layer_cells);
+    seed_layer.setBoundaryCodes(m_BoundaryCodes);
+    seed_layer();
+    seed_layer.getLayerCells(layer_cells);
+  }
   
-  for (int j = 0; j < max_iter; ++j) {
-    cout << "improving prismatic layer -> iteration " << j+1 << "/" << max_iter << endl;
+  double h = ui.doubleSpinBoxHeight->value();
+  smooth.setRelativeHeight(h);
+  for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
+    cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     smooth.setAllCells();
     smooth();
     del.setAllCells();
@@ -143,19 +153,8 @@ void GuiCreateBoundaryLayer::operate()
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
-    //if (smooth.improvement() < err_max) break;
   }
   double mesh_error = smooth.lastTotalError();
-  //smooth.setAllCells();
-  //smooth();
-  
-  /*
-  del();
-  vol();
-  cout << "finalising prismatic layer" << endl;
-  smooth.setAllCells();
-  smooth();
-  */
 
   {
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -174,5 +173,5 @@ void GuiCreateBoundaryLayer::operate()
   resetOrientation(grid);
   createIndices(grid);
   cout << "total mesh error: " << mesh_error << endl;
-  cout << "maximal height error = " << smooth.maxHeightError() << endl;
+  smooth.printMaxErrors();
 }
