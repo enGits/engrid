@@ -501,7 +501,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
   if (on_triangle) {
-//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }
