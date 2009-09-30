@@ -469,7 +469,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       vec3_t xi, ri;
       double d;
       bool intersects = projectOnTriangle(xp, xi, ri, d, T);
-      if (!intersects || (d > 0.5*T.smallest_length)) {
+      if (!intersects || (d > 0.1*T.smallest_length)) {
         need_full_search = true;
       } else {
         x_proj = xi;
