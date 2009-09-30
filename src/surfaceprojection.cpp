@@ -405,17 +405,26 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   double k1,k2;
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
-  vec3_t nI1 = (1-k2)*nB + k2*nC;
+  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
   if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) EG_BUG;
   vec2_t t_I2 = t_B+k1*(t_M-t_B);
-  vec3_t nI2 = (1-k2)*nC + k2*nA;
+  vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
   if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) EG_BUG;
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
-  vec3_t nI3 = (1-k2)*nA + k2*nB;
+  vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
   
   vec3_t l_I1(t_I1[0],t_I1[1],0);
   vec3_t l_I2(t_I2[0],t_I2[1],0);
   vec3_t l_I3(t_I3[0],t_I3[1],0);
+  
+  vec3_t g_I1 = g_A+T.G*l_I1;
+  vec3_t g_I2 = g_A+T.G*l_I1;
+  vec3_t g_I3 = g_A+T.G*l_I1;
+  
+  vec3_t tmp;
+  tmp = (g_nI1-g_A); vec3_t l_nI1 = T.GI*tmp;
+  tmp = (g_nI2-g_B); vec3_t l_nI2 = T.GI*tmp;
+  tmp = (g_nI3-g_C); vec3_t l_nI3 = T.GI*tmp;
   
   return x;
 }
