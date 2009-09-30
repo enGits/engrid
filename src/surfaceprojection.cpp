@@ -413,7 +413,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_B = T.b;
   vec3_t g_C = T.c;
   vec3_t g_M = g_A+T.G*r;
-  cout<<"r="<<r;
+  cout<<"r="<<r<<endl;
   
   vec3_t l_A(0,0,0);
   vec3_t l_B(1,0,0);

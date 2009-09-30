@@ -28,6 +28,7 @@ class SurfaceProjection;
 #include "egvtkobject.h"
 #include "octree.h"
 #include "guimainwindow.h"
+#include "geometrytools.h"
 
 class SurfaceProjection : public EgVtkObject
 {
@@ -214,9 +215,13 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     m_NodeNormals[id_node] = vec3_t(0,0,0);
   }
   foreach (Triangle T, m_Triangles) {
-    m_NodeNormals[T.id_a] += T.A*T.g3;
-    m_NodeNormals[T.id_b] += T.A*T.g3;
-    m_NodeNormals[T.id_c] += T.A*T.g3;
+    double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);
+    double angle_b = GeometryTools::angle(m_BGrid,T.id_a,T.id_b,T.id_c);
+    double angle_c = GeometryTools::angle(m_BGrid,T.id_b,T.id_c,T.id_a);
+    double total_angle = angle_a + angle_b + angle_c;
+    m_NodeNormals[T.id_a] += (angle_a/total_angle)*(T.A*T.g3);
+    m_NodeNormals[T.id_b] += (angle_b/total_angle)*(T.A*T.g3);
+    m_NodeNormals[T.id_c] += (angle_c/total_angle)*(T.A*T.g3);
   }
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     m_NodeNormals[id_node].normalise();
