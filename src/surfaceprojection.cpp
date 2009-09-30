@@ -368,6 +368,13 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 
 double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
 {
+  qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
+  cout<<"A="<<A<<endl;
+  cout<<"nA="<<nA<<endl;
+  cout<<"M="<<M<<endl;
+  cout<<"I="<<I<<endl;
+  cout<<"nI="<<nI<<endl;
+  
   double ret = 0;
   
   double alpha0 = -nA[0]/nA[1];
@@ -426,17 +433,17 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
-  vec2_t p1_M(k1,0);
+  vec2_t p1_M(1.0/k1,0);
   
   if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) EG_BUG;
   vec2_t t_I2 = t_B+k1*(t_M-t_B);
   vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
-  vec2_t p2_M(k1,0);
+  vec2_t p2_M(1.0/k1,0);
   
   if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) EG_BUG;
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
   vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
-  vec2_t p3_M(k1,0);
+  vec2_t p3_M(1.0/k1,0);
   
   vec3_t l_I1(t_I1[0],t_I1[1],0);
   vec3_t l_I2(t_I2[0],t_I2[1],0);
@@ -486,6 +493,13 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.G*l_X;
+  
+  cout<<"g_nA"<<g_nA<<endl;
+  cout<<"g_nI1"<<g_nI1<<endl;
+  cout<<"g_nB"<<g_nB<<endl;
+  cout<<"g_nI2"<<g_nI2<<endl;
+  cout<<"g_nC"<<g_nC<<endl;
+  cout<<"g_nI3"<<g_nI3<<endl;
   
   x = g_X;
   
