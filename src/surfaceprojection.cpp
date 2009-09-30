@@ -443,8 +443,8 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_I3(t_I3[0],t_I3[1],0);
   
   vec3_t g_I1 = g_A+T.G*l_I1;
-  vec3_t g_I2 = g_A+T.G*l_I1;
-  vec3_t g_I3 = g_A+T.G*l_I1;
+  vec3_t g_I2 = g_A+T.G*l_I2;
+  vec3_t g_I3 = g_A+T.G*l_I3;
   
   vec3_t tmp;
   tmp = (g_nI1-g_A); vec3_t l_nI1 = T.GI*tmp;
