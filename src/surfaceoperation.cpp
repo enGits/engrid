@@ -39,7 +39,7 @@ SurfaceOperation::SurfaceOperation()
   m_Convergence = 0;
   m_NumberOfIterations = 20;
   m_RelaxationFactor = 0.01;
-  m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
+  //m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
   setFeatureAngle(GeometryTools::deg2rad(45));
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
   m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
@@ -409,7 +409,7 @@ char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool a
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
-    if ( allow_feature_edge_vertices && this->m_AllowFeatureEdgeVertices && CosAngle( grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle ) {
+    if ( allow_feature_edge_vertices && CosAngle( grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle ) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
     //check the boundary codes
