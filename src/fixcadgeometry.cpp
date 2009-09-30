@@ -42,6 +42,7 @@ FixCadGeometry::FixCadGeometry()
   m_UseNormalCorrectionForSmoothing = true;
   m_FeatureAngle = GeometryTools::deg2rad(0.5);
   m_AllowFeatureEdgeSwapping = false;
+  m_AllowSmallAreaSwapping = true;
   m_NumDelaunaySweeps = 100;
 }
 
@@ -156,14 +157,11 @@ void FixCadGeometry::customUpdateNodeInfo()
           grid->GetPoint(pts[i1], x1.data());
           grid->GetPoint(pts[i2], x2.data());
           double L = (x1 - x2).abs();
-          double A_crit = 1e-6*sqr(L);
           vtkIdType id_neigh_cell = m_Part.c2cGG(id_cell, i);
           if (id_neigh_cell != -1) {
             bool bad_edge = false;
             vec3_t n2 = cellNormal(grid, id_neigh_cell);
-            if (n2.abs() < A_crit) {
-              bad_edge = true;
-            } else if (angle(n1, n2) > deg2rad(179.5)) {
+            if (angle(n1, n2) > deg2rad(179.5)) {
               bad_edge = true;
             }
             if (bad_edge) {
