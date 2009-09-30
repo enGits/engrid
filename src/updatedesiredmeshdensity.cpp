@@ -163,7 +163,6 @@ void UpdateDesiredMeshDensity::operate()
     if(toto==0) EG_BUG;
     characteristic_length_desired->SetValue(id_node, toto);
     
-    qWarning()<<cl<<" < "<<cl_min;
     if (cl < cl_min) {
       cl_min = cl;
       i_nodes_min = i_nodes;
@@ -194,11 +193,6 @@ void UpdateDesiredMeshDensity::operate()
             if (!m_Fixed[nodes[j_nodes]]) {
               
               double toto = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
-/*              qDebug()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
-              qDebug()<<"cli="<<cli;
-              qDebug()<<"m_GrowthFactor="<<m_GrowthFactor;
-              qDebug()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
-              qDebug()<<"L_new="<<L_new;*/
               if(toto==0) {
                 qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
                 qWarning()<<"cli="<<cli;
