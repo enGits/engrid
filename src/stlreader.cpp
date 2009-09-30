@@ -32,7 +32,7 @@
 #include <QInputDialog>
 
 #include "guimainwindow.h"
-#include "swaptriangles.h"
+#include "fixcadgeometry.h"
 
 StlReader::StlReader()
 {
@@ -127,9 +127,9 @@ void StlReader::operate()
       CorrectSurfaceOrientation corr_surf;
       corr_surf.setGrid(grid);
       corr_surf();
-      //SwapTriangles swap;
-      //swap.setGrid(grid);
-      //swap();
+      FixCadGeometry cad_fix;
+      cad_fix.setGrid(grid);
+      cad_fix();
     }
     
   };
