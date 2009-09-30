@@ -454,13 +454,13 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_I3 = g_A+T.G*l_I3;
   
   vec3_t tmp;
-  tmp = (g_nI1-g_A); vec3_t l_nI1 = T.GI*tmp;
-  tmp = (g_nI2-g_A); vec3_t l_nI2 = T.GI*tmp;
-  tmp = (g_nI3-g_A); vec3_t l_nI3 = T.GI*tmp;
+  tmp = (g_nI1); vec3_t l_nI1 = T.GI*tmp;
+  tmp = (g_nI2); vec3_t l_nI2 = T.GI*tmp;
+  tmp = (g_nI3); vec3_t l_nI3 = T.GI*tmp;
   
-  tmp = (g_nA-g_A); vec3_t l_nA = T.GI*tmp;
-  tmp = (g_nB-g_A); vec3_t l_nB = T.GI*tmp;
-  tmp = (g_nC-g_A); vec3_t l_nC = T.GI*tmp;
+  tmp = (g_nA); vec3_t l_nA = T.GI*tmp;
+  tmp = (g_nB); vec3_t l_nB = T.GI*tmp;
+  tmp = (g_nC); vec3_t l_nC = T.GI*tmp;
   
   vec2_t p1_A(0,0);
   vec2_t p1_I1(1,0);
@@ -474,7 +474,22 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_AI1 = l_I1 - l_A;
   vec3_t l_BI2 = l_I2 - l_B;
   vec3_t l_CI3 = l_I3 - l_C;
+  
+  vec3_t l_g1(1,0,0);
+  vec3_t l_g2(0,1,0);
   vec3_t l_g3(0,0,1);
+  
+  cout<<"l_g1"<<l_g1<<endl;
+  cout<<"l_g2"<<l_g2<<endl;
+  cout<<"l_g3"<<l_g3<<endl;
+  
+  vec3_t g_g1 = T.g1;
+  vec3_t g_g2 = T.g2;
+  vec3_t g_g3 = T.g3;
+  
+  cout<<"g_g1"<<g_g1<<endl;
+  cout<<"g_g2"<<g_g2<<endl;
+  cout<<"g_g3"<<g_g3<<endl;
   
   cout<<"l_nI1"<<l_nI1<<endl;
   cout<<"l_nI2"<<l_nI2<<endl;
