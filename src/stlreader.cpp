@@ -29,6 +29,8 @@
 #include <vtkFeatureEdges.h>
 
 #include <QFileInfo>
+#include <QInputDialog>
+
 #include "guimainwindow.h"
 #include "swaptriangles.h"
 
@@ -65,12 +67,15 @@ void StlReader::operate()
       };
     };
     double tol = 1e-10;//0.01*L;
+    tol = QInputDialog::getText(NULL, "enter STL tolerance", "tolerance", QLineEdit::Normal, "1e-10").toDouble();
     cout << "cleaning STL geometry:" << endl;
     EG_VTKSP(vtkCleanPolyData, poly_clean);
     EG_VTKSP(vtkFeatureEdges, topo_check);
     double bounds[6];
     poly->GetBounds(bounds);
     poly_clean->ToleranceIsAbsoluteOn();
+    poly_clean->ConvertLinesToPointsOn();
+    poly_clean->ConvertPolysToLinesOn();
     poly_clean->SetInput(poly);
     topo_check->SetInput(poly_clean->GetOutput());
     topo_check->BoundaryEdgesOn();
@@ -118,13 +123,14 @@ void StlReader::operate()
       voldir->SetValue(id_cell, 0);
       curdir->SetValue(id_cell, 0);
     };
-    CorrectSurfaceOrientation corr_surf;
-    corr_surf.setGrid(grid);
-    corr_surf();
-    
-    SwapTriangles swap;
-    swap.setGrid(grid);
-    swap();
+    if (check_passed) {
+      CorrectSurfaceOrientation corr_surf;
+      corr_surf.setGrid(grid);
+      corr_surf();
+      //SwapTriangles swap;
+      //swap.setGrid(grid);
+      //swap();
+    }
     
   };
   
