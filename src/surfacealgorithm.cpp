@@ -22,6 +22,7 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = false;
   m_AllowFeatureEdgeSwapping = true;
+  m_AllowSmallAreaSwapping = false;
   m_GrowthFactor = 1.5;
 }
 
@@ -132,6 +133,7 @@ void SurfaceAlgorithm::swap()
   swap.setFeatureSwap(m_AllowFeatureEdgeSwapping);
   swap.setFeatureAngle(m_FeatureAngle);
   swap.setMaxNumLoops(m_NumDelaunaySweeps);
+  swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
   QSet<int> rest_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
   rest_bcs -= m_BoundaryCodes;

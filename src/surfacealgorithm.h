@@ -59,6 +59,7 @@ protected: // attributes
   double m_GrowthFactor;
   bool   m_SmoothSuccess;
   int    m_NumDelaunaySweeps;
+  bool   m_AllowSmallAreaSwapping;
 
 
 protected: // methods

@@ -35,6 +35,9 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_FeatureSwap = false;
   m_FeatureAngle = GeometryTools::deg2rad(30);
   m_MaxNumLoops = 20;
+  m_SmallAreaSwap = false;
+  m_SmallAreaRatio = 1e-3;
+  getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
 }
 
 void SwapTriangles::operate()
@@ -72,9 +75,11 @@ void SwapTriangles::operate()
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
                   
-//                   qDebug()<<"m_FeatureAngle="<<rad2deg(m_FeatureAngle);
-                  
-                  if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle) {
+                  bool force_swap = false;
+                  if (m_SmallAreaSwap) {
+                    force_swap = n1.abs() < m_SmallAreaRatio*n2.abs() || n2.abs() < m_SmallAreaRatio*n1.abs();
+                  }
+                  if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
                     if(testSwap(S)) {
                       vec3_t n = n1 + n2;
                       n.normalise();
@@ -190,8 +195,13 @@ bool SwapTriangles::testSwap(stencil_t S)
   double V1_new = tetraVol(x[1], x[2], x[0], x_summit, true);
   double V2_new = tetraVol(x[3], x[0], x[2], x_summit, true);
 
-  return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
-  //return(V1_new > 0 && V2_new > 0);
+  bool swap_ok = false;
+  if (m_SmallAreaSwap) {
+     swap_ok = V1_new>0 && V2_new>0;
+  } else {
+     swap_ok = V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0;
+  }
+  return swap_ok;
 }
 
 bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
