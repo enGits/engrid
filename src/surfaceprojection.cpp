@@ -368,6 +368,7 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
+  qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
   return x;
 }
@@ -500,7 +501,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
   if (on_triangle) {
-    //x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }
@@ -515,5 +516,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     }
     x = projectWithGeometry(x, id_node);
   }
+  writeGrid(m_FGrid,"m_FGrid");
+  writeGrid(m_BGrid,"m_BGrid");
   return x;
 }
