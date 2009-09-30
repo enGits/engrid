@@ -370,6 +370,53 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
+  
+  // coordinate systems:
+  // 3D:
+  // global: X,Y,Z -> g_
+  // local: g1,g2,g3 -> l_
+  // 2D:
+  // triangle: g1,g2 -> t_
+  // plane 1: AI1, g3 -> p1_
+  // plane 2: BI2, g3 -> p2_
+  // plane 3: CI3, g3 -> p3_
+  
+  Triangle T = m_Triangles[i_tri];
+  vec3_t g_A = T.a;
+  vec3_t g_B = T.b;
+  vec3_t g_C = T.c;
+  vec3_t g_M = g_A+T.G*r;
+  cout<<"r="<<r;
+  
+  vec3_t l_A(0,0,0);
+  vec3_t l_B(1,0,0);
+  vec3_t l_C(0,1,0);
+  vec3_t l_M = r;
+  
+  vec2_t t_A(0,0);
+  vec2_t t_B(1,0);
+  vec2_t t_C(0,1);
+  vec2_t t_M(r[0],r[1]);
+  
+  vec3_t g_nA = m_NodeNormals[T.id_a];
+  vec3_t g_nB = m_NodeNormals[T.id_b];
+  vec3_t g_nC = m_NodeNormals[T.id_c];
+  
+  double k1,k2;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
+  vec2_t t_I1 = t_A+k1*(t_M-t_A);
+  vec3_t nI1 = (1-k2)*nB + k2*nC;
+  if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) EG_BUG;
+  vec2_t t_I2 = t_B+k1*(t_M-t_B);
+  vec3_t nI2 = (1-k2)*nC + k2*nA;
+  if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) EG_BUG;
+  vec2_t t_I3 = t_C+k1*(t_M-t_C);
+  vec3_t nI3 = (1-k2)*nA + k2*nB;
+  
+  vec3_t l_I1(t_I1[0],t_I1[1],0);
+  vec3_t l_I2(t_I2[0],t_I2[1],0);
+  vec3_t l_I3(t_I3[0],t_I3[1],0);
+  
   return x;
 }
 
