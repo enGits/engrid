@@ -438,12 +438,11 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t p1_A(0,0);
   vec2_t p1_I1(1,0);
   
-  vec2_t p1_B(0,0);
-  vec2_t p1_I2(1,0);
+  vec2_t p2_B(0,0);
+  vec2_t p2_I2(1,0);
   
-  vec2_t p1_C(0,0);
-  vec2_t p1_I3(1,0);
-  
+  vec2_t p3_C(0,0);
+  vec2_t p3_I3(1,0);
   
   vec3_t l_AI1 = l_I1 - l_A;
   vec3_t l_BI2 = l_I2 - l_B;
