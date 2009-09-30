@@ -389,6 +389,11 @@ double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
   
   double xM = M[0];
   
+  cout<<"a="<<a<<endl;
+  cout<<"b="<<b<<endl;
+  cout<<"c="<<c<<endl;
+  cout<<"d="<<d<<endl;
+  
   ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
   return ret;
 }
@@ -495,15 +500,22 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   cout<<"l_nI2"<<l_nI2<<endl;
   cout<<"l_nI3"<<l_nI3<<endl;
   
+  cout<<"l_nA"<<l_nA<<endl;
+  cout<<"l_nB"<<l_nB<<endl;
+  cout<<"l_nC"<<l_nC<<endl;
   
-  vec2_t p1_nA = vec2_t(l_nA*l_AI1,l_nA*l_g3);
-  vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1,l_nI1*l_g3);
   
-  vec2_t p2_nB = vec2_t(l_nB*l_BI2,l_nB*l_g3);
-  vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2,l_nI2*l_g3);
+  vec2_t p1_nA = vec2_t(l_nA*l_AI1/l_AI1.abs2(),l_nA*l_g3/l_g3.abs2());
+  vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1/l_AI1.abs2(),l_nI1*l_g3/l_g3.abs2());
   
-  vec2_t p3_nC = vec2_t(l_nC*l_CI3,l_nC*l_g3);
-  vec2_t p3_nI3 = vec2_t(l_nI3*l_CI3,l_nI3*l_g3);
+  cout<<"l_nI2="<<l_nI2<<endl;
+  cout<<"l_BI2="<<l_BI2<<endl;
+  
+  vec2_t p2_nB = vec2_t(l_nB*l_BI2/l_BI2.abs2(),l_nB*l_g3/l_g3.abs2());
+  vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2/l_BI2.abs2(),l_nI2*l_g3/l_g3.abs2());
+  
+  vec2_t p3_nC = vec2_t(l_nC*l_CI3/l_CI3.abs2(),l_nC*l_g3/l_g3.abs2());
+  vec2_t p3_nI3 = vec2_t(l_nI3*l_CI3/l_CI3.abs2(),l_nI3*l_g3/l_g3.abs2());
   
   double z1 = interpolate(p1_A, p1_nA, p1_M, p1_I1, p1_nI1);
   double z2 = interpolate(p2_B, p2_nB, p2_M, p2_I2, p2_nI2);
