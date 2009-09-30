@@ -444,14 +444,20 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t p1_C(0,0);
   vec2_t p1_I3(1,0);
   
-  vec2_t p1_nA;
-  vec2_t p1_nI1;
   
-  vec2_t p2_nB;
-  vec2_t p2_nI2;
+  vec3_t l_AI1 = l_I1 - l_A;
+  vec3_t l_BI2 = l_I2 - l_B;
+  vec3_t l_CI3 = l_I3 - l_C;
+  vec3_t l_g3(0,0,1);
   
-  vec2_t p3_nC;
-  vec2_t p3_nI3;
+  vec2_t p1_nA = vec2_t(l_nA*l_AI1,l_nA*l_g3);
+  vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1,l_nI1*l_g3);
+  
+  vec2_t p2_nB = vec2_t(l_nB*l_BI2,l_nB*l_g3);
+  vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2,l_nI2*l_g3);
+  
+  vec2_t p3_nC = vec2_t(l_nC*l_CI3,l_nC*l_g3);
+  vec2_t p3_nI3 = vec2_t(l_nI3*l_CI3,l_nI3*l_g3);
   
   return x;
 }
