@@ -369,13 +369,20 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
 {
   double ret = 0;
-  // f(x)=a*x^2+b*x+c
-  double a,b,c;
-  c = 0;
-  b = -nA[0]/nA[1];
-  a = 0.5* ((-nI[0]/nI[1]) - b);
+  
+  double alpha0 = -nA[0]/nA[1];
+  double alpha1 = -nI[0]/nI[1];
+  
+  // f(x)=a*x^3 + b*x^2 + c*x + d
+  double a,b,c,d;
+  d = 0;
+  c = alpha0;
+  b = -((alpha1-c)-3*(-c));
+  a = -b-c;
+  
   double xM = M[0];
-  ret = a*xM*xM + b*xM + c;
+  
+  ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
   return ret;
 }
 
