@@ -366,6 +366,12 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
+double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
+{
+  double ret = 0;
+  return ret;
+}
+
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
@@ -457,6 +463,17 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t p3_nC = vec2_t(l_nC*l_CI3,l_nC*l_g3);
   vec2_t p3_nI3 = vec2_t(l_nI3*l_CI3,l_nI3*l_g3);
+  
+  double z1 = interpolate(p1_A, p1_nA, p1_M, p1_I1, p1_nI1);
+  double z2 = interpolate(p2_B, p2_nB, p2_M, p2_I2, p2_nI2);
+  double z3 = interpolate(p3_C, p3_nC, p3_M, p3_I3, p3_nI3);
+  
+  double z = (z1+z2+z3)/3.0;
+  
+  vec3_t l_X = l_M + z*l_g3;
+  vec3_t g_X = g_A+T.G*l_X;
+  
+  x = g_X;
   
   return x;
 }
