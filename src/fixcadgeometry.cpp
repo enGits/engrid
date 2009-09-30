@@ -51,10 +51,18 @@ void FixCadGeometry::operate()
   setAllCells();
 
   //prepare BCmap
+  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
   QSet <int> bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+  l2g_t cells = m_Part.getCells();
+  foreach (vtkIdType id_cell, cells) {
+    if (isSurface(id_cell, grid)) {
+      bcs.insert(bc->GetValue(id_cell));
+    }
+  }
   QMap <int,int> BCmap;
-  foreach(int bc, bcs) BCmap[bc]=1;
+  foreach(int bc, bcs) {
+    BCmap[bc] = 1;
+  }
 
   //set density infinite
   VertexMeshDensity VMD;
