@@ -108,6 +108,7 @@ connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoot
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
+connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));

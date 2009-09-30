@@ -17,22 +17,17 @@ CONFIG += qt \
 # DEFINES += QT_NO_DEBUG
 # DEFINES += QT_DEBUG
 # QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
-
-################################
+# ###############################
 # VERSION INFO
 # get "git revision number"
-win32 {
-    QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"alpha\\\"
-}
-else {
-    QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
-}
-################################
+win32:QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"alpha\\\"
+else:QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
+    describe`\\\"
 
-#to get rid of deprecated header warnings caused by including QVTKwidget.h
+# ###############################
+# to get rid of deprecated header warnings caused by including QVTKwidget.h
 # DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
 # DEFINES += VTK_LEGACY_REMOVE
-
 QMAKE_CXXFLAGS += -Wall
 
 # QMAKE_CXXFLAGS += -pg
@@ -42,17 +37,18 @@ QT += xml \
     network \
     opengl
 
-########################
+# #######################
 # VTK
 INCLUDEPATH += $(VTKINCDIR)
 LIBS += -L$(VTKLIBDIR)
-########################
 
-########################
+# #######################
+# #######################
 # NETGEN
 INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-########################
 
+# #######################
 include(engrid-standard.pri)
-
+HEADERS += projection_test.h
+SOURCES += projection_test.cpp
