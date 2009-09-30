@@ -36,6 +36,7 @@
 #include "correctsurfaceorientation.h"
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
+#include "swaptriangles.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -1701,6 +1702,7 @@ void GuiMainWindow::configure()
       InsertPoints tmp06;
       RemovePoints tmp07;
       LaplaceSmoother tmp08;
+      SwapTriangles tmp09;
     } catch (Error err) {
       err.display();
     }
