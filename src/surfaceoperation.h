@@ -55,7 +55,7 @@ protected:
   double m_Convergence;
   int    m_NumberOfIterations;
   double m_RelaxationFactor;
-  int    m_AllowFeatureEdgeVertices; ///< if set to 0, feature edge vertices will be deactivated. Use setm_AllowFeatureEdgeVertices(int) to set it.
+  //  int    m_AllowFeatureEdgeVertices; ///< if set to 0, feature edge vertices will be deactivated. Use setm_AllowFeatureEdgeVertices(int) to set it.
   double m_FeatureAngle;
   double m_EdgeAngle;
   int    m_BoundarySmoothing;
@@ -78,8 +78,8 @@ public:
   void setConvergence( double C )           { m_Convergence = C; }
   void setNumberOfIterations( int N )       { m_NumberOfIterations = N; }
   void setRelaxationFactor( double RF )     { m_RelaxationFactor = RF; }
-  void setAllowFeatureEdgeVertices( int x ) { m_AllowFeatureEdgeVertices = x; } ///< If x = 0, feature edge vertices will be deactivated.
-  int getAllowFeatureEdgeVertices() { return( m_AllowFeatureEdgeVertices ); }
+  //void setAllowFeatureEdgeVertices( int x ) {  = x; } ///< If x = 0, feature edge vertices will be deactivated.
+  //int getAllowFeatureEdgeVertices() { return( m_AllowFeatureEdgeVertices ); }
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
   void setBoundarySmoothing(int BS) { m_BoundarySmoothing = BS; }
