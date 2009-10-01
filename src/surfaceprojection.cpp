@@ -490,17 +490,17 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_nC = m_NodeNormals[T.id_c];
   
   double k1,k2;
-  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) return(g_M);
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
   vec2_t p1_M(1.0/k1,0);
   
-  if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) EG_BUG;
+  if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) return(g_M);
   vec2_t t_I2 = t_B+k1*(t_M-t_B);
   vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
   vec2_t p2_M(1.0/k1,0);
   
-  if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) EG_BUG;
+  if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) return(g_M);
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
   vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
   vec2_t p3_M(1.0/k1,0);
@@ -588,19 +588,33 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   cout<<"g_nC"<<g_nC<<endl;
   cout<<"g_nI3"<<g_nI3<<endl;
   
+  vec3_t A,M,I;
+  vec3_t nA,nM,nI;
+  
+  A = vec3_t(p2_B[0],p2_B[1],0);
+  M = vec3_t(p2_M[0],p2_M[1],0);
+  I = vec3_t(p2_I2[0],p2_I2[1],0);
+  nA = vec3_t(p2_nB[0],p2_nB[1],0);
+  nM = vec3_t(0,1,0);
+  nI = vec3_t(p2_nI2[0],p2_nI2[1],0);
+  
   QVector < QPair<vec3_t,vec3_t> > points;
-  points.push_back(QPair<vec3_t,vec3_t>(l_A,l_nA));
-  points.push_back(QPair<vec3_t,vec3_t>(l_B,l_nB));
-  points.push_back(QPair<vec3_t,vec3_t>(l_C,l_nC));
-  points.push_back(QPair<vec3_t,vec3_t>(l_I1,l_nI1));
-  points.push_back(QPair<vec3_t,vec3_t>(l_I2,l_nI2));
-  points.push_back(QPair<vec3_t,vec3_t>(l_I3,l_nI3));
-  points.push_back(QPair<vec3_t,vec3_t>(l_M,l_g3));
+  points.push_back(QPair<vec3_t,vec3_t>(g_A,g_nA));
+  points.push_back(QPair<vec3_t,vec3_t>(g_B,g_nB));
+  points.push_back(QPair<vec3_t,vec3_t>(g_C,g_nC));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I1,g_nI1));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I2,g_nI2));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I3,g_nI3));
+  points.push_back(QPair<vec3_t,vec3_t>(g_M,g_g3));
+  
+/*  points.push_back(QPair<vec3_t,vec3_t>(A,nA));
+  points.push_back(QPair<vec3_t,vec3_t>(M,nM));
+  points.push_back(QPair<vec3_t,vec3_t>(I,nI));*/
   
   QVector < QPair<vec3_t,vec3_t> > lines;
-  lines.push_back(QPair<vec3_t,vec3_t>(l_A,l_I1));
-  lines.push_back(QPair<vec3_t,vec3_t>(l_B,l_I2));
-  lines.push_back(QPair<vec3_t,vec3_t>(l_C,l_I3));
+  lines.push_back(QPair<vec3_t,vec3_t>(g_A,g_I1));
+  lines.push_back(QPair<vec3_t,vec3_t>(g_B,g_I2));
+  lines.push_back(QPair<vec3_t,vec3_t>(g_C,g_I3));
   
   debug_output(points, lines);
   
