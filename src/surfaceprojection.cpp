@@ -454,7 +454,8 @@ double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
   
   // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
   
-  return -(xM*xM) + xM;
+//   return -(xM*xM) + xM;
+  return ret;
 }
 
 vec3_t interpolate_2(double t, vec3_t P0, vec3_t P1, vec3_t P2, vec3_t P3)
