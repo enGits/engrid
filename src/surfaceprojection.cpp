@@ -450,9 +450,17 @@ double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
   if(DEBUG) cout<<"b="<<b<<endl;
   if(DEBUG) cout<<"c="<<c<<endl;
   if(DEBUG) cout<<"d="<<d<<endl;
-  
   ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
-  return ret;
+  
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  
+  return -(xM*xM) + xM;
+}
+
+vec3_t interpolate_2(double t, vec3_t P0, vec3_t P1, vec3_t P2, vec3_t P3)
+{
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  return (1-pow(t,3))*P0 + 3*pow((1-t),2)*t*P1 + 3*(1-t)*pow(t,2)*P2 + pow(t,3)*P3;
 }
 
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
@@ -578,8 +586,12 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   double z1 = interpolate(p1_A, p1_nA, p1_M, p1_I1, p1_nI1);
   double z2 = interpolate(p2_B, p2_nB, p2_M, p2_I2, p2_nI2);
   double z3 = interpolate(p3_C, p3_nC, p3_M, p3_I3, p3_nI3);
-  
   double z = (z1+z2+z3)/3.0;
+  
+  vec3_t g_Z1 = interpolate_2(p1_M[0],g_A,g_nA,g_I1,g_nI1);
+  
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  
   
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.G*l_X;
@@ -752,7 +764,9 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       EG_BUG;
     }
   }
-//   x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+  if(on_triangle) {
+    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+  }
   return x_proj;
 }
 

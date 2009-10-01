@@ -2,25 +2,41 @@
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
  <DocsAndViews NumberOfDocuments="5" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-   <View0 Encoding="" line="517" Type="Source" />
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
-   <View0 Encoding="" line="199" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guitransform.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.h" >
-   <View0 Encoding="" line="28" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/gridsmoother.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/mathvector_operators.h" >
-   <View0 Encoding="" line="223" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/seedsimpleprismaticlayer.cpp" >
+   <View0 Encoding="" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
-   <View0 Encoding="" line="138" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
+   <View0 Encoding="" line="532" Type="Source" />
   </Doc4>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
-   <breakpointList/>
+   <breakpointList>
+    <breakpoint0 location="/data1/home/mtaverne/Development/engrid/src/surfacemesher.cpp:38" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint0>
+    <breakpoint1 location="/data1/home/mtaverne/Development/engrid/src/laplacesmoother.cpp:109" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint1>
+    <breakpoint2 location="/data1/home/mtaverne/Development/engrid/src/laplacesmoother.cpp:140" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint2>
+    <breakpoint3 location="/data1/home/mtaverne/Development/engrid/src/laplacesmoother.cpp:158" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint3>
+    <breakpoint4 location="/data1/home/mtaverne/Development/engrid/src/laplacesmoother.cpp:207" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint4>
+   </breakpointList>
    <showInternalCommands value="0" />
   </kdevdebugger>
   <kdevastyle>
@@ -45,8 +61,11 @@
      <mark line="104" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-     <mark line="486" />
-     <mark line="403" />
+     <mark line="544" />
+     <mark line="461" />
+     <mark line="604" />
+     <mark line="368" />
+     <mark line="424" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
      <mark line="1192" />
