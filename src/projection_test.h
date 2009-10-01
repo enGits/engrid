@@ -10,7 +10,8 @@ public:
 
 protected: // methods
   void operate();
-
+  void project_picked_point();
+  void project_all_points();
   
 /*  Q_OBJECT;
   
