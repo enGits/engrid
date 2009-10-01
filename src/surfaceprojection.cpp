@@ -484,8 +484,8 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   double N3x=N3*u/u.abs2();
   double N3y=N3*v/v.abs2();
   
-  vec3_t P1 = (N0y)*u + (-N0x)*v;
-  vec3_t P2 = (-N3y)*u + (N3x)*v;
+  vec3_t P1 = P0 + (N0y)*u + (-N0x)*v;
+  vec3_t P2 = P3 + (-N3y)*u + (N3x)*v;
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
@@ -806,7 +806,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
   if(on_triangle) {
-//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }
