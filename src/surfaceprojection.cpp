@@ -366,6 +366,61 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
+void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<vec3_t,vec3_t> > lines )
+{
+  QFile file("debug.vtk");
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    return;
+  
+  QTextStream out(&file);
+  out<<"# vtk DataFile Version 2.0"<<endl;
+  out<<"Unstructured Grid Example"<<endl;
+  out<<"ASCII"<<endl;
+  out<<""<<endl;
+  out<<"DATASET UNSTRUCTURED_GRID"<<endl;
+  out<<"POINTS "<<points.size()+2*lines.size()<<" double"<<endl;
+  for(int i=0;i<points.size();i++) {
+    vec3_t P = points[i].first;
+    out<<P[0]<<" "<<P[1]<<" "<<P[2]<<endl;
+  }
+  for(int i=0;i<lines.size();i++) {
+    vec3_t P1 = lines[i].first;
+    vec3_t P2 = lines[i].second;
+    out<<P1[0]<<" "<<P1[1]<<" "<<P1[2]<<endl;
+    out<<P2[0]<<" "<<P2[1]<<" "<<P2[2]<<endl;
+  }
+  out<<""<<endl;
+  out<<"CELLS "<<1+lines.size()<<" "<<4+3*lines.size()<<endl;
+  out<<"3 0 1 2"<<endl;
+  for(int i=0;i<lines.size();i++) {
+    int P1 = points.size()+2*i;
+    int P2 = P1+1;
+    out<<2<<" "<<P1<<" "<<P2<<endl;
+  }
+  out<<""<<endl;
+  out<<"CELL_TYPES "<<1+lines.size()<<endl;
+  out<<"5"<<endl;
+  for(int i=0;i<lines.size();i++) {
+    out<<"3"<<endl;
+  }
+  out<<""<<endl;
+  out<<"POINT_DATA "<<points.size()+2*lines.size()<<endl;
+/*  out<<"SCALARS scalars double 1"<<endl;
+  out<<"LOOKUP_TABLE default"<<endl;
+  out<<"1.0"<<endl;
+  out<<"2.0"<<endl;
+  out<<"3.0"<<endl;*/
+  out<<"VECTORS normals float"<<endl;
+  for(int i=0;i<points.size();i++) {
+    vec3_t N = points[i].second;
+    out<<N[0]<<" "<<N[1]<<" "<<N[2]<<endl;
+  }
+  for(int i=0;i<lines.size();i++) {
+    out<<0<<" "<<0<<" "<<0<<endl;
+    out<<0<<" "<<0<<" "<<0<<endl;
+  }
+}
+
 double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
 {
   qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
@@ -533,8 +588,23 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   cout<<"g_nC"<<g_nC<<endl;
   cout<<"g_nI3"<<g_nI3<<endl;
   
-  x = g_X;
+  QVector < QPair<vec3_t,vec3_t> > points;
+  points.push_back(QPair<vec3_t,vec3_t>(l_A,l_nA));
+  points.push_back(QPair<vec3_t,vec3_t>(l_B,l_nB));
+  points.push_back(QPair<vec3_t,vec3_t>(l_C,l_nC));
+  points.push_back(QPair<vec3_t,vec3_t>(l_I1,l_nI1));
+  points.push_back(QPair<vec3_t,vec3_t>(l_I2,l_nI2));
+  points.push_back(QPair<vec3_t,vec3_t>(l_I3,l_nI3));
+  points.push_back(QPair<vec3_t,vec3_t>(l_M,l_g3));
   
+  QVector < QPair<vec3_t,vec3_t> > lines;
+  lines.push_back(QPair<vec3_t,vec3_t>(l_A,l_I1));
+  lines.push_back(QPair<vec3_t,vec3_t>(l_B,l_I2));
+  lines.push_back(QPair<vec3_t,vec3_t>(l_C,l_I3));
+  
+  debug_output(points, lines);
+  
+  x = g_X;
   return x;
 }
 
