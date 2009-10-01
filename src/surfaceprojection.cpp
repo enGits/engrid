@@ -423,12 +423,14 @@ void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<ve
 
 double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
 {
-  qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
-  cout<<"A="<<A<<endl;
-  cout<<"nA="<<nA<<endl;
-  cout<<"M="<<M<<endl;
-  cout<<"I="<<I<<endl;
-  cout<<"nI="<<nI<<endl;
+  bool DEBUG = false;
+  
+  if(DEBUG) qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
+  if(DEBUG) cout<<"A="<<A<<endl;
+  if(DEBUG) cout<<"nA="<<nA<<endl;
+  if(DEBUG) cout<<"M="<<M<<endl;
+  if(DEBUG) cout<<"I="<<I<<endl;
+  if(DEBUG) cout<<"nI="<<nI<<endl;
   
   double ret = 0;
   
@@ -444,10 +446,10 @@ double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
   
   double xM = M[0];
   
-  cout<<"a="<<a<<endl;
-  cout<<"b="<<b<<endl;
-  cout<<"c="<<c<<endl;
-  cout<<"d="<<d<<endl;
+  if(DEBUG) cout<<"a="<<a<<endl;
+  if(DEBUG) cout<<"b="<<b<<endl;
+  if(DEBUG) cout<<"c="<<c<<endl;
+  if(DEBUG) cout<<"d="<<d<<endl;
   
   ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
   return ret;
@@ -455,7 +457,8 @@ double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
 
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
-  qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
+  bool DEBUG = false;
+  if(DEBUG) qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
   
   // coordinate systems:
@@ -473,7 +476,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_B = T.b;
   vec3_t g_C = T.c;
   vec3_t g_M = g_A+T.G*r;
-  cout<<"r="<<r<<endl;
+  if(DEBUG) cout<<"r="<<r<<endl;
   
   vec3_t l_A(0,0,0);
   vec3_t l_B(1,0,0);
@@ -539,32 +542,32 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_g2(0,1,0);
   vec3_t l_g3(0,0,1);
   
-  cout<<"l_g1"<<l_g1<<endl;
-  cout<<"l_g2"<<l_g2<<endl;
-  cout<<"l_g3"<<l_g3<<endl;
+  if(DEBUG) cout<<"l_g1"<<l_g1<<endl;
+  if(DEBUG) cout<<"l_g2"<<l_g2<<endl;
+  if(DEBUG) cout<<"l_g3"<<l_g3<<endl;
   
   vec3_t g_g1 = T.g1;
   vec3_t g_g2 = T.g2;
   vec3_t g_g3 = T.g3;
   
-  cout<<"g_g1"<<g_g1<<endl;
-  cout<<"g_g2"<<g_g2<<endl;
-  cout<<"g_g3"<<g_g3<<endl;
+  if(DEBUG) cout<<"g_g1"<<g_g1<<endl;
+  if(DEBUG) cout<<"g_g2"<<g_g2<<endl;
+  if(DEBUG) cout<<"g_g3"<<g_g3<<endl;
   
-  cout<<"l_nI1"<<l_nI1<<endl;
-  cout<<"l_nI2"<<l_nI2<<endl;
-  cout<<"l_nI3"<<l_nI3<<endl;
+  if(DEBUG) cout<<"l_nI1"<<l_nI1<<endl;
+  if(DEBUG) cout<<"l_nI2"<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_nI3"<<l_nI3<<endl;
   
-  cout<<"l_nA"<<l_nA<<endl;
-  cout<<"l_nB"<<l_nB<<endl;
-  cout<<"l_nC"<<l_nC<<endl;
+  if(DEBUG) cout<<"l_nA"<<l_nA<<endl;
+  if(DEBUG) cout<<"l_nB"<<l_nB<<endl;
+  if(DEBUG) cout<<"l_nC"<<l_nC<<endl;
   
   
   vec2_t p1_nA = vec2_t(l_nA*l_AI1/l_AI1.abs2(),l_nA*l_g3/l_g3.abs2());
   vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1/l_AI1.abs2(),l_nI1*l_g3/l_g3.abs2());
   
-  cout<<"l_nI2="<<l_nI2<<endl;
-  cout<<"l_BI2="<<l_BI2<<endl;
+  if(DEBUG) cout<<"l_nI2="<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_BI2="<<l_BI2<<endl;
   
   vec2_t p2_nB = vec2_t(l_nB*l_BI2/l_BI2.abs2(),l_nB*l_g3/l_g3.abs2());
   vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2/l_BI2.abs2(),l_nI2*l_g3/l_g3.abs2());
@@ -581,12 +584,12 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.G*l_X;
   
-  cout<<"g_nA"<<g_nA<<endl;
-  cout<<"g_nI1"<<g_nI1<<endl;
-  cout<<"g_nB"<<g_nB<<endl;
-  cout<<"g_nI2"<<g_nI2<<endl;
-  cout<<"g_nC"<<g_nC<<endl;
-  cout<<"g_nI3"<<g_nI3<<endl;
+  if(DEBUG) cout<<"g_nA"<<g_nA<<endl;
+  if(DEBUG) cout<<"g_nI1"<<g_nI1<<endl;
+  if(DEBUG) cout<<"g_nB"<<g_nB<<endl;
+  if(DEBUG) cout<<"g_nI2"<<g_nI2<<endl;
+  if(DEBUG) cout<<"g_nC"<<g_nC<<endl;
+  if(DEBUG) cout<<"g_nI3"<<g_nI3<<endl;
   
   vec3_t A,M,I;
   vec3_t nA,nM,nI;
@@ -616,7 +619,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   lines.push_back(QPair<vec3_t,vec3_t>(g_B,g_I2));
   lines.push_back(QPair<vec3_t,vec3_t>(g_C,g_I3));
   
-  debug_output(points, lines);
+  if(DEBUG) debug_output(points, lines);
   
   x = g_X;
   return x;
@@ -749,9 +752,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       EG_BUG;
     }
   }
-  if (on_triangle) {
-     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
-  }
+//   x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   return x_proj;
 }
 
@@ -765,7 +766,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     }
     x = projectWithGeometry(x, id_node);
   }
-  writeGrid(m_FGrid,"m_FGrid");
-  writeGrid(m_BGrid,"m_BGrid");
+/*  writeGrid(m_FGrid,"m_FGrid");
+  writeGrid(m_BGrid,"m_BGrid");*/
   return x;
 }
