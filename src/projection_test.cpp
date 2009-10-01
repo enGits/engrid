@@ -44,6 +44,7 @@ void Projection_test::project_all_points()
   int bc_dst = 18;
   
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
   
   QVector <vtkIdType> cells;
   QSet <int> bc_src_set;

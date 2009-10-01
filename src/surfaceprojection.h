@@ -120,6 +120,8 @@ public: // methods
   int getNumDirectProjections() { return m_NumDirect; }
   int getNumFullSearches() { return m_NumFull; }
 
+  void writeGridWithNormals();
+  
 };
 
 template <class C>
@@ -243,7 +245,6 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
     m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
-
 }
 
 #endif // SURFACEPROJECTION_H

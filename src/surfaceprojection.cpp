@@ -366,6 +366,53 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
+// #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW)
+// if (!grid->GetPointData()->GetArray(FIELD)) {
+// EG_VTKSP(TYPE, var);
+// var->SetName(FIELD);
+// var->SetNumberOfValues(Nnodes);
+// grid->GetPointData()->AddArray(var);
+// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// var->SetValue(i,0);
+// }
+// } else if (OW) {
+// EG_VTKDCN(TYPE, var, grid, FIELD);
+// var->SetNumberOfValues(Nnodes);
+// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// var->SetValue(i,0);
+// }
+// }
+
+void SurfaceProjection::writeGridWithNormals()
+{
+  qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
+  
+  vtkDoubleArray *vectors = vtkDoubleArray::New();
+  vectors->SetName("normals");
+  vectors->SetNumberOfComponents(3);
+  vectors->SetNumberOfTuples(m_BGrid->GetNumberOfPoints());
+  
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t N = m_NodeNormals[id_node];
+    double n[3];
+    n[0]=N[0];
+    n[1]=N[1];
+    n[2]=N[2];
+    vectors->InsertTuple(id_node,n);
+  }
+  
+  m_BGrid->GetPointData()->SetVectors(vectors);
+//   m_BGrid->GetPointData()->AddArray(vectors);
+  
+  vectors->Delete();
+  
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName("m_BGrid.vtu");
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(m_BGrid);
+  vtu->Write();
+}
+
 void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<vec3_t,vec3_t> > lines )
 {
   QFile file("debug.vtk");
@@ -484,8 +531,14 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   double N3x=N3*u/u.abs2();
   double N3y=N3*v/v.abs2();
   
-  vec3_t P1 = P0 + (N0y)*u + (-N0x)*v;
-  vec3_t P2 = P3 + (-N3y)*u + (N3x)*v;
+  vec3_t P0P1 = (N0y)*u + (-N0x)*v;
+  vec3_t P3P2 = (-N3y)*u + (N3x)*v;
+  
+  P0P1.normalise();
+  P3P2.normalise();
+  
+  vec3_t P1 = P0 + P0P1;
+  vec3_t P2 = P3 + P3P2;
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
@@ -625,14 +678,14 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   double z1 = p1_Z1[1];
   double z2 = p2_Z2[1];
   double z3 = p3_Z3[1];
-  double z = (z1+z2+z3)/3.0;
+  double z = z1;//(z1+z2+z3)/3.0;
   // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
   
   
-  vec3_t g_Z1 = interpolate_bezier_normals(p1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
+/*  vec3_t g_Z1 = interpolate_bezier_normals(p1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
   vec3_t g_Z2 = interpolate_bezier_normals(p2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
   vec3_t g_Z3 = interpolate_bezier_normals(p3_M[0],g_C,g_nC,g_I3,g_nI3,g_CI3,g_g3);
-  return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);
+  return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);*/
   
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.G*l_X;
@@ -821,7 +874,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     }
     x = projectWithGeometry(x, id_node);
   }
-/*  writeGrid(m_FGrid,"m_FGrid");
-  writeGrid(m_BGrid,"m_BGrid");*/
+//   writeGrid(m_FGrid,"m_FGrid");
+//   writeGrid(m_BGrid,"m_BGrid");
   return x;
 }

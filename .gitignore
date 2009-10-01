@@ -76,3 +76,5 @@ docs
 *.Release
 
 .*
+
+*.vtk
