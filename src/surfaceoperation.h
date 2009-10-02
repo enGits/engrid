@@ -26,17 +26,20 @@
 #include <operation.h>
 
 //==============================================
-/// Special structure for working on two linked cells
-struct stencil_t {
-  vtkIdType id_cell1;
-  vtkIdType id_cell2;
-  vtkIdType p[4];
-  bool sameBC;         ///< do both cells have the same BCs?
-  bool twocells;       ///< Do we have 2 cells?
-  char neighbour_type; ///< What's the type of the neighbour cell?
+
+/// Special structure for working on two (or more) linked cells
+struct stencil_t
+{
+  QVector<vtkIdType> id_cell;
+  QVector<vtkIdType> id_node;
+  QVector<vtkIdType> type_cell;
+  vtkIdType p1, p2;
+  bool sameBC;         ///< do all cells have the same BCs?
 };
+
 /// Prints out stencil information
 ostream& operator<<( ostream &out, stencil_t S );
+
 //==============================================
 
 class SurfaceOperation : public Operation
