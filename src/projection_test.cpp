@@ -10,9 +10,9 @@ Projection_test::Projection_test() : SurfaceOperation()
 
 void Projection_test::operate()
 {
-//   project_picked_point();
+  project_picked_point();
 //   project_all_points();
-  Bezier_test();
+//   Bezier_test();
 }
 
 void Projection_test::project_picked_point()
@@ -78,11 +78,11 @@ void Projection_test::Bezier_test()
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
 
   vec3_t X_200(0,0,0);
-  vec3_t X_020(0,1,0);
-  vec3_t X_002(sin(deg2rad(60)),cos(deg2rad(60)),0);
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0,0,1);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(0,0,1);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0,0,1);
+  vec3_t X_020(1,0,0);
+  vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
+  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0.5);
+  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5,0.5,0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0,-0.5,0.5);
   
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
 }

@@ -596,7 +596,7 @@ vec3_t getBarycentricCoordinates(double x, double y)
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
-  vec2_t p1_M(1.0/k1,0);
+  vec2_t pm1_M(1.0/k1,0);
   
   // normalize
   double total = t1+t2+t3;
@@ -695,6 +695,13 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
   vtu->Write();
 }
 
+vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
+{
+  double x = V*i/i.abs2();
+  double y = V*j/j.abs2();
+  return vec2_t(x,y);
+}
+
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   // initialization
@@ -708,9 +715,18 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   // local: g1,g2,g3 -> l_
   // 2D:
   // triangle: g1,g2 -> t_
-  // plane 1: AI1, g3 -> p1_
-  // plane 2: BI2, g3 -> p2_
-  // plane 3: CI3, g3 -> p3_
+  // middle planes
+  // plane 1: AI1, g3 -> pm1_
+  // plane 2: BI2, g3 -> pm2_
+  // plane 3: CI3, g3 -> pm3_
+  // orthogonal edge planes
+  // plane 1: AB, g3 -> poe1_
+  // plane 2: BC, g3 -> poe2_
+  // plane 3: CA, g3 -> poe3_
+  // non-orthogonal edge planes
+  // plane 1: AB, nI3 -> pnoe1_
+  // plane 2: BC, nI1 -> pnoe2_
+  // plane 3: CA, nI2 -> pnoe3_
   
   // before knowing intersections
   
@@ -734,14 +750,15 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_nB = m_NodeNormals[T.id_b];
   vec3_t g_nC = m_NodeNormals[T.id_c];
   
-  vec2_t p1_A(0,0);
-  vec2_t p1_I1(1,0);
+  vec2_t pm1_A(0,0);
+  vec2_t pm1_I1(1,0);
+//   vec2_t pm1_(0,0);
   
-  vec2_t p2_B(0,0);
-  vec2_t p2_I2(1,0);
+  vec2_t pm2_B(0,0);
+  vec2_t pm2_I2(1,0);
   
-  vec2_t p3_C(0,0);
-  vec2_t p3_I3(1,0);
+  vec2_t pm3_C(0,0);
+  vec2_t pm3_I3(1,0);
   
   vec3_t g_g1 = T.g1;
   vec3_t g_g2 = T.g2;
@@ -757,17 +774,17 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) return(g_M);
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
-  vec2_t p1_M(1.0/k1,0);
+  vec2_t pm1_M(1.0/k1,0);
   
   if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) return(g_M);
   vec2_t t_I2 = t_B+k1*(t_M-t_B);
   vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
-  vec2_t p2_M(1.0/k1,0);
+  vec2_t pm2_M(1.0/k1,0);
   
   if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) return(g_M);
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
   vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
-  vec2_t p3_M(1.0/k1,0);
+  vec2_t pm3_M(1.0/k1,0);
   
   // after knowing intersections
   
@@ -797,32 +814,39 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_CI3 = g_I3 - g_C;
   
   
-  vec2_t p1_nA = vec2_t(l_nA*l_AI1/l_AI1.abs2(),l_nA*l_g3/l_g3.abs2());
-  vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1/l_AI1.abs2(),l_nI1*l_g3/l_g3.abs2());
   
-  vec2_t p2_nB = vec2_t(l_nB*l_BI2/l_BI2.abs2(),l_nB*l_g3/l_g3.abs2());
-  vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2/l_BI2.abs2(),l_nI2*l_g3/l_g3.abs2());
+  vec2_t pm1_nA = projectVectorOnPlane(l_nA,l_AI1,l_g3);
+  vec2_t pm1_nI1 = projectVectorOnPlane(l_nI1,l_AI1,l_g3);
   
-  vec2_t p3_nC = vec2_t(l_nC*l_CI3/l_CI3.abs2(),l_nC*l_g3/l_g3.abs2());
-  vec2_t p3_nI3 = vec2_t(l_nI3*l_CI3/l_CI3.abs2(),l_nI3*l_g3/l_g3.abs2());
+  vec2_t pm2_nB = projectVectorOnPlane(l_nB,l_BI2,l_g3);
+  vec2_t pm2_nI2 = projectVectorOnPlane(l_nI2,l_BI2,l_g3);
   
-/*  double z1 = interpolate(p1_A, p1_nA, p1_M, p1_I1, p1_nI1);
-  double z2 = interpolate(p2_B, p2_nB, p2_M, p2_I2, p2_nI2);
-  double z3 = interpolate(p3_C, p3_nC, p3_M, p3_I3, p3_nI3);
+  vec2_t pm3_nC = projectVectorOnPlane(l_nC,l_CI3,l_g3);
+  vec2_t pm3_nI3 = projectVectorOnPlane(l_nI3,l_CI3,l_g3);
+  
+/*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
+  intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
+  intersection(k1,k2,pm3_C,pm3_nC,pm3_A,pm3_nA);*/
+  
+  // interpolation attempts
+  
+/*  double z1 = interpolate(pm1_A, pm1_nA, pm1_M, pm1_I1, pm1_nI1);
+  double z2 = interpolate(pm2_B, pm2_nB, pm2_M, pm2_I2, pm2_nI2);
+  double z3 = interpolate(pm3_C, pm3_nC, pm3_M, pm3_I3, pm3_nI3);
   double z = (z1+z2+z3)/3.0;*/
   
-  vec2_t p1_Z1 = interpolate_bezier_normals(p1_M[0],p1_A,p1_nA,p1_I1,p1_nI1);
-  vec2_t p2_Z2 = interpolate_bezier_normals(p2_M[0],p2_B,p2_nB,p2_I2,p2_nI2);
-  vec2_t p3_Z3 = interpolate_bezier_normals(p3_M[0],p3_C,p3_nC,p3_I3,p3_nI3);
+  vec2_t pm1_Z1 = interpolate_bezier_normals(pm1_M[0],pm1_A,pm1_nA,pm1_I1,pm1_nI1);
+  vec2_t pm2_Z2 = interpolate_bezier_normals(pm2_M[0],pm2_B,pm2_nB,pm2_I2,pm2_nI2);
+  vec2_t pm3_Z3 = interpolate_bezier_normals(pm3_M[0],pm3_C,pm3_nC,pm3_I3,pm3_nI3);
   
-  double z1 = p1_Z1[1];
-  double z2 = p2_Z2[1];
-  double z3 = p3_Z3[1];
+  double z1 = pm1_Z1[1];
+  double z2 = pm2_Z2[1];
+  double z3 = pm3_Z3[1];
   double z = z1;//(z1+z2+z3)/3.0;
   
-/*  vec3_t g_Z1 = interpolate_bezier_normals(p1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
-  vec3_t g_Z2 = interpolate_bezier_normals(p2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
-  vec3_t g_Z3 = interpolate_bezier_normals(p3_M[0],g_C,g_nC,g_I3,g_nI3,g_CI3,g_g3);
+/*  vec3_t g_Z1 = interpolate_bezier_normals(pm1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
+  vec3_t g_Z2 = interpolate_bezier_normals(pm2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
+  vec3_t g_Z3 = interpolate_bezier_normals(pm3_M[0],g_C,g_nC,g_I3,g_nI3,g_CI3,g_g3);
   return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);*/
   
   vec3_t l_X = l_M + z*l_g3;
@@ -832,12 +856,12 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t A,M,I;
   vec3_t nA,nM,nI;
   
-  A = vec3_t(p2_B[0],p2_B[1],0);
-  M = vec3_t(p2_M[0],p2_M[1],0);
-  I = vec3_t(p2_I2[0],p2_I2[1],0);
-  nA = vec3_t(p2_nB[0],p2_nB[1],0);
+  A = vec3_t(pm2_B[0],pm2_B[1],0);
+  M = vec3_t(pm2_M[0],pm2_M[1],0);
+  I = vec3_t(pm2_I2[0],pm2_I2[1],0);
+  nA = vec3_t(pm2_nB[0],pm2_nB[1],0);
   nM = vec3_t(0,1,0);
-  nI = vec3_t(p2_nI2[0],p2_nI2[1],0);
+  nI = vec3_t(pm2_nI2[0],pm2_nI2[1],0);
   
   // debugging stuff
   
