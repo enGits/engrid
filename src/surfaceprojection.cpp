@@ -561,6 +561,12 @@ vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_
   return pow(u,2)*X_200 + pow(v,2)*X_020 + pow(w,2)*X_002 + 2*u*v*X_110 + 2*v*w*X_011 + 2*w*u*X_101;
 }
 
+int idx_func(int N, int i, int j)
+{
+  int offset = -i*(i-2*N-1)/2;
+  return offset+j;
+}
+
 void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
   int N=10;
@@ -586,16 +592,21 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
   
   for(int i=0;i<N-1;i++) {
     for(int j=0;j<N-1-i;j++) {
+      
       vtkIdType pts_triangle1[3];
-      pts_triangle1[0]=0;
-      pts_triangle1[1]=0;
-      pts_triangle1[2]=0;
-      vtkIdType pts_triangle2[3];
-      pts_triangle2[0]=0;
-      pts_triangle2[1]=0;
-      pts_triangle2[2]=0;
+      pts_triangle1[0]=idx_func(N, i  ,j  );
+      pts_triangle1[1]=idx_func(N, i+1,j  );
+      pts_triangle1[2]=idx_func(N, i  ,j+1);
       bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);
-      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);
+      
+      if(i+j<N) {
+        vtkIdType pts_triangle2[3];
+        pts_triangle2[0]=idx_func(N, i+1,j  );
+        pts_triangle2[1]=idx_func(N, i+1,j+1);
+        pts_triangle2[2]=idx_func(N, i  ,j+1);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);
+      }
+      
     }
   }
 /*  vtkIdType id_new_node = 0;
