@@ -114,6 +114,7 @@ protected: // methods
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
   void computeNormals();
+  void writeNormals(QString file_name);
     
 public: // methods
   
