@@ -546,6 +546,15 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
+vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  double total = u + v + w;
+  u=u/total;
+  v=v/total;
+  w=w/total;
+  return pow(u,2)*X_200 + pow(v,2)*X_020 + pow(w,2)*X_002 + 2*u*v*X_110 + 2*v*w*X_011 + 2*w*u*X_101;
+}
+
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   // initialization
