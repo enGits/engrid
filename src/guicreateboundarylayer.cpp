@@ -38,6 +38,14 @@ GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 
 void GuiCreateBoundaryLayer::before()
 {
+  ui.checkBoxImprove->setChecked(false);
+  l2g_t cells = m_Part.getCells();
+  foreach (vtkIdType id_cell, cells) {
+    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      ui.checkBoxImprove->setChecked(true);
+      break;
+    }
+  }
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(max_iter);

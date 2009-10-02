@@ -8,7 +8,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 LANGUAGE     = C++
-CONFIG      += debug warn_on
+CONFIG      += release warn_off
 INCLUDEPATH += netgen-mesher/netgen/libsrc/include
 INCLUDEPATH += .
 DEFINES     += NO_PARALLEL_THREADS
