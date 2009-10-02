@@ -563,14 +563,42 @@ vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_
 
 void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
-  int Nu = 10;
-  int Nv = 10;
-  int Nw = 10;
+  int N=10;
+  int N_cells = (N-1)*(N-1);
+  int N_points = (N*N+N)/2;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, 0, Nu*Nv*Nw);
+  allocateGrid(bezier, N_cells, N_points);
   
-  vtkIdType id_new_node = 0;
+  for(int i=0;i<N;i++) {
+    for(int j=0;j<N-i;j++) {
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      vec3_t bary_coords = getBarycentricCoordinates(x,y);
+      double u,v,w;
+      u=bary_coords[0];
+      v=bary_coords[1];
+      w=bary_coords[2];
+      vec3_t M = QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
+      bezier->GetPoints()->SetPoint(id_new_node, M.data());id_new_node++;
+    }
+  }
+  
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1-i;j++) {
+      vtkIdType pts_triangle1[3];
+      pts_triangle1[0]=0;
+      pts_triangle1[1]=0;
+      pts_triangle1[2]=0;
+      vtkIdType pts_triangle2[3];
+      pts_triangle2[0]=0;
+      pts_triangle2[1]=0;
+      pts_triangle2[2]=0;
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);
+    }
+  }
+/*  vtkIdType id_new_node = 0;
   for(int i=0;i<Nu;i++) {
     for(int j=0;j<Nv;j++) {
       for(int k=0;k<Nw;k++) {
@@ -582,7 +610,7 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
         bezier->GetPoints()->SetPoint(id_new_node, M.data());id_new_node++;
       }
     }
-  }
+  }*/
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   vtu->SetFileName("bezier.vtu");
