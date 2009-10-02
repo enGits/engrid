@@ -13,6 +13,7 @@ protected: // methods
   void project_picked_point();
   void project_all_points();
   void Bezier_test();
+  void checkInterpolationGrid();
 /*  Q_OBJECT;
   
 protected: // methods

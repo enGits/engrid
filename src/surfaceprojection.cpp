@@ -27,6 +27,9 @@
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
+  
+  m_InterpolationGrid = vtkUnstructuredGrid::New();
+  
   m_Relax = 0.9;
   m_DistWeight = 1.0;
   m_DistExp = 1.0;
@@ -1172,4 +1175,90 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 //   writeGrid(m_FGrid,"m_FGrid");
 //   writeGrid(m_BGrid,"m_BGrid");
   return x;
+}
+
+int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+{
+  T.g3;
+  T.a;
+  T.b;
+  T.c;
+  vec3_t AB=T.b-T.a;
+  vec3_t BC=T.c-T.b;
+  vec3_t CA=T.a-T.c;
+  
+  return(0);
+}
+
+int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+{
+  return(0);
+}
+
+void SurfaceProjection::setupInterpolationGrid()
+{
+  int N_cells = m_BGrid->GetNumberOfCells()+12*m_BGrid->GetNumberOfCells();
+  int N_points = m_BGrid->GetNumberOfPoints()+6*m_BGrid->GetNumberOfCells();
+  
+  qDebug()<<"N_cells="<<N_cells;
+  qDebug()<<"N_points="<<N_points;
+  
+  allocateGrid(m_InterpolationGrid , N_cells, N_points);
+  makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
+  
+  vtkIdType node_count = 0;
+  int cell_count=0;
+  
+  for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
+    Triangle T = m_Triangles[i_triangles];
+    vec3_t J1,K1;
+    vec3_t J2,K2;
+    vec3_t J3,K3;
+    getControlPoints_orthogonal(T,J1,J2,J3);
+    getControlPoints_nonorthogonal(T,K1,K2,K3);
+  }
+  
+/*  for(int i=0;i<N;i++) {
+    for(int j=0;j<N-i;j++) {
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      vec3_t bary_coords = getBarycentricCoordinates(x,y);
+      double u,v,w;
+      u=bary_coords[0];
+      v=bary_coords[1];
+      w=bary_coords[2];
+    }
+  }
+  
+  
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1-i;j++) {
+      
+      qDebug()<<"(i,j)="<<i<<j;
+      
+      vtkIdType pts_triangle1[3];
+      pts_triangle1[0]=idx_func(N, i  ,j  );
+      pts_triangle1[1]=idx_func(N, i+1,j  );
+      pts_triangle1[2]=idx_func(N, i  ,j+1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
+      
+      if(i+j<N-2) {
+        qDebug()<<"BEEP";
+        vtkIdType pts_triangle2[3];
+        pts_triangle2[0]=idx_func(N, i+1,j  );
+        pts_triangle2[1]=idx_func(N, i+1,j+1);
+        pts_triangle2[2]=idx_func(N, i  ,j+1);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
+      }
+      
+    }
+  }*/
+  
+  qDebug()<<"node_count="<<node_count;
+  qDebug()<<"cell_count="<<cell_count;
+  
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu);
+  vtu->SetFileName("m_InterpolationGrid.vtk");
+  vtu->SetInput(m_InterpolationGrid);
+  vtu->Write();
 }

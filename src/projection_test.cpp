@@ -11,8 +11,9 @@ Projection_test::Projection_test() : SurfaceOperation()
 void Projection_test::operate()
 {
 //   project_picked_point();
-  project_all_points();
+//   project_all_points();
 //   Bezier_test();
+  checkInterpolationGrid();
 }
 
 void Projection_test::project_picked_point()
@@ -85,4 +86,16 @@ void Projection_test::Bezier_test()
   vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0,-0.5,0.5);
   
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
+}
+
+void Projection_test::checkInterpolationGrid()
+{
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
+  
+  int bc_dst = 18;
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setupInterpolationGrid();
 }

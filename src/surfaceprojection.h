@@ -56,6 +56,9 @@ private: // data-types
 private: // attributes
 
   vtkUnstructuredGrid*   m_BGrid;
+  
+  vtkUnstructuredGrid*   m_InterpolationGrid;
+  
   QVector<vtkIdType>     m_ProjTriangles;
   vtkUnstructuredGrid*   m_FGrid;
   QVector<double>        m_EdgeLength;
@@ -122,6 +125,11 @@ public: // methods
 
   void writeGridWithNormals();
   void writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
+  
+  void setupInterpolationGrid();
+  
+  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
+  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
 };
 
 template <class C>
