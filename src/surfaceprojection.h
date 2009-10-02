@@ -121,7 +121,7 @@ public: // methods
   int getNumFullSearches() { return m_NumFull; }
 
   void writeGridWithNormals();
-  
+  void writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
 };
 
 template <class C>

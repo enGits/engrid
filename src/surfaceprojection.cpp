@@ -546,6 +546,12 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
+vec3_t projectOnQuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+/*  vec3_t B = QuadraticBezierTriangle();
+  B*/
+}
+
 vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
   double total = u + v + w;
@@ -553,6 +559,36 @@ vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_
   v=v/total;
   w=w/total;
   return pow(u,2)*X_200 + pow(v,2)*X_020 + pow(w,2)*X_002 + 2*u*v*X_110 + 2*v*w*X_011 + 2*w*u*X_101;
+}
+
+void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  int Nu = 10;
+  int Nv = 10;
+  int Nw = 10;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, 0, Nu*Nv*Nw);
+  
+  vtkIdType id_new_node = 0;
+  for(int i=0;i<Nu;i++) {
+    for(int j=0;j<Nv;j++) {
+      for(int k=0;k<Nw;k++) {
+        double u,v,w;
+        u=i/(Nu-1);
+        v=j/(Nv-1);
+        w=k/(Nw-1);
+        vec3_t M = QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
+        bezier->GetPoints()->SetPoint(id_new_node, M.data());id_new_node++;
+      }
+    }
+  }
+  
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName("bezier.vtu");
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(bezier);
+  vtu->Write();
 }
 
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)

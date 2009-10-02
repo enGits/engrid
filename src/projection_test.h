@@ -12,7 +12,7 @@ protected: // methods
   void operate();
   void project_picked_point();
   void project_all_points();
-  
+  void Bezier_test();
 /*  Q_OBJECT;
   
 protected: // methods
