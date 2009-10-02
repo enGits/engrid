@@ -22,3 +22,7 @@ else
   echo "BUILD SUCCESSFUL"
   mailx -s "ENGRID: build test successful" $RECIPIENTS < ./build.log
 fi
+
+# copy nightly build into /opt/shared/bin/
+cp -v ./engrid /opt/shared/bin/ || (echo mailx -s "failed to copy engrid into /opt/shared/bin/" $RECIPIENTS)
+
