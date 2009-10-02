@@ -24,11 +24,13 @@
 
 #include <vtkUnstructuredGridWriter.h>
 
+///@@@ TODO: Delete those grids somewhere
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
   
   m_InterpolationGrid = vtkUnstructuredGrid::New();
+  m_BezierGrid = vtkUnstructuredGrid::New();
   
   m_Relax = 0.9;
   m_DistWeight = 1.0;
@@ -626,18 +628,8 @@ vec3_t QuadraticBezierTriangle(vec2_t M, vec3_t X_200, vec3_t X_020, vec3_t X_00
   return QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
 }
 
-void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+void addBezierSurface(vtkUnstructuredGrid* bezier, int N, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
-  int N=10;
-  int N_cells = (N-1)*(N-1);
-  int N_points = (N*N+N)/2;
-  
-  qDebug()<<"N_cells="<<N_cells;
-  qDebug()<<"N_points="<<N_points;
-  
-  EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, N_cells, N_points);
-  
   vtkIdType id_new_node = 0;
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
@@ -652,10 +644,6 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
       bezier->GetPoints()->SetPoint(id_new_node, M.data());id_new_node++;
     }
   }
-  
-/*  bezier->GetPoints()->SetPoint(id_new_node, X_200.data());id_new_node++;
-  bezier->GetPoints()->SetPoint(id_new_node, X_020.data());id_new_node++;
-  bezier->GetPoints()->SetPoint(id_new_node, X_002.data());id_new_node++;*/
   
   qDebug()<<"id_new_node="<<id_new_node;
   
@@ -684,20 +672,20 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
   }
   
   qDebug()<<"cell_count="<<cell_count;
+}
+
+void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  int N=10;
+  int N_cells = (N-1)*(N-1);
+  int N_points = (N*N+N)/2;
   
-/*  vtkIdType id_new_node = 0;
-  for(int i=0;i<Nu;i++) {
-    for(int j=0;j<Nv;j++) {
-      for(int k=0;k<Nw;k++) {
-        double u,v,w;
-        u=i/(Nu-1);
-        v=j/(Nv-1);
-        w=k/(Nw-1);
-        vec3_t M = QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
-        bezier->GetPoints()->SetPoint(id_new_node, M.data());id_new_node++;
-      }
-    }
-  }*/
+  qDebug()<<"N_cells="<<N_cells;
+  qDebug()<<"N_points="<<N_points;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, N_cells, N_points);
+  
   
 //   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   EG_VTKSP(vtkUnstructuredGridWriter,vtu);
@@ -1191,6 +1179,7 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   double k1, k2;
   vec3_t p_K;
   if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
+    qDebug()<<"WARNING: No intersection found!!!";
     p_K = 0.5*(p_A + p_B);
   }
   else {
@@ -1233,7 +1222,7 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
 
 void SurfaceProjection::setupInterpolationGrid()
 {
-  int N_cells = m_BGrid->GetNumberOfCells()+12*m_BGrid->GetNumberOfCells();
+  int N_cells = m_BGrid->GetNumberOfCells()+2*m_BGrid->GetNumberOfCells();
   int N_points = m_BGrid->GetNumberOfPoints()+6*m_BGrid->GetNumberOfCells();
   
   qDebug()<<"N_cells="<<N_cells;
@@ -1242,9 +1231,9 @@ void SurfaceProjection::setupInterpolationGrid()
   allocateGrid(m_InterpolationGrid , N_cells, N_points);
   makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
   
-  vtkIdType node_count = 0;
-  int cell_count=0;
-  
+  vtkIdType node_count = m_BGrid->GetNumberOfPoints();
+  int cell_count = m_BGrid->GetNumberOfCells();
+   
   for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
     Triangle T = m_Triangles[i_triangles];
     vec3_t J1,K1;
@@ -1252,6 +1241,38 @@ void SurfaceProjection::setupInterpolationGrid()
     vec3_t J3,K3;
     getControlPoints_orthogonal(T,J1,J2,J3);
     getControlPoints_nonorthogonal(T,K1,K2,K3);
+    
+    vtkIdType idx_J1, idx_J2, idx_J3;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J1.data()); idx_J1=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J2.data()); idx_J2=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J3.data()); idx_J3=node_count; node_count++;
+    vtkIdType idx_K1, idx_K2, idx_K3;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K1.data()); idx_K1=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K2.data()); idx_K2=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K3.data()); idx_K3=node_count; node_count++;
+    
+    vtkIdType polyline_ortho[7];
+    vtkIdType polyline_nonortho[7];
+    
+    polyline_ortho[0]=T.id_a;
+    polyline_ortho[1]=idx_J3;
+    polyline_ortho[2]=T.id_b;
+    polyline_ortho[3]=idx_J1;
+    polyline_ortho[4]=T.id_c;
+    polyline_ortho[5]=idx_J2;
+    polyline_ortho[6]=T.id_a;
+    
+    polyline_nonortho[0]=T.id_a;
+    polyline_nonortho[1]=idx_K3;
+    polyline_nonortho[2]=T.id_b;
+    polyline_nonortho[3]=idx_K1;
+    polyline_nonortho[4]=T.id_c;
+    polyline_nonortho[5]=idx_K2;
+    polyline_nonortho[6]=T.id_a;
+    
+    m_InterpolationGrid->InsertNextCell(4,7,polyline_ortho);cell_count++;
+    m_InterpolationGrid->InsertNextCell(4,7,polyline_nonortho);cell_count++;
+    
   }
   
 /*  for(int i=0;i<N;i++) {
