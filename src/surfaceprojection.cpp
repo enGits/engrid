@@ -613,6 +613,16 @@ vec3_t getBarycentricCoordinates(double x, double y)
   return bary_coords;
 }
 
+vec3_t QuadraticBezierTriangle(vec2_t M, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  vec3_t bary_coords = getBarycentricCoordinates(M[0],M[1]);
+  double u,v,w;
+  u=bary_coords[0];
+  v=bary_coords[1];
+  w=bary_coords[2];
+  return QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
+}
+
 void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
   int N=10;
@@ -924,7 +934,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t X_011 = g_K1;
   vec3_t X_101 = g_K2;
   vec3_t X_110 = g_K3;
-  writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
+//   writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
+  
+  return QuadraticBezierTriangle(t_M, X_200, X_020, X_002, X_011, X_101, X_110);
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
   intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
