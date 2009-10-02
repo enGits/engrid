@@ -720,13 +720,13 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   // plane 2: BI2, g3 -> pm2_
   // plane 3: CI3, g3 -> pm3_
   // orthogonal edge planes
-  // plane 1: AB, g3 -> poe1_
-  // plane 2: BC, g3 -> poe2_
-  // plane 3: CA, g3 -> poe3_
+  // plane 1: BC, g3 -> poe1_
+  // plane 2: CA, g3 -> poe2_
+  // plane 3: AB, g3 -> poe3_
   // non-orthogonal edge planes
-  // plane 1: AB, nI3 -> pnoe1_
-  // plane 2: BC, nI1 -> pnoe2_
-  // plane 3: CA, nI2 -> pnoe3_
+  // plane 1: BC, nI3 -> pnoe1_
+  // plane 2: CA, nI1 -> pnoe2_
+  // plane 3: AB, nI2 -> pnoe3_
   
   // before knowing intersections
   
@@ -775,16 +775,22 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
   vec2_t pm1_M(1.0/k1,0);
+  vec2_t poe1_I1(k2,0);
+  vec2_t pnoe1_I1(k2,0);
   
   if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) return(g_M);
   vec2_t t_I2 = t_B+k1*(t_M-t_B);
   vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
   vec2_t pm2_M(1.0/k1,0);
+  vec2_t poe2_I2(k2,0);
+  vec2_t pnoe2_I2(k2,0);
   
   if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) return(g_M);
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
   vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
   vec2_t pm3_M(1.0/k1,0);
+  vec2_t poe3_I3(k2,0);
+  vec2_t pnoe3_I3(k2,0);
   
   // after knowing intersections
   
@@ -823,6 +829,61 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t pm3_nC = projectVectorOnPlane(l_nC,l_CI3,l_g3);
   vec2_t pm3_nI3 = projectVectorOnPlane(l_nI3,l_CI3,l_g3);
+  
+  // plane 1: BC, nI3 -> pnoe1_
+  // plane 2: CA, nI1 -> pnoe2_
+  // plane 3: AB, nI2 -> pnoe3_
+  
+  vec3_t l_AB = l_B - l_A;
+  vec3_t l_BC = l_C - l_B;
+  vec3_t l_CA = l_A - l_C;
+  
+  ///////////////
+  vec2_t pnoe1_B(0,0);
+  vec2_t pnoe1_C(1,0);
+  vec2_t pnoe1_nB = projectVectorOnPlane(l_nB,l_BC,l_nI1);
+  vec2_t pnoe1_nC = projectVectorOnPlane(l_nC,l_BC,l_nI1);
+  vec2_t pnoe1_nI1(0,1);
+  
+  vec2_t pnoe1_tB = turnRight(pnoe1_nB);
+  vec2_t pnoe1_tC = turnRight(pnoe1_nC);
+  
+  if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) EG_BUG;
+  
+  vec2_t pnoe1_K1 = pnoe1_B + k1*pnoe1_tB;
+  
+  vec3_t l_K1 = l_B + pnoe1_K1[0]*l_BC + pnoe1_K1[1]*l_nI1;
+  ///////////////
+  vec2_t pnoe2_C(0,0);
+  vec2_t pnoe2_A(1,0);
+  vec2_t pnoe2_nC = projectVectorOnPlane(l_nC,l_CA,l_nI2);
+  vec2_t pnoe2_nA = projectVectorOnPlane(l_nA,l_CA,l_nI2);
+  vec2_t pnoe2_nI2(0,1);
+  
+  vec2_t pnoe2_tC = turnRight(pnoe2_nC);
+  vec2_t pnoe2_tA = turnRight(pnoe2_nA);
+  
+  if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) EG_BUG;
+  
+  vec2_t pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
+  
+  vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[2]*l_nI2;
+  ///////////////
+  vec2_t pnoe3_A(0,0);
+  vec2_t pnoe3_B(1,0);
+  vec2_t pnoe3_nA = projectVectorOnPlane(l_nA,l_AB,l_nI3);
+  vec2_t pnoe3_nB = projectVectorOnPlane(l_nB,l_AB,l_nI3);
+  vec2_t pnoe3_nI3(0,1);
+  
+  vec2_t pnoe3_tA = turnRight(pnoe3_nA);
+  vec2_t pnoe3_tB = turnRight(pnoe3_nB);
+  
+  if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) EG_BUG;
+  
+  vec2_t pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
+  
+  vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[3]*l_nI3;
+  ///////////////
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
   intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
