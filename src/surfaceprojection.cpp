@@ -22,6 +22,8 @@
 //
 #include "surfaceprojection.h"
 
+#include <vtkUnstructuredGridWriter.h>
+
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
@@ -567,15 +569,63 @@ int idx_func(int N, int i, int j)
   return offset+j;
 }
 
+vec3_t getBarycentricCoordinates(double x, double y)
+{
+  // initialize
+  double t1=0;
+  double t2=0;
+  double t3=0;
+  
+/*  if(x==0) {
+    t3=y;
+    t1=1-y;
+    t2=0;
+  }
+  else if(y==0) {
+    t2=x;
+    t1=1-x;
+    t3=0;
+  }
+  else if((x+y)==1) {
+  
+  }
+  else {
+  }
+  
+  double k1,k2;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
+  vec2_t t_I1 = t_A+k1*(t_M-t_A);
+  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
+  vec2_t p1_M(1.0/k1,0);
+  
+  // normalize
+  double total = t1+t2+t3;
+  t1=t1/total;
+  t2=t2/total;
+  t3=t3/total;*/
+  
+  t2 = x;
+  t3 = y;
+  t1 = 1-t2-t3;
+  
+  // return value
+  vec3_t bary_coords(t1,t2,t3);
+  return bary_coords;
+}
+
 void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
   int N=10;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
+  qDebug()<<"N_cells="<<N_cells;
+  qDebug()<<"N_points="<<N_points;
+  
   EG_VTKSP(vtkUnstructuredGrid,bezier);
   allocateGrid(bezier, N_cells, N_points);
   
+  vtkIdType id_new_node = 0;
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
       double x = i/(double)(N-1);
@@ -590,25 +640,38 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
     }
   }
   
+/*  bezier->GetPoints()->SetPoint(id_new_node, X_200.data());id_new_node++;
+  bezier->GetPoints()->SetPoint(id_new_node, X_020.data());id_new_node++;
+  bezier->GetPoints()->SetPoint(id_new_node, X_002.data());id_new_node++;*/
+  
+  qDebug()<<"id_new_node="<<id_new_node;
+  
+  int cell_count=0;
   for(int i=0;i<N-1;i++) {
     for(int j=0;j<N-1-i;j++) {
+      
+      qDebug()<<"(i,j)="<<i<<j;
       
       vtkIdType pts_triangle1[3];
       pts_triangle1[0]=idx_func(N, i  ,j  );
       pts_triangle1[1]=idx_func(N, i+1,j  );
       pts_triangle1[2]=idx_func(N, i  ,j+1);
-      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
       
-      if(i+j<N) {
+      if(i+j<N-2) {
+        qDebug()<<"BEEP";
         vtkIdType pts_triangle2[3];
         pts_triangle2[0]=idx_func(N, i+1,j  );
         pts_triangle2[1]=idx_func(N, i+1,j+1);
         pts_triangle2[2]=idx_func(N, i  ,j+1);
-        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
       }
       
     }
   }
+  
+  qDebug()<<"cell_count="<<cell_count;
+  
 /*  vtkIdType id_new_node = 0;
   for(int i=0;i<Nu;i++) {
     for(int j=0;j<Nv;j++) {
@@ -623,9 +686,11 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
     }
   }*/
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName("bezier.vtu");
-  vtu->SetDataModeToBinary();
+//   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu);
+  vtu->SetFileName("bezier.vtk");
+//   vtu->SetDataModeToBinary();
+//   vtu->SetDataModeToAscii();
   vtu->SetInput(bezier);
   vtu->Write();
 }
