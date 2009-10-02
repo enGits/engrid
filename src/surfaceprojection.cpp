@@ -839,6 +839,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_CA = l_A - l_C;
   
   ///////////////
+  
   vec2_t pnoe1_B(0,0);
   vec2_t pnoe1_C(1,0);
   vec2_t pnoe1_nB = projectVectorOnPlane(l_nB,l_BC,l_nI1);
@@ -848,9 +849,18 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pnoe1_tB = turnRight(pnoe1_nB);
   vec2_t pnoe1_tC = turnRight(pnoe1_nC);
   
-  if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) EG_BUG;
-  
-  vec2_t pnoe1_K1 = pnoe1_B + k1*pnoe1_tB;
+  vec2_t pnoe1_K1;
+  if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) {
+    cout<<"pnoe1_B="<<pnoe1_B<<endl;
+    cout<<"pnoe1_tB="<<pnoe1_tB<<endl;
+    cout<<"pnoe1_C="<<pnoe1_C<<endl;
+    cout<<"pnoe1_tC="<<pnoe1_tC<<endl;
+//     EG_BUG;
+    pnoe1_K1 = 0.5*(pnoe1_B + pnoe1_C);
+  }
+  else {
+    pnoe1_K1 = pnoe1_B + k1*pnoe1_tB;
+  }
   
   vec3_t l_K1 = l_B + pnoe1_K1[0]*l_BC + pnoe1_K1[1]*l_nI1;
   ///////////////
@@ -863,9 +873,18 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pnoe2_tC = turnRight(pnoe2_nC);
   vec2_t pnoe2_tA = turnRight(pnoe2_nA);
   
-  if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) EG_BUG;
-  
-  vec2_t pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
+  vec2_t pnoe2_K2;
+  if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) {
+    cout<<"pnoe2_C="<<pnoe2_C<<endl;
+    cout<<"pnoe2_tC="<<pnoe2_tC<<endl;
+    cout<<"pnoe2_A="<<pnoe2_A<<endl;
+    cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
+//     EG_BUG;
+    pnoe1_K1 = 0.5*(pnoe2_C + pnoe2_A);
+  }
+  else {
+    pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
+  }
   
   vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[2]*l_nI2;
   ///////////////
@@ -878,12 +897,34 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pnoe3_tA = turnRight(pnoe3_nA);
   vec2_t pnoe3_tB = turnRight(pnoe3_nB);
   
-  if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) EG_BUG;
+  vec2_t pnoe3_K3;
+  if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) {
+    cout<<"pnoe3_A="<<pnoe3_A<<endl;
+    cout<<"pnoe3_tA="<<pnoe3_tA<<endl;
+    cout<<"pnoe3_B="<<pnoe3_B<<endl;
+    cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
+//     EG_BUG;
+    pnoe1_K1 = 0.5*(pnoe3_A + pnoe3_B);
+  }
+  else {
+    pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
+  }
   
-  vec2_t pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
   
   vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[3]*l_nI3;
   ///////////////
+  
+  vec3_t g_K1 = g_A+T.G*l_K1;
+  vec3_t g_K2 = g_A+T.G*l_K2;
+  vec3_t g_K3 = g_A+T.G*l_K3;
+  
+  vec3_t X_200 = g_A;
+  vec3_t X_020 = g_B;
+  vec3_t X_002 = g_C;
+  vec3_t X_011 = g_K1;
+  vec3_t X_101 = g_K2;
+  vec3_t X_110 = g_K3;
+  writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
   intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
