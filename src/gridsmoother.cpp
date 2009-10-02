@@ -122,6 +122,8 @@ void GridSmoother::computeAngles()
 */
     }
   }
+  writeNormals("normals");
+  EG_BUG;
 }
 
 void GridSmoother::markNodes()
@@ -807,3 +809,35 @@ void GridSmoother::printMaxErrors()
   cout << "maximal face area error = " << m_SimilarFaceAreaError.maxError() << endl;
   cout << "maximal feature line error = " << m_FeatureLineError.maxError() << endl;
 }
+
+void GridSmoother::writeNormals(QString file_name)
+{
+  file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtk";
+  QFile file(file_name);
+  file.open(QIODevice::WriteOnly);
+  QTextStream f(&file);
+  f << "# vtk DataFile Version 2.0\n";
+  f << "m_NodeNormal\n";
+  f << "ASCII\n";
+  f << "DATASET UNSTRUCTURED_GRID\n";
+  f << "POINTS " << grid->GetNumberOfPoints() << " float\n";
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    grid->GetPoint(id_node, x.data());
+    f << x[0] << " " << x[1] << " " << x[2] << "\n";
+  }
+  f << "CELLS " << grid->GetNumberOfPoints() << " " << grid->GetNumberOfPoints()*2 << "\n";
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    f << "1 " << id_node << "\n";
+  }
+  f << "CELL_TYPES " << grid->GetNumberOfPoints() << "\n";
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    f << "1\n";
+  }
+  f << "POINT_DATA " << grid->GetNumberOfPoints() << "\n";
+  f << "VECTORS N float\n";
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    f << m_NodeNormal[id_node][0] << " " << m_NodeNormal[id_node][1] << " " << m_NodeNormal[id_node][2] << "\n";
+  }
+}
+
