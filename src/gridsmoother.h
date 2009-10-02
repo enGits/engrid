@@ -97,7 +97,6 @@ protected: // attributes
 
   QVector<vtkIdType> m_IdFoot;
   QVector<double> m_L;
-  QVector<double> m_MaxAngle;
   QVector<vec3_t> m_NodeNormal;
   
 protected: // methods
@@ -114,7 +113,7 @@ protected: // methods
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
-  void computeAngles();
+  void computeNormals();
     
 public: // methods
   

@@ -61,66 +61,62 @@ GridSmoother::GridSmoother()
 
 }
 
-void GridSmoother::computeAngles()
+void GridSmoother::computeNormals()
 {
-  m_MaxAngle.fill(0.0, grid->GetNumberOfPoints());
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   m_NodeNormal.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
-  QVector<double> angle_weight(grid->GetNumberOfPoints(), 0.0);
-  QVector<bool> angle_set(grid->GetNumberOfPoints(), false);
-  for (vtkIdType id_cell1 = 0; id_cell1 < grid->GetNumberOfCells(); ++id_cell1) {
-    if (isSurface(id_cell1, grid)) {
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    QSet<int> bcs;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      bcs.insert(cell_code->GetValue(m_Part.n2cGG(id_node, i)));
+    }
+    int num_bcs = bcs.size();
+    QVector<QVector<vec3_t> > normal(num_bcs, QVector<vec3_t>(num_bcs, vec3_t(0,0,0)));
+    QVector<int> bcmap(num_bcs);
+    int i_bc = 0;
+    foreach (int bc, bcs) {
+      bcmap[i_bc] = bc;
+      ++i_bc;
+    }
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      int bc = cell_code->GetValue(id_cell);
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell1, N_pts, pts);
-      if (N_pts == 3) {
-        vec3_t n1 = cellNormal(grid, id_cell1);
-        for (int i = 0; i < N_pts; ++i) {
-          vtkIdType id_node1 = pts[i];
-          vtkIdType id_node2 = pts[0];
-          vtkIdType id_node3 = pts[1];
-          if (i < N_pts - 1) {
-            id_node2 = pts[i+1];
-            id_node3 = pts[0];
-            if (i < N_pts - 2) {
-              id_node3 = pts[i+2];
-            }
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      vec3_t a, b, c;
+      for (int j = 0; j < N_pts; ++j) {
+        if (pts[j] == id_node) {
+          grid->GetPoint(pts[j], a.data());
+          if (j > 0) {
+            grid->GetPoint(pts[j-1], b.data());
+          } else {
+            grid->GetPoint(pts[N_pts-1], b.data());
           }
-          vtkIdType id_cell2 = m_Part.c2cGG(id_cell1, i);
-          if (id_cell2 != -1) {
-            vec3_t n2 = cellNormal(grid, id_cell2);
-            double alpha = GeometryTools::angle(n1, n2);
-            m_MaxAngle[id_node1] = max(alpha, m_MaxAngle[id_node1]);
-            m_MaxAngle[id_node2] = max(alpha, m_MaxAngle[id_node2]);
+          if (j < N_pts - 1) {
+            grid->GetPoint(pts[j+1], c.data());
+          } else {
+            grid->GetPoint(pts[0], c.data());
           }
-          vec3_t x1, x2, x3;
-          grid->GetPoint(id_node1, x1.data());
-          grid->GetPoint(id_node2, x2.data());
-          grid->GetPoint(id_node3, x3.data());
-          vec3_t u = x2 - x1;
-          vec3_t v = x3 - x2;
-          double alpha = fabs(GeometryTools::angle(x1-x2, x3-x2));
-          vec3_t n = v.cross(u);
-          n.normalise();
-          //if (id_node2 == 18) cout << id_node1 << ',' << id_node2 << ',' << id_node3 << ",   " << n << endl;
-          m_NodeNormal[id_node2] += alpha*n;
-          angle_weight[id_node2] += alpha;
-          angle_set[id_node2] = true;
+        }
+      }
+      vec3_t u = b - a;
+      vec3_t v = c - a;
+      double alpha = GeometryTools::angle(u, v);
+      vec3_t n = u.cross(v);
+      n.normalise();
+      normal[bcmap[bc]][bcmap[bc]] += alpha*n;
+    }
+    for (int i = 0; i < num_bcs; ++i) {
+      normal[i][i].normalise();
+    }
+    for (int i = 0; i < num_bcs; ++i) {
+      for (int j = 0; j < num_bcs; ++j) {
+        if (i != j) {
+          m_NodeNormal[id_node] += normal[i][j];
         }
       }
     }
-  }
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    if (angle_set[id_node]) {
-      //cout << m_NodeNormal[id_node] << ", " << angle_weight[id_node] << endl;
-
-      m_NodeNormal[id_node] *= 1.0/angle_weight[id_node];
-      m_NodeNormal[id_node].normalise();
-/*
-      if (id_node == 16) {
-        cout << m_NodeNormal[id_node] << endl;
-        EG_BUG;
-      }
-*/
-    }
+    m_NodeNormal[id_node].normalise();
   }
 }
 
@@ -558,7 +554,7 @@ void GridSmoother::addToStencil(double C, vec3_t x)
 void GridSmoother::operate()
 {
   markNodes();
-  computeAngles();
+  computeNormals();
 
   EG_VTKDCC(vtkIntArray, bc,          grid, "cell_code");
   EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
