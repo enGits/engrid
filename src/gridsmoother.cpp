@@ -68,58 +68,73 @@ void GridSmoother::computeNormals()
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     QSet<int> bcs;
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      bcs.insert(cell_code->GetValue(m_Part.n2cGG(id_node, i)));
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (isSurface(id_cell, grid)) {
+        int bc = cell_code->GetValue(id_cell);
+        if (m_BoundaryCodes.contains(bc)) {
+          bcs.insert(bc);
+        }
+      }
     }
     int num_bcs = bcs.size();
-    QVector<QVector<vec3_t> > normal(num_bcs, QVector<vec3_t>(num_bcs, vec3_t(0,0,0)));
-    QVector<int> bcmap(num_bcs);
+    QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
+    QMap<int,int> bcmap;
     int i_bc = 0;
     foreach (int bc, bcs) {
-      bcmap[i_bc] = bc;
+      bcmap[bc] = i_bc;
       ++i_bc;
     }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      int bc = cell_code->GetValue(id_cell);
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      vec3_t a, b, c;
-      for (int j = 0; j < N_pts; ++j) {
-        if (pts[j] == id_node) {
-          grid->GetPoint(pts[j], a.data());
-          if (j > 0) {
-            grid->GetPoint(pts[j-1], b.data());
-          } else {
-            grid->GetPoint(pts[N_pts-1], b.data());
+      if (isSurface(id_cell, grid)) {
+        int bc = cell_code->GetValue(id_cell);
+        if (m_BoundaryCodes.contains(bc)) {
+          vtkIdType N_pts, *pts;
+          grid->GetCellPoints(id_cell, N_pts, pts);
+          vec3_t a, b, c;
+          for (int j = 0; j < N_pts; ++j) {
+            if (pts[j] == id_node) {
+              grid->GetPoint(pts[j], a.data());
+              if (j > 0) {
+                grid->GetPoint(pts[j-1], b.data());
+              } else {
+                grid->GetPoint(pts[N_pts-1], b.data());
+              }
+              if (j < N_pts - 1) {
+                grid->GetPoint(pts[j+1], c.data());
+              } else {
+                grid->GetPoint(pts[0], c.data());
+              }
+            }
           }
-          if (j < N_pts - 1) {
-            grid->GetPoint(pts[j+1], c.data());
-          } else {
-            grid->GetPoint(pts[0], c.data());
-          }
-        }
-      }
-      vec3_t u = b - a;
-      vec3_t v = c - a;
-      double alpha = GeometryTools::angle(u, v);
-      vec3_t n = u.cross(v);
-      n.normalise();
-      normal[bcmap[bc]][bcmap[bc]] += alpha*n;
-    }
-    for (int i = 0; i < num_bcs; ++i) {
-      normal[i][i].normalise();
-    }
-    for (int i = 0; i < num_bcs; ++i) {
-      for (int j = 0; j < num_bcs; ++j) {
-        if (i != j) {
-          m_NodeNormal[id_node] += normal[i][j];
+          vec3_t u = b - a;
+          vec3_t v = c - a;
+          double alpha = GeometryTools::angle(u, v);
+          vec3_t n = u.cross(v);
+          n.normalise();
+          normal[bcmap[bc]] += alpha*n;
         }
       }
     }
-    m_NodeNormal[id_node].normalise();
+    for (int i = 0; i < num_bcs; ++i) {
+      normal[i].normalise();
+    }
+    if (num_bcs > 0) {
+      if (num_bcs > 1) {
+        for (int i = 0; i < num_bcs; ++i) {
+          for (int j = i + 1; j < num_bcs; ++j) {
+            vec3_t n = normal[i] + normal[j];
+            n.normalise();
+            m_NodeNormal[id_node] += n;
+          }
+        }
+      } else {
+        m_NodeNormal[id_node] = normal[0];
+      }
+      m_NodeNormal[id_node].normalise();
+    }
   }
   writeNormals("normals");
-  EG_BUG;
 }
 
 void GridSmoother::markNodes()
