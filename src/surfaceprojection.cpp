@@ -402,6 +402,10 @@ void SurfaceProjection::writeGridWithNormals()
   }
   
   m_BGrid->GetPointData()->SetVectors(vectors);
+/*  vectors->SetName("normals2");
+  m_BGrid->GetPointData()->SetVectors(vectors);
+  vectors->SetName("normals3");
+  m_BGrid->GetPointData()->SetVectors(vectors);*/
 //   m_BGrid->GetPointData()->AddArray(vectors);
   
   vectors->Delete();
@@ -544,6 +548,7 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
 
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
+  // initialization
   bool DEBUG = false;
   if(DEBUG) qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
@@ -558,12 +563,13 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   // plane 2: BI2, g3 -> p2_
   // plane 3: CI3, g3 -> p3_
   
+  // before knowing intersections
+  
   Triangle T = m_Triangles[i_tri];
   vec3_t g_A = T.a;
   vec3_t g_B = T.b;
   vec3_t g_C = T.c;
   vec3_t g_M = g_A+T.G*r;
-  if(DEBUG) cout<<"r="<<r<<endl;
   
   vec3_t l_A(0,0,0);
   vec3_t l_B(1,0,0);
@@ -578,6 +584,25 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_nA = m_NodeNormals[T.id_a];
   vec3_t g_nB = m_NodeNormals[T.id_b];
   vec3_t g_nC = m_NodeNormals[T.id_c];
+  
+  vec2_t p1_A(0,0);
+  vec2_t p1_I1(1,0);
+  
+  vec2_t p2_B(0,0);
+  vec2_t p2_I2(1,0);
+  
+  vec2_t p3_C(0,0);
+  vec2_t p3_I3(1,0);
+  
+  vec3_t g_g1 = T.g1;
+  vec3_t g_g2 = T.g2;
+  vec3_t g_g3 = T.g3;
+  
+  vec3_t l_g1(1,0,0);
+  vec3_t l_g2(0,1,0);
+  vec3_t l_g3(0,0,1);
+  
+  // calculating intersections
   
   double k1,k2;
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) return(g_M);
@@ -594,6 +619,8 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t t_I3 = t_C+k1*(t_M-t_C);
   vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
   vec2_t p3_M(1.0/k1,0);
+  
+  // after knowing intersections
   
   vec3_t l_I1(t_I1[0],t_I1[1],0);
   vec3_t l_I2(t_I2[0],t_I2[1],0);
@@ -612,15 +639,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   tmp = (g_nB); vec3_t l_nB = T.GI*tmp;
   tmp = (g_nC); vec3_t l_nC = T.GI*tmp;
   
-  vec2_t p1_A(0,0);
-  vec2_t p1_I1(1,0);
-  
-  vec2_t p2_B(0,0);
-  vec2_t p2_I2(1,0);
-  
-  vec2_t p3_C(0,0);
-  vec2_t p3_I3(1,0);
-  
   vec3_t l_AI1 = l_I1 - l_A;
   vec3_t l_BI2 = l_I2 - l_B;
   vec3_t l_CI3 = l_I3 - l_C;
@@ -629,36 +647,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_BI2 = g_I2 - g_B;
   vec3_t g_CI3 = g_I3 - g_C;
   
-  vec3_t l_g1(1,0,0);
-  vec3_t l_g2(0,1,0);
-  vec3_t l_g3(0,0,1);
-  
-  if(DEBUG) cout<<"l_g1"<<l_g1<<endl;
-  if(DEBUG) cout<<"l_g2"<<l_g2<<endl;
-  if(DEBUG) cout<<"l_g3"<<l_g3<<endl;
-  
-  vec3_t g_g1 = T.g1;
-  vec3_t g_g2 = T.g2;
-  vec3_t g_g3 = T.g3;
-  
-  if(DEBUG) cout<<"g_g1"<<g_g1<<endl;
-  if(DEBUG) cout<<"g_g2"<<g_g2<<endl;
-  if(DEBUG) cout<<"g_g3"<<g_g3<<endl;
-  
-  if(DEBUG) cout<<"l_nI1"<<l_nI1<<endl;
-  if(DEBUG) cout<<"l_nI2"<<l_nI2<<endl;
-  if(DEBUG) cout<<"l_nI3"<<l_nI3<<endl;
-  
-  if(DEBUG) cout<<"l_nA"<<l_nA<<endl;
-  if(DEBUG) cout<<"l_nB"<<l_nB<<endl;
-  if(DEBUG) cout<<"l_nC"<<l_nC<<endl;
-  
   
   vec2_t p1_nA = vec2_t(l_nA*l_AI1/l_AI1.abs2(),l_nA*l_g3/l_g3.abs2());
   vec2_t p1_nI1 = vec2_t(l_nI1*l_AI1/l_AI1.abs2(),l_nI1*l_g3/l_g3.abs2());
-  
-  if(DEBUG) cout<<"l_nI2="<<l_nI2<<endl;
-  if(DEBUG) cout<<"l_BI2="<<l_BI2<<endl;
   
   vec2_t p2_nB = vec2_t(l_nB*l_BI2/l_BI2.abs2(),l_nB*l_g3/l_g3.abs2());
   vec2_t p2_nI2 = vec2_t(l_nI2*l_BI2/l_BI2.abs2(),l_nI2*l_g3/l_g3.abs2());
@@ -679,8 +670,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   double z2 = p2_Z2[1];
   double z3 = p3_Z3[1];
   double z = z1;//(z1+z2+z3)/3.0;
-  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
-  
   
 /*  vec3_t g_Z1 = interpolate_bezier_normals(p1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
   vec3_t g_Z2 = interpolate_bezier_normals(p2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
@@ -690,12 +679,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.G*l_X;
   
-  if(DEBUG) cout<<"g_nA"<<g_nA<<endl;
-  if(DEBUG) cout<<"g_nI1"<<g_nI1<<endl;
-  if(DEBUG) cout<<"g_nB"<<g_nB<<endl;
-  if(DEBUG) cout<<"g_nI2"<<g_nI2<<endl;
-  if(DEBUG) cout<<"g_nC"<<g_nC<<endl;
-  if(DEBUG) cout<<"g_nI3"<<g_nI3<<endl;
   
   vec3_t A,M,I;
   vec3_t nA,nM,nI;
@@ -706,6 +689,30 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   nA = vec3_t(p2_nB[0],p2_nB[1],0);
   nM = vec3_t(0,1,0);
   nI = vec3_t(p2_nI2[0],p2_nI2[1],0);
+  
+  // debugging stuff
+  
+  if(DEBUG) cout<<"r="<<r<<endl;
+  if(DEBUG) cout<<"l_g1"<<l_g1<<endl;
+  if(DEBUG) cout<<"l_g2"<<l_g2<<endl;
+  if(DEBUG) cout<<"l_g3"<<l_g3<<endl;
+  if(DEBUG) cout<<"g_g1"<<g_g1<<endl;
+  if(DEBUG) cout<<"g_g2"<<g_g2<<endl;
+  if(DEBUG) cout<<"g_g3"<<g_g3<<endl;
+  if(DEBUG) cout<<"l_nI1"<<l_nI1<<endl;
+  if(DEBUG) cout<<"l_nI2"<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_nI3"<<l_nI3<<endl;
+  if(DEBUG) cout<<"l_nA"<<l_nA<<endl;
+  if(DEBUG) cout<<"l_nB"<<l_nB<<endl;
+  if(DEBUG) cout<<"l_nC"<<l_nC<<endl;
+  if(DEBUG) cout<<"l_nI2="<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_BI2="<<l_BI2<<endl;
+  if(DEBUG) cout<<"g_nA"<<g_nA<<endl;
+  if(DEBUG) cout<<"g_nI1"<<g_nI1<<endl;
+  if(DEBUG) cout<<"g_nB"<<g_nB<<endl;
+  if(DEBUG) cout<<"g_nI2"<<g_nI2<<endl;
+  if(DEBUG) cout<<"g_nC"<<g_nC<<endl;
+  if(DEBUG) cout<<"g_nI3"<<g_nI3<<endl;
   
   QVector < QPair<vec3_t,vec3_t> > points;
   points.push_back(QPair<vec3_t,vec3_t>(g_A,g_nA));
@@ -727,6 +734,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   if(DEBUG) debug_output(points, lines);
   
+  // returning value
   x = g_X;
   return x;
 }
