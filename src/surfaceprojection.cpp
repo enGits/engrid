@@ -893,13 +893,13 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
     cout<<"pnoe2_A="<<pnoe2_A<<endl;
     cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
 //     EG_BUG;
-    pnoe1_K1 = 0.5*(pnoe2_C + pnoe2_A);
+    pnoe2_K2 = 0.5*(pnoe2_C + pnoe2_A);
   }
   else {
     pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
   }
   
-  vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[2]*l_nI2;
+  vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[1]*l_nI2;
   ///////////////
   vec2_t pnoe3_A(0,0);
   vec2_t pnoe3_B(1,0);
@@ -917,14 +917,14 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
     cout<<"pnoe3_B="<<pnoe3_B<<endl;
     cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
 //     EG_BUG;
-    pnoe1_K1 = 0.5*(pnoe3_A + pnoe3_B);
+    pnoe3_K3 = 0.5*(pnoe3_A + pnoe3_B);
   }
   else {
     pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
   }
   
   
-  vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[3]*l_nI3;
+  vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[1]*l_nI3;
   ///////////////
   
   vec3_t g_K1 = g_A+T.G*l_K1;
@@ -1177,21 +1177,57 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
   return x;
 }
 
+vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
+{
+  vec3_t u = B-A;
+  vec2_t p_A(0,0);
+  vec2_t p_B(1,0);
+  vec2_t p_nA = projectVectorOnPlane(nA,u,v);
+  vec2_t p_nB = projectVectorOnPlane(nB,u,v);
+  
+  vec2_t p_tA = turnRight(p_nA);
+  vec2_t p_tB = turnRight(p_nB);
+  
+  double k1, k2;
+  vec3_t p_K;
+  if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
+    p_K = 0.5*(p_A + p_B);
+  }
+  else {
+    p_K = p_A + k1*p_tA;
+  }
+  
+  vec3_t K = A + p_K[0]*u + p_K[1]*v;
+  return K;
+}
+
 int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
-  T.g3;
-  T.a;
-  T.b;
-  T.c;
-  vec3_t AB=T.b-T.a;
-  vec3_t BC=T.c-T.b;
-  vec3_t CA=T.a-T.c;
+  vec3_t A=T.a;
+  vec3_t B=T.b;
+  vec3_t C=T.c;
+  vec3_t nA = m_NodeNormals[T.id_a];
+  vec3_t nB = m_NodeNormals[T.id_b];
+  vec3_t nC = m_NodeNormals[T.id_c];
   
+  X_011 = intersectionOnPlane(T.g3, B, nB, C, nC);
+  X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
+  X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
   return(0);
 }
 
 int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
+  vec3_t A=T.a;
+  vec3_t B=T.b;
+  vec3_t C=T.c;
+  vec3_t nA = m_NodeNormals[T.id_a];
+  vec3_t nB = m_NodeNormals[T.id_b];
+  vec3_t nC = m_NodeNormals[T.id_c];
+  
+  X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
+  X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
+  X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
   return(0);
 }
 
