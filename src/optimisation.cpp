@@ -29,6 +29,7 @@ ErrorFunction::ErrorFunction()
   m_Weighting2 = 1.0;
   m_XSwitch = 0.5;
   m_Exponent = 1.0;
+  m_LastError = 0.0;
 }
 
 void ErrorFunction::set(QString settings_txt)
@@ -49,6 +50,7 @@ double ErrorFunction::operator ()(double x)
   double e2 = fabs(1 - x);
   double e  = max(e1, m_Weighting2*pow(e2, m_Exponent));
   m_MaxErr = max(m_MaxErr, e2);
+  m_LastError = e;
   return e;
 }
 

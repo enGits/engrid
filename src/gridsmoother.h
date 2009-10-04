@@ -65,7 +65,6 @@ protected: // attributes
   
   double m_MaxRelLength;
   double m_RelativeHeight;
-
   double m_CritAngle;
 
   ErrorFunction m_HeightError;
@@ -84,6 +83,7 @@ protected: // attributes
   double m_UnderRelaxation;
 
   bool m_StrictPrismChecking;
+  bool m_WriteDebugFile;
   
   struct stencil_node_t {
     vec3_t x;
@@ -114,7 +114,7 @@ protected: // methods
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
   void computeNormals();
-  void writeNormals(QString file_name);
+  void writeDebugFile(QString file_name);
     
 public: // methods
   

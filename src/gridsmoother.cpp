@@ -44,7 +44,9 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "maximal relative edge length",      1.50, m_MaxRelLength);
 
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
+
   getSet("boundary layer", "use strict prism checking", true, m_StrictPrismChecking);
+  getSet("boundary layer", "write debug file",          true, m_WriteDebugFile);
 
   getErrSet("boundary layer", "layer height error",      200.0,  2.0, 2.0, 0.10, m_HeightError);
   getErrSet("boundary layer", "edge length error" ,      200.0,  0.1, 2.0, 0.10, m_EdgeLengthError);
@@ -134,7 +136,6 @@ void GridSmoother::computeNormals()
       m_NodeNormal[id_node].normalise();
     }
   }
-  writeNormals("normals");
 }
 
 void GridSmoother::markNodes()
@@ -797,6 +798,9 @@ void GridSmoother::operate()
     cout << "total improvement = " << 100*(1-F_new/f_old) << "%" << endl;
     printMaxErrors();
   }
+  if (m_WriteDebugFile) {
+    writeDebugFile("gridsmoother");
+  }
   cout << "done" << endl;
 }
 
@@ -821,8 +825,22 @@ void GridSmoother::printMaxErrors()
   cout << "maximal feature line error = " << m_FeatureLineError.maxError() << endl;
 }
 
-void GridSmoother::writeNormals(QString file_name)
+void GridSmoother::writeDebugFile(QString file_name)
 {
+  QVector<vtkIdType> bcells;
+  getSurfaceCells(m_BoundaryCodes, bcells, grid);
+  MeshPartition bpart(grid);
+  bpart.setCells(bcells);
+  QVector<vtkIdType> foot2field(bpart.getNumberOfNodes(), -1);
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    vtkIdType id_foot = m_IdFoot[id_node];
+    if (id_foot != -1) {
+      if (bpart.localNode(id_foot) == -1) {
+        EG_BUG;
+      }
+      foot2field[bpart.localNode(id_foot)] = id_node;
+    }
+  }
   file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtk";
   QFile file(file_name);
   file.open(QIODevice::WriteOnly);
@@ -831,24 +849,49 @@ void GridSmoother::writeNormals(QString file_name)
   f << "m_NodeNormal\n";
   f << "ASCII\n";
   f << "DATASET UNSTRUCTURED_GRID\n";
-  f << "POINTS " << grid->GetNumberOfPoints() << " float\n";
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  f << "POINTS " << 2*bpart.getNumberOfNodes() << " float\n";
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
     vec3_t x;
+    vtkIdType id_node = bpart.globalNode(i);
     grid->GetPoint(id_node, x.data());
     f << x[0] << " " << x[1] << " " << x[2] << "\n";
   }
-  f << "CELLS " << grid->GetNumberOfPoints() << " " << grid->GetNumberOfPoints()*2 << "\n";
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    f << "1 " << id_node << "\n";
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
+    vec3_t x;
+    vtkIdType id_node = foot2field[i];
+    grid->GetPoint(id_node, x.data());
+    f << x[0] << " " << x[1] << " " << x[2] << "\n";
   }
-  f << "CELL_TYPES " << grid->GetNumberOfPoints() << "\n";
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    f << "1\n";
+  f << "CELLS " << 2*bpart.getNumberOfCells() << " " << 8*bpart.getNumberOfCells() << "\n";
+  for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
+    vtkIdType id_cell = bpart.globalCell(i);
+    vtkIdType N_pts, *pts;
+    if (grid->GetCellType(id_cell) != VTK_TRIANGLE) {
+      EG_BUG;
+    }
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    QVector<int> nds1(3), nds2(3);
+    for (int j = 0; j < 3; ++j) {
+      nds1[j] = bpart.localNode(pts[j]);
+      nds2[j] = nds1[j] + bpart.getNumberOfNodes();
+    }
+    f << "3 " << nds1[0] << " " << nds1[1] << " " << nds1[2] << "\n";
+    f << "3 " << nds2[0] << " " << nds2[1] << " " << nds2[2] << "\n";
   }
-  f << "POINT_DATA " << grid->GetNumberOfPoints() << "\n";
+
+  f << "CELL_TYPES " << 2*bpart.getNumberOfCells() << "\n";
+  for (int i = 0; i < 2*bpart.getNumberOfCells(); ++ i) {
+    f << VTK_TRIANGLE << "\n";
+  }
+  f << "POINT_DATA " << 2*bpart.getNumberOfNodes() << "\n";
   f << "VECTORS N float\n";
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
+    vtkIdType id_node = bpart.globalNode(i);
     f << m_NodeNormal[id_node][0] << " " << m_NodeNormal[id_node][1] << " " << m_NodeNormal[id_node][2] << "\n";
+  }
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
+    f << "0 0 0\n";
   }
 }
 
