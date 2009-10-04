@@ -153,7 +153,7 @@
       <mainprogram>/home/mike/Development/engrid/src/engrid</mainprogram>
       <programargs>-f ~/Geometries/cylinder.egc</programargs>
       <globaldebugarguments></globaldebugarguments>
-      <globalcwd>.</globalcwd>
+      <globalcwd>/home/mike/Development/engrid/src/</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
