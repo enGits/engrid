@@ -654,17 +654,17 @@ vtkIdType SurfaceProjection::addBezierSurface(vtkUnstructuredGrid* bezier, int o
       qDebug()<<"(i,j)="<<i<<j;
       
       vtkIdType pts_triangle1[3];
-      pts_triangle1[0]=idx_func(N, i  ,j  );
-      pts_triangle1[1]=idx_func(N, i+1,j  );
-      pts_triangle1[2]=idx_func(N, i  ,j+1);
+      pts_triangle1[0]=offset + idx_func(N, i  ,j  );
+      pts_triangle1[1]=offset + idx_func(N, i+1,j  );
+      pts_triangle1[2]=offset + idx_func(N, i  ,j+1);
       bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
       
       if(i+j<N-2) {
         qDebug()<<"BEEP";
         vtkIdType pts_triangle2[3];
-        pts_triangle2[0]=idx_func(N, i+1,j  );
-        pts_triangle2[1]=idx_func(N, i+1,j+1);
-        pts_triangle2[2]=idx_func(N, i  ,j+1);
+        pts_triangle2[0]=offset + idx_func(N, i+1,j  );
+        pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
+        pts_triangle2[2]=offset + idx_func(N, i  ,j+1);
         bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
       }
       
@@ -686,9 +686,11 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
   qDebug()<<"N_points="<<N_points;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, N_cells, N_points);
+  allocateGrid(bezier, 2*N_cells, 2*N_points);
   
-  vtkIdType offset = addBezierSurface(bezier, 0, N, X_200, X_020, X_002, X_011, X_101, X_110);
+  vtkIdType offset = 0;
+  offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011, X_101, X_110);
+  offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011-vec3_t(0,0,1), X_101-vec3_t(0,0,1), X_110-vec3_t(0,0,1));
   qDebug()<<"offset="<<offset;
   
 /*//   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
