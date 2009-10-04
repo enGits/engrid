@@ -392,7 +392,7 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 
 void SurfaceProjection::writeGridWithNormals()
 {
-  qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
+  //qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
   
   vtkDoubleArray *vectors = vtkDoubleArray::New();
   vectors->SetName("normals");
@@ -645,13 +645,13 @@ vtkIdType SurfaceProjection::addBezierSurface(vtkUnstructuredGrid* bezier, int o
     }
   }
   
-  qDebug()<<"node_count="<<node_count;
+//   qDebug()<<"node_count="<<node_count;
   
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {
     for(int j=0;j<N-1-i;j++) {
       
-      qDebug()<<"(i,j)="<<i<<j;
+      //qDebug()<<"(i,j)="<<i<<j;
       
       vtkIdType pts_triangle1[3];
       pts_triangle1[0]=offset + idx_func(N, i  ,j  );
@@ -660,7 +660,7 @@ vtkIdType SurfaceProjection::addBezierSurface(vtkUnstructuredGrid* bezier, int o
       bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
       
       if(i+j<N-2) {
-        qDebug()<<"BEEP";
+        //qDebug()<<"BEEP";
         vtkIdType pts_triangle2[3];
         pts_triangle2[0]=offset + idx_func(N, i+1,j  );
         pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
@@ -671,19 +671,19 @@ vtkIdType SurfaceProjection::addBezierSurface(vtkUnstructuredGrid* bezier, int o
     }
   }
   
-  qDebug()<<"cell_count="<<cell_count;
+  //qDebug()<<"cell_count="<<cell_count;
   return node_count;
 }
 
 void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
 {
-  qDebug()<<"writeBezierSurface called";
+  //qDebug()<<"writeBezierSurface called";
   int N=10;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
-  qDebug()<<"N_cells="<<N_cells;
-  qDebug()<<"N_points="<<N_points;
+  //qDebug()<<"N_cells="<<N_cells;
+  //qDebug()<<"N_points="<<N_points;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
   allocateGrid(bezier, 2*N_cells, 2*N_points);
@@ -691,7 +691,7 @@ void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_
   vtkIdType offset = 0;
   offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011, X_101, X_110);
   offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011-vec3_t(0,0,1), X_101-vec3_t(0,0,1), X_110-vec3_t(0,0,1));
-  qDebug()<<"offset="<<offset;
+  //qDebug()<<"offset="<<offset;
   
 /*//   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   EG_VTKSP(vtkUnstructuredGridWriter,vtu);
@@ -871,10 +871,10 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t pnoe1_K1;
   if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) {
-    cout<<"pnoe1_B="<<pnoe1_B<<endl;
-    cout<<"pnoe1_tB="<<pnoe1_tB<<endl;
-    cout<<"pnoe1_C="<<pnoe1_C<<endl;
-    cout<<"pnoe1_tC="<<pnoe1_tC<<endl;
+    //cout<<"pnoe1_B="<<pnoe1_B<<endl;
+    //cout<<"pnoe1_tB="<<pnoe1_tB<<endl;
+    //cout<<"pnoe1_C="<<pnoe1_C<<endl;
+    //cout<<"pnoe1_tC="<<pnoe1_tC<<endl;
 //     EG_BUG;
     pnoe1_K1 = 0.5*(pnoe1_B + pnoe1_C);
   }
@@ -895,10 +895,10 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t pnoe2_K2;
   if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) {
-    cout<<"pnoe2_C="<<pnoe2_C<<endl;
-    cout<<"pnoe2_tC="<<pnoe2_tC<<endl;
-    cout<<"pnoe2_A="<<pnoe2_A<<endl;
-    cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
+    //cout<<"pnoe2_C="<<pnoe2_C<<endl;
+    //cout<<"pnoe2_tC="<<pnoe2_tC<<endl;
+    //cout<<"pnoe2_A="<<pnoe2_A<<endl;
+    //cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
 //     EG_BUG;
     pnoe2_K2 = 0.5*(pnoe2_C + pnoe2_A);
   }
@@ -919,10 +919,10 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t pnoe3_K3;
   if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) {
-    cout<<"pnoe3_A="<<pnoe3_A<<endl;
-    cout<<"pnoe3_tA="<<pnoe3_tA<<endl;
-    cout<<"pnoe3_B="<<pnoe3_B<<endl;
-    cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
+    //cout<<"pnoe3_A="<<pnoe3_A<<endl;
+    //cout<<"pnoe3_tA="<<pnoe3_tA<<endl;
+    //cout<<"pnoe3_B="<<pnoe3_B<<endl;
+    //cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
 //     EG_BUG;
     pnoe3_K3 = 0.5*(pnoe3_A + pnoe3_B);
   }
@@ -938,6 +938,15 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_K2 = g_A+T.G*l_K2;
   vec3_t g_K3 = g_A+T.G*l_K3;
   
+  vec3_t g_J1;
+  vec3_t g_J2;
+  vec3_t g_J3;
+  
+  //qDebug()<<"=== ORTHOGONAL PLANES ===";
+  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+
   vec3_t X_200 = g_A;
   vec3_t X_020 = g_B;
   vec3_t X_002 = g_C;
@@ -946,6 +955,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t X_110 = g_K3;
 //   writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
   
+
   return QuadraticBezierTriangle(t_M, X_200, X_020, X_002, X_011, X_101, X_110);
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
@@ -1191,7 +1201,7 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   v.normalise();
   v = u.abs()*v;
   
-  cout<<"u="<<u<<" v="<<v<<endl;
+  //cout<<"u="<<u<<" v="<<v<<endl;
 
   vec2_t p_A(0,0);
   vec2_t p_B(1,0);
@@ -1204,19 +1214,19 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   double k1, k2;
   vec2_t p_K;
   if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
-    qDebug()<<"WARNING: No intersection found!!!";
+    //qDebug()<<"WARNING: No intersection found!!!";
     p_K = 0.5*(p_A + p_B);
   }
   else {
     p_K = p_A + k1*p_tA;
   }
   
-  cout<<"nA="<<nA<<endl;
-  cout<<"p_nA="<<p_nA<<endl;
-  cout<<"p_tA="<<p_tA<<endl;
-  cout<<"p_K="<<p_K<<endl;
+  //cout<<"nA="<<nA<<endl;
+  //cout<<"p_nA="<<p_nA<<endl;
+  //cout<<"p_tA="<<p_tA<<endl;
+  //cout<<"p_K="<<p_K<<endl;
   vec3_t K = A + p_K[0]*u + p_K[1]*v;
-  cout<<"K="<<K<<endl;
+  //cout<<"K="<<K<<endl;
   return K;
 }
 
@@ -1229,16 +1239,16 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
   vec3_t nB = m_NodeNormals[T.id_b];
   vec3_t nC = m_NodeNormals[T.id_c];
   
-  cout<<"nA="<<nA<<endl;
-  cout<<"nB="<<nB<<endl;
-  cout<<"nC="<<nC<<endl;
+  //cout<<"nA="<<nA<<endl;
+  //cout<<"nB="<<nB<<endl;
+  //cout<<"nC="<<nC<<endl;
 
 //   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
-  cout<<"-->BC"<<endl;
+  //cout<<"-->BC"<<endl;
   X_011 = intersectionOnPlane(T.g3, B, nB, C, nC);
-  cout<<"-->CA"<<endl;
+  //cout<<"-->CA"<<endl;
   X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
-  cout<<"-->AB"<<endl;
+  //cout<<"-->AB"<<endl;
   X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
   return(0);
 }
@@ -1267,10 +1277,10 @@ void SurfaceProjection::setupInterpolationGrid()
   int N_cells_per_triangle = (N-1)*(N-1);
   int N_points_per_triangle = (N*N+N)/2;
   
-  qDebug()<<"N_cells="<<N_cells;
-  qDebug()<<"N_points="<<N_points;
-  qDebug()<<"N_cells_per_triangle="<<N_cells_per_triangle;
-  qDebug()<<"N_points_per_triangle="<<N_points_per_triangle;
+  //qDebug()<<"N_cells="<<N_cells;
+  //qDebug()<<"N_points="<<N_points;
+  //qDebug()<<"N_cells_per_triangle="<<N_cells_per_triangle;
+  //qDebug()<<"N_points_per_triangle="<<N_points_per_triangle;
   
   allocateGrid(m_InterpolationGrid , N_cells, N_points);
   makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
@@ -1285,14 +1295,14 @@ void SurfaceProjection::setupInterpolationGrid()
   for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
     Triangle T = m_Triangles[i_triangles];
     if ( i_triangles == 1 ) {
-      cout<<"+++++++++++++++++++++++++"<<endl;
+      //cout<<"+++++++++++++++++++++++++"<<endl;
     }
     vec3_t J1,K1;
     vec3_t J2,K2;
     vec3_t J3,K3;
-    qDebug()<<"=== ORTHOGONAL PLANES ===";
+    //qDebug()<<"=== ORTHOGONAL PLANES ===";
     getControlPoints_orthogonal(T,J1,J2,J3);
-    qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+    //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
     getControlPoints_nonorthogonal(T,K1,K2,K3);
     
     vtkIdType idx_J1, idx_J2, idx_J3;
@@ -1305,12 +1315,12 @@ void SurfaceProjection::setupInterpolationGrid()
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K3.data()); idx_K3=node_count; node_count++;
     
     if ( i_triangles == 1 ) {
-      cout<<"+++++++++++++++++++++++++"<<endl;
-      cout<<"A="<<T.a<<" B="<<T.b<<" C="<<T.c<<endl;
-      cout<<"J1="<<J1<<" K1="<<K1<<endl;
-      cout<<"J2="<<J2<<" K2="<<K2<<endl;
-      cout<<"J3="<<J3<<" K3="<<K3<<endl;
-      cout<<"+++++++++++++++++++++++++"<<endl;
+      //cout<<"+++++++++++++++++++++++++"<<endl;
+      //cout<<"A="<<T.a<<" B="<<T.b<<" C="<<T.c<<endl;
+      //cout<<"J1="<<J1<<" K1="<<K1<<endl;
+      //cout<<"J2="<<J2<<" K2="<<K2<<endl;
+      //cout<<"J3="<<J3<<" K3="<<K3<<endl;
+      //cout<<"+++++++++++++++++++++++++"<<endl;
     }
     
     offset += addBezierSurface(m_BezierGrid, offset, N, T.a, T.b, T.c, K1, K2, K3);
@@ -1339,45 +1349,9 @@ void SurfaceProjection::setupInterpolationGrid()
     
   }
   
-/*  for(int i=0;i<N;i++) {
-    for(int j=0;j<N-i;j++) {
-      double x = i/(double)(N-1);
-      double y = j/(double)(N-1);
-      vec3_t bary_coords = getBarycentricCoordinates(x,y);
-      double u,v,w;
-      u=bary_coords[0];
-      v=bary_coords[1];
-      w=bary_coords[2];
-    }
-  }
-  
-  
-  for(int i=0;i<N-1;i++) {
-    for(int j=0;j<N-1-i;j++) {
-      
-      qDebug()<<"(i,j)="<<i<<j;
-      
-      vtkIdType pts_triangle1[3];
-      pts_triangle1[0]=idx_func(N, i  ,j  );
-      pts_triangle1[1]=idx_func(N, i+1,j  );
-      pts_triangle1[2]=idx_func(N, i  ,j+1);
-      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
-      
-      if(i+j<N-2) {
-        qDebug()<<"BEEP";
-        vtkIdType pts_triangle2[3];
-        pts_triangle2[0]=idx_func(N, i+1,j  );
-        pts_triangle2[1]=idx_func(N, i+1,j+1);
-        pts_triangle2[2]=idx_func(N, i  ,j+1);
-        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
-      }
-      
-    }
-  }*/
-  
-  qDebug()<<"node_count="<<node_count;
-  qDebug()<<"cell_count="<<cell_count;
-  qDebug()<<"offset="<<offset;
+  //qDebug()<<"node_count="<<node_count;
+  //qDebug()<<"cell_count="<<cell_count;
+  //qDebug()<<"offset="<<offset;
   
   EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
   vtu1->SetFileName("m_InterpolationGrid.vtk");
