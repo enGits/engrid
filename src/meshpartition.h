@@ -143,6 +143,24 @@ public: // methods
    */
   double getSmallestEdgeLength() const;
 
+  /**
+   * Get the number of nodes in the partition.
+   * @return the number of nodes
+   */
+  int getNumberOfNodes() { return m_Nodes.size(); }
+
+  /**
+   * Get the number of cells in the partition.
+   * @return the number of cells
+   */
+  int getNumberOfCells() { return m_Cells.size(); }
+
+  int localNode(vtkIdType id_node) { return m_LNodes[id_node]; }
+  vtkIdType globalNode(int i) { return m_Nodes[i]; }
+  int localCell(vtkIdType id_cell) { return m_LCells[id_cell]; }
+  vtkIdType globalCell(int i) { return m_Cells[i]; }
+
+
   int       n2nLSize(int i_nodes);
   int       n2nLL(int i_nodes, int j);
   vtkIdType n2nLG(int i_nodes, int j);
