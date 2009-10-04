@@ -1168,6 +1168,12 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
 {
   vec3_t u = B-A;
+//   u.normalise();
+  v.normalise();
+  v = u.abs()*v;
+  
+  cout<<"u="<<u<<" v="<<v<<endl;
+
   vec2_t p_A(0,0);
   vec2_t p_B(1,0);
   vec2_t p_nA = projectVectorOnPlane(nA,u,v);
@@ -1177,7 +1183,7 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   vec2_t p_tB = turnRight(p_nB);
   
   double k1, k2;
-  vec3_t p_K;
+  vec2_t p_K;
   if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
     qDebug()<<"WARNING: No intersection found!!!";
     p_K = 0.5*(p_A + p_B);
@@ -1186,7 +1192,12 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
     p_K = p_A + k1*p_tA;
   }
   
+  cout<<"nA="<<nA<<endl;
+  cout<<"p_nA="<<p_nA<<endl;
+  cout<<"p_tA="<<p_tA<<endl;
+  cout<<"p_K="<<p_K<<endl;
   vec3_t K = A + p_K[0]*u + p_K[1]*v;
+  cout<<"K="<<K<<endl;
   return K;
 }
 
@@ -1199,8 +1210,16 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
   vec3_t nB = m_NodeNormals[T.id_b];
   vec3_t nC = m_NodeNormals[T.id_c];
   
+  cout<<"nA="<<nA<<endl;
+  cout<<"nB="<<nB<<endl;
+  cout<<"nC="<<nC<<endl;
+
+//   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
+  cout<<"-->BC"<<endl;
   X_011 = intersectionOnPlane(T.g3, B, nB, C, nC);
+  cout<<"-->CA"<<endl;
   X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
+  cout<<"-->AB"<<endl;
   X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
   return(0);
 }
@@ -1214,6 +1233,7 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
   vec3_t nB = m_NodeNormals[T.id_b];
   vec3_t nC = m_NodeNormals[T.id_c];
   
+//   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
   X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
   X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
   X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
@@ -1236,10 +1256,15 @@ void SurfaceProjection::setupInterpolationGrid()
    
   for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
     Triangle T = m_Triangles[i_triangles];
+    if ( i_triangles == 1 ) {
+      cout<<"+++++++++++++++++++++++++"<<endl;
+    }
     vec3_t J1,K1;
     vec3_t J2,K2;
     vec3_t J3,K3;
+    qDebug()<<"=== ORTHOGONAL PLANES ===";
     getControlPoints_orthogonal(T,J1,J2,J3);
+    qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
     getControlPoints_nonorthogonal(T,K1,K2,K3);
     
     vtkIdType idx_J1, idx_J2, idx_J3;
@@ -1250,6 +1275,15 @@ void SurfaceProjection::setupInterpolationGrid()
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K1.data()); idx_K1=node_count; node_count++;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K2.data()); idx_K2=node_count; node_count++;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K3.data()); idx_K3=node_count; node_count++;
+    
+    if ( i_triangles == 1 ) {
+      cout<<"+++++++++++++++++++++++++"<<endl;
+      cout<<"A="<<T.a<<" B="<<T.b<<" C="<<T.c<<endl;
+      cout<<"J1="<<J1<<" K1="<<K1<<endl;
+      cout<<"J2="<<J2<<" K2="<<K2<<endl;
+      cout<<"J3="<<J3<<" K3="<<K3<<endl;
+      cout<<"+++++++++++++++++++++++++"<<endl;
+    }
     
     vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];
@@ -1314,8 +1348,18 @@ void SurfaceProjection::setupInterpolationGrid()
   qDebug()<<"node_count="<<node_count;
   qDebug()<<"cell_count="<<cell_count;
   
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu);
-  vtu->SetFileName("m_InterpolationGrid.vtk");
-  vtu->SetInput(m_InterpolationGrid);
-  vtu->Write();
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
+  vtu1->SetFileName("m_InterpolationGrid.vtk");
+  vtu1->SetInput(m_InterpolationGrid);
+  vtu1->Write();
+
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
+  vtu2->SetFileName("m_InterpolationGrid.vtu");
+  vtu2->SetDataModeToBinary();
+//   vtu2->SetDataModeToAscii();
+  vtu2->SetInput(m_InterpolationGrid);
+  vtu2->Write();
+
+  writeGrid(m_BGrid,"m_BGrid");
+  
 }
