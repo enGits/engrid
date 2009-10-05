@@ -11,9 +11,9 @@ Projection_test::Projection_test() : SurfaceOperation()
 void Projection_test::operate()
 {
 //   project_picked_point();
-  project_all_points();
+//   project_all_points();
 //   Bezier_test();
-//   checkInterpolationGrid();
+  checkInterpolationGrid();
 }
 
 void Projection_test::project_picked_point()
