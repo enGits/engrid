@@ -29,13 +29,14 @@
 #include <QString>
 #include "egvtkobject.h"
 
+///@@@ TODO: Rename density to edge length
 class VertexMeshDensity
 {
 
 public: // methods
 
   VertexMeshDensity();/// Default constructor
-
+  
   // node requirements
   /** Acceptable boundary codes for neighbour nodes. Unchecked=not allowed, checked=required
    * the first element is the boundary code
@@ -62,6 +63,7 @@ public: // methods
   
   void setNodes(QString str);/// set nodeset by passing a string of the form "id1,id2,..."
 
+  int findSmallestVMD( QVector <VertexMeshDensity> vector);
 };
 
 /// ostream operator to print out a VertexMeshDensity object
