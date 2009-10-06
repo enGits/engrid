@@ -33,22 +33,29 @@ class ErrorFunction
 
 private: // attributes
 
-  double m_Weighting1;
-  double m_Weighting2;
-  double m_XSwitch;
-  double m_Exponent;
-  double m_MaxErr;
-  double m_LastError;
+  double  m_Weighting1;
+  double  m_Weighting2;
+  double  m_XSwitch;
+  double  m_Exponent;
+  double  m_MaxErr;
+  double  m_TotalError;
+  bool    m_Active;
+  QString m_Name;
+  int     m_NumCalls;
 
 public: // methods
 
   ErrorFunction();
   void set(QString settings_txt);
+  void setName(QString name) { m_Name = name; }
+  QString name() { return m_Name; }
   double operator()(double x);
   double maxError() { return m_MaxErr; }
-  void reset() { m_MaxErr = 0; }
-  bool active() { return (m_Weighting1 > 1e-10) || (m_Weighting2 > 1e-10); }
-  double lastError() { return m_LastError; }
+  void reset() { m_MaxErr = 0; m_TotalError = 0; m_NumCalls = 0; }
+  bool active() { return m_Active && ((m_Weighting1 > 1e-10) || (m_Weighting2 > 1e-10)); }
+  double averageError();
+  void activate() { m_Active = true; }
+  void deactivate() { m_Active = false; }
 
 };
 

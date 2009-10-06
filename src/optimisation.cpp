@@ -29,7 +29,8 @@ ErrorFunction::ErrorFunction()
   m_Weighting2 = 1.0;
   m_XSwitch = 0.5;
   m_Exponent = 1.0;
-  m_LastError = 0.0;
+  m_TotalError = 0.0;
+  m_Active = true;
 }
 
 void ErrorFunction::set(QString settings_txt)
@@ -50,8 +51,17 @@ double ErrorFunction::operator ()(double x)
   double e2 = fabs(1 - x);
   double e  = max(e1, m_Weighting2*pow(e2, m_Exponent));
   m_MaxErr = max(m_MaxErr, e2);
-  m_LastError = e;
+  m_TotalError += e2;
+  ++m_NumCalls;
   return e;
+}
+
+double ErrorFunction::averageError()
+{
+  if (m_NumCalls == 0) {
+    return 0;
+  }
+  return m_TotalError/m_NumCalls;
 }
 
 
@@ -89,6 +99,7 @@ void Optimisation::getErrSet(QString group, QString key, double w1, double w2, d
     qset->endGroup();
   }
   err_func.set(variable);
+  err_func.setName(key.replace(" ", "_"));
 }
 
 double Optimisation::angleX(const vec3_t &v1, const vec3_t &v2)
