@@ -34,6 +34,8 @@ GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "maximal relative error", 0.01, err_max);
   getSet("boundary layer", "maximal number of smoothing iterations", 5, max_iter);
+  getSet("boundary layer", "number of pre-steps", 5, m_NumPreSteps);
+  getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
 }
 
 void GuiCreateBoundaryLayer::before()
@@ -149,8 +151,30 @@ void GuiCreateBoundaryLayer::operate()
     seed_layer.getLayerCells(layer_cells);
   }
   
-  double h = ui.doubleSpinBoxHeight->value();
-  smooth.setRelativeHeight(h);
+  double H = ui.doubleSpinBoxHeight->value();
+
+  if (!ui.checkBoxImprove->isChecked()) {
+    m_NumPreSteps = max(1, m_NumPreSteps);
+    double dh = H/m_NumPreSteps;
+    double h = dh;
+    smooth.simpleOn();
+    for (int i = 0; i < m_NumPreSteps; ++i) {
+      smooth.setRelativeHeight(h);
+      cout << "improving prismatic layer -> pre-step " << i+1 << "/" << m_NumPreSteps << endl;
+      smooth.setAllCells();
+      smooth();
+      del.setAllCells();
+      del();
+      swap();
+      vol.setTraceCells(layer_cells);
+      vol();
+      vol.getTraceCells(layer_cells);
+      h += dh;
+    }
+  }
+
+  smooth.setRelativeHeight(H);
+  smooth.simpleOff();
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     smooth.setAllCells();
@@ -182,4 +206,9 @@ void GuiCreateBoundaryLayer::operate()
   createIndices(grid);
   cout << "total mesh error: " << mesh_error << endl;
   smooth.printMaxErrors();
+  if (m_WriteDebugFile) {
+    smooth.setAllCells();
+    smooth();
+    smooth.writeDebugFile("gridsmoother");
+  }
 }

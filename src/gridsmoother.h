@@ -79,11 +79,15 @@ protected: // attributes
   ErrorFunction m_FeatureLineError;
 
   QVector<QSet<int> > m_Node2BC;
+  QVector<vtkIdType> m_FootToField;
+  QVector<bool> m_IsSharpNode;
+  QVector<bool> m_IsTripleNode;
+  MeshPartition m_BPart;
 
   double m_UnderRelaxation;
 
   bool m_StrictPrismChecking;
-  bool m_WriteDebugFile;
+  bool m_SimpleOperation;
   
   struct stencil_node_t {
     vec3_t x;
@@ -114,7 +118,11 @@ protected: // methods
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
   void computeNormals();
-  void writeDebugFile(QString file_name);
+  void computeFeet();
+  void writeErrorToFile(QTextStream &f, ErrorFunction &err);
+
+  void operateOptimisation();
+  void operateSimple();
     
 public: // methods
   
@@ -124,12 +132,15 @@ public: // methods
   void setNumBoundaryCorrections(int N) { N_boundary_corrections = N; };
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
 
-  void prismsOn() { smooth_prisms = true; };
-  void prismsOff() { smooth_prisms = false; };
-  
+  void prismsOn() { smooth_prisms = true; }
+  void prismsOff() { smooth_prisms = false; }
+  void simpleOn() { m_SimpleOperation = true; }
+  void simpleOff() { m_SimpleOperation = false; }
+
   double improvement();
   double lastTotalError() { return F_new; }
   void   printMaxErrors();
+  void   writeDebugFile(QString file_name);
 
 };
 
