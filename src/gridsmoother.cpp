@@ -260,8 +260,12 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       if (type_cell == VTK_TETRA) {
         if (GeometryTools::cellVA(grid, id_cell) < 0) {
           move = false;
-          //if (dbg) cout << id_node << " : tetra negative" << endl;
         }
+        /*
+        if (tetraError(id_cell) > 0.95) {
+          move = false;
+        }
+        */
       }
       if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
         vtkIdType N_pts, *pts;
@@ -373,6 +377,40 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   return moved;
 }
 
+double GridSmoother::tetraError(vtkIdType id_cell)
+{
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  QVector<vec3_t> xn(N_pts);
+  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+    grid->GetPoint(pts[i_pts],xn[i_pts].data());
+  }
+  double L = 0;
+  L = max(L, (xn[0]-xn[1]).abs());
+  L = max(L, (xn[0]-xn[2]).abs());
+  L = max(L, (xn[0]-xn[3]).abs());
+  L = max(L, (xn[1]-xn[2]).abs());
+  L = max(L, (xn[1]-xn[3]).abs());
+  L = max(L, (xn[2]-xn[3]).abs());
+  double H = sqrt(2.0/3.0)*L;
+
+  vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
+  vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
+  vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
+  vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
+  n012.normalise();
+  n031.normalise();
+  n023.normalise();
+  n213.normalise();
+  double h = 1e99;
+  h = min(h, fabs((xn[0]-xn[3])*n012));
+  h = min(h, fabs((xn[0]-xn[2])*n031));
+  h = min(h, fabs((xn[0]-xn[1])*n023));
+  h = min(h, fabs((xn[0]-xn[3])*n213));
+  h /= H;
+  return m_TetraError(h);
+}
+
 double GridSmoother::func(vec3_t x)
 {
   l2g_t nodes = getPartNodes();
@@ -408,30 +446,7 @@ double GridSmoother::func(vec3_t x)
       }
       if (type_cell == VTK_TETRA) {
         if (m_TetraError.active()) {
-          double L = 0;
-          L = max(L, (xn[0]-xn[1]).abs());
-          L = max(L, (xn[0]-xn[2]).abs());
-          L = max(L, (xn[0]-xn[3]).abs());
-          L = max(L, (xn[1]-xn[2]).abs());
-          L = max(L, (xn[1]-xn[3]).abs());
-          L = max(L, (xn[2]-xn[3]).abs());
-          double H = sqrt(2.0/3.0)*L;
-
-          vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
-          vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
-          vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
-          vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
-          n012.normalise();
-          n031.normalise();
-          n023.normalise();
-          n213.normalise();
-          double h = 1e99;
-          h = min(h, fabs((xn[0]-xn[3])*n012));
-          h = min(h, fabs((xn[0]-xn[2])*n031));
-          h = min(h, fabs((xn[0]-xn[1])*n023));
-          h = min(h, fabs((xn[0]-xn[3])*n213));
-          h /= H;
-          f += m_TetraError(h);
+          f += tetraError(id_cell);
         }
       }
       if (type_cell == VTK_WEDGE) {
@@ -510,8 +525,8 @@ double GridSmoother::func(vec3_t x)
               is_sharp = true;
             }
             if (!is_sharp) {
-              f += m_HeightError(h);
             }
+            f += m_HeightError(h);
             f += m_EdgeLengthError(l);
             f += m_EdgeDirectionError(angleX(m_NodeNormal[pts[i_foot]],ve));
           }

@@ -120,6 +120,7 @@ protected: // methods
   void computeNormals();
   void computeFeet();
   void writeErrorToFile(QTextStream &f, ErrorFunction &err);
+  double tetraError(vtkIdType id_cell);
 
   void operateOptimisation();
   void operateSimple();
