@@ -126,14 +126,14 @@ void LaplaceSmoother::operate()
   setAllSurfaceCells();
   l2g_t  nodes = m_Part.getNodes();
   g2l_t _nodes = m_Part.getLocalNodes();
-  QVector<QVector<int> > n2bc(nodes.size());
+  m_NodeToBc.resize(nodes.size());
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     QSet<int> bcs;
     for (int j = 0; j < m_Part.n2cLSize(i_nodes); ++j) {
       bcs.insert(cell_code->GetValue(m_Part.n2cLG(i_nodes, j)));
     }
-    n2bc[i_nodes].resize(bcs.size());
-    qCopy(bcs.begin(), bcs.end(), n2bc[i_nodes].begin());
+    m_NodeToBc[i_nodes].resize(bcs.size());
+    qCopy(bcs.begin(), bcs.end(), m_NodeToBc[i_nodes].begin());
   }
 
   QVector<vec3_t> x_new(nodes.size());
@@ -172,23 +172,11 @@ void LaplaceSmoother::operate()
             }
             n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
+
             if (m_UseNormalCorrection) {
               vec3_t dx = x_new[i_nodes] - x_old;
               dx = (dx*n)*n;
               x_new[i_nodes] -= dx;
-            }
-
-            if (m_UseProjection) {
-              if (n2bc[_nodes[id_node]].size() == 1) {
-                int bc = n2bc[_nodes[id_node]][0];
-                x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-              } else {
-                for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-                  foreach (int bc, n2bc[_nodes[id_node]]) {
-                    x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-                  }
-                }
-              }
             }
 
             vec3_t Dx = x_new[i_nodes] - x_old;
@@ -198,7 +186,20 @@ void LaplaceSmoother::operate()
             } else {
               x_new[i_nodes] = x_old;
               m_Success = false;
-            };
+            }
+            if (m_UseProjection) {
+              if (m_NodeToBc[_nodes[id_node]].size() == 1) {
+                int bc = m_NodeToBc[_nodes[id_node]][0];
+                x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
+              } else {
+                for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+                  foreach (int bc, m_NodeToBc[_nodes[id_node]]) {
+                    x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
+                  }
+                }
+              }
+              grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
+            }
           }
         }
       }
@@ -206,6 +207,5 @@ void LaplaceSmoother::operate()
     if (m_Success) {
       break;
     }
-
   }
 }
