@@ -112,7 +112,7 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
   foreach (vtkIdType id_node, nodes) {
     if(update_type) {
       EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
-      node_type->SetValue(id_node, getNodeType(id_node));
+      node_type->SetValue(id_node, getNodeType(id_node, true));
     }
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
     node_meshdensity_current->SetValue(id_node, CurrentVertexAvgDist(id_node));

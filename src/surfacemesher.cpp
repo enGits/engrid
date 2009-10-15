@@ -30,7 +30,10 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = true;
-  m_FeatureAngle = GeometryTools::deg2rad(200);//this angle is also used by swaptriangles!!!
+  m_AllowFeatureEdgeSwapping = false;
+  getSet("surface meshing", "feature angle", 200, m_FeatureAngle); //this angle is also used by swaptriangles!!!
+  m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
+  m_EdgeAngle = m_FeatureAngle;
 }
 
 void SurfaceMesher::operate()
@@ -52,6 +55,7 @@ void SurfaceMesher::operate()
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
+  //done = true;
   while (!done) {
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;

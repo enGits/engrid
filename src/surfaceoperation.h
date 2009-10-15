@@ -71,7 +71,7 @@ public:
   int UpdateCurrentMeshDensity();
 
   /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
-  int UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices = false, bool fix_unselected = true );
+  int UpdatePotentialSnapPoints(bool update_node_types, bool fix_unselected = true);
 
   //--------------------------------------
   //Special for UpdatePotentialSnapPoints
@@ -101,10 +101,10 @@ public:
   QSet <int> getBCset( vtkIdType a_node );
 
   /// Returns the node type
-  char getNodeType( vtkIdType a_node, bool allow_feature_edge_vertices = false, bool fix_unselected = true );
+  char getNodeType(vtkIdType a_node, bool fix_unselected = true);
 
   /// Returns the type of the edge [a_node1,a_node2] based on the topology
-  char getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices, bool fix_unselected );
+  char getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fix_unselected);
 
   // Returns the type of the edge [a_node1,a_node2] based on the the type of the two nodes
   // deprecated?
