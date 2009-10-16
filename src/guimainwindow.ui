@@ -79,6 +79,7 @@
     <addaction name="actionImportOpenFoamCase"/>
     <addaction name="actionImportFluentCase"/>
     <addaction name="actionImportSeligAirfoil"/>
+    <addaction name="actionImportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1561,6 +1562,11 @@
   <action name="actionFixCADgeometry">
    <property name="text">
     <string>fix CAD geometry</string>
+   </property>
+  </action>
+  <action name="actionImportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
    </property>
   </action>
  </widget>

@@ -1,0 +1,154 @@
+//
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +                                                                      +
+// + This file is part of enGrid.                                         +
+// +                                                                      +
+// + Copyright 2008,2009 Oliver Gloth                                     +
+// +                                                                      +
+// + enGrid is free software: you can redistribute it and/or modify       +
+// + it under the terms of the GNU General Public License as published by +
+// + the Free Software Foundation, either version 3 of the License, or    +
+// + (at your option) any later version.                                  +
+// +                                                                      +
+// + enGrid is distributed in the hope that it will be useful,            +
+// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+// + GNU General Public License for more details.                         +
+// +                                                                      +
+// + You should have received a copy of the GNU General Public License    +
+// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+// +                                                                      +
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+
+#include "blenderreader.h"
+#include "guimainwindow.h"
+
+BlenderReader::BlenderReader()
+{
+  setFormat("Blender/Engrid files(*.begc *.BEGC)");
+}
+
+void BlenderReader::operate()
+{
+  try {
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readInputFileName(file_info.completeBaseName() + ".begc");
+    if (isValid()) {
+      // read raw data from exported file
+      QFile file(getFileName());
+      file.open(QIODevice::ReadOnly | QIODevice::Text);
+      QTextStream f(&file);
+      QList<vec3_t> rnodes;
+      QList<QVector<int> > rfaces;
+      int num_parts;
+      f >> num_parts;
+      QVector<QString> part_name(num_parts);
+      for (int i_part = 0; i_part < num_parts; ++i_part) {
+        int num_nodes, num_faces;
+        f >> part_name[i_part] >> num_nodes >> num_faces;
+        for (int i = 0; i < num_nodes; ++i) {
+          vec3_t x;
+          f >> x[0] >> x[1] >> x[2];
+          rnodes.push_back(x);
+        }
+        for (int i = 0; i < num_faces; ++i) {
+          int N;
+          f >> N;
+          QVector<int> face(N+1);
+          face[0] = i_part + 1;
+          for (int j = 0; j < N; ++j) {
+            f >> face[j+1];
+          }
+          rfaces.push_back(face);
+        }
+      }
+      QVector<vec3_t> nodes(rnodes.size());
+      qCopy(rnodes.begin(), rnodes.end(), nodes.begin());
+      QVector<QVector<int> > faces(rfaces.size());
+      qCopy(rfaces.begin(), rfaces.end(), faces.begin());
+
+      // find smallest edge length
+      double L = 1e99;
+      foreach (QVector<int> face, faces) {
+        for (int i = 1; i < face.size(); ++i) {
+          int n1 = face[i];
+          int n2 = face[1];
+          if (i < face.size() - 1) {
+            n2 = face[i+1];
+          }
+          double l = (nodes[n1] - nodes[n2]).abs();
+          L = min(l, L);
+        }
+      }
+
+      // delete duplicate nodes
+      QList<vec3_t> non_dup;
+      QVector<int> o2n(nodes.size());
+      int num_non_dup = 0;
+      for (int i = 0; i < nodes.size(); ++i) {
+        o2n[i] = num_non_dup;
+        bool dup = false;
+        for (int j = 0; j < i; ++j) {
+          if ((nodes[i] - nodes[j]).abs() < 0.1*L) {
+            o2n[i] = o2n[j];
+            dup = true;
+            break;
+          }
+        }
+        if (!dup) {
+          non_dup.push_back(nodes[i]);
+          ++num_non_dup;
+        }
+      }
+
+      allocateGrid(grid, faces.size(), non_dup.size());
+      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+      EG_VTKDCC(vtkIntArray, orgdir, grid, "cell_orgdir");
+      EG_VTKDCC(vtkIntArray, voldir, grid, "cell_voldir");
+      EG_VTKDCC(vtkIntArray, curdir, grid, "cell_curdir");
+      vtkIdType id_node = 0;
+      foreach (vec3_t x, non_dup) {
+        grid->GetPoints()->SetPoint(id_node, x.data());
+        ++id_node;
+      }
+
+      foreach (QVector<int> face, faces) {
+        if (face.size() == 4) {
+          vtkIdType pts[3];
+          pts[0] = o2n[face[1]];
+          pts[1] = o2n[face[2]];
+          pts[2] = o2n[face[3]];
+          vtkIdType id_cell = grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+          cell_code->SetValue(id_cell, face[0]);
+          orgdir->SetValue(id_cell, 0);
+          voldir->SetValue(id_cell, 0);
+          curdir->SetValue(id_cell, 0);
+        }
+        if (face.size() == 5) {
+          vtkIdType pts[4];
+          pts[0] = o2n[face[1]];
+          pts[1] = o2n[face[2]];
+          pts[2] = o2n[face[3]];
+          pts[3] = o2n[face[4]];
+          vtkIdType id_cell = grid->InsertNextCell(VTK_QUAD, 4, pts);
+          cell_code->SetValue(id_cell, face[0]);
+          orgdir->SetValue(id_cell, 0);
+          voldir->SetValue(id_cell, 0);
+          curdir->SetValue(id_cell, 0);
+        }
+      }
+      UpdateNodeIndex(grid);
+      UpdateCellIndex(grid);
+
+      // set the boundary names
+      GuiMainWindow::pointer()->clearBCs();
+      for (int i_part = 0; i_part < part_name.size(); ++i_part) {
+        GuiMainWindow::pointer()->addBC(i_part + 1, BoundaryCondition(part_name[i_part], "patch"));
+      }
+
+    }
+  } catch (Error err) {
+    err.display();
+  }
+}

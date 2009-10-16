@@ -106,6 +106,7 @@ connect(ui.actionReduceSurfaceTriangulation, SIGNAL(triggered()), this, SLOT(cal
 connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEliminateSmallBranches()));
 connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoothAndSwapSurface()));
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
+connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 

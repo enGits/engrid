@@ -280,4 +280,6 @@ HEADERS += seligairfoilreader.h
 SOURCES += seligairfoilreader.cpp
 HEADERS += fixcadgeometry.h
 SOURCES += fixcadgeometry.cpp
+HEADERS += blenderreader.h
+SOURCES += blenderreader.cpp
 
