@@ -45,8 +45,17 @@ void BlenderReader::operate()
       f >> num_parts;
       QVector<QString> part_name(num_parts);
       for (int i_part = 0; i_part < num_parts; ++i_part) {
+        f >> part_name[i_part];
+      }
+      QVector<QString> sorted_part_name = part_name;
+      qSort(sorted_part_name);
+      QVector<int> part_bc(part_name.size());
+      for (int i_part = 0; i_part < num_parts; ++i_part) {
+        part_bc[i_part] = sorted_part_name.indexOf(part_name[i_part]) + 1;
+      }
+      for (int i_part = 0; i_part < num_parts; ++i_part) {
         int num_nodes, num_faces;
-        f >> part_name[i_part] >> num_nodes >> num_faces;
+        f >> num_nodes >> num_faces;
         for (int i = 0; i < num_nodes; ++i) {
           vec3_t x;
           f >> x[0] >> x[1] >> x[2];
@@ -56,7 +65,7 @@ void BlenderReader::operate()
           int N;
           f >> N;
           QVector<int> face(N+1);
-          face[0] = i_part + 1;
+          face[0] = i_part;
           for (int j = 0; j < N; ++j) {
             f >> face[j+1];
           }
@@ -120,7 +129,7 @@ void BlenderReader::operate()
           pts[1] = o2n[face[2]];
           pts[2] = o2n[face[3]];
           vtkIdType id_cell = grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
-          cell_code->SetValue(id_cell, face[0]);
+          cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
           curdir->SetValue(id_cell, 0);
@@ -132,7 +141,7 @@ void BlenderReader::operate()
           pts[2] = o2n[face[3]];
           pts[3] = o2n[face[4]];
           vtkIdType id_cell = grid->InsertNextCell(VTK_QUAD, 4, pts);
-          cell_code->SetValue(id_cell, face[0]);
+          cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
           curdir->SetValue(id_cell, 0);
@@ -144,7 +153,7 @@ void BlenderReader::operate()
       // set the boundary names
       GuiMainWindow::pointer()->clearBCs();
       for (int i_part = 0; i_part < part_name.size(); ++i_part) {
-        GuiMainWindow::pointer()->addBC(i_part + 1, BoundaryCondition(part_name[i_part], "patch"));
+        GuiMainWindow::pointer()->addBC(part_bc[i_part], BoundaryCondition(part_name[i_part], "patch"));
       }
 
     }

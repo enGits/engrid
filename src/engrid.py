@@ -25,11 +25,14 @@ def write(filename):
   node_offset = 0
   for object in objects:
     if object.type == 'Mesh':
+      out.write(object.name)
+      out.write('\n')
+  for object in objects:
+    if object.type == 'Mesh':
       mesh  = object.getData(0,1)
       faces = mesh.faces
       nodes = mesh.verts
-      out.write(object.name)
-      out.write(' %d' % len(nodes))
+      out.write('%d' % len(nodes))
       out.write(' %d\n' % len(faces))
       for n in nodes:
         out.write("%e " % n.co[0])
