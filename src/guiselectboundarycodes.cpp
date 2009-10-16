@@ -29,72 +29,61 @@
 GuiSelectBoundaryCodes::GuiSelectBoundaryCodes()
 {
   disableAutoSet();
-};
+}
 
 void GuiSelectBoundaryCodes::setDisplayBoundaryCodes(const QSet<int> &bcs)
 {
-  display_boundary_codes.clear();
-  int bc;
-  foreach(bc, bcs) {
-    display_boundary_codes.insert(bc);
-  };
-};
+  m_DisplayBoundaryCodes = bcs;
+}
 
 void GuiSelectBoundaryCodes::before()
 {
+  populateBoundaryCodes(ui.listWidget);
+  int row = 0;
   for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
-    bool checked = display_boundary_codes.contains(*i);
-    addListItem(ui.listWidget,*i,checked);
-  };
+    bool checked = m_DisplayBoundaryCodes.contains(*i);
+    if (checked) {
+      ui.listWidget->item(row)->setCheckState(Qt::Checked);
+    } else {
+      ui.listWidget->item(row)->setCheckState(Qt::Unchecked);
+    }
+    ++row;
+  }
   connect(ui.pushButtonSelect, SIGNAL(clicked()), this, SLOT(selectAll()));
   connect(ui.pushButtonDeselect, SIGNAL(clicked()), this, SLOT(deselectAll()));
   connect(ui.pushButton_SaveSelectionAsGrid, SIGNAL(clicked()), this, SLOT(saveSelectionAsGrid()));
-};
+}
 
 void GuiSelectBoundaryCodes::operate()
 {
-  display_boundary_codes.clear();
-  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
-    if (checkListItem(ui.listWidget,*i)) {
-      display_boundary_codes.insert(*i);
-    };
-  };
-};
+  getSelectedItems(ui.listWidget, m_DisplayBoundaryCodes);
+}
 
 void GuiSelectBoundaryCodes::selectAll()
 {
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     ui.listWidget->item(i)->setCheckState(Qt::Checked);
-  };
-};
+  }
+}
 
 void GuiSelectBoundaryCodes::deselectAll()
 {
   for (int i = 0; i < ui.listWidget->count(); ++i) {
     ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
-  };
-};
+  }
+}
 
 void GuiSelectBoundaryCodes::saveSelectionAsGrid()
 {
-  display_boundary_codes.clear();
-  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
-    if (checkListItem(ui.listWidget,*i)) {
-      display_boundary_codes.insert(*i);
-    };
-  };
-  
+  getSelectedItems(ui.listWidget, m_DisplayBoundaryCodes);
   QVector <vtkIdType> selected_cells;
-  getSurfaceCells(display_boundary_codes, selected_cells, grid);
+  getSurfaceCells(m_DisplayBoundaryCodes, selected_cells, grid);
   writeCells(grid, selected_cells, GuiMainWindow::pointer()->getFilePath() + "selection.vtu" );
 }
 
 void GuiSelectBoundaryCodes::getSelectedBoundaryCodes(QSet<int> &bcs)
 {
-  bcs.clear();
-  foreach(int bc, display_boundary_codes) {
-    bcs.insert(bc);
-  };
-};
+  bcs = m_DisplayBoundaryCodes;
+}
 
 
