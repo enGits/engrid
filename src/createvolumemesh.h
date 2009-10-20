@@ -30,9 +30,8 @@ class CreateVolumeMesh;
 namespace nglib {
   #include <nglib.h>
 }
-namespace netgen {
-  #include <ngexception.hpp>
-}
+
+#include <ngexception.hpp>
 
 class CreateVolumeMesh : public Operation
 {
