@@ -63,6 +63,7 @@ class GuiMainWindow;
 #include "openfoamtools.h"
 #include "std_includes.h"
 #include "fixcadgeometry.h"
+#include "projection_test.h"
 
 /**
  * This is the main GUI class of enGrid.
@@ -450,6 +451,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
+    void callProjection_test()             { EG_STDSLOT(Projection_test); }
+
 };
 
 #endif

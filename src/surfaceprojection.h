@@ -28,6 +28,7 @@ class SurfaceProjection;
 #include "egvtkobject.h"
 #include "octree.h"
 #include "guimainwindow.h"
+#include "geometrytools.h"
 
 class SurfaceProjection : public EgVtkObject
 {
@@ -55,6 +56,10 @@ private: // data-types
 private: // attributes
 
   vtkUnstructuredGrid*   m_BGrid;
+  
+  vtkUnstructuredGrid*   m_InterpolationGrid;
+  vtkUnstructuredGrid*   m_BezierGrid;
+  
   QVector<vtkIdType>     m_ProjTriangles;
   vtkUnstructuredGrid*   m_FGrid;
   QVector<double>        m_EdgeLength;
@@ -119,6 +124,15 @@ public: // methods
   int getNumDirectProjections() { return m_NumDirect; }
   int getNumFullSearches() { return m_NumFull; }
 
+  void writeGridWithNormals();
+  vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
+  void writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
+  
+  void setupInterpolationGrid();
+  
+  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
+  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
+  
 };
 
 template <class C>
@@ -210,13 +224,19 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
 
   // compute node normals
   m_NodeNormals.resize(m_BGrid->GetNumberOfPoints());
+//   QVector <double> NodeAngles(m_NodeNormals.size());
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     m_NodeNormals[id_node] = vec3_t(0,0,0);
+//     NodeAngles[id_node]=0;
   }
   foreach (Triangle T, m_Triangles) {
-    m_NodeNormals[T.id_a] += T.A*T.g3;
-    m_NodeNormals[T.id_b] += T.A*T.g3;
-    m_NodeNormals[T.id_c] += T.A*T.g3;
+    double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);
+    double angle_b = GeometryTools::angle(m_BGrid,T.id_a,T.id_b,T.id_c);
+    double angle_c = GeometryTools::angle(m_BGrid,T.id_b,T.id_c,T.id_a);
+    double total_angle = angle_a + angle_b + angle_c;
+    m_NodeNormals[T.id_a] += angle_a*T.g3;
+    m_NodeNormals[T.id_b] += angle_b*T.g3;
+    m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     m_NodeNormals[id_node].normalise();
@@ -236,7 +256,6 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
     m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
-
 }
 
 #endif // SURFACEPROJECTION_H

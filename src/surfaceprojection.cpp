@@ -22,9 +22,16 @@
 //
 #include "surfaceprojection.h"
 
+#include <vtkUnstructuredGridWriter.h>
+
+///@@@ TODO: Delete those grids somewhere
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();
+  
+  m_InterpolationGrid = vtkUnstructuredGrid::New();
+  m_BezierGrid = vtkUnstructuredGrid::New();
+  
   m_Relax = 0.9;
   m_DistWeight = 1.0;
   m_DistExp = 1.0;
@@ -366,9 +373,676 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
+// #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW)
+// if (!grid->GetPointData()->GetArray(FIELD)) {
+// EG_VTKSP(TYPE, var);
+// var->SetName(FIELD);
+// var->SetNumberOfValues(Nnodes);
+// grid->GetPointData()->AddArray(var);
+// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// var->SetValue(i,0);
+// }
+// } else if (OW) {
+// EG_VTKDCN(TYPE, var, grid, FIELD);
+// var->SetNumberOfValues(Nnodes);
+// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// var->SetValue(i,0);
+// }
+// }
+
+void SurfaceProjection::writeGridWithNormals()
+{
+  //qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
+  
+  vtkDoubleArray *vectors = vtkDoubleArray::New();
+  vectors->SetName("normals");
+  vectors->SetNumberOfComponents(3);
+  vectors->SetNumberOfTuples(m_BGrid->GetNumberOfPoints());
+  
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t N = m_NodeNormals[id_node];
+    double n[3];
+    n[0]=N[0];
+    n[1]=N[1];
+    n[2]=N[2];
+    vectors->InsertTuple(id_node,n);
+  }
+  
+  m_BGrid->GetPointData()->SetVectors(vectors);
+/*  vectors->SetName("normals2");
+  m_BGrid->GetPointData()->SetVectors(vectors);
+  vectors->SetName("normals3");
+  m_BGrid->GetPointData()->SetVectors(vectors);*/
+//   m_BGrid->GetPointData()->AddArray(vectors);
+  
+  vectors->Delete();
+  
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName("m_BGrid.vtu");
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(m_BGrid);
+  vtu->Write();
+}
+
+void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<vec3_t,vec3_t> > lines )
+{
+  QFile file("debug.vtk");
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    return;
+  
+  QTextStream out(&file);
+  out<<"# vtk DataFile Version 2.0"<<endl;
+  out<<"Unstructured Grid Example"<<endl;
+  out<<"ASCII"<<endl;
+  out<<""<<endl;
+  out<<"DATASET UNSTRUCTURED_GRID"<<endl;
+  out<<"POINTS "<<points.size()+2*lines.size()<<" double"<<endl;
+  for(int i=0;i<points.size();i++) {
+    vec3_t P = points[i].first;
+    out<<P[0]<<" "<<P[1]<<" "<<P[2]<<endl;
+  }
+  for(int i=0;i<lines.size();i++) {
+    vec3_t P1 = lines[i].first;
+    vec3_t P2 = lines[i].second;
+    out<<P1[0]<<" "<<P1[1]<<" "<<P1[2]<<endl;
+    out<<P2[0]<<" "<<P2[1]<<" "<<P2[2]<<endl;
+  }
+  out<<""<<endl;
+  out<<"CELLS "<<1+lines.size()<<" "<<4+3*lines.size()<<endl;
+  out<<"3 0 1 2"<<endl;
+  for(int i=0;i<lines.size();i++) {
+    int P1 = points.size()+2*i;
+    int P2 = P1+1;
+    out<<2<<" "<<P1<<" "<<P2<<endl;
+  }
+  out<<""<<endl;
+  out<<"CELL_TYPES "<<1+lines.size()<<endl;
+  out<<"5"<<endl;
+  for(int i=0;i<lines.size();i++) {
+    out<<"3"<<endl;
+  }
+  out<<""<<endl;
+  out<<"POINT_DATA "<<points.size()+2*lines.size()<<endl;
+/*  out<<"SCALARS scalars double 1"<<endl;
+  out<<"LOOKUP_TABLE default"<<endl;
+  out<<"1.0"<<endl;
+  out<<"2.0"<<endl;
+  out<<"3.0"<<endl;*/
+  out<<"VECTORS normals float"<<endl;
+  for(int i=0;i<points.size();i++) {
+    vec3_t N = points[i].second;
+    out<<N[0]<<" "<<N[1]<<" "<<N[2]<<endl;
+  }
+  for(int i=0;i<lines.size();i++) {
+    out<<0<<" "<<0<<" "<<0<<endl;
+    out<<0<<" "<<0<<" "<<0<<endl;
+  }
+}
+
+double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
+{
+  bool DEBUG = false;
+  
+  if(DEBUG) qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
+  if(DEBUG) cout<<"A="<<A<<endl;
+  if(DEBUG) cout<<"nA="<<nA<<endl;
+  if(DEBUG) cout<<"M="<<M<<endl;
+  if(DEBUG) cout<<"I="<<I<<endl;
+  if(DEBUG) cout<<"nI="<<nI<<endl;
+  
+  double ret = 0;
+  
+  double alpha0 = -nA[0]/nA[1];
+  double alpha1 = -nI[0]/nI[1];
+  
+  // f(x)=a*x^3 + b*x^2 + c*x + d
+  double a,b,c,d;
+  d = 0;
+  c = alpha0;
+  b = -((alpha1-c)-3*(-c));
+  a = -b-c;
+  
+  double xM = M[0];
+  
+  if(DEBUG) cout<<"a="<<a<<endl;
+  if(DEBUG) cout<<"b="<<b<<endl;
+  if(DEBUG) cout<<"c="<<c<<endl;
+  if(DEBUG) cout<<"d="<<d<<endl;
+  ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
+  
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  
+//   return -(xM*xM) + xM;
+  return ret;
+}
+
+vec2_t interpolate_bezier(double t, vec2_t P0, vec2_t P1, vec2_t P2, vec2_t P3)
+{
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  return (1-pow(t,3))*P0 + 3*pow((1-t),2)*t*P1 + 3*(1-t)*pow(t,2)*P2 + pow(t,3)*P3;
+}
+
+vec3_t interpolate_bezier(double t, vec3_t P0, vec3_t P1, vec3_t P2, vec3_t P3)
+{
+  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
+  return (1-pow(t,3))*P0 + 3*pow((1-t),2)*t*P1 + 3*(1-t)*pow(t,2)*P2 + pow(t,3)*P3;
+}
+
+vec2_t interpolate_bezier_normals(double t, vec2_t P0, vec2_t N0, vec2_t P3, vec2_t N3)
+{
+  vec2_t P1(N0[1],-N0[0]);
+  vec2_t P2(-N3[1],N3[0]);
+  return interpolate_bezier(t,P0,P1,P2,P3);
+}
+
+vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec3_t N3, vec3_t u, vec3_t v)
+{
+  double N0x=N0*u/u.abs2();
+  double N0y=N0*v/v.abs2();
+  double N3x=N3*u/u.abs2();
+  double N3y=N3*v/v.abs2();
+  
+  vec3_t P0P1 = (N0y)*u + (-N0x)*v;
+  vec3_t P3P2 = (-N3y)*u + (N3x)*v;
+  
+  P0P1.normalise();
+  P3P2.normalise();
+  
+  vec3_t P1 = P0 + P0P1;
+  vec3_t P2 = P3 + P3P2;
+  return interpolate_bezier(t,P0,P1,P2,P3);
+}
+
+vec3_t projectOnQuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+/*  vec3_t B = QuadraticBezierTriangle();
+  B*/
+}
+
+vec3_t QuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  double total = u + v + w;
+  u=u/total;
+  v=v/total;
+  w=w/total;
+  return pow(u,2)*X_200 + pow(v,2)*X_020 + pow(w,2)*X_002 + 2*u*v*X_110 + 2*v*w*X_011 + 2*w*u*X_101;
+}
+
+int idx_func(int N, int i, int j)
+{
+  int offset = -i*(i-2*N-1)/2;
+  return offset+j;
+}
+
+vec3_t getBarycentricCoordinates(double x, double y)
+{
+  // initialize
+  double t1=0;
+  double t2=0;
+  double t3=0;
+  
+/*  if(x==0) {
+    t3=y;
+    t1=1-y;
+    t2=0;
+  }
+  else if(y==0) {
+    t2=x;
+    t1=1-x;
+    t3=0;
+  }
+  else if((x+y)==1) {
+  
+  }
+  else {
+  }
+  
+  double k1,k2;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
+  vec2_t t_I1 = t_A+k1*(t_M-t_A);
+  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
+  vec2_t pm1_M(1.0/k1,0);
+  
+  // normalize
+  double total = t1+t2+t3;
+  t1=t1/total;
+  t2=t2/total;
+  t3=t3/total;*/
+  
+  t2 = x;
+  t3 = y;
+  t1 = 1-t2-t3;
+  
+  // return value
+  vec3_t bary_coords(t1,t2,t3);
+  return bary_coords;
+}
+
+vec3_t QuadraticBezierTriangle(vec2_t M, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  vec3_t bary_coords = getBarycentricCoordinates(M[0],M[1]);
+  double u,v,w;
+  u=bary_coords[0];
+  v=bary_coords[1];
+  w=bary_coords[2];
+  return QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
+}
+
+vtkIdType SurfaceProjection::addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  vtkIdType node_count = 0;
+  for(int i=0;i<N;i++) {
+    for(int j=0;j<N-i;j++) {
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      vec3_t bary_coords = getBarycentricCoordinates(x,y);
+      double u,v,w;
+      u=bary_coords[0];
+      v=bary_coords[1];
+      w=bary_coords[2];
+      vec3_t M = QuadraticBezierTriangle(u, v, w, X_200, X_020, X_002, X_011, X_101, X_110);
+      bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
+    }
+  }
+  
+//   qDebug()<<"node_count="<<node_count;
+  
+  int cell_count = 0;
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1-i;j++) {
+      
+      //qDebug()<<"(i,j)="<<i<<j;
+      
+      vtkIdType pts_triangle1[3];
+      pts_triangle1[0]=offset + idx_func(N, i  ,j  );
+      pts_triangle1[1]=offset + idx_func(N, i+1,j  );
+      pts_triangle1[2]=offset + idx_func(N, i  ,j+1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
+      
+      if(i+j<N-2) {
+        //qDebug()<<"BEEP";
+        vtkIdType pts_triangle2[3];
+        pts_triangle2[0]=offset + idx_func(N, i+1,j  );
+        pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
+        pts_triangle2[2]=offset + idx_func(N, i  ,j+1);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
+      }
+      
+    }
+  }
+  
+  //qDebug()<<"cell_count="<<cell_count;
+  return node_count;
+}
+
+void SurfaceProjection::writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
+{
+  //qDebug()<<"writeBezierSurface called";
+  int N=10;
+  int N_cells = (N-1)*(N-1);
+  int N_points = (N*N+N)/2;
+  
+  //qDebug()<<"N_cells="<<N_cells;
+  //qDebug()<<"N_points="<<N_points;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, 2*N_cells, 2*N_points);
+  
+  vtkIdType offset = 0;
+  offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011, X_101, X_110);
+  offset += addBezierSurface(bezier, offset, N, X_200, X_020, X_002, X_011-vec3_t(0,0,1), X_101-vec3_t(0,0,1), X_110-vec3_t(0,0,1));
+  //qDebug()<<"offset="<<offset;
+  
+/*//   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu);
+  vtu->SetFileName("bezier.vtk");
+//   vtu->SetDataModeToBinary();
+//   vtu->SetDataModeToAscii();
+  vtu->SetInput(bezier);
+  vtu->Write();*/
+  
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
+  vtu1->SetFileName("bezier.vtk");
+  vtu1->SetInput(bezier);
+  vtu1->Write();
+
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
+  vtu2->SetFileName("bezier.vtu");
+  vtu2->SetDataModeToBinary();
+//   vtu2->SetDataModeToAscii();
+  vtu2->SetInput(bezier);
+  vtu2->Write();
+
+}
+
+vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
+{
+  double x = V*i/i.abs2();
+  double y = V*j/j.abs2();
+  return vec2_t(x,y);
+}
+
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
+  // initialization
+  bool DEBUG = false;
+  if(DEBUG) qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
+  
+  // coordinate systems:
+  // 3D:
+  // global: X,Y,Z -> g_
+  // local: g1,g2,g3 -> l_
+  // 2D:
+  // triangle: g1,g2 -> t_
+  // middle planes
+  // plane 1: AI1, g3 -> pm1_
+  // plane 2: BI2, g3 -> pm2_
+  // plane 3: CI3, g3 -> pm3_
+  // orthogonal edge planes
+  // plane 1: BC, g3 -> poe1_
+  // plane 2: CA, g3 -> poe2_
+  // plane 3: AB, g3 -> poe3_
+  // non-orthogonal edge planes
+  // plane 1: BC, nI3 -> pnoe1_
+  // plane 2: CA, nI1 -> pnoe2_
+  // plane 3: AB, nI2 -> pnoe3_
+  
+  // before knowing intersections
+  
+  Triangle T = m_Triangles[i_tri];
+  vec3_t g_A = T.a;
+  vec3_t g_B = T.b;
+  vec3_t g_C = T.c;
+  vec3_t g_M = g_A+T.G*r;
+  
+  vec3_t l_A(0,0,0);
+  vec3_t l_B(1,0,0);
+  vec3_t l_C(0,1,0);
+  vec3_t l_M = r;
+  
+  vec2_t t_A(0,0);
+  vec2_t t_B(1,0);
+  vec2_t t_C(0,1);
+  vec2_t t_M(r[0],r[1]);
+  
+  vec3_t g_nA = m_NodeNormals[T.id_a];
+  vec3_t g_nB = m_NodeNormals[T.id_b];
+  vec3_t g_nC = m_NodeNormals[T.id_c];
+  
+  vec2_t pm1_A(0,0);
+  vec2_t pm1_I1(1,0);
+//   vec2_t pm1_(0,0);
+  
+  vec2_t pm2_B(0,0);
+  vec2_t pm2_I2(1,0);
+  
+  vec2_t pm3_C(0,0);
+  vec2_t pm3_I3(1,0);
+  
+  vec3_t g_g1 = T.g1;
+  vec3_t g_g2 = T.g2;
+  vec3_t g_g3 = T.g3;
+  
+  vec3_t l_g1(1,0,0);
+  vec3_t l_g2(0,1,0);
+  vec3_t l_g3(0,0,1);
+  
+  // calculating intersections
+  
+  double k1,k2;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) return(g_M);
+  vec2_t t_I1 = t_A+k1*(t_M-t_A);
+  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
+  vec2_t pm1_M(1.0/k1,0);
+  vec2_t poe1_I1(k2,0);
+  vec2_t pnoe1_I1(k2,0);
+  
+  if(!intersection (k1, k2, t_B, t_M-t_B, t_C, t_A-t_C)) return(g_M);
+  vec2_t t_I2 = t_B+k1*(t_M-t_B);
+  vec3_t g_nI2 = (1-k2)*g_nC + k2*g_nA;
+  vec2_t pm2_M(1.0/k1,0);
+  vec2_t poe2_I2(k2,0);
+  vec2_t pnoe2_I2(k2,0);
+  
+  if(!intersection (k1, k2, t_C, t_M-t_C, t_A, t_B-t_A)) return(g_M);
+  vec2_t t_I3 = t_C+k1*(t_M-t_C);
+  vec3_t g_nI3 = (1-k2)*g_nA + k2*g_nB;
+  vec2_t pm3_M(1.0/k1,0);
+  vec2_t poe3_I3(k2,0);
+  vec2_t pnoe3_I3(k2,0);
+  
+  // after knowing intersections
+  
+  vec3_t l_I1(t_I1[0],t_I1[1],0);
+  vec3_t l_I2(t_I2[0],t_I2[1],0);
+  vec3_t l_I3(t_I3[0],t_I3[1],0);
+  
+  vec3_t g_I1 = g_A+T.G*l_I1;
+  vec3_t g_I2 = g_A+T.G*l_I2;
+  vec3_t g_I3 = g_A+T.G*l_I3;
+  
+  vec3_t tmp;
+  tmp = (g_nI1); vec3_t l_nI1 = T.GI*tmp;
+  tmp = (g_nI2); vec3_t l_nI2 = T.GI*tmp;
+  tmp = (g_nI3); vec3_t l_nI3 = T.GI*tmp;
+  
+  tmp = (g_nA); vec3_t l_nA = T.GI*tmp;
+  tmp = (g_nB); vec3_t l_nB = T.GI*tmp;
+  tmp = (g_nC); vec3_t l_nC = T.GI*tmp;
+  
+  vec3_t l_AI1 = l_I1 - l_A;
+  vec3_t l_BI2 = l_I2 - l_B;
+  vec3_t l_CI3 = l_I3 - l_C;
+  
+  vec3_t g_AI1 = g_I1 - g_A;
+  vec3_t g_BI2 = g_I2 - g_B;
+  vec3_t g_CI3 = g_I3 - g_C;
+  
+  
+  
+  vec2_t pm1_nA = projectVectorOnPlane(l_nA,l_AI1,l_g3);
+  vec2_t pm1_nI1 = projectVectorOnPlane(l_nI1,l_AI1,l_g3);
+  
+  vec2_t pm2_nB = projectVectorOnPlane(l_nB,l_BI2,l_g3);
+  vec2_t pm2_nI2 = projectVectorOnPlane(l_nI2,l_BI2,l_g3);
+  
+  vec2_t pm3_nC = projectVectorOnPlane(l_nC,l_CI3,l_g3);
+  vec2_t pm3_nI3 = projectVectorOnPlane(l_nI3,l_CI3,l_g3);
+  
+  // plane 1: BC, nI3 -> pnoe1_
+  // plane 2: CA, nI1 -> pnoe2_
+  // plane 3: AB, nI2 -> pnoe3_
+  
+  vec3_t l_AB = l_B - l_A;
+  vec3_t l_BC = l_C - l_B;
+  vec3_t l_CA = l_A - l_C;
+  
+  ///////////////
+  
+  vec2_t pnoe1_B(0,0);
+  vec2_t pnoe1_C(1,0);
+  vec2_t pnoe1_nB = projectVectorOnPlane(l_nB,l_BC,l_nI1);
+  vec2_t pnoe1_nC = projectVectorOnPlane(l_nC,l_BC,l_nI1);
+  vec2_t pnoe1_nI1(0,1);
+  
+  vec2_t pnoe1_tB = turnRight(pnoe1_nB);
+  vec2_t pnoe1_tC = turnRight(pnoe1_nC);
+  
+  vec2_t pnoe1_K1;
+  if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) {
+    //cout<<"pnoe1_B="<<pnoe1_B<<endl;
+    //cout<<"pnoe1_tB="<<pnoe1_tB<<endl;
+    //cout<<"pnoe1_C="<<pnoe1_C<<endl;
+    //cout<<"pnoe1_tC="<<pnoe1_tC<<endl;
+//     EG_BUG;
+    pnoe1_K1 = 0.5*(pnoe1_B + pnoe1_C);
+  }
+  else {
+    pnoe1_K1 = pnoe1_B + k1*pnoe1_tB;
+  }
+  
+  vec3_t l_K1 = l_B + pnoe1_K1[0]*l_BC + pnoe1_K1[1]*l_nI1;
+  ///////////////
+  vec2_t pnoe2_C(0,0);
+  vec2_t pnoe2_A(1,0);
+  vec2_t pnoe2_nC = projectVectorOnPlane(l_nC,l_CA,l_nI2);
+  vec2_t pnoe2_nA = projectVectorOnPlane(l_nA,l_CA,l_nI2);
+  vec2_t pnoe2_nI2(0,1);
+  
+  vec2_t pnoe2_tC = turnRight(pnoe2_nC);
+  vec2_t pnoe2_tA = turnRight(pnoe2_nA);
+  
+  vec2_t pnoe2_K2;
+  if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) {
+    //cout<<"pnoe2_C="<<pnoe2_C<<endl;
+    //cout<<"pnoe2_tC="<<pnoe2_tC<<endl;
+    //cout<<"pnoe2_A="<<pnoe2_A<<endl;
+    //cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
+//     EG_BUG;
+    pnoe2_K2 = 0.5*(pnoe2_C + pnoe2_A);
+  }
+  else {
+    pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
+  }
+  
+  vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[1]*l_nI2;
+  ///////////////
+  vec2_t pnoe3_A(0,0);
+  vec2_t pnoe3_B(1,0);
+  vec2_t pnoe3_nA = projectVectorOnPlane(l_nA,l_AB,l_nI3);
+  vec2_t pnoe3_nB = projectVectorOnPlane(l_nB,l_AB,l_nI3);
+  vec2_t pnoe3_nI3(0,1);
+  
+  vec2_t pnoe3_tA = turnRight(pnoe3_nA);
+  vec2_t pnoe3_tB = turnRight(pnoe3_nB);
+  
+  vec2_t pnoe3_K3;
+  if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) {
+    //cout<<"pnoe3_A="<<pnoe3_A<<endl;
+    //cout<<"pnoe3_tA="<<pnoe3_tA<<endl;
+    //cout<<"pnoe3_B="<<pnoe3_B<<endl;
+    //cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
+//     EG_BUG;
+    pnoe3_K3 = 0.5*(pnoe3_A + pnoe3_B);
+  }
+  else {
+    pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
+  }
+  
+  
+  vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[1]*l_nI3;
+  ///////////////
+  
+  vec3_t g_K1 = g_A+T.G*l_K1;
+  vec3_t g_K2 = g_A+T.G*l_K2;
+  vec3_t g_K3 = g_A+T.G*l_K3;
+  
+  vec3_t g_J1;
+  vec3_t g_J2;
+  vec3_t g_J3;
+  
+  //qDebug()<<"=== ORTHOGONAL PLANES ===";
+  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+
+  vec3_t X_200 = g_A;
+  vec3_t X_020 = g_B;
+  vec3_t X_002 = g_C;
+  vec3_t X_011 = g_K1;
+  vec3_t X_101 = g_K2;
+  vec3_t X_110 = g_K3;
+//   writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
+  
+
+  return QuadraticBezierTriangle(t_M, X_200, X_020, X_002, X_011, X_101, X_110);
+  
+/*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
+  intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
+  intersection(k1,k2,pm3_C,pm3_nC,pm3_A,pm3_nA);*/
+  
+  // interpolation attempts
+  
+/*  double z1 = interpolate(pm1_A, pm1_nA, pm1_M, pm1_I1, pm1_nI1);
+  double z2 = interpolate(pm2_B, pm2_nB, pm2_M, pm2_I2, pm2_nI2);
+  double z3 = interpolate(pm3_C, pm3_nC, pm3_M, pm3_I3, pm3_nI3);
+  double z = (z1+z2+z3)/3.0;*/
+  
+  vec2_t pm1_Z1 = interpolate_bezier_normals(pm1_M[0],pm1_A,pm1_nA,pm1_I1,pm1_nI1);
+  vec2_t pm2_Z2 = interpolate_bezier_normals(pm2_M[0],pm2_B,pm2_nB,pm2_I2,pm2_nI2);
+  vec2_t pm3_Z3 = interpolate_bezier_normals(pm3_M[0],pm3_C,pm3_nC,pm3_I3,pm3_nI3);
+  
+  double z1 = pm1_Z1[1];
+  double z2 = pm2_Z2[1];
+  double z3 = pm3_Z3[1];
+  double z = z1;//(z1+z2+z3)/3.0;
+  
+/*  vec3_t g_Z1 = interpolate_bezier_normals(pm1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
+  vec3_t g_Z2 = interpolate_bezier_normals(pm2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
+  vec3_t g_Z3 = interpolate_bezier_normals(pm3_M[0],g_C,g_nC,g_I3,g_nI3,g_CI3,g_g3);
+  return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);*/
+  
+  vec3_t l_X = l_M + z*l_g3;
+  vec3_t g_X = g_A+T.G*l_X;
+  
+  
+  vec3_t A,M,I;
+  vec3_t nA,nM,nI;
+  
+  A = vec3_t(pm2_B[0],pm2_B[1],0);
+  M = vec3_t(pm2_M[0],pm2_M[1],0);
+  I = vec3_t(pm2_I2[0],pm2_I2[1],0);
+  nA = vec3_t(pm2_nB[0],pm2_nB[1],0);
+  nM = vec3_t(0,1,0);
+  nI = vec3_t(pm2_nI2[0],pm2_nI2[1],0);
+  
+  // debugging stuff
+  
+  if(DEBUG) cout<<"r="<<r<<endl;
+  if(DEBUG) cout<<"l_g1"<<l_g1<<endl;
+  if(DEBUG) cout<<"l_g2"<<l_g2<<endl;
+  if(DEBUG) cout<<"l_g3"<<l_g3<<endl;
+  if(DEBUG) cout<<"g_g1"<<g_g1<<endl;
+  if(DEBUG) cout<<"g_g2"<<g_g2<<endl;
+  if(DEBUG) cout<<"g_g3"<<g_g3<<endl;
+  if(DEBUG) cout<<"l_nI1"<<l_nI1<<endl;
+  if(DEBUG) cout<<"l_nI2"<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_nI3"<<l_nI3<<endl;
+  if(DEBUG) cout<<"l_nA"<<l_nA<<endl;
+  if(DEBUG) cout<<"l_nB"<<l_nB<<endl;
+  if(DEBUG) cout<<"l_nC"<<l_nC<<endl;
+  if(DEBUG) cout<<"l_nI2="<<l_nI2<<endl;
+  if(DEBUG) cout<<"l_BI2="<<l_BI2<<endl;
+  if(DEBUG) cout<<"g_nA"<<g_nA<<endl;
+  if(DEBUG) cout<<"g_nI1"<<g_nI1<<endl;
+  if(DEBUG) cout<<"g_nB"<<g_nB<<endl;
+  if(DEBUG) cout<<"g_nI2"<<g_nI2<<endl;
+  if(DEBUG) cout<<"g_nC"<<g_nC<<endl;
+  if(DEBUG) cout<<"g_nI3"<<g_nI3<<endl;
+  
+  QVector < QPair<vec3_t,vec3_t> > points;
+  points.push_back(QPair<vec3_t,vec3_t>(g_A,g_nA));
+  points.push_back(QPair<vec3_t,vec3_t>(g_B,g_nB));
+  points.push_back(QPair<vec3_t,vec3_t>(g_C,g_nC));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I1,g_nI1));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I2,g_nI2));
+  points.push_back(QPair<vec3_t,vec3_t>(g_I3,g_nI3));
+  points.push_back(QPair<vec3_t,vec3_t>(g_M,g_g3));
+  
+/*  points.push_back(QPair<vec3_t,vec3_t>(A,nA));
+  points.push_back(QPair<vec3_t,vec3_t>(M,nM));
+  points.push_back(QPair<vec3_t,vec3_t>(I,nI));*/
+  
+  QVector < QPair<vec3_t,vec3_t> > lines;
+  lines.push_back(QPair<vec3_t,vec3_t>(g_A,g_I1));
+  lines.push_back(QPair<vec3_t,vec3_t>(g_B,g_I2));
+  lines.push_back(QPair<vec3_t,vec3_t>(g_C,g_I3));
+  
+  if(DEBUG) debug_output(points, lines);
+  
+  // returning value
+  x = g_X;
   return x;
 }
 
@@ -499,8 +1173,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       EG_BUG;
     }
   }
-  if (on_triangle) {
-    //x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+  if(on_triangle) {
+    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }
@@ -515,5 +1189,194 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     }
     x = projectWithGeometry(x, id_node);
   }
+//   writeGrid(m_FGrid,"m_FGrid");
+//   writeGrid(m_BGrid,"m_BGrid");
   return x;
+}
+
+vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
+{
+  vec3_t u = B-A;
+//   u.normalise();
+  v.normalise();
+  v = u.abs()*v;
+  
+  //cout<<"u="<<u<<" v="<<v<<endl;
+
+  vec2_t p_A(0,0);
+  vec2_t p_B(1,0);
+  vec2_t p_nA = projectVectorOnPlane(nA,u,v);
+  vec2_t p_nB = projectVectorOnPlane(nB,u,v);
+  
+  vec2_t p_tA = turnRight(p_nA);
+  vec2_t p_tB = turnRight(p_nB);
+  
+  double k1, k2;
+  vec2_t p_K;
+  if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
+    //qDebug()<<"WARNING: No intersection found!!!";
+    p_K = 0.5*(p_A + p_B);
+  }
+  else {
+    p_K = p_A + k1*p_tA;
+  }
+  
+  //cout<<"nA="<<nA<<endl;
+  //cout<<"p_nA="<<p_nA<<endl;
+  //cout<<"p_tA="<<p_tA<<endl;
+  //cout<<"p_K="<<p_K<<endl;
+  vec3_t K = A + p_K[0]*u + p_K[1]*v;
+  //cout<<"K="<<K<<endl;
+  return K;
+}
+
+int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+{
+  vec3_t A=T.a;
+  vec3_t B=T.b;
+  vec3_t C=T.c;
+  vec3_t nA = m_NodeNormals[T.id_a];
+  vec3_t nB = m_NodeNormals[T.id_b];
+  vec3_t nC = m_NodeNormals[T.id_c];
+  
+  //cout<<"nA="<<nA<<endl;
+  //cout<<"nB="<<nB<<endl;
+  //cout<<"nC="<<nC<<endl;
+
+//   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
+  //cout<<"-->BC"<<endl;
+  X_011 = intersectionOnPlane(T.g3, B, nB, C, nC);
+  //cout<<"-->CA"<<endl;
+  X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
+  //cout<<"-->AB"<<endl;
+  X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
+  return(0);
+}
+
+int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+{
+  vec3_t A=T.a;
+  vec3_t B=T.b;
+  vec3_t C=T.c;
+  vec3_t nA = m_NodeNormals[T.id_a];
+  vec3_t nB = m_NodeNormals[T.id_b];
+  vec3_t nC = m_NodeNormals[T.id_c];
+  
+//   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
+  X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
+  X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
+  X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
+  return(0);
+}
+
+void SurfaceProjection::setupInterpolationGrid()
+{
+  int N_cells = m_BGrid->GetNumberOfCells()+2*m_BGrid->GetNumberOfCells();
+  int N_points = m_BGrid->GetNumberOfPoints()+6*m_BGrid->GetNumberOfCells();
+  int N = 10;
+  int N_cells_per_triangle = (N-1)*(N-1);
+  int N_points_per_triangle = (N*N+N)/2;
+  
+  //qDebug()<<"N_cells="<<N_cells;
+  //qDebug()<<"N_points="<<N_points;
+  //qDebug()<<"N_cells_per_triangle="<<N_cells_per_triangle;
+  //qDebug()<<"N_points_per_triangle="<<N_points_per_triangle;
+  
+  allocateGrid(m_InterpolationGrid , N_cells, N_points);
+  makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
+  
+  allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
+
+  vtkIdType node_count = m_BGrid->GetNumberOfPoints();
+  int cell_count = m_BGrid->GetNumberOfCells();
+  
+  vtkIdType offset = 0;
+  
+  for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
+    Triangle T = m_Triangles[i_triangles];
+    if ( i_triangles == 1 ) {
+      //cout<<"+++++++++++++++++++++++++"<<endl;
+    }
+    vec3_t J1,K1;
+    vec3_t J2,K2;
+    vec3_t J3,K3;
+    //qDebug()<<"=== ORTHOGONAL PLANES ===";
+    getControlPoints_orthogonal(T,J1,J2,J3);
+    //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+    getControlPoints_nonorthogonal(T,K1,K2,K3);
+    
+    vtkIdType idx_J1, idx_J2, idx_J3;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J1.data()); idx_J1=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J2.data()); idx_J2=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J3.data()); idx_J3=node_count; node_count++;
+    vtkIdType idx_K1, idx_K2, idx_K3;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K1.data()); idx_K1=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K2.data()); idx_K2=node_count; node_count++;
+    m_InterpolationGrid->GetPoints()->SetPoint(node_count, K3.data()); idx_K3=node_count; node_count++;
+    
+    if ( i_triangles == 1 ) {
+      //cout<<"+++++++++++++++++++++++++"<<endl;
+      //cout<<"A="<<T.a<<" B="<<T.b<<" C="<<T.c<<endl;
+      //cout<<"J1="<<J1<<" K1="<<K1<<endl;
+      //cout<<"J2="<<J2<<" K2="<<K2<<endl;
+      //cout<<"J3="<<J3<<" K3="<<K3<<endl;
+      //cout<<"+++++++++++++++++++++++++"<<endl;
+    }
+    
+    offset += addBezierSurface(m_BezierGrid, offset, N, T.a, T.b, T.c, K1, K2, K3);
+
+    vtkIdType polyline_ortho[7];
+    vtkIdType polyline_nonortho[7];
+    
+    polyline_ortho[0]=T.id_a;
+    polyline_ortho[1]=idx_J3;
+    polyline_ortho[2]=T.id_b;
+    polyline_ortho[3]=idx_J1;
+    polyline_ortho[4]=T.id_c;
+    polyline_ortho[5]=idx_J2;
+    polyline_ortho[6]=T.id_a;
+    
+    polyline_nonortho[0]=T.id_a;
+    polyline_nonortho[1]=idx_K3;
+    polyline_nonortho[2]=T.id_b;
+    polyline_nonortho[3]=idx_K1;
+    polyline_nonortho[4]=T.id_c;
+    polyline_nonortho[5]=idx_K2;
+    polyline_nonortho[6]=T.id_a;
+    
+    m_InterpolationGrid->InsertNextCell(4,7,polyline_ortho);cell_count++;
+    m_InterpolationGrid->InsertNextCell(4,7,polyline_nonortho);cell_count++;
+    
+  }
+  
+  //qDebug()<<"node_count="<<node_count;
+  //qDebug()<<"cell_count="<<cell_count;
+  //qDebug()<<"offset="<<offset;
+  
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
+  vtu1->SetFileName("m_InterpolationGrid.vtk");
+  vtu1->SetInput(m_InterpolationGrid);
+  vtu1->Write();
+
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
+  vtu2->SetFileName("m_InterpolationGrid.vtu");
+  vtu2->SetDataModeToBinary();
+//   vtu2->SetDataModeToAscii();
+  vtu2->SetInput(m_InterpolationGrid);
+  vtu2->Write();
+
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu3);
+  vtu3->SetFileName("m_BezierGrid.vtk");
+  vtu3->SetInput(m_BezierGrid);
+  vtu3->Write();
+
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu4);
+  vtu4->SetFileName("m_BezierGrid.vtu");
+  vtu4->SetDataModeToBinary();
+//   vtu4->SetDataModeToAscii();
+  vtu4->SetInput(m_BezierGrid);
+  vtu4->Write();
+  
+  writeGrid(m_BGrid,"m_BGrid");
+  
 }
