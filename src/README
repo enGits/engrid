@@ -5,5 +5,3 @@ qmake project files:
 engrid.pro : Default, No CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR
 engrid.pro.OpenFOAM-paraview : No CGNS support, Uses the VTK libraries from $(ParaView_DIR)/lib/paraview-3.5 and include files from INCLUDEPATH += $(ParaView_INST_DIR)/VTK
 engrid.pro.cgns : With CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR
-
-testing new public repo with branches
