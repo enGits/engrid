@@ -89,6 +89,7 @@ bool SettingsSheet::readFile(const QString &fileName,int verbose)
   }
   
   QApplication::restoreOverrideCursor();
+  
   return true;
 }
 
@@ -109,6 +110,7 @@ bool SettingsSheet::writeFile(const QString &fileName)
   out << quint32(MagicNumber);
   
   QApplication::setOverrideCursor(Qt::WaitCursor);
+  
   int RowCount=this->rowCount();
   int ColumnCount=this->columnCount();
   out << RowCount;
@@ -119,7 +121,9 @@ bool SettingsSheet::writeFile(const QString &fileName)
       out << quint16(row) << quint16(column) << str;
     }
   }
+  
   QApplication::restoreOverrideCursor();
+  
   return true;
 }
 
