@@ -292,7 +292,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
 
   QVector <vtkIdType> edges;
 
-  double CosEdgeAngle = cos(this->m_EdgeAngle) ;
+  double CosEdgeAngle = cos(this->m_EdgeAngle);
 
   foreach( int i_node2, n2n[_nodes[id_node]] ) {
     vtkIdType id_node2 = nodes[i_node2];
@@ -390,6 +390,7 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
 char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fix_unselected)
 {
   double CosFeatureAngle = cos(this->m_FeatureAngle);
+  bool feature_edges_disabled = m_FeatureAngle >= M_PI;
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
@@ -408,7 +409,7 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
-    if (CosAngle(grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle) {
+    if (CosAngle(grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
     //check the boundary codes
