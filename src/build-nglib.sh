@@ -20,6 +20,9 @@
 # + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# DESCRIPTION:
+# This script checks out or updates the netgen source code and creates the static netgen library.
 
 cd ${0%/*} || exit 1    # run from this directory
 
