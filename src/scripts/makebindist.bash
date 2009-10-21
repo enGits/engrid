@@ -26,6 +26,21 @@
 
 set -e -x -u
 
+# TMPDIR=$(mktemp -d)
+# echo "================"
+# echo "TMPDIR = $TMPDIR"
+# echo "================"
+# 
+# ldd ./engrid > $TMPDIR/ldd.out
+# mkdir $TMPDIR/enGrid
+# #cp engrid $TMPDIR/enGrid
+# #cp start_engrid enGrid
+# tar -czvf enGrid_bin.tar.gz $TMPDIR/enGrid/*
+# # rm -rf enGrid
+# # rm ldd.out
+# 
+# exit 0
+
 # Check if all parameters are present
 # If no, exit
 if [ $# -ne 3 ]
@@ -80,6 +95,7 @@ saferemove_recursive()
 	fi
 }
 
+# remove traces from last use
 saferemove_recursive tmp
 saferemove $tarname
 
@@ -108,10 +124,10 @@ cd $SRCDIR
 #clean up
 #cd $SRCDIR
 qmake
-make clean
+make distclean
 cd netgen_svn
 qmake
-make clean
+make distclean
 cd ../..
 
 #add scripts + dependencies
