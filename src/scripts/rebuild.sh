@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
@@ -23,6 +23,8 @@
 #
 # DESCRIPTION:
 # This is a testing script that is run every night to make sure that engrid compiles from scratch with all available configurations.
+# USAGE:
+# This script must be run from the "engrid/src" directory.
 
 set -ex
 
@@ -51,7 +53,7 @@ echo PATH = $PATH
 echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
 
 echo "Building netgen"
-./build-nglib.sh
+./scripts/build-nglib.sh
 
 MAKEOPTIONS=""
 

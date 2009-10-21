@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
@@ -34,7 +34,7 @@ RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 /usr/bin/doxygen Doxyfile
 
 #Generate TODO lists
-./checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
+./scripts/checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
 mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
 
 #test build
