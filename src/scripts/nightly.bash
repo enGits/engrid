@@ -23,6 +23,8 @@
 #
 # DESCRIPTION:
 # This is a script run every night for several tasks: Documentation update, todo list generation, nightly builds, etc
+# USAGE:
+# This script must be run from the "engrid/src" directory.
 
 set -x
 
@@ -50,4 +52,3 @@ fi
 
 # copy nightly build into /opt/shared/bin/
 cp -v ./engrid /opt/shared/bin/ || (echo mailx -s "failed to copy engrid into /opt/shared/bin/" $RECIPIENTS)
-
