@@ -33,21 +33,37 @@
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "maximal relative error", 0.01, err_max);
-  getSet("boundary layer", "maximal number of smoothing iterations", 10, max_iter);
+  getSet("boundary layer", "maximal number of smoothing iterations", 5, max_iter);
+  getSet("boundary layer", "number of pre-steps", 5, m_NumPreSteps);
+  getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
 }
 
 void GuiCreateBoundaryLayer::before()
 {
+  ui.checkBoxImprove->setChecked(false);
+  l2g_t cells = m_Part.getCells();
+  foreach (vtkIdType id_cell, cells) {
+    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      ui.checkBoxImprove->setChecked(true);
+      break;
+    }
+  }
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
+  ui.spinBoxIterations->setValue(max_iter);
+  double h;
+  getSet("boundary layer", "relative height of boundary layer", 0.75, h);
+  int hi = 20*h;
+  h = 0.05*hi;
+  ui.doubleSpinBoxHeight->setValue(h);
 }
 
 void GuiCreateBoundaryLayer::operate()
 {
-  getSelectedItems(ui.listWidgetBC, boundary_codes);
+  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes);
   QString volume_name = getSelectedVolume(ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
-  foreach (int bc, boundary_codes) {
+  foreach (int bc, m_BoundaryCodes) {
     if (V.getSign(bc) == 0) {
       QString msg;
       msg.setNum(bc);
@@ -73,11 +89,11 @@ void GuiCreateBoundaryLayer::operate()
   l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2c   = getPartN2C();
-  getSurfaceCells(boundary_codes, layer_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, layer_cells, grid);
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
-  {
+  if (!ui.checkBoxImprove->isChecked()) {
     EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
     EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
     EG_VTKDCC(vtkIntArray, bc,          grid, "cell_code");
@@ -87,7 +103,7 @@ void GuiCreateBoundaryLayer::operate()
       foreach (int i_neigh_cells, n2c[_nodes[id_node]]) {
         vtkIdType id_neigh_cell = cells[i_neigh_cells];
         if (isSurface(id_neigh_cell, grid)) {
-          if (boundary_codes.contains(bc->GetValue(id_neigh_cell))) {
+          if (m_BoundaryCodes.contains(bc->GetValue(id_neigh_cell))) {
             bcs.insert(bc->GetValue(id_neigh_cell));
           }
         }
@@ -106,11 +122,10 @@ void GuiCreateBoundaryLayer::operate()
     }
   }
   
-  cout << "preparing prismatic layer" << endl;
   
   GridSmoother smooth;
   smooth.setGrid(grid);
-  smooth.setBoundaryCodes(boundary_codes);
+  smooth.setBoundaryCodes(m_BoundaryCodes);
   smooth.prismsOn();
   //smooth.setNumIterations(5);
   
@@ -120,21 +135,46 @@ void GuiCreateBoundaryLayer::operate()
   vol.setGrid(grid);
   SwapTriangles swap;
   swap.setGrid(grid);
-  swap.setBoundaryCodes(boundary_codes);
+  swap.setBoundaryCodes(m_BoundaryCodes);
   DeleteTetras del;
   del.setGrid(grid);
   
-  seed_layer.setGrid(grid);
-  del();
-  vol();
-  seed_layer.setAllCells();
-  seed_layer.setLayerCells(layer_cells);
-  seed_layer.setBoundaryCodes(boundary_codes);
-  seed_layer();
-  seed_layer.getLayerCells(layer_cells);
+  if (!ui.checkBoxImprove->isChecked()) {
+    cout << "preparing prismatic layer" << endl;
+    seed_layer.setGrid(grid);
+    del();
+    vol();
+    seed_layer.setAllCells();
+    seed_layer.setLayerCells(layer_cells);
+    seed_layer.setBoundaryCodes(m_BoundaryCodes);
+    seed_layer();
+    seed_layer.getLayerCells(layer_cells);
+  }
   
-  for (int j = 0; j < max_iter; ++j) {
-    cout << "improving prismatic layer -> iteration " << j+1 << "/" << max_iter << endl;
+  double H = ui.doubleSpinBoxHeight->value();
+
+  if (!ui.checkBoxImprove->isChecked()) {
+    m_NumPreSteps = max(1, m_NumPreSteps);
+    double h = 0.01*H*ui.doubleSpinBoxPush->value();
+    smooth.setRelativeHeight(h);
+    smooth.simpleOn();
+    for (int i = 0; i < m_NumPreSteps; ++i) {
+      cout << "improving prismatic layer -> pre-step " << i+1 << "/" << m_NumPreSteps << endl;
+      smooth.setAllCells();
+      smooth();
+      del.setAllCells();
+      del();
+      swap();
+      vol.setTraceCells(layer_cells);
+      vol();
+      vol.getTraceCells(layer_cells);
+    }
+  }
+
+  smooth.setRelativeHeight(H);
+  smooth.simpleOff();
+  for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
+    cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     smooth.setAllCells();
     smooth();
     del.setAllCells();
@@ -143,18 +183,8 @@ void GuiCreateBoundaryLayer::operate()
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
-    if (smooth.improvement() < err_max) break;
   }
-  //smooth.setAllCells();
-  //smooth();
-  
-  /*
-  del();
-  vol();
-  cout << "finalising prismatic layer" << endl;
-  smooth.setAllCells();
-  smooth();
-  */
+  double mesh_error = smooth.lastTotalError();
 
   {
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -172,4 +202,11 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(grid);
   createIndices(grid);
+  cout << "total mesh error: " << mesh_error << endl;
+  smooth.printMaxErrors();
+  if (m_WriteDebugFile) {
+    smooth.setAllCells();
+    smooth();
+    smooth.writeDebugFile("gridsmoother");
+  }
 }

@@ -50,21 +50,24 @@ private:
 
 class SettingsSheet : public QTableWidget
 {
-Q_OBJECT
+
+  Q_OBJECT
+
 public:
-    SettingsSheet(QWidget *parent = 0);
 
-    ~SettingsSheet();
+  SettingsSheet(QWidget *parent = 0);
 
-  bool readFile(const QString &fileName,int verbose=1);
-  bool writeFile(const QString &fileName);
+  ~SettingsSheet();
+
+  bool readFile(int verbose = 1);
   void setFormula(int row, int column, const QString &formula);
   QString formula(int row, int column) const;
   Cell* cell(int row, int column) const;
-    
-private:
-  enum { MagicNumber = 0x7F51C883 };
-  
+
+public slots:
+
+  void writeFile();
+
 };
 
 #endif

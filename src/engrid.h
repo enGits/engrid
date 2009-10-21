@@ -69,7 +69,14 @@ typedef vtkLongLongArray vtkLongArray_t;
 
 #ifdef QT_DEBUG
 #define EG_BUG \
-  abort();
+{ \
+  QString line; \
+  line.setNum(__LINE__); \
+  QString txt = "This seems to be a bug in enGrid"; \
+  txt += QString("\n\nfile: ") + __FILE__ + "\nline:" + line + "\n\n"; \
+  qWarning()<<txt; \
+  abort(); \
+};
 #else
 #define EG_BUG  \
 { \
@@ -194,7 +201,6 @@ OPER *oper = new OPER(); \
 oper->setGui(); \
 (*oper)(); \
 oper->del(); \
-if(grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
 updateActors(); \
 
 #define EG_STDREADERSLOT(OPER) \
@@ -207,7 +213,7 @@ updateStatusBar(); \
 zoomAll();
 
 #define EG_STDCONNECT(OPER) \
-connect(ui.action ## OPER, SIGNAL(activated()), this, SLOT(call ## OPER ()));
+connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
 
 #define EG_GETPTS(PTS,CELLID,GRID) \
 vtkIdType *PTS; \

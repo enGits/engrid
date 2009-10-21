@@ -35,6 +35,150 @@ OctreeCell::OctreeCell()
   m_Level = 0;
 }
 
+int OctreeCell::getEdgeNode(Octree* octree, int n1, int n2, int f)
+{
+  int edge_node = -1;
+  if (hasChildren()) {
+    OctreeCell child1 = octree->m_Cells[m_Child[n1]];
+    OctreeCell child2 = octree->m_Cells[m_Child[n2]];
+    QVector<int> face_nodes1;
+    QVector<int> face_nodes2;
+    child1.getFaceNodes(f, octree, face_nodes1, false);
+    child2.getFaceNodes(f, octree, face_nodes2, false);
+    vec3_t x1 = octree->m_Nodes[m_Node[n1]].getPosition();
+    vec3_t x2 = octree->m_Nodes[m_Node[n2]].getPosition();
+    double L = (x1-x2).abs();
+    foreach (int n, face_nodes1) {
+      if (face_nodes2.contains(n)) {
+        vec3_t x = octree->m_Nodes[m_Node[n]].getPosition();
+        if ((x-x1).abs() < 0.55*L) {
+          edge_node = n;
+          break;
+        }
+      }
+    }
+  }
+  return edge_node;
+}
+
+void OctreeCell::getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse)
+{
+  //face_nodes.resize(4);
+  QList<int> nodes;
+  int edge_node;
+  if (i == 0) {
+    nodes.push_back(m_Node[0]);
+    edge_node = getEdgeNode(octree, 0,4,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[4]);
+    edge_node = getEdgeNode(octree, 4,6,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[6]);
+    edge_node = getEdgeNode(octree, 6,2,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[2]);
+    edge_node = getEdgeNode(octree, 2,0,i); if (edge_node != -1) nodes.push_back(edge_node);
+  } else if (i == 1) {
+    nodes.push_back(m_Node[1]);
+    edge_node = getEdgeNode(octree, 1,3,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[3]);
+    edge_node = getEdgeNode(octree, 3,7,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[7]);
+    edge_node = getEdgeNode(octree, 7,5,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[5]);
+    edge_node = getEdgeNode(octree, 5,1,i); if (edge_node != -1) nodes.push_back(edge_node);
+  } else if (i == 2) {
+    nodes.push_back(m_Node[0]);
+    edge_node = getEdgeNode(octree, 0,1,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[1]);
+    edge_node = getEdgeNode(octree, 1,5,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[5]);
+    edge_node = getEdgeNode(octree, 5,4,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[4]);
+    edge_node = getEdgeNode(octree, 4,0,i); if (edge_node != -1) nodes.push_back(edge_node);
+  } else if (i == 3) {
+    nodes.push_back(m_Node[3]);
+    edge_node = getEdgeNode(octree, 3,2,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[2]);
+    edge_node = getEdgeNode(octree, 2,6,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[6]);
+    edge_node = getEdgeNode(octree, 6,7,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[7]);
+    edge_node = getEdgeNode(octree, 7,3,i); if (edge_node != -1) nodes.push_back(edge_node);
+  } else if (i == 4) {
+    nodes.push_back(m_Node[0]);
+    edge_node = getEdgeNode(octree, 0,2,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[2]);
+    edge_node = getEdgeNode(octree, 2,3,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[3]);
+    edge_node = getEdgeNode(octree, 3,1,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[1]);
+    edge_node = getEdgeNode(octree, 1,0,i); if (edge_node != -1) nodes.push_back(edge_node);
+  } else if (i == 5) {
+    nodes.push_back(m_Node[4]);
+    edge_node = getEdgeNode(octree, 4,5,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[5]);
+    edge_node = getEdgeNode(octree, 5,7,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[7]);
+    edge_node = getEdgeNode(octree, 7,6,i); if (edge_node != -1) nodes.push_back(edge_node);
+    nodes.push_back(m_Node[6]);
+    edge_node = getEdgeNode(octree, 6,4,i); if (edge_node != -1) nodes.push_back(edge_node);
+  }
+
+  face_nodes.resize(nodes.size());
+  if (reverse) {
+    int i = face_nodes.size() - 1;
+    foreach(int node, nodes) {
+      face_nodes[i] = node;
+      --i;
+    }
+  } else {
+    int i = 0;
+    foreach(int node, nodes) {
+      face_nodes[i] = node;
+      ++i;
+    }
+  }
+}
+
+void OctreeCell::getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes, bool reverse)
+{
+  if (hasChildren()) {
+    face_nodes.resize(4);
+    if (i == 0) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(0, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[2]].getFaceNodes(0, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[4]].getFaceNodes(0, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[6]].getFaceNodes(0, octree, face_nodes[3], reverse);
+    } else if (i == 1) {
+      octree->m_Cells[m_Child[1]].getFaceNodes(1, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[3]].getFaceNodes(1, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[5]].getFaceNodes(1, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[7]].getFaceNodes(1, octree, face_nodes[3], reverse);
+    } else if (i == 2) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(2, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[1]].getFaceNodes(2, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[4]].getFaceNodes(2, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[5]].getFaceNodes(2, octree, face_nodes[3], reverse);
+    } else if (i == 3) {
+      octree->m_Cells[m_Child[2]].getFaceNodes(3, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[3]].getFaceNodes(3, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[6]].getFaceNodes(3, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[7]].getFaceNodes(3, octree, face_nodes[3], reverse);
+    } else if (i == 4) {
+      octree->m_Cells[m_Child[0]].getFaceNodes(4, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[1]].getFaceNodes(4, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[2]].getFaceNodes(4, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[3]].getFaceNodes(4, octree, face_nodes[3], reverse);
+    } else if (i == 5) {
+      octree->m_Cells[m_Child[4]].getFaceNodes(5, octree, face_nodes[0], reverse);
+      octree->m_Cells[m_Child[5]].getFaceNodes(5, octree, face_nodes[1], reverse);
+      octree->m_Cells[m_Child[6]].getFaceNodes(5, octree, face_nodes[2], reverse);
+      octree->m_Cells[m_Child[7]].getFaceNodes(5, octree, face_nodes[3], reverse);
+    }
+  } else {
+    face_nodes.resize(1);
+    getFaceNodes(i, octree, face_nodes[0], reverse);
+  }
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Octree::Octree()
@@ -547,7 +691,7 @@ int Octree::refineAll()
   return Nrefine;
 }
 
-void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
+void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields)
 {
   int N = 0;
   for (int i = 0; i < m_Cells.size(); ++i) {
@@ -555,7 +699,7 @@ void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
       ++N;
     }
   }
-  allocateGrid(grid, N, m_Nodes.size());
+  allocateGrid(grid, N, m_Nodes.size(), create_fields);
   for (int id_node = 0; id_node < m_Nodes.size(); ++id_node) {
     grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].m_Position.data());
   }
@@ -572,12 +716,191 @@ void Octree::toVtkGrid(vtkUnstructuredGrid *grid)
       pts[6] = cell.m_Node[7];
       pts[7] = cell.m_Node[6];
       for (int i = 0; i < 8; ++i) {
-        if (pts[i] < 0) {
-          pts[i] = 0;
+        if (pts[i] < 0 || pts[i] >= m_Nodes.size()) {
+          EG_BUG;
         }
       }
       grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
     }
+  }
+}
+
+int Octree::opposingFace(int i)
+{
+  if (i == 0) return 1;
+  if (i == 1) return 0;
+  if (i == 2) return 3;
+  if (i == 3) return 2;
+  if (i == 4) return 5;
+  if (i == 5) return 4;
+  EG_BUG;
+  return -1;
+}
+
+void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
+{
+  // it is not working yet
+  EG_BUG;
+
+  if (!m_SmoothTransition) {
+    EG_BUG;
+  }
+  int num_new_nodes = 0;
+  int num_pyramids = 0;
+  int num_hexes = 0;
+  int num_tetras = 0;
+  foreach (OctreeCell cell, m_Cells) {
+    if (!cell.hasChildren()) {
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        bool use_neighbour_faces = false;
+        if (cell.getNeighbour(i) != -1) {
+          OctreeCell neigh = m_Cells[cell.getNeighbour(i)];
+          if (neigh.m_Level == cell.m_Level) {
+            if (neigh.m_Child[0] != -1) {
+              use_neighbour_faces = true;
+            }
+          }
+        }
+        if (use_neighbour_faces) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+        } else {
+          cell.getFaceNodes(i, this, faces, true);
+        }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      if (all_faces.size() < 6) {
+        EG_BUG;
+      }
+      bool simple_hex_cell = true;
+      if (all_faces.size() > 6) {
+        simple_hex_cell = false;
+      };
+
+      foreach (QVector<int> face, all_faces) {
+        if (face.size() > 4) {
+          simple_hex_cell = false;
+          break;
+        }
+      }
+
+      if (simple_hex_cell) {
+        ++num_hexes;
+      } else {
+        ++num_new_nodes;
+        foreach (QVector<int> face, all_faces) {
+          if (face.size() > 4) {
+            num_tetras += face.size();
+            ++num_new_nodes;
+          } else {
+            ++num_pyramids;
+          }
+        }
+      }
+    }
+  }
+  allocateGrid(grid, num_hexes + num_pyramids + num_tetras, m_Nodes.size() + num_new_nodes, create_fields);
+  vtkIdType id_node = 0;
+  for (int i = 0; i < m_Nodes.size(); ++i) {
+    grid->GetPoints()->SetPoint(id_node, m_Nodes[i].getPosition().data());
+    ++id_node;
+  }
+  for (int i_cells = 0; i_cells < m_Cells.size(); ++i_cells) {
+    OctreeCell cell = m_Cells[i_cells];
+    if (!cell.hasChildren()) {
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        bool use_neighbour_faces = false;
+        if (cell.getNeighbour(i) != -1) {
+          OctreeCell neigh = m_Cells[cell.getNeighbour(i)];
+          if (neigh.m_Level == cell.m_Level) {
+            if (neigh.m_Child[0] != -1) {
+              use_neighbour_faces = true;
+            }
+          }
+        }
+        if (use_neighbour_faces) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+        } else {
+          cell.getFaceNodes(i, this, faces, true);
+        }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      bool simple_hex_cell = true;
+      if (all_faces.size() > 6) {
+        simple_hex_cell = false;
+      } else {
+        foreach (QVector<int> face, all_faces) {
+          if (face.size() > 4) {
+            simple_hex_cell = false;
+            break;
+          }
+        }
+      }
+      if (simple_hex_cell) {
+        vtkIdType pts[8];
+        pts[0] = cell.m_Node[0];
+        pts[1] = cell.m_Node[1];
+        pts[2] = cell.m_Node[3];
+        pts[3] = cell.m_Node[2];
+        pts[4] = cell.m_Node[4];
+        pts[5] = cell.m_Node[5];
+        pts[6] = cell.m_Node[7];
+        pts[7] = cell.m_Node[6];
+        grid->InsertNextCell(VTK_HEXAHEDRON, 8, pts);
+      } else {
+        grid->GetPoints()->SetPoint(id_node, getCellCentre(i_cells).data());
+        int id_cell_centre = id_node;
+        ++id_node;
+        foreach (QVector<int> face, all_faces) {
+          if (face.size() == 4) {
+            vtkIdType pts[5];
+            for (int i = 0; i < 4; ++i) {
+              pts[i] = face[i];
+            }
+            pts[4] = id_cell_centre;
+            grid->InsertNextCell(VTK_PYRAMID, 5, pts);
+          } else {
+            vec3_t xf(0,0,0);
+            for (int i = 0; i < face.size(); ++i) {
+              xf += m_Nodes[face[i]].getPosition();
+            }
+            xf *= 1.0/face.size();
+            grid->GetPoints()->SetPoint(id_node, xf.data());
+            int id_face_centre = id_node;
+            ++id_node;
+            for (int i = 0; i < face.size(); ++i) {
+              vtkIdType pts[4];
+              pts[0] = face[i];
+              if (i < face.size()-1) {
+                pts[1] = face[i+1];
+              } else {
+                pts[1] = face[0];
+              }
+              pts[2] = id_face_centre;
+              pts[3] = id_cell_centre;
+              grid->InsertNextCell(VTK_TETRA, 4, pts);
+            }
+          }
+        }        
+      }
+    }
+  }
+
+}
+
+void Octree::toVtkGrid(vtkUnstructuredGrid* grid, bool hanging_nodes, bool create_fields)
+{
+  if (hanging_nodes) {
+    toVtkGrid_HangingNodes(grid, create_fields);
+  } else {
+    toVtkGrid_Conforming(grid, create_fields);
   }
 }
 

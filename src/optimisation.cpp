@@ -21,6 +21,49 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "optimisation.h"
+#include "guimainwindow.h"
+
+ErrorFunction::ErrorFunction()
+{
+  m_Weighting1 = 1.0;
+  m_Weighting2 = 1.0;
+  m_XSwitch = 0.5;
+  m_Exponent = 1.0;
+  m_TotalError = 0.0;
+  m_Active = true;
+}
+
+void ErrorFunction::set(QString settings_txt)
+{
+  QStringList items = settings_txt.split(',');
+  if (items.size() != 4) {
+    EG_ERR_RETURN("syntax error for error weighting");
+  }
+  m_Weighting1 = items[0].trimmed().toDouble();
+  m_Weighting2 = items[1].trimmed().toDouble();
+  m_Exponent   = items[2].trimmed().toDouble();
+  m_XSwitch    = items[3].trimmed().toDouble();
+}
+
+double ErrorFunction::operator ()(double x)
+{
+  double e1 = max(0.0, -m_Weighting1*(x - m_XSwitch));
+  double e2 = fabs(1 - x);
+  double e  = max(e1, m_Weighting2*pow(e2, m_Exponent));
+  m_MaxErr = max(m_MaxErr, e2);
+  m_TotalError += e2;
+  ++m_NumCalls;
+  return e;
+}
+
+double ErrorFunction::averageError()
+{
+  if (m_NumCalls == 0) {
+    return 0;
+  }
+  return m_TotalError/m_NumCalls;
+}
+
 
 Optimisation::Optimisation()
 {
@@ -33,6 +76,38 @@ Optimisation::Optimisation()
     };
   };
 };
+
+void Optimisation::getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func)
+{
+  QString w1_txt, w2_txt, s_txt, e_txt;
+  w1_txt.setNum(w1);
+  w2_txt.setNum(w2);
+  s_txt.setNum(s);
+  e_txt.setNum(e);
+  QString value = w1_txt + ", " + w2_txt + ", " + e_txt + ", " + s_txt;
+  QString variable;
+  QSettings *qset = GuiMainWindow::settings();
+  QString typed_key = "string/" + key;
+  if (group != QObject::tr("General")) {
+    qset->beginGroup(group);
+  }
+  if (!qset->contains(typed_key)) {
+    qset->setValue(typed_key, value);
+  }
+  variable = (qset->value(typed_key,variable)).toString();
+  if (group != QObject::tr("General")) {
+    qset->endGroup();
+  }
+  err_func.set(variable);
+  err_func.setName(key.replace(" ", "_"));
+}
+
+double Optimisation::angleX(const vec3_t &v1, const vec3_t &v2)
+{
+  double scal = v1*v2;
+  double alpha = acos(scal);
+  return fabs(1 - alpha/M_PI);
+}
 
 void Optimisation::computeDerivatives(vec3_t x)
 {

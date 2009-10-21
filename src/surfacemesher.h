@@ -20,64 +20,23 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef CREATESPECIALMAPPING_H
-#define CREATESPECIALMAPPING_H
+#ifndef SURFACEMESHER_H
+#define SURFACEMESHER_H
 
-#include <vtkUnstructuredGrid.h>
-#include <vtkPolyData.h>
-#include <vtkCharArray.h>
+#include "surfacealgorithm.h"
 
-#include <QSet>
-#include <QVector>
-#include <QString>
-#include <QTextStream>
-#include <QTime>
-
-#include "egvtkobject.h"
-#include "surfaceoperation.h"
-#include "vertexmeshdensity.h"
-#include "smoothingutilities.h"
-#include "swaptriangles.h"
-#include "laplacesmoother.h"
-#include "guimainwindow.h"
-#include "geometrytools.h"
-
-#include <cmath>
-#include <iostream>
-
-class SurfaceMesher : public SurfaceOperation
+class SurfaceMesher : public SurfaceAlgorithm
 {
 
-private: // attributes
+protected: // methods
 
-  QSet<int> m_BCs;
-  QVector <VertexMeshDensity> VMDvector;
-  int m_NumMaxIter;
-  int m_NumSmoothSteps;
+    virtual void operate();
 
-private: // methods
-
-  void swap();
-  void smooth(int N_iter);
-  int insertNodes();
-  int deleteNodes();
-
-  void computeMeshDensity();
-  void updateNodeInfo(bool update_type);
 
 public:
 
   SurfaceMesher();
 
-  virtual void operate();
-
-  void setBoundaryCodes(QSet<int> bcs) { m_BCs = bcs; }
-
-  //Used for UpdateDesiredMeshDensity operation
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> a_VMDvector) { VMDvector = a_VMDvector; }
-
 };
-
-//end of SurfaceMesher class
 
 #endif

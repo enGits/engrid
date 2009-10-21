@@ -20,141 +20,84 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+
 #include "surfacemesher.h"
+#include "guimainwindow.h"
 
-#include "insertpoints.h"
-#include "removepoints.h"
-#include "updatedesiredmeshdensity.h"
-
-#include <vtkSmoothPolyDataFilter.h>
-
-SurfaceMesher::SurfaceMesher() : SurfaceOperation()
+SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
-  getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
-  getSet("surface meshing", "number of smoothing steps", 1, m_NumSmoothSteps);
-}
-
-void SurfaceMesher::computeMeshDensity()
-{
-  ///@@@  TODO: Optimize by using only one loop through nodes!
-  UpdateDesiredMeshDensity update_desired_mesh_density;
-  update_desired_mesh_density.setGrid(grid);
-  update_desired_mesh_density.setVertexMeshDensityVector(VMDvector);
-  update_desired_mesh_density();
-}
-
-void SurfaceMesher::updateNodeInfo(bool update_type)
-{
-  setAllCells();
-  l2g_t nodes = getPartNodes();
-  foreach(vtkIdType node, nodes) {
-    if(update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
-      node_type->SetValue(node, getNodeType(node));
-    }
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
-    node_meshdensity_current->SetValue(node, CurrentMeshDensity(node));
-
-    EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
-    VertexMeshDensity nodeVMD = getVMD(node);
-    int idx=VMDvector.indexOf(nodeVMD);
-    node_specified_density->SetValue(node, idx);
-    
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired");//what we want
-    if(idx!=-1) { //specified
-      //node_meshdensity_desired->SetValue(node, VMDvector[idx].density);
-    } else { //unspecified
-      //double D=DesiredMeshDensity(node);
-      //node_meshdensity_desired->SetValue(node, D);
-    }
-  }
-}
-
-void SurfaceMesher::swap()
-{
-  SwapTriangles swap;
-  swap.setGrid(grid);
-  swap.setRespectBC(true);
-  swap.setFeatureSwap(true);
-  QSet<int> rest_bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
-  rest_bcs -= m_BCs;
-  swap.setBoundaryCodes(rest_bcs);
-  swap();
-}
-
-void SurfaceMesher::smooth(int N_iter)
-{
-  LaplaceSmoother lap;
-  lap.setGrid(grid);
-  QVector<vtkIdType> cls;
-  getSurfaceCells(m_BCs, cls, grid);
-  lap.setCells(cls);
-  lap.setNumberOfIterations(N_iter);
-  lap();
-}
-
-int SurfaceMesher::insertNodes()
-{
-  InsertPoints insert_points;
-  insert_points.setGrid(grid);
-  insert_points.setBCS(m_BCs);
-  insert_points.set_insert_FP(false);
-  insert_points.set_insert_EP(true);
-  insert_points.setVertexMeshDensityVector(VMDvector);
-  insert_points();
-  return insert_points.getNumInserted();
-}
-
-int SurfaceMesher::deleteNodes()
-{
-  RemovePoints remove_points;
-  remove_points.setGrid(grid);
-  remove_points.setBCS(m_BCs);
-  remove_points.set_remove_FP(true);
-  remove_points.set_remove_EP(true);
-  remove_points();
-  return remove_points.getNumRemoved();
+  m_PerformGeometricTests = true;
+  m_UseProjectionForSmoothing = true;
+  m_UseNormalCorrectionForSmoothing = true;
+  m_AllowFeatureEdgeSwapping = false;
+  getSet("surface meshing", "feature angle", 200, m_FeatureAngle); //this angle is also used by swaptriangles!!!
+  m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
+  m_EdgeAngle = m_FeatureAngle;
 }
 
 void SurfaceMesher::operate()
 {
-  EG_VTKDCN(vtkDoubleArray, md, grid, "node_meshdensity_desired");
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
+  computeMeshDensity();
+  prepare();
+  if (m_BoundaryCodes.size() == 0) {
+    return;
+  }
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    md->SetValue(id_node, 1e-6);
+    characteristic_length_desired->SetValue(id_node, 1e-6);
   }
   updateNodeInfo(true);
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
+  //done = true;
   while (!done) {
+    ++iter;
+    cout << "surface mesher iteration " << iter << ":" << endl;
     computeMeshDensity();
     num_inserted = insertNodes();
-    swap();
-    num_deleted = 0;
-    int N = 0;
-    int count = 0;
-
-    do {
-      N = deleteNodes();
-      num_deleted += N;
-      ++count;
-    } while ((N > 0) && (count < 20));
-    for (int i = 0; i < 10; ++i) {
-      swap();
-      smooth(m_NumSmoothSteps);
-    }
-    ++iter;
-    done = (iter >= m_NumMaxIter) || (num_inserted - num_deleted < grid->GetNumberOfPoints()/100);
-    cout << "surface mesher iteration " << iter << ":" << endl;
     cout << "  inserted nodes : " << num_inserted << endl;
+    updateNodeInfo();
+    swap();
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      smooth(1);
+      swap();
+    }
+    int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
+    swap();
+    computeMeshDensity();
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      smooth(1);
+      swap();
+    }
+    int N_crit = grid->GetNumberOfPoints()/100;
+    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
   createIndices(grid);
-  updateNodeInfo(true);
+  updateNodeInfo(false);
+  computeMeshDensity();
+  {
+    int N1 = 0;
+    int N2 = 0;
+    QSet<int> bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
+    foreach (int bc, bcs) {
+      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
+      N1 += proj->getNumDirectProjections();
+      N2 += proj->getNumFullSearches();
+    }
+    cout << N1 << " direct projections" << endl;
+    cout << N2 << " full searches" << endl;
+  }
 }
-

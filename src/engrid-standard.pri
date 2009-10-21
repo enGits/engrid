@@ -4,8 +4,25 @@ QT += xml \
     opengl
 RESOURCES += engrid.qrc
 
+################
 # netgen lib
-LIBS += -lng
+################
+!win32 {
+    LIBS += -L./netgen_svn
+    LIBS += -lng
+#   LIBS += -Wl,-rpath
+    QMAKE_CXXFLAGS += -Wno-deprecated
+}
+
+win32 {
+	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
+	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
+        LIBS += -Lnetgen_svn/debug
+        LIBS += -lsuperman
+
+	#Z:\mtaverne\Development\engrid\src\netgen_svn\release
+}
+################
 
 # VTK libs
 LIBS += -lQVTK
@@ -95,6 +112,7 @@ HEADERS = boundarycondition.h \
     vtkEgGridFilter.h \
     vtkEgNormalExtrusion.h \
     vtkEgPolyDataToUnstructuredGridFilter.h \
+    vtkImplicitPolyData.h \
     guicreateboundarylayer.h \
     guicreatevolumemesh.h \
     guideletebadaspecttris.h \
@@ -121,6 +139,7 @@ HEADERS = boundarycondition.h \
     egvtkinteractorstyle.h \
     insertpoints.h \
     removepoints.h \
+    reducedpolydatareader.h \
     showinfo.h \
     surfacemesher.h \
     updatedesiredmeshdensity.h \
@@ -186,6 +205,7 @@ SOURCES = main.cpp \
     vtkEgGridFilter.cxx \
     vtkEgNormalExtrusion.cxx \
     vtkEgPolyDataToUnstructuredGridFilter.cxx \
+    vtkImplicitPolyData.cpp \
     guicreateboundarylayer.cpp \
     guicreatevolumemesh.cpp \
     guideletebadaspecttris.cpp \
@@ -228,6 +248,7 @@ SOURCES = main.cpp \
     foamobject.cpp \
     multipagewidgetpage.cpp \
     xmlhandler.cpp \
+    reducedpolydatareader.cpp \
     openfoamtools.cpp
 
 FORMS = guicreateboundarylayer.ui \
@@ -246,4 +267,19 @@ FORMS = guicreateboundarylayer.ui \
 
 OTHER_FILES += checkcomments.py \
     todo.txt
+
+HEADERS += surfacealgorithm.h
+SOURCES += surfacealgorithm.cpp
+HEADERS += reducesurfacetriangulation.h
+SOURCES += reducesurfacetriangulation.cpp
+HEADERS += eliminatesmallbranches.h
+SOURCES += eliminatesmallbranches.cpp
+HEADERS += smoothandswapsurface.h
+SOURCES += smoothandswapsurface.cpp
+HEADERS += seligairfoilreader.h
+SOURCES += seligairfoilreader.cpp
+HEADERS += fixcadgeometry.h
+SOURCES += fixcadgeometry.cpp
+HEADERS += blenderreader.h
+SOURCES += blenderreader.cpp
 

@@ -35,6 +35,9 @@ private: // attributes
   QVector<bool> m_Marked;
   bool          m_RespectBC;
   bool          m_FeatureSwap;
+  bool          m_SmallAreaSwap;
+  int           m_MaxNumLoops;
+  double        m_SmallAreaRatio;
   
 private: // methods
   
@@ -51,9 +54,12 @@ protected: // methods
 public:
 
   SwapTriangles();
-  void setRespectBC(bool b)   { m_RespectBC   = b; }
-  void setFeatureSwap(bool b) { m_FeatureSwap = b; }
-  
+
+  void setRespectBC(bool b)      { m_RespectBC   = b; }
+  void setFeatureSwap(bool b)    { m_FeatureSwap = b; }
+  void setMaxNumLoops(int n)     { m_MaxNumLoops = n; }
+  void setSmallAreaSwap(bool b)  { m_SmallAreaSwap = b; }
+
 };
 
 #endif

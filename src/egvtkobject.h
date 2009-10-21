@@ -80,7 +80,7 @@ private: // methods
 
 protected: // attributes
   
-  QSet<int> boundary_codes;
+  QSet<int> m_BoundaryCodes;
   static int DebugLevel;
   
 protected: // methods
@@ -103,6 +103,12 @@ protected: // methods
    */
   bool getSet(QString group, QString key, bool value, bool& variable);
   
+  /**
+   * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
+   * Version for string variables
+   */
+  QString getSet(QString group, QString key, QString value, QString& variable);
+
   /**
    * Update the cell index array.
    */
@@ -392,7 +398,7 @@ protected: // methods
    * @param n2n the node to cell structure for this grid
    * @return the id of the corresponding volume cell (or -1 if not found)
    */
-  int findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
+  vtkIdType findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
 
   /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".
@@ -723,10 +729,18 @@ QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
 template <class T>
 QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
 {
-  QSet <T> l_set(a_vector.size());
-  qCopy(a_vector.begin(),a_vector.end(),l_set.begin());
+  QSet <T> l_set;
+  foreach(T element, a_vector) l_set.insert(element);
   if(a_sort) qSort(l_set.begin(),l_set.end());
   return(l_set);
+}
+
+template <class T>
+bool duplicates(QVector <T> a_vector)
+{
+  QSet <T> l_set;
+  foreach(T element, a_vector) l_set.insert(element);
+  return l_set.size()!=a_vector.size();
 }
 
 ///////////////////////////////////////////

@@ -143,6 +143,24 @@ public: // methods
    */
   double getSmallestEdgeLength() const;
 
+  /**
+   * Get the number of nodes in the partition.
+   * @return the number of nodes
+   */
+  int getNumberOfNodes();
+
+  /**
+   * Get the number of cells in the partition.
+   * @return the number of cells
+   */
+  int getNumberOfCells();
+
+  int       localNode(vtkIdType id_node);
+  vtkIdType globalNode(int i);
+  int       localCell(vtkIdType id_cell);
+  vtkIdType globalCell(int i);
+
+
   int       n2nLSize(int i_nodes);
   int       n2nLL(int i_nodes, int j);
   vtkIdType n2nLG(int i_nodes, int j);
@@ -376,5 +394,38 @@ inline vtkIdType MeshPartition::c2cGG(vtkIdType id_cell, int j)
   return m_Cells[m_C2C[m_LCells[id_cell]][j]];
 }
 
+inline int MeshPartition::getNumberOfCells()
+{
+  return m_Cells.size();
+}
+
+inline int MeshPartition::getNumberOfNodes()
+{
+  checkNodes();
+  return m_Nodes.size();
+}
+
+inline int MeshPartition::localNode(vtkIdType id_node)
+{
+  checkLNodes();
+  return m_LNodes[id_node];
+}
+
+inline vtkIdType MeshPartition::globalNode(int i)
+{
+  checkNodes();
+  return m_Nodes[i];
+}
+
+inline int MeshPartition::localCell(vtkIdType id_cell)
+{
+  checkLCells();
+  return m_LCells[id_cell];
+}
+
+inline vtkIdType MeshPartition::globalCell(int i)
+{
+  return m_Cells[i];
+}
 
 #endif // MESHPARTITION_H

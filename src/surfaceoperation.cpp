@@ -36,13 +36,15 @@ SurfaceOperation::SurfaceOperation()
     : Operation()
 {
   //default values for determining node types and for smoothing operations
-  Convergence = 0;
-  NumberOfIterations = 20;
-  RelaxationFactor = 0.01;
-  m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
-  FeatureAngle = 45;
-  EdgeAngle = 15;
-  BoundarySmoothing = 1;
+  m_Convergence = 0;
+  m_NumberOfIterations = 20;
+  m_RelaxationFactor = 0.01;
+  //m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
+  setFeatureAngle(GeometryTools::deg2rad(45));
+  getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
+  m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
+  setEdgeAngle(m_EdgeAngle);
+  m_BoundarySmoothing = 1;
 }
 
 void SurfaceOperation::operate()
@@ -155,7 +157,7 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   QVector<vtkIdType> cells;
   getAllSurfaceCells( cells, grid );
   EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   setGrid( grid );
   setCells( cells );
   if ( DebugLevel > 5 ) {
@@ -172,16 +174,14 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   return( 0 ); ///@@@ what for???
 }
 
-int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices )
+int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fix_unselected)
 {
+  setAllSurfaceCells();
+
   l2g_t nodes  = getPartNodes();
   l2g_t cells  = getPartCells();
   g2l_t _cells = getPartLocalCells();
   l2l_t c2c    = getPartC2C();
-
-  //cout<<"=== UpdatePotentialSnapPoints START ==="<<endl;
-  //prepare
-  setAllSurfaceCells();
 
   m_PotentialSnapPoints.resize( nodes.size() );
 
@@ -209,7 +209,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
       //-----------------------
       //determine edge type
-      char edge = getEdgeType( id_node2, id_node1, allow_feature_edge_vertices );
+      char edge = getEdgeType( id_node2, id_node1, fix_unselected );
       //-----------------------
       //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
       if ( edge && node_type->GetValue( id_node1 ) == VTK_SIMPLE_VERTEX ) {
@@ -246,17 +246,15 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
   //-----------------------
   //determine node type post-processing
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->EdgeAngle ) );
+  double CosEdgeAngle = cos(this->m_EdgeAngle);
   //cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach( vtkIdType id_node, nodes ) {
     if ( node_type->GetValue( id_node ) == VTK_FEATURE_EDGE_VERTEX || node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
-      if ( !this->BoundarySmoothing &&
-           node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) {
+      if ( !this->m_BoundarySmoothing && node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) {
         if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
-      }
-      else if ( m_PotentialSnapPoints[id_node].size() != 2 ) {
+      } else if ( m_PotentialSnapPoints[id_node].size() != 2 ) {
         if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
       }
       else { //check angle between edges
@@ -281,7 +279,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
   return( 0 );
 }
 
-char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_vertices )
+char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -294,13 +292,13 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
 
   QVector <vtkIdType> edges;
 
-  double CosEdgeAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->EdgeAngle ) );
+  double CosEdgeAngle = cos(this->m_EdgeAngle);
 
   foreach( int i_node2, n2n[_nodes[id_node]] ) {
     vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
-    char edge = getEdgeType( id_node2, id_node, allow_feature_edge_vertices );
+    char edge = getEdgeType(id_node2, id_node, fix_unselected);
 
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
@@ -322,8 +320,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
   //determine node type post-processing
   if ( type == VTK_FEATURE_EDGE_VERTEX || type == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
-    if ( !this->BoundarySmoothing &&
-         type == VTK_BOUNDARY_EDGE_VERTEX ) {
+    if ( !this->m_BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ) {
       type = VTK_FIXED_VERTEX;
     }
     else if ( edges.size() != 2 ) {
@@ -346,7 +343,6 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
     }//if along edge
   }//if edge vertex
 
-  if ( !allow_feature_edge_vertices && type == VTK_FEATURE_EDGE_VERTEX ) EG_BUG;
   return( type );
 }
 
@@ -391,9 +387,10 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
   return EdgeCells.size();
 }
 
-char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices )
+char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fix_unselected)
 {
-  double CosFeatureAngle = cos(( double ) vtkMath::RadiansFromDegrees( this->FeatureAngle ) );
+  double CosFeatureAngle = cos(this->m_FeatureAngle);
+  bool feature_edges_disabled = m_FeatureAngle >= M_PI;
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
@@ -412,13 +409,24 @@ char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool a
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
-    if ( allow_feature_edge_vertices && this->m_AllowFeatureEdgeVertices && CosAngle( grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle ) {
+    if (CosAngle(grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
     //check the boundary codes
     EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-    if ( cell_code->GetValue( neighbour_cells[0] ) !=  cell_code->GetValue( neighbour_cells[1] ) ) {
+    int cell_code_0 = cell_code->GetValue( neighbour_cells[0] );
+    int cell_code_1 = cell_code->GetValue( neighbour_cells[1] );
+    if ( cell_code_0 !=  cell_code_1 ) {
       edge = VTK_BOUNDARY_EDGE_VERTEX;
+    }
+//     qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
+    if(m_BoundaryCodes.isEmpty()) {
+      EG_BUG;
+    }
+    if(fix_unselected) {
+      if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {
+        edge = VTK_FIXED_VERTEX;// does not make sense, but should make the points of the edge fixed
+      }
     }
   }
 
@@ -496,11 +504,11 @@ double SurfaceOperation::DesiredVertexAvgDist( vtkIdType id_node )
 
   double total_dist = 0;
   double avg_dist = 0;
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_dist += 1. / node_meshdensity_desired->GetValue( id_node_neighbour );
+    total_dist += 1. / characteristic_length_desired->GetValue( id_node_neighbour );
   }
   avg_dist = total_dist / ( double )N;
   return( avg_dist );
@@ -514,11 +522,11 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 
   double total_density = 0;
   double avg_density = 0;
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_density += node_meshdensity_desired->GetValue( id_node_neighbour );
+    total_density += characteristic_length_desired->GetValue( id_node_neighbour );
   }
   avg_density = total_density / ( double )N;
   return( avg_density );
@@ -534,8 +542,8 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 /// desired edge length for id_node
 double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
 {
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_desired, grid, "node_meshdensity_desired" );
-  return( 1.0 / node_meshdensity_desired->GetValue( id_node ) );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  return( 1.0 / characteristic_length_desired->GetValue( id_node ) );
 }
 
 //other functions
@@ -677,15 +685,8 @@ vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
 {
-  if ( id_node < 0 || id_node >= m_PotentialSnapPoints.size() ) EG_BUG;
+  if ((id_node < 0) || (id_node >= m_PotentialSnapPoints.size())) {
+    EG_BUG;
+  }
   return m_PotentialSnapPoints[id_node];
 }
-
-// bool SurfaceOperation::DeletePoint( vtkIdType DeadNode, int& num_newpoints, int& num_newcells )
-// {
-//   QSet <vtkIdType> DeadNodes;
-//   DeadNodes.insert( DeadNode );
-//   bool ret = DeleteSetOfPoints( DeadNodes, num_newpoints, num_newcells );
-//   return( ret );
-// }
-// //End of DeletePoint

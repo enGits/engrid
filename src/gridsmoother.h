@@ -41,6 +41,14 @@ private: // attributes
   QVector<bool> node_marked;
   int N_marked_nodes;
   bool dbg;
+
+private: // data types
+
+  struct edge_t
+  {
+    vtkIdType n1, n2;
+    bool operator==(const edge_t &e) { return n1 == e.n1 && n2 == e.n2; }
+  };
   
 protected: // attributes
   
@@ -55,19 +63,31 @@ protected: // attributes
   double F_max_old;
   double F_max_new;
   
-  double w_tet;
-  double w_tet_save;
-  double w_h;
-  double w_par;
-  double w_n;
-  double w_A;
-  double w_skew;
-  double w_orth;
-  double w_sharp1;
-  double e_sharp1;
-  double w_sharp2;
-  double e_sharp2;
-  double H;
+  double m_MaxRelLength;
+  double m_RelativeHeight;
+  double m_CritAngle;
+
+  ErrorFunction m_HeightError;
+  ErrorFunction m_TetraError;
+  ErrorFunction m_ParallelEdgesError;
+  ErrorFunction m_ParallelFacesError;
+  ErrorFunction m_SharpNodesError;
+  ErrorFunction m_SharpEdgesError;
+  ErrorFunction m_SimilarFaceAreaError;
+  ErrorFunction m_EdgeLengthError;
+  ErrorFunction m_EdgeDirectionError;
+  ErrorFunction m_FeatureLineError;
+
+  QVector<QSet<int> > m_Node2BC;
+  QVector<vtkIdType> m_FootToField;
+  QVector<bool> m_IsSharpNode;
+  QVector<bool> m_IsTripleNode;
+  MeshPartition m_BPart;
+
+  double m_UnderRelaxation;
+
+  bool m_StrictPrismChecking;
+  bool m_SimpleOperation;
   
   struct stencil_node_t {
     vec3_t x;
@@ -78,6 +98,10 @@ protected: // attributes
   double sum_C;
   int i_nodes_opt;
   QList<stencil_node_t> stencil;
+
+  QVector<vtkIdType> m_IdFoot;
+  QVector<double> m_L;
+  QVector<vec3_t> m_NodeNormal;
   
 protected: // methods
   
@@ -85,15 +109,21 @@ protected: // methods
   virtual double func(vec3_t x);
   
   double errThickness(double x);
-  
+  double errLimit(double x);
+
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
   void resetStencil();
   void addToStencil(double C, vec3_t x);
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
-  void setPrismWeighting() { w_tet_save = w_tet; w_tet = 0; };
-  void setAllWeighting() { w_tet = w_tet_save; };
+  void computeNormals();
+  void computeFeet();
+  void writeErrorToFile(QTextStream &f, ErrorFunction &err);
+  double tetraError(vtkIdType id_cell);
+
+  void operateOptimisation();
+  void operateSimple();
     
 public: // methods
   
@@ -101,12 +131,18 @@ public: // methods
   void setNumIterations         (int N) { N_iterations  = N; };
   void setNumRelaxations        (int N) { N_relaxations = N; };
   void setNumBoundaryCorrections(int N) { N_boundary_corrections = N; };
-  
-  void prismsOn() { smooth_prisms = true; };
-  void prismsOff() { smooth_prisms = false; };
-  
+  void setRelativeHeight        (double h) { m_RelativeHeight = h; }
+
+  void prismsOn() { smooth_prisms = true; }
+  void prismsOff() { smooth_prisms = false; }
+  void simpleOn() { m_SimpleOperation = true; }
+  void simpleOff() { m_SimpleOperation = false; }
+
   double improvement();
-  
+  double lastTotalError() { return F_new; }
+  void   printMaxErrors();
+  void   writeDebugFile(QString file_name);
+
 };
 
 

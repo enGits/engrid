@@ -56,7 +56,7 @@ bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2
 
 void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<vec3_t> > &Tout);
 
-double tetraVol(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, bool neg = false);
+double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg = false);
 
 double pyraVol(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5, bool neg = false);
 

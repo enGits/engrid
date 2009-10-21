@@ -26,9 +26,13 @@
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include <vtkSTLReader.h>
 #include <vtkCleanPolyData.h>
+#include <vtkFeatureEdges.h>
 
 #include <QFileInfo>
+#include <QInputDialog>
+
 #include "guimainwindow.h"
+#include "fixcadgeometry.h"
 
 StlReader::StlReader()
 {
@@ -62,10 +66,36 @@ void StlReader::operate()
         L = min(L, (x1-x2).abs());
       };
     };
+    double tol = 1e-10;//0.01*L;
+    tol = QInputDialog::getText(NULL, "enter STL tolerance", "tolerance", QLineEdit::Normal, "1e-10").toDouble();
+    cout << "cleaning STL geometry:" << endl;
     EG_VTKSP(vtkCleanPolyData, poly_clean);
+    EG_VTKSP(vtkFeatureEdges, topo_check);
+    double bounds[6];
+    poly->GetBounds(bounds);
     poly_clean->ToleranceIsAbsoluteOn();
-    poly_clean->SetAbsoluteTolerance(0.5*L);
+    poly_clean->ConvertLinesToPointsOn();
+    poly_clean->ConvertPolysToLinesOn();
     poly_clean->SetInput(poly);
+    topo_check->SetInput(poly_clean->GetOutput());
+    topo_check->BoundaryEdgesOn();
+    topo_check->ManifoldEdgesOff();
+    topo_check->FeatureEdgesOff();
+    topo_check->NonManifoldEdgesOn();
+    bool check_passed;
+    do {
+      cout << "  tolerance = " << tol << endl;
+      poly_clean->SetAbsoluteTolerance(tol);
+      topo_check->Update();
+      tol *= 1.5;
+      check_passed = topo_check->GetOutput()->GetNumberOfPoints() == 0;
+    } while (tol < 1 && !check_passed);
+    if (check_passed) {
+      cout << "The STL geometry seems to be clean." << endl;
+    } else {
+      cout << "The STL geometry could not be cleaned." << endl;
+    }
+    // with a tolerance of " << 0.5*L << endl;
     EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, poly2ugrid);
     poly2ugrid->SetInput(poly_clean->GetOutput());
     poly2ugrid->Update();
@@ -93,9 +123,17 @@ void StlReader::operate()
       voldir->SetValue(id_cell, 0);
       curdir->SetValue(id_cell, 0);
     };
-    CorrectSurfaceOrientation corr_surf;
-    corr_surf.setGrid(grid);
-    corr_surf();
+    if (check_passed) {
+      CorrectSurfaceOrientation corr_surf;
+      corr_surf.setGrid(grid);
+      corr_surf();
+      FixCadGeometry cad_fix;
+      cad_fix.setGrid(grid);
+      cad_fix();
+    }
     
   };
+  
+  
+  
 };

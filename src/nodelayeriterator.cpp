@@ -25,7 +25,7 @@
 void NodeLayerIterator::operate()
 {
   getCells();
-  getSurfaceCells(boundary_codes, surface_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, surface_cells, grid);
   getNodesFromCells(surface_cells, surf_nodes, grid);
   createNodeMapping(surf_nodes, _surf_nodes, grid);
   mark2.fill(false, nodes.size());

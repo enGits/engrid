@@ -31,17 +31,19 @@ using namespace GeometryTools;
 
 SwapTriangles::SwapTriangles() : SurfaceOperation()
 {
-  m_RespectBC   = false;
+  m_RespectBC = false;
   m_FeatureSwap = false;
+  m_FeatureAngle = GeometryTools::deg2rad(30);
+  m_MaxNumLoops = 20;
+  m_SmallAreaSwap = false;
+  m_SmallAreaRatio = 1e-3;
+  getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
 }
 
 void SwapTriangles::operate()
 {
-  //cout << "swapping edges of boundary triangles (Delaunay)" << endl;
-  
   static int nStatic_SwapTriangles;    // Value of nStatic_SwapTriangles is retained between each function call
   nStatic_SwapTriangles++;
-  //cout << "nStatic_SwapTriangles is " << nStatic_SwapTriangles << endl;
   
   int N_swaps;
   int N_total = 0;
@@ -56,7 +58,7 @@ void SwapTriangles::operate()
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
-      if (!boundary_codes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
+      if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
         if (!l_marked[_cells[id_cell]]) {
           for (int j = 0; j < 3; ++j) {
             bool swap = false;
@@ -72,7 +74,12 @@ void SwapTriangles::operate()
                   }
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
-                  if ( m_FeatureSwap || (n1*n2) > 0.8*n1.abs()*n2.abs() ) {
+                  
+                  bool force_swap = false;
+                  if (m_SmallAreaSwap) {
+                    force_swap = n1.abs() < m_SmallAreaRatio*n2.abs() || n2.abs() < m_SmallAreaRatio*n1.abs();
+                  }
+                  if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
                     if(testSwap(S)) {
                       vec3_t n = n1 + n2;
                       n.normalise();
@@ -146,35 +153,55 @@ void SwapTriangles::operate()
       } //end of if selected triangle
     } //end of loop through cells
     ++loop;
-  } while ((N_swaps > 0) && (loop <= 20));
+  } while ((N_swaps > 0) && (loop <= m_MaxNumLoops));
   //cout << N_total << " triangles have been swapped" << endl;
 }
 
 bool SwapTriangles::testSwap(stencil_t S)
 {
-  //old triangles
-  vec3_t n1_old=triNormal(grid,S.p[0],S.p[1],S.p[3]);
-  vec3_t n2_old=triNormal(grid,S.p[2],S.p[3],S.p[1]);
+  // old triangles
+  vec3_t n1_old = triNormal(grid, S.p[0], S.p[1], S.p[3]);
+  vec3_t n2_old = triNormal(grid, S.p[2], S.p[3], S.p[1]);
   
-  //new triangles
-  vec3_t n1_new=triNormal(grid,S.p[1],S.p[2],S.p[0]);
-  vec3_t n2_new=triNormal(grid,S.p[3],S.p[0],S.p[2]);
+  // new triangles
+  vec3_t n1_new = triNormal(grid, S.p[1], S.p[2], S.p[0]);
+  vec3_t n2_new = triNormal(grid, S.p[3], S.p[0], S.p[2]);
   
-  //top point
-  vec3_t Summit=n1_old+n2_old;
-  vec3_t M[4];
+  // top point
+  vec3_t x_summit(0,0,0);
+  vec3_t x[4];
+  double l_max = 0;
   for (int k = 0; k < 4; ++k) {
-    grid->GetPoints()->GetPoint(S.p[k], M[k].data());
+    grid->GetPoints()->GetPoint(S.p[k], x[k].data());
+    x_summit += x[k];
   }
-  
-  //old volumes
-  double V1_old=tetraVol(M[0], Summit, M[1], M[3], true);
-  double V2_old=tetraVol(M[2], Summit, M[3], M[1], true);
-  //new volumes
-  double V1_new=tetraVol(M[1], Summit, M[2], M[0], true);
-  double V2_new=tetraVol(M[3], Summit, M[0], M[2], true);
+  for (int k = 0; k < 4; ++k) {
+    int i = k;
+    int j = k + 1;
+    if (j == 4) {
+      j = 0;
+    }
+    l_max = max(l_max, (x[i]-x[j]).abs());
+  }
+  x_summit *= 0.25;
+  vec3_t n = n1_old + n2_old;
+  n.normalise();
+  x_summit += 3*l_max*n;
 
-  return(V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0 );
+  // old volumes
+  double V1_old = tetraVol(x[0], x[1], x[3], x_summit, true);
+  double V2_old = tetraVol(x[2], x[3], x[1], x_summit, true);
+  // new volumes
+  double V1_new = tetraVol(x[1], x[2], x[0], x_summit, true);
+  double V2_new = tetraVol(x[3], x[0], x[2], x_summit, true);
+
+  bool swap_ok = false;
+  if (m_SmallAreaSwap) {
+     swap_ok = V1_new>0 && V2_new>0;
+  } else {
+     swap_ok = V1_old>0 && V2_old>0 && V1_new>0 && V2_new>0;
+  }
+  return swap_ok;
 }
 
 bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)

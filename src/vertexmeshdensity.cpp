@@ -27,6 +27,8 @@ using namespace std;
 
 VertexMeshDensity::VertexMeshDensity()
 {
+  type = VTK_SIMPLE_VERTEX;
+  CurrentNode = 0;
 }
 
 //this=user defined
@@ -52,6 +54,27 @@ bool VertexMeshDensity::operator==(const VertexMeshDensity & VMD) const
     
     return(true);
   }
+}
+
+int VertexMeshDensity::findSmallestVMD( QVector <VertexMeshDensity> vector)
+{
+  int ret = -1;
+  double Lmin = 0;
+  bool first = true;
+  for(int i=0;i<vector.size();i++){
+    if(vector[i]==*this) {
+      if(first) {
+        ret = i;
+        Lmin = vector[i].density;
+        first = false;
+      }
+      else if(vector[i].density < Lmin) {
+        ret = i;
+        Lmin = vector[i].density;
+      }
+    }
+  }
+  return(ret);
 }
 
 //converts string to nodeset

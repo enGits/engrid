@@ -99,6 +99,7 @@ void EgVtkObject::createNodeToBcMapping
   vtkUnstructuredGrid  *grid
 )
 {
+  EG_BUG;
   bcs.fill(QSet<int>(), grid->GetNumberOfPoints());
   grid->BuildLinks();
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -880,7 +881,7 @@ void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
   }
 }
 
-int EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
+vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
 {
   vtkIdType N_pts, *pts;
   if (_cells.size()) N_pts = N_pts; // dummy statement to get rid of compiler warning ...
@@ -906,12 +907,14 @@ int EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2
   return id_vol;
 }
 
+///@@@ TODO: Why not simply use boundary_codes = bcs ?
+//WARNING: Do never call this->setBoundaryCodes(this->m_BoundaryCodes) as this will empty m_BoundaryCodes!!!
 void EgVtkObject::setBoundaryCodes(const QSet<int> &bcs)
 {
-  boundary_codes.clear();
+  m_BoundaryCodes.clear();
   int bc;
   foreach(bc, bcs) {
-    boundary_codes.insert(bc);
+    m_BoundaryCodes.insert(bc);
   }
 }
 
@@ -969,12 +972,12 @@ int EgVtkObject::getSet(QString group, QString key, int value, int& variable)
 {
   QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "int/" + key;
-  qset->beginGroup(group);
+  if(group!=QObject::tr("General")) qset->beginGroup(group);
   //if key=value pair not found in settings file, write it
   if (!qset->contains(typed_key)) qset->setValue(typed_key,value);
   //read key value from settings file and assign it to variable
   variable = (qset->value(typed_key,variable)).toInt();
-  qset->endGroup();
+  if(group!=QObject::tr("General")) qset->endGroup();
   return(variable);
 }
 
@@ -982,12 +985,12 @@ double EgVtkObject::getSet(QString group, QString key, double value, double& var
 {
   QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "double/" + key;
-  qset->beginGroup(group);
+  if(group!=QObject::tr("General")) qset->beginGroup(group);
   //if key=value pair not found in settings file, write it
   if (!qset->contains(typed_key)) qset->setValue(typed_key,value);
   //read key value from settings file and assign it to variable
   variable = (qset->value(typed_key,variable)).toDouble();
-  qset->endGroup();
+  if(group!=QObject::tr("General")) qset->endGroup();
   return(variable);
 }
 
@@ -995,13 +998,36 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
 {
   QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "bool/" + key;
-  qset->beginGroup(group);
+  if(group!=QObject::tr("General")) qset->beginGroup(group);
   Qt::CheckState state = (Qt::CheckState) ( value ? 2 : 0 );
   //if key=value pair not found in settings file, write it
   if (!qset->contains(typed_key)) qset->setValue(typed_key,state);
   //read key value from settings file and assign it to variable
   variable = (qset->value(typed_key,variable)).toBool();
-  qset->endGroup();
+  if(group!=QObject::tr("General")) qset->endGroup();
+  return(variable);
+}
+
+QString EgVtkObject::getSet(QString group, QString key, QString value, QString& variable)
+{
+  QSettings *qset = GuiMainWindow::settings();
+  QString typed_key = "string/" + key;
+  if (group != QObject::tr("General")) {
+    qset->beginGroup(group);
+  }
+
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) {
+    qset->setValue(typed_key, value);
+  }
+
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key,variable)).toString();
+
+  if (group != QObject::tr("General")) {
+    qset->endGroup();
+  }
+
   return(variable);
 }
 

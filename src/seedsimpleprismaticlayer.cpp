@@ -211,7 +211,7 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
               } else if (cell_voldir->GetValue(bcells[i_bcells]) != vol_dir) {
                 EG_BUG;
               }
-              if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
+              if (!m_BoundaryCodes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc1.insert(cell_code->GetValue(bcells[i_bcells]));
               }
             }
@@ -236,7 +236,7 @@ void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_g
 /*              if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc1.insert(cell_code->GetValue(bcells[i_bcells]));
               }*/
-              if (!boundary_codes.contains(cell_code->GetValue(bcells[i_bcells]))) {
+              if (!m_BoundaryCodes.contains(cell_code->GetValue(bcells[i_bcells]))) {
                 bc2.insert(cell_code->GetValue(bcells[i_bcells]));
               }
             }
@@ -342,7 +342,7 @@ void SeedSimplePrismaticLayer::operate()
       for (int i_boundary_correction = 0; i_boundary_correction < 20; ++i_boundary_correction) {
         foreach (vtkIdType id_cell, n2c[_nodes[id_node]]) {
           if (isSurface(id_cell, grid)) {
-            if (!boundary_codes.contains(bc->GetValue(id_cell))) {
+            if (!m_BoundaryCodes.contains(bc->GetValue(id_cell))) {
               double A = GeometryTools::cellVA(grid, id_cell);
               if (A > 1e-60) {
                 vec3_t nf = GeometryTools::cellNormal(grid, id_cell);

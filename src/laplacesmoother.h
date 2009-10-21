@@ -31,15 +31,33 @@ class LaplaceSmoother : public SurfaceOperation
 
 private:
 
-  QSet<int>         m_BCs;
-  int               m_NumberOfIterations;
+  QSet<int> m_BCs;
+  int       m_NumberOfIterations;
+  bool      m_UseProjection;
+  bool      m_UseNormalCorrection;
+  double    m_UnderRelaxation;
+  bool      m_Success;
+
+  QVector<QVector<int> > m_NodeToBc;
+
+
+private: // methods
+
+  bool setNewPosition(vtkIdType id_node, vec3_t x_new);
+  bool moveNode(vtkIdType id_node, vec3_t &Dx);
+
 
 public:
 
   LaplaceSmoother();
   virtual void operate();
   void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
-  
+  void setProjectionOn() { m_UseProjection = true; }
+  void setProjectionOff() { m_UseProjection = false; }
+  void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
+  void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
+  bool succeeded() { return m_Success; }
+
 };
 
 #endif

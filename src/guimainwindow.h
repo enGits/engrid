@@ -62,6 +62,7 @@ class GuiMainWindow;
 #include "guitransform.h"
 #include "openfoamtools.h"
 #include "std_includes.h"
+#include "fixcadgeometry.h"
 
 /**
  * This is the main GUI class of enGrid.
@@ -142,7 +143,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
-    QStatusBar*  m_StatusBar;            ///< Status bar of the main window and application
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
     QSet<int>    m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
     QSet<int>    m_AllBoundaryCodes;     ///< A QList with all boundary codes.
@@ -330,7 +330,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
   
-    SurfaceProjection* getSurfProj( int bc );
+    SurfaceProjection* getSurfProj(int bc);
+    bool checkSurfProj();
 
   public slots:
 
@@ -425,7 +426,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSetBoundaryCode()  { EG_STDINTERSLOT( GuiSetBoundaryCode ); }
     void callDeleteBadAspectTris() { EG_STDINTERSLOT( GuiDeleteBadAspectTris ); }
     void callDeletePickedCell() { EG_STDSLOT( DeletePickedCell ); }
-    void callDeletePickedPoint() { EG_STDINTERSLOT( DeletePickedPoint ); }
+    void callDeletePickedPoint();
     void callBoxSelect() { EG_STDINTERSLOT( BoxSelect ); }
     void callCheckSurfaceIntegrity() { EG_STDINTERSLOT( CheckSurfaceIntegrity ); }
     void callPick_cell_point() { EG_STDINTERSLOT( GuiPick ); }
@@ -435,13 +436,21 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     
     void callFixSTL();
 
-    void callFoamWriter()       { EG_STDINTERSLOT( FoamWriter ); }
-    void callSimpleFoamWriter() { EG_STDINTERSLOT( SimpleFoamWriter ); }
-    void callFoamCaseWriter()   { EG_STDINTERSLOT( OpenFOAMcase ); }
-    void callCgnsWriter()       { EG_STDINTERSLOT( CgnsWriter ); }
-    void callVtkReader()        { EG_STDREADERSLOT( VtkReader ); }
-    void callPolyDataReader()   { EG_STDREADERSLOT( PolyDataReader ); }
+    void callFoamWriter()                 { EG_STDINTERSLOT( FoamWriter ); }
+    void callSimpleFoamWriter()           { EG_STDINTERSLOT( SimpleFoamWriter ); }
+    void callFoamCaseWriter()             { EG_STDINTERSLOT( OpenFOAMcase ); }
+    void callCgnsWriter()                 { EG_STDINTERSLOT( CgnsWriter ); }
+    void callVtkReader()                  { EG_STDREADERSLOT( VtkReader ); }
+    void callBlenderReader()              { EG_STDREADERSLOT( BlenderReader ); }
+    void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
+    void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
+    void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
+    void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
+    void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
+    void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
+    void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
+    void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 };
 
 #endif

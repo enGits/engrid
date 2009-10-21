@@ -61,10 +61,13 @@ public:
   
   QString current_filename;
   
-  int readSettings();
-  int writeSettings();
   int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
   int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
+
+public slots:
+
+  int readSettings();
+  int writeSettings();
 
 };
 

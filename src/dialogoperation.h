@@ -173,7 +173,9 @@ void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
   sel.clear();
   for (int i = 0; i < lw->count(); ++i) {
     if (lw->item(i)->checkState() == Qt::Checked) {
-      int item = lw->item(i)->text().toInt();
+      QString item_txt = lw->item(i)->text();
+      QStringList items = item_txt.split(":");
+      int item = items[0].toInt(); ///@@@ UiUiUi
       sel.insert(item);
     }
   }

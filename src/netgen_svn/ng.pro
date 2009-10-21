@@ -1,9 +1,29 @@
-TEMPLATE     = lib
+QT       -= gui
+
+win32 {
+	TARGET = superman
+}
+
+TEMPLATE = lib
+CONFIG += staticlib
+
 LANGUAGE     = C++
-CONFIG      += release staticlib warn_off
-INCLUDEPATH += netgen-mesher/netgen/libsrc/include 
+CONFIG      += release warn_off
+INCLUDEPATH += netgen-mesher/netgen/libsrc/include
 INCLUDEPATH += .
 DEFINES     += NO_PARALLEL_THREADS
+DEFINES     += NGLIB_EXPORTS
+DEFINES     += DLL_EXPORT
+DEFINES     += vtkRendering_EXPORTS
+#DEFINES     += PIC
+#DEFINES     += HAVE_CONFIG_H
+
+#PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
+#PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
+#PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
+#PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
+#PreprocessorDefinitions="WNT;WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;OCCGEOMETRY;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
+#PreprocessorDefinitions="WNT;WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;OCCGEOMETRY;_OCC64;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
 
 SOURCES  = \
 netgen-mesher/netgen/nglib/nglib.cpp \
@@ -57,7 +77,7 @@ netgen-mesher/netgen/libsrc/gprim/transform3d.cpp \
 netgen-mesher/netgen/libsrc/gprim/geomfuncs.cpp \
 netgen-mesher/netgen/libsrc/linalg/polynomial.cpp \
 netgen-mesher/netgen/libsrc/linalg/densemat.cpp \
-netgen-mesher/netgen/libsrc/linalg/vector.cpp \
+#netgen-mesher/netgen/libsrc/linalg/vector.cpp \
 netgen-mesher/netgen/libsrc/linalg/linopt.cpp \
 netgen-mesher/netgen/libsrc/linalg/bfgs.cpp \
 netgen-mesher/netgen/libsrc/linalg/linsearch.cpp \
@@ -94,7 +114,7 @@ netgen-mesher/netgen/libsrc/stlgeom/stltool.cpp \
 netgen-mesher/netgen/libsrc/stlgeom/stlgeom.cpp \
 netgen-mesher/netgen/libsrc/stlgeom/stlgeomchart.cpp \
 netgen-mesher/netgen/libsrc/stlgeom/stlgeommesh.cpp \
-netgen-mesher/netgen/libsrc/general/moveablemem.cpp \
+netgen-mesher/netgen/libsrc/general/dynamicmem.cpp \
 netgen-mesher/netgen/libsrc/general/ngexception.cpp \
 netgen-mesher/netgen/libsrc/general/table.cpp \
 netgen-mesher/netgen/libsrc/general/optmem.cpp \

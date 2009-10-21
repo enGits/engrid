@@ -33,33 +33,181 @@ GridSmoother::GridSmoother()
   N_relaxations = 5;
   N_boundary_corrections = 20;
   N_search = 10;
-  L_search = 0.5;
+  L_search = 0.05;
   smooth_prisms = true;
   dbg = false;
   F_old = 0;
   F_new = 0;
   
-  getSet("boundary layer", "tetra weighting", 1.0, w_tet);
-  getSet("boundary layer", "layer height weighting", 1.0, w_h);
-  getSet("boundary layer", "parallel edges weighting", 3.0, w_par);
-  getSet("boundary layer", "parallel faces weighting", 5.0, w_n);
-  getSet("boundary layer", "similar face area weighting", 5.0, w_A);
-  getSet("boundary layer", "skewness weighting", 0.0, w_skew);
-  getSet("boundary layer", "orthogonality weighting", 0.0, w_orth);
-  getSet("boundary layer", "sharp features on nodes weighting", 8.0, w_sharp1);
-  getSet("boundary layer", "sharp features on nodes exponent", 2.0, e_sharp1);
-  getSet("boundary layer", "sharp features on edges weighting", 3.0, w_sharp2);
-  getSet("boundary layer", "sharp features on edges exponent", 1.3, e_sharp2);
-  getSet("boundary layer", "relative height of boundary layer", 1.5, H);
+  getSet("boundary layer", "relative height of boundary layer", 0.75, m_RelativeHeight);
+  getSet("boundary layer", "under relaxation",                  1.00, m_UnderRelaxation);
+  getSet("boundary layer", "maximal relative edge length",      1.50, m_MaxRelLength);
+  getSet("boundary layer", "angle for sharp features",         90.00, m_CritAngle);
+  m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
+
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
-  
+  getSet("boundary layer", "use strict prism checking", true, m_StrictPrismChecking);
+
+  getErrSet("boundary layer", "layer height error",      200.0,  2.0, 2.0, 0.10, m_HeightError);
+  getErrSet("boundary layer", "edge length error" ,      200.0,  0.1, 2.0, 0.10, m_EdgeLengthError);
+  getErrSet("boundary layer", "edge direction error" ,     0.0,  0.0, 2.0, 0.00, m_EdgeDirectionError);
+  getErrSet("boundary layer", "tetra error",              50.0,  0.1, 2.0, 0.05, m_TetraError);
+  getErrSet("boundary layer", "parallel edges error",      1.0, 10.0, 2.0, 0.00, m_ParallelEdgesError);
+  getErrSet("boundary layer", "parallel faces error",      1.0, 20.0, 2.0, 0.00, m_ParallelFacesError);
+  getErrSet("boundary layer", "sharp nodes error",         0.0,  0.0, 2.0, 0.00, m_SharpNodesError);
+  getErrSet("boundary layer", "sharp edges error",         0.0,  0.0, 2.0, 0.00, m_SharpEdgesError);
+  getErrSet("boundary layer", "similar face area error",   0.0,  1.0, 2.0, 0.00, m_SimilarFaceAreaError);
+  getErrSet("boundary layer", "feature line error",        0.0,  0.0, 2.0, 0.00, m_FeatureLineError);
+
+  m_SimpleOperation = false;
+}
+
+void GridSmoother::computeNormals()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  m_NodeNormal.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    QSet<int> bcs;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (isSurface(id_cell, grid)) {
+        int bc = cell_code->GetValue(id_cell);
+        if (m_BoundaryCodes.contains(bc)) {
+          bcs.insert(bc);
+        }
+      }
+    }
+    int num_bcs = bcs.size();
+    QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
+    QMap<int,int> bcmap;
+    int i_bc = 0;
+    foreach (int bc, bcs) {
+      bcmap[bc] = i_bc;
+      ++i_bc;
+    }
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (isSurface(id_cell, grid)) {
+        int bc = cell_code->GetValue(id_cell);
+        if (m_BoundaryCodes.contains(bc)) {
+          vtkIdType N_pts, *pts;
+          grid->GetCellPoints(id_cell, N_pts, pts);
+          vec3_t a, b, c;
+          for (int j = 0; j < N_pts; ++j) {
+            if (pts[j] == id_node) {
+              grid->GetPoint(pts[j], a.data());
+              if (j > 0) {
+                grid->GetPoint(pts[j-1], b.data());
+              } else {
+                grid->GetPoint(pts[N_pts-1], b.data());
+              }
+              if (j < N_pts - 1) {
+                grid->GetPoint(pts[j+1], c.data());
+              } else {
+                grid->GetPoint(pts[0], c.data());
+              }
+            }
+          }
+          vec3_t u = b - a;
+          vec3_t v = c - a;
+          double alpha = GeometryTools::angle(u, v);
+          vec3_t n = u.cross(v);
+          n.normalise();
+          normal[bcmap[bc]] += alpha*n;
+        }
+      }
+    }
+    for (int i = 0; i < num_bcs; ++i) {
+      normal[i].normalise();
+    }
+    if (num_bcs > 0) {
+      if (num_bcs > 1) {
+        for (int i = 0; i < num_bcs; ++i) {
+          for (int j = i + 1; j < num_bcs; ++j) {
+            vec3_t n = normal[i] + normal[j];
+            n.normalise();
+            m_NodeNormal[id_node] += n;
+          }
+        }
+      } else {
+        m_NodeNormal[id_node] = normal[0];
+      }
+      m_NodeNormal[id_node].normalise();
+    }
+  }
+  m_IsSharpNode.fill(false, grid->GetNumberOfPoints());
+  for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
+    vtkIdType id_cell1 = m_Part.globalCell(i);
+    if (isSurface(id_cell1, grid)) {
+      if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell1))) {
+        vec3_t n1 = cellNormal(grid, id_cell1);
+        n1.normalise();
+        vtkIdType N_pts, *pts;
+        grid->GetCellPoints(id_cell1, N_pts, pts);
+        for (int j = 0; j < m_Part.c2cLSize(i); ++j) {
+          vtkIdType id_cell2 = m_Part.c2cLG(i, j);
+          if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell2))) {
+            vec3_t n2 = cellNormal(grid, id_cell2);
+            n2.normalise();
+            if (GeometryTools::angle(n1, n2) > m_CritAngle) {
+              vtkIdType id_node1 = pts[j];
+              vtkIdType id_node2 = pts[0];
+              if (j < m_Part.c2cLSize(i) - 1) {
+                id_node2 = pts[j+1];
+              }
+              m_IsSharpNode[id_node1] = true;
+              m_IsSharpNode[id_node2] = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  m_IsTripleNode.fill(false, grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    if (m_IsSharpNode[id_node]) {
+      QVector<vec3_t> normals;
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, grid)) {
+          if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell))) {
+            vec3_t n = cellNormal(grid, id_cell);
+            n.normalise();
+            normals.push_back(n);
+          }
+        }
+      }
+      int N = 0;
+      foreach (vec3_t n1, normals) {
+        foreach (vec3_t n2, normals) {
+          if (GeometryTools::angle(n1, n2) > m_CritAngle) {
+            ++N;
+          }
+        }
+      }
+    }
+  }
+}
+
+void GridSmoother::computeFeet()
+{
+  m_IdFoot.fill(-1, grid->GetNumberOfPoints());
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_IdFoot[pts[3]] = pts[0];
+      m_IdFoot[pts[4]] = pts[1];
+      m_IdFoot[pts[5]] = pts[2];
+    }
+  }
 }
 
 void GridSmoother::markNodes()
 {
   node_marked.fill(false,grid->GetNumberOfPoints());
   QVector<bool> new_mark(grid->GetNumberOfPoints());
-  for (int i_iterations = 0; i_iterations < 2; ++i_iterations) {
+  for (int i_iterations = 0; i_iterations < 4; ++i_iterations) {
     qCopy(node_marked.begin(),node_marked.end(),new_mark.begin());
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
       bool mark_cell = false;
@@ -103,41 +251,45 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   grid->GetPoints()->SetPoint(id_node, x_new.data());
   bool move = true;
   Elements E;
-
-  l2g_t cells = getPartCells();
-  l2l_t n2c   = getPartN2C();
-
-  foreach (int i_cells, n2c[id_node]) {
-    vtkIdType id_cell = cells[i_cells];
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if (type_cell == VTK_TETRA) {
-      if (GeometryTools::cellVA(grid, id_cell) < 0) {
-        move = false;
-        //if (dbg) cout << id_node << " : tetra negative" << endl;
+  if (move) {
+    l2g_t cells = getPartCells();
+    l2l_t n2c   = getPartN2C();
+    foreach (int i_cells, n2c[id_node]) {
+      vtkIdType id_cell = cells[i_cells];
+      vtkIdType type_cell = grid->GetCellType(id_cell);
+      if (type_cell == VTK_TETRA) {
+        if (GeometryTools::cellVA(grid, id_cell) < 0) {
+          move = false;
+        }
+        /*
+        if (tetraError(id_cell) > 0.95) {
+          move = false;
+        }
+        */
       }
-    }
-    if (type_cell == VTK_WEDGE) {
-      vtkIdType N_pts, *pts;
-      vec3_t xtet[4];
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      bool ok = true;
-      for (int i = 0; i < 4; ++i) {     // variation
-        ok = true;
-        for (int j = 0; j < 3; ++j) {   // tetrahedron
-          for (int k = 0; k < 4; ++k) { // node
-            grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
+      if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
+        vtkIdType N_pts, *pts;
+        vec3_t xtet[4];
+        grid->GetCellPoints(id_cell, N_pts, pts);
+        bool ok = true;
+        for (int i = 0; i < 4; ++i) {     // variation
+          ok = true;
+          for (int j = 0; j < 3; ++j) {   // tetrahedron
+            for (int k = 0; k < 4; ++k) { // node
+              grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
+            }
+            if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
+              ok = false;
+              //if (dbg) cout << id_node << " : prism negative" << endl;
+            }
           }
-          if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
-            ok = false;
-            //if (dbg) cout << id_node << " : prism negative" << endl;
+          if (ok) {
+            break;
           }
         }
-        if (ok) {
-          break;
+        if (!ok) {
+          move = false;
         }
-      }
-      if (!ok) {
-        move = false;
       }
     }
   }
@@ -149,8 +301,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 {
-  QVector<vtkIdType> nodes = m_Part.getNodes();
-  QVector<QVector<int> > n2c = m_Part.getN2C();
+  l2g_t nodes = m_Part.getNodes();
+  l2l_t n2c   = m_Part.getN2C();
 
   for (int i_boundary_correction = 0; i_boundary_correction < N_boundary_corrections; ++i_boundary_correction) {
     foreach (vtkIdType id_cell, n2c[i_nodes]) {
@@ -202,47 +354,61 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
   grid->GetPoint(id_node, x_old.data());
+
+  if (m_IdFoot[id_node] != -1) {
+    vec3_t x_foot;
+    grid->GetPoint(m_IdFoot[id_node], x_foot.data());
+    Dx += x_old - x_foot;
+    if (Dx.abs() > m_MaxRelLength*m_L[id_node]) {
+      Dx.normalise();
+      Dx *= m_MaxRelLength*m_L[id_node];
+    }
+    Dx -= x_old - x_foot;
+  }
+
   bool moved = false;
   for (int i_relaxation = 0; i_relaxation < N_relaxations; ++i_relaxation) {
     if (setNewPosition(id_node, x_old + Dx)) {
       moved = true;
       break;
     }
-    Dx *= 0.5;
+    Dx *= 0.1;
   }
   return moved;
 }
 
-double GridSmoother::errThickness(double x) 
+double GridSmoother::tetraError(vtkIdType id_cell)
 {
-  /*
-  double X[5], Y[5];
-  X[0] = 0.0; Y[0] = 10000;
-  X[1] = 0.1; Y[1] = 1.0;
-  X[2] = 1.0; Y[2] = 0.0;
-  X[3] = 2.0; Y[3] = 1.0;
-  X[4] = 3.0; Y[4] = 2.0;
-  int i = 0;
-  while ((i < 3) && (x > X[i+1])) ++i;
-  double err = Y[i] + (x-X[i])*(Y[i+1]-Y[i])/(X[i+1]-X[i]);
-  if (err < 0) {
-    cout << x << ',' << err <<endl;
-    cout << i << endl;
-    cout << (x-X[i]) << endl;
-    cout << (X[i+1]-X[i]) << endl;
-    cout << (Y[i+1]-Y[i]) << endl;
-    EG_BUG;
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  QVector<vec3_t> xn(N_pts);
+  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+    grid->GetPoint(pts[i_pts],xn[i_pts].data());
   }
-  */
-  
-  if (x > 1) x = 2 - x;
-  double delta = 0.01;
-  double a     = 5.0;
-  double err   = 0;
-  if      (x < 0) err = 1.0/delta - 1.0/(a+delta);
-  else if (x < 1) err = 1/(a*x+delta) - 1.0/(a+delta);
-    
-  return err;
+  double L = 0;
+  L = max(L, (xn[0]-xn[1]).abs());
+  L = max(L, (xn[0]-xn[2]).abs());
+  L = max(L, (xn[0]-xn[3]).abs());
+  L = max(L, (xn[1]-xn[2]).abs());
+  L = max(L, (xn[1]-xn[3]).abs());
+  L = max(L, (xn[2]-xn[3]).abs());
+  double H = sqrt(2.0/3.0)*L;
+
+  vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
+  vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
+  vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
+  vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
+  n012.normalise();
+  n031.normalise();
+  n023.normalise();
+  n213.normalise();
+  double h = 1e99;
+  h = min(h, fabs((xn[0]-xn[3])*n012));
+  h = min(h, fabs((xn[0]-xn[2])*n031));
+  h = min(h, fabs((xn[0]-xn[1])*n023));
+  h = min(h, fabs((xn[0]-xn[3])*n213));
+  h /= H;
+  return m_TetraError(h);
 }
 
 double GridSmoother::func(vec3_t x)
@@ -261,7 +427,13 @@ double GridSmoother::func(vec3_t x)
   
   vec3_t n_node(1,0,0);
   QList<vec3_t> n_pri;
-  
+
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+
+  int N_prisms = 0;
+
+  QSet<edge_t> edges;
+
   foreach (int i_cells, n2c[i_nodes_opt]) {
     vtkIdType id_cell = cells[i_cells];
     if (isVolume(id_cell, grid)) {
@@ -273,25 +445,12 @@ double GridSmoother::func(vec3_t x)
         grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
       if (type_cell == VTK_TETRA) {
-        double L = 0;
-        L += (xn[0]-xn[1]).abs();
-        L += (xn[0]-xn[2]).abs();
-        L += (xn[0]-xn[3]).abs();
-        L += (xn[1]-xn[2]).abs();
-        L += (xn[1]-xn[3]).abs();
-        L += (xn[2]-xn[3]).abs();
-        L /= 6;
-        double V1 = GeometryTools::cellVA(grid, id_cell, true);
-        double V2 = sqrt(1.0/72.0)*L*L*L;
-        double e = sqr((V1-V2)/V2);
-        f += w_tet*e;
+        if (m_TetraError.active()) {
+          f += tetraError(id_cell);
+        }
       }
       if (type_cell == VTK_WEDGE) {
-        double L = 0;
-        L += (xn[0]-xn[1]).abs();
-        L += (xn[0]-xn[2]).abs();
-        L += (xn[1]-xn[2]).abs();
-        L *= H/3.0;
+        ++N_prisms;
         vec3_t a  = xn[2]-xn[0];
         vec3_t b  = xn[1]-xn[0];
         vec3_t c  = xn[5]-xn[3];
@@ -314,116 +473,173 @@ double GridSmoother::func(vec3_t x)
         for (int i_face = 0; i_face < 5; ++i_face) {
           n_face[i_face].normalise();
         }
-        if (nodes[i_nodes_opt] == pts[3]) {
-          n_node = xn[3]-xn[0];
-          n_pri.append(n_face[1]);
-        }
-        if (nodes[i_nodes_opt] == pts[4]) {
-          n_node = xn[4]-xn[1];
-          n_pri.append(n_face[1]);
-        }
-        if (nodes[i_nodes_opt] == pts[5]) {
-          n_node = xn[5]-xn[2];
-          n_pri.append(n_face[1]);
-        }
+        m_IdFoot[pts[3]] = pts[0];
+        m_IdFoot[pts[4]] = pts[1];
+        m_IdFoot[pts[5]] = pts[2];
         vec3_t v0 = xn[0]-xn[3];
         vec3_t v1 = xn[1]-xn[4];
         vec3_t v2 = xn[2]-xn[5];
-        
         double h0 = v0*n_face[0];
         double h1 = v1*n_face[0];
         double h2 = v2*n_face[0];
-        if (h0 > 0.5*L) h0 = max(v0.abs(),h0);
-        if (h1 > 0.5*L) h1 = max(v1.abs(),h1);
-        if (h2 > 0.5*L) h2 = max(v2.abs(),h2);
+        bool is_sharp = false;
+        if (m_HeightError.active() || m_EdgeLengthError.active() || m_EdgeDirectionError.active()
+            || m_ParallelEdgesError.active() || m_ParallelFacesError.active() || m_SimilarFaceAreaError.active()) {
+          double L = 0;
+          int i_foot = -1;
+          if (nodes[i_nodes_opt] == pts[3]) {
+            i_foot = 0;
+          }
+          if (nodes[i_nodes_opt] == pts[4]) {
+            i_foot = 1;
+          }
+          if (nodes[i_nodes_opt] == pts[5]) {
+            i_foot = 2;
+          }
+          if (i_foot != -1) {
+            L = m_RelativeHeight*cl->GetValue(pts[i_foot]);
+            n_node = xn[i_foot + 3] - xn[i_foot];
+            n_pri.append(n_face[1]);
+          }
+          double h = 0;
+          double l = 0;
+          vec3_t ve(0,0,0);
+          if (i_foot != -1) {
+            m_L[nodes[i_nodes_opt]] = L;
+            if (i_foot == 0) {
+              h = h0/L;
+              l = -(v0*m_NodeNormal[pts[0]])/L;
+              ve = v0;
+            } else if (i_foot == 1) {
+              h = h1/L;
+              l = -(v1*m_NodeNormal[pts[1]])/L;
+              ve = v1;
+            } else if (i_foot == 2) {
+              h = h2/L;
+              l = -(v2*m_NodeNormal[pts[2]])/L;
+              ve = v2;
+            }
+            ve *= -1;
+            ve.normalise();
+            if (!m_IsSharpNode[pts[i_foot]]) {
+              is_sharp = true;
+            }
+            if (!is_sharp) {
+            }
+            f += m_HeightError(h);
+            f += m_EdgeLengthError(l);
+            f += m_EdgeDirectionError(angleX(m_NodeNormal[pts[i_foot]],ve));
+          }
+          if (m_ParallelEdgesError.active()) {
+            if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+              v0.normalise();
+              v1.normalise();
+              v2.normalise();
+              f += f13*m_ParallelEdgesError(angleX(v0,v1));
+              f += f13*m_ParallelEdgesError(angleX(v0,v2));
+              f += f13*m_ParallelEdgesError(angleX(v1,v2));
+            }
+          }
+          if (m_ParallelFacesError.active()) {
+            if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+              f += m_ParallelFacesError(angleX(-1*n_face[0],n_face[1]));
+            }
+          }
+          if (m_SimilarFaceAreaError.active()) {
+            if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
+              f += m_SimilarFaceAreaError(fabs(1.0 - 2*(A1-A2)/(A1+A2)));
+            }
+          }
+        }
 
-        {
-          
-          double e1 = errThickness(h0/L);
-          double e2 = errThickness(h1/L);
-          double e3 = errThickness(h2/L);
-          double e  = max(e1,max(e2,e3));
-          //f += w_h*f13*e1;
-          //f += w_h*f13*e2;
-          //f += w_h*f13*e3;
-          //err_pria->SetValue(id_cell,f13*(e1+e2+e3));
-          
-          f += w_h*e;
-        }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          v0.normalise();
-          v1.normalise();
-          v2.normalise();
-          double e1 = f13*(1-v0*v1);
-          double e2 = f13*(1-v0*v2);
-          double e3 = f13*(1-v1*v2);
-          f += w_par*e1;
-          f += w_par*e2;
-          f += w_par*e3;
-        }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = (1+n_face[0]*n_face[1]);
-          f += w_n*e;
-        }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = sqr((A1-A2)/(A1+A2));
-          f += w_A*e;
-        }
-        if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e_skew = 0;
-          double e_orth = 0;
-          int N = 0;
-          vec3_t xc = cellCentre(grid, id_cell);
-          for (int i_face = 0; i_face < 5; ++i_face) {
-            int i_cells_neigh = c2c[i_cells][i_face];
-            if (i_cells_neigh != -1) {
-              vtkIdType id_neigh_cell = cells[i_cells_neigh];
-              if (isVolume(id_neigh_cell, grid)) {
-                vec3_t vc = cellCentre(grid, id_neigh_cell) - xc;
-                vec3_t vf = x_face[i_face] - xc;
-                vc.normalise();
-                vf.normalise();
-                e_skew += (1-vc*vf);
-                e_orth += (1-vc*n_face[i_face]);
-                ++N;
+        if (m_SharpEdgesError.active()) {
+          for (int j = 2; j <= 4; ++j) {
+            vtkIdType id_ncell = c2c[id_cell][j];
+            if (id_ncell != -1) {
+              if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
+                vtkIdType N_pts, *pts;
+                grid->GetCellPoints(id_ncell, N_pts, pts);
+                QVector<vec3_t> x(3);
+                for (int i_pts = 3; i_pts <= 5; ++i_pts) {
+                  grid->GetPoint(pts[i_pts],x[i_pts-3].data());
+                }
+                vec3_t n = GeometryTools::triNormal(x[0], x[2], x[1]);
+                n.normalise();
+                f += f13*m_SharpEdgesError(0.5*(1 + n_face[1]*n));
               }
             }
           }
-          e_skew /= N;
-          e_orth /= N;
-          f += w_skew*e_skew + w_orth*e_orth;
         }
-        
-        double f_sharp2 = 0;
-        for (int j = 2; j <= 4; ++j) {
-          vtkIdType id_ncell = c2c[id_cell][j];
-          if (id_ncell != -1) {
-            if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
-              vtkIdType N_pts, *pts;
-              grid->GetCellPoints(id_ncell, N_pts, pts);
-              QVector<vec3_t> x(3);
-              for (int i_pts = 3; i_pts <= 5; ++i_pts) {
-                grid->GetPoint(pts[i_pts],x[i_pts-3].data());
-              }
-              vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
-              n.normalise();
-              f_sharp2 += pow(fabs(1-n_face[1]*n), e_sharp2);
-            }
-          }
-        }
-        f += w_sharp2*f_sharp2;
       }
     }
   }
   grid->GetPoints()->SetPoint(nodes[i_nodes_opt], x_old.data());
   n_node.normalise();
-  {
-    double f_sharp1 = 0;
-    foreach (vec3_t n, n_pri) {
-      f_sharp1 += pow(fabs(1-n_node*n), e_sharp1);
+
+  //CHECK THAT THERE ARE NO BOUNDARY NODE NEIGHBOURS!!!!!!!!!!
+
+  if (m_SharpNodesError.active()) {
+    if (n_pri.size() > 0) {
+      bool apply_error = true;
+      for (int i = 0; i < m_Part.n2nLSize(i_nodes_opt); ++i) {
+        vtkIdType id_neigh_node = m_Part.n2nLG(i_nodes_opt, i);
+        //vtkIdType id_foot = m_IdFoot[nodes[i_nodes_opt]];
+        //int Nbcs = m_Node2BC[id_neigh_node].size();
+        if (m_Node2BC[id_neigh_node].size() != 0 && id_neigh_node != m_IdFoot[nodes[i_nodes_opt]]) {
+          apply_error = false;
+          break;
+        }
+      }
+      if (apply_error) {
+        double e = 0;
+        foreach (vec3_t n1, n_pri) {
+          foreach (vec3_t n2, n_pri) {
+            //e = max(e, m_SharpNodesError(angleX(n1, n2)));
+            e = max(e, m_SharpNodesError(0.5*(1 + n1*n2)));
+          }
+        }
+        f += e;
+      }
     }
-    f += w_sharp1*f_sharp1;
   }
+
+  // smooth feature lines
+  vtkIdType id_node1 = nodes[i_nodes_opt];
+  vtkIdType id_foot1 = m_IdFoot[id_node1];
+  if (id_foot1 != -1 && m_FeatureLineError.active()) {
+    if (m_Node2BC[id_foot1].size() == 2) {
+      QVector<vtkIdType> ids(2, -1);
+      int N = 0;
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+        vtkIdType id_foot2 = m_IdFoot[id_node2];
+        if (id_foot2 != -1) {
+          bool found = true;
+          foreach (int bc, m_Node2BC[id_foot1]) {
+            if (!m_Node2BC[id_foot2].contains(bc)) {
+              found = false;
+              break;
+            }
+          }
+          if (found) {
+            if (N < 2) {
+              ids[N] = id_node2;
+            }
+            ++N;
+          }
+        }
+      }
+      if (N == 2) {
+        vec3_t a, b;
+        grid->GetPoint(ids[0], a.data());
+        grid->GetPoint(ids[1], b.data());
+        vec3_t u = x - a;
+        vec3_t v = b - x;
+        f += m_FeatureLineError(0.5*(1 + u*v));
+      }
+    }
+  }
+
   return f;
 }
 
@@ -440,30 +656,36 @@ void GridSmoother::addToStencil(double C, vec3_t x)
   stencil.append(sn);
 }
 
-void GridSmoother::operate()
+void GridSmoother::operateOptimisation()
 {
-  markNodes();
-  
-  EG_VTKDCC(vtkIntArray,    bc,          grid, "cell_code");
-  EG_VTKDCN(vtkIntArray,    node_status, grid, "node_status");
-  EG_VTKDCN(vtkIntArray,    node_layer,  grid, "node_layer");
-  
+
+  EG_VTKDCC(vtkIntArray, bc,          grid, "cell_code");
+  EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
+  EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
+
+  m_Node2BC.fill(QSet<int>(), grid->GetNumberOfPoints());
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+        m_Node2BC[pts[i_pts]].insert(bc->GetValue(id_cell));
+      }
+    }
+  }
+
+  m_IdFoot.fill(-1, grid->GetNumberOfPoints());
+  m_L.fill(0, grid->GetNumberOfPoints());
+
+
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
   l2l_t  n2n   = getPartN2N();
 
-  QVector<QSet<int> > n2bc(nodes.size());
   QVector<bool> prism_node(nodes.size(),false);
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, grid)) {
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-        n2bc[_nodes[pts[i_pts]]].insert(bc->GetValue(id_cell));
-      }
-    }
     if (grid->GetCellType(id_cell) == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
       grid->GetCellPoints(id_cell, N_pts, pts);
@@ -474,10 +696,9 @@ void GridSmoother::operate()
       }
     }
   }
-  
+
   F_old = 0;
   F_max_old = 0;
-  setPrismWeighting();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (prism_node[i_nodes]) {
       vec3_t x;
@@ -488,8 +709,7 @@ void GridSmoother::operate()
       F_max_old = max(F_max_old,f);
     }
   }
-  setAllWeighting();
-  
+
   cout << "\nsmoothing volume mesh (" << N_marked_nodes << " nodes)" << endl;
   for (int i_iterations = 0; i_iterations < N_iterations; ++i_iterations) {
     cout << "iteration " << i_iterations+1 << "/" << N_iterations << endl;
@@ -504,8 +724,8 @@ void GridSmoother::operate()
       dbg = false;
       bool smooth = node_marked[nodes[i_nodes]];
       if (smooth) {
-        foreach (int bc, n2bc[i_nodes]) {
-          if (boundary_codes.contains(bc) || (boundary_codes.size() ==0)) {
+        foreach (int bc, m_Node2BC[_nodes[i_nodes]]) {
+          if (m_BoundaryCodes.contains(bc) || (m_BoundaryCodes.size() ==0)) {
             smooth = false;
           }
         }
@@ -522,10 +742,10 @@ void GridSmoother::operate()
         vec3_t x_old;
         grid->GetPoint(id_node, x_old.data());
         resetStencil();
-        bool is_surf = n2bc[i_nodes].size() > 0;
+        bool is_surf = m_Node2BC[_nodes[i_nodes]].size() > 0;
         int N = 0;
         foreach (int j_nodes, n2n[i_nodes]) {
-          if (!is_surf || (n2bc[j_nodes].size() > 0)) {
+          if (!is_surf || (m_Node2BC[_nodes[j_nodes]].size() > 0)) {
             vtkIdType id_neigh_node = nodes[j_nodes];
             grid->GetPoint(id_neigh_node, xn.data());
             addToStencil(1.0, xn);
@@ -549,11 +769,12 @@ void GridSmoother::operate()
         L0 /= sum_C;
         x_new1 *= 1.0/sum_C;
         vec3_t Dx1 = x_new1 - x_old;
-        setDeltas(1e-3*L0);
+        setDeltas(1e-6*L0);
+        //setDeltas(1e-6);
         i_nodes_opt = i_nodes;
         vec3_t Dx2(0,0,0);
-        Dx2 = optimise(x_old);
-        vec3_t Dx3 = (-10e-4/func(x_old))*grad_f;
+        Dx2 = m_UnderRelaxation*optimise(x_old);
+        vec3_t Dx3 = (-1e-4/func(x_old))*grad_f;
         correctDx(i_nodes, Dx1);
         correctDx(i_nodes, Dx2);
         correctDx(i_nodes, Dx3);
@@ -575,6 +796,7 @@ void GridSmoother::operate()
           _N2 = 0;
           _N3 = 1;
         }
+
         if (!moveNode(i_nodes, Dx)) {
           // search for a better place
           vec3_t x_save = x_old;
@@ -625,18 +847,26 @@ void GridSmoother::operate()
         }
       }
     }
-        
+
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
-    //cout << N_blocked << " movements blocked" << endl;
-    //cout << N_searched << " movements by search" << endl;
-    //cout << N_illegal << " nodes in illegal positions" << endl;
-    
+    cout << N_searched << " type X movements (search)" << endl;
+    cout << N_blocked << " type 0 movements (failure)" << endl;
+
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
     F_new = 0;
     F_max_new = 0;
-    setPrismWeighting();
+
+    m_HeightError.reset();
+    m_EdgeLengthError.reset();
+    m_TetraError.reset();
+    m_SharpEdgesError.reset();
+    m_SharpNodesError.reset();
+    m_ParallelEdgesError.reset();
+    m_ParallelFacesError.reset();
+    m_SimilarFaceAreaError.reset();
+    m_FeatureLineError.reset();
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (prism_node[i_nodes]) {
         vec3_t x;
@@ -647,24 +877,248 @@ void GridSmoother::operate()
         F_max_new = max(F_max_new,f);
       }
     }
-    setAllWeighting();
-    cout << "total prism error (old) = " << F_old << endl;
-    cout << "total prism error (new) = " << F_new << endl;
-    double f_old     = max(1e-10,F_old);
-    double f_max_old = max(1e-10,F_max_old);
-    cout << "total prism improvement = " << 100*(1-F_new/f_old) << "%" << endl;
-    //cout << "maximal prism improvement = " << 100*(1-F_max_new/f_max_old) << "%" << endl;
+    cout << "total error (old) = " << F_old << endl;
+    cout << "total error (new) = " << F_new << endl;
+    double f_old = max(1e-10,F_old);
+    cout << "total improvement = " << 100*(1-F_new/f_old) << "%" << endl;
+    printMaxErrors();
   }
   cout << "done" << endl;
 }
 
+void GridSmoother::operateSimple()
+{
+  cout << "performing simple boundary layer adjustment" << endl;
+  computeFeet();
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  m_L.fill(0, grid->GetNumberOfPoints());
+  l2g_t nodes = m_Part.getNodes();
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vtkIdType id_node = nodes[i_nodes];
+    vtkIdType id_foot = m_IdFoot[id_node];
+    if (id_foot != -1) {
+      vec3_t x_foot, x_node;
+      grid->GetPoint(id_foot, x_foot.data());
+      grid->GetPoint(id_node, x_node.data());
+      double L = cl->GetValue(id_foot);
+      vec3_t x_new = x_foot + m_RelativeHeight*L*m_NodeNormal[id_foot];
+      vec3_t Dx = x_new - x_node;
+      m_L[id_node] = L;
+      moveNode(i_nodes, Dx);
+    }
+  }
+}
+
+void GridSmoother::operate()
+{
+  markNodes();
+  computeNormals();
+  if (m_SimpleOperation) {
+    operateSimple();
+  } else {
+    operateOptimisation();
+  }
+}
+
 double GridSmoother::improvement()
 {
-  double f_max_old = max(1e-10,F_max_old);
-  double i1 = 1-F_max_new/f_max_old;
+  //double f_max_old = max(1e-10,F_max_old);
   double f_old = max(1e-10,F_old);
   double i2 = 1-F_new/f_old;
-  //return max(i1,i2);
   return i2;
+}
+
+void GridSmoother::printMaxErrors()
+{
+  cout << "maximal height error = " << m_HeightError.maxError() << endl;
+  cout << "maximal edge lenth error = " << m_EdgeLengthError.maxError() << endl;
+  cout << "maximal tetra error = " << m_TetraError.maxError() << endl;
+  cout << "maximal sharp nodes error = " << m_SharpNodesError.maxError() << endl;
+  cout << "maximal sharp edges error = " << m_SharpEdgesError.maxError() << endl;
+  cout << "maximal parallel edges error = " << m_ParallelEdgesError.maxError() << endl;
+  cout << "maximal parallel faces error = " << m_ParallelFacesError.maxError() << endl;
+  cout << "maximal face area error = " << m_SimilarFaceAreaError.maxError() << endl;
+  cout << "maximal feature line error = " << m_FeatureLineError.maxError() << endl;
+}
+
+void GridSmoother::writeDebugFile(QString file_name)
+{
+
+  QVector<vtkIdType> bcells;
+  getSurfaceCells(m_BoundaryCodes, bcells, grid);
+  m_BPart.setGrid(grid);
+  m_BPart.setCells(bcells);
+  m_FootToField.fill(-1, m_BPart.getNumberOfNodes());
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    i_nodes_opt = m_Part.localNode(id_node);
+    vec3_t x;
+    grid->GetPoint(id_node, x.data());
+    func(x);
+  }
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    vtkIdType id_foot = m_IdFoot[id_node];
+    if (id_foot != -1) {
+      if (m_BPart.localNode(id_foot) == -1) {
+        EG_BUG;
+      }
+      m_FootToField[m_BPart.localNode(id_foot)] = id_node;
+    }
+  }
+  file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtk";
+  QFile file(file_name);
+  file.open(QIODevice::WriteOnly);
+  QTextStream f(&file);
+  f << "# vtk DataFile Version 2.0\n";
+  f << "m_NodeNormal\n";
+  f << "ASCII\n";
+  f << "DATASET UNSTRUCTURED_GRID\n";
+  f << "POINTS " << 2*m_BPart.getNumberOfNodes() << " float\n";
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    vec3_t x;
+    vtkIdType id_node = m_BPart.globalNode(i);
+    grid->GetPoint(id_node, x.data());
+    f << x[0] << " " << x[1] << " " << x[2] << "\n";
+  }
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    vec3_t x;
+    vtkIdType id_node = m_FootToField[i];
+    grid->GetPoint(id_node, x.data());
+    f << x[0] << " " << x[1] << " " << x[2] << "\n";
+  }
+  f << "CELLS " << 2*m_BPart.getNumberOfCells() << " " << 8*m_BPart.getNumberOfCells() << "\n";
+  for (int i = 0; i < m_BPart.getNumberOfCells(); ++ i) {
+    vtkIdType id_cell = m_BPart.globalCell(i);
+    vtkIdType N_pts, *pts;
+    if (grid->GetCellType(id_cell) != VTK_TRIANGLE) {
+      EG_BUG;
+    }
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    QVector<int> nds1(3), nds2(3);
+    for (int j = 0; j < 3; ++j) {
+      nds1[j] = m_BPart.localNode(pts[j]);
+      nds2[j] = nds1[j] + m_BPart.getNumberOfNodes();
+    }
+    f << "3 " << nds1[0] << " " << nds1[1] << " " << nds1[2] << "\n";
+    f << "3 " << nds2[0] << " " << nds2[1] << " " << nds2[2] << "\n";
+  }
+
+  f << "CELL_TYPES " << 2*m_BPart.getNumberOfCells() << "\n";
+  for (int i = 0; i < 2*m_BPart.getNumberOfCells(); ++ i) {
+    f << VTK_TRIANGLE << "\n";
+  }
+  f << "POINT_DATA " << 2*m_BPart.getNumberOfNodes() << "\n";
+
+  f << "VECTORS N float\n";
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    vtkIdType id_node = m_BPart.globalNode(i);
+    f << m_NodeNormal[id_node][0] << " " << m_NodeNormal[id_node][1] << " " << m_NodeNormal[id_node][2] << "\n";
+  }
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    f << "0 0 0\n";
+  }
+
+  f << "VECTORS grad(err) float\n";
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    f << "0 0 0\n";
+  }
+  for (int i = 0; i < m_BPart.getNumberOfNodes(); ++i) {
+    vtkIdType id_node = m_FootToField[i];
+    vtkIdType id_foot = m_BPart.globalNode(i);
+    vec3_t x_foot;
+    grid->GetPoint(id_foot, x_foot.data());
+    if (id_node != -1) {
+      i_nodes_opt = m_Part.localNode(id_node);
+      vec3_t x;
+      grid->GetPoint(id_node, x.data());
+      setDeltas(1e-2*(x - x_foot).abs());
+      computeDerivatives(x);
+      f << grad_f[0] << " " << grad_f[1] << " " << grad_f[2] << "\n";
+    } else {
+      f << "0 0 0\n";
+    }
+  }
+
+
+  f << "SCALARS layer int 1\nLOOKUP_TABLE default\n";
+  for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+    f << "1\n";
+  }
+  for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+    f << "2\n";
+  }
+  f << "SCALARS sharp int 1\nLOOKUP_TABLE default\n";
+  for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+    if (m_IsSharpNode[m_BPart.globalNode(j)]) {
+      f << "1\n";
+    } else {
+      f << "0\n";
+    }
+  }
+  for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+    if (m_IsSharpNode[m_BPart.globalNode(j)]) {
+      f << "1\n";
+    } else {
+      f << "0\n";
+    }
+  }
+  writeErrorToFile(f, m_HeightError);
+  writeErrorToFile(f, m_TetraError);
+  writeErrorToFile(f, m_ParallelEdgesError);
+  writeErrorToFile(f, m_ParallelFacesError);
+  writeErrorToFile(f, m_SharpNodesError);
+  writeErrorToFile(f, m_SharpEdgesError);
+  writeErrorToFile(f, m_SimilarFaceAreaError);
+  writeErrorToFile(f, m_EdgeLengthError);
+  writeErrorToFile(f, m_EdgeDirectionError);
+  writeErrorToFile(f, m_FeatureLineError);
+}
+
+void GridSmoother::writeErrorToFile(QTextStream &f, ErrorFunction &err)
+{
+  m_HeightError.deactivate();
+  m_TetraError.deactivate();
+  m_ParallelEdgesError.deactivate();
+  m_ParallelFacesError.deactivate();
+  m_SharpNodesError.deactivate();
+  m_SharpEdgesError.deactivate();
+  m_SimilarFaceAreaError.deactivate();
+  m_EdgeLengthError.deactivate();
+  m_EdgeDirectionError.deactivate();
+  m_FeatureLineError.deactivate();
+  err.activate();
+
+  f << "SCALARS " << err.name() << " float 1\nLOOKUP_TABLE default\n";
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+      vtkIdType id_node = m_FootToField[j];
+      vec3_t x;
+      grid->GetPoint(id_node, x.data());
+      i_nodes_opt = m_Part.localNode(id_node);
+      f << func(x) << "\n";
+    }
+  }
+  f << "SCALARS " << err.name() << "_norm float 1\nLOOKUP_TABLE default\n";
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < m_BPart.getNumberOfNodes(); ++j) {
+      err.reset();
+      vtkIdType id_node = m_FootToField[j];
+      vec3_t x;
+      grid->GetPoint(id_node, x.data());
+      i_nodes_opt = m_Part.localNode(id_node);
+      func(x);
+      f << err.averageError() << "\n";
+    }
+  }
+
+  m_HeightError.activate();
+  m_TetraError.activate();
+  m_ParallelEdgesError.activate();
+  m_ParallelFacesError.activate();
+  m_SharpNodesError.activate();
+  m_SharpEdgesError.activate();
+  m_SimilarFaceAreaError.activate();
+  m_EdgeLengthError.activate();
+  m_EdgeDirectionError.activate();
+  m_FeatureLineError.activate();
 }
 

@@ -48,6 +48,7 @@ qtc-gdbmacros
 *.sp
 *.out
 *.vtu
+*.egc
 *.txt
 *.bcs
 netgen_svn_old
@@ -69,3 +70,9 @@ docs
 
 # ignore the persistent .build tag in the main directory
 /.build
+
+*.exe
+*.Debug
+*.Release
+
+.*

@@ -62,6 +62,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   ui.verticalLayout_SettingsSheet->addWidget(m_tableWidget);
   
   populateBoundaryCodes(ui.listWidget);
+  ui.lineEditMaximalEdgeLength->setText("1000");
 
   //Load settings
   readSettings();
@@ -90,9 +91,8 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   m_tableWidget->setItemDelegate(item_delegate);
   
   QStringList L;
-  for(int i=0;i<Nbc;i++)
-  {
-    L<<ui.listWidget->item(i)->text();
+  for(int i = 0; i < Nbc; ++i) {
+    L << ui.listWidget->item(i)->text().split(":")[0];
   }
   L<<"Vertex Type";
   L<<"Nodelist";
@@ -105,7 +105,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   qDebug()<<"current_filename="<<current_filename;
   qDebug()<<"Loading settings from "+current_filename+".sp...";
   
-  if (!m_tableWidget->readFile(current_filename+".sp",0)) {
+  if (!m_tableWidget->readFile(0)) {
     cout<<"Loading settingssheet failed"<<endl;
   }
   
@@ -114,53 +114,63 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+  connect(ui.pushButtonSave, SIGNAL(clicked()), this, SLOT(writeSettings()));
+  connect(ui.pushButtonSave, SIGNAL(clicked()), m_tableWidget, SLOT(writeFile()));
+
 }
 
 ///////////////////////////////////////////
 
 int GuiCreateSurfaceMesh::readSettings()
 {
-  QSettings local_qset("enGits","enGrid_smoothsurface");
-  //current_settingssheet_name=local_qset.value("Filename", "").toString();
-
-  if(local_qset.value("DensityUnit_is_length", false).toBool()){
-    ui.radioButton_length->toggle();
-  } else {
-    ui.radioButton_density->toggle();
-  }
-  
-  int size;
-  size = local_qset.beginReadArray("list_BC");
-  if(ui.listWidget->count()==size)
-  {
-    for (int i = 0; i < size; ++i) {
-      local_qset.setArrayIndex(i);
-      Qt::CheckState x=int2CheckState(local_qset.value("state").toInt());
-      ui.listWidget->item(i)->setCheckState(x);
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings");
+  if(!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    QString str;
+    in >> str;
+    ui.lineEditMaximalEdgeLength->setText(str);
+    in >> str;
+    ui.lineEditGrowthFactor->setText(str);
+    double nodes_per_quarter_circle;
+    in >> nodes_per_quarter_circle;
+    nodes_per_quarter_circle = 0; ///@@@ TODO: implement curvature resolution
+    ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
+    int num_bcs;
+    in >> num_bcs;
+    if (num_bcs == ui.listWidget->count()) {
+      int check_state;
+      for (int i = 0; i < ui.listWidget->count(); ++i) {
+        in >> check_state;
+        if (check_state == 1) {
+          ui.listWidget->item(i)->setCheckState(Qt::Checked);
+        } else {
+          ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+        }
+      }
     }
-    local_qset.endArray();
   }
-  
   return(0);
 }
 
 int GuiCreateSurfaceMesh::writeSettings()
 {
-  QSettings local_qset("enGits","enGrid_smoothsurface");
-  //local_qset.setValue("Filename", current_settingssheet_name);
-  local_qset.setValue("DensityUnit_is_length",ui.radioButton_length->isChecked());
-  
-  QList<Qt::CheckState> list;
-  
-  for (int i = 0; i < ui.listWidget->count(); ++i) {
-    list << ui.listWidget->item(i)->checkState();
+  QString buffer = "";
+  {
+    QTextStream out(&buffer, QIODevice::WriteOnly);
+    out << "\n";
+    out << ui.lineEditMaximalEdgeLength->text() << "\n";
+    out << ui.lineEditGrowthFactor->text() << "\n";
+    out << ui.doubleSpinBoxCurvature->value() << "\n";
+    out << ui.listWidget->count() << "\n";
+    for (int i = 0; i < ui.listWidget->count(); ++i) {
+      if (ui.listWidget->item(i)->checkState() == Qt::Checked) {
+        out << "1 \n";
+      } else {
+        out << "0 \n";
+      }
+    }
   }
-  local_qset.beginWriteArray("list_BC");
-  for (int i = 0; i < list.size(); ++i) {
-    local_qset.setArrayIndex(i);
-    local_qset.setValue("state", list.at(i));
-  }
-  local_qset.endArray();
+  GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
   return(0);
 }
 
@@ -207,13 +217,7 @@ QVector <VertexMeshDensity> GuiCreateSurfaceMesh::getSet()
     }
     VMDvector[i].type=Str2VertexType(m_tableWidget->item(i,Nbc)->text());
     VMDvector[i].setNodes(m_tableWidget->item(i,Nbc+1)->text());
-    if(ui.radioButton_density->isChecked()){
-      VMDvector[i].density=m_tableWidget->item(i,Nbc+2)->text().toDouble();
-    }
-    else{
-      cout<<"desired_density="<<1.0/(m_tableWidget->item(i,Nbc+2)->text().toDouble())<<endl;
-      VMDvector[i].density=1.0/(m_tableWidget->item(i,Nbc+2)->text().toDouble());
-    }
+    VMDvector[i].density=m_tableWidget->item(i,Nbc+2)->text().toDouble();
   }
   cout<<"VMDvector:"<<VMDvector<<endl;
   return(VMDvector);
@@ -280,13 +284,10 @@ void GuiCreateSurfaceMesh::operate()
 {
   writeSettings();
 
-  qDebug() << "current_filename=" << current_filename;
-  qDebug() << "Saving settings as " + current_filename + ".sp...";
+  m_tableWidget->writeFile();
+  return;
 
-  if (!m_tableWidget->writeFile(current_filename+".sp")) {
-    cout << "Saving settingssheet failed." << endl;
-  }
-  
+
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
 
@@ -296,6 +297,8 @@ void GuiCreateSurfaceMesh::operate()
   surfacemesher.setGrid(grid);
   surfacemesher.setBoundaryCodes(bcs);
   surfacemesher.setVertexMeshDensityVector(VMDvector);
+  surfacemesher.setMaxEdgeLength(ui.lineEditMaximalEdgeLength->text().toDouble());
+  surfacemesher.setNodesPerQuarterCircle(ui.doubleSpinBoxCurvature->value());
 
   surfacemesher();
 

@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -71,12 +71,15 @@
      </property>
      <addaction name="actionVtkReader"/>
      <addaction name="actionPolyDataReader"/>
+     <addaction name="actionReducedPolyDataReader"/>
     </widget>
     <addaction name="actionImportSTL"/>
     <addaction name="menuGmsh_2"/>
     <addaction name="menuVTK"/>
     <addaction name="actionImportOpenFoamCase"/>
     <addaction name="actionImportFluentCase"/>
+    <addaction name="actionImportSeligAirfoil"/>
+    <addaction name="actionImportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -103,6 +106,8 @@
     <addaction name="actionClearOutputWindow"/>
     <addaction name="actionViewAxes"/>
     <addaction name="actionViewOrthogonal"/>
+    <addaction name="actionViewNodeIDs"/>
+    <addaction name="actionViewCellIDs"/>
     <addaction name="actionShow_display_options"/>
     <addaction name="actionShow_output"/>
     <addaction name="actionShow_node_cell_info"/>
@@ -117,15 +122,23 @@
     <addaction name="actionCheckOrientation"/>
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
+    <addaction name="actionSurfaceMesher"/>
+    <addaction name="actionReduceSurfaceTriangulation"/>
+    <addaction name="actionSmoothAndSwapSurface"/>
+    <addaction name="actionEliminateSmallBranches"/>
+    <addaction name="actionDeleteBadAspectTris"/>
+    <addaction name="actionDeletePickedPoint"/>
+    <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
+    <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="separator"/>
-    <addaction name="actionSmoothVolumeGrid"/>
+    <addaction name="actionStoreGeometry"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -160,7 +173,12 @@
     </property>
     <addaction name="actionConfigure"/>
     <addaction name="actionPick_cell_point"/>
+    <addaction name="actionDeletePickedPoint"/>
+    <addaction name="actionPrintGrid"/>
+    <addaction name="actionShowInfo"/>
+    <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
+    <addaction name="actionFixCADgeometry"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -170,6 +188,7 @@
     <addaction name="actionRunSolver"/>
     <addaction name="actionStopProcesses"/>
     <addaction name="actionPreparePostProcessing"/>
+    <addaction name="actionStartParaView"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
@@ -180,7 +199,6 @@
    <addaction name="menuSimulation"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>default toolbar</string>
@@ -198,6 +216,7 @@
    <addaction name="separator"/>
    <addaction name="actionFoamCaseWriter"/>
    <addaction name="actionPreparePostProcessing"/>
+   <addaction name="actionStartParaView"/>
    <addaction name="separator"/>
    <addaction name="actionRunSolver"/>
    <addaction name="actionStopProcesses"/>
@@ -206,26 +225,28 @@
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
    <addaction name="actionSetBoundaryCode"/>
+   <addaction name="actionEditBoundaryConditions"/>
    <addaction name="actionChangeOrientation"/>
    <addaction name="actionCheckOrientation"/>
+   <addaction name="actionCreateSurfaceMesh"/>
+   <addaction name="actionSurfaceMesher"/>
    <addaction name="separator"/>
    <addaction name="actionNormalExtrusion"/>
    <addaction name="actionCreateVolumeMesh"/>
-   <addaction name="actionSmoothVolumeGrid"/>
    <addaction name="actionDeleteVolumeGrid"/>
    <addaction name="actionCreateBoundaryLayer"/>
    <addaction name="actionDivideBoundaryLayer"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-     <horstretch>200</horstretch>
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>112</width>
+     <width>250</width>
      <height>132</height>
     </size>
    </property>
@@ -268,8 +289,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>198</width>
-          <height>491</height>
+          <width>212</width>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -551,19 +572,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QPushButton" name="pushButtonRedraw">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -642,12 +650,6 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DebuggingUtilities">
-   <property name="minimumSize">
-    <size>
-     <width>112</width>
-     <height>132</height>
-    </size>
-   </property>
    <property name="windowTitle">
     <string>Debugging utilities</string>
    </property>
@@ -1066,13 +1068,13 @@
   <action name="actionCreateSurfaceMesh">
    <property name="icon">
     <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/smoothsurf.png</normaloff>:/icons/resources/icons/smoothsurf.png</iconset>
+     <normaloff>:/icons/resources/icons/editsurfaceparameters.png</normaloff>:/icons/resources/icons/editsurfaceparameters.png</iconset>
    </property>
    <property name="text">
-    <string>create/improve surface mesh</string>
+    <string>edit surface parameters</string>
    </property>
    <property name="toolTip">
-    <string>create/improve surface mesh</string>
+    <string>edit surface parameters</string>
    </property>
   </action>
   <action name="actionExportNeutral">
@@ -1117,7 +1119,10 @@
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
    </property>
    <property name="text">
-    <string>delete volume grid</string>
+    <string>delete tetras</string>
+   </property>
+   <property name="toolTip">
+    <string>delete tetras</string>
    </property>
   </action>
   <action name="actionDivideBoundaryLayer">
@@ -1236,8 +1241,12 @@
    </property>
   </action>
   <action name="actionEditBoundaryConditions">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/editbc.png</normaloff>:/icons/resources/icons/editbc.png</iconset>
+   </property>
    <property name="text">
-    <string>Edit parameters</string>
+    <string>Edit boundary conditions</string>
    </property>
    <property name="shortcut">
     <string>E</string>
@@ -1484,10 +1493,13 @@
   <action name="actionPreparePostProcessing">
    <property name="icon">
     <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
+     <normaloff>:/icons/resources/icons/vtk.png</normaloff>:/icons/resources/icons/vtk.png</iconset>
    </property>
    <property name="text">
-    <string>Prepare post-processing</string>
+    <string>Prepare VTK post-processing</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare VTK post-processing</string>
    </property>
   </action>
   <action name="actionImportFluentCase">
@@ -1496,6 +1508,65 @@
    </property>
    <property name="toolTip">
     <string>import FLUENT case</string>
+   </property>
+  </action>
+  <action name="actionStartParaView">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start ParaView</string>
+   </property>
+  </action>
+  <action name="actionReducedPolyDataReader">
+   <property name="text">
+    <string>vtkPolyData in legacy file format (will be reduced after loading)</string>
+   </property>
+  </action>
+  <action name="actionSurfaceMesher">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/createsurfacemesh.png</normaloff>:/icons/resources/icons/createsurfacemesh.png</iconset>
+   </property>
+   <property name="text">
+    <string>create/improve surface mesh</string>
+   </property>
+   <property name="toolTip">
+    <string>create/improve surface mesh</string>
+   </property>
+  </action>
+  <action name="actionReduceSurfaceTriangulation">
+   <property name="text">
+    <string>reduce surface triangulation</string>
+   </property>
+   <property name="toolTip">
+    <string>reduce surface triangulation</string>
+   </property>
+  </action>
+  <action name="actionEliminateSmallBranches">
+   <property name="text">
+    <string>eliminate small branches</string>
+   </property>
+  </action>
+  <action name="actionSmoothAndSwapSurface">
+   <property name="text">
+    <string>smooth surface grid</string>
+   </property>
+  </action>
+  <action name="actionImportSeligAirfoil">
+   <property name="text">
+    <string>Selig airfoil</string>
+   </property>
+  </action>
+  <action name="actionFixCADgeometry">
+   <property name="text">
+    <string>fix CAD geometry</string>
+   </property>
+  </action>
+  <action name="actionImportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
    </property>
   </action>
  </widget>

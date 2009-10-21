@@ -24,12 +24,45 @@
 #define optimisation_H
 
 class Optimisation;
+class ErrorFunction;
 
 #include "engrid.h"
 
+class ErrorFunction
+{
+
+private: // attributes
+
+  double  m_Weighting1;
+  double  m_Weighting2;
+  double  m_XSwitch;
+  double  m_Exponent;
+  double  m_MaxErr;
+  double  m_TotalError;
+  bool    m_Active;
+  QString m_Name;
+  int     m_NumCalls;
+
+public: // methods
+
+  ErrorFunction();
+  void set(QString settings_txt);
+  void setName(QString name) { m_Name = name; }
+  QString name() { return m_Name; }
+  double operator()(double x);
+  double maxError() { return m_MaxErr; }
+  void reset() { m_MaxErr = 0; m_TotalError = 0; m_NumCalls = 0; }
+  bool active() { return m_Active && ((m_Weighting1 > 1e-10) || (m_Weighting2 > 1e-10)); }
+  double averageError();
+  void activate() { m_Active = true; }
+  void deactivate() { m_Active = false; }
+
+};
+
+
 class Optimisation
 {
-  
+
 protected: // attributes
   
   double ***F;
@@ -44,6 +77,9 @@ protected: // methods
   virtual double func(vec3_t x) = 0;
   virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
   virtual void computeDerivatives(vec3_t x);
+
+  void getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func);
+  double angleX(const vec3_t &v1, const vec3_t &v2);
   
 public: // methods
   

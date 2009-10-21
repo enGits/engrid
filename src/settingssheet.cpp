@@ -24,10 +24,15 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QtGui>
+
 #include "egvtkobject.h"
 #include "settingssheet.h"
 #include "vertexdelegate.h"
+#include "guimainwindow.h"
+
 #include <iostream>
+
+
 using namespace std;
 
 SettingsSheet::SettingsSheet(QWidget *parent)
@@ -45,90 +50,62 @@ Cell *SettingsSheet::cell(int row, int column) const
   return static_cast<Cell *>(item(row, column));
 }
 
-bool SettingsSheet::readFile(const QString &fileName,int verbose)
+bool SettingsSheet::readFile(int verbose)
 {
-  QFile file(fileName);
-  if (!file.open(QIODevice::ReadOnly)) {
-    if(verbose>0) QMessageBox::warning(this, tr("SettingsSheet"),tr("Cannot read file %1:\n%2.").arg(file.fileName()).arg(file.errorString()));
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table");
+  QTextStream in(&buffer, QIODevice::ReadOnly);
+  int row_count = 0;
+  int column_count = 0;
+  
+  in >> row_count >> column_count;
+  
+  if(column_count != this->columnCount()) {
+    if(verbose > 0) {
+      QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not compatible with the number of boundary codes."));
+    }
     return false;
   }
   
-  QDataStream in(&file);
-  in.setVersion(QDataStream::Qt_4_1);
-  
-  quint32 magic;
-  in >> magic;
-  if (magic != MagicNumber) {
-    QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not a SettingsSheet file."));
-    return false;
-  }
-  
-  int RowCount=0;
-  int ColumnCount=0;
-  
-  in >> RowCount;
-  in >> ColumnCount;
-  
-  if(ColumnCount!=this->columnCount()) {
-    if(verbose>0) QMessageBox::warning(this, tr("SettingsSheet"),tr("The file is not compatible with the number of boundary codes."));
-    return false;
-  }
-  
-  quint16 row;
-  quint16 column;
+  int row, column;
   QString str;
   
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  
-  this->setRowCount(RowCount);
+  this->setRowCount(row_count);
   this->clearContents();
   
-  while (!in.atEnd()) {
-    in >> row >> column >> str;
-    setFormula(row, column, str);
-  }
-  
-  QApplication::restoreOverrideCursor();
-  
-  return true;
-}
-
-bool SettingsSheet::writeFile(const QString &fileName)
-{
-  QFile file(fileName);
-  if (!file.open(QIODevice::WriteOnly)) {
-    QMessageBox::warning(this, tr("SettingsSheet"),
-                         tr("Cannot write file %1:\n%2.")
-                         .arg(file.fileName())
-                         .arg(file.errorString()));
-    return false;
-  }
-  
-  QDataStream out(&file);
-  out.setVersion(QDataStream::Qt_4_1);
-  
-  out << quint32(MagicNumber);
-  
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  
-  int RowCount=this->rowCount();
-  int ColumnCount=this->columnCount();
-  out << RowCount;
-  out << ColumnCount;
-  for (int row = 0; row < RowCount; ++row) {
-    for (int column = 0; column < ColumnCount; ++column) {
-      QString str = formula(row, column);
-      out << quint16(row) << quint16(column) << str;
+  for (int i = 0; i < row_count; ++i) {
+    for (int j = 0; j < column_count; ++j) {
+      in >> row >> column >> str;
+      if (str == "{{{empty}}}") {
+        str = "";
+      }
+      setFormula(row, column, str);
     }
   }
-  
-  QApplication::restoreOverrideCursor();
-  
+
   return true;
 }
 
-void SettingsSheet::setFormula(int row, int column,
-                             const QString &formula)
+void SettingsSheet::writeFile()
+{
+  QString buffer = "";
+  {
+    QTextStream out(&buffer, QIODevice::WriteOnly);
+    out << "\n";
+    out << rowCount() << " " << columnCount() << "\n";
+    for (int row = 0; row < rowCount(); ++row) {
+      for (int column = 0; column < columnCount(); ++column) {
+        QString str = formula(row, column);
+        if (str.isEmpty()) {
+          str = "{{{empty}}}";
+        }
+        out << row << " " << column << " " << str << "\n";
+      }
+    }
+  }
+  GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
+}
+
+void SettingsSheet::setFormula(int row, int column, const QString &formula)
 {
   Cell *c = cell(row, column);
   if (!c) {
@@ -227,11 +204,11 @@ QVariant Cell::value() const
       cachedValue = Invalid;
       QString expr = formulaStr.mid(1);
       expr.replace(" ", "");
-      expr.append(QChar::Null);
+      expr.append(0x0000);
       
       int pos = 0;
       cachedValue = evalExpression(expr, pos);
-      if (expr[pos] != QChar::Null)
+      if (expr[pos] != 0x0000)
         cachedValue = Invalid;
     } else {
       bool ok;
@@ -249,7 +226,7 @@ QVariant Cell::value() const
 QVariant Cell::evalExpression(const QString &str, int &pos) const
 {
   QVariant result = evalTerm(str, pos);
-  while (str[pos] != QChar::Null) {
+  while (str[pos] != 0x0000) {
     QChar op = str[pos];
     if (op != '+' && op != '-')
       return result;
@@ -273,7 +250,7 @@ QVariant Cell::evalExpression(const QString &str, int &pos) const
 QVariant Cell::evalTerm(const QString &str, int &pos) const
 {
   QVariant result = evalFactor(str, pos);
-  while (str[pos] != QChar::Null) {
+  while (str[pos] != 0x0000) {
     QChar op = str[pos];
     if (op != '*' && op != '/')
       return result;
