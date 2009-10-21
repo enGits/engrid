@@ -127,6 +127,8 @@ void Operation::setTypeName(QString name)
 
 void Operation::operator()()
 {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   setStartTime();
   if (gui) {
     if (GuiMainWindow::tryLock()) {
@@ -153,6 +155,8 @@ void Operation::operator()()
     if(m_resetoperationcounter) GuiMainWindow::pointer()->resetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->quickSave();
   }
+  
+  QApplication::restoreOverrideCursor();
 }
 
 void Operation::setAllCells()

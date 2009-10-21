@@ -651,6 +651,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
 
 void GuiMainWindow::updateActors(bool forced)
 {
+//   qDebug()<<"QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); called()";
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   //if (!tryLock()) return;
   try {
     m_Axes->SetInput(grid);
@@ -661,14 +664,19 @@ void GuiMainWindow::updateActors(bool forced)
     err.display();
   }
   //unlock();
+  
+//   qDebug()<<"QApplication::restoreOverrideCursor(); called()";
+  QApplication::restoreOverrideCursor();
 }
 
 
 
 void GuiMainWindow::forceUpdateActors()
 {
+//   qDebug()<<"void GuiMainWindow::forceUpdateActors() START";
   updateActors(true);
   getRenderWindow()->Render();
+//   qDebug()<<"void GuiMainWindow::forceUpdateActors() END";
 }
 
 void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
@@ -1140,6 +1148,8 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   QFileInfo file_info(file_name);
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
@@ -1154,6 +1164,9 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   if(update_current_filename) m_CurrentFilename = file_name;
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
+  
+  QApplication::restoreOverrideCursor();
+  
   return(file_name);
 }
 
