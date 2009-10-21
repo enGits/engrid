@@ -28,22 +28,26 @@
 
 # Check if all parameters are present
 # If no, exit
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
 	echo
 	echo 'archives a git repository as <dir>_$(date +%Y%m%d_%H%M%S).tar.gz'
 	echo "usage :"
-	echo "$0 <dir>"
+	echo "$0 <GITDIR> <DESTDIR>"
+        echo "GITDIR = directory to archive. Usually 'engrid'"
+        echo "DESTDIR = Where the archive should be placed."
         echo
         exit 0
 fi
 
 DIR=$(readlink -f $1)
-BASE=`basename $DIR`
+BASE="engrid"
+DESTDIR=$2
+
 ORIG=`pwd`
 
 DATE=$(date +%Y%m%d_%H%M%S)
-ARCHIVE=$ORIG/$BASE\_$DATE.tar.gz
+ARCHIVE=$DESTDIR/$BASE\_$DATE.tar.gz
 
 # exit 0
 
