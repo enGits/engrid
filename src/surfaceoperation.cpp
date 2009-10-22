@@ -171,7 +171,7 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   if ( DebugLevel > 0 ) {
     cout << "===UpdateMeshDensity END===" << endl;
   }
-  return( 0 ); ///@@@ what for???
+  return( 0 ); ///\todo what for???
 }
 
 int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fix_unselected)
@@ -537,7 +537,7 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 //---------------------------------------------------
 //Utility functions used in Roland's formulas
 
-///@@@ TODO: change meshdensity fields to edgelength fields since this is what is mostly used?
+///\todo change meshdensity fields to edgelength fields since this is what is mostly used?
 
 /// desired edge length for id_node
 double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
@@ -574,7 +574,7 @@ double SurfaceOperation::meanDesiredEdgeLength( vtkIdType id_cell )
   return total / ( double )num_pts;
 }
 
-///@@@ TODO: Should be renamed to be more explicit if possible
+///\todo Should be renamed to be more explicit if possible
 
 /// perimeter / sum of the desired edge lengths
 double SurfaceOperation::Q_L( vtkIdType id_cell )

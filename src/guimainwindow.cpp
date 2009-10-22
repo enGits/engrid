@@ -818,7 +818,7 @@ void GuiMainWindow::deselectAll()
   updateActors();
 }
 
-///@@@  TODO: Should display a window
+///\todo Should display a window
 void GuiMainWindow::info()
 {
   ShowInfo info(ui.radioButton_CellPicker->isChecked(), m_PickedPoint, m_PickedCell);
@@ -827,7 +827,7 @@ void GuiMainWindow::info()
 
 int GuiMainWindow::quickSave()
 {
-  ///@@@ might be re-activated with RAM support
+  ///\todo might be re-activated with RAM support
   
 /*  if(grid->GetNumberOfPoints()>0)
   {
@@ -848,7 +848,7 @@ int GuiMainWindow::quickSave()
 
 void GuiMainWindow::quickLoad(int a_operation)
 {
-  ///@@@ might be re-activated with RAM support
+  ///\todo might be re-activated with RAM support
   
 /*  QFileInfo fileinfo(m_CurrentFilename);
   QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
@@ -1082,7 +1082,7 @@ void GuiMainWindow::saveGrid(QString file_name)
   }
 }
 
-///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
+///\todo I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
@@ -1765,7 +1765,7 @@ void GuiMainWindow::about()
   
 }
 
-///@@@ TODO: Why not use bcs = m_AllBoundaryCodes ?
+///\todo Why not use bcs = m_AllBoundaryCodes ?
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;

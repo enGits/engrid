@@ -154,7 +154,7 @@ int InsertPoints::insertPoints()
       
       //add point
       grid_tmp->GetPoints()->SetPoint(id_new_node, M.data());
-      copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node); ///@@@ maybe trouble
+      copyNodeData(grid_tmp,S.p[1],grid_tmp,id_new_node); ///\todo maybe trouble
       
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");

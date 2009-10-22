@@ -37,7 +37,7 @@
 int fileTemplateTest( int argc, char ** argv );
 int fileTemplateTest();
 
-///@@@ TODO: Improve class structure
+///\todo Improve class structure
 
 class TemplateLine
 {

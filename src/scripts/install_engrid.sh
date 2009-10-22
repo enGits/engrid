@@ -120,5 +120,6 @@ build_engrid
 cd engrid/src
 update_netgen
 update_engrid
+cd -
 
 exit 0

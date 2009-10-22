@@ -94,7 +94,7 @@ void SurfaceAlgorithm::prepare()
 
 void SurfaceAlgorithm::computeMeshDensity()
 {
-  ///@@@  TODO: Optimize by using only one loop through nodes!
+  ///\todo Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
   update_desired_mesh_density.setGrid(grid);
   update_desired_mesh_density.setVertexMeshDensityVector(m_VMDvector);

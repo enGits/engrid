@@ -34,7 +34,7 @@ public:
   { return new vtkMyCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
-    caller = caller; ///@@@ get rid of warning
+    caller = caller; ///\todo get rid of warning
 /*      vtkTransform *t = vtkTransform::New();
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       widget->GetTransform(t);
@@ -58,7 +58,7 @@ void BoxSelect::operate()
 {
   cout<<"BoxSelect"<<endl;
   
-///@@@ TODO: Finish BoxSelect
+///\todo Finish BoxSelect
 /*  
   boxWidget = vtkBoxWidget::New();
   boxWidget->SetInteractor(GuiMainWindow::pointer()->getInteractor());
