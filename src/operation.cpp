@@ -78,7 +78,7 @@ void Operation::collectGarbage()
 Operation::Operation()
 {
   grid = NULL;
-  gui = false;
+  lock_gui = false;
   m_quicksave = false;
   m_resetoperationcounter = false;
   err = NULL;
@@ -126,7 +126,7 @@ void Operation::setTypeName(QString name)
 void Operation::operator()()
 {
   setStartTime();
-  if (gui) {
+  if (lock_gui) {
     if (GuiMainWindow::tryLock()) {
       checkGrid();
       thread.setOperation(this);

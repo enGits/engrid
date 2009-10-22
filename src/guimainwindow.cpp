@@ -1682,7 +1682,7 @@ void GuiMainWindow::callFixSTL()
 {
   FixSTL *fix;
   fix = new FixSTL();
-  fix->setGui();
+  fix->setLockGui();
   (*fix)();
   updateBoundaryCodes(false);
   updateActors();

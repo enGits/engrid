@@ -411,11 +411,14 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     //
     // the following line can be used as a template:
     // void call() { EG_STDSLOT(); };
-    // IMPORTANT: Using EG_STDSLOT sets gui to true, while EG_STDINTERSLOT does not (default is gui = false)
-    // This is important to determine whether an operation is a GUI operation or not.
-    // If it's a GUI operation, it locks everything.
-    // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window... Why?
-
+    // IMPORTANT: Using EG_STDSLOT sets lock_gui to true, while EG_STDINTERSLOT does not (default is lock_gui = false)
+    // This is important to determine whether an operation should try to lock the main mutex or not.
+    // If lock_gui is true, the operation will try to lock the main mutex. If it fails (mutex locked by other operation), the operation is stopped.
+    // SUMMARY:
+    // EG_STDSLOT = background operation (There can not be more than one background operation!)
+    // EG_STDINTERSLOT = foreground operation
+    // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window.
+  
     void callCreateSurfaceMesh() { EG_STDSLOT( GuiCreateSurfaceMesh ); }
     void callCreateBoundaryLayer() { EG_STDSLOT( GuiCreateBoundaryLayer ); }
     void callDivideBoundaryLayer() { EG_STDSLOT( GuiDivideBoundaryLayer ); }

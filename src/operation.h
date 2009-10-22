@@ -78,7 +78,9 @@ private: // static attributes
   
 private: // attributes
   
-  bool               gui;
+  /// If true, attempts to lock the mutex when Operation::operator()() is called. If the lock was obtained, all other "lock_gui operations" will not work until the current "lock_gui opration" is done.
+  bool               lock_gui;
+  
   bool               m_quicksave;             ///< save grid after operation finished?
   bool               m_resetoperationcounter; ///< reset operation counter after operation finished? (default is false)
   bool               autoset;
@@ -127,7 +129,7 @@ public: // methods
   template <class T> void setCells(const T &cls);
   void setMeshPartition(const MeshPartition &part);
 
-  void setGui() { gui = true; }
+  void setLockGui() { lock_gui = true; }
   OperationThread& getThread() { return thread; }
   void enableAutoSet() { autoset = true; }
   void disableAutoSet() { autoset = false; }
