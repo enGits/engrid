@@ -28,7 +28,7 @@ cd ${0%/*} || exit 1    # run from this directory
 
 package=netgen-mesher
 (
-
+    echo "Working directory = $(pwd)"
     cd netgen_svn || exit 1
 
     if [ -d netgen-mesher/.svn ]

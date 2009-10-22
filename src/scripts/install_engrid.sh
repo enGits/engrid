@@ -13,9 +13,12 @@ URL_VTK="http://www.vtk.org/files/release/5.4/$ARCHIVE_VTK"
 ARCHIVE_CGNS="cgnslib_2.5-4.tar.gz"
 URL_CGNS="http://prdownloads.sourceforge.net/cgns/$ARCHIVE_CGNS"
 
-URL_ENGRID="http://engits.com/git/engrid.git"
+#HTTP
+# URL_ENGRID="http://engits.com/git/engrid.git"
+#SSH
+URL_ENGRID="ssh://swordfish/srv/www/htdocs/git/engrid.git"
 
-PREFIX="./usr/engrid_libs"
+PREFIX="$(readlink -f .)/usr/engrid_libs"
 mkdir -p $PREFIX
 
 VTKPREFIX=$PREFIX/VTK
@@ -34,16 +37,19 @@ install_QT()
 #   wget $URL_QT
   tar -xzvf ./$ARCHIVE_QT
   cd $(basename $ARCHIVE_QT .tar.gz)
-  ./configure --prefix=$QTPREFIX && make && make install
+  mkdir -p $QTPREFIX
+  echo yes | ./configure --prefix=$QTPREFIX -opensource
+  make && make install
   cd -
 }
 
 install_VTK()
 {
   echo "Install VTK"
-  wget $URL_VTK
+#   wget $URL_VTK
   tar -xzvf ./$ARCHIVE_VTK
   cd ./VTK
+  mkdir -p $VTKPREFIX
   cmake -DCMAKE_INSTALL_PREFIX:PATH=$VTKPREFIX -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_USE_GUISUPPORT:BOOL=ON -DVTK_USE_QVTK:BOOL=ON -DDESIRED_QT_VERSION:STRING=4  .
   chmod 644 Utilities/vtktiff/tif_fax3sm.c
   make && make install
@@ -55,7 +61,8 @@ install_CGNS()
   echo "Install CGNS"
   wget $URL_CGNS
   tar -xzvf ./$ARCHIVE_CGNS
-  cd $(basename $ARCHIVE_CGNS .tar.gz)
+  cd ./cgnslib_2.5/
+  mkdir -p $CGNSPREFIX
   mkdir -p $CGNSPREFIX/include
   mkdir -p $CGNSPREFIX/lib
   ./configure --prefix=$CGNSPREFIX && make && make install
@@ -106,7 +113,7 @@ create_bash_engrid()
 
 create_bash_engrid
 source $ENV_SETUP
-install_QT
+# install_QT
 install_VTK
 install_CGNS
 build_engrid
