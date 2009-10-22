@@ -114,8 +114,8 @@ create_bash_engrid()
 create_bash_engrid
 source $ENV_SETUP
 # install_QT
-install_VTK
-install_CGNS
+# install_VTK
+# install_CGNS
 build_engrid
 cd engrid/src
 update_netgen
