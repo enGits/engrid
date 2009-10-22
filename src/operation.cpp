@@ -56,8 +56,6 @@ QVector<QVector<int> > m_static_DummyN2N;
 QVector<QVector<int> > m_static_DummyN2C;
 QVector<QVector<int> > m_static_DummyC2C;
 
-
-
 void Operation::collectGarbage()
 {
   QSet<Operation*> delete_operations;
@@ -127,8 +125,6 @@ void Operation::setTypeName(QString name)
 
 void Operation::operator()()
 {
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  
   setStartTime();
   if (gui) {
     if (GuiMainWindow::tryLock()) {
@@ -150,13 +146,13 @@ void Operation::operator()()
         err.display();
       }
     } else {
+      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
       operate();
+      QApplication::restoreOverrideCursor();
     }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->resetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->quickSave();
   }
-  
-  QApplication::restoreOverrideCursor();
 }
 
 void Operation::setAllCells()
