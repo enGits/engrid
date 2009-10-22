@@ -21,6 +21,30 @@ create_bash_engrid()
   echo "export PATH=$QTPREFIX/bin:\$PATH" >> $ENV_SETUP
   echo "export QTDIR=$QTPREFIX" >> $ENV_SETUP
   echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $ENV_SETUP
+
+  chmod 755 $ENV_SETUP
+}
+
+create_start_engrid()
+{
+  echo "Create start_engrid"
+
+  echo "#!/usr/bin/env bash" > $START_ENGRID
+  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $START_ENGRID
+  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $START_ENGRID
+  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $START_ENGRID
+  
+  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $START_ENGRID
+  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $START_ENGRID
+  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $START_ENGRID
+  
+  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $START_ENGRID
+  echo "export QTDIR=$QTPREFIX" >> $START_ENGRID
+  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $START_ENGRID
+
+  echo "$(readlink -f $(pwd))/engrid/src/engrid" >> $START_ENGRID
+
+  chmod 755 $START_ENGRID
 }
 
 install_QT()
@@ -64,6 +88,7 @@ install_CGNS()
 build_engrid()
 {
   git clone $URL_ENGRID
+  if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
   cd engrid/src
   echo "Build netgen"
   ./scripts/build-nglib.sh
@@ -96,7 +121,7 @@ rebuild_engrid()
   cd -
 }
 
-ans=$(zenity  --list  --text "Which actions should be executed?" --checklist  --column "Run" --column "Actions" \
+ans=$(zenity  --height=350 --list  --text "Which actions should be executed?" --checklist  --column "Run" --column "Actions" \
 FALSE "create_bash_engrid" \
 FALSE "install_QT" \
 FALSE "install_VTK" \
@@ -105,6 +130,7 @@ FALSE "build_engrid" \
 FALSE "update_netgen" \
 FALSE "update_engrid" \
 FALSE "rebuild_engrid" \
+FALSE "create_start_engrid" \
 --separator=":");
 echo $ans
 
@@ -117,6 +143,7 @@ if ( echo $ans | grep "build_engrid" ) then build_engrid; fi;
 if ( echo $ans | grep "update_netgen" ) then update_netgen; fi;
 if ( echo $ans | grep "update_engrid" ) then update_engrid; fi;
 if ( echo $ans | grep "rebuild_engrid" ) then rebuild_engrid; fi;
+if ( echo $ans | grep "create_start_engrid" ) then create_start_engrid; fi;
 
 echo "SUCCESS"
 exit 0
