@@ -88,8 +88,8 @@ install_CGNS()
 build_engrid()
 {
   git clone $URL_ENGRID
-  if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
   cd engrid/src
+  if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
   echo "Build netgen"
   ./scripts/build-nglib.sh
   echo "Build enGrid"
