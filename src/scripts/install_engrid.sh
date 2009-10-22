@@ -26,7 +26,7 @@ create_bash_engrid()
 install_QT()
 {
   echo "Install QT"
-#   wget $URL_QT
+  wget $URL_QT
   tar -xzvf ./$ARCHIVE_QT
   cd $(basename $ARCHIVE_QT .tar.gz)
   mkdir -p $QTPREFIX
@@ -38,7 +38,7 @@ install_QT()
 install_VTK()
 {
   echo "Install VTK"
-#   wget $URL_VTK
+  wget $URL_VTK
   tar -xzvf ./$ARCHIVE_VTK
   cd ./VTK
   mkdir -p $VTKPREFIX
