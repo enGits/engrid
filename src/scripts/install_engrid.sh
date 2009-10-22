@@ -96,15 +96,27 @@ rebuild_engrid()
   cd -
 }
 
-create_bash_engrid
+ans=$(zenity  --list  --text "Which actions should be executed?" --checklist  --column "Run" --column "Actions" \
+FALSE "create_bash_engrid" \
+FALSE "install_QT" \
+FALSE "install_VTK" \
+FALSE "install_CGNS" \
+FALSE "build_engrid" \
+FALSE "update_netgen" \
+FALSE "update_engrid" \
+FALSE "rebuild_engrid" \
+--separator=":");
+echo $ans
+
+if ( echo $ans | grep "create_bash_engrid" ) then create_bash_engrid; fi
 source $ENV_SETUP
-# install_QT
-# install_VTK
-# install_CGNS
-# build_engrid
-update_netgen
-update_engrid
-# rebuild_engrid
+if ( echo $ans | grep "install_QT" ) then install_QT; fi;
+if ( echo $ans | grep "install_VTK" ) then install_VTK; fi;
+if ( echo $ans | grep "install_CGNS" ) then install_CGNS; fi;
+if ( echo $ans | grep "build_engrid" ) then build_engrid; fi;
+if ( echo $ans | grep "update_netgen" ) then update_netgen; fi;
+if ( echo $ans | grep "update_engrid" ) then update_engrid; fi;
+if ( echo $ans | grep "rebuild_engrid" ) then rebuild_engrid; fi;
 
 echo "SUCCESS"
 exit 0
