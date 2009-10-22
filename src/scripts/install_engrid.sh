@@ -4,7 +4,7 @@
 set -eux
 
 #variables to set
-ARCHIVE_QT="qt-x11-opensource-src-4.5.3.tar.gz"
+ARCHIVE_QT="qt-x11-opensource-src-4.5.2.tar.gz"
 URL_QT="http://get.qt.nokia.com/qt/source/$ARCHIVE_QT"
 
 ARCHIVE_VTK="vtk-5.4.2.tar.gz"
@@ -15,7 +15,7 @@ URL_CGNS="http://prdownloads.sourceforge.net/cgns/$ARCHIVE_CGNS"
 
 URL_ENGRID="http://engits.com/git/engrid.git"
 
-PREFIX="~/usr/engrid_libs"
+PREFIX="./usr/engrid_libs"
 mkdir -p $PREFIX
 
 VTKPREFIX=$PREFIX/VTK
@@ -31,7 +31,7 @@ ENV_SETUP="engrid_environment.sh"
 install_QT()
 {
   echo "Install QT"
-  wget $URL_QT
+#   wget $URL_QT
   tar -xzvf ./$ARCHIVE_QT
   cd $(basename $ARCHIVE_QT .tar.gz)
   ./configure --prefix=$QTPREFIX && make && make install
@@ -43,7 +43,7 @@ install_VTK()
   echo "Install VTK"
   wget $URL_VTK
   tar -xzvf ./$ARCHIVE_VTK
-  cd $(basename $ARCHIVE_VTK .tar.gz)
+  cd ./VTK
   cmake -DCMAKE_INSTALL_PREFIX:PATH=$VTKPREFIX -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_USE_GUISUPPORT:BOOL=ON -DVTK_USE_QVTK:BOOL=ON -DDESIRED_QT_VERSION:STRING=4  .
   chmod 644 Utilities/vtktiff/tif_fax3sm.c
   make && make install
