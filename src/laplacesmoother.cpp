@@ -94,8 +94,22 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   bool moved = false;
   for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
+    if (m_UseProjection) {
+      int i_nodes = m_Part.localNode(id_node);
+      if (m_NodeToBc[i_nodes].size() == 1) {
+        int bc = m_NodeToBc[i_nodes][0];
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+      } else {
+        for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+          foreach (int bc, m_NodeToBc[i_nodes]) {
+            x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+          }
+        }
+      }
+    }
     if (setNewPosition(id_node, x_new)) {
       moved = true;
+      Dx = x_new - x_old;
       break;
     }
     Dx *= 0.5;
@@ -187,6 +201,7 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = x_old;
               m_Success = false;
             }
+            /*
             if (m_UseProjection) {
               if (m_NodeToBc[_nodes[id_node]].size() == 1) {
                 int bc = m_NodeToBc[_nodes[id_node]][0];
@@ -200,6 +215,7 @@ void LaplaceSmoother::operate()
               }
               grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
             }
+            */
           }
         }
       }
