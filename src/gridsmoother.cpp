@@ -848,6 +848,17 @@ void GridSmoother::operateOptimisation()
     m_ParallelFacesError.reset();
     m_SimilarFaceAreaError.reset();
     m_FeatureLineError.reset();
+    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      vtkIdType id_foot = m_IdFoot[nodes[i_nodes]];
+      if (id_foot != -1) {
+        if (!m_IsSharpNode[id_foot]) {
+          vec3_t x;
+          i_nodes_opt = i_nodes;
+          grid->GetPoint(nodes[i_nodes], x.data());
+          double f = func(x);
+        }
+      }
+    }
     printMaxErrors();
   }
   cout << "done" << endl;
