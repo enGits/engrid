@@ -55,6 +55,7 @@ void SurfaceMesher::operate()
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
+  //swap();
   //done = true;
   while (!done) {
     ++iter;
@@ -65,14 +66,16 @@ void SurfaceMesher::operate()
     updateNodeInfo();
     swap();
     computeMeshDensity();
+    /*
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
       swap();
     }
+    */
     int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
-    swap();
+    //swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
