@@ -34,7 +34,8 @@
 # USAGE:
 # First of all change the configuration file engrid_installer_updater.cfg according to your needs.
 # Then you can run this script and choose the actions you wish to execute. Multiple actions can be run at once. They will be run in the order of the checklist.
-# Note: Altough it should be enough to run create_bash_engrid once, it's recommended to run it every time to make sure the other actions use the correct environment.
+# Note 1: Altough it should be enough to run create_bash_engrid once, it's recommended to run it every time to make sure the other actions use the correct environment.
+# Note 2: The script currently only builds the release version of engrid, which does not support CGNS, so installing CGNS is actually not necessary.
 #
 # EXAMPLES
 # Engrid installation:
