@@ -120,7 +120,7 @@ create_start_engrid()
 install_QT()
 {
   echo "Install QT"
-  wget $URL_QT
+  if [ $DOWNLOAD_QT = 1 ]; then wget $URL_QT; fi
   tar -xzvf ./$ARCHIVE_QT
   cd $(basename $ARCHIVE_QT .tar.gz)
   mkdir -p $QTPREFIX
@@ -132,7 +132,7 @@ install_QT()
 install_VTK()
 {
   echo "Install VTK"
-  wget $URL_VTK
+  if [ $DOWNLOAD_VTK = 1 ]; then wget $URL_VTK; fi
   tar -xzvf ./$ARCHIVE_VTK
   cd ./VTK
   mkdir -p $VTKPREFIX
@@ -145,7 +145,7 @@ install_VTK()
 install_CGNS()
 {
   echo "Install CGNS"
-  wget $URL_CGNS
+  if [ $DOWNLOAD_CGNS = 1 ]; then wget $URL_CGNS; fi
   tar -xzvf ./$ARCHIVE_CGNS
   cd ./cgnslib_2.5/
   mkdir -p $CGNSPREFIX
