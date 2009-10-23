@@ -153,8 +153,7 @@ void GuiCreateBoundaryLayer::operate()
   
   double H = ui.doubleSpinBoxHeight->value();
 
-  if (!ui.checkBoxImprove->isChecked()) {
-    m_NumPreSteps = max(1, m_NumPreSteps);
+  if (!ui.checkBoxImprove->isChecked() && m_NumPreSteps > 0) {
     double h = 0.01*H*ui.doubleSpinBoxPush->value();
     smooth.setRelativeHeight(h);
     smooth.simpleOn();
