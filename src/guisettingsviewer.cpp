@@ -177,7 +177,7 @@ void GuiSettingsViewer::readSettings()
 
 void GuiSettingsViewer::addChildSettings()
 {
-  ///@@@  TODO: Delete for real
+  ///\todo Delete for real
   //This only removes the tabs, but does not delete them!!!
   tabWidget.clear();
 

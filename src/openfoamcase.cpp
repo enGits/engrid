@@ -34,7 +34,7 @@ OpenFOAMcase::OpenFOAMcase()
 {
 }
 
-///@@@ TODO: Finish this by adding decomposeParDict creation and calling writeMpiParameters from operate
+///\todo Finish this by adding decomposeParDict creation and calling writeMpiParameters from operate
 void OpenFOAMcase::writeMpiParameters()
 {
   QString hostfile_text = GuiMainWindow::pointer()->getXmlSection( "solver/general/host_weight_list" );

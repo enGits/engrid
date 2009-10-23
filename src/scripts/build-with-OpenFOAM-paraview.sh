@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
@@ -20,34 +20,45 @@
 # + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# DESCRIPTION:
+# This script compiles engrid with the OpenFOAM paraview libraries.
 
 cd ${0%/*} || exit 1    # run from this directory
 
-package=netgen-mesher
-(
+usage() {
+    while [ "$#" -ge 1 ]; do echo "$1"; shift; done
+    cat<<USAGE
 
-    cd netgen_svn || exit 1
+usage: ${0##*/} [OPTION]
+options:
+  -help
 
-    if [ -d netgen-mesher/.svn ]
-    then
-        echo "updating NETGEN from SVN repository (sourceforge.net) -- please wait"
-        svn up $package
-    else
-        echo "downloading NETGEN from SVN repository (sourceforge.net) -- please wait"
-        svn co https://netgen-mesher.svn.sourceforge.net/svnroot/$package $package
-    fi
+* compile engrid with the OpenFOAM paraview libraries
 
-    echo
-    echo "starting qmake for $package"
-    echo
+USAGE
+    exit 1
+}
 
-    qmake
+#------------------------------------------------------------------------------
 
-    echo
-    echo "making $package"
-    echo
 
-    make
-)
+# set the major version "<digits>.<digits>"
+ParaView_MAJOR_VERSION=$(echo $ParaView_VERSION | \
+    sed -e 's/^\([0-9][0-9]*\.[0-9][0-9]*\).*$/\1/')
+
+libdir="$ParaView_DIR/lib/paraview-$ParaView_MAJOR_VERSION"
+
+[ -d "$ParaView_INST_DIR" ] || usage "ParaView_INST_DIR not found ($ParaView_INST_DIR)"
+[ -d "$ParaView_DIR" ] || usage "ParaView_DIR not found ($ParaView_DIR)"
+
+[ -d $libdir ] || usage "paraview libraries not found"
+
+export LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
+
+qmake engrid.pro.OpenFOAM-paraview
+
+make
+make install
 
 # ----------------------------------------------------------------- end-of-file

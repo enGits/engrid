@@ -29,7 +29,7 @@
 #include <QString>
 #include "egvtkobject.h"
 
-///@@@ TODO: Rename density to edge length
+///\todo Rename density to edge length
 class VertexMeshDensity
 {
 

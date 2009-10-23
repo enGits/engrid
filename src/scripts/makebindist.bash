@@ -1,5 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# +                                                                      +
+# + This file is part of enGrid.                                         +
+# +                                                                      +
+# + Copyright 2008,2009 Oliver Gloth                                     +
+# +                                                                      +
+# + enGrid is free software: you can redistribute it and/or modify       +
+# + it under the terms of the GNU General Public License as published by +
+# + the Free Software Foundation, either version 3 of the License, or    +
+# + (at your option) any later version.                                  +
+# +                                                                      +
+# + enGrid is distributed in the hope that it will be useful,            +
+# + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+# + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+# + GNU General Public License for more details.                         +
+# +                                                                      +
+# + You should have received a copy of the GNU General Public License    +
+# + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
+# +                                                                      +
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# DESCRIPTION:
+# This script creates a binary distribution of engrid with all necessary dependencies included.
+
 set -e -x -u
+
+# TMPDIR=$(mktemp -d)
+# echo "================"
+# echo "TMPDIR = $TMPDIR"
+# echo "================"
+# 
+# ldd ./engrid > $TMPDIR/ldd.out
+# mkdir $TMPDIR/enGrid
+# #cp engrid $TMPDIR/enGrid
+# #cp start_engrid enGrid
+# tar -czvf enGrid_bin.tar.gz $TMPDIR/enGrid/*
+# # rm -rf enGrid
+# # rm ldd.out
+# 
+# exit 0
 
 # Check if all parameters are present
 # If no, exit
@@ -55,6 +95,7 @@ saferemove_recursive()
 	fi
 }
 
+# remove traces from last use
 saferemove_recursive tmp
 saferemove $tarname
 
@@ -83,10 +124,10 @@ cd $SRCDIR
 #clean up
 #cd $SRCDIR
 qmake
-make clean
+make distclean
 cd netgen_svn
 qmake
-make clean
+make distclean
 cd ../..
 
 #add scripts + dependencies

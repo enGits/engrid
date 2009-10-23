@@ -198,7 +198,7 @@ updateActors(); \
 
 #define EG_STDSLOT(OPER) \
 OPER *oper = new OPER(); \
-oper->setGui(); \
+oper->setLockGui(); \
 (*oper)(); \
 oper->del(); \
 updateActors(); \

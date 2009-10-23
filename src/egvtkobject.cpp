@@ -907,7 +907,7 @@ vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_su
   return id_vol;
 }
 
-///@@@ TODO: Why not simply use boundary_codes = bcs ?
+///\todo Why not simply use boundary_codes = bcs ?
 //WARNING: Do never call this->setBoundaryCodes(this->m_BoundaryCodes) as this will empty m_BoundaryCodes!!!
 void EgVtkObject::setBoundaryCodes(const QSet<int> &bcs)
 {

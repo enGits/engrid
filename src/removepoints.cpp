@@ -283,7 +283,7 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
 // Dead cell: the cell does not exist anymore
 // Mutated cell: the cell's form has changed
 
-///@@@  TODO: Clean up this function
+///\todo Clean up this function
 vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& DeadCells, QVector<vtkIdType>& MutatedCells, int& num_newpoints, int& num_newcells, QVector<bool>& marked_nodes)
 {
   // preparations

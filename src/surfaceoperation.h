@@ -50,7 +50,7 @@ private:
 
 protected:
 
-  ///@@@ TODO: Remove useless attributes
+  ///\todo Remove useless attributes
   //attributes for determining node types and for smoothing operations
   double m_Convergence;
   int    m_NumberOfIterations;

@@ -69,9 +69,8 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     if (edge_count[id_node] > 0) {
-      double toto = edge_length[id_node]/edge_count[id_node];
-      if(toto==0) EG_BUG;
-      characteristic_length_desired->SetValue(id_node, toto);
+      if(edge_length[id_node]/edge_count[id_node]==0) EG_BUG;
+      characteristic_length_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
     }
   }
 }
@@ -159,9 +158,8 @@ void UpdateDesiredMeshDensity::operate()
     }
     cl = min(cl_radius[i_nodes], cl);
     
-    double toto = cl;
-    if(toto==0) EG_BUG;
-    characteristic_length_desired->SetValue(id_node, toto);
+    if(cl==0) EG_BUG;
+    characteristic_length_desired->SetValue(id_node, cl);
     
     if (cl < cl_min) {
       cl_min = cl;
@@ -192,8 +190,8 @@ void UpdateDesiredMeshDensity::operate()
             double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
             if (!m_Fixed[nodes[j_nodes]]) {
               
-              double toto = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
-              if(toto==0) {
+              double cl_min = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
+              if(cl_min==0) {
                 qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
                 qWarning()<<"cli="<<cli;
                 qWarning()<<"m_GrowthFactor="<<m_GrowthFactor;
@@ -201,7 +199,7 @@ void UpdateDesiredMeshDensity::operate()
                 qWarning()<<"L_new="<<L_new;
                 EG_BUG;
               }
-              characteristic_length_desired->SetValue(nodes[j_nodes], toto);
+              characteristic_length_desired->SetValue(nodes[j_nodes], cl_min);
               
             }
           }
