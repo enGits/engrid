@@ -157,6 +157,9 @@ install_CGNS()
 
 build_engrid()
 {
+  ORIG_WD=$(pwd)
+  mkdir -p $SRCPREFIX
+  cd $SRCPREFIX
   git clone $URL_ENGRID
   cd engrid/src
   if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
@@ -164,12 +167,12 @@ build_engrid()
   ./scripts/build-nglib.sh
   echo "Build enGrid"
   qmake && make release
-  cd -
+  cd $ORIG_WD
 }
 
 update_netgen()
 {
-  cd ./engrid/src
+  cd $SRCPREFIX/engrid/src
   echo "Update netgen"
   ./scripts/build-nglib.sh
   cd -
@@ -177,7 +180,7 @@ update_netgen()
 
 update_engrid()
 {
-  cd ./engrid/src
+  cd $SRCPREFIX/engrid/src
   echo "Update enGrid"
   git pull
   qmake && make release
@@ -186,7 +189,7 @@ update_engrid()
 
 rebuild_engrid()
 {
-  cd ./engrid/src
+  cd $SRCPREFIX/engrid/src
   qmake && make distclean && qmake && make release
   cd -
 }
