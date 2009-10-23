@@ -38,7 +38,10 @@ RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 
 #Generate TODO lists
 ./scripts/checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
-mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
+if [ -s comments.mail ]
+then
+	mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
+fi
 
 #test build
 touch build.log
