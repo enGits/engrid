@@ -183,7 +183,6 @@ void GuiCreateBoundaryLayer::operate()
     vol();
     vol.getTraceCells(layer_cells);
   }
-  double mesh_error = smooth.lastTotalError();
 
   {
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -201,7 +200,6 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(grid);
   createIndices(grid);
-  cout << "total mesh error: " << mesh_error << endl;
   smooth.printMaxErrors();
   if (m_WriteDebugFile) {
     smooth.setAllCells();
