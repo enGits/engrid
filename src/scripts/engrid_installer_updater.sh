@@ -78,43 +78,45 @@ source "${0%/*}/engrid_installer_updater.cfg"
 create_bash_engrid()
 {
   echo "Create bash_engrid"
+  mkdir -p $BINPREFIX
 
-  echo "#!/usr/bin/env bash" > $ENV_SETUP
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $ENV_SETUP
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $ENV_SETUP
-  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $ENV_SETUP
+  echo "#!/usr/bin/env bash" > $BINPREFIX/$ENV_SETUP
+  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
+  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
+  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $ENV_SETUP
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $ENV_SETUP
-  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $ENV_SETUP
+  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$ENV_SETUP
+  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$ENV_SETUP
+  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
-  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $ENV_SETUP
-  echo "export QTDIR=$QTPREFIX" >> $ENV_SETUP
-  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $ENV_SETUP
+  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$ENV_SETUP
+  echo "export QTDIR=$QTPREFIX" >> $BINPREFIX/$ENV_SETUP
+  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
 
-  chmod 755 $ENV_SETUP
+  chmod 755 $BINPREFIX/$ENV_SETUP
 }
 
 create_start_engrid()
 {
   echo "Create start_engrid"
+  mkdir -p $BINPREFIX
 
-  echo "#!/usr/bin/env bash" > $START_ENGRID
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $START_ENGRID
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $START_ENGRID
-  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $START_ENGRID
+  echo "#!/usr/bin/env bash" > $BINPREFIX/$START_ENGRID
+  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
+  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
+  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
   
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $START_ENGRID
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $START_ENGRID
-  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $START_ENGRID
+  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$START_ENGRID
+  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$START_ENGRID
+  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
   
-  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $START_ENGRID
-  echo "export QTDIR=$QTPREFIX" >> $START_ENGRID
-  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $START_ENGRID
+  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$START_ENGRID
+  echo "export QTDIR=$QTPREFIX" >> $BINPREFIX/$START_ENGRID
+  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
 
-  echo "$(readlink -f $(pwd))/engrid/src/engrid" >> $START_ENGRID
+  echo "$SRCPREFIX/engrid/src/engrid" >> $BINPREFIX/$START_ENGRID
 
-  chmod 755 $START_ENGRID
+  chmod 755 $BINPREFIX/$START_ENGRID
 }
 
 install_QT()
@@ -208,7 +210,7 @@ FALSE "create_start_engrid" \
 echo $ans
 
 if ( echo $ans | grep "create_bash_engrid" ) then create_bash_engrid; fi
-source $ENV_SETUP
+source $BINPREFIX/$ENV_SETUP
 if ( echo $ans | grep "install_QT" ) then install_QT; fi;
 if ( echo $ans | grep "install_VTK" ) then install_VTK; fi;
 if ( echo $ans | grep "install_CGNS" ) then install_CGNS; fi;
