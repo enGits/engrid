@@ -76,18 +76,24 @@ set -eux
 
 source "${0%/*}/engrid_installer_updater.cfg"
 
+VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION
+VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION
+
+CGNSINCDIR=$CGNSPREFIX/include
+CGNSLIBDIR=$CGNSPREFIX/lib
+
 create_bash_engrid()
 {
   echo "Create bash_engrid"
   mkdir -p $BINPREFIX
 
   echo "#!/usr/bin/env bash" > $BINPREFIX/$ENV_SETUP
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
+  echo "export VTKINCDIR=$VTKINCDIR" >> $BINPREFIX/$ENV_SETUP
+  echo "export VTKLIBDIR=$VTKLIBDIR" >> $BINPREFIX/$ENV_SETUP
   echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$ENV_SETUP
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$ENV_SETUP
+  echo "export CGNSINCDIR=$CGNSINCDIR" >> $BINPREFIX/$ENV_SETUP
+  echo "export CGNSLIBDIR=$CGNSLIBDIR" >> $BINPREFIX/$ENV_SETUP
   echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
   echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$ENV_SETUP
@@ -103,18 +109,7 @@ create_start_engrid()
   mkdir -p $BINPREFIX
 
   echo "#!/usr/bin/env bash" > $BINPREFIX/$START_ENGRID
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-  
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$START_ENGRID
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-  
-  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$START_ENGRID
-  echo "export QTDIR=$QTPREFIX" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-
+  echo "source $BINPREFIX/$ENV_SETUP" >> $BINPREFIX/$START_ENGRID
   echo "$SRCPREFIX/engrid/src/engrid" >> $BINPREFIX/$START_ENGRID
 
   chmod 755 $BINPREFIX/$START_ENGRID
