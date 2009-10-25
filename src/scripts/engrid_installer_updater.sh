@@ -206,7 +206,11 @@ FALSE "create_start_engrid" \
 echo $ans
 
 if ( echo $ans | grep "create_bash_engrid" ) then create_bash_engrid; fi
+
+set +u
 source $BINPREFIX/$ENV_SETUP
+set -u
+
 if ( echo $ans | grep "install_QT" ) then install_QT; fi;
 if ( echo $ans | grep "install_VTK" ) then install_VTK; fi;
 if ( echo $ans | grep "install_CGNS" ) then install_CGNS; fi;
