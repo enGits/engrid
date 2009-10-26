@@ -25,6 +25,8 @@
 
 #include "vtkUnstructuredGridWriter.h"
 
+#include <vtkCellLocator.h>
+
 int idx_func(int N, int i, int j)
 {
   int offset = -i*(i-2*N-1)/2;
@@ -213,8 +215,26 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
   return QuadraticBezierTriangle(u, v, w);
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(double u, double v, double w)
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
 {
-/*  vec3_t B = QuadraticBezierTriangle();
-  B*/
+  int N=10;
+  int N_cells = (N-1)*(N-1);
+  int N_points = (N*N+N)/2;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, 2*N_cells, 2*N_points);
+  
+  vtkIdType offset = 0;
+  offset += addBezierSurface(bezier, offset, N);
+  
+  vtkIdType cellId;
+  int subId;
+  double dist2;
+  vtkCellLocator* locator=vtkCellLocator::New();
+  locator->SetDataSet(bezier);
+  locator->BuildLocator();
+  vec3_t g_P;
+  locator->FindClosestPoint(g_M.data(),g_P.data(),cellId,subId,dist2);
+  locator->Delete();
+  return g_P;
 }

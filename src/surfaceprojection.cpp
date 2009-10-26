@@ -797,7 +797,8 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
 
   BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  return bezier_triangle.QuadraticBezierTriangle(t_M);
+  return bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
+//   return bezier_triangle.QuadraticBezierTriangle(t_M);
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
   intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
