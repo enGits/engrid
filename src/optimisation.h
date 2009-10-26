@@ -33,10 +33,10 @@ class ErrorFunction
 
 private: // attributes
 
-  double  m_Weighting1;
-  double  m_Weighting2;
-  double  m_XSwitch;
-  double  m_Exponent;
+  double  m_Err0;
+  double  m_ErrS;
+  double  m_XS;
+  double  m_Exp;
   double  m_MaxErr;
   double  m_TotalError;
   bool    m_Active;
@@ -52,7 +52,7 @@ public: // methods
   double operator()(double x);
   double maxError() { return m_MaxErr; }
   void reset() { m_MaxErr = 0; m_TotalError = 0; m_NumCalls = 0; }
-  bool active() { return m_Active && ((m_Weighting1 > 1e-10) || (m_Weighting2 > 1e-10)); }
+  bool active() { return m_Active && (m_Err0 > 1e-10); }
   double averageError();
   void activate() { m_Active = true; }
   void deactivate() { m_Active = false; }
@@ -78,7 +78,7 @@ protected: // methods
   virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
   virtual void computeDerivatives(vec3_t x);
 
-  void getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func);
+  void getErrSet(QString group, QString key, double err0, double xs, ErrorFunction &err_func);
   double angleX(const vec3_t &v1, const vec3_t &v2);
   
 public: // methods

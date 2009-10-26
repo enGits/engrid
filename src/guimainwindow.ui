@@ -79,6 +79,7 @@
     <addaction name="actionImportOpenFoamCase"/>
     <addaction name="actionImportFluentCase"/>
     <addaction name="actionImportSeligAirfoil"/>
+    <addaction name="actionImportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -163,6 +164,8 @@
     <addaction name="actionExportNeutral"/>
     <addaction name="actionExportAsciiStl"/>
     <addaction name="actionExportBinaryStl"/>
+    <addaction name="actionExportAsciiPly"/>
+    <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
    </widget>
@@ -1567,6 +1570,21 @@
   <action name="actionProjection_test">
    <property name="text">
     <string>projection test</string>
+   </property>
+  </action>
+  <action name="actionImportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
+   </property>
+  </action>
+  <action name="actionExportAsciiPly">
+   <property name="text">
+    <string>Stanford PLY (ASCII)</string>
+   </property>
+  </action>
+  <action name="actionExportBinaryPly">
+   <property name="text">
+    <string>Standford PLY (binary)</string>
    </property>
   </action>
  </widget>

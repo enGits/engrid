@@ -33,6 +33,7 @@
 #include "gmshwriter.h"
 #include "neutralwriter.h"
 #include "stlwriter.h"
+#include "plywriter.h"
 #include "correctsurfaceorientation.h"
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
@@ -651,6 +652,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
 
 void GuiMainWindow::updateActors(bool forced)
 {
+//   qDebug()<<"QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); called()";
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   //if (!tryLock()) return;
   try {
     m_Axes->SetInput(grid);
@@ -661,14 +665,19 @@ void GuiMainWindow::updateActors(bool forced)
     err.display();
   }
   //unlock();
+  
+//   qDebug()<<"QApplication::restoreOverrideCursor(); called()";
+  QApplication::restoreOverrideCursor();
 }
 
 
 
 void GuiMainWindow::forceUpdateActors()
 {
+//   qDebug()<<"void GuiMainWindow::forceUpdateActors() START";
   updateActors(true);
   getRenderWindow()->Render();
+//   qDebug()<<"void GuiMainWindow::forceUpdateActors() END";
 }
 
 void GuiMainWindow::setPickMode(bool a_UseVTKInteractor,bool a_CellPickerMode)
@@ -810,7 +819,7 @@ void GuiMainWindow::deselectAll()
   updateActors();
 }
 
-///@@@  TODO: Should display a window
+///\todo Should display a window
 void GuiMainWindow::info()
 {
   ShowInfo info(ui.radioButton_CellPicker->isChecked(), m_PickedPoint, m_PickedCell);
@@ -819,7 +828,7 @@ void GuiMainWindow::info()
 
 int GuiMainWindow::quickSave()
 {
-  ///@@@ might be re-activated with RAM support
+  ///\todo might be re-activated with RAM support
   
 /*  if(grid->GetNumberOfPoints()>0)
   {
@@ -840,7 +849,7 @@ int GuiMainWindow::quickSave()
 
 void GuiMainWindow::quickLoad(int a_operation)
 {
-  ///@@@ might be re-activated with RAM support
+  ///\todo might be re-activated with RAM support
   
 /*  QFileInfo fileinfo(m_CurrentFilename);
   QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
@@ -1074,7 +1083,7 @@ void GuiMainWindow::saveGrid(QString file_name)
   }
 }
 
-///@@@  TODO: I think this should also be a done by a subclass of IOOperation just like for import operations
+///\todo I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
@@ -1140,6 +1149,8 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  
   QFileInfo file_info(file_name);
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
@@ -1154,6 +1165,9 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   if(update_current_filename) m_CurrentFilename = file_name;
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
+  
+  QApplication::restoreOverrideCursor();
+  
   return(file_name);
 }
 
@@ -1574,11 +1588,29 @@ void GuiMainWindow::improveAspectRatio()
 void GuiMainWindow::exportAsciiStl()
 {
   StlWriter stl;
+  stl.setFileTypeToASCII();
   stl();
 }
 
 void GuiMainWindow::exportBinaryStl()
 {
+  StlWriter stl;
+  stl.setFileTypeToBinary();
+  stl();
+}
+
+void GuiMainWindow::exportAsciiPly()
+{
+  PlyWriter ply;
+  ply.setFileTypeToASCII();
+  ply();
+}
+
+void GuiMainWindow::exportBinaryPly()
+{
+  PlyWriter ply;
+  ply.setFileTypeToBinary();
+  ply();
 }
 
 void GuiMainWindow::periodicUpdate()
@@ -1669,7 +1701,7 @@ void GuiMainWindow::callFixSTL()
 {
   FixSTL *fix;
   fix = new FixSTL();
-  fix->setGui();
+  fix->setLockGui();
   (*fix)();
   updateBoundaryCodes(false);
   updateActors();
@@ -1752,7 +1784,7 @@ void GuiMainWindow::about()
   
 }
 
-///@@@ TODO: Why not use bcs = m_AllBoundaryCodes ?
+///\todo Why not use bcs = m_AllBoundaryCodes ?
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;

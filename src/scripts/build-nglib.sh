@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
@@ -20,42 +20,41 @@
 # + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-cd ${0%/*} || exit 1    # run from this directory
-
-usage() {
-    while [ "$#" -ge 1 ]; do echo "$1"; shift; done
-    cat<<USAGE
-
-usage: ${0##*/} [OPTION]
-options:
-  -help
-
-* compile engrid with the OpenFOAM paraview libraries
-
-USAGE
-    exit 1
-}
-
-#------------------------------------------------------------------------------
+#
+# DESCRIPTION:
+# This script checks out or updates the netgen source code and creates the static netgen library.
 
 
-# set the major version "<digits>.<digits>"
-ParaView_MAJOR_VERSION=$(echo $ParaView_VERSION | \
-    sed -e 's/^\([0-9][0-9]*\.[0-9][0-9]*\).*$/\1/')
+echo ${0%/*} #directory of script
+echo ${0%/*/*} # parent directory of script
+# exit 0
+cd ${0%/*/*} || exit 1    # run from parent directory of script
 
-libdir="$ParaView_DIR/lib/paraview-$ParaView_MAJOR_VERSION"
+package=netgen-mesher
+(
+    echo "Working directory = $(pwd)"
+    cd netgen_svn || exit 1
 
-[ -d "$ParaView_INST_DIR" ] || usage "ParaView_INST_DIR not found ($ParaView_INST_DIR)"
-[ -d "$ParaView_DIR" ] || usage "ParaView_DIR not found ($ParaView_DIR)"
+    if [ -d netgen-mesher/.svn ]
+    then
+        echo "updating NETGEN from SVN repository (sourceforge.net) -- please wait"
+        svn up $package
+    else
+        echo "downloading NETGEN from SVN repository (sourceforge.net) -- please wait"
+        svn co https://netgen-mesher.svn.sourceforge.net/svnroot/$package $package
+    fi
 
-[ -d $libdir ] || usage "paraview libraries not found"
+    echo
+    echo "starting qmake for $package"
+    echo
 
-export LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
+    qmake
 
-qmake engrid.pro.OpenFOAM-paraview
+    echo
+    echo "making $package"
+    echo
 
-make
-make install
+    make
+)
 
 # ----------------------------------------------------------------- end-of-file

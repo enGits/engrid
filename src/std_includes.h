@@ -54,5 +54,6 @@
 #include "removepoints.h"
 #include "insertpoints.h"
 #include "seligairfoilreader.h"
+#include "blenderreader.h"
 
 // -------------------------------------------

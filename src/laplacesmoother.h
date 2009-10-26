@@ -38,6 +38,8 @@ private:
   double    m_UnderRelaxation;
   bool      m_Success;
 
+  QVector<QVector<int> > m_NodeToBc;
+
 
 private: // methods
 

@@ -33,7 +33,7 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
-///@@@ TODO: replace with shellscript?
+///\todo replace with shellscript?
 void appendLicense(int argc, char ** argv)
 {
   int first_year = 2008;
@@ -106,7 +106,7 @@ void appendLicense(int argc, char ** argv)
   };
 }
 
-///@@@ TODO: replace with shellscript?
+///\todo replace with shellscript?
 void makeDistribution()
 {
   system ("ldd ./engrid > ldd.out");
@@ -167,7 +167,7 @@ int main( int argc, char ** argv )
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   
-  ///@@@ TODO: use gnu getopt ? Check windows/mac compatibility.
+  ///\todo use gnu getopt ? Check windows/mac compatibility.
   if (argc > 1) {
     if (QString(argv[1]) == QString("-h")) {
       QFileInfo file_info(argv[0]);

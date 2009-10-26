@@ -171,10 +171,10 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
   if ( DebugLevel > 0 ) {
     cout << "===UpdateMeshDensity END===" << endl;
   }
-  return( 0 ); ///@@@ what for???
+  return( 0 ); ///\todo what for???
 }
 
-int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool allow_feature_edge_vertices, bool fix_unselected )
+int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fix_unselected)
 {
   setAllSurfaceCells();
 
@@ -209,7 +209,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
 
       //-----------------------
       //determine edge type
-      char edge = getEdgeType( id_node2, id_node1, allow_feature_edge_vertices, fix_unselected );
+      char edge = getEdgeType( id_node2, id_node1, fix_unselected );
       //-----------------------
       //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
       if ( edge && node_type->GetValue( id_node1 ) == VTK_SIMPLE_VERTEX ) {
@@ -279,7 +279,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool al
   return( 0 );
 }
 
-char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_vertices, bool fix_unselected )
+char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -292,13 +292,13 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
 
   QVector <vtkIdType> edges;
 
-  double CosEdgeAngle = cos(this->m_EdgeAngle) ;
+  double CosEdgeAngle = cos(this->m_EdgeAngle);
 
   foreach( int i_node2, n2n[_nodes[id_node]] ) {
     vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
-    char edge = getEdgeType( id_node2, id_node, allow_feature_edge_vertices, fix_unselected );
+    char edge = getEdgeType(id_node2, id_node, fix_unselected);
 
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
@@ -343,7 +343,6 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool allow_feature_edge_v
     }//if along edge
   }//if edge vertex
 
-  if ( !allow_feature_edge_vertices && type == VTK_FEATURE_EDGE_VERTEX ) EG_BUG;
   return( type );
 }
 
@@ -388,9 +387,10 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
   return EdgeCells.size();
 }
 
-char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool allow_feature_edge_vertices, bool fix_unselected )
+char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fix_unselected)
 {
   double CosFeatureAngle = cos(this->m_FeatureAngle);
+  bool feature_edges_disabled = m_FeatureAngle >= M_PI;
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
@@ -409,7 +409,7 @@ char SurfaceOperation::getEdgeType( vtkIdType a_node1, vtkIdType a_node2, bool a
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
-    if ( allow_feature_edge_vertices && CosAngle( grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle ) {
+    if (CosAngle(grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
     //check the boundary codes
@@ -537,7 +537,7 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 //---------------------------------------------------
 //Utility functions used in Roland's formulas
 
-///@@@ TODO: change meshdensity fields to edgelength fields since this is what is mostly used?
+///\todo change meshdensity fields to edgelength fields since this is what is mostly used?
 
 /// desired edge length for id_node
 double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
@@ -574,7 +574,7 @@ double SurfaceOperation::meanDesiredEdgeLength( vtkIdType id_cell )
   return total / ( double )num_pts;
 }
 
-///@@@ TODO: Should be renamed to be more explicit if possible
+///\todo Should be renamed to be more explicit if possible
 
 /// perimeter / sum of the desired edge lengths
 double SurfaceOperation::Q_L( vtkIdType id_cell )

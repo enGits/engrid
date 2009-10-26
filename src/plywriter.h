@@ -20,52 +20,28 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef SETTINGSTAB_H
-#define SETTINGSTAB_H
+#ifndef plywriter_H
+#define plywriter_H
 
-#include <QWidget>
-#include <QString>
-#include <QtGui>
-#include <QVector>
-
-///\todo fix problems with more than one boolean + general tab stuff
+#include "iooperation.h"
 
 /**
- * Creates a QWidget listing all key/value pairs contained in the group "group" 
- * of the QSettings file corresponding to the (org,app) pair.
- * integers appear in spinboxes
- * doubles appear in line edit boxes
- * booleans appear in checkboxes
+ * Writer for PLY files.
  */
-class GuiSettingsTab : public QWidget
+class PlyWriter : public IOOperation
 {
+private:
+  bool m_AsciiFileType;
   
-  Q_OBJECT;
-    
-public:
+protected: // methods
   
-  QVector<QString> spinbox_name;
-  QVector<QSpinBox*> spinbox;
+  virtual void operate();
   
-  QVector<QString> checkbox_name;
-  QVector<QCheckBox*> checkbox;
+public: // methods
   
-  QVector<QString> double_lineedit_name;
-  QVector<QLineEdit*> double_lineedit;
-  
-  QVector<QString> string_lineedit_name;
-  QVector<QLineEdit*> string_lineedit;
-
-public:
-	//constructors
-  /**
-   * Constructor using the (org,app) pair to determine QSettings
-   * @param org organization
-   * @param app application
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsTab(QString org,QString app,QString group,QWidget *parent = 0);
+  PlyWriter();
+  void setFileTypeToASCII() { m_AsciiFileType = true; };
+  void setFileTypeToBinary() { m_AsciiFileType = false; };
   
 };
 

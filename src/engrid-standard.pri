@@ -101,6 +101,7 @@ HEADERS = boundarycondition.h \
     std_includes.h \
     stlreader.h \
     stlwriter.h \
+    plywriter.h \
     uniquevector.h \
     swaptriangles.h \
     tvtkoperation.h \
@@ -196,6 +197,7 @@ SOURCES = main.cpp \
     simplefoamwriter.cpp \
     stlreader.cpp \
     stlwriter.cpp \
+    plywriter.cpp \
     swaptriangles.cpp \
     volumedefinition.cpp \
     vtkreader.cpp \
@@ -280,4 +282,6 @@ HEADERS += seligairfoilreader.h
 SOURCES += seligairfoilreader.cpp
 HEADERS += fixcadgeometry.h
 SOURCES += fixcadgeometry.cpp
+HEADERS += blenderreader.h
+SOURCES += blenderreader.cpp
 

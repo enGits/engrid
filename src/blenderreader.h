@@ -20,53 +20,24 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef SETTINGSTAB_H
-#define SETTINGSTAB_H
 
-#include <QWidget>
-#include <QString>
-#include <QtGui>
-#include <QVector>
+#ifndef BLENDERREADER_H
+#define BLENDERREADER_H
 
-///\todo fix problems with more than one boolean + general tab stuff
+#include "iooperation.h"
 
-/**
- * Creates a QWidget listing all key/value pairs contained in the group "group" 
- * of the QSettings file corresponding to the (org,app) pair.
- * integers appear in spinboxes
- * doubles appear in line edit boxes
- * booleans appear in checkboxes
- */
-class GuiSettingsTab : public QWidget
+class BlenderReader : public IOOperation
 {
-  
-  Q_OBJECT;
-    
-public:
-  
-  QVector<QString> spinbox_name;
-  QVector<QSpinBox*> spinbox;
-  
-  QVector<QString> checkbox_name;
-  QVector<QCheckBox*> checkbox;
-  
-  QVector<QString> double_lineedit_name;
-  QVector<QLineEdit*> double_lineedit;
-  
-  QVector<QString> string_lineedit_name;
-  QVector<QLineEdit*> string_lineedit;
 
-public:
-	//constructors
-  /**
-   * Constructor using the (org,app) pair to determine QSettings
-   * @param org organization
-   * @param app application
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsTab(QString org,QString app,QString group,QWidget *parent = 0);
-  
+protected: // methods
+
+  virtual void operate();
+
+
+public: // methods
+
+  BlenderReader();
+
 };
 
-#endif
+#endif // BLENDERREADER_H

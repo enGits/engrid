@@ -133,7 +133,7 @@ int GuiCreateSurfaceMesh::readSettings()
     ui.lineEditGrowthFactor->setText(str);
     double nodes_per_quarter_circle;
     in >> nodes_per_quarter_circle;
-    nodes_per_quarter_circle = 0; ///@@@ TODO: implement curvature resolution
+    nodes_per_quarter_circle = 0; ///\todo implement curvature resolution
     ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
     int num_bcs;
     in >> num_bcs;

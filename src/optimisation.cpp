@@ -25,33 +25,36 @@
 
 ErrorFunction::ErrorFunction()
 {
-  m_Weighting1 = 1.0;
-  m_Weighting2 = 1.0;
-  m_XSwitch = 0.5;
-  m_Exponent = 1.0;
+  m_Err0 = 1.0;
+  m_ErrS = 0.5;
+  m_XS   = 0.5;
+  m_Exp  = 1.0;
+
   m_TotalError = 0.0;
-  m_Active = true;
+  m_Active     = true;
 }
 
 void ErrorFunction::set(QString settings_txt)
 {
-  QStringList items = settings_txt.split(',');
-  if (items.size() != 4) {
+  QStringList items = settings_txt.split(';');
+  if (items.size() != 2) {
     EG_ERR_RETURN("syntax error for error weighting");
   }
-  m_Weighting1 = items[0].trimmed().toDouble();
-  m_Weighting2 = items[1].trimmed().toDouble();
-  m_Exponent   = items[2].trimmed().toDouble();
-  m_XSwitch    = items[3].trimmed().toDouble();
+  m_Err0 = items[0].trimmed().toDouble();
+  m_ErrS = 0.5*m_Err0;
+  m_XS   = items[1].trimmed().toDouble();
+  m_Exp = 1.0;
+  if (m_Err0 > 1e-3) {
+    m_Exp = log(m_ErrS/m_Err0)/log(1.0 - m_XS);
+  }
 }
 
 double ErrorFunction::operator ()(double x)
 {
-  double e1 = max(0.0, -m_Weighting1*(x - m_XSwitch));
-  double e2 = fabs(1 - x);
-  double e  = max(e1, m_Weighting2*pow(e2, m_Exponent));
-  m_MaxErr = max(m_MaxErr, e2);
-  m_TotalError += e2;
+  double x0 = fabs(1-x);
+  double e = m_Err0*pow(x0, m_Exp);
+  m_MaxErr = max(m_MaxErr, x0);
+  m_TotalError += e;
   ++m_NumCalls;
   return e;
 }
@@ -77,14 +80,12 @@ Optimisation::Optimisation()
   };
 };
 
-void Optimisation::getErrSet(QString group, QString key, double w1, double w2, double e, double s, ErrorFunction &err_func)
+void Optimisation::getErrSet(QString group, QString key, double err0, double xs, ErrorFunction &err_func)
 {
-  QString w1_txt, w2_txt, s_txt, e_txt;
-  w1_txt.setNum(w1);
-  w2_txt.setNum(w2);
-  s_txt.setNum(s);
-  e_txt.setNum(e);
-  QString value = w1_txt + ", " + w2_txt + ", " + e_txt + ", " + s_txt;
+  QString err0_txt, xs_txt;
+  err0_txt.setNum(err0);
+  xs_txt.setNum(xs);
+  QString value = err0_txt + "; " + xs_txt;
   QString variable;
   QSettings *qset = GuiMainWindow::settings();
   QString typed_key = "string/" + key;

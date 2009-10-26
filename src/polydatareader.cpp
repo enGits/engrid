@@ -25,7 +25,6 @@
 
 #include <vtkXMLPolyDataReader.h>
 
-#include <QFileInfo>
 #include "guimainwindow.h"
 
 PolyDataReader::PolyDataReader()

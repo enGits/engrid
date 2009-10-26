@@ -306,7 +306,7 @@ void GuiEditBoundaryConditions::setupSolvers()
   QString intext = text_stream.readAll();
   file.close();
 
-  ///@@@ TODO: Create a special parser method for this so that it can be reused by other classes
+  ///\todo Create a special parser method for this so that it can be reused by other classes
   int idx = 0;
   QStringList page_list = intext.split("=");
   foreach(QString page, page_list) {

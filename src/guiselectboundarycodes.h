@@ -33,7 +33,7 @@ class GuiSelectBoundaryCodes : public DialogOperation<Ui::GuiSelectBoundaryCodes
   
 private: // attributes
   
-  QSet<int> display_boundary_codes;
+  QSet<int> m_DisplayBoundaryCodes;
   
 private slots:
   

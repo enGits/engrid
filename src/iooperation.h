@@ -31,6 +31,7 @@ class IOOperation;
 #include <QString>
 #include <QFile>
 #include <QTextStream>
+#include <QFileInfo>
 
 #include <vtkLongArray.h>
 #include <vtkIntArray.h>

@@ -32,6 +32,7 @@
 StlWriter::StlWriter()
 {
   setFormat("stereolithography files (*.stl *.STL)");
+  m_AsciiFileType = true;
 };
 
 void StlWriter::operate()
@@ -47,12 +48,15 @@ void StlWriter::operate()
       EG_VTKSP(vtkSTLWriter, write_stl);
       write_stl->SetInput(triangle->GetOutput());
       write_stl->SetFileName(qPrintable(getFileName()));
-      write_stl->SetFileTypeToASCII();
+      if(m_AsciiFileType) {
+        write_stl->SetFileTypeToASCII();
+      }
+      else {
+        write_stl->SetFileTypeToBinary();
+      }
       write_stl->Write();
     };
   } catch (Error err) {
     err.display();
   };
 };
-
-

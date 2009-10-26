@@ -22,75 +22,39 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #
 # DESCRIPTION:
-# This is a testing script that is run every night to make sure that engrid compiles from scratch with all available configurations.
+# This is a script run every night for several tasks: Documentation update, todo list generation, nightly builds, etc
 # USAGE:
 # This script must be run from the "engrid/src" directory.
 
-set -ex
+set -x
 
-FAILURE=0
+RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 
-#set up environment
-source ./scripts/setup_paths.sh engits yes
+#Create a nightly source tarball and put it on the FTP server
+./scripts/makedist.bash .. /srv/ftp/nightly
 
-echo "BUILDING TOOLS":
-echo "gcc = $(which gcc)"
-echo "g++ = $(which g++)"
-echo "qmake = $(which qmake)"
-echo "make = $(which make)"
-gcc -v
-g++ -v
-qmake -v
-make -v
+#Update online documentation
+/usr/bin/doxygen Doxyfile
 
-echo "PATHS:"
-echo QTDIR = $QTDIR
-echo VTKLIBDIR = $VTKLIBDIR
-echo VTKINCDIR = $VTKINCDIR
-echo CGNSINCDIR = $CGNSINCDIR
-echo CGNSLIBDIR = $CGNSLIBDIR
-echo PATH = $PATH
-echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
-
-echo "Building netgen"
-./scripts/build-nglib.sh
-
-MAKEOPTIONS=""
-
-MSG="Building engrid.pro debug version"
-echo $MSG
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS debug || FAILURE=1
-if [ $FAILURE -eq 1 ]
+#Generate TODO lists
+./scripts/checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
+if [ -s comments.mail ]
 then
-  echo "$MSG failed."
-  exit 1
+	mailx -s "ENGRID: comments" $RECIPIENTS < comments.mail
 fi
 
-MSG="Building engrid.pro.cgns debug version"
-echo $MSG
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS debug || FAILURE=1
-if [ $FAILURE -eq 1 ]
+#test build
+touch build.log
+pwd
+./scripts/rebuild.sh 1>build.log 2>&1
+if [ $? -ne 0 ]
 then
-  echo "$MSG failed."
-  exit 1
+  echo "BUILD FAILED"
+  mailx -s "ENGRID: build test failed" $RECIPIENTS < ./build.log
+else
+  echo "BUILD SUCCESSFUL"
+  mailx -s "ENGRID: build test successful" $RECIPIENTS < ./build.log
 fi
 
-MSG="Building engrid.pro release version"
-echo $MSG
-qmake && make distclean && qmake engrid.pro && make $MAKEOPTIONS release || FAILURE=1
-if [ $FAILURE -eq 1 ]
-then
-  echo "$MSG failed."
-  exit 1
-fi
-
-MSG="Building engrid.pro.cgns release version"
-echo $MSG
-qmake && make distclean && qmake engrid.pro.cgns && make $MAKEOPTIONS release || FAILURE=1
-if [ $FAILURE -eq 1 ]
-then
-  echo "$MSG failed."
-  exit 1
-fi
-
-echo "SUCCESS: Everything compiles."
+# copy nightly build into /opt/shared/bin/
+cp -v ./engrid /opt/shared/bin/ || (echo mailx -s "failed to copy engrid into /opt/shared/bin/" $RECIPIENTS)

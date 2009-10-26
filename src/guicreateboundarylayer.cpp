@@ -153,13 +153,11 @@ void GuiCreateBoundaryLayer::operate()
   
   double H = ui.doubleSpinBoxHeight->value();
 
-  if (!ui.checkBoxImprove->isChecked()) {
-    m_NumPreSteps = max(1, m_NumPreSteps);
-    double dh = H/m_NumPreSteps;
-    double h = dh;
+  if (!ui.checkBoxImprove->isChecked() && m_NumPreSteps > 0) {
+    double h = 0.01*H*ui.doubleSpinBoxPush->value();
+    smooth.setRelativeHeight(h);
     smooth.simpleOn();
     for (int i = 0; i < m_NumPreSteps; ++i) {
-      smooth.setRelativeHeight(h);
       cout << "improving prismatic layer -> pre-step " << i+1 << "/" << m_NumPreSteps << endl;
       smooth.setAllCells();
       smooth();
@@ -169,7 +167,6 @@ void GuiCreateBoundaryLayer::operate()
       vol.setTraceCells(layer_cells);
       vol();
       vol.getTraceCells(layer_cells);
-      h += dh;
     }
   }
 
@@ -186,7 +183,6 @@ void GuiCreateBoundaryLayer::operate()
     vol();
     vol.getTraceCells(layer_cells);
   }
-  double mesh_error = smooth.lastTotalError();
 
   {
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
@@ -204,7 +200,6 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(grid);
   createIndices(grid);
-  cout << "total mesh error: " << mesh_error << endl;
   smooth.printMaxErrors();
   if (m_WriteDebugFile) {
     smooth.setAllCells();

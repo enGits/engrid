@@ -36,9 +36,6 @@ GridSmoother::GridSmoother()
   L_search = 0.05;
   smooth_prisms = true;
   dbg = false;
-  F_old = 0;
-  F_new = 0;
-  
   getSet("boundary layer", "relative height of boundary layer", 0.75, m_RelativeHeight);
   getSet("boundary layer", "under relaxation",                  1.00, m_UnderRelaxation);
   getSet("boundary layer", "maximal relative edge length",      1.50, m_MaxRelLength);
@@ -48,16 +45,16 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "number of smoothing sub-iterations", 5, N_iterations);
   getSet("boundary layer", "use strict prism checking", true, m_StrictPrismChecking);
 
-  getErrSet("boundary layer", "layer height error",      200.0,  2.0, 2.0, 0.10, m_HeightError);
-  getErrSet("boundary layer", "edge length error" ,      200.0,  0.1, 2.0, 0.10, m_EdgeLengthError);
-  getErrSet("boundary layer", "edge direction error" ,     0.0,  0.0, 2.0, 0.00, m_EdgeDirectionError);
-  getErrSet("boundary layer", "tetra error",              50.0,  0.1, 2.0, 0.05, m_TetraError);
-  getErrSet("boundary layer", "parallel edges error",      1.0, 10.0, 2.0, 0.00, m_ParallelEdgesError);
-  getErrSet("boundary layer", "parallel faces error",      1.0, 20.0, 2.0, 0.00, m_ParallelFacesError);
-  getErrSet("boundary layer", "sharp nodes error",         0.0,  0.0, 2.0, 0.00, m_SharpNodesError);
-  getErrSet("boundary layer", "sharp edges error",         0.0,  0.0, 2.0, 0.00, m_SharpEdgesError);
-  getErrSet("boundary layer", "similar face area error",   0.0,  1.0, 2.0, 0.00, m_SimilarFaceAreaError);
-  getErrSet("boundary layer", "feature line error",        0.0,  0.0, 2.0, 0.00, m_FeatureLineError);
+  getErrSet("boundary layer", "layer height error",      1.0, 0.5, m_HeightError);
+  getErrSet("boundary layer", "edge length error" ,      1.0, 0.5, m_EdgeLengthError);
+  getErrSet("boundary layer", "edge direction error" ,   0.0, 0.5, m_EdgeDirectionError);
+  getErrSet("boundary layer", "tetra error",             1.0, 0.5, m_TetraError);
+  getErrSet("boundary layer", "parallel edges error",    1.0, 0.5, m_ParallelEdgesError);
+  getErrSet("boundary layer", "parallel faces error",    1.0, 0.5, m_ParallelFacesError);
+  getErrSet("boundary layer", "sharp nodes error",       0.0, 0.5, m_SharpNodesError);
+  getErrSet("boundary layer", "sharp edges error",       0.0, 0.5, m_SharpEdgesError);
+  getErrSet("boundary layer", "similar face area error", 1.0, 0.5, m_SimilarFaceAreaError);
+  getErrSet("boundary layer", "feature line error",      0.0, 0.5, m_FeatureLineError);
 
   m_SimpleOperation = false;
 }
@@ -260,8 +257,12 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       if (type_cell == VTK_TETRA) {
         if (GeometryTools::cellVA(grid, id_cell) < 0) {
           move = false;
-          //if (dbg) cout << id_node << " : tetra negative" << endl;
         }
+        /*
+        if (tetraError(id_cell) > 0.95) {
+          move = false;
+        }
+        */
       }
       if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
         vtkIdType N_pts, *pts;
@@ -373,6 +374,40 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   return moved;
 }
 
+double GridSmoother::tetraError(vtkIdType id_cell)
+{
+  vtkIdType N_pts, *pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  QVector<vec3_t> xn(N_pts);
+  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+    grid->GetPoint(pts[i_pts],xn[i_pts].data());
+  }
+  double L = 0;
+  L = max(L, (xn[0]-xn[1]).abs());
+  L = max(L, (xn[0]-xn[2]).abs());
+  L = max(L, (xn[0]-xn[3]).abs());
+  L = max(L, (xn[1]-xn[2]).abs());
+  L = max(L, (xn[1]-xn[3]).abs());
+  L = max(L, (xn[2]-xn[3]).abs());
+  double H = sqrt(2.0/3.0)*L;
+
+  vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
+  vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
+  vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
+  vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
+  n012.normalise();
+  n031.normalise();
+  n023.normalise();
+  n213.normalise();
+  double h = 1e99;
+  h = min(h, fabs((xn[0]-xn[3])*n012));
+  h = min(h, fabs((xn[0]-xn[2])*n031));
+  h = min(h, fabs((xn[0]-xn[1])*n023));
+  h = min(h, fabs((xn[0]-xn[3])*n213));
+  h /= H;
+  return m_TetraError(h);
+}
+
 double GridSmoother::func(vec3_t x)
 {
   l2g_t nodes = getPartNodes();
@@ -408,30 +443,7 @@ double GridSmoother::func(vec3_t x)
       }
       if (type_cell == VTK_TETRA) {
         if (m_TetraError.active()) {
-          double L = 0;
-          L = max(L, (xn[0]-xn[1]).abs());
-          L = max(L, (xn[0]-xn[2]).abs());
-          L = max(L, (xn[0]-xn[3]).abs());
-          L = max(L, (xn[1]-xn[2]).abs());
-          L = max(L, (xn[1]-xn[3]).abs());
-          L = max(L, (xn[2]-xn[3]).abs());
-          double H = sqrt(2.0/3.0)*L;
-
-          vec3_t n012 = GeometryTools::triNormal(xn[0], xn[1], xn[2]);
-          vec3_t n031 = GeometryTools::triNormal(xn[0], xn[3], xn[1]);
-          vec3_t n023 = GeometryTools::triNormal(xn[0], xn[2], xn[3]);
-          vec3_t n213 = GeometryTools::triNormal(xn[2], xn[1], xn[3]);
-          n012.normalise();
-          n031.normalise();
-          n023.normalise();
-          n213.normalise();
-          double h = 1e99;
-          h = min(h, fabs((xn[0]-xn[3])*n012));
-          h = min(h, fabs((xn[0]-xn[2])*n031));
-          h = min(h, fabs((xn[0]-xn[1])*n023));
-          h = min(h, fabs((xn[0]-xn[3])*n213));
-          h /= H;
-          f += m_TetraError(h);
+          f += tetraError(id_cell);
         }
       }
       if (type_cell == VTK_WEDGE) {
@@ -509,11 +521,9 @@ double GridSmoother::func(vec3_t x)
             if (!m_IsSharpNode[pts[i_foot]]) {
               is_sharp = true;
             }
-            if (!is_sharp) {
-              f += m_HeightError(h);
-            }
-            f += m_EdgeLengthError(l);
             f += m_EdgeDirectionError(angleX(m_NodeNormal[pts[i_foot]],ve));
+            f += m_HeightError(h);
+            f += m_EdgeLengthError(l);
           }
           if (m_ParallelEdgesError.active()) {
             if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -669,32 +679,6 @@ void GridSmoother::operateOptimisation()
   l2l_t  n2c   = getPartN2C();
   l2l_t  n2n   = getPartN2N();
 
-  QVector<bool> prism_node(nodes.size(),false);
-  foreach (vtkIdType id_cell, cells) {
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-        if (_nodes[pts[i_pts]] != -1) {
-          prism_node[_nodes[pts[i_pts]]] = true;
-        }
-      }
-    }
-  }
-
-  F_old = 0;
-  F_max_old = 0;
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    if (prism_node[i_nodes]) {
-      vec3_t x;
-      i_nodes_opt = i_nodes;
-      grid->GetPoint(nodes[i_nodes], x.data());
-      double f = func(x);
-      F_old += f;
-      F_max_old = max(F_max_old,f);
-    }
-  }
-
   cout << "\nsmoothing volume mesh (" << N_marked_nodes << " nodes)" << endl;
   for (int i_iterations = 0; i_iterations < N_iterations; ++i_iterations) {
     cout << "iteration " << i_iterations+1 << "/" << N_iterations << endl;
@@ -704,6 +688,7 @@ void GridSmoother::operateOptimisation()
     int N1 = 0;
     int N2 = 0;
     int N3 = 0;
+    int N4 = 0;
     QTime start = QTime::currentTime();
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       dbg = false;
@@ -723,112 +708,124 @@ void GridSmoother::operateOptimisation()
       }
       if (smooth) {
         vtkIdType id_node = nodes[i_nodes];
-        vec3_t xn;
-        vec3_t x_old;
-        grid->GetPoint(id_node, x_old.data());
-        resetStencil();
-        bool is_surf = m_Node2BC[_nodes[i_nodes]].size() > 0;
-        int N = 0;
-        foreach (int j_nodes, n2n[i_nodes]) {
-          if (!is_surf || (m_Node2BC[_nodes[j_nodes]].size() > 0)) {
-            vtkIdType id_neigh_node = nodes[j_nodes];
-            grid->GetPoint(id_neigh_node, xn.data());
-            addToStencil(1.0, xn);
-            ++N;
+        vtkIdType id_foot = m_IdFoot[id_node];
+        bool use_simple = false;
+        if (id_foot != -1) {
+          if (m_IsSharpNode[id_foot]) {
+            use_simple = true;
           }
         }
-        if (N == 0) {
-          EG_BUG;
-        }
-        vec3_t x_new1 = vec3_t(0,0,0);
-        sum_C = 0;
-        L0 = 0;
-        double L_min = 1e99;
-        foreach (stencil_node_t sn, stencil) {
-          sum_C += sn.C;
-          x_new1 += sn.C*sn.x;
-          double L = (sn.x - x_old).abs();
-          L0 += sn.C*L;
-          L_min = min(L_min, L);
-        }
-        L0 /= sum_C;
-        x_new1 *= 1.0/sum_C;
-        vec3_t Dx1 = x_new1 - x_old;
-        setDeltas(1e-6*L0);
-        //setDeltas(1e-6);
-        i_nodes_opt = i_nodes;
-        vec3_t Dx2(0,0,0);
-        Dx2 = m_UnderRelaxation*optimise(x_old);
-        vec3_t Dx3 = (-1e-4/func(x_old))*grad_f;
-        correctDx(i_nodes, Dx1);
-        correctDx(i_nodes, Dx2);
-        correctDx(i_nodes, Dx3);
-        vec3_t Dx = Dx1;
-        double f  = func(x_old + Dx1);
-        int _N1 = 1;
-        int _N2 = 0;
-        int _N3 = 0;
-        if (f > func(x_old + Dx2)) {
-          Dx = Dx2;
-          f = func(x_old + Dx2);
-          _N1 = 0;
-          _N2 = 1;
-          _N3 = 0;
-        }
-        if (f > func(x_old + Dx3)) {
-          Dx = Dx3;
-          _N1 = 0;
-          _N2 = 0;
-          _N3 = 1;
-        }
+        if (use_simple) {
+          simpleNodeMovement(i_nodes);
+          ++N4;
+        } else {
+          vec3_t xn;
+          vec3_t x_old;
+          grid->GetPoint(id_node, x_old.data());
+          resetStencil();
+          bool is_surf = m_Node2BC[_nodes[i_nodes]].size() > 0;
+          int N = 0;
+          foreach (int j_nodes, n2n[i_nodes]) {
+            if (!is_surf || (m_Node2BC[_nodes[j_nodes]].size() > 0)) {
+              vtkIdType id_neigh_node = nodes[j_nodes];
+              grid->GetPoint(id_neigh_node, xn.data());
+              addToStencil(1.0, xn);
+              ++N;
+            }
+          }
+          if (N == 0) {
+            EG_BUG;
+          }
+          vec3_t x_new1 = vec3_t(0,0,0);
+          sum_C = 0;
+          L0 = 0;
+          double L_min = 1e99;
+          foreach (stencil_node_t sn, stencil) {
+            sum_C += sn.C;
+            x_new1 += sn.C*sn.x;
+            double L = (sn.x - x_old).abs();
+            L0 += sn.C*L;
+            L_min = min(L_min, L);
+          }
+          L0 /= sum_C;
+          x_new1 *= 1.0/sum_C;
+          vec3_t Dx1 = x_new1 - x_old;
+          setDeltas(1e-6*L0);
+          //setDeltas(1e-6);
+          i_nodes_opt = i_nodes;
+          vec3_t Dx2(0,0,0);
+          Dx2 = m_UnderRelaxation*optimise(x_old);
+          vec3_t Dx3 = (-1e-4/func(x_old))*grad_f;
+          correctDx(i_nodes, Dx1);
+          correctDx(i_nodes, Dx2);
+          correctDx(i_nodes, Dx3);
+          vec3_t Dx = Dx1;
+          double f  = func(x_old + Dx1);
+          int _N1 = 1;
+          int _N2 = 0;
+          int _N3 = 0;
+          if (f > func(x_old + Dx2)) {
+            Dx = Dx2;
+            f = func(x_old + Dx2);
+            _N1 = 0;
+            _N2 = 1;
+            _N3 = 0;
+          }
+          if (f > func(x_old + Dx3)) {
+            Dx = Dx3;
+            _N1 = 0;
+            _N2 = 0;
+            _N3 = 1;
+          }
 
-        if (!moveNode(i_nodes, Dx)) {
-          // search for a better place
-          vec3_t x_save = x_old;
-          vec3_t ex(L_search*L0/N_search,0,0);
-          vec3_t ey(0,L_search*L0/N_search,0);
-          vec3_t ez(0,0,L_search*L0/N_search);
-          vec3_t x_best = x_old;
-          double f_min = func(x_old);
-          bool found = false;
-          bool illegal = false;
-          if (!setNewPosition(id_node,x_old)) {
-            illegal = true;
-          }
-          for (int i = -N_search; i <= N_search; ++i) {
-            for (int j = -N_search; j <= N_search; ++j) {
-              for (int k = -N_search; k <= N_search; ++k) {
-                if ((i != 0) || (j != 0) || (k != 0)) {
-                  vec3_t Dx = double(i)*ex + double(j)*ey + double(k)*ez;
-                  correctDx(i_nodes, Dx);
-                  vec3_t x = x_old + x;
-                  if (setNewPosition(id_node, x)) {
-                    grid->GetPoints()->SetPoint(id_node, x_old.data());
-                    double f = func(x);
-                    if (f < f_min) {
-                      f_min = f;
-                      x_best = x;
-                      found = true;
-                      illegal = false;
+          if (!moveNode(i_nodes, Dx)) {
+            // search for a better place
+            vec3_t x_save = x_old;
+            vec3_t ex(L_search*L0/N_search,0,0);
+            vec3_t ey(0,L_search*L0/N_search,0);
+            vec3_t ez(0,0,L_search*L0/N_search);
+            vec3_t x_best = x_old;
+            double f_min = func(x_old);
+            bool found = false;
+            bool illegal = false;
+            if (!setNewPosition(id_node,x_old)) {
+              illegal = true;
+            }
+            for (int i = -N_search; i <= N_search; ++i) {
+              for (int j = -N_search; j <= N_search; ++j) {
+                for (int k = -N_search; k <= N_search; ++k) {
+                  if ((i != 0) || (j != 0) || (k != 0)) {
+                    vec3_t Dx = double(i)*ex + double(j)*ey + double(k)*ez;
+                    correctDx(i_nodes, Dx);
+                    vec3_t x = x_old + x;
+                    if (setNewPosition(id_node, x)) {
+                      grid->GetPoints()->SetPoint(id_node, x_old.data());
+                      double f = func(x);
+                      if (f < f_min) {
+                        f_min = f;
+                        x_best = x;
+                        found = true;
+                        illegal = false;
+                      }
                     }
                   }
                 }
               }
             }
-          }
-          if (found) {
-            grid->GetPoints()->SetPoint(id_node, x_best.data());
-            ++N_searched;
-          } else {
-            ++N_blocked;
-            if (illegal) {
-              ++N_illegal;
+            if (found) {
+              grid->GetPoints()->SetPoint(id_node, x_best.data());
+              ++N_searched;
+            } else {
+              ++N_blocked;
+              if (illegal) {
+                ++N_illegal;
+              }
             }
+          } else {
+            N1 += _N1;
+            N2 += _N2;
+            N3 += _N3;
           }
-        } else {
-          N1 += _N1;
-          N2 += _N2;
-          N3 += _N3;
         }
       }
     }
@@ -836,12 +833,11 @@ void GridSmoother::operateOptimisation()
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
+    cout << N4 << " type 4 movements (sharp features)" << endl;
     cout << N_searched << " type X movements (search)" << endl;
     cout << N_blocked << " type 0 movements (failure)" << endl;
 
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
-    F_new = 0;
-    F_max_new = 0;
 
     m_HeightError.reset();
     m_EdgeLengthError.reset();
@@ -853,44 +849,47 @@ void GridSmoother::operateOptimisation()
     m_SimilarFaceAreaError.reset();
     m_FeatureLineError.reset();
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (prism_node[i_nodes]) {
-        vec3_t x;
-        i_nodes_opt = i_nodes;
-        grid->GetPoint(nodes[i_nodes], x.data());
-        double f = func(x);
-        F_new += f;
-        F_max_new = max(F_max_new,f);
+      vtkIdType id_foot = m_IdFoot[nodes[i_nodes]];
+      if (id_foot != -1) {
+        if (!m_IsSharpNode[id_foot]) {
+          vec3_t x;
+          i_nodes_opt = i_nodes;
+          grid->GetPoint(nodes[i_nodes], x.data());
+          double f = func(x);
+        }
       }
     }
-    cout << "total error (old) = " << F_old << endl;
-    cout << "total error (new) = " << F_new << endl;
-    double f_old = max(1e-10,F_old);
-    cout << "total improvement = " << 100*(1-F_new/f_old) << "%" << endl;
     printMaxErrors();
   }
   cout << "done" << endl;
+}
+
+void GridSmoother::simpleNodeMovement(int i_nodes)
+{
+  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  vtkIdType id_node = m_Part.globalNode(i_nodes);
+  vtkIdType id_foot = m_IdFoot[id_node];
+  if (id_foot != -1) {
+    vec3_t x_foot, x_node;
+    grid->GetPoint(id_foot, x_foot.data());
+    grid->GetPoint(id_node, x_node.data());
+    double L = cl->GetValue(id_foot);
+    vec3_t x_new = x_foot + m_RelativeHeight*L*m_NodeNormal[id_foot];
+    vec3_t Dx = x_new - x_node;
+    correctDx(i_nodes, Dx);
+    m_L[id_node] = L;
+    moveNode(i_nodes, Dx);
+  }
 }
 
 void GridSmoother::operateSimple()
 {
   cout << "performing simple boundary layer adjustment" << endl;
   computeFeet();
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
   m_L.fill(0, grid->GetNumberOfPoints());
   l2g_t nodes = m_Part.getNodes();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    vtkIdType id_node = nodes[i_nodes];
-    vtkIdType id_foot = m_IdFoot[id_node];
-    if (id_foot != -1) {
-      vec3_t x_foot, x_node;
-      grid->GetPoint(id_foot, x_foot.data());
-      grid->GetPoint(id_node, x_node.data());
-      double L = cl->GetValue(id_foot);
-      vec3_t x_new = x_foot + m_RelativeHeight*L*m_NodeNormal[id_foot];
-      vec3_t Dx = x_new - x_node;
-      m_L[id_node] = L;
-      moveNode(i_nodes, Dx);
-    }
+    simpleNodeMovement(i_nodes);
   }
 }
 
@@ -903,14 +902,6 @@ void GridSmoother::operate()
   } else {
     operateOptimisation();
   }
-}
-
-double GridSmoother::improvement()
-{
-  //double f_max_old = max(1e-10,F_max_old);
-  double f_old = max(1e-10,F_old);
-  double i2 = 1-F_new/f_old;
-  return i2;
 }
 
 void GridSmoother::printMaxErrors()

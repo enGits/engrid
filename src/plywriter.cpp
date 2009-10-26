@@ -20,53 +20,48 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef SETTINGSTAB_H
-#define SETTINGSTAB_H
+#include "plywriter.h"
 
-#include <QWidget>
-#include <QString>
-#include <QtGui>
-#include <QVector>
+#include <vtkPLYWriter.h>
+#include <vtkGeometryFilter.h>
+#include <vtkTriangleFilter.h>
 
-///\todo fix problems with more than one boolean + general tab stuff
+#include <QFileInfo>
+#include "guimainwindow.h"
 
-/**
- * Creates a QWidget listing all key/value pairs contained in the group "group" 
- * of the QSettings file corresponding to the (org,app) pair.
- * integers appear in spinboxes
- * doubles appear in line edit boxes
- * booleans appear in checkboxes
- */
-class GuiSettingsTab : public QWidget
+PlyWriter::PlyWriter()
 {
-  
-  Q_OBJECT;
-    
-public:
-  
-  QVector<QString> spinbox_name;
-  QVector<QSpinBox*> spinbox;
-  
-  QVector<QString> checkbox_name;
-  QVector<QCheckBox*> checkbox;
-  
-  QVector<QString> double_lineedit_name;
-  QVector<QLineEdit*> double_lineedit;
-  
-  QVector<QString> string_lineedit_name;
-  QVector<QLineEdit*> string_lineedit;
-
-public:
-	//constructors
-  /**
-   * Constructor using the (org,app) pair to determine QSettings
-   * @param org organization
-   * @param app application
-   * @param group group
-   * @param parent Parent QWidget
-   */
-  GuiSettingsTab(QString org,QString app,QString group,QWidget *parent = 0);
-  
+  setFormat("Stanford PLY files (*.ply *.PLY)");
+  m_AsciiFileType = true;
 };
 
-#endif
+void PlyWriter::operate()
+{
+  try {
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readOutputFileName(file_info.completeBaseName() + ".ply");
+    if (isValid()) {
+      EG_VTKSP(vtkGeometryFilter, geometry);
+      geometry->SetInput(grid);
+      EG_VTKSP(vtkTriangleFilter, triangle);
+      triangle->SetInput(geometry->GetOutput());
+      
+      EG_VTKSP(vtkPLYWriter, write_ply);
+      write_ply->SetInput(triangle->GetOutput());
+      write_ply->SetFileName(qPrintable(getFileName()));
+      if(m_AsciiFileType) {
+        write_ply->SetFileTypeToASCII();
+      }
+      else {
+        write_ply->SetFileTypeToBinary();
+      }
+      write_ply->SetDataByteOrderToLittleEndian();
+      write_ply->SetColorModeToUniformCellColor();
+      write_ply->SetColor(255,0,0);
+      write_ply->Write();
+      
+    };
+  } catch (Error err) {
+    err.display();
+  };
+};

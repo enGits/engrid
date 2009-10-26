@@ -58,10 +58,6 @@ protected: // attributes
   int    N_search;
   
   double L_search;
-  double F_old;
-  double F_new;
-  double F_max_old;
-  double F_max_new;
   
   double m_MaxRelLength;
   double m_RelativeHeight;
@@ -120,6 +116,8 @@ protected: // methods
   void computeNormals();
   void computeFeet();
   void writeErrorToFile(QTextStream &f, ErrorFunction &err);
+  double tetraError(vtkIdType id_cell);
+  void simpleNodeMovement(int i_nodes);
 
   void operateOptimisation();
   void operateSimple();
@@ -137,8 +135,6 @@ public: // methods
   void simpleOn() { m_SimpleOperation = true; }
   void simpleOff() { m_SimpleOperation = false; }
 
-  double improvement();
-  double lastTotalError() { return F_new; }
   void   printMaxErrors();
   void   writeDebugFile(QString file_name);
 
