@@ -25,12 +25,6 @@
 
 #include "vtkUnstructuredGridWriter.h"
 
-vec3_t projectOnQuadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
-{
-/*  vec3_t B = QuadraticBezierTriangle();
-  B*/
-}
-
 int idx_func(int N, int i, int j)
 {
   int offset = -i*(i-2*N-1)/2;
@@ -217,4 +211,10 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
   v=bary_coords[1];
   w=bary_coords[2];
   return QuadraticBezierTriangle(u, v, w);
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(double u, double v, double w)
+{
+/*  vec3_t B = QuadraticBezierTriangle();
+  B*/
 }
