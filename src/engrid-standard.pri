@@ -284,4 +284,7 @@ HEADERS += fixcadgeometry.h
 SOURCES += fixcadgeometry.cpp
 HEADERS += blenderreader.h
 SOURCES += blenderreader.cpp
-
+HEADERS += beziertriangle.h
+SOURCES += beziertriangle.cpp
+HEADERS += projection_test.h
+SOURCES += projection_test.cpp

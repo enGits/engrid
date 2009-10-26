@@ -1,6 +1,8 @@
 #include "projection_test.h"
 #include "surfaceprojection.h"
 
+#include "beziertriangle.h"
+
 #include <QInputDialog>
 
 Projection_test::Projection_test() : SurfaceOperation()
@@ -10,9 +12,9 @@ Projection_test::Projection_test() : SurfaceOperation()
 
 void Projection_test::operate()
 {
-//   project_picked_point();
-  project_all_points();
-//   Bezier_test();
+//    project_picked_point();
+//   project_all_points();
+   Bezier_test();
 //   checkInterpolationGrid();
 }
 
@@ -70,13 +72,13 @@ void Projection_test::project_all_points()
 
 void Projection_test::Bezier_test()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
-  }
-  
-  int bc_dst = 18;
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
+//   if (!GuiMainWindow::pointer()->checkSurfProj()) {
+//     GuiMainWindow::pointer()->storeSurfaceProjection();
+//   }
+//   
+//   int bc_dst = 18;
+//   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+//   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
 
   vec3_t X_200(0,0,0);
   vec3_t X_020(1,0,0);
@@ -85,7 +87,8 @@ void Projection_test::Bezier_test()
   vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5,0.5,0.5);
   vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0,-0.5,0.5);
   
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
+  BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
+  B.writeBezierSurface();
 }
 
 void Projection_test::checkInterpolationGrid()

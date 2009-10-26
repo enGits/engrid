@@ -20,8 +20,8 @@ CONFIG += qt \
 # ###############################
 # VERSION INFO
 # get "git revision number"
-win32:QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"alpha\\\"
-else:QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
+win32 : QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"alpha\\\"
+else : QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git \
     describe`\\\"
 
 # ###############################
@@ -50,5 +50,3 @@ INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 
 # #######################
 include(engrid-standard.pri)
-HEADERS += projection_test.h
-SOURCES += projection_test.cpp

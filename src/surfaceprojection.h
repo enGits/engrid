@@ -133,6 +133,8 @@ public: // methods
   int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
   int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
   
+//   mat3_t Jacobian_Matrix(double x, double y);
+  
 };
 
 template <class C>
