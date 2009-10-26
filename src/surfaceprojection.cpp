@@ -1012,6 +1012,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       }
     }
     if (x_proj[0] > 1e98) {
+      writeGrid(GuiMainWindow::pointer()->getGrid(),"griddump");
       EG_BUG;
     }
   }
