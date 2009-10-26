@@ -31,6 +31,8 @@ connect(ui.actionExportGmsh2Ascii,       SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportNeutral,          SIGNAL(triggered()),       this, SLOT(exportNeutral()));
 connect(ui.actionExportAsciiStl,         SIGNAL(triggered()),       this, SLOT(exportAsciiStl()));
 connect(ui.actionExportBinaryStl,        SIGNAL(triggered()),       this, SLOT(exportBinaryStl()));
+connect(ui.actionExportAsciiPly,         SIGNAL(triggered()),       this, SLOT(exportAsciiPly()));
+connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(exportBinaryPly()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
 connect(ui.actionZoomOnPickedObject,     SIGNAL(triggered()),       this, SLOT(zoomOnPickedObject()));

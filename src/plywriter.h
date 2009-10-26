@@ -20,43 +20,29 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "stlwriter.h"
+#ifndef plywriter_H
+#define plywriter_H
 
-#include <vtkSTLWriter.h>
-#include <vtkGeometryFilter.h>
-#include <vtkTriangleFilter.h>
+#include "iooperation.h"
 
-#include <QFileInfo>
-#include "guimainwindow.h"
-
-StlWriter::StlWriter()
+/**
+ * Writer for PLY files.
+ */
+class PlyWriter : public IOOperation
 {
-  setFormat("stereolithography files (*.stl *.STL)");
-  m_AsciiFileType = true;
+private:
+  bool m_AsciiFileType;
+  
+protected: // methods
+  
+  virtual void operate();
+  
+public: // methods
+  
+  PlyWriter();
+  void setFileTypeToASCII() { m_AsciiFileType = true; };
+  void setFileTypeToBinary() { m_AsciiFileType = false; };
+  
 };
 
-void StlWriter::operate()
-{
-  try {
-    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
-    readOutputFileName(file_info.completeBaseName() + ".stl");
-    if (isValid()) {
-      EG_VTKSP(vtkGeometryFilter, geometry);
-      geometry->SetInput(grid);
-      EG_VTKSP(vtkTriangleFilter, triangle);
-      triangle->SetInput(geometry->GetOutput());
-      EG_VTKSP(vtkSTLWriter, write_stl);
-      write_stl->SetInput(triangle->GetOutput());
-      write_stl->SetFileName(qPrintable(getFileName()));
-      if(m_AsciiFileType) {
-        write_stl->SetFileTypeToASCII();
-      }
-      else {
-        write_stl->SetFileTypeToBinary();
-      }
-      write_stl->Write();
-    };
-  } catch (Error err) {
-    err.display();
-  };
-};
+#endif
