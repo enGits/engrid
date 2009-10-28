@@ -28,9 +28,6 @@
 ; License page
 !insertmacro MUI_PAGE_LICENSE "licence_exe.txt"
 
-;Custom page. InstallOptions gets called in SetCustom.
-Page custom SetCustom ValidateCustom
-
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Start menu page
@@ -71,24 +68,6 @@ Function .onInit
 
 FunctionEnd
 
-Function SetCustom
-  !insertmacro MUI_HEADER_TEXT \
-  "ParaView binary" \
-  "In order to be able to call ParaView from the ENGRID GUI you have to provide the full pathname of the ParaView binary."
-  WriteINIStr "$PLUGINSDIR\paraview.ini" "Field 1" "State" $PVFILE
-  Push $R0
-  InstallOptions::dialog "$PLUGINSDIR\paraview.ini"
-  Pop $R0
-FunctionEnd
-
-Function ValidateCustom
-  ReadINIStr $PVFILE "$PLUGINSDIR\paraview.ini" "Field 1" "State"
-  IfFileExists $PVFILE pvok
-  MessageBox MB_OK "The specified binary file could not be found."
-  #Quit
-pvok:
-FunctionEnd
-
 Section "MainSection" SEC01
   InstallOptions::dialog "$PLUGINSDIR\test.ini"
 
@@ -99,9 +78,6 @@ Section "MainSection" SEC01
   File "${SRC_ROOT}\license.txt"
   File "${SRC_ROOT}\licence_exe.txt"
   File "${SRC_ROOT}\resources\icons\G.ico"
-
-  ;install libraries
-  !include libraries_install.nsh
 
   CreateDirectory "$SMPROGRAMS\enGrid"
   CreateShortCut "$SMPROGRAMS\enGrid\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\G.ico"
@@ -155,14 +131,18 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\G.ico"
   Delete "$INSTDIR\engrid.exe"
+  Delete "$INSTDIR\license.txt"
+  Delete "$INSTDIR\licence.txt"
+  Delete "$INSTDIR\licence_exe.txt"
 
   Delete "$SMPROGRAMS\enGrid\Uninstall.lnk"
   Delete "$SMPROGRAMS\enGrid\Website.lnk"
   Delete "$DESKTOP\enGrid.lnk"
   Delete "$SMPROGRAMS\enGrid\enGrid.lnk"
 
-  RMDir "$SMPROGRAMS\enGrid"
   RMDir "$INSTDIR"
+  RMDir "$PROGRAMFILES\enGits"
+  RMDir "$SMPROGRAMS\enGrid"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
