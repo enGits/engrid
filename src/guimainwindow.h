@@ -382,6 +382,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void improveAspectRatio();             ///< Eliminate edges in order to improve the aspect ratio of the cells
     void exportAsciiStl();                 ///< Write surface elements to an ASCII STL file.
     void exportBinaryStl();                ///< Write surface elements to a binary STL file.
+    void exportAsciiPly();                 ///< Write surface elements to an ASCII PLY file.
+    void exportBinaryPly();                ///< Write surface elements to a binary PLY file.
     void editBoundaryConditions();         ///< Edit boundary conditions (names and types)
     void configure();                      ///< Edit settings
     void about();                          ///< Display an about message

@@ -33,6 +33,7 @@
 #include "gmshwriter.h"
 #include "neutralwriter.h"
 #include "stlwriter.h"
+#include "plywriter.h"
 #include "correctsurfaceorientation.h"
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
@@ -1587,11 +1588,29 @@ void GuiMainWindow::improveAspectRatio()
 void GuiMainWindow::exportAsciiStl()
 {
   StlWriter stl;
+  stl.setFileTypeToASCII();
   stl();
 }
 
 void GuiMainWindow::exportBinaryStl()
 {
+  StlWriter stl;
+  stl.setFileTypeToBinary();
+  stl();
+}
+
+void GuiMainWindow::exportAsciiPly()
+{
+  PlyWriter ply;
+  ply.setFileTypeToASCII();
+  ply();
+}
+
+void GuiMainWindow::exportBinaryPly()
+{
+  PlyWriter ply;
+  ply.setFileTypeToBinary();
+  ply();
 }
 
 void GuiMainWindow::periodicUpdate()

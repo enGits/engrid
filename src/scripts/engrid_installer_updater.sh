@@ -35,7 +35,6 @@
 # First of all change the configuration file engrid_installer_updater.cfg according to your needs.
 # Then you can run this script and choose the actions you wish to execute. Multiple actions can be run at once. They will be run in the order of the checklist.
 # Note 1: Altough it should be enough to run create_bash_engrid once, it's recommended to run it every time to make sure the other actions use the correct environment.
-# Note 2: The script currently only builds the release version of engrid, which does not support CGNS, so installing CGNS is actually not necessary.
 #
 # EXAMPLES
 # Engrid installation:
@@ -76,18 +75,24 @@ set -eux
 
 source "${0%/*}/engrid_installer_updater.cfg"
 
+VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION
+VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION
+
+CGNSINCDIR=$CGNSPREFIX/include
+CGNSLIBDIR=$CGNSPREFIX/lib
+
 create_bash_engrid()
 {
   echo "Create bash_engrid"
   mkdir -p $BINPREFIX
 
   echo "#!/usr/bin/env bash" > $BINPREFIX/$ENV_SETUP
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$ENV_SETUP
+  echo "export VTKINCDIR=$VTKINCDIR" >> $BINPREFIX/$ENV_SETUP
+  echo "export VTKLIBDIR=$VTKLIBDIR" >> $BINPREFIX/$ENV_SETUP
   echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$ENV_SETUP
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$ENV_SETUP
+  echo "export CGNSINCDIR=$CGNSINCDIR" >> $BINPREFIX/$ENV_SETUP
+  echo "export CGNSLIBDIR=$CGNSLIBDIR" >> $BINPREFIX/$ENV_SETUP
   echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$ENV_SETUP
   
   echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$ENV_SETUP
@@ -103,18 +108,7 @@ create_start_engrid()
   mkdir -p $BINPREFIX
 
   echo "#!/usr/bin/env bash" > $BINPREFIX/$START_ENGRID
-  echo "export VTKINCDIR=$VTKPREFIX/include/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
-  echo "export VTKLIBDIR=$VTKPREFIX/lib/vtk-$VTKVERSION" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$VTKLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-  
-  echo "export CGNSINCDIR=/opt/shared/cgns/include" >> $BINPREFIX/$START_ENGRID
-  echo "export CGNSLIBDIR=/opt/shared/cgns/lib" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$CGNSLIBDIR:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-  
-  echo "export PATH=$QTPREFIX/bin:\$PATH" >> $BINPREFIX/$START_ENGRID
-  echo "export QTDIR=$QTPREFIX" >> $BINPREFIX/$START_ENGRID
-  echo "export LD_LIBRARY_PATH=$QTPREFIX/lib:\$LD_LIBRARY_PATH" >> $BINPREFIX/$START_ENGRID
-
+  echo "source $BINPREFIX/$ENV_SETUP" >> $BINPREFIX/$START_ENGRID
   echo "$SRCPREFIX/engrid/src/engrid" >> $BINPREFIX/$START_ENGRID
 
   chmod 755 $BINPREFIX/$START_ENGRID
@@ -169,7 +163,7 @@ build_engrid()
   echo "Build netgen"
   ./scripts/build-nglib.sh
   echo "Build enGrid"
-  qmake && make release
+  qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd $ORIG_WD
 }
 
@@ -186,14 +180,14 @@ update_engrid()
   cd $SRCPREFIX/engrid/src
   echo "Update enGrid"
   git pull
-  qmake && make release
+  qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd -
 }
 
 rebuild_engrid()
 {
   cd $SRCPREFIX/engrid/src
-  qmake && make distclean && qmake && make release
+  qmake && make distclean && qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd -
 }
 
@@ -210,16 +204,20 @@ FALSE "create_start_engrid" \
 --separator=":");
 echo $ans
 
-if ( echo $ans | grep "create_bash_engrid" ) then create_bash_engrid; fi
+if ( echo $ans | grep -w "create_bash_engrid" ) then create_bash_engrid; fi
+
+set +u
 source $BINPREFIX/$ENV_SETUP
-if ( echo $ans | grep "install_QT" ) then install_QT; fi;
-if ( echo $ans | grep "install_VTK" ) then install_VTK; fi;
-if ( echo $ans | grep "install_CGNS" ) then install_CGNS; fi;
-if ( echo $ans | grep "build_engrid" ) then build_engrid; fi;
-if ( echo $ans | grep "update_netgen" ) then update_netgen; fi;
-if ( echo $ans | grep "update_engrid" ) then update_engrid; fi;
-if ( echo $ans | grep "rebuild_engrid" ) then rebuild_engrid; fi;
-if ( echo $ans | grep "create_start_engrid" ) then create_start_engrid; fi;
+set -u
+
+if ( echo $ans | grep -w "install_QT" ) then install_QT; fi;
+if ( echo $ans | grep -w "install_VTK" ) then install_VTK; fi;
+if ( echo $ans | grep -w "install_CGNS" ) then install_CGNS; fi;
+if ( echo $ans | grep -w "build_engrid" ) then build_engrid; fi;
+if ( echo $ans | grep -w "update_netgen" ) then update_netgen; fi;
+if ( echo $ans | grep -w "update_engrid" ) then update_engrid; fi;
+if ( echo $ans | grep -w "rebuild_engrid" ) then rebuild_engrid; fi;
+if ( echo $ans | grep -w "create_start_engrid" ) then create_start_engrid; fi;
 
 echo "SUCCESS"
 exit 0

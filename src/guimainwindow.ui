@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -164,6 +164,8 @@
     <addaction name="actionExportNeutral"/>
     <addaction name="actionExportAsciiStl"/>
     <addaction name="actionExportBinaryStl"/>
+    <addaction name="actionExportAsciiPly"/>
+    <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
    </widget>
@@ -290,7 +292,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>485</height>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -671,8 +673,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>214</width>
-          <height>533</height>
+          <width>228</width>
+          <height>557</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1567,6 +1569,16 @@
   <action name="actionImportBlenderFile">
    <property name="text">
     <string>Blender</string>
+   </property>
+  </action>
+  <action name="actionExportAsciiPly">
+   <property name="text">
+    <string>Stanford PLY (ASCII)</string>
+   </property>
+  </action>
+  <action name="actionExportBinaryPly">
+   <property name="text">
+    <string>Standford PLY (binary)</string>
    </property>
   </action>
  </widget>

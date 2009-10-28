@@ -17,7 +17,7 @@ RESOURCES += engrid.qrc
 win32 {
 	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
 	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-        LIBS += -Lnetgen_svn/debug
+        LIBS += -Lnetgen_svn/release
         LIBS += -lsuperman
 
 	#Z:\mtaverne\Development\engrid\src\netgen_svn\release
@@ -101,6 +101,7 @@ HEADERS = boundarycondition.h \
     std_includes.h \
     stlreader.h \
     stlwriter.h \
+    plywriter.h \
     uniquevector.h \
     swaptriangles.h \
     tvtkoperation.h \
@@ -196,6 +197,7 @@ SOURCES = main.cpp \
     simplefoamwriter.cpp \
     stlreader.cpp \
     stlwriter.cpp \
+    plywriter.cpp \
     swaptriangles.cpp \
     volumedefinition.cpp \
     vtkreader.cpp \

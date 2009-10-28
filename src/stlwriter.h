@@ -30,6 +30,8 @@
  */
 class StlWriter : public IOOperation
 {
+private:
+  bool m_AsciiFileType;
   
 protected: // methods
   
@@ -38,6 +40,8 @@ protected: // methods
 public: // methods
   
   StlWriter();
+  void setFileTypeToASCII() { m_AsciiFileType = true; };
+  void setFileTypeToBinary() { m_AsciiFileType = false; };
   
 };
 
