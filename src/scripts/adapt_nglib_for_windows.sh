@@ -48,7 +48,8 @@ package=netgen-mesher
     echo "adapting nglib.h for static library on windows"
     echo
 
-    sed -i '/#define DLL_HEADER   __declspec/d' ./netgen-mesher/netgen/nglib/nglib.h
+    sed -i 's/__declspec(dllexport)//' ./netgen-mesher/netgen/nglib/nglib.h
+    sed -i 's/__declspec(dllimport)//' ./netgen-mesher/netgen/nglib/nglib.h
 )
 
 # ----------------------------------------------------------------- end-of-file
