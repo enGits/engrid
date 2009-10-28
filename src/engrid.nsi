@@ -4,6 +4,8 @@
 !define VTKBINDIR "c:\Libraries\vtk-5.4.2-install\bin"
 
 ; HM NIS Edit Wizard helper defines
+!define SRC_ROOT "."
+!define QTDIR "C:\Qt\4.4.0"
 !define PRODUCT_NAME "enGrid"
 !define PRODUCT_VERSION "1.0"
 !define PRODUCT_PUBLISHER "enGits GmbH"
@@ -11,6 +13,7 @@
 !define PRODUCT_DIR_REGKEY "Software\enGits\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
@@ -24,8 +27,20 @@
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !insertmacro MUI_PAGE_LICENSE "licence_exe.txt"
+
+;Custom page. InstallOptions gets called in SetCustom.
+Page custom SetCustom ValidateCustom
+
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
+; Start menu page
+var ICONS_GROUP
+!define MUI_STARTMENUPAGE_NODISABLE
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "enGits"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
+!insertmacro MUI_PAGE_STARTMENU Application $ICONS_GROUP
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
@@ -47,29 +62,55 @@ InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
+Function .onInit
+
+  ;Extract InstallOptions files
+  ;$PLUGINSDIR will automatically be removed when the installer closes
+
+  InitPluginsDir
+
+FunctionEnd
+
+Function SetCustom
+  !insertmacro MUI_HEADER_TEXT \
+  "ParaView binary" \
+  "In order to be able to call ParaView from the ENGRID GUI you have to provide the full pathname of the ParaView binary."
+  WriteINIStr "$PLUGINSDIR\paraview.ini" "Field 1" "State" $PVFILE
+  Push $R0
+  InstallOptions::dialog "$PLUGINSDIR\paraview.ini"
+  Pop $R0
+FunctionEnd
+
+Function ValidateCustom
+  ReadINIStr $PVFILE "$PLUGINSDIR\paraview.ini" "Field 1" "State"
+  IfFileExists $PVFILE pvok
+  MessageBox MB_OK "The specified binary file could not be found."
+  #Quit
+pvok:
+FunctionEnd
+
 Section "MainSection" SEC01
+  InstallOptions::dialog "$PLUGINSDIR\test.ini"
+
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File "release\engrid.exe"
-  File "licence.txt"
-  File "license.txt"
-  File "licence_exe.txt"
-  ;File "..\enGrid_0.9.tar.gz"
+  File "${SRC_ROOT}\release\engrid.exe"
+  File "${SRC_ROOT}\licence.txt"
+  File "${SRC_ROOT}\license.txt"
+  File "${SRC_ROOT}\licence_exe.txt"
+  File "${SRC_ROOT}\resources\icons\G.ico"
 
   ;install libraries
   !include libraries_install.nsh
 
-  ;File "${QTDIR}\bin\QtCore4.dll"
-  ;File "${QTDIR}\bin\QtGui4.dll"
-  ;File "${QTDIR}\bin\QtXml4.dll"
-  ;File "${QTDIR}\bin\QtXmld4.dll"
-  ;File "${QTDIR}\bin\QtNetwork4.dll"
-  ;File "C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\*"
-
   CreateDirectory "$SMPROGRAMS\enGrid"
   CreateShortCut "$SMPROGRAMS\enGrid\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\G.ico"
   CreateShortCut "$DESKTOP\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\G.ico"
-  File "resources\icons\G.ico"
+
+  ;Install libraries
+  !include install_libraries.nsh
+  ;Install files
+  !include install_files.nsh
 SectionEnd
 
 Section -AdditionalIcons
@@ -105,6 +146,11 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
+  ;Remove files
+  !include uninstall_files.nsh
+  ;Remove libraries
+  !include uninstall_libraries.nsh
+
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\G.ico"
@@ -114,9 +160,6 @@ Section Uninstall
   Delete "$SMPROGRAMS\enGrid\Website.lnk"
   Delete "$DESKTOP\enGrid.lnk"
   Delete "$SMPROGRAMS\enGrid\enGrid.lnk"
-
-  ;uninstall libraries
-  !include libraries_uninstall.nsh
 
   RMDir "$SMPROGRAMS\enGrid"
   RMDir "$INSTDIR"
