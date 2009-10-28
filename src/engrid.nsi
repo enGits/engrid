@@ -3,8 +3,6 @@
 !define QTBINDIR "c:\qt\2009.03\qt\bin"
 !define VTKBINDIR "c:\Libraries\vtk-5.4.2-install\bin"
 
-;!define QTDIR "C:\Qt\4.4.0"
-
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "enGrid"
 !define PRODUCT_VERSION "1.0"

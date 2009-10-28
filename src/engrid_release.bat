@@ -15,6 +15,24 @@ set PATH=%PATH%;C:\Qt\2009.03\bin;C:\Qt\2009.03\mingw\bin
 set PATH=%PATH%;%SystemRoot%\System32
 set QMAKESPEC=win32-g++
 
+REM switch to netgen dir
+cd netgen_svn
+
+REM clean up
+qmake
+IF ERRORLEVEL 1 EXIT /B
+C:/Qt/2009.03/mingw/bin/mingw32-make distclean
+IF ERRORLEVEL 1 EXIT /B
+
+REM build
+qmake
+IF ERRORLEVEL 1 EXIT /B
+C:/Qt/2009.03/mingw/bin/mingw32-make -f Makefile.Release
+IF ERRORLEVEL 1 EXIT /B
+
+REM get back to engrid dir
+cd ..
+
 REM clean up
 qmake
 IF ERRORLEVEL 1 EXIT /B
