@@ -30,7 +30,6 @@ using namespace GeometryTools;
 
 LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 {
-  EG_TYPENAME;
   DebugLevel = 0;
   setQuickSave(true);
   m_UseProjection = true;

@@ -961,6 +961,19 @@ bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, dou
   return intersects_face;
 }
 
+vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3_t r)
+{
+  Triangle T = m_Triangles[i_tri];
+  vec3_t g_A = T.a;
+  vec3_t g_M = g_A+T.G*r;
+  vec3_t P;
+  P[2]=g_M[2];
+  double L = g_M[0]*g_M[0]+g_M[1]*g_M[1];
+  P[0]=radius * g_M[0]/L;
+  P[1]=radius * g_M[1]/L;
+  return P;
+}
+
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
   vec3_t x_proj(1e99,1e99,1e99), r_proj;
@@ -1017,7 +1030,10 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
   if(on_triangle) {
-    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+    vec3_t center(0,0,0);
+    double radius = 1;
+    x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
+//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
   return x_proj;
 }

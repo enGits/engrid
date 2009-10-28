@@ -106,7 +106,8 @@ private: // methods
   bool   projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T);
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
   vec3_t correctCurvature(int i_tri, vec3_t r);
-
+  vec3_t cylinder(vec3_t center, double radius, int i_tri, vec3_t r);
+    
 public: // methods
 
   SurfaceProjection();
