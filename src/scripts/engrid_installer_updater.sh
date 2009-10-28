@@ -35,7 +35,6 @@
 # First of all change the configuration file engrid_installer_updater.cfg according to your needs.
 # Then you can run this script and choose the actions you wish to execute. Multiple actions can be run at once. They will be run in the order of the checklist.
 # Note 1: Altough it should be enough to run create_bash_engrid once, it's recommended to run it every time to make sure the other actions use the correct environment.
-# Note 2: The script currently only builds the release version of engrid, which does not support CGNS, so installing CGNS is actually not necessary.
 #
 # EXAMPLES
 # Engrid installation:
@@ -164,7 +163,7 @@ build_engrid()
   echo "Build netgen"
   ./scripts/build-nglib.sh
   echo "Build enGrid"
-  qmake && make release
+  qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd $ORIG_WD
 }
 
@@ -181,14 +180,14 @@ update_engrid()
   cd $SRCPREFIX/engrid/src
   echo "Update enGrid"
   git pull
-  qmake && make release
+  qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd -
 }
 
 rebuild_engrid()
 {
   cd $SRCPREFIX/engrid/src
-  qmake && make distclean && qmake && make release
+  qmake && make distclean && qmake $PROJECT_FILE && make $MAKEOPTIONS
   cd -
 }
 
@@ -205,20 +204,20 @@ FALSE "create_start_engrid" \
 --separator=":");
 echo $ans
 
-if ( echo $ans | grep "create_bash_engrid" ) then create_bash_engrid; fi
+if ( echo $ans | grep -w "create_bash_engrid" ) then create_bash_engrid; fi
 
 set +u
 source $BINPREFIX/$ENV_SETUP
 set -u
 
-if ( echo $ans | grep "install_QT" ) then install_QT; fi;
-if ( echo $ans | grep "install_VTK" ) then install_VTK; fi;
-if ( echo $ans | grep "install_CGNS" ) then install_CGNS; fi;
-if ( echo $ans | grep "build_engrid" ) then build_engrid; fi;
-if ( echo $ans | grep "update_netgen" ) then update_netgen; fi;
-if ( echo $ans | grep "update_engrid" ) then update_engrid; fi;
-if ( echo $ans | grep "rebuild_engrid" ) then rebuild_engrid; fi;
-if ( echo $ans | grep "create_start_engrid" ) then create_start_engrid; fi;
+if ( echo $ans | grep -w "install_QT" ) then install_QT; fi;
+if ( echo $ans | grep -w "install_VTK" ) then install_VTK; fi;
+if ( echo $ans | grep -w "install_CGNS" ) then install_CGNS; fi;
+if ( echo $ans | grep -w "build_engrid" ) then build_engrid; fi;
+if ( echo $ans | grep -w "update_netgen" ) then update_netgen; fi;
+if ( echo $ans | grep -w "update_engrid" ) then update_engrid; fi;
+if ( echo $ans | grep -w "rebuild_engrid" ) then rebuild_engrid; fi;
+if ( echo $ans | grep -w "create_start_engrid" ) then create_start_engrid; fi;
 
 echo "SUCCESS"
 exit 0
