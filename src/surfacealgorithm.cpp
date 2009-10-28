@@ -124,7 +124,7 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 //     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
-  writeGrid(grid, "info");
+//   writeGrid(grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
@@ -194,4 +194,3 @@ int SurfaceAlgorithm::deleteNodes()
   remove_points();
   return remove_points.getNumRemoved();
 }
-
