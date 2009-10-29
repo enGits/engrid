@@ -44,7 +44,8 @@ private:
   QRadioButton* m_RadioButtonSelectAllVisible;
   QRadioButton* m_RadioButtonOnlyPickedCell;
   QRadioButton* m_RadioButtonOnlyPickedCellAndNeighbours;
-  
+  QRadioButton* m_RadioButtonAuto;
+
 protected: // methods
   
   virtual void before();
