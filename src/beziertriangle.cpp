@@ -23,59 +23,12 @@
 #include "beziertriangle.h"
 #include "engrid.h"
 
+#include "geometrytools.h"
+using namespace GeometryTools;
+
 #include "vtkUnstructuredGridWriter.h"
 
 #include <vtkCellLocator.h>
-
-int idx_func(int N, int i, int j)
-{
-  int offset = -i*(i-2*N-1)/2;
-  return offset+j;
-}
-
-vec3_t getBarycentricCoordinates(double x, double y)
-{
-  // initialize
-  double t1=0;
-  double t2=0;
-  double t3=0;
-  
-/*  if(x==0) {
-    t3=y;
-    t1=1-y;
-    t2=0;
-  }
-  else if(y==0) {
-    t2=x;
-    t1=1-x;
-    t3=0;
-  }
-  else if((x+y)==1) {
-  
-  }
-  else {
-  }
-  
-  double k1,k2;
-  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
-  vec2_t t_I1 = t_A+k1*(t_M-t_A);
-  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
-  vec2_t pm1_M(1.0/k1,0);
-  
-  // normalize
-  double total = t1+t2+t3;
-  t1=t1/total;
-  t2=t2/total;
-  t3=t3/total;*/
-  
-  t2 = x;
-  t3 = y;
-  t1 = 1-t2-t3;
-  
-  // return value
-  vec3_t bary_coords(t1,t2,t3);
-  return bary_coords;
-}
 
 BezierTriangle::BezierTriangle()
 {
@@ -120,10 +73,10 @@ void BezierTriangle::writeBezierSurface()
   allocateGrid(bezier, 2*N_cells, 2*N_points);
   
   vtkIdType offset = 0;
-  offset += addBezierSurface(bezier, offset, N);
+  offset += addBezierSurface(this, bezier, offset, N);
   
-  BezierTriangle B(m_X_200, m_X_020, m_X_002, m_X_011-vec3_t(0,0,1), m_X_101-vec3_t(0,0,1), m_X_110-vec3_t(0,0,1));
-  offset += B.addBezierSurface(bezier, offset, N);
+//   BezierTriangle B(m_X_200, m_X_020, m_X_002, m_X_011-vec3_t(0,0,1), m_X_101-vec3_t(0,0,1), m_X_110-vec3_t(0,0,1));
+//   offset += B.addBezierSurface(bezier, offset, N);
   
   //qDebug()<<"offset="<<offset;
   
@@ -147,53 +100,6 @@ void BezierTriangle::writeBezierSurface()
   vtu2->SetInput(bezier);
   vtu2->Write();
   
-}
-
-vtkIdType BezierTriangle::addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N)
-{
-  vtkIdType node_count = 0;
-  for(int i=0;i<N;i++) {
-    for(int j=0;j<N-i;j++) {
-      double x = i/(double)(N-1);
-      double y = j/(double)(N-1);
-      vec3_t bary_coords = getBarycentricCoordinates(x,y);
-      double u,v,w;
-      u=bary_coords[0];
-      v=bary_coords[1];
-      w=bary_coords[2];
-      vec3_t M = QuadraticBezierTriangle(u, v, w);
-      bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
-    }
-  }
-  
-//   qDebug()<<"node_count="<<node_count;
-  
-  int cell_count = 0;
-  for(int i=0;i<N-1;i++) {
-    for(int j=0;j<N-1-i;j++) {
-      
-      //qDebug()<<"(i,j)="<<i<<j;
-      
-      vtkIdType pts_triangle1[3];
-      pts_triangle1[0]=offset + idx_func(N, i  ,j  );
-      pts_triangle1[1]=offset + idx_func(N, i+1,j  );
-      pts_triangle1[2]=offset + idx_func(N, i  ,j+1);
-      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
-      
-      if(i+j<N-2) {
-        //qDebug()<<"BEEP";
-        vtkIdType pts_triangle2[3];
-        pts_triangle2[0]=offset + idx_func(N, i+1,j  );
-        pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
-        pts_triangle2[2]=offset + idx_func(N, i  ,j+1);
-        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
-      }
-      
-    }
-  }
-  
-  //qDebug()<<"cell_count="<<cell_count;
-  return node_count;
 }
 
 vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w)
@@ -225,7 +131,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
   allocateGrid(bezier, 2*N_cells, 2*N_points);
   
   vtkIdType offset = 0;
-  offset += addBezierSurface(bezier, offset, N);
+  offset += addBezierSurface(this, bezier, offset, N);
   
   vtkIdType cellId;
   int subId;

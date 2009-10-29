@@ -1211,7 +1211,7 @@ void SurfaceProjection::setupInterpolationGrid()
     }
     
     BezierTriangle bezier_triangle(T.a, T.b, T.c, K1, K2, K3);
-    offset += bezier_triangle.addBezierSurface(m_BezierGrid, offset, N);
+    offset += addBezierSurface(&bezier_triangle, m_BezierGrid, offset, N);
 
     vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];

@@ -127,7 +127,7 @@ public: // methods
   int getNumFullSearches() { return m_NumFull; }
 
   void writeGridWithNormals();
-  vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
+//   vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
   void writeBezierSurface(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
   
   void setupInterpolationGrid();

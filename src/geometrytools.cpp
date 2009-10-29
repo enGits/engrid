@@ -501,4 +501,48 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
   return(M_PI*R*R);
 }
 
+vec3_t getBarycentricCoordinates(double x, double y)
+{
+  // initialize
+  double t1=0;
+  double t2=0;
+  double t3=0;
+  
+/*  if(x==0) {
+    t3=y;
+    t1=1-y;
+    t2=0;
+  }
+  else if(y==0) {
+    t2=x;
+    t1=1-x;
+    t3=0;
+  }
+  else if((x+y)==1) {
+  
+  }
+  else {
+  }
+  
+  double k1,k2;
+  if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
+  vec2_t t_I1 = t_A+k1*(t_M-t_A);
+  vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
+  vec2_t pm1_M(1.0/k1,0);
+  
+  // normalize
+  double total = t1+t2+t3;
+  t1=t1/total;
+  t2=t2/total;
+  t3=t3/total;*/
+  
+  t2 = x;
+  t3 = y;
+  t1 = 1-t2-t3;
+  
+  // return value
+  vec3_t bary_coords(t1,t2,t3);
+  return bary_coords;
+}
+
 } // namespace

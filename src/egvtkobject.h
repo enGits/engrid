@@ -25,6 +25,8 @@
 
 class EgVtkObject;
 
+class BezierTriangle;
+
 #include "engrid.h"
 #include "boundarycondition.h"
 
@@ -487,6 +489,8 @@ public: // methods
   void setBoundaryCodes(const QSet<int> &bcs);
   void setDebugLevel(int a_DebugLevel) { DebugLevel = a_DebugLevel; }
   
+  vtkIdType addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N);
+    
 };
 
 //End of class EgVtkObject

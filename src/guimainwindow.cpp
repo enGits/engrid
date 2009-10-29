@@ -1874,6 +1874,7 @@ void GuiMainWindow::markOutputLine()
 
 void GuiMainWindow::storeSurfaceProjection()
 {
+  qDebug()<<"@@@ GuiMainWindow::storeSurfaceProjection called";
   foreach (SurfaceProjection* proj, m_SurfProj) {
     delete proj;
   }

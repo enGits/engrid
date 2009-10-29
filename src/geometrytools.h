@@ -167,6 +167,8 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
 /** area of the circumscribed circle of the triangle */
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
 
+vec3_t getBarycentricCoordinates(double x, double y);
+
 };
 
 #endif

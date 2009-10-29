@@ -26,6 +26,7 @@
 #include "math/mathvector.h"
 #include "math/linsolve.h"
 #include "math/smallsquarematrix.h"
+
 #include "egvtkobject.h"
 
 #include <vtkUnstructuredGrid.h>
@@ -55,7 +56,7 @@ public:
   mat2_t JacobiMatrix();
   vec2_t FixedPointFunction(vec2_t xycoords);
   void writeBezierSurface();
-  vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N);
+//   vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N);
   vec3_t QuadraticBezierTriangle(double u, double v, double w);
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t projectOnQuadraticBezierTriangle(vec3_t M);

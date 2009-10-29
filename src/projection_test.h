@@ -14,6 +14,7 @@ protected: // methods
   void project_all_points();
   void Bezier_test();
   void checkInterpolationGrid();
+  void Bezier_circle_test();
 /*  Q_OBJECT;
   
 protected: // methods

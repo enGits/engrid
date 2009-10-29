@@ -3,6 +3,9 @@
 
 #include "beziertriangle.h"
 
+#include "vtkUnstructuredGridWriter.h"
+#include "vtkXMLUnstructuredGridWriter.h"
+
 #include <QInputDialog>
 
 Projection_test::Projection_test() : SurfaceOperation()
@@ -13,9 +16,10 @@ Projection_test::Projection_test() : SurfaceOperation()
 void Projection_test::operate()
 {
 //    project_picked_point();
-  project_all_points();
+//   project_all_points();
 //   Bezier_test();
 //   checkInterpolationGrid();
+   Bezier_circle_test();
 }
 
 void Projection_test::project_picked_point()
@@ -107,4 +111,44 @@ void Projection_test::checkInterpolationGrid()
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setupInterpolationGrid();
+}
+
+void Projection_test::Bezier_circle_test()
+{
+  int N=10;
+  int N_cells = (N-1)*(N-1);
+  int N_points = (N*N+N)/2;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, 6*N_cells, 6*N_points);
+  
+  vtkIdType offset = 0;
+  
+  for(int i=0;i<6;i++) {
+    vec3_t X_200(0,0,0);
+    double alpha = i*60;
+    vec3_t X_020(cos(deg2rad(alpha)),sin(deg2rad(alpha)),0);
+    vec3_t X_002(cos(deg2rad(alpha+60)),sin(deg2rad(alpha+60)),0);
+    
+    vec3_t h(cos(deg2rad(alpha+30)),sin(deg2rad(alpha+30)),0);
+    
+    vec3_t X_011=0.5*(X_020+X_002)+0.25*h;
+    vec3_t X_101=0.5*(X_200+X_002);
+    vec3_t X_110=0.5*(X_200+X_020);
+    
+    BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
+    offset += addBezierSurface(&B, bezier, offset, N);
+  }
+
+  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
+  vtu1->SetFileName("bezier.vtk");
+  vtu1->SetInput(bezier);
+  vtu1->Write();
+  
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
+  vtu2->SetFileName("bezier.vtu");
+  vtu2->SetDataModeToBinary();
+//   vtu2->SetDataModeToAscii();
+  vtu2->SetInput(bezier);
+  vtu2->Write();
 }
