@@ -42,6 +42,7 @@ void SetBoundaryCode::pass1()
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
     DBC.insert(boundary_code);
+    DBC.insert(9999);
     
     EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
     
