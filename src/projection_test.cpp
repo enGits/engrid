@@ -12,9 +12,9 @@ Projection_test::Projection_test() : SurfaceOperation()
 
 void Projection_test::operate()
 {
-  project_picked_point();
-//   project_all_points();
-//    Bezier_test();
+//    project_picked_point();
+  project_all_points();
+//   Bezier_test();
 //   checkInterpolationGrid();
 }
 
@@ -44,7 +44,7 @@ void Projection_test::project_all_points()
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   
-  int bc_src = 42;
+  int bc_src = 18;
   int bc_dst = 18;
   
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);

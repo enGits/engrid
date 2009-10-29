@@ -964,14 +964,21 @@ bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, dou
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3_t r)
 {
   Triangle T = m_Triangles[i_tri];
+//   cout<<"T.a="<<T.a<<endl;
+//   cout<<"T.b="<<T.b<<endl;
+//   cout<<"T.c="<<T.c<<endl;
   vec3_t g_A = T.a;
   vec3_t g_M = g_A+T.G*r;
-  vec3_t P;
-  P[2]=g_M[2];
-  double L = g_M[0]*g_M[0]+g_M[1]*g_M[1];
-  P[0]=radius * g_M[0]/L;
-  P[1]=radius * g_M[1]/L;
-  return P;
+//   cout<<"g_A="<<g_A<<endl;
+//   cout<<"r="<<r<<endl;
+//   cout<<"Projecting point g_M="<<g_M<<endl;
+  vec3_t g_P;
+  g_P[2]=g_M[2];
+  double L = sqrt(g_M[0]*g_M[0]+g_M[1]*g_M[1]);
+  g_P[0]=radius * g_M[0]/L;
+  g_P[1]=radius * g_M[1]/L;
+//   cout<<"Resulting point is g_P="<<g_P<<endl;
+  return g_P;
 }
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
@@ -1035,6 +1042,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
 //     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   }
+//   writeGrid(m_BGrid,"m_BGrid");
+  
   return x_proj;
 }
 

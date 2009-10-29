@@ -195,7 +195,7 @@ void LaplaceSmoother::operate()
 
             vec3_t Dx = x_new[i_nodes] - x_old;
             Dx *= m_UnderRelaxation;
-            if (moveNode(id_node, Dx)) {
+            if (true/*moveNode(id_node, Dx)*/) {
               x_new[i_nodes] = x_old + Dx;
             } else {
               x_new[i_nodes] = x_old;
