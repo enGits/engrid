@@ -140,15 +140,15 @@ void Operation::operator()()
     const bool gui_thread = QThread::currentThread() == QCoreApplication::instance()->thread();
     if (gui_thread) {
       try {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         operate();
+        QApplication::restoreOverrideCursor();
         //cout << "secs. for " << qPrintable(getTypeName()) << ": " << elapsedTime() << endl;
       } catch (Error err) {
         err.display();
       }
     } else {
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
       operate();
-      QApplication::restoreOverrideCursor();
     }
     if(m_resetoperationcounter) GuiMainWindow::pointer()->resetOperationCounter();
     if(m_quicksave) GuiMainWindow::pointer()->quickSave();
