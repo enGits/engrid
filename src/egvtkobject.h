@@ -480,6 +480,25 @@ protected: // methods
    */
   QString getExtension(QString file_name);
 
+  /**
+   * Get a face of a cell
+   * @param grid the unstructured grid
+   * @param id_cell the index of the cell
+   * @param i_face the index of the face within the cell
+   * @param ids on return this will contain the nodes of the face
+   */
+  void getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face, QVector<vtkIdType> &ids);
+
+  /**
+   * Get an edge of a face/cell
+   * @param grid the unstructured grid
+   * @param id_cell the index of the cell
+   * @param i_edge the index of the edge within the cell
+   * @param ids on return this will contain the nodes of the edge
+   */
+  void getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids);
+
+
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }
