@@ -988,12 +988,13 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
+//   qWarning()<<"@@@@@@@@@@@@ xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
   vec3_t x_proj(1e99,1e99,1e99), r_proj;
   
-  vec3_t center(0,0,0);
+/*  vec3_t center(0,0,0);
   double radius = 1;
   x_proj = cylinder(center, radius, xp);
-  return x_proj;
+  return x_proj;*/
   
   bool on_triangle = false;
   bool need_full_search = false;
@@ -1027,6 +1028,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
   if (need_full_search) {
+//     qDebug()<<"starting full search";
     ++m_NumFull;
     double d_min = 1e99;
     for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
@@ -1041,18 +1043,24 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
         m_ProjTriangles[id_node] = i_triangles;
         on_triangle = intersects;
       }
+//       qDebug()<<"full search done";
     }
     if (x_proj[0] > 1e98) {
+      qWarning()<<"No projection found for point xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
       writeGrid(GuiMainWindow::pointer()->getGrid(),"griddump");
       EG_BUG;
     }
   }
-  if(on_triangle) {
+//   if(on_triangle) {
     vec3_t center(0,0,0);
     double radius = 1;
-    x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
-//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
-  }
+//     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
+    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+//   }
+/*  if(!on_triangle) {
+    cout<<"x_proj="<<x_proj<<endl;
+  }*/
+  
 //   writeGrid(m_BGrid,"m_BGrid");
   
   return x_proj;

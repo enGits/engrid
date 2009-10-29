@@ -151,7 +151,7 @@ void LaplaceSmoother::operate()
   UpdatePotentialSnapPoints(false, false);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
-  QVector<bool> smooth_node(grid->GetNumberOfPoints(), false);
+  QVector<vtkIdType> smooth_node(grid->GetNumberOfPoints(), false);
   {
     l2g_t nodes = m_Part.getNodes();
     foreach (vtkIdType id_node, nodes) {
@@ -190,13 +190,12 @@ void LaplaceSmoother::operate()
     }
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      qDebug()<<"i_nodes="<<i_nodes;
       vtkIdType id_node = nodes[i_nodes];
-      if (true || smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-        if (true || node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+      if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+        if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
           vec3_t n(0,0,0);
-          if (true || snap_points.size() > 0) {
+          if (snap_points.size() > 0) {
             vec3_t x_old;
             vec3_t x;
             x_new[i_nodes] = vec3_t(0,0,0);
@@ -216,8 +215,8 @@ void LaplaceSmoother::operate()
             }
 
             vec3_t Dx = x_new[i_nodes] - x_old;
-//             Dx *= m_UnderRelaxation;
-            if (moveNode(id_node, Dx) || true) {
+            Dx *= m_UnderRelaxation;
+            if (moveNode(id_node, Dx)) {
               x_new[i_nodes] = x_old + Dx;
             } else {
               x_new[i_nodes] = x_old;
