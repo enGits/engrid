@@ -163,6 +163,16 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     int m_SolverIndex;// deprecated
     OpenFOAMTools m_OpenFoamTools;
   
+  // recent file list support
+  private:
+    QMap<QString,QDateTime> m_RecentFiles;
+    QMenu* recentFileMenu() { return ui.menuOpen_recent; }
+    void readRecentFiles();
+    void writeRecentFiles();
+    void addRecentFile(QString file_name, QDateTime date);
+  private slots:
+    void openRecent(QAction *action);
+  
   private: // static attributes
 
     /**

@@ -48,26 +48,47 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   vec3_t n(0,0,0);
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
+  double A_max = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    A_max = max(A, A_max);
     cell_normals[i] = GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
-    n += cell_normals[i];
     cell_normals[i].normalise();
   }
-  vec3_t x_summit = x_old + n;
-
+  int N = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    vec3_t x[3];
-    vtkIdType N_pts, *pts;
-    grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
-    if (N_pts != 3) {
-      EG_BUG;
+    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    if (A > 0.01*A_max) {
+      n += cell_normals[i];
+      ++N;
     }
-    for (int j = 0; j < N_pts; ++j) {
-      grid->GetPoint(pts[j], x[j].data());
+  }
+  if (N == 0) {
+    move = false;
+  } else {
+    n.normalise();
+    double L_max = 0;
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vec3_t xn;
+      grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+      double L = (xn - x_old).abs();
+      L_max = max(L, L_max);
     }
-    if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
-      move = false;
-      break;
+    vec3_t x_summit = x_old + L_max*n;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vec3_t x[3];
+      vtkIdType N_pts, *pts;
+      grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
+      if (N_pts != 3) {
+        EG_BUG;
+      }
+      for (int j = 0; j < N_pts; ++j) {
+        grid->GetPoint(pts[j], x[j].data());
+      }
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+        move = false;
+        break;
+      }
     }
   }
   if (move) {
