@@ -118,4 +118,6 @@ connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, S
 connect(ui.actionPreparePostProcessing, SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runPostProcessingTools()));
 connect(ui.actionStopProcesses,         SIGNAL(triggered()), &m_OpenFoamTools, SLOT(stopSolverProcess()));
 connect(ui.actionImportFluentCase,      SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runImportFluentCase()));
+
+connect(ui.menuOpen_recent,SIGNAL(triggered(QAction*)),this,SLOT(openRecent(QAction*)));
 // -------------------------------------------
