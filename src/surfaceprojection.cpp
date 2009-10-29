@@ -961,6 +961,17 @@ bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, dou
   return intersects_face;
 }
 
+vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
+{
+  vec3_t g_P;
+  g_P[2]=g_M[2];
+  double L = sqrt(g_M[0]*g_M[0]+g_M[1]*g_M[1]);
+  g_P[0]=radius * g_M[0]/L;
+  g_P[1]=radius * g_M[1]/L;
+//   cout<<"Resulting point is g_P="<<g_P<<endl;
+  return g_P;
+}
+
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3_t r)
 {
   Triangle T = m_Triangles[i_tri];
@@ -972,18 +983,18 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 //   cout<<"g_A="<<g_A<<endl;
 //   cout<<"r="<<r<<endl;
 //   cout<<"Projecting point g_M="<<g_M<<endl;
-  vec3_t g_P;
-  g_P[2]=g_M[2];
-  double L = sqrt(g_M[0]*g_M[0]+g_M[1]*g_M[1]);
-  g_P[0]=radius * g_M[0]/L;
-  g_P[1]=radius * g_M[1]/L;
-//   cout<<"Resulting point is g_P="<<g_P<<endl;
-  return g_P;
+  return cylinder(center, radius, g_M);
 }
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
   vec3_t x_proj(1e99,1e99,1e99), r_proj;
+  
+  vec3_t center(0,0,0);
+  double radius = 1;
+  x_proj = cylinder(center, radius, xp);
+  return x_proj;
+  
   bool on_triangle = false;
   bool need_full_search = false;
   if (id_node >= m_ProjTriangles.size()) {

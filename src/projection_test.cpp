@@ -55,15 +55,21 @@ void Projection_test::project_all_points()
   bc_src_set.insert(bc_src);
   getSurfaceCells(bc_src_set,cells,grid);
   
+  QVector <bool> alreadyprojected(grid->GetNumberOfPoints(),false);
   foreach(vtkIdType id_cell, cells) {
+//     qDebug()<<"id_cell="<<id_cell;
     vtkIdType *pts, N_pts;
     grid->GetCellPoints(id_cell, N_pts, pts);
     for(int i=0;i<N_pts;i++) {
       vtkIdType id_node=pts[i];
-      vec3_t x_old;
-      grid->GetPoint(id_node, x_old.data());
-      vec3_t x_new = GuiMainWindow::pointer()->getSurfProj(bc_dst)->project(x_old, id_node);
-      grid->GetPoints()->SetPoint(id_node, x_new.data());
+      if(!alreadyprojected[id_node]) {
+//         qDebug()<<"i="<<i;
+        vec3_t x_old;
+        grid->GetPoint(id_node, x_old.data());
+        vec3_t x_new = GuiMainWindow::pointer()->getSurfProj(bc_dst)->project(x_old, id_node);
+        grid->GetPoints()->SetPoint(id_node, x_new.data());
+        alreadyprojected[id_node] = true;
+      }
     }
   }
   
