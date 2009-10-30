@@ -178,12 +178,15 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   m_XmlDoc.appendChild(root);
   
   m_SolverIndex = 0;
+  
+  readRecentFiles();
 }
-
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 GuiMainWindow::~GuiMainWindow()
 {
+  writeRecentFiles();
+  
   m_qset.setValue("GuiMainWindow", this->geometry());
   m_qset.setValue("dockWidget_states", this->saveState());
   
@@ -1120,6 +1123,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
+  this->addRecentFile(m_CurrentFilename,QDateTime::currentDateTime());
 }
 
 void GuiMainWindow::openXml(QString file_name)
@@ -1914,3 +1918,73 @@ bool GuiMainWindow::checkSurfProj()
   }
   return ok;
 }
+
+void GuiMainWindow::openRecent(QAction *action)
+{
+  qDebug()<<"GuiMainWindow::openRecent called";
+  QString file_name = action->text().right(action->text().length()-23);
+  this->open(file_name);
+//   this->addRecentFile(file_name,QDateTime::currentDateTime());
+};
+
+void GuiMainWindow::readRecentFiles()
+{
+  m_RecentFiles.clear();
+  this->recentFileMenu()->clear();
+  QStringList file_names = m_qset.value("FileNames").toStringList();
+  QStringList file_dates = m_qset.value("FileDates").toStringList();
+  int N = min(10,m_qset.value("NumberOfFiles").toInt());
+  cout << "NumberOfFiles=" << N << endl;
+  for (int i = 0; i < N; ++i) {
+    QString new_file = file_names.at(i);
+    QString date_text = file_dates.at(i);
+    QDateTime date = QDateTime::fromString(date_text,"dd.MM.yyyy_hh:mm:ss");
+    addRecentFile(new_file,date);
+  };
+};
+
+void GuiMainWindow::writeRecentFiles()
+{
+  m_qset.setValue("NumberOfFiles",m_RecentFiles.size());
+  QStringList file_names;
+  QStringList file_dates;
+  for (QMap<QString,QDateTime>::iterator i = m_RecentFiles.begin(); i != m_RecentFiles.end(); ++i) {
+    QString file_name = i.key();
+    QString date_text = i.value().toString("dd.MM.yyyy_hh:mm:ss");
+    file_names.append(file_name);
+    file_dates.append(date_text);
+  };
+  m_qset.setValue("FileNames",file_names);
+  m_qset.setValue("FileDates",file_dates);
+};
+
+void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
+{
+  m_RecentFiles[file_name] = date;
+  while (m_RecentFiles.size() > 10) {
+    QMap<QString,QDateTime>::iterator i,j;
+    QDateTime old = QDateTime::currentDateTime();
+    for (i = m_RecentFiles.begin(); i != m_RecentFiles.end(); ++i) {
+      if (i.value() <= old) {
+        old = i.value();
+        j = i;
+      };
+    };
+    m_RecentFiles.erase(j);
+  };
+  this->recentFileMenu()->clear();
+  QMap<int,QString> menu_map;
+  QDateTime now = QDateTime::currentDateTime();
+  for (QMap<QString,QDateTime>::iterator i = m_RecentFiles.begin(); i != m_RecentFiles.end(); ++i) {
+    QString action_text = i.value().toString("dd.MM.yyyy hh:mm:ss");
+    action_text += " -> ";
+    action_text += i.key();
+    menu_map[i.value().secsTo(now)] = action_text;
+  };
+  {
+    for (QMap<int,QString>::iterator i = menu_map.begin(); i != menu_map.end(); ++i) {
+      QAction *action = new QAction(i.value(),this);
+      this->recentFileMenu()->addAction(action);
+    };
+  };
+};
