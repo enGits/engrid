@@ -1284,6 +1284,11 @@ void SurfaceProjection::setupInterpolationGrid()
 
 void SurfaceProjection::updateBackgroundGridInfo()
 {
+  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+  }
+  
   getAllCells(m_Cells, m_BGrid);
   getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
   QVector<int> m_LNodes(m_Nodes.size());
@@ -1340,8 +1345,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[id_node] = vec3_t(0,0,0);
 //     NodeAngles[id_node]=0;
   }
-  
-  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
   
   foreach (Triangle T, m_Triangles) {
     double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);

@@ -103,13 +103,14 @@ void Projection_test::Bezier_test()
 
 void Projection_test::checkInterpolationGrid()
 {
+  prepare();
+  
   if (!GuiMainWindow::pointer()->checkSurfProj()) {
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   
   int bc_dst;
   bc_dst = 18;
-  prepare();
 //   updateNodeInfo(true);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();

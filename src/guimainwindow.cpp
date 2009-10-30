@@ -1104,6 +1104,7 @@ void GuiMainWindow::open()
 void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
   cout << "Opening " << qPrintable(file_name) << endl;
+  
   QFileInfo file_info(file_name);
   bool no_case_file = false;
   QString file_extension = getExtension(file_name);
@@ -1123,7 +1124,8 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
-  this->addRecentFile(m_CurrentFilename,QDateTime::currentDateTime());
+
+  this->addRecentFile(file_name,QDateTime::currentDateTime());
 }
 
 void GuiMainWindow::openXml(QString file_name)
