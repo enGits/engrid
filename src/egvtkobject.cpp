@@ -1311,3 +1311,39 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
   //qDebug()<<"cell_count="<<cell_count;
   return node_count;
 }
+
+void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face, QVector<vtkIdType> &ids)
+{
+  vtkIdType type_cell = grid->GetCellType(id_cell);
+  ids.clear();
+  vtkIdType *pts, N_pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  if (type_cell == VTK_TETRA) {
+    ids.resize(3);
+    if      (i_face == 0) { ids[0] = pts[2]; ids[1] = pts[1]; ids[2] = pts[0]; }
+    else if (i_face == 1) { ids[0] = pts[1]; ids[1] = pts[3]; ids[2] = pts[0]; }
+    else if (i_face == 2) { ids[0] = pts[3]; ids[1] = pts[2]; ids[2] = pts[0]; }
+    else if (i_face == 3) { ids[0] = pts[2]; ids[1] = pts[3]; ids[2] = pts[1]; }
+  } else {
+    EG_BUG; // not implemented
+  }
+}
+
+void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids)
+{
+  vtkIdType type_cell = grid->GetCellType(id_cell);
+  ids.clear();
+  vtkIdType *pts, N_pts;
+  grid->GetCellPoints(id_cell, N_pts, pts);
+  if (type_cell == VTK_TETRA) {
+    ids.resize(2);
+    if      (i_edge == 0) { ids[0] = pts[0]; ids[1] = pts[1]; }
+    else if (i_edge == 1) { ids[0] = pts[0]; ids[1] = pts[2]; }
+    else if (i_edge == 2) { ids[0] = pts[0]; ids[1] = pts[3]; }
+    else if (i_edge == 3) { ids[0] = pts[1]; ids[1] = pts[2]; }
+    else if (i_edge == 4) { ids[0] = pts[1]; ids[1] = pts[3]; }
+    else if (i_edge == 5) { ids[0] = pts[2]; ids[1] = pts[3]; }
+  } else {
+    EG_BUG; // not implemented
+  }
+}

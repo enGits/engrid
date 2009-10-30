@@ -29,8 +29,7 @@ SmoothAndSwapSurface::SmoothAndSwapSurface()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = false;
-  m_FeatureAngle = GeometryTools::deg2rad(30);
-  m_AllowFeatureEdgeSwapping = false;
+  m_AllowFeatureEdgeSwapping = true;
 }
 
 void SmoothAndSwapSurface::operate()
@@ -39,9 +38,9 @@ void SmoothAndSwapSurface::operate()
   cout << "1st Delaunay swap" << endl;
   swap();
   cout << "smoothing" << endl;
-  smooth(0);
+  smooth(1);
   cout << "2nd Delaunay swap" << endl;
-  //swap();
+  swap();
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();

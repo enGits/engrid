@@ -34,17 +34,20 @@ void GuiSetBoundaryCode::before()
   m_RadioButtonSelectAllVisible = new QRadioButton("Select all visible cells",this);
   m_RadioButtonOnlyPickedCell = new QRadioButton("Only picked cell",this);
   m_RadioButtonOnlyPickedCellAndNeighbours = new QRadioButton("Only picked cell and neighbours",this);
+  m_RadioButtonAuto = new QRadioButton("automatic",this);
   m_ButtonGroup->addButton(m_RadioButtonProcessOnlyVisible,0);
   m_ButtonGroup->addButton(m_RadioButtonProcessAll,1);
   m_ButtonGroup->addButton(m_RadioButtonSelectAllVisible,2);
   m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCell,3);
   m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCellAndNeighbours,4);
+  m_ButtonGroup->addButton(m_RadioButtonAuto,5);
   ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessOnlyVisible);
   ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessAll);
   ui.verticalLayout_PickMethod->addWidget(m_RadioButtonSelectAllVisible);
   ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCell);
   ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCellAndNeighbours);
-  
+  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonAuto);
+
   //read settings
   QSettings local_qset("enGits","enGrid_GuisetBoundaryCode");
   ui.doubleSpinBoxFeatureAngle->setValue(local_qset.value("FeatureAngle", 45).toDouble());
@@ -66,20 +69,55 @@ void GuiSetBoundaryCode::operate()
   SetBoundaryCode set_bc;
   set_bc.setGrid(grid);
   set_bc.setAllSurfaceCells();
-  if (0 <= mainWindow()->getPickedCell() && mainWindow()->getPickedCell() < GuiMainWindow::pointer()->getGrid()->GetNumberOfCells() ) {
-    set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
-    set_bc.setBC(ui.spinBoxBoundaryCode->value());
-    
-    set_bc.setProcessAll(m_ButtonGroup->button(1)->isChecked());
-    set_bc.setSelectAllVisible(m_ButtonGroup->button(2)->isChecked());
-    set_bc.setOnlyPickedCell(m_ButtonGroup->button(3)->isChecked());
-    set_bc.setOnlyPickedCellAndNeighbours(m_ButtonGroup->button(4)->isChecked());
-    
-    cout << "GuiMainWindow::getPickedCell()=" << mainWindow()->getPickedCell() << endl;
-    set_bc.setStart(mainWindow()->getPickedCell());
-    set_bc();
-  }
-  else {
-    EG_ERR_RETURN("Please select a cell first.");
+  if (m_RadioButtonAuto->isChecked()) {
+    QSet <int> display_bcs;
+    GuiMainWindow::pointer()->getDisplayBoundaryCodes(display_bcs);
+    int bc = ui.spinBoxBoundaryCode->value();
+    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      bc = max(bc, cell_code->GetValue(id_cell));
+      if (display_bcs.contains(cell_code->GetValue(id_cell))) {
+        cell_code->SetValue(id_cell, 9999);
+      }
+    }
+    bool done = false;
+    do {
+      vtkIdType id_start = -1;
+      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+        if (cell_code->GetValue(id_cell) == 9999) {
+          id_start = id_cell;
+          break;
+        }
+      }
+      if (id_start == -1) {
+        done = true;
+      } else {
+        set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
+        set_bc.setBC(bc);
+        set_bc.setProcessAll(false);
+        set_bc.setSelectAllVisible(false);
+        set_bc.setOnlyPickedCell(false);
+        set_bc.setOnlyPickedCellAndNeighbours(false);
+        set_bc.setStart(id_start);
+        set_bc();
+        ++bc;
+      }
+    } while (!done);
+  } else {
+    if (0 <= mainWindow()->getPickedCell() && mainWindow()->getPickedCell() < GuiMainWindow::pointer()->getGrid()->GetNumberOfCells() ) {
+      set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
+      set_bc.setBC(ui.spinBoxBoundaryCode->value());
+
+      set_bc.setProcessAll(m_ButtonGroup->button(1)->isChecked());
+      set_bc.setSelectAllVisible(m_ButtonGroup->button(2)->isChecked());
+      set_bc.setOnlyPickedCell(m_ButtonGroup->button(3)->isChecked());
+      set_bc.setOnlyPickedCellAndNeighbours(m_ButtonGroup->button(4)->isChecked());
+
+      cout << "GuiMainWindow::getPickedCell()=" << mainWindow()->getPickedCell() << endl;
+      set_bc.setStart(mainWindow()->getPickedCell());
+      set_bc();
+    } else {
+      EG_ERR_RETURN("Please select a cell first.");
+    }
   }
 }

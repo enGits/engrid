@@ -73,11 +73,50 @@ void EliminateSmallBranches::fill(vtkIdType id_cell)
     for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
       vtkIdType id_neigh_cell = m_Part.c2cGG(id_cell, i);
       if (id_neigh_cell != -1) {
-        fill(id_neigh_cell);
+        m_FillCells.append(id_neigh_cell);
+        //fill(id_neigh_cell);
       }
     }
   }
 }
+
+void EliminateSmallBranches::fillFromLargestVolume()
+{
+  l2g_t  cells = m_Part.getCells();
+  g2l_t _cells = m_Part.getLocalCells();
+  g2l_t _nodes = m_Part.getLocalNodes();
+  l2l_t  n2c   = m_Part.getN2C();
+  l2l_t  c2c   = m_Part.getC2C();
+  cout << "filling from largest volume" << endl;
+  double vol_max = 0;
+  vtkIdType id_largest_cell = -1;
+  foreach(vtkIdType id_cell, cells) {
+    if (isVolume(id_cell, grid)) {
+      if (grid->GetCellType(id_cell) != VTK_TETRA) {
+        EG_BUG;
+      }
+      double vol = GeometryTools::cellVA(grid, id_cell, true);
+      if (vol > vol_max && !m_DeleteCell[id_cell]) {
+        id_largest_cell = id_cell;
+        vol_max = vol;
+      }
+    }
+  }
+  if (id_largest_cell == -1) {
+    EG_BUG;
+  }
+  m_MainVolumeCell.fill(false, grid->GetNumberOfCells());
+  m_FillCells.clear();
+  m_FillCells.append(id_largest_cell);
+  while (m_FillCells.size() > 0) {
+    QList<vtkIdType> fill_cells = m_FillCells;
+    m_FillCells.clear();
+    foreach (vtkIdType id_cell, fill_cells) {
+      fill(id_cell);
+    }
+  }
+}
+
 
 void EliminateSmallBranches::fillLayers()
 {
@@ -101,6 +140,7 @@ void EliminateSmallBranches::fillLayers()
 
 void EliminateSmallBranches::fillCraters()
 {
+  cout << "trying to fill holes" << endl;
   QVector<bool> is_mainvol_node(grid->GetNumberOfPoints(), false);
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
     if (m_MainVolumeCell[id_cell]) {
@@ -127,13 +167,88 @@ void EliminateSmallBranches::fillCraters()
   m_MainVolumeCell = is_mainvol_cell;
 }
 
+void EliminateSmallBranches::fixNonManifold()
+{
+  cout << "trying to fix non-manifold edges" << endl;
+  int N = 1;
+  int loop = 0;
+  while (N > 0 && loop < 20) {
+    N = 0;
+    cout << loop + 1 << ". sweep" << endl;
+    QVector<QVector<int> > num_faces(grid->GetNumberOfPoints(), QVector<int>(0));
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      num_faces[id_node].fill(0, m_Part.n2nGSize(id_node));
+    }
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (grid->GetCellType(id_cell) == VTK_TETRA && m_MainVolumeCell[id_cell]) {
+        for (int i_face = 0; i_face < 4; ++i_face) {
+          vtkIdType id_neigh = m_Part.c2cGG(id_cell, i_face);
+          bool proper_neigh = false;
+          if (id_neigh != -1) {
+            if (isVolume(id_neigh, grid)) {
+              if (m_MainVolumeCell[id_neigh]) {
+                proper_neigh = true;
+              }
+            }
+          }
+          if (!proper_neigh) {
+            QVector<vtkIdType> nds;
+            getFaceOfCell(grid, id_cell, i_face, nds);
+            for (int i_node1 = 0; i_node1 < 3; ++i_node1) {
+              for (int i_node2 = 0; i_node2 < 3; ++i_node2) {
+                if (i_node1 != i_node2) {
+                  int j12 = -1;
+                  for (int j = 0; j < m_Part.n2nGSize(nds[i_node1]); ++j) {
+                    if (m_Part.n2nGG(nds[i_node1], j) == nds[i_node2]) {
+                      j12 = j;
+                      break;
+                    }
+                  }
+                  if (j12 == -1) {
+                    EG_BUG;
+                  }
+                  ++num_faces[nds[i_node1]][j12];
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+        if (!m_MainVolumeCell[id_cell]) {
+          for (int i_edge = 0; i_edge < 6; ++i_edge) {
+            QVector<vtkIdType> nds;
+            getEdgeOfCell(grid, id_cell, i_edge, nds);
+            int j12 = 0;
+            for (int j = 0; j < m_Part.n2nGSize(nds[0]); ++j) {
+              if (m_Part.n2nGG(nds[0], j) == nds[1]) {
+                j12 = j;
+                break;
+              }
+            }
+            if (num_faces[nds[0]][j12] != 2 && num_faces[nds[0]][j12] != 0) {
+              m_MainVolumeCell[id_cell] = true;
+              ++N;
+              break;
+            }
+          }
+        }
+      }
+    }
+    cout << "found " << N << " cells" << endl;
+    ++loop;
+  }
+}
+
 void EliminateSmallBranches::operate()
 {
-  QTime time;
-  time = QTime::currentTime();
+  /*
   CreateVolumeMesh vol;
   vol.setGrid(grid);
   vol();
+  */
   //vol();
   setAllCells();
   l2g_t  cells = m_Part.getCells();
@@ -153,9 +268,7 @@ void EliminateSmallBranches::operate()
     }
     m_DeleteCell[id_face] = true;
   }
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
 
-  time = QTime::currentTime();
   cout << "marking cells to be removed" << endl;
   foreach(vtkIdType id_cell, cells) {
     vtkIdType N_pts, *pts;
@@ -167,44 +280,22 @@ void EliminateSmallBranches::operate()
       }
     }
   }
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
-
-  time = QTime::currentTime();
-  cout << "'fill' from largest volume" << endl;
-  double vol_max = 0;
-  vtkIdType id_largest_cell = -1;
-  foreach(vtkIdType id_cell, cells) {
-    if (isVolume(id_cell, grid)) {
-      if (grid->GetCellType(id_cell) != VTK_TETRA) {
-        EG_BUG;
-      }
-      double vol = GeometryTools::cellVA(grid, id_cell, true);
-      if (vol > vol_max && !m_DeleteCell[id_cell]) {
-        id_largest_cell = id_cell;
-        vol_max = vol;
-      }
-    }
-  }
-  if (id_largest_cell == -1) {
-    EG_BUG;
-  }
-  m_MainVolumeCell.fill(false, grid->GetNumberOfCells());
-  fill(id_largest_cell);
-  cout << "ping" << endl;
+  fillFromLargestVolume();
   fillLayers();
-  cout << "pong" << endl;
-  fillCraters();
-  cout << "pack" << endl;
+  for (int iter = 0; iter < 3; ++iter) {
+    fillCraters();
+    fixNonManifold();
+  }
+
   for (int i = 0; i < m_MainVolumeCell.size(); ++i) {
     if (m_MainVolumeCell[i]) {
       m_DeleteCell[i] = false;
     } else {
       m_DeleteCell[i] = true;
     }
+    m_MainVolumeCell[i] = false;
   }
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
 
-  time = QTime::currentTime();
   cout << "saving existing boundary faces" << endl;
   foreach (vtkIdType id_face, faces) {
     vtkIdType id_cell = findVolumeCell(grid, id_face, _nodes, cells, _cells, n2c);
@@ -214,9 +305,7 @@ void EliminateSmallBranches::operate()
       }
     }
   }
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
 
-  time = QTime::currentTime();
   cout << "counting new boundary faces" << endl;
   int num_new_faces = 0;
   foreach(vtkIdType id_cell, cells) {
@@ -228,9 +317,7 @@ void EliminateSmallBranches::operate()
       }
     }
   }
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
 
-  time = QTime::currentTime();
   cout << "creating reduced grid" << endl;
   QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
   vtkIdType num_new_nodes = 0;
@@ -308,5 +395,4 @@ void EliminateSmallBranches::operate()
   }
   makeCopy(new_grid, grid);
   GuiMainWindow::pointer()->updateBoundaryCodes(true);
-  cout << time.secsTo(QTime::currentTime()) << " seconds" << endl;
 }

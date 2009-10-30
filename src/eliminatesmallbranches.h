@@ -31,11 +31,12 @@ class EliminateSmallBranches : public Operation
 
 private: // attributes
 
-  int             m_NumLayers;
-  int             m_NumFillLayers;
-  QVector<bool>   m_DeleteCell;
-  QVector<bool>   m_IsSurfaceNode;
-  QVector<bool>   m_MainVolumeCell;
+  int              m_NumLayers;
+  int              m_NumFillLayers;
+  QVector<bool>    m_DeleteCell;
+  QVector<bool>    m_IsSurfaceNode;
+  QVector<bool>    m_MainVolumeCell;
+  QList<vtkIdType> m_FillCells;
 
 
 protected: // methods
@@ -43,8 +44,10 @@ protected: // methods
   bool needsToBeMarked(vtkIdType id_node, int layer = 0);
   void unmarkNode(vtkIdType id_node, int layer = 0);
   void fill(vtkIdType id_cell);
+  void fillFromLargestVolume();
   void fillLayers();
   void fillCraters();
+  void fixNonManifold();
 
   virtual void operate();
 
