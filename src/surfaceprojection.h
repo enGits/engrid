@@ -29,6 +29,7 @@ class SurfaceProjection;
 #include "octree.h"
 #include "guimainwindow.h"
 #include "geometrytools.h"
+#include "vtkCharArray.h"
 
 class SurfaceProjection : public EgVtkObject
 {
@@ -242,7 +243,9 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     m_NodeNormals[T.id_b] += angle_b*T.g3;
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
+  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"id_node="<<id_node<<" and node_type="<<node_type->GetValue(id_node);
     m_NodeNormals[id_node].normalise();
   }
 

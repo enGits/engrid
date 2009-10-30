@@ -420,7 +420,7 @@ void SurfaceProjection::writeGridWithNormals()
   vectors->Delete();
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName("m_BGrid.vtu");
+  vtu->SetFileName("m_BGrid_WithNormals.vtu");
   vtu->SetDataModeToBinary();
   vtu->SetInput(m_BGrid);
   vtu->Write();

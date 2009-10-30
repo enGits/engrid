@@ -553,6 +553,8 @@ void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstruc
 template <class C>
 void EgVtkObject::writeCells(vtkUnstructuredGrid *grid, const C &cls, QString file_name)
 {
+  qDebug()<<"Saving cells from grid as "<<file_name;
+  
   EG_VTKSP(vtkUnstructuredGrid,SubGrid);
   getSubGrid(grid,cls,SubGrid);
   

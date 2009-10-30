@@ -18,8 +18,8 @@ void Projection_test::operate()
 //    project_picked_point();
 //   project_all_points();
 //   Bezier_test();
-//   checkInterpolationGrid();
-   Bezier_circle_test();
+  checkInterpolationGrid();
+//    Bezier_circle_test();
 }
 
 void Projection_test::project_picked_point()
@@ -107,7 +107,8 @@ void Projection_test::checkInterpolationGrid()
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   
-  int bc_dst = 18;
+  int bc_dst;
+  bc_dst = 18;
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setupInterpolationGrid();
