@@ -29,7 +29,6 @@ SmoothAndSwapSurface::SmoothAndSwapSurface()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = false;
-  m_FeatureAngle = GeometryTools::deg2rad(30);
   m_AllowFeatureEdgeSwapping = true;
 }
 
