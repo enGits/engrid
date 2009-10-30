@@ -27,7 +27,7 @@
 #include <vtkUnstructuredGridWriter.h>
 
 ///@@@ TODO: Delete those grids somewhere
-SurfaceProjection::SurfaceProjection()
+SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {
   m_BGrid = vtkUnstructuredGrid::New();
   
@@ -49,6 +49,8 @@ SurfaceProjection::SurfaceProjection()
   m_MaxOTCells = 2000;
   m_NumDirect = 0;
   m_NumFull = 0;
+  
+  this->setGrid(m_BGrid);
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -1355,8 +1357,39 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_b] += angle_b*T.g3;
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
+  
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+  }
+  
+  prepare();
+  
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+  }
+  
+  UpdatePotentialSnapPoints(true,false);
+  
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+  }
+  
+  qDebug()<<"===STARTING NORMAL CALCULATION===";
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+    if(node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
+      qDebug()<<"looking for edges...";
+      QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
+      qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
+      qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
+      qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
+      vec3_t x0,x1,x2;
+      grid->GetPoints()->GetPoint(id_node, x0.data());
+      grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
+      grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
+      vec3_t N = (x0-x1) + (x0-x2);
+      m_NodeNormals[id_node] += N;
+    }
     m_NodeNormals[id_node].normalise();
   }
   

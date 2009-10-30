@@ -136,9 +136,13 @@ void Projection_test::Bezier_circle_test()
     
     vec3_t h(cos(deg2rad(alpha+30)),sin(deg2rad(alpha+30)),0);
     
+//     vec3_t X_011=0.5*(X_020+X_002)+0.25*h;
+//     vec3_t X_101=0.5*(X_200+X_002);
+//     vec3_t X_110=0.5*(X_200+X_020);
+    
     vec3_t X_011=0.5*(X_020+X_002)+0.25*h;
-    vec3_t X_101=0.5*(X_200+X_002);
-    vec3_t X_110=0.5*(X_200+X_020);
+    vec3_t X_101=X_002;
+    vec3_t X_110=X_020;
     
     BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
     offset += addBezierSurface(&B, bezier, offset, N);

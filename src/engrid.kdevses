@@ -3,22 +3,22 @@
 <KDevPrjSession>
  <DocsAndViews NumberOfDocuments="6" >
   <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-   <View0 Encoding="" line="1140" Type="Source" />
+   <View0 Encoding="" line="1374" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
-   <View0 Encoding="" line="105" Type="Source" />
+   <View0 Encoding="" line="22" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
-   <View0 Encoding="" line="32" Type="Source" />
+   <View0 Encoding="" line="36" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfacealgorithm.cpp" >
-   <View0 Encoding="" line="112" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceoperation.cpp" >
+   <View0 Encoding="" line="177" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
-   <View0 Encoding="" line="1895" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceoperation.h" >
+   <View0 Encoding="" line="73" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guiselectboundarycodes.cpp" >
-   <View0 Encoding="" line="64" Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfacealgorithm.cpp" >
+   <View0 Encoding="" line="29" Type="Source" />
   </Doc5>
  </DocsAndViews>
  <pluginList>
@@ -27,7 +27,7 @@
     <breakpoint0 location="/data1/home/mtaverne/Development/engrid/src/gridsmoother.cpp:558" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
      <tracedExpressions/>
     </breakpoint0>
-    <breakpoint1 location="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp:1043" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+    <breakpoint1 location="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp:1045" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
      <tracedExpressions/>
     </breakpoint1>
    </breakpointList>
@@ -39,6 +39,9 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
+    <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
+     <mark line="103" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
      <mark line="66" />
     </bookmark>
@@ -55,17 +58,17 @@
      <mark line="104" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-     <mark line="427" />
-     <mark line="767" />
-     <mark line="564" />
-     <mark line="394" />
-     <mark line="785" />
-     <mark line="974" />
-     <mark line="483" />
-     <mark line="1129" />
-     <mark line="556" />
-     <mark line="625" />
-     <mark line="846" />
+     <mark line="430" />
+     <mark line="770" />
+     <mark line="567" />
+     <mark line="397" />
+     <mark line="788" />
+     <mark line="977" />
+     <mark line="486" />
+     <mark line="1132" />
+     <mark line="559" />
+     <mark line="628" />
+     <mark line="849" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
      <mark line="1192" />

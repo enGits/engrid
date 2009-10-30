@@ -30,8 +30,10 @@ class SurfaceProjection;
 #include "guimainwindow.h"
 #include "geometrytools.h"
 #include "vtkCharArray.h"
+#include "surfaceoperation.h"
+#include "surfacealgorithm.h"
 
-class SurfaceProjection : public EgVtkObject
+class SurfaceProjection : public SurfaceAlgorithm
 {
 
 private: // data-types
