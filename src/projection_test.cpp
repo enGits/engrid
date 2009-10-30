@@ -8,7 +8,7 @@
 
 #include <QInputDialog>
 
-Projection_test::Projection_test() : SurfaceOperation()
+Projection_test::Projection_test() : SurfaceAlgorithm()
 {
       EG_TYPENAME;
 }
@@ -109,6 +109,8 @@ void Projection_test::checkInterpolationGrid()
   
   int bc_dst;
   bc_dst = 18;
+  prepare();
+//   updateNodeInfo(true);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setupInterpolationGrid();

@@ -159,12 +159,14 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
   QVector<vtkIdType> nodes;
   getNodesFromCells(cells, nodes, grid);
   allocateGrid(m_BGrid, cells.size(), nodes.size());
+  
   QVector<vtkIdType> _nodes(grid->GetNumberOfPoints());
   vtkIdType id_new_node = 0;
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     grid->GetPoints()->GetPoint(id_node, x.data());
     m_BGrid->GetPoints()->SetPoint(id_new_node, x.data());
+    copyNodeData(grid,id_node,m_BGrid,id_new_node);
     _nodes[id_node] = id_new_node;
     ++id_new_node;
   }
@@ -234,6 +236,9 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     m_NodeNormals[id_node] = vec3_t(0,0,0);
 //     NodeAngles[id_node]=0;
   }
+  
+  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
+  
   foreach (Triangle T, m_Triangles) {
     double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);
     double angle_b = GeometryTools::angle(m_BGrid,T.id_a,T.id_b,T.id_c);
@@ -243,9 +248,8 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     m_NodeNormals[T.id_b] += angle_b*T.g3;
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
-  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<<node_type->GetValue(id_node);
+    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
     m_NodeNormals[id_node].normalise();
   }
 

@@ -2,8 +2,9 @@
 #define PROJECTION_TEST_H
 
 #include "surfaceoperation.h"
+#include "surfacealgorithm.h"
 
-class Projection_test : public SurfaceOperation
+class Projection_test : public SurfaceAlgorithm
 {
 public:
     Projection_test();

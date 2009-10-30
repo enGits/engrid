@@ -79,17 +79,19 @@ int InsertPoints::insertPoints()
       for (int j = 0; j < 3; ++j) {
         //check if neighbour cell on this side is also selected
         int i_cell_neighbour = c2c[_cells[id_cell]][j];
-        vtkIdType id_cell_neighbour = cells[i_cell_neighbour];
-        if(m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) {
-          vtkIdType id_node1 = pts[j];
-          vtkIdType id_node2 = pts[(j+1)%N_pts];
-          double L  = distance(grid, id_node1, id_node2);
-          double L1 = characteristic_length_desired->GetValue(id_node1);
-          double L2 = characteristic_length_desired->GetValue(id_node2);
-          if (L > m_Threshold*min(L1,L2)) {
-            if (L > L_max) {
-              j_split = j;
-              L_max = L;
+        if(i_cell_neighbour!=-1) {
+          vtkIdType id_cell_neighbour = cells[i_cell_neighbour];
+          if(m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) {
+            vtkIdType id_node1 = pts[j];
+            vtkIdType id_node2 = pts[(j+1)%N_pts];
+            double L  = distance(grid, id_node1, id_node2);
+            double L1 = characteristic_length_desired->GetValue(id_node1);
+            double L2 = characteristic_length_desired->GetValue(id_node2);
+            if (L > m_Threshold*min(L1,L2)) {
+              if (L > L_max) {
+                j_split = j;
+                L_max = L;
+              }
             }
           }
         }
