@@ -99,6 +99,8 @@ private: // methods
   void setBackgroundGrid_initLevelSet();
   void setBackgroundGrid_computeLevelSet();
 
+  void updateBackgroundGridInfo();
+  
   vec3_t calcGradG(vec3_t x);
   double calcG(vec3_t x);
 
@@ -144,6 +146,7 @@ template <class C>
 void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
 {
   setBackgroundGrid_setupGrid(grid, cells);
+  updateBackgroundGridInfo();
   if (m_UseLevelSet) {
     setBackgroundGrid_initOctree();
     setBackgroundGrid_refineFromNodes();
@@ -179,93 +182,6 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
       new_pts[i] = _nodes[pts[i]];
     }
     m_BGrid->InsertNextCell(type_cell, N_pts, new_pts);
-  }
-  getAllCells(m_Cells, m_BGrid);
-  getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
-  QVector<int> m_LNodes(m_Nodes.size());
-  for (int i = 0; i < m_LNodes.size(); ++i) {
-    m_LNodes[i] = i;
-  }
-  createNodeToNode(m_Cells, m_Nodes, m_LNodes, m_N2N, m_BGrid);
-  m_EdgeLength.fill(1e99, m_BGrid->GetNumberOfPoints());
-  foreach (vtkIdType id_node, m_Nodes) {
-    vec3_t x;
-    m_BGrid->GetPoints()->GetPoint(id_node, x.data());
-    foreach (vtkIdType id_neigh, m_N2N[id_node]) {
-      vec3_t xn;
-      m_BGrid->GetPoints()->GetPoint(id_neigh, xn.data());
-      m_EdgeLength[id_node] = min(m_EdgeLength[id_node], (x-xn).abs());
-    }
-    if (m_N2N[id_node].size() < 2) {
-      EG_BUG;
-    }
-  }
-  // create m_Triangles
-  m_Triangles.resize(m_BGrid->GetNumberOfCells());
-  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType Npts, *pts;
-    m_BGrid->GetCellPoints(id_cell, Npts, pts);
-    if (Npts == 3) {
-      m_BGrid->GetPoints()->GetPoint(pts[0], m_Triangles[id_cell].a.data());
-      m_BGrid->GetPoints()->GetPoint(pts[1], m_Triangles[id_cell].b.data());
-      m_BGrid->GetPoints()->GetPoint(pts[2], m_Triangles[id_cell].c.data());
-      m_Triangles[id_cell].id_a = pts[0];
-      m_Triangles[id_cell].id_b = pts[1];
-      m_Triangles[id_cell].id_c = pts[2];
-      m_Triangles[id_cell].g1 = m_Triangles[id_cell].b - m_Triangles[id_cell].a;
-      m_Triangles[id_cell].g2 = m_Triangles[id_cell].c - m_Triangles[id_cell].a;
-      m_Triangles[id_cell].g3 = m_Triangles[id_cell].g1.cross(m_Triangles[id_cell].g2);
-      m_Triangles[id_cell].A  = 0.5*m_Triangles[id_cell].g3.abs();
-      m_Triangles[id_cell].g3.normalise();
-      m_Triangles[id_cell].G.column(0, m_Triangles[id_cell].g1);
-      m_Triangles[id_cell].G.column(1, m_Triangles[id_cell].g2);
-      m_Triangles[id_cell].G.column(2, m_Triangles[id_cell].g3);
-      m_Triangles[id_cell].GI = m_Triangles[id_cell].G.inverse();
-      m_Triangles[id_cell].smallest_length = (m_Triangles[id_cell].b - m_Triangles[id_cell].a).abs();
-      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].c - m_Triangles[id_cell].b).abs());
-      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].a - m_Triangles[id_cell].c).abs());
-    } else {
-      EG_ERR_RETURN("only triangles allowed at the moment");
-    }
-  }
-
-  // compute node normals
-  m_NodeNormals.resize(m_BGrid->GetNumberOfPoints());
-//   QVector <double> NodeAngles(m_NodeNormals.size());
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    m_NodeNormals[id_node] = vec3_t(0,0,0);
-//     NodeAngles[id_node]=0;
-  }
-  
-  EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
-  
-  foreach (Triangle T, m_Triangles) {
-    double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);
-    double angle_b = GeometryTools::angle(m_BGrid,T.id_a,T.id_b,T.id_c);
-    double angle_c = GeometryTools::angle(m_BGrid,T.id_b,T.id_c,T.id_a);
-    double total_angle = angle_a + angle_b + angle_c;
-    m_NodeNormals[T.id_a] += angle_a*T.g3;
-    m_NodeNormals[T.id_b] += angle_b*T.g3;
-    m_NodeNormals[T.id_c] += angle_c*T.g3;
-  }
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-    m_NodeNormals[id_node].normalise();
-  }
-
-  // compute maximum angle per node
-  QVector<double> min_cos(m_BGrid->GetNumberOfPoints(), 1.0);
-  foreach (Triangle T, m_Triangles) {
-    double cosa = T.g3*m_NodeNormals[T.id_a];
-    double cosb = T.g3*m_NodeNormals[T.id_b];
-    double cosc = T.g3*m_NodeNormals[T.id_c];
-    min_cos[T.id_a] = min(cosa, min_cos[T.id_a]);
-    min_cos[T.id_b] = min(cosb, min_cos[T.id_b]);
-    min_cos[T.id_c] = min(cosc, min_cos[T.id_c]);
-  }
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
-    m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
 }
 
