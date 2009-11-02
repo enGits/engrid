@@ -183,7 +183,8 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = _nodes[pts[i]];
     }
-    m_BGrid->InsertNextCell(type_cell, N_pts, new_pts);
+    vtkIdType id_new_cell = m_BGrid->InsertNextCell(type_cell, N_pts, new_pts);
+    copyCellData(grid,id_cell,m_BGrid,id_new_cell);
   }
 }
 

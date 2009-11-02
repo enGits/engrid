@@ -1804,11 +1804,6 @@ void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 QSet<int> GuiMainWindow::getAllBoundaryCodes()
 {
   return m_AllBoundaryCodes;
-//   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
-//   bcs.clear();
-//   foreach (int bc, m_AllBoundaryCodes) {
-//     bcs.insert(bc);
-//   }
 }
 
 void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
