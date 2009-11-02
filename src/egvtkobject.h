@@ -506,10 +506,11 @@ public: // methods
   EgVtkObject() { DebugLevel = 0; }
 
   void setBoundaryCodes(const QSet<int> &bcs);
+  QSet<int> getBoundaryCodes();
   void setDebugLevel(int a_DebugLevel) { DebugLevel = a_DebugLevel; }
   
   vtkIdType addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N);
-    
+ 
 };
 
 //End of class EgVtkObject

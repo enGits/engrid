@@ -103,7 +103,26 @@ void Projection_test::Bezier_test()
 
 void Projection_test::checkInterpolationGrid()
 {
-  prepare();
+  setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
+  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
+//   prepare();
+  
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  setAllCells();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+//   readSettings();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  readVMD();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    qDebug()<<"BEFORE updateNodeInfo: id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+  }
+  
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  updateNodeInfo(true);
+  
   
   if (!GuiMainWindow::pointer()->checkSurfProj()) {
     GuiMainWindow::pointer()->storeSurfaceProjection();

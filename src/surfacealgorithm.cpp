@@ -57,7 +57,7 @@ void SurfaceAlgorithm::readVMD()
       cout << m_VMDvector[i] << endl;
     }
   } else {
-    EG_ERR_RETURN("The number of boundary conditions don't match between the mesh and the settings table");
+    EG_ERR_RETURN(QObject::tr("The number of boundary conditions don't match between the mesh and the settings table.\n column_count=%1 tmp_bcs.size()=%2").arg(column_count).arg(tmp_bcs.size()));
   }
 }
 
@@ -86,15 +86,20 @@ void SurfaceAlgorithm::readSettings()
 
 void SurfaceAlgorithm::prepare()
 {
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
   setAllCells();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
   readSettings();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
   readVMD();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
   
   EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"BEFORE updateNodeInfo: id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
   }
   
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
   updateNodeInfo(true);
 
   for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -117,6 +122,7 @@ void SurfaceAlgorithm::computeMeshDensity()
 
 void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 {
+  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
   setAllCells();
   l2g_t nodes = getPartNodes();
   foreach (vtkIdType id_node, nodes) {

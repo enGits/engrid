@@ -1363,7 +1363,19 @@ void SurfaceProjection::updateBackgroundGridInfo()
   }
   
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
-  prepare();
+  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
+//   prepare();
+  
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  setAllCells();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+//   readSettings();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  readVMD();
+  qDebug()<<__LINE__<<":getBoundaryCodes()="<<getBoundaryCodes();
+  
+  
+  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));

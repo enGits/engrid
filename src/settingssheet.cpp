@@ -87,6 +87,7 @@ bool SettingsSheet::readFile(int verbose)
 
 void SettingsSheet::writeFile()
 {
+  qDebug()<<"SettingsSheet::writeFile() called";
   QString buffer = "";
   {
     QTextStream out(&buffer, QIODevice::WriteOnly);
