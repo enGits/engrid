@@ -1362,6 +1362,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
   }
   
+  setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   prepare();
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
@@ -1379,28 +1380,28 @@ void SurfaceProjection::updateBackgroundGridInfo()
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-    qDebug()<<"n2n="<<n2n[id_node];
+//     qDebug()<<"n2n="<<n2n[id_node];
     if(id_node!=0  /*node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX*/) {
-      qDebug()<<"looking for edges...";
+//       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
-      qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
-      qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
-      qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
+//       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
+//       qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
+//       qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
       vec3_t x0,x1,x2;
       grid->GetPoints()->GetPoint(id_node, x0.data());
 //       grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
 //       grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
       vtkIdType foo1 = (id_node+6-1-1)%6+1;
       vtkIdType foo2 = (id_node-1+1)%6+1;
-      qDebug()<<"foo1="<<foo1<<"foo2="<<foo2;
+//       qDebug()<<"foo1="<<foo1<<"foo2="<<foo2;
       
       grid->GetPoints()->GetPoint(foo1, x1.data());
       grid->GetPoints()->GetPoint(foo2, x2.data());
       vec3_t N = (x0-x1) + (x0-x2);
       m_NodeNormals[id_node] = N;
-      qDebug()<<"x0="<<x0[0]<<x0[1]<<x0[2];
-      qDebug()<<"x1="<<x1[0]<<x1[1]<<x1[2];
-      qDebug()<<"x2="<<x2[0]<<x2[1]<<x2[2];
+//       qDebug()<<"x0="<<x0[0]<<x0[1]<<x0[2];
+//       qDebug()<<"x1="<<x1[0]<<x1[1]<<x1[2];
+//       qDebug()<<"x2="<<x2[0]<<x2[1]<<x2[2];
     }
     m_NodeNormals[id_node].normalise();
   }

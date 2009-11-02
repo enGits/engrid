@@ -281,7 +281,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
 
 char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
 {
-  qDebug()<<"ZEEEEEEEEEEEEEEEEEEERG=========o.0";
+  qDebug()<<"SurfaceOperation::getNodeType called with id_node="<<id_node<<" and fix_unselected="<<fix_unselected;
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2n   = getPartN2N();
@@ -429,6 +429,7 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     }
     if(fix_unselected) {
       if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {
+        qDebug()<<"m_BoundaryCodes="<<m_BoundaryCodes<<" cell_code_0="<<cell_code_0<<" cell_code_1="<<cell_code_1;
         edge = VTK_FIXED_VERTEX;// does not make sense, but should make the points of the edge fixed
       }
     }

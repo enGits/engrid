@@ -1790,14 +1790,25 @@ void GuiMainWindow::about()
   
 }
 
-///\todo Why not use bcs = m_AllBoundaryCodes ?
+///\todo Why not use bcs = m_AllBoundaryCodes; ?
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
-  qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
-  bcs.clear();
-  foreach (int bc, m_AllBoundaryCodes) {
-    bcs.insert(bc);
-  }
+  bcs = m_AllBoundaryCodes;
+//   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
+//   bcs.clear();
+//   foreach (int bc, m_AllBoundaryCodes) {
+//     bcs.insert(bc);
+//   }
+}
+
+QSet<int> GuiMainWindow::getAllBoundaryCodes()
+{
+  return m_AllBoundaryCodes;
+//   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
+//   bcs.clear();
+//   foreach (int bc, m_AllBoundaryCodes) {
+//     bcs.insert(bc);
+//   }
 }
 
 void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
