@@ -126,8 +126,8 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 
     EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(id_node);
-    int idx = m_VMDvector.indexOf(nodeVMD);
-//     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
+//     int idx = m_VMDvector.indexOf(nodeVMD);
+    int idx = nodeVMD.findSmallestVMD(m_VMDvector);
 //     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
