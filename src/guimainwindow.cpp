@@ -1170,6 +1170,7 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
+  qDebug()<<"QString file_name="<<file_name<<", bool update_current_filename="<<update_current_filename;
   QString buffer = m_XmlDoc.toString(0);
   
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1179,18 +1180,23 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
     file_name += ".egc";
   }
   cout << "Saving as " << qPrintable(file_name) << endl;
-  GuiMainWindow::setCwd(file_info.absolutePath());
+  if(update_current_filename) {
+    // update current filename
+    GuiMainWindow::setCwd(file_info.absolutePath());
+    m_CurrentFilename = file_name;
+  }
   saveGrid(file_name);
   saveBC();
   savePhysicalBoundaryConditions();
   saveXml(file_name);
-  // update current filename
-  if(update_current_filename) m_CurrentFilename = file_name;
+  
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
   
   QApplication::restoreOverrideCursor();
   
+  qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
+  qDebug()<<"getCwd()="<<qPrintable(getCwd());
   return(file_name);
 }
 
