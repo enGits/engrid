@@ -54,6 +54,7 @@ void IOOperation::readInputFileName(QString default_filename)
       GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
       GuiMainWindow::setUnsaved(true);
       GuiMainWindow::pointer()->setFilename(m_FileName);
+      GuiMainWindow::pointer()->resetXmlDoc();
       m_Valid = true;
     } else {
       m_Valid = false;

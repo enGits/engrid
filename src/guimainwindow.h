@@ -173,6 +173,9 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   private slots:
     void openRecent(QAction *action);
   
+  public:
+    void resetXmlDoc();
+  
   private: // static attributes
 
     /**

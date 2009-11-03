@@ -174,14 +174,22 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   style->Delete();
 
   // initialise XML document
-  QDomElement root = m_XmlDoc.createElement("engridcase");
-  m_XmlDoc.appendChild(root);
+//   QDomElement root = m_XmlDoc.createElement("engridcase");
+//   m_XmlDoc.appendChild(root);
+  this->resetXmlDoc();
   
   m_SolverIndex = 0;
   
   readRecentFiles();
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
+
+void GuiMainWindow::resetXmlDoc()
+{
+  m_XmlDoc.clear();
+  QDomElement root = m_XmlDoc.createElement("engridcase");
+  m_XmlDoc.appendChild(root);
+}
 
 GuiMainWindow::~GuiMainWindow()
 {
@@ -1155,6 +1163,11 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
+  QString buffer = m_XmlDoc.toString(0);
+  qDebug()<<"=========================";
+  qDebug()<<buffer;
+  qDebug()<<"=========================";
+  
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   
   QFileInfo file_info(file_name);
