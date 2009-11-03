@@ -95,6 +95,7 @@ private:
   int                    m_NumDirect;
   int                    m_NumFull;
 
+  bool m_correctCurvature;
 private: // methods
 
   template <class C>

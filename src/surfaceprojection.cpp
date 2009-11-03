@@ -57,6 +57,8 @@ SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
   m_NumFull = 0;
   
   this->setGrid(m_BGrid);
+  
+  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -996,6 +998,9 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
+  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
+  
 //   qWarning()<<"@@@@@@@@@@@@ xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
   vec3_t x_proj(1e99,1e99,1e99), r_proj;
   
@@ -1063,7 +1068,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //     vec3_t center(0,0,0);
 //     double radius = 1;
 //     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
-     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+    if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
 //   }
 /*  if(!on_triangle) {
     cout<<"x_proj="<<x_proj<<endl;
