@@ -28,7 +28,7 @@
 
 set -x
 
-RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
+RECIPIENTS='mtaverne ogloth'
 
 #Create a nightly source tarball and put it on the FTP server
 ./scripts/makedist.bash .. /srv/ftp/nightly
