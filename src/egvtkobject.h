@@ -466,8 +466,21 @@ protected: // methods
   template <class C>
   void getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid);
 
-  void writeGrid(vtkUnstructuredGrid *grid, QString name);
-
+  
+  /**
+   * Save grid to file filename.
+   * @param grid The source grid
+   * @param filename Name of the file to save to
+   */
+  void writeGrid(vtkUnstructuredGrid *grid, QString filename);
+  
+  /**
+   * Adds one grid to another grid.
+   * @param maingrid the grid to which to add grid_to_add
+   * @param grid_to_add grid to add to maingrid
+   */
+  void addGrid(vtkUnstructuredGrid *maingrid, vtkUnstructuredGrid *grid_to_add);
+  
   /**
    * Get a file name without extension.
    * @param file_name the full name (with extension)
@@ -770,9 +783,11 @@ bool duplicates(QVector <T> a_vector)
 }
 
 ///////////////////////////////////////////
+///\todo clean up utility function placement (create something like geometrytools)
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
 
 const char* VertexType2Str(char T);
 char Str2VertexType(QString S);
+QDebug operator<<(QDebug dbg, const vec3_t &v);
 
 #endif

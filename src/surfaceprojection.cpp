@@ -26,6 +26,12 @@
 
 #include <vtkUnstructuredGridWriter.h>
 
+// QDebug operator<<(QDebug dbg, const vec3_t &v)
+// {
+//   dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
+//   return dbg.space();
+// }
+
 ///\todo Delete those grids somewhere
 SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {
@@ -1243,10 +1249,10 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   //qDebug()<<"cell_count="<<cell_count;
   //qDebug()<<"offset="<<offset;
   
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
-  vtu1->SetFileName(qPrintable(filename+"_InterpolationGrid.vtk"));
-  vtu1->SetInput(m_InterpolationGrid);
-  vtu1->Write();
+//   EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
+//   vtu1->SetFileName(qPrintable(filename+"_InterpolationGrid.vtk"));
+//   vtu1->SetInput(m_InterpolationGrid);
+//   vtu1->Write();
 
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
   vtu2->SetFileName(qPrintable(filename+"_InterpolationGrid.vtu"));
@@ -1255,10 +1261,10 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   vtu2->SetInput(m_InterpolationGrid);
   vtu2->Write();
 
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu3);
-  vtu3->SetFileName(qPrintable(filename+"_BezierGrid.vtk"));
-  vtu3->SetInput(m_BezierGrid);
-  vtu3->Write();
+//   EG_VTKSP(vtkUnstructuredGridWriter,vtu3);
+//   vtu3->SetFileName(qPrintable(filename+"_BezierGrid.vtk"));
+//   vtu3->SetInput(m_BezierGrid);
+//   vtu3->Write();
 
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu4);
   vtu4->SetFileName(qPrintable(filename+"_BezierGrid.vtu"));
@@ -1287,9 +1293,9 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
 void SurfaceProjection::updateBackgroundGridInfo()
 {
   EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }
+  }*/
   
   getAllCells(m_Cells, m_BGrid);
   getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
@@ -1358,9 +1364,9 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }
+  }*/
   
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
@@ -1372,38 +1378,40 @@ void SurfaceProjection::updateBackgroundGridInfo()
   
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
   
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }
+  }*/
   
   UpdatePotentialSnapPoints(true,false);
   
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }
+  }*/
   
   qDebug()<<"===STARTING NORMAL CALCULATION===";
   l2l_t  n2n   = getPartN2N();
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-//     qDebug()<<"n2n="<<n2n[id_node];
+    qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
     if(node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
-//       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
-//       qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
-//       qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
+      qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
+      qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
+      qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
       vec3_t x0,x1,x2;
       grid->GetPoints()->GetPoint(id_node, x0.data());
       grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
       grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
+      qDebug()<<"x0="<<x0<<" x1="<<x1<<" x="<<x2;
 //       vtkIdType foo1 = (id_node+6-1-1)%6+1;
 //       vtkIdType foo2 = (id_node-1+1)%6+1;
 //       qDebug()<<"foo1="<<foo1<<"foo2="<<foo2;
       
 //       grid->GetPoints()->GetPoint(foo1, x1.data());
 //       grid->GetPoints()->GetPoint(foo2, x2.data());
+      
       vec3_t N = (x0-x1) + (x0-x2);
       m_NodeNormals[id_node] = N;
 //       qDebug()<<"x0="<<x0[0]<<x0[1]<<x0[2];
@@ -1411,6 +1419,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
 //       qDebug()<<"x2="<<x2[0]<<x2[1]<<x2[2];
     }
     m_NodeNormals[id_node].normalise();
+    qDebug()<<"m_NodeNormals["<<id_node<<"]="<<m_NodeNormals[id_node];
   }
   
   // compute maximum angle per node

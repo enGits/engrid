@@ -1047,6 +1047,46 @@ void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
   qDebug()<<"Saved grid as "<<name;
 }
 
+void EgVtkObject::addGrid(vtkUnstructuredGrid *maingrid, vtkUnstructuredGrid *grid_to_add)
+{
+  int Npoints_1 = maingrid->GetNumberOfPoints();
+  int Npoints_2 = grid_to_add->GetNumberOfPoints();
+  int Ncells_1 = maingrid->GetNumberOfCells();
+  int Ncells_2 = grid_to_add->GetNumberOfCells();
+  EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  allocateGrid(new_grid, Ncells_1+Ncells_2, Npoints_1+Npoints_2);
+  
+  for (vtkIdType id_node = 0; id_node < maingrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    maingrid->GetPoints()->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(maingrid, id_node, new_grid, id_node);
+  }
+  for (vtkIdType id_cell = 0; id_cell < maingrid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = maingrid->GetCellType(id_cell);
+    maingrid->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(maingrid, id_cell, new_grid, id_new_cell);
+  }
+  for (vtkIdType id_node = 0; id_node < grid_to_add->GetNumberOfPoints(); ++id_node) {
+    vtkIdType id_new_node = id_node + Npoints_1;
+    vec3_t x;
+    grid_to_add->GetPoints()->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+    copyNodeData(grid_to_add, id_node, new_grid, id_new_node);
+  }
+  for (vtkIdType id_cell = 0; id_cell < grid_to_add->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = grid_to_add->GetCellType(id_cell);
+    grid_to_add->GetCellPoints(id_cell, N_pts, pts);
+    for(int i=0;i<N_pts;i++) pts[i]=pts[i] + Npoints_1;
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(grid_to_add, id_cell, new_grid, id_new_cell);
+  }
+  makeCopy(new_grid, maingrid);
+}
+
 void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
 {
   int N = grid->GetPointData()->GetNumberOfArrays();
@@ -1346,4 +1386,10 @@ void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
   } else {
     EG_BUG; // not implemented
   }
+}
+
+QDebug operator<<(QDebug dbg, const vec3_t &v)
+{
+  dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
+  return dbg.space();
 }

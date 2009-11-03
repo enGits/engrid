@@ -59,10 +59,15 @@ private: // data-types
 private: // attributes
 
   vtkUnstructuredGrid*   m_BGrid;
-  
   vtkUnstructuredGrid*   m_InterpolationGrid;
   vtkUnstructuredGrid*   m_BezierGrid;
   
+public:
+  vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
+  vtkUnstructuredGrid* getInterpolationGrid() { return m_InterpolationGrid; }
+  vtkUnstructuredGrid* getBezierGrid() { return m_BezierGrid; }
+  
+private:
   QVector<vtkIdType>     m_ProjTriangles;
   vtkUnstructuredGrid*   m_FGrid;
   QVector<double>        m_EdgeLength;
