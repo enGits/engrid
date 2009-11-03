@@ -1912,6 +1912,9 @@ void GuiMainWindow::storeSurfaceProjection()
   m_SurfProj.clear();
   cout << "storing background grid for surface projection:" << endl;
   EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  
+  QFileInfo file_info(m_CurrentFilename);
+  
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection();
     m_SurfProj[bc] = proj;
@@ -1927,7 +1930,6 @@ void GuiMainWindow::storeSurfaceProjection()
       proj->writeOctree(file_name);
       cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
     }
-    QFileInfo file_info(m_CurrentFilename);
     QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
     proj->writeGridWithNormals(basename);
     proj->writeInterpolationGrid(basename);
@@ -1935,7 +1937,7 @@ void GuiMainWindow::storeSurfaceProjection()
       <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
     addGrid(new_grid, proj->getBezierGrid());
   }
-  writeGrid(new_grid, "projection_surface");
+  writeGrid(new_grid, file_info.completeBaseName() + "_projection_surface");
   qDebug()<<"=====> new_grid->GetNumberOfPoints()="<<new_grid->GetNumberOfPoints();
   qDebug()<<"=====> new_grid->GetNumberOfCells()="<<new_grid->GetNumberOfCells();
 }
