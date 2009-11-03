@@ -1139,8 +1139,10 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 
   this->addRecentFile(file_name,QDateTime::currentDateTime());
 
-  resetOperationCounter();
-  quickSave();
+  if(update_current_filename) {
+    resetOperationCounter();
+    quickSave();
+  }
 }
 
 void GuiMainWindow::openXml(QString file_name)
@@ -1170,7 +1172,6 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
-  qDebug()<<"QString file_name="<<file_name<<", bool update_current_filename="<<update_current_filename;
   QString buffer = m_XmlDoc.toString(0);
   
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1195,8 +1196,6 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   QApplication::restoreOverrideCursor();
   
-  qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
-  qDebug()<<"getCwd()="<<qPrintable(getCwd());
   return(file_name);
 }
 
