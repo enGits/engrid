@@ -45,6 +45,8 @@ void IOOperation::setExtension(QString extension)
 
 void IOOperation::readInputFileName(QString default_filename)
 {
+  QApplication::restoreOverrideCursor();
+  
   QFileDialog dialog(NULL, "read file", GuiMainWindow::getCwd(), m_FormatTxt);
   dialog.selectFile(default_filename);
   if (dialog.exec()) {
@@ -61,10 +63,14 @@ void IOOperation::readInputFileName(QString default_filename)
     }
   }
   else m_Valid = false;
+
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void IOOperation::readOutputFileName(QString default_filename)
 {
+  QApplication::restoreOverrideCursor();
+  
   QFileDialog dialog(NULL, "write file", GuiMainWindow::getCwd(), m_FormatTxt);
   dialog.selectFile(default_filename);
   dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -85,6 +91,8 @@ void IOOperation::readOutputFileName(QString default_filename)
     }
   }
   else m_Valid = false;
+
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void IOOperation::readOutputDirectory()
