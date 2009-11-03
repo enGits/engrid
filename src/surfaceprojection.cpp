@@ -26,7 +26,7 @@
 
 #include <vtkUnstructuredGridWriter.h>
 
-///@@@ TODO: Delete those grids somewhere
+///\todo Delete those grids somewhere
 SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {
   m_BGrid = vtkUnstructuredGrid::New();
@@ -394,7 +394,7 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 // }
 // }
 
-void SurfaceProjection::writeGridWithNormals()
+void SurfaceProjection::writeGridWithNormals(QString filename)
 {
   //qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
   
@@ -422,7 +422,7 @@ void SurfaceProjection::writeGridWithNormals()
   vectors->Delete();
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName("m_BGrid_WithNormals.vtu");
+  vtu->SetFileName(qPrintable(filename+"_BGrid_WithNormals.vtu"));
   vtu->SetDataModeToBinary();
   vtu->SetInput(m_BGrid);
   vtu->Write();
@@ -1158,7 +1158,7 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
   return(0);
 }
 
-void SurfaceProjection::setupInterpolationGrid()
+void SurfaceProjection::writeInterpolationGrid(QString filename)
 {
   int N_cells = m_BGrid->GetNumberOfCells()+2*m_BGrid->GetNumberOfCells();
   int N_points = m_BGrid->GetNumberOfPoints()+6*m_BGrid->GetNumberOfCells();
@@ -1244,30 +1244,30 @@ void SurfaceProjection::setupInterpolationGrid()
   //qDebug()<<"offset="<<offset;
   
   EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
-  vtu1->SetFileName("m_InterpolationGrid.vtk");
+  vtu1->SetFileName(qPrintable(filename+"_InterpolationGrid.vtk"));
   vtu1->SetInput(m_InterpolationGrid);
   vtu1->Write();
 
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("m_InterpolationGrid.vtu");
+  vtu2->SetFileName(qPrintable(filename+"_InterpolationGrid.vtu"));
   vtu2->SetDataModeToBinary();
 //   vtu2->SetDataModeToAscii();
   vtu2->SetInput(m_InterpolationGrid);
   vtu2->Write();
 
   EG_VTKSP(vtkUnstructuredGridWriter,vtu3);
-  vtu3->SetFileName("m_BezierGrid.vtk");
+  vtu3->SetFileName(qPrintable(filename+"_BezierGrid.vtk"));
   vtu3->SetInput(m_BezierGrid);
   vtu3->Write();
 
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu4);
-  vtu4->SetFileName("m_BezierGrid.vtu");
+  vtu4->SetFileName(qPrintable(filename+"_BezierGrid.vtu"));
   vtu4->SetDataModeToBinary();
 //   vtu4->SetDataModeToAscii();
   vtu4->SetInput(m_BezierGrid);
   vtu4->Write();
   
-  writeGrid(m_BGrid,"m_BGrid");
+  this->writeGrid(m_BGrid,filename+"_BGrid");
   
 }
 

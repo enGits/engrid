@@ -1926,6 +1926,10 @@ void GuiMainWindow::storeSurfaceProjection()
       proj->writeOctree(file_name);
       cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
     }
+    QFileInfo file_info(m_CurrentFilename);
+    QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
+    proj->writeGridWithNormals(basename);
+    proj->writeInterpolationGrid(basename);
   }
 }
 

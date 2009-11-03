@@ -52,7 +52,7 @@ void Projection_test::project_all_points()
   int bc_dst = 18;
   
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals("test");
   
   QVector <vtkIdType> cells;
   QSet <int> bc_src_set;
@@ -88,7 +88,6 @@ void Projection_test::Bezier_test()
 //   
 //   int bc_dst = 18;
 //   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
-//   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
 
   vec3_t X_200(0,0,0);
   vec3_t X_020(1,0,0);
@@ -124,8 +123,8 @@ void Projection_test::checkInterpolationGrid()
   bc_dst = 18;
 //   updateNodeInfo(true);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals();
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setupInterpolationGrid();
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals("test");
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeInterpolationGrid("test");
 }
 
 void Projection_test::Bezier_circle_test()
