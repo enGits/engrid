@@ -43,15 +43,37 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta);
 /** Returns a normalized vector orthogonal to v */
 vec3_t orthogonalVector(vec3_t v);
 
+/** Calculates the intersection between a line and a plane.
+ * @param x_straight A point of the line.
+ * @param v_straight Direction of the line.
+ * @param x_plane A point of the plane
+ * @param n_plane Normal of the plane
+ */
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t n_plane);
 
+/** Calculates the intersection between a line and a plane.
+ * @param x_straight A point of the line.
+ * @param v_straight Direction of the line.
+ * @param x_plane A point of the plane
+ * @param u_plane A vector of the plane
+ * @param v_plane Another vector of the plane not colinear with u_plane
+ */
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
 
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
+/** Calculates the intersection point M between the lines (r1,u1) and (r2,u2).
+ * @param k1 Returned by reference. Verifies M = r1+k1*u1
+ * @param k2 Returned by reference. Verifies M = r2+k2*u2
+ * @param r1 point of line 1
+ * @param r2 point of line 2
+ * @param u1 direction of line 1
+ * @param u2 direction of line 2
+ * @return true if an intersection has been found, else false.
+ */
 bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2);
 
 void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<vec3_t> > &Tout);
@@ -144,6 +166,8 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
 
 /** area of the circumscribed circle of the triangle */
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
+
+vec3_t getBarycentricCoordinates(double x, double y);
 
 };
 

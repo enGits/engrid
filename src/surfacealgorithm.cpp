@@ -29,35 +29,38 @@ SurfaceAlgorithm::SurfaceAlgorithm()
 void SurfaceAlgorithm::readVMD()
 {
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table").replace("\n", " ");
-  QTextStream in(&buffer, QIODevice::ReadOnly);
   int row_count = 0;
   int column_count = 0;
-  in >> row_count >> column_count;
-  QSet<int> tmp_bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
   m_VMDvector.clear();
-  if (column_count == tmp_bcs.size() + 3) {
-    m_VMDvector.fill(VertexMeshDensity(), row_count);
-    for (int i = 0; i < row_count; ++i) {
-      int row, column;
-      QString formula;
-      foreach (int bc, tmp_bcs) {
+  
+  if(!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    in >> row_count >> column_count;
+    QSet<int> tmp_bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
+    if (column_count == tmp_bcs.size() + 3) {
+      m_VMDvector.fill(VertexMeshDensity(), row_count);
+      for (int i = 0; i < row_count; ++i) {
+        int row, column;
+        QString formula;
+        foreach (int bc, tmp_bcs) {
+          in >> row >> column >> formula;
+          m_VMDvector[row].BCmap[bc] = formula.toInt();
+        }
         in >> row >> column >> formula;
-        m_VMDvector[row].BCmap[bc] = formula.toInt();
+        m_VMDvector[row].type = Str2VertexType(formula);
+        in >> row >> column >> formula;
+        if (formula == "{{{empty}}}") {
+          formula = "";
+        }
+        m_VMDvector[i].setNodes(formula);
+        in >> row >> column >> formula;
+        m_VMDvector[i].density = formula.toDouble();
+        cout << m_VMDvector[i] << endl;
       }
-      in >> row >> column >> formula;
-      m_VMDvector[row].type = Str2VertexType(formula);
-      in >> row >> column >> formula;
-      if (formula == "{{{empty}}}") {
-        formula = "";
-      }
-      m_VMDvector[i].setNodes(formula);
-      in >> row >> column >> formula;
-      m_VMDvector[i].density = formula.toDouble();
-      cout << m_VMDvector[i] << endl;
+    } else {
+      EG_ERR_RETURN(QObject::tr("The number of boundary conditions don't match between the mesh and the settings table.\n column_count=%1 tmp_bcs.size()=%2").arg(column_count).arg(tmp_bcs.size()));
     }
-  } else {
-    EG_ERR_RETURN("The number of boundary conditions don't match between the mesh and the settings table");
   }
 }
 
@@ -89,7 +92,11 @@ void SurfaceAlgorithm::prepare()
   setAllCells();
   readSettings();
   readVMD();
+  
+  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+  
   updateNodeInfo(true);
+
 }
 
 void SurfaceAlgorithm::computeMeshDensity()
@@ -124,7 +131,7 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
 //     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
-  writeGrid(grid, "info");
+//   writeGrid(grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
@@ -194,4 +201,3 @@ int SurfaceAlgorithm::deleteNodes()
   remove_points();
   return remove_points.getNumRemoved();
 }
-

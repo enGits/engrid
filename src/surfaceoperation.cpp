@@ -338,7 +338,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
       if ( vtkMath::Normalize( l1 ) >= 0.0 &&
            vtkMath::Normalize( l2 ) >= 0.0 &&
            vtkMath::Dot( l1, l2 ) < CosEdgeAngle ) {
-        type = VTK_FIXED_VERTEX;
+             type = VTK_FIXED_VERTEX;
       }
     }//if along edge
   }//if edge vertex

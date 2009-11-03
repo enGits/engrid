@@ -141,6 +141,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QString      m_CurrentFilename;      ///< The current file name of the grid.
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
+    bool         m_undo_redo_enabled;     ///< if true, undo/redo operations will be usable.
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
@@ -171,6 +172,9 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void addRecentFile(QString file_name, QDateTime date);
   private slots:
     void openRecent(QAction *action);
+  
+  public:
+    void resetXmlDoc();
   
   private: // static attributes
 
@@ -331,6 +335,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     static void unlock() { m_Mutex.unlock(); }
     static bool tryLock() { return m_Mutex.tryLock(); }
     void getAllBoundaryCodes( QSet<int> &bcs );
+    QSet<int> getAllBoundaryCodes();
     void getDisplayBoundaryCodes( QSet<int> &bcs );
     vtkPointPicker* getPointPicker() { return ( m_PointPicker );}
     vtkSphereSource* getPickSphere() { return ( m_PickSphere );}
@@ -466,6 +471,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
+
 };
 
 #endif
