@@ -119,6 +119,8 @@ private: // methods
   vec3_t cylinder(vec3_t center, double radius, vec3_t g_M);
   vec3_t cylinder(vec3_t center, double radius, int i_tri, vec3_t r);
   
+  vec3_t getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2);
+  
 public: // methods
 
   SurfaceProjection();

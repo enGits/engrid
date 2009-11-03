@@ -1063,7 +1063,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //     vec3_t center(0,0,0);
 //     double radius = 1;
 //     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
-//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
 //   }
 /*  if(!on_triangle) {
     cout<<"x_proj="<<x_proj<<endl;
@@ -1290,6 +1290,38 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
 //   return F;
 // }
 
+vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2)
+{
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c = getPartN2C();
+  l2g_t cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2g_t nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  
+  vec3_t x1,x2;
+  grid->GetPoints()->GetPoint(id_node1, x1.data());
+  grid->GetPoints()->GetPoint(id_node2, x2.data());
+  
+  QVector <vtkIdType> edge_cells;
+  getEdgeCells(id_node1,id_node2,edge_cells);
+  vtkIdType id_cell = edge_cells[0];
+  int side = getSide(id_cell,m_BGrid,id_node1,id_node2);
+  vtkIdType *pts, N_pts;
+  m_BGrid->GetCellPoints(id_cell, N_pts, pts);
+  vec3_t t;
+  if(pts[side]==id_node1) {
+    t = x2-x1;
+  }
+  else {
+    t = x1-x2;
+  }
+  vec3_t n = m_Triangles[id_cell].g3;
+  vec3_t Nedge = t.cross(n);
+  qDebug()<<"Nedge="<<Nedge;
+  return Nedge;
+}
+
 void SurfaceProjection::updateBackgroundGridInfo()
 {
   EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
@@ -1390,6 +1422,11 @@ void SurfaceProjection::updateBackgroundGridInfo()
   
   qDebug()<<"===STARTING NORMAL CALCULATION===";
   l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c = getPartN2C();
+  l2g_t cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2g_t nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
@@ -1412,7 +1449,46 @@ void SurfaceProjection::updateBackgroundGridInfo()
 //       grid->GetPoints()->GetPoint(foo1, x1.data());
 //       grid->GetPoints()->GetPoint(foo2, x2.data());
       
-      vec3_t N = (x0-x1) + (x0-x2);
+      
+//       t1.cross(n1);
+//       t2.cross(n2);
+      
+/*      QVector <vtkIdType> edge_cells_1;
+      getEdgeCells(id_node,id_snappoints[0],edge_cells_1);
+      vtkIdType id_cell = edge_cells_1[0];
+      int side = getSide(id_cell,m_BGrid,id_node,id_snappoints[0]);
+      vtkIdType *pts, N_pts;
+      m_BGrid->GetCellPoints(id_cell, N_pts, pts);
+      vec3_t t1;
+      if(pts[side]==id_node) {
+        t1 = x1-x0;
+      }
+      else {
+        t1 = x0-x1;
+      }
+      vec3_t n1 = m_Triangles[id_cell].g3;
+      vec3_t Nedge1 = t1.cross(n1);
+      qDebug()<<"Nedge1="<<Nedge1;*/
+      
+//       QVector <int> i_cell_vector = n2c[_nodes[id_node]];
+//       vtkIdType id_cell = cells[i_cell_vector[0]];
+      
+      
+      vec3_t Nedge1 = getEdgeNormal(id_node, id_snappoints[0]);
+      vec3_t Nedge2 = getEdgeNormal(id_node, id_snappoints[1]);
+      vec3_t N = Nedge1+Nedge2;//(x0-x1) + (x0-x2);
+      
+      // funny cone
+//       N[0]=x0[0];
+//       N[1]=x0[1];
+//       N[2]=-2;
+      
+      // correct cone
+//       double alpha = atan2(x0[1],x0[0]);
+//       N[0]=2*cos(alpha);
+//       N[1]=2*sin(alpha);
+//       N[2]=1;
+      
       m_NodeNormals[id_node] = N;
 //       qDebug()<<"x0="<<x0[0]<<x0[1]<<x0[2];
 //       qDebug()<<"x1="<<x1[0]<<x1[1]<<x1[2];
