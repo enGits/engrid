@@ -281,7 +281,6 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
 
 char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
 {
-  qDebug()<<"SurfaceOperation::getNodeType called with id_node="<<id_node<<" and fix_unselected="<<fix_unselected;
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2n   = getPartN2N();
@@ -322,11 +321,9 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
   if ( type == VTK_FEATURE_EDGE_VERTEX || type == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
     if ( !this->m_BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX ) {
-      qDebug()<<"AAAAAAAAAAAAAAA";
       type = VTK_FIXED_VERTEX;
     }
     else if ( edges.size() != 2 ) {
-      qDebug()<<"BBBBBBBBBBBBBB";
       type = VTK_FIXED_VERTEX;
     }
     else { //check angle between edges
@@ -341,7 +338,6 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
       if ( vtkMath::Normalize( l1 ) >= 0.0 &&
            vtkMath::Normalize( l2 ) >= 0.0 &&
            vtkMath::Dot( l1, l2 ) < CosEdgeAngle ) {
-             qDebug()<<"CCCCCCCCCCCCCCCC";
              type = VTK_FIXED_VERTEX;
       }
     }//if along edge
@@ -429,7 +425,6 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     }
     if(fix_unselected) {
       if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {
-        qDebug()<<"m_BoundaryCodes="<<m_BoundaryCodes<<" cell_code_0="<<cell_code_0<<" cell_code_1="<<cell_code_1;
         edge = VTK_FIXED_VERTEX;// does not make sense, but should make the points of the edge fixed
       }
     }

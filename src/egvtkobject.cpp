@@ -1288,13 +1288,9 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
     }
   }
   
-//   qDebug()<<"node_count="<<node_count;
-  
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {
     for(int j=0;j<N-1-i;j++) {
-      
-      //qDebug()<<"(i,j)="<<i<<j;
       
       vtkIdType pts_triangle1[3];
       pts_triangle1[0]=offset + idx_func(N, i  ,j  );
@@ -1303,7 +1299,6 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
       bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
       
       if(i+j<N-2) {
-        //qDebug()<<"BEEP";
         vtkIdType pts_triangle2[3];
         pts_triangle2[0]=offset + idx_func(N, i+1,j  );
         pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
@@ -1314,7 +1309,6 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
     }
   }
   
-  //qDebug()<<"cell_count="<<cell_count;
   return node_count;
 }
 
