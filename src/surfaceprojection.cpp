@@ -999,7 +999,7 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
-  qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
+//   qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
   
 //   qWarning()<<"@@@@@@@@@@@@ xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
   vec3_t x_proj(1e99,1e99,1e99), r_proj;
@@ -1436,7 +1436,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
     qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
-    if(node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
+    if(false && node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
