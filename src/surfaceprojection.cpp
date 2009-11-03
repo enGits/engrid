@@ -1057,7 +1057,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //     vec3_t center(0,0,0);
 //     double radius = 1;
 //     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
-    x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+//     x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
 //   }
 /*  if(!on_triangle) {
     cout<<"x_proj="<<x_proj<<endl;

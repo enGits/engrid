@@ -142,6 +142,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QString      m_CurrentFilename;      ///< The current file name of the grid.
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
+    bool         m_undo_redo_enabled;     ///< if true, undo/redo operations will be usable.
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
