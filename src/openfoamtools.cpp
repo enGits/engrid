@@ -55,7 +55,7 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent)
   QSettings *settings = GuiMainWindow::pointer()->settings();
   m_OpenFoamPath = getenv("HOME");
   m_OpenFoamPath += "/OpenFOAM/OpenFOAM-1.5";
-  getSet("General", "OpenFOAM path", m_OpenFoamPath, m_OpenFoamPath);
+  getSet("General", "OpenFOAM path", m_OpenFoamPath, m_OpenFoamPath,2);
   m_OpenFoamArch = "linux64GccDPOpt";
   getSet("General", "OpenFOAM architecture", m_OpenFoamArch, m_OpenFoamArch);
 
