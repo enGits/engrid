@@ -28,6 +28,7 @@ class EgVtkObject;
 class BezierTriangle;
 
 #include "engrid.h"
+#include "utilities.h"
 #include "boundarycondition.h"
 
 #include <vtkUnstructuredGrid.h>
@@ -111,6 +112,12 @@ protected: // methods
    */
   QString getSet(QString group, QString key, QString value, QString& variable);
 
+  /**
+   * if key=value pair not found in settings file, write it + read key value from settings file and assign it to variable
+   * Version for string variables.
+   */
+  QString getSet(QString group, QString key, QString value, QString& variable, int type);
+    
   /**
    * Update the cell index array.
    */
@@ -671,117 +678,8 @@ int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1
 
 QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
 QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
-Qt::CheckState int2CheckState(int a);
-int CheckState2int(Qt::CheckState a);
 
 ///////////////////////////////////////////
-
-template <class T>
-ostream &operator<<(ostream &out, QVector<T> const & vector)
-{
-  int N=vector.size();
-  out<<"[";
-  for (int i = 0; i < N; ++i) {
-    out<<vector.at(i);
-    if(i!=N-1) out<<",";
-  }
-  out<<"]";
-  return(out);
-}
-
-template <class T>
-ostream &operator<<(ostream &out, QSet<T> const & set )
-{
-  out << "[ ";
-  foreach (T value, set) out << value << " ";
-  out << "]";
-  return(out);
-}
-
-template <class T>
-ostream &operator<<(ostream &out, QVector<QSet<T> > & vector)
-{
-  int N=vector.size();
-  out<<"[";
-  for (int i = 0; i < N; ++i) {
-    QSet<T> set=vector.at(i);
-    out<<set;
-    if(i!=N-1) out<<",";
-  }
-  out<<"]";
-  return(out);
-}
-
-template <class T>
-ostream &operator<<(ostream &out, QVector<QVector<T> > & vector)
-{
-  int N=vector.size();
-  out<<"[";
-  for (int i = 0; i < N; ++i) {
-    QVector<T> subvector=vector.at(i);
-    out<<subvector;
-    if(i!=N-1) out<<",";
-  }
-  out<<"]";
-  return(out);
-}
-
-template <class T1, class T2>
-ostream &operator<<(ostream &out, QMap<T1,T2> & map)
-{
-  QMapIterator<T1, T2> i(map);
-  out<<"[";
-  while (i.hasNext()) {
-    i.next();
-    out << " [" << i.key() << ": " << i.value() << "]";
-  }
-  out<<"]";
-  return(out);
-}
-
-template <class T1, class T2>
-ostream &operator<<(ostream &out, QVector < pair<T1,T2> > & vector)
-{
-  int N=vector.size();
-  out<<"[";
-  for (int i = 0; i < N; ++i) {
-    out<<"<";
-    out<<vector.at(i).first;
-    out<<",";
-    out<<vector.at(i).second;
-    out<<">";
-    if(i!=N-1) out<<",";
-  }
-  out<<"]";
-  return(out);
-}
-
-template <class T>
-QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
-{
-  QVector <T> l_vector(a_set.size());
-  qCopy(a_set.begin(),a_set.end(),l_vector.begin());
-  if(a_sort) qSort(l_vector.begin(),l_vector.end());
-  return(l_vector);
-}
-
-template <class T>
-QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
-{
-  QSet <T> l_set;
-  foreach(T element, a_vector) l_set.insert(element);
-  if(a_sort) qSort(l_set.begin(),l_set.end());
-  return(l_set);
-}
-
-template <class T>
-bool duplicates(QVector <T> a_vector)
-{
-  QSet <T> l_set;
-  foreach(T element, a_vector) l_set.insert(element);
-  return l_set.size()!=a_vector.size();
-}
-
 ///////////////////////////////////////////
 ///\todo clean up utility function placement (create something like geometrytools)
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);

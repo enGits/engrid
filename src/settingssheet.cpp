@@ -26,6 +26,7 @@
 #include <QtGui>
 
 #include "egvtkobject.h"
+#include "utilities.h"
 #include "settingssheet.h"
 #include "vertexdelegate.h"
 #include "guimainwindow.h"

@@ -32,9 +32,8 @@
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
-  getSet("boundary layer", "maximal relative error", 0.01, err_max);
-  getSet("boundary layer", "maximal number of smoothing iterations", 5, max_iter);
-  getSet("boundary layer", "number of pre-steps", 5, m_NumPreSteps);
+  getSet("boundary layer", "number of smoothing iterations", 5, m_NumIterations);
+  getSet("boundary layer", "number of pre-steps", 2, m_NumPreSteps);
   getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
 }
 
@@ -50,9 +49,9 @@ void GuiCreateBoundaryLayer::before()
   }
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
-  ui.spinBoxIterations->setValue(max_iter);
+  ui.spinBoxIterations->setValue(m_NumIterations);
   double h;
-  getSet("boundary layer", "relative height of boundary layer", 0.75, h);
+  getSet("boundary layer", "relative height of boundary layer", 1.5, h);
   int hi = 20*h;
   h = 0.05*hi;
   ui.doubleSpinBoxHeight->setValue(h);
@@ -200,10 +199,4 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(grid);
   createIndices(grid);
-  smooth.printMaxErrors();
-  if (m_WriteDebugFile) {
-    smooth.setAllCells();
-    smooth();
-    smooth.writeDebugFile("gridsmoother");
-  }
 }
