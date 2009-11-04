@@ -38,8 +38,7 @@ class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer
 private: // attributes
   
   QVector<vtkIdType> layer_cells;
-  double err_max;
-  int max_iter;
+  int m_NumIterations;
   int m_NumPreSteps;
   bool m_WriteDebugFile;
     
