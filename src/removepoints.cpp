@@ -240,42 +240,60 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
   return( N );
 }
 
-bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
+bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell)
 {
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
   
-  vec3_t x0_old, x0_new;
-  grid->GetPoint( id_node, x0_old.data() );
-  x0_new = P;
+  vec3_t x_old;
+  grid->GetPoint(id_node, x_old.data());
   
-  foreach( int i_cell, n2c[_nodes[id_node]] ) {
-    vtkIdType id_cell = cells[i_cell];
-    vtkIdType num_pts, *pts;
-    grid->GetCellPoints( id_cell, num_pts, pts );
-    int i;
-    for ( i = 0; i < num_pts; i++ ) {
-      if ( pts[i] == id_node ) {
-        break;
-      }
-    }
-    vec3_t x2, x3;
-    grid->GetPoint( pts[( i+1 )%num_pts], x2.data() );
-    grid->GetPoint( pts[( i+2 )%num_pts], x3.data() );
-    vec3_t v2_old = x2 - x0_old;
-    vec3_t v3_old = x3 - x0_old;
-    
-    //top point
-    vec3_t S = x0_old + v2_old.cross( v3_old );
-    double V_old = tetraVol( x0_old, S, x2, x3, true );
-    double V_new = tetraVol( x0_new, S, x2, x3, true );
-    double prod = V_old * V_new;
-    if ( prod < 0 ) {
-      return ( true );
+  vec3_t n(0,0,0);
+  bool move = true;
+  QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
+  double A_max = 0;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    A_max = max(A, A_max);
+    cell_normals[i] = GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+    cell_normals[i].normalise();
+  }
+  int N = 0;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    if (A > 0.01*A_max) {
+      n += cell_normals[i];
+      ++N;
     }
   }
-  return( false );
+  if (N == 0) {
+    move = false;
+  } else {
+    n.normalise();
+    double L_max = 0;
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vec3_t xn;
+      grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+      double L = (xn - x_old).abs();
+      L_max = max(L, L_max);
+    }
+    vec3_t x_summit = x_old + L_max*n;
+    vec3_t x[3];
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    if (N_pts != 3) {
+      EG_BUG;
+    }
+    for (int j = 0; j < N_pts; ++j) {
+      grid->GetPoint(pts[j], x[j].data());
+    }
+    if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+      move = false;
+    }
+  }
+
+  return !move;
 }
 
 // DEFINITIONS:
@@ -284,7 +302,12 @@ bool RemovePoints::FlippedCells( vtkIdType id_node, vec3_t P )
 // Mutated cell: the cell's form has changed
 
 ///\todo Clean up this function
-vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& DeadCells, QVector<vtkIdType>& MutatedCells, int& num_newpoints, int& num_newcells, QVector<bool>& marked_nodes)
+vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
+                                      QVector<vtkIdType>& DeadCells,
+                                      QVector<vtkIdType>& MutatedCells,
+                                      int& num_newpoints,
+                                      int& num_newcells,
+                                      const QVector<bool>& marked_nodes)
 {
   // preparations
   l2l_t n2c = getPartN2C();
@@ -384,7 +407,7 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& D
           // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
           vec3_t P;
           grid->GetPoint( PSP, P.data() );
-          if ( FlippedCells( DeadNode, P ) ) {
+          if (flippedCell(DeadNode, P, id_cell)) {
             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
             IsValidSnapPoint = false;
           }
@@ -395,7 +418,7 @@ vtkIdType RemovePoints::FindSnapPoint( vtkIdType DeadNode, QVector<vtkIdType>& D
       }
     }
     
-    // TEST 5: TOPOLOGICAL: survivor check
+    // TEST 6: TOPOLOGICAL: survivor check
     if ( grid->GetNumberOfCells() + num_newcells <= 0 ) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;

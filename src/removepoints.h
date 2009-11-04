@@ -75,10 +75,10 @@ protected:
                            QVector<vtkIdType>& DeadCells,
                            QVector<vtkIdType>& MutatedCells,
                            int& N_newpoints, int & N_newcells,
-                           QVector<bool>& marked_nodes);
+                           const QVector<bool>& marked_nodes);
   
   /// returns true if moving id_node to position P leads to flipped cells
-  bool FlippedCells( vtkIdType id_node, vec3_t P );
+  bool flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell);
   
   /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
   int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
