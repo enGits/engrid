@@ -59,6 +59,8 @@ SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
   this->setGrid(m_BGrid);
   
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  
+  m_ExactMode = 0;
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -978,26 +980,25 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
   double L = sqrt(g_M[0]*g_M[0]+g_M[1]*g_M[1]);
   g_P[0]=radius * g_M[0]/L;
   g_P[1]=radius * g_M[1]/L;
-//   cout<<"Resulting point is g_P="<<g_P<<endl;
   return g_P;
 }
 
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3_t r)
 {
   Triangle T = m_Triangles[i_tri];
-//   cout<<"T.a="<<T.a<<endl;
-//   cout<<"T.b="<<T.b<<endl;
-//   cout<<"T.c="<<T.c<<endl;
   vec3_t g_A = T.a;
   vec3_t g_M = g_A+T.G*r;
-//   cout<<"g_A="<<g_A<<endl;
-//   cout<<"r="<<r<<endl;
-//   cout<<"Projecting point g_M="<<g_M<<endl;
   return cylinder(center, radius, g_M);
 }
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
+  if(m_ExactMode==1) return ellipsoid(xp);
+  if(m_ExactMode==2) return ellipse(xp);
+  if(m_ExactMode==3) return rectangle(xp);
+  if(m_ExactMode==4) return cuboid(xp);
+  if(m_ExactMode==5) return cylinder(xp);
+  
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
 //   qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
   
@@ -1517,4 +1518,56 @@ void SurfaceProjection::updateBackgroundGridInfo()
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
     m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
+}
+
+vec3_t SurfaceProjection::ellipsoid(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t AM = M-A;
+  return( A + m_Rx.abs() * AM.normalise() );
+}
+
+vec3_t SurfaceProjection::ellipse(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t AM = M-A;
+  double x = AM*m_Rx;
+  double y = AM*m_Ry;
+  double z = AM*m_Rz;
+//   qWarning()<<x<<y<<z;
+  vec3_t P = A + x*m_Rx + y*m_Ry;
+//   qWarning()<<P;
+  vec3_t AP = P-A;
+//   qWarning()<<AP;
+//   qWarning()<<AP.normalise();
+//   qWarning()<<m_Rx.abs();
+//   qWarning()<<A + m_Rx.abs() * AP.normalise();
+  if(AP.abs()<=m_Rx.abs()) return P;
+  else return( A + m_Rx.abs() * AP.normalise() );
+}
+
+vec3_t SurfaceProjection::rectangle(vec3_t M)
+{
+
+}
+
+vec3_t SurfaceProjection::cuboid(vec3_t M)
+{
+
+}
+
+vec3_t SurfaceProjection::cylinder(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t u = m_Rz;
+  double k = (M-A)*u;
+  vec3_t P = A + k*u;
+  vec3_t PM = M-P;
+  return P + m_Rx.abs() * PM.normalise();
+/*  A+ku=P;
+  AP*PM=0;
+  ku*(M-A-ku)=0;
+  k*(u*(M-A))-k2*u2=0;
+  
+  M-*/
 }

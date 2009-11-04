@@ -1174,7 +1174,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
   QString buffer = m_XmlDoc.toString(0);
   
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  if(update_current_filename) QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   
   QFileInfo file_info(file_name);
   if (file_info.suffix().toLower() != "egc") {
@@ -1194,7 +1194,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
   
-  QApplication::restoreOverrideCursor();
+  if(update_current_filename) QApplication::restoreOverrideCursor();
   
   return(file_name);
 }
@@ -1931,6 +1931,41 @@ void GuiMainWindow::storeSurfaceProjection()
       cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
     }
     QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
+    
+//     if(m_ExactMode==1) return ellipsoid(xp);
+//     if(m_ExactMode==2) return ellipse(xp);
+//     if(m_ExactMode==3) return rectangle(xp);
+//     if(m_ExactMode==4) return cuboid(xp);
+//     if(m_ExactMode==5) return cylinder(xp);
+    
+    if(bc==1) {
+      proj->m_ExactMode = 2;
+      proj->m_center = vec3_t(0,0,-1);
+      proj->m_Rx = vec3_t(1,0,0);
+      proj->m_Ry = vec3_t(0,1,0);
+      proj->m_Rz = vec3_t(0,0,1);
+    }
+    else if (bc==2) {
+      proj->m_ExactMode = 2;
+      proj->m_center = vec3_t(0,0,1);
+      proj->m_Rx = vec3_t(1,0,0);
+      proj->m_Ry = vec3_t(0,1,0);
+      proj->m_Rz = vec3_t(0,0,1);
+    }
+    else if(bc==3) {
+      proj->m_ExactMode = 5;
+      proj->m_center = vec3_t(0,0,0);
+      proj->m_Rx = vec3_t(1,0,0);
+      proj->m_Ry = vec3_t(0,1,0);
+      proj->m_Rz = vec3_t(0,0,1);
+    }
+    
+/*    vec3_t titi;
+    titi=vec3_t(0,0,0);
+    qWarning()<<"proj->ellipse("<<titi<<")="<<proj->ellipse(titi);
+    titi=vec3_t(1,1,1);
+    qWarning()<<"proj->ellipse("<<titi<<")="<<proj->ellipse(titi);*/
+    
     proj->writeGridWithNormals(basename);
     proj->writeInterpolationGrid(basename);
     qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()

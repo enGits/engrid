@@ -96,6 +96,22 @@ private:
   int                    m_NumFull;
 
   bool m_correctCurvature;
+
+// variables for exact projection surfaces
+public:
+  int m_ExactMode;
+  vec3_t m_center;
+  vec3_t m_Rx;
+  vec3_t m_Ry;
+  vec3_t m_Rz;
+  vec3_t cylinder(vec3_t center, double radius, vec3_t g_M);
+  vec3_t cylinder(vec3_t center, double radius, int i_tri, vec3_t r);
+  vec3_t ellipsoid(vec3_t M);
+  vec3_t ellipse(vec3_t M);
+  vec3_t rectangle(vec3_t M);
+  vec3_t cuboid(vec3_t M);
+  vec3_t cylinder(vec3_t M);
+  
 private: // methods
 
   template <class C>
@@ -117,8 +133,6 @@ private: // methods
   bool   projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T);
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
   vec3_t correctCurvature(int i_tri, vec3_t r);
-  vec3_t cylinder(vec3_t center, double radius, vec3_t g_M);
-  vec3_t cylinder(vec3_t center, double radius, int i_tri, vec3_t r);
   
   vec3_t getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2);
   
