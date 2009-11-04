@@ -1773,10 +1773,6 @@ void GuiMainWindow::configure()
   settings.exec();
   
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
-  
-  QString OpenFoamArch = "linux64GccDPOpt";
-  getSet("General", "OpenFOAM architecture", OpenFoamArch, OpenFoamArch);
-  
 }
 
 void GuiMainWindow::about()
