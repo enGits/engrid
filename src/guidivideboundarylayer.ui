@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>GuiDivideBoundaryLayer</class>
- <widget class="QDialog" name="GuiDivideBoundaryLayer" >
-  <property name="geometry" >
+ <widget class="QDialog" name="GuiDivideBoundaryLayer">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,112 +10,115 @@
     <height>308</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>divide boundary layer</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="engrid.qrc" >
+  <property name="windowIcon">
+   <iconset resource="engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" >
-   <item row="0" column="0" >
-    <layout class="QGridLayout" name="gridLayout" >
-     <item row="0" column="1" >
-      <widget class="QLineEdit" name="lineEditH" >
-       <property name="text" >
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditH">
+       <property name="text">
         <string>0.01</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="label" >
-       <property name="text" >
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
         <string>initial layer thickness</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" >
-      <widget class="QLabel" name="label_3" >
-       <property name="text" >
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
         <string>initial increase factor</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1" >
-      <widget class="QDoubleSpinBox" name="doubleSpinBoxF" >
-       <property name="alignment" >
+     <item row="1" column="1">
+      <widget class="QDoubleSpinBox" name="doubleSpinBoxF">
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
-       <property name="minimum" >
+       <property name="minimum">
         <double>1.000000000000000</double>
        </property>
-       <property name="maximum" >
+       <property name="maximum">
         <double>10.000000000000000</double>
        </property>
-       <property name="singleStep" >
+       <property name="singleStep">
         <double>0.100000000000000</double>
        </property>
-       <property name="value" >
+       <property name="value">
         <double>1.500000000000000</double>
        </property>
       </widget>
      </item>
-     <item row="2" column="1" >
-      <widget class="QSpinBox" name="spinBoxLayers" >
-       <property name="alignment" >
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="spinBoxLayers">
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
-       <property name="minimum" >
+       <property name="minimum">
         <number>3</number>
        </property>
-       <property name="value" >
+       <property name="value">
         <number>10</number>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" >
-      <widget class="QLabel" name="label_2" >
-       <property name="text" >
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
         <string>number of layers</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2" >
-      <widget class="QCheckBox" name="checkBoxH" >
-       <property name="text" >
+     <item row="0" column="2">
+      <widget class="QCheckBox" name="checkBoxH">
+       <property name="text">
         <string>use relative spacing</string>
        </property>
-       <property name="checked" >
+       <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item rowspan="2" row="0" column="1" >
-    <widget class="QGroupBox" name="groupBox" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+   <item row="0" column="1" rowspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>boundary conditions</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QListWidget" name="listWidget" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+       <widget class="QListWidget" name="listWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize" >
+        <property name="maximumSize">
          <size>
           <width>16777215</width>
           <height>16777215</height>
@@ -125,12 +129,12 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <spacer name="verticalSpacer" >
-     <property name="orientation" >
+   <item row="1" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
        <height>169</height>
@@ -138,21 +142,21 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0" colspan="2" >
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+   <item row="2" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="pushButtonHelp" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButtonHelp">
+       <property name="text">
         <string>Help</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="standardButtons" >
+       <property name="standardButtons">
         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
       </widget>
@@ -162,7 +166,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="engrid.qrc" />
+  <include location="engrid.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -171,11 +175,11 @@
    <receiver>GuiDivideBoundaryLayer</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -187,11 +191,11 @@
    <receiver>GuiDivideBoundaryLayer</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

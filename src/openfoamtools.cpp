@@ -34,7 +34,7 @@
 
 using namespace std;
 
-OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject( parent )
+OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent)
 {
   m_SolverProcess = new QProcess(this);
   m_ToolsProcess = new QProcess(this);
@@ -53,19 +53,11 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject( parent )
   m_MainHost = "";
   
   QSettings *settings = GuiMainWindow::pointer()->settings();
-  if (settings->contains("openfoam_directory")) {
-    m_OpenFoamPath = settings->value("openfoam_directory").toString();
-  } else {
-    m_OpenFoamPath = getenv("HOME");
-    m_OpenFoamPath += "/OpenFOAM/OpenFOAM-1.5";
-    settings->setValue("openfoam_directory", m_OpenFoamPath);
-  }
-  if (settings->contains("openfoam_architecture")) {
-    m_OpenFoamArch = settings->value("openfoam_architecture").toString();
-  } else {
-    m_OpenFoamArch = "linux64GccDPOpt";
-    settings->setValue("openfoam_architecture", m_OpenFoamArch);
-  }
+  m_OpenFoamPath = getenv("HOME");
+  m_OpenFoamPath += "/OpenFOAM/OpenFOAM-1.5";
+  getSet("General", "OpenFOAM path", m_OpenFoamPath, m_OpenFoamPath);
+  m_OpenFoamArch = "linux64GccDPOpt";
+  getSet("General", "OpenFOAM architecture", m_OpenFoamArch, m_OpenFoamArch);
 
 }
 
