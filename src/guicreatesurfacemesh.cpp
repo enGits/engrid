@@ -96,7 +96,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   }
   L<<"Vertex Type";
   L<<"Nodelist";
-  L<<"Mesh Density";
+  L<<"Edge Length";
   m_tableWidget->setHorizontalHeaderLabels(L);
   m_tableWidget->resizeColumnsToContents();
   
