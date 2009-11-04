@@ -40,7 +40,7 @@
 //     Do not use slashes ('/' and '\') in key names; the backslash character is used to separate sub keys (see below). On windows '\' are converted by QSettings to '/', which makes them identical.
 
 /**
-  * Creates a QWidget with one tab per main group found in the specified QSettingsm file. each of those tabs is a SettingsTab .
+  * Creates a QWidget with one tab per main group found in the specified QSettings file. Each of those tabs is a SettingsTab.
   */
 class GuiSettingsViewer : public QDialog
 {
@@ -53,14 +53,13 @@ class GuiSettingsViewer : public QDialog
      * Constructor using the (org,app) pair to determine QSettings
      * @param org organization
      * @param app application
-     * @param group group
      * @param parent Parent QWidget
      */
     GuiSettingsViewer(QString org, QString app, QWidget *parent = 0);
+
     /**
      * Constructor taking a QSettings argument to build the widget.
      * @param Set QSettings to use
-     * @param group group
      * @param parent Parent QWidget
      */
     GuiSettingsViewer(QSettings* Set, QWidget *parent = 0);
@@ -70,22 +69,67 @@ class GuiSettingsViewer : public QDialog
 
   private slots:
     void open();
-    void save();
+    void save();///< save the settings
     void readSettings();
+
+    /**  add child settings
+    * @todo Delete the tabs for real. Or make sure they have the correct parent.
+    */
     void addChildSettings();
 
   private:
 
-    QPushButton *openButton;
-    QPushButton *saveButton;
-    QPushButton *closeButton;
+    QPushButton *openButton;///< Button for the open() action
+    QPushButton *saveButton;///< Button for the save() action
+    QPushButton *closeButton;///< Button for the close() action
 
-    QTabWidget tabWidget;
-    QVector<GuiSettingsTab> tabs;
+    QTabWidget tabWidget;///< a QTabWidget
+    QVector<GuiSettingsTab> tabs;///< a vector containing the tabs
 
-    QString organization;
-    QString application;
-    QSettings* settings;
+    QString organization;///< organization: cf QSettings documentation for more info
+    QString application;///< application: cf QSettings documentation for more info
+    QSettings* m_settings;///< The settings used
+
+  public:
+    /**
+     * if key=value pair not found in m_settings file, write it + read key value from m_settings file and return it.
+     * Version for int variables
+     * @param group group
+     * @param key key
+     * @param value value
+     */
+    int getSet(QString group, QString key, int value);
+
+    /**
+     * if key=value pair not found in m_settings file, write it + read key value from m_settings file and return it.
+     * Version for double variables
+     * @param group group
+     * @param key key
+     * @param value value
+     */
+    double getSet(QString group, QString key, double value);
+
+    /**
+     * if key=value pair not found in m_settings file, write it + read key value from m_settings file and return it.
+     * Version for bool variables
+     * @param group group
+     * @param key key
+     * @param value value
+     */
+    bool getSet(QString group, QString key, bool value);
+
+    /**
+     * if key=value pair not found in m_settings file, write it + read key value from m_settings file and return it.
+     * Version for path variables
+     * @param group group
+     * @param key key
+     * @param value value
+     * @param type type \n
+     * type = 0 : standard string \n
+     * type = 1 : filename \n
+     * type = 2 : directory
+     */
+    QString getSet(QString group, QString key, QString value, int type);
 };
 
 #endif

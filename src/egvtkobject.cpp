@@ -1018,25 +1018,17 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
 QString EgVtkObject::getSet(QString group, QString key, QString value, QString& variable)
 {
   QSettings *qset = GuiMainWindow::settings();
-  QString typed_key = "string/" + key;
-  if (group != QObject::tr("General")) {
-    qset->beginGroup(group);
-  }
-
-  //if key=value pair not found in settings file, write it
-  if (!qset->contains(typed_key)) {
-    qset->setValue(typed_key, value);
-  }
-
-  //read key value from settings file and assign it to variable
-  variable = (qset->value(typed_key,variable)).toString();
-
-  if (group != QObject::tr("General")) {
-    qset->endGroup();
-  }
-
+  QString typed_key;
+  typed_key = QObject::tr("QString/") + key;
+  if (group != QObject::tr("General")) qset->beginGroup(group);
+  //if key=value pair not found in m_settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key, value);
+  //read key value from m_settings file and assign it to variable
+  variable = (qset->value(typed_key)).toString();
+  if (group != QObject::tr("General")) qset->endGroup();
   return(variable);
 }
+
 
 void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
 {
