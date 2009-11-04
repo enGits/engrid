@@ -503,10 +503,27 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
 
 vec3_t getBarycentricCoordinates(double x, double y)
 {
+  double x_1=0;
+  double y_1=0;
+  double x_2=1;
+  double y_2=0;
+  double x_3=0;
+  double y_3=1;
+  
+//   x_1-x_3 & x_2-x_3;
+//   y_1-y_3 & y_2-y_3;
+  
+  double lambda_1 = ((y_2-y_3)(x-x_3)-(x_2-x_3)(y-y_3))/(det(T));
+  double lambda_2 = (-(y_1-y_3)(x-x_3)+(x_1-x_3)(y-y_3))/(det(T));
+  double lambda_3 = 1-lambda_1-lambda_2;
+  
+  vec3_t bary_coords(lambda_1,lambda_2,lambda_3);
+  return bary_coords;
+  
   // initialize
-  double t1=0;
+/*  double t1=0;
   double t2=0;
-  double t3=0;
+  double t3=0;*/
   
 /*  if(x==0) {
     t3=y;
@@ -536,13 +553,13 @@ vec3_t getBarycentricCoordinates(double x, double y)
   t2=t2/total;
   t3=t3/total;*/
   
-  t2 = x;
+/*  t2 = x;
   t3 = y;
-  t1 = 1-t2-t3;
+  t1 = 1-t2-t3;*/
   
   // return value
-  vec3_t bary_coords(t1,t2,t3);
-  return bary_coords;
+//   vec3_t bary_coords(t1,t2,t3);
+//   return bary_coords;
 }
 
 } // namespace

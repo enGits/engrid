@@ -62,7 +62,7 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
 void BezierTriangle::writeBezierSurface()
 {
   //qDebug()<<"writeBezierSurface called";
-  int N=10;
+  int N=2;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
