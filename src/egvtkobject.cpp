@@ -1316,17 +1316,17 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
   vtkIdType node_count = 0;
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
-      double x = -1 + 3.0*i/(double)(N-1);
-      double y = -1 + 3.0*j/(double)(N-1);
-//       double x = i/(double)(N-1);
-//       double y = j/(double)(N-1);
-      qWarning()<<x<<y;
+//       double x = -1 + 3.0*i/(double)(N-1);
+//       double y = -1 + 3.0*j/(double)(N-1);
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      qWarning()<<"x="<<x<<"y="<<y;
       vec3_t bary_coords = getBarycentricCoordinates(x,y);
       double u,v,w;
       u=bary_coords[0];
       v=bary_coords[1];
       w=bary_coords[2];
-      qWarning()<<u<<v<<w;
+      qWarning()<<"u="<<u<<"v="<<v<<"w="<<w;
       vec3_t M = bezier_triangle->QuadraticBezierTriangle(u, v, w);
       bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
     }
