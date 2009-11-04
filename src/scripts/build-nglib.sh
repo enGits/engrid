@@ -24,11 +24,9 @@
 # DESCRIPTION:
 # This script checks out or updates the netgen source code and creates the static netgen library.
 
-
-echo ${0%/*} #directory of script
-echo ${0%/*/*} # parent directory of script
-# exit 0
-cd ${0%/*/*} || exit 1    # run from parent directory of script
+# cf parameter expansion in bash manual
+SCRIPTDIR=${0%$(basename $0)}
+cd $SCRIPTDIR/..
 
 package=netgen-mesher
 (
