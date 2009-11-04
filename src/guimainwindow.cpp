@@ -1763,6 +1763,7 @@ void GuiMainWindow::configure()
       RemovePoints tmp07;
       LaplaceSmoother tmp08;
       SwapTriangles tmp09;
+      OpenFOAMTools tmp10;
     } catch (Error err) {
       err.display();
     }
@@ -1770,7 +1771,12 @@ void GuiMainWindow::configure()
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
   settings.exec();
+  
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
+  
+  QString OpenFoamArch = "linux64GccDPOpt";
+  getSet("General", "OpenFOAM architecture", OpenFoamArch, OpenFoamArch);
+  
 }
 
 void GuiMainWindow::about()
