@@ -30,6 +30,7 @@
 #include "guimainwindow.h"
 #include "containertricks.h"
 #include "updatedesiredmeshdensity.h"
+#include "utilities.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtkWindowedSincPolyDataFilter.h>

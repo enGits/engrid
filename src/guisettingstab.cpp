@@ -80,25 +80,25 @@ GuiSettingsTab::GuiSettingsTab(QString org, QString app, QString group, QWidget 
   }
   settings.endGroup();
 
-//   settings.beginGroup(QObject::tr("Filename"));
-//   foreach(QString key, settings.childKeys()) {
-//     QString S = settings.value(key).toString();
-//     filename_dialoglineedit.append(new DialogLineEdit(true));
-//     filename_dialoglineedit_name.append(key);
-//     filename_dialoglineedit.back()->setText(S);
-//     permissionsLayout->addRow(key, filename_dialoglineedit.back());
-//   }
-//   settings.endGroup();
+  settings.beginGroup(QObject::tr("Filename"));
+  foreach(QString key, settings.childKeys()) {
+    QString S = settings.value(key).toString();
+    filename_dialoglineedit.append(new DialogLineEdit(true));
+    filename_dialoglineedit_name.append(key);
+    filename_dialoglineedit.back()->setText(S);
+    permissionsLayout->addRow(key, filename_dialoglineedit.back());
+  }
+  settings.endGroup();
 
-//   settings.beginGroup(QObject::tr("Directory"));
-//   foreach(QString key, settings.childKeys()) {
-//     QString S = settings.value(key).toString();
-//     directory_dialoglineedit.append(new DialogLineEdit(false));
-//     directory_dialoglineedit_name.append(key);
-//     directory_dialoglineedit.back()->setText(S);
-//     permissionsLayout->addRow(key, directory_dialoglineedit.back());
-//   }
-//   settings.endGroup();
+  settings.beginGroup(QObject::tr("Directory"));
+  foreach(QString key, settings.childKeys()) {
+    QString S = settings.value(key).toString();
+    directory_dialoglineedit.append(new DialogLineEdit(false));
+    directory_dialoglineedit_name.append(key);
+    directory_dialoglineedit.back()->setText(S);
+    permissionsLayout->addRow(key, directory_dialoglineedit.back());
+  }
+  settings.endGroup();
 
   if (group != QObject::tr("General")) settings.endGroup();
 

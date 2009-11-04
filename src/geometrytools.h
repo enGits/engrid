@@ -90,9 +90,9 @@ double triArea(vec3_t x1, vec3_t x2, vec3_t x3);
 
 double quadArea(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
 
-vec3_t triNormal(vec3_t x1, vec3_t x2, vec3_t x3);
+vec3_t triNormal(vec3_t x0, vec3_t x1, vec3_t x2);///< Returns the normal of the surface defined by x0,x1,x2
 
-vec3_t quadNormal(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
+vec3_t quadNormal(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3);///< Returns the normal of the surface defined by x0,x1,x2,x3
 
 vec3_t triNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
 
@@ -143,7 +143,7 @@ inline bool IsConvex(vec2_t a_2D,vec2_t b_2D,vec2_t c_2D,vec2_t d_2D)
   return(IsConvex(a_3D,b_3D,c_3D,d_3D));
 };
 
-/** return the angle w.r.t. another 3-vector */
+/// return the angle with relation to another 3-vector
 double angle(const vec3_t & u, const vec3_t & v);
 
 /** return the deviation p1->p2->p3 (angle(p2-p1,p3-p2)) */

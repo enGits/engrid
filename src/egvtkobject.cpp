@@ -1021,14 +1021,35 @@ QString EgVtkObject::getSet(QString group, QString key, QString value, QString& 
   QString typed_key;
   typed_key = QObject::tr("QString/") + key;
   if (group != QObject::tr("General")) qset->beginGroup(group);
-  //if key=value pair not found in m_settings file, write it
+  //if key=value pair not found in settings file, write it
   if (!qset->contains(typed_key)) qset->setValue(typed_key, value);
-  //read key value from m_settings file and assign it to variable
+  //read key value from settings file and assign it to variable
   variable = (qset->value(typed_key)).toString();
   if (group != QObject::tr("General")) qset->endGroup();
   return(variable);
 }
 
+QString EgVtkObject::getSet(QString group, QString key, QString value, QString& variable, int type)
+{
+  QSettings *qset = GuiMainWindow::settings();
+  QString typed_key;
+  if (type == 0) {
+    typed_key = QObject::tr("QString/") + key;
+  }
+  else if (type == 1) {
+    typed_key = QObject::tr("Filename/") + key;
+  }
+  else {
+    typed_key = QObject::tr("Directory/") + key;
+  }
+  if (group != QObject::tr("General")) qset->beginGroup(group);
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key, value);
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key)).toString();
+  if (group != QObject::tr("General")) qset->endGroup();
+  return(variable);
+}
 
 void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
 {
@@ -1217,20 +1238,6 @@ QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
 
 
 ///////////////////////////////////////////
-
-Qt::CheckState int2CheckState(int a)
-{
-  if(a==0) return(Qt::Unchecked);
-  if(a==1) return(Qt::PartiallyChecked);
-  else return(Qt::Checked);
-}
-
-int CheckState2int(Qt::CheckState a)
-{
-  if(a==Qt::Unchecked) return(0);
-  if(a==Qt::PartiallyChecked) return(1);
-  else return(2);
-}
 
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
 {
