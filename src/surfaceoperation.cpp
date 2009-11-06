@@ -32,8 +32,7 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
-SurfaceOperation::SurfaceOperation()
-    : Operation()
+SurfaceOperation::SurfaceOperation() : Operation()
 {
   //default values for determining node types and for smoothing operations
   m_Convergence = 0;
@@ -53,100 +52,69 @@ void SurfaceOperation::operate()
 
 }
 
-ostream& operator<<( ostream &out, stencil_t S )
+ostream& operator<<(ostream &out, stencil_t S)
 {
-  out << "S.id_cell1=" << S.id_cell1 << " ";
-  out << "S.id_cell2=" << S.id_cell2 << " ";
-  out << "S.sameBC=" << S.sameBC << " ";
-  out << "S.twocells=" << S.twocells << " ";
-  out << "S.neighbour_type=" << S.neighbour_type << " ";
-  out << "[";
-  for ( int i = 0; i < 4; i++ ) {
-    out << S.p[i];
-    if ( i != 3 ) out << ",";
-  }
-  out << "]";
-  return( out );
+  out << "S.id_cell = " << S.id_cell << " ";
+  out << "S.id_node = " << S.id_node << " ";
+  out << "S.sameBC = " << S.sameBC << " ";
+  out << "S.type = " << S.type_cell << " ";
+  out << "S.p1 = " << S.p1 << " ";
+  out << "S.p2 = " << S.p2 << " ";
+  return(out);
 }
 
-stencil_t SurfaceOperation::getStencil( vtkIdType id_cell1, int j1 )
+stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
 {
-  l2g_t  cells = getPartCells();
-  g2l_t _cells = getPartLocalCells();
-  l2l_t  c2c   = getPartC2C();
-
-  if ( grid->GetCellType( id_cell1 ) != VTK_TRIANGLE ) {
-    cout << "CELL IS NOT A TRIANGLE" << endl;
-    EG_BUG;
-  }
-
-  //return variable
   stencil_t S;
-
-  //default values:
-  S.sameBC = false;
-  S.twocells = false;
-  S.neighbour_type = -1;
-
-  //initialize first cell
-  S.id_cell1 = id_cell1;
-  vtkIdType N1, *pts1;
-  grid->GetCellPoints( S.id_cell1, N1, pts1 );
-  //place points 0,1,3
-  if ( j1 == 0 ) { S.p[0] = pts1[2]; S.p[1] = pts1[0]; S.p[3] = pts1[1]; }
-  else if ( j1 == 1 ) { S.p[0] = pts1[0]; S.p[1] = pts1[1]; S.p[3] = pts1[2]; }
-  else if ( j1 == 2 ) { S.p[0] = pts1[1]; S.p[1] = pts1[2]; S.p[3] = pts1[0]; };
-
-  //initialize second cell
-  S.id_cell2 = -1;
-  S.p[2] = -1;
-
-  //twocells
-  if ( c2c[_cells[id_cell1]][j1] != -1 ) { //if neighbour cell
-
-    //twocells
-    S.twocells = true;
-    S.id_cell2 = cells[c2c[_cells[id_cell1]][j1]];
-
-    //sameBC
-    EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-    if ( cell_code->GetValue( S.id_cell1 ) == cell_code->GetValue( S.id_cell2 ) ) S.sameBC = true;
-
-    //neighbour_type
-    S.neighbour_type = grid->GetCellType( S.id_cell2 );
-    if ( S.neighbour_type == VTK_TRIANGLE ) {//if neighbour cell is a triangle
-      vtkIdType N2, *pts2;
-      grid->GetCellPoints( S.id_cell2, N2, pts2 );
-
-      //place point 2
-      bool p2 = false;
-      if ( c2c[_cells[S.id_cell2]][0] != -1 ) {
-        if ( cells[c2c[_cells[S.id_cell2]][0]] == S.id_cell1 ) {
-          S.p[2] = pts2[2];
-          p2 = true;
-        }
-      }
-      if ( c2c[_cells[S.id_cell2]][1] != -1 ) {
-        if ( cells[c2c[_cells[S.id_cell2]][1]] == S.id_cell1 ) {
-          S.p[2] = pts2[0];
-          p2 = true;
-        }
-      }
-      if ( c2c[_cells[S.id_cell2]][2] != -1 ) {
-        if ( cells[c2c[_cells[S.id_cell2]][2]] == S.id_cell1 ) {
-          S.p[2] = pts2[1];
-          p2 = true;
-        }
-      }
-
-      if ( !p2 ) {//failed to place point 2, appears when cell1 is linked to cell2, but cell2 not to cell1
-        cout << "S.id_cell1=" << S.id_cell1 << endl;
-        cout << "S.id_cell2=" << S.id_cell2 << endl;
-        GuiMainWindow::pointer()->saveAs( GuiMainWindow::pointer()->getFilePath() + "abort.egc", false );
-        EG_BUG;
+  {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell1, N_pts, pts);
+    S.p1 = pts[j1];
+    S.p2 = pts[0];
+    if (j1 < N_pts - 1) {
+      S.p2 = pts[j1 + 1];
+    }
+  }
+  QSet<vtkIdType> cells_p1;
+  for (int i = 0; i < m_Part.n2cGSize(S.p1); ++i) {
+    vtkIdType id_cell = m_Part.n2cGG(S.p1, i);
+    if (id_cell != id_cell1) {
+      cells_p1.insert(id_cell);
+    }
+  }
+  QSet<vtkIdType> cells_p2;
+  for (int i = 0; i < m_Part.n2cGSize(S.p2); ++i) {
+    vtkIdType id_cell = m_Part.n2cGG(S.p2, i);
+    if (id_cell != id_cell1) {
+      cells_p2.insert(id_cell);
+    }
+  }
+  QSet<vtkIdType> cells = cells_p1.intersect(cells_p2);
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  S.sameBC = true;
+  S.id_cell.resize(1);
+  S.id_cell[0] = id_cell1;
+  foreach (vtkIdType id_cell, cells) {
+    if (isSurface(id_cell, grid)) {
+      S.id_cell.push_back(id_cell);
+      if (cell_code->GetValue(id_cell) != cell_code->GetValue(id_cell1)) {
+        S.sameBC = false;
       }
     }
-  }//end of if neighbour cell
+  }
+  S.id_node.resize(S.id_cell.size());
+  S.type_cell.resize(S.id_cell.size());
+  for (int i = 0; i < S.id_cell.size(); ++i) {
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(S.id_cell[i], N_pts, pts);
+    S.type_cell[i] = grid->GetCellType(S.id_cell[i]);
+    for (int j = 0; j < N_pts; ++j) {
+      if (pts[j] != S.p1 && pts[j] != S.p2) {
+        S.id_node[i] = pts[j];
+        break;
+      }
+    }
+  }
   return S;
 }
 
@@ -404,9 +372,10 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     edge = VTK_BOUNDARY_EDGE_VERTEX;
   }
   else if ( numNei >= 2 ) {
-    qWarning() << "FATAL ERROR: edge belongs to more than 2 cells! This is not supported yet.";
-    EG_BUG;
-    edge = VTK_FEATURE_EDGE_VERTEX;
+    //qWarning() << "FATAL ERROR: edge belongs to more than 2 cells! This is not supported yet.";
+    //EG_BUG;
+    //edge = VTK_FEATURE_EDGE_VERTEX;
+    edge = VTK_BOUNDARY_EDGE_VERTEX;
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
