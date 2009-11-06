@@ -26,15 +26,27 @@
 #include <operation.h>
 
 //==============================================
+/// Special structure for working on two linked cells
+// struct stencil_t {
+//   vtkIdType id_cell1;
+//   vtkIdType id_cell2;
+//   vtkIdType p[4];
+//   bool sameBC;         ///< do both cells have the same BCs?
+//   bool twocells;       ///< Do we have 2 cells?
+//   char neighbour_type; ///< What's the type of the neighbour cell?
+// };
 
-/// Special structure for working on two (or more) linked cells
+//==============================================
+/** Special structure for working on two (or more) linked cells
+ * WARNING: Only one exterior node is stored for non-triangular cells!
+ */
 struct stencil_t
 {
-  QVector<vtkIdType> id_cell;
-  QVector<vtkIdType> id_node;
-  QVector<vtkIdType> type_cell;
-  vtkIdType p1, p2;
-  bool sameBC;         ///< do all cells have the same BCs?
+  QVector<vtkIdType> id_cell;   ///< stencil cells
+  QVector<vtkIdType> id_node;   ///< "exterior nodes" of the stencil cells
+  QVector<vtkIdType> type_cell; ///< type of the stencil cells
+  vtkIdType p1, p2;             ///< points forming the central edge of the stencil
+  bool sameBC;                  ///< do all cells have the same BCs?
 };
 
 /// Prints out stencil information
