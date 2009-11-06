@@ -80,19 +80,6 @@ void BezierTriangle::writeBezierSurface()
   
   //qDebug()<<"offset="<<offset;
   
-/*//   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu);
-  vtu->SetFileName("bezier.vtk");
-//   vtu->SetDataModeToBinary();
-//   vtu->SetDataModeToAscii();
-  vtu->SetInput(bezier);
-  vtu->Write();*/
-  
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
-  vtu1->SetFileName("bezier.vtk");
-  vtu1->SetInput(bezier);
-  vtu1->Write();
-  
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
   vtu2->SetFileName("bezier.vtu");
   vtu2->SetDataModeToBinary();
@@ -143,4 +130,113 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
   locator->FindClosestPoint(g_M.data(),g_P.data(),cellId,subId,dist2);
   locator->Delete();
   return g_P;
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
+{
+  double L = (m_X_200-m_X_020).abs();
+  L = min(L,(m_X_020-m_X_002).abs());
+  L = min(L,(m_X_002-m_X_200).abs());
+  
+  double maxerr = L/100.;
+  vec3_t xi;
+  vec3_t ri;
+  double d;
+  projectOnTriangle(g_M, xi, ri, d);
+  vec3_t g_A = xi;
+  vec2_t t_A = vec2_t(ri[0],ri[1]);
+  vec3_t g_B = QuadraticBezierTriangle(t_A);
+  projectOnTriangle(g_B, xi, ri, d);
+  vec3_t g_C = xi;
+  vec3_t err_vector = g_A - g_C;
+  while(err_vector.abs()>maxerr) {
+    g_A = g_A + err_vector;
+    projectOnTriangle(g_A, xi, ri, d);
+    t_A = vec2_t(ri[0],ri[1]);
+    g_B = QuadraticBezierTriangle(t_A);
+    projectOnTriangle(g_B, xi, ri, d);
+    vec3_t g_C = xi;
+    err_vector = g_A - g_C;
+  }
+  return g_B;
+}
+
+bool BezierTriangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
+{
+  vec3_t T_a = m_X_200;
+  vec3_t T_b = m_X_020;
+  vec3_t T_c = m_X_002;
+  vec3_t T_g1 = T_b-T_a;
+  vec3_t T_g2 = T_c-T_a;
+  vec3_t T_g3 = T_g1.cross(T_g2);
+  
+  xi = vec3_t(1e99,1e99,1e99);
+  double scal = (xp - T_a)*T_g3;
+  vec3_t x1, x2;
+  if (scal > 0) {
+    x1 = xp + T_g3;
+    x2 = xp - scal*T_g3 - T_g3;
+  } else {
+    x1 = xp - T_g3;
+    x2 = xp - scal*T_g3 + T_g3;
+  }
+  d = 1e99;
+  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T_a, T_b, T_c, x1, x2, xi, ri);
+  if (intersects_face) {
+    vec3_t dx = xp - T_a;
+    d = fabs(dx*T_g3);
+  } else {
+    double kab = GeometryTools::intersection(T_a, T_b - T_a, xp, T_b - T_a);
+    double kac = GeometryTools::intersection(T_a, T_c - T_a, xp, T_c - T_a);
+    double kbc = GeometryTools::intersection(T_b, T_c - T_b, xp, T_c - T_b);
+    double dab = (T_a + kab*(T_b-T_a) - xp).abs();
+    double dac = (T_a + kac*(T_c-T_a) - xp).abs();
+    double dbc = (T_b + kbc*(T_c-T_b) - xp).abs();
+    bool set = false;
+    if ((kab >= 0) && (kab <= 1)) {
+      if (dab < d) {
+        xi = T_a + kab*(T_b-T_a);
+        d = dab;
+        set = true;
+      }
+    }
+    if ((kac >= 0) && (kac <= 1)) {
+      if (dac < d) {
+        xi = T_a + kac*(T_c-T_a);
+        d = dac;
+        set = true;
+      }
+    }
+    if ((kbc >= 0) && (kbc <= 1)) {
+      if (dbc < d) {
+        xi = T_b + kbc*(T_c-T_b);
+        d = dbc;
+        set = true;
+      }
+    }
+    double da = (T_a - xp).abs();
+    double db = (T_b - xp).abs();
+    double dc = (T_c - xp).abs();
+    if (da < d) {
+      xi = T_a;
+      d = da;
+      set = true;
+    }
+    if (db < d) {
+      xi = T_b;
+      d = db;
+    }
+    if (dc < d) {
+      xi = T_c;
+      d = dc;
+      set = true;
+    }
+    if (!set) {
+      EG_BUG;
+    }
+  }
+  if (xi[0] > 1e98) {
+    EG_BUG;
+  }
+  return intersects_face;
 }

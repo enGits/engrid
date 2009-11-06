@@ -60,6 +60,10 @@ public:
   vec3_t QuadraticBezierTriangle(double u, double v, double w);
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t projectOnQuadraticBezierTriangle(vec3_t M);
+  vec3_t projectOnQuadraticBezierTriangle2(vec3_t M);
+  
+  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
+  
 };
 
 #endif
