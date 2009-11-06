@@ -39,8 +39,10 @@ private: // attributes
   double  m_Exp;
   double  m_MaxErr;
   double  m_TotalError;
+  double  m_AverageError;
   bool    m_Active;
   QString m_Name;
+  int     m_NumTotalCalls;
   int     m_NumCalls;
 
 public: // methods
@@ -51,9 +53,10 @@ public: // methods
   QString name() { return m_Name; }
   double operator()(double x);
   double maxError() { return m_MaxErr; }
-  void reset() { m_MaxErr = 0; m_TotalError = 0; m_NumCalls = 0; }
+  void reset(bool reset_average);
   bool active() { return m_Active && (m_Err0 > 1e-10); }
   double averageError();
+  double totalError();
   void activate() { m_Active = true; }
   void deactivate() { m_Active = false; }
 
@@ -71,6 +74,7 @@ protected: // attributes
   double Dz;
   vec3_t grad_f;
   mat3_t J;
+  QList<ErrorFunction*> m_ErrorFunctions;
   
 protected: // methods
   
@@ -78,8 +82,10 @@ protected: // methods
   virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
   virtual void computeDerivatives(vec3_t x);
 
-  void getErrSet(QString group, QString key, double err0, double xs, ErrorFunction &err_func);
+  void getErrSet(QString group, QString key, double err0, double xs, ErrorFunction* err_func);
   double angleX(const vec3_t &v1, const vec3_t &v2);
+  void resetErrorFunctions(bool reset_average = false);
+  double totalError();
   
 public: // methods
   
@@ -90,7 +96,8 @@ public: // methods
   void setDx(double d) { Dx = d; };
   void setDy(double d) { Dy = d; };
   void setDz(double d) { Dz = d; };
-  
+  void printErrors();
+
 };
 
 #endif
