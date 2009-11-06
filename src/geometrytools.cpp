@@ -510,14 +510,15 @@ vec3_t getBarycentricCoordinates(double x, double y)
   double x_3=0;
   double y_3=1;
   
-  mat3_t T;
+  mat2_t T;
   T[0][0]=x_1-x_3; T[0][1]=x_2-x_3;
   T[1][0]=y_1-y_3; T[1][1]=y_2-y_3;
   
+  qWarning()<<"T.det()="<<T.det();
+  qWarning()<<T[0][0]<<T[0][1];
+  qWarning()<<T[1][0]<<T[1][1];
+  qWarning()<<"T[0][0]*T[1][1]-T[1][0]*T[0][1]="<<T[0][0]*T[1][1]-T[1][0]*T[0][1];
   if(T.det()==0) {
-    qWarning()<<T.det();
-    qWarning()<<T[0][0]<<T[0][1];
-    qWarning()<<T[1][0]<<T[1][1];
     EG_BUG;
   }
   
