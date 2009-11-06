@@ -339,7 +339,7 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
       if ( vtkMath::Normalize( l1 ) >= 0.0 &&
            vtkMath::Normalize( l2 ) >= 0.0 &&
            vtkMath::Dot( l1, l2 ) < CosEdgeAngle ) {
-        type = VTK_FIXED_VERTEX;
+             type = VTK_FIXED_VERTEX;
       }
     }//if along edge
   }//if edge vertex
@@ -422,7 +422,7 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     }
 //     qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
     if(m_BoundaryCodes.isEmpty()) {
-      EG_BUG;
+      EG_ERR_RETURN("no boundary codes specified");
     }
     if(fix_unselected) {
       if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {

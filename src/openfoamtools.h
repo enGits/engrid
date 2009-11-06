@@ -26,7 +26,9 @@
 #include <QObject>
 #include <QProcess>
 
-class OpenFOAMTools : public QObject
+#include "egvtkobject.h"
+
+class OpenFOAMTools : public QObject, public EgVtkObject
 {
   Q_OBJECT;
 

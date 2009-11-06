@@ -157,8 +157,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   
   bool exp_features=false;
   getSet("General","enable experimental features",false,exp_features);
-  bool undo_redo;
-  getSet("General","enable undo+redo",false,undo_redo);
+  getSet("General","enable undo+redo",false,m_undo_redo_enabled);
   bool undo_redo_mode;
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
   
@@ -174,14 +173,22 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   style->Delete();
 
   // initialise XML document
-  QDomElement root = m_XmlDoc.createElement("engridcase");
-  m_XmlDoc.appendChild(root);
+//   QDomElement root = m_XmlDoc.createElement("engridcase");
+//   m_XmlDoc.appendChild(root);
+  this->resetXmlDoc();
   
   m_SolverIndex = 0;
   
   readRecentFiles();
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
+
+void GuiMainWindow::resetXmlDoc()
+{
+  m_XmlDoc.clear();
+  QDomElement root = m_XmlDoc.createElement("engridcase");
+  m_XmlDoc.appendChild(root);
+}
 
 GuiMainWindow::~GuiMainWindow()
 {
@@ -831,56 +838,63 @@ void GuiMainWindow::info()
 
 int GuiMainWindow::quickSave()
 {
-  ///\todo might be re-activated with RAM support
-  
-/*  if(grid->GetNumberOfPoints()>0)
-  {
-    m_CurrentOperation++;
-    QFileInfo fileinfo(m_CurrentFilename);
-    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(m_CurrentOperation);
-    m_LastOperation=m_CurrentOperation;
-    cout<<"Operation "<<m_CurrentOperation<<endl;
-    saveAs(l_filename, false);
-    if(m_CurrentOperation>0) ui.actionUndo->setEnabled(true);
-    ui.actionRedo->setEnabled(false);
+  ///\todo add RAM support
+  if(m_undo_redo_enabled) {
+    if(grid->GetNumberOfPoints()>0)
+    {
+      m_CurrentOperation++;
+      QFileInfo fileinfo(m_CurrentFilename);
+      QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(m_CurrentOperation);
+      m_LastOperation=m_CurrentOperation;
+      cout<<"Operation "<<m_CurrentOperation<<endl;
+      saveAs(l_filename, false);
+      if(m_CurrentOperation>0) ui.actionUndo->setEnabled(true);
+      ui.actionRedo->setEnabled(false);
+    }
+    else cout<<"No grid to save!"<<endl;
+    return(m_CurrentOperation);
   }
-  else cout<<"No grid to save!"<<endl;
-  return(m_CurrentOperation);*/
-  
   return 0;
 }
 
 void GuiMainWindow::quickLoad(int a_operation)
 {
-  ///\todo might be re-activated with RAM support
-  
-/*  QFileInfo fileinfo(m_CurrentFilename);
-  QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".vtu";
-  open(l_filename, false);*/
+  ///\todo add RAM support
+  if(m_undo_redo_enabled) {
+    QFileInfo fileinfo(m_CurrentFilename);
+    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".egc";
+    open(l_filename, false);
+  }
 }
 
 void GuiMainWindow::undo()
 {
-  QMessageBox::critical(this, "de-activated", "Undo is not doing anything at the moment!");
-  
-/*  cout << "Undoing operation " << m_CurrentOperation << endl;
-  m_CurrentOperation--;
-  quickLoad(m_CurrentOperation);
-  ui.actionRedo->setEnabled(true);
-  if(m_CurrentOperation<=0) ui.actionUndo->setEnabled(false);*/
-  
+  if(m_undo_redo_enabled) {
+    cout << "Undoing operation " << m_CurrentOperation << endl;
+    m_CurrentOperation--;
+    quickLoad(m_CurrentOperation);
+    ui.actionRedo->setEnabled(true);
+    if(m_CurrentOperation<=0) ui.actionUndo->setEnabled(false);
+  }
+  else {
+    resetOperationCounter();
+    QMessageBox::critical(this, "de-activated", "Undo is not doing anything at the moment!");
+  }
 }
 
 void GuiMainWindow::redo()
 {
-  QMessageBox::critical(this, "de-activated", "Redo is not doing anything at the moment!");
-  
-/*  m_CurrentOperation++;
-  cout << "Redoing operation " << m_CurrentOperation << endl;
-  quickLoad(m_CurrentOperation);
-  ui.actionUndo->setEnabled(true);
-  if(m_CurrentOperation>=m_LastOperation) ui.actionRedo->setEnabled(false);*/
-  
+  if(m_undo_redo_enabled) {
+    m_CurrentOperation++;
+    cout << "Redoing operation " << m_CurrentOperation << endl;
+    quickLoad(m_CurrentOperation);
+    ui.actionUndo->setEnabled(true);
+    if(m_CurrentOperation>=m_LastOperation) ui.actionRedo->setEnabled(false);
+  }
+  else {
+    resetOperationCounter();
+    QMessageBox::critical(this, "de-activated", "Redo is not doing anything at the moment!");
+  }
 }
 
 void GuiMainWindow::resetOperationCounter()
@@ -1063,8 +1077,6 @@ void GuiMainWindow::openGrid(QString file_name)
   updateActors();
   updateStatusBar();
   zoomAll();
-  resetOperationCounter();
-  quickSave();
 }
 
 void GuiMainWindow::saveGrid(QString file_name)
@@ -1104,6 +1116,7 @@ void GuiMainWindow::open()
 void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
   cout << "Opening " << qPrintable(file_name) << endl;
+  
   QFileInfo file_info(file_name);
   bool no_case_file = false;
   QString file_extension = getExtension(file_name);
@@ -1123,7 +1136,13 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   if(update_current_filename) m_CurrentFilename = stripFromExtension(file_name) + ".egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
-  this->addRecentFile(m_CurrentFilename,QDateTime::currentDateTime());
+
+  this->addRecentFile(file_name,QDateTime::currentDateTime());
+
+  if(update_current_filename) {
+    resetOperationCounter();
+    quickSave();
+  }
 }
 
 void GuiMainWindow::openXml(QString file_name)
@@ -1153,6 +1172,8 @@ void GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
+  QString buffer = m_XmlDoc.toString(0);
+  
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   
   QFileInfo file_info(file_name);
@@ -1160,13 +1181,16 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
     file_name += ".egc";
   }
   cout << "Saving as " << qPrintable(file_name) << endl;
-  GuiMainWindow::setCwd(file_info.absolutePath());
+  if(update_current_filename) {
+    // update current filename
+    GuiMainWindow::setCwd(file_info.absolutePath());
+    m_CurrentFilename = file_name;
+  }
   saveGrid(file_name);
   saveBC();
   savePhysicalBoundaryConditions();
   saveXml(file_name);
-  // update current filename
-  if(update_current_filename) m_CurrentFilename = file_name;
+  
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
   
@@ -1739,6 +1763,7 @@ void GuiMainWindow::configure()
       RemovePoints tmp07;
       LaplaceSmoother tmp08;
       SwapTriangles tmp09;
+      OpenFOAMTools tmp10;
     } catch (Error err) {
       err.display();
     }
@@ -1746,6 +1771,8 @@ void GuiMainWindow::configure()
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
   settings.exec();
+  
+  getSet("General","enable undo+redo",false,m_undo_redo_enabled);
 }
 
 void GuiMainWindow::about()
@@ -1788,14 +1815,20 @@ void GuiMainWindow::about()
   
 }
 
-///\todo Why not use bcs = m_AllBoundaryCodes ?
+///\todo Why not use bcs = m_AllBoundaryCodes; ?
 void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
 {
-  qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
-  bcs.clear();
-  foreach (int bc, m_AllBoundaryCodes) {
-    bcs.insert(bc);
-  }
+  bcs = m_AllBoundaryCodes;
+//   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
+//   bcs.clear();
+//   foreach (int bc, m_AllBoundaryCodes) {
+//     bcs.insert(bc);
+//   }
+}
+
+QSet<int> GuiMainWindow::getAllBoundaryCodes()
+{
+  return m_AllBoundaryCodes;
 }
 
 void GuiMainWindow::getDisplayBoundaryCodes(QSet<int> &bcs)
@@ -1874,6 +1907,7 @@ void GuiMainWindow::markOutputLine()
 
 void GuiMainWindow::storeSurfaceProjection()
 {
+  qDebug()<<"@@@ GuiMainWindow::storeSurfaceProjection called";
   foreach (SurfaceProjection* proj, m_SurfProj) {
     delete proj;
   }

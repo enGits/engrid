@@ -284,4 +284,9 @@ HEADERS += fixcadgeometry.h
 SOURCES += fixcadgeometry.cpp
 HEADERS += blenderreader.h
 SOURCES += blenderreader.cpp
-
+HEADERS += beziertriangle.h
+SOURCES += beziertriangle.cpp
+HEADERS += dialoglineedit/dialoglineedit.h
+SOURCES += dialoglineedit/dialoglineedit.cpp
+HEADERS += utilities.h
+SOURCES += utilities.cpp

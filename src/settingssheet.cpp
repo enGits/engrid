@@ -26,6 +26,7 @@
 #include <QtGui>
 
 #include "egvtkobject.h"
+#include "utilities.h"
 #include "settingssheet.h"
 #include "vertexdelegate.h"
 #include "guimainwindow.h"
@@ -87,6 +88,7 @@ bool SettingsSheet::readFile(int verbose)
 
 void SettingsSheet::writeFile()
 {
+  qDebug()<<"SettingsSheet::writeFile() called";
   QString buffer = "";
   {
     QTextStream out(&buffer, QIODevice::WriteOnly);

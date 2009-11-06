@@ -22,6 +22,7 @@
 //
 #include "egvtkobject.h"
 #include "guimainwindow.h"
+#include "beziertriangle.h"
 
 #include <vtkCellData.h>
 #include <vtkPointData.h>
@@ -907,15 +908,21 @@ vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_su
   return id_vol;
 }
 
-///\todo Why not simply use boundary_codes = bcs ?
+///\todo Why not simply use m_BoundaryCodes = bcs; ?
 //WARNING: Do never call this->setBoundaryCodes(this->m_BoundaryCodes) as this will empty m_BoundaryCodes!!!
 void EgVtkObject::setBoundaryCodes(const QSet<int> &bcs)
 {
-  m_BoundaryCodes.clear();
+  m_BoundaryCodes = bcs;
+/*  m_BoundaryCodes.clear();
   int bc;
   foreach(bc, bcs) {
     m_BoundaryCodes.insert(bc);
-  }
+  }*/
+}
+
+QSet<int> EgVtkObject::getBoundaryCodes()
+{
+  return m_BoundaryCodes;
 }
 
 void EgVtkObject::createIndices(vtkUnstructuredGrid *grid)
@@ -1011,23 +1018,36 @@ bool EgVtkObject::getSet(QString group, QString key, bool value, bool& variable)
 QString EgVtkObject::getSet(QString group, QString key, QString value, QString& variable)
 {
   QSettings *qset = GuiMainWindow::settings();
-  QString typed_key = "string/" + key;
-  if (group != QObject::tr("General")) {
-    qset->beginGroup(group);
-  }
-
+  QString typed_key;
+  typed_key = QObject::tr("QString/") + key;
+  if (group != QObject::tr("General")) qset->beginGroup(group);
   //if key=value pair not found in settings file, write it
-  if (!qset->contains(typed_key)) {
-    qset->setValue(typed_key, value);
-  }
-
+  if (!qset->contains(typed_key)) qset->setValue(typed_key, value);
   //read key value from settings file and assign it to variable
-  variable = (qset->value(typed_key,variable)).toString();
+  variable = (qset->value(typed_key)).toString();
+  if (group != QObject::tr("General")) qset->endGroup();
+  return(variable);
+}
 
-  if (group != QObject::tr("General")) {
-    qset->endGroup();
+QString EgVtkObject::getSet(QString group, QString key, QString value, QString& variable, int type)
+{
+  QSettings *qset = GuiMainWindow::settings();
+  QString typed_key;
+  if (type == 0) {
+    typed_key = QObject::tr("QString/") + key;
   }
-
+  else if (type == 1) {
+    typed_key = QObject::tr("Filename/") + key;
+  }
+  else {
+    typed_key = QObject::tr("Directory/") + key;
+  }
+  if (group != QObject::tr("General")) qset->beginGroup(group);
+  //if key=value pair not found in settings file, write it
+  if (!qset->contains(typed_key)) qset->setValue(typed_key, value);
+  //read key value from settings file and assign it to variable
+  variable = (qset->value(typed_key)).toString();
+  if (group != QObject::tr("General")) qset->endGroup();
   return(variable);
 }
 
@@ -1037,6 +1057,7 @@ void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
   getAllCells(cells, grid);
   name = GuiMainWindow::pointer()->getCwd() + "/" + name + ".vtu";
   writeCells(grid, cells, name);
+  qDebug()<<"Saved grid as "<<name;
 }
 
 void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
@@ -1218,20 +1239,6 @@ QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
 
 ///////////////////////////////////////////
 
-Qt::CheckState int2CheckState(int a)
-{
-  if(a==0) return(Qt::Unchecked);
-  if(a==1) return(Qt::PartiallyChecked);
-  else return(Qt::Checked);
-}
-
-int CheckState2int(Qt::CheckState a)
-{
-  if(a==Qt::Unchecked) return(0);
-  if(a==Qt::PartiallyChecked) return(1);
-  else return(2);
-}
-
 pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
 {
   vtkIdType x=min(a,b);
@@ -1255,6 +1262,53 @@ char Str2VertexType(QString S)
   if(S=="VTK_FEATURE_EDGE_VERTEX") return(VTK_FEATURE_EDGE_VERTEX);
   if(S=="VTK_BOUNDARY_EDGE_VERTEX") return(VTK_BOUNDARY_EDGE_VERTEX);
   else return((char)-1);
+}
+
+int idx_func(int N, int i, int j)
+{
+  int offset = -i*(i-2*N-1)/2;
+  return offset+j;
+}
+
+vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N)
+{
+  vtkIdType node_count = 0;
+  for(int i=0;i<N;i++) {
+    for(int j=0;j<N-i;j++) {
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      vec3_t bary_coords = getBarycentricCoordinates(x,y);
+      double u,v,w;
+      u=bary_coords[0];
+      v=bary_coords[1];
+      w=bary_coords[2];
+      vec3_t M = bezier_triangle->QuadraticBezierTriangle(u, v, w);
+      bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
+    }
+  }
+  
+  int cell_count = 0;
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1-i;j++) {
+      
+      vtkIdType pts_triangle1[3];
+      pts_triangle1[0]=offset + idx_func(N, i  ,j  );
+      pts_triangle1[1]=offset + idx_func(N, i+1,j  );
+      pts_triangle1[2]=offset + idx_func(N, i  ,j+1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
+      
+      if(i+j<N-2) {
+        vtkIdType pts_triangle2[3];
+        pts_triangle2[0]=offset + idx_func(N, i+1,j  );
+        pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
+        pts_triangle2[2]=offset + idx_func(N, i  ,j+1);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
+      }
+      
+    }
+  }
+  
+  return node_count;
 }
 
 void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face, QVector<vtkIdType> &ids)

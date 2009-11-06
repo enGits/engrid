@@ -30,6 +30,7 @@
 #include "guimainwindow.h"
 #include "containertricks.h"
 #include "updatedesiredmeshdensity.h"
+#include "utilities.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtkWindowedSincPolyDataFilter.h>
@@ -96,7 +97,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   }
   L<<"Vertex Type";
   L<<"Nodelist";
-  L<<"Mesh Density";
+  L<<"Edge Length";
   m_tableWidget->setHorizontalHeaderLabels(L);
   m_tableWidget->resizeColumnsToContents();
   
