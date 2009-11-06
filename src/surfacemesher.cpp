@@ -31,8 +31,6 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = true;
   m_AllowFeatureEdgeSwapping = false;
-  getSet("surface meshing", "feature angle", 200, m_FeatureAngle); //this angle is also used by swaptriangles!!!
-  m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = m_FeatureAngle;
 }
 
