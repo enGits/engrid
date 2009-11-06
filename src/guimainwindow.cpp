@@ -1781,6 +1781,11 @@ void GuiMainWindow::about()
   
   QString title="ENGRID";
   QString version = QString("version ") + ENGRID_VERSION;
+  #ifdef GIT_DESCRIBE
+  if(!QString(GIT_DESCRIBE).isEmpty()) {
+      version +=  QString(" - ") + GIT_DESCRIBE;
+  }
+  #endif
   
   version += " built on ";
   version += QString(__DATE__);

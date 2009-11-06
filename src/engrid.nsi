@@ -9,7 +9,7 @@
 !define SRC_ROOT "."
 !define QTDIR "C:\Qt\4.4.0"
 !define PRODUCT_NAME "enGrid"
-!define PRODUCT_VERSION "1.0"
+!define PRODUCT_VERSION "1.1-pre-release"
 !define PRODUCT_PUBLISHER "enGits GmbH"
 !define PRODUCT_WEB_SITE "http://www.engits.com"
 !define PRODUCT_DIR_REGKEY "Software\enGits\${PRODUCT_NAME}"
