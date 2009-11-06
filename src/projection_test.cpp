@@ -199,6 +199,7 @@ void Projection_test::bezierProjectionTest()
   vec3_t X_110=0.5*(X_200+X_020);*/
   
   BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  bezier_triangle.writeBezierSurface();
   
   int N=10;
   int N_cells = (N-1)*(N-1);
@@ -220,8 +221,8 @@ void Projection_test::bezierProjectionTest()
     for(int j=0;j<N-i;j++) {
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
-      vec3_t M = origin + x*ex + y*ey;
-      vec3_t P = bezier_triangle.projectOnQuadraticBezierTriangle2(M);
+      vec3_t M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
+      vec3_t P = bezier_triangle.projectOnQuadraticBezierTriangle(M);
       bezier->GetPoints()->SetPoint(offset + node_count, P.data());node_count++;
     }
   }

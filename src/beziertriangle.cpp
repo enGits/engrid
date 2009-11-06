@@ -62,7 +62,7 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
 void BezierTriangle::writeBezierSurface()
 {
   //qDebug()<<"writeBezierSurface called";
-  int N=10;
+  int N=100;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
@@ -110,7 +110,7 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
 
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
 {
-  int N=10;
+  int N=100;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
@@ -148,15 +148,18 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
   vec3_t g_B = QuadraticBezierTriangle(t_A);
   projectOnTriangle(g_B, xi, ri, d);
   vec3_t g_C = xi;
-  vec3_t err_vector = g_A - g_C;
-  while(err_vector.abs()>maxerr) {
+  vec3_t err_vector = g_M - g_C;
+  int Nloop=0;
+  while(err_vector.abs()>maxerr && Nloop<200) {
+//   for(int i=0;i<10;i++) {
     g_A = g_A + err_vector;
     projectOnTriangle(g_A, xi, ri, d);
     t_A = vec2_t(ri[0],ri[1]);
     g_B = QuadraticBezierTriangle(t_A);
     projectOnTriangle(g_B, xi, ri, d);
     vec3_t g_C = xi;
-    err_vector = g_A - g_C;
+    err_vector = g_M - g_C;
+    Nloop++;
   }
   return g_B;
 }
