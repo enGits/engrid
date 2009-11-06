@@ -70,7 +70,7 @@ void BezierTriangle::writeBezierSurface()
   //qDebug()<<"N_points="<<N_points;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, 2*N_cells, 2*N_points);
+  allocateGrid(bezier, N_cells, N_points);
   
   vtkIdType offset = 0;
   offset += addBezierSurface(this, bezier, offset, N);
@@ -115,7 +115,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
   int N_points = (N*N+N)/2;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, 2*N_cells, 2*N_points);
+  allocateGrid(bezier, N_cells, N_points);
   
   vtkIdType offset = 0;
   offset += addBezierSurface(this, bezier, offset, N);
