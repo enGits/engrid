@@ -1315,8 +1315,8 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
   vtkIdType node_count = 0;
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
-//       double x = -1 + 3.0*i/(double)(N-1);
-//       double y = -1 + 3.0*j/(double)(N-1);
+//       double x = -1 + 4.0*i/(double)(N-1);
+//       double y = -1 + 4.0*j/(double)(N-1);
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       qWarning()<<"x="<<x<<"y="<<y;
