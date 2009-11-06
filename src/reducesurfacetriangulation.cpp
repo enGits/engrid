@@ -29,8 +29,9 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = true;
-  m_FeatureAngle = GeometryTools::deg2rad(15);
-  m_AllowFeatureEdgeSwapping = false;
+  m_AllowFeatureEdgeSwapping = true;
+  m_RespectFeatureEdgesForDeleteNodes = true;
+  m_FeatureAngleForDeleteNodes = m_FeatureAngle;
 }
 
 void ReduceSurfaceTriangulation::pass1()
@@ -39,7 +40,6 @@ void ReduceSurfaceTriangulation::pass1()
   int iter = 0;
   bool done = false;
   m_UseNormalCorrectionForSmoothing = true;
-  m_RespectFeatureEdgesForDeleteNodes = false;
   int num_initial_nodes = grid->GetNumberOfPoints();
   int num_del_max = 0;
   while (!done) {
@@ -75,11 +75,11 @@ void ReduceSurfaceTriangulation::pass2()
 void ReduceSurfaceTriangulation::operate()
 {
   prepare();
-  writeGrid(grid, "take1");
+  //writeGrid(grid, "take1");
   updateNodeInfo(true);
-  writeGrid(grid, "take2");
+  //writeGrid(grid, "take2");
   pass1();
-  pass2();
+  //pass2();
   createIndices(grid);
   updateNodeInfo(false);
   computeMeshDensity();

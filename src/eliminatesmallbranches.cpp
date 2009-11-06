@@ -30,7 +30,7 @@
 
 EliminateSmallBranches::EliminateSmallBranches()
 {
-  m_NumLayers = 1;
+  m_NumLayers = 0;
   m_NumFillLayers = 10;
 }
 
