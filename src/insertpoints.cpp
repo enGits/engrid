@@ -113,7 +113,7 @@ int InsertPoints::insertPoints()
 
   //counter
   foreach (edge_t E, edges) {
-    if (E.S.id_cell.size()==2 && (E.S.type_cell[E.S.id_cell[1]] == VTK_TRIANGLE)) {
+    if (E.S.id_cell.size()==2 && (E.S.type_cell[1] == VTK_TRIANGLE)) {
       int i_cells1 = _cells[E.S.id_cell[0]];
       int i_cells2 = _cells[E.S.id_cell[1]];
       if (!marked_cells[i_cells1]  && !marked_cells[i_cells2]) {
@@ -163,7 +163,7 @@ int InsertPoints::insertPoints()
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
       node_type->SetValue(id_new_node, getNewNodeType(S) );
       
-      if(S.id_cell.size()==2 && S.type_cell[S.id_cell[1]]==VTK_TRIANGLE) { //2 triangles
+      if(S.id_cell.size()==2 && S.type_cell[1]==VTK_TRIANGLE) { //2 triangles
         //four new triangles
         vtkIdType pts_triangle[4][3];
         
