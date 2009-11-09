@@ -219,22 +219,10 @@ void Projection_test::bezierProjectionTest()
   
   EG_VTKDCN( vtkDoubleArray, node_meshdensity_current, bezier, "node_meshdensity_current" );
   
-/*  vtkDoubleArray *vectors = vtkDoubleArray::New();
+  vtkDoubleArray *vectors = vtkDoubleArray::New();
   vectors->SetName("normals");
   vectors->SetNumberOfComponents(3);
-  vectors->SetNumberOfTuples(m_BGrid->GetNumberOfPoints());
-  
-  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    vec3_t N = m_NodeNormals[id_node];
-    double n[3];
-    n[0]=N[0];
-    n[1]=N[1];
-    n[2]=N[2];
-    vectors->InsertTuple(id_node,n);
-  }
-  
-  m_BGrid->GetPointData()->SetVectors(vectors);
-  vectors->Delete();*/
+  vectors->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
@@ -245,10 +233,19 @@ void Projection_test::bezierProjectionTest()
       vec3_t l_M = bezier_triangle.globalToLocal(g_M);
       vec2_t t_M = vec2_t(l_M[0],l_M[1]);
       vec2_t diff = bezier_triangle.fixedPointFunction(t_M,t_M[0],t_M[1]);
-      node_meshdensity_current->SetValue(offset + node_count, diff.abs());
-      bezier->GetPoints()->SetPoint(offset + node_count, g_P.data());node_count++;
+      vtkIdType id_node = offset + node_count;
+      node_meshdensity_current->SetValue(id_node, diff.abs());
+      double n[3];
+      n[0]=-diff[0];
+      n[1]=-diff[1];
+      n[2]=0;
+      vectors->InsertTuple(id_node,n);
+      bezier->GetPoints()->SetPoint(id_node, g_P.data());node_count++;
     }
   }
+  
+  bezier->GetPointData()->SetVectors(vectors);
+  vectors->Delete();
   
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {
