@@ -1285,7 +1285,8 @@ void SurfaceProjection::updateBackgroundGridInfo()
   // create m_Triangles
   m_Triangles.resize(m_BGrid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType Npts, *pts;
+    m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
+/*    vtkIdType Npts, *pts;
     m_BGrid->GetCellPoints(id_cell, Npts, pts);
     if (Npts == 3) {
       m_BGrid->GetPoints()->GetPoint(pts[0], m_Triangles[id_cell].a.data());
@@ -1308,7 +1309,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
       m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].a - m_Triangles[id_cell].c).abs());
     } else {
       EG_ERR_RETURN("only triangles allowed at the moment");
-    }
+    }*/
   }
   
   // compute node normals

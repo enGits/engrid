@@ -26,6 +26,13 @@
 
 Triangle::Triangle()
 {
+  id_a=0;
+  id_b=0;
+  id_c=0;
+  a=vec3_t(0,0,0);
+  b=vec3_t(0,0,0);
+  c=vec3_t(0,0,0);
+  setupTriangle();
 }
 
 Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c)
@@ -33,10 +40,65 @@ Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c)
   a = a_a;
   b = a_b;
   c = a_c;
+  setupTriangle();
+}
 
-  g1 = b-a;
-  g2 = c-a;
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c)
+{
+  id_a = a_id_a;
+  id_b = a_id_b;
+  id_c = a_id_c;
+  a_grid->GetPoints()->GetPoint(id_a, a.data());
+  a_grid->GetPoints()->GetPoint(id_b, b.data());
+  a_grid->GetPoints()->GetPoint(id_c, c.data());
+  setupTriangle();
+}
+
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)
+{
+  vtkIdType Npts, *pts;
+  a_grid->GetCellPoints(a_id_cell, Npts, pts);
+  if (Npts == 3) {
+    id_a = pts[0];
+    id_b = pts[1];
+    id_c = pts[2];
+    a_grid->GetPoints()->GetPoint(id_a, a.data());
+    a_grid->GetPoints()->GetPoint(id_b, b.data());
+    a_grid->GetPoints()->GetPoint(id_c, c.data());
+    setupTriangle();
+  } else {
+    EG_ERR_RETURN("only triangles allowed at the moment");
+  }
+}
+
+void Triangle::setupTriangle()
+{
+  g1 = b - a;
+  g2 = c - a;
   g3 = g1.cross(g2);
+  
+  A  = 0.5*g3.abs();
+  g3.normalise();
+  
+  G.column(0, g1);
+  G.column(1, g2);
+  G.column(2, g3);
+  GI = G.inverse();
+  
+  smallest_length = (b - a).abs();
+  smallest_length = min(smallest_length, (c - b).abs());
+  smallest_length = min(smallest_length, (a - c).abs());
+}
+
+vec3_t Triangle::localToGlobal(vec3_t l_M)
+{
+  return a+G*l_M;
+}
+
+vec3_t Triangle::globalToLocal(vec3_t g_M)
+{
+  vec3_t tmp = g_M-a;
+  return GI*tmp;
 }
 
 bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)

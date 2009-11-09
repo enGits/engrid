@@ -24,6 +24,7 @@
 #define TRIANGLE_H
 
 #include "vtkIdList.h"
+#include "vtkUnstructuredGrid.h"
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
 
@@ -39,8 +40,14 @@ public:
 public:
   Triangle();
   Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c);
+  Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c);
+  Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell);
+  void setupTriangle();
+  
 public:
   bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
+  vec3_t localToGlobal(vec3_t l_M);
+  vec3_t globalToLocal(vec3_t g_M);
 };
 
 #endif
