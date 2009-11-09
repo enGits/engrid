@@ -47,6 +47,7 @@ void BezierTriangle::setControlPoints(vec3_t X_200, vec3_t X_020, vec3_t X_002, 
   m_X_011 = X_011;
   m_X_101 = X_101;
   m_X_110 = X_110;
+  setupFunctionVariables();
 }
 
 void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_002, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
@@ -162,4 +163,19 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
     Nloop++;
   }
   return g_B;
+}
+
+void BezierTriangle::setupFunctionVariables() {
+  m_l_X_200 = globalToLocal(m_X_200);
+  m_l_X_020 = globalToLocal(m_X_020);
+  m_l_X_002 = globalToLocal(m_X_002);
+  m_l_X_011 = globalToLocal(m_X_011);
+  m_l_X_101 = globalToLocal(m_X_101);
+  m_l_X_110 = globalToLocal(m_X_110);
+  
+  m_coeff_x2 = m_X_020 - 2*m_X_110;
+  m_coeff_y2 = m_X_002 - 2*m_X_101;
+  m_coeff_xy = -2*m_X_110 + 2*m_X_011 - 2*m_X_101;
+  m_coeff_x = 2*m_X_110;
+  m_coeff_y = 2*m_X_101;
 }

@@ -62,6 +62,23 @@ public:
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t projectOnQuadraticBezierTriangle(vec3_t M);
   vec3_t projectOnQuadraticBezierTriangle2(vec3_t M);
+
+// stuff used for projections on the Bezier surface
+private:
+  void setupFunctionVariables();
+  
+  vec3_t m_l_X_200;
+  vec3_t m_l_X_020;
+  vec3_t m_l_X_002;
+  vec3_t m_l_X_011;
+  vec3_t m_l_X_101;
+  vec3_t m_l_X_110;
+  
+  vec3_t m_coeff_x2;
+  vec3_t m_coeff_y2;
+  vec3_t m_coeff_xy;
+  vec3_t m_coeff_x;
+  vec3_t m_coeff_y;
 };
 
 #endif
