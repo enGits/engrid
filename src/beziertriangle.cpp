@@ -166,16 +166,34 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
 }
 
 void BezierTriangle::setupFunctionVariables() {
-  m_l_X_200 = globalToLocal(m_X_200);
-  m_l_X_020 = globalToLocal(m_X_020);
-  m_l_X_002 = globalToLocal(m_X_002);
-  m_l_X_011 = globalToLocal(m_X_011);
-  m_l_X_101 = globalToLocal(m_X_101);
-  m_l_X_110 = globalToLocal(m_X_110);
+  m_t_X_200 = globalToLocal(m_X_200);
+  m_t_X_020 = globalToLocal(m_X_020);
+  m_t_X_002 = globalToLocal(m_X_002);
+  m_t_X_011 = globalToLocal(m_X_011);
+  m_t_X_101 = globalToLocal(m_X_101);
+  m_t_X_110 = globalToLocal(m_X_110);
   
-  m_coeff_x2 = m_X_020 - 2*m_X_110;
-  m_coeff_y2 = m_X_002 - 2*m_X_101;
-  m_coeff_xy = -2*m_X_110 + 2*m_X_011 - 2*m_X_101;
-  m_coeff_x = 2*m_X_110;
-  m_coeff_y = 2*m_X_101;
+  m_coeff_x2 = m_t_X_020 - 2*m_t_X_110;
+  m_coeff_y2 = m_t_X_002 - 2*m_t_X_101;
+  m_coeff_xy = -2*m_t_X_110 + 2*m_t_X_011 - 2*m_t_X_101;
+  m_coeff_x = 2*m_t_X_110;
+  m_coeff_y = 2*m_t_X_101;
+}
+
+vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y)
+{
+  vec2_t F;
+  F[0]=pow(x,2)*m_coeff_x2[0] + pow(y,2)*m_coeff_y2[0] + x*y*m_coeff_xy[0] + x*m_coeff_x[0] + y*m_coeff_y[0] - t_inputPoint[0];
+  F[1]=pow(x,2)*m_coeff_x2[1] + pow(y,2)*m_coeff_y2[1] + x*y*m_coeff_xy[1] + x*m_coeff_x[1] + y*m_coeff_y[1] - t_inputPoint[1];
+  return F;
+}
+
+mat2_t BezierTriangle::jacobiMatrix(vec2_t t_inputPoint, double x, double y)
+{
+  mat2_t J;
+  J[0][0]=0;
+  J[1][0]=0;
+  J[0][1]=0;
+  J[1][1]=0;
+  return J;
 }

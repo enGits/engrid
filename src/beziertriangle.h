@@ -54,8 +54,6 @@ public:
   vec3_t Bezier(vec3_t barycoords);
   vec3_t Projection(vec2_t xycoords);
   vec3_t Projection(vec3_t barycoords);
-  mat2_t JacobiMatrix();
-  vec2_t FixedPointFunction(vec2_t xycoords);
   void writeBezierSurface();
 //   vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N);
   vec3_t QuadraticBezierTriangle(double u, double v, double w);
@@ -67,18 +65,21 @@ public:
 private:
   void setupFunctionVariables();
   
-  vec3_t m_l_X_200;
-  vec3_t m_l_X_020;
-  vec3_t m_l_X_002;
-  vec3_t m_l_X_011;
-  vec3_t m_l_X_101;
-  vec3_t m_l_X_110;
+  vec3_t m_t_X_200;
+  vec3_t m_t_X_020;
+  vec3_t m_t_X_002;
+  vec3_t m_t_X_011;
+  vec3_t m_t_X_101;
+  vec3_t m_t_X_110;
   
   vec3_t m_coeff_x2;
   vec3_t m_coeff_y2;
   vec3_t m_coeff_xy;
   vec3_t m_coeff_x;
   vec3_t m_coeff_y;
+public:
+  vec2_t fixedPointFunction(vec2_t t_inputPoint, double x, double y);
+  mat2_t jacobiMatrix(vec2_t t_inputPoint, double x, double y);
 };
 
 #endif
