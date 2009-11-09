@@ -79,7 +79,7 @@ private:
   vec3_t m_coeff_y;
 public:
   vec2_t fixedPointFunction(vec2_t t_inputPoint, double x, double y);
-  mat2_t jacobiMatrix(vec2_t t_inputPoint, double x, double y);
+  mat2_t jacobiMatrix(double x, double y);
 };
 
 #endif
