@@ -1940,6 +1940,8 @@ void GuiMainWindow::storeSurfaceProjection()
 //     if(m_ExactMode==4) return cuboid(xp);
 //     if(m_ExactMode==5) return cylinder(xp);
     
+    proj->m_ExactMode = 0;
+    
     if(bc==1) {
       proj->m_ExactMode = 2;
       proj->m_center = vec3_t(0,0,-1);

@@ -292,3 +292,5 @@ HEADERS += utilities.h
 SOURCES += utilities.cpp
 HEADERS += projection_test.h
 SOURCES += projection_test.cpp
+HEADERS += triangle.h
+SOURCES += triangle.cpp
