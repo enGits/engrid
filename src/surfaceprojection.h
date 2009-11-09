@@ -32,21 +32,12 @@ class SurfaceProjection;
 #include "vtkCharArray.h"
 #include "surfaceoperation.h"
 #include "surfacealgorithm.h"
+#include "triangle.h"
 
 class SurfaceProjection : public SurfaceAlgorithm
 {
 
 private: // data-types
-
-  struct Triangle
-  {
-    vtkIdType id_a, id_b, id_c;
-    vec3_t a, b, c;
-    vec3_t g1, g2, g3;
-    mat3_t G, GI;
-    double A;
-    double smallest_length;
-  };
 
   struct Edge
   {
@@ -130,7 +121,6 @@ private: // methods
 
   vec3_t projectWithLevelSet(vec3_t x);
 
-  bool   projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T);
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
   vec3_t correctCurvature(int i_tri, vec3_t r);
   

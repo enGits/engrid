@@ -900,79 +900,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   return x;
 }
 
-bool SurfaceProjection::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, const Triangle& T)
-{
-  xi = vec3_t(1e99,1e99,1e99);
-  double scal = (xp - T.a)*T.g3;
-  vec3_t x1, x2;
-  if (scal > 0) {
-    x1 = xp + T.g3;
-    x2 = xp - scal*T.g3 - T.g3;
-  } else {
-    x1 = xp - T.g3;
-    x2 = xp - scal*T.g3 + T.g3;
-  }
-  d = 1e99;
-  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri);
-  if (intersects_face) {
-    vec3_t dx = xp - T.a;
-    d = fabs(dx*T.g3);
-  } else {
-    double kab = GeometryTools::intersection(T.a, T.b - T.a, xp, T.b - T.a);
-    double kac = GeometryTools::intersection(T.a, T.c - T.a, xp, T.c - T.a);
-    double kbc = GeometryTools::intersection(T.b, T.c - T.b, xp, T.c - T.b);
-    double dab = (T.a + kab*(T.b-T.a) - xp).abs();
-    double dac = (T.a + kac*(T.c-T.a) - xp).abs();
-    double dbc = (T.b + kbc*(T.c-T.b) - xp).abs();
-    bool set = false;
-    if ((kab >= 0) && (kab <= 1)) {
-      if (dab < d) {
-        xi = T.a + kab*(T.b-T.a);
-        d = dab;
-        set = true;
-      }
-    }
-    if ((kac >= 0) && (kac <= 1)) {
-      if (dac < d) {
-        xi = T.a + kac*(T.c-T.a);
-        d = dac;
-        set = true;
-      }
-    }
-    if ((kbc >= 0) && (kbc <= 1)) {
-      if (dbc < d) {
-        xi = T.b + kbc*(T.c-T.b);
-        d = dbc;
-        set = true;
-      }
-    }
-    double da = (T.a - xp).abs();
-    double db = (T.b - xp).abs();
-    double dc = (T.c - xp).abs();
-    if (da < d) {
-      xi = T.a;
-      d = da;
-      set = true;
-    }
-    if (db < d) {
-      xi = T.b;
-      d = db;
-    }
-    if (dc < d) {
-      xi = T.c;
-      d = dc;
-      set = true;
-    }
-    if (!set) {
-      EG_BUG;
-    }
-  }
-  if (xi[0] > 1e98) {
-    EG_BUG;
-  }
-  return intersects_face;
-}
-
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
 {
   vec3_t g_P;
@@ -1030,7 +957,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       vec3_t xi, ri;
       double d;
-      bool intersects = projectOnTriangle(xp, xi, ri, d, T);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d);
       if (!intersects || (d > 0.1*T.smallest_length)) {
         need_full_search = true;
       } else {
@@ -1049,7 +976,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       double d;
       vec3_t xi, ri;
-      bool intersects = projectOnTriangle(xp, xi, ri, d, T);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d);
       if (d < d_min) {
         x_proj = xi;
         r_proj = ri;

@@ -23,10 +23,24 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include "vtkIdList.h"
+#include "math/mathvector.h"
+#include "math/smallsquarematrix.h"
+
 class Triangle{
 public:
-    Triangle();
-    ~Triangle();
+    vtkIdType id_a, id_b, id_c;
+    vec3_t a, b, c;
+    vec3_t g1, g2, g3;
+    mat3_t G, GI;
+    double A;
+    double smallest_length;
+  
+public:
+  Triangle();
+  Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c);
+public:
+  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
 };
 
 #endif

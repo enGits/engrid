@@ -28,10 +28,11 @@
 #include "math/smallsquarematrix.h"
 
 #include "egvtkobject.h"
+#include "triangle.h"
 
 #include <vtkUnstructuredGrid.h>
 
-class BezierTriangle : public EgVtkObject
+class BezierTriangle : public Triangle, public EgVtkObject
 {
 public:
   vec3_t m_X_200;
@@ -61,9 +62,6 @@ public:
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t projectOnQuadraticBezierTriangle(vec3_t M);
   vec3_t projectOnQuadraticBezierTriangle2(vec3_t M);
-  
-  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
-  
 };
 
 #endif
