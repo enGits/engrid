@@ -212,6 +212,13 @@ void BezierTriangle::setupFunctionVariables() {
 
 vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y)
 {
+/*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  qDebug()<<"m_coeff_x2"<<m_coeff_x2;
+  qDebug()<<"m_coeff_y2"<<m_coeff_y2;
+  qDebug()<<"m_coeff_xy"<<m_coeff_xy;
+  qDebug()<<"m_coeff_x"<<m_coeff_x;
+  qDebug()<<"m_coeff_y"<<m_coeff_y;
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
   vec2_t F;
   F[0] = pow(x,2)*m_coeff_x2[0] + pow(y,2)*m_coeff_y2[0] + x*y*m_coeff_xy[0] + x*m_coeff_x[0] + y*m_coeff_y[0] - t_inputPoint[0];
   F[1] = pow(x,2)*m_coeff_x2[1] + pow(y,2)*m_coeff_y2[1] + x*y*m_coeff_xy[1] + x*m_coeff_x[1] + y*m_coeff_y[1] - t_inputPoint[1];

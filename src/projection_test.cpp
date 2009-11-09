@@ -212,6 +212,9 @@ void Projection_test::bezierProjectionTest()
   qDebug()<<"N_cells="<<N_cells;
   qDebug()<<"N_points="<<N_points;
   
+  vec2_t toto=vec2_t(0.5,0.5);
+  qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(vec2_t(0,0),toto[0],toto[1]);
+  
   EG_VTKSP(vtkUnstructuredGrid,bezier);
   allocateGrid(bezier, N_cells, N_points);
   
