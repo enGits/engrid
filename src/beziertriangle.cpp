@@ -151,7 +151,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
   vec3_t g_C = xi;
   vec3_t err_vector = g_M - g_C;
   int Nloop=0;
-  while(err_vector.abs()>maxerr && Nloop<200) {
+/*  while(err_vector.abs()>maxerr && Nloop<200) {
 //   for(int i=0;i<10;i++) {
     g_A = g_A + err_vector;
     projectOnTriangle(g_A, xi, ri, d);
@@ -161,7 +161,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
     vec3_t g_C = xi;
     err_vector = g_M - g_C;
     Nloop++;
-  }
+  }*/
   return g_B;
 }
 
