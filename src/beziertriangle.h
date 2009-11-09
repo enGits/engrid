@@ -54,10 +54,12 @@ public:
   vec3_t Bezier(vec3_t barycoords);
   vec3_t Projection(vec2_t xycoords);
   vec3_t Projection(vec3_t barycoords);
-  void writeBezierSurface();
-//   vtkIdType addBezierSurface(vtkUnstructuredGrid* bezier, int offset, int N);
+  void writeBezierSurface(QString filename);
+  
   vec3_t QuadraticBezierTriangle(double u, double v, double w);
   vec3_t QuadraticBezierTriangle(vec2_t M);
+  vec3_t QuadraticBezierTriangle_g(vec3_t g_M);
+  
   vec3_t projectOnQuadraticBezierTriangle(vec3_t M);
   vec3_t projectOnQuadraticBezierTriangle2(vec3_t M);
 

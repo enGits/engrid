@@ -104,7 +104,7 @@ void Projection_test::Bezier_test()
   vec3_t X_110=0.5*(X_200+X_020);*/
   
   BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
-  B.writeBezierSurface();
+  B.writeBezierSurface("bezier.vtu");
 }
 
 void Projection_test::checkInterpolationGrid()
@@ -188,18 +188,23 @@ void Projection_test::bezierProjectionTest()
 {
   vec3_t X_200(0,0,0);
   vec3_t X_020(1,0,0);
-  vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
+//   vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
+  vec3_t X_002(0,1,0);
   
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
   vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
   
 /*  vec3_t X_011=0.5*(X_020+X_002);
   vec3_t X_101=0.5*(X_200+X_002);
   vec3_t X_110=0.5*(X_200+X_020);*/
   
+  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0);
+  vec3_t X_101=0.5*(X_200+X_002);
+  vec3_t X_110=0.5*(X_200+X_020);
+  
   BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  bezier_triangle.writeBezierSurface();
+  bezier_triangle.writeBezierSurface("bezier.vtu");
   
   int N=10;
   int N_cells = (N-1)*(N-1);
@@ -229,18 +234,22 @@ void Projection_test::bezierProjectionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
+//       vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
+//       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
+      
       vec3_t l_M = bezier_triangle.globalToLocal(g_M);
       vec2_t t_M = vec2_t(l_M[0],l_M[1]);
-      vec2_t diff = bezier_triangle.fixedPointFunction(t_M,t_M[0],t_M[1]);
+      vec2_t t_diff = bezier_triangle.fixedPointFunction(t_M,t_M[0],t_M[1]);
+      vec3_t l_diff = vec3_t(t_diff[0], t_diff[1], 0);
+      vec3_t g_diff = bezier_triangle.localToGlobal(l_diff) - bezier_triangle.m_X_200;
       vtkIdType id_node = offset + node_count;
-      node_meshdensity_current->SetValue(id_node, diff.abs());
+      node_meshdensity_current->SetValue(id_node, g_diff.abs());
       double n[3];
-      n[0]=-diff[0];
-      n[1]=-diff[1];
-      n[2]=0;
+      n[0]=g_diff[0];
+      n[1]=g_diff[1];
+      n[2]=g_diff[2];
       vectors->InsertTuple(id_node,n);
-      bezier->GetPoints()->SetPoint(id_node, g_P.data());node_count++;
+      bezier->GetPoints()->SetPoint(id_node, g_M.data());node_count++;
     }
   }
   

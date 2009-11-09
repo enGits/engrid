@@ -60,10 +60,10 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
   X_110 = m_X_110;
 }
 
-void BezierTriangle::writeBezierSurface()
+void BezierTriangle::writeBezierSurface(QString filename)
 {
   //qDebug()<<"writeBezierSurface called";
-  int N=100;
+  int N=10;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   
@@ -82,7 +82,7 @@ void BezierTriangle::writeBezierSurface()
   //qDebug()<<"offset="<<offset;
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezier.vtu");
+  vtu2->SetFileName(qPrintable(filename));
   vtu2->SetDataModeToBinary();
 //   vtu2->SetDataModeToAscii();
   vtu2->SetInput(bezier);
@@ -107,6 +107,13 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
   v=bary_coords[1];
   w=bary_coords[2];
   return QuadraticBezierTriangle(u, v, w);
+}
+
+vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M)
+{
+  vec3_t l_M = globalToLocal(g_M);
+  vec2_t t_M = vec2_t(l_M[0],l_M[1],0);
+  return QuadraticBezierTriangle(t_M);
 }
 
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
@@ -178,6 +185,29 @@ void BezierTriangle::setupFunctionVariables() {
   m_coeff_xy = -2*m_t_X_110 + 2*m_t_X_011 - 2*m_t_X_101;
   m_coeff_x = 2*m_t_X_110;
   m_coeff_y = 2*m_t_X_101;
+  
+  
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  qDebug()<<"m_X_200"<<m_X_200;
+  qDebug()<<"m_X_020"<<m_X_020;
+  qDebug()<<"m_X_002"<<m_X_002;
+  qDebug()<<"m_X_011"<<m_X_011;
+  qDebug()<<"m_X_101"<<m_X_101;
+  qDebug()<<"m_X_110"<<m_X_110;
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  qDebug()<<"m_t_X_200"<<m_t_X_200;
+  qDebug()<<"m_t_X_020"<<m_t_X_020;
+  qDebug()<<"m_t_X_002"<<m_t_X_002;
+  qDebug()<<"m_t_X_011"<<m_t_X_011;
+  qDebug()<<"m_t_X_101"<<m_t_X_101;
+  qDebug()<<"m_t_X_110"<<m_t_X_110;
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  qDebug()<<"m_coeff_x2"<<m_coeff_x2;
+  qDebug()<<"m_coeff_y2"<<m_coeff_y2;
+  qDebug()<<"m_coeff_xy"<<m_coeff_xy;
+  qDebug()<<"m_coeff_x"<<m_coeff_x;
+  qDebug()<<"m_coeff_y"<<m_coeff_y;
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
 }
 
 vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y)

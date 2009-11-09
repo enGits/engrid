@@ -805,8 +805,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t X_011 = g_K1;
   vec3_t X_101 = g_K2;
   vec3_t X_110 = g_K3;
-//   writeBezierSurface(X_200, X_020, X_002, X_011, X_101, X_110);
-  
 
   BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
   return bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
