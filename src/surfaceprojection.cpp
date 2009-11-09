@@ -1286,30 +1286,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
   m_Triangles.resize(m_BGrid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
-/*    vtkIdType Npts, *pts;
-    m_BGrid->GetCellPoints(id_cell, Npts, pts);
-    if (Npts == 3) {
-      m_BGrid->GetPoints()->GetPoint(pts[0], m_Triangles[id_cell].a.data());
-      m_BGrid->GetPoints()->GetPoint(pts[1], m_Triangles[id_cell].b.data());
-      m_BGrid->GetPoints()->GetPoint(pts[2], m_Triangles[id_cell].c.data());
-      m_Triangles[id_cell].id_a = pts[0];
-      m_Triangles[id_cell].id_b = pts[1];
-      m_Triangles[id_cell].id_c = pts[2];
-      m_Triangles[id_cell].g1 = m_Triangles[id_cell].b - m_Triangles[id_cell].a;
-      m_Triangles[id_cell].g2 = m_Triangles[id_cell].c - m_Triangles[id_cell].a;
-      m_Triangles[id_cell].g3 = m_Triangles[id_cell].g1.cross(m_Triangles[id_cell].g2);
-      m_Triangles[id_cell].A  = 0.5*m_Triangles[id_cell].g3.abs();
-      m_Triangles[id_cell].g3.normalise();
-      m_Triangles[id_cell].G.column(0, m_Triangles[id_cell].g1);
-      m_Triangles[id_cell].G.column(1, m_Triangles[id_cell].g2);
-      m_Triangles[id_cell].G.column(2, m_Triangles[id_cell].g3);
-      m_Triangles[id_cell].GI = m_Triangles[id_cell].G.inverse();
-      m_Triangles[id_cell].smallest_length = (m_Triangles[id_cell].b - m_Triangles[id_cell].a).abs();
-      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].c - m_Triangles[id_cell].b).abs());
-      m_Triangles[id_cell].smallest_length = min(m_Triangles[id_cell].smallest_length, (m_Triangles[id_cell].a - m_Triangles[id_cell].c).abs());
-    } else {
-      EG_ERR_RETURN("only triangles allowed at the moment");
-    }*/
   }
   
   // compute node normals
