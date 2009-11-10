@@ -60,10 +60,10 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
   X_110 = m_X_110;
 }
 
-void BezierTriangle::writeBezierSurface(QString filename)
+void BezierTriangle::writeBezierSurface(QString filename, int N)
 {
   //qDebug()<<"writeBezierSurface called";
-  int N=10;
+//   int N=10;
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
   

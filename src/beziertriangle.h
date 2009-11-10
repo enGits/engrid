@@ -54,7 +54,7 @@ public:
   vec3_t Bezier(vec3_t barycoords);
   vec3_t Projection(vec2_t xycoords);
   vec3_t Projection(vec3_t barycoords);
-  void writeBezierSurface(QString filename);
+  void writeBezierSurface(QString filename, int N);
   
   vec3_t QuadraticBezierTriangle(double u, double v, double w);
   vec3_t QuadraticBezierTriangle(vec2_t M);

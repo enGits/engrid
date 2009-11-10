@@ -1,19 +1,58 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="4" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
-   <View0 Encoding="" line="201" Type="Source" />
+ <DocsAndViews NumberOfDocuments="17" >
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
+   <View0 Encoding="" line="807" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/egvtkobject.h" >
-   <View0 Encoding="" line="531" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
+   <View0 Encoding="" line="1988" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/egvtkobject.cpp" >
-   <View0 Encoding="" line="1326" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
+   <View0 Encoding="" line="221" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
-   <View0 Encoding="" line="111" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.h" >
+   <View0 Encoding="" line="43" Type="Source" />
   </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
+   <View0 Encoding="" line="512" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.h" >
+   <View0 Encoding="" line="64" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/triangle.cpp" >
+   <View0 Encoding="" line="97" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/triangle.h" >
+   <View0 Encoding="" line="42" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
+   <View0 Encoding="" line="150" Type="Source" />
+  </Doc8>
+  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/engrid.h" >
+   <View0 Encoding="" line="0" Type="Source" />
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
+   <View0 Encoding="" line="215" Type="Source" />
+  </Doc10>
+  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceoperation.cpp" >
+   <View0 Encoding="" line="164" Type="Source" />
+  </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/utilities.h" >
+   <View0 Encoding="" line="19" Type="Source" />
+  </Doc12>
+  <Doc13 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/egvtkobject.h" >
+   <View0 Encoding="" line="653" Type="Source" />
+  </Doc13>
+  <Doc14 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/egvtkobject.cpp" >
+   <View0 Encoding="" line="1244" Type="Source" />
+  </Doc14>
+  <Doc15 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/utilities.cpp" >
+   <View0 Encoding="" line="29" Type="Source" />
+  </Doc15>
+  <Doc16 NumberOfViews="1" URL="file:///opt/shared/VTK/include/vtk-5.4/vtkDataSet.h" >
+   <View0 Encoding="" line="42" Type="Source" />
+  </Doc16>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -31,58 +70,50 @@
   <kdevbookmarks>
    <bookmarks>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
-     <mark line="119" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
-     <mark line="94" />
+     <mark line="110" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
      <mark line="66" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
-     <mark line="408" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
+     <mark line="94" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
      <mark line="199" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
+     <mark line="408" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
+     <mark line="1907" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
      <mark line="561" />
-     <mark line="851" />
+     <mark line="918" />
      <mark line="630" />
-     <mark line="993" />
-     <mark line="772" />
+     <mark line="904" />
+     <mark line="1058" />
      <mark line="432" />
-     <mark line="790" />
-     <mark line="569" />
+     <mark line="772" />
      <mark line="399" />
-     <mark line="979" />
-     <mark line="1133" />
+     <mark line="569" />
+     <mark line="790" />
      <mark line="488" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
-     <mark line="1905" />
-     <mark line="1172" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/guimainwindow.cpp" >
-     <mark line="1192" />
-     <mark line="1043" />
-     <mark line="1078" />
-     <mark line="231" />
-     <mark line="1002" />
+     <mark line="849" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
      <mark line="526" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
      <mark line="241" />
      <mark line="174" />
      <mark line="390" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
      <mark line="61" />
