@@ -46,8 +46,10 @@ public:
   
 public:
   bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
-  vec3_t localToGlobal(vec3_t l_M);
-  vec3_t globalToLocal(vec3_t g_M);
+  vec3_t local3DToGlobal3D(vec3_t l_M);
+  vec3_t global3DToLocal3D(vec3_t g_M);
+  vec3_t local2DToGlobal3D(vec2_t l_M);
+  vec2_t global3DToLocal2D(vec3_t g_M);
 };
 
 #endif

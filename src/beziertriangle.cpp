@@ -111,8 +111,7 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
 
 vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M)
 {
-  vec3_t l_M = globalToLocal(g_M);
-  vec2_t t_M = vec2_t(l_M[0],l_M[1],0);
+  vec2_t t_M = global3DToLocal2D(g_M);
   return QuadraticBezierTriangle(t_M);
 }
 
@@ -173,19 +172,18 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
 }
 
 void BezierTriangle::setupFunctionVariables() {
-  m_t_X_200 = globalToLocal(m_X_200);
-  m_t_X_020 = globalToLocal(m_X_020);
-  m_t_X_002 = globalToLocal(m_X_002);
-  m_t_X_011 = globalToLocal(m_X_011);
-  m_t_X_101 = globalToLocal(m_X_101);
-  m_t_X_110 = globalToLocal(m_X_110);
+  m_l_X_200 = global3DToLocal3D(m_X_200);
+  m_l_X_020 = global3DToLocal3D(m_X_020);
+  m_l_X_002 = global3DToLocal3D(m_X_002);
+  m_l_X_011 = global3DToLocal3D(m_X_011);
+  m_l_X_101 = global3DToLocal3D(m_X_101);
+  m_l_X_110 = global3DToLocal3D(m_X_110);
   
-  m_coeff_x2 = m_t_X_020 - 2*m_t_X_110;
-  m_coeff_y2 = m_t_X_002 - 2*m_t_X_101;
-  m_coeff_xy = -2*m_t_X_110 + 2*m_t_X_011 - 2*m_t_X_101;
-  m_coeff_x = 2*m_t_X_110;
-  m_coeff_y = 2*m_t_X_101;
-  
+  m_coeff_x2 = m_l_X_020 - 2*m_l_X_110;
+  m_coeff_y2 = m_l_X_002 - 2*m_l_X_101;
+  m_coeff_xy = -2*m_l_X_110 + 2*m_l_X_011 - 2*m_l_X_101;
+  m_coeff_x = 2*m_l_X_110;
+  m_coeff_y = 2*m_l_X_101;
   
   qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
   qDebug()<<"m_X_200"<<m_X_200;
@@ -195,12 +193,12 @@ void BezierTriangle::setupFunctionVariables() {
   qDebug()<<"m_X_101"<<m_X_101;
   qDebug()<<"m_X_110"<<m_X_110;
   qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
-  qDebug()<<"m_t_X_200"<<m_t_X_200;
-  qDebug()<<"m_t_X_020"<<m_t_X_020;
-  qDebug()<<"m_t_X_002"<<m_t_X_002;
-  qDebug()<<"m_t_X_011"<<m_t_X_011;
-  qDebug()<<"m_t_X_101"<<m_t_X_101;
-  qDebug()<<"m_t_X_110"<<m_t_X_110;
+  qDebug()<<"m_l_X_200"<<m_l_X_200;
+  qDebug()<<"m_l_X_020"<<m_l_X_020;
+  qDebug()<<"m_l_X_002"<<m_l_X_002;
+  qDebug()<<"m_l_X_011"<<m_l_X_011;
+  qDebug()<<"m_l_X_101"<<m_l_X_101;
+  qDebug()<<"m_l_X_110"<<m_l_X_110;
   qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
   qDebug()<<"m_coeff_x2"<<m_coeff_x2;
   qDebug()<<"m_coeff_y2"<<m_coeff_y2;

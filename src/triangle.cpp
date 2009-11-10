@@ -90,15 +90,26 @@ void Triangle::setupTriangle()
   smallest_length = min(smallest_length, (a - c).abs());
 }
 
-vec3_t Triangle::localToGlobal(vec3_t l_M)
+vec3_t Triangle::local3DToGlobal3D(vec3_t l_M)
 {
   return a+G*l_M;
 }
 
-vec3_t Triangle::globalToLocal(vec3_t g_M)
+vec3_t Triangle::global3DToLocal3D(vec3_t g_M)
 {
   vec3_t tmp = g_M-a;
   return GI*tmp;
+}
+
+vec3_t Triangle::local2DToGlobal3D(vec2_t l_M)
+{
+  return local3DToGlobal3D(vec3_t(l_M[0],l_M[1],0));
+}
+
+vec2_t Triangle::global3DToLocal2D(vec3_t g_M)
+{
+  vec3_t l_M = global3DToLocal3D(g_M);
+  return vec2_t(l_M[0],l_M[1]);
 }
 
 bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)

@@ -67,12 +67,12 @@ public:
 private:
   void setupFunctionVariables();
   
-  vec3_t m_t_X_200;
-  vec3_t m_t_X_020;
-  vec3_t m_t_X_002;
-  vec3_t m_t_X_011;
-  vec3_t m_t_X_101;
-  vec3_t m_t_X_110;
+  vec3_t m_l_X_200;
+  vec3_t m_l_X_020;
+  vec3_t m_l_X_002;
+  vec3_t m_l_X_011;
+  vec3_t m_l_X_101;
+  vec3_t m_l_X_110;
   
   vec3_t m_coeff_x2;
   vec3_t m_coeff_y2;
