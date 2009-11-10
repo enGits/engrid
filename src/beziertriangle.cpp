@@ -185,7 +185,7 @@ void BezierTriangle::setupFunctionVariables() {
   m_coeff_x = 2*m_l_X_110;
   m_coeff_y = 2*m_l_X_101;
   
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+/*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
   qDebug()<<"m_X_200"<<m_X_200;
   qDebug()<<"m_X_020"<<m_X_020;
   qDebug()<<"m_X_002"<<m_X_002;
@@ -205,7 +205,7 @@ void BezierTriangle::setupFunctionVariables() {
   qDebug()<<"m_coeff_xy"<<m_coeff_xy;
   qDebug()<<"m_coeff_x"<<m_coeff_x;
   qDebug()<<"m_coeff_y"<<m_coeff_y;
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
 }
 
 vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y)
@@ -264,15 +264,15 @@ mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, doubl
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
-  qDebug()<<"t_M="<<t_M;
+//   qDebug()<<"t_M="<<t_M;
   vec2_t t_X = t_M;//vec2_t(1./3.,1./3.,1./3.);
-  qDebug()<<"t_X="<<t_X;
+//   qDebug()<<"t_X="<<t_X;
   vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-  qDebug()<<"F.abs()="<<F.abs();
+//   qDebug()<<"F.abs()="<<F.abs();
   int maxloops = 100;
   int Nloops=0;
   while(F.abs()>0.001 && Nloops < maxloops) {
-    qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
+//     qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
     mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
     
 /*    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
@@ -301,13 +301,13 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
     mat2_t JI = J.inverse();
     vec2_t deltaX = -1*(JI*F);
     t_X = t_X + deltaX;
-    qDebug()<<"t_X="<<t_X;
+//     qDebug()<<"t_X="<<t_X;
     F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-    qDebug()<<"F="<<F;
-    qDebug()<<"F.abs()="<<F.abs();
+//     qDebug()<<"F="<<F;
+//     qDebug()<<"F.abs()="<<F.abs();
     Nloops++;
   }
-  qDebug()<<"Nloops="<<Nloops;
+//   qDebug()<<"Nloops="<<Nloops;
   return QuadraticBezierTriangle(t_X);
 }
 

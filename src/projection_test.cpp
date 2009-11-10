@@ -320,13 +320,13 @@ void Projection_test::bezierProjectionTest()
   vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
 //   vec3_t X_002(0,1,0);
   
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
   vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
-  
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0, 0, 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(0, 0, 0.5);
   vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
+  
+/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0, 0, 0.5);
+  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(0, 0, 0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
   
 /*  vec3_t X_011=0.5*(X_020+X_002);
   vec3_t X_101=0.5*(X_200+X_002);
@@ -447,8 +447,8 @@ void Projection_test::bezierProjectionTest()
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
   vtu2->SetFileName("bezierProjectionTest.vtu");
-//   vtu2->SetDataModeToBinary();
-  vtu2->SetDataModeToAscii();
+  vtu2->SetDataModeToBinary();
+//   vtu2->SetDataModeToAscii();
   vtu2->SetInput(bezier);
   vtu2->Write();
 }
