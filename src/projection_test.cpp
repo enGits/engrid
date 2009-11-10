@@ -234,7 +234,7 @@ void Projection_test::bezierProjectionTest()
   vectors1->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
   vtkDoubleArray *vectors2 = vtkDoubleArray::New();
-  vectors2->SetName("tangents");
+  vectors2->SetName("jacobi");
   vectors2->SetNumberOfComponents(3);
   vectors2->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
@@ -259,8 +259,11 @@ void Projection_test::bezierProjectionTest()
       
       // calculate tangent vectors
       vec3_t g_center = 1.0/3.0*(bezier_triangle.m_X_200+bezier_triangle.m_X_020+bezier_triangle.m_X_002);
+      vec2_t t_center = bezier_triangle.global3DToLocal2D(g_center);
       
-      vec2_t t_tangent = bezier_triangle.jacobiMatrix(t_M[0],t_M[1])*vec2_t(1,1);
+      vec2_t displacement = 0.1*(t_center - t_M);
+      
+      vec2_t t_tangent = bezier_triangle.jacobiMatrix(t_M[0],t_M[1]) * displacement;
       vec3_t g_tangent = bezier_triangle.local2DToGlobal3D(t_tangent) - bezier_triangle.m_X_200;
       
       // enter the values
