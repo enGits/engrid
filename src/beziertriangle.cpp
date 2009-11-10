@@ -223,6 +223,11 @@ vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double 
   return F;
 }
 
+vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, vec2_t A)
+{
+  return fixedPointFunction(t_inputPoint, A[0], A[1]);
+}
+
 mat2_t BezierTriangle::jacobiMatrix(double x, double y)
 {
   mat2_t J;
@@ -231,4 +236,22 @@ mat2_t BezierTriangle::jacobiMatrix(double x, double y)
   J[0][1] = 2*y*m_coeff_y2[0] + x*m_coeff_xy[0] + m_coeff_y[0];
   J[1][1] = 2*y*m_coeff_y2[1] + x*m_coeff_xy[1] + m_coeff_y[1];
   return J;
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
+{
+  vec2_t t_M = global3DToLocal2D(g_M);
+  vec2_t t_X = t_M;
+  vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+  int maxloops = 100;
+  int Nloops=0;
+  while(F.abs()>0.1 && Nloops < maxloops) {
+    mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
+    mat2_t JI = J.inverse();
+    vec2_t deltaX = -1*(JI*F);
+    t_X = t_X + deltaX;
+    vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+    Nloops++;
+  }
+  return QuadraticBezierTriangle(t_X);
 }

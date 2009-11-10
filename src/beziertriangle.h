@@ -60,9 +60,10 @@ public:
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t QuadraticBezierTriangle_g(vec3_t g_M);
   
-  vec3_t projectOnQuadraticBezierTriangle(vec3_t M);
-  vec3_t projectOnQuadraticBezierTriangle2(vec3_t M);
-
+  vec3_t projectOnQuadraticBezierTriangle(vec3_t g_M);
+  vec3_t projectOnQuadraticBezierTriangle2(vec3_t g_M);
+  vec3_t projectOnQuadraticBezierTriangle3(vec3_t g_M);
+  
 // stuff used for projections on the Bezier surface
 private:
   void setupFunctionVariables();
@@ -81,6 +82,7 @@ private:
   vec3_t m_coeff_y;
 public:
   vec2_t fixedPointFunction(vec2_t t_inputPoint, double x, double y);
+  vec2_t fixedPointFunction(vec2_t t_inputPoint, vec2_t A);
   mat2_t jacobiMatrix(double x, double y);
 };
 

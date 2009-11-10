@@ -16,6 +16,7 @@ protected: // methods
   void Bezier_test();
   void checkInterpolationGrid();
   void Bezier_circle_test();
+  void bezierFunctionTest();
   void bezierProjectionTest();
 /*  Q_OBJECT;
   
