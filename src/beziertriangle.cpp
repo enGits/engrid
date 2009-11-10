@@ -241,16 +241,32 @@ mat2_t BezierTriangle::jacobiMatrix(double x, double y)
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
+  qDebug()<<"t_M="<<t_M;
   vec2_t t_X = t_M;
+  qDebug()<<"t_X="<<t_X;
   vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+  qDebug()<<"F.abs()="<<F.abs();
   int maxloops = 100;
   int Nloops=0;
   while(F.abs()>0.1 && Nloops < maxloops) {
     mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
+    
+    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
+      qDebug()<<"FATAL: WILL NOT CONVERGE (case 1)";
+      return vec3_t(0,0,0);
+    }
+    if (fabs(J[1][0])+fabs(J[1][1])>=1) {
+      qDebug()<<"FATAL: WILL NOT CONVERGE (case 2)";
+      return vec3_t(0,0,0);
+    }
+    
     mat2_t JI = J.inverse();
     vec2_t deltaX = -1*(JI*F);
     t_X = t_X + deltaX;
+    qDebug()<<"t_X="<<t_X;
     vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+    qDebug()<<"F="<<F;
+    qDebug()<<"F.abs()="<<F.abs();
     Nloops++;
   }
   return QuadraticBezierTriangle(t_X);

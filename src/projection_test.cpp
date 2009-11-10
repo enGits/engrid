@@ -341,8 +341,15 @@ void Projection_test::bezierProjectionTest()
   qDebug()<<"N_cells="<<N_cells;
   qDebug()<<"N_points="<<N_points;
   
-  vec2_t toto=vec2_t(0.5,0.5);
-  qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(toto,toto[0],toto[1]);
+  vec3_t g_center = 1.0/3.0*(bezier_triangle.m_X_200+bezier_triangle.m_X_020+bezier_triangle.m_X_002);
+  vec2_t t_center = bezier_triangle.global3DToLocal2D(g_center);
+  qDebug()<<"g_center="<<g_center;
+  qDebug()<<"t_center="<<t_center;
+  
+  vec3_t g_toto=vec3_t(0.1,0,0);
+//   qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(toto,toto[0],toto[1]);
+  bezier_triangle.projectOnQuadraticBezierTriangle3(g_toto);
+  return;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
   allocateGrid(bezier, N_cells, N_points);
@@ -366,6 +373,7 @@ void Projection_test::bezierProjectionTest()
   vectors2->SetNumberOfComponents(3);
   vectors2->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
+  
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
       
@@ -385,10 +393,7 @@ void Projection_test::bezierProjectionTest()
       qDebug()<<"t_diff="<<t_diff;
       qDebug()<<"g_diff="<<g_diff;
       
-      // calculate tangent vectors
-      vec3_t g_center = 1.0/3.0*(bezier_triangle.m_X_200+bezier_triangle.m_X_020+bezier_triangle.m_X_002);
-      vec2_t t_center = bezier_triangle.global3DToLocal2D(g_center);
-      
+      // calculate "jacobi vectors"
       vec2_t displacement = 0.1*(t_center - t_M);
       
       vec2_t t_tangent = bezier_triangle.jacobiMatrix(t_M[0],t_M[1]) * displacement;
