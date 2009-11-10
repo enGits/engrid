@@ -242,21 +242,35 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
   qDebug()<<"t_M="<<t_M;
-  vec2_t t_X = t_M;
+  vec2_t t_X = t_M;//vec2_t(1./3.,1./3.,1./3.);
   qDebug()<<"t_X="<<t_X;
   vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
   qDebug()<<"F.abs()="<<F.abs();
-  int maxloops = 100;
+  int maxloops = 100000;
   int Nloops=0;
-  while(F.abs()>0.1 && Nloops < maxloops) {
+  while(F.abs()>0.01 && Nloops < maxloops) {
     mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
     
     if (fabs(J[0][0])+fabs(J[0][1])>=1) {
       qDebug()<<"FATAL: WILL NOT CONVERGE (case 1)";
+      mat2_t JI = J.inverse();
+      vec2_t deltaX = -1*(JI*F);
+      t_X = t_X + deltaX;
+      qDebug()<<"t_X="<<t_X;
+      vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+      qDebug()<<"F="<<F;
+      qDebug()<<"F.abs()="<<F.abs();
       return vec3_t(0,0,0);
     }
     if (fabs(J[1][0])+fabs(J[1][1])>=1) {
       qDebug()<<"FATAL: WILL NOT CONVERGE (case 2)";
+      mat2_t JI = J.inverse();
+      vec2_t deltaX = -1*(JI*F);
+      t_X = t_X + deltaX;
+      qDebug()<<"t_X="<<t_X;
+      vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+      qDebug()<<"F="<<F;
+      qDebug()<<"F.abs()="<<F.abs();
       return vec3_t(0,0,0);
     }
     
@@ -269,5 +283,157 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
     qDebug()<<"F.abs()="<<F.abs();
     Nloops++;
   }
+  qDebug()<<"Nloops="<<Nloops;
   return QuadraticBezierTriangle(t_X);
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle4(vec3_t g_M)
+{
+  vec2_t t_M = global3DToLocal2D(g_M);
+  qDebug()<<"t_M="<<t_M;
+
+  vec2_t A,B,C,D,E,F;
+  vec2_t K0,K1,K2;
+  vec2_t delta;
+  vec2_t x1,x2;
+  vec2_t y1,y2;
+  double x,y;
+  
+  A[0] = m_coeff_x2[0];
+  B[0] = m_coeff_y2[0];
+  C[0] = m_coeff_xy[0];
+  D[0] = m_coeff_x[0];
+  E[0] = m_coeff_y[0];
+  F[0] = -t_M[0];
+  
+  A[1] = m_coeff_x2[1];
+  B[1] = m_coeff_y2[1];
+  C[1] = m_coeff_xy[1];
+  D[1] = m_coeff_x[1];
+  E[1] = m_coeff_y[1];
+  F[1] = -t_M[1];
+  
+  vec2_t direction = fixedPointFunction(t_M, t_M[0], t_M[1]);
+  if(direction[0]!=0) { // y=ax+b
+    double a = direction[1]/direction[0];
+    double b = -a*t_M[0];
+    K0 = pow(b,2)*B + b*E + F;
+    K1 = 2*a*b*B + b*C + D + a*E;
+    K2 = A + pow(a,2)*B + a*C;
+    // zero X component
+    if(K2[0]!=0) {
+      delta[0] = pow(K1[0],2)-4*K2[0]*K0[0];
+      if(delta[0]>=0) {
+        x1[0]=(-K1[0]+sqrt(delta[0]))/(2*K2[0]);
+        x2[0]=(-K1[0]-sqrt(delta[0]))/(2*K2[0]);
+      }
+      else {
+        qDebug()<<"FATAL ERROR: delta[0]<0";
+        return vec3_t(0,0,0);
+      }
+    }
+    else {
+      x1[0]=-K0[0]/K1[0];
+      x2[0]=x1[0];
+    }
+    // zero Y component
+    if(K2[1]!=0) {
+      delta[1] = pow(K1[1],2)-4*K2[1]*K0[1];
+      if(delta[1]>=0) {
+        x1[1]=(-K1[1]+sqrt(delta[1]))/(2*K2[1]);
+        x2[1]=(-K1[1]-sqrt(delta[1]))/(2*K2[1]);
+      }
+      else {
+        qDebug()<<"FATAL ERROR: delta[1]<0";
+        return vec3_t(0,0,0);
+      }
+    }
+    else {
+      x1[1]=-K0[1]/K1[1];
+      x2[1]=x1[1];
+    }
+    // calculate corresponding y values
+    y1 = a*x1 + b*vec2_t(1,1);
+    y2 = a*x2 + b*vec2_t(1,1);
+  }
+  else { // x=cte=ay+b=b=x0
+    double a = 0;
+    double b = t_M[0];
+    K0 = pow(b,2)*A + b*D + F;
+    K1 = b*C + E;
+    K2 = B;
+    // zero X component
+    if(K2[0]!=0) {
+      delta[0] = pow(K1[0],2)-4*K2[0]*K0[0];
+      if(delta[0]>=0) {
+        y1[0]=(-K1[0]+sqrt(delta[0]))/(2*K2[0]);
+        y2[0]=(-K1[0]-sqrt(delta[0]))/(2*K2[0]);
+      }
+      else {
+        qDebug()<<"FATAL ERROR: delta[0]<0";
+        return vec3_t(0,0,0);
+      }
+    }
+    else {
+      y1[0]=-K0[0]/K1[0];
+      y2[0]=y1[0];
+    }
+    // zero Y component
+    if(K2[1]!=0) {
+      delta[1] = pow(K1[1],2)-4*K2[1]*K0[1];
+      if(delta[1]>=0) {
+        y1[1]=(-K1[1]+sqrt(delta[1]))/(2*K2[1]);
+        y2[1]=(-K1[1]-sqrt(delta[1]))/(2*K2[1]);
+      }
+      else {
+        qDebug()<<"FATAL ERROR: delta[1]<0";
+        return vec3_t(0,0,0);
+      }
+    }
+    else {
+      y1[1]=-K0[1]/K1[1];
+      y2[1]=y1[1];
+    }
+    // calculate corresponding y values
+    x1 = vec2_t(b,b);
+    x2 = vec2_t(b,b);
+  }
+  
+  qDebug()<<"x1="<<x1;
+  qDebug()<<"x2="<<x2;
+  qDebug()<<"y1="<<y1;
+  qDebug()<<"y2="<<y2;
+  
+  vec2_t diff_1_00 = fixedPointFunction(t_M, x1[0], y1[0]);
+  vec2_t diff_1_10 = fixedPointFunction(t_M, x1[1], y1[0]);
+  vec2_t diff_1_01 = fixedPointFunction(t_M, x1[0], y1[1]);
+  vec2_t diff_1_11 = fixedPointFunction(t_M, x1[1], y1[1]);
+  
+  vec2_t diff_2_00 = fixedPointFunction(t_M, x2[0], y2[0]);
+  vec2_t diff_2_10 = fixedPointFunction(t_M, x2[1], y2[0]);
+  vec2_t diff_2_01 = fixedPointFunction(t_M, x2[0], y2[1]);
+  vec2_t diff_2_11 = fixedPointFunction(t_M, x2[1], y2[1]);
+  
+  qDebug()<<"diff_1_00.abs()="<<diff_1_00.abs();
+  qDebug()<<"diff_1_10.abs()="<<diff_1_10.abs();
+  qDebug()<<"diff_1_01.abs()="<<diff_1_01.abs();
+  qDebug()<<"diff_1_11.abs()="<<diff_1_11.abs();
+  
+  qDebug()<<"diff_2_00.abs()="<<diff_2_00.abs();
+  qDebug()<<"diff_2_10.abs()="<<diff_2_10.abs();
+  qDebug()<<"diff_2_01.abs()="<<diff_2_01.abs();
+  qDebug()<<"diff_2_11.abs()="<<diff_2_11.abs();
+  
+  vec2_t t_X(x,y);
+  qDebug()<<"t_X="<<t_X;
+  vec2_t diff = fixedPointFunction(t_M, t_X[0], t_X[1]);
+  qDebug()<<"diff="<<diff;
+  qDebug()<<"diff.abs()="<<diff.abs();
+  return QuadraticBezierTriangle(t_X);
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle5(vec3_t g_M)
+{
+  vec2_t t_M = global3DToLocal2D(g_M);
+  qDebug()<<"t_M="<<t_M;
 }

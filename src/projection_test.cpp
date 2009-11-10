@@ -319,8 +319,12 @@ void Projection_test::bezierProjectionTest()
   vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
 //   vec3_t X_002(0,1,0);
   
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
   vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
+  
+  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0, 0, 0.5);
+  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(0, 0, 0.5);
   vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
   
 /*  vec3_t X_011=0.5*(X_020+X_002);
@@ -346,9 +350,11 @@ void Projection_test::bezierProjectionTest()
   qDebug()<<"g_center="<<g_center;
   qDebug()<<"t_center="<<t_center;
   
-  vec3_t g_toto=vec3_t(0.1,0,0);
+  vec3_t g_toto=vec3_t(0.1,0.1,0);
 //   qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(toto,toto[0],toto[1]);
-  bezier_triangle.projectOnQuadraticBezierTriangle3(g_toto);
+  qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
+  bezier_triangle.projectOnQuadraticBezierTriangle5(g_toto);
+  qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
   return;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
@@ -381,7 +387,7 @@ void Projection_test::bezierProjectionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle5(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
