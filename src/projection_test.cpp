@@ -22,6 +22,7 @@ void Projection_test::operate()
 //    Bezier_circle_test();
 //   bezierFunctionTest();
   bezierProjectionTest();
+//   bezierQuads();
 }
 
 void Projection_test::project_picked_point()
@@ -350,12 +351,12 @@ void Projection_test::bezierProjectionTest()
   qDebug()<<"g_center="<<g_center;
   qDebug()<<"t_center="<<t_center;
   
-  vec3_t g_toto=vec3_t(0.1,0.1,0);
+  vec3_t g_toto=vec3_t(0.5,0.1,0);
 //   qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(toto,toto[0],toto[1]);
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
-  bezier_triangle.projectOnQuadraticBezierTriangle5(g_toto);
+  bezier_triangle.projectOnQuadraticBezierTriangle3(g_toto);
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
-  return;
+//   return;
   
   EG_VTKSP(vtkUnstructuredGrid,bezier);
   allocateGrid(bezier, N_cells, N_points);
@@ -387,7 +388,7 @@ void Projection_test::bezierProjectionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle5(g_M);
+      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
@@ -403,6 +404,8 @@ void Projection_test::bezierProjectionTest()
       vec2_t displacement = 0.1*(t_center - t_M);
       
       vec2_t t_tangent = bezier_triangle.jacobiMatrix(t_M[0],t_M[1]) * displacement;
+//       vec2_t t_tangent = bezier_triangle.jacobiMatrix_numeric(t_M,t_M[0],t_M[1],displacement[0],displacement[1]) * displacement;
+      
       vec3_t g_tangent = bezier_triangle.local2DToGlobal3D(t_tangent) - bezier_triangle.m_X_200;
       
       // enter the values
@@ -444,6 +447,93 @@ void Projection_test::bezierProjectionTest()
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
   vtu2->SetFileName("bezierProjectionTest.vtu");
+//   vtu2->SetDataModeToBinary();
+  vtu2->SetDataModeToAscii();
+  vtu2->SetInput(bezier);
+  vtu2->Write();
+}
+
+vtkIdType idx_func_quad(int N, int i, int j)
+{
+  return i*N+j;
+}
+
+void Projection_test::bezierQuads()
+{
+  vec3_t X_200(0,0,0);
+  vec3_t X_020(1,0,0);
+//   vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
+  vec3_t X_002(0,1,0);
+  
+/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
+  
+  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5, 0.5, 0.5);
+  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5, 0, 0.5);
+  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
+  
+/*  vec3_t X_011=0.5*(X_020+X_002);
+  vec3_t X_101=0.5*(X_200+X_002);
+  vec3_t X_110=0.5*(X_200+X_020);*/
+  
+/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0);
+  vec3_t X_101=0.5*(X_200+X_002);
+  vec3_t X_110=0.5*(X_200+X_020);*/
+  
+  int N=10;
+  
+  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  bezier_triangle.writeBezierSurface("bezier.vtu",N);
+  
+  int N_cells = (N-1)*(N-1);
+  int N_points = N*N;
+  qDebug()<<"N_cells="<<N_cells;
+  qDebug()<<"N_points="<<N_points;
+  
+  EG_VTKSP(vtkUnstructuredGrid,bezier);
+  allocateGrid(bezier, N_cells, N_points);
+  
+  vtkIdType offset = 0;
+  vtkIdType node_count = 0;
+  
+  vec3_t origin = bezier_triangle.m_X_200;
+  vec3_t ex = bezier_triangle.m_X_020 - bezier_triangle.m_X_200;
+  vec3_t ey = bezier_triangle.m_X_002 - bezier_triangle.m_X_200;
+  
+  for(int i=0;i<N;i++) {
+    for(int j=0;j<N;j++) {
+      // calculate original mesh point
+      double y = j/(double)(N-1);
+      double x = (i/(double)(N-1))*(1.0-y);
+//       double x = (i/(double)(N-1));
+      vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
+      vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
+      // enter the values
+      vtkIdType id_node = offset + node_count;
+      bezier->GetPoints()->SetPoint(id_node, g_P.data());node_count++;
+    }
+  }
+  
+  int cell_count = 0;
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1;j++) {
+      vtkIdType pts_quad[4];
+      pts_quad[0]=offset + idx_func_quad(N, i  , j  );
+      pts_quad[1]=offset + idx_func_quad(N, i+1, j  );
+      pts_quad[2]=offset + idx_func_quad(N, i+1, j+1);
+      pts_quad[3]=offset + idx_func_quad(N, i  , j+1);
+      bezier->InsertNextCell(VTK_QUAD,4,pts_quad);cell_count++;
+    }
+  }
+  
+  offset = node_count;
+  
+  qDebug()<<"node_count="<<node_count;
+  qDebug()<<"cell_count="<<cell_count;
+  
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
+  vtu2->SetFileName("bezierQuadProjectionTest.vtu");
 //   vtu2->SetDataModeToBinary();
   vtu2->SetDataModeToAscii();
   vtu2->SetInput(bezier);

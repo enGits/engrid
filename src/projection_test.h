@@ -18,6 +18,7 @@ protected: // methods
   void Bezier_circle_test();
   void bezierFunctionTest();
   void bezierProjectionTest();
+  void bezierQuads();
 /*  Q_OBJECT;
   
 protected: // methods

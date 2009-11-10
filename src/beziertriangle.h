@@ -86,6 +86,7 @@ public:
   vec2_t fixedPointFunction(vec2_t t_inputPoint, double x, double y);
   vec2_t fixedPointFunction(vec2_t t_inputPoint, vec2_t A);
   mat2_t jacobiMatrix(double x, double y);
+  mat2_t jacobiMatrix_numeric(vec2_t t_inputPoint, double x, double y, double dx, double dy);
 };
 
 #endif
