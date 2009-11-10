@@ -432,8 +432,42 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle4(vec3_t g_M)
   return QuadraticBezierTriangle(t_X);
 }
 
+vec2_t secondDegreeSolver(double a, double b, double c) {
+  double x1,x2;
+  
+  if(a==0) {
+    if(b==0) {
+      EG_BUG;
+    }
+    else {
+      x1 = -c/b;
+      x2 = x1;
+    }
+  }
+  else {
+    double delta = pow(b,2)-4*a*c;
+    if(delta<0) {
+      EG_BUG;
+    }
+    else {
+      x1 = (-b+sqrt(delta))/(2*a);
+      x2 = (-b-sqrt(delta))/(2*a);
+    }
+  }
+  return vec2_t(x1,x2);
+}
+
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle5(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
   qDebug()<<"t_M="<<t_M;
+  double x0 = t_M[0];
+  double y0 = t_M[1];
+  if(y0!=1) {
+    vec2_t I(-x0/(y0-1),0);
+//     vec2_t sol1 = secondDegreeSolver(A[0]+B[0]-2D[0],-2B[0]+2D[0],B[0]);
+  }
+  else {
+    EG_BUG;
+  }
 }
