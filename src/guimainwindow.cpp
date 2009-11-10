@@ -1942,7 +1942,7 @@ void GuiMainWindow::storeSurfaceProjection()
     
     proj->m_ExactMode = 0;
     
-    if(bc==1) {
+/*    if(bc==1) {
       proj->m_ExactMode = 2;
       proj->m_center = vec3_t(0,0,-1);
       proj->m_Rx = vec3_t(1,0,0);
@@ -1962,7 +1962,7 @@ void GuiMainWindow::storeSurfaceProjection()
       proj->m_Rx = vec3_t(1,0,0);
       proj->m_Ry = vec3_t(0,1,0);
       proj->m_Rz = vec3_t(0,0,1);
-    }
+    }*/
     
 /*    vec3_t titi;
     titi=vec3_t(0,0,0);
