@@ -49,9 +49,9 @@ private: // methods
 
 public:
 
-  LaplaceSmoother();
-  virtual void operate();
-  void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
+  LaplaceSmoother(); ///< default constructor
+  virtual void operate(); ///< Run operation
+  void setNumberOfIterations(int N) { m_NumberOfIterations = N;} ///< Set number of iterations
   void setProjectionOn() { m_UseProjection = true; }
   void setProjectionOff() { m_UseProjection = false; }
   void setNormalCorrectionOn() { m_UseNormalCorrection = true; }

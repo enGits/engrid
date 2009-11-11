@@ -113,7 +113,7 @@ vec2_t Triangle::global3DToLocal2D(vec3_t g_M)
   return vec2_t(l_M[0],l_M[1]);
 }
 
-bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
+bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle)
 {
   xi = vec3_t(1e99,1e99,1e99);
   double scal = (xp - this->a)*this->g3;
@@ -127,7 +127,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
   }
   d = 1e99;
   bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->a, this->b, this->c, x1, x2, xi, ri);
-  if (intersects_face) {
+  if (intersects_face || !restrict_to_triangle) {
     vec3_t dx = xp - this->a;
     d = fabs(dx*this->g3);
   } else {
@@ -190,9 +190,9 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
   if (xi[0] > 1e98) {
     EG_BUG;
   }
-  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
+/*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
     qWarning()<<"ri="<<ri;
     EG_BUG;
-  }
+  }*/
   return intersects_face;
 }

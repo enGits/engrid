@@ -1269,7 +1269,7 @@ void GuiMainWindow::updateStatusBar()
   {
     QString pick_txt = ", picked cell: ";
     vtkIdType id_cell = m_PickedCell;
-    if (id_cell < 0) {
+    if (id_cell < 0 || id_cell>=m_grid->GetNumberOfCells()) {
       pick_txt += "no cell picked";
     } else {
       vtkIdType type_cell = m_grid->GetCellType(id_cell);

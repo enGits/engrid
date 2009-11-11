@@ -61,7 +61,7 @@ void SurfaceMesher::operate()
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
     computeMeshDensity();
-    num_inserted = insertNodes();
+//     num_inserted = insertNodes();
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
     swap();
@@ -73,7 +73,7 @@ void SurfaceMesher::operate()
       swap();
     }
     */
-    int num_deleted = deleteNodes();
+//     int num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     //swap();
     computeMeshDensity();

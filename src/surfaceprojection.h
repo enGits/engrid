@@ -128,6 +128,7 @@ private: // methods
 
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node); ///< project onto m_BGrid, eventually using correctCurvature
   vec3_t correctCurvature(int i_tri, vec3_t r); ///< correct curvature by using bezier surfaces
+  vec3_t correctCurvature2(int i_tri, vec3_t g_M); ///< correct curvature by using bezier surfaces
   
   vec3_t getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2);
   

@@ -896,7 +896,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   // returning value
   x = g_X;
   return x;
-}
+}// end of correctCurvature
 
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
 {
@@ -946,7 +946,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       m_ProjTriangles[i] = -1;
     }
     need_full_search = true;
-  } else {
+  } else { //if there is a known triangle on which to project
     int i_triangles = m_ProjTriangles[id_node];
     if (i_triangles < 0) {
       need_full_search = true;
@@ -957,7 +957,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       vec3_t xi, ri;
       double d;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
       if (!intersects || (d > 0.1*T.smallest_length)) {
         need_full_search = true;
       } else {
@@ -976,7 +976,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       double d;
       vec3_t xi, ri;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
       if (d < d_min) {
         x_proj = xi;
         r_proj = ri;
@@ -996,7 +996,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //     vec3_t center(0,0,0);
 //     double radius = 1;
 //     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
-    if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+//     if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+  if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], x_proj);
 //    }
   if(!on_triangle) {
     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
@@ -1460,3 +1461,35 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
 }
+
+vec3_t SurfaceProjection::correctCurvature2(int i_tri, vec3_t g_M)
+{
+  // coordinate systems:
+  // 3D:
+  // global: X,Y,Z -> g_
+  // local: g1,g2,g3 -> l_
+  // 2D:
+  // triangle: g1,g2 -> t_
+  
+  Triangle T = m_Triangles[i_tri];
+  vec3_t g_A = T.a;
+  vec3_t g_B = T.b;
+  vec3_t g_C = T.c;
+  
+  //qDebug()<<"=== ORTHOGONAL PLANES ===";
+  vec3_t g_J1, g_J2, g_J3;
+  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+  vec3_t g_K1, g_K2, g_K3;
+  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+  
+  vec3_t X_200 = g_A;
+  vec3_t X_020 = g_B;
+  vec3_t X_002 = g_C;
+  vec3_t X_011 = g_K1;
+  vec3_t X_101 = g_K2;
+  vec3_t X_110 = g_K3;
+  
+  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  return bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+}// end of correctCurvature2
