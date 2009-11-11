@@ -45,7 +45,16 @@ public:
   void setupTriangle();
   
 public:
+  /**
+   * Calculates the closest (NOT the projection!) point (xi,ri) of point xp on the triangle.
+   * @param xp Point to "project"
+   * @param xi Global 3D coordinates of the closest point on the triangle.
+   * @param ri Local 3D triangle coordinates of the closest point on the triangle. (0<=ri[0]<=1 and 0<=ri[1]<=1 and ri[2]=0)
+   * @param d Distance of xp to (xi,ri)
+   * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
+  */
   bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d);
+  
   vec3_t local3DToGlobal3D(vec3_t l_M);
   vec3_t global3DToLocal3D(vec3_t g_M);
   vec3_t local2DToGlobal3D(vec2_t l_M);

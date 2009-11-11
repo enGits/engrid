@@ -64,13 +64,14 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 
 /**
  * Calculates the intersection of a segment [x1,x2] with a triangle (a,b,c)
+ * Note: (xi,ri) will always be set to the intersection of the line (x1,x2) with the plane (a,b,c) even if the segment does not intersect the triangle!
  * @param a Input: Triangle point 1
  * @param b Input: Triangle point 2
  * @param c Input: Triangle point 3
  * @param x1 Input: Segment point 1
  * @param x2 Input: Segment point 2
- * @param xi Output: 3D Global coordinates of the intersetion point
- * @param ri Output: 2D Triangle coordinates of the intersetion point
+ * @param xi Output: 3D Global coordinates of the intersection point
+ * @param ri Output: 3D local triangle coordinates of the intersection point
  * @param tol Input: Relative tolerance: There can only be an intersection if:
  * 0-tol*(x1-x2).abs()<=k<=1+tol*(x1-x2).abs()
  * 0-tol<=ri[0]<=1+tol

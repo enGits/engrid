@@ -441,14 +441,6 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   double k = intersection(x1, v, a, g3);
   xi = x1 + k*v;
 
-  // intersection outside of edge range?
-  if (k < 0 - tol*(x1-x2).abs()) {
-    return false;
-  }
-  if (k > 1 + tol*(x1-x2).abs()) {
-    return false;
-  }
-
   // transform xi to triangular base
   mat3_t G;
   G.column(0, g1);
@@ -458,7 +450,15 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   ri = xi - a;
   ri = GI*ri;
 
-  // intersction outside of triangle?
+  // intersection outside of edge range?
+  if (k < 0 - tol*(x1-x2).abs()) {
+    return false;
+  }
+  if (k > 1 + tol*(x1-x2).abs()) {
+    return false;
+  }
+  
+  // intersection outside of triangle?
   if (ri[0] + ri[1] > 1) {
     return false;
   }

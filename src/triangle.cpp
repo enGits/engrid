@@ -23,6 +23,7 @@
 #include "triangle.h"
 #include "geometrytools.h"
 #include "engrid.h"
+#include "utilities.h"
 
 Triangle::Triangle()
 {
@@ -140,6 +141,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
     if ((kab >= 0) && (kab <= 1)) {
       if (dab < d) {
         xi = this->a + kab*(this->b-this->a);
+        ri = vec3_t(kab,0,0);
         d = dab;
         set = true;
       }
@@ -147,6 +149,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
     if ((kac >= 0) && (kac <= 1)) {
       if (dac < d) {
         xi = this->a + kac*(this->c-this->a);
+        ri = vec3_t(0,kac,0);
         d = dac;
         set = true;
       }
@@ -154,6 +157,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
     if ((kbc >= 0) && (kbc <= 1)) {
       if (dbc < d) {
         xi = this->b + kbc*(this->c-this->b);
+        ri = vec3_t(1-kbc,kbc,0);
         d = dbc;
         set = true;
       }
@@ -163,15 +167,19 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
     double dc = (this->c - xp).abs();
     if (da < d) {
       xi = this->a;
+      ri = vec3_t(0,0);
       d = da;
       set = true;
     }
     if (db < d) {
       xi = this->b;
+      ri = vec3_t(1,0);
       d = db;
+      set = true;
     }
     if (dc < d) {
       xi = this->c;
+      ri = vec3_t(0,1);
       d = dc;
       set = true;
     }
@@ -180,6 +188,10 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d)
     }
   }
   if (xi[0] > 1e98) {
+    EG_BUG;
+  }
+  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
+    qWarning()<<"ri="<<ri;
     EG_BUG;
   }
   return intersects_face;
