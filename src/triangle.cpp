@@ -115,7 +115,6 @@ vec2_t Triangle::global3DToLocal2D(vec3_t g_M)
 
 bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle)
 {
-  xi = vec3_t(1e99,1e99,1e99);
   double scal = (xp - this->a)*this->g3;
   vec3_t x1, x2;
   if (scal > 0) {
@@ -125,7 +124,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     x1 = xp - this->g3;
     x2 = xp - scal*this->g3 + this->g3;
   }
-  d = 1e99;
+  // (xi,ri) gets set to the intersection of the line with the plane here!
   bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->a, this->b, this->c, x1, x2, xi, ri);
   if (intersects_face || !restrict_to_triangle) {
     vec3_t dx = xp - this->a;
@@ -134,37 +133,41 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     double kab = GeometryTools::intersection(this->a, this->b - this->a, xp, this->b - this->a);
     double kac = GeometryTools::intersection(this->a, this->c - this->a, xp, this->c - this->a);
     double kbc = GeometryTools::intersection(this->b, this->c - this->b, xp, this->c - this->b);
+    
     double dab = (this->a + kab*(this->b-this->a) - xp).abs();
     double dac = (this->a + kac*(this->c-this->a) - xp).abs();
     double dbc = (this->b + kbc*(this->c-this->b) - xp).abs();
+    double da = (this->a - xp).abs();
+    double db = (this->b - xp).abs();
+    double dc = (this->c - xp).abs();
+    
     bool set = false;
-    if ((kab >= 0) && (kab <= 1)) {
-      if (dab < d) {
+    d = max(max(max(max(max(dab,dac),dbc),da),db),dc);
+    
+    if (dab < d) {
+      if ((kab >= 0) && (kab <= 1)) {
         xi = this->a + kab*(this->b-this->a);
         ri = vec3_t(kab,0,0);
         d = dab;
         set = true;
       }
     }
-    if ((kac >= 0) && (kac <= 1)) {
-      if (dac < d) {
+    if (dac < d) {
+      if ((kac >= 0) && (kac <= 1)) {
         xi = this->a + kac*(this->c-this->a);
         ri = vec3_t(0,kac,0);
         d = dac;
         set = true;
       }
     }
-    if ((kbc >= 0) && (kbc <= 1)) {
-      if (dbc < d) {
+    if (dbc < d) {
+      if ((kbc >= 0) && (kbc <= 1)) {
         xi = this->b + kbc*(this->c-this->b);
         ri = vec3_t(1-kbc,kbc,0);
         d = dbc;
         set = true;
       }
     }
-    double da = (this->a - xp).abs();
-    double db = (this->b - xp).abs();
-    double dc = (this->c - xp).abs();
     if (da < d) {
       xi = this->a;
       ri = vec3_t(0,0);
@@ -186,9 +189,6 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     if (!set) {
       EG_BUG;
     }
-  }
-  if (xi[0] > 1e98) {
-    EG_BUG;
   }
 /*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
     qWarning()<<"ri="<<ri;

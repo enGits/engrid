@@ -103,7 +103,8 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   }
 
   if (!move) {
-    grid->GetPoints()->SetPoint(id_node, x_old.data());
+    // comment this out if you want points to always move
+//     grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
   return move;
 }
@@ -141,6 +142,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 
 void LaplaceSmoother::operate()
 {
+  qDebug()<<"LaplaceSmoother::operate() called";
   QSet<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
@@ -207,7 +209,7 @@ void LaplaceSmoother::operate()
             }
             n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
-
+            
             if (m_UseNormalCorrection) {
               vec3_t dx = x_new[i_nodes] - x_old;
               dx = (dx*n)*n;
@@ -222,6 +224,7 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = x_old;
               m_Success = false;
             }
+            
             /*
             if (m_UseProjection) {
               if (m_NodeToBc[_nodes[id_node]].size() == 1) {
