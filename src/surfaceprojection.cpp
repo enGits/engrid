@@ -921,10 +921,10 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
   for(int i=0;i<3;i++) {
     if(isnan(xp[i])) {
-      EG_ERR_RETURN("NANANANANNANANANANN");
+      EG_ERR_RETURN("NAN");
     }
     if(isinf(xp[i])) {
-      EG_ERR_RETURN("TO INFINITY AND BEYOND!!!!!!!!!!!!!");
+      EG_ERR_RETURN("INFINITY");
     }
   }
   
@@ -1025,6 +1025,15 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 
 vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 {
+  for(int i=0;i<3;i++) {
+    if(isnan(x[i])) {
+      EG_ERR_RETURN("NAN");
+    }
+    if(isinf(x[i])) {
+      EG_ERR_RETURN("INFINITY");
+    }
+  }
+  
   if (m_UseLevelSet) {
     x = projectWithLevelSet(x);
   } else {
