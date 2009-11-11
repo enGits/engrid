@@ -62,6 +62,21 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
 
+/**
+ * Calculates the intersection of a segment [x1,x2] with a triangle (a,b,c)
+ * @param a Input: Triangle point 1
+ * @param b Input: Triangle point 2
+ * @param c Input: Triangle point 3
+ * @param x1 Input: Segment point 1
+ * @param x2 Input: Segment point 2
+ * @param xi Output: 3D Global coordinates of the intersetion point
+ * @param ri Output: 2D Triangle coordinates of the intersetion point
+ * @param tol Input: Relative tolerance: There can only be an intersection if:
+ * 0-tol*(x1-x2).abs()<=k<=1+tol*(x1-x2).abs()
+ * 0-tol<=ri[0]<=1+tol
+ * 0-tol<=ri[1]<=1+tol
+ * @return true if an intersection point was found, else false.
+*/
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
