@@ -918,11 +918,11 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
-  if(m_ExactMode==1) return ellipsoid(xp);
+/*  if(m_ExactMode==1) return ellipsoid(xp);
   if(m_ExactMode==2) return ellipse(xp);
   if(m_ExactMode==3) return rectangle(xp);
   if(m_ExactMode==4) return cuboid(xp);
-  if(m_ExactMode==5) return cylinder(xp);
+  if(m_ExactMode==5) return cylinder(xp);*/
   
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
 //   qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
@@ -935,9 +935,11 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
   x_proj = cylinder(center, radius, xp);
   return x_proj;*/
   
+  // initilizing booleans
   bool on_triangle = false;
   bool need_full_search = false;
-  if (id_node >= m_ProjTriangles.size()) {
+  
+  if (id_node >= m_ProjTriangles.size()) { //if there is no known triangle on which to project
     int old_size = m_ProjTriangles.size();
     m_ProjTriangles.resize(m_FGrid->GetNumberOfPoints());
     for (int i = old_size; i < m_ProjTriangles.size(); ++i) {
@@ -1253,12 +1255,61 @@ vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2)
   return Nedge;
 }
 
+vec3_t SurfaceProjection::ellipsoid(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t AM = M-A;
+  return( A + m_Rx.abs() * AM.normalise() );
+}
+
+vec3_t SurfaceProjection::ellipse(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t AM = M-A;
+  double x = AM*m_Rx;
+  double y = AM*m_Ry;
+  double z = AM*m_Rz;
+//   qWarning()<<x<<y<<z;
+  vec3_t P = A + x*m_Rx + y*m_Ry;
+//   qWarning()<<P;
+  vec3_t AP = P-A;
+//   qWarning()<<AP;
+//   qWarning()<<AP.normalise();
+//   qWarning()<<m_Rx.abs();
+//   qWarning()<<A + m_Rx.abs() * AP.normalise();
+  if(AP.abs()<=m_Rx.abs()) return P;
+  else return( A + m_Rx.abs() * AP.normalise() );
+}
+
+vec3_t SurfaceProjection::rectangle(vec3_t M)
+{
+
+}
+
+vec3_t SurfaceProjection::cuboid(vec3_t M)
+{
+
+}
+
+vec3_t SurfaceProjection::cylinder(vec3_t M)
+{
+  vec3_t A = m_center;
+  vec3_t u = m_Rz;
+  double k = (M-A)*u;
+  vec3_t P = A + k*u;
+  vec3_t PM = M-P;
+  return P + m_Rx.abs() * PM.normalise();
+/*  A+ku=P;
+  AP*PM=0;
+  ku*(M-A-ku)=0;
+  k*(u*(M-A))-k2*u2=0;
+  
+  M-*/
+}
+
 void SurfaceProjection::updateBackgroundGridInfo()
 {
   EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
-/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }*/
   
   getAllCells(m_Cells, m_BGrid);
   getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
@@ -1304,10 +1355,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   
-/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }*/
-  
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
 //   prepare();
@@ -1318,15 +1365,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
   
-/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }*/
-  
   UpdatePotentialSnapPoints(true,false);
-  
-/*  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-  }*/
   
   qDebug()<<"===STARTING NORMAL CALCULATION===";
   l2l_t  n2n   = getPartN2N();
@@ -1420,56 +1459,4 @@ void SurfaceProjection::updateBackgroundGridInfo()
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
     m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
   }
-}
-
-vec3_t SurfaceProjection::ellipsoid(vec3_t M)
-{
-  vec3_t A = m_center;
-  vec3_t AM = M-A;
-  return( A + m_Rx.abs() * AM.normalise() );
-}
-
-vec3_t SurfaceProjection::ellipse(vec3_t M)
-{
-  vec3_t A = m_center;
-  vec3_t AM = M-A;
-  double x = AM*m_Rx;
-  double y = AM*m_Ry;
-  double z = AM*m_Rz;
-//   qWarning()<<x<<y<<z;
-  vec3_t P = A + x*m_Rx + y*m_Ry;
-//   qWarning()<<P;
-  vec3_t AP = P-A;
-//   qWarning()<<AP;
-//   qWarning()<<AP.normalise();
-//   qWarning()<<m_Rx.abs();
-//   qWarning()<<A + m_Rx.abs() * AP.normalise();
-  if(AP.abs()<=m_Rx.abs()) return P;
-  else return( A + m_Rx.abs() * AP.normalise() );
-}
-
-vec3_t SurfaceProjection::rectangle(vec3_t M)
-{
-
-}
-
-vec3_t SurfaceProjection::cuboid(vec3_t M)
-{
-
-}
-
-vec3_t SurfaceProjection::cylinder(vec3_t M)
-{
-  vec3_t A = m_center;
-  vec3_t u = m_Rz;
-  double k = (M-A)*u;
-  vec3_t P = A + k*u;
-  vec3_t PM = M-P;
-  return P + m_Rx.abs() * PM.normalise();
-/*  A+ku=P;
-  AP*PM=0;
-  ku*(M-A-ku)=0;
-  k*(u*(M-A))-k2*u2=0;
-  
-  M-*/
 }

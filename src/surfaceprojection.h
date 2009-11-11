@@ -49,23 +49,28 @@ private: // data-types
 
 private: // attributes
 
-  vtkUnstructuredGrid*   m_BGrid;
+  vtkUnstructuredGrid*   m_BGrid; ///< background grid used for projection and interpolation of the bezier surface
   vtkUnstructuredGrid*   m_InterpolationGrid;
   vtkUnstructuredGrid*   m_BezierGrid;
   
 public:
+  /// get m_BGrid
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
+  /// get m_InterpolationGrid
   vtkUnstructuredGrid* getInterpolationGrid() { return m_InterpolationGrid; }
+    /// get m_BezierGrid
   vtkUnstructuredGrid* getBezierGrid() { return m_BezierGrid; }
   
 private:
+  /// A vector associating each node of m_FGrid with a Triangle (index for m_Triangles) on which it should be projected (closest triangle from m_Triangles).
   QVector<vtkIdType>     m_ProjTriangles;
-  vtkUnstructuredGrid*   m_FGrid;
+  
+  vtkUnstructuredGrid*   m_FGrid; ///< The foreground grid to project.
   QVector<double>        m_EdgeLength;
   QVector<vtkIdType>     m_Cells;
   QVector<vtkIdType>     m_Nodes;
-  QVector<vec3_t>        m_NodeNormals;
-  QVector<Triangle>      m_Triangles;
+  QVector<vec3_t>        m_NodeNormals; ///< The surface normal at each node of m_BGrid
+  QVector<Triangle>      m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<QVector<int> > m_N2N;
   Octree                 m_OTGrid;
   QVector<double>        m_G;
@@ -86,7 +91,7 @@ private:
   int                    m_NumDirect;
   int                    m_NumFull;
 
-  bool m_correctCurvature;
+  bool m_correctCurvature; ///< Should correctCurvature() be used?
 
 // variables for exact projection surfaces
 public:
@@ -106,7 +111,7 @@ public:
 private: // methods
 
   template <class C>
-  void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells);
+  void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells); ///< copy the cells from grid to m_BGrid
   void setBackgroundGrid_initOctree();
   void setBackgroundGrid_refineFromNodes();
   void setBackgroundGrid_refineFromEdges();
@@ -114,31 +119,31 @@ private: // methods
   void setBackgroundGrid_initLevelSet();
   void setBackgroundGrid_computeLevelSet();
 
-  void updateBackgroundGridInfo();
+  void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
   
   vec3_t calcGradG(vec3_t x);
   double calcG(vec3_t x);
 
   vec3_t projectWithLevelSet(vec3_t x);
 
-  vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node);
-  vec3_t correctCurvature(int i_tri, vec3_t r);
+  vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node); ///< project onto m_BGrid, eventually using correctCurvature
+  vec3_t correctCurvature(int i_tri, vec3_t r); ///< correct curvature by using bezier surfaces
   
   vec3_t getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2);
   
 public: // methods
 
-  SurfaceProjection();
+  SurfaceProjection(); ///< Constructor
 
   template <class C>
-  void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells);
+  void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
-  void setForegroundGrid(vtkUnstructuredGrid* grid) {m_FGrid = grid; }
+  void setForegroundGrid(vtkUnstructuredGrid* grid) {m_FGrid = grid; } ///< set m_FGrid
 
   vec3_t project(vec3_t x, vtkIdType id_node = -1);
   int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
   void writeOctree(QString file_name);
-  bool usesLevelSet() { return m_UseLevelSet; };
+  bool usesLevelSet() { return m_UseLevelSet; }; ///< Set whether or not to use the level set method
 
   int getNumDirectProjections() { return m_NumDirect; }
   int getNumFullSearches() { return m_NumFull; }
@@ -146,8 +151,8 @@ public: // methods
   void writeGridWithNormals(QString filename);
   void writeInterpolationGrid(QString filename);
   
-  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
-  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
+  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110); ///< get the orthogonal control points
+  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110); ///< get the non-orthogonal control points
 };
 
 template <class C>
