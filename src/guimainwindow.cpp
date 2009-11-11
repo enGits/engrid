@@ -1103,6 +1103,7 @@ void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
   QFileInfo file_info(m_CurrentFilename);
+  qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
@@ -1125,7 +1126,9 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
     no_case_file = true;
     grid_file_name = stripFromExtension(file_name);
   }
-  GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
+  if(update_current_filename) {
+    GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
+  }
   if (!no_case_file) {
     openXml(file_name);
   }
@@ -1137,9 +1140,8 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
 
-  this->addRecentFile(file_name,QDateTime::currentDateTime());
-
   if(update_current_filename) {
+    this->addRecentFile(file_name,QDateTime::currentDateTime());
     resetOperationCounter();
     quickSave();
   }
