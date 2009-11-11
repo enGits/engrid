@@ -266,6 +266,10 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
   vec2_t t_M = global3DToLocal2D(g_M);
 //   qDebug()<<"t_M="<<t_M;
   vec2_t t_X = t_M;//vec2_t(1./3.,1./3.,1./3.);
+  if(t_M[0]<0 || 1<t_M[0] || t_M[1]<0 || 1<t_M[1]) {
+    qDebug()<<"WARNING: Not on triangle! t_M="<<t_M;
+  }
+  
 //   qDebug()<<"t_X="<<t_X;
   vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
 //   qDebug()<<"F.abs()="<<F.abs();
@@ -274,29 +278,15 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
   while(F.abs()>0.001 && Nloops < maxloops) {
 //     qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
     mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
-    
-/*    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
-      qDebug()<<"FATAL: WILL NOT CONVERGE (case 1)";
-      mat2_t JI = J.inverse();
-      vec2_t deltaX = -1*(JI*F);
-      t_X = t_X + deltaX;
-      qDebug()<<"t_X="<<t_X;
-      vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-      qDebug()<<"F="<<F;
-      qDebug()<<"F.abs()="<<F.abs();
-      return vec3_t(0,0,0);
+    if(J.det()==0) {
+      qDebug()<<"WARNING: Matrix not invertible!";
+    }
+    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
+//       qDebug()<<"WARNING: will not converge (case 1)";
     }
     if (fabs(J[1][0])+fabs(J[1][1])>=1) {
-      qDebug()<<"FATAL: WILL NOT CONVERGE (case 2)";
-      mat2_t JI = J.inverse();
-      vec2_t deltaX = -1*(JI*F);
-      t_X = t_X + deltaX;
-      qDebug()<<"t_X="<<t_X;
-      vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-      qDebug()<<"F="<<F;
-      qDebug()<<"F.abs()="<<F.abs();
-      return vec3_t(0,0,0);
-    }*/
+//       qDebug()<<"WARNING: will not converge (case 2)";
+    }
     
     mat2_t JI = J.inverse();
     vec2_t deltaX = -1*(JI*F);
@@ -307,7 +297,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
 //     qDebug()<<"F.abs()="<<F.abs();
     Nloops++;
   }
-//   qDebug()<<"Nloops="<<Nloops;
+  if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
   return QuadraticBezierTriangle(t_X);
 }
 
