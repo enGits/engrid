@@ -23,6 +23,7 @@
 #include "surfaceprojection.h"
 
 #include "beziertriangle.h"
+#include <math.h>
 
 #include <vtkUnstructuredGridWriter.h>
 
@@ -918,6 +919,15 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
+  for(int i=0;i<3;i++) {
+    if(isnan(xp[i])) {
+      EG_ERR_RETURN("NANANANANNANANANANN");
+    }
+    if(isinf(xp[i])) {
+      EG_ERR_RETURN("TO INFINITY AND BEYOND!!!!!!!!!!!!!");
+    }
+  }
+  
 /*  if(m_ExactMode==1) return ellipsoid(xp);
   if(m_ExactMode==2) return ellipse(xp);
   if(m_ExactMode==3) return rectangle(xp);
@@ -928,12 +938,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //   qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
   
 //   qWarning()<<"@@@@@@@@@@@@ xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
-  vec3_t x_proj(1e99,1e99,1e99), r_proj;
-  
-/*  vec3_t center(0,0,0);
-  double radius = 1;
-  x_proj = cylinder(center, radius, xp);
-  return x_proj;*/
+  vec3_t x_proj(1e99,1e99,1e99), r_proj(0,0,0);
+  bool x_proj_set =false;
   
   // initilizing booleans
   bool on_triangle = false;
@@ -961,41 +967,50 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       if (!intersects || (d > 0.1*T.smallest_length)) {
         need_full_search = true;
       } else {
-        x_proj = xi;
+        x_proj = xi; x_proj_set = true;
+        if ( x_proj[0]>1e98 ) { // should never happen
+          EG_BUG;
+        }
         r_proj = ri;
         on_triangle = intersects;
         ++m_NumDirect;
       }
     }
   }
-  if (need_full_search) {
+  if (true || need_full_search) {
 //     qDebug()<<"starting full search";
     ++m_NumFull;
     double d_min = 1e99;
+    bool first = true;
     for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
       Triangle T = m_Triangles[i_triangles];
       double d;
       vec3_t xi, ri;
       bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
-      if (d < d_min) {
-        x_proj = xi;
+      if(d>9000) qWarning()<<"d="<<d;
+      if(d>=1e99) EG_BUG;
+      if (/*first ||*/ d < d_min) {
+        x_proj = xi; x_proj_set = true;
+        if ( x_proj[0]>1e98 ) { // should never happen
+          EG_BUG;
+        }
         r_proj = ri;
         d_min = d;
         m_ProjTriangles[id_node] = i_triangles;
         on_triangle = intersects;
+        first = false;
       }
 //       qDebug()<<"full search done";
     }
-    if (x_proj[0] > 1e98) {
+    if ( !x_proj_set ) { // should never happen
+      if(isnan(xp[0])) qWarning()<<"NANANANANNANANANANN";
+      if(isinf(xp[0])) qWarning()<<"TO INFINITY AND BEYOND!!!!!!!!!!!!!";
       qWarning()<<"No projection found for point xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
       writeGrid(GuiMainWindow::pointer()->getGrid(),"griddump");
       EG_BUG;
     }
   }
 //    if(on_triangle) {
-//     vec3_t center(0,0,0);
-//     double radius = 1;
-//     x_proj = cylinder(center, radius, m_ProjTriangles[id_node], r_proj);
 //     if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], x_proj);
 //    }

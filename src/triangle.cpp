@@ -142,7 +142,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     double dc = (this->c - xp).abs();
     
     bool set = false;
-    d = max(max(max(max(max(dab,dac),dbc),da),db),dc);
+    d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
     
     if (dab < d) {
       if ((kab >= 0) && (kab <= 1)) {
@@ -189,6 +189,9 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     if (!set) {
       EG_BUG;
     }
+  }
+  if (xi[0] > 1e98) { // should never happen
+        EG_BUG;
   }
 /*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
     qWarning()<<"ri="<<ri;
