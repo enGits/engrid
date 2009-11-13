@@ -77,6 +77,7 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
 
 void UpdateDesiredMeshDensity::operate()
 {
+  m_ELSManager.read();
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   
   setAllSurfaceCells();
@@ -157,8 +158,14 @@ void UpdateDesiredMeshDensity::operate()
       cl = characteristic_length_desired->GetValue(id_node);
     }
     cl = min(cl_radius[i_nodes], cl);
+    vec3_t x;
+    grid->GetPoint(id_node, x.data());
+    double cl_src = m_ELSManager.minEdgeLength(x);
+    if (cl_src > 0) {
+      cl = min(cl, cl_src);
+    }
     
-    if(cl==0) EG_BUG;
+    if(cl == 0) EG_BUG;
     characteristic_length_desired->SetValue(id_node, cl);
     
     if (cl < cl_min) {

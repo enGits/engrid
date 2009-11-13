@@ -28,6 +28,7 @@
 #include "vertexmeshdensity.h"
 #include "settingssheet.h"
 #include "surfaceoperation.h"
+#include "edgelengthsourcemanager.h"
 
 #include <vtkPolyDataAlgorithm.h>
 
@@ -52,6 +53,7 @@ private:
 
   int Nbc;
   SettingsSheet* m_tableWidget;
+  EdgeLengthSourceManager m_ELSManager;
   
 public:
 
@@ -66,8 +68,13 @@ public:
 
 public slots:
 
-  int readSettings();
-  int writeSettings();
+  int  readSettings();
+  int  writeSettings();
+  void read()      { m_ELSManager.read(); };
+  void write()     {m_ELSManager.write(); };
+  void edit()      {m_ELSManager.edit(); };
+  void remove()    {m_ELSManager.remove(); };
+  void addSphere() {m_ELSManager.addSphere();; };
 
 };
 

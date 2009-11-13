@@ -26,6 +26,7 @@
 class CreateVolumeMesh;
 
 #include "operation.h"
+#include "edgelengthsourcemanager.h"
 
 namespace nglib {
   #include <nglib.h>
@@ -47,7 +48,10 @@ private: // attributes
   QVector<vtkIdType> trace_cells;
   QVector<vtkIdType> old2tri;
   int m_NumTriangles;
-  
+  EdgeLengthSourceManager m_ELSManager;
+
+
+
   struct box_t {
     vec3_t x1, x2;
     double h;

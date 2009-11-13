@@ -26,6 +26,7 @@
 #include "surfaceoperation.h"
 
 #include "vertexmeshdensity.h"
+#include "edgelengthsourcemanager.h"
 
 
 /// Update desired mesh density, i.e. the field used for surface meshing
@@ -41,6 +42,7 @@ private: //attributes
   double                      m_MaxEdgeLength;
   double                      m_NodesPerQuarterCircle;
   QVector<bool>               m_Fixed;
+  EdgeLengthSourceManager     m_ELSManager;
 
 
 protected: // methods
