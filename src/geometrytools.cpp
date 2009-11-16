@@ -571,4 +571,53 @@ vec3_t getBarycentricCoordinates(double x, double y)
 //   return bary_coords;
 }
 
+vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
+{
+  vec3_t u = B-A;
+//   u.normalise();
+  v.normalise();
+  v = u.abs()*v;
+  
+  //cout<<"u="<<u<<" v="<<v<<endl;
+  
+  vec2_t p_A(0,0);
+  vec2_t p_B(1,0);
+  vec2_t p_nA = projectVectorOnPlane(nA,u,v);
+  vec2_t p_nB = projectVectorOnPlane(nB,u,v);
+  
+  vec2_t p_tA = turnRight(p_nA);
+  vec2_t p_tB = turnRight(p_nB);
+  
+  double k1, k2;
+  vec2_t p_K;
+  if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
+    //qDebug()<<"WARNING: No intersection found!!!";
+    p_K = 0.5*(p_A + p_B);
+  }
+  else {
+    p_K = p_A + k1*p_tA;
+  }
+  
+  //cout<<"nA="<<nA<<endl;
+  //cout<<"p_nA="<<p_nA<<endl;
+  //cout<<"p_tA="<<p_tA<<endl;
+  //cout<<"p_K="<<p_K<<endl;
+  vec3_t K = A + p_K[0]*u + p_K[1]*v;
+  //cout<<"K="<<K<<endl;
+  return K;
+}
+
+vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
+{
+  double x = V*i/i.abs2();
+  double y = V*j/j.abs2();
+  return vec2_t(x,y);
+}
+
+vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u)
+{
+  double k = ((M-A)*u)/u.abs2();
+  return A + k*u;
+}
+
 } // namespace

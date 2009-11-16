@@ -568,13 +568,6 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
-vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
-{
-  double x = V*i/i.abs2();
-  double y = V*j/j.abs2();
-  return vec2_t(x,y);
-}
-
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   // initialization
@@ -1047,42 +1040,6 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
   return x;
 }
 
-vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
-{
-  vec3_t u = B-A;
-//   u.normalise();
-  v.normalise();
-  v = u.abs()*v;
-  
-  //cout<<"u="<<u<<" v="<<v<<endl;
-
-  vec2_t p_A(0,0);
-  vec2_t p_B(1,0);
-  vec2_t p_nA = projectVectorOnPlane(nA,u,v);
-  vec2_t p_nB = projectVectorOnPlane(nB,u,v);
-  
-  vec2_t p_tA = turnRight(p_nA);
-  vec2_t p_tB = turnRight(p_nB);
-  
-  double k1, k2;
-  vec2_t p_K;
-  if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
-    //qDebug()<<"WARNING: No intersection found!!!";
-    p_K = 0.5*(p_A + p_B);
-  }
-  else {
-    p_K = p_A + k1*p_tA;
-  }
-  
-  //cout<<"nA="<<nA<<endl;
-  //cout<<"p_nA="<<p_nA<<endl;
-  //cout<<"p_tA="<<p_tA<<endl;
-  //cout<<"p_K="<<p_K<<endl;
-  vec3_t K = A + p_K[0]*u + p_K[1]*v;
-  //cout<<"K="<<K<<endl;
-  return K;
-}
-
 int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
   vec3_t A=T.a;
@@ -1103,6 +1060,8 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
   X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
   //cout<<"-->AB"<<endl;
   X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
+  
+  limitControlPoints(T, X_011, X_101, X_110);
   return(0);
 }
 
@@ -1119,7 +1078,39 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
   X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
   X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
   X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
+  
+  limitControlPoints(T, X_011, X_101, X_110);
   return(0);
+}
+
+int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+{
+  vec3_t A=T.a;
+  vec3_t B=T.b;
+  vec3_t C=T.c;
+  vec3_t nA = m_NodeNormals[T.id_a];
+  vec3_t nB = m_NodeNormals[T.id_b];
+  vec3_t nC = m_NodeNormals[T.id_c];
+  
+  vec3_t P_011 = projectPointOnEdge(X_011,B,C-B);
+  vec3_t P_101 = projectPointOnEdge(X_101,C,A-C);
+  vec3_t P_110 = projectPointOnEdge(X_110,A,B-A);
+  double Lmax = 0.1*T.smallest_length;
+  double L_011 = (X_011-P_011).abs();
+  double L_101 = (X_101-P_101).abs();
+  double L_110 = (X_110-P_110).abs();
+  if( L_011 > Lmax ) {
+    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    X_011 = P_011 + Lmax/L_011 * (X_011-P_011);
+  }
+  if( L_101 > Lmax ) {
+    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    X_101 = P_101 + Lmax/L_101 * (X_101-P_101);
+  }
+  if( L_110 > Lmax ) {
+    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    X_110 = P_110 + Lmax/L_110 * (X_110-P_110);
+  }
 }
 
 void SurfaceProjection::writeInterpolationGrid(QString filename)

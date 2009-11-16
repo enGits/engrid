@@ -185,6 +185,12 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
 
 vec3_t getBarycentricCoordinates(double x, double y);
 
+vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB);
+
+vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j);
+
+vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
+
 };
 
 #endif
