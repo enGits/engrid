@@ -996,8 +996,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 //       qDebug()<<"full search done";
     }
     if ( !x_proj_set ) { // should never happen
-      if(isnan(xp[0])) qWarning()<<"NANANANANNANANANANN";
-      if(isinf(xp[0])) qWarning()<<"TO INFINITY AND BEYOND!!!!!!!!!!!!!";
+      checkVector(xp);
       qWarning()<<"No projection found for point xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
       writeGrid(GuiMainWindow::pointer()->getGrid(),"griddump");
       EG_BUG;
