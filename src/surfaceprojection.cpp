@@ -1092,23 +1092,39 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
   vec3_t nB = m_NodeNormals[T.id_b];
   vec3_t nC = m_NodeNormals[T.id_c];
   
-  vec3_t P_011 = projectPointOnEdge(X_011,B,C-B);
+/*  vec3_t P_011 = projectPointOnEdge(X_011,B,C-B);
   vec3_t P_101 = projectPointOnEdge(X_101,C,A-C);
-  vec3_t P_110 = projectPointOnEdge(X_110,A,B-A);
-  double Lmax = 0.1*T.smallest_length;
+  vec3_t P_110 = projectPointOnEdge(X_110,A,B-A);*/
+  
+  vec3_t P_011 = 0.5*(B+C);
+  vec3_t P_101 = 0.5*(A+C);
+  vec3_t P_110 = 0.5*(A+B);
+  
+  double Lmax = 1.0*T.smallest_length;
   double L_011 = (X_011-P_011).abs();
   double L_101 = (X_101-P_101).abs();
   double L_110 = (X_110-P_110).abs();
+  
+  checkVector(X_011);
+  checkVector(P_011);
+  checkVector(X_101);
+  checkVector(P_101);
+  checkVector(X_110);
+  checkVector(P_110);
+  
   if( L_011 > Lmax ) {
     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    qWarning()<<"X_011="<<X_011<<"P_011="<<P_011<<"L_011="<<L_011;
     X_011 = P_011 + Lmax/L_011 * (X_011-P_011);
   }
   if( L_101 > Lmax ) {
     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    qWarning()<<"X_101="<<X_101<<"P_101="<<P_101<<"L_101="<<L_101;
     X_101 = P_101 + Lmax/L_101 * (X_101-P_101);
   }
   if( L_110 > Lmax ) {
     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+    qWarning()<<"X_110="<<X_110<<"P_110="<<P_110<<"L_110="<<L_110;
     X_110 = P_110 + Lmax/L_110 * (X_110-P_110);
   }
 }

@@ -339,3 +339,18 @@ char Str2VertexType(QString S)
   if(S=="VTK_BOUNDARY_EDGE_VERTEX") return(VTK_BOUNDARY_EDGE_VERTEX);
   else return((char)-1);
 }
+
+bool checkVector(vec3_t V)
+{
+  for(int i=0;i<3;i++) {
+    if(isnan(V[i])) {
+      EG_ERR_RETURN("NAN");
+      return false;
+    }
+    if(isinf(V[i])) {
+      EG_ERR_RETURN("INFINITY");
+      return false;
+    }
+  }
+  return true;
+}

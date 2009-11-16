@@ -23,6 +23,7 @@
 #include "geometrytools.h"
 #include "containertricks.h"
 #include "engrid.h"
+#include "utilities.h"
 
 #include <vtkCellType.h>
 #include <cmath>
@@ -616,6 +617,8 @@ vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
 
 vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u)
 {
+  checkVector(u);
+  if(u.abs2()==0) EG_BUG;
   double k = ((M-A)*u)/u.abs2();
   return A + k*u;
 }
