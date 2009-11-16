@@ -62,7 +62,7 @@ void SurfaceMesher::operate()
     num_inserted = insertNodes();
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
-//     swap();
+    swap();
     computeMeshDensity();
     /*
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
@@ -78,10 +78,10 @@ void SurfaceMesher::operate()
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
-//       swap();
+      swap();
     }
     int N_crit = grid->GetNumberOfPoints()/100;
-    done = (iter >= m_NumMaxIter);// || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
   }
