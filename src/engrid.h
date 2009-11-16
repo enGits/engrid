@@ -40,7 +40,11 @@
 #include "containertricks.h"
 
 #ifndef ENGRID_VERSION
-#define ENGRID_VERSION "git"
+  #define ENGRID_VERSION "undefined version"
+#endif
+
+#ifndef GIT_DESCRIBE
+  #define GIT_DESCRIBE "git description not available"
 #endif
 
 #ifdef WIN32

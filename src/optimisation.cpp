@@ -49,17 +49,30 @@ void ErrorFunction::set(QString settings_txt)
   }
 }
 
-double ErrorFunction::operator ()(double x)
+double ErrorFunction::operator()(double x)
 {
-  double x0 = fabs(1-x);
-  double e = m_Err0*pow(x0, m_Exp);
-  m_MaxErr = max(m_MaxErr, x0);
-  m_TotalError += e;
-  ++m_NumCalls;
+  double e = 0;
+  if (m_Active) {
+    double x0 = fabs(1-x);
+    e = m_Err0*pow(x0, m_Exp);
+    m_MaxErr = max(m_MaxErr, x0);
+    m_TotalError += e;
+    m_AverageError += x0;
+    ++m_NumCalls;
+    ++m_NumTotalCalls;
+  }
   return e;
 }
 
 double ErrorFunction::averageError()
+{
+  if (m_NumTotalCalls == 0) {
+    return 0;
+  }
+  return m_AverageError/m_NumTotalCalls;
+}
+
+double ErrorFunction::totalError()
 {
   if (m_NumCalls == 0) {
     return 0;
@@ -67,6 +80,16 @@ double ErrorFunction::averageError()
   return m_TotalError/m_NumCalls;
 }
 
+void ErrorFunction::reset(bool reset_average)
+{
+  m_MaxErr = 0;
+  m_TotalError = 0;
+  m_NumCalls = 0;
+  if (reset_average) {
+    m_AverageError = 0;
+    m_NumTotalCalls = 0;
+  }
+}
 
 Optimisation::Optimisation()
 {
@@ -76,11 +99,12 @@ Optimisation::Optimisation()
     F[i] = new double*[3];
     for (int j = 0; j < 3; ++j) {
       F[i][j] = new double[3];
-    };
-  };
-};
+    }
+  }
+  m_ErrorFunctions.clear();
+}
 
-void Optimisation::getErrSet(QString group, QString key, double err0, double xs, ErrorFunction &err_func)
+void Optimisation::getErrSet(QString group, QString key, double err0, double xs, ErrorFunction* err_func)
 {
   QString err0_txt, xs_txt;
   err0_txt.setNum(err0);
@@ -99,15 +123,18 @@ void Optimisation::getErrSet(QString group, QString key, double err0, double xs,
   if (group != QObject::tr("General")) {
     qset->endGroup();
   }
-  err_func.set(variable);
-  err_func.setName(key.replace(" ", "_"));
+  err_func->set(variable);
+  err_func->setName(key.replace(" ", "_"));
+  m_ErrorFunctions.append(err_func);
 }
 
 double Optimisation::angleX(const vec3_t &v1, const vec3_t &v2)
 {
-  double scal = v1*v2;
-  double alpha = acos(scal);
-  return fabs(1 - alpha/M_PI);
+  double va1  = v1.abs();
+  double va2  = v2.abs();
+  double scal = max(0.0, v1*v2);
+  double alpha = acos(scal/(va1*va2));
+  return fabs(1 - 2*alpha/M_PI);
 }
 
 void Optimisation::computeDerivatives(vec3_t x)
@@ -162,3 +189,28 @@ vec3_t Optimisation::optimise(vec3_t x)
   mat3_t M = J.inverse();
   return (-1)*(M*grad_f);
 };
+
+void Optimisation::resetErrorFunctions(bool reset_average)
+{
+  foreach (ErrorFunction *err_func, m_ErrorFunctions) {
+    err_func->reset(reset_average);
+  }
+}
+
+double Optimisation::totalError()
+{
+  double e = 0;
+  foreach (ErrorFunction *err_func, m_ErrorFunctions) {
+    e += err_func->totalError();
+  }
+  return e;
+}
+
+void Optimisation::printErrors()
+{
+  foreach (ErrorFunction *err_func, m_ErrorFunctions) {
+    if (err_func->active()) {
+      cout << qPrintable(err_func->name()) << ":\n  average=" << err_func->averageError() << "\n  maximum=" << err_func->maxError() << endl;
+    }
+  }
+}

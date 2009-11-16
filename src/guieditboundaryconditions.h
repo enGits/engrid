@@ -45,71 +45,95 @@ class GuiEditBoundaryConditions;
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
 
-    Q_OBJECT;
+  Q_OBJECT;
 
-  private: // attributes
+private: // attributes
 
-    // variables to store settings locally while changing them. They will be copied over to their GuiMainWindow counterparts once OK is clicked.
-    QMap<int, BoundaryCondition> *m_BcMap;
-    QMap<QString, VolumeDefinition> m_VolMap;
-    QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;
+  // variables to store settings locally while changing them. They will be copied over to their GuiMainWindow counterparts once OK is clicked.
+  QMap<int, BoundaryCondition>            *m_BcMap;
+  QMap<QString, VolumeDefinition>          m_VolMap;
+  QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;
 
-  private: // utility attributes
+private: // utility attributes
 
-    GuiVolumeDelegate *delegate;
-    QVector <MultiPageWidgetPage*> m_page_vector;
-    PhysicalBoundaryCondition m_PBC_current;
+  GuiVolumeDelegate *delegate;
+  QVector <MultiPageWidgetPage*> m_page_vector;
+  PhysicalBoundaryCondition m_PBC_current;
 
-    MultiPageWidget* m_multipagewidget_Solver;
+  MultiPageWidget* m_multipagewidget_Solver;
 
-    /// vector to hold the binaries
-    QVector <QString> m_SolverBinary;
+  /// vector to hold the binaries
+  QVector <QString> m_SolverBinary;
 
-  public:
-    GuiEditBoundaryConditions();
-    virtual ~GuiEditBoundaryConditions();
-    void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
+public:
 
-  private:
-    virtual void before();
+  GuiEditBoundaryConditions();
+  virtual ~GuiEditBoundaryConditions();
+  void setMap(QMap<int, BoundaryCondition> *a_bcmap) { m_BcMap = a_bcmap; }
 
-  protected: // methods
-    virtual void operate();
+private:
 
-    // Boundary conditions tab
-  protected:
-    void updateVol();
-  protected slots:
-    void addVol();
-    void delVol();
+  virtual void before();
 
-    // Boundary types tab
-  protected:
-    void updatePhysicalBoundaryConditions();
-    void loadPhysicalValues();
-    void savePhysicalValues();
-  protected slots:
-    void addBoundaryType();
-    void deleteBoundaryType();
-    void changePhysicalValues();
 
-    // Solver tab
-  protected:
-    void setupSolvers();
-    void saveSolverParameters();
-  protected slots:
+protected: // methods
 
-    // MPI configuration tab
-  protected:
-    void loadMpiParameters();
-    void saveMpiParameters();
-    QString tableToString();
-    void stringToTable(QString hostfile_txt);
-  protected slots:
-    void addProcess();
-    void deleteProcess();
-    void importHostFile();
-    void exportHostFile();
+  virtual void operate();
+
+
+  // Boundary conditions tab
+
+protected:
+
+  void updateVol();
+
+protected slots:
+
+  void addVol();
+  void delVol();
+
+
+  // Boundary types tab
+
+protected:
+
+  void updatePhysicalBoundaryConditions();
+  void loadPhysicalValues();
+  void savePhysicalValues();
+
+protected slots:
+  void addBoundaryType();
+  void deleteBoundaryType();
+  void changePhysicalValues();
+
+
+  // Solver tab
+
+protected:
+
+  void setupSolvers();
+  void saveSolverParameters();
+
+protected slots:
+
+
+  // MPI configuration tab
+
+protected:
+
+  void loadMpiParameters();
+  void saveMpiParameters();
+  QString tableToString();
+  void stringToTable(QString hostfile_txt);
+
+protected slots:
+
+  void addProcess();
+  void deleteProcess();
+  void importHostFile();
+  void exportHostFile();
+
+
 };
 
 #endif

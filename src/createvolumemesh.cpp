@@ -207,6 +207,7 @@ void CreateVolumeMesh::writeDebugInfo()
 void CreateVolumeMesh::computeMeshDensity()
 {
   using namespace nglib;
+  m_ELSManager.read();
   QVector<vtkIdType>  cells;
   QVector<vtkIdType>  nodes;
   QVector<int>       _nodes;
@@ -288,18 +289,25 @@ void CreateVolumeMesh::computeMeshDensity()
       DH_max = 0;
       for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
         if (!fixed[i_nodes]) {
-          double H0 = H[i_nodes];
-          H[i_nodes] = 0.0;
-          int N = 0;
-          foreach (int j_nodes, n2n[i_nodes]) {
-            H[i_nodes] += H[j_nodes];
-            ++N;
+          vec3_t x;
+          grid->GetPoint(nodes[i_nodes], x.data());
+          double cl_src = m_ELSManager.minEdgeLength(x);
+          if (cl_src > 0) {
+            H[i_nodes] = cl_src;
+          } else {
+            double H0 = H[i_nodes];
+            H[i_nodes] = 0.0;
+            int N = 0;
+            foreach (int j_nodes, n2n[i_nodes]) {
+              H[i_nodes] += H[j_nodes];
+              ++N;
+            }
+            if (N == 0) {
+              EG_BUG;
+            }
+            H[i_nodes] /= N;
+            DH_max = max(H[i_nodes] - H0, DH_max);
           }
-          if (N == 0) {
-            EG_BUG;
-          }
-          H[i_nodes] /= N;
-          DH_max = max(H[i_nodes] - H0, DH_max);
         }
       }
       QString new_num;

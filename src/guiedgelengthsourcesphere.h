@@ -20,45 +20,36 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef UPDATEDESIREDMESHDENSITY_H
-#define UPDATEDESIREDMESHDENSITY_H
 
-#include "surfaceoperation.h"
+#ifndef GUIEDGELENGTHSOURCESPHERE_H
+#define GUIEDGELENGTHSOURCESPHERE_H
 
-#include "vertexmeshdensity.h"
-#include "edgelengthsourcemanager.h"
+#include "edgelengthsource.h"
+#include "ui_guiedgelengthsourcesphere.h"
 
-
-/// Update desired mesh density, i.e. the field used for surface meshing
-
-class UpdateDesiredMeshDensity : public SurfaceOperation
+class GuiEdgeLengthSourceSphere : public GuiEdgeLengthSource<Ui::GuiEdgeLengthSourceSphere>
 {
 
-private: //attributes
+protected: // attributes
 
-  QSet<int>                   m_BCs;
-  double                      m_GrowthFactor;
-  QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
-  double                      m_MaxEdgeLength;
-  double                      m_NodesPerQuarterCircle;
-  QVector<bool>               m_Fixed;
-  EdgeLengthSourceManager     m_ELSManager;
+  vec3_t m_Centre;
+  double m_Radius;
+  double m_Length1;
+  double m_Length2;
 
 
-protected: // methods
+public: // methods
 
-  void computeExistingLengths();
+  GuiEdgeLengthSourceSphere();
 
-
-public: //methods
-
-  UpdateDesiredMeshDensity();
-  virtual void operate();
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
-  void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
-  void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
-  void setCellGrowthFactor(double cgf) { m_GrowthFactor = cgf; }
+  virtual bool    read(QString txt);
+  virtual QString write();
+  virtual void    setDlgFields();
+  virtual void    readDlgFields();
+  virtual double  edgeLength(vec3_t x);
 
 };
 
-#endif
+
+
+#endif // GUIEDGELENGTHSOURCESPHERE_H

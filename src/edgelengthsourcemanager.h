@@ -20,45 +20,46 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef UPDATEDESIREDMESHDENSITY_H
-#define UPDATEDESIREDMESHDENSITY_H
 
-#include "surfaceoperation.h"
+#ifndef EDGELENGTHSOURCEMANAGER_H
+#define EDGELENGTHSOURCEMANAGER_H
 
-#include "vertexmeshdensity.h"
-#include "edgelengthsourcemanager.h"
+#include <QListWidget>
+#include <QDateTime>
 
+#include "egvtkobject.h"
+#include "edgelengthsource.h"
 
-/// Update desired mesh density, i.e. the field used for surface meshing
-
-class UpdateDesiredMeshDensity : public SurfaceOperation
+class EdgeLengthSourceManager : public EgVtkObject
 {
 
-private: //attributes
+private: // attributes
 
-  QSet<int>                   m_BCs;
-  double                      m_GrowthFactor;
-  QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
-  double                      m_MaxEdgeLength;
-  double                      m_NodesPerQuarterCircle;
-  QVector<bool>               m_Fixed;
-  EdgeLengthSourceManager     m_ELSManager;
+  QList<EdgeLengthSource*> m_Sources;
+  QList<EdgeLengthSource*> m_Samples;
+  QListWidget*             m_ListWidget;
 
 
-protected: // methods
+private: // methods
 
-  void computeExistingLengths();
+  QString timeStamp() { return QDateTime::currentDateTime().toString("_yyyyMMddhhmmss"); }
 
 
-public: //methods
+public:
 
-  UpdateDesiredMeshDensity();
-  virtual void operate();
-  void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
-  void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
-  void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
-  void setCellGrowthFactor(double cgf) { m_GrowthFactor = cgf; }
+  EdgeLengthSourceManager();
+  virtual ~EdgeLengthSourceManager();
+
+  void   setListWidget(QListWidget *list_widget) { m_ListWidget = list_widget; }
+  double minEdgeLength(vec3_t x);
+  void   populateListWidget();
+
+  void read();
+  void write();
+  void edit();
+  void remove();
+  void addSphere();
 
 };
 
-#endif
+#endif // EDGELENGTHSOURCEMANAGER_H
