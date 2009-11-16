@@ -238,6 +238,16 @@ mat2_t BezierTriangle::jacobiMatrix(double x, double y)
   return J;
 }
 
+// mat3_t BezierTriangle::jacobiMatrix_no_projection(double x, double y)
+// {
+//   mat3_t J;
+//   for(int i=0;i<3;i++) {
+//     J[i][0] = 2*x*m_coeff_x2[i] + y*m_coeff_xy[i] + m_coeff_x[i];
+//     J[i][1] = 2*y*m_coeff_y2[i] + x*m_coeff_xy[i] + m_coeff_y[i];
+//   }
+//   return J;
+// }
+
 mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, double y, double dx, double dy)
 {
   mat2_t J;
@@ -490,4 +500,110 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle5(vec3_t g_M)
     EG_BUG;
   }
   return vec3_t(0,0,0);
+}
+
+double BezierTriangle::z_func(double x, double y)
+{
+  bool DEBUG = false;
+  vec2_t t_M = vec2_t(x,y);
+  if(DEBUG) qDebug()<<"t_M="<<t_M;
+  vec2_t t_X = t_M;
+  
+  if(DEBUG) qDebug()<<"t_X="<<t_X;
+  vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+  if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+  int maxloops = 100;
+  int Nloops=0;
+  while(F.abs()>0.001 && Nloops < maxloops) {
+    if(DEBUG) qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
+    mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
+    if(J.det()==0) {
+      qDebug()<<"WARNING: Matrix not invertible!";
+    }
+    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
+      if(DEBUG) qDebug()<<"WARNING: will not converge (case 1)";
+    }
+    if (fabs(J[1][0])+fabs(J[1][1])>=1) {
+      if(DEBUG) qDebug()<<"WARNING: will not converge (case 2)";
+    }
+    
+    mat2_t JI = J.inverse();
+    vec2_t deltaX = -1*(JI*F);
+    t_X = t_X + deltaX;
+    if(DEBUG) qDebug()<<"t_X="<<t_X;
+    F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+    if(DEBUG) qDebug()<<"F="<<F;
+    if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+    Nloops++;
+  }
+  if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
+  vec3_t g_B = QuadraticBezierTriangle(t_X);
+  vec3_t l_B = global3DToLocal3D(g_B);
+  return l_B[2];
+}
+
+bool BezierTriangle::isInsideTriangle(vec2_t t_M)
+{
+  if(t_M[0]<0 || 1<t_M[0] || t_M[1]<0 || 1<t_M[1] || t_M[0]+t_M[1]>=1) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+vec3_t BezierTriangle::surfaceNormal(double x, double y)
+{
+  double dx = smallest_length;
+  double dy = smallest_length;
+  double z0  = z_func(x   , y);
+  double zx1 = z_func(x-dx, y);
+  double zx2 = z_func(x+dx, y);
+  double zy1 = z_func(x   , y-dy);
+  double zy2 = z_func(x   , y+dy);
+  vec3_t l_P0 (x   , y   , z0 );
+  vec3_t l_Px1(x-dx, y   , zx1);
+  vec3_t l_Px2(x+dx, y   , zx2);
+  vec3_t l_Py1(x   , y-dy, zy1);
+  vec3_t l_Py2(x   , y+dy, zy2);
+  
+  vec2_t t_P0 (x   , y);
+  vec2_t t_Px1(x-dx, y);
+  vec2_t t_Px2(x+dx, y);
+  vec2_t t_Py1(x   , y-dy);
+  vec2_t t_Py2(x   , y+dy);
+  
+  vec3_t l_u1;
+  vec3_t l_u2;
+  
+  if(isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+    l_u1 = l_Px2-l_Px1;
+  }
+  else if(!isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+    l_u1 = l_Px2-l_P0;
+  }
+  else if(isInsideTriangle(t_Px1) && !isInsideTriangle(t_Px2)) {
+    l_u1 = l_P0-l_Px1;
+  }
+  else {
+    EG_BUG;
+  }
+  
+  
+  if(isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+    l_u2 = l_Py2-l_Py1;
+  }
+  else if(!isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+    l_u2 = l_Py2-l_P0;
+  }
+  else if(isInsideTriangle(t_Py1) && !isInsideTriangle(t_Py2)) {
+    l_u2 = l_P0-l_Py1;
+  }
+  else {
+    EG_BUG;
+  }
+  
+  vec3_t l_N = l_u1.cross(l_u2);
+  vec3_t g_N = G*l_N;
+  return g_N;
 }
