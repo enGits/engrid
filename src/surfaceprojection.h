@@ -33,6 +33,7 @@ class SurfaceProjection;
 #include "surfaceoperation.h"
 #include "surfacealgorithm.h"
 #include "triangle.h"
+#include "beziertriangle.h"
 
 class SurfaceProjection : public SurfaceAlgorithm
 {
@@ -65,31 +66,32 @@ private:
   /// A vector associating each node of m_FGrid with a Triangle (index for m_Triangles) on which it should be projected (closest triangle from m_Triangles).
   QVector<vtkIdType>     m_ProjTriangles;
   
-  vtkUnstructuredGrid*   m_FGrid; ///< The foreground grid to project.
-  QVector<double>        m_EdgeLength;
-  QVector<vtkIdType>     m_Cells;
-  QVector<vtkIdType>     m_Nodes;
-  QVector<vec3_t>        m_NodeNormals; ///< The surface normal at each node of m_BGrid
-  QVector<Triangle>      m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
-  QVector<QVector<int> > m_N2N;
-  Octree                 m_OTGrid;
-  QVector<double>        m_G;
-  QVector<bool>          m_GSet;
-  double                 m_Relax;
-  double                 m_DistExp;
-  double                 m_DistWeight;
-  double                 m_DirWeight;
-  double                 m_DirExp;
-  double                 m_WeightOffset;
-  double                 m_MinOTLength;
-  int                    m_MaxOTCells;
-  double                 m_Length;
-  int                    m_MaxIter;
-  double                 m_ConvLimit;
-  double                 m_RadiusFactor;
-  bool                   m_UseLevelSet;
-  int                    m_NumDirect;
-  int                    m_NumFull;
+  vtkUnstructuredGrid*    m_FGrid; ///< The foreground grid to project.
+  QVector<double>         m_EdgeLength;
+  QVector<vtkIdType>      m_Cells;
+  QVector<vtkIdType>      m_Nodes;
+  QVector<vec3_t>         m_NodeNormals; ///< The surface normal at each node of m_BGrid
+  QVector<Triangle>       m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
+  QVector<BezierTriangle> m_BezierTriangles; ///< The bezier triangle corresponding to m_Triangles
+  QVector<QVector<int> >  m_N2N;
+  Octree                  m_OTGrid;
+  QVector<double>         m_G;
+  QVector<bool>           m_GSet;
+  double                  m_Relax;
+  double                  m_DistExp;
+  double                  m_DistWeight;
+  double                  m_DirWeight;
+  double                  m_DirExp;
+  double                  m_WeightOffset;
+  double                  m_MinOTLength;
+  int                     m_MaxOTCells;
+  double                  m_Length;
+  int                     m_MaxIter;
+  double                  m_ConvLimit;
+  double                  m_RadiusFactor;
+  bool                    m_UseLevelSet;
+  int                     m_NumDirect;
+  int                     m_NumFull;
 
   bool m_correctCurvature; ///< Should correctCurvature() be used?
 

@@ -980,7 +980,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       double d;
       vec3_t xi, ri;
       bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
-      if(d>9000) qWarning()<<"d="<<d;
+//       if(d>9000) qWarning()<<"d="<<d;
       if(d>=1e99) EG_BUG;
       if (/*first ||*/ d < d_min) {
         x_proj = xi; x_proj_set = true;
@@ -1113,18 +1113,18 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
   checkVector(P_110);
   
   if( L_011 > Lmax ) {
-    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
-    qWarning()<<"X_011="<<X_011<<"P_011="<<P_011<<"L_011="<<L_011;
+//     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+//     qWarning()<<"X_011="<<X_011<<"P_011="<<P_011<<"L_011="<<L_011;
     X_011 = P_011 + Lmax/L_011 * (X_011-P_011);
   }
   if( L_101 > Lmax ) {
-    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
-    qWarning()<<"X_101="<<X_101<<"P_101="<<P_101<<"L_101="<<L_101;
+//     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+//     qWarning()<<"X_101="<<X_101<<"P_101="<<P_101<<"L_101="<<L_101;
     X_101 = P_101 + Lmax/L_101 * (X_101-P_101);
   }
   if( L_110 > Lmax ) {
-    qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
-    qWarning()<<"X_110="<<X_110<<"P_110="<<P_110<<"L_110="<<L_110;
+//     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
+//     qWarning()<<"X_110="<<X_110<<"P_110="<<P_110<<"L_110="<<L_110;
     X_110 = P_110 + Lmax/L_110 * (X_110-P_110);
   }
 }
@@ -1387,6 +1387,31 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   
+  m_BezierTriangles.resize(m_Triangles.size());
+  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
+    
+    Triangle T = m_Triangles[i_tri];
+    vec3_t g_A = T.a;
+    vec3_t g_B = T.b;
+    vec3_t g_C = T.c;
+    
+  //qDebug()<<"=== ORTHOGONAL PLANES ===";
+    vec3_t g_J1, g_J2, g_J3;
+    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+    vec3_t g_K1, g_K2, g_K3;
+    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+    
+    vec3_t X_200 = g_A;
+    vec3_t X_020 = g_B;
+    vec3_t X_002 = g_C;
+    vec3_t X_011 = g_K1;
+    vec3_t X_101 = g_K2;
+    vec3_t X_110 = g_K3;
+    
+    m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  }
+  
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
 //   prepare();
@@ -1495,32 +1520,5 @@ void SurfaceProjection::updateBackgroundGridInfo()
 
 vec3_t SurfaceProjection::correctCurvature2(int i_tri, vec3_t g_M)
 {
-  // coordinate systems:
-  // 3D:
-  // global: X,Y,Z -> g_
-  // local: g1,g2,g3 -> l_
-  // 2D:
-  // triangle: g1,g2 -> t_
-  
-  Triangle T = m_Triangles[i_tri];
-  vec3_t g_A = T.a;
-  vec3_t g_B = T.b;
-  vec3_t g_C = T.c;
-  
-  //qDebug()<<"=== ORTHOGONAL PLANES ===";
-  vec3_t g_J1, g_J2, g_J3;
-  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
-  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-  vec3_t g_K1, g_K2, g_K3;
-  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
-  
-  vec3_t X_200 = g_A;
-  vec3_t X_020 = g_B;
-  vec3_t X_002 = g_C;
-  vec3_t X_011 = g_K1;
-  vec3_t X_101 = g_K2;
-  vec3_t X_110 = g_K3;
-  
-  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  return bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+  return m_BezierTriangles[i_tri].projectOnQuadraticBezierTriangle3(g_M);
 }// end of correctCurvature2
