@@ -71,10 +71,10 @@ public slots:
   int  readSettings();
   int  writeSettings();
   void read()      { m_ELSManager.read(); };
-  void write()     {m_ELSManager.write(); };
-  void edit()      {m_ELSManager.edit(); };
-  void remove()    {m_ELSManager.remove(); };
-  void addSphere() {m_ELSManager.addSphere();; };
+  void write()     { m_ELSManager.write(); };
+  void edit()      { m_ELSManager.edit(); };
+  void remove()    { m_ELSManager.remove(); };
+  void addSphere() { m_ELSManager.addSphere(); };
 
 };
 

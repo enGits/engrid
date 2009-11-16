@@ -52,7 +52,7 @@ bool GuiEdgeLengthSourceSphere::read(QString txt)
   }
   if (parts[0].trimmed() == "sphere") {
     QStringList words = parts[1].split(";");
-    if (words.size() != 7) {
+    if (words.size() < 7) {
       return false;
     }
     m_Name = words[0];
