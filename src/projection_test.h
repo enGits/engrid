@@ -19,6 +19,7 @@ protected: // methods
   void bezierFunctionTest();
   void bezierProjectionTest();
   void bezierQuads();
+  void bezierProjectionTest2();
 /*  Q_OBJECT;
   
 protected: // methods
