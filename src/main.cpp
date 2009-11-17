@@ -164,16 +164,6 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 
 int main( int argc, char ** argv )
 {
-/*  qDebug()<<getBarycentricCoordinates(0,0);
-  qDebug()<<getBarycentricCoordinates(1,0);
-  qDebug()<<getBarycentricCoordinates(0,1);
-  qDebug()<<getBarycentricCoordinates(0.5,0.5);
-  qDebug()<<getBarycentricCoordinates(-1,-1);
-  qDebug()<<getBarycentricCoordinates(1,1);
-  qDebug()<<getBarycentricCoordinates(-1,2);
-  qDebug()<<getBarycentricCoordinates(2,-1);
-  exit(0);*/
-  
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   

@@ -661,10 +661,10 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
   vec3_t l_N = l_u1.cross(l_u2);
   vec3_t g_N = G*l_N;
   g_N.normalise();
-  if(output=0) {
+  if(output==0) {
     return g_N;
   }
-  else if(output=1) {
+  else if(output==1) {
     return (G*l_u1).normalise();
   }
   else {
