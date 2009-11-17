@@ -16,6 +16,8 @@ using namespace std;
 #include "math/smallsquarematrix.h"
 #include "math/linsolve.h"
 
+#include "vtkUnstructuredGrid.h"
+
 /** Restricts value to the CYCLIC [min,max[ range.
  * Equivalent to min + modulo(value-min, max-min)
  * @param value value to restrict
@@ -241,5 +243,43 @@ double getPhi(vec3_t V);
 /// A version of QFileDialog::getExistingDirectory which allows preselecting a directory
 QString getDirectory(QWidget * parent = 0, const QString & caption = QString(), const QString & selected = QString());
 // QString getDirectory( QWidget * parent = 0, const QString & caption = QString(), const QString & dir = QString(), const QString & selected = QString() , Options options = ShowDirsOnly );
+
+/**
+  * Utility function that allows printing selected data from an vtkUnstructuredGrid to any ostream (includes ofstream objects)
+  * @param stream ostream object to print to
+  * @param grid vtkUnstructuredGrid you want to print data from
+  * @param npoints print number of points in the grid
+  * @param ncells print number of cells in the grid
+  * @param points print points in the grid
+  * @param cells print cells in the grid
+  */
+int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints=true, bool ncells=true, bool points=false, bool cells=false);
+
+///////////////////////////////////////////
+int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc);
+
+///get number of the shortest side of the cell
+int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+///get number of the longest side of the cell
+int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+//sort sides by length
+//QVector <vtkIdType> sortSidesByLength(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid);
+
+///get number of the edge corresponding to node1-node2
+int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2);
+
+// QSet <int> complementary_bcs(QSet <int> &bcs, vtkUnstructuredGrid *a_grid, QVector <vtkIdType> &a_cells);
+QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid);
+
+///////////////////////////////////////////
+///////////////////////////////////////////
+pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b);
+
+const char* VertexType2Str(char T);
+char Str2VertexType(QString S);
+QDebug operator<<(QDebug dbg, const vec3_t &v);
+QDebug operator<<(QDebug dbg, const vec2_t &v);
+
+bool checkVector(vec3_t V);
 
 #endif

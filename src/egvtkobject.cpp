@@ -1060,6 +1060,46 @@ void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
   qDebug()<<"Saved grid as "<<name;
 }
 
+void EgVtkObject::addGrid(vtkUnstructuredGrid *maingrid, vtkUnstructuredGrid *grid_to_add)
+{
+  int Npoints_1 = maingrid->GetNumberOfPoints();
+  int Npoints_2 = grid_to_add->GetNumberOfPoints();
+  int Ncells_1 = maingrid->GetNumberOfCells();
+  int Ncells_2 = grid_to_add->GetNumberOfCells();
+  EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  allocateGrid(new_grid, Ncells_1+Ncells_2, Npoints_1+Npoints_2);
+  
+  for (vtkIdType id_node = 0; id_node < maingrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    maingrid->GetPoints()->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(maingrid, id_node, new_grid, id_node);
+  }
+  for (vtkIdType id_cell = 0; id_cell < maingrid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = maingrid->GetCellType(id_cell);
+    maingrid->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(maingrid, id_cell, new_grid, id_new_cell);
+  }
+  for (vtkIdType id_node = 0; id_node < grid_to_add->GetNumberOfPoints(); ++id_node) {
+    vtkIdType id_new_node = id_node + Npoints_1;
+    vec3_t x;
+    grid_to_add->GetPoints()->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+    copyNodeData(grid_to_add, id_node, new_grid, id_new_node);
+  }
+  for (vtkIdType id_cell = 0; id_cell < grid_to_add->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = grid_to_add->GetCellType(id_cell);
+    grid_to_add->GetCellPoints(id_cell, N_pts, pts);
+    for(int i=0;i<N_pts;i++) pts[i]=pts[i] + Npoints_1;
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    copyCellData(grid_to_add, id_cell, new_grid, id_new_cell);
+  }
+  makeCopy(new_grid, maingrid);
+}
+
 void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
 {
   int N = grid->GetPointData()->GetNumberOfArrays();
@@ -1103,166 +1143,6 @@ QString EgVtkObject::getExtension(QString file_name)
 }
 
 ///////////////////////////////////////////
-int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells)
-{
-  stream<<"============="<<endl;
-  if(npoints) stream << "grid->GetNumberOfPoints()=" << grid->GetNumberOfPoints() << endl;
-  if(ncells) stream << "grid->GetNumberOfCells()=" << grid->GetNumberOfCells() << endl;
-  if(points) {
-    for (vtkIdType i = 0; i < grid->GetNumberOfPoints(); ++i) {
-      vec3_t x;
-      grid->GetPoint(i, x.data());
-      stream << "Vertex " << i << " = " << x << endl;
-    }
-  }
-  if(cells) {
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    for (vtkIdType i = 0; i < grid->GetNumberOfCells(); ++i) {
-      vtkCell *C = (vtkCell *) vtkCell::New();
-      C=grid->GetCell(i);
-      vtkIdType npts=C->GetNumberOfPoints();
-      vtkIdType* pts;
-      grid->GetCellPoints(i, npts, pts);
-      stream << "Cell " << i << " = ";
-      for(int j=0;j<npts;j++) stream << pts[j] << " ";
-      stream << "boundary_code=" << cell_code->GetValue(i);
-      stream << endl;
-    }
-  }
-  stream<<"============="<<endl;
-  return 0;
-}
-
-///////////////////////////////////////////
-//Warning: Untested
-int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, int bc)
-{
-  vtkIdType npts=3;
-  vtkIdType pts[3];
-  pts[0]=A;
-  pts[1]=B;
-  pts[2]=C;
-  vtkIdType newCellId = a_grid->InsertNextCell(VTK_TRIANGLE,npts,pts);
-  EG_VTKDCC(vtkIntArray, cell_code, a_grid, "cell_code");
-  cell_code->SetValue(newCellId, bc);
-  return(0);
-}
-
-///////////////////////////////////////////
-
-int getShortestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
-  vec3_t* x=new vec3_t[N_pts];
-  for(int i=0;i<N_pts;i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
-  int id_minlen=0;
-  double minlen=(x[1]-x[0]).abs();
-  for(int i=1;i<N_pts;i++)
-  {
-    double len=(x[(i+1)%N_pts]-x[i]).abs();
-    if(len<minlen){
-      minlen=len;
-      id_minlen=i;
-    }
-  }
-  delete x;
-  return(id_minlen);
-}
-
-int getLongestSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
-  vec3_t* x=new vec3_t[N_pts];
-  for(int i=0;i<N_pts;i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
-  int id_maxlen=0;
-  double maxlen=(x[1]-x[0]).abs();
-  cout<<"maxlen="<<maxlen<<endl;
-  for(int i=1;i<N_pts;i++)
-  {
-    double len=(x[(i+1)%N_pts]-x[i]).abs();
-    cout<<"len["<<i<<"]="<<len<<endl;
-    if(len>maxlen){
-      maxlen=len;
-      id_maxlen=i;
-    }
-  }
-  delete x;
-  return(id_maxlen);
-}
-
-int getSide(vtkIdType a_id_cell,vtkUnstructuredGrid* a_grid,vtkIdType a_id_node1,vtkIdType a_id_node2)
-{
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
-  QVector <vtkIdType> edge(2);
-  
-  int n=0;
-  for(int i=0;i<N_pts;i++)
-  {
-    if(pts[i]==a_id_node1) { edge[0]=i;n++;}
-    if(pts[i]==a_id_node2) { edge[1]=i;n++;}
-  }
-  if(n!=2){
-    EG_BUG;
-    return(-1);
-  }
-  qSort(edge.begin(),edge.end());
-  if(edge[0]==0 && edge[1]==N_pts-1) return(N_pts-1);
-  else return(edge[0]);
-}
-///////////////////////////////////////////
-
-QString cell2str(vtkIdType id_cell,vtkUnstructuredGrid* grid)
-{
-  QString tmp;
-  tmp.setNum(id_cell);
-  QString txt = "id_cell=" + tmp;
-  
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
-  
-  txt += " [";
-  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-    tmp.setNum(pts[i_pts]);
-    txt += tmp;
-    if (i_pts < N_pts-1) {
-      txt += ",";
-    }
-  }
-  txt += "]";
-  return(txt);
-}
-
-
-
-///////////////////////////////////////////
-
-pair<vtkIdType,vtkIdType> OrderedPair(vtkIdType a, vtkIdType b)
-{
-  vtkIdType x=min(a,b);
-  vtkIdType y=max(a,b);
-  return(pair<vtkIdType,vtkIdType>(x,y));
-}
-
-const char* VertexType2Str(char T)
-{
-  if(T==VTK_SIMPLE_VERTEX) return("VTK_SIMPLE_VERTEX");
-  if(T==VTK_FIXED_VERTEX) return("VTK_FIXED_VERTEX");
-  if(T==VTK_FEATURE_EDGE_VERTEX) return("VTK_FEATURE_EDGE_VERTEX");
-  if(T==VTK_BOUNDARY_EDGE_VERTEX) return("VTK_BOUNDARY_EDGE_VERTEX");
-  else return("Unknown vertex type");
-}
-
-char Str2VertexType(QString S)
-{
-  if(S=="VTK_SIMPLE_VERTEX") return(VTK_SIMPLE_VERTEX);
-  if(S=="VTK_FIXED_VERTEX") return(VTK_FIXED_VERTEX);
-  if(S=="VTK_FEATURE_EDGE_VERTEX") return(VTK_FEATURE_EDGE_VERTEX);
-  if(S=="VTK_BOUNDARY_EDGE_VERTEX") return(VTK_BOUNDARY_EDGE_VERTEX);
-  else return((char)-1);
-}
 
 int idx_func(int N, int i, int j)
 {
