@@ -426,11 +426,7 @@ void SurfaceProjection::writeGridWithNormals(QString filename)
   
   vectors->Delete();
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  vtu->SetFileName(qPrintable(filename+"_BGrid_WithNormals.vtu"));
-  vtu->SetDataModeToBinary();
-  vtu->SetInput(m_BGrid);
-  vtu->Write();
+  saveGrid(m_BGrid, filename+"_BGrid_WithNormals");
 }
 
 void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<vec3_t,vec3_t> > lines )
@@ -1206,31 +1202,9 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   //qDebug()<<"node_count="<<node_count;
   //qDebug()<<"cell_count="<<cell_count;
   //qDebug()<<"offset="<<offset;
-  
-//   EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
-//   vtu1->SetFileName(qPrintable(filename+"_InterpolationGrid.vtk"));
-//   vtu1->SetInput(m_InterpolationGrid);
-//   vtu1->Write();
 
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName(qPrintable(filename+"_InterpolationGrid.vtu"));
-  vtu2->SetDataModeToBinary();
-//   vtu2->SetDataModeToAscii();
-  vtu2->SetInput(m_InterpolationGrid);
-  vtu2->Write();
-
-//   EG_VTKSP(vtkUnstructuredGridWriter,vtu3);
-//   vtu3->SetFileName(qPrintable(filename+"_BezierGrid.vtk"));
-//   vtu3->SetInput(m_BezierGrid);
-//   vtu3->Write();
-
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu4);
-  vtu4->SetFileName(qPrintable(filename+"_BezierGrid.vtu"));
-  vtu4->SetDataModeToBinary();
-//   vtu4->SetDataModeToAscii();
-  vtu4->SetInput(m_BezierGrid);
-  vtu4->Write();
-  
+  saveGrid(m_InterpolationGrid, filename+"_InterpolationGrid");
+  saveGrid(m_BezierGrid, filename+"_BezierGrid");
   this->writeGrid(m_BGrid,filename+"_BGrid");
   
 }

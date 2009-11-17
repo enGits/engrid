@@ -81,13 +81,7 @@ void BezierTriangle::writeBezierSurface(QString filename, int N)
   
   //qDebug()<<"offset="<<offset;
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName(qPrintable(filename));
-  vtu2->SetDataModeToBinary();
-//   vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier);
-  vtu2->Write();
-  
+  saveGrid(bezier, filename);
 }
 
 vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w)

@@ -4,7 +4,6 @@
 #include "beziertriangle.h"
 
 #include "vtkUnstructuredGridWriter.h"
-#include "vtkXMLUnstructuredGridWriter.h"
 
 #include <QInputDialog>
 
@@ -188,17 +187,7 @@ void Projection_test::Bezier_circle_test()
     offset += addBezierSurface(&B, bezier, offset, N);
   }
 
-  EG_VTKSP(vtkUnstructuredGridWriter,vtu1);
-  vtu1->SetFileName("bezier.vtk");
-  vtu1->SetInput(bezier);
-  vtu1->Write();
-  
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezier.vtu");
-  vtu2->SetDataModeToBinary();
-//   vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier);
-  vtu2->Write();
+  saveGrid(bezier, "bezier");
 }
 
 int idx_func2(int N, int i, int j)
@@ -212,7 +201,7 @@ void Projection_test::bezierFunctionTest()
   int N=10;
   
   BezierTriangle bezier_triangle = specialTriangle(false,1);
-  bezier_triangle.writeBezierSurface("bezier.vtu",N);
+  bezier_triangle.writeBezierSurface("bezier",N);
   
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
@@ -339,12 +328,7 @@ void Projection_test::bezierFunctionTest()
   qDebug()<<"node_count="<<node_count;
   qDebug()<<"cell_count="<<cell_count;
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezierFunctionTest.vtu");
-//   vtu2->SetDataModeToBinary();
-  vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier);
-  vtu2->Write();
+  saveGrid(bezier, "bezierFunctionTest");
 }
 
 void Projection_test::bezierProjectionTest()
@@ -352,7 +336,7 @@ void Projection_test::bezierProjectionTest()
   int N=10;
   
   BezierTriangle bezier_triangle = specialTriangle(true,0);
-  bezier_triangle.writeBezierSurface("bezier.vtu",N);
+  bezier_triangle.writeBezierSurface("bezier",N);
   
   int N_cells = (N-1)*(N-1);
   int N_points = (N*N+N)/2;
@@ -458,12 +442,7 @@ void Projection_test::bezierProjectionTest()
   qDebug()<<"node_count="<<node_count;
   qDebug()<<"cell_count="<<cell_count;
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezierProjectionTest.vtu");
-  vtu2->SetDataModeToBinary();
-//   vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier);
-  vtu2->Write();
+  saveGrid(bezier,"bezierProjectionTest");
 }
 
 vtkIdType idx_func_quad(int N, int i, int j)
@@ -476,7 +455,7 @@ void Projection_test::bezierQuads()
   int N=10;
   
   BezierTriangle bezier_triangle = specialTriangle(true,0);
-  bezier_triangle.writeBezierSurface("bezier.vtu",N);
+  bezier_triangle.writeBezierSurface("bezier",N);
   
   int N_cells = (N-1)*(N-1);
   int N_points = N*N;
@@ -524,19 +503,14 @@ void Projection_test::bezierQuads()
   qDebug()<<"node_count="<<node_count;
   qDebug()<<"cell_count="<<cell_count;
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezierQuadProjectionTest.vtu");
-//   vtu2->SetDataModeToBinary();
-  vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier);
-  vtu2->Write();
+  saveGrid(bezier, "bezierQuadProjectionTest");
 }
 
 void Projection_test::bezierProjectionTest2()
 {
   int N=30;
   BezierTriangle bezier_triangle = specialTriangle(true,0);
-  bezier_triangle.writeBezierSurface("bezier.vtu",N);
+  bezier_triangle.writeBezierSurface("bezier",N);
   
   int N_cells = (N-1)*(N-1);
   int N_points = N*N;
@@ -609,17 +583,6 @@ void Projection_test::bezierProjectionTest2()
   qDebug()<<"node_count="<<node_count;
   qDebug()<<"cell_count="<<cell_count;
   
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu1);
-  vtu1->SetFileName("bezierQuadTest.vtu");
-  vtu1->SetDataModeToBinary();
-//   vtu1->SetDataModeToAscii();
-  vtu1->SetInput(bezier);
-  vtu1->Write();
-
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezierQuadProjectionTest.vtu");
-  vtu2->SetDataModeToBinary();
-//   vtu2->SetDataModeToAscii();
-  vtu2->SetInput(bezier_projection);
-  vtu2->Write();
+  saveGrid(bezier,"bezierQuadTest");
+  saveGrid(bezier_projection,"bezierQuadProjectionTest");
 }
