@@ -46,8 +46,8 @@ void ShowInfo::operate()
   l2l_t  n2n   = getPartN2N();
   l2l_t  n2c   = getPartN2C();
 
-  int N_cells=grid->GetNumberOfCells();
-  int N_points=grid->GetNumberOfPoints();
+  int N_cells=m_Grid->GetNumberOfCells();
+  int N_points=m_Grid->GetNumberOfPoints();
   if(CellInfo) {
     if(PickedCell>=0 && PickedCell<N_cells) {
       cout<<"=== INFO ON CELL "<<PickedCell<<" ==="<<endl;
@@ -58,17 +58,17 @@ void ShowInfo::operate()
       
       cout<<"absolute_c2c(PickedCell)="<<absolute_c2c<<endl;
       vtkIdType *pts, N_pts;
-      grid->GetCellPoints(PickedCell, N_pts, pts);
+      m_Grid->GetCellPoints(PickedCell, N_pts, pts);
       cout<<"pts=";
       for(int i=0;i<N_pts;i++) cout<<pts[i]<<" ";
       cout<<endl;
       cout<<"coords:"<<endl;
       for(int i=0;i<N_pts;i++) {
         vec3_t X;
-        grid->GetPoint(pts[i],X.data());
+        m_Grid->GetPoint(pts[i],X.data());
         cout<<"pts["<<i<<"]="<<X<<endl;
       }
-      cout<<"area="<<cellVA(grid,PickedCell)<<endl;
+      cout<<"area="<<cellVA(m_Grid,PickedCell)<<endl;
       cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
       cout<<"====================================="<<endl;
     } else {
@@ -90,10 +90,10 @@ void ShowInfo::operate()
       }
       cout<<"absolute_n2c(PickedPoint)="<<absolute_n2c<<endl;
       
-      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
       cout<<"node_type="<<VertexType2Str(node_type->GetValue(PickedPoint))<<endl;
       vec3_t X;
-      grid->GetPoint(PickedPoint,X.data());
+      m_Grid->GetPoint(PickedPoint,X.data());
       cout<<"X="<<X<<endl;
       cout<<"desiredEdgeLength("<<PickedPoint<<")="<<desiredEdgeLength(PickedPoint)<<endl;
       cout<<"Q_L1("<<PickedPoint<<")="<<Q_L1(PickedPoint)<<endl;

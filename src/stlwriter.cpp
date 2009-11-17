@@ -42,7 +42,7 @@ void StlWriter::operate()
     readOutputFileName(file_info.completeBaseName() + ".stl");
     if (isValid()) {
       EG_VTKSP(vtkGeometryFilter, geometry);
-      geometry->SetInput(grid);
+      geometry->SetInput(m_Grid);
       EG_VTKSP(vtkTriangleFilter, triangle);
       triangle->SetInput(geometry->GetOutput());
       EG_VTKSP(vtkSTLWriter, write_stl);

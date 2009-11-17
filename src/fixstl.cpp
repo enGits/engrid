@@ -52,25 +52,25 @@ void FixSTL::createTriangles(const QList<QVector<vtkIdType> > &triangles, vtkUns
       ++N_nodes;
     };
   };
-  allocateGrid(grid, triangles.size(), N_nodes);
+  allocateGrid(m_Grid, triangles.size(), N_nodes);
   cout << triangles.size() << ',' << N_nodes << endl;
   vtkIdType id_node = 0;
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (active[i_nodes]) {
       vec3_t x;
       tetra_grid->GetPoint(nodes[i_nodes],x.data());
-      grid->GetPoints()->SetPoint(id_node,x.data());
-      copyNodeData(tetra_grid, nodes[i_nodes], grid, id_node);
+      m_Grid->GetPoints()->SetPoint(id_node,x.data());
+      copyNodeData(tetra_grid, nodes[i_nodes], m_Grid, id_node);
       ++id_node;
     };
   };
-  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
   foreach (QVector<vtkIdType> T, triangles) {
     vtkIdType pts[3];
     for (int i_T = 0; i_T < 3; ++i_T) {
       pts[i_T] = old2new[T[i_T]];
     };
-    vtkIdType id_cell = grid->InsertNextCell(VTK_TRIANGLE,3,pts);
+    vtkIdType id_cell = m_Grid->InsertNextCell(VTK_TRIANGLE,3,pts);
     bc->SetValue(id_cell,1);
   };
 };
@@ -80,14 +80,14 @@ void FixSTL::operate()
   cout << "checking and repairing surface triangulation" << endl;
   EG_VTKSP(vtkUnstructuredGrid, pts_grid);
   QVector<vtkIdType> faces, nodes;
-  getAllSurfaceCells(faces, grid);
-  getNodesFromCells(faces, nodes, grid);
+  getAllSurfaceCells(faces, m_Grid);
+  getNodesFromCells(faces, nodes, m_Grid);
   allocateGrid(pts_grid, 0, nodes.size());
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
-    grid->GetPoint(id_node,x.data());
+    m_Grid->GetPoint(id_node,x.data());
     pts_grid->GetPoints()->SetPoint(id_node,x.data());
-    copyNodeData(grid, id_node, pts_grid, id_node);
+    copyNodeData(m_Grid, id_node, pts_grid, id_node);
   };
   EG_VTKSP(vtkDelaunay3D, delaunay);
   delaunay->SetInput(pts_grid);

@@ -25,8 +25,8 @@
 
 void GuiPick::before()
 {
-  ui.spinBox_Point->setMaximum(grid->GetNumberOfPoints()-1);
-  ui.spinBox_Cell->setMaximum(grid->GetNumberOfCells()-1);
+  ui.spinBox_Point->setMaximum(m_Grid->GetNumberOfPoints()-1);
+  ui.spinBox_Cell->setMaximum(m_Grid->GetNumberOfCells()-1);
 }
 
 void GuiPick::operate()

@@ -37,10 +37,10 @@ void GuiImproveAspectRatio::operate()
   elem->SetMaxLength(ui.lineEditLength->text().toDouble());
   EG_VTKSP(vtkUnstructuredGrid,ug);
   do {
-    ug->DeepCopy(grid);
+    ug->DeepCopy(m_Grid);
     elem->SetInput(ug);
     elem->Update();
-    grid->DeepCopy(elem->GetOutput());
+    m_Grid->DeepCopy(elem->GetOutput());
     N_elim += elem->getNumEliminated();
     ++N_sweeps;
   } while (elem->getNumEliminated() > 0);

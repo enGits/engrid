@@ -33,5 +33,5 @@ void DeletePickedCell::operate()
   vtkIdType cellId = GuiMainWindow::pointer()->getPickedCell();
   cout<<"You picked "<<cellId<<endl;
   vtkIdType N_pts, *pts;
-  grid->GetCellPoints(cellId, N_pts, pts);
+  m_Grid->GetCellPoints(cellId, N_pts, pts);
 }

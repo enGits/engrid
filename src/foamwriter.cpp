@@ -246,7 +246,7 @@ void FoamWriter::operate()
       if (!QDir(path).exists()) {
         EG_BUG;
       };
-      PolyMesh poly(grid);
+      PolyMesh poly(m_Grid);
       writePoints(poly);
       writeFaces(poly);
       writeOwner(poly);

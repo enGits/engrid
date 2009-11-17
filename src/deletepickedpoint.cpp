@@ -83,12 +83,12 @@ void DeletePickedPoint::operate()
 
 bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
 {
-  int N1 = grid->GetNumberOfPoints();
+  int N1 = m_Grid->GetNumberOfPoints();
   
   QVector<vtkIdType> selected_cells;
-  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, selected_cells, m_Grid);
   QVector<vtkIdType> selected_nodes;
-  getNodesFromCells(selected_cells, selected_nodes, grid);
+  getNodesFromCells(selected_cells, selected_nodes, m_Grid);
   
   setAllSurfaceCells();
   l2l_t  n2n   = getPartN2N();
@@ -97,9 +97,9 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   
   UpdatePotentialSnapPoints(false);
   
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type" );
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   
   // global values
   QVector <vtkIdType> all_deadcells;
@@ -138,7 +138,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   //delete
   DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
   
-  int N2 = grid->GetNumberOfPoints();
+  int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
   
   return( m_NumRemoved == 1 );

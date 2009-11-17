@@ -39,15 +39,15 @@ void Iterator::getCells()
 {
   if (!custom_iteration) {
     if (volume_iteration) {
-      getAllVolumeCells(cells, grid);
+      getAllVolumeCells(cells, m_Grid);
     } else {
-      getAllSurfaceCells(cells, grid);
+      getAllSurfaceCells(cells, m_Grid);
     };
   };
-  getNodesFromCells(cells, nodes, grid);
-  createCellMapping(cells, _cells, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
-  createCellToCell(cells, c2c, grid);
+  getNodesFromCells(cells, nodes, m_Grid);
+  createCellMapping(cells, _cells, m_Grid);
+  createNodeMapping(nodes, _nodes, m_Grid);
+  createNodeToCell(cells, nodes, _nodes, n2c, m_Grid);
+  createNodeToNode(cells, nodes, _nodes, n2n, m_Grid);
+  createCellToCell(cells, c2c, m_Grid);
 };

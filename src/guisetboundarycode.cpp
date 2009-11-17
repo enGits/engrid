@@ -67,14 +67,14 @@ void GuiSetBoundaryCode::operate()
   local_qset.setValue("PickMethod", m_ButtonGroup->checkedId());
   
   SetBoundaryCode set_bc;
-  set_bc.setGrid(grid);
+  set_bc.setGrid(m_Grid);
   set_bc.setAllSurfaceCells();
   if (m_RadioButtonAuto->isChecked()) {
     QSet <int> display_bcs;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(display_bcs);
     int bc = ui.spinBoxBoundaryCode->value();
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bc = max(bc, cell_code->GetValue(id_cell));
       if (display_bcs.contains(cell_code->GetValue(id_cell))) {
         cell_code->SetValue(id_cell, 9999);
@@ -83,7 +83,7 @@ void GuiSetBoundaryCode::operate()
     bool done = false;
     do {
       vtkIdType id_start = -1;
-      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         if (cell_code->GetValue(id_cell) == 9999) {
           id_start = id_cell;
           break;

@@ -68,7 +68,7 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   stencil_t S;
   {
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell1, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell1, N_pts, pts);
     S.p1 = pts[j1];
     S.p2 = pts[0];
     if (j1 < N_pts - 1) {
@@ -90,12 +90,12 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
     }
   }
   QSet<vtkIdType> cells = cells_p1.intersect(cells_p2);
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   S.sameBC = true;
   S.id_cell.resize(1);
   S.id_cell[0] = id_cell1;
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, grid)) {
+    if (isSurface(id_cell, m_Grid)) {
       S.id_cell.push_back(id_cell);
       if (cell_code->GetValue(id_cell) != cell_code->GetValue(id_cell1)) {
         S.sameBC = false;
@@ -106,8 +106,8 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   S.type_cell.resize(S.id_cell.size());
   for (int i = 0; i < S.id_cell.size(); ++i) {
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(S.id_cell[i], N_pts, pts);
-    S.type_cell[i] = grid->GetCellType(S.id_cell[i]);
+    m_Grid->GetCellPoints(S.id_cell[i], N_pts, pts);
+    S.type_cell[i] = m_Grid->GetCellType(S.id_cell[i]);
     for (int j = 0; j < N_pts; ++j) {
       if (pts[j] != S.p1 && pts[j] != S.p2) {
         S.id_node[i] = pts[j];
@@ -124,15 +124,15 @@ int SurfaceOperation::UpdateCurrentMeshDensity()
     cout << "===UpdateMeshDensity START===" << endl;
   }
   QVector<vtkIdType> cells;
-  getAllSurfaceCells( cells, grid );
-  EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
-  setGrid( grid );
+  getAllSurfaceCells( cells, m_Grid );
+  EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
+  setGrid( m_Grid );
   setCells( cells );
   if ( DebugLevel > 5 ) {
     cout << "cells.size()=" << cells.size() << endl;
   }
-  EG_VTKDCN( vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current" );
+  EG_VTKDCN( vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current" );
   l2g_t nodes = getPartNodes();
   foreach( vtkIdType node, nodes ) {
     node_meshdensity_current->SetValue( node, CurrentMeshDensity( node ) );
@@ -155,7 +155,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
   m_PotentialSnapPoints.resize( nodes.size() );
 
   //initialize default values
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
+  EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
   foreach( vtkIdType id_node, nodes ) {
     if ( update_node_types ) node_type->SetValue( id_node, VTK_SIMPLE_VERTEX );
     m_PotentialSnapPoints[id_node].clear();
@@ -166,7 +166,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
   //We loop through edges
   foreach( vtkIdType id_cell, cells ) {
     vtkIdType *pts, Npts;
-    grid->GetCellPoints( id_cell, Npts, pts );
+    m_Grid->GetCellPoints( id_cell, Npts, pts );
     for ( int i = 0; i < Npts; i++ ) {
 
       int i_neighbour_cell = c2c[_cells[id_cell]][i];
@@ -228,9 +228,9 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
       }
       else { //check angle between edges
         double x1[3], x2[3], x3[3], l1[3], l2[3];
-        grid->GetPoint( m_PotentialSnapPoints[id_node][0], x1 );
-        grid->GetPoint( id_node, x2 );
-        grid->GetPoint( m_PotentialSnapPoints[id_node][1], x3 );
+        m_Grid->GetPoint( m_PotentialSnapPoints[id_node][0], x1 );
+        m_Grid->GetPoint( id_node, x2 );
+        m_Grid->GetPoint( m_PotentialSnapPoints[id_node][1], x3 );
         for ( int k = 0; k < 3; k++ ) {
           l1[k] = x2[k] - x1[k];
           l2[k] = x3[k] - x2[k];
@@ -297,9 +297,9 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
     }
     else { //check angle between edges
       double x1[3], x2[3], x3[3], l1[3], l2[3];
-      grid->GetPoint( edges[0], x1 );
-      grid->GetPoint( id_node, x2 );
-      grid->GetPoint( edges[1], x3 );
+      m_Grid->GetPoint( edges[0], x1 );
+      m_Grid->GetPoint( id_node, x2 );
+      m_Grid->GetPoint( edges[1], x3 );
       for ( int k = 0; k < 3; k++ ) {
         l1[k] = x2[k] - x1[k];
         l2[k] = x3[k] - x2[k];
@@ -379,11 +379,11 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
   }
   else if ( numNei == 1 ) {
     //check angle between cell1 and cell2 against FeatureAngle
-    if (CosAngle(grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
+    if (CosAngle(m_Grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
     //check the boundary codes
-    EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
+    EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
     int cell_code_0 = cell_code->GetValue( neighbour_cells[0] );
     int cell_code_1 = cell_code->GetValue( neighbour_cells[1] );
     if ( cell_code_0 !=  cell_code_1 ) {
@@ -409,7 +409,7 @@ QSet <int> SurfaceOperation::getBCset( vtkIdType id_node )
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
 
-  EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
+  EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
   QSet <int> bc;
   foreach( int i_cell, n2c[_nodes[id_node]] ) {
     vtkIdType id_cell = cells[i_cell];
@@ -424,8 +424,8 @@ VertexMeshDensity SurfaceOperation::getVMD( vtkIdType id_node )
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
 
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
-  EG_VTKDCC( vtkIntArray, cell_code, grid, "cell_code" );
+  EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
+  EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
 
   VertexMeshDensity VMD;
   VMD.type = node_type->GetValue( id_node );
@@ -450,11 +450,11 @@ double SurfaceOperation::CurrentVertexAvgDist( vtkIdType id_node )
   double avg_dist = 0;
   int N = n2n[_nodes[id_node]].size();
   vec3_t C;
-  grid->GetPoint( id_node, C.data() );
+  m_Grid->GetPoint( id_node, C.data() );
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint( id_node_neighbour, M.data() );
+    m_Grid->GetPoint( id_node_neighbour, M.data() );
     total_dist += ( M - C ).abs();
   }
   avg_dist = total_dist / ( double )N;
@@ -474,7 +474,7 @@ double SurfaceOperation::DesiredVertexAvgDist( vtkIdType id_node )
 
   double total_dist = 0;
   double avg_dist = 0;
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
@@ -492,7 +492,7 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 
   double total_density = 0;
   double avg_density = 0;
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   int N = n2n[_nodes[id_node]].size();
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
@@ -512,7 +512,7 @@ double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
 /// desired edge length for id_node
 double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
 {
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   return( 1.0 / characteristic_length_desired->GetValue( id_node ) );
 }
 
@@ -522,11 +522,11 @@ double SurfaceOperation::perimeter( vtkIdType id_cell )
 {
   double ret = 0;
   vtkIdType num_pts, *pts;
-  grid->GetCellPoints( id_cell, num_pts, pts );
+  m_Grid->GetCellPoints( id_cell, num_pts, pts );
   for ( int i = 0; i < num_pts; i++ ) {
     vec3_t A, B;
-    grid->GetPoints()->GetPoint( pts[i], A.data() );
-    grid->GetPoints()->GetPoint( pts[( i+1 )%num_pts], B.data() );
+    m_Grid->GetPoints()->GetPoint( pts[i], A.data() );
+    m_Grid->GetPoints()->GetPoint( pts[( i+1 )%num_pts], B.data() );
     ret += ( B - A ).abs();
   }
   return( ret );
@@ -536,7 +536,7 @@ double SurfaceOperation::perimeter( vtkIdType id_cell )
 double SurfaceOperation::meanDesiredEdgeLength( vtkIdType id_cell )
 {
   vtkIdType num_pts, *pts;
-  grid->GetCellPoints( id_cell, num_pts, pts );
+  m_Grid->GetCellPoints( id_cell, num_pts, pts );
   int total = 0;
   for ( int i = 0; i < num_pts; i++ ) {
     total += desiredEdgeLength( pts[i] );
@@ -551,7 +551,7 @@ double SurfaceOperation::Q_L( vtkIdType id_cell )
 {
   double denom_sum = 0;
   vtkIdType num_pts, *pts;
-  grid->GetCellPoints( id_cell, num_pts, pts );
+  m_Grid->GetCellPoints( id_cell, num_pts, pts );
   for ( int i = 0; i < num_pts; i++ ) {
     denom_sum += desiredEdgeLength( pts[i] );
   }
@@ -569,7 +569,7 @@ double SurfaceOperation::Q_L1( vtkIdType id_node )
   double denom_sum = 0;
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    num_sum += 2 * distance( grid, id_node_neighbour, id_node );
+    num_sum += 2 * distance( m_Grid, id_node_neighbour, id_node );
     denom_sum += desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
   }
   return( num_sum / denom_sum );
@@ -586,7 +586,7 @@ double SurfaceOperation::Q_L2( vtkIdType id_node )
   double num, denom;
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    num = 2 * distance( grid, id_node_neighbour, id_node );
+    num = 2 * distance( m_Grid, id_node_neighbour, id_node );
     denom = desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
     V.push_back( num / denom );
   }
@@ -600,7 +600,7 @@ double SurfaceOperation::T_min( int w )
   l2g_t cells = getPartCells();
   double T = 0;
   foreach( vtkIdType id_cell, cells ) {
-    T += areaOfCircumscribedCircle( grid, id_cell ) / pow( cellVA( grid, id_cell ), w ) * pow( meanDesiredEdgeLength( id_cell ), 2 * ( w - 1 ) );
+    T += areaOfCircumscribedCircle( m_Grid, id_cell ) / pow( cellVA( m_Grid, id_cell ), w ) * pow( meanDesiredEdgeLength( id_cell ), 2 * ( w - 1 ) );
   }
   return( T );
 }
@@ -614,13 +614,13 @@ vtkIdType SurfaceOperation::getClosestNode( vtkIdType id_node )
   l2g_t nodes = getPartNodes();
 
   vec3_t C;
-  grid->GetPoint( id_node, C.data() );
+  m_Grid->GetPoint( id_node, C.data() );
   vtkIdType id_minlen = -1;
   double minlen = -1;
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint( id_node_neighbour, M.data() );
+    m_Grid->GetPoint( id_node_neighbour, M.data() );
     double len = ( M - C ).abs();
     if ( minlen < 0 or len < minlen ) {
       minlen = len;
@@ -637,13 +637,13 @@ vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
   l2g_t nodes = getPartNodes();
 
   vec3_t C;
-  grid->GetPoint( id_node, C.data() );
+  m_Grid->GetPoint( id_node, C.data() );
   vtkIdType id_maxlen = -1;
   double maxlen = -1;
   foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
     vtkIdType id_node_neighbour = nodes[i_node_neighbour];
     vec3_t M;
-    grid->GetPoint( id_node_neighbour, M.data() );
+    m_Grid->GetPoint( id_node_neighbour, M.data() );
     double len = ( M - C ).abs();
     if ( maxlen < 0 or len > maxlen ) {
       maxlen = len;

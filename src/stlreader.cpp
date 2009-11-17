@@ -100,24 +100,24 @@ void StlReader::operate()
     poly2ugrid->SetInput(poly_clean->GetOutput());
     poly2ugrid->Update();
     
-    allocateGrid(grid, poly2ugrid->GetOutput()->GetNumberOfCells(), poly2ugrid->GetOutput()->GetNumberOfPoints());
+    allocateGrid(m_Grid, poly2ugrid->GetOutput()->GetNumberOfCells(), poly2ugrid->GetOutput()->GetNumberOfPoints());
     for (vtkIdType id_node = 0; id_node < poly2ugrid->GetOutput()->GetNumberOfPoints(); ++id_node) {
       vec3_t x;
       poly2ugrid->GetOutput()->GetPoints()->GetPoint(id_node, x.data());
-      grid->GetPoints()->SetPoint(id_node, x.data());
+      m_Grid->GetPoints()->SetPoint(id_node, x.data());
     };
     for (vtkIdType id_cell = 0; id_cell < poly2ugrid->GetOutput()->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = poly2ugrid->GetOutput()->GetCellType(id_cell);
       poly2ugrid->GetOutput()->GetCellPoints(id_cell, N_pts, pts);
-      grid->InsertNextCell(type_cell, N_pts, pts);
+      m_Grid->InsertNextCell(type_cell, N_pts, pts);
     };
     
-    EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-    EG_VTKDCC(vtkIntArray, orgdir, grid, "cell_orgdir");
-    EG_VTKDCC(vtkIntArray, voldir, grid, "cell_voldir");
-    EG_VTKDCC(vtkIntArray, curdir, grid, "cell_curdir");
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+    EG_VTKDCC(vtkIntArray, orgdir, m_Grid, "cell_orgdir");
+    EG_VTKDCC(vtkIntArray, voldir, m_Grid, "cell_voldir");
+    EG_VTKDCC(vtkIntArray, curdir, m_Grid, "cell_curdir");
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bc->SetValue(id_cell, 999);
       orgdir->SetValue(id_cell, 0);
       voldir->SetValue(id_cell, 0);
@@ -125,10 +125,10 @@ void StlReader::operate()
     };
     if (check_passed) {
       CorrectSurfaceOrientation corr_surf;
-      corr_surf.setGrid(grid);
+      corr_surf.setGrid(m_Grid);
       corr_surf();
       FixCadGeometry cad_fix;
-      cad_fix.setGrid(grid);
+      cad_fix.setGrid(m_Grid);
       cad_fix();
     }
     

@@ -111,14 +111,14 @@ void BlenderReader::operate()
         }
       }
 
-      allocateGrid(grid, faces.size(), non_dup.size());
-      EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-      EG_VTKDCC(vtkIntArray, orgdir, grid, "cell_orgdir");
-      EG_VTKDCC(vtkIntArray, voldir, grid, "cell_voldir");
-      EG_VTKDCC(vtkIntArray, curdir, grid, "cell_curdir");
+      allocateGrid(m_Grid, faces.size(), non_dup.size());
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+      EG_VTKDCC(vtkIntArray, orgdir, m_Grid, "cell_orgdir");
+      EG_VTKDCC(vtkIntArray, voldir, m_Grid, "cell_voldir");
+      EG_VTKDCC(vtkIntArray, curdir, m_Grid, "cell_curdir");
       vtkIdType id_node = 0;
       foreach (vec3_t x, non_dup) {
-        grid->GetPoints()->SetPoint(id_node, x.data());
+        m_Grid->GetPoints()->SetPoint(id_node, x.data());
         ++id_node;
       }
 
@@ -128,7 +128,7 @@ void BlenderReader::operate()
           pts[0] = o2n[face[1]];
           pts[1] = o2n[face[2]];
           pts[2] = o2n[face[3]];
-          vtkIdType id_cell = grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+          vtkIdType id_cell = m_Grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
           cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
@@ -140,15 +140,15 @@ void BlenderReader::operate()
           pts[1] = o2n[face[2]];
           pts[2] = o2n[face[3]];
           pts[3] = o2n[face[4]];
-          vtkIdType id_cell = grid->InsertNextCell(VTK_QUAD, 4, pts);
+          vtkIdType id_cell = m_Grid->InsertNextCell(VTK_QUAD, 4, pts);
           cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
           curdir->SetValue(id_cell, 0);
         }
       }
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
+      UpdateNodeIndex(m_Grid);
+      UpdateCellIndex(m_Grid);
 
       // set the boundary names
       GuiMainWindow::pointer()->clearBCs();

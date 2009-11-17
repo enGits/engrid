@@ -110,9 +110,9 @@ void FoamReader::operate()
           }
         }
       }
-      makeCopy(ug, grid);
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateCellIndex(grid);
+      makeCopy(ug, m_Grid);
+      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
+      UpdateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();
