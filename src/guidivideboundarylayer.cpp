@@ -34,33 +34,33 @@ void GuiDivideBoundaryLayer::findBoundaryLayer()
   l2l_t c2c   = getPartC2C();
 
   pairs.clear();
-  insert_cell.fill(true,grid->GetNumberOfCells());
+  insert_cell.fill(true,m_Grid->GetNumberOfCells());
   N_prisms = 0;
   N_quads = 0;
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    if (grid->GetCellType(cells[i_cells]) == VTK_WEDGE) {
+    if (m_Grid->GetCellType(cells[i_cells]) == VTK_WEDGE) {
       ++N_prisms;
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(cells[i_cells],N_pts,pts);
+      m_Grid->GetCellPoints(cells[i_cells],N_pts,pts);
       for (int j = 0; j < 3; ++j) {
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
       }
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
-          vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
+          vtkIdType type_ncell = m_Grid->GetCellType(cells[c2c[i_cells][j]]);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
           }
         } else {
           vec3_t x;
-          grid->GetPoint(pts[0],x.data());
+          m_Grid->GetPoint(pts[0],x.data());
           cout << x << endl;
           EG_BUG;
         }
       }
       for (int j = 0; j < 2; ++j) {
         if (c2c[i_cells][j] != -1) {
-          vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
+          vtkIdType type_ncell = m_Grid->GetCellType(cells[c2c[i_cells][j]]);
           if (type_ncell == VTK_WEDGE) {
             EG_ERR_RETURN("the boundary layer seems to have been split already");
           }
@@ -69,7 +69,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer()
         }
       }
     }
-    if (grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
+    if (m_Grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
       ++N_quads;
     }
   }
@@ -77,7 +77,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer()
     EG_ERR_RETURN("unable to identify boundary layer");
   }
   is_blayer_node.clear();
-  is_blayer_node.fill(false, grid->GetNumberOfPoints());
+  is_blayer_node.fill(false, m_Grid->GetNumberOfPoints());
   
   QPair<vtkIdType,vtkIdType> P;
   foreach (P, pairs) {
@@ -98,24 +98,24 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
   QVector<vtkIdType> scells;
-  getSurfaceCells(bcs, scells, grid);
+  getSurfaceCells(bcs, scells, m_Grid);
   
   N_prisms = 0;
   N_quads = 0;
   N_hexes = 0;
   
-  insert_cell.fill(true,grid->GetNumberOfCells());
+  insert_cell.fill(true,m_Grid->GetNumberOfCells());
   
   foreach (int i_scells, scells) {
     
     vtkIdType id_scell   = scells[i_scells];
-    int       i_cells    = findVolumeCell(grid,id_scell,_nodes,cells,_cells,n2c);
+    int       i_cells    = findVolumeCell(m_Grid,id_scell,_nodes,cells,_cells,n2c);
     vtkIdType id_cell    = cells[i_cells];
-    vtkIdType type_cell  = grid->GetCellType(id_cell);
-    vtkIdType type_scell = grid->GetCellType(id_scell);
+    vtkIdType type_cell  = m_Grid->GetCellType(id_cell);
+    vtkIdType type_scell = m_Grid->GetCellType(id_scell);
     
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell,N_pts,pts);
+    m_Grid->GetCellPoints(id_cell,N_pts,pts);
     
     insert_cell[id_cell] = false;
 
@@ -141,7 +141,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
           vtkIdType id_ncell   = cells[c2c[i_cells][j]];
-          vtkIdType type_ncell = grid->GetCellType(id_ncell);
+          vtkIdType type_ncell = m_Grid->GetCellType(id_ncell);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_HEXAHEDRON) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
           }
@@ -208,7 +208,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
         if (check_neigh[j]) {
           if (c2c[i_cells][j] != -1) {
             vtkIdType id_ncell   = cells[c2c[i_cells][j]];
-            vtkIdType type_ncell = grid->GetCellType(id_ncell);
+            vtkIdType type_ncell = m_Grid->GetCellType(id_ncell);
             if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_HEXAHEDRON) && (type_ncell != VTK_QUAD)) {
               EG_ERR_RETURN("unable to identify boundary layer");
             }
@@ -237,16 +237,16 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
   N_quads = 0;
   N_hexes = 0;
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    if (grid->GetCellType(cells[i_cells]) == VTK_WEDGE) {
+    if (m_Grid->GetCellType(cells[i_cells]) == VTK_WEDGE) {
       ++N_prisms;
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(cells[i_cells],N_pts,pts);
+      m_Grid->GetCellPoints(cells[i_cells],N_pts,pts);
       for (int j = 0; j < 3; ++j) {
         pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
       }
       for (int j = 2; j < 5; ++j) {
         if (c2c[i_cells][j] != -1) {
-          vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
+          vtkIdType type_ncell = m_Grid->GetCellType(cells[c2c[i_cells][j]]);
           if ((type_ncell != VTK_WEDGE) && (type_ncell != VTK_QUAD)) {
             EG_ERR_RETURN("unable to identify boundary layer");
           }
@@ -256,7 +256,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
       }
       for (int j = 0; j < 2; ++j) {
         if (c2c[i_cells][j] != -1) {
-          vtkIdType type_ncell = grid->GetCellType(cells[c2c[i_cells][j]]);
+          vtkIdType type_ncell = m_Grid->GetCellType(cells[c2c[i_cells][j]]);
           if (type_ncell == VTK_WEDGE) {
             EG_ERR_RETURN("the boundary layer seems to have been split already");
           }
@@ -265,7 +265,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
         }
       }
     }
-    if (grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
+    if (m_Grid->GetCellType(cells[i_cells]) == VTK_QUAD) {
       ++N_quads;
     }
   }
@@ -276,7 +276,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
   }
   
   is_blayer_node.clear();
-  is_blayer_node.fill(false, grid->GetNumberOfPoints());
+  is_blayer_node.fill(false, m_Grid->GetNumberOfPoints());
   
   QPair<vtkIdType,vtkIdType> P;
   foreach (P, pairs) {
@@ -325,9 +325,9 @@ void GuiDivideBoundaryLayer::computeY()
 void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
 {
   edges.fill(QVector<vtkIdType>(N_layers+1), pairs.size());
-  old2edge.fill(-1, grid->GetNumberOfPoints());
+  old2edge.fill(-1, m_Grid->GetNumberOfPoints());
   int N = 0;
-  vtkIdType id_new_node = grid->GetNumberOfPoints();
+  vtkIdType id_new_node = m_Grid->GetNumberOfPoints();
   QPair<vtkIdType,vtkIdType> P;
   double max_step = 0;
   double ymax     = 0;
@@ -339,8 +339,8 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     old2edge[P.second] = N;
     
     vec3_t x1,x2;
-    grid->GetPoint(P.first, x1.data());
-    grid->GetPoint(P.second, x2.data());
+    m_Grid->GetPoint(P.first, x1.data());
+    m_Grid->GetPoint(P.second, x2.data());
     vec3_t n = x2-x1;
     if (!ui.checkBoxH->isChecked() || !y_computed) {
       y.resize(N_layers + 1);
@@ -388,40 +388,40 @@ void GuiDivideBoundaryLayer::operate1()
   findBoundaryLayer1();
   
   EG_VTKSP(vtkUnstructuredGrid,new_grid);
-  int N_new_cells = grid->GetNumberOfCells() + (N_prisms + N_hexes + N_quads)*(N_layers-1);
-  int N_new_nodes = grid->GetNumberOfPoints() + pairs.size()*(N_layers-1);
+  int N_new_cells = m_Grid->GetNumberOfCells() + (N_prisms + N_hexes + N_quads)*(N_layers-1);
+  int N_new_nodes = m_Grid->GetNumberOfPoints() + pairs.size()*(N_layers-1);
   allocateGrid(new_grid, N_new_cells, N_new_nodes);
   
   // copy existing mesh without prisms and adjacent cells
   vtkIdType id_new_node = 0;
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
-    grid->GetPoint(id_node, x.data());
+    m_Grid->GetPoint(id_node, x.data());
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
-    copyNodeData(grid, id_node, new_grid, id_new_node);
+    copyNodeData(m_Grid, id_node, new_grid, id_new_node);
     ++id_new_node;
   }
   vtkIdType id_new_cell;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     //bool insert_cell = true;
-    //if (grid->GetCellType(id_cell) == VTK_WEDGE) insert_cell = false;
-    //if (grid->GetCellType(id_cell) == VTK_QUAD) insert_cell = false;
+    //if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) insert_cell = false;
+    //if (m_Grid->GetCellType(id_cell) == VTK_QUAD) insert_cell = false;
     if (insert_cell[id_cell]) {
-      id_new_cell = new_grid->InsertNextCell(grid->GetCellType(id_cell), N_pts, pts);
-      copyCellData(grid, id_cell, new_grid, id_new_cell);
+      id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
   }
   
   // create divided boundary layer
   createEdges(new_grid);
   
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!insert_cell[id_cell]) {
-      if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
         for (int i = 0; i < N_layers; ++i) {
           vtkIdType p[6];
           p[0] = edges[old2edge[pts[0]]][i];
@@ -431,14 +431,14 @@ void GuiDivideBoundaryLayer::operate1()
           p[4] = edges[old2edge[pts[1]]][i+1];
           p[5] = edges[old2edge[pts[2]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
-          copyCellData(grid, id_cell, new_grid, id_new_cell);
+          copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
         }
       }
-      if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) {
+      if (m_Grid->GetCellType(id_cell) == VTK_HEXAHEDRON) {
         EG_BUG;
         // MURKS!!!!
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
         for (int i = 0; i < N_layers; ++i) {
           vtkIdType p[6];
           p[0] = edges[old2edge[pts[0]]][i];
@@ -448,14 +448,14 @@ void GuiDivideBoundaryLayer::operate1()
           p[4] = edges[old2edge[pts[1]]][i+1];
           p[5] = edges[old2edge[pts[2]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
-          copyCellData(grid, id_cell, new_grid, id_new_cell);
+          copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
         }
         
         
       }
-      if (grid->GetCellType(id_cell) == VTK_QUAD) {
+      if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
         if ((old2edge[pts[0]] != -1) && (old2edge[pts[1]] != -1) && (old2edge[pts[2]] != -1) && (old2edge[pts[3]] != -1)) {
           for (int i = 0; i < N_layers; ++i) {
             vtkIdType p[4];
@@ -464,14 +464,14 @@ void GuiDivideBoundaryLayer::operate1()
             p[2] = edges[old2edge[pts[1]]][i+1];
             p[3] = edges[old2edge[pts[0]]][i+1];
             id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, p);
-            copyCellData(grid, id_cell, new_grid, id_new_cell);
+            copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
           }
         }
       }
     }
   }
   
-  makeCopy(new_grid, grid);
+  makeCopy(new_grid, m_Grid);
 }
 
 void GuiDivideBoundaryLayer::operate()
@@ -484,12 +484,12 @@ void GuiDivideBoundaryLayer::operate()
   findBoundaryLayer();
   
   EG_VTKSP(vtkUnstructuredGrid,new_grid);
-  allocateGrid(new_grid, grid->GetNumberOfCells() + (N_prisms + N_quads)*(N_layers-1), grid->GetNumberOfPoints() + pairs.size()*(N_layers-1));
+  allocateGrid(new_grid, m_Grid->GetNumberOfCells() + (N_prisms + N_quads)*(N_layers-1), m_Grid->GetNumberOfPoints() + pairs.size()*(N_layers-1));
   
 
-  EG_VTKDCC(vtkIntArray, old_orgdir, grid, "cell_orgdir");
-  EG_VTKDCC(vtkIntArray, old_voldir, grid, "cell_voldir");
-  EG_VTKDCC(vtkIntArray, old_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, old_orgdir, m_Grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, old_voldir, m_Grid, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, old_curdir, m_Grid, "cell_curdir");
   EG_VTKDCC(vtkIntArray, new_orgdir, new_grid, "cell_orgdir");
   EG_VTKDCC(vtkIntArray, new_voldir, new_grid, "cell_voldir");
   EG_VTKDCC(vtkIntArray, new_curdir, new_grid, "cell_curdir");
@@ -500,22 +500,22 @@ void GuiDivideBoundaryLayer::operate()
 
   // copy existing mesh without prisms and adjacent cells
   vtkIdType id_new_node = 0;
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
-    grid->GetPoint(id_node, x.data());
+    m_Grid->GetPoint(id_node, x.data());
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
-    copyNodeData(grid, id_node, new_grid, id_new_node);
+    copyNodeData(m_Grid, id_node, new_grid, id_new_node);
     ++id_new_node;
   }
   vtkIdType id_new_cell;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     bool insert_cell = true;
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
       insert_cell = false;
     }
-    if (grid->GetCellType(id_cell) == VTK_QUAD) {
+    if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
       insert_cell = false;
       if (orgdir != -99 && old_orgdir->GetValue(id_cell) != orgdir) {
         EG_BUG;
@@ -531,18 +531,18 @@ void GuiDivideBoundaryLayer::operate()
       curdir = old_curdir->GetValue(id_cell);
     }
     if (insert_cell) {
-      id_new_cell = new_grid->InsertNextCell(grid->GetCellType(id_cell), N_pts, pts);
-      copyCellData(grid, id_cell, new_grid, id_new_cell);
+      id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
   }
   
   // create divided boundary layer
   createEdges(new_grid);
   
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i = 0; i < N_layers; ++i) {
         vtkIdType p[6];
         p[0] = edges[old2edge[pts[0]]][i];
@@ -552,12 +552,12 @@ void GuiDivideBoundaryLayer::operate()
         p[4] = edges[old2edge[pts[1]]][i+1];
         p[5] = edges[old2edge[pts[2]]][i+1];
         id_new_cell = new_grid->InsertNextCell(VTK_WEDGE, 6, p);
-        copyCellData(grid, id_cell, new_grid, id_new_cell);
+        copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
       }
     }
-    if (grid->GetCellType(id_cell) == VTK_QUAD) {
+    if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       if ((old2edge[pts[0]] != -1) && (old2edge[pts[1]] != -1) && (old2edge[pts[2]] != -1) && (old2edge[pts[3]] != -1)) {
         for (int i = 0; i < N_layers; ++i) {
           vtkIdType p[4];
@@ -566,7 +566,7 @@ void GuiDivideBoundaryLayer::operate()
           p[2] = edges[old2edge[pts[1]]][i+1];
           p[3] = edges[old2edge[pts[0]]][i+1];
           id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, p);
-          copyCellData(grid, id_cell, new_grid, id_new_cell);
+          copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
           new_orgdir->SetValue(id_new_cell, orgdir);
           new_voldir->SetValue(id_new_cell, voldir);
           new_curdir->SetValue(id_new_cell, curdir);
@@ -575,6 +575,6 @@ void GuiDivideBoundaryLayer::operate()
     }
   }
   
-  makeCopy(new_grid, grid);
+  makeCopy(new_grid, m_Grid);
 }
 

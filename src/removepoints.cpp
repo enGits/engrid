@@ -47,7 +47,7 @@ void RemovePoints::markFeatureEdges()
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  c2c   = getPartC2C();
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   m_IsFeatureNode.resize(nodes.size());
   for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
     m_IsFeatureNode[i] = false;
@@ -66,8 +66,8 @@ void RemovePoints::markFeatureEdges()
           id_node2 = pts[j+1];
         }
         vec3_t x1, x2;
-        grid->GetPoint(id_node1, x1.data());
-        grid->GetPoint(id_node2, x2.data());
+        m_Grid->GetPoint(id_node1, x1.data());
+        m_Grid->GetPoint(id_node2, x2.data());
         double L = (x1-x2).abs();
         //if (L > 0.5*characteristic_length_desired->GetValue(id_node1)) {
         {
@@ -92,14 +92,14 @@ void RemovePoints::markFeatureEdges()
 
 void RemovePoints::operate()
 {
-  int N1 = grid->GetNumberOfPoints();
+  int N1 = m_Grid->GetNumberOfPoints();
   
   markFeatureEdges();
   
   QVector<vtkIdType> selected_cells;
-  getSurfaceCells(m_BoundaryCodes, selected_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, selected_cells, m_Grid);
   QVector<vtkIdType> selected_nodes;
-  getNodesFromCells(selected_cells, selected_nodes, grid);
+  getNodesFromCells(selected_cells, selected_nodes, m_Grid);
 
   setAllSurfaceCells();
   l2l_t  n2n   = getPartN2N();
@@ -108,9 +108,9 @@ void RemovePoints::operate()
   
   UpdatePotentialSnapPoints(false);
   
-  EG_VTKDCN(vtkCharArray,   node_type, grid, "node_type" );
-  EG_VTKDCC(vtkIntArray,    cell_code, grid, "cell_code" );
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,        grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type" );
+  EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code" );
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,        m_Grid, "node_meshdensity_desired" );
 
   // global values
   QVector <vtkIdType> all_deadcells;
@@ -130,14 +130,14 @@ void RemovePoints::operate()
     if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
       if (!marked_nodes[i_nodes] && !m_IsFeatureNode[i_nodes]) {
         vec3_t xi;
-        grid->GetPoint(id_node, xi.data());
+        m_Grid->GetPoint(id_node, xi.data());
         double cl_node = characteristic_length_desired->GetValue(id_node);
         bool remove_node = false;
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           vtkIdType id_neigh = nodes[n2n[i_nodes][j]];
           double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
           vec3_t xj;
-          grid->GetPoint(id_neigh, xj.data());
+          m_Grid->GetPoint(id_neigh, xj.data());
           double L = (xi-xj).abs();
           if (L < 0.5*(cl_node+cl_neigh)/m_Threshold) {
             remove_node = true;
@@ -173,7 +173,7 @@ void RemovePoints::operate()
   //delete
   DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
 
-  int N2 = grid->GetNumberOfPoints();
+  int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
 }
 
@@ -227,7 +227,7 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
       int counter = 0;
       foreach( int i_cell, Si ) {
         vtkIdType num_pts, *pts;
-        grid->GetCellPoints( cells[i_cell], num_pts, pts );
+        m_Grid->GetCellPoints( cells[i_cell], num_pts, pts );
         for ( int i = 0; i < num_pts; ++i ) {
           if ( pts[i] == id_node1 || pts[i] == id_node2 ) counter++;
         }
@@ -247,21 +247,21 @@ bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cel
   l2l_t  n2c   = getPartN2C();
   
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoint(id_node, x_old.data());
   
   vec3_t n(0,0,0);
   bool move = true;
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
   double A_max = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     A_max = max(A, A_max);
-    cell_normals[i] = GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+    cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
     cell_normals[i].normalise();
   }
   int N = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     if (A > 0.01*A_max) {
       n += cell_normals[i];
       ++N;
@@ -274,19 +274,19 @@ bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cel
     double L_max = 0;
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       vec3_t xn;
-      grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
       double L = (xn - x_old).abs();
       L_max = max(L, L_max);
     }
     vec3_t x_summit = x_old + L_max*n;
     vec3_t x[3];
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     if (N_pts != 3) {
       EG_BUG;
     }
     for (int j = 0; j < N_pts; ++j) {
-      grid->GetPoint(pts[j], x[j].data());
+      m_Grid->GetPoint(pts[j], x[j].data());
     }
     if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
       move = false;
@@ -314,7 +314,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   g2l_t _nodes = getPartLocalNodes();
   l2g_t cells = getPartCells();
   
-  EG_VTKDCN( vtkCharArray, node_type, grid, "node_type" );
+  EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
   if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
     cout << "ERROR: unable to remove fixed vertex." << endl;
     EG_BUG;
@@ -355,7 +355,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       vtkIdType id_cell = cells[i_cell];
       //get points around cell
       vtkIdType num_pts, *pts;
-      grid->GetCellPoints( id_cell, num_pts, pts );
+      m_Grid->GetCellPoints( id_cell, num_pts, pts );
       
       if ( num_pts != 3 ) {
         cout << "ERROR: Non-triangle detected!" << endl;
@@ -394,8 +394,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           OldTriangle[i] = pts[i];
           NewTriangle[i] = (( pts[i] == DeadNode ) ? PSP : pts[i] );
         }
-        vec3_t Old_N = triNormal( grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
-        vec3_t New_N = triNormal( grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
+        vec3_t Old_N = triNormal( m_Grid, OldTriangle[0], OldTriangle[1], OldTriangle[2] );
+        vec3_t New_N = triNormal( m_Grid, NewTriangle[0], NewTriangle[1], NewTriangle[2] );
         
         // TEST 4: GEOMETRICAL: area + inversion check
         if (m_PerformGeometricChecks) {
@@ -406,7 +406,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
           // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
           vec3_t P;
-          grid->GetPoint( PSP, P.data() );
+          m_Grid->GetPoint( PSP, P.data() );
           if (flippedCell(DeadNode, P, id_cell)) {
             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
             IsValidSnapPoint = false;
@@ -419,7 +419,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     }
     
     // TEST 6: TOPOLOGICAL: survivor check
-    if ( grid->GetNumberOfCells() + num_newcells <= 0 ) {
+    if ( m_Grid->GetNumberOfCells() + num_newcells <= 0 ) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
     }
@@ -445,11 +445,11 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
                                      const QVector<vtkIdType>& all_mutatedcells,
                                      int& num_newpoints, int& num_newcells)
 {
-  int initial_num_points = grid->GetNumberOfPoints();
+  int initial_num_points = m_Grid->GetNumberOfPoints();
   
   //src grid info
-  int num_points = grid->GetNumberOfPoints();
-  int num_cells = grid->GetNumberOfCells();
+  int num_points = m_Grid->GetNumberOfPoints();
+  int num_cells = m_Grid->GetNumberOfCells();
   
   if ( num_newcells != 2*num_newpoints ) {
     EG_BUG;
@@ -463,11 +463,11 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   QVector <vtkIdType> OffSet( num_points );
   
   //copy undead points
-  QVector<bool> is_deadnode(grid->GetNumberOfPoints(), false);
-  QVector<int> glob2dead(grid->GetNumberOfPoints(), -1);
+  QVector<bool> is_deadnode(m_Grid->GetNumberOfPoints(), false);
+  QVector<int> glob2dead(m_Grid->GetNumberOfPoints(), -1);
   for (int i_deadnodes = 0; i_deadnodes < deadnode_vector.size(); ++i_deadnodes) {
     vtkIdType id_node = deadnode_vector[i_deadnodes];
-    if (id_node > grid->GetNumberOfPoints()) {
+    if (id_node > m_Grid->GetNumberOfPoints()) {
       EG_BUG;
     }
     is_deadnode[id_node] = true;
@@ -478,9 +478,9 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
     OffSet[src_id_node] = src_id_node - dst_id_node;
     if (!is_deadnode[src_id_node]) { //if the node isn't dead, copy it
       vec3_t x;
-      grid->GetPoints()->GetPoint( src_id_node, x.data() );
+      m_Grid->GetPoints()->GetPoint( src_id_node, x.data() );
       dst->GetPoints()->SetPoint( dst_id_node, x.data() );
-      copyNodeData( grid, src_id_node, dst, dst_id_node );
+      copyNodeData( m_Grid, src_id_node, dst, dst_id_node );
       dst_id_node++;
     } else {
       if ( DebugLevel > 0 ) {
@@ -490,20 +490,20 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   }
 
   //Copy undead cells
-  QVector<bool> is_alldeadcell(grid->GetNumberOfCells(), false);
+  QVector<bool> is_alldeadcell(m_Grid->GetNumberOfCells(), false);
   foreach (vtkIdType id_cell, all_deadcells) {
     is_alldeadcell[id_cell] = true;
   }
-  QVector<bool> is_allmutatedcell(grid->GetNumberOfCells(), false);
+  QVector<bool> is_allmutatedcell(m_Grid->GetNumberOfCells(), false);
   foreach (vtkIdType id_cell, all_mutatedcells) {
     is_allmutatedcell[id_cell] = true;
   }
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
     if (!is_alldeadcell[id_cell]) { //if the cell isn't dead
       vtkIdType src_num_pts, *src_pts;
       vtkIdType dst_num_pts, dst_pts[3];
-      grid->GetCellPoints( id_cell, src_num_pts, src_pts );
-      vtkIdType type_cell = grid->GetCellType( id_cell );
+      m_Grid->GetCellPoints( id_cell, src_num_pts, src_pts );
+      vtkIdType type_cell = m_Grid->GetCellType( id_cell );
       
       dst_num_pts = 3;//src_num_pts;
       
@@ -536,17 +536,17 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
       }
       // copy the cell
       vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
-      copyCellData( grid, id_cell, dst, id_new_cell );
+      copyCellData( m_Grid, id_cell, dst, id_new_cell );
     }
   }
   
-  makeCopy( dst, grid );
+  makeCopy( dst, m_Grid );
   
   if ( -num_newpoints != deadnode_vector.size() ) {
     EG_BUG;
   }
   
-  int final_num_points = grid->GetNumberOfPoints();
+  int final_num_points = m_Grid->GetNumberOfPoints();
   if ( initial_num_points - final_num_points != deadnode_vector.size() ) {
     EG_BUG;
   }

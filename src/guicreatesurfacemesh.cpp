@@ -304,7 +304,7 @@ void GuiCreateSurfaceMesh::operate()
   QVector <VertexMeshDensity> VMDvector = getSet();
 
   SurfaceMesher surfacemesher;
-  surfacemesher.setGrid(grid);
+  surfacemesher.setGrid(m_Grid);
   surfacemesher.setBoundaryCodes(bcs);
   surfacemesher.setVertexMeshDensityVector(VMDvector);
   surfacemesher.setMaxEdgeLength(ui.lineEditMaximalEdgeLength->text().toDouble());
@@ -312,5 +312,5 @@ void GuiCreateSurfaceMesh::operate()
 
   surfacemesher();
 
-  grid->Modified();
+  m_Grid->Modified();
 }

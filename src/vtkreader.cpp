@@ -42,10 +42,10 @@ void VtkReader::operate()
       EG_VTKSP(vtkUnstructuredGridReader,vtk);
       vtk->SetFileName(qPrintable(getFileName()));
       vtk->Update();
-      grid->DeepCopy(vtk->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
+      m_Grid->DeepCopy(vtk->GetOutput());
+      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
+      UpdateNodeIndex(m_Grid);
+      UpdateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();

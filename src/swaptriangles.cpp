@@ -55,10 +55,10 @@ void SwapTriangles::operate()
     g2l_t _cells = getPartLocalCells();
     l2l_t  n2c   = getPartN2C();
     g2l_t _nodes = getPartLocalNodes();
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     QVector<bool> l_marked(cells.size());
     foreach (vtkIdType id_cell, cells) {
-      if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
+      if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
         if (!l_marked[_cells[id_cell]]) {
           for (int j = 0; j < 3; ++j) {
             bool swap = false;
@@ -70,10 +70,10 @@ void SwapTriangles::operate()
                     vec3_t x3[4], x3_0(0,0,0);
                     vec2_t x[4];
 
-                    grid->GetPoint(S.id_node[0], x3[0].data());
-                    grid->GetPoint(S.p1,         x3[1].data());
-                    grid->GetPoint(S.id_node[1], x3[2].data());
-                    grid->GetPoint(S.p2,         x3[3].data());
+                    m_Grid->GetPoint(S.id_node[0], x3[0].data());
+                    m_Grid->GetPoint(S.p1,         x3[1].data());
+                    m_Grid->GetPoint(S.id_node[1], x3[2].data());
+                    m_Grid->GetPoint(S.p2,         x3[3].data());
 
                     vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                     vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
@@ -153,8 +153,8 @@ void SwapTriangles::operate()
               old_pts2[0] = S.id_node[1];
               old_pts2[1] = S.p2;
               old_pts2[2] = S.p1;
-              grid->ReplaceCell(S.id_cell[0], 3, new_pts1);
-              grid->ReplaceCell(S.id_cell[1], 3, new_pts2);
+              m_Grid->ReplaceCell(S.id_cell[0], 3, new_pts1);
+              m_Grid->ReplaceCell(S.id_cell[1], 3, new_pts2);
               ++N_swaps;
               ++N_total;
               break;
@@ -171,21 +171,21 @@ void SwapTriangles::operate()
 bool SwapTriangles::testSwap(stencil_t S)
 {
   // old triangles
-  vec3_t n1_old = triNormal(grid, S.id_node[0], S.p1, S.p2);
-  vec3_t n2_old = triNormal(grid, S.id_node[1], S.p2, S.p1);
+  vec3_t n1_old = triNormal(m_Grid, S.id_node[0], S.p1, S.p2);
+  vec3_t n2_old = triNormal(m_Grid, S.id_node[1], S.p2, S.p1);
   
   // new triangles
-  vec3_t n1_new = triNormal(grid, S.p1, S.id_node[1], S.id_node[0]);
-  vec3_t n2_new = triNormal(grid, S.p2, S.id_node[0], S.id_node[1]);
+  vec3_t n1_new = triNormal(m_Grid, S.p1, S.id_node[1], S.id_node[0]);
+  vec3_t n2_new = triNormal(m_Grid, S.p2, S.id_node[0], S.id_node[1]);
   
   // top point
   vec3_t x_summit(0,0,0);
   vec3_t x[4];
   double l_max = 0;
-  grid->GetPoints()->GetPoint(S.id_node[0], x[0].data());
-  grid->GetPoints()->GetPoint(S.p1,         x[1].data());
-  grid->GetPoints()->GetPoint(S.id_node[1], x[2].data());
-  grid->GetPoints()->GetPoint(S.p2,         x[3].data());
+  m_Grid->GetPoints()->GetPoint(S.id_node[0], x[0].data());
+  m_Grid->GetPoints()->GetPoint(S.p1,         x[1].data());
+  m_Grid->GetPoints()->GetPoint(S.id_node[1], x[2].data());
+  m_Grid->GetPoints()->GetPoint(S.p2,         x[3].data());
   for (int k = 0; k < 4; ++k) {
     x_summit += x[k];
   }

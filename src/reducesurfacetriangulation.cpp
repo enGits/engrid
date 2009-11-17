@@ -40,7 +40,7 @@ void ReduceSurfaceTriangulation::pass1()
   int iter = 0;
   bool done = false;
   m_UseNormalCorrectionForSmoothing = true;
-  int num_initial_nodes = grid->GetNumberOfPoints();
+  int num_initial_nodes = m_Grid->GetNumberOfPoints();
   int num_del_max = 0;
   while (!done) {
     ++iter;
@@ -60,8 +60,8 @@ void ReduceSurfaceTriangulation::pass1()
     cout << "smoothing" << endl;
     smooth(1);
     done = num_deleted <= num_del_max/100;
-    cout << "total nodes : " << grid->GetNumberOfPoints() << endl;
-    cout << "total cells : " << grid->GetNumberOfCells() << endl;
+    cout << "total nodes : " << m_Grid->GetNumberOfPoints() << endl;
+    cout << "total cells : " << m_Grid->GetNumberOfCells() << endl;
   }
 }
 
@@ -75,12 +75,12 @@ void ReduceSurfaceTriangulation::pass2()
 void ReduceSurfaceTriangulation::operate()
 {
   prepare();
-  //writeGrid(grid, "take1");
+  //writeGrid(m_Grid, "take1");
   updateNodeInfo(true);
-  //writeGrid(grid, "take2");
+  //writeGrid(m_Grid, "take2");
   pass1();
   //pass2();
-  createIndices(grid);
+  createIndices(m_Grid);
   updateNodeInfo(false);
   computeMeshDensity();
 }

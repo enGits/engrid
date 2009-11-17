@@ -43,7 +43,7 @@ ReducedPolyDataReader::ReducedPolyDataReader()
   m_MaxEdgeLength = 10;
 }
 
-void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* grid, vtkPolyData* poly)
+void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* m_Grid, vtkPolyData* poly)
 {
   // create triangles
   poly->BuildCells();
@@ -79,11 +79,11 @@ void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* grid, vtkPolyDa
   EG_VTKSP(vtkDoubleArray, scalars);
   scalars->SetNumberOfComponents(1);
   scalars->SetName("g");
-  scalars->Allocate(grid->GetNumberOfPoints());
+  scalars->Allocate(m_Grid->GetNumberOfPoints());
 
-  QProgressDialog progress("Reducing triangulation", "Abort", 0, grid->GetNumberOfPoints());
+  QProgressDialog progress("Reducing triangulation", "Abort", 0, m_Grid->GetNumberOfPoints());
   progress.setWindowModality(Qt::ApplicationModal);
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     progress.setValue(id_node);
     QApplication::processEvents();
     if (progress.wasCanceled()) {
@@ -91,7 +91,7 @@ void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* grid, vtkPolyDa
     }
     double g_levelset = 1e99;
     vec3_t xp;
-    grid->GetPoint(id_node, xp.data());
+    m_Grid->GetPoint(id_node, xp.data());
     foreach (Triangle T, triangles) {
       vec3_t xi(1e99,1e99,1e99);
       vec3_t ri;
@@ -174,8 +174,8 @@ void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* grid, vtkPolyDa
     }
     scalars->InsertTuple1(id_node, g_levelset);
   }
-  progress.setValue(grid->GetNumberOfPoints());
-  grid->GetPointData()->SetScalars(scalars);
+  progress.setValue(m_Grid->GetNumberOfPoints());
+  m_Grid->GetPointData()->SetScalars(scalars);
 }
 
 
@@ -288,12 +288,12 @@ void ReducedPolyDataReader::operate()
       poly2ug->SetInput(contour->GetOutput());
       poly2ug->Update();
 
-      makeCopy(poly2ug->GetOutput(), grid);
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
-      EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      makeCopy(poly2ug->GetOutput(), m_Grid);
+      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
+      UpdateNodeIndex(m_Grid);
+      UpdateCellIndex(m_Grid);
+      EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         bc->SetValue(id_cell, 0);
       }
     }

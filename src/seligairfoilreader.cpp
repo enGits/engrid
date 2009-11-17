@@ -82,9 +82,9 @@ void SeligAirfoilReader::operate()
       EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, poly2ug);
       poly2ug->SetInput(tri->GetOutput());
       poly2ug->Update();
-      makeCopy(poly2ug->GetOutput(), grid);
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
+      makeCopy(poly2ug->GetOutput(), m_Grid);
+      UpdateNodeIndex(m_Grid);
+      UpdateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();
