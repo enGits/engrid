@@ -554,8 +554,8 @@ bool BezierTriangle::isInsideTriangle(vec2_t t_M)
 
 vec3_t BezierTriangle::surfaceNormal(double x, double y)
 {
-  double dx = smallest_length;
-  double dy = smallest_length;
+  double dx = 0.1*smallest_length;
+  double dy = 0.1*smallest_length;
   double z0  = z_func(x   , y);
   double zx1 = z_func(x-dx, y);
   double zx2 = z_func(x+dx, y);
@@ -576,6 +576,16 @@ vec3_t BezierTriangle::surfaceNormal(double x, double y)
   vec3_t l_u1;
   vec3_t l_u2;
   
+  if(!isInsideTriangle(t_P0)) {
+    qWarning()<<"t_P0="<<t_P0;
+    qWarning()<<"t_Px1="<<t_Px1;
+    qWarning()<<"t_Px2="<<t_Px2;
+    qWarning()<<"t_Py1="<<t_Py1;
+    qWarning()<<"t_Py2="<<t_Py2;
+    return vec3_t(0,0,0);
+    EG_BUG;
+  }
+  
   if(isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
     l_u1 = l_Px2-l_Px1;
   }
@@ -586,6 +596,12 @@ vec3_t BezierTriangle::surfaceNormal(double x, double y)
     l_u1 = l_P0-l_Px1;
   }
   else {
+    qWarning()<<"t_P0="<<t_P0;
+    qWarning()<<"t_Px1="<<t_Px1;
+    qWarning()<<"t_Px2="<<t_Px2;
+    qWarning()<<"t_Py1="<<t_Py1;
+    qWarning()<<"t_Py2="<<t_Py2;
+    return vec3_t(0,0,0);
     EG_BUG;
   }
   
@@ -600,10 +616,17 @@ vec3_t BezierTriangle::surfaceNormal(double x, double y)
     l_u2 = l_P0-l_Py1;
   }
   else {
+    qWarning()<<"t_P0="<<t_P0;
+    qWarning()<<"t_Px1="<<t_Px1;
+    qWarning()<<"t_Px2="<<t_Px2;
+    qWarning()<<"t_Py1="<<t_Py1;
+    qWarning()<<"t_Py2="<<t_Py2;
+    return vec3_t(0,0,0);
     EG_BUG;
   }
   
   vec3_t l_N = l_u1.cross(l_u2);
   vec3_t g_N = G*l_N;
+  g_N.normalise();
   return g_N;
 }

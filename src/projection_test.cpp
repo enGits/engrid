@@ -20,10 +20,10 @@ void Projection_test::operate()
 //   Bezier_test();
 //   checkInterpolationGrid();
 //    Bezier_circle_test();
-//   bezierFunctionTest();
+  bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
-  bezierProjectionTest2();
+//   bezierProjectionTest2();
 }
 
 BezierTriangle specialTriangle(bool equi, int type)
@@ -211,7 +211,7 @@ void Projection_test::bezierFunctionTest()
 {
   int N=10;
   
-  BezierTriangle bezier_triangle = specialTriangle(true,0);
+  BezierTriangle bezier_triangle = specialTriangle(true,3);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
@@ -235,7 +235,7 @@ void Projection_test::bezierFunctionTest()
   EG_VTKDCN( vtkDoubleArray, node_meshdensity_current, bezier, "node_meshdensity_current" );
   
   vtkDoubleArray *vectors1 = vtkDoubleArray::New();
-  vectors1->SetName("normals");
+  vectors1->SetName("diffs");
   vectors1->SetNumberOfComponents(3);
   vectors1->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
@@ -244,6 +244,11 @@ void Projection_test::bezierFunctionTest()
   vectors2->SetNumberOfComponents(3);
   vectors2->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
+  vtkDoubleArray *vectors3 = vtkDoubleArray::New();
+  vectors3->SetName("normals");
+  vectors3->SetNumberOfComponents(3);
+  vectors3->SetNumberOfTuples(bezier->GetNumberOfPoints());
+  
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
       
@@ -251,7 +256,7 @@ void Projection_test::bezierFunctionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-//       vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
+      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
@@ -272,18 +277,23 @@ void Projection_test::bezierFunctionTest()
       vec2_t t_tangent = bezier_triangle.jacobiMatrix(t_M[0],t_M[1]) * displacement;
       vec3_t g_tangent = bezier_triangle.local2DToGlobal3D(t_tangent) - bezier_triangle.m_X_200;
       
+      // calculate normal vectors
+      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M[0],t_M[1]);
+      
       // enter the values
       vtkIdType id_node = offset + node_count;
       node_meshdensity_current->SetValue(id_node, g_diff.abs());
       vectors1->InsertTuple(id_node,g_diff.data());
       vectors2->InsertTuple(id_node,g_tangent.data());
-      bezier->GetPoints()->SetPoint(id_node, g_M.data());node_count++;
+      vectors3->InsertTuple(id_node,g_normal.data());
+      bezier->GetPoints()->SetPoint(id_node, g_P.data());node_count++;
     }
   }
   
-  bezier->GetPointData()->SetVectors(vectors2);
+  bezier->GetPointData()->SetVectors(vectors3);
   vectors1->Delete();
   vectors2->Delete();
+  vectors3->Delete();
   
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {
@@ -310,7 +320,7 @@ void Projection_test::bezierFunctionTest()
   qDebug()<<"cell_count="<<cell_count;
   
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu2);
-  vtu2->SetFileName("bezierProjectionTest.vtu");
+  vtu2->SetFileName("bezierFunctionTest.vtu");
 //   vtu2->SetDataModeToBinary();
   vtu2->SetDataModeToAscii();
   vtu2->SetInput(bezier);
