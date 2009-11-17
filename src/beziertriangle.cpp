@@ -572,7 +572,7 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
     dx = k * ex;
     dy = k * ey;
   }
-  else if(v>=u && v>w) {
+  else if(v>u && v>=w) {
     dx = k * (ey-ex);
     dy = k * (-1*ex);
   }
@@ -581,6 +581,7 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
     dy = k * (ex-ey);
   }
   else {
+    qWarning()<<"bary_coords="<<bary_coords;
     EG_BUG;
   }
   
@@ -658,16 +659,19 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
     EG_BUG;
   }
   
-  vec3_t l_N = l_u1.cross(l_u2);
-  vec3_t g_N = G*l_N;
+  vec3_t g_u1 = G*l_u1;
+  g_u1.normalise();
+  vec3_t g_u2 = G*l_u2;
+  g_u2.normalise();
+  vec3_t g_N = g_u1.cross(g_u2);
   g_N.normalise();
   if(output==0) {
     return g_N;
   }
   else if(output==1) {
-    return (G*l_u1).normalise();
+    return g_u1;
   }
   else {
-    return (G*l_u2).normalise();
+    return g_u2;
   }
 }

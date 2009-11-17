@@ -211,7 +211,7 @@ void Projection_test::bezierFunctionTest()
 {
   int N=10;
   
-  BezierTriangle bezier_triangle = specialTriangle(true,0);
+  BezierTriangle bezier_triangle = specialTriangle(false,1);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
