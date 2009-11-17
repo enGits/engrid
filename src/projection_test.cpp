@@ -244,10 +244,20 @@ void Projection_test::bezierFunctionTest()
   vectors2->SetNumberOfComponents(3);
   vectors2->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
-  vtkDoubleArray *vectors3 = vtkDoubleArray::New();
-  vectors3->SetName("normals");
-  vectors3->SetNumberOfComponents(3);
-  vectors3->SetNumberOfTuples(bezier->GetNumberOfPoints());
+  vtkDoubleArray *vectors3_n = vtkDoubleArray::New();
+  vectors3_n->SetName("normals");
+  vectors3_n->SetNumberOfComponents(3);
+  vectors3_n->SetNumberOfTuples(bezier->GetNumberOfPoints());
+  
+  vtkDoubleArray *vectors3_u1 = vtkDoubleArray::New();
+  vectors3_u1->SetName("u1");
+  vectors3_u1->SetNumberOfComponents(3);
+  vectors3_u1->SetNumberOfTuples(bezier->GetNumberOfPoints());
+  
+  vtkDoubleArray *vectors3_u2 = vtkDoubleArray::New();
+  vectors3_u2->SetName("u2");
+  vectors3_u2->SetNumberOfComponents(3);
+  vectors3_u2->SetNumberOfTuples(bezier->GetNumberOfPoints());
   
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
@@ -278,24 +288,32 @@ void Projection_test::bezierFunctionTest()
       vec3_t g_tangent = bezier_triangle.local2DToGlobal3D(t_tangent) - bezier_triangle.m_X_200;
       
       // calculate normal vectors
-      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M);
+      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M,0);
+      vec3_t g_u1 = bezier_triangle.surfaceNormal(t_M,1);
+      vec3_t g_u2 = bezier_triangle.surfaceNormal(t_M,2);
       
       // enter the values
       vtkIdType id_node = offset + node_count;
       node_meshdensity_current->SetValue(id_node, g_diff.abs());
       vectors1->InsertTuple(id_node,g_diff.data());
       vectors2->InsertTuple(id_node,g_tangent.data());
-      vectors3->InsertTuple(id_node,g_normal.data());
+      vectors3_n->InsertTuple(id_node,g_normal.data());
+      vectors3_u1->InsertTuple(id_node,g_u1.data());
+      vectors3_u2->InsertTuple(id_node,g_u2.data());
       bezier->GetPoints()->SetPoint(id_node, g_P.data());node_count++;
     }
   }
   
   bezier->GetPointData()->AddArray(vectors1);
   bezier->GetPointData()->AddArray(vectors2);
-  bezier->GetPointData()->AddArray(vectors3);
+  bezier->GetPointData()->AddArray(vectors3_n);
+  bezier->GetPointData()->AddArray(vectors3_u1);
+  bezier->GetPointData()->AddArray(vectors3_u2);
   vectors1->Delete();
   vectors2->Delete();
-  vectors3->Delete();
+  vectors3_n->Delete();
+  vectors3_u1->Delete();
+  vectors3_u2->Delete();
   
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {

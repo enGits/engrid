@@ -1,26 +1,7 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="6" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
-   <View0 Encoding="" line="274" Type="Source" />
-  </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/projection_test.h" >
-   <View0 Encoding="" line="21" Type="Source" />
-  </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///opt/shared/VTK/include/vtk-5.4/vtkPoints.h" >
-   <View0 Encoding="" line="125" Type="Source" />
-  </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.h" >
-   <View0 Encoding="" line="92" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
-   <View0 Encoding="" line="609" Type="Source" />
-  </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/triangle.cpp" >
-   <View0 Encoding="" line="95" Type="Source" />
-  </Doc5>
- </DocsAndViews>
+ <DocsAndViews NumberOfDocuments="0" />
  <pluginList>
   <kdevdebugger>
    <breakpointList>
@@ -36,35 +17,32 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
-     <mark line="66" />
+    <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
+     <mark line="112" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
      <mark line="94" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
-     <mark line="112" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-     <mark line="199" />
+    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
+     <mark line="66" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
      <mark line="408" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
+     <mark line="199" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
      <mark line="104" />
     </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
-     <mark line="1910" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-     <mark line="766" />
      <mark line="562" />
+     <mark line="766" />
      <mark line="784" />
-     <mark line="569" />
      <mark line="433" />
-     <mark line="400" />
+     <mark line="569" />
      <mark line="1522" />
+     <mark line="400" />
      <mark line="843" />
      <mark line="912" />
      <mark line="624" />
@@ -72,22 +50,28 @@
      <mark line="898" />
      <mark line="1393" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
+     <mark line="1910" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
      <mark line="527" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
      <mark line="241" />
      <mark line="174" />
      <mark line="390" />
     </bookmark>
+    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
+     <mark line="57" />
+    </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
      <mark line="61" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/operation.h" >
      <mark line="116" />
+    </bookmark>
+    <bookmark url="/data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
+     <mark line="209" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/engrid/src/removepoints.cpp" >
      <mark line="355" />

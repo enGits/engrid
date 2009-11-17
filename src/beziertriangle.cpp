@@ -557,7 +557,7 @@ bool BezierTriangle::isInsideTriangle(vec2_t t_M, double tol)
   }
 }
 
-vec3_t BezierTriangle::surfaceNormal(vec2_t t_M)
+vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
 {
   vec3_t bary_coords = getBarycentricCoordinates(t_M[0],t_M[1]);
   double u = bary_coords[0];
@@ -661,7 +661,13 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M)
   vec3_t l_N = l_u1.cross(l_u2);
   vec3_t g_N = G*l_N;
   g_N.normalise();
-//   return (G*l_u1).normalise();
-  return (G*l_u2).normalise();
-//   return g_N;
+  if(output=0) {
+    return g_N;
+  }
+  else if(output=1) {
+    return (G*l_u1).normalise();
+  }
+  else {
+    return (G*l_u2).normalise();
+  }
 }

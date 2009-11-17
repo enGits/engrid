@@ -89,7 +89,7 @@ public:
   mat2_t jacobiMatrix_numeric(vec2_t t_inputPoint, double x, double y, double dx, double dy);
   
 //   mat3_t jacobiMatrix_no_projection(double x, double y);
-  vec3_t surfaceNormal(vec2_t t_M);
+  vec3_t surfaceNormal(vec2_t t_M, int output);
   double z_func(vec2_t t_M);
   double z_func(double x, double y);
   bool isInsideTriangle(vec2_t t_M, double tol=10e-10);
