@@ -354,3 +354,15 @@ bool checkVector(vec3_t V)
   }
   return true;
 }
+
+QDebug operator<<(QDebug dbg, const vec3_t &v)
+{
+  dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
+  return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const vec2_t &v)
+{
+  dbg.nospace() << "(" << v[0] << ", " << v[1] << ")";
+  return dbg.space();
+}

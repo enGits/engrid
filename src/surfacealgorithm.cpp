@@ -93,7 +93,7 @@ void SurfaceAlgorithm::prepare()
   readSettings();
   readVMD();
   
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
   
   updateNodeInfo(true);
 
@@ -103,7 +103,7 @@ void SurfaceAlgorithm::computeMeshDensity()
 {
   ///\todo Optimize by using only one loop through nodes!
   UpdateDesiredMeshDensity update_desired_mesh_density;
-  update_desired_mesh_density.setGrid(grid);
+  update_desired_mesh_density.setGrid(m_Grid);
   update_desired_mesh_density.setVertexMeshDensityVector(m_VMDvector);
   update_desired_mesh_density.setMaxEdgeLength(m_MaxEdgeLength);
   update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
@@ -118,26 +118,26 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
   l2g_t nodes = getPartNodes();
   foreach (vtkIdType id_node, nodes) {
     if(update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
       node_type->SetValue(id_node, getNodeType(id_node, true));
     }
-    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, grid, "node_meshdensity_current");//what we have
+    EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");//what we have
     node_meshdensity_current->SetValue(id_node, CurrentVertexAvgDist(id_node));
 
-    EG_VTKDCN(vtkIntArray, node_specified_density, grid, "node_specified_density");//density index from table
+    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(id_node);
 //     int idx = m_VMDvector.indexOf(nodeVMD);
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
 //     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
-//   writeGrid(grid, "info");
+//   writeGrid(m_Grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
 {
   SwapTriangles swap;
-  swap.setGrid(grid);
+  swap.setGrid(m_Grid);
   swap.setRespectBC(true);
   swap.setFeatureSwap(m_AllowFeatureEdgeSwapping);
   swap.setFeatureAngle(m_FeatureAngle);
@@ -153,9 +153,9 @@ void SurfaceAlgorithm::swap()
 void SurfaceAlgorithm::smooth(int N_iter)
 {
   LaplaceSmoother lap;
-  lap.setGrid(grid);
+  lap.setGrid(m_Grid);
   QVector<vtkIdType> cls;
-  getSurfaceCells(m_BoundaryCodes, cls, grid);
+  getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
   lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
@@ -176,7 +176,7 @@ void SurfaceAlgorithm::smooth(int N_iter)
 int SurfaceAlgorithm::insertNodes()
 {
   InsertPoints insert_points;
-  insert_points.setGrid(grid);
+  insert_points.setGrid(m_Grid);
   insert_points.setBoundaryCodes(m_BoundaryCodes);
   insert_points();
   return insert_points.getNumInserted();
@@ -185,7 +185,7 @@ int SurfaceAlgorithm::insertNodes()
 int SurfaceAlgorithm::deleteNodes()
 {
   RemovePoints remove_points;
-  remove_points.setGrid(grid);
+  remove_points.setGrid(m_Grid);
   remove_points.setBoundaryCodes(m_BoundaryCodes);
   if (m_RespectFeatureEdgesForDeleteNodes) {
     remove_points.setProtectFeatureEdgesOn();

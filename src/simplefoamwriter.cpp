@@ -44,13 +44,13 @@ bool SimpleFoamWriter::face_t::operator<(const face_t &F) const
   return less;
 }
 
-vec3_t SimpleFoamWriter::face_t::normal(vtkUnstructuredGrid *grid)
+vec3_t SimpleFoamWriter::face_t::normal(vtkUnstructuredGrid *m_Grid)
 {
   if (node.size() < 3) EG_BUG;
   vec3_t xc(0,0,0);
   QVector<vec3_t> x(node.size());
   for (int i = 0; i < node.size(); ++i) {
-    grid->GetPoint(node[i],x[i].data());
+    m_Grid->GetPoint(node[i],x[i].data());
     xc += x[i];
   }
   xc *= 1.0/node.size();
@@ -85,7 +85,7 @@ vtkIdType SimpleFoamWriter::getNeigh(int i_cells, int i_neigh)
 
 void SimpleFoamWriter::addFace(face_t F)
 {
-  if (isVolume(F.neighbour,grid)) {
+  if (isVolume(F.neighbour,m_Grid)) {
     if (F.neighbour > F.owner) {
       F.bc = 0;
       m_LFaces.append(F);
@@ -102,15 +102,15 @@ void SimpleFoamWriter::createFaces()
   l2g_t cells = getPartCells();
 
   m_LFaces.clear();
-  EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
   m_BC = cell_code;
   m_Eg2Of.fill(-1,cells.size());
   int Nvol = 0;
   foreach(int i_cells, cells) {
     vtkIdType *pts;
     vtkIdType  Npts;
-    grid->GetCellPoints(cells[i_cells], Npts, pts);
-    vtkIdType type_cell = grid->GetCellType(cells[i_cells]);
+    m_Grid->GetCellPoints(cells[i_cells], Npts, pts);
+    vtkIdType type_cell = m_Grid->GetCellType(cells[i_cells]);
     vtkIdType id_cell = cells[i_cells];
     
     // tetras
@@ -242,7 +242,7 @@ void SimpleFoamWriter::writePoints()
   foreach(int i_nodes, nodes) {
     vtkIdType id_node = nodes[i_nodes];
     vec3_t x;
-    grid->GetPoint(id_node,x.data());
+    m_Grid->GetPoint(id_node,x.data());
     f.setRealNumberPrecision(16);
     f << "(" << x[0] << " " << x[1] << " " << x[2] << ")\n";
   }

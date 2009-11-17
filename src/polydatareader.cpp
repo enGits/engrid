@@ -44,12 +44,12 @@ void PolyDataReader::operate()
       vtp->SetFileName(qPrintable(getFileName()));
       pd2ug->SetInput(vtp->GetOutput());
       pd2ug->Update();
-      grid->DeepCopy(pd2ug->GetOutput());
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateNodeIndex(grid);
-      UpdateCellIndex(grid);
-      EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfPoints(); ++id_cell) {
+      m_Grid->DeepCopy(pd2ug->GetOutput());
+      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
+      UpdateNodeIndex(m_Grid);
+      UpdateCellIndex(m_Grid);
+      EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfPoints(); ++id_cell) {
         bc->SetValue(id_cell,99);
       }
     }

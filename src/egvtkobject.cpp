@@ -1155,17 +1155,13 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
   vtkIdType node_count = 0;
   for(int i=0;i<N;i++) {
     for(int j=0;j<N-i;j++) {
-//       double x = -1 + 4.0*i/(double)(N-1);
-//       double y = -1 + 4.0*j/(double)(N-1);
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
-//       qWarning()<<"x="<<x<<"y="<<y;
       vec3_t bary_coords = getBarycentricCoordinates(x,y);
       double u,v,w;
       u=bary_coords[0];
       v=bary_coords[1];
       w=bary_coords[2];
-//       qWarning()<<"u="<<u<<"v="<<v<<"w="<<w;
       vec3_t M = bezier_triangle->QuadraticBezierTriangle(u, v, w);
       bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
     }
@@ -1231,14 +1227,33 @@ void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
   }
 }
 
-QDebug operator<<(QDebug dbg, const vec3_t &v)
+bool EgVtkObject::saveGrid(vtkUnstructuredGrid* a_grid, QString file_name)
 {
-  dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
-  return dbg.space();
+  file_name += ".vtu";
+  addVtkTypeInfo(a_grid);
+  createIndices(a_grid);
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName(qPrintable(file_name));
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(a_grid);
+  vtu->Write();
+  if(vtu->GetErrorCode()) {
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 
-QDebug operator<<(QDebug dbg, const vec2_t &v)
+void EgVtkObject::addVtkTypeInfo(vtkUnstructuredGrid* a_grid)
 {
-  dbg.nospace() << "(" << v[0] << ", " << v[1] << ")";
-  return dbg.space();
+  EG_VTKSP(vtkIntArray, vtk_type);
+  vtk_type->SetName("vtk_type");
+  vtk_type->SetNumberOfValues(a_grid->GetNumberOfCells());
+  EG_VTKDCC(vtkDoubleArray, cell_VA, a_grid, "cell_VA");
+  for (vtkIdType cellId = 0; cellId < a_grid->GetNumberOfCells(); ++cellId) {
+    vtk_type->SetValue(cellId, a_grid->GetCellType(cellId));
+    cell_VA->SetValue(cellId, GeometryTools::cellVA(a_grid, cellId, true));
+  }
+  a_grid->GetCellData()->AddArray(vtk_type);
 }

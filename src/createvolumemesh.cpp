@@ -48,31 +48,31 @@ void CreateVolumeMesh::prepare()
 {
   using namespace nglib;
   DeleteTetras del;
-  del.setGrid(grid);
+  del.setGrid(m_Grid);
   del.setAllCells();
   del();
   QVector<vtkIdType> cells, nodes;
   QVector<int>       _cells, _nodes;
   QVector<QVector< int > > c2c;
   QVector<QVector<int> > n2c;
-  getAllCells(cells, grid);
-  createCellMapping(cells, _cells, grid);
-  getNodesFromCells(cells, nodes, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createCellToCell(cells, c2c, grid);
-  createNodeToCell(cells, nodes, _nodes, n2c, grid);
+  getAllCells(cells, m_Grid);
+  createCellMapping(cells, _cells, m_Grid);
+  getNodesFromCells(cells, nodes, m_Grid);
+  createNodeMapping(nodes, _nodes, m_Grid);
+  createCellToCell(cells, c2c, m_Grid);
+  createNodeToCell(cells, nodes, _nodes, n2c, m_Grid);
   QList<QVector<vtkIdType> > ex_tri;
   int N1 = 0;
   int N2 = 0;
   int N3 = 0;
   int N4 = 0;
   foreach (vtkIdType id_cell, cells) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     vtkIdType *pts, N_pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     QVector<vtkIdType> T(3);
     if (type_cell == VTK_TRIANGLE) {
-      if (findVolumeCell(grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
+      if (findVolumeCell(m_Grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
         T[0] = pts[0];
         T[1] = pts[1];
         T[2] = pts[2];
@@ -80,7 +80,7 @@ void CreateVolumeMesh::prepare()
         ++N4;
       }
     } else if (type_cell == VTK_QUAD) {
-      if (findVolumeCell(grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
+      if (findVolumeCell(m_Grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
         EG_BUG;
         T[0] = pts[0];
         T[1] = pts[1];
@@ -152,7 +152,7 @@ void CreateVolumeMesh::prepare()
   cout << "*********************************************************************" << endl;
   tri.resize(ex_tri.size());
   qCopy(ex_tri.begin(), ex_tri.end(), tri.begin());
-  add_to_ng.fill(false, grid->GetNumberOfPoints());
+  add_to_ng.fill(false, m_Grid->GetNumberOfPoints());
   foreach (QVector<vtkIdType> T, tri) {
     add_to_ng[T[0]] = true;
     add_to_ng[T[1]] = true;
@@ -160,21 +160,22 @@ void CreateVolumeMesh::prepare()
   }
   num_nodes_to_add = 0;
   num_old_nodes = 0;
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (add_to_ng[id_node]) {
       ++num_nodes_to_add;
     } else {
       ++num_old_nodes;
     }
   }  
-  old2tri.fill(-1, grid->GetNumberOfPoints());
+  old2tri.fill(-1, m_Grid->GetNumberOfPoints());
   m_NumTriangles = 0;
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (add_to_ng[id_node]) {
       old2tri[id_node] = m_NumTriangles;
       ++m_NumTriangles;
     }
   }
+  writeDebugInfo();
 }
 
 void CreateVolumeMesh::writeDebugInfo()
@@ -182,12 +183,12 @@ void CreateVolumeMesh::writeDebugInfo()
   {
     EG_VTKSP(vtkUnstructuredGrid,tri_grid);
     allocateGrid(tri_grid, tri.size(), m_NumTriangles);
-    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (add_to_ng[id_node]) {
         vec3_t x;
-        grid->GetPoint(id_node, x.data());
+        m_Grid->GetPoint(id_node, x.data());
         tri_grid->GetPoints()->SetPoint(old2tri[id_node], x.data());
-        copyNodeData(grid, id_node, tri_grid, old2tri[id_node]);
+        copyNodeData(m_Grid, id_node, tri_grid, old2tri[id_node]);
       }
     }
     foreach (QVector<vtkIdType> T, tri) {
@@ -200,7 +201,7 @@ void CreateVolumeMesh::writeDebugInfo()
     writeGrid(tri_grid, "triangles");
   }
   {
-    writeGrid(grid, "last_grid");
+    writeGrid(m_Grid, "last_grid");
   }
 }
 
@@ -213,16 +214,16 @@ void CreateVolumeMesh::computeMeshDensity()
   QVector<int>       _nodes;
   QVector<QVector<int> >  c2c;
   QVector<QSet<int> >     n2n;
-  getAllCellsOfType(VTK_TETRA, cells, grid);
-  getNodesFromCells(cells, nodes, grid);
-  createNodeMapping(nodes, _nodes, grid);
-  createCellToCell(cells, c2c, grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, grid);
+  getAllCellsOfType(VTK_TETRA, cells, m_Grid);
+  getNodesFromCells(cells, nodes, m_Grid);
+  createNodeMapping(nodes, _nodes, m_Grid);
+  createCellToCell(cells, c2c, m_Grid);
+  createNodeToNode(cells, nodes, _nodes, n2n, m_Grid);
   QVector<bool> fixed(nodes.size(), false);
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
     vtkIdType id_cell = cells[i_cells];
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     if (c2c[i_cells][0] == -1) {
       fixed[_nodes[pts[0]]] = true;
       fixed[_nodes[pts[1]]] = true;
@@ -254,7 +255,7 @@ void CreateVolumeMesh::computeMeshDensity()
       ++N_non_fixed;
       int N = 0;
       vec3_t xi;
-      grid->GetPoint(nodes[i_nodes], xi.data());
+      m_Grid->GetPoint(nodes[i_nodes], xi.data());
       if (first_node) {
         X1 = xi;
         X2 = xi;
@@ -268,7 +269,7 @@ void CreateVolumeMesh::computeMeshDensity()
       foreach (int j_nodes, n2n[i_nodes]) {
         if (fixed[j_nodes]) {
           vec3_t xj;
-          grid->GetPoint(nodes[j_nodes], xj.data());
+          m_Grid->GetPoint(nodes[j_nodes], xj.data());
           H[i_nodes] += (xi-xj).abs();
           ++N;
         }
@@ -290,7 +291,7 @@ void CreateVolumeMesh::computeMeshDensity()
       for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
         if (!fixed[i_nodes]) {
           vec3_t x;
-          grid->GetPoint(nodes[i_nodes], x.data());
+          m_Grid->GetPoint(nodes[i_nodes], x.data());
           double cl_src = m_ELSManager.minEdgeLength(x);
           if (cl_src > 0) {
             H[i_nodes] = cl_src;
@@ -320,11 +321,11 @@ void CreateVolumeMesh::computeMeshDensity()
     } while (DH_max > 1e-3*H_min);
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vec3_t x1, x2;
-      grid->GetPoint(nodes[i_nodes], x1.data());
+      m_Grid->GetPoint(nodes[i_nodes], x1.data());
       x2 = x1;
       foreach (int j_nodes, n2n[i_nodes]) {
         vec3_t xj;
-        grid->GetPoint(nodes[j_nodes], xj.data());
+        m_Grid->GetPoint(nodes[j_nodes], xj.data());
         for (int k = 0; k < 3; ++k) {
           x1[k] = min(xj[k], x1[k]);
           x2[k] = max(xj[k], x2[k]);
@@ -342,7 +343,7 @@ void CreateVolumeMesh::computeMeshDensity()
 void CreateVolumeMesh::operate()
 {
   using namespace nglib;
-  if (grid->GetNumberOfCells() == 0) {
+  if (m_Grid->GetNumberOfCells() == 0) {
     EG_ERR_RETURN("The grid appears to be empty.");
   }
   nglib::Ng_Init();
@@ -354,13 +355,13 @@ void CreateVolumeMesh::operate()
   computeMeshDensity();
   prepare();
   QVector<vtkIdType> ng2eg(num_nodes_to_add+1);
-  QVector<vtkIdType> eg2ng(grid->GetNumberOfPoints());
+  QVector<vtkIdType> eg2ng(m_Grid->GetNumberOfPoints());
   {
     int N = 1;
-    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (add_to_ng[id_node]) {
         vec3_t x;
-        grid->GetPoints()->GetPoint(id_node, x.data());
+        m_Grid->GetPoints()->GetPoint(id_node, x.data());
         Ng_AddPoint(mesh, x.data());
         ng2eg[N] = id_node;
         eg2ng[id_node] = N;
@@ -381,7 +382,7 @@ void CreateVolumeMesh::operate()
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
     res = Ng_GenerateVolumeMesh (mesh, &mp);
   } catch (netgen::NgException ng_err) {
-    writeDebugInfo();
+    //writeDebugInfo();
     Error err;
     QString msg = "Netgen stopped with the following error:\n";
     msg += ng_err.What().c_str();
@@ -395,16 +396,16 @@ void CreateVolumeMesh::operate()
     int Ncells_ng  = Ng_GetNE(mesh);
     int Nscells_ng = Ng_GetNSE(mesh);
     EG_VTKSP(vtkUnstructuredGrid,vol_grid);
-    allocateGrid(vol_grid, grid->GetNumberOfCells() + Ncells_ng, Npoints_ng + num_old_nodes);
+    allocateGrid(vol_grid, m_Grid->GetNumberOfCells() + Ncells_ng, Npoints_ng + num_old_nodes);
     vtkIdType new_point = 0;
     
     // copy existing points
-    QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
-    for (vtkIdType id_point = 0; id_point < grid->GetNumberOfPoints(); ++id_point) {
+    QVector<vtkIdType> old2new(m_Grid->GetNumberOfPoints(), -1);
+    for (vtkIdType id_point = 0; id_point < m_Grid->GetNumberOfPoints(); ++id_point) {
       vec3_t x;
-      grid->GetPoints()->GetPoint(id_point, x.data());
+      m_Grid->GetPoints()->GetPoint(id_point, x.data());
       vol_grid->GetPoints()->SetPoint(new_point, x.data());
-      copyNodeData(grid, id_point, vol_grid, new_point);
+      copyNodeData(m_Grid, id_point, vol_grid, new_point);
       old2new[id_point] = new_point;
       ++new_point;
     }
@@ -441,16 +442,16 @@ void CreateVolumeMesh::operate()
     }
     
     // copy existing cells
-    QVector<vtkIdType> old2new_cell(grid->GetNumberOfCells(), -1);
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    QVector<vtkIdType> old2new_cell(m_Grid->GetNumberOfCells(), -1);
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bool ins_cell = false;
-      vtkIdType type_cell = grid->GetCellType(id_cell);
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if (type_cell == VTK_TRIANGLE) ins_cell = true;
       if (type_cell == VTK_QUAD)     ins_cell = true;
       if (type_cell == VTK_WEDGE)    ins_cell = true;
       if (ins_cell) {
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
         for (int i = 0; i < N_pts; ++i) {
           pts[i] = old2new[pts[i]];
           if (pts[i] == -1) {
@@ -458,7 +459,7 @@ void CreateVolumeMesh::operate()
           }
         }
         vtkIdType id_new = vol_grid->InsertNextCell(type_cell, N_pts, pts);
-        copyCellData(grid, id_cell, vol_grid, id_new);
+        copyCellData(m_Grid, id_cell, vol_grid, id_new);
         old2new_cell[id_cell] = id_new;
       }
     }
@@ -498,7 +499,7 @@ void CreateVolumeMesh::operate()
         EG_ERR_RETURN("bug encountered");
       }
     }
-    makeCopy(vol_grid, grid);
+    makeCopy(vol_grid, m_Grid);
     for (int i = 0; i < trace_cells.size(); ++i) {
       if (old2new_cell[trace_cells[i]] == -1) {
         EG_BUG;

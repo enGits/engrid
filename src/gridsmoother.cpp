@@ -59,15 +59,15 @@ GridSmoother::GridSmoother()
 
 void GridSmoother::markNodes()
 {
-  m_NodeMarked.fill(false,grid->GetNumberOfPoints());
-  QVector<bool> new_mark(grid->GetNumberOfPoints());
+  m_NodeMarked.fill(false,m_Grid->GetNumberOfPoints());
+  QVector<bool> new_mark(m_Grid->GetNumberOfPoints());
   for (int i_iterations = 0; i_iterations < 4; ++i_iterations) {
     qCopy(m_NodeMarked.begin(),m_NodeMarked.end(),new_mark.begin());
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bool mark_cell = false;
       vtkIdType type_cell, N_pts, *pts;
-      type_cell = grid->GetCellType(id_cell);
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      type_cell = m_Grid->GetCellType(id_cell);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       if (type_cell == VTK_WEDGE) {
         mark_cell = true;
       } else {
@@ -89,7 +89,7 @@ void GridSmoother::markNodes()
   QVector<vtkIdType> nodes = m_Part.getNodes();
   foreach (vtkIdType id_node, nodes) {
     if (id_node < 0) EG_BUG;
-    if (id_node > grid->GetNumberOfPoints()) EG_BUG;
+    if (id_node > m_Grid->GetNumberOfPoints()) EG_BUG;
     if (m_NodeMarked[id_node]) {
       ++m_NumMarkedNodes;
     }
@@ -101,8 +101,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   using namespace GeometryTools;
   
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
-  grid->GetPoints()->SetPoint(id_node, x_new.data());
+  m_Grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
   bool move = true;
   Elements E;
 
@@ -111,9 +111,9 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   foreach (int i_cells, n2c[id_node]) {
     vtkIdType id_cell = cells[i_cells];
-    vtkIdType type_cell = grid->GetCellType(id_cell);
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     if (type_cell == VTK_TETRA) {
-      if (GeometryTools::cellVA(grid, id_cell) < 0) {
+      if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
         move = false;
         //if (dbg) cout << id_node << " : tetra negative" << endl;
       }
@@ -121,13 +121,13 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     if (type_cell == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
       vec3_t xtet[4];
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       bool ok = true;
       for (int i = 0; i < 4; ++i) {     // variation
         ok = true;
         for (int j = 0; j < 3; ++j) {   // tetrahedron
           for (int k = 0; k < 4; ++k) { // node
-            grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
+            m_Grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
           }
           if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
             ok = false;
@@ -144,7 +144,7 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     }
   }
   if (!move) {
-    grid->GetPoints()->SetPoint(id_node, x_old.data());
+    m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
   return move;
 }
@@ -155,26 +155,26 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
   l2l_t n2c = m_Part.getN2C();
   for (int i_boundary_correction = 0; i_boundary_correction < m_NumBoundaryCorrections; ++i_boundary_correction) {
     foreach (vtkIdType id_cell, n2c[i_nodes]) {
-      if (isSurface(id_cell, grid)) {
-        double A = GeometryTools::cellVA(grid, id_cell);
+      if (isSurface(id_cell, m_Grid)) {
+        double A = GeometryTools::cellVA(m_Grid, id_cell);
         if (A > 1e-20) {
-          vec3_t n = GeometryTools::cellNormal(grid, id_cell);
+          vec3_t n = GeometryTools::cellNormal(m_Grid, id_cell);
           n.normalise();
           Dx -= (n*Dx)*n;
         }
       } else {
-        if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+        if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
           vtkIdType N_pts, *pts;
-          grid->GetCellPoints(id_cell, N_pts, pts);
+          m_Grid->GetCellPoints(id_cell, N_pts, pts);
           vtkIdType id_surf_node = -1;
           if (pts[3] == nodes[i_nodes]) id_surf_node = pts[0];
           if (pts[4] == nodes[i_nodes]) id_surf_node = pts[1];
           if (pts[5] == nodes[i_nodes]) id_surf_node = pts[2];
           if (id_surf_node != -1) {
             vec3_t x0,x1,x2;
-            grid->GetPoint(pts[0],x0.data());
-            grid->GetPoint(pts[1],x1.data());
-            grid->GetPoint(pts[2],x2.data());
+            m_Grid->GetPoint(pts[0],x0.data());
+            m_Grid->GetPoint(pts[1],x1.data());
+            m_Grid->GetPoint(pts[2],x2.data());
             vec3_t a = x1-x0;
             vec3_t b = x2-x0;
             vec3_t c = b-a;
@@ -182,7 +182,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
             vec3_t n = b.cross(a);
             n.normalise();
             vec3_t x_old;
-            grid->GetPoint(nodes[i_nodes],x_old.data());
+            m_Grid->GetPoint(nodes[i_nodes],x_old.data());
             vec3_t x_new = x_old + Dx - x0;
             if ( (n*x_new) <= 0 ) {
               x_new -= (x_new*n)*n;
@@ -202,7 +202,7 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   l2g_t nodes = m_Part.getNodes();
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
   for (int i_relaxation = 0; i_relaxation < m_NumRelaxations; ++i_relaxation) {
     if (setNewPosition(id_node, x_old + Dx)) {
@@ -233,8 +233,8 @@ double GridSmoother::func(vec3_t x)
   l2l_t c2c = m_Part.getC2C();
 
   vec3_t x_old;
-  grid->GetPoint(nodes[m_INodesOpt], x_old.data());
-  grid->GetPoints()->SetPoint(nodes[m_INodesOpt], x.data());
+  m_Grid->GetPoint(nodes[m_INodesOpt], x_old.data());
+  m_Grid->GetPoints()->SetPoint(nodes[m_INodesOpt], x.data());
   double f       = 0;
   double f13     = 1.0/3.0;
   double f14     = 0.25;
@@ -244,13 +244,13 @@ double GridSmoother::func(vec3_t x)
   
   foreach (int i_cells, n2c[m_INodesOpt]) {
     vtkIdType id_cell = cells[i_cells];
-    if (isVolume(id_cell, grid)) {
-      vtkIdType type_cell = grid->GetCellType(id_cell);
+    if (isVolume(id_cell, m_Grid)) {
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       QVector<vec3_t> xn(N_pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-        grid->GetPoint(pts[i_pts],xn[i_pts].data());
+        m_Grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
       if (type_cell == VTK_TETRA) {
         double L = 0;
@@ -261,7 +261,7 @@ double GridSmoother::func(vec3_t x)
         L += (xn[1]-xn[3]).abs();
         L += (xn[2]-xn[3]).abs();
         L /= 6;
-        double V1 = GeometryTools::cellVA(grid, id_cell, true);
+        double V1 = GeometryTools::cellVA(m_Grid, id_cell, true);
         double V2 = sqrt(1.0/72.0)*L*L*L;
         double e = sqr((V1-V2)/V2);
         f += m_WTet*e;
@@ -359,13 +359,13 @@ double GridSmoother::func(vec3_t x)
           double e_skew = 0;
           double e_orth = 0;
           int N = 0;
-          vec3_t xc = cellCentre(grid, id_cell);
+          vec3_t xc = cellCentre(m_Grid, id_cell);
           for (int i_face = 0; i_face < 5; ++i_face) {
             int i_cells_neigh = c2c[i_cells][i_face];
             if (i_cells_neigh != -1) {
               vtkIdType id_neigh_cell = cells[i_cells_neigh];
-              if (isVolume(id_neigh_cell, grid)) {
-                vec3_t vc = cellCentre(grid, id_neigh_cell) - xc;
+              if (isVolume(id_neigh_cell, m_Grid)) {
+                vec3_t vc = cellCentre(m_Grid, id_neigh_cell) - xc;
                 vec3_t vf = x_face[i_face] - xc;
                 vc.normalise();
                 vf.normalise();
@@ -384,12 +384,12 @@ double GridSmoother::func(vec3_t x)
         for (int j = 2; j <= 4; ++j) {
           vtkIdType id_ncell = c2c[id_cell][j];
           if (id_ncell != -1) {
-            if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
+            if (m_Grid->GetCellType(id_ncell) == VTK_WEDGE) {
               vtkIdType N_pts, *pts;
-              grid->GetCellPoints(id_ncell, N_pts, pts);
+              m_Grid->GetCellPoints(id_ncell, N_pts, pts);
               QVector<vec3_t> x(3);
               for (int i_pts = 3; i_pts <= 5; ++i_pts) {
-                grid->GetPoint(pts[i_pts],x[i_pts-3].data());
+                m_Grid->GetPoint(pts[i_pts],x[i_pts-3].data());
               }
               vec3_t n = GeometryTools::triNormal(x[0],x[2],x[1]);
               n.normalise();
@@ -401,7 +401,7 @@ double GridSmoother::func(vec3_t x)
       }
     }
   }
-  grid->GetPoints()->SetPoint(nodes[m_INodesOpt], x_old.data());
+  m_Grid->GetPoints()->SetPoint(nodes[m_INodesOpt], x_old.data());
   n_node.normalise();
   {
     double f_sharp1 = 0;
@@ -436,26 +436,26 @@ void GridSmoother::operateOptimisation()
   l2l_t n2c = m_Part.getN2C();
   l2l_t n2n = m_Part.getN2N();
 
-  EG_VTKDCC(vtkIntArray,    bc,          grid, "cell_code");
-  EG_VTKDCN(vtkIntArray,    node_status, grid, "node_status");
-  EG_VTKDCN(vtkIntArray,    node_layer,  grid, "node_layer");
+  EG_VTKDCC(vtkIntArray,    bc,          m_Grid, "cell_code");
+  EG_VTKDCN(vtkIntArray,    node_status, m_Grid, "node_status");
+  EG_VTKDCN(vtkIntArray,    node_layer,  m_Grid, "node_layer");
   
-  m_IdFoot.fill(-1, grid->GetNumberOfPoints());
-  m_L.fill(0, grid->GetNumberOfPoints());
+  m_IdFoot.fill(-1, m_Grid->GetNumberOfPoints());
+  m_L.fill(0, m_Grid->GetNumberOfPoints());
 
   QVector<QSet<int> > n2bc(nodes.size());
   QVector<bool> prism_node(nodes.size(),false);
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, grid)) {
+    if (isSurface(id_cell, m_Grid)) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         n2bc[_nodes[pts[i_pts]]].insert(bc->GetValue(id_cell));
       }
     }
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         if (_nodes[pts[i_pts]] != -1) {
           prism_node[_nodes[pts[i_pts]]] = true;
@@ -471,7 +471,7 @@ void GridSmoother::operateOptimisation()
     if (prism_node[i_nodes]) {
       vec3_t x;
       m_INodesOpt = i_nodes;
-      grid->GetPoint(nodes[i_nodes], x.data());
+      m_Grid->GetPoint(nodes[i_nodes], x.data());
       double f = func(x);
       m_FOld += f;
       m_FMaxOld = max(m_FMaxOld, f);
@@ -499,7 +499,7 @@ void GridSmoother::operateOptimisation()
           }
         }
         foreach (int i_cells, n2c[i_nodes]) {
-          vtkIdType type_cell = grid->GetCellType(cells[i_cells]);
+          vtkIdType type_cell = m_Grid->GetCellType(cells[i_cells]);
           if ((type_cell == VTK_WEDGE) && !m_SmoothPrisms) {
             smooth = false;
           }
@@ -520,14 +520,14 @@ void GridSmoother::operateOptimisation()
         } else {
           vec3_t xn;
           vec3_t x_old;
-          grid->GetPoint(id_node, x_old.data());
+          m_Grid->GetPoint(id_node, x_old.data());
           resetStencil();
           bool is_surf = n2bc[i_nodes].size() > 0;
           int N = 0;
           foreach (int j_nodes, n2n[i_nodes]) {
             if (!is_surf || (n2bc[j_nodes].size() > 0)) {
               vtkIdType id_neigh_node = nodes[j_nodes];
-              grid->GetPoint(id_neigh_node, xn.data());
+              m_Grid->GetPoint(id_neigh_node, xn.data());
               addToStencil(1.0, xn);
               ++N;
             }
@@ -596,7 +596,7 @@ void GridSmoother::operateOptimisation()
                     correctDx(i_nodes, Dx);
                     vec3_t x = x_old + x;
                     if (setNewPosition(id_node, x)) {
-                      grid->GetPoints()->SetPoint(id_node, x_old.data());
+                      m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
                       double f = func(x);
                       if (f < f_min) {
                         f_min = f;
@@ -610,7 +610,7 @@ void GridSmoother::operateOptimisation()
               }
             }
             if (found) {
-              grid->GetPoints()->SetPoint(id_node, x_best.data());
+              m_Grid->GetPoints()->SetPoint(id_node, x_best.data());
               ++m_NumSearched;
             } else {
               ++N_blocked;
@@ -642,7 +642,7 @@ void GridSmoother::operateOptimisation()
       if (prism_node[i_nodes]) {
         vec3_t x;
         m_INodesOpt = i_nodes;
-        grid->GetPoint(nodes[i_nodes], x.data());
+        m_Grid->GetPoint(nodes[i_nodes], x.data());
         double f = func(x);
         m_FNew += f;
         m_FMaxNew = max(m_FMaxNew, f);
@@ -665,13 +665,13 @@ double GridSmoother::improvement()
 
 void GridSmoother::computeNormals()
 {
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  m_NodeNormal.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  m_NodeNormal.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     QSet<int> bcs;
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (isSurface(id_cell, grid)) {
+      if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
         if (m_BoundaryCodes.contains(bc)) {
           bcs.insert(bc);
@@ -688,24 +688,24 @@ void GridSmoother::computeNormals()
     }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (isSurface(id_cell, grid)) {
+      if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
         if (m_BoundaryCodes.contains(bc)) {
           vtkIdType N_pts, *pts;
-          grid->GetCellPoints(id_cell, N_pts, pts);
+          m_Grid->GetCellPoints(id_cell, N_pts, pts);
           vec3_t a, b, c;
           for (int j = 0; j < N_pts; ++j) {
             if (pts[j] == id_node) {
-              grid->GetPoint(pts[j], a.data());
+              m_Grid->GetPoint(pts[j], a.data());
               if (j > 0) {
-                grid->GetPoint(pts[j-1], b.data());
+                m_Grid->GetPoint(pts[j-1], b.data());
               } else {
-                grid->GetPoint(pts[N_pts-1], b.data());
+                m_Grid->GetPoint(pts[N_pts-1], b.data());
               }
               if (j < N_pts - 1) {
-                grid->GetPoint(pts[j+1], c.data());
+                m_Grid->GetPoint(pts[j+1], c.data());
               } else {
-                grid->GetPoint(pts[0], c.data());
+                m_Grid->GetPoint(pts[0], c.data());
               }
             }
           }
@@ -736,19 +736,19 @@ void GridSmoother::computeNormals()
       m_NodeNormal[id_node].normalise();
     }
   }
-  m_IsSharpNode.fill(false, grid->GetNumberOfPoints());
+  m_IsSharpNode.fill(false, m_Grid->GetNumberOfPoints());
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
     vtkIdType id_cell1 = m_Part.globalCell(i);
-    if (isSurface(id_cell1, grid)) {
+    if (isSurface(id_cell1, m_Grid)) {
       if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell1))) {
-        vec3_t n1 = cellNormal(grid, id_cell1);
+        vec3_t n1 = cellNormal(m_Grid, id_cell1);
         n1.normalise();
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell1, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell1, N_pts, pts);
         for (int j = 0; j < m_Part.c2cLSize(i); ++j) {
           vtkIdType id_cell2 = m_Part.c2cLG(i, j);
           if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell2))) {
-            vec3_t n2 = cellNormal(grid, id_cell2);
+            vec3_t n2 = cellNormal(m_Grid, id_cell2);
             n2.normalise();
             if (GeometryTools::angle(n1, n2) > m_CritAngle) {
               vtkIdType id_node1 = pts[j];
@@ -764,15 +764,15 @@ void GridSmoother::computeNormals()
       }
     }
   }
-  m_IsTripleNode.fill(false, grid->GetNumberOfPoints());
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  m_IsTripleNode.fill(false, m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_IsSharpNode[id_node]) {
       QVector<vec3_t> normals;
       for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
         vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-        if (isSurface(id_cell, grid)) {
+        if (isSurface(id_cell, m_Grid)) {
           if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell))) {
-            vec3_t n = cellNormal(grid, id_cell);
+            vec3_t n = cellNormal(m_Grid, id_cell);
             n.normalise();
             normals.push_back(n);
           }
@@ -792,11 +792,11 @@ void GridSmoother::computeNormals()
 
 void GridSmoother::computeFeet()
 {
-  m_IdFoot.fill(-1, grid->GetNumberOfPoints());
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+  m_IdFoot.fill(-1, m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       m_IdFoot[pts[3]] = pts[0];
       m_IdFoot[pts[4]] = pts[1];
       m_IdFoot[pts[5]] = pts[2];
@@ -806,13 +806,13 @@ void GridSmoother::computeFeet()
 
 void GridSmoother::simpleNodeMovement(int i_nodes)
 {
-  EG_VTKDCN(vtkDoubleArray, cl, grid, "node_meshdensity_desired" );
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired" );
   vtkIdType id_node = m_Part.globalNode(i_nodes);
   vtkIdType id_foot = m_IdFoot[id_node];
   if (id_foot != -1) {
     vec3_t x_foot, x_node;
-    grid->GetPoint(id_foot, x_foot.data());
-    grid->GetPoint(id_node, x_node.data());
+    m_Grid->GetPoint(id_foot, x_foot.data());
+    m_Grid->GetPoint(id_node, x_node.data());
     double L = cl->GetValue(id_foot);
     vec3_t x_new = x_foot + m_RelativeHeight*L*m_NodeNormal[id_foot];
     vec3_t Dx = x_new - x_node;
@@ -826,7 +826,7 @@ void GridSmoother::operateSimple()
 {
   cout << "performing simple boundary layer adjustment" << endl;
   computeFeet();
-  m_L.fill(0, grid->GetNumberOfPoints());
+  m_L.fill(0, m_Grid->GetNumberOfPoints());
   l2g_t nodes = m_Part.getNodes();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     simpleNodeMovement(i_nodes);

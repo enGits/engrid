@@ -99,7 +99,7 @@ void GuiTransform::operate()
   foreach(vtkIdType id_node, nodes)
   {
     vec3_t x;
-    grid->GetPoint(id_node, x.data());
+    m_Grid->GetPoint(id_node, x.data());
     
     x[0]+=Translation_Vector[0];
     x[1]+=Translation_Vector[1];
@@ -112,7 +112,7 @@ void GuiTransform::operate()
     x[1]*=Scaling_Vector[1];
     x[2]*=Scaling_Vector[2];
     
-    grid->GetPoints()->SetPoint(id_node, x.data());
+    m_Grid->GetPoints()->SetPoint(id_node, x.data());
   }
-  grid->Modified();// to force a drawing update
+  m_Grid->Modified();// to force a drawing update
 };

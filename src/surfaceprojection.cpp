@@ -27,12 +27,6 @@
 
 #include <vtkUnstructuredGridWriter.h>
 
-// QDebug operator<<(QDebug dbg, const vec3_t &v)
-// {
-//   dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
-//   return dbg.space();
-// }
-
 ///\todo Delete those grids somewhere
 SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {
@@ -389,18 +383,18 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
 }
 
 // #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW)
-// if (!grid->GetPointData()->GetArray(FIELD)) {
+// if (!m_Grid->GetPointData()->GetArray(FIELD)) {
 // EG_VTKSP(TYPE, var);
 // var->SetName(FIELD);
 // var->SetNumberOfValues(Nnodes);
-// grid->GetPointData()->AddArray(var);
-// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// m_Grid->GetPointData()->AddArray(var);
+// for (int i = 0; i < m_Grid->GetNumberOfPoints(); ++i) {
 // var->SetValue(i,0);
 // }
 // } else if (OW) {
-// EG_VTKDCN(TYPE, var, grid, FIELD);
+// EG_VTKDCN(TYPE, var, m_Grid, FIELD);
 // var->SetNumberOfValues(Nnodes);
-// for (int i = 0; i < grid->GetNumberOfPoints(); ++i) {
+// for (int i = 0; i < m_Grid->GetNumberOfPoints(); ++i) {
 // var->SetValue(i,0);
 // }
 // }
@@ -1264,8 +1258,8 @@ vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2)
   g2l_t _nodes = getPartLocalNodes();
   
   vec3_t x1,x2;
-  grid->GetPoints()->GetPoint(id_node1, x1.data());
-  grid->GetPoints()->GetPoint(id_node2, x2.data());
+  m_Grid->GetPoints()->GetPoint(id_node1, x1.data());
+  m_Grid->GetPoints()->GetPoint(id_node2, x2.data());
   
   QVector <vtkIdType> edge_cells;
   getEdgeCells(id_node1,id_node2,edge_cells);
@@ -1441,16 +1435,16 @@ void SurfaceProjection::updateBackgroundGridInfo()
       qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
       qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
       vec3_t x0,x1,x2;
-      grid->GetPoints()->GetPoint(id_node, x0.data());
-      grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
-      grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
+      m_Grid->GetPoints()->GetPoint(id_node, x0.data());
+      m_Grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
+      m_Grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
       qDebug()<<"x0="<<x0<<" x1="<<x1<<" x="<<x2;
 //       vtkIdType foo1 = (id_node+6-1-1)%6+1;
 //       vtkIdType foo2 = (id_node-1+1)%6+1;
 //       qDebug()<<"foo1="<<foo1<<"foo2="<<foo2;
       
-//       grid->GetPoints()->GetPoint(foo1, x1.data());
-//       grid->GetPoints()->GetPoint(foo2, x2.data());
+//       m_Grid->GetPoints()->GetPoint(foo1, x1.data());
+//       m_Grid->GetPoints()->GetPoint(foo2, x2.data());
       
       
 //       t1.cross(n1);

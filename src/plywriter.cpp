@@ -42,7 +42,7 @@ void PlyWriter::operate()
     readOutputFileName(file_info.completeBaseName() + ".ply");
     if (isValid()) {
       EG_VTKSP(vtkGeometryFilter, geometry);
-      geometry->SetInput(grid);
+      geometry->SetInput(m_Grid);
       EG_VTKSP(vtkTriangleFilter, triangle);
       triangle->SetInput(geometry->GetOutput());
       

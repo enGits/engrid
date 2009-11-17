@@ -51,11 +51,11 @@ void FixCadGeometry::operate()
   setAllCells();
 
   //prepare BCmap
-  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
   QSet <int> bcs;
   l2g_t cells = m_Part.getCells();
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, grid)) {
+    if (isSurface(id_cell, m_Grid)) {
       bcs.insert(bc->GetValue(id_cell));
     }
   }
@@ -76,14 +76,14 @@ void FixCadGeometry::operate()
   customUpdateNodeInfo();
 
   //call surface mesher
-  setGrid(grid);
+  setGrid(m_Grid);
   setBoundaryCodes(bcs);
   setVertexMeshDensityVector(m_VMDvector);
   setDesiredLength();
   mesher();
 
   // finalise
-  createIndices(grid);
+  createIndices(m_Grid);
   customUpdateNodeInfo();
   setDesiredLength();
 }
@@ -94,8 +94,8 @@ void FixCadGeometry::mesher()
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
   int num_deleted = 0;
@@ -113,10 +113,10 @@ void FixCadGeometry::mesher()
     swap();
     setDesiredLength();
     done = (iter >= 20) || (num_deleted == 0);
-    cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
-    cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
+    cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
+    cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
   }
-  createIndices(grid);
+  createIndices(m_Grid);
   customUpdateNodeInfo();
   setDesiredLength();
 }
@@ -130,8 +130,8 @@ void FixCadGeometry::setDesiredLength(double L)
   l2l_t  n2n   = getPartN2N();
   l2l_t  c2c   = getPartC2C();
 
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
-  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, grid, "node_specified_density");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, m_Grid, "node_specified_density");
 
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     vtkIdType id_node = nodes[i_nodes];
@@ -143,17 +143,17 @@ void FixCadGeometry::setDesiredLength(double L)
 void FixCadGeometry::customUpdateNodeInfo()
 {
   setAllCells();
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   l2g_t cells = getPartCells();
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     node_type->SetValue(id_node, VTK_FIXED_VERTEX);
   }
   foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, grid)) {
+    if (isSurface(id_cell, m_Grid)) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       if (N_pts == 3) {
-        vec3_t n1 = cellNormal(grid, id_cell);
+        vec3_t n1 = cellNormal(m_Grid, id_cell);
         QVector<int> num_bad_edges(3, 0);
         for (int i = 0; i < N_pts; ++i) {
           int i1 = i;
@@ -162,13 +162,13 @@ void FixCadGeometry::customUpdateNodeInfo()
             i2= i+1;
           }
           vec3_t x1, x2;
-          grid->GetPoint(pts[i1], x1.data());
-          grid->GetPoint(pts[i2], x2.data());
+          m_Grid->GetPoint(pts[i1], x1.data());
+          m_Grid->GetPoint(pts[i2], x2.data());
           double L = (x1 - x2).abs();
           vtkIdType id_neigh_cell = m_Part.c2cGG(id_cell, i);
           if (id_neigh_cell != -1) {
             bool bad_edge = false;
-            vec3_t n2 = cellNormal(grid, id_neigh_cell);
+            vec3_t n2 = cellNormal(m_Grid, id_neigh_cell);
             if (angle(n1, n2) > deg2rad(179.5)) {
               bad_edge = true;
             }

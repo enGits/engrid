@@ -77,8 +77,8 @@ void GuiSelectBoundaryCodes::saveSelectionAsGrid()
 {
   getSelectedItems(ui.listWidget, m_DisplayBoundaryCodes);
   QVector <vtkIdType> selected_cells;
-  getSurfaceCells(m_DisplayBoundaryCodes, selected_cells, grid);
-  writeCells(grid, selected_cells, GuiMainWindow::pointer()->getFilePath() + "selection.vtu" );
+  getSurfaceCells(m_DisplayBoundaryCodes, selected_cells, m_Grid);
+  writeCells(m_Grid, selected_cells, GuiMainWindow::pointer()->getFilePath() + "selection.vtu" );
 }
 
 void GuiSelectBoundaryCodes::getSelectedBoundaryCodes(QSet<int> &bcs)

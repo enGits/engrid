@@ -76,14 +76,14 @@ void Projection_test::project_picked_point()
   
   int bc_dst = 18;
   
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(m_Grid);
   
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoint(id_node, x_old.data());
   vec3_t x_new = GuiMainWindow::pointer()->getSurfProj(bc_dst)->project(x_old, id_node);
-  grid->GetPoints()->SetPoint(id_node, x_new.data());
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
   
-  grid->Modified();
+  m_Grid->Modified();
 }
 
 void Projection_test::project_all_points()
@@ -95,33 +95,33 @@ void Projection_test::project_all_points()
   int bc_src = 18;
   int bc_dst = 18;
   
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(m_Grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals("test");
   
   QVector <vtkIdType> cells;
   QSet <int> bc_src_set;
   bc_src_set.insert(bc_src);
-  getSurfaceCells(bc_src_set,cells,grid);
+  getSurfaceCells(bc_src_set,cells,m_Grid);
   
-  QVector <bool> alreadyprojected(grid->GetNumberOfPoints(),false);
+  QVector <bool> alreadyprojected(m_Grid->GetNumberOfPoints(),false);
   foreach(vtkIdType id_cell, cells) {
 //     qDebug()<<"id_cell="<<id_cell;
     vtkIdType *pts, N_pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     for(int i=0;i<N_pts;i++) {
       vtkIdType id_node=pts[i];
       if(!alreadyprojected[id_node]) {
 //         qDebug()<<"i="<<i;
         vec3_t x_old;
-        grid->GetPoint(id_node, x_old.data());
+        m_Grid->GetPoint(id_node, x_old.data());
         vec3_t x_new = GuiMainWindow::pointer()->getSurfProj(bc_dst)->project(x_old, id_node);
-        grid->GetPoints()->SetPoint(id_node, x_new.data());
+        m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
         alreadyprojected[id_node] = true;
       }
     }
   }
   
-  grid->Modified();
+  m_Grid->Modified();
 }
 
 void Projection_test::Bezier_test()
@@ -140,7 +140,7 @@ void Projection_test::checkInterpolationGrid()
 //   readSettings();
   readVMD();
   
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");//node type
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
   
   updateNodeInfo(true);
   
@@ -152,7 +152,7 @@ void Projection_test::checkInterpolationGrid()
   int bc_dst;
   bc_dst = 18;
 //   updateNodeInfo(true);
-  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
+  GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(m_Grid);
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeGridWithNormals("test");
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->writeInterpolationGrid("test");
 }

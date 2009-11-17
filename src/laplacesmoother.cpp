@@ -42,22 +42,22 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   using namespace GeometryTools;
 
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
-  grid->GetPoints()->SetPoint(id_node, x_new.data());
+  m_Grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
   bool move = true;
 
   vec3_t n(0,0,0);
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
   double A_max = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     A_max = max(A, A_max);
-    cell_normals[i] = GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+    cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
     cell_normals[i].normalise();
   }
   int N = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(grid, m_Part.n2cGG(id_node, i)));
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     if (A > 0.01*A_max) {
       n += cell_normals[i];
       ++N;
@@ -70,7 +70,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     double L_max = 0;
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       vec3_t xn;
-      grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
       double L = (xn - x_old).abs();
       L_max = max(L, L_max);
     }
@@ -78,12 +78,12 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
+      m_Grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
       if (N_pts != 3) {
         EG_BUG;
       }
       for (int j = 0; j < N_pts; ++j) {
-        grid->GetPoint(pts[j], x[j].data());
+        m_Grid->GetPoint(pts[j], x[j].data());
       }
       if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
         move = false;
@@ -104,7 +104,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   if (!move) {
     // comment this out if you want points to always move
-//     grid->GetPoints()->SetPoint(id_node, x_old.data());
+//     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
   return move;
 }
@@ -112,7 +112,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
   vec3_t x_old;
-  grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
   for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
@@ -147,13 +147,13 @@ void LaplaceSmoother::operate()
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
     foreach (int bc, bcs) {
-      GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(grid);
+      GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
     }
   }
   UpdatePotentialSnapPoints(false, false);
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type" );
-  QVector<vtkIdType> smooth_node(grid->GetNumberOfPoints(), false);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type" );
+  QVector<vtkIdType> smooth_node(m_Grid->GetNumberOfPoints(), false);
   {
     l2g_t nodes = m_Part.getNodes();
     foreach (vtkIdType id_node, nodes) {
@@ -181,11 +181,11 @@ void LaplaceSmoother::operate()
 
 //     QVector<vec3_t> node_normals;
 //     if (m_UseNormalCorrection) {
-//       node_normals.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
+//       node_normals.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
 //       vec3_t n(0,0,0);
-//       for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+//       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
 //         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-//           node_normals[id_node] += GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+//           node_normals[id_node] += GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
 //         }
 //         node_normals[id_node].normalise();
 //       }
@@ -201,9 +201,9 @@ void LaplaceSmoother::operate()
             vec3_t x_old;
             vec3_t x;
             x_new[i_nodes] = vec3_t(0,0,0);
-            grid->GetPoint(id_node, x_old.data());
+            m_Grid->GetPoint(id_node, x_old.data());
             foreach (vtkIdType id_snap_node, snap_points) {
-              grid->GetPoint(id_snap_node, x.data());
+              m_Grid->GetPoint(id_snap_node, x.data());
               x_new[i_nodes] += x;
 //               n += node_normals[id_snap_node];
             }
@@ -215,7 +215,6 @@ void LaplaceSmoother::operate()
 //               dx = (dx*n)*n;
 //               x_new[i_nodes] -= dx;
 //             }
-
             vec3_t Dx = x_new[i_nodes] - x_old;
             Dx *= m_UnderRelaxation;
             if (moveNode(id_node, Dx)) {
@@ -224,7 +223,6 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = x_old;
               m_Success = false;
             }
-            
             /*
             if (m_UseProjection) {
               if (m_NodeToBc[_nodes[id_node]].size() == 1) {
@@ -237,7 +235,7 @@ void LaplaceSmoother::operate()
                   }
                 }
               }
-              grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
+              m_Grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
             }
             */
           }

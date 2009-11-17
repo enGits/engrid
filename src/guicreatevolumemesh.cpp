@@ -46,7 +46,7 @@ void GuiCreateVolumeMesh::operate()
     MeshPartition part(volume_name);
     part.setVolumeOrientation();
     part.extractToVtkGrid(part_grid);
-    MeshPartition rest(grid);
+    MeshPartition rest(m_Grid);
     rest.setRemainder(part);
     rest.extractToVtkGrid(rest_grid);
   }
@@ -58,14 +58,14 @@ void GuiCreateVolumeMesh::operate()
       cell_code->SetValue(id_cell, V.getVC());
     }
   }
-  makeCopy(part_grid, grid);
+  makeCopy(part_grid, m_Grid);
   {
-    MeshPartition part(grid, true);
+    MeshPartition part(m_Grid, true);
     MeshPartition rest(rest_grid, true);
     part.addPartition(rest);
   }
-  resetOrientation(grid);
-  createIndices(grid);
+  resetOrientation(m_Grid);
+  createIndices(m_Grid);
 }
 
 

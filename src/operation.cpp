@@ -77,7 +77,7 @@ void Operation::collectGarbage()
 
 Operation::Operation()
 {
-  grid = NULL;
+  m_Grid = NULL;
   lock_gui = false;
   m_quicksave = false;
   m_resetoperationcounter = false;
@@ -158,27 +158,27 @@ void Operation::operator()()
 void Operation::setAllCells()
 {
   QVector<vtkIdType> all_cells;
-  getAllCells(all_cells, grid);
+  getAllCells(all_cells, m_Grid);
   setCells(all_cells);
 }
 
 void Operation::setAllVolumeCells()
 {
   QVector<vtkIdType> cells;
-  getAllVolumeCells(cells, grid);
+  getAllVolumeCells(cells, m_Grid);
   setCells(cells);
 }
 
 void Operation::setAllSurfaceCells()
 {
   QVector<vtkIdType> cells;
-  getAllSurfaceCells(cells, grid);
+  getAllSurfaceCells(cells, m_Grid);
   setCells(cells);
 }
 
 void Operation::setVolume(QString volume_name)
 {
-  m_Part.setGrid(grid);
+  m_Part.setGrid(m_Grid);
   m_Part.setVolume(volume_name);
 }
 
@@ -190,8 +190,8 @@ void Operation::setMeshPartition(const MeshPartition &part)
 
 void Operation::checkGrid()
 {
-  if (grid == NULL) {
-    grid = GuiMainWindow::pointer()->getGrid();
+  if (m_Grid == NULL) {
+    m_Grid = GuiMainWindow::pointer()->getGrid();
   }
   l2g_t cells = getPartCells();
   if ((cells.size() == 0) && autoset) {
