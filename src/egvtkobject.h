@@ -518,6 +518,10 @@ public: // methods
   
   vtkIdType addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N);
  
+  bool saveGrid( vtkUnstructuredGrid* a_grid, QString file_name );
+
+private:
+  void addVtkTypeInfo(vtkUnstructuredGrid* a_grid); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
 };
 
 //End of class EgVtkObject

@@ -1079,25 +1079,6 @@ void GuiMainWindow::openGrid(QString file_name)
   zoomAll();
 }
 
-void GuiMainWindow::saveGrid(QString file_name)
-{
-  file_name += ".vtu";
-  EG_VTKDCC(vtkDoubleArray, cell_VA, m_grid, "cell_VA");
-  for (vtkIdType cellId = 0; cellId < m_grid->GetNumberOfCells(); ++cellId) {
-    cell_VA->SetValue(cellId, GeometryTools::cellVA(m_grid, cellId, true));
-  }
-  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
-  addVtkTypeInfo();
-  createIndices(m_grid);
-  vtu->SetFileName(qPrintable(file_name));
-  vtu->SetDataModeToBinary();
-  vtu->SetInput(m_grid);
-  vtu->Write();
-  if(vtu->GetErrorCode()) {
-    QMessageBox::critical(this, tr("Save failed"), tr("The grid could not be saved as:\n%1").arg(file_name));
-  }
-}
-
 ///\todo I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
@@ -1188,7 +1169,10 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
     GuiMainWindow::setCwd(file_info.absolutePath());
     m_CurrentFilename = file_name;
   }
-  saveGrid(file_name);
+  if(!saveGrid(m_grid, file_name)) {
+    QMessageBox::critical(this, QObject::tr("Save failed"), QObject::tr("The grid could not be saved as:\n%1").arg(file_name));
+  }
+  
   saveBC();
   savePhysicalBoundaryConditions();
   saveXml(file_name);
@@ -1521,17 +1505,6 @@ void GuiMainWindow::viewCellIDs()
   }
   
   getRenderWindow()->Render();
-}
-
-void GuiMainWindow::addVtkTypeInfo()
-{
-  EG_VTKSP(vtkIntArray, vtk_type);
-  vtk_type->SetName("vtk_type");
-  vtk_type->SetNumberOfValues(m_grid->GetNumberOfCells());
-  for (vtkIdType cellId = 0; cellId < m_grid->GetNumberOfCells(); ++cellId) {
-    vtk_type->SetValue(cellId, m_grid->GetCellType(cellId));
-  }
-  m_grid->GetCellData()->AddArray(vtk_type);
 }
 
 void GuiMainWindow::pickCallBack

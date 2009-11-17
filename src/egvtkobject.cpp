@@ -1346,3 +1346,34 @@ void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
     EG_BUG; // not implemented
   }
 }
+
+bool EgVtkObject::saveGrid(vtkUnstructuredGrid* a_grid, QString file_name)
+{
+  file_name += ".vtu";
+  addVtkTypeInfo(a_grid);
+  createIndices(a_grid);
+  EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
+  vtu->SetFileName(qPrintable(file_name));
+  vtu->SetDataModeToBinary();
+  vtu->SetInput(a_grid);
+  vtu->Write();
+  if(vtu->GetErrorCode()) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+void EgVtkObject::addVtkTypeInfo(vtkUnstructuredGrid* a_grid)
+{
+  EG_VTKSP(vtkIntArray, vtk_type);
+  vtk_type->SetName("vtk_type");
+  vtk_type->SetNumberOfValues(a_grid->GetNumberOfCells());
+  EG_VTKDCC(vtkDoubleArray, cell_VA, a_grid, "cell_VA");
+  for (vtkIdType cellId = 0; cellId < a_grid->GetNumberOfCells(); ++cellId) {
+    vtk_type->SetValue(cellId, a_grid->GetCellType(cellId));
+    cell_VA->SetValue(cellId, GeometryTools::cellVA(a_grid, cellId, true));
+  }
+  a_grid->GetCellData()->AddArray(vtk_type);
+}

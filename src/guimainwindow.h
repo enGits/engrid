@@ -202,7 +202,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   private: // methods
 
     void        setupVtk();
-    void        addVtkTypeInfo(); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
     static void pickCallBack( vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata );
     void        updateSurfaceActors( bool forced );
     void        updateVolumeActors( bool forced );
@@ -223,9 +222,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void savePhysicalBoundaryConditions();
 
     void openGrid( QString file_name );
-    void saveGrid( QString file_name );
-
-
 
   public: // methods
 
