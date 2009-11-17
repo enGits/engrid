@@ -291,7 +291,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
     
     //project original point M onto plane (M',N)
     // TODO: This should not be an orthogonal projection!
-    vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
+    double k = intersection( g_M, g3, g_Mp_proj, g_N);
+//     vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
+    vec3_t g_P = g_M + k*g3;
     if(output==0) return g_P;
     else return g_N;
   }
