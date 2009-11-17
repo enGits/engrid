@@ -126,27 +126,7 @@ void Projection_test::project_all_points()
 
 void Projection_test::Bezier_test()
 {
-//   if (!GuiMainWindow::pointer()->checkSurfProj()) {
-//     GuiMainWindow::pointer()->storeSurfaceProjection();
-//   }
-//   
-//   int bc_dst = 18;
-//   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(grid);
-
-  vec3_t X_200(0,0,0);
-  vec3_t X_020(1,0,0);
-  vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
-//   vec3_t X_002(0,1,0);
-  
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5,0.5,0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0,-0.5,0.5);
-  
-/*  vec3_t X_011=0.5*(X_020+X_002);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
-  BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
+  BezierTriangle B = specialTriangle(true,0);
   B.writeBezierSurface("bezier.vtu",10);
 }
 
@@ -229,26 +209,9 @@ int idx_func2(int N, int i, int j)
 
 void Projection_test::bezierFunctionTest()
 {
-  vec3_t X_200(0,0,0);
-  vec3_t X_020(1,0,0);
-  vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
-//   vec3_t X_002(0,1,0);
-  
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
-  
-/*  vec3_t X_011=0.5*(X_020+X_002);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
   int N=10;
   
-  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  BezierTriangle bezier_triangle = specialTriangle(true,0);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
@@ -356,30 +319,9 @@ void Projection_test::bezierFunctionTest()
 
 void Projection_test::bezierProjectionTest()
 {
-  vec3_t X_200(0,0,0);
-  vec3_t X_020(1,0,0);
-  vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
-//   vec3_t X_002(0,1,0);
-  
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
-  
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0, 0, 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(0, 0, 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
-  
-/*  vec3_t X_011=0.5*(X_020+X_002);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
   int N=10;
   
-  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  BezierTriangle bezier_triangle = specialTriangle(true,0);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
@@ -501,30 +443,9 @@ vtkIdType idx_func_quad(int N, int i, int j)
 
 void Projection_test::bezierQuads()
 {
-  vec3_t X_200(0,0,0);
-  vec3_t X_020(1,0,0);
-//   vec3_t X_002(cos(deg2rad(60)),sin(deg2rad(60)),0);
-  vec3_t X_002(0,1,0);
-  
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t( 0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5*cos(deg2rad(30)), 0.5*sin(deg2rad(30)), 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);*/
-  
-  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5, 0.5, 0.5);
-  vec3_t X_101=0.5*(X_200+X_002)+vec3_t(-0.5, 0, 0.5);
-  vec3_t X_110=0.5*(X_200+X_020)+vec3_t(0, -0.5, 0.5);
-  
-/*  vec3_t X_011=0.5*(X_020+X_002);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
-/*  vec3_t X_011=0.5*(X_020+X_002)+vec3_t(0.5,0.5,0);
-  vec3_t X_101=0.5*(X_200+X_002);
-  vec3_t X_110=0.5*(X_200+X_020);*/
-  
   int N=10;
   
-  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
+  BezierTriangle bezier_triangle = specialTriangle(true,0);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
