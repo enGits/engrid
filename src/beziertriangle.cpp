@@ -502,6 +502,11 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle5(vec3_t g_M)
   return vec3_t(0,0,0);
 }
 
+double BezierTriangle::z_func(vec2_t t_M)
+{
+  return z_func(t_M[0],t_M[1]);
+}
+
 double BezierTriangle::z_func(double x, double y)
 {
   bool DEBUG = false;
@@ -542,9 +547,9 @@ double BezierTriangle::z_func(double x, double y)
   return l_B[2];
 }
 
-bool BezierTriangle::isInsideTriangle(vec2_t t_M)
+bool BezierTriangle::isInsideTriangle(vec2_t t_M, double tol)
 {
-  if(t_M[0]<0 || 1<t_M[0] || t_M[1]<0 || 1<t_M[1] || t_M[0]+t_M[1]>=1) {
+  if(t_M[0]<0-tol || 1+tol<t_M[0] || t_M[1]<0-tol || 1+tol<t_M[1] || t_M[0]+t_M[1]>1+tol) {
     return false;
   }
   else {
@@ -552,26 +557,54 @@ bool BezierTriangle::isInsideTriangle(vec2_t t_M)
   }
 }
 
-vec3_t BezierTriangle::surfaceNormal(double x, double y)
+vec3_t BezierTriangle::surfaceNormal(vec2_t t_M)
 {
-  double dx = 0.1*smallest_length;
-  double dy = 0.1*smallest_length;
-  double z0  = z_func(x   , y);
-  double zx1 = z_func(x-dx, y);
-  double zx2 = z_func(x+dx, y);
-  double zy1 = z_func(x   , y-dy);
-  double zy2 = z_func(x   , y+dy);
-  vec3_t l_P0 (x   , y   , z0 );
-  vec3_t l_Px1(x-dx, y   , zx1);
-  vec3_t l_Px2(x+dx, y   , zx2);
-  vec3_t l_Py1(x   , y-dy, zy1);
-  vec3_t l_Py2(x   , y+dy, zy2);
+  vec3_t bary_coords = getBarycentricCoordinates(t_M[0],t_M[1]);
+  double u = bary_coords[0];
+  double v = bary_coords[1];
+  double w = bary_coords[2];
   
-  vec2_t t_P0 (x   , y);
-  vec2_t t_Px1(x-dx, y);
-  vec2_t t_Px2(x+dx, y);
-  vec2_t t_Py1(x   , y-dy);
-  vec2_t t_Py2(x   , y+dy);
+  vec2_t dx,dy;
+  double k = 0.1 * smallest_length;
+  vec2_t ex(1,0);
+  vec2_t ey(0,1);
+  if(u>=v && u>w) {
+    dx = k * ex;
+    dy = k * ey;
+  }
+  else if(v>=u && v>w) {
+    dx = k * (ey-ex);
+    dy = k * (-1*ex);
+  }
+  else if(w>=u && w>v) {
+    dx = k * (-1*ey);
+    dy = k * (ex-ey);
+  }
+  else {
+    EG_BUG;
+  }
+  
+/*  qDebug()<<"##############";
+  qDebug()<<"dx="<<dx;
+  qDebug()<<"dy="<<dy;
+  qDebug()<<"##############";*/
+  
+  vec2_t t_P0 = t_M;
+  double z0 = z_func(t_P0);
+  vec3_t l_P0(t_P0[0], t_P0[1], z0 );
+  
+  vec2_t t_Px1 = t_P0-dx;
+  vec2_t t_Px2 = t_P0+dx;
+  vec2_t t_Py1 = t_P0-dy;
+  vec2_t t_Py2 = t_P0+dy;
+  double zx1 = z_func(t_Px1);
+  double zx2 = z_func(t_Px2);
+  double zy1 = z_func(t_Py1);
+  double zy2 = z_func(t_Py2);
+  vec3_t l_Px1(t_Px1[0],t_Px1[1],zx1);
+  vec3_t l_Px2(t_Px2[0],t_Px2[1],zx2);
+  vec3_t l_Py1(t_Py1[0],t_Py1[1],zy1);
+  vec3_t l_Py2(t_Py2[0],t_Py2[1],zy2);
   
   vec3_t l_u1;
   vec3_t l_u2;

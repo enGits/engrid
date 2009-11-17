@@ -211,7 +211,7 @@ void Projection_test::bezierFunctionTest()
 {
   int N=10;
   
-  BezierTriangle bezier_triangle = specialTriangle(true,3);
+  BezierTriangle bezier_triangle = specialTriangle(true,0);
   bezier_triangle.writeBezierSurface("bezier.vtu",N);
   
   int N_cells = (N-1)*(N-1);
@@ -258,15 +258,15 @@ void Projection_test::bezierFunctionTest()
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
       vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
-      qDebug()<<"g_M="<<g_M;
+//       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
       
       // calculate diff vectors
       vec2_t t_diff = bezier_triangle.fixedPointFunction(t_M,t_M[0],t_M[1]);
       vec3_t g_diff = bezier_triangle.local2DToGlobal3D(t_diff) - bezier_triangle.m_X_200;
       
-      qDebug()<<"t_diff="<<t_diff;
-      qDebug()<<"g_diff="<<g_diff;
+//       qDebug()<<"t_diff="<<t_diff;
+//       qDebug()<<"g_diff="<<g_diff;
       
       // calculate tangent vectors
       vec3_t g_center = 1.0/3.0*(bezier_triangle.m_X_200+bezier_triangle.m_X_020+bezier_triangle.m_X_002);
@@ -278,7 +278,7 @@ void Projection_test::bezierFunctionTest()
       vec3_t g_tangent = bezier_triangle.local2DToGlobal3D(t_tangent) - bezier_triangle.m_X_200;
       
       // calculate normal vectors
-      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M[0],t_M[1]);
+      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M);
       
       // enter the values
       vtkIdType id_node = offset + node_count;
