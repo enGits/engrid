@@ -290,7 +290,9 @@ void Projection_test::bezierFunctionTest()
     }
   }
   
-  bezier->GetPointData()->SetVectors(vectors3);
+  bezier->GetPointData()->AddArray(vectors1);
+  bezier->GetPointData()->AddArray(vectors2);
+  bezier->GetPointData()->AddArray(vectors3);
   vectors1->Delete();
   vectors2->Delete();
   vectors3->Delete();
