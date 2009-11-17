@@ -81,6 +81,8 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
+bool isInsideTriangle(vec2_t t_M, double tol = 1e-4);
+
 /** Calculates the intersection point M between the lines (r1,u1) and (r2,u2).
  * @param k1 Returned by reference. Verifies M = r1+k1*u1
  * @param k2 Returned by reference. Verifies M = r2+k2*u2

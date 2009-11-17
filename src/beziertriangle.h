@@ -92,7 +92,6 @@ public:
   vec3_t surfaceNormal(vec2_t t_M, int output);
   double z_func(vec2_t t_M);
   double z_func(double x, double y);
-  bool isInsideTriangle(vec2_t t_M, double tol=10e-10);
 };
 
 #endif

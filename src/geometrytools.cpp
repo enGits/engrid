@@ -421,6 +421,16 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
   return(xc);
 }
 
+bool isInsideTriangle(vec2_t t_M, double tol)
+{
+  if(t_M[0]<0-tol || 1+tol<t_M[0] || t_M[1]<0-tol || 1+tol<t_M[1] || t_M[0]+t_M[1]>1+tol) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol)
 {
@@ -447,7 +457,19 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
+  if(G.det()==0) EG_BUG;
+//   qWarning()<<"inverting matrix";
+//   qWarning()<<"g1="<<g1;
+//   qWarning()<<"g2="<<g2;
+//   qWarning()<<"g3="<<g3;
+  
+  checkVector(g1);
+  checkVector(g2);
+  checkVector(g3);
+//   qWarning()<<"G.det()="<<G.det();
+  G.inverse();
   mat3_t GI = G.inverse();
+//   qWarning()<<"inverting matrix successful";
   ri = xi - a;
   ri = GI*ri;
 
@@ -460,15 +482,17 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   }
   
   // intersection outside of triangle?
-  if (ri[0] + ri[1] > 1) {
-    return false;
-  }
-  if ((ri[0] < 0 - tol) || (ri[0] > 1 + tol)) {
-    return false;
-  }
-  if ((ri[1] < 0 - tol) || (ri[1] > 1 + tol)) {
-    return false;
-  }
+  // TODO: can be simplified.
+  if(!isInsideTriangle(vec2_t(ri[0],ri[1]),tol)) return false;
+//   if (ri[0] + ri[1] > 1) {
+//     return false;
+//   }
+//   if ((ri[0] < 0 - tol) || (ri[0] > 1 + tol)) {
+//     return false;
+//   }
+//   if ((ri[1] < 0 - tol) || (ri[1] > 1 + tol)) {
+//     return false;
+//   }
 
   return true;
 }

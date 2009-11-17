@@ -276,7 +276,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
 //     return vec3_t(0,0,0);
     qDebug()<<"WARNING: Not on triangle! t_M="<<t_M;
     //get closest point M' on triangle
-    vec3_t xi; vec3_t ri; double d;
+    vec3_t xi(0,0,0);
+    vec3_t ri(0,0,0);
+    double d = 0;
     projectOnTriangle(g_M, xi, ri, d, true);
     vec2_t t_Mp(ri[0], ri[1]);
     qDebug()<<"t_Mp="<<t_Mp;
@@ -562,16 +564,6 @@ double BezierTriangle::z_func(double x, double y)
   vec3_t g_B = QuadraticBezierTriangle(t_X);
   vec3_t l_B = global3DToLocal3D(g_B);
   return l_B[2];
-}
-
-bool BezierTriangle::isInsideTriangle(vec2_t t_M, double tol)
-{
-  if(t_M[0]<0-tol || 1+tol<t_M[0] || t_M[1]<0-tol || 1+tol<t_M[1] || t_M[0]+t_M[1]>1+tol) {
-    return false;
-  }
-  else {
-    return true;
-  }
 }
 
 vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
