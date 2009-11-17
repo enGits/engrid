@@ -19,10 +19,10 @@ void Projection_test::operate()
 //   Bezier_test();
 //   checkInterpolationGrid();
 //    Bezier_circle_test();
-  bezierFunctionTest();
+//   bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
-//   bezierProjectionTest2();
+   bezierProjectionTest2();
 }
 
 BezierTriangle specialTriangle(bool equi, int type)
@@ -508,7 +508,7 @@ void Projection_test::bezierQuads()
 
 void Projection_test::bezierProjectionTest2()
 {
-  int N=30;
+  int N=10;
   BezierTriangle bezier_triangle = specialTriangle(true,0);
   bezier_triangle.writeBezierSurface("bezier",N);
   
@@ -542,11 +542,11 @@ void Projection_test::bezierProjectionTest2()
   for(int i=0;i<N;i++) {
     for(int j=0;j<N;j++) {
       // calculate original mesh point
-      double y = -1 + 3*j/(double)(N-1);
-      double x = -1 + 3*i/(double)(N-1);
+//       double y = -1 + 3*j/(double)(N-1);
+//       double x = -1 + 3*i/(double)(N-1);
       
-//       double y = j/(double)(N-1);
-//       double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      double x = i/(double)(N-1);
       
 //       double x = (i/(double)(N-1));
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);

@@ -187,9 +187,17 @@ vec3_t getBarycentricCoordinates(double x, double y);
 
 vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB);
 
+/** Projects vector V onto plane (O,i,j)
+ * @param V The vector to project
+ * @param i A vector of the plane
+ * @param j A vector of the plane
+ * @return Returns a 2D vector (x,y) so that V = x*i +y*j
+ */
 vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j);
 
 vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
+
+vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N);
 
 };
 

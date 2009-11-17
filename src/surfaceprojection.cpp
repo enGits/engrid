@@ -902,14 +902,7 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
 
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
-  for(int i=0;i<3;i++) {
-    if(isnan(xp[i])) {
-      EG_ERR_RETURN("NAN");
-    }
-    if(isinf(xp[i])) {
-      EG_ERR_RETURN("INFINITY");
-    }
-  }
+  checkVector(xp);
   
 /*  if(m_ExactMode==1) return ellipsoid(xp);
   if(m_ExactMode==2) return ellipse(xp);
@@ -1007,14 +1000,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 
 vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 {
-  for(int i=0;i<3;i++) {
-    if(isnan(x[i])) {
-      EG_ERR_RETURN("NAN");
-    }
-    if(isinf(x[i])) {
-      EG_ERR_RETURN("INFINITY");
-    }
-  }
+  checkVector(x);
   
   if (m_UseLevelSet) {
     x = projectWithLevelSet(x);

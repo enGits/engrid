@@ -615,6 +615,12 @@ vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
   return vec2_t(x,y);
 }
 
+vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N)
+{
+  double k = ((M-A)*N)/N.abs2();
+  return( M - k*N );
+}
+
 vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u)
 {
   checkVector(u);
