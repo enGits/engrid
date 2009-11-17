@@ -508,8 +508,8 @@ void Projection_test::bezierQuads()
 
 void Projection_test::bezierProjectionTest2()
 {
-  int N=10;
-  BezierTriangle bezier_triangle = specialTriangle(true,0);
+  int N=30;
+  BezierTriangle bezier_triangle = specialTriangle(false,0);
   bezier_triangle.writeBezierSurface("bezier",N);
   
   int N_cells = (N-1)*(N-1);
@@ -539,29 +539,39 @@ void Projection_test::bezierProjectionTest2()
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
 //   return;
   
+  vtkDoubleArray *vectors_normals = vtkDoubleArray::New();
+  vectors_normals->SetName("normals");
+  vectors_normals->SetNumberOfComponents(3);
+  vectors_normals->SetNumberOfTuples(bezier_projection->GetNumberOfPoints());
+  
   for(int i=0;i<N;i++) {
     for(int j=0;j<N;j++) {
       // calculate original mesh point
-//       double y = -1 + 3*j/(double)(N-1);
-//       double x = -1 + 3*i/(double)(N-1);
+      double y = -1 + 3*j/(double)(N-1);
+      double x = -1 + 3*i/(double)(N-1);
       
-      double y = j/(double)(N-1);
-      double x = i/(double)(N-1);
+/*      double y = j/(double)(N-1);
+      double x = i/(double)(N-1);*/
       
 //       double x = (i/(double)(N-1));
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
       
       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
-      vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+      vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M, 0);
+      vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M, 1);
       
       // enter the values
       vtkIdType id_node = offset + node_count;
       
       bezier->GetPoints()->SetPoint(id_node, g_P.data());
       bezier_projection->GetPoints()->SetPoint(id_node, g_P_projection.data());
+      vectors_normals->InsertTuple(id_node,g_normal.data());
       node_count++;
     }
   }
+  
+  bezier_projection->GetPointData()->AddArray(vectors_normals);
+  vectors_normals->Delete();
   
   int cell_count = 0;
   for(int i=0;i<N-1;i++) {

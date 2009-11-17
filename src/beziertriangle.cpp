@@ -265,7 +265,7 @@ mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, doubl
   return J;
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
 {
   bool DEBUG = false;
   vec2_t t_M = global3DToLocal2D(g_M);
@@ -279,13 +279,21 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
     vec3_t xi; vec3_t ri; double d;
     projectOnTriangle(g_M, xi, ri, d, true);
     vec2_t t_Mp(ri[0], ri[1]);
-    
+    qDebug()<<"t_Mp="<<t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);
+    qDebug()<<"g_Mp="<<g_Mp;
+    vec3_t g_Mp_proj = projectOnQuadraticBezierTriangle3(g_Mp);
+    qDebug()<<"g_Mp_proj="<<g_Mp_proj;
+    
     //get normal vector N at that point
-    vec3_t N = surfaceNormal(t_Mp,0);
+    vec3_t g_N = surfaceNormal(t_Mp,0);
+    qDebug()<<"g_N="<<g_N;
+    
     //project original point M onto plane (M',N)
-    vec3_t g_P = projectPointOnPlane(g_M, g_Mp, N);
-    return g_P;
+    // TODO: This should not be an orthogonal projection!
+    vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
+    if(output==0) return g_P;
+    else return g_N;
   }
   else {
     if(DEBUG) qDebug()<<"t_X="<<t_X;
@@ -316,7 +324,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M)
       Nloops++;
     }
     if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
-    return QuadraticBezierTriangle(t_X);
+    
+    if(output==0) return QuadraticBezierTriangle(t_X);
+    else return vec3_t(0,0,0);
   }
   
 }
