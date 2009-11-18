@@ -25,27 +25,27 @@
 #include "engrid.h"
 #include "utilities.h"
 
-Triangle::Triangle()
-{
-  id_a=0;
-  id_b=0;
-  id_c=0;
-  a=vec3_t(0,0,0);
-  b=vec3_t(0,0,0);
-  c=vec3_t(0,0,0);
+Triangle::Triangle() {
+  id_a = 0;
+  id_b = 0;
+  id_c = 0;
+  a = vec3_t(0, 0, 0);
+  b = vec3_t(0, 0, 0);
+  c = vec3_t(0, 0, 0);
+  m_has_neighbour[0] = false;
+  m_has_neighbour[1] = false;
+  m_has_neighbour[2] = false;
   setupTriangle();
 }
 
-Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c)
-{
+Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) {
   a = a_a;
   b = a_b;
   c = a_c;
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c)
-{
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) {
   id_a = a_id_a;
   id_b = a_id_b;
   id_c = a_id_c;
@@ -55,8 +55,7 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)
-{
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell) {
   vtkIdType Npts, *pts;
   a_grid->GetCellPoints(a_id_cell, Npts, pts);
   if (Npts == 3) {
@@ -72,117 +71,111 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)
   }
 }
 
-void Triangle::setupTriangle()
-{
+void Triangle::setupTriangle() {
   g1 = b - a;
   g2 = c - a;
   g3 = g1.cross(g2);
-  
-  A  = 0.5*g3.abs();
+
+  A  = 0.5 * g3.abs();
   g3.normalise();
-  
+
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
   GI = G.inverse();
-  
+
   smallest_length = (b - a).abs();
   smallest_length = min(smallest_length, (c - b).abs());
   smallest_length = min(smallest_length, (a - c).abs());
 }
 
-vec3_t Triangle::local3DToGlobal3D(vec3_t l_M)
-{
-  return a+G*l_M;
+vec3_t Triangle::local3DToGlobal3D(vec3_t l_M) {
+  return a + G*l_M;
 }
 
-vec3_t Triangle::global3DToLocal3D(vec3_t g_M)
-{
-  vec3_t tmp = g_M-a;
+vec3_t Triangle::global3DToLocal3D(vec3_t g_M) {
+  vec3_t tmp = g_M - a;
   return GI*tmp;
 }
 
-vec3_t Triangle::local2DToGlobal3D(vec2_t l_M)
-{
-  return local3DToGlobal3D(vec3_t(l_M[0],l_M[1],0));
+vec3_t Triangle::local2DToGlobal3D(vec2_t l_M) {
+  return local3DToGlobal3D(vec3_t(l_M[0], l_M[1], 0));
 }
 
-vec2_t Triangle::global3DToLocal2D(vec3_t g_M)
-{
+vec2_t Triangle::global3DToLocal2D(vec3_t g_M) {
   vec3_t l_M = global3DToLocal3D(g_M);
-  return vec2_t(l_M[0],l_M[1]);
+  return vec2_t(l_M[0], l_M[1]);
 }
 
-bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle)
-{
-  double scal = (xp - this->a)*this->g3;
+bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle) {
+  double scal = (xp - this->a) * this->g3;
   vec3_t x1, x2;
   if (scal > 0) {
     x1 = xp + this->g3;
-    x2 = xp - scal*this->g3 - this->g3;
+    x2 = xp - scal * this->g3 - this->g3;
   } else {
     x1 = xp - this->g3;
-    x2 = xp - scal*this->g3 + this->g3;
+    x2 = xp - scal * this->g3 + this->g3;
   }
   // (xi,ri) gets set to the intersection of the line with the plane here!
   bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->a, this->b, this->c, x1, x2, xi, ri);
   if (intersects_face || !restrict_to_triangle) {
     vec3_t dx = xp - this->a;
-    d = fabs(dx*this->g3);
+    d = fabs(dx * this->g3);
   } else {
     double kab = GeometryTools::intersection(this->a, this->b - this->a, xp, this->b - this->a);
     double kac = GeometryTools::intersection(this->a, this->c - this->a, xp, this->c - this->a);
     double kbc = GeometryTools::intersection(this->b, this->c - this->b, xp, this->c - this->b);
-    
-    double dab = (this->a + kab*(this->b-this->a) - xp).abs();
-    double dac = (this->a + kac*(this->c-this->a) - xp).abs();
-    double dbc = (this->b + kbc*(this->c-this->b) - xp).abs();
+
+    double dab = (this->a + kab * (this->b - this->a) - xp).abs();
+    double dac = (this->a + kac * (this->c - this->a) - xp).abs();
+    double dbc = (this->b + kbc * (this->c - this->b) - xp).abs();
     double da = (this->a - xp).abs();
     double db = (this->b - xp).abs();
     double dc = (this->c - xp).abs();
-    
+
     bool set = false;
     d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
-    
+
     if (dab < d) {
       if ((kab >= 0) && (kab <= 1)) {
-        xi = this->a + kab*(this->b-this->a);
-        ri = vec3_t(kab,0,0);
+        xi = this->a + kab * (this->b - this->a);
+        ri = vec3_t(kab, 0, 0);
         d = dab;
         set = true;
       }
     }
     if (dac < d) {
       if ((kac >= 0) && (kac <= 1)) {
-        xi = this->a + kac*(this->c-this->a);
-        ri = vec3_t(0,kac,0);
+        xi = this->a + kac * (this->c - this->a);
+        ri = vec3_t(0, kac, 0);
         d = dac;
         set = true;
       }
     }
     if (dbc < d) {
       if ((kbc >= 0) && (kbc <= 1)) {
-        xi = this->b + kbc*(this->c-this->b);
-        ri = vec3_t(1-kbc,kbc,0);
+        xi = this->b + kbc * (this->c - this->b);
+        ri = vec3_t(1 - kbc, kbc, 0);
         d = dbc;
         set = true;
       }
     }
     if (da < d) {
       xi = this->a;
-      ri = vec3_t(0,0);
+      ri = vec3_t(0, 0);
       d = da;
       set = true;
     }
     if (db < d) {
       xi = this->b;
-      ri = vec3_t(1,0);
+      ri = vec3_t(1, 0);
       d = db;
       set = true;
     }
     if (dc < d) {
       xi = this->c;
-      ri = vec3_t(0,1);
+      ri = vec3_t(0, 1);
       d = dc;
       set = true;
     }
@@ -191,11 +184,11 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
     }
   }
   if (xi[0] > 1e98) { // should never happen
-        EG_BUG;
-  }
-/*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
-    qWarning()<<"ri="<<ri;
     EG_BUG;
-  }*/
+  }
+  /*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
+      qWarning()<<"ri="<<ri;
+      EG_BUG;
+    }*/
   return intersects_face;
 }

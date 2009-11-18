@@ -1320,6 +1320,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   m_Triangles.resize(m_BGrid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
+    // TODO: Store infos about neighbour cells for each triangle
   }
   
   // compute node normals
@@ -1363,6 +1364,8 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
     qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
+    
+    // take into account curvature at boundaries
     if( false && node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
@@ -1374,13 +1377,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
       m_Grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
       m_Grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
       qDebug()<<"x0="<<x0<<" x1="<<x1<<" x="<<x2;
-//       vtkIdType foo1 = (id_node+6-1-1)%6+1;
-//       vtkIdType foo2 = (id_node-1+1)%6+1;
-//       qDebug()<<"foo1="<<foo1<<"foo2="<<foo2;
-      
-//       m_Grid->GetPoints()->GetPoint(foo1, x1.data());
-//       m_Grid->GetPoints()->GetPoint(foo2, x2.data());
-      
       
 //       t1.cross(n1);
 //       t2.cross(n2);
@@ -1404,7 +1400,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
       
 //       QVector <int> i_cell_vector = n2c[_nodes[id_node]];
 //       vtkIdType id_cell = cells[i_cell_vector[0]];
-      
       
       vec3_t Nedge1 = getEdgeNormal(id_node, id_snappoints[0]);
       vec3_t Nedge2 = getEdgeNormal(id_node, id_snappoints[1]);

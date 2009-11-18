@@ -28,37 +28,40 @@
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
 
-class Triangle{
-public:
+class Triangle {
+  public:
     vtkIdType id_a, id_b, id_c;
     vec3_t a, b, c;
     vec3_t g1, g2, g3;
     mat3_t G, GI;
     double A;
     double smallest_length;
-  
-public:
-  Triangle();
-  Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c);
-  Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c);
-  Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell);
-  void setupTriangle();
-  
-public:
-  /**
-   * Calculates the closest (NOT the projection!) point (xi,ri) of point xp on the triangle.
-   * @param xp Point to "project"
-   * @param xi Global 3D coordinates of the closest point on the triangle.
-   * @param ri Local 3D triangle coordinates of the closest point on the triangle. (0<=ri[0]<=1 and 0<=ri[1]<=1 and ri[2]=0)
-   * @param d Distance of xp to (xi,ri)
-   * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
-  */
-  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle);
-  
-  vec3_t local3DToGlobal3D(vec3_t l_M);
-  vec3_t global3DToLocal3D(vec3_t g_M);
-  vec3_t local2DToGlobal3D(vec2_t l_M);
-  vec2_t global3DToLocal2D(vec3_t g_M);
+
+  public:
+    bool m_has_neighbour[3]; ///< True if edge i has a neighbour in the grid
+
+  public:
+    Triangle();
+    Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c);
+    Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c);
+    Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell);
+    void setupTriangle();
+
+  public:
+    /**
+     * Calculates the closest (NOT the projection!) point (xi,ri) of point xp on the triangle.
+     * @param xp Point to "project"
+     * @param xi Global 3D coordinates of the closest point on the triangle.
+     * @param ri Local 3D triangle coordinates of the closest point on the triangle. (0<=ri[0]<=1 and 0<=ri[1]<=1 and ri[2]=0)
+     * @param d Distance of xp to (xi,ri)
+     * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
+    */
+    bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle);
+
+    vec3_t local3DToGlobal3D(vec3_t l_M);
+    vec3_t global3DToLocal3D(vec3_t g_M);
+    vec3_t local2DToGlobal3D(vec2_t l_M);
+    vec2_t global3DToLocal2D(vec3_t g_M);
 };
 
 #endif

@@ -30,17 +30,14 @@ using namespace GeometryTools;
 
 #include <vtkCellLocator.h>
 
-BezierTriangle::BezierTriangle() : Triangle(), EgVtkObject()
-{
+BezierTriangle::BezierTriangle() : Triangle(), EgVtkObject() {
 }
 
-BezierTriangle::BezierTriangle(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)  : Triangle(X_200,X_020,X_002), EgVtkObject()
-{
-  setControlPoints( X_200,  X_020,  X_002,  X_011,  X_101,  X_110);
+BezierTriangle::BezierTriangle(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)  : Triangle(X_200, X_020, X_002), EgVtkObject() {
+  setControlPoints(X_200,  X_020,  X_002,  X_011,  X_101,  X_110);
 }
 
-void BezierTriangle::setControlPoints(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)
-{
+void BezierTriangle::setControlPoints(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110) {
   m_X_200 = X_200;
   m_X_020 = X_020;
   m_X_002 = X_002;
@@ -50,8 +47,7 @@ void BezierTriangle::setControlPoints(vec3_t X_200, vec3_t X_020, vec3_t X_002, 
   setupFunctionVariables();
 }
 
-void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_002, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
-{
+void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_002, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110) {
   X_200 = m_X_200;
   X_020 = m_X_020;
   X_002 = m_X_002;
@@ -60,51 +56,47 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
   X_110 = m_X_110;
 }
 
-void BezierTriangle::writeBezierSurface(QString filename, int N)
-{
+void BezierTriangle::writeBezierSurface(QString filename, int N) {
   //qDebug()<<"writeBezierSurface called";
 //   int N=10;
-  int N_cells = (N-1)*(N-1);
-  int N_points = (N*N+N)/2;
-  
+  int N_cells = (N - 1) * (N - 1);
+  int N_points = (N * N + N) / 2;
+
   //qDebug()<<"N_cells="<<N_cells;
   //qDebug()<<"N_points="<<N_points;
-  
-  EG_VTKSP(vtkUnstructuredGrid,bezier);
+
+  EG_VTKSP(vtkUnstructuredGrid, bezier);
   allocateGrid(bezier, N_cells, N_points);
-  
+
   vtkIdType offset = 0;
   offset += addBezierSurface(this, bezier, offset, N);
-  
+
 //   BezierTriangle B(m_X_200, m_X_020, m_X_002, m_X_011-vec3_t(0,0,1), m_X_101-vec3_t(0,0,1), m_X_110-vec3_t(0,0,1));
 //   offset += B.addBezierSurface(bezier, offset, N);
-  
+
   //qDebug()<<"offset="<<offset;
-  
+
   saveGrid(bezier, filename);
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w)
-{
+vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w) {
   double total = u + v + w;
-  u=u/total;
-  v=v/total;
-  w=w/total;
-  return pow(u,2)*m_X_200 + pow(v,2)*m_X_020 + pow(w,2)*m_X_002 + 2*u*v*m_X_110 + 2*v*w*m_X_011 + 2*w*u*m_X_101;
+  u = u / total;
+  v = v / total;
+  w = w / total;
+  return pow(u, 2)*m_X_200 + pow(v, 2)*m_X_020 + pow(w, 2)*m_X_002 + 2*u*v*m_X_110 + 2*v*w*m_X_011 + 2*w*u*m_X_101;
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M)
-{
-  vec3_t bary_coords = getBarycentricCoordinates(M[0],M[1]);
-  double u,v,w;
-  u=bary_coords[0];
-  v=bary_coords[1];
-  w=bary_coords[2];
+vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M) {
+  vec3_t bary_coords = getBarycentricCoordinates(M[0], M[1]);
+  double u, v, w;
+  u = bary_coords[0];
+  v = bary_coords[1];
+  w = bary_coords[2];
   return QuadraticBezierTriangle(u, v, w);
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M)
-{
+vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M) {
   vec2_t t_M = global3DToLocal2D(g_M);
   return QuadraticBezierTriangle(t_M);
 }
@@ -116,63 +108,60 @@ void BezierTriangle::setupFunctionVariables() {
   m_l_X_011 = global3DToLocal3D(m_X_011);
   m_l_X_101 = global3DToLocal3D(m_X_101);
   m_l_X_110 = global3DToLocal3D(m_X_110);
-  
-  m_coeff_x2 = m_l_X_020 - 2*m_l_X_110;
-  m_coeff_y2 = m_l_X_002 - 2*m_l_X_101;
-  m_coeff_xy = -2*m_l_X_110 + 2*m_l_X_011 - 2*m_l_X_101;
-  m_coeff_x = 2*m_l_X_110;
-  m_coeff_y = 2*m_l_X_101;
-  
-/*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
-  qDebug()<<"m_X_200"<<m_X_200;
-  qDebug()<<"m_X_020"<<m_X_020;
-  qDebug()<<"m_X_002"<<m_X_002;
-  qDebug()<<"m_X_011"<<m_X_011;
-  qDebug()<<"m_X_101"<<m_X_101;
-  qDebug()<<"m_X_110"<<m_X_110;
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
-  qDebug()<<"m_l_X_200"<<m_l_X_200;
-  qDebug()<<"m_l_X_020"<<m_l_X_020;
-  qDebug()<<"m_l_X_002"<<m_l_X_002;
-  qDebug()<<"m_l_X_011"<<m_l_X_011;
-  qDebug()<<"m_l_X_101"<<m_l_X_101;
-  qDebug()<<"m_l_X_110"<<m_l_X_110;
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
-  qDebug()<<"m_coeff_x2"<<m_coeff_x2;
-  qDebug()<<"m_coeff_y2"<<m_coeff_y2;
-  qDebug()<<"m_coeff_xy"<<m_coeff_xy;
-  qDebug()<<"m_coeff_x"<<m_coeff_x;
-  qDebug()<<"m_coeff_y"<<m_coeff_y;
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
+
+  m_coeff_x2 = m_l_X_020 - 2 * m_l_X_110;
+  m_coeff_y2 = m_l_X_002 - 2 * m_l_X_101;
+  m_coeff_xy = -2 * m_l_X_110 + 2 * m_l_X_011 - 2 * m_l_X_101;
+  m_coeff_x = 2 * m_l_X_110;
+  m_coeff_y = 2 * m_l_X_101;
+
+  /*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+    qDebug()<<"m_X_200"<<m_X_200;
+    qDebug()<<"m_X_020"<<m_X_020;
+    qDebug()<<"m_X_002"<<m_X_002;
+    qDebug()<<"m_X_011"<<m_X_011;
+    qDebug()<<"m_X_101"<<m_X_101;
+    qDebug()<<"m_X_110"<<m_X_110;
+    qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+    qDebug()<<"m_l_X_200"<<m_l_X_200;
+    qDebug()<<"m_l_X_020"<<m_l_X_020;
+    qDebug()<<"m_l_X_002"<<m_l_X_002;
+    qDebug()<<"m_l_X_011"<<m_l_X_011;
+    qDebug()<<"m_l_X_101"<<m_l_X_101;
+    qDebug()<<"m_l_X_110"<<m_l_X_110;
+    qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+    qDebug()<<"m_coeff_x2"<<m_coeff_x2;
+    qDebug()<<"m_coeff_y2"<<m_coeff_y2;
+    qDebug()<<"m_coeff_xy"<<m_coeff_xy;
+    qDebug()<<"m_coeff_x"<<m_coeff_x;
+    qDebug()<<"m_coeff_y"<<m_coeff_y;
+    qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
 }
 
-vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y)
-{
-/*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
-  qDebug()<<"m_coeff_x2"<<m_coeff_x2;
-  qDebug()<<"m_coeff_y2"<<m_coeff_y2;
-  qDebug()<<"m_coeff_xy"<<m_coeff_xy;
-  qDebug()<<"m_coeff_x"<<m_coeff_x;
-  qDebug()<<"m_coeff_y"<<m_coeff_y;
-  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
+vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, double x, double y) {
+  /*  qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+    qDebug()<<"m_coeff_x2"<<m_coeff_x2;
+    qDebug()<<"m_coeff_y2"<<m_coeff_y2;
+    qDebug()<<"m_coeff_xy"<<m_coeff_xy;
+    qDebug()<<"m_coeff_x"<<m_coeff_x;
+    qDebug()<<"m_coeff_y"<<m_coeff_y;
+    qDebug()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@";*/
   vec2_t F;
-  F[0] = pow(x,2)*m_coeff_x2[0] + pow(y,2)*m_coeff_y2[0] + x*y*m_coeff_xy[0] + x*m_coeff_x[0] + y*m_coeff_y[0] - t_inputPoint[0];
-  F[1] = pow(x,2)*m_coeff_x2[1] + pow(y,2)*m_coeff_y2[1] + x*y*m_coeff_xy[1] + x*m_coeff_x[1] + y*m_coeff_y[1] - t_inputPoint[1];
+  F[0] = pow(x, 2) * m_coeff_x2[0] + pow(y, 2) * m_coeff_y2[0] + x * y * m_coeff_xy[0] + x * m_coeff_x[0] + y * m_coeff_y[0] - t_inputPoint[0];
+  F[1] = pow(x, 2) * m_coeff_x2[1] + pow(y, 2) * m_coeff_y2[1] + x * y * m_coeff_xy[1] + x * m_coeff_x[1] + y * m_coeff_y[1] - t_inputPoint[1];
   return F;
 }
 
-vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, vec2_t A)
-{
+vec2_t BezierTriangle::fixedPointFunction(vec2_t t_inputPoint, vec2_t A) {
   return fixedPointFunction(t_inputPoint, A[0], A[1]);
 }
 
-mat2_t BezierTriangle::jacobiMatrix(double x, double y)
-{
+mat2_t BezierTriangle::jacobiMatrix(double x, double y) {
   mat2_t J;
-  J[0][0] = 2*x*m_coeff_x2[0] + y*m_coeff_xy[0] + m_coeff_x[0];
-  J[1][0] = 2*x*m_coeff_x2[1] + y*m_coeff_xy[1] + m_coeff_x[1];
-  J[0][1] = 2*y*m_coeff_y2[0] + x*m_coeff_xy[0] + m_coeff_y[0];
-  J[1][1] = 2*y*m_coeff_y2[1] + x*m_coeff_xy[1] + m_coeff_y[1];
+  J[0][0] = 2 * x * m_coeff_x2[0] + y * m_coeff_xy[0] + m_coeff_x[0];
+  J[1][0] = 2 * x * m_coeff_x2[1] + y * m_coeff_xy[1] + m_coeff_x[1];
+  J[0][1] = 2 * y * m_coeff_y2[0] + x * m_coeff_xy[0] + m_coeff_y[0];
+  J[1][1] = 2 * y * m_coeff_y2[1] + x * m_coeff_xy[1] + m_coeff_y[1];
   return J;
 }
 
@@ -186,259 +175,236 @@ mat2_t BezierTriangle::jacobiMatrix(double x, double y)
 //   return J;
 // }
 
-mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, double y, double dx, double dy)
-{
+mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, double y, double dx, double dy) {
   mat2_t J;
-  vec2_t df = fixedPointFunction(t_inputPoint,x+dx,y+dy)-fixedPointFunction(t_inputPoint,x,y);
-  if(dx<10e-9) {
+  vec2_t df = fixedPointFunction(t_inputPoint, x + dx, y + dy) - fixedPointFunction(t_inputPoint, x, y);
+  if (dx < 10e-9) {
     J[0][0] = 0;
     J[1][0] = 0;
+  } else {
+    J[0][0] = df[0] / dx;
+    J[1][0] = df[1] / dx;
   }
-  else {
-    J[0][0] = df[0]/dx;
-    J[1][0] = df[1]/dx;
-  }
-  if(dy<10e-9) {
+  if (dy < 10e-9) {
     J[0][1] = 0;
     J[1][1] = 0;
-  }
-  else {
-    J[0][1] = df[0]/dy;
-    J[1][1] = df[1]/dy;
+  } else {
+    J[0][1] = df[0] / dy;
+    J[1][1] = df[1] / dy;
   }
   return J;
 }
 
-vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M)
-{
+vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M) {
   bool DEBUG = false;
-  
+
   vec2_t t_X = t_M;//vec2_t(1./3.,1./3.,1./3.);
-  if(DEBUG) qDebug()<<"t_X="<<t_X;
+  if (DEBUG) qDebug() << "t_X=" << t_X;
   vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-  if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+  if (DEBUG) qDebug() << "F.abs()=" << F.abs();
   int maxloops = 100;
-  int Nloops=0;
-  while(F.abs()>0.001 && Nloops < maxloops) {
-    if(DEBUG) qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
+  int Nloops = 0;
+  while (F.abs() > 0.001 && Nloops < maxloops) {
+    if (DEBUG) qDebug() << "test passed with F.abs()=" << F.abs() << " and " << Nloops << "<" << maxloops;
     mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
-    if(J.det()==0) {
-      qDebug()<<"WARNING: Matrix not invertible!";
+    if (J.det() == 0) {
+      qDebug() << "WARNING: Matrix not invertible!";
     }
-    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
-      if(DEBUG) qDebug()<<"WARNING: will not converge (case 1)";
+    if (fabs(J[0][0]) + fabs(J[0][1]) >= 1) {
+      if (DEBUG) qDebug() << "WARNING: will not converge (case 1)";
     }
-    if (fabs(J[1][0])+fabs(J[1][1])>=1) {
-      if(DEBUG) qDebug()<<"WARNING: will not converge (case 2)";
+    if (fabs(J[1][0]) + fabs(J[1][1]) >= 1) {
+      if (DEBUG) qDebug() << "WARNING: will not converge (case 2)";
     }
-    
+
     mat2_t JI = J.inverse();
-    vec2_t deltaX = -1*(JI*F);
+    vec2_t deltaX = -1 * (JI * F);
     t_X = t_X + deltaX;
-    if(DEBUG) qDebug()<<"t_X="<<t_X;
+    if (DEBUG) qDebug() << "t_X=" << t_X;
     F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-    if(DEBUG) qDebug()<<"F="<<F;
-    if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+    if (DEBUG) qDebug() << "F=" << F;
+    if (DEBUG) qDebug() << "F.abs()=" << F.abs();
     Nloops++;
   }
-  if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
-  
+  if (Nloops >= maxloops) qDebug() << "WARNING: Exited before converging! Nloops=" << Nloops;
+
   return QuadraticBezierTriangle(t_X);
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output)
-{
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) {
   vec2_t t_M = global3DToLocal2D(g_M);
 //   qDebug()<<"t_M="<<t_M;
-  
-  if( !isInsideTriangle(t_M) ) {
+
+  if (!isInsideTriangle(t_M)) {
 //     return vec3_t(0,0,0);
-    qDebug()<<"WARNING: Not on triangle! t_M="<<t_M;
+    qDebug() << "WARNING: Not on triangle! t_M=" << t_M;
     //get closest point M' on triangle
-    vec3_t xi(0,0,0);
-    vec3_t ri(0,0,0);
+    vec3_t xi(0, 0, 0);
+    vec3_t ri(0, 0, 0);
     double d = 0;
     projectOnTriangle(g_M, xi, ri, d, true);
     vec2_t t_Mp(ri[0], ri[1]);
-    qDebug()<<"t_Mp="<<t_Mp;
+    qDebug() << "t_Mp=" << t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);
-    qDebug()<<"g_Mp="<<g_Mp;
+    qDebug() << "g_Mp=" << g_Mp;
     vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
-    qDebug()<<"g_Mp_proj="<<g_Mp_proj;
-    
+    qDebug() << "g_Mp_proj=" << g_Mp_proj;
+
     //get normal vector N at that point
-    vec3_t g_N = surfaceNormal(t_Mp,0);
-    qDebug()<<"g_N="<<g_N;
-    
+    vec3_t g_N = surfaceNormal(t_Mp, 0);
+    qDebug() << "g_N=" << g_N;
+
     //project original point M onto plane (M',N)
     // TODO: This should not be an orthogonal projection!
-    double k = intersection( g_M, g3, g_Mp_proj, g_N);
+    double k = intersection(g_M, g3, g_Mp_proj, g_N);
 //     vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
-    vec3_t g_P = g_M + k*g3;
-    if(output==0) return g_P;
+    vec3_t g_P = g_M + k * g3;
+    if (output == 0) return g_P;
     else return g_N;
-  }
-  else {
+  } else {
     return projectLocal2DOnQuadraticBezierTriangle(t_M);
   }
-  
+
 }
 
 vec2_t secondDegreeSolver(double a, double b, double c) {
-  double x1,x2;
-  
-  if(a==0) {
-    if(b==0) {
+  double x1, x2;
+
+  if (a == 0) {
+    if (b == 0) {
       EG_BUG;
-    }
-    else {
-      x1 = -c/b;
+    } else {
+      x1 = -c / b;
       x2 = x1;
     }
-  }
-  else {
-    double delta = pow(b,2)-4*a*c;
-    if(delta<0) {
+  } else {
+    double delta = pow(b, 2) - 4 * a * c;
+    if (delta < 0) {
       EG_BUG;
-    }
-    else {
-      x1 = (-b+sqrt(delta))/(2*a);
-      x2 = (-b-sqrt(delta))/(2*a);
+    } else {
+      x1 = (-b + sqrt(delta)) / (2 * a);
+      x2 = (-b - sqrt(delta)) / (2 * a);
     }
   }
-  return vec2_t(x1,x2);
+  return vec2_t(x1, x2);
 }
 
-double BezierTriangle::z_func(vec2_t t_M)
-{
-  return z_func(t_M[0],t_M[1]);
+double BezierTriangle::z_func(vec2_t t_M) {
+  return z_func(t_M[0], t_M[1]);
 }
 
-double BezierTriangle::z_func(double x, double y)
-{
+double BezierTriangle::z_func(double x, double y) {
   bool DEBUG = false;
-  vec2_t t_M = vec2_t(x,y);
-  if(DEBUG) qDebug()<<"t_M="<<t_M;
+  vec2_t t_M = vec2_t(x, y);
+  if (DEBUG) qDebug() << "t_M=" << t_M;
   vec3_t g_B = projectLocal2DOnQuadraticBezierTriangle(t_M);
   vec3_t l_B = global3DToLocal3D(g_B);
   return l_B[2];
 }
 
-vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output)
-{
-  vec3_t bary_coords = getBarycentricCoordinates(t_M[0],t_M[1]);
+vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
+  vec3_t bary_coords = getBarycentricCoordinates(t_M[0], t_M[1]);
   double u = bary_coords[0];
   double v = bary_coords[1];
   double w = bary_coords[2];
-  
-  vec2_t dx,dy;
+
+  vec2_t dx, dy;
   double k = 0.1 * smallest_length;
-  vec2_t ex(1,0);
-  vec2_t ey(0,1);
-  if(u>=v && u>w) {
+  vec2_t ex(1, 0);
+  vec2_t ey(0, 1);
+  if (u >= v && u > w) {
     dx = k * ex;
     dy = k * ey;
-  }
-  else if(v>u && v>=w) {
-    dx = k * (ey-ex);
-    dy = k * (-1*ex);
-  }
-  else if(w>=u && w>v) {
-    dx = k * (-1*ey);
-    dy = k * (ex-ey);
-  }
-  else {
-    qWarning()<<"bary_coords="<<bary_coords;
+  } else if (v > u && v >= w) {
+    dx = k * (ey - ex);
+    dy = k * (-1 * ex);
+  } else if (w >= u && w > v) {
+    dx = k * (-1 * ey);
+    dy = k * (ex - ey);
+  } else {
+    qWarning() << "bary_coords=" << bary_coords;
     EG_BUG;
   }
-  
-/*  qDebug()<<"##############";
-  qDebug()<<"dx="<<dx;
-  qDebug()<<"dy="<<dy;
-  qDebug()<<"##############";*/
-  
+
+  /*  qDebug()<<"##############";
+    qDebug()<<"dx="<<dx;
+    qDebug()<<"dy="<<dy;
+    qDebug()<<"##############";*/
+
   vec2_t t_P0 = t_M;
   double z0 = z_func(t_P0);
-  vec3_t l_P0(t_P0[0], t_P0[1], z0 );
-  
-  vec2_t t_Px1 = t_P0-dx;
-  vec2_t t_Px2 = t_P0+dx;
-  vec2_t t_Py1 = t_P0-dy;
-  vec2_t t_Py2 = t_P0+dy;
+  vec3_t l_P0(t_P0[0], t_P0[1], z0);
+
+  vec2_t t_Px1 = t_P0 - dx;
+  vec2_t t_Px2 = t_P0 + dx;
+  vec2_t t_Py1 = t_P0 - dy;
+  vec2_t t_Py2 = t_P0 + dy;
   double zx1 = z_func(t_Px1);
   double zx2 = z_func(t_Px2);
   double zy1 = z_func(t_Py1);
   double zy2 = z_func(t_Py2);
-  vec3_t l_Px1(t_Px1[0],t_Px1[1],zx1);
-  vec3_t l_Px2(t_Px2[0],t_Px2[1],zx2);
-  vec3_t l_Py1(t_Py1[0],t_Py1[1],zy1);
-  vec3_t l_Py2(t_Py2[0],t_Py2[1],zy2);
-  
+  vec3_t l_Px1(t_Px1[0], t_Px1[1], zx1);
+  vec3_t l_Px2(t_Px2[0], t_Px2[1], zx2);
+  vec3_t l_Py1(t_Py1[0], t_Py1[1], zy1);
+  vec3_t l_Py2(t_Py2[0], t_Py2[1], zy2);
+
   vec3_t l_u1;
   vec3_t l_u2;
-  
-  if(!isInsideTriangle(t_P0)) {
-    qWarning()<<"t_P0="<<t_P0;
-    qWarning()<<"t_Px1="<<t_Px1;
-    qWarning()<<"t_Px2="<<t_Px2;
-    qWarning()<<"t_Py1="<<t_Py1;
-    qWarning()<<"t_Py2="<<t_Py2;
-    return vec3_t(0,0,0);
+
+  if (!isInsideTriangle(t_P0)) {
+    qWarning() << "t_P0=" << t_P0;
+    qWarning() << "t_Px1=" << t_Px1;
+    qWarning() << "t_Px2=" << t_Px2;
+    qWarning() << "t_Py1=" << t_Py1;
+    qWarning() << "t_Py2=" << t_Py2;
+    return vec3_t(0, 0, 0);
     EG_BUG;
   }
-  
-  if(isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
-    l_u1 = l_Px2-l_Px1;
-  }
-  else if(!isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
-    l_u1 = l_Px2-l_P0;
-  }
-  else if(isInsideTriangle(t_Px1) && !isInsideTriangle(t_Px2)) {
-    l_u1 = l_P0-l_Px1;
-  }
-  else {
-    qWarning()<<"t_P0="<<t_P0;
-    qWarning()<<"t_Px1="<<t_Px1;
-    qWarning()<<"t_Px2="<<t_Px2;
-    qWarning()<<"t_Py1="<<t_Py1;
-    qWarning()<<"t_Py2="<<t_Py2;
-    return vec3_t(0,0,0);
+
+  if (isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+    l_u1 = l_Px2 - l_Px1;
+  } else if (!isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+    l_u1 = l_Px2 - l_P0;
+  } else if (isInsideTriangle(t_Px1) && !isInsideTriangle(t_Px2)) {
+    l_u1 = l_P0 - l_Px1;
+  } else {
+    qWarning() << "t_P0=" << t_P0;
+    qWarning() << "t_Px1=" << t_Px1;
+    qWarning() << "t_Px2=" << t_Px2;
+    qWarning() << "t_Py1=" << t_Py1;
+    qWarning() << "t_Py2=" << t_Py2;
+    return vec3_t(0, 0, 0);
     EG_BUG;
   }
-  
-  
-  if(isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
-    l_u2 = l_Py2-l_Py1;
-  }
-  else if(!isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
-    l_u2 = l_Py2-l_P0;
-  }
-  else if(isInsideTriangle(t_Py1) && !isInsideTriangle(t_Py2)) {
-    l_u2 = l_P0-l_Py1;
-  }
-  else {
-    qWarning()<<"t_P0="<<t_P0;
-    qWarning()<<"t_Px1="<<t_Px1;
-    qWarning()<<"t_Px2="<<t_Px2;
-    qWarning()<<"t_Py1="<<t_Py1;
-    qWarning()<<"t_Py2="<<t_Py2;
-    return vec3_t(0,0,0);
+
+
+  if (isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+    l_u2 = l_Py2 - l_Py1;
+  } else if (!isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+    l_u2 = l_Py2 - l_P0;
+  } else if (isInsideTriangle(t_Py1) && !isInsideTriangle(t_Py2)) {
+    l_u2 = l_P0 - l_Py1;
+  } else {
+    qWarning() << "t_P0=" << t_P0;
+    qWarning() << "t_Px1=" << t_Px1;
+    qWarning() << "t_Px2=" << t_Px2;
+    qWarning() << "t_Py1=" << t_Py1;
+    qWarning() << "t_Py2=" << t_Py2;
+    return vec3_t(0, 0, 0);
     EG_BUG;
   }
-  
-  vec3_t g_u1 = G*l_u1;
+
+  vec3_t g_u1 = G * l_u1;
   g_u1.normalise();
-  vec3_t g_u2 = G*l_u2;
+  vec3_t g_u2 = G * l_u2;
   g_u2.normalise();
   vec3_t g_N = g_u1.cross(g_u2);
   g_N.normalise();
-  if(output==0) {
+  if (output == 0) {
     return g_N;
-  }
-  else if(output==1) {
+  } else if (output == 1) {
     return g_u1;
-  }
-  else {
+  } else {
     return g_u2;
   }
 }
