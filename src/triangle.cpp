@@ -76,7 +76,7 @@ void Triangle::setupTriangle() {
   m_has_neighbour[3] = false;
   m_has_neighbour[4] = false;
   m_has_neighbour[5] = false;
-  
+
   g1 = b - a;
   g2 = c - a;
   g3 = g1.cross(g2);
