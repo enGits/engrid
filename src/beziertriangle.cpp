@@ -251,7 +251,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
     vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
     qDebug() << "g_Mp_proj=" << g_Mp_proj;
 
-    if (m_has_neighbour[side]) {
+    if ( m_has_neighbour[side]) {
       // no extrapolation, restrict
       return g_Mp_proj;
     } else {

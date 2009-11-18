@@ -104,7 +104,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   if (!move) {
     // comment this out if you want points to always move
-    m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+//     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
   return move;
 }
@@ -114,7 +114,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
-  for (int i_relaxation = 0; i_relaxation < 5; ++i_relaxation) {
+  for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);

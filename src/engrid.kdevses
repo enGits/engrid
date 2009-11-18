@@ -1,11 +1,7 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="1" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guimainwindow.h" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc0>
- </DocsAndViews>
+ <DocsAndViews NumberOfDocuments="0" />
  <pluginList>
   <kdevdebugger>
    <breakpointList>
@@ -21,71 +17,11 @@
   </kdevastyle>
   <kdevbookmarks>
    <bookmarks>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.h" >
-     <mark line="66" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/operation.cpp" >
-     <mark line="94" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
-     <mark line="112" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/guieditboundaryconditions.cpp" >
-     <mark line="199" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/egvtkinteractorstyle.cpp" >
-     <mark line="408" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/math/mathvector_methods.h" >
-     <mark line="104" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
-     <mark line="1910" />
-    </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-     <mark line="833" />
-     <mark line="902" />
-     <mark line="614" />
-     <mark line="427" />
-     <mark line="479" />
-     <mark line="394" />
-     <mark line="1347" />
-     <mark line="888" />
-     <mark line="756" />
-     <mark line="552" />
-     <mark line="774" />
-     <mark line="1476" />
-     <mark line="559" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
-     <mark line="551" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/checksurfaceintegrity.cpp" >
-     <mark line="57" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/surfaceoperation.cpp" >
-     <mark line="241" />
-     <mark line="174" />
-     <mark line="390" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/filetemplate.cpp" >
-     <mark line="61" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/operation.h" >
-     <mark line="116" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/projection_test.cpp" >
-     <mark line="545" />
-     <mark line="235" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/removepoints.cpp" >
-     <mark line="355" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/engrid/src/showinfo.cpp" >
-     <mark line="67" />
-    </bookmark>
-    <bookmark url="/data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
-     <mark line="267" />
+     <mark line="1191" />
+     <mark line="1379" />
+     <mark line="907" />
+     <mark line="1114" />
     </bookmark>
    </bookmarks>
   </kdevbookmarks>
