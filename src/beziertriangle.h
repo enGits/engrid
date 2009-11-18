@@ -66,6 +66,8 @@ public:
   vec3_t projectOnQuadraticBezierTriangle4(vec3_t g_M);
   vec3_t projectOnQuadraticBezierTriangle5(vec3_t g_M);
   
+  vec3_t projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M);
+  
 // stuff used for projections on the Bezier surface
 private:
   void setupFunctionVariables();

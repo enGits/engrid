@@ -555,10 +555,11 @@ void Projection_test::bezierProjectionTest2()
       
 //       double x = (i/(double)(N-1));
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
+      vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
       
       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M, 0);
-      vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M, 1);
+      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M,0); //projectOnQuadraticBezierTriangle3(g_M, 1);
       
       // enter the values
       vtkIdType id_node = offset + node_count;

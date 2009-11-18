@@ -265,12 +265,47 @@ mat2_t BezierTriangle::jacobiMatrix_numeric(vec2_t t_inputPoint, double x, doubl
   return J;
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
+vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M)
 {
   bool DEBUG = false;
-  vec2_t t_M = global3DToLocal2D(g_M);
-  if(DEBUG) qDebug()<<"t_M="<<t_M;
+  
   vec2_t t_X = t_M;//vec2_t(1./3.,1./3.,1./3.);
+  if(DEBUG) qDebug()<<"t_X="<<t_X;
+  vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+  if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+  int maxloops = 100;
+  int Nloops=0;
+  while(F.abs()>0.001 && Nloops < maxloops) {
+    if(DEBUG) qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
+    mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
+    if(J.det()==0) {
+      qDebug()<<"WARNING: Matrix not invertible!";
+    }
+    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
+      if(DEBUG) qDebug()<<"WARNING: will not converge (case 1)";
+    }
+    if (fabs(J[1][0])+fabs(J[1][1])>=1) {
+      if(DEBUG) qDebug()<<"WARNING: will not converge (case 2)";
+    }
+    
+    mat2_t JI = J.inverse();
+    vec2_t deltaX = -1*(JI*F);
+    t_X = t_X + deltaX;
+    if(DEBUG) qDebug()<<"t_X="<<t_X;
+    F = fixedPointFunction(t_M, t_X[0], t_X[1]);
+    if(DEBUG) qDebug()<<"F="<<F;
+    if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
+    Nloops++;
+  }
+  if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
+  
+  return QuadraticBezierTriangle(t_X);
+}
+
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
+{
+  vec2_t t_M = global3DToLocal2D(g_M);
+//   qDebug()<<"t_M="<<t_M;
   
   if( !isInsideTriangle(t_M) ) {
 //     return vec3_t(0,0,0);
@@ -284,7 +319,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
     qDebug()<<"t_Mp="<<t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);
     qDebug()<<"g_Mp="<<g_Mp;
-    vec3_t g_Mp_proj = projectOnQuadraticBezierTriangle3(g_Mp);
+    vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
     qDebug()<<"g_Mp_proj="<<g_Mp_proj;
     
     //get normal vector N at that point
@@ -300,37 +335,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
     else return g_N;
   }
   else {
-    if(DEBUG) qDebug()<<"t_X="<<t_X;
-    vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-    if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
-    int maxloops = 100;
-    int Nloops=0;
-    while(F.abs()>0.001 && Nloops < maxloops) {
-      if(DEBUG) qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
-      mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
-      if(J.det()==0) {
-        qDebug()<<"WARNING: Matrix not invertible!";
-      }
-      if (fabs(J[0][0])+fabs(J[0][1])>=1) {
-        if(DEBUG) qDebug()<<"WARNING: will not converge (case 1)";
-      }
-      if (fabs(J[1][0])+fabs(J[1][1])>=1) {
-        if(DEBUG) qDebug()<<"WARNING: will not converge (case 2)";
-      }
-      
-      mat2_t JI = J.inverse();
-      vec2_t deltaX = -1*(JI*F);
-      t_X = t_X + deltaX;
-      if(DEBUG) qDebug()<<"t_X="<<t_X;
-      F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-      if(DEBUG) qDebug()<<"F="<<F;
-      if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
-      Nloops++;
-    }
-    if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
-    
-    if(output==0) return QuadraticBezierTriangle(t_X);
-    else return vec3_t(0,0,0);
+    return projectLocal2DOnQuadraticBezierTriangle(t_M);
   }
   
 }
@@ -531,37 +536,7 @@ double BezierTriangle::z_func(double x, double y)
   bool DEBUG = false;
   vec2_t t_M = vec2_t(x,y);
   if(DEBUG) qDebug()<<"t_M="<<t_M;
-  vec2_t t_X = t_M;
-  
-  if(DEBUG) qDebug()<<"t_X="<<t_X;
-  vec2_t F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-  if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
-  int maxloops = 100;
-  int Nloops=0;
-  while(F.abs()>0.001 && Nloops < maxloops) {
-    if(DEBUG) qDebug()<<"test passed with F.abs()="<<F.abs()<<" and "<<Nloops<<"<"<<maxloops;
-    mat2_t J = jacobiMatrix(t_X[0], t_X[1]);
-    if(J.det()==0) {
-      qDebug()<<"WARNING: Matrix not invertible!";
-    }
-    if (fabs(J[0][0])+fabs(J[0][1])>=1) {
-      if(DEBUG) qDebug()<<"WARNING: will not converge (case 1)";
-    }
-    if (fabs(J[1][0])+fabs(J[1][1])>=1) {
-      if(DEBUG) qDebug()<<"WARNING: will not converge (case 2)";
-    }
-    
-    mat2_t JI = J.inverse();
-    vec2_t deltaX = -1*(JI*F);
-    t_X = t_X + deltaX;
-    if(DEBUG) qDebug()<<"t_X="<<t_X;
-    F = fixedPointFunction(t_M, t_X[0], t_X[1]);
-    if(DEBUG) qDebug()<<"F="<<F;
-    if(DEBUG) qDebug()<<"F.abs()="<<F.abs();
-    Nloops++;
-  }
-  if(Nloops >= maxloops) qDebug()<<"WARNING: Exited before converging! Nloops="<<Nloops;
-  vec3_t g_B = QuadraticBezierTriangle(t_X);
+  vec3_t g_B = projectLocal2DOnQuadraticBezierTriangle(t_M);
   vec3_t l_B = global3DToLocal3D(g_B);
   return l_B[2];
 }

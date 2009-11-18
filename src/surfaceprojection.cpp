@@ -1340,31 +1340,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   
-  m_BezierTriangles.resize(m_Triangles.size());
-  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
-    
-    Triangle T = m_Triangles[i_tri];
-    vec3_t g_A = T.a;
-    vec3_t g_B = T.b;
-    vec3_t g_C = T.c;
-    
-  //qDebug()<<"=== ORTHOGONAL PLANES ===";
-    vec3_t g_J1, g_J2, g_J3;
-    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
-  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-    vec3_t g_K1, g_K2, g_K3;
-    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
-    
-    vec3_t X_200 = g_A;
-    vec3_t X_020 = g_B;
-    vec3_t X_002 = g_C;
-    vec3_t X_011 = g_K1;
-    vec3_t X_101 = g_K2;
-    vec3_t X_110 = g_K3;
-    
-    m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  }
-  
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
 //   prepare();
@@ -1388,7 +1363,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
     qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
-    if(false && node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
+    if( node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
@@ -1453,6 +1428,32 @@ void SurfaceProjection::updateBackgroundGridInfo()
     }
     m_NodeNormals[id_node].normalise();
     qDebug()<<"m_NodeNormals["<<id_node<<"]="<<m_NodeNormals[id_node];
+  }
+  
+  // store the bezier triangles
+  m_BezierTriangles.resize(m_Triangles.size());
+  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
+    
+    Triangle T = m_Triangles[i_tri];
+    vec3_t g_A = T.a;
+    vec3_t g_B = T.b;
+    vec3_t g_C = T.c;
+    
+  //qDebug()<<"=== ORTHOGONAL PLANES ===";
+    vec3_t g_J1, g_J2, g_J3;
+    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
+    vec3_t g_K1, g_K2, g_K3;
+    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+    
+    vec3_t X_200 = g_A;
+    vec3_t X_020 = g_B;
+    vec3_t X_002 = g_C;
+    vec3_t X_011 = g_K1;
+    vec3_t X_101 = g_K2;
+    vec3_t X_110 = g_K3;
+    
+    m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
   }
   
   // compute maximum angle per node
