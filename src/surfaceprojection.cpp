@@ -382,31 +382,31 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
-// #define EGVTKOBJECT_CREATENODEFIELD(FIELD,TYPE,OW)
-// if (!m_Grid->GetPointData()->GetArray(FIELD)) {
-// EG_VTKSP(TYPE, var);
-// var->SetName(FIELD);
-// var->SetNumberOfValues(Nnodes);
-// m_Grid->GetPointData()->AddArray(var);
-// for (int i = 0; i < m_Grid->GetNumberOfPoints(); ++i) {
-// var->SetValue(i,0);
-// }
-// } else if (OW) {
-// EG_VTKDCN(TYPE, var, m_Grid, FIELD);
-// var->SetNumberOfValues(Nnodes);
-// for (int i = 0; i < m_Grid->GetNumberOfPoints(); ++i) {
-// var->SetValue(i,0);
-// }
+// #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
+// if (!grid->GetCellData()->GetArray(FIELD)) { \
+// EG_VTKSP(TYPE, var); \
+// var->SetName(FIELD); \
+// var->SetNumberOfValues(Ncells); \
+// grid->GetCellData()->AddArray(var); \
+// for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
+// var->SetValue(i,0); \
+// } \
+// } else if (OW) { \
+// EG_VTKDCC(TYPE, var, grid, FIELD); \
+// var->SetNumberOfValues(Ncells); \
+// for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
+// var->SetValue(i,0); \
+// } \
 // }
 
 void SurfaceProjection::writeGridWithNormals(QString filename)
 {
   //qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
   
-  vtkDoubleArray *vectors = vtkDoubleArray::New();
-  vectors->SetName("normals");
-  vectors->SetNumberOfComponents(3);
-  vectors->SetNumberOfTuples(m_BGrid->GetNumberOfPoints());
+  vtkDoubleArray *vectors_normals = vtkDoubleArray::New();
+  vectors_normals->SetName("normals");
+  vectors_normals->SetNumberOfComponents(3);
+  vectors_normals->SetNumberOfTuples(m_BGrid->GetNumberOfPoints());
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     vec3_t N = m_NodeNormals[id_node];
@@ -414,17 +414,22 @@ void SurfaceProjection::writeGridWithNormals(QString filename)
     n[0]=N[0];
     n[1]=N[1];
     n[2]=N[2];
-    vectors->InsertTuple(id_node,n);
+    vectors_normals->InsertTuple(id_node,n);
   }
   
-  m_BGrid->GetPointData()->SetVectors(vectors);
-/*  vectors->SetName("normals2");
-  m_BGrid->GetPointData()->SetVectors(vectors);
-  vectors->SetName("normals3");
-  m_BGrid->GetPointData()->SetVectors(vectors);*/
-//   m_BGrid->GetPointData()->AddArray(vectors);
+  m_BGrid->GetPointData()->SetVectors(vectors_normals);
   
-  vectors->Delete();
+  vectors_normals->Delete();
+  
+/*  EG_VTKSP(vtkIntArray, var);
+  var->SetName("");
+  var->SetNumberOfValues(Ncells);
+  grid->GetCellData()->AddArray(var);
+  var->SetValue(i,0);
+  
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    
+  }*/
   
   saveGrid(m_BGrid, filename+"_BGrid_WithNormals");
 }
@@ -1102,6 +1107,84 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
 //     qWarning()<<"X_110="<<X_110<<"P_110="<<P_110<<"L_110="<<L_110;
     X_110 = P_110 + Lmax/L_110 * (X_110-P_110);
   }
+  return(0);
+}
+
+void SurfaceProjection::writeTriangleGrid(QString filename)
+{
+  int N_cells = m_Triangles.size();
+  int N_points = 3*m_Triangles.size();
+  
+  qDebug()<<"N_cells="<<N_cells;
+  qDebug()<<"N_points="<<N_points;
+  
+  
+  EG_VTKSP(vtkUnstructuredGrid, triangle_grid);
+  allocateGrid(triangle_grid , N_cells, N_points);
+  
+  vtkDoubleArray *vectors_hasneighbour0 = vtkDoubleArray::New();
+  vectors_hasneighbour0->SetName("hasneighbour0");
+  vectors_hasneighbour0->SetNumberOfComponents(3);
+  vectors_hasneighbour0->SetNumberOfTuples(N_points);
+  
+  vtkDoubleArray *vectors_hasneighbour1 = vtkDoubleArray::New();
+  vectors_hasneighbour1->SetName("hasneighbour1");
+  vectors_hasneighbour1->SetNumberOfComponents(3);
+  vectors_hasneighbour1->SetNumberOfTuples(N_points);
+  
+  vtkDoubleArray *vectors_hasneighbour2 = vtkDoubleArray::New();
+  vectors_hasneighbour2->SetName("hasneighbour2");
+  vectors_hasneighbour2->SetNumberOfComponents(3);
+  vectors_hasneighbour2->SetNumberOfTuples(N_points);
+  
+  vtkDoubleArray *vectors_neighbours = vtkDoubleArray::New();
+  vectors_neighbours->SetName("neighbours");
+  vectors_neighbours->SetNumberOfComponents(3);
+  vectors_neighbours->SetNumberOfTuples(N_cells);
+  
+  int node_count = 0;
+  int cell_count = 0;
+  for(int i=0; i<m_Triangles.size(); i++) {
+    vtkIdType pts[3];
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].a.data()); pts[0]=node_count; node_count++;
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].b.data()); pts[1]=node_count; node_count++;
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].c.data()); pts[2]=node_count; node_count++;
+  
+    vec3_t v0,v1,v2;
+    v0 = getEdgeNormal(m_Triangles[i].id_a,m_Triangles[i].id_b).normalise();
+    v1 = getEdgeNormal(m_Triangles[i].id_b,m_Triangles[i].id_c).normalise();
+    v2 = getEdgeNormal(m_Triangles[i].id_c,m_Triangles[i].id_a).normalise();
+    checkVector(v0);
+    checkVector(v1);
+    checkVector(v2);
+    qDebug()<<"v0="<<v0;
+    qDebug()<<"v1="<<v1;
+    qDebug()<<"v2="<<v2;
+    vectors_hasneighbour0->InsertTuple(pts[0],v0.data());
+    vectors_hasneighbour1->InsertTuple(pts[1],v1.data());
+    vectors_hasneighbour2->InsertTuple(pts[2],v2.data());
+  
+    vec3_t neighbours = m_Triangles[i].g3;
+    if(!m_Triangles[i].m_has_neighbour[0]) neighbours+=v0;
+    if(!m_Triangles[i].m_has_neighbour[1]) neighbours+=v1;
+    if(!m_Triangles[i].m_has_neighbour[2]) neighbours+=v2;
+    
+    int cell = triangle_grid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
+    vectors_neighbours->InsertTuple(cell, neighbours.data());
+    
+  }
+  
+  triangle_grid->GetPointData()->AddArray(vectors_hasneighbour0);
+  triangle_grid->GetPointData()->AddArray(vectors_hasneighbour1);
+  triangle_grid->GetPointData()->AddArray(vectors_hasneighbour2);
+  triangle_grid->GetCellData()->AddArray(vectors_neighbours);
+  vectors_hasneighbour0->Delete();
+  vectors_hasneighbour1->Delete();
+  vectors_hasneighbour2->Delete();
+  vectors_neighbours->Delete();
+  
+  saveGrid(triangle_grid, filename+"_TriangleGrid");
+  
 }
 
 void SurfaceProjection::writeInterpolationGrid(QString filename)
@@ -1236,7 +1319,7 @@ vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2)
   }
   vec3_t n = m_Triangles[id_cell].g3;
   vec3_t Nedge = t.cross(n);
-  qDebug()<<"Nedge="<<Nedge;
+//   qDebug()<<"Nedge="<<Nedge;
   return Nedge;
 }
 
@@ -1298,11 +1381,31 @@ void SurfaceProjection::updateBackgroundGridInfo()
   
   getAllCells(m_Cells, m_BGrid);
   getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
+  
+  setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
+//   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
+  
+  setAllCells();
+  readVMD();
+  
+  UpdatePotentialSnapPoints(true,false);
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
+  l2g_t cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
+  l2g_t nodes = getPartNodes();
+  g2l_t _nodes = getPartLocalNodes();
+  
+//   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
+  
   QVector<int> m_LNodes(m_Nodes.size());
   for (int i = 0; i < m_LNodes.size(); ++i) {
     m_LNodes[i] = i;
   }
+  
   createNodeToNode(m_Cells, m_Nodes, m_LNodes, m_N2N, m_BGrid);
+  
   m_EdgeLength.fill(1e99, m_BGrid->GetNumberOfPoints());
   foreach (vtkIdType id_node, m_Nodes) {
     vec3_t x;
@@ -1323,8 +1426,13 @@ void SurfaceProjection::updateBackgroundGridInfo()
     // TODO: Store infos about neighbour cells for each triangle
     
     for(int i=0;i<3;i++) {
-      
-      m_Triangles[id_cell].m_has_neighbour[i] = true;
+      int i_cell = _cells[id_cell];
+      if(c2c[i_cell][i]<0) {
+        m_Triangles[id_cell].m_has_neighbour[i] = false;
+      }
+      else {
+        m_Triangles[id_cell].m_has_neighbour[i] = true;
+      }
     }
     
   }
@@ -1347,42 +1455,24 @@ void SurfaceProjection::updateBackgroundGridInfo()
     m_NodeNormals[T.id_c] += angle_c*T.g3;
   }
   
-  setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
-  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
-//   prepare();
-  
-  setAllCells();
-//   readSettings();
-  readVMD();
-  
-  qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
-  
-  UpdatePotentialSnapPoints(true,false);
-  
-  qDebug()<<"===STARTING NORMAL CALCULATION===";
-  l2l_t  n2n   = getPartN2N();
-  l2l_t  n2c = getPartN2C();
-  l2g_t cells = getPartCells();
-  g2l_t _cells = getPartLocalCells();
-  l2g_t nodes = getPartNodes();
-  g2l_t _nodes = getPartLocalNodes();
+//   qDebug()<<"===STARTING NORMAL CALCULATION===";
   
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
-    qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
-    qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
+//     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
+//     qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
     
     // take into account curvature at boundaries
     if( false && node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
-      qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
-      qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
-      qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
+//       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
+//       qDebug()<<"id_snappoints[0]="<<id_snappoints[0];
+//       qDebug()<<"id_snappoints[1]="<<id_snappoints[1];
       vec3_t x0,x1,x2;
       m_Grid->GetPoints()->GetPoint(id_node, x0.data());
       m_Grid->GetPoints()->GetPoint(id_snappoints[0], x1.data());
       m_Grid->GetPoints()->GetPoint(id_snappoints[1], x2.data());
-      qDebug()<<"x0="<<x0<<" x1="<<x1<<" x="<<x2;
+//       qDebug()<<"x0="<<x0<<" x1="<<x1<<" x="<<x2;
       
 //       t1.cross(n1);
 //       t2.cross(n2);
@@ -1417,7 +1507,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
 //       qDebug()<<"x2="<<x2[0]<<x2[1]<<x2[2];
     }
     m_NodeNormals[id_node].normalise();
-    qDebug()<<"m_NodeNormals["<<id_node<<"]="<<m_NodeNormals[id_node];
+//     qDebug()<<"m_NodeNormals["<<id_node<<"]="<<m_NodeNormals[id_node];
   }
   
   // store the bezier triangles

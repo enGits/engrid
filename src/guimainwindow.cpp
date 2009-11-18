@@ -1952,6 +1952,7 @@ void GuiMainWindow::storeSurfaceProjection()
     
     proj->writeGridWithNormals(basename);
     proj->writeInterpolationGrid(basename);
+    proj->writeTriangleGrid(basename);
     qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
       <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
     addGrid(new_grid, proj->getBezierGrid());
