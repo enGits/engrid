@@ -242,7 +242,8 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
     vec3_t xi(0, 0, 0);
     vec3_t ri(0, 0, 0);
     double d = 0;
-    projectOnTriangle(g_M, xi, ri, d, true);
+    int side;
+    projectOnTriangle(g_M, xi, ri, d, side, true);
     vec2_t t_Mp(ri[0], ri[1]);
     qDebug() << "t_Mp=" << t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);

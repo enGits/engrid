@@ -27,6 +27,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
+#include <QVector>
 
 class Triangle {
   public:
@@ -38,7 +39,7 @@ class Triangle {
     double smallest_length;
 
   public:
-    bool m_has_neighbour[3]; ///< True if edge i has a neighbour in the grid
+    QVector <bool> m_has_neighbour; ///< True if edge i has a neighbour in the grid
 
   public:
     Triangle();
@@ -56,7 +57,7 @@ class Triangle {
      * @param d Distance of xp to (xi,ri)
      * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
     */
-    bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle);
+    bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle);
 
     vec3_t local3DToGlobal3D(vec3_t l_M);
     vec3_t global3DToLocal3D(vec3_t g_M);

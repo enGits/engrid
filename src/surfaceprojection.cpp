@@ -944,7 +944,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       vec3_t xi, ri;
       double d;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
+      int side;
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
       if (!intersects || (d > 0.1*T.smallest_length)) {
         need_full_search = true;
       } else {
@@ -967,7 +968,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       Triangle T = m_Triangles[i_triangles];
       double d;
       vec3_t xi, ri;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d, true);
+      int side;
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
 //       if(d>9000) qWarning()<<"d="<<d;
       if(d>=1e99) EG_BUG;
       if (/*first ||*/ d < d_min) {
@@ -991,8 +993,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
 //    if(on_triangle) {
-     if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
-//      if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
+//      if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+     if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
 //    }
   if(!on_triangle) {
     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
@@ -1534,6 +1536,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
     vec3_t X_110 = g_K3;
     
     m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
+    m_BezierTriangles[i_tri].m_has_neighbour = m_Triangles[i_tri].m_has_neighbour;
   }
   
   // compute maximum angle per node

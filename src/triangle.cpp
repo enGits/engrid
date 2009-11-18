@@ -32,9 +32,6 @@ Triangle::Triangle() {
   a = vec3_t(0, 0, 0);
   b = vec3_t(0, 0, 0);
   c = vec3_t(0, 0, 0);
-  m_has_neighbour[0] = false;
-  m_has_neighbour[1] = false;
-  m_has_neighbour[2] = false;
   setupTriangle();
 }
 
@@ -72,6 +69,14 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell) {
 }
 
 void Triangle::setupTriangle() {
+  m_has_neighbour.resize(6);
+  m_has_neighbour[0] = false;
+  m_has_neighbour[1] = false;
+  m_has_neighbour[2] = false;
+  m_has_neighbour[3] = false;
+  m_has_neighbour[4] = false;
+  m_has_neighbour[5] = false;
+  
   g1 = b - a;
   g2 = c - a;
   g3 = g1.cross(g2);
@@ -107,7 +112,8 @@ vec2_t Triangle::global3DToLocal2D(vec3_t g_M) {
   return vec2_t(l_M[0], l_M[1]);
 }
 
-bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, bool restrict_to_triangle) {
+bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle) {
+  side = -1;
   double scal = (xp - this->a) * this->g3;
   vec3_t x1, x2;
   if (scal > 0) {
@@ -143,14 +149,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
         ri = vec3_t(kab, 0, 0);
         d = dab;
         set = true;
-      }
-    }
-    if (dac < d) {
-      if ((kac >= 0) && (kac <= 1)) {
-        xi = this->a + kac * (this->c - this->a);
-        ri = vec3_t(0, kac, 0);
-        d = dac;
-        set = true;
+        side = 0;
       }
     }
     if (dbc < d) {
@@ -159,6 +158,16 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
         ri = vec3_t(1 - kbc, kbc, 0);
         d = dbc;
         set = true;
+        side = 1;
+      }
+    }
+    if (dac < d) {
+      if ((kac >= 0) && (kac <= 1)) {
+        xi = this->a + kac * (this->c - this->a);
+        ri = vec3_t(0, kac, 0);
+        d = dac;
+        set = true;
+        side = 2;
       }
     }
     if (da < d) {
@@ -166,18 +175,21 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, b
       ri = vec3_t(0, 0);
       d = da;
       set = true;
+      side = 3;
     }
     if (db < d) {
       xi = this->b;
       ri = vec3_t(1, 0);
       d = db;
       set = true;
+      side = 4;
     }
     if (dc < d) {
       xi = this->c;
       ri = vec3_t(0, 1);
       d = dc;
       set = true;
+      side = 5;
     }
     if (!set) {
       EG_BUG;
