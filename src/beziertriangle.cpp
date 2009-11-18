@@ -109,62 +109,6 @@ vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M)
   return QuadraticBezierTriangle(t_M);
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M)
-{
-  int N=100;
-  int N_cells = (N-1)*(N-1);
-  int N_points = (N*N+N)/2;
-  
-  EG_VTKSP(vtkUnstructuredGrid,bezier);
-  allocateGrid(bezier, N_cells, N_points);
-  
-  vtkIdType offset = 0;
-  offset += addBezierSurface(this, bezier, offset, N);
-  
-  vtkIdType cellId;
-  int subId;
-  double dist2;
-  vtkCellLocator* locator=vtkCellLocator::New();
-  locator->SetDataSet(bezier);
-  locator->BuildLocator();
-  vec3_t g_P;
-  locator->FindClosestPoint(g_M.data(),g_P.data(),cellId,subId,dist2);
-  locator->Delete();
-  return g_P;
-}
-
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle2(vec3_t g_M)
-{
-  double L = (m_X_200-m_X_020).abs();
-  L = min(L,(m_X_020-m_X_002).abs());
-  L = min(L,(m_X_002-m_X_200).abs());
-  
-  double maxerr = L/100.;
-  vec3_t xi;
-  vec3_t ri;
-  double d;
-  projectOnTriangle(g_M, xi, ri, d, false);
-  vec3_t g_A = xi;
-  vec2_t t_A = vec2_t(ri[0],ri[1]);
-  vec3_t g_B = QuadraticBezierTriangle(t_A);
-  projectOnTriangle(g_B, xi, ri, d, false);
-  vec3_t g_C = xi;
-  vec3_t err_vector = g_M - g_C;
-  int Nloop=0;
-/*  while(err_vector.abs()>maxerr && Nloop<200) {
-//   for(int i=0;i<10;i++) {
-    g_A = g_A + err_vector;
-    projectOnTriangle(g_A, xi, ri, d, false);
-    t_A = vec2_t(ri[0],ri[1]);
-    g_B = QuadraticBezierTriangle(t_A);
-    projectOnTriangle(g_B, xi, ri, d, false);
-    vec3_t g_C = xi;
-    err_vector = g_M - g_C;
-    Nloop++;
-  }*/
-  return g_B;
-}
-
 void BezierTriangle::setupFunctionVariables() {
   m_l_X_200 = global3DToLocal3D(m_X_200);
   m_l_X_020 = global3DToLocal3D(m_X_020);
@@ -302,7 +246,7 @@ vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M)
   return QuadraticBezierTriangle(t_X);
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
+vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
 //   qDebug()<<"t_M="<<t_M;
@@ -340,151 +284,6 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle3(vec3_t g_M, int output)
   
 }
 
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle4(vec3_t g_M)
-{
-  vec2_t t_M = global3DToLocal2D(g_M);
-  qDebug()<<"t_M="<<t_M;
-
-  vec2_t A,B,C,D,E,F;
-  vec2_t K0,K1,K2;
-  vec2_t delta;
-  vec2_t x1,x2;
-  vec2_t y1,y2;
-  double x,y;
-  
-  A[0] = m_coeff_x2[0];
-  B[0] = m_coeff_y2[0];
-  C[0] = m_coeff_xy[0];
-  D[0] = m_coeff_x[0];
-  E[0] = m_coeff_y[0];
-  F[0] = -t_M[0];
-  
-  A[1] = m_coeff_x2[1];
-  B[1] = m_coeff_y2[1];
-  C[1] = m_coeff_xy[1];
-  D[1] = m_coeff_x[1];
-  E[1] = m_coeff_y[1];
-  F[1] = -t_M[1];
-  
-  vec2_t direction = fixedPointFunction(t_M, t_M[0], t_M[1]);
-  if(direction[0]!=0) { // y=ax+b
-    double a = direction[1]/direction[0];
-    double b = -a*t_M[0];
-    K0 = pow(b,2)*B + b*E + F;
-    K1 = 2*a*b*B + b*C + D + a*E;
-    K2 = A + pow(a,2)*B + a*C;
-    // zero X component
-    if(K2[0]!=0) {
-      delta[0] = pow(K1[0],2)-4*K2[0]*K0[0];
-      if(delta[0]>=0) {
-        x1[0]=(-K1[0]+sqrt(delta[0]))/(2*K2[0]);
-        x2[0]=(-K1[0]-sqrt(delta[0]))/(2*K2[0]);
-      }
-      else {
-        qDebug()<<"FATAL ERROR: delta[0]<0";
-        return vec3_t(0,0,0);
-      }
-    }
-    else {
-      x1[0]=-K0[0]/K1[0];
-      x2[0]=x1[0];
-    }
-    // zero Y component
-    if(K2[1]!=0) {
-      delta[1] = pow(K1[1],2)-4*K2[1]*K0[1];
-      if(delta[1]>=0) {
-        x1[1]=(-K1[1]+sqrt(delta[1]))/(2*K2[1]);
-        x2[1]=(-K1[1]-sqrt(delta[1]))/(2*K2[1]);
-      }
-      else {
-        qDebug()<<"FATAL ERROR: delta[1]<0";
-        return vec3_t(0,0,0);
-      }
-    }
-    else {
-      x1[1]=-K0[1]/K1[1];
-      x2[1]=x1[1];
-    }
-    // calculate corresponding y values
-    y1 = a*x1 + b*vec2_t(1,1);
-    y2 = a*x2 + b*vec2_t(1,1);
-  }
-  else { // x=cte=ay+b=b=x0
-    double a = 0;
-    double b = t_M[0];
-    K0 = pow(b,2)*A + b*D + F;
-    K1 = b*C + E;
-    K2 = B;
-    // zero X component
-    if(K2[0]!=0) {
-      delta[0] = pow(K1[0],2)-4*K2[0]*K0[0];
-      if(delta[0]>=0) {
-        y1[0]=(-K1[0]+sqrt(delta[0]))/(2*K2[0]);
-        y2[0]=(-K1[0]-sqrt(delta[0]))/(2*K2[0]);
-      }
-      else {
-        qDebug()<<"FATAL ERROR: delta[0]<0";
-        return vec3_t(0,0,0);
-      }
-    }
-    else {
-      y1[0]=-K0[0]/K1[0];
-      y2[0]=y1[0];
-    }
-    // zero Y component
-    if(K2[1]!=0) {
-      delta[1] = pow(K1[1],2)-4*K2[1]*K0[1];
-      if(delta[1]>=0) {
-        y1[1]=(-K1[1]+sqrt(delta[1]))/(2*K2[1]);
-        y2[1]=(-K1[1]-sqrt(delta[1]))/(2*K2[1]);
-      }
-      else {
-        qDebug()<<"FATAL ERROR: delta[1]<0";
-        return vec3_t(0,0,0);
-      }
-    }
-    else {
-      y1[1]=-K0[1]/K1[1];
-      y2[1]=y1[1];
-    }
-    // calculate corresponding y values
-    x1 = vec2_t(b,b);
-    x2 = vec2_t(b,b);
-  }
-  
-  qDebug()<<"x1="<<x1;
-  qDebug()<<"x2="<<x2;
-  qDebug()<<"y1="<<y1;
-  qDebug()<<"y2="<<y2;
-  
-  vec2_t diff_1_00 = fixedPointFunction(t_M, x1[0], y1[0]);
-  vec2_t diff_1_10 = fixedPointFunction(t_M, x1[1], y1[0]);
-  vec2_t diff_1_01 = fixedPointFunction(t_M, x1[0], y1[1]);
-  vec2_t diff_1_11 = fixedPointFunction(t_M, x1[1], y1[1]);
-  
-  vec2_t diff_2_00 = fixedPointFunction(t_M, x2[0], y2[0]);
-  vec2_t diff_2_10 = fixedPointFunction(t_M, x2[1], y2[0]);
-  vec2_t diff_2_01 = fixedPointFunction(t_M, x2[0], y2[1]);
-  vec2_t diff_2_11 = fixedPointFunction(t_M, x2[1], y2[1]);
-  
-  qDebug()<<"diff_1_00.abs()="<<diff_1_00.abs();
-  qDebug()<<"diff_1_10.abs()="<<diff_1_10.abs();
-  qDebug()<<"diff_1_01.abs()="<<diff_1_01.abs();
-  qDebug()<<"diff_1_11.abs()="<<diff_1_11.abs();
-  
-  qDebug()<<"diff_2_00.abs()="<<diff_2_00.abs();
-  qDebug()<<"diff_2_10.abs()="<<diff_2_10.abs();
-  qDebug()<<"diff_2_01.abs()="<<diff_2_01.abs();
-  qDebug()<<"diff_2_11.abs()="<<diff_2_11.abs();
-  
-  vec2_t t_X(x,y);
-  qDebug()<<"t_X="<<t_X;
-  vec2_t diff = fixedPointFunction(t_M, t_X[0], t_X[1]);
-  qDebug()<<"diff="<<diff;
-  qDebug()<<"diff.abs()="<<diff.abs();
-  return QuadraticBezierTriangle(t_X);
-}
-
 vec2_t secondDegreeSolver(double a, double b, double c) {
   double x1,x2;
   
@@ -508,22 +307,6 @@ vec2_t secondDegreeSolver(double a, double b, double c) {
     }
   }
   return vec2_t(x1,x2);
-}
-
-vec3_t BezierTriangle::projectOnQuadraticBezierTriangle5(vec3_t g_M)
-{
-  vec2_t t_M = global3DToLocal2D(g_M);
-  qDebug()<<"t_M="<<t_M;
-  double x0 = t_M[0];
-  double y0 = t_M[1];
-  if(y0!=1) {
-    vec2_t I(-x0/(y0-1),0);
-//     vec2_t sol1 = secondDegreeSolver(A[0]+B[0]-2D[0],-2B[0]+2D[0],B[0]);
-  }
-  else {
-    EG_BUG;
-  }
-  return vec3_t(0,0,0);
 }
 
 double BezierTriangle::z_func(vec2_t t_M)

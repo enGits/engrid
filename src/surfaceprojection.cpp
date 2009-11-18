@@ -791,7 +791,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t X_110 = g_K3;
 
   BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  return bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+  return bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
 //   return bezier_triangle.QuadraticBezierTriangle(t_M);
   
 /*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
@@ -986,8 +986,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
     }
   }
 //    if(on_triangle) {
-//     if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
-  if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
+     if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+//      if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
 //    }
   if(!on_triangle) {
     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
@@ -1363,7 +1363,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     qDebug()<<"id_node="<<id_node<<" and node_type="<< VertexType2Str(node_type->GetValue(id_node));
     qDebug()<<"n2n["<<id_node<<"]="<<n2n[id_node];
-    if( node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
+    if( false && node_type->GetValue(id_node)==VTK_BOUNDARY_EDGE_VERTEX) {
 //       qDebug()<<"looking for edges...";
       QVector <vtkIdType> id_snappoints = getPotentialSnapPoints(id_node);
       qDebug()<<"id_snappoints.size()="<<id_snappoints.size();
@@ -1409,17 +1409,6 @@ void SurfaceProjection::updateBackgroundGridInfo()
       vec3_t Nedge1 = getEdgeNormal(id_node, id_snappoints[0]);
       vec3_t Nedge2 = getEdgeNormal(id_node, id_snappoints[1]);
       vec3_t N = Nedge1+Nedge2;//(x0-x1) + (x0-x2);
-      
-      // funny cone
-//       N[0]=x0[0];
-//       N[1]=x0[1];
-//       N[2]=-2;
-      
-      // correct cone
-//       double alpha = atan2(x0[1],x0[0]);
-//       N[0]=2*cos(alpha);
-//       N[1]=2*sin(alpha);
-//       N[2]=1;
       
       m_NodeNormals[id_node] = N;
 //       qDebug()<<"x0="<<x0[0]<<x0[1]<<x0[2];
@@ -1474,5 +1463,5 @@ void SurfaceProjection::updateBackgroundGridInfo()
 
 vec3_t SurfaceProjection::correctCurvature2(int i_tri, vec3_t g_M)
 {
-  return m_BezierTriangles[i_tri].projectOnQuadraticBezierTriangle3(g_M);
+  return m_BezierTriangles[i_tri].projectOnQuadraticBezierTriangle(g_M);
 }// end of correctCurvature2

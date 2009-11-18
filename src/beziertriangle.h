@@ -60,11 +60,7 @@ public:
   vec3_t QuadraticBezierTriangle(vec2_t M);
   vec3_t QuadraticBezierTriangle_g(vec3_t g_M);
   
-  vec3_t projectOnQuadraticBezierTriangle(vec3_t g_M);
-  vec3_t projectOnQuadraticBezierTriangle2(vec3_t g_M);
-  vec3_t projectOnQuadraticBezierTriangle3(vec3_t g_M, int output=0);
-  vec3_t projectOnQuadraticBezierTriangle4(vec3_t g_M);
-  vec3_t projectOnQuadraticBezierTriangle5(vec3_t g_M);
+  vec3_t projectOnQuadraticBezierTriangle(vec3_t g_M, int output=0);
   
   vec3_t projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M);
   

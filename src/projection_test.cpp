@@ -255,7 +255,7 @@ void Projection_test::bezierFunctionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
 //       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
@@ -351,7 +351,7 @@ void Projection_test::bezierProjectionTest()
   vec3_t g_toto=vec3_t(0.5,0.1,0);
 //   qDebug()<<toto<<"->"<<bezier_triangle.fixedPointFunction(toto,toto[0],toto[1]);
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
-  bezier_triangle.projectOnQuadraticBezierTriangle3(g_toto);
+  bezier_triangle.projectOnQuadraticBezierTriangle(g_toto);
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
 //   return;
   
@@ -385,7 +385,7 @@ void Projection_test::bezierProjectionTest()
       double x = i/(double)(N-1);
       double y = j/(double)(N-1);
       vec3_t g_M = origin + x*ex + y*ey;// + vec3_t(0,0,1) + vec3_t(0.5,0,0);
-      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M);
+      vec3_t g_P = bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
 //       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       qDebug()<<"g_M="<<g_M;
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
@@ -535,7 +535,7 @@ void Projection_test::bezierProjectionTest2()
   double Y = J/(double)(N-1);
   vec3_t g_toto = origin + X*ex + Y*ey;
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
-  qDebug()<<"g_toto="<<g_toto<<"->"<<bezier_triangle.projectOnQuadraticBezierTriangle3(g_toto);
+  qDebug()<<"g_toto="<<g_toto<<"->"<<bezier_triangle.projectOnQuadraticBezierTriangle(g_toto);
   qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++";
 //   return;
   
@@ -558,8 +558,8 @@ void Projection_test::bezierProjectionTest2()
       vec2_t t_M = bezier_triangle.global3DToLocal2D(g_M);
       
       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
-      vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle3(g_M, 0);
-      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M,0); //projectOnQuadraticBezierTriangle3(g_M, 1);
+      vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 0);
+      vec3_t g_normal = bezier_triangle.surfaceNormal(t_M,0); //projectOnQuadraticBezierTriangle(g_M, 1);
       
       // enter the values
       vtkIdType id_node = offset + node_count;
