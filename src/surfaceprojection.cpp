@@ -1321,6 +1321,12 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
     // TODO: Store infos about neighbour cells for each triangle
+    
+    for(int i=0;i<3;i++) {
+      
+      m_Triangles[id_cell].m_has_neighbour[i] = true;
+    }
+    
   }
   
   // compute node normals

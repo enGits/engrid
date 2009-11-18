@@ -47,6 +47,9 @@ bool CheckSurfaceIntegrity::isWaterTight()
   
   bool first = true;
   foreach(vtkIdType id_node1, nodes) {
+    vec3_t x;
+    m_Grid->GetPoints()->GetPoint(id_node1, x.data());
+    checkVector(x);
     foreach(int i_node2, n2n[_nodes[id_node1]]) {
       vtkIdType id_node2 = nodes[i_node2];
       QSet <vtkIdType> edge_cells;
