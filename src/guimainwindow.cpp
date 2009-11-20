@@ -137,7 +137,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
   m_SystemStdout = stdout;
-  freopen (qPrintable(m_LogFileName), "w", stdout);
+  if(freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) EG_BUG;
   
   m_Busy = false;
   
