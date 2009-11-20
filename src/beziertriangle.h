@@ -90,7 +90,9 @@ class BezierTriangle : public Triangle, public EgVtkObject {
     double z_func(vec2_t t_M);
     double z_func(double x, double y);
   
-  vec3_t projectOnBezierSide(vec3_t g_M, int side);
+  vec3_t projectOnBezierSide(vec3_t g_M, int side, double& Lmin, double& u);
+  bool insideBezierSurface(vec3_t g_M);
+  bool insideBezierCurve(vec2_t t_M, int side);
 };
 
 #endif

@@ -240,21 +240,39 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 //     return vec3_t(0,0,0);
     qDebug() << "WARNING: Not on triangle! t_M=" << t_M;
     //get closest point M' on triangle
-    vec3_t xi(0, 0, 0);
+    double Lmin = 0;
+    vec3_t g_Mp;
+    int side = -1;
+    bool first = true;
+    for(int i_side=0; i_side<3; i_side++) {
+      double L,u;
+      vec3_t foo = projectOnBezierSide(g_M, i_side,L,u);
+      if(first || L<Lmin) {
+        Lmin = L;
+        g_Mp = foo;
+        side = i_side;
+        first = false;
+      }
+    }
+/*    vec3_t xi(0, 0, 0);
     vec3_t ri(0, 0, 0);
     double d = 0;
-    int side;
     projectOnTriangle(g_M, xi, ri, d, side, true);
     vec2_t t_Mp(ri[0], ri[1]);
     qDebug() << "t_Mp=" << t_Mp;
-    vec3_t g_Mp = local2DToGlobal3D(t_Mp);
+    vec3_t g_Mp = local2DToGlobal3D(t_Mp);*/
     qDebug() << "g_Mp=" << g_Mp;
-    vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
-    qDebug() << "g_Mp_proj=" << g_Mp_proj;
+    vec2_t t_Mp = global3DToLocal2D(g_Mp);
+    
+    if (output == 0) return g_Mp;
+    else return surfaceNormal(t_Mp, 0);;
+    
+//     vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
+//     qDebug() << "g_Mp_proj=" << g_Mp_proj;
 
     if ( m_has_neighbour[side]) {
       // no extrapolation, restrict
-      return g_Mp_proj;
+      return g_Mp;
     } else {
       // extrapolate
 
@@ -263,7 +281,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
       qDebug() << "g_N=" << g_N;
 
       //project original point M onto plane (M',N)
-      double k = intersection(g_M, m_g3, g_Mp_proj, g_N);
+      double k = intersection(g_M, m_g3, g_Mp, g_N);
 //     vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
       vec3_t g_P = g_M + k * m_g3;
       if (output == 0) return g_P;
@@ -418,7 +436,7 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   }
 }
 
-vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side)
+vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, double& u)
 {
   vec3_t a,b,c;
   if(side==0) { // w=0
@@ -451,9 +469,9 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side)
   if(N==0) EG_BUG;
   
   double L[3];
-  double u;
+  Lmin = 0;
+  u = 0;
   bool first = true;
-  double Lmin = 0;
   
   for(int i=0;i<N;i++) {
     if(x[i]<0) x[i]=0;
@@ -472,4 +490,73 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side)
   
   vec3_t g_B = g_M + pow(u,2)*a + u*b + c;
   return g_B;
+}
+
+bool BezierTriangle::insideBezierSurface(vec3_t g_M)
+{
+  
+}
+
+bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
+{
+  vec2_t t_X_200 = global3DToLocal2D(m_X_200);
+  vec2_t t_X_020 = global3DToLocal2D(m_X_020);
+  vec2_t t_X_002 = global3DToLocal2D(m_X_002);
+  vec2_t t_X_011 = global3DToLocal2D(m_X_011);
+  vec2_t t_X_101 = global3DToLocal2D(m_X_101);
+  vec2_t t_X_110 = global3DToLocal2D(m_X_110);
+  
+  vec2_t a,b,c;
+  if(side==0) { // w=0
+    // B -M = a*u^2 + b*u + c
+    a = (t_X_200 + t_X_020 - 2*t_X_110);
+    b = (-2*t_X_020 + 2*t_X_110);
+    c = t_X_020 - t_M;
+  }
+  else if(side==1) { // u=0
+    a = (t_X_020 + t_X_002 - 2*t_X_011);
+    b = (-2*t_X_002 + 2*t_X_011);
+    c = t_X_002 - t_M;
+  }
+  else { // v=0
+    a = (t_X_002 + t_X_200 - 2*t_X_101);
+    b = (-2*t_X_200 + 2*t_X_101);
+    c = t_X_200 - t_M;
+  }
+  
+  // d((B-M).abs())/du = coeff3*u^3 + coeff2*u^2 + coeff1*u + coeff0
+  double coeff3, coeff2, coeff1, coeff0;
+  coeff3 = 4*a*a;
+  coeff2 = 6*a*b;
+  coeff1 = 4*a*c+2*b*b;
+  coeff0 = 2*b*c;
+  
+  double x[3];
+  int N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  
+  if(N==0) EG_BUG;
+  
+  double L[3];
+  double Lmin = 0;
+  double u = 0;
+  bool first = true;
+  
+  for(int i=0;i<N;i++) {
+    if(x[i]<0) x[i]=0;
+    if(x[i]>1) x[i]=1;
+    L[i] = (pow(x[i],2)*a + x[i]*b + c).abs();
+    if(first) {
+      Lmin = L[i];
+      u = x[i];
+      first = false;
+    }
+    else if(L[i]<Lmin) {
+      Lmin = L[i];
+      u = x[i];
+    }
+  }
+  
+  vec2_t t_B = t_M + pow(u,2)*a + u*b + c;
+  vec2_t tangent = 2*u*a + b;
+  return ( (tangent.cross(t_M-t_B))[2]<0 );
 }
