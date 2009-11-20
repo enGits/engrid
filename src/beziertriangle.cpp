@@ -29,6 +29,7 @@ using namespace GeometryTools;
 #include "vtkUnstructuredGridWriter.h"
 
 #include <vtkCellLocator.h>
+#include <gsl/gsl_poly.h>
 
 BezierTriangle::BezierTriangle() : Triangle(), EgVtkObject() {
 }
@@ -419,12 +420,56 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
 
 vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side)
 {
-  if(side==0) {
+  vec3_t a,b,c;
+  if(side==0) { // w=0
+    // B-M = a*u^2 + b*u + c
+    a = (m_X_200 + m_X_020 - 2*m_X_110);
+    b = (-2*m_X_020 + 2*m_X_110);
+    c = m_X_020 - g_M;
   }
-  else if(side==1) {
+  else if(side==1) { // u=0
+    a = (m_X_020 + m_X_002 - 2*m_X_011);
+    b = (-2*m_X_002 + 2*m_X_011);
+    c = m_X_002 - g_M;
+  }
+  else { // v=0
+    a = (m_X_002 + m_X_200 - 2*m_X_101);
+    b = (-2*m_X_200 + 2*m_X_101);
+    c = m_X_200 - g_M;
+  }
   
+  // d((B-M).abs())/du = coeff3*u^3 + coeff2*u^2 + coeff1*u + coeff0
+  double coeff3, coeff2, coeff1, coeff0;
+  coeff3 = 4*a*a;
+  coeff2 = 6*a*b;
+  coeff1 = 4*a*c+2*b*b;
+  coeff0 = 2*b*c;
+  
+  double x[3];
+  int N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  
+  if(N==0) EG_BUG;
+  
+  double L[3];
+  double u;
+  bool first = true;
+  double Lmin = 0;
+  
+  for(int i=0;i<N;i++) {
+    if(x[i]<0) x[i]=0;
+    if(x[i]>1) x[i]=1;
+    L[i] = (pow(x[i],2)*a + x[i]*b + c).abs();
+    if(first) {
+      Lmin = L[i];
+      u = x[i];
+      first = false;
+    }
+    else if(L[i]<Lmin) {
+      Lmin = L[i];
+      u = x[i];
+    }
   }
-  else {
-  }
-  return vec3_t(0,0,0);
+  
+  vec3_t g_B = g_M + pow(u,2)*a + u*b + c;
+  return g_B;
 }

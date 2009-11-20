@@ -491,7 +491,7 @@ void Projection_test::bezierQuads() {
 
 void Projection_test::bezierProjectionTest2() {
   int N = 30;
-  BezierTriangle bezier_triangle = specialTriangle(false, 0);
+  BezierTriangle bezier_triangle = specialTriangle(true, 0);
   bezier_triangle.writeBezierSurface("bezier", N);
 
   bezier_triangle.m_has_neighbour[0] = false;
@@ -548,6 +548,8 @@ void Projection_test::bezierProjectionTest2() {
 
       vec3_t g_P = bezier_triangle.QuadraticBezierTriangle_g(g_M);
       vec3_t g_P_projection = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 0);
+//       vec3_t g_P_projection = bezier_triangle.projectOnBezierSide(g_M,2);
+      
       vec3_t g_normal = bezier_triangle.surfaceNormal(t_M, 0); //projectOnQuadraticBezierTriangle(g_M, 1);
 
       // enter the values
