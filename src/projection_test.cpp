@@ -588,6 +588,11 @@ void Projection_test::bezierProjectionTest2() {
   inside2->SetNumberOfValues(bezier_projection->GetNumberOfPoints());
   bezier_projection->GetPointData()->AddArray(inside2);
   
+  EG_VTKSP(vtkIntArray, inside_all);
+  inside_all->SetName("inside_all");
+  inside_all->SetNumberOfValues(bezier_projection->GetNumberOfPoints());
+  bezier_projection->GetPointData()->AddArray(inside_all);
+  
   for (int i = 0; i < N; i++) {
     for (int j = 0; j < N; j++) {
       // calculate original mesh point
@@ -611,6 +616,7 @@ void Projection_test::bezierProjectionTest2() {
       bool I0 = bezier_triangle.insideBezierCurve(t_M,0);
       bool I1 = bezier_triangle.insideBezierCurve(t_M,1);
       bool I2 = bezier_triangle.insideBezierCurve(t_M,2);
+      bool I_all = bezier_triangle.insideBezierSurface(g_M);
       
       // enter the values
       vtkIdType id_node = offset + node_count;
@@ -621,6 +627,7 @@ void Projection_test::bezierProjectionTest2() {
       inside0->SetValue(id_node,I0);
       inside1->SetValue(id_node,I1);
       inside2->SetValue(id_node,I2);
+      inside_all->SetValue(id_node,I_all);
       node_count++;
     }
   }

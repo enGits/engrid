@@ -494,7 +494,24 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
 
 bool BezierTriangle::insideBezierSurface(vec3_t g_M)
 {
+  vec2_t t_M = global3DToLocal2D(g_M);
   
+  vec3_t xi(0, 0, 0);
+  vec3_t ri(0, 0, 0);
+  double d = 0;
+  int side;
+  projectOnTriangle(g_M, xi, ri, d, side, true);
+  if(side==3 || side==4 || side==5) {
+    return false;
+  }
+  else {
+    if(insideBezierCurve(t_M,0) && insideBezierCurve(t_M,1) && insideBezierCurve(t_M,2)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
 
 bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
