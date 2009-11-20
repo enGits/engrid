@@ -528,6 +528,12 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
 
 vec3_t getBarycentricCoordinates(double x, double y)
 {
+  if(isnan(x) || isinf(x) || isnan(y) || isinf(y)) {
+    qWarning()<<"x="<<x;
+    qWarning()<<"y="<<y;
+    EG_BUG;
+  }
+  
   double x_1=0;
   double y_1=0;
   double x_2=1;

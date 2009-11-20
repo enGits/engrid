@@ -4,6 +4,8 @@
 #include "surfaceoperation.h"
 #include "surfacealgorithm.h"
 
+#include "beziertriangle.h"
+
 class Projection_test : public SurfaceAlgorithm {
   public:
     Projection_test();
@@ -18,7 +20,9 @@ class Projection_test : public SurfaceAlgorithm {
     void bezierFunctionTest();
     void bezierProjectionTest();
     void bezierQuads();
-    void bezierProjectionTest2();
+    void bezierProjectionTest2(BezierTriangle bezier_triangle, QString prefix);
+    BezierTriangle specialTriangle(bool equi, int type);
+    
     /*  Q_OBJECT;
 
     protected: // methods

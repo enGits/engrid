@@ -20,10 +20,20 @@ void Projection_test::operate() {
 //   bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
-  bezierProjectionTest2();
+  BezierTriangle bezier_triangle;
+  
+  for(int i=0; i<9; i++) {
+    bezier_triangle = specialTriangle(true, i);
+    bezier_triangle.setupTriangle();
+    bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
+  
+    bezier_triangle = specialTriangle(false, i);
+    bezier_triangle.setupTriangle();
+    bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
+  }
 }
 
-BezierTriangle specialTriangle(bool equi, int type) {
+BezierTriangle Projection_test::specialTriangle(bool equi, int type) {
   vec3_t X_200, X_020, X_002;
   vec3_t X_011, X_101, X_110;
 
@@ -529,10 +539,9 @@ void Projection_test::bezierQuads() {
 // } \
 // }
 
-void Projection_test::bezierProjectionTest2() {
+void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QString prefix) {
   int N = 30;
-  BezierTriangle bezier_triangle = specialTriangle(true, 0);
-  bezier_triangle.writeBezierSurface("bezier", N);
+  bezier_triangle.writeBezierSurface(prefix + "bezier", N);
 
   bezier_triangle.m_has_neighbour[0] = false;
   bezier_triangle.m_has_neighbour[1] = false;
@@ -612,7 +621,8 @@ void Projection_test::bezierProjectionTest2() {
 //       vec3_t g_P_projection = bezier_triangle.projectOnBezierSide(g_M,2,L,u);
       
 //       vec3_t g_normal = bezier_triangle.surfaceNormal(t_M, 0);
-      vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 1);
+//       vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 1);
+      vec3_t g_normal(0,0,0);
       bool I0 = bezier_triangle.insideBezierCurve(t_M,0);
       bool I1 = bezier_triangle.insideBezierCurve(t_M,1);
       bool I2 = bezier_triangle.insideBezierCurve(t_M,2);
@@ -655,6 +665,6 @@ void Projection_test::bezierProjectionTest2() {
   qDebug() << "node_count=" << node_count;
   qDebug() << "cell_count=" << cell_count;
 
-  saveGrid(bezier, "bezierQuadTest");
-  saveGrid(bezier_projection, "bezierQuadProjectionTest");
+  saveGrid(bezier, prefix + "bezierQuadTest");
+  saveGrid(bezier_projection, prefix + "QuadProjectionTest");
 }
