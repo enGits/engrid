@@ -89,6 +89,8 @@ class BezierTriangle : public Triangle, public EgVtkObject {
     vec3_t surfaceNormal(vec2_t t_M, int output);
     double z_func(vec2_t t_M);
     double z_func(double x, double y);
+  
+  vec3_t projectOnBezierSide(vec3_t g_M, int side);
 };
 
 #endif

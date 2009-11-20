@@ -26,29 +26,29 @@
 #include "utilities.h"
 
 Triangle::Triangle() {
-  id_a = 0;
-  id_b = 0;
-  id_c = 0;
-  a = vec3_t(0, 0, 0);
-  b = vec3_t(0, 0, 0);
-  c = vec3_t(0, 0, 0);
+  m_id_a = 0;
+  m_id_b = 0;
+  m_id_c = 0;
+  m_a = vec3_t(0, 0, 0);
+  m_b = vec3_t(0, 0, 0);
+  m_c = vec3_t(0, 0, 0);
   setupTriangle();
 }
 
 Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) {
-  a = a_a;
-  b = a_b;
-  c = a_c;
+  m_a = a_a;
+  m_b = a_b;
+  m_c = a_c;
   setupTriangle();
 }
 
 Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) {
-  id_a = a_id_a;
-  id_b = a_id_b;
-  id_c = a_id_c;
-  a_grid->GetPoints()->GetPoint(id_a, a.data());
-  a_grid->GetPoints()->GetPoint(id_b, b.data());
-  a_grid->GetPoints()->GetPoint(id_c, c.data());
+  m_id_a = a_id_a;
+  m_id_b = a_id_b;
+  m_id_c = a_id_c;
+  a_grid->GetPoints()->GetPoint(m_id_a, m_a.data());
+  a_grid->GetPoints()->GetPoint(m_id_b, m_b.data());
+  a_grid->GetPoints()->GetPoint(m_id_c, m_c.data());
   setupTriangle();
 }
 
@@ -56,12 +56,12 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell) {
   vtkIdType Npts, *pts;
   a_grid->GetCellPoints(a_id_cell, Npts, pts);
   if (Npts == 3) {
-    id_a = pts[0];
-    id_b = pts[1];
-    id_c = pts[2];
-    a_grid->GetPoints()->GetPoint(id_a, a.data());
-    a_grid->GetPoints()->GetPoint(id_b, b.data());
-    a_grid->GetPoints()->GetPoint(id_c, c.data());
+    m_id_a = pts[0];
+    m_id_b = pts[1];
+    m_id_c = pts[2];
+    a_grid->GetPoints()->GetPoint(m_id_a, m_a.data());
+    a_grid->GetPoints()->GetPoint(m_id_b, m_b.data());
+    a_grid->GetPoints()->GetPoint(m_id_c, m_c.data());
     setupTriangle();
   } else {
     EG_ERR_RETURN("only triangles allowed at the moment");
@@ -77,30 +77,30 @@ void Triangle::setupTriangle() {
   m_has_neighbour[4] = false;
   m_has_neighbour[5] = false;
 
-  g1 = b - a;
-  g2 = c - a;
-  g3 = g1.cross(g2);
+  m_g1 = m_b - m_a;
+  m_g2 = m_c - m_a;
+  m_g3 = m_g1.cross(m_g2);
 
-  A  = 0.5 * g3.abs();
-  g3.normalise();
+  m_A  = 0.5 * m_g3.abs();
+  m_g3.normalise();
 
-  G.column(0, g1);
-  G.column(1, g2);
-  G.column(2, g3);
-  GI = G.inverse();
+  m_G.column(0, m_g1);
+  m_G.column(1, m_g2);
+  m_G.column(2, m_g3);
+  m_GI = m_G.inverse();
 
-  smallest_length = (b - a).abs();
-  smallest_length = min(smallest_length, (c - b).abs());
-  smallest_length = min(smallest_length, (a - c).abs());
+  m_smallest_length = (m_b - m_a).abs();
+  m_smallest_length = min(m_smallest_length, (m_c - m_b).abs());
+  m_smallest_length = min(m_smallest_length, (m_a - m_c).abs());
 }
 
 vec3_t Triangle::local3DToGlobal3D(vec3_t l_M) {
-  return a + G*l_M;
+  return m_a + m_G*l_M;
 }
 
 vec3_t Triangle::global3DToLocal3D(vec3_t g_M) {
-  vec3_t tmp = g_M - a;
-  return GI*tmp;
+  vec3_t tmp = g_M - m_a;
+  return m_GI*tmp;
 }
 
 vec3_t Triangle::local2DToGlobal3D(vec2_t l_M) {
@@ -114,38 +114,38 @@ vec2_t Triangle::global3DToLocal2D(vec3_t g_M) {
 
 bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle) {
   side = -1;
-  double scal = (xp - this->a) * this->g3;
+  double scal = (xp - this->m_a) * this->m_g3;
   vec3_t x1, x2;
   if (scal > 0) {
-    x1 = xp + this->g3;
-    x2 = xp - scal * this->g3 - this->g3;
+    x1 = xp + this->m_g3;
+    x2 = xp - scal * this->m_g3 - this->m_g3;
   } else {
-    x1 = xp - this->g3;
-    x2 = xp - scal * this->g3 + this->g3;
+    x1 = xp - this->m_g3;
+    x2 = xp - scal * this->m_g3 + this->m_g3;
   }
   // (xi,ri) gets set to the intersection of the line with the plane here!
-  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->a, this->b, this->c, x1, x2, xi, ri);
+  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_a, this->m_b, this->m_c, x1, x2, xi, ri);
   if (intersects_face || !restrict_to_triangle) {
-    vec3_t dx = xp - this->a;
-    d = fabs(dx * this->g3);
+    vec3_t dx = xp - this->m_a;
+    d = fabs(dx * this->m_g3);
   } else {
-    double kab = GeometryTools::intersection(this->a, this->b - this->a, xp, this->b - this->a);
-    double kac = GeometryTools::intersection(this->a, this->c - this->a, xp, this->c - this->a);
-    double kbc = GeometryTools::intersection(this->b, this->c - this->b, xp, this->c - this->b);
+    double kab = GeometryTools::intersection(this->m_a, this->m_b - this->m_a, xp, this->m_b - this->m_a);
+    double kac = GeometryTools::intersection(this->m_a, this->m_c - this->m_a, xp, this->m_c - this->m_a);
+    double kbc = GeometryTools::intersection(this->m_b, this->m_c - this->m_b, xp, this->m_c - this->m_b);
 
-    double dab = (this->a + kab * (this->b - this->a) - xp).abs();
-    double dac = (this->a + kac * (this->c - this->a) - xp).abs();
-    double dbc = (this->b + kbc * (this->c - this->b) - xp).abs();
-    double da = (this->a - xp).abs();
-    double db = (this->b - xp).abs();
-    double dc = (this->c - xp).abs();
+    double dab = (this->m_a + kab * (this->m_b - this->m_a) - xp).abs();
+    double dac = (this->m_a + kac * (this->m_c - this->m_a) - xp).abs();
+    double dbc = (this->m_b + kbc * (this->m_c - this->m_b) - xp).abs();
+    double da = (this->m_a - xp).abs();
+    double db = (this->m_b - xp).abs();
+    double dc = (this->m_c - xp).abs();
 
     bool set = false;
     d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
 
     if (dab < d) {
       if ((kab >= 0) && (kab <= 1)) {
-        xi = this->a + kab * (this->b - this->a);
+        xi = this->m_a + kab * (this->m_b - this->m_a);
         ri = vec3_t(kab, 0, 0);
         d = dab;
         set = true;
@@ -154,7 +154,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     }
     if (dbc < d) {
       if ((kbc >= 0) && (kbc <= 1)) {
-        xi = this->b + kbc * (this->c - this->b);
+        xi = this->m_b + kbc * (this->m_c - this->m_b);
         ri = vec3_t(1 - kbc, kbc, 0);
         d = dbc;
         set = true;
@@ -163,7 +163,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     }
     if (dac < d) {
       if ((kac >= 0) && (kac <= 1)) {
-        xi = this->a + kac * (this->c - this->a);
+        xi = this->m_a + kac * (this->m_c - this->m_a);
         ri = vec3_t(0, kac, 0);
         d = dac;
         set = true;
@@ -171,21 +171,21 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
       }
     }
     if (da < d) {
-      xi = this->a;
+      xi = this->m_a;
       ri = vec3_t(0, 0);
       d = da;
       set = true;
       side = 3;
     }
     if (db < d) {
-      xi = this->b;
+      xi = this->m_b;
       ri = vec3_t(1, 0);
       d = db;
       set = true;
       side = 4;
     }
     if (dc < d) {
-      xi = this->c;
+      xi = this->m_c;
       ri = vec3_t(0, 1);
       d = dc;
       set = true;

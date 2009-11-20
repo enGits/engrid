@@ -262,9 +262,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
       qDebug() << "g_N=" << g_N;
 
       //project original point M onto plane (M',N)
-      double k = intersection(g_M, g3, g_Mp_proj, g_N);
+      double k = intersection(g_M, m_g3, g_Mp_proj, g_N);
 //     vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
-      vec3_t g_P = g_M + k * g3;
+      vec3_t g_P = g_M + k * m_g3;
       if (output == 0) return g_P;
       else return g_N;
     }
@@ -317,7 +317,7 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   double w = bary_coords[2];
 
   vec2_t dx, dy;
-  double k = 0.1 * smallest_length;
+  double k = 0.1 * m_smallest_length;
   vec2_t ex(1, 0);
   vec2_t ey(0, 1);
   if (u >= v && u > w) {
@@ -402,9 +402,9 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
     EG_BUG;
   }
 
-  vec3_t g_u1 = G * l_u1;
+  vec3_t g_u1 = m_G * l_u1;
   g_u1.normalise();
-  vec3_t g_u2 = G * l_u2;
+  vec3_t g_u2 = m_G * l_u2;
   g_u2.normalise();
   vec3_t g_N = g_u1.cross(g_u2);
   g_N.normalise();
@@ -415,4 +415,16 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   } else {
     return g_u2;
   }
+}
+
+vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side)
+{
+  if(side==0) {
+  }
+  else if(side==1) {
+  
+  }
+  else {
+  }
+  return vec3_t(0,0,0);
 }

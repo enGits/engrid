@@ -205,61 +205,61 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
     foreach (Triangle T, m_Triangles) {
       vec3_t xi(1e99,1e99,1e99);
       vec3_t ri;
-      double scal = (xp - T.a)*T.g3;
+      double scal = (xp - T.m_a)*T.m_g3;
       vec3_t x1, x2;
       if (scal > 0) {
-        x1 = xp + T.g3;
-        x2 = xp - scal*T.g3 - T.g3;
+        x1 = xp + T.m_g3;
+        x2 = xp - scal*T.m_g3 - T.m_g3;
       } else {
-        x1 = xp - T.g3;
-        x2 = xp - scal*T.g3 + T.g3;
+        x1 = xp - T.m_g3;
+        x2 = xp - scal*T.m_g3 + T.m_g3;
       }
       double d = 1e99;
 
-      bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T.a, T.b, T.c, x1, x2, xi, ri);
+      bool intersects_face = GeometryTools::intersectEdgeAndTriangle(T.m_a, T.m_b, T.m_c, x1, x2, xi, ri);
       if (!intersects_face) {
-        double kab = GeometryTools::intersection(T.a, T.b - T.a, xp, T.b - T.a);
-        double kac = GeometryTools::intersection(T.a, T.c - T.a, xp, T.c - T.a);
-        double kbc = GeometryTools::intersection(T.b, T.c - T.b, xp, T.c - T.b);
-        double dab = (T.a + kab*(T.b-T.a) - xp).abs();
-        double dac = (T.a + kac*(T.c-T.a) - xp).abs();
-        double dbc = (T.b + kbc*(T.c-T.b) - xp).abs();
+        double kab = GeometryTools::intersection(T.m_a, T.m_b - T.m_a, xp, T.m_b - T.m_a);
+        double kac = GeometryTools::intersection(T.m_a, T.m_c - T.m_a, xp, T.m_c - T.m_a);
+        double kbc = GeometryTools::intersection(T.m_b, T.m_c - T.m_b, xp, T.m_c - T.m_b);
+        double dab = (T.m_a + kab*(T.m_b-T.m_a) - xp).abs();
+        double dac = (T.m_a + kac*(T.m_c-T.m_a) - xp).abs();
+        double dbc = (T.m_b + kbc*(T.m_c-T.m_b) - xp).abs();
         bool set = false;
         if ((kab >= 0) && (kab <= 1)) {
           if (dab < d) {
-            xi = T.a + kab*(T.b-T.a);
+            xi = T.m_a + kab*(T.m_b-T.m_a);
             d = dab;
             set = true;
           }
         }
         if ((kac >= 0) && (kac <= 1)) {
           if (dac < d) {
-            xi = T.a + kac*(T.c-T.a);
+            xi = T.m_a + kac*(T.m_c-T.m_a);
             d = dac;
             set = true;
           }
         }
         if ((kbc >= 0) && (kbc <= 1)) {
           if (dbc < d) {
-            xi = T.b + kbc*(T.c-T.b);
+            xi = T.m_b + kbc*(T.m_c-T.m_b);
             d = dbc;
             set = true;
           }
         }
-        double da = (T.a - xp).abs();
-        double db = (T.b - xp).abs();
-        double dc = (T.c - xp).abs();
+        double da = (T.m_a - xp).abs();
+        double db = (T.m_b - xp).abs();
+        double dc = (T.m_c - xp).abs();
         if (da < d) {
-          xi = T.a;
+          xi = T.m_a;
           d = da;
           set = true;
         }
         if (db < d) {
-          xi = T.b;
+          xi = T.m_b;
           d = db;
         }
         if (dc < d) {
-          xi = T.c;
+          xi = T.m_c;
           d = dc;
           set = true;
         }
@@ -272,7 +272,7 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
       }      
       double L = m_Length;
       vec3_t dx = xp - xi;
-      double g = dx*T.g3;
+      double g = dx*T.m_g3;
       if (intersects_face) {
         d = fabs(g);
       }
@@ -282,7 +282,7 @@ void SurfaceProjection::setBackgroundGrid_computeLevelSet()
         w *= m_DirWeight;
       } else {
         dx.normalise();
-        w *= m_DirWeight*pow(fabs(dx*T.g3), m_DirExp);
+        w *= m_DirWeight*pow(fabs(dx*T.m_g3), m_DirExp);
       }
       w += m_WeightOffset;
 
@@ -592,10 +592,10 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   // before knowing intersections
   
   Triangle T = m_Triangles[i_tri];
-  vec3_t g_A = T.a;
-  vec3_t g_B = T.b;
-  vec3_t g_C = T.c;
-  vec3_t g_M = g_A+T.G*r;
+  vec3_t g_A = T.m_a;
+  vec3_t g_B = T.m_b;
+  vec3_t g_C = T.m_c;
+  vec3_t g_M = g_A+T.m_G*r;
   
   vec3_t l_A(0,0,0);
   vec3_t l_B(1,0,0);
@@ -607,9 +607,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t t_C(0,1);
   vec2_t t_M(r[0],r[1]);
   
-  vec3_t g_nA = m_NodeNormals[T.id_a];
-  vec3_t g_nB = m_NodeNormals[T.id_b];
-  vec3_t g_nC = m_NodeNormals[T.id_c];
+  vec3_t g_nA = m_NodeNormals[T.m_id_a];
+  vec3_t g_nB = m_NodeNormals[T.m_id_b];
+  vec3_t g_nC = m_NodeNormals[T.m_id_c];
   
   vec2_t pm1_A(0,0);
   vec2_t pm1_I1(1,0);
@@ -621,9 +621,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pm3_C(0,0);
   vec2_t pm3_I3(1,0);
   
-  vec3_t g_g1 = T.g1;
-  vec3_t g_g2 = T.g2;
-  vec3_t g_g3 = T.g3;
+  vec3_t g_g1 = T.m_g1;
+  vec3_t g_g2 = T.m_g2;
+  vec3_t g_g3 = T.m_g3;
   
   vec3_t l_g1(1,0,0);
   vec3_t l_g2(0,1,0);
@@ -659,18 +659,18 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_I2(t_I2[0],t_I2[1],0);
   vec3_t l_I3(t_I3[0],t_I3[1],0);
   
-  vec3_t g_I1 = g_A+T.G*l_I1;
-  vec3_t g_I2 = g_A+T.G*l_I2;
-  vec3_t g_I3 = g_A+T.G*l_I3;
+  vec3_t g_I1 = g_A+T.m_G*l_I1;
+  vec3_t g_I2 = g_A+T.m_G*l_I2;
+  vec3_t g_I3 = g_A+T.m_G*l_I3;
   
   vec3_t tmp;
-  tmp = (g_nI1); vec3_t l_nI1 = T.GI*tmp;
-  tmp = (g_nI2); vec3_t l_nI2 = T.GI*tmp;
-  tmp = (g_nI3); vec3_t l_nI3 = T.GI*tmp;
+  tmp = (g_nI1); vec3_t l_nI1 = T.m_GI*tmp;
+  tmp = (g_nI2); vec3_t l_nI2 = T.m_GI*tmp;
+  tmp = (g_nI3); vec3_t l_nI3 = T.m_GI*tmp;
   
-  tmp = (g_nA); vec3_t l_nA = T.GI*tmp;
-  tmp = (g_nB); vec3_t l_nB = T.GI*tmp;
-  tmp = (g_nC); vec3_t l_nC = T.GI*tmp;
+  tmp = (g_nA); vec3_t l_nA = T.m_GI*tmp;
+  tmp = (g_nB); vec3_t l_nB = T.m_GI*tmp;
+  tmp = (g_nC); vec3_t l_nC = T.m_GI*tmp;
   
   vec3_t l_AI1 = l_I1 - l_A;
   vec3_t l_BI2 = l_I2 - l_B;
@@ -775,9 +775,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[1]*l_nI3;
   ///////////////
   
-  vec3_t g_K1 = g_A+T.G*l_K1;
-  vec3_t g_K2 = g_A+T.G*l_K2;
-  vec3_t g_K3 = g_A+T.G*l_K3;
+  vec3_t g_K1 = g_A+T.m_G*l_K1;
+  vec3_t g_K2 = g_A+T.m_G*l_K2;
+  vec3_t g_K3 = g_A+T.m_G*l_K3;
   
   vec3_t g_J1;
   vec3_t g_J2;
@@ -825,7 +825,7 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);*/
   
   vec3_t l_X = l_M + z*l_g3;
-  vec3_t g_X = g_A+T.G*l_X;
+  vec3_t g_X = g_A+T.m_G*l_X;
   
   
   vec3_t A,M,I;
@@ -900,8 +900,8 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3_t r)
 {
   Triangle T = m_Triangles[i_tri];
-  vec3_t g_A = T.a;
-  vec3_t g_M = g_A+T.G*r;
+  vec3_t g_A = T.m_a;
+  vec3_t g_M = g_A+T.m_G*r;
   return cylinder(center, radius, g_M);
 }
 
@@ -946,7 +946,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       double d;
       int side;
       bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
-      if (!intersects || (d > 0.1*T.smallest_length)) {
+      if (!intersects || (d > 0.1*T.m_smallest_length)) {
         need_full_search = true;
       } else {
         x_proj = xi; x_proj_set = true;
@@ -1024,12 +1024,12 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
 
 int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
-  vec3_t A=T.a;
-  vec3_t B=T.b;
-  vec3_t C=T.c;
-  vec3_t nA = m_NodeNormals[T.id_a];
-  vec3_t nB = m_NodeNormals[T.id_b];
-  vec3_t nC = m_NodeNormals[T.id_c];
+  vec3_t A=T.m_a;
+  vec3_t B=T.m_b;
+  vec3_t C=T.m_c;
+  vec3_t nA = m_NodeNormals[T.m_id_a];
+  vec3_t nB = m_NodeNormals[T.m_id_b];
+  vec3_t nC = m_NodeNormals[T.m_id_c];
   
   //cout<<"nA="<<nA<<endl;
   //cout<<"nB="<<nB<<endl;
@@ -1037,11 +1037,11 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
 
 //   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
   //cout<<"-->BC"<<endl;
-  X_011 = intersectionOnPlane(T.g3, B, nB, C, nC);
+  X_011 = intersectionOnPlane(T.m_g3, B, nB, C, nC);
   //cout<<"-->CA"<<endl;
-  X_101 = intersectionOnPlane(T.g3, C, nC, A, nA);
+  X_101 = intersectionOnPlane(T.m_g3, C, nC, A, nA);
   //cout<<"-->AB"<<endl;
-  X_110 = intersectionOnPlane(T.g3, A, nA, B, nB);
+  X_110 = intersectionOnPlane(T.m_g3, A, nA, B, nB);
   
   limitControlPoints(T, X_011, X_101, X_110);
   return(0);
@@ -1049,12 +1049,12 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
 
 int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
-  vec3_t A=T.a;
-  vec3_t B=T.b;
-  vec3_t C=T.c;
-  vec3_t nA = m_NodeNormals[T.id_a];
-  vec3_t nB = m_NodeNormals[T.id_b];
-  vec3_t nC = m_NodeNormals[T.id_c];
+  vec3_t A=T.m_a;
+  vec3_t B=T.m_b;
+  vec3_t C=T.m_c;
+  vec3_t nA = m_NodeNormals[T.m_id_a];
+  vec3_t nB = m_NodeNormals[T.m_id_b];
+  vec3_t nC = m_NodeNormals[T.m_id_c];
   
 //   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
   X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
@@ -1067,12 +1067,12 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
 
 int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
 {
-  vec3_t A=T.a;
-  vec3_t B=T.b;
-  vec3_t C=T.c;
-  vec3_t nA = m_NodeNormals[T.id_a];
-  vec3_t nB = m_NodeNormals[T.id_b];
-  vec3_t nC = m_NodeNormals[T.id_c];
+  vec3_t A=T.m_a;
+  vec3_t B=T.m_b;
+  vec3_t C=T.m_c;
+  vec3_t nA = m_NodeNormals[T.m_id_a];
+  vec3_t nB = m_NodeNormals[T.m_id_b];
+  vec3_t nC = m_NodeNormals[T.m_id_c];
   
 /*  vec3_t P_011 = projectPointOnEdge(X_011,B,C-B);
   vec3_t P_101 = projectPointOnEdge(X_101,C,A-C);
@@ -1082,7 +1082,7 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
   vec3_t P_101 = 0.5*(A+C);
   vec3_t P_110 = 0.5*(A+B);
   
-  double Lmax = 1.0*T.smallest_length;
+  double Lmax = 1.0*T.m_smallest_length;
   double L_011 = (X_011-P_011).abs();
   double L_101 = (X_101-P_101).abs();
   double L_110 = (X_110-P_110).abs();
@@ -1148,14 +1148,14 @@ void SurfaceProjection::writeTriangleGrid(QString filename)
   int cell_count = 0;
   for(int i=0; i<m_Triangles.size(); i++) {
     vtkIdType pts[3];
-    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].a.data()); pts[0]=node_count; node_count++;
-    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].b.data()); pts[1]=node_count; node_count++;
-    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].c.data()); pts[2]=node_count; node_count++;
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].m_a.data()); pts[0]=node_count; node_count++;
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].m_b.data()); pts[1]=node_count; node_count++;
+    triangle_grid->GetPoints()->SetPoint(node_count, m_Triangles[i].m_c.data()); pts[2]=node_count; node_count++;
   
     vec3_t v0,v1,v2;
-    v0 = getEdgeNormal(m_Triangles[i].id_a,m_Triangles[i].id_b).normalise();
-    v1 = getEdgeNormal(m_Triangles[i].id_b,m_Triangles[i].id_c).normalise();
-    v2 = getEdgeNormal(m_Triangles[i].id_c,m_Triangles[i].id_a).normalise();
+    v0 = getEdgeNormal(m_Triangles[i].m_id_a,m_Triangles[i].m_id_b).normalise();
+    v1 = getEdgeNormal(m_Triangles[i].m_id_b,m_Triangles[i].m_id_c).normalise();
+    v2 = getEdgeNormal(m_Triangles[i].m_id_c,m_Triangles[i].m_id_a).normalise();
     checkVector(v0);
     checkVector(v1);
     checkVector(v2);
@@ -1166,7 +1166,7 @@ void SurfaceProjection::writeTriangleGrid(QString filename)
     vectors_hasneighbour1->InsertTuple(pts[1],v1.data());
     vectors_hasneighbour2->InsertTuple(pts[2],v2.data());
   
-    vec3_t neighbours = m_Triangles[i].g3;
+    vec3_t neighbours = m_Triangles[i].m_g3;
     if(!m_Triangles[i].m_has_neighbour[0]) neighbours+=v0;
     if(!m_Triangles[i].m_has_neighbour[1]) neighbours+=v1;
     if(!m_Triangles[i].m_has_neighbour[2]) neighbours+=v2;
@@ -1236,34 +1236,34 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
     
     if ( i_triangles == 1 ) {
       //cout<<"+++++++++++++++++++++++++"<<endl;
-      //cout<<"A="<<T.a<<" B="<<T.b<<" C="<<T.c<<endl;
+      //cout<<"A="<<T.m_a<<" B="<<T.m_b<<" C="<<T.m_c<<endl;
       //cout<<"J1="<<J1<<" K1="<<K1<<endl;
       //cout<<"J2="<<J2<<" K2="<<K2<<endl;
       //cout<<"J3="<<J3<<" K3="<<K3<<endl;
       //cout<<"+++++++++++++++++++++++++"<<endl;
     }
     
-    BezierTriangle bezier_triangle(T.a, T.b, T.c, K1, K2, K3);
+    BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
     offset += addBezierSurface(&bezier_triangle, m_BezierGrid, offset, N);
 
     vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];
     
-    polyline_ortho[0]=T.id_a;
+    polyline_ortho[0]=T.m_id_a;
     polyline_ortho[1]=idx_J3;
-    polyline_ortho[2]=T.id_b;
+    polyline_ortho[2]=T.m_id_b;
     polyline_ortho[3]=idx_J1;
-    polyline_ortho[4]=T.id_c;
+    polyline_ortho[4]=T.m_id_c;
     polyline_ortho[5]=idx_J2;
-    polyline_ortho[6]=T.id_a;
+    polyline_ortho[6]=T.m_id_a;
     
-    polyline_nonortho[0]=T.id_a;
+    polyline_nonortho[0]=T.m_id_a;
     polyline_nonortho[1]=idx_K3;
-    polyline_nonortho[2]=T.id_b;
+    polyline_nonortho[2]=T.m_id_b;
     polyline_nonortho[3]=idx_K1;
-    polyline_nonortho[4]=T.id_c;
+    polyline_nonortho[4]=T.m_id_c;
     polyline_nonortho[5]=idx_K2;
-    polyline_nonortho[6]=T.id_a;
+    polyline_nonortho[6]=T.m_id_a;
     
     m_InterpolationGrid->InsertNextCell(4,7,polyline_ortho);cell_count++;
     m_InterpolationGrid->InsertNextCell(4,7,polyline_nonortho);cell_count++;
@@ -1319,7 +1319,7 @@ vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2)
   else {
     t = x1-x2;
   }
-  vec3_t n = m_Triangles[id_cell].g3;
+  vec3_t n = m_Triangles[id_cell].m_g3;
   vec3_t Nedge = t.cross(n);
 //   qDebug()<<"Nedge="<<Nedge;
   return Nedge;
@@ -1448,13 +1448,13 @@ void SurfaceProjection::updateBackgroundGridInfo()
   }
   
   foreach (Triangle T, m_Triangles) {
-    double angle_a = GeometryTools::angle(m_BGrid,T.id_c,T.id_a,T.id_b);
-    double angle_b = GeometryTools::angle(m_BGrid,T.id_a,T.id_b,T.id_c);
-    double angle_c = GeometryTools::angle(m_BGrid,T.id_b,T.id_c,T.id_a);
+    double angle_a = GeometryTools::angle(m_BGrid,T.m_id_c,T.m_id_a,T.m_id_b);
+    double angle_b = GeometryTools::angle(m_BGrid,T.m_id_a,T.m_id_b,T.m_id_c);
+    double angle_c = GeometryTools::angle(m_BGrid,T.m_id_b,T.m_id_c,T.m_id_a);
     double total_angle = angle_a + angle_b + angle_c;
-    m_NodeNormals[T.id_a] += angle_a*T.g3;
-    m_NodeNormals[T.id_b] += angle_b*T.g3;
-    m_NodeNormals[T.id_c] += angle_c*T.g3;
+    m_NodeNormals[T.m_id_a] += angle_a*T.m_g3;
+    m_NodeNormals[T.m_id_b] += angle_b*T.m_g3;
+    m_NodeNormals[T.m_id_c] += angle_c*T.m_g3;
   }
   
 //   qDebug()<<"===STARTING NORMAL CALCULATION===";
@@ -1517,9 +1517,9 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
     
     Triangle T = m_Triangles[i_tri];
-    vec3_t g_A = T.a;
-    vec3_t g_B = T.b;
-    vec3_t g_C = T.c;
+    vec3_t g_A = T.m_a;
+    vec3_t g_B = T.m_b;
+    vec3_t g_C = T.m_c;
     
   //qDebug()<<"=== ORTHOGONAL PLANES ===";
     vec3_t g_J1, g_J2, g_J3;
@@ -1542,12 +1542,12 @@ void SurfaceProjection::updateBackgroundGridInfo()
   // compute maximum angle per node
   QVector<double> min_cos(m_BGrid->GetNumberOfPoints(), 1.0);
   foreach (Triangle T, m_Triangles) {
-    double cosa = T.g3*m_NodeNormals[T.id_a];
-    double cosb = T.g3*m_NodeNormals[T.id_b];
-    double cosc = T.g3*m_NodeNormals[T.id_c];
-    min_cos[T.id_a] = min(cosa, min_cos[T.id_a]);
-    min_cos[T.id_b] = min(cosb, min_cos[T.id_b]);
-    min_cos[T.id_c] = min(cosc, min_cos[T.id_c]);
+    double cosa = T.m_g3*m_NodeNormals[T.m_id_a];
+    double cosb = T.m_g3*m_NodeNormals[T.m_id_b];
+    double cosc = T.m_g3*m_NodeNormals[T.m_id_c];
+    min_cos[T.m_id_a] = min(cosa, min_cos[T.m_id_a]);
+    min_cos[T.m_id_b] = min(cosb, min_cos[T.m_id_b]);
+    min_cos[T.m_id_c] = min(cosc, min_cos[T.m_id_c]);
   }
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));

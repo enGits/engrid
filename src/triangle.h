@@ -31,12 +31,12 @@
 
 class Triangle {
   public:
-    vtkIdType id_a, id_b, id_c;
-    vec3_t a, b, c;
-    vec3_t g1, g2, g3;
-    mat3_t G, GI;
-    double A;
-    double smallest_length;
+    vtkIdType m_id_a, m_id_b, m_id_c;
+    vec3_t m_a, m_b, m_c;
+    vec3_t m_g1, m_g2, m_g3;
+    mat3_t m_G, m_GI;
+    double m_A;
+    double m_smallest_length;
 
   public:
     QVector <bool> m_has_neighbour; ///< True if edge i has a neighbour in the grid
