@@ -96,6 +96,11 @@ class BezierTriangle : public Triangle, public EgVtkObject {
   bool insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, double tol = 1e-4);
 
   vec3_t closestPointOnBezierCurves(vec3_t g_M, int& side, double& Lmin);
+  
+  bool checkControlPoints();
+  
+  void saveTriangle(QString filename);
+  
 };
 
 #endif

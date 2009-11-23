@@ -26,12 +26,14 @@ void Projection_test::operate() {
     qWarning()<<"bezier_equi_"+QString::number(i)+"_";
     bezier_triangle = specialTriangle(true, i);
     bezier_triangle.setupTriangle();
-    bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
-  
+//     bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
+    bezier_triangle.saveTriangle("bezier_equi_"+QString::number(i)+"_");
+    
     qWarning()<<"bezier_notequi_"+QString::number(i)+"_";
     bezier_triangle = specialTriangle(false, i);
     bezier_triangle.setupTriangle();
-    bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
+//     bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
+    bezier_triangle.saveTriangle("bezier_notequi_"+QString::number(i)+"_");
   }
 
 /*  BezierTriangle bezier_triangle;

@@ -1353,12 +1353,12 @@ vec3_t SurfaceProjection::ellipse(vec3_t M)
 
 vec3_t SurfaceProjection::rectangle(vec3_t M)
 {
-
+  return vec3_t(0,0,0);
 }
 
 vec3_t SurfaceProjection::cuboid(vec3_t M)
 {
-
+  return vec3_t(0,0,0);
 }
 
 vec3_t SurfaceProjection::cylinder(vec3_t M)

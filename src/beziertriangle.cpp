@@ -701,3 +701,86 @@ vec3_t BezierTriangle::closestPointOnBezierCurves(vec3_t g_M, int& side, double&
   }
   return g_Mp;
 }
+
+bool BezierTriangle::checkControlPoints()
+{
+  vec2_t t_X_011 = global3DToLocal2D(m_X_011);
+  vec2_t t_X_101 = global3DToLocal2D(m_X_101);
+  vec2_t t_X_110 = global3DToLocal2D(m_X_110);
+  
+  vec3_t bary_coords_011 = getBarycentricCoordinates(t_X_011[0], t_X_011[1]);
+  double u_011, v_011, w_011;
+  u_011 = bary_coords_011[0];
+  v_011 = bary_coords_011[1];
+  w_011 = bary_coords_011[2];
+  
+  vec3_t bary_coords_101 = getBarycentricCoordinates(t_X_101[0], t_X_101[1]);
+  double u_101, v_101, w_101;
+  u_101 = bary_coords_101[0];
+  v_101 = bary_coords_101[1];
+  w_101 = bary_coords_101[2];
+  
+  vec3_t bary_coords_110 = getBarycentricCoordinates(t_X_110[0], t_X_110[1]);
+  double u_110, v_110, w_110;
+  u_110 = bary_coords_110[0];
+  v_110 = bary_coords_110[1];
+  w_110 = bary_coords_110[2];
+  
+  
+  
+}
+
+void BezierTriangle::saveTriangle(QString filename)
+{
+  int N_cells = 2;
+  int N_points = 6;
+  int N = 10;
+  int N_cells_per_triangle = (N-1)*(N-1);
+  int N_points_per_triangle = (N*N+N)/2;
+  
+  //qDebug()<<"N_cells="<<N_cells;
+  //qDebug()<<"N_points="<<N_points;
+  //qDebug()<<"N_cells_per_triangle="<<N_cells_per_triangle;
+  //qDebug()<<"N_points_per_triangle="<<N_points_per_triangle;
+  
+  EG_VTKSP(vtkUnstructuredGrid, interpolationGrid);
+  allocateGrid(interpolationGrid , N_cells, N_points);
+  EG_VTKSP(vtkUnstructuredGrid, bezierGrid);
+  allocateGrid(bezierGrid, N_cells_per_triangle, N_points_per_triangle);
+  
+  vtkIdType node_count = 0;
+  int cell_count = 0;
+  
+
+  vtkIdType pts[3];
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_a.data()); pts[0]=node_count; node_count++;
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_b.data()); pts[1]=node_count; node_count++;
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_c.data()); pts[2]=node_count; node_count++;
+
+  vtkIdType idx_J1, idx_J2, idx_J3;
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_X_011.data()); idx_J1=node_count; node_count++;
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_X_101.data()); idx_J2=node_count; node_count++;
+  interpolationGrid->GetPoints()->SetPoint(node_count, m_X_110.data()); idx_J3=node_count; node_count++;
+  
+  int offset = 0;
+  addBezierSurface(this, bezierGrid, offset, N);
+  
+  vtkIdType polyline[7];
+  polyline[0]=pts[0];
+  polyline[1]=idx_J3;
+  polyline[2]=pts[1];
+  polyline[3]=idx_J1;
+  polyline[4]=pts[2];
+  polyline[5]=idx_J2;
+  polyline[6]=pts[0];
+  
+  interpolationGrid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
+  interpolationGrid->InsertNextCell(4,7,polyline);cell_count++;
+
+  //qDebug()<<"node_count="<<node_count;
+  //qDebug()<<"cell_count="<<cell_count;
+  //qDebug()<<"offset="<<offset;
+  
+  saveGrid(interpolationGrid, filename+"_InterpolationGrid");
+  saveGrid(bezierGrid, filename+"_BezierGrid");
+}
