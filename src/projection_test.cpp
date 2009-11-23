@@ -22,9 +22,12 @@ void Projection_test::operate() {
 //   bezierQuads();
   BezierTriangle bezier_triangle;
   
-  for(int i=0; i<9; i++) {
+  for(int i=2; i<3; i++) {
     bezier_triangle = specialTriangle(true, i);
     bezier_triangle.setupTriangle();
+//     vec3_t toto = (1./3.) * (bezier_triangle.m_X_200 + bezier_triangle.m_X_020 + bezier_triangle.m_X_002);
+//     bool res = bezier_triangle.insideBezierSurface(toto);
+//     qDebug()<<toto<<"-(inside)->"<<res;
     bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
   
     bezier_triangle = specialTriangle(false, i);

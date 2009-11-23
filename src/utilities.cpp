@@ -355,6 +355,21 @@ bool checkVector(vec3_t V)
   return true;
 }
 
+bool checkVector(vec2_t V)
+{
+  for(int i=0;i<2;i++) {
+    if(isnan(V[i])) {
+      EG_ERR_RETURN("NAN");
+      return false;
+    }
+    if(isinf(V[i])) {
+      EG_ERR_RETURN("INFINITY");
+      return false;
+    }
+  }
+  return true;
+}
+
 QDebug operator<<(QDebug dbg, const vec3_t &v)
 {
   dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";

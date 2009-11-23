@@ -281,5 +281,6 @@ QDebug operator<<(QDebug dbg, const vec3_t &v);
 QDebug operator<<(QDebug dbg, const vec2_t &v);
 
 bool checkVector(vec3_t V);
+bool checkVector(vec2_t V);
 
 #endif

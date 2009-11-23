@@ -495,7 +495,8 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
 bool BezierTriangle::insideBezierSurface(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
-  
+  qDebug()<<"g_M="<<g_M;
+  qDebug()<<"t_M="<<t_M;
   vec3_t xi(0, 0, 0);
   vec3_t ri(0, 0, 0);
   double d = 0;
@@ -516,6 +517,9 @@ bool BezierTriangle::insideBezierSurface(vec3_t g_M)
 
 bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
 {
+  qDebug()<<"t_M="<<t_M;
+  qDebug()<<"side="<<side;
+  
   vec2_t t_X_200 = global3DToLocal2D(m_X_200);
   vec2_t t_X_020 = global3DToLocal2D(m_X_020);
   vec2_t t_X_002 = global3DToLocal2D(m_X_002);
@@ -549,7 +553,9 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
   coeff0 = 2*b*c;
   
   double x[3];
-  int N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  int N;
+  if(coeff3!=0) N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  else N = gsl_poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
   
   if(N==0) EG_BUG;
   
@@ -559,6 +565,15 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
   bool first = true;
   
   for(int i=0;i<N;i++) {
+    if(isnan(x[i]) || isinf(x[i])) {
+      qWarning()<<"NAN OR INF";
+      qWarning()<<"x[i]="<<x[i];
+      qWarning()<<"coeff3="<<coeff3;
+      qWarning()<<"coeff2="<<coeff2;
+      qWarning()<<"coeff1="<<coeff1;
+      qWarning()<<"coeff0="<<coeff0;
+      EG_BUG;
+    }
     if(x[i]<0) x[i]=0;
     if(x[i]>1) x[i]=1;
     L[i] = (pow(x[i],2)*a + x[i]*b + c).abs();
@@ -575,5 +590,7 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
   
   vec2_t t_B = t_M + pow(u,2)*a + u*b + c;
   vec2_t tangent = 2*u*a + b;
-  return ( (tangent.cross(t_M-t_B))[2]<0 );
+  checkVector(t_B);
+  checkVector(tangent);
+  return ( (tangent.cross(t_M-t_B))[2]<=0 );
 }
