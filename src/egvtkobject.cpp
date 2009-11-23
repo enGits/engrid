@@ -1162,7 +1162,7 @@ vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnst
       u=bary_coords[0];
       v=bary_coords[1];
       w=bary_coords[2];
-      vec3_t M = bezier_triangle->QuadraticBezierTriangle(u, v, w);
+      vec3_t M = bezier_triangle->quadraticBezierTriangle(u, v, w);
       bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
     }
   }

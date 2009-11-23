@@ -80,7 +80,7 @@ void BezierTriangle::writeBezierSurface(QString filename, int N) {
   saveGrid(bezier, filename);
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w) {
+vec3_t BezierTriangle::quadraticBezierTriangle(double u, double v, double w) {
   double total = u + v + w;
   u = u / total;
   v = v / total;
@@ -88,18 +88,18 @@ vec3_t BezierTriangle::QuadraticBezierTriangle(double u, double v, double w) {
   return pow(u, 2)*m_X_200 + pow(v, 2)*m_X_020 + pow(w, 2)*m_X_002 + 2*u*v*m_X_110 + 2*v*w*m_X_011 + 2*w*u*m_X_101;
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle(vec2_t M) {
+vec3_t BezierTriangle::quadraticBezierTriangle(vec2_t M) {
   vec3_t bary_coords = getBarycentricCoordinates(M[0], M[1]);
   double u, v, w;
   u = bary_coords[0];
   v = bary_coords[1];
   w = bary_coords[2];
-  return QuadraticBezierTriangle(u, v, w);
+  return quadraticBezierTriangle(u, v, w);
 }
 
-vec3_t BezierTriangle::QuadraticBezierTriangle_g(vec3_t g_M) {
+vec3_t BezierTriangle::quadraticBezierTriangle_g(vec3_t g_M) {
   vec2_t t_M = global3DToLocal2D(g_M);
-  return QuadraticBezierTriangle(t_M);
+  return quadraticBezierTriangle(t_M);
 }
 
 void BezierTriangle::setupFunctionVariables() {
@@ -229,7 +229,7 @@ vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M) {
   }
   if (Nloops >= maxloops) qDebug() << "WARNING: Exited before converging! Nloops=" << Nloops;
 
-  return QuadraticBezierTriangle(t_X);
+  return quadraticBezierTriangle(t_X);
 }
 
 vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) {
@@ -240,20 +240,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 //     return vec3_t(0,0,0);
     qDebug() << "WARNING: Not on bezier triangle! t_M=" << t_M;
     //get closest point M' on triangle
-    double Lmin = 0;
-    vec3_t g_Mp;
     int side = -1;
-    bool first = true;
-    for(int i_side=0; i_side<3; i_side++) {
-      double L,u;
-      vec3_t foo = projectOnBezierSide(g_M, i_side,L,u);
-      if(first || L<Lmin) {
-        Lmin = L;
-        g_Mp = foo;
-        side = i_side;
-        first = false;
-      }
-    }
+    double Lmin = 0;
+    vec3_t g_Mp = closestPointOnBezierCurves(g_M, side, Lmin);
     
     if (!insideBezierSurface(g_Mp)) {
       setDebugLevel(1);
@@ -366,18 +355,17 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   double w = bary_coords[2];
 
   vec2_t dx, dy;
-  double k = 0.1 * m_smallest_length;
   vec2_t ex(1, 0);
   vec2_t ey(0, 1);
   if (u >= v && u > w) {
-    dx = k * ex;
-    dy = k * ey;
+    dx = ex;
+    dy = ey;
   } else if (v > u && v >= w) {
-    dx = k * (ey - ex);
-    dy = k * (-1 * ex);
+    dx = ey - ex;
+    dy = -1 * ex;
   } else if (w >= u && w > v) {
-    dx = k * (-1 * ey);
-    dy = k * (ex - ey);
+    dx = -1 * ey;
+    dy = ex - ey;
   } else {
     qWarning() << "bary_coords=" << bary_coords;
     EG_BUG;
@@ -390,8 +378,31 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
 
   if (!isInsideTriangle(t_M)) {
     //TODO: special dx,dy for points outside basic triangle
-    EG_BUG;
+    // get closest point on beziercurves
+    int side = -1;
+    double Lmin = 0;
+    vec3_t g_M = local2DToGlobal3D(t_M);
+    vec3_t g_Mp = closestPointOnBezierCurves(g_M, side, Lmin);
+    vec2_t t_Mp = global3DToLocal2D(g_Mp);
+    // get tangent at that point
+    vec2_t t_normal = t_M-t_Mp;
+    vec2_t t_tangent = turnLeft(t_normal);
+    checkVector(t_normal);
+    checkVector(t_tangent);
+    t_normal.normalise();
+    t_tangent.normalise();
+    checkVector(t_normal);
+    checkVector(t_tangent);
+    // build dx,dy according to that tangent + orig point + closest point
+    dx = t_normal - t_tangent;
+    dy = t_normal + t_tangent;
   }
+  
+  dx.normalise();
+  dy.normalise();
+  double k = 0.1;// * m_smallest_length;
+  dx = k*dx;
+  dy = k*dy;
   
   vec2_t t_P0 = t_M;
   double z0 = z_func(t_P0);
@@ -471,6 +482,38 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   }
 }
 
+bool BezierTriangle::insideBezierSurface(vec3_t g_M)
+{
+  vec2_t t_M = global3DToLocal2D(g_M);
+  qDebug()<<"g_M="<<g_M;
+  qDebug()<<"t_M="<<t_M;
+  vec3_t xi(0, 0, 0);
+  vec3_t ri(0, 0, 0);
+  double d = 0;
+  int side;
+  projectOnTriangle(g_M, xi, ri, d, side, true);
+  if(side==3 || side==4 || side==5) {
+    if(DebugLevel>0) qWarning()<<"side==3 || side==4 || side==5";
+    return false;
+  }
+  else {
+    vec2_t t_tangent;
+    if(insideBezierCurve(t_M,0,t_tangent) && insideBezierCurve(t_M,1,t_tangent) && insideBezierCurve(t_M,2,t_tangent)) {
+      if(DebugLevel>0) qWarning()<<"insideBezierCurves";
+      return true;
+    }
+    else {
+      if(DebugLevel>0) qWarning()<<"else";
+      return false;
+    }
+  }
+}
+
+bool BezierTriangle::insideBezierSurface(vec2_t t_M) {
+  return insideBezierSurface(local2DToGlobal3D(t_M));
+}
+
+//TODO: merge projectOnBezierSide + insideBezierCurve ?
 vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, double& u)
 {
   vec3_t a,b,c;
@@ -529,37 +572,7 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
   return g_B;
 }
 
-bool BezierTriangle::insideBezierSurface(vec3_t g_M)
-{
-  vec2_t t_M = global3DToLocal2D(g_M);
-  qDebug()<<"g_M="<<g_M;
-  qDebug()<<"t_M="<<t_M;
-  vec3_t xi(0, 0, 0);
-  vec3_t ri(0, 0, 0);
-  double d = 0;
-  int side;
-  projectOnTriangle(g_M, xi, ri, d, side, true);
-  if(side==3 || side==4 || side==5) {
-    if(DebugLevel>0) qWarning()<<"side==3 || side==4 || side==5";
-    return false;
-  }
-  else {
-    if(insideBezierCurve(t_M,0) && insideBezierCurve(t_M,1) && insideBezierCurve(t_M,2)) {
-      if(DebugLevel>0) qWarning()<<"insideBezierCurve(t_M,0) && insideBezierCurve(t_M,1) && insideBezierCurve(t_M,2)";
-      return true;
-    }
-    else {
-      if(DebugLevel>0) qWarning()<<"else";
-      return false;
-    }
-  }
-}
-
-bool BezierTriangle::insideBezierSurface(vec2_t t_M) {
-  return insideBezierSurface(local2DToGlobal3D(t_M));
-}
-
-bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, double tol)
+bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, double tol)
 {
   qDebug()<<"t_M="<<t_M;
   qDebug()<<"side="<<side;
@@ -633,7 +646,7 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, double tol)
   }
   
   vec2_t t_B = t_M + pow(u,2)*a + u*b + c;
-  vec2_t t_tangent = 2*u*a + b;
+  t_tangent = 2*u*a + b;
   
   vec3_t l_M = vec3_t(t_M[0],t_M[1],0);
   vec3_t l_B = vec3_t(t_B[0],t_B[1],0);
@@ -649,4 +662,23 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, double tol)
     qWarning()<<"(l_tangent.cross(l_M-l_B))[2]="<<(l_tangent.cross(l_M-l_B))[2];
   }
   return ( (l_tangent.cross(l_M-l_B))[2]<=0+tol );
+}
+
+vec3_t BezierTriangle::closestPointOnBezierCurves(vec3_t g_M, int& side, double& Lmin)
+{
+  Lmin = 0;
+  side = -1;
+  vec3_t g_Mp;
+  bool first = true;
+  for(int i_side=0; i_side<3; i_side++) {
+    double L,u;
+    vec3_t foo = projectOnBezierSide(g_M, i_side,L,u);
+    if(first || L<Lmin) {
+      Lmin = L;
+      g_Mp = foo;
+      side = i_side;
+      first = false;
+    }
+  }
+  return g_Mp;
 }

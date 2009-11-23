@@ -55,9 +55,9 @@ class BezierTriangle : public Triangle, public EgVtkObject {
     vec3_t Projection(vec3_t barycoords);
     void writeBezierSurface(QString filename, int N);
 
-    vec3_t QuadraticBezierTriangle(double u, double v, double w);
-    vec3_t QuadraticBezierTriangle(vec2_t M);
-    vec3_t QuadraticBezierTriangle_g(vec3_t g_M);
+    vec3_t quadraticBezierTriangle(double u, double v, double w);
+    vec3_t quadraticBezierTriangle(vec2_t M);
+    vec3_t quadraticBezierTriangle_g(vec3_t g_M);
 
     vec3_t projectOnQuadraticBezierTriangle(vec3_t g_M, int output = 0);
 
@@ -93,7 +93,9 @@ class BezierTriangle : public Triangle, public EgVtkObject {
   vec3_t projectOnBezierSide(vec3_t g_M, int side, double& Lmin, double& u);
   bool insideBezierSurface(vec3_t g_M);
   bool insideBezierSurface(vec2_t t_M);
-  bool insideBezierCurve(vec2_t t_M, int side, double tol = 1e-4);
+  bool insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, double tol = 1e-4);
+
+  vec3_t closestPointOnBezierCurves(vec3_t g_M, int& side, double& Lmin);
 };
 
 #endif
