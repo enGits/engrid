@@ -227,7 +227,7 @@ vec3_t BezierTriangle::projectLocal2DOnQuadraticBezierTriangle(vec2_t t_M) {
     if (DEBUG) qDebug() << "F.abs()=" << F.abs();
     Nloops++;
   }
-  if (Nloops >= maxloops) qDebug() << "WARNING: Exited before converging! Nloops=" << Nloops;
+//   if (Nloops >= maxloops) qDebug() << "WARNING: Exited before converging! Nloops=" << Nloops;
 
   return quadraticBezierTriangle(t_X);
 }
@@ -238,7 +238,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 
   if (!insideBezierSurface(g_M)) {
 //     return vec3_t(0,0,0);
-    qDebug() << "WARNING: Not on bezier triangle! t_M=" << t_M;
+//     qDebug() << "WARNING: Not on bezier triangle! t_M=" << t_M;
     //get closest point M' on triangle
     int side = -1;
     double Lmin = 0;
@@ -261,7 +261,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
     /*    vec2_t t_Mp(ri[0], ri[1]);
     qDebug() << "t_Mp=" << t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);*/
-    qDebug() << "g_Mp=" << g_Mp;
+//     qDebug() << "g_Mp=" << g_Mp;
     vec2_t t_Mp = global3DToLocal2D(g_Mp);
     if(!checkVector(g_Mp)) EG_BUG;
     if(!checkVector(t_Mp)) EG_BUG;
@@ -272,7 +272,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 //     vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
 //     qDebug() << "g_Mp_proj=" << g_Mp_proj;
 
-    qDebug()<<"side="<<side;
+//     qDebug()<<"side="<<side;
     if (m_has_neighbour[side]) {
       // no extrapolation, restrict
       if (output == 0) return g_Mp;
@@ -282,7 +282,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 
       //get normal vector N at that point
       vec3_t g_N = surfaceNormal(t_Mp, 0);
-      qDebug() << "g_N=" << g_N;
+//       qDebug() << "g_N=" << g_N;
 
       //project original point M onto plane (M',N)
       if(!checkVector(g_Mp)) EG_BUG;
