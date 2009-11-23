@@ -247,6 +247,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
     if (!insideBezierSurface(g_Mp)) {
       setDebugLevel(1);
       insideBezierSurface(g_Mp);
+      saveTriangle("crash");
       EG_BUG;
     }
     int zone = -1;
