@@ -22,6 +22,8 @@
 //
 #include "surfaceprojection.h"
 
+///\todo check orientation of triangle on which we project to avoid projecting on the wrong side in case of close opposite sides of a surface
+
 SurfaceProjection::SurfaceProjection()
 {
   m_BGrid = vtkUnstructuredGrid::New();

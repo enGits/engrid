@@ -33,7 +33,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   DebugLevel = 0;
   setQuickSave(true);
   m_UseProjection = true;
-  m_UseNormalCorrection = false;
+//   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
 }
 
@@ -177,24 +177,24 @@ void LaplaceSmoother::operate()
 
     m_Success = true;
 
-    QVector<vec3_t> node_normals;
-    if (m_UseNormalCorrection) {
-      node_normals.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
-      vec3_t n(0,0,0);
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-          node_normals[id_node] += GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
-        }
-        node_normals[id_node].normalise();
-      }
-    }
+//     QVector<vec3_t> node_normals;
+//     if (m_UseNormalCorrection) {
+//       node_normals.fill(vec3_t(0,0,0), grid->GetNumberOfPoints());
+//       vec3_t n(0,0,0);
+//       for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+//         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+//           node_normals[id_node] += GeometryTools::cellNormal(grid, m_Part.n2cGG(id_node, i));
+//         }
+//         node_normals[id_node].normalise();
+//       }
+//     }
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
-          vec3_t n(0,0,0);
+//           vec3_t n(0,0,0);
           if (snap_points.size() > 0) {
             vec3_t x_old;
             vec3_t x;
@@ -203,16 +203,16 @@ void LaplaceSmoother::operate()
             foreach (vtkIdType id_snap_node, snap_points) {
               m_Grid->GetPoint(id_snap_node, x.data());
               x_new[i_nodes] += x;
-              n += node_normals[id_snap_node];
+//               n += node_normals[id_snap_node];
             }
-            n.normalise();
+//             n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
 
-            if (m_UseNormalCorrection) {
-              vec3_t dx = x_new[i_nodes] - x_old;
-              dx = (dx*n)*n;
-              x_new[i_nodes] -= dx;
-            }
+//             if (m_UseNormalCorrection) {
+//               vec3_t dx = x_new[i_nodes] - x_old;
+//               dx = (dx*n)*n;
+//               x_new[i_nodes] -= dx;
+//             }
 
             vec3_t Dx = x_new[i_nodes] - x_old;
             Dx *= m_UnderRelaxation;
