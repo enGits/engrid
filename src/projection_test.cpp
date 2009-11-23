@@ -20,20 +20,23 @@ void Projection_test::operate() {
 //   bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
+  
+//   BezierTriangle bezier_triangle;
+//   
+//   for(int i=0; i<9; i++) {
+//     bezier_triangle = specialTriangle(true, i);
+//     bezier_triangle.setupTriangle();
+//     bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
+//   
+//     bezier_triangle = specialTriangle(false, i);
+//     bezier_triangle.setupTriangle();
+//     bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
+//   }
+
   BezierTriangle bezier_triangle;
-  
-  for(int i=2; i<3; i++) {
-    bezier_triangle = specialTriangle(true, i);
-    bezier_triangle.setupTriangle();
-//     vec3_t toto = (1./3.) * (bezier_triangle.m_X_200 + bezier_triangle.m_X_020 + bezier_triangle.m_X_002);
-//     bool res = bezier_triangle.insideBezierSurface(toto);
-//     qDebug()<<toto<<"-(inside)->"<<res;
-    bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
-  
-    bezier_triangle = specialTriangle(false, i);
-    bezier_triangle.setupTriangle();
-    bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
-  }
+  bezier_triangle = specialTriangle(true, 0);
+  bezier_triangle.setupTriangle();
+  bezierProjectionTest2(bezier_triangle, "extrapolation_");
 }
 
 BezierTriangle Projection_test::specialTriangle(bool equi, int type) {
@@ -546,12 +549,12 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
   int N = 30;
   bezier_triangle.writeBezierSurface(prefix + "bezier", N);
 
-  bezier_triangle.m_has_neighbour[0] = false;
-  bezier_triangle.m_has_neighbour[1] = false;
-  bezier_triangle.m_has_neighbour[2] = false;
-  bezier_triangle.m_has_neighbour[3] = false;
-  bezier_triangle.m_has_neighbour[4] = false;
-  bezier_triangle.m_has_neighbour[5] = false;
+  bezier_triangle.m_has_neighbour[0] = true;
+  bezier_triangle.m_has_neighbour[1] = true;
+  bezier_triangle.m_has_neighbour[2] = true;
+  bezier_triangle.m_has_neighbour[3] = true;
+  bezier_triangle.m_has_neighbour[4] = true;
+  bezier_triangle.m_has_neighbour[5] = true;
 
   int N_cells = (N - 1) * (N - 1);
   int N_points = N * N;
@@ -624,8 +627,8 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
 //       vec3_t g_P_projection = bezier_triangle.projectOnBezierSide(g_M,2,L,u);
       
 //       vec3_t g_normal = bezier_triangle.surfaceNormal(t_M, 0);
-//       vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 1);
-      vec3_t g_normal(0,0,0);
+      vec3_t g_normal = bezier_triangle.projectOnQuadraticBezierTriangle(g_M, 1);
+//       vec3_t g_normal(0,0,0);
       bool I0 = bezier_triangle.insideBezierCurve(t_M,0);
       bool I1 = bezier_triangle.insideBezierCurve(t_M,1);
       bool I2 = bezier_triangle.insideBezierCurve(t_M,2);
@@ -635,7 +638,7 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
       vtkIdType id_node = offset + node_count;
 
       bezier->GetPoints()->SetPoint(id_node, g_P.data());
-      bezier_projection->GetPoints()->SetPoint(id_node, g_M.data());
+      bezier_projection->GetPoints()->SetPoint(id_node, g_P_projection.data());
       vectors_normals->InsertTuple(id_node, g_normal.data());
       inside0->SetValue(id_node,I0);
       inside1->SetValue(id_node,I1);

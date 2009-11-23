@@ -344,11 +344,11 @@ bool checkVector(vec3_t V)
 {
   for(int i=0;i<3;i++) {
     if(isnan(V[i])) {
-      EG_ERR_RETURN("NAN");
+//       EG_ERR_RETURN("NAN");
       return false;
     }
     if(isinf(V[i])) {
-      EG_ERR_RETURN("INFINITY");
+//       EG_ERR_RETURN("INFINITY");
       return false;
     }
   }
@@ -359,11 +359,11 @@ bool checkVector(vec2_t V)
 {
   for(int i=0;i<2;i++) {
     if(isnan(V[i])) {
-      EG_ERR_RETURN("NAN");
+//       EG_ERR_RETURN("NAN");
       return false;
     }
     if(isinf(V[i])) {
-      EG_ERR_RETURN("INFINITY");
+//       EG_ERR_RETURN("INFINITY");
       return false;
     }
   }

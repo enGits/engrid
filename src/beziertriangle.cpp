@@ -236,9 +236,9 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
   vec2_t t_M = global3DToLocal2D(g_M);
 //   qDebug()<<"t_M="<<t_M;
 
-  if (!isInsideTriangle(t_M)) {
+  if (!insideBezierSurface(g_M)) {
 //     return vec3_t(0,0,0);
-    qDebug() << "WARNING: Not on triangle! t_M=" << t_M;
+    qDebug() << "WARNING: Not on bezier triangle! t_M=" << t_M;
     //get closest point M' on triangle
     double Lmin = 0;
     vec3_t g_Mp;
@@ -254,25 +254,40 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
         first = false;
       }
     }
-/*    vec3_t xi(0, 0, 0);
+    
+    if (!insideBezierSurface(g_Mp)) {
+      setDebugLevel(1);
+      insideBezierSurface(g_Mp);
+      EG_BUG;
+    }
+    int zone = -1;
+    vec3_t xi(0, 0, 0);
     vec3_t ri(0, 0, 0);
     double d = 0;
-    projectOnTriangle(g_M, xi, ri, d, side, true);
-    vec2_t t_Mp(ri[0], ri[1]);
+    projectOnTriangle(g_M, xi, ri, d, zone, true);
+    if(zone==3 || zone==4 || zone==5) {
+      side = zone;
+    }
+    
+    /*    vec2_t t_Mp(ri[0], ri[1]);
     qDebug() << "t_Mp=" << t_Mp;
     vec3_t g_Mp = local2DToGlobal3D(t_Mp);*/
     qDebug() << "g_Mp=" << g_Mp;
     vec2_t t_Mp = global3DToLocal2D(g_Mp);
+    if(!checkVector(g_Mp)) EG_BUG;
+    if(!checkVector(t_Mp)) EG_BUG;
     
-    if (output == 0) return g_Mp;
-    else return surfaceNormal(t_Mp, 0);;
+//     if (output == 0) return g_Mp;
+//     else return surfaceNormal(t_Mp, 0);
     
 //     vec3_t g_Mp_proj = projectLocal2DOnQuadraticBezierTriangle(t_Mp);
 //     qDebug() << "g_Mp_proj=" << g_Mp_proj;
 
-    if ( m_has_neighbour[side]) {
+    qDebug()<<"side="<<side;
+    if ( false && m_has_neighbour[side]) {
       // no extrapolation, restrict
-      return g_Mp;
+      if (output == 0) return g_Mp;
+      else return surfaceNormal(t_Mp, 0);
     } else {
       // extrapolate
 
@@ -281,15 +296,30 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
       qDebug() << "g_N=" << g_N;
 
       //project original point M onto plane (M',N)
+      if(!checkVector(g_Mp)) EG_BUG;
+      if(!checkVector(g_N)) EG_BUG;
       double k = intersection(g_M, m_g3, g_Mp, g_N);
 //     vec3_t g_P = projectPointOnPlane(g_M, g_Mp_proj, g_N);
       vec3_t g_P = g_M + k * m_g3;
+      
+      if(isnan(k) || isinf(k)) {
+        qWarning()<<"g_M="<<g_M;
+        qWarning()<<"m_g3="<<m_g3;
+        qWarning()<<"g_Mp="<<g_Mp;
+        qWarning()<<"g_N="<<g_N;
+        EG_BUG;
+      }
+      if(!checkVector(g_M)) EG_BUG;
+      if(!checkVector(m_g3)) EG_BUG;
+      if(!checkVector(g_P)) EG_BUG;
+      
       if (output == 0) return g_P;
       else return g_N;
     }
 
   } else {
-    return projectLocal2DOnQuadraticBezierTriangle(t_M);
+    if (output == 0) return projectLocal2DOnQuadraticBezierTriangle(t_M);
+    else return surfaceNormal(t_M, 0);
   }
 
 }
@@ -358,6 +388,11 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
     qDebug()<<"dy="<<dy;
     qDebug()<<"##############";*/
 
+  if (!isInsideTriangle(t_M)) {
+    //TODO: special dx,dy for points outside basic triangle
+    EG_BUG;
+  }
+  
   vec2_t t_P0 = t_M;
   double z0 = z_func(t_P0);
   vec3_t l_P0(t_P0[0], t_P0[1], z0);
@@ -377,22 +412,22 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
 
   vec3_t l_u1;
   vec3_t l_u2;
-
-  if (!isInsideTriangle(t_P0)) {
+  
+  if (!insideBezierSurface(t_P0)) {
     qWarning() << "t_P0=" << t_P0;
     qWarning() << "t_Px1=" << t_Px1;
     qWarning() << "t_Px2=" << t_Px2;
     qWarning() << "t_Py1=" << t_Py1;
     qWarning() << "t_Py2=" << t_Py2;
-    return vec3_t(0, 0, 0);
+//     return vec3_t(0, 0, 0);
     EG_BUG;
   }
 
-  if (isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+  if (insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
     l_u1 = l_Px2 - l_Px1;
-  } else if (!isInsideTriangle(t_Px1) && isInsideTriangle(t_Px2)) {
+  } else if (!insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
     l_u1 = l_Px2 - l_P0;
-  } else if (isInsideTriangle(t_Px1) && !isInsideTriangle(t_Px2)) {
+  } else if (insideBezierSurface(t_Px1) && !insideBezierSurface(t_Px2)) {
     l_u1 = l_P0 - l_Px1;
   } else {
     qWarning() << "t_P0=" << t_P0;
@@ -400,16 +435,16 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
     qWarning() << "t_Px2=" << t_Px2;
     qWarning() << "t_Py1=" << t_Py1;
     qWarning() << "t_Py2=" << t_Py2;
-    return vec3_t(0, 0, 0);
     EG_BUG;
+    return vec3_t(0, 0, 0);
   }
 
 
-  if (isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+  if (insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
     l_u2 = l_Py2 - l_Py1;
-  } else if (!isInsideTriangle(t_Py1) && isInsideTriangle(t_Py2)) {
+  } else if (!insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
     l_u2 = l_Py2 - l_P0;
-  } else if (isInsideTriangle(t_Py1) && !isInsideTriangle(t_Py2)) {
+  } else if (insideBezierSurface(t_Py1) && !insideBezierSurface(t_Py2)) {
     l_u2 = l_P0 - l_Py1;
   } else {
     qWarning() << "t_P0=" << t_P0;
@@ -417,8 +452,8 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
     qWarning() << "t_Px2=" << t_Px2;
     qWarning() << "t_Py1=" << t_Py1;
     qWarning() << "t_Py2=" << t_Py2;
-    return vec3_t(0, 0, 0);
     EG_BUG;
+    return vec3_t(0, 0, 0);
   }
 
   vec3_t g_u1 = m_G * l_u1;
@@ -464,7 +499,9 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
   coeff0 = 2*b*c;
   
   double x[3];
-  int N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  int N;
+  if(coeff3!=0) N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  else N = gsl_poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
   
   if(N==0) EG_BUG;
   
@@ -503,19 +540,26 @@ bool BezierTriangle::insideBezierSurface(vec3_t g_M)
   int side;
   projectOnTriangle(g_M, xi, ri, d, side, true);
   if(side==3 || side==4 || side==5) {
+    if(DebugLevel>0) qWarning()<<"side==3 || side==4 || side==5";
     return false;
   }
   else {
     if(insideBezierCurve(t_M,0) && insideBezierCurve(t_M,1) && insideBezierCurve(t_M,2)) {
+      if(DebugLevel>0) qWarning()<<"insideBezierCurve(t_M,0) && insideBezierCurve(t_M,1) && insideBezierCurve(t_M,2)";
       return true;
     }
     else {
+      if(DebugLevel>0) qWarning()<<"else";
       return false;
     }
   }
 }
 
-bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
+bool BezierTriangle::insideBezierSurface(vec2_t t_M) {
+  return insideBezierSurface(local2DToGlobal3D(t_M));
+}
+
+bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, double tol)
 {
   qDebug()<<"t_M="<<t_M;
   qDebug()<<"side="<<side;
@@ -589,8 +633,20 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side)
   }
   
   vec2_t t_B = t_M + pow(u,2)*a + u*b + c;
-  vec2_t tangent = 2*u*a + b;
-  checkVector(t_B);
-  checkVector(tangent);
-  return ( (tangent.cross(t_M-t_B))[2]<=0 );
+  vec2_t t_tangent = 2*u*a + b;
+  
+  vec3_t l_M = vec3_t(t_M[0],t_M[1],0);
+  vec3_t l_B = vec3_t(t_B[0],t_B[1],0);
+  vec3_t l_tangent = vec3_t(t_tangent[0],t_tangent[1],0);
+  
+  checkVector(l_B);
+  checkVector(l_tangent);
+  if(DebugLevel>0) {
+    qWarning()<<"l_M="<<l_M;
+    qWarning()<<"l_B="<<l_B;
+    qWarning()<<"l_tangent="<<l_tangent;
+    qWarning()<<"l_tangent.cross(l_M-l_B)="<<l_tangent.cross(l_M-l_B);
+    qWarning()<<"(l_tangent.cross(l_M-l_B))[2]="<<(l_tangent.cross(l_M-l_B))[2];
+  }
+  return ( (l_tangent.cross(l_M-l_B))[2]<=0+tol );
 }
