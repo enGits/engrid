@@ -273,7 +273,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 //     qDebug() << "g_Mp_proj=" << g_Mp_proj;
 
     qDebug()<<"side="<<side;
-    if ( false && m_has_neighbour[side]) {
+    if (m_has_neighbour[side]) {
       // no extrapolation, restrict
       if (output == 0) return g_Mp;
       else return surfaceNormal(t_Mp, 0);
@@ -385,8 +385,10 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
     vec3_t g_Mp = closestPointOnBezierCurves(g_M, side, Lmin);
     vec2_t t_Mp = global3DToLocal2D(g_Mp);
     // get tangent at that point
-    vec2_t t_normal = t_M-t_Mp;
-    vec2_t t_tangent = turnLeft(t_normal);
+    vec2_t t_tangent;
+    insideBezierCurve(t_M, side, t_tangent);
+    vec2_t t_normal = turnRight(t_tangent);// t_M-t_Mp;
+//     vec2_t t_tangent = turnLeft(t_normal);
     checkVector(t_normal);
     checkVector(t_tangent);
     t_normal.normalise();
@@ -400,7 +402,7 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   
   dx.normalise();
   dy.normalise();
-  double k = 0.1;// * m_smallest_length;
+  double k = 0.01;// * m_smallest_length;
   dx = k*dx;
   dy = k*dy;
   
@@ -408,65 +410,82 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
   double z0 = z_func(t_P0);
   vec3_t l_P0(t_P0[0], t_P0[1], z0);
 
-  vec2_t t_Px1 = t_P0 - dx;
-  vec2_t t_Px2 = t_P0 + dx;
-  vec2_t t_Py1 = t_P0 - dy;
-  vec2_t t_Py2 = t_P0 + dy;
-  double zx1 = z_func(t_Px1);
-  double zx2 = z_func(t_Px2);
-  double zy1 = z_func(t_Py1);
-  double zy2 = z_func(t_Py2);
-  vec3_t l_Px1(t_Px1[0], t_Px1[1], zx1);
-  vec3_t l_Px2(t_Px2[0], t_Px2[1], zx2);
-  vec3_t l_Py1(t_Py1[0], t_Py1[1], zy1);
-  vec3_t l_Py2(t_Py2[0], t_Py2[1], zy2);
-
+  if (!insideBezierSurface(t_P0)) {
+    qWarning() << "t_P0=" << t_P0;
+  //     return vec3_t(0, 0, 0);
+    EG_BUG;
+  }
+  
   vec3_t l_u1;
   vec3_t l_u2;
   
-  if (!insideBezierSurface(t_P0)) {
-    qWarning() << "t_P0=" << t_P0;
-    qWarning() << "t_Px1=" << t_Px1;
-    qWarning() << "t_Px2=" << t_Px2;
-    qWarning() << "t_Py1=" << t_Py1;
-    qWarning() << "t_Py2=" << t_Py2;
-//     return vec3_t(0, 0, 0);
-    EG_BUG;
+  int Nloops = 0;
+  int maxloops = 100;
+  bool dxdy_ok = false;
+  while(!dxdy_ok && Nloops<maxloops) {
+    
+    dxdy_ok = true;
+    
+    vec2_t t_Px1 = t_P0 - dx;
+    vec2_t t_Px2 = t_P0 + dx;
+    vec2_t t_Py1 = t_P0 - dy;
+    vec2_t t_Py2 = t_P0 + dy;
+    double zx1 = z_func(t_Px1);
+    double zx2 = z_func(t_Px2);
+    double zy1 = z_func(t_Py1);
+    double zy2 = z_func(t_Py2);
+    vec3_t l_Px1(t_Px1[0], t_Px1[1], zx1);
+    vec3_t l_Px2(t_Px2[0], t_Px2[1], zx2);
+    vec3_t l_Py1(t_Py1[0], t_Py1[1], zy1);
+    vec3_t l_Py2(t_Py2[0], t_Py2[1], zy2);
+      
+    if (insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
+      l_u1 = l_Px2 - l_Px1;
+    } else if (!insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
+      l_u1 = l_Px2 - l_P0;
+    } else if (insideBezierSurface(t_Px1) && !insideBezierSurface(t_Px2)) {
+      l_u1 = l_P0 - l_Px1;
+    } else {
+/*      qWarning() << "t_P0=" << t_P0;
+      qWarning() << "t_Px1=" << t_Px1;
+      qWarning() << "t_Px2=" << t_Px2;
+      qWarning() << "t_Py1=" << t_Py1;
+      qWarning() << "t_Py2=" << t_Py2;*/
+      dxdy_ok = false;
+//       return vec3_t(0, 0, 0);
+    }
+  
+  
+    if (insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
+      l_u2 = l_Py2 - l_Py1;
+    } else if (!insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
+      l_u2 = l_Py2 - l_P0;
+    } else if (insideBezierSurface(t_Py1) && !insideBezierSurface(t_Py2)) {
+      l_u2 = l_P0 - l_Py1;
+    } else {
+/*      qWarning() << "##############";
+      qWarning() << "dx="<<dx;
+      qWarning() << "dy="<<dy;
+      qWarning() << "angle(dx,dy)=" << rad2deg(acos((dx*dy)/(dx.abs()*dy.abs())));
+      qWarning() << "##############";
+      qWarning() << "t_P0=" << t_P0 << " : " <<insideBezierSurface(t_P0);
+      qWarning() << "t_Px1=" << t_Px1 << " : " <<insideBezierSurface(t_Px1);
+      qWarning() << "t_Px2=" << t_Px2 << " : " <<insideBezierSurface(t_Px2);
+      qWarning() << "t_Py1=" << t_Py1 << " : " <<insideBezierSurface(t_Py1);
+      qWarning() << "t_Py2=" << t_Py2 << " : " <<insideBezierSurface(t_Py2);*/
+      dxdy_ok = false;
+//       return vec3_t(0, 0, 0);
+    }
+    
+    if(!dxdy_ok) {
+      dx = 0.5*dx;
+      dy = 0.5*dy;
+    }
+    
+    Nloops++;
   }
-
-  if (insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
-    l_u1 = l_Px2 - l_Px1;
-  } else if (!insideBezierSurface(t_Px1) && insideBezierSurface(t_Px2)) {
-    l_u1 = l_Px2 - l_P0;
-  } else if (insideBezierSurface(t_Px1) && !insideBezierSurface(t_Px2)) {
-    l_u1 = l_P0 - l_Px1;
-  } else {
-    qWarning() << "t_P0=" << t_P0;
-    qWarning() << "t_Px1=" << t_Px1;
-    qWarning() << "t_Px2=" << t_Px2;
-    qWarning() << "t_Py1=" << t_Py1;
-    qWarning() << "t_Py2=" << t_Py2;
-    EG_BUG;
-    return vec3_t(0, 0, 0);
-  }
-
-
-  if (insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
-    l_u2 = l_Py2 - l_Py1;
-  } else if (!insideBezierSurface(t_Py1) && insideBezierSurface(t_Py2)) {
-    l_u2 = l_Py2 - l_P0;
-  } else if (insideBezierSurface(t_Py1) && !insideBezierSurface(t_Py2)) {
-    l_u2 = l_P0 - l_Py1;
-  } else {
-    qWarning() << "t_P0=" << t_P0;
-    qWarning() << "t_Px1=" << t_Px1;
-    qWarning() << "t_Px2=" << t_Px2;
-    qWarning() << "t_Py1=" << t_Py1;
-    qWarning() << "t_Py2=" << t_Py2;
-    EG_BUG;
-    return vec3_t(0, 0, 0);
-  }
-
+  if(Nloops>=maxloops) EG_BUG;
+  
   vec3_t g_u1 = m_G * l_u1;
   g_u1.normalise();
   vec3_t g_u2 = m_G * l_u2;
@@ -485,8 +504,8 @@ vec3_t BezierTriangle::surfaceNormal(vec2_t t_M, int output) {
 bool BezierTriangle::insideBezierSurface(vec3_t g_M)
 {
   vec2_t t_M = global3DToLocal2D(g_M);
-  qDebug()<<"g_M="<<g_M;
-  qDebug()<<"t_M="<<t_M;
+//   qDebug()<<"g_M="<<g_M;
+//   qDebug()<<"t_M="<<t_M;
   vec3_t xi(0, 0, 0);
   vec3_t ri(0, 0, 0);
   double d = 0;
@@ -574,8 +593,8 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
 
 bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, double tol)
 {
-  qDebug()<<"t_M="<<t_M;
-  qDebug()<<"side="<<side;
+//   qDebug()<<"t_M="<<t_M;
+//   qDebug()<<"side="<<side;
   
   vec2_t t_X_200 = global3DToLocal2D(m_X_200);
   vec2_t t_X_020 = global3DToLocal2D(m_X_020);

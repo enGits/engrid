@@ -21,22 +21,23 @@ void Projection_test::operate() {
 //   bezierProjectionTest();
 //   bezierQuads();
   
-//   BezierTriangle bezier_triangle;
-//   
-//   for(int i=0; i<9; i++) {
-//     bezier_triangle = specialTriangle(true, i);
-//     bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
-//   
-//     bezier_triangle = specialTriangle(false, i);
-//     bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
-//   }
-
   BezierTriangle bezier_triangle;
-  bezier_triangle = specialTriangle(true, 0);
+  for(int i=0; i<7; i++) {
+    qWarning()<<"bezier_equi_"+QString::number(i)+"_";
+    bezier_triangle = specialTriangle(true, i);
+    bezier_triangle.setupTriangle();
+    bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
+  
+    qWarning()<<"bezier_notequi_"+QString::number(i)+"_";
+    bezier_triangle = specialTriangle(false, i);
+    bezier_triangle.setupTriangle();
+    bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
+  }
+
+/*  BezierTriangle bezier_triangle;
+  bezier_triangle = specialTriangle(false, 0);
   bezier_triangle.setupTriangle();
-  bezierProjectionTest2(bezier_triangle, "extrapolation_");
+  bezierProjectionTest2(bezier_triangle, "extrapolation_");*/
 }
 
 BezierTriangle Projection_test::specialTriangle(bool equi, int type) {
@@ -74,21 +75,21 @@ BezierTriangle Projection_test::specialTriangle(bool equi, int type) {
     X_101 = 1./3.*(X_200 + X_020 + X_002);
     X_110 = 1./3.*(X_200 + X_020 + X_002);
   } else if (type == 5) {
-    X_011 = X_200;
-    X_101 = X_020;
-    X_110 = X_002;
-  } else if (type == 6) {
-    X_011 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
-    X_101 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
-    X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0.5);
-  } else if (type == 7) {
-    X_011 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
-    X_101 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
-    X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
-  } else if (type == 8) {
     X_011 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
     X_101 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
     X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
+  } else if (type == 6) {
+    X_011 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
+    X_101 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
+    X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
+  } else if (type == 7) {// bad bezier surface!
+    X_011 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
+    X_101 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
+    X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0.5);
+  } else if (type == 8) {// bad bezier surface!
+    X_011 = X_200;
+    X_101 = X_020;
+    X_110 = X_002;
   }
   return BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
 }
@@ -549,12 +550,12 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
   int N = 30;
   bezier_triangle.writeBezierSurface(prefix + "bezier", N);
 
-  bezier_triangle.m_has_neighbour[0] = true;
-  bezier_triangle.m_has_neighbour[1] = true;
-  bezier_triangle.m_has_neighbour[2] = true;
-  bezier_triangle.m_has_neighbour[3] = true;
-  bezier_triangle.m_has_neighbour[4] = true;
-  bezier_triangle.m_has_neighbour[5] = true;
+  bezier_triangle.m_has_neighbour[0] = false;
+  bezier_triangle.m_has_neighbour[1] = false;
+  bezier_triangle.m_has_neighbour[2] = false;
+  bezier_triangle.m_has_neighbour[3] = false;
+  bezier_triangle.m_has_neighbour[4] = false;
+  bezier_triangle.m_has_neighbour[5] = false;
 
   int N_cells = (N - 1) * (N - 1);
   int N_points = N * N;
