@@ -997,7 +997,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
      if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
 //    }
   if(!on_triangle) {
-    qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
+//     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
   }
   
 //   writeGrid(m_BGrid,"m_BGrid");
