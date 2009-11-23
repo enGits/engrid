@@ -112,7 +112,7 @@ void makeDistribution()
   system ("ldd ./engrid > ldd.out");
   system ("mkdir enGrid");
   system ("cp engrid enGrid");
-  system ("cp start_engrid enGrid");
+//   system ("cp start_engrid enGrid");
   {
     QFile file("ldd.out");
     file.open(QIODevice::ReadOnly);

@@ -27,6 +27,7 @@
 
 #include <vtkUnstructuredGridWriter.h>
 
+///\todo check orientation of triangle on which we project to avoid projecting on the wrong side in case of close opposite sides of a surface
 ///\todo Delete those grids somewhere
 SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {

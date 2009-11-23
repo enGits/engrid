@@ -33,7 +33,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   DebugLevel = 0;
   setQuickSave(true);
   m_UseProjection = true;
-  m_UseNormalCorrection = false;
+//   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
 }
 
@@ -196,7 +196,7 @@ void LaplaceSmoother::operate()
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
-          vec3_t n(0,0,0);
+//           vec3_t n(0,0,0);
           if (snap_points.size() > 0) {
             vec3_t x_old;
             vec3_t x;
@@ -209,12 +209,13 @@ void LaplaceSmoother::operate()
             }
 //             n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
-            
+
 //             if (m_UseNormalCorrection) {
 //               vec3_t dx = x_new[i_nodes] - x_old;
 //               dx = (dx*n)*n;
 //               x_new[i_nodes] -= dx;
 //             }
+
             vec3_t Dx = x_new[i_nodes] - x_old;
             Dx *= m_UnderRelaxation;
             if (moveNode(id_node, Dx)) {
