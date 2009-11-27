@@ -705,6 +705,9 @@ vec3_t BezierTriangle::closestPointOnBezierCurves(vec3_t g_M, int& side, double&
 
 bool BezierTriangle::checkControlPoints()
 {
+  vec2_t t_X_200 = global3DToLocal2D(m_X_200);
+  vec2_t t_X_020 = global3DToLocal2D(m_X_020);
+  vec2_t t_X_002 = global3DToLocal2D(m_X_002);
   vec2_t t_X_011 = global3DToLocal2D(m_X_011);
   vec2_t t_X_101 = global3DToLocal2D(m_X_101);
   vec2_t t_X_110 = global3DToLocal2D(m_X_110);
@@ -727,8 +730,72 @@ bool BezierTriangle::checkControlPoints()
   v_110 = bary_coords_110[1];
   w_110 = bary_coords_110[2];
   
+  double k1;
+  double k2;
+  vec2_t r[6];
+  vec2_t u[6];
   
+  r[0] = t_X_200;
+  r[1] = t_X_110;
+  r[2] = t_X_020;
+  r[3] = t_X_011;
+  r[4] = t_X_002;
+  r[5] = t_X_101;
   
+  for(int i=0;i<6;i++) {
+    u[i] = r[(i+1)%6]-r[i];
+  }
+  
+  for(int i=0;i<9;i++) {
+    int jmax = 6;
+    if(i==0) jmax = 6-1;
+    for(int j=i+2;j<jmax;j++) {
+//       qDebug()<<"i="<<i<<"->j="<<j;
+      if(intersection (k1, k2, r[i], u[i], r[j], u[j])) {
+        if( 0<k1 && k1<1 && 0<k2 && k2<1 ) {
+          qDebug()<<"k1="<<k1;
+          qDebug()<<"k2="<<k2;
+          return(false);
+        }
+      }
+      else {
+        qDebug()<<"NO INTERSECTION";
+      }
+    }
+  }
+/*  bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2_t u2);
+  
+  // segments:
+  X_200 - X_101;
+  X_101 - X_002;
+  
+  X_002 - X_011;
+  X_011 - X_020;
+  
+  X_020 - X_110;
+  X_110 - X_200;
+
+  X_200 - X_101;
+    X_002 - X_011;
+    X_011 - X_020;
+    
+    X_020 - X_110;
+    X_110 - X_200;
+  
+  X_101 - X_002;
+    X_002 - X_011;
+    X_011 - X_020;
+    
+    X_020 - X_110;
+    X_110 - X_200;
+  
+  X_002 - X_011;
+  X_011 - X_020;
+  
+  X_020 - X_110;
+  X_110 - X_200;*/
+  
+  return(true);
 }
 
 void BezierTriangle::saveTriangle(QString filename)

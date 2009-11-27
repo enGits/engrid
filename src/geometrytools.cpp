@@ -195,7 +195,6 @@ void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<
   }
 }
 
-
 double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg)
 {
   static double f16 = 1.0/6.0;

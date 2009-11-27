@@ -22,18 +22,24 @@ void Projection_test::operate() {
 //   bezierQuads();
   
   BezierTriangle bezier_triangle;
-  for(int i=0; i<7; i++) {
-    qWarning()<<"bezier_equi_"+QString::number(i)+"_";
+  for(int i=0; i<11; i++) {
+    QString name;
+    
+    name = "bezier_equi_"+QString::number(i)+"_";
+    qWarning()<<name;
     bezier_triangle = specialTriangle(true, i);
     bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, "bezier_equi_"+QString::number(i)+"_");
-    bezier_triangle.saveTriangle("bezier_equi_"+QString::number(i)+"_");
+//     bezierProjectionTest2(bezier_triangle, name);
+    bezier_triangle.saveTriangle(name);
+    qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
     
-    qWarning()<<"bezier_notequi_"+QString::number(i)+"_";
+    name="bezier_notequi_"+QString::number(i)+"_";
+    qWarning()<<name;
     bezier_triangle = specialTriangle(false, i);
     bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, "bezier_notequi_"+QString::number(i)+"_");
-    bezier_triangle.saveTriangle("bezier_notequi_"+QString::number(i)+"_");
+//     bezierProjectionTest2(bezier_triangle, name);
+    bezier_triangle.saveTriangle(name);
+    qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
   }
 
 /*  BezierTriangle bezier_triangle;
@@ -84,14 +90,22 @@ BezierTriangle Projection_test::specialTriangle(bool equi, int type) {
     X_011 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
     X_101 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0);
     X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
-  } else if (type == 7) {// bad bezier surface!
+  } else if (type == 7) {
+    X_011 = 0.5 * (X_200 + X_020) + vec3_t(0, -1, 1);
+    X_101 = 0.5 * (X_200 + X_020) + vec3_t(0, -1, 1);
+    X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0);
+  } else if (type == 8) {// bad bezier surface!
     X_011 = 0.5 * (X_200 + X_002) + vec3_t(-0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
     X_101 = 0.5 * (X_020 + X_002) + vec3_t(0.5 * cos(deg2rad(30)), 0.5 * sin(deg2rad(30)), 0.5);
     X_110 = 0.5 * (X_200 + X_020) + vec3_t(0, -0.5, 0.5);
-  } else if (type == 8) {// bad bezier surface!
+  } else if (type == 9) {// bad bezier surface!
     X_011 = X_200;
     X_101 = X_020;
     X_110 = X_002;
+  } else if (type == 10) {// bad bezier surface!
+    X_011 = X_200 + vec3_t(0,0,1);
+    X_101 = X_020 + vec3_t(0,0,2);
+    X_110 = X_002 + vec3_t(0,0,3);
   }
   return BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
 }
