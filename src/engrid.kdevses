@@ -1,20 +1,7 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="4" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid_master/src/guimainwindow.h" >
-   <View0 Encoding="" line="204" Type="Source" />
-  </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid_master/src/guimainwindow.cpp" >
-   <View0 Encoding="" line="140" Type="Source" />
-  </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid_master/src/egvtkobject.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid_master/src/egvtkobject.cpp" >
-   <View0 Encoding="" line="42" Type="Source" />
-  </Doc3>
- </DocsAndViews>
+ <DocsAndViews NumberOfDocuments="0" />
  <pluginList>
   <kdevdebugger>
    <breakpointList>

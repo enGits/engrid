@@ -1182,6 +1182,10 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   if(update_current_filename) QApplication::restoreOverrideCursor();
   
+  if(update_current_filename) {
+    this->addRecentFile(file_name,QDateTime::currentDateTime());
+  }
+  
   return(file_name);
 }
 
@@ -1940,7 +1944,7 @@ void GuiMainWindow::openRecent(QAction *action)
   QString file_name = action->text().right(action->text().length()-23);
   this->open(file_name);
 //   this->addRecentFile(file_name,QDateTime::currentDateTime());
-};
+}
 
 void GuiMainWindow::readRecentFiles()
 {
@@ -1956,7 +1960,7 @@ void GuiMainWindow::readRecentFiles()
     QDateTime date = QDateTime::fromString(date_text,"dd.MM.yyyy_hh:mm:ss");
     addRecentFile(new_file,date);
   };
-};
+}
 
 void GuiMainWindow::writeRecentFiles()
 {
@@ -1971,7 +1975,7 @@ void GuiMainWindow::writeRecentFiles()
   };
   m_qset.setValue("FileNames",file_names);
   m_qset.setValue("FileDates",file_dates);
-};
+}
 
 void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
 {
@@ -2002,4 +2006,4 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
       this->recentFileMenu()->addAction(action);
     };
   };
-};
+}
