@@ -96,6 +96,16 @@ bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2
 
 void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<vec3_t> > &Tout);
 
+/** Returns the volume of a tetrahedron.
+ * V= v1*(v2^v3) with vi=xi-x0
+ * If neg = false and V<0, it will return V=-1e99, else it returns V.
+ * @param x0 point 0 of the tetrahedron
+ * @param x1 point 1 of the tetrahedron
+ * @param x2 point 2 of the tetrahedron
+ * @param x3 point 3 of the tetrahedron
+ * @param neg If neg = false and V<0, it will return V=-1e99, else it returns V.
+ * @return volume of the tetrahedron
+ */
 double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg = false);
 
 double pyraVol(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5, bool neg = false);
@@ -118,6 +128,7 @@ vec3_t quadNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTy
 
 vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i);
 
+/// Returns the area or volume of a cell.
 double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg = false);
   
 inline vec2_t turnRight(const vec2_t &v)
