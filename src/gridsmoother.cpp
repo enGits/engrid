@@ -102,7 +102,7 @@ void GridSmoother::markNodes()
 bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 {
   using namespace GeometryTools;
-  
+
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
