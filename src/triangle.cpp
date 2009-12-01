@@ -24,25 +24,26 @@
 #include "geometrytools.h"
 #include "engrid.h"
 #include "utilities.h"
+#include "egvtkobject.h"
 
-Triangle::Triangle() {
+Triangle::Triangle() : EgVtkObject() {
   m_id_a = 0;
   m_id_b = 0;
   m_id_c = 0;
   m_a = vec3_t(0, 0, 0);
-  m_b = vec3_t(0, 0, 0);
-  m_c = vec3_t(0, 0, 0);
+  m_b = vec3_t(0, 1, 0);
+  m_c = vec3_t(0, 0, 1);
   setupTriangle();
 }
 
-Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) {
+Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) : EgVtkObject() {
   m_a = a_a;
   m_b = a_b;
   m_c = a_c;
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) {
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) : EgVtkObject() {
   m_id_a = a_id_a;
   m_id_b = a_id_b;
   m_id_c = a_id_c;
@@ -52,7 +53,7 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell) {
+Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)  : EgVtkObject() {
   vtkIdType Npts, *pts;
   a_grid->GetCellPoints(a_id_cell, Npts, pts);
   if (Npts == 3) {
@@ -80,10 +81,30 @@ void Triangle::setupTriangle() {
   m_g1 = m_b - m_a;
   m_g2 = m_c - m_a;
   m_g3 = m_g1.cross(m_g2);
-
+  if(!checkVector(m_g3)) {
+    qWarning()<<"m_g1="<<m_g1;
+    qWarning()<<"m_g2="<<m_g2;
+    qWarning()<<"m_g3="<<m_g3;
+    vec3_t foo = vec3_t(0,0,0);
+    vec3_t bar = vec3_t(0,0,0);
+    qWarning()<<"foo.cross(bar)="<<foo.cross(bar);
+    EG_BUG;
+  }
+  
   m_A  = 0.5 * m_g3.abs();
   m_g3.normalise();
 
+  if(!checkVector(m_g3)) {
+    qWarning()<<"m_g1="<<m_g1;
+    qWarning()<<"m_g2="<<m_g2;
+    qWarning()<<"m_g3="<<m_g3;
+    qWarning()<<"m_a="<<m_a;
+    qWarning()<<"m_b="<<m_b;
+    qWarning()<<"m_c="<<m_c;
+    this->saveTriangle("crash");
+    EG_BUG;
+  }
+  
   m_G.column(0, m_g1);
   m_G.column(1, m_g2);
   m_G.column(2, m_g3);
@@ -203,4 +224,25 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
       EG_BUG;
     }*/
   return intersects_face;
+}
+
+void Triangle::saveTriangle(QString filename)
+{
+  int N_cells = 1;
+  int N_points = 3;
+  
+  EG_VTKSP(vtkUnstructuredGrid, triangle_grid);
+  allocateGrid(triangle_grid , N_cells, N_points);
+  
+  vtkIdType node_count = 0;
+  int cell_count = 0;
+  
+  vtkIdType pts[3];
+  triangle_grid->GetPoints()->SetPoint(node_count, m_a.data()); pts[0]=node_count; node_count++;
+  triangle_grid->GetPoints()->SetPoint(node_count, m_b.data()); pts[1]=node_count; node_count++;
+  triangle_grid->GetPoints()->SetPoint(node_count, m_c.data()); pts[2]=node_count; node_count++;
+  
+  triangle_grid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
+  
+  saveGrid(triangle_grid, filename+"_triangle_grid");
 }

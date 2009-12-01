@@ -32,7 +32,7 @@
 
 #include <vtkUnstructuredGrid.h>
 
-class BezierTriangle : public Triangle, public EgVtkObject {
+class BezierTriangle : public Triangle {
   public:
     vec3_t m_X_200;
     vec3_t m_X_020;
@@ -99,7 +99,7 @@ class BezierTriangle : public Triangle, public EgVtkObject {
   
   bool checkControlPoints();
   
-  void saveTriangle(QString filename);
+  void saveBezierTriangle(QString filename);
   
 };
 

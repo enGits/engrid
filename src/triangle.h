@@ -23,13 +23,15 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include <QVector>
+
 #include "vtkIdList.h"
 #include "vtkUnstructuredGrid.h"
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
-#include <QVector>
+#include "egvtkobject.h"
 
-class Triangle {
+class Triangle : public EgVtkObject {
   public:
     vtkIdType m_id_a, m_id_b, m_id_c;
     vec3_t m_a, m_b, m_c;
@@ -63,6 +65,8 @@ class Triangle {
     vec3_t global3DToLocal3D(vec3_t g_M);
     vec3_t local2DToGlobal3D(vec2_t l_M);
     vec2_t global3DToLocal2D(vec3_t g_M);
+
+    void saveTriangle(QString filename);
 };
 
 #endif

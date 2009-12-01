@@ -31,10 +31,10 @@ using namespace GeometryTools;
 #include <vtkCellLocator.h>
 #include <gsl/gsl_poly.h>
 
-BezierTriangle::BezierTriangle() : Triangle(), EgVtkObject() {
+BezierTriangle::BezierTriangle() : Triangle() {
 }
 
-BezierTriangle::BezierTriangle(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)  : Triangle(X_200, X_020, X_002), EgVtkObject() {
+BezierTriangle::BezierTriangle(vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110)  : Triangle(X_200, X_020, X_002) {
   setControlPoints(X_200,  X_020,  X_002,  X_011,  X_101,  X_110);
 }
 
@@ -247,7 +247,7 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
     if (!insideBezierSurface(g_Mp)) {
       setDebugLevel(1);
       insideBezierSurface(g_Mp);
-      saveTriangle("crash");
+      saveBezierTriangle("crash");
       EG_BUG;
     }
     int zone = -1;
@@ -644,11 +644,28 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, 
   for(int i=0;i<N;i++) {
     if(isnan(x[i]) || isinf(x[i])) {
       qWarning()<<"NAN OR INF";
-      qWarning()<<"x[i]="<<x[i];
+      qWarning()<<"x["<<i<<"]="<<x[i];
       qWarning()<<"coeff3="<<coeff3;
       qWarning()<<"coeff2="<<coeff2;
       qWarning()<<"coeff1="<<coeff1;
       qWarning()<<"coeff0="<<coeff0;
+      
+      qWarning()<<"checkVector(t_X_200)="<<checkVector(t_X_200);
+      qWarning()<<"checkVector(t_X_020)="<<checkVector(t_X_020);
+      qWarning()<<"checkVector(t_X_002)="<<checkVector(t_X_002);
+      qWarning()<<"checkVector(t_X_011)="<<checkVector(t_X_011);
+      qWarning()<<"checkVector(t_X_101)="<<checkVector(t_X_101);
+      qWarning()<<"checkVector(t_X_110)="<<checkVector(t_X_110);
+      qWarning()<<"checkVector(m_X_200)="<<checkVector(m_X_200);
+      qWarning()<<"checkVector(m_X_020)="<<checkVector(m_X_020);
+      qWarning()<<"checkVector(m_X_002)="<<checkVector(m_X_002);
+      qWarning()<<"checkVector(m_X_011)="<<checkVector(m_X_011);
+      qWarning()<<"checkVector(m_X_101)="<<checkVector(m_X_101);
+      qWarning()<<"checkVector(m_X_110)="<<checkVector(m_X_110);
+      qWarning()<<"checkVector(a)="<<checkVector(a);
+      qWarning()<<"checkVector(b)="<<checkVector(b);
+      qWarning()<<"checkVector(c)="<<checkVector(c);
+      
       EG_BUG;
     }
     if(x[i]<0) x[i]=0;
@@ -798,7 +815,7 @@ bool BezierTriangle::checkControlPoints()
   return(true);
 }
 
-void BezierTriangle::saveTriangle(QString filename)
+void BezierTriangle::saveBezierTriangle(QString filename)
 {
   int N_cells = 2;
   int N_points = 6;

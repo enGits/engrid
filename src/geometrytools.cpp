@@ -639,6 +639,8 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
 
 vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
 {
+  if(i.abs2()==0) EG_BUG;
+  if(j.abs2()==0) EG_BUG;
   double x = V*i/i.abs2();
   double y = V*j/j.abs2();
   return vec2_t(x,y);

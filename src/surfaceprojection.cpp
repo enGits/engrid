@@ -785,9 +785,9 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_J3;
   
   //qDebug()<<"=== ORTHOGONAL PLANES ===";
-  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3, 1e99);
   //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3, 1e99);
 
   vec3_t X_200 = g_A;
   vec3_t X_020 = g_B;
@@ -1023,11 +1023,11 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
   return x;
 }
 
-int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax)
 {
-  vec3_t A=T.m_a;
-  vec3_t B=T.m_b;
-  vec3_t C=T.m_c;
+  vec3_t A = T.m_a;
+  vec3_t B = T.m_b;
+  vec3_t C = T.m_c;
   vec3_t nA = m_NodeNormals[T.m_id_a];
   vec3_t nB = m_NodeNormals[T.m_id_b];
   vec3_t nC = m_NodeNormals[T.m_id_c];
@@ -1044,25 +1044,62 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
   //cout<<"-->AB"<<endl;
   X_110 = intersectionOnPlane(T.m_g3, A, nA, B, nB);
   
+  if (!checkVector(X_011)) EG_BUG;
+  if (!checkVector(X_101)) EG_BUG;
+  if (!checkVector(X_110)) EG_BUG;
+  
   limitControlPoints(T, X_011, X_101, X_110);
+  
+  if (!checkVector(X_011)) EG_BUG;
+  if (!checkVector(X_101)) EG_BUG;
+  if (!checkVector(X_110)) EG_BUG;
+  
   return(0);
 }
 
-int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110)
+int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax)
 {
-  vec3_t A=T.m_a;
-  vec3_t B=T.m_b;
-  vec3_t C=T.m_c;
+  vec3_t A = T.m_a;
+  vec3_t B = T.m_b;
+  vec3_t C = T.m_c;
   vec3_t nA = m_NodeNormals[T.m_id_a];
   vec3_t nB = m_NodeNormals[T.m_id_b];
   vec3_t nC = m_NodeNormals[T.m_id_c];
   
 //   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
+  
+  if ((0.5*(nB+nC)).abs2()==0) EG_BUG;
+  if ((0.5*(nC+nA)).abs2()==0) EG_BUG;
+  if ((0.5*(nA+nB)).abs2()==0) EG_BUG;
+  
   X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
   X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
   X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
   
+  /// \todo make sure nBC,nCA,nAB are not null vectors!!!
+  vec3_t nBC = 0.5*(nB+nC);
+  vec3_t nCA = 0.5*(nC+nA);
+  vec3_t nAB = 0.5*(nA+nB);
+  
+  if (!checkVector(X_011)) {
+    qWarning()<<X_011<<" = intersectionOnPlane("<<nBC<<", "<<B<<", "<<nB<<", "<<C<<", "<<nC<<")";
+    EG_BUG;
+  }
+  if (!checkVector(X_101)) {
+    qWarning()<<X_101<<" = intersectionOnPlane("<<nCA<<", "<<C<<", "<<nC<<", "<<A<<", "<<nA<<")";
+    EG_BUG;
+  }
+  if (!checkVector(X_110)) {
+    qWarning()<<X_110<<" = intersectionOnPlane("<<nAB<<", "<<A<<", "<<nA<<", "<<B<<", "<<nB<<")";
+    EG_BUG;
+  }
+  
   limitControlPoints(T, X_011, X_101, X_110);
+  
+  if (!checkVector(X_011)) EG_BUG;
+  if (!checkVector(X_101)) EG_BUG;
+  if (!checkVector(X_110)) EG_BUG;
+  
   return(0);
 }
 
@@ -1083,7 +1120,12 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
   vec3_t P_101 = 0.5*(A+C);
   vec3_t P_110 = 0.5*(A+B);
   
-  double Lmax = 1.0*T.m_smallest_length;
+//   Lmax = 1.0*T.m_smallest_length;
+  
+  double Lmax_011 = (C - B).abs();
+  double Lmax_101 = (A - C).abs();
+  double Lmax_110 = (B - A).abs();
+  
   double L_011 = (X_011-P_011).abs();
   double L_101 = (X_101-P_101).abs();
   double L_110 = (X_110-P_110).abs();
@@ -1095,20 +1137,20 @@ int SurfaceProjection::limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_1
   checkVector(X_110);
   checkVector(P_110);
   
-  if( L_011 > Lmax ) {
+  if( L_011 > Lmax_011 ) {
 //     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
 //     qWarning()<<"X_011="<<X_011<<"P_011="<<P_011<<"L_011="<<L_011;
-    X_011 = P_011 + Lmax/L_011 * (X_011-P_011);
+    X_011 = P_011 + Lmax_011/L_011 * (X_011-P_011);
   }
-  if( L_101 > Lmax ) {
+  if( L_101 > Lmax_101 ) {
 //     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
 //     qWarning()<<"X_101="<<X_101<<"P_101="<<P_101<<"L_101="<<L_101;
-    X_101 = P_101 + Lmax/L_101 * (X_101-P_101);
+    X_101 = P_101 + Lmax_101/L_101 * (X_101-P_101);
   }
-  if( L_110 > Lmax ) {
+  if( L_110 > Lmax_110 ) {
 //     qWarning()<<"WARNING: CONTROL POINT RESTRICTED: Lmax="<<Lmax;
 //     qWarning()<<"X_110="<<X_110<<"P_110="<<P_110<<"L_110="<<L_110;
-    X_110 = P_110 + Lmax/L_110 * (X_110-P_110);
+    X_110 = P_110 + Lmax_110/L_110 * (X_110-P_110);
   }
   return(0);
 }
@@ -1222,9 +1264,9 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
     vec3_t J2,K2;
     vec3_t J3,K3;
     //qDebug()<<"=== ORTHOGONAL PLANES ===";
-    getControlPoints_orthogonal(T,J1,J2,J3);
+    getControlPoints_orthogonal(T,J1,J2,J3, 1e99);
     //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-    getControlPoints_nonorthogonal(T,K1,K2,K3);
+    getControlPoints_nonorthogonal(T,K1,K2,K3, 1e99);
     
     vtkIdType idx_J1, idx_J2, idx_J3;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, J1.data()); idx_J1=node_count; node_count++;
@@ -1452,10 +1494,20 @@ void SurfaceProjection::updateBackgroundGridInfo()
     double angle_a = GeometryTools::angle(m_BGrid,T.m_id_c,T.m_id_a,T.m_id_b);
     double angle_b = GeometryTools::angle(m_BGrid,T.m_id_a,T.m_id_b,T.m_id_c);
     double angle_c = GeometryTools::angle(m_BGrid,T.m_id_b,T.m_id_c,T.m_id_a);
+    if(isnan(angle_a) || isinf(angle_a)) EG_BUG;
+    if(isnan(angle_b) || isinf(angle_b)) EG_BUG;
+    if(isnan(angle_c) || isinf(angle_c)) EG_BUG;
+    if(!checkVector(T.m_g3)) {
+      qWarning()<<"T.m_g3="<<T.m_g3;
+      EG_BUG;
+    }
     double total_angle = angle_a + angle_b + angle_c;
     m_NodeNormals[T.m_id_a] += angle_a*T.m_g3;
     m_NodeNormals[T.m_id_b] += angle_b*T.m_g3;
     m_NodeNormals[T.m_id_c] += angle_c*T.m_g3;
+    if(!checkVector(m_NodeNormals[T.m_id_a])) EG_BUG;
+    if(!checkVector(m_NodeNormals[T.m_id_b])) EG_BUG;
+    if(!checkVector(m_NodeNormals[T.m_id_c])) EG_BUG;
   }
   
 //   qDebug()<<"===STARTING NORMAL CALCULATION===";
@@ -1524,10 +1576,10 @@ void SurfaceProjection::updateBackgroundGridInfo()
     
   //qDebug()<<"=== ORTHOGONAL PLANES ===";
     vec3_t g_J1, g_J2, g_J3;
-    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3);
+    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3, 1e99);
   //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
     vec3_t g_K1, g_K2, g_K3;
-    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3);
+    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3, 1e99);
     
     vec3_t X_200 = g_A;
     vec3_t X_020 = g_B;

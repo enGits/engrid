@@ -155,8 +155,8 @@ public: // methods
   void writeInterpolationGrid(QString filename);
   void writeTriangleGrid(QString filename);
   
-  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110); ///< get the orthogonal control points
-  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110); ///< get the non-orthogonal control points
+  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax); ///< get the orthogonal control points
+  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax); ///< get the non-orthogonal control points
   int limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
 };
 

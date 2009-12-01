@@ -30,7 +30,7 @@ void Projection_test::operate() {
     bezier_triangle = specialTriangle(true, i);
     bezier_triangle.setupTriangle();
 //     bezierProjectionTest2(bezier_triangle, name);
-    bezier_triangle.saveTriangle(name);
+    bezier_triangle.saveBezierTriangle(name);
     qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
     
     name="bezier_notequi_"+QString::number(i)+"_";
@@ -38,7 +38,7 @@ void Projection_test::operate() {
     bezier_triangle = specialTriangle(false, i);
     bezier_triangle.setupTriangle();
 //     bezierProjectionTest2(bezier_triangle, name);
-    bezier_triangle.saveTriangle(name);
+    bezier_triangle.saveBezierTriangle(name);
     qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
   }
 
