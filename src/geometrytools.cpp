@@ -440,16 +440,6 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
 
   // compute intersection between straight and triangular plane
   double k = intersection(x1, v, a, g3);
-  xi = x1 + k*v;
-
-  // transform xi to triangular base
-  mat3_t G;
-  G.column(0, g1);
-  G.column(1, g2);
-  G.column(2, g3);
-  mat3_t GI = G.inverse();
-  ri = xi - a;
-  ri = GI*ri;
 
   // intersection outside of edge range?
   if (k < 0 - tol*(x1-x2).abs()) {
@@ -458,6 +448,17 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   if (k > 1 + tol*(x1-x2).abs()) {
     return false;
   }
+  
+  xi = x1 + k*v;
+  
+  // transform xi to triangular base
+  mat3_t G;
+  G.column(0, g1);
+  G.column(1, g2);
+  G.column(2, g3);
+  mat3_t GI = G.inverse();
+  ri = xi - a;
+  ri = GI*ri;
   
   // intersection outside of triangle?
   if (ri[0] + ri[1] > 1) {
