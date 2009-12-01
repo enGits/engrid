@@ -22,6 +22,8 @@
 //
 #include "checksurfaceintegrity.h"
 // #include "egvtkobject.h"
+#include "geometrytools.h"
+using namespace GeometryTools;
 
 CheckSurfaceIntegrity::CheckSurfaceIntegrity() : SurfaceOperation()
 {
@@ -71,7 +73,9 @@ bool CheckSurfaceIntegrity::isWaterTight()
   }
   
   foreach(vtkIdType id_cell, cells) {
-    if(cellVA(m_Grid, id_cell)<=0) EG_BUG;
+    if(cellVA(m_Grid, id_cell)<=0) {
+      qDebug()<<"cell "<<id_cell<<" is empty.";
+    }
   }
   
   if( Nmin==2 && Nmax==2 ) return(true);
