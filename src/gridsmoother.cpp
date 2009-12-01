@@ -53,6 +53,9 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "number of smoothing sub-iterations", 5,   m_NumIterations);
   
   getSet("boundary layer", "angle for sharp features",         45.00, m_CritAngle);
+
+  getSet("boundary layer", "use strict prism checking", true, m_StrictPrismChecking);
+
   m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
 
 }
@@ -112,13 +115,13 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   foreach (int i_cells, n2c[id_node]) {
     vtkIdType id_cell = cells[i_cells];
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    if (type_cell == VTK_TETRA) {
+    if (isVolume(id_cell, m_Grid)) {
       if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
         move = false;
-        //if (dbg) cout << id_node << " : tetra negative" << endl;
       }
     }
-    if (type_cell == VTK_WEDGE) {
+
+    if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
       vtkIdType N_pts, *pts;
       vec3_t xtet[4];
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
@@ -131,7 +134,6 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
           }
           if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
             ok = false;
-            //if (dbg) cout << id_node << " : prism negative" << endl;
           }
         }
         if (ok) {
