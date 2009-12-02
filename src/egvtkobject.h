@@ -482,13 +482,6 @@ protected: // methods
   void writeGrid(vtkUnstructuredGrid *grid, QString filename);
   
   /**
-   * Adds one grid to another grid.
-   * @param maingrid the grid to which to add grid_to_add
-   * @param grid_to_add grid to add to maingrid
-   */
-  void addGrid(vtkUnstructuredGrid *maingrid, vtkUnstructuredGrid *grid_to_add);
-  
-  /**
    * Get a file name without extension.
    * @param file_name the full name (with extension)
    * @return the name without the extension
