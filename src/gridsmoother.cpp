@@ -595,7 +595,7 @@ void GridSmoother::operateOptimisation()
                   if ((i != 0) || (j != 0) || (k != 0)) {
                     vec3_t Dx = double(i)*ex + double(j)*ey + double(k)*ez;
                     correctDx(i_nodes, Dx);
-                    vec3_t x = x_old + x;
+                    vec3_t x = x_old + Dx;
                     if (setNewPosition(id_node, x)) {
                       m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
                       double f = func(x);
