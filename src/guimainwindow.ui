@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -136,6 +136,7 @@
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
+    <addaction name="actionInsertNewCell"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
@@ -300,7 +301,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>501</height>
+          <height>507</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -682,7 +683,7 @@
           <x>0</x>
           <y>0</y>
           <width>228</width>
-          <height>557</height>
+          <height>531</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1242,7 +1243,7 @@
   </action>
   <action name="actionDeletePickedCell">
    <property name="text">
-    <string>delete picked cell</string>
+    <string>Delete picked cell</string>
    </property>
   </action>
   <action name="actionFixSTL">
@@ -1597,6 +1598,11 @@
   <action name="actionTest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="actionInsertNewCell">
+   <property name="text">
+    <string>Insert new cell</string>
    </property>
   </action>
  </widget>

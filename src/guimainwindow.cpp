@@ -1990,7 +1990,7 @@ void GuiMainWindow::openRecent(QAction *action)
   QString file_name = action->text().right(action->text().length()-23);
   this->open(file_name);
 //   this->addRecentFile(file_name,QDateTime::currentDateTime());
-};
+}
 
 void GuiMainWindow::readRecentFiles()
 {
@@ -2005,8 +2005,8 @@ void GuiMainWindow::readRecentFiles()
     QString date_text = file_dates.at(i);
     QDateTime date = QDateTime::fromString(date_text,"dd.MM.yyyy_hh:mm:ss");
     addRecentFile(new_file,date);
-  };
-};
+  }
+}
 
 void GuiMainWindow::writeRecentFiles()
 {
@@ -2018,10 +2018,10 @@ void GuiMainWindow::writeRecentFiles()
     QString date_text = i.value().toString("dd.MM.yyyy_hh:mm:ss");
     file_names.append(file_name);
     file_dates.append(date_text);
-  };
+  }
   m_qset.setValue("FileNames",file_names);
   m_qset.setValue("FileDates",file_dates);
-};
+}
 
 void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
 {
@@ -2033,10 +2033,10 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
       if (i.value() <= old) {
         old = i.value();
         j = i;
-      };
-    };
+      }
+    }
     m_RecentFiles.erase(j);
-  };
+  }
   this->recentFileMenu()->clear();
   QMap<int,QString> menu_map;
   QDateTime now = QDateTime::currentDateTime();
@@ -2045,11 +2045,21 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
     action_text += " -> ";
     action_text += i.key();
     menu_map[i.value().secsTo(now)] = action_text;
-  };
+  }
   {
     for (QMap<int,QString>::iterator i = menu_map.begin(); i != menu_map.end(); ++i) {
       QAction *action = new QAction(i.value(),this);
       this->recentFileMenu()->addAction(action);
-    };
-  };
-};
+    }
+  }
+}
+
+void GuiMainWindow::callInsertNewCell()
+{
+  bool ok1,ok2,ok3;
+  vtkIdType id_cell1 = QInputDialog::getInt(this, tr("id_cell1"),tr("id_cell1:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_cell2 = QInputDialog::getInt(this, tr("id_cell2"),tr("id_cell2:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok2);
+  vtkIdType id_cell3 = QInputDialog::getInt(this, tr("id_cell3"),tr("id_cell3:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok3);
+  if (ok1 && ok2 && ok3) {
+  }
+}
