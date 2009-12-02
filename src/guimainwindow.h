@@ -259,7 +259,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      * Get a pointer to the current grid object
      * @return a pointer to the current vtkUnstructuredGrid object
      */
-    vtkUnstructuredGrid* getGrid() { return m_grid; }
+    vtkUnstructuredGrid* getGrid() { return m_Grid; }
 
     void setBusy() { m_Busy = true; updateStatusBar(); }
     void setIdle() { m_Busy = false; updateStatusBar(); }
@@ -362,7 +362,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void zoomAll();                        ///< Move the camera in order to show everything on the screen
     void zoomOnPickedObject();
     void deselectAll();
-    void printGrid() {cout << "PrintGrid() called!" << endl; cout_grid( cout, m_grid, true, true, true, true );}
+    void printGrid() {cout << "PrintGrid() called!" << endl; cout_grid( cout, m_Grid, true, true, true, true );}
     void info();
 
     void undo();
