@@ -31,8 +31,6 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_UseProjectionForSmoothing = true;
   m_UseNormalCorrectionForSmoothing = true;
   m_AllowFeatureEdgeSwapping = false;
-  getSet("surface meshing", "feature angle", 200, m_FeatureAngle); //this angle is also used by swaptriangles!!!
-  m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = m_FeatureAngle;
 }
 
@@ -46,8 +44,8 @@ void SurfaceMesher::operate()
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, grid, "node_meshdensity_desired");
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
   updateNodeInfo(true);
@@ -73,7 +71,7 @@ void SurfaceMesher::operate()
       swap();
     }
     */
-    int num_deleted = deleteNodes();
+    num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     //swap();
     computeMeshDensity();
@@ -82,12 +80,12 @@ void SurfaceMesher::operate()
       smooth(1);
       swap();
     }
-    int N_crit = grid->GetNumberOfPoints()/100;
+    int N_crit = m_Grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
-    cout << "  total nodes    : " << grid->GetNumberOfPoints() << endl;
-    cout << "  total cells    : " << grid->GetNumberOfCells() << endl;
+    cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
+    cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
   }
-  createIndices(grid);
+  createIndices(m_Grid);
   updateNodeInfo(false);
   computeMeshDensity();
   {

@@ -29,8 +29,8 @@ void CorrectSurfaceOrientation::pass1()
     if (pair[i].item1 >= 0) {
       vtkIdType Npts1, *pts1;
       vtkIdType Npts2, *pts2;
-      grid->GetCellPoints(pair[i].item1, Npts1, pts1);
-      grid->GetCellPoints(pair[i].item2, Npts2, pts2);
+      m_Grid->GetCellPoints(pair[i].item1, Npts1, pts1);
+      m_Grid->GetCellPoints(pair[i].item2, Npts2, pts2);
       bool ok = false;
       for (int j1 = 0; j1 < Npts1; ++j1) {
         for (int j2 = 0; j2 < Npts2; ++j2) {

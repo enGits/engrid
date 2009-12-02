@@ -38,18 +38,18 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   QSet<int> all_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(all_bcs);
   QSet<int> fixed_bcs = all_bcs - m_BoundaryCodes;
-  QVector<double> edge_length(grid->GetNumberOfPoints(), 0);
-  QVector<int> edge_count(grid->GetNumberOfPoints(), 0);
-  m_Fixed.fill(false, grid->GetNumberOfPoints());
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
+  QVector<double> edge_length(m_Grid->GetNumberOfPoints(), 0);
+  QVector<int> edge_count(m_Grid->GetNumberOfPoints(), 0);
+  m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
       if (fixed_bcs.contains(cell_code->GetValue(id_cell))) {
         vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
         vec3_t x[N_pts];
         for (int i = 0; i < N_pts; ++i) {
-          grid->GetPoint(pts[i], x[i].data());
+          m_Grid->GetPoint(pts[i], x[i].data());
           m_Fixed[pts[i]] = true;
         }
         for (int i = 0; i < N_pts; ++i) {
@@ -66,8 +66,8 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
       }
     }
   }
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (edge_count[id_node] > 0) {
       if(edge_length[id_node]/edge_count[id_node]==0) EG_BUG;
       characteristic_length_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
@@ -77,7 +77,8 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
 
 void UpdateDesiredMeshDensity::operate()
 {
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  m_ELSManager.read();
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   
   setAllSurfaceCells();
   l2g_t  nodes = getPartNodes();
@@ -86,8 +87,8 @@ void UpdateDesiredMeshDensity::operate()
   l2l_t  n2n   = getPartN2N();
   l2l_t  c2c   = getPartC2C();
 
-  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   grid, "node_meshdensity_desired");
-  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, grid, "node_specified_density");
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkIntArray,    characteristic_length_specified, m_Grid, "node_specified_density");
 
   QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
   QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
@@ -102,16 +103,16 @@ void UpdateDesiredMeshDensity::operate()
 
     // compute node normals
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-      normals[i_cells] = GeometryTools::cellNormal(grid, cells[i_cells]);
+      normals[i_cells] = GeometryTools::cellNormal(m_Grid, cells[i_cells]);
       normals[i_cells].normalise();
-      centres[i_cells] = cellCentre(grid, cells[i_cells]);
+      centres[i_cells] = cellCentre(m_Grid, cells[i_cells]);
     }
 
     // compute characteristic length according to nodes per quarter circle
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       vec3_t xi = centres[i_cells];
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(cells[i_cells], N_pts, pts);
+      m_Grid->GetCellPoints(cells[i_cells], N_pts, pts);
       for (int j = 0; j < c2c[i_cells].size(); ++j) {
         int j_cells = c2c[i_cells][j];
         if (cell_code->GetValue(cells[i_cells]) == cell_code->GetValue(cells[j_cells])) {
@@ -157,8 +158,14 @@ void UpdateDesiredMeshDensity::operate()
       cl = characteristic_length_desired->GetValue(id_node);
     }
     cl = min(cl_radius[i_nodes], cl);
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    double cl_src = m_ELSManager.minEdgeLength(x);
+    if (cl_src > 0) {
+      cl = min(cl, cl_src);
+    }
     
-    if(cl==0) EG_BUG;
+    if(cl == 0) EG_BUG;
     characteristic_length_desired->SetValue(id_node, cl);
     
     if (cl < cl_min) {
@@ -179,13 +186,13 @@ void UpdateDesiredMeshDensity::operate()
       double cli = characteristic_length_desired->GetValue(nodes[i_nodes]);
       if (cli <= cl_min) {
         vec3_t xi;
-        grid->GetPoint(nodes[i_nodes], xi.data());
+        m_Grid->GetPoint(nodes[i_nodes], xi.data());
         for (int j = 0; j < n2n[i_nodes].size(); ++j) {
           int j_nodes = n2n[i_nodes][j];
           double clj = characteristic_length_desired->GetValue(nodes[j_nodes]);
           if (clj > cli && clj > cl_min) {
             vec3_t xj;
-            grid->GetPoint(nodes[j_nodes], xj.data());
+            m_Grid->GetPoint(nodes[j_nodes], xj.data());
             ++num_updated;
             double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
             if (!m_Fixed[nodes[j_nodes]]) {
@@ -211,11 +218,11 @@ void UpdateDesiredMeshDensity::operate()
 
   // do a simple averaging step
   /*
-  QVector<double> cl_save(grid->GetNumberOfPoints(), 0.0);
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  QVector<double> cl_save(m_Grid->GetNumberOfPoints(), 0.0);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     cl_save[id_node] = characteristic_length_desired->GetValue(id_node);
   }
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     double cl_new = 0;
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       cl_new += cl_save[m_Part.n2nGG(id_node, i)];

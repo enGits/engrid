@@ -77,7 +77,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
 
     Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.
-    vtkUnstructuredGrid *grid;          ///< The current state of the grid that is being generated.
+    vtkUnstructuredGrid *m_Grid;          ///< The current state of the grid that is being generated.
 
     vtkRenderer *m_Renderer; ///< The VTK renderer object, used for visualising the grid
 
@@ -202,7 +202,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   private: // methods
 
     void        setupVtk();
-    void        addVtkTypeInfo(); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
     static void pickCallBack( vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata );
     void        updateSurfaceActors( bool forced );
     void        updateVolumeActors( bool forced );
@@ -223,9 +222,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void savePhysicalBoundaryConditions();
 
     void openGrid( QString file_name );
-    void saveGrid( QString file_name );
-
-
 
   public: // methods
 
@@ -263,7 +259,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      * Get a pointer to the current grid object
      * @return a pointer to the current vtkUnstructuredGrid object
      */
-    vtkUnstructuredGrid* getGrid() { return grid; }
+    vtkUnstructuredGrid* getGrid() { return m_grid; }
 
     void setBusy() { m_Busy = true; updateStatusBar(); }
     void setIdle() { m_Busy = false; updateStatusBar(); }
@@ -366,7 +362,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void zoomAll();                        ///< Move the camera in order to show everything on the screen
     void zoomOnPickedObject();
     void deselectAll();
-    void printGrid() {cout << "PrintGrid() called!" << endl; cout_grid( cout, grid, true, true, true, true );}
+    void printGrid() {cout << "PrintGrid() called!" << endl; cout_grid( cout, m_grid, true, true, true, true );}
     void info();
 
     void undo();

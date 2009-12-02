@@ -226,7 +226,7 @@ inline SmallSquareMatrix<T,N> SmallSquareMatrix<T,N>::operator* (const SmallSqua
   for (uint_t i = 0; i < N; ++i) {
     for (uint_t j = 0; j < N; ++j) {
       result_mat[i][j] = 0;
-      for (uint_t k = 0; k < N; ++k) result_mat[i][j] += this->Comp(i,k)*mat[k][j];
+      for (uint_t k = 0; k < N; ++k) result_mat[i][j] += this->comp(i,k)*mat[k][j];
     }
   }
   return result_mat;

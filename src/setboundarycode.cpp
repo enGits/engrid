@@ -44,14 +44,14 @@ void SetBoundaryCode::pass1()
     DBC.insert(boundary_code);
     DBC.insert(9999);
     
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     
     for (int i = 0; i < pair.size(); ++i) {
       int bc1 = cell_code->GetValue(pair[i].item1);
       int bc2 = cell_code->GetValue(pair[i].item2);
       if(ProcessAll){
-        vec3_t n1 = cellNormal(grid, pair[i].item1);
-        vec3_t n2 = cellNormal(grid, pair[i].item2);
+        vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
+        vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
         double cosa = (n1*n2)/(n1.abs()*n2.abs());
         if (fabs(acos(cosa)) > fa) {
           pair[i].terminate = true;
@@ -60,8 +60,8 @@ void SetBoundaryCode::pass1()
         }
       } else {
         if(DBC.contains(bc1) && DBC.contains(bc2)){
-          vec3_t n1 = cellNormal(grid, pair[i].item1);
-          vec3_t n2 = cellNormal(grid, pair[i].item2);
+          vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
+          vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
           double cosa = (n1*n2)/(n1.abs()*n2.abs());
           if (fabs(acos(cosa)) > fa) {
             pair[i].terminate = true;
@@ -78,7 +78,7 @@ void SetBoundaryCode::pass1()
 
 void SetBoundaryCode::pass2()
 {
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   vtkIdType cellId;
   if(SelectAllVisible) {
     QSet <int> DBC;
@@ -103,6 +103,6 @@ void SetBoundaryCode::pass2()
       cell_code->SetValue(cellId, boundary_code);
     }
   }
-  grid->Modified();
+  m_Grid->Modified();
 }
 

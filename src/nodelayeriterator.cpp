@@ -25,9 +25,9 @@
 void NodeLayerIterator::operate()
 {
   getCells();
-  getSurfaceCells(m_BoundaryCodes, surface_cells, grid);
-  getNodesFromCells(surface_cells, surf_nodes, grid);
-  createNodeMapping(surf_nodes, _surf_nodes, grid);
+  getSurfaceCells(m_BoundaryCodes, surface_cells, m_Grid);
+  getNodesFromCells(surface_cells, surf_nodes, m_Grid);
+  createNodeMapping(surf_nodes, _surf_nodes, m_Grid);
   mark2.fill(false, nodes.size());
   
   // create pairs for first layer

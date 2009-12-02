@@ -31,46 +31,46 @@ void DeleteTetras::operate()
   {
     int N = 0;
     foreach (vtkIdType id_cell, m_Part.getCells()) {
-      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+      if (m_Grid->GetCellType(id_cell) == VTK_TETRA) {
         ++N;
       }
     }
     tetras.resize(N);
     N = 0;
     foreach (vtkIdType id_cell, m_Part.getCells()) {
-      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+      if (m_Grid->GetCellType(id_cell) == VTK_TETRA) {
         tetras[N] = id_cell;
         ++N;
       }
     }
   }
 
-  getRestCells(grid, tetras, cells);
-  getNodesFromCells(cells, nodes, grid);
+  getRestCells(m_Grid, tetras, cells);
+  getNodesFromCells(cells, nodes, m_Grid);
   allocateGrid(new_grid, cells.size(), nodes.size());
-  QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
+  QVector<vtkIdType> old2new(m_Grid->GetNumberOfPoints(), -1);
   {
     vtkIdType id_new = 0;
     foreach (vtkIdType id_node, nodes) {  
       vec3_t x;
-      grid->GetPoints()->GetPoint(id_node, x.data());
+      m_Grid->GetPoints()->GetPoint(id_node, x.data());
       new_grid ->GetPoints()->SetPoint(id_new, x.data());
-      copyNodeData(grid, id_node, new_grid, id_new);
+      copyNodeData(m_Grid, id_node, new_grid, id_new);
       old2new[id_node] = id_new;
       ++id_new;
     }
   }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType *pts, N_pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
     QVector<vtkIdType> new_pts(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = old2new[pts[i]];
     }
-    vtkIdType cellType = grid->GetCellType(id_cell);
+    vtkIdType cellType = m_Grid->GetCellType(id_cell);
     vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
-    copyCellData(grid, id_cell, new_grid, id_new);
+    copyCellData(m_Grid, id_cell, new_grid, id_new);
   }
-  makeCopy(new_grid, grid);
+  makeCopy(new_grid, m_Grid);
 }
 

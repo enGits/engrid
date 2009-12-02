@@ -286,4 +286,12 @@ HEADERS += blenderreader.h
 SOURCES += blenderreader.cpp
 HEADERS += beziertriangle.h
 SOURCES += beziertriangle.cpp
-
+HEADERS += dialoglineedit/dialoglineedit.h
+SOURCES += dialoglineedit/dialoglineedit.cpp
+HEADERS += utilities.h
+SOURCES += utilities.cpp
+HEADERS += edgelengthsourcemanager.h edgelengthsource.h
+SOURCES += edgelengthsourcemanager.cpp
+FORMS += guiedgelengthsourcesphere.ui
+HEADERS += guiedgelengthsourcesphere.h
+SOURCES += guiedgelengthsourcesphere.cpp

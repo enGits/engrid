@@ -124,7 +124,7 @@ void OpenFOAMcase::writeSolverParameters()
 
 void OpenFOAMcase::createBoundaryFaces()
 {
-  QVector<int> owner( grid->GetNumberOfCells() );
+  QVector<int> owner( m_Grid->GetNumberOfCells() );
   {
     readFile( "constant/polyMesh/owner" );
     QTextStream f( getBuffer() );
@@ -138,12 +138,12 @@ void OpenFOAMcase::createBoundaryFaces()
       }
     }
   }
-  EG_VTKDCC( vtkIntArray, bc, grid, "cell_code" );
-  m_Faces.resize( grid->GetNumberOfCells() );
-  for ( vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell ) {
+  EG_VTKDCC( vtkIntArray, bc, m_Grid, "cell_code" );
+  m_Faces.resize( m_Grid->GetNumberOfCells() );
+  for ( vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell ) {
     face_t F;
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints( id_cell, N_pts, pts );
+    m_Grid->GetCellPoints( id_cell, N_pts, pts );
     F.node.resize( N_pts );
     for ( int i = 0; i < N_pts; ++i ) {
       F.node[i] = surfToVol( pts[i] );
@@ -166,7 +166,7 @@ void OpenFOAMcase::rewriteBoundaryFaces()
     QTextStream f( getBuffer() );
     int num_faces;
     f >> num_faces;
-    if ( grid->GetNumberOfCells() + getFirstBoundaryFace() != num_faces ) {
+    if ( m_Grid->GetNumberOfCells() + getFirstBoundaryFace() != num_faces ) {
       EG_ERR_RETURN( "Current surface mesh does not match the OpenFOAM case." );
     }
     for ( int i = 0; i < getFirstBoundaryFace(); ++i ) {
@@ -199,7 +199,7 @@ void OpenFOAMcase::rewriteBoundaryFaces()
     f << "    object      faces;\n";
     f << "}\n\n";
     f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
-    f << faces.size() + grid->GetNumberOfCells() << "\n(\n";
+    f << faces.size() + m_Grid->GetNumberOfCells() << "\n(\n";
     for ( int i = 0; i < faces.size(); ++i ) {
       f << faces[i].size() << "(";
       for ( int j = 0; j < faces[i].size(); ++j ) {
@@ -293,7 +293,7 @@ void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
 void OpenFOAMcase::writeBoundaryConditions()
 {
   QSet<int> bcs;
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   QString U_buffer = "";
   QString p_buffer = "";
@@ -310,10 +310,10 @@ void OpenFOAMcase::writeBoundaryConditions()
       EG_ERR_RETURN(msg);
     }
     vec3_t n(0,0,0);
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-      if (isSurface(id_cell, grid)) {
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, m_Grid)) {
         if (cell_code->GetValue(id_cell) == bc) {
-          n += GeometryTools::cellNormal(grid, id_cell);
+          n += GeometryTools::cellNormal(m_Grid, id_cell);
         }
       }
     }
@@ -344,8 +344,8 @@ void OpenFOAMcase::operate()
     if (isValid()) {
       writeSolverParameters();
       bool has_volume = false;
-      for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-        if (isVolume(id_cell, grid)) {
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+        if (isVolume(id_cell, m_Grid)) {
           has_volume = true;
         }
       }

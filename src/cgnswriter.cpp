@@ -49,7 +49,7 @@ void CgnsWriter::writeGrid()
 
   int Nvcells = 0;
   foreach (vtkIdType id_cell, cells) {
-    if (isVolume(id_cell, grid)) {
+    if (isVolume(id_cell, m_Grid)) {
       ++Nvcells;
     }
   }
@@ -79,7 +79,7 @@ void CgnsWriter::writeGrid()
         if (nodes[i] != i) {
           EG_ERR_RETURN("unexpected hole in the point list");
         }
-        grid->GetPoint(nodes[i], x.data());
+        m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[0];
       }
       if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateX", coord_array, &C)) {
@@ -88,7 +88,7 @@ void CgnsWriter::writeGrid()
     }
     { // y coordinates
       for (int i = 0; i < nodes.size(); ++i) {
-        grid->GetPoint(nodes[i], x.data());
+        m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[1];
       }
       if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateY", coord_array, &C)) {
@@ -97,7 +97,7 @@ void CgnsWriter::writeGrid()
     }
     { // z coordinates
       for (int i = 0; i < nodes.size(); ++i) {
-        grid->GetPoint(nodes[i], x.data());
+        m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[2];
       }
       if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateZ", coord_array, &C)) {
@@ -114,12 +114,12 @@ void CgnsWriter::writeGrid()
   int ntri = 0;
   int nqua = 0;
   foreach (vtkIdType id_cell, cells) {
-    if      (grid->GetCellType(id_cell) == VTK_TETRA)      ++ntet;
-    else if (grid->GetCellType(id_cell) == VTK_PYRAMID)    ++npyr;
-    else if (grid->GetCellType(id_cell) == VTK_WEDGE)      ++npri;
-    else if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) ++nhex;
-    else if (grid->GetCellType(id_cell) == VTK_TRIANGLE)   ++ntri;
-    else if (grid->GetCellType(id_cell) == VTK_QUAD)       ++nqua;
+    if      (m_Grid->GetCellType(id_cell) == VTK_TETRA)      ++ntet;
+    else if (m_Grid->GetCellType(id_cell) == VTK_PYRAMID)    ++npyr;
+    else if (m_Grid->GetCellType(id_cell) == VTK_WEDGE)      ++npri;
+    else if (m_Grid->GetCellType(id_cell) == VTK_HEXAHEDRON) ++nhex;
+    else if (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE)   ++ntri;
+    else if (m_Grid->GetCellType(id_cell) == VTK_QUAD)       ++nqua;
   };
 
   // write element connectivity for tetras
@@ -131,11 +131,11 @@ void CgnsWriter::writeGrid()
     int elements[ntet*4];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_TETRA) {
+      if (m_Grid->GetCellType(id_cell) == VTK_TETRA) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[0]+1;
         elements[j++] = pts[1]+1;
         elements[j++] = pts[2]+1;
@@ -155,11 +155,11 @@ void CgnsWriter::writeGrid()
     int elements[npyr*5];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_PYRAMID) {
+      if (m_Grid->GetCellType(id_cell) == VTK_PYRAMID) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[0]+1;
         elements[j++] = pts[1]+1;
         elements[j++] = pts[2]+1;
@@ -180,11 +180,11 @@ void CgnsWriter::writeGrid()
     int elements[npri*6];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+      if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[3]+1;
         elements[j++] = pts[4]+1;
         elements[j++] = pts[5]+1;
@@ -206,11 +206,11 @@ void CgnsWriter::writeGrid()
     int elements[nhex*8];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) {
+      if (m_Grid->GetCellType(id_cell) == VTK_HEXAHEDRON) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[0]+1;
         elements[j++] = pts[1]+1;
         elements[j++] = pts[3]+1;
@@ -234,11 +234,11 @@ void CgnsWriter::writeGrid()
     int elements[ntri*3];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_TRIANGLE) {
+      if (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[2]+1;
         elements[j++] = pts[1]+1;
         elements[j++] = pts[0]+1;
@@ -257,11 +257,11 @@ void CgnsWriter::writeGrid()
     int elements[nqua*4];
     size_t j = 0;
     foreach (vtkIdType id_cell, cells) {
-      if (grid->GetCellType(id_cell) == VTK_QUAD) {
+      if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
         eg2cgns[id_cell] = i_cgns;
         ++i_cgns;
         vtkIdType Npts, *pts;
-        grid->GetCellPoints(id_cell, Npts, pts);
+        m_Grid->GetCellPoints(id_cell, Npts, pts);
         elements[j++] = pts[3]+1;
         elements[j++] = pts[2]+1;
         elements[j++] = pts[1]+1;
@@ -281,11 +281,11 @@ void CgnsWriter::writeGrid()
 void CgnsWriter::writeBcs()
 {
 #ifdef CGNS_SUPPORT
-  EG_VTKDCC(vtkIntArray, cell_code,   grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
   QSet<int> bcs;
   {
     QVector<vtkIdType> faces;
-    getAllSurfaceCells(faces, grid);
+    getAllSurfaceCells(faces, m_Grid);
     foreach (vtkIdType id_face, faces) {
       bcs.insert(cell_code->GetValue(id_face));
     }
@@ -295,7 +295,7 @@ void CgnsWriter::writeBcs()
     QVector<vtkIdType> bc_faces;
     QSet<int> tmp_bcs;
     tmp_bcs.insert(bc);
-    getSurfaceCells(tmp_bcs, bc_faces, grid);
+    getSurfaceCells(tmp_bcs, bc_faces, m_Grid);
     int data[bc_faces.size()];
     for (int i = 0; i < bc_faces.size(); ++i) {
       data[i] = eg2cgns[bc_faces[i]]+1;

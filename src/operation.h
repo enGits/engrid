@@ -96,8 +96,9 @@ private: // methods
   
 protected: // attributes
   
-  vtkUnstructuredGrid    *grid;   ///< The main grid the operation operates on.
-  MeshPartition           m_Part; ///< the partition containing the subset of cells and nodes
+  vtkUnstructuredGrid* m_Grid;     ///< The main grid the operation operates on.
+  vtkUnstructuredGrid* m_RestGrid; ///< The remainder grid (not part of the selected volume)
+  MeshPartition        m_Part;     ///< the partition containing the subset of cells and nodes
 
 protected: // methods
   
@@ -121,7 +122,7 @@ public: // methods
   virtual ~Operation();
   void del();
     
-  void setGrid(vtkUnstructuredGrid *ug) { grid = ug; }
+  void setGrid(vtkUnstructuredGrid *ug) { m_Grid = ug; }
   void setAllCells();
   void setAllVolumeCells();
   void setAllSurfaceCells();
@@ -166,7 +167,7 @@ public: // methods
 template <class T>
 void Operation::setCells(const T &cls)
 {
-  m_Part.setGrid(grid);
+  m_Part.setGrid(m_Grid);
   m_Part.setCells(cls);
 }
 

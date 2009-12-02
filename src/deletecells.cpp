@@ -39,19 +39,19 @@ void DeleteCells::operate()
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
   QVector<vtkIdType> new_cells;
   QVector<vtkIdType> new_nodes;
-  getRestCells(grid, del_cells, new_cells);
-  getNodesFromCells(new_cells, new_nodes, grid);
+  getRestCells(m_Grid, del_cells, new_cells);
+  getNodesFromCells(new_cells, new_nodes, m_Grid);
   allocateGrid(new_grid, new_cells.size(), new_nodes.size());
-  QVector<vtkIdType> old2new_nodes(grid->GetNumberOfPoints(), -1);
-  QVector<vtkIdType> old2new_cells(grid->GetNumberOfCells(), -1);
+  QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
+  QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
   {
     {
       vtkIdType id_new = 0;
       foreach (vtkIdType id_node, new_nodes) {  
         vec3_t x;
-        grid->GetPoints()->GetPoint(id_node, x.data());
+        m_Grid->GetPoints()->GetPoint(id_node, x.data());
         new_grid ->GetPoints()->SetPoint(id_new, x.data());
-        copyNodeData(grid, id_node, new_grid, id_new);
+        copyNodeData(m_Grid, id_node, new_grid, id_new);
         old2new_nodes[id_node] = id_new;
         ++id_new;
       }
@@ -60,14 +60,14 @@ void DeleteCells::operate()
   {
     foreach (vtkIdType id_cell, new_cells) {
       vtkIdType *pts, N_pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       QVector<vtkIdType> new_pts(N_pts);
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = old2new_nodes[pts[i]];
       }
-      vtkIdType cellType = grid->GetCellType(id_cell);
+      vtkIdType cellType = m_Grid->GetCellType(id_cell);
       vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
-      copyCellData(grid, id_cell, new_grid, id_new);
+      copyCellData(m_Grid, id_cell, new_grid, id_new);
       old2new_cells[id_cell] = id_new;
     }
     QList<vtkIdType> new_trace_cells;
@@ -79,6 +79,6 @@ void DeleteCells::operate()
     trace_cells.resize(new_trace_cells.size());
     qCopy(new_trace_cells.begin(), new_trace_cells.end(), trace_cells.begin());
   }
-  makeCopy(new_grid, grid);
+  makeCopy(new_grid, m_Grid);
 }
 

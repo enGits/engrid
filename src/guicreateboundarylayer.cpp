@@ -42,7 +42,7 @@ void GuiCreateBoundaryLayer::before()
   ui.checkBoxImprove->setChecked(false);
   l2g_t cells = m_Part.getCells();
   foreach (vtkIdType id_cell, cells) {
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
       ui.checkBoxImprove->setChecked(true);
       break;
     }
@@ -75,12 +75,12 @@ void GuiCreateBoundaryLayer::operate()
   {
     EG_VTKSP(vtkUnstructuredGrid, vol_grid);
     MeshPartition volume(volume_name);
-    MeshPartition rest(grid);
+    MeshPartition rest(m_Grid);
     rest.setRemainder(volume);
     volume.setVolumeOrientation();
     volume.extractToVtkGrid(vol_grid);
     rest.extractToVtkGrid(rest_grid);
-    makeCopy(vol_grid, grid);
+    makeCopy(vol_grid, m_Grid);
   }
 
   setAllCells();
@@ -88,20 +88,20 @@ void GuiCreateBoundaryLayer::operate()
   l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2c   = getPartN2C();
-  getSurfaceCells(m_BoundaryCodes, layer_cells, grid);
+  getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
   if (!ui.checkBoxImprove->isChecked()) {
-    EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
-    EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
-    EG_VTKDCC(vtkIntArray, bc,          grid, "cell_code");
+    EG_VTKDCN(vtkIntArray, node_status, m_Grid, "node_status");
+    EG_VTKDCN(vtkIntArray, node_layer,  m_Grid, "node_layer");
+    EG_VTKDCC(vtkIntArray, bc,          m_Grid, "cell_code");
     foreach(vtkIdType id_node, nodes) {
       node_status->SetValue(id_node, 0);
       QSet<int> bcs;
       foreach (int i_neigh_cells, n2c[_nodes[id_node]]) {
         vtkIdType id_neigh_cell = cells[i_neigh_cells];
-        if (isSurface(id_neigh_cell, grid)) {
+        if (isSurface(id_neigh_cell, m_Grid)) {
           if (m_BoundaryCodes.contains(bc->GetValue(id_neigh_cell))) {
             bcs.insert(bc->GetValue(id_neigh_cell));
           }
@@ -114,7 +114,7 @@ void GuiCreateBoundaryLayer::operate()
     }
     foreach (vtkIdType id_cell, layer_cells) {
       vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         node_layer->SetValue(pts[i_pts], 0);
       }
@@ -123,7 +123,7 @@ void GuiCreateBoundaryLayer::operate()
   
   
   GridSmoother smooth;
-  smooth.setGrid(grid);
+  smooth.setGrid(m_Grid);
   smooth.setBoundaryCodes(m_BoundaryCodes);
   smooth.prismsOn();
   //smooth.setNumIterations(5);
@@ -131,16 +131,16 @@ void GuiCreateBoundaryLayer::operate()
   SeedSimplePrismaticLayer seed_layer; 
   
   CreateVolumeMesh vol;
-  vol.setGrid(grid);
+  vol.setGrid(m_Grid);
   SwapTriangles swap;
-  swap.setGrid(grid);
+  swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
   DeleteTetras del;
-  del.setGrid(grid);
+  del.setGrid(m_Grid);
   
   if (!ui.checkBoxImprove->isChecked()) {
     cout << "preparing prismatic layer" << endl;
-    seed_layer.setGrid(grid);
+    seed_layer.setGrid(m_Grid);
     del();
     vol();
     seed_layer.setAllCells();
@@ -184,19 +184,19 @@ void GuiCreateBoundaryLayer::operate()
   }
 
   {
-    EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-      if (isVolume(id_cell, grid)) {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isVolume(id_cell, m_Grid)) {
         cell_code->SetValue(id_cell, V.getVC());
       }
     }
   }
 
   {
-    MeshPartition volume(grid, true);
+    MeshPartition volume(m_Grid, true);
     MeshPartition rest(rest_grid, true);
     volume.addPartition(rest);
   }
-  resetOrientation(grid);
-  createIndices(grid);
+  resetOrientation(m_Grid);
+  createIndices(m_Grid);
 }

@@ -28,7 +28,7 @@
 #include <QtGui>
 #include <QVector>
 
-// #include "dialoglineedit/dialoglineedit.h"
+#include "dialoglineedit/dialoglineedit.h"
 ///\todo fix problems with more than one boolean + general tab stuff
 
 /**
@@ -58,13 +58,11 @@ class GuiSettingsTab : public QWidget
     QVector<QString> string_lineedit_name;///< vector of the label texts of the string QLineEdit widgets
     QVector<QLineEdit*> string_lineedit;///< vector of pointers to the string QLineEdit widgets
 
-  /*
     QVector<QString> filename_dialoglineedit_name;///< vector of the label texts of the filename DialogLineEdit widgets
     QVector<DialogLineEdit*> filename_dialoglineedit;///< vector of pointers to the filename DialogLineEdit widgets
 
     QVector<QString> directory_dialoglineedit_name;///< vector of the label texts of the directory DialogLineEdit widgets
     QVector<DialogLineEdit*> directory_dialoglineedit;///< vector of pointers to the directory DialogLineEdit widgets
-  */
   
   public:
     //constructors

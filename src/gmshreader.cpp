@@ -26,7 +26,7 @@
 #include <QFileInfo>
 #include "guimainwindow.h"
 
-void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
+void GmshReader::readAscii1(vtkUnstructuredGrid *m_Grid)
 {
   vtkIdType Nnodes, Ncells;
   QFile file(getFileName());
@@ -113,10 +113,10 @@ void GmshReader::readAscii1(vtkUnstructuredGrid *grid)
     }
   }
   ug->GetCellData()->AddArray(cell_code);
-  grid->DeepCopy(ug);
+  m_Grid->DeepCopy(ug);
 }
 
-void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
+void GmshReader::readAscii2(vtkUnstructuredGrid *m_Grid)
 {
   vtkIdType Nnodes, Ncells;
   QFile file(getFileName());
@@ -215,7 +215,7 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *grid)
     }
   }
   ug->GetCellData()->AddArray(cell_code);
-  grid->DeepCopy(ug);
+  m_Grid->DeepCopy(ug);
 }
 
 void GmshReader::operate()
@@ -225,15 +225,15 @@ void GmshReader::operate()
     readInputFileName(file_info.completeBaseName() + ".msh");
     if (isValid()) {
       if (format == ascii1) {
-        readAscii1(grid);
+        readAscii1(m_Grid);
       }
       if (format == ascii2) {
-        readAscii2(grid);
+        readAscii2(m_Grid);
       }
-      createBasicFields(grid, grid->GetNumberOfCells(), grid->GetNumberOfPoints());
-      UpdateCellIndex(grid);
+      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
+      UpdateCellIndex(m_Grid);
       CorrectSurfaceOrientation corr_surf;
-      corr_surf.setGrid(grid);
+      corr_surf.setGrid(m_Grid);
       corr_surf();
     }
   } catch (Error err) {

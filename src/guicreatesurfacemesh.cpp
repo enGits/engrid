@@ -30,6 +30,7 @@
 #include "guimainwindow.h"
 #include "containertricks.h"
 #include "updatedesiredmeshdensity.h"
+#include "utilities.h"
 
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtkWindowedSincPolyDataFilter.h>
@@ -117,6 +118,13 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   connect(ui.pushButtonSave, SIGNAL(clicked()), this, SLOT(writeSettings()));
   connect(ui.pushButtonSave, SIGNAL(clicked()), m_tableWidget, SLOT(writeFile()));
 
+  m_ELSManager.setListWidget(ui.listWidgetSources);
+  m_ELSManager.read();
+  m_ELSManager.populateListWidget();
+  connect(ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
+  connect(ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
+  connect(ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
+
 }
 
 ///////////////////////////////////////////
@@ -149,6 +157,7 @@ int GuiCreateSurfaceMesh::readSettings()
       }
     }
   }
+  m_ELSManager.read();
   return(0);
 }
 
@@ -171,6 +180,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     }
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
+  m_ELSManager.write();
   return(0);
 }
 
@@ -294,7 +304,7 @@ void GuiCreateSurfaceMesh::operate()
   QVector <VertexMeshDensity> VMDvector = getSet();
 
   SurfaceMesher surfacemesher;
-  surfacemesher.setGrid(grid);
+  surfacemesher.setGrid(m_Grid);
   surfacemesher.setBoundaryCodes(bcs);
   surfacemesher.setVertexMeshDensityVector(VMDvector);
   surfacemesher.setMaxEdgeLength(ui.lineEditMaximalEdgeLength->text().toDouble());
@@ -302,5 +312,5 @@ void GuiCreateSurfaceMesh::operate()
 
   surfacemesher();
 
-  grid->Modified();
+  m_Grid->Modified();
 }

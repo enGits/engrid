@@ -105,8 +105,8 @@ void GuiNormalExtrusion::operate()
   getSelectedItems(ui.listWidget, bcs);
   extr->SetBoundaryCodes(bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
-  makeCopy(grid, ug);
+  makeCopy(m_Grid, ug);
   extr->SetInput(ug);
   extr->Update();
-  makeCopy(extr->GetOutput(), grid);
+  makeCopy(extr->GetOutput(), m_Grid);
 }

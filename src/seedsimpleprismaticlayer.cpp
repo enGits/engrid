@@ -43,20 +43,20 @@ void SeedSimplePrismaticLayer::getLayerCells(QVector<vtkIdType> &cells)
 
 void SeedSimplePrismaticLayer::prepareLayer()
 {
-  grid->BuildLinks();
+  m_Grid->BuildLinks();
   EG_VTKSP(vtkIdList, nds);
   EG_VTKSP(vtkIdList, cls);
-  EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
+  EG_VTKDCN(vtkIntArray, node_layer,  m_Grid, "node_layer");
   vol_cells.fill(-1, layer_cells.size());
   faces.resize(layer_cells.size());
   N_new_cells  = 0;
   QSet<vtkIdType> new_points;
   for (int i_layer_cell = 0; i_layer_cell < layer_cells.size(); ++i_layer_cell) {
     vtkIdType  id_cell   = layer_cells[i_layer_cell];
-    vtkIdType  type_cell = grid->GetCellType(id_cell);
+    vtkIdType  type_cell = m_Grid->GetCellType(id_cell);
     vtkIdType *pts;
     vtkIdType  Npts;
-    grid->GetCellPoints(id_cell, Npts, pts);
+    m_Grid->GetCellPoints(id_cell, Npts, pts);
     if (type_cell == VTK_TRIANGLE) {
       nds->Reset();
       faces[i_layer_cell].resize(Npts);
@@ -65,9 +65,9 @@ void SeedSimplePrismaticLayer::prepareLayer()
         nds->InsertNextId(pts[i_pts]);
         new_points.insert(pts[i_pts]);
       }
-      grid->GetCellNeighbors(id_cell, nds, cls);
+      m_Grid->GetCellNeighbors(id_cell, nds, cls);
       for (int i_cls = 0; i_cls < cls->GetNumberOfIds(); ++i_cls) {
-        if (isVolume(cls->GetId(i_cls), grid)) {
+        if (isVolume(cls->GetId(i_cls), m_Grid)) {
           if (cls->GetId(i_cls) != id_cell) {
             vol_cells[i_layer_cell] = cls->GetId(i_cls);
           }
@@ -83,9 +83,9 @@ void SeedSimplePrismaticLayer::prepareLayer()
         nds->InsertNextId(pts[i_pts+3]);
         new_points.insert(pts[i_pts+3]);
       }
-      grid->GetCellNeighbors(id_cell, nds, cls);
+      m_Grid->GetCellNeighbors(id_cell, nds, cls);
       for (int i_cls = 0; i_cls < cls->GetNumberOfIds(); ++i_cls) {
-        if (isVolume(cls->GetId(i_cls), grid)) {
+        if (isVolume(cls->GetId(i_cls), m_Grid)) {
           if (cls->GetId(i_cls) != id_cell) {
             vol_cells[i_layer_cell] = cls->GetId(i_cls);
           }
@@ -107,14 +107,14 @@ void SeedSimplePrismaticLayer::prepareLayer()
 int SeedSimplePrismaticLayer::countBoundaryElements()
 {
   int N = 0;
-  QVector<QSet<int> > n2f(grid->GetNumberOfPoints());
+  QVector<QSet<int> > n2f(m_Grid->GetNumberOfPoints());
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     for (int j_faces = 0; j_faces < faces[i_faces].size(); ++j_faces) {
       n2f[faces[i_faces][j_faces]].insert(i_faces);
     }
   }
-  EG_VTKDCN(vtkIntArray, node_layer,  grid, "node_layer");
-  EG_VTKDCN(vtkIntArray, node_status, grid, "node_status");
+  EG_VTKDCN(vtkIntArray, node_layer,  m_Grid, "node_layer");
+  EG_VTKDCN(vtkIntArray, node_status, m_Grid, "node_status");
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     for (int j_faces = 0; j_faces < faces[i_faces].size(); ++j_faces) {
       vtkIdType p1 = faces[i_faces][j_faces];
@@ -147,7 +147,7 @@ int SeedSimplePrismaticLayer::countBoundaryElements()
 
 void SeedSimplePrismaticLayer::createBoundaryElements(vtkUnstructuredGrid *new_grid)
 {
-  QVector<QSet<int> > n2f(grid->GetNumberOfPoints());
+  QVector<QSet<int> > n2f(m_Grid->GetNumberOfPoints());
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     for (int j_faces = 0; j_faces < faces[i_faces].size(); ++j_faces) {
       n2f[faces[i_faces][j_faces]].insert(i_faces);
@@ -269,18 +269,18 @@ void SeedSimplePrismaticLayer::operate()
   cout << "seeding prismatic layer" << endl;
   prepareLayer();
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
-  allocateGrid(new_grid, grid->GetNumberOfCells() + N_new_cells, grid->GetNumberOfPoints() + N_new_points);
+  allocateGrid(new_grid, m_Grid->GetNumberOfCells() + N_new_cells, m_Grid->GetNumberOfPoints() + N_new_points);
   vtkIdType id_new_node = 0;
-  EG_VTKDCN(vtkIntArray, node_status_old, grid,     "node_status");
+  EG_VTKDCN(vtkIntArray, node_status_old, m_Grid,   "node_status");
   EG_VTKDCN(vtkIntArray, node_status_new, new_grid, "node_status");
-  EG_VTKDCN(vtkIntArray, node_layer_old,  grid,     "node_layer");
+  EG_VTKDCN(vtkIntArray, node_layer_old,  m_Grid,   "node_layer");
   EG_VTKDCN(vtkIntArray, node_layer_new,  new_grid, "node_layer");
-  EG_VTKDCC(vtkIntArray, bc,              grid,     "cell_code");
+  EG_VTKDCC(vtkIntArray, bc,              m_Grid,   "cell_code");
 
   l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
   
-  QVector<QSet<int> > n2f(grid->GetNumberOfPoints());
+  QVector<QSet<int> > n2f(m_Grid->GetNumberOfPoints());
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     for (int j_faces = 0; j_faces < faces[i_faces].size(); ++j_faces) {
       n2f[faces[i_faces][j_faces]].insert(i_faces);
@@ -288,12 +288,12 @@ void SeedSimplePrismaticLayer::operate()
   }
 
   // copy old grid nodes to the new grid
-  old2new.resize(grid->GetNumberOfPoints());
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+  old2new.resize(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
-    grid->GetPoints()->GetPoint(id_node, x.data());
+    m_Grid->GetPoints()->GetPoint(id_node, x.data());
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
-    copyNodeData(grid, id_node, new_grid, id_new_node);
+    copyNodeData(m_Grid, id_node, new_grid, id_new_node);
     old2new[id_node] = id_new_node;
     ++id_new_node;
   }
@@ -305,10 +305,10 @@ void SeedSimplePrismaticLayer::operate()
     }
   }
   qDebug() << split_nodes.size();
-  QVector<bool> is_split_node(grid->GetNumberOfPoints(), false);
+  QVector<bool> is_split_node(m_Grid->GetNumberOfPoints(), false);
   foreach (vtkIdType id_node, split_nodes) {
     vec3_t x;
-    grid->GetPoints()->GetPoint(id_node, x.data());
+    m_Grid->GetPoints()->GetPoint(id_node, x.data());
     
     
     if (n2f[id_node].size() > 0) {
@@ -317,16 +317,16 @@ void SeedSimplePrismaticLayer::operate()
       foreach (int i_faces, n2f[id_node]) {
         vec3_t a,b;
         if (faces[i_faces][0] == id_node) {
-          grid->GetPoint(faces[i_faces][1],a.data());
-          grid->GetPoint(faces[i_faces][2],b.data());
+          m_Grid->GetPoint(faces[i_faces][1],a.data());
+          m_Grid->GetPoint(faces[i_faces][2],b.data());
         }
         if (faces[i_faces][1] == id_node) {
-          grid->GetPoint(faces[i_faces][2],a.data());
-          grid->GetPoint(faces[i_faces][0],b.data());
+          m_Grid->GetPoint(faces[i_faces][2],a.data());
+          m_Grid->GetPoint(faces[i_faces][0],b.data());
         }
         if (faces[i_faces][2] == id_node) {
-          grid->GetPoint(faces[i_faces][0],a.data());
-          grid->GetPoint(faces[i_faces][1],b.data());
+          m_Grid->GetPoint(faces[i_faces][0],a.data());
+          m_Grid->GetPoint(faces[i_faces][1],b.data());
         }
         a -= x;
         b -= x;
@@ -341,11 +341,11 @@ void SeedSimplePrismaticLayer::operate()
       }
       for (int i_boundary_correction = 0; i_boundary_correction < 20; ++i_boundary_correction) {
         foreach (vtkIdType id_cell, n2c[_nodes[id_node]]) {
-          if (isSurface(id_cell, grid)) {
+          if (isSurface(id_cell, m_Grid)) {
             if (!m_BoundaryCodes.contains(bc->GetValue(id_cell))) {
-              double A = GeometryTools::cellVA(grid, id_cell);
+              double A = GeometryTools::cellVA(m_Grid, id_cell);
               if (A > 1e-60) {
-                vec3_t nf = GeometryTools::cellNormal(grid, id_cell);
+                vec3_t nf = GeometryTools::cellNormal(m_Grid, id_cell);
                 nf.normalise();
                 n -= (nf*n)*nf;
               }
@@ -366,12 +366,12 @@ void SeedSimplePrismaticLayer::operate()
     ++id_new_node;
     is_split_node[id_node] = true;
   }
-  QVector<bool> needs_correction(grid->GetNumberOfCells(), false);
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
+  QVector<bool> needs_correction(m_Grid->GetNumberOfCells(), false);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     if ((type_cell == VTK_TRIANGLE) || (type_cell == VTK_TETRA)) {
       vtkIdType *pts, N_pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       bool split = false;
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         if (is_split_node[pts[i_pts]]) {
@@ -404,7 +404,7 @@ void SeedSimplePrismaticLayer::operate()
             for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
               if (is_split_node[pts[i_pts]]) {
                 vec3_t x;
-                grid->GetPoint(pts[i_pts], x.data());
+                m_Grid->GetPoint(pts[i_pts], x.data());
                 cout << "split node: " << pts[i_pts] << "  " << x << endl;
               }
             }
@@ -417,15 +417,15 @@ void SeedSimplePrismaticLayer::operate()
     needs_correction[id_cell] = false;
   }
   
-  QVector<bool> is_in_vol_cells(grid->GetNumberOfCells(), false);
+  QVector<bool> is_in_vol_cells(m_Grid->GetNumberOfCells(), false);
   for (int i_faces = 0; i_faces < faces.size(); ++i_faces) {
     vtkIdType id_vol_cell = vol_cells[i_faces];
     if (id_vol_cell >= 0) {
       is_in_vol_cells[id_vol_cell] = true;
-      vtkIdType type_vol_cell = grid->GetCellType(id_vol_cell);
+      vtkIdType type_vol_cell = m_Grid->GetCellType(id_vol_cell);
       if (type_vol_cell == VTK_TETRA) {
         vtkIdType *pts, N_pts, p[6];
-        grid->GetCellPoints(id_vol_cell, N_pts, pts);
+        m_Grid->GetCellPoints(id_vol_cell, N_pts, pts);
         p[0] = faces[i_faces][0];
         p[1] = faces[i_faces][1];
         p[2] = faces[i_faces][2];
@@ -446,24 +446,24 @@ void SeedSimplePrismaticLayer::operate()
 //   writeGrid(new_grid, "pre-cellcopy");
   
   // copy old cells to the new grid
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType *pts, N_pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType type_cell = grid->GetCellType(id_cell);
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     if (needs_correction[id_cell]) {
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         pts[i_pts] = old2new[pts[i_pts]];
       }
     }
     vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
-    copyCellData(grid, id_cell, new_grid, id_new_cell);
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
   
 //   writeGrid(new_grid, "pre-createBoundaryElements");
   
   createBoundaryElements(new_grid);
   UpdateCellIndex(new_grid);
-  grid->DeepCopy(new_grid);
+  m_Grid->DeepCopy(new_grid);
   cout << "done." << endl;
 }
 

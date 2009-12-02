@@ -62,6 +62,22 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 double intersection(vec3_t x_straight, vec3_t v_straight, 
                     vec3_t x_plane, vec3_t u_plane, vec3_t v_plane);
 
+/**
+ * Calculates the intersection of a segment [x1,x2] with a triangle (a,b,c)
+ * Note: (xi,ri) will always be set to the intersection of the line (x1,x2) with the plane (a,b,c) even if the segment does not intersect the triangle!
+ * @param a Input: Triangle point 1
+ * @param b Input: Triangle point 2
+ * @param c Input: Triangle point 3
+ * @param x1 Input: Segment point 1
+ * @param x2 Input: Segment point 2
+ * @param xi Output: 3D Global coordinates of the intersection point
+ * @param ri Output: 3D local triangle coordinates of the intersection point
+ * @param tol Input: Relative tolerance: There can only be an intersection if:
+ * 0-tol*(x1-x2).abs()<=k<=1+tol*(x1-x2).abs()
+ * 0-tol<=ri[0]<=1+tol
+ * 0-tol<=ri[1]<=1+tol
+ * @return true if an intersection point was found, else false.
+*/
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
@@ -90,9 +106,9 @@ double triArea(vec3_t x1, vec3_t x2, vec3_t x3);
 
 double quadArea(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
 
-vec3_t triNormal(vec3_t x1, vec3_t x2, vec3_t x3);
+vec3_t triNormal(vec3_t x0, vec3_t x1, vec3_t x2);///< Returns the normal of the surface defined by x0,x1,x2
 
-vec3_t quadNormal(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
+vec3_t quadNormal(vec3_t x0, vec3_t x1, vec3_t x2, vec3_t x3);///< Returns the normal of the surface defined by x0,x1,x2,x3
 
 vec3_t triNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
 
@@ -143,7 +159,7 @@ inline bool IsConvex(vec2_t a_2D,vec2_t b_2D,vec2_t c_2D,vec2_t d_2D)
   return(IsConvex(a_3D,b_3D,c_3D,d_3D));
 };
 
-/** return the angle w.r.t. another 3-vector */
+/// return the angle with relation to another 3-vector
 double angle(const vec3_t & u, const vec3_t & v);
 
 /** return the deviation p1->p2->p3 (angle(p2-p1,p3-p2)) */
@@ -168,6 +184,12 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
 
 vec3_t getBarycentricCoordinates(double x, double y);
+
+vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB);
+
+vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j);
+
+vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
 
 };
 
