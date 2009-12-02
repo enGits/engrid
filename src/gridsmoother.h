@@ -53,6 +53,7 @@ protected: // attributes
   double m_FNew;
   double m_FMaxOld;
   double m_FMaxNew;
+  double m_ReductionFactor;
   
   double m_WTet;
   double m_WTetSave;
@@ -67,6 +68,8 @@ protected: // attributes
   double m_WSharp2;
   double m_ESharp2;
   double m_H;
+
+  bool m_StrictPrismChecking;
 
   QVector<vtkIdType>  m_FootToField;
   QVector<bool>       m_IsSharpNode;
