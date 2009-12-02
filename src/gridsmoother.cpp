@@ -114,7 +114,7 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   foreach (int i_cells, n2c[id_node]) {
     vtkIdType id_cell = cells[i_cells];
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    if (isVolume(id_cell, m_Grid)) {
+    if (type_cell == VTK_TETRA) {
       if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
         move = false;
       }

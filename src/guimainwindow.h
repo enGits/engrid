@@ -77,7 +77,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
 
     Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.
-    vtkUnstructuredGrid *m_grid;          ///< The current state of the grid that is being generated.
+    vtkUnstructuredGrid *m_Grid;          ///< The current state of the grid that is being generated.
 
     vtkRenderer *m_Renderer; ///< The VTK renderer object, used for visualising the grid
 
