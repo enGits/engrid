@@ -2056,10 +2056,21 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
 
 void GuiMainWindow::callInsertNewCell()
 {
-  bool ok1,ok2,ok3;
-  vtkIdType id_cell1 = QInputDialog::getInt(this, tr("id_cell1"),tr("id_cell1:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok1);
-  vtkIdType id_cell2 = QInputDialog::getInt(this, tr("id_cell2"),tr("id_cell2:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok2);
-  vtkIdType id_cell3 = QInputDialog::getInt(this, tr("id_cell3"),tr("id_cell3:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok3);
-  if (ok1 && ok2 && ok3) {
+  bool ok1,ok2,ok3,ok4;
+  vtkIdType pts[3];
+  pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok1);
+  pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok2);
+  pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_grid->GetNumberOfCells(), 1, &ok4);
+  if (ok1 && ok2 && ok3 && ok4) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_grid->GetNumberOfCells() + 1, m_grid->GetNumberOfPoints() );
+    makeCopyNoAlloc(m_grid, new_grid);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+    copyCellData(m_grid, id_cell, new_grid, id_new_cell);
+    makeCopy(new_grid, m_grid);
+    m_grid->Modified();
+    QMessageBox::information(NULL, "new cell", tr("The new cell has ID = %1").arg(id_new_cell));
+    qDebug()<<tr("The new cell has ID = %1").arg(id_new_cell);
   }
 }
