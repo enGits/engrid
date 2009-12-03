@@ -1906,6 +1906,8 @@ void GuiMainWindow::storeSurfaceProjection()
   m_SurfProj.clear();
   cout << "storing background grid for surface projection:" << endl;
   EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  MeshPartition new_grid_partition;
+  bool first = true;
   
   QFileInfo file_info(m_CurrentFilename);
   
@@ -1967,9 +1969,18 @@ void GuiMainWindow::storeSurfaceProjection()
     proj->writeTriangleGrid(basename);
     qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
       <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
-    addGrid(new_grid, proj->getBezierGrid());
+//     addGrid(new_grid, proj->getBezierGrid());
+    if(first) {
+      first = false;
+      new_grid_partition.setGrid(proj->getBezierGrid());
+      new_grid_partition.setAllCells();
+    }
+    else {
+      MeshPartition grid_partition(proj->getBezierGrid(), true);
+      new_grid_partition.addPartition(grid_partition);
+    }
   }
-  writeGrid(new_grid, file_info.completeBaseName() + "_projection_surface");
+  writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
   qDebug()<<"=====> new_grid->GetNumberOfPoints()="<<new_grid->GetNumberOfPoints();
   qDebug()<<"=====> new_grid->GetNumberOfCells()="<<new_grid->GetNumberOfCells();
 }

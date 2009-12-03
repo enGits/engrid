@@ -99,6 +99,11 @@ public: // methods
   void setCells(const C& cls);
 
   /**
+   * Define the mesh partition by defining all its cells.
+   */
+  void setAllCells();
+  
+  /**
    * Define the mesh partition by giving a symbolic volume name.
    * The grid will be changed to the default (main) grid that is currently loaded into ENGRID.
    * @param volume_name the symbolic volume name
@@ -189,6 +194,12 @@ inline void MeshPartition::setCells(const C& cls)
   m_Cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
+}
+
+inline void MeshPartition::setAllCells() {
+  QVector <vtkIdType> all_cells;
+  getAllCells(all_cells, m_Grid);
+  this->setCells(all_cells);
 }
 
 inline void MeshPartition::checkNodes()
