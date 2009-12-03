@@ -1186,6 +1186,10 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   if(update_current_filename) QApplication::restoreOverrideCursor();
   
+  if(update_current_filename) {
+    this->addRecentFile(file_name,QDateTime::currentDateTime());
+  }
+  
   return(file_name);
 }
 

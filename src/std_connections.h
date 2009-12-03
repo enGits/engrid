@@ -110,6 +110,7 @@ connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEli
 connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoothAndSwapSurface()));
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
 connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderReader()));
+connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));

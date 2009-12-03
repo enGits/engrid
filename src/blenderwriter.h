@@ -20,41 +20,23 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef BLENDERWRITER_H
+#define BLENDERWRITER_H
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
+#include "iooperation.h"
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
+class BlenderWriter : public IOOperation
+{
+  
+protected: // methods
+  
+  virtual void operate();
+  
+  
+public: // methods
+  
+  BlenderWriter();
+  
+};
 
-// -------------------------------------------
+#endif

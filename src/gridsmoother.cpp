@@ -39,20 +39,22 @@ GridSmoother::GridSmoother()
   m_FNew                   = 0;
   m_H                      = 1.5;
 
-  getSet("boundary layer", "tetra weighting",                    1.0, m_WTet);
-  getSet("boundary layer", "layer height weighting",             1.0, m_WH);
-  getSet("boundary layer", "parallel edges weighting",           3.0, m_WPar);
-  getSet("boundary layer", "parallel faces weighting",           5.0, m_WN);
-  getSet("boundary layer", "similar face area weighting",        5.0, m_WA);
-  getSet("boundary layer", "skewness weighting",                 0.0, m_WSkew);
-  getSet("boundary layer", "orthogonality weighting",            0.0, m_WOrth);
-  getSet("boundary layer", "sharp features on nodes weighting",  8.0, m_WSharp1);
-  getSet("boundary layer", "sharp features on nodes exponent",   1.4, m_ESharp1);
-  getSet("boundary layer", "sharp features on edges weighting",  3.0, m_WSharp2);
-  getSet("boundary layer", "sharp features on edges exponent",   1.3, m_ESharp2);
-  getSet("boundary layer", "number of smoothing sub-iterations", 5,   m_NumIterations);
+  getSet("boundary layer", "tetra weighting",                    1.0,   m_WTet);
+  getSet("boundary layer", "layer height weighting",             1.0,   m_WH);
+  getSet("boundary layer", "parallel edges weighting",           3.0,   m_WPar);
+  getSet("boundary layer", "parallel faces weighting",           5.0,   m_WN);
+  getSet("boundary layer", "similar face area weighting",        5.0,   m_WA);
+  getSet("boundary layer", "skewness weighting",                 0.0,   m_WSkew);
+  getSet("boundary layer", "orthogonality weighting",            0.0,   m_WOrth);
+  getSet("boundary layer", "sharp features on nodes weighting",  8.0,   m_WSharp1);
+  getSet("boundary layer", "sharp features on nodes exponent",   1.4,   m_ESharp1);
+  getSet("boundary layer", "sharp features on edges weighting",  3.0,   m_WSharp2);
+  getSet("boundary layer", "sharp features on edges exponent",   1.3,   m_ESharp2);
+  getSet("boundary layer", "number of smoothing sub-iterations", 5,     m_NumIterations);
+  getSet("boundary layer", "angle for sharp features",           45.00, m_CritAngle);
+
+  getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
   
-  getSet("boundary layer", "angle for sharp features",         45.00, m_CritAngle);
   m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
 
 }
@@ -99,7 +101,7 @@ void GridSmoother::markNodes()
 bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 {
   using namespace GeometryTools;
-  
+
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
@@ -115,10 +117,10 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     if (type_cell == VTK_TETRA) {
       if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
         move = false;
-        //if (dbg) cout << id_node << " : tetra negative" << endl;
       }
     }
-    if (type_cell == VTK_WEDGE) {
+
+    if (type_cell == VTK_WEDGE && m_StrictPrismChecking) {
       vtkIdType N_pts, *pts;
       vec3_t xtet[4];
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
@@ -131,7 +133,6 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
           }
           if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
             ok = false;
-            //if (dbg) cout << id_node << " : prism negative" << endl;
           }
         }
         if (ok) {
@@ -594,7 +595,7 @@ void GridSmoother::operateOptimisation()
                   if ((i != 0) || (j != 0) || (k != 0)) {
                     vec3_t Dx = double(i)*ex + double(j)*ey + double(k)*ez;
                     correctDx(i_nodes, Dx);
-                    vec3_t x = x_old + x;
+                    vec3_t x = x_old + Dx;
                     if (setNewPosition(id_node, x)) {
                       m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
                       double f = func(x);

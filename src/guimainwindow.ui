@@ -176,6 +176,7 @@
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
+    <addaction name="actionExportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1603,6 +1604,11 @@
   <action name="actionInsertNewCell">
    <property name="text">
     <string>Insert new cell</string>
+   </property>
+  </action>
+  <action name="actionExportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
    </property>
   </action>
  </widget>

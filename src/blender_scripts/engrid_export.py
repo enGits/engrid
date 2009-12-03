@@ -25,7 +25,7 @@
 # Export script for Blender.
 
 """
-Name: 'Engrid'
+Name: 'Engrid (*.begc)'
 Blender: 249
 Group: 'Export'
 Tooltip: 'Export to Engrid'
@@ -35,6 +35,9 @@ import Blender
 import bpy
 
 def write(filename):
+  
+  Blender.Window.WaitCursor(1)
+  
   if not filename.lower().endswith('.begc'):
     filename += '.begc'
   out = file(filename, "w")
@@ -73,5 +76,6 @@ def write(filename):
         out.write('\n')
       node_offset = node_offset + len(nodes)
 
-Blender.Window.FileSelector(write, "Export", Blender.sys.makename(ext='.begc'))
+  Blender.Window.WaitCursor(0)
 
+Blender.Window.FileSelector(write, "Export", Blender.sys.makename(ext='.begc'))

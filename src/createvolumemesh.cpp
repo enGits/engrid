@@ -175,7 +175,7 @@ void CreateVolumeMesh::prepare()
       ++m_NumTriangles;
     }
   }
-  writeDebugInfo();
+  //writeDebugInfo();
 }
 
 void CreateVolumeMesh::writeDebugInfo()
@@ -382,7 +382,7 @@ void CreateVolumeMesh::operate()
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
     res = Ng_GenerateVolumeMesh (mesh, &mp);
   } catch (netgen::NgException ng_err) {
-    //writeDebugInfo();
+    writeDebugInfo();
     Error err;
     QString msg = "Netgen stopped with the following error:\n";
     msg += ng_err.What().c_str();

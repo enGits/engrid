@@ -68,6 +68,8 @@ protected: // attributes
   double m_ESharp2;
   double m_H;
 
+  bool m_StrictPrismChecking;
+
   QVector<vtkIdType>  m_FootToField;
   QVector<bool>       m_IsSharpNode;
   QVector<bool>       m_IsTripleNode;
