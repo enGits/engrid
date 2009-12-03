@@ -215,7 +215,7 @@ GuiMainWindow::~GuiMainWindow()
 
 void GuiMainWindow::setupVtk()
 {
-  m_grid = vtkUnstructuredGrid::New();
+  m_Grid = vtkUnstructuredGrid::New();
   m_Renderer = vtkRenderer::New();
   getRenderWindow()->AddRenderer(m_Renderer);
 
@@ -238,7 +238,7 @@ void GuiMainWindow::setupVtk()
   m_LegendActor       = vtkScalarBarActor::New();
   //
   m_BCodesFilter->SetBoundaryCodes(m_DisplayBoundaryCodes);
-  m_BCodesFilter->SetInput(m_grid);
+  m_BCodesFilter->SetInput(m_Grid);
   m_SurfaceFilter->SetInput(m_BCodesFilter->GetOutput());
   m_SurfaceMapper->SetInput(m_SurfaceFilter->GetOutput());
   m_SurfaceWireMapper->SetInput(m_SurfaceFilter->GetOutput());
@@ -265,7 +265,7 @@ void GuiMainWindow::setupVtk()
   m_TetraGeometry = vtkGeometryFilter::New();
   m_TetraMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrTetras->SetInput(m_grid);
+  m_ExtrTetras->SetInput(m_Grid);
   m_ExtrTetras->SetAllOff();
   m_ExtrTetras->SetTetrasOn();;
   m_TetraGeometry->SetInput(m_ExtrTetras->GetOutput());
@@ -281,7 +281,7 @@ void GuiMainWindow::setupVtk()
   m_PyramidGeometry = vtkGeometryFilter::New();
   m_PyramidMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrPyramids->SetInput(m_grid);
+  m_ExtrPyramids->SetInput(m_Grid);
   m_ExtrPyramids->SetAllOff();
   m_ExtrPyramids->SetPyramidsOn();
   m_PyramidGeometry->SetInput(m_ExtrPyramids->GetOutput());
@@ -297,7 +297,7 @@ void GuiMainWindow::setupVtk()
   m_WedgeGeometry = vtkGeometryFilter::New();
   m_WedgeMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrWedges->SetInput(m_grid);
+  m_ExtrWedges->SetInput(m_Grid);
   m_ExtrWedges->SetAllOff();
   m_ExtrWedges->SetWedgesOn();
   m_WedgeGeometry->SetInput(m_ExtrWedges->GetOutput());
@@ -313,7 +313,7 @@ void GuiMainWindow::setupVtk()
   m_HexaGeometry = vtkGeometryFilter::New();
   m_HexaMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrHexes->SetInput(m_grid);
+  m_ExtrHexes->SetInput(m_Grid);
   m_ExtrHexes->SetAllOff();
   m_ExtrHexes->SetHexesOn();
   m_HexaGeometry->SetInput(m_ExtrHexes->GetOutput());
@@ -329,7 +329,7 @@ void GuiMainWindow::setupVtk()
   m_VolumeGeometry    = vtkGeometryFilter::New();
   m_VolumeWireMapper = vtkPolyDataMapper::New();
   //
-  m_ExtrVol->SetInput(m_grid);
+  m_ExtrVol->SetInput(m_Grid);
   m_ExtrVol->SetAllOn();
   m_VolumeGeometry->SetInput(m_ExtrVol->GetOutput());
   m_VolumeWireMapper->SetInput(m_VolumeGeometry->GetOutput());
@@ -499,8 +499,8 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     int current_field=ui.comboBox_Field->currentIndex();
     ui.comboBox_Field->clear();
     ui.comboBox_Field->addItem("None");
-    for (int i = 0; i < m_grid->GetPointData()->GetNumberOfArrays(); ++i) {
-      ui.comboBox_Field->addItem(m_grid->GetPointData()->GetArrayName(i));
+    for (int i = 0; i < m_Grid->GetPointData()->GetNumberOfArrays(); ++i) {
+      ui.comboBox_Field->addItem(m_Grid->GetPointData()->GetArrayName(i));
     }
     if(current_field == -1) {
       ui.comboBox_Field->setCurrentIndex(0);
@@ -513,7 +513,7 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
     ui.comboBox_CellTextField->clear();
     ui.comboBox_CellTextField->addItem("Cell ID");
     for (int i = 0; i < m_SurfaceFilter->GetOutput()->GetCellData()->GetNumberOfArrays(); ++i) {
-      ui.comboBox_CellTextField->addItem(m_grid->GetCellData()->GetArrayName(i));
+      ui.comboBox_CellTextField->addItem(m_Grid->GetCellData()->GetArrayName(i));
     }
     if(current_cell_field == -1) {
       ui.comboBox_CellTextField->setCurrentIndex(0);
@@ -667,7 +667,7 @@ void GuiMainWindow::updateActors(bool forced)
   
   //if (!tryLock()) return;
   try {
-    m_Axes->SetInput(m_grid);
+    m_Axes->SetInput(m_Grid);
     updateSurfaceActors(forced);
     updateVolumeActors(forced);
     updateStatusBar();
@@ -712,9 +712,9 @@ void GuiMainWindow::setUseVTKInteractor(int a_UseVTKInteractor)
 
 bool GuiMainWindow::pickPoint(vtkIdType id_node)
 {
-  if ((id_node >= 0) && (id_node < m_grid->GetNumberOfPoints())) {
+  if ((id_node >= 0) && (id_node < m_Grid->GetNumberOfPoints())) {
     vec3_t x(0,0,0);
-    m_grid->GetPoints()->GetPoint(id_node, x.data());
+    m_Grid->GetPoints()->GetPoint(id_node, x.data());
     m_PickSphere->SetCenter(x.data());
     m_PickedPoint = id_node;
     m_PickActor->GetProperty()->SetColor(0,0,1);
@@ -730,20 +730,20 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
 
 bool GuiMainWindow::pickCell(vtkIdType id_cell)
 {
-  if ((id_cell >= 0) && (id_cell < m_grid->GetNumberOfCells())) {
+  if ((id_cell >= 0) && (id_cell < m_Grid->GetNumberOfCells())) {
     vtkIdType *pts, Npts;
-    m_grid->GetCellPoints(id_cell, Npts, pts);
+    m_Grid->GetCellPoints(id_cell, Npts, pts);
     vec3_t x(0,0,0);
     for (vtkIdType i = 0; i < Npts; ++i) {
       vec3_t xp;
-      m_grid->GetPoints()->GetPoint(pts[i], xp.data());
+      m_Grid->GetPoints()->GetPoint(pts[i], xp.data());
       x += double(1)/Npts * xp;
     }
     m_PickSphere->SetCenter(x.data());
     double R = 1e99;
     for (vtkIdType i = 0; i < Npts; ++i) {
       vec3_t xp;
-      m_grid->GetPoints()->GetPoint(pts[i], xp.data());
+      m_Grid->GetPoints()->GetPoint(pts[i], xp.data());
       R = min(R, 0.25*(xp-x).abs());
     }
     m_ReferenceSize = R; //Used for text annotations too!
@@ -844,7 +844,7 @@ int GuiMainWindow::quickSave()
 {
   ///\todo add RAM support
   if(m_undo_redo_enabled) {
-    if(m_grid->GetNumberOfPoints()>0)
+    if(m_Grid->GetNumberOfPoints()>0)
     {
       m_CurrentOperation++;
       QFileInfo fileinfo(m_CurrentFilename);
@@ -1072,12 +1072,12 @@ void GuiMainWindow::openGrid(QString file_name)
   EG_VTKSP(vtkXMLUnstructuredGridReader,vtu);
   vtu->SetFileName(qPrintable(file_name));
   vtu->Update();
-  m_grid->DeepCopy(vtu->GetOutput());
-  createBasicFields(m_grid, m_grid->GetNumberOfCells(), m_grid->GetNumberOfPoints());
+  m_Grid->DeepCopy(vtu->GetOutput());
+  createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
   openBC();
   openPhysicalBoundaryConditions();
   updateBoundaryCodes(true);
-  createIndices(m_grid);
+  createIndices(m_Grid);
   updateActors();
   updateStatusBar();
   zoomAll();
@@ -1173,7 +1173,7 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
     GuiMainWindow::setCwd(file_info.absolutePath());
     m_CurrentFilename = file_name;
   }
-  if(!saveGrid(m_grid, file_name)) {
+  if(!saveGrid(m_Grid, file_name)) {
     QMessageBox::critical(this, QObject::tr("Save failed"), QObject::tr("The grid could not be saved as:\n%1").arg(file_name));
   }
   
@@ -1228,8 +1228,8 @@ void GuiMainWindow::updateStatusBar()
     ui.label_node_cell_info->setText(txt);
     return;
   }
-  vtkIdType Ncells = m_grid->GetNumberOfCells();
-  vtkIdType Nnodes = m_grid->GetNumberOfPoints();
+  vtkIdType Ncells = m_Grid->GetNumberOfCells();
+  vtkIdType Nnodes = m_Grid->GetNumberOfPoints();
   vtkIdType Ntris  = 0;
   vtkIdType Nquads = 0;
   vtkIdType Ntets  = 0;
@@ -1237,7 +1237,7 @@ void GuiMainWindow::updateStatusBar()
   vtkIdType Nprism = 0;
   vtkIdType Nhexas = 0;
   for (vtkIdType i = 0; i < Ncells; ++i) {
-    int ct = m_grid->GetCellType(i);
+    int ct = m_Grid->GetCellType(i);
     if      (ct == VTK_TRIANGLE)   ++Ntris;
     else if (ct == VTK_QUAD)       ++Nquads;
     else if (ct == VTK_TETRA)      ++Ntets;
@@ -1259,10 +1259,10 @@ void GuiMainWindow::updateStatusBar()
   {
     QString pick_txt = ", picked cell: ";
     vtkIdType id_cell = m_PickedCell;
-    if (id_cell < 0 || id_cell>=m_grid->GetNumberOfCells()) {
+    if (id_cell < 0 || id_cell>=m_Grid->GetNumberOfCells()) {
       pick_txt += "no cell picked";
     } else {
-      vtkIdType type_cell = m_grid->GetCellType(id_cell);
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if      (type_cell == VTK_TRIANGLE)   pick_txt += "tri";
       else if (type_cell == VTK_QUAD)       pick_txt += "qua";
       else if (type_cell == VTK_TETRA)      pick_txt += "tet";
@@ -1270,7 +1270,7 @@ void GuiMainWindow::updateStatusBar()
       else if (type_cell == VTK_WEDGE)      pick_txt += "pri";
       else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hex";
       vtkIdType N_pts, *pts;
-      m_grid->GetCellPoints(id_cell, N_pts, pts);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       pick_txt += " [";
       for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
         QString num;
@@ -1282,7 +1282,7 @@ void GuiMainWindow::updateStatusBar()
       }
       pick_txt += "]";
       QString tmp;
-      EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
       tmp.setNum(cell_code->GetValue(id_cell));
       pick_txt += " code=" + tmp;
       tmp.setNum(id_cell);
@@ -1298,7 +1298,7 @@ void GuiMainWindow::updateStatusBar()
       pick_txt += "no node picked";
     } else {
       vec3_t x;
-      m_grid->GetPoints()->GetPoint(id_node,x.data());
+      m_Grid->GetPoints()->GetPoint(id_node,x.data());
       pick_txt += " [";
       for (int i = 0; i < 3; i++) {
         QString num;
@@ -1310,16 +1310,16 @@ void GuiMainWindow::updateStatusBar()
       }
       pick_txt += "]";
       QString tmp;
-      EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_grid, "node_meshdensity_desired");
+      EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
       tmp.setNum(characteristic_length_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_grid, "node_meshdensity_current");
+      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");
       tmp.setNum(node_meshdensity_current->GetValue(id_node));
       pick_txt += " current density=" + tmp;
-      EG_VTKDCN(vtkIntArray, node_specified_density, m_grid, "node_specified_density");
+      EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
       tmp.setNum(node_specified_density->GetValue(id_node));
       pick_txt += " node_specified_density=" + tmp;
-      EG_VTKDCN(vtkCharArray, node_type, m_grid, "node_type");
+      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
       pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
       tmp.setNum(id_node);
       pick_txt += " id_node=" + tmp;
@@ -1349,9 +1349,9 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
 {
   try {
     m_AllBoundaryCodes.clear();
-    EG_VTKDCC(vtkIntArray, cell_code, m_grid, "cell_code");
-    for (vtkIdType i = 0; i < m_grid->GetNumberOfCells(); ++i) {
-      int ct = m_grid->GetCellType(i);
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    for (vtkIdType i = 0; i < m_Grid->GetNumberOfCells(); ++i) {
+      int ct = m_Grid->GetCellType(i);
       if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD)) {
         m_AllBoundaryCodes.insert(cell_code->GetValue(i));
       }
@@ -1408,7 +1408,7 @@ void GuiMainWindow::setViewingMode()
 
 void GuiMainWindow::viewNodeIDs()
 {
-  int N = m_grid->GetNumberOfPoints();
+  int N = m_Grid->GetNumberOfPoints();
   cout<<"N="<<N<<endl;
   if (ui.actionViewNodeIDs->isChecked()) {
     cout<<"Activating node ID view"<<endl;
@@ -1426,7 +1426,7 @@ void GuiMainWindow::viewNodeIDs()
       m_NodeTextFollower[i]->SetMapper(m_NodeTextPolyDataMapper[i]);
       m_NodeTextFollower[i]->SetScale(m_ReferenceSize, m_ReferenceSize, m_ReferenceSize);
       vec3_t M;
-      m_grid->GetPoint(i, M.data());
+      m_Grid->GetPoint(i, M.data());
       vec3_t tmp_M = M;
       vec3_t OffSet = m_ReferenceSize*tmp_M.normalise();
       M = M + OffSet;
@@ -1454,7 +1454,7 @@ void GuiMainWindow::viewNodeIDs()
 
 void GuiMainWindow::viewCellIDs()
 {
-  vtkIdType N = m_grid->GetNumberOfCells();
+  vtkIdType N = m_Grid->GetNumberOfCells();
   cout<<"N="<<N<<endl;
   if (ui.actionViewCellIDs->isChecked()) {
     cout<<"Activating cell ID view"<<endl;
@@ -1469,7 +1469,7 @@ void GuiMainWindow::viewCellIDs()
       if(ui.comboBox_CellTextField->currentIndex()==0) {
         tmp.setNum(id_cell);
       } else if (ui.comboBox_CellTextField->currentIndex()>0) {
-        EG_VTKDCC(vtkIntArray, current_cell_field, m_grid, qPrintable(ui.comboBox_CellTextField->currentText()));
+        EG_VTKDCC(vtkIntArray, current_cell_field, m_Grid, qPrintable(ui.comboBox_CellTextField->currentText()));
         tmp.setNum(current_cell_field->GetValue(id_cell));
       }
       else EG_BUG;
@@ -1481,14 +1481,14 @@ void GuiMainWindow::viewCellIDs()
       m_CellTextFollower[id_cell]->SetMapper(m_CellTextPolyDataMapper[id_cell]);
       m_CellTextFollower[id_cell]->SetScale(m_ReferenceSize, m_ReferenceSize, m_ReferenceSize);
       vtkIdType N_pts,*pts;
-      m_grid->GetCellPoints(id_cell,N_pts,pts);
+      m_Grid->GetCellPoints(id_cell,N_pts,pts);
       vec3_t Center(0,0,0);
       for (int p = 0; p < N_pts; ++p) {
         vec3_t M;
-        m_grid->GetPoint(pts[p],M.data());
+        m_Grid->GetPoint(pts[p],M.data());
         Center+=M.data();
       }
-      vec3_t OffSet = m_ReferenceSize*triNormal(m_grid, pts[0], pts[1], pts[2]).normalise();
+      vec3_t OffSet = m_ReferenceSize*triNormal(m_Grid, pts[0], pts[1], pts[2]).normalise();
       Center = 1.0/(double)N_pts*Center+OffSet;
       m_CellTextFollower[id_cell]->AddPosition(Center[0], Center[1], Center[2]);
       m_CellTextFollower[id_cell]->SetCamera(getRenderer()->GetActiveCamera());
@@ -1532,7 +1532,7 @@ vtkIdType GuiMainWindow::getPickedCell()
   if(!ui.radioButton_CellPicker->isChecked()) return(-1);
   
   vtkIdType picked_cell = -1;
-  if (m_grid->GetNumberOfCells() > 0) {
+  if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCC(vtkLongArray_t, cell_index, m_BCodesFilter->GetOutput(), "cell_index");
@@ -1551,7 +1551,7 @@ vtkIdType GuiMainWindow::getPickedPoint()
   if(ui.radioButton_CellPicker->isChecked()) return(-1);
   
   vtkIdType picked_point = -1;
-  if (m_grid->GetNumberOfCells() > 0) {
+  if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCN(vtkLongArray_t, node_index, m_BCodesFilter->GetOutput(), "node_index");
@@ -1567,15 +1567,15 @@ vtkIdType GuiMainWindow::getPickedPoint()
 
 void GuiMainWindow::changeSurfaceOrientation()
 {
-  for (vtkIdType cellId = 0; cellId < m_grid->GetNumberOfCells(); ++cellId) {
+  for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
     vtkIdType Npts, *pts;
-    m_grid->GetCellPoints(cellId, Npts, pts);
+    m_Grid->GetCellPoints(cellId, Npts, pts);
     QVector<vtkIdType> nodes(Npts);
     for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
     for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
   }
   updateActors();
-  m_grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
 }
 
 void GuiMainWindow::checkSurfaceOrientation()
@@ -1911,8 +1911,8 @@ void GuiMainWindow::storeSurfaceProjection()
     QSet<int> bcs;
     bcs.insert(bc);
     QVector<vtkIdType> cls;
-    getSurfaceCells(bcs, cls, m_grid);
-    proj->setBackgroundGrid(m_grid, cls);
+    getSurfaceCells(bcs, cls, m_Grid);
+    proj->setBackgroundGrid(m_Grid, cls);
     if (proj->usesLevelSet()) {
       QString file_name;
       file_name.setNum(bc);
@@ -2066,18 +2066,18 @@ void GuiMainWindow::callInsertNewCell()
 {
   bool ok1,ok2,ok3,ok4;
   vtkIdType pts[3];
-  pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok1);
-  pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok2);
-  pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_grid->GetNumberOfPoints(), 1, &ok3);
-  vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_grid->GetNumberOfCells(), 1, &ok4);
+  pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
   if (ok1 && ok2 && ok3 && ok4) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
-    allocateGrid( new_grid, m_grid->GetNumberOfCells() + 1, m_grid->GetNumberOfPoints() );
-    makeCopyNoAlloc(m_grid, new_grid);
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells() + 1, m_Grid->GetNumberOfPoints() );
+    makeCopyNoAlloc(m_Grid, new_grid);
     vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
-    copyCellData(m_grid, id_cell, new_grid, id_new_cell);
-    makeCopy(new_grid, m_grid);
-    m_grid->Modified();
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
     QMessageBox::information(NULL, "new cell", tr("The new cell has ID = %1").arg(id_new_cell));
     qDebug()<<tr("The new cell has ID = %1").arg(id_new_cell);
   }
