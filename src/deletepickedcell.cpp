@@ -24,14 +24,26 @@
 #include "deletepickedcell.h"
 #include "guimainwindow.h"
 #include "deletepickedpoint.h"
+#include "deletecells.h"
 
 #include <vtkCell.h>
 #include <vtkGenericCell.h>
 
 void DeletePickedCell::operate()
 {
-  vtkIdType cellId = GuiMainWindow::pointer()->getPickedCell();
-  cout<<"You picked "<<cellId<<endl;
-  vtkIdType N_pts, *pts;
-  m_Grid->GetCellPoints(cellId, N_pts, pts);
+  vtkIdType id_cell = GuiMainWindow::pointer()->getPickedCell();
+  cout<<"You picked "<<id_cell<<endl;
+  if( id_cell<0 || GuiMainWindow::pointer()->getPickedObject()!=2 ) {
+    QApplication::restoreOverrideCursor();
+    EG_ERR_RETURN("Error: No cell picked.");
+  }
+    
+  QVector <vtkIdType> targets;
+  targets.push_back(id_cell);
+  DeleteCells terminator;
+  terminator.setCellsToDelete(targets);
+  terminator();
+  
+/*  vtkIdType N_pts, *pts;
+  m_Grid->GetCellPoints(id_cell, N_pts, pts);*/
 }

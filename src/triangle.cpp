@@ -81,6 +81,14 @@ void Triangle::setupTriangle() {
   m_g1 = m_b - m_a;
   m_g2 = m_c - m_a;
   m_g3 = m_g1.cross(m_g2);
+  
+  if(m_g3.abs2()<=0) {
+    m_Valid = false;
+  }
+  else {
+    m_Valid = true;
+  }
+  
   if(!checkVector(m_g3)) {
     qWarning()<<"m_g1="<<m_g1;
     qWarning()<<"m_g2="<<m_g2;
@@ -92,7 +100,7 @@ void Triangle::setupTriangle() {
   }
   
   m_A  = 0.5 * m_g3.abs();
-  m_g3.normalise();
+  if(m_Valid) m_g3.normalise();
 
   if(!checkVector(m_g3)) {
     qWarning()<<"m_g1="<<m_g1;

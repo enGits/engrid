@@ -139,6 +139,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkEgBoundaryCodesFilter* m_BCodesFilter; ///< VTK filter to extract boundary elements with certain codes
     vtkCellPicker*            m_CellPicker;   ///< VTK CellPicker to pick cells for various user interactions
     vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
+    int                       m_PickedObject;   ///< 0=none, 1=node, 2=cell
 
     QString      m_CurrentFilename;      ///< The current file name of the grid.
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
@@ -307,6 +308,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      */
     vtkIdType getPickedPoint();
 
+    vtkIdType getPickedObject() { return m_PickedObject; }
+  
     /**
      * Access to the QSettings object
      */

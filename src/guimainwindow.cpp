@@ -359,7 +359,7 @@ void GuiMainWindow::setupVtk()
   
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
-  
+  m_PickedObject = 0;
 //   cbc->Delete();
 }
 
@@ -719,9 +719,11 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
     m_PickedPoint = id_node;
     m_PickActor->GetProperty()->SetColor(0,0,1);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 1;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -749,9 +751,11 @@ bool GuiMainWindow::pickCell(vtkIdType id_cell)
     m_PickedCell = id_cell;
     m_PickActor->GetProperty()->SetColor(1,0,0);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 2;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -1525,6 +1529,8 @@ void GuiMainWindow::pickCallBack
 
 vtkIdType GuiMainWindow::getPickedCell()
 {
+  if(!ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_cell = -1;
   if (m_grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1542,6 +1548,8 @@ vtkIdType GuiMainWindow::getPickedCell()
 
 vtkIdType GuiMainWindow::getPickedPoint()
 {
+  if(ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_point = -1;
   if (m_grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();

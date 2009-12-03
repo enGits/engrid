@@ -39,7 +39,11 @@ void DeletePickedPoint::operate()
 {
   vtkIdType id_node = GuiMainWindow::pointer()->getPickedPoint();
   cout << "You picked " << id_node << endl;
-
+  if( id_node<0  || GuiMainWindow::pointer()->getPickedObject()!=1 ) {
+    QApplication::restoreOverrideCursor();
+    EG_ERR_RETURN("Error: No node picked.");
+  }
+  
   char type;
   QVector <vtkIdType> PSP;
   

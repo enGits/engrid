@@ -1038,11 +1038,17 @@ int SurfaceProjection::getControlPoints_orthogonal(Triangle T, vec3_t& X_011, ve
 
 //   cout<<"A="<<A<<" B="<<B<<" C="<<C<<endl;
   //cout<<"-->BC"<<endl;
-  X_011 = intersectionOnPlane(T.m_g3, B, nB, C, nC);
-  //cout<<"-->CA"<<endl;
-  X_101 = intersectionOnPlane(T.m_g3, C, nC, A, nA);
-  //cout<<"-->AB"<<endl;
-  X_110 = intersectionOnPlane(T.m_g3, A, nA, B, nB);
+  
+  if(T.m_Valid) {
+    X_011 = intersectionOnPlane(T.m_g3, B, nB, C, nC);
+    X_101 = intersectionOnPlane(T.m_g3, C, nC, A, nA);
+    X_110 = intersectionOnPlane(T.m_g3, A, nA, B, nB);
+  }
+  else {
+    X_011 = 0.5*(B+C);
+    X_101 = 0.5*(C+A);
+    X_110 = 0.5*(A+B);
+  }
   
   if (!checkVector(X_011)) EG_BUG;
   if (!checkVector(X_101)) EG_BUG;
@@ -1072,9 +1078,16 @@ int SurfaceProjection::getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011,
   if ((0.5*(nC+nA)).abs2()==0) EG_BUG;
   if ((0.5*(nA+nB)).abs2()==0) EG_BUG;
   
-  X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
-  X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
-  X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
+  if(T.m_Valid) {
+    X_011 = intersectionOnPlane(0.5*(nB+nC), B, nB, C, nC);
+    X_101 = intersectionOnPlane(0.5*(nC+nA), C, nC, A, nA);
+    X_110 = intersectionOnPlane(0.5*(nA+nB), A, nA, B, nB);
+  }
+  else {
+    X_011 = 0.5*(B+C);
+    X_101 = 0.5*(C+A);
+    X_110 = 0.5*(A+B);
+  }
   
   /// \todo make sure nBC,nCA,nAB are not null vectors!!!
   vec3_t nBC = 0.5*(nB+nC);
