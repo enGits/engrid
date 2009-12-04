@@ -46,11 +46,25 @@ inline MathVector<V>::MathVector(const value_type *v) : V()
   for (uint_t i = 0; i < this->size(); ++i) (*this)[i] = v[i]; 
 };
 
+// MathVector<V>(const value_type v1, const value_type v2, const value_type v3, const value_type v4)
+// ----------------------------------------------------------------------------
+template <class V>
+inline MathVector<V>::MathVector(const value_type v1,
+                                 const value_type v2,
+                                 const value_type v3,
+                                 const value_type v4) : V()
+{
+  (*this)[0] = v1;
+  (*this)[1] = v2;
+  (*this)[2] = v3;
+  (*this)[3] = v4;
+};
+
 // MathVector<V>(const value_type v1, const value_type v2, const value_type v3)
 // ----------------------------------------------------------------------------
 template <class V>
-inline MathVector<V>::MathVector(const value_type v1, 
-                                 const value_type v2, 
+inline MathVector<V>::MathVector(const value_type v1,
+                                 const value_type v2,
                                  const value_type v3) : V()
 {
   (*this)[0] = v1;
@@ -61,7 +75,7 @@ inline MathVector<V>::MathVector(const value_type v1,
 // MathVector<V>(const value_type v1, const value_type v2)
 // ----------------------------------------------------------------------------
 template <class V>
-inline MathVector<V>::MathVector(const value_type v1, 
+inline MathVector<V>::MathVector(const value_type v1,
                                  const value_type v2) : V()
 {
   (*this)[0] = v1;

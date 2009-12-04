@@ -490,40 +490,29 @@ void debug_output( QVector < QPair<vec3_t,vec3_t> > points,   QVector < QPair<ve
   }
 }
 
-double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI)
+double interpolate(vec2_t M, vec2_t A, vec2_t nA, vec2_t B, vec2_t nB)
 {
-  bool DEBUG = false;
+  double x0 = A[0];
+  double x1 = B[0];
+  double x = M[0];
   
-  if(DEBUG) qDebug()<<"double interpolate(vec2_t A, vec2_t nA, vec2_t M, vec2_t I, vec2_t nI) called";
-  if(DEBUG) cout<<"A="<<A<<endl;
-  if(DEBUG) cout<<"nA="<<nA<<endl;
-  if(DEBUG) cout<<"M="<<M<<endl;
-  if(DEBUG) cout<<"I="<<I<<endl;
-  if(DEBUG) cout<<"nI="<<nI<<endl;
+  double f_x0 = A[1];
+  double f_x1 = B[1];
+  double fp_x0 = -nA[0]/nA[1];
+  double fp_x1 = -nB[0]/nB[1];
   
-  double ret = 0;
+  mat4_t matrix;
+  matrix[0][0]=3*pow(x0,2); matrix[0][1]=2*x0;      matrix[0][2]=1;  matrix[0][3]=0;
+  matrix[1][0]=3*pow(x1,2); matrix[1][1]=2*x1;      matrix[1][2]=1;  matrix[1][3]=0;
+  matrix[2][0]=pow(x0,3);   matrix[2][1]=pow(x0,2); matrix[2][2]=x0; matrix[2][3]=1;
+  matrix[3][0]=pow(x1,3);   matrix[3][1]=pow(x1,2); matrix[3][2]=x1; matrix[3][3]=1;
   
-  double alpha0 = -nA[0]/nA[1];
-  double alpha1 = -nI[0]/nI[1];
+  mat4_t matrix_inv = matrix.inverse();
+  vec4_t Y = vec4_t(fp_x0,fp_x1,f_x0,f_x1);
+  vec4_t coeffs = matrix_inv * Y;
   
   // f(x)=a*x^3 + b*x^2 + c*x + d
-  double a,b,c,d;
-  d = 0;
-  c = alpha0;
-  b = -((alpha1-c)-3*(-c));
-  a = -b-c;
-  
-  double xM = M[0];
-  
-  if(DEBUG) cout<<"a="<<a<<endl;
-  if(DEBUG) cout<<"b="<<b<<endl;
-  if(DEBUG) cout<<"c="<<c<<endl;
-  if(DEBUG) cout<<"d="<<d<<endl;
-  ret = a*pow(xM,3) + b*pow(xM,2) + c*xM + d;
-  
-  // B(t)=(1-t^3)*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3;
-  
-//   return -(xM*xM) + xM;
+  double ret = coeffs[0]*pow(x,3) + coeffs[1]*pow(x,2) + coeffs[2]*x + coeffs[3];
   return ret;
 }
 
@@ -564,31 +553,30 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
   return interpolate_bezier(t,P0,P1,P2,P3);
 }
 
+// coordinate systems:
+// 3D:
+// global: X,Y,Z -> g_
+// local: g1,g2,g3 -> l_
+// 2D:
+// triangle: g1,g2 -> t_
+// middle planes
+// plane 1: AI1, g3 -> pm1_
+// plane 2: BI2, g3 -> pm2_
+// plane 3: CI3, g3 -> pm3_
+// orthogonal edge planes
+// plane 1: BC, g3 -> poe1_
+// plane 2: CA, g3 -> poe2_
+// plane 3: AB, g3 -> poe3_
+// non-orthogonal edge planes
+// plane 1: BC, nI3 -> pnoe1_
+// plane 2: CA, nI1 -> pnoe2_
+// plane 3: AB, nI2 -> pnoe3_
 vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
 {
   // initialization
   bool DEBUG = false;
   if(DEBUG) qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
   vec3_t x(0,0,0);
-  
-  // coordinate systems:
-  // 3D:
-  // global: X,Y,Z -> g_
-  // local: g1,g2,g3 -> l_
-  // 2D:
-  // triangle: g1,g2 -> t_
-  // middle planes
-  // plane 1: AI1, g3 -> pm1_
-  // plane 2: BI2, g3 -> pm2_
-  // plane 3: CI3, g3 -> pm3_
-  // orthogonal edge planes
-  // plane 1: BC, g3 -> poe1_
-  // plane 2: CA, g3 -> poe2_
-  // plane 3: AB, g3 -> poe3_
-  // non-orthogonal edge planes
-  // plane 1: BC, nI3 -> pnoe1_
-  // plane 2: CA, nI1 -> pnoe2_
-  // plane 3: AB, nI2 -> pnoe3_
   
   // before knowing intersections
   

@@ -88,7 +88,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       }
       if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
 //         saveGrid(m_Grid, "after_move1");
-        qWarning()<<"Cannot move point "<<id_node<<" because negative tetraVol.";
+//         qWarning()<<"Cannot move point "<<id_node<<" because negative tetraVol.";
         move = false;
 //         m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
 //         saveGrid(m_Grid, "before_move1");

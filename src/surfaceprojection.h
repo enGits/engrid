@@ -71,6 +71,7 @@ private:
   QVector<vtkIdType>      m_Cells;
   QVector<vtkIdType>      m_Nodes;
   QVector<vec3_t>         m_NodeNormals; ///< The surface normal at each node of m_BGrid
+  QMap < pair <vtkIdType, vtkIdType>, vec3_t > m_ControlPoints;
   QVector<Triangle>       m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<BezierTriangle> m_BezierTriangles; ///< The bezier triangle corresponding to m_Triangles
   QVector<QVector<int> >  m_N2N;
