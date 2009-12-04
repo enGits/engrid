@@ -571,30 +571,24 @@ vec3_t interpolate_bezier_normals(double t, vec3_t P0, vec3_t N0, vec3_t P3, vec
 // plane 1: BC, nI3 -> pnoe1_
 // plane 2: CA, nI1 -> pnoe2_
 // plane 3: AB, nI2 -> pnoe3_
-vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
+vec3_t SurfaceProjection::correctCurvature1(int i_tri, vec3_t g_M)
 {
-  // initialization
-  bool DEBUG = false;
-  if(DEBUG) qDebug()<<"vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r) called";
-  vec3_t x(0,0,0);
-  
-  // before knowing intersections
+//   qDebug()<<"vec3_t SurfaceProjection::correctCurvature1 called";
   
   Triangle T = m_Triangles[i_tri];
   vec3_t g_A = T.m_a;
   vec3_t g_B = T.m_b;
   vec3_t g_C = T.m_c;
-  vec3_t g_M = g_A+T.m_G*r;
   
   vec3_t l_A(0,0,0);
   vec3_t l_B(1,0,0);
   vec3_t l_C(0,1,0);
-  vec3_t l_M = r;
+  vec3_t l_M = T.global3DToLocal3D(g_M);
   
   vec2_t t_A(0,0);
   vec2_t t_B(1,0);
   vec2_t t_C(0,1);
-  vec2_t t_M(r[0],r[1]);
+  vec2_t t_M(l_M[0],l_M[1]);
   
   vec3_t g_nA = m_NodeNormals[T.m_id_a];
   vec3_t g_nB = m_NodeNormals[T.m_id_b];
@@ -602,7 +596,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   
   vec2_t pm1_A(0,0);
   vec2_t pm1_I1(1,0);
-//   vec2_t pm1_(0,0);
   
   vec2_t pm2_B(0,0);
   vec2_t pm2_I2(1,0);
@@ -619,7 +612,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t l_g3(0,0,1);
   
   // calculating intersections
-  
   double k1,k2;
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) return(g_M);
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
@@ -643,7 +635,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pnoe3_I3(k2,0);
   
   // after knowing intersections
-  
   vec3_t l_I1(t_I1[0],t_I1[1],0);
   vec3_t l_I2(t_I2[0],t_I2[1],0);
   vec3_t l_I3(t_I3[0],t_I3[1],0);
@@ -669,8 +660,6 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec3_t g_BI2 = g_I2 - g_B;
   vec3_t g_CI3 = g_I3 - g_C;
   
-  
-  
   vec2_t pm1_nA = projectVectorOnPlane(l_nA,l_AI1,l_g3);
   vec2_t pm1_nI1 = projectVectorOnPlane(l_nI1,l_AI1,l_g3);
   
@@ -680,200 +669,55 @@ vec3_t SurfaceProjection::correctCurvature(int i_tri, vec3_t r)
   vec2_t pm3_nC = projectVectorOnPlane(l_nC,l_CI3,l_g3);
   vec2_t pm3_nI3 = projectVectorOnPlane(l_nI3,l_CI3,l_g3);
   
-  // plane 1: BC, nI3 -> pnoe1_
-  // plane 2: CA, nI1 -> pnoe2_
-  // plane 3: AB, nI2 -> pnoe3_
+  // plane 1: BC, nI1 -> pnoe1_
+  // plane 2: CA, nI2 -> pnoe2_
+  // plane 3: AB, nI3 -> pnoe3_
   
   vec3_t l_AB = l_B - l_A;
   vec3_t l_BC = l_C - l_B;
   vec3_t l_CA = l_A - l_C;
   
   ///////////////
-  
   vec2_t pnoe1_B(0,0);
   vec2_t pnoe1_C(1,0);
   vec2_t pnoe1_nB = projectVectorOnPlane(l_nB,l_BC,l_nI1);
   vec2_t pnoe1_nC = projectVectorOnPlane(l_nC,l_BC,l_nI1);
   vec2_t pnoe1_nI1(0,1);
-  
   vec2_t pnoe1_tB = turnRight(pnoe1_nB);
   vec2_t pnoe1_tC = turnRight(pnoe1_nC);
-  
-  vec2_t pnoe1_K1;
-  if(!intersection(k1,k2,pnoe1_B,pnoe1_tB,pnoe1_C,pnoe1_tC)) {
-    //cout<<"pnoe1_B="<<pnoe1_B<<endl;
-    //cout<<"pnoe1_tB="<<pnoe1_tB<<endl;
-    //cout<<"pnoe1_C="<<pnoe1_C<<endl;
-    //cout<<"pnoe1_tC="<<pnoe1_tC<<endl;
-//     EG_BUG;
-    pnoe1_K1 = 0.5*(pnoe1_B + pnoe1_C);
-  }
-  else {
-    pnoe1_K1 = pnoe1_B + k1*pnoe1_tB;
-  }
-  
-  vec3_t l_K1 = l_B + pnoe1_K1[0]*l_BC + pnoe1_K1[1]*l_nI1;
   ///////////////
   vec2_t pnoe2_C(0,0);
   vec2_t pnoe2_A(1,0);
   vec2_t pnoe2_nC = projectVectorOnPlane(l_nC,l_CA,l_nI2);
   vec2_t pnoe2_nA = projectVectorOnPlane(l_nA,l_CA,l_nI2);
   vec2_t pnoe2_nI2(0,1);
-  
   vec2_t pnoe2_tC = turnRight(pnoe2_nC);
   vec2_t pnoe2_tA = turnRight(pnoe2_nA);
-  
-  vec2_t pnoe2_K2;
-  if(!intersection(k1,k2,pnoe2_C,pnoe2_tC,pnoe2_A,pnoe2_tA)) {
-    //cout<<"pnoe2_C="<<pnoe2_C<<endl;
-    //cout<<"pnoe2_tC="<<pnoe2_tC<<endl;
-    //cout<<"pnoe2_A="<<pnoe2_A<<endl;
-    //cout<<"pnoe2_tA="<<pnoe2_tA<<endl;
-//     EG_BUG;
-    pnoe2_K2 = 0.5*(pnoe2_C + pnoe2_A);
-  }
-  else {
-    pnoe2_K2 = pnoe2_C + k1*pnoe2_tC;
-  }
-  
-  vec3_t l_K2 = l_C + pnoe2_K2[0]*l_CA + pnoe2_K2[1]*l_nI2;
   ///////////////
   vec2_t pnoe3_A(0,0);
   vec2_t pnoe3_B(1,0);
   vec2_t pnoe3_nA = projectVectorOnPlane(l_nA,l_AB,l_nI3);
   vec2_t pnoe3_nB = projectVectorOnPlane(l_nB,l_AB,l_nI3);
   vec2_t pnoe3_nI3(0,1);
-  
   vec2_t pnoe3_tA = turnRight(pnoe3_nA);
   vec2_t pnoe3_tB = turnRight(pnoe3_nB);
-  
-  vec2_t pnoe3_K3;
-  if(!intersection(k1,k2,pnoe3_A,pnoe3_tA,pnoe3_B,pnoe3_tB)) {
-    //cout<<"pnoe3_A="<<pnoe3_A<<endl;
-    //cout<<"pnoe3_tA="<<pnoe3_tA<<endl;
-    //cout<<"pnoe3_B="<<pnoe3_B<<endl;
-    //cout<<"pnoe3_tB="<<pnoe3_tB<<endl;
-//     EG_BUG;
-    pnoe3_K3 = 0.5*(pnoe3_A + pnoe3_B);
-  }
-  else {
-    pnoe3_K3 = pnoe3_A + k1*pnoe3_tA;
-  }
-  
-  
-  vec3_t l_K3 = l_A + pnoe3_K3[0]*l_AB + pnoe3_K3[1]*l_nI3;
   ///////////////
-  
-  vec3_t g_K1 = g_A+T.m_G*l_K1;
-  vec3_t g_K2 = g_A+T.m_G*l_K2;
-  vec3_t g_K3 = g_A+T.m_G*l_K3;
-  
   vec3_t g_J1;
   vec3_t g_J2;
   vec3_t g_J3;
   
-  //qDebug()<<"=== ORTHOGONAL PLANES ===";
-  getControlPoints_orthogonal(T,g_J1,g_J2,g_J3, 1e99);
-  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-  getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3, 1e99);
-
-  vec3_t X_200 = g_A;
-  vec3_t X_020 = g_B;
-  vec3_t X_002 = g_C;
-  vec3_t X_011 = g_K1;
-  vec3_t X_101 = g_K2;
-  vec3_t X_110 = g_K3;
-
-  BezierTriangle bezier_triangle(X_200, X_020, X_002, X_011, X_101, X_110);
-  return bezier_triangle.projectOnQuadraticBezierTriangle(g_M);
-//   return bezier_triangle.quadraticBezierTriangle(t_M);
-  
-/*  intersection(k1,k2,pm1_A,pm1_nA,pm1_B,pm1_nB);
-  intersection(k1,k2,pm2_B,pm2_nB,pm2_C,pm2_nC);
-  intersection(k1,k2,pm3_C,pm3_nC,pm3_A,pm3_nA);*/
   
   // interpolation attempts
-  
-/*  double z1 = interpolate(pm1_A, pm1_nA, pm1_M, pm1_I1, pm1_nI1);
-  double z2 = interpolate(pm2_B, pm2_nB, pm2_M, pm2_I2, pm2_nI2);
-  double z3 = interpolate(pm3_C, pm3_nC, pm3_M, pm3_I3, pm3_nI3);
-  double z = (z1+z2+z3)/3.0;*/
-  
-  vec2_t pm1_Z1 = interpolate_bezier_normals(pm1_M[0],pm1_A,pm1_nA,pm1_I1,pm1_nI1);
-  vec2_t pm2_Z2 = interpolate_bezier_normals(pm2_M[0],pm2_B,pm2_nB,pm2_I2,pm2_nI2);
-  vec2_t pm3_Z3 = interpolate_bezier_normals(pm3_M[0],pm3_C,pm3_nC,pm3_I3,pm3_nI3);
-  
-  double z1 = pm1_Z1[1];
-  double z2 = pm2_Z2[1];
-  double z3 = pm3_Z3[1];
-  double z = z1;//(z1+z2+z3)/3.0;
-  
-/*  vec3_t g_Z1 = interpolate_bezier_normals(pm1_M[0],g_A,g_nA,g_I1,g_nI1,g_AI1,g_g3);
-  vec3_t g_Z2 = interpolate_bezier_normals(pm2_M[0],g_B,g_nB,g_I2,g_nI2,g_BI2,g_g3);
-  vec3_t g_Z3 = interpolate_bezier_normals(pm3_M[0],g_C,g_nC,g_I3,g_nI3,g_CI3,g_g3);
-  return (1.0/3.0)*(g_Z1+g_Z2+g_Z3);*/
+  double z1 = interpolate(pm1_M, pm1_A, pm1_nA, pm1_I1, pm1_nI1);
+  double z2 = interpolate(pm2_M, pm2_B, pm2_nB, pm2_I2, pm2_nI2);
+  double z3 = interpolate(pm3_M, pm3_C, pm3_nC, pm3_I3, pm3_nI3);
+  double z = (z1+z2+z3)/3.0;
   
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.m_G*l_X;
   
-  
-  vec3_t A,M,I;
-  vec3_t nA,nM,nI;
-  
-  A = vec3_t(pm2_B[0],pm2_B[1],0);
-  M = vec3_t(pm2_M[0],pm2_M[1],0);
-  I = vec3_t(pm2_I2[0],pm2_I2[1],0);
-  nA = vec3_t(pm2_nB[0],pm2_nB[1],0);
-  nM = vec3_t(0,1,0);
-  nI = vec3_t(pm2_nI2[0],pm2_nI2[1],0);
-  
-  // debugging stuff
-  
-  if(DEBUG) cout<<"r="<<r<<endl;
-  if(DEBUG) cout<<"l_g1"<<l_g1<<endl;
-  if(DEBUG) cout<<"l_g2"<<l_g2<<endl;
-  if(DEBUG) cout<<"l_g3"<<l_g3<<endl;
-  if(DEBUG) cout<<"g_g1"<<g_g1<<endl;
-  if(DEBUG) cout<<"g_g2"<<g_g2<<endl;
-  if(DEBUG) cout<<"g_g3"<<g_g3<<endl;
-  if(DEBUG) cout<<"l_nI1"<<l_nI1<<endl;
-  if(DEBUG) cout<<"l_nI2"<<l_nI2<<endl;
-  if(DEBUG) cout<<"l_nI3"<<l_nI3<<endl;
-  if(DEBUG) cout<<"l_nA"<<l_nA<<endl;
-  if(DEBUG) cout<<"l_nB"<<l_nB<<endl;
-  if(DEBUG) cout<<"l_nC"<<l_nC<<endl;
-  if(DEBUG) cout<<"l_nI2="<<l_nI2<<endl;
-  if(DEBUG) cout<<"l_BI2="<<l_BI2<<endl;
-  if(DEBUG) cout<<"g_nA"<<g_nA<<endl;
-  if(DEBUG) cout<<"g_nI1"<<g_nI1<<endl;
-  if(DEBUG) cout<<"g_nB"<<g_nB<<endl;
-  if(DEBUG) cout<<"g_nI2"<<g_nI2<<endl;
-  if(DEBUG) cout<<"g_nC"<<g_nC<<endl;
-  if(DEBUG) cout<<"g_nI3"<<g_nI3<<endl;
-  
-  QVector < QPair<vec3_t,vec3_t> > points;
-  points.push_back(QPair<vec3_t,vec3_t>(g_A,g_nA));
-  points.push_back(QPair<vec3_t,vec3_t>(g_B,g_nB));
-  points.push_back(QPair<vec3_t,vec3_t>(g_C,g_nC));
-  points.push_back(QPair<vec3_t,vec3_t>(g_I1,g_nI1));
-  points.push_back(QPair<vec3_t,vec3_t>(g_I2,g_nI2));
-  points.push_back(QPair<vec3_t,vec3_t>(g_I3,g_nI3));
-  points.push_back(QPair<vec3_t,vec3_t>(g_M,g_g3));
-  
-/*  points.push_back(QPair<vec3_t,vec3_t>(A,nA));
-  points.push_back(QPair<vec3_t,vec3_t>(M,nM));
-  points.push_back(QPair<vec3_t,vec3_t>(I,nI));*/
-  
-  QVector < QPair<vec3_t,vec3_t> > lines;
-  lines.push_back(QPair<vec3_t,vec3_t>(g_A,g_I1));
-  lines.push_back(QPair<vec3_t,vec3_t>(g_B,g_I2));
-  lines.push_back(QPair<vec3_t,vec3_t>(g_C,g_I3));
-  
-  if(DEBUG) debug_output(points, lines);
-  
   // returning value
-  x = g_X;
-  return x;
+  return g_X;
 }// end of correctCurvature
 
 vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, vec3_t g_M)
@@ -983,7 +827,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
   }
 //    if(on_triangle) {
 //      if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
-     if(m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
+     if(m_correctCurvature) x_proj = correctCurvature1(m_ProjTriangles[id_node], xp);
 //    }
   if(!on_triangle) {
 //     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;

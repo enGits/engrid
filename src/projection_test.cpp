@@ -13,7 +13,7 @@ Projection_test::Projection_test() : SurfaceAlgorithm() {
 
 void Projection_test::operate() {
 //    project_picked_point();
-//   project_all_points();
+  project_all_points();
 //   Bezier_test();
 //   checkInterpolationGrid();
 //    Bezier_circle_test();
@@ -21,26 +21,26 @@ void Projection_test::operate() {
 //   bezierProjectionTest();
 //   bezierQuads();
   
-  BezierTriangle bezier_triangle;
-  for(int i=0; i<11; i++) {
-    QString name;
-    
-    name = "bezier_equi_"+QString::number(i)+"_";
-    qWarning()<<name;
-    bezier_triangle = specialTriangle(true, i);
-    bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, name);
-    bezier_triangle.saveBezierTriangle(name);
-    qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
-    
-    name="bezier_notequi_"+QString::number(i)+"_";
-    qWarning()<<name;
-    bezier_triangle = specialTriangle(false, i);
-    bezier_triangle.setupTriangle();
-//     bezierProjectionTest2(bezier_triangle, name);
-    bezier_triangle.saveBezierTriangle(name);
-    qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
-  }
+//   BezierTriangle bezier_triangle;
+//   for(int i=0; i<11; i++) {
+//     QString name;
+//     
+//     name = "bezier_equi_"+QString::number(i)+"_";
+//     qWarning()<<name;
+//     bezier_triangle = specialTriangle(true, i);
+//     bezier_triangle.setupTriangle();
+// //     bezierProjectionTest2(bezier_triangle, name);
+//     bezier_triangle.saveBezierTriangle(name);
+//     qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
+//     
+//     name="bezier_notequi_"+QString::number(i)+"_";
+//     qWarning()<<name;
+//     bezier_triangle = specialTriangle(false, i);
+//     bezier_triangle.setupTriangle();
+// //     bezierProjectionTest2(bezier_triangle, name);
+//     bezier_triangle.saveBezierTriangle(name);
+//     qDebug()<<"name="<<name<<" VALID = "<<bezier_triangle.checkControlPoints();
+//   }
 
 /*  BezierTriangle bezier_triangle;
   bezier_triangle = specialTriangle(false, 0);
@@ -143,7 +143,7 @@ void Projection_test::project_all_points() {
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
 
-  int bc_src = 18;
+  int bc_src = 42;
   int bc_dst = 18;
 
   GuiMainWindow::pointer()->getSurfProj(bc_dst)->setForegroundGrid(m_Grid);
