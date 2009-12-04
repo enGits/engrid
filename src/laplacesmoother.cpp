@@ -48,7 +48,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   vec3_t n(0,0,0);
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
-  double A_max = 0;
+  double A_max = 0;//area of the biggest neighbour cell of id_node
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     A_max = max(A, A_max);
@@ -64,17 +64,18 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     }
   }
   if (N == 0) {
+    EG_BUG;
     move = false;
   } else {
     n.normalise();
-    double L_max = 0;
+    double L_max = 0;// distance to the furthest neighbour node of id_node
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       vec3_t xn;
       m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
       double L = (xn - x_old).abs();
       L_max = max(L, L_max);
     }
-    vec3_t x_summit = x_old + L_max*n;
+    vec3_t x_summit = x_new + L_max*n;
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
       vtkIdType N_pts, *pts;
@@ -86,7 +87,12 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
         m_Grid->GetPoint(pts[j], x[j].data());
       }
       if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+//         saveGrid(m_Grid, "after_move1");
+        qWarning()<<"Cannot move point "<<id_node<<" because negative tetraVol.";
         move = false;
+//         m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+//         saveGrid(m_Grid, "before_move1");
+//         EG_BUG;
         break;
       }
     }
@@ -94,8 +100,13 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   if (move) {
     for (int i = 0; i < cell_normals.size(); ++i) {
       for (int j = 0; j < cell_normals.size(); ++j) {
-        if (cell_normals[i]*cell_normals[j] < -1000*0.1) {
+        if (cell_normals[i]*cell_normals[j] < -1000*0.1) {//Why -1000*0.1?
+          saveGrid(m_Grid, "after_move2");
+          qWarning()<<"Cannot move point "<<id_node<<" because opposite cell_normals.";
           move = false;
+          m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+          saveGrid(m_Grid, "before_move2");
+          EG_BUG;
           break;
         }
       }
@@ -104,7 +115,8 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   if (!move) {
     // comment this out if you want points to always move
-//     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+    m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+//     saveGrid(m_Grid, "before_move");
   }
   return move;
 }
