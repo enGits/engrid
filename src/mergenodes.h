@@ -23,12 +23,13 @@
 #ifndef MERGENODES_H
 #define MERGENODES_H
 
-class MergeNodes{
-public:
-    MergeNodes();
+#include "surfaceoperation.h"
 
-    ~MergeNodes();
-
+class MergeNodes : public SurfaceOperation {
+public: // methods
+  MergeNodes();
+protected: // methods
+  virtual void operate();
 };
 
 #endif

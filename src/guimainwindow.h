@@ -446,6 +446,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSetBoundaryCode()  { EG_STDINTERSLOT( GuiSetBoundaryCode ); }
     void callDeleteBadAspectTris() { EG_STDINTERSLOT( GuiDeleteBadAspectTris ); }
     void callDeletePickedCell() { EG_STDSLOT( DeletePickedCell ); }
+    void callMergeNodes();
     void callInsertNewCell();
     void callDeletePickedPoint();
     void callBoxSelect() { EG_STDINTERSLOT( BoxSelect ); }

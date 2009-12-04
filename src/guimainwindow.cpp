@@ -2097,3 +2097,60 @@ void GuiMainWindow::callInsertNewCell()
     qDebug()<<tr("The new cell has ID = %1").arg(id_new_cell);
   }
 }
+
+void GuiMainWindow::callMergeNodes()
+{
+  bool ok1,ok2;
+  vtkIdType id_node1 = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_node2 = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  if (ok1 && ok2) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
+    
+    QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
+    QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
+    
+    vtkIdType id_new_node = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if(id_node!=id_node1 && id_node!=id_node2) {
+        vec3_t x;
+        m_Grid->GetPoints()->GetPoint(id_node, x.data());
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node] = id_new_node;
+        id_new_node++;
+      }
+      else if(id_node==id_node1) {
+        vec3_t x1;
+        m_Grid->GetPoints()->GetPoint(id_node1, x1.data());
+        vec3_t x2;
+        m_Grid->GetPoints()->GetPoint(id_node2, x2.data());
+        vec3_t x = 0.5*(x1+x2);
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node1] = id_new_node;
+        old2new_nodes[id_node2] = id_new_node;
+        id_new_node++;
+      }
+      else {
+      }
+    }
+    
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      QVector<vtkIdType> new_pts(N_pts);
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = old2new_nodes[pts[i]];
+      }
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    }
+    
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
+    qDebug()<<"The fusion is complete.";
+  }
+  
+}

@@ -22,13 +22,15 @@
 //
 #include "mergenodes.h"
 
+#include <QInputDialog>
+
 MergeNodes::MergeNodes()
 {
+  EG_TYPENAME;
+  //Activate undo/redo
+  setQuickSave(true);
 }
 
-
-MergeNodes::~MergeNodes()
+void MergeNodes::operate()
 {
 }
-
-

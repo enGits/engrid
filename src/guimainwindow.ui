@@ -137,6 +137,7 @@
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
     <addaction name="actionInsertNewCell"/>
+    <addaction name="actionMergeNodes"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
@@ -1609,6 +1610,11 @@
   <action name="actionExportBlenderFile">
    <property name="text">
     <string>Blender</string>
+   </property>
+  </action>
+  <action name="actionMergeNodes">
+   <property name="text">
+    <string>Merge nodes</string>
    </property>
   </action>
  </widget>

@@ -93,6 +93,7 @@ connect(ui.actionSimpleFoamWriter,SIGNAL(triggered()),this,SLOT(callSimpleFoamWr
 connect(ui.actionFoamCaseWriter, SIGNAL(triggered()), this, SLOT(callFoamCaseWriter()));
 connect(ui.actionDeleteBadAspectTris,SIGNAL(triggered()),this,SLOT(callDeleteBadAspectTris()));
 connect(ui.actionDeletePickedCell,SIGNAL(triggered()),this,SLOT(callDeletePickedCell()));
+connect(ui.actionMergeNodes,SIGNAL(triggered()),this,SLOT(callMergeNodes()));
 connect(ui.actionInsertNewCell,SIGNAL(triggered()),this,SLOT(callInsertNewCell()));
 connect(ui.actionDeletePickedPoint,SIGNAL(triggered()),this,SLOT(callDeletePickedPoint()));
 connect(ui.actionBoxSelect,SIGNAL(triggered()),this,SLOT(callBoxSelect()));
