@@ -632,6 +632,8 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   //cout<<"p_nA="<<p_nA<<endl;
   //cout<<"p_tA="<<p_tA<<endl;
   //cout<<"p_K="<<p_K<<endl;
+  if(p_K[0]<0) p_K[0] = 0;
+  if(p_K[0]>1) p_K[0] = 1;
   vec3_t K = A + p_K[0]*u + p_K[1]*v;
   //cout<<"K="<<K<<endl;
   return K;

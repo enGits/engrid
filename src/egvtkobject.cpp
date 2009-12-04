@@ -1057,7 +1057,7 @@ void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
   getAllCells(cells, grid);
   name = GuiMainWindow::pointer()->getCwd() + "/" + name + ".vtu";
   writeCells(grid, cells, name);
-  qDebug()<<"Saved grid as "<<name;
+//   qDebug()<<"Saved grid as "<<name;
 }
 
 void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)

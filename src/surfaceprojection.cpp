@@ -1212,12 +1212,12 @@ void SurfaceProjection::writeTriangleGrid(QString filename)
     v0 = getEdgeNormal(m_Triangles[i].m_id_a,m_Triangles[i].m_id_b).normalise();
     v1 = getEdgeNormal(m_Triangles[i].m_id_b,m_Triangles[i].m_id_c).normalise();
     v2 = getEdgeNormal(m_Triangles[i].m_id_c,m_Triangles[i].m_id_a).normalise();
-    checkVector(v0);
-    checkVector(v1);
-    checkVector(v2);
-    qDebug()<<"v0="<<v0;
-    qDebug()<<"v1="<<v1;
-    qDebug()<<"v2="<<v2;
+    if(!checkVector(v0) || !checkVector(v1) || !checkVector(v2)) {
+      qWarning()<<"v0="<<v0;
+      qWarning()<<"v1="<<v1;
+      qWarning()<<"v2="<<v2;
+      EG_BUG;
+    };
     vectors_hasneighbour0->InsertTuple(pts[0],v0.data());
     vectors_hasneighbour1->InsertTuple(pts[1],v1.data());
     vectors_hasneighbour2->InsertTuple(pts[2],v2.data());

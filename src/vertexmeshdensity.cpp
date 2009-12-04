@@ -81,7 +81,7 @@ int VertexMeshDensity::findSmallestVMD( QVector <VertexMeshDensity> vector)
 void VertexMeshDensity::setNodes(QString str)
 {
   nodeset.clear();//empty by default
-  cout<<"str.size="<<str.size()<<endl;
+//   cout<<"str.size="<<str.size()<<endl;
   if(str.size()>0)
   {
     QStringList L = str.split(",");
