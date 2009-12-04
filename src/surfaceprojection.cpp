@@ -643,14 +643,13 @@ vec3_t SurfaceProjection::correctCurvature1(int i_tri, vec3_t g_M)
   vec3_t g_I2 = g_A+T.m_G*l_I2;
   vec3_t g_I3 = g_A+T.m_G*l_I3;
   
-  vec3_t tmp;
-  tmp = (g_nI1); vec3_t l_nI1 = T.m_GI*tmp;
-  tmp = (g_nI2); vec3_t l_nI2 = T.m_GI*tmp;
-  tmp = (g_nI3); vec3_t l_nI3 = T.m_GI*tmp;
+  vec3_t l_nI1 = T.m_GI*g_nI1;
+  vec3_t l_nI2 = T.m_GI*g_nI2;
+  vec3_t l_nI3 = T.m_GI*g_nI3;
   
-  tmp = (g_nA); vec3_t l_nA = T.m_GI*tmp;
-  tmp = (g_nB); vec3_t l_nB = T.m_GI*tmp;
-  tmp = (g_nC); vec3_t l_nC = T.m_GI*tmp;
+  vec3_t l_nA = T.m_GI*g_nA;
+  vec3_t l_nB = T.m_GI*g_nB;
+  vec3_t l_nC = T.m_GI*g_nC;
   
   vec3_t l_AI1 = l_I1 - l_A;
   vec3_t l_BI2 = l_I2 - l_B;
@@ -711,7 +710,7 @@ vec3_t SurfaceProjection::correctCurvature1(int i_tri, vec3_t g_M)
   double z1 = interpolate(pm1_M, pm1_A, pm1_nA, pm1_I1, pm1_nI1);
   double z2 = interpolate(pm2_M, pm2_B, pm2_nB, pm2_I2, pm2_nI2);
   double z3 = interpolate(pm3_M, pm3_C, pm3_nC, pm3_I3, pm3_nI3);
-  double z = (z1+z2+z3)/3.0;
+  double z = z1;//(z1+z2+z3)/3.0;
   
   vec3_t l_X = l_M + z*l_g3;
   vec3_t g_X = g_A+T.m_G*l_X;

@@ -1,68 +1,39 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="19" >
-  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
-   <View0 Encoding="" line="40" Type="Source" />
+ <DocsAndViews NumberOfDocuments="8" >
+  <Doc0 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
+   <View0 Encoding="" line="645" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-   <View0 Encoding="" line="1230" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
+   <View0 Encoding="" line="0" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.h" >
-   <View0 Encoding="" line="131" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceprojection.h" >
+   <View0 Encoding="" line="73" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/geometrytools.cpp" >
-   <View0 Encoding="" line="325" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/mathvector_operators.h" >
+   <View0 Encoding="" line="227" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/utilities.h" >
-   <View0 Encoding="" line="284" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/mathvector_structs.h" >
+   <View0 Encoding="" line="0" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/triangle.cpp" >
-   <View0 Encoding="" line="118" Type="Source" />
+  <Doc5 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/smallsquarematrix.h" >
+   <View0 Encoding="" line="196" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/triangle.h" >
-   <View0 Encoding="" line="33" Type="Source" />
+  <Doc6 NumberOfViews="1" URL="file:///opt/shared/Qt/4.5.1/debug/include/QtCore/qsize.h" >
+   <View0 Encoding="" line="168" Type="Source" />
   </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/beziertriangle.h" >
-   <View0 Encoding="" line="44" Type="Source" />
+  <Doc7 NumberOfViews="1" URL="file:///opt/shared/Qt/4.5.1/debug/include/QtCore/qpoint.h" >
+   <View0 Encoding="" line="161" Type="Source" />
   </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/linsolve.h" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/mathvector.h" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/math/mathvector_methods.h" >
-   <View0 Encoding="" line="68" Type="Source" />
-  </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/checksurfaceintegrity.cpp" >
-   <View0 Encoding="" line="51" Type="Source" />
-  </Doc11>
-  <Doc12 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/surfaceoperation.cpp" >
-   <View0 Encoding="" line="410" Type="Source" />
-  </Doc12>
-  <Doc13 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guicreateboundarylayer.cpp" >
-   <View0 Encoding="" line="117" Type="Source" />
-  </Doc13>
-  <Doc14 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/fixcadgeometry.cpp" >
-   <View0 Encoding="" line="122" Type="Source" />
-  </Doc14>
-  <Doc15 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/deletepickedcell.cpp" >
-   <View0 Encoding="" line="37" Type="Source" />
-  </Doc15>
-  <Doc16 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/std_connections.h" >
-   <View0 Encoding="" line="94" Type="Source" />
-  </Doc16>
-  <Doc17 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guimainwindow.h" >
-   <View0 Encoding="" line="445" Type="Source" />
-  </Doc17>
-  <Doc18 NumberOfViews="1" URL="file:///data1/home/mtaverne/Development/engrid/src/guimainwindow.cpp" >
-   <View0 Encoding="" line="2062" Type="Source" />
-  </Doc18>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
-   <breakpointList/>
+   <breakpointList>
+    <breakpoint0 location="/data1/home/mtaverne/Development/engrid/src/vertexmeshdensity.cpp:94" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint0>
+   </breakpointList>
    <showInternalCommands value="0" />
   </kdevdebugger>
   <kdevastyle>
@@ -75,15 +46,14 @@
      <mark line="184" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/surfaceprojection.cpp" >
-     <mark line="1156" />
-     <mark line="907" />
-     <mark line="1233" />
-     <mark line="1421" />
+     <mark line="1258" />
+     <mark line="993" />
+     <mark line="744" />
+     <mark line="1070" />
     </bookmark>
     <bookmark url="/data1/home/mtaverne/Development/engrid/src/beziertriangle.cpp" >
      <mark line="833" />
      <mark line="704" />
-     <mark line="245" />
      <mark line="401" />
     </bookmark>
    </bookmarks>
