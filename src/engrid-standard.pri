@@ -303,3 +303,5 @@ HEADERS += triangle.h
 SOURCES += triangle.cpp
 HEADERS += projection_test.h
 SOURCES += projection_test.cpp
+HEADERS += mergenodes.h
+SOURCES += mergenodes.cpp
