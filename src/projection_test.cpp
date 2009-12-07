@@ -13,7 +13,8 @@ Projection_test::Projection_test() : SurfaceAlgorithm() {
 
 void Projection_test::operate() {
 //    project_picked_point();
-  project_all_points();
+//   project_all_points();
+  project_all_points2();
 //   Bezier_test();
 //   checkInterpolationGrid();
 //    Bezier_circle_test();
@@ -691,4 +692,36 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
 
   saveGrid(bezier, prefix + "bezierQuadTest");
   saveGrid(bezier_projection, prefix + "QuadProjectionTest");
+}
+
+void Projection_test::project_all_points2() {
+  
+  QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+  foreach (int bc, bcs) {
+    GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
+  }
+  
+  QVector <bool> alreadyprojected(m_Grid->GetNumberOfPoints(), false);
+  QVector <vtkIdType> cells;
+  getAllSurfaceCells(cells, m_Grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  
+  foreach(vtkIdType id_cell, cells) {
+    int bc = cell_code->GetValue(id_cell);
+    
+    vtkIdType *pts, N_pts;
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    for (int i = 0; i < N_pts; i++) {
+      vtkIdType id_node = pts[i];
+      if (!alreadyprojected[id_node]) {
+        vec3_t x_old;
+        m_Grid->GetPoint(id_node, x_old.data());
+        vec3_t x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_old, id_node);
+        m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+        alreadyprojected[id_node] = true;
+      }
+    }
+  }
+  
+  m_Grid->Modified();
 }

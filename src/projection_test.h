@@ -14,6 +14,7 @@ class Projection_test : public SurfaceAlgorithm {
     void operate();
     void project_picked_point();
     void project_all_points();
+    void project_all_points2();
     void Bezier_test();
     void checkInterpolationGrid();
     void Bezier_circle_test();
