@@ -1104,53 +1104,6 @@ QString EgVtkObject::getExtension(QString file_name)
 
 ///////////////////////////////////////////
 
-int idx_func(int N, int i, int j)
-{
-  int offset = -i*(i-2*N-1)/2;
-  return offset+j;
-}
-
-vtkIdType EgVtkObject::addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N)
-{
-  vtkIdType node_count = 0;
-  for(int i=0;i<N;i++) {
-    for(int j=0;j<N-i;j++) {
-      double x = i/(double)(N-1);
-      double y = j/(double)(N-1);
-      vec3_t bary_coords = getBarycentricCoordinates(x,y);
-      double u,v,w;
-      u=bary_coords[0];
-      v=bary_coords[1];
-      w=bary_coords[2];
-      vec3_t M = bezier_triangle->quadraticBezierTriangle(u, v, w);
-      bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
-    }
-  }
-  
-  int cell_count = 0;
-  for(int i=0;i<N-1;i++) {
-    for(int j=0;j<N-1-i;j++) {
-      
-      vtkIdType pts_triangle1[3];
-      pts_triangle1[0]=offset + idx_func(N, i  ,j  );
-      pts_triangle1[1]=offset + idx_func(N, i+1,j  );
-      pts_triangle1[2]=offset + idx_func(N, i  ,j+1);
-      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
-      
-      if(i+j<N-2) {
-        vtkIdType pts_triangle2[3];
-        pts_triangle2[0]=offset + idx_func(N, i+1,j  );
-        pts_triangle2[1]=offset + idx_func(N, i+1,j+1);
-        pts_triangle2[2]=offset + idx_func(N, i  ,j+1);
-        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
-      }
-      
-    }
-  }
-  
-  return node_count;
-}
-
 void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face, QVector<vtkIdType> &ids)
 {
   vtkIdType type_cell = grid->GetCellType(id_cell);

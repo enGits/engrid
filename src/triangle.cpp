@@ -33,6 +33,9 @@ Triangle::Triangle() : EgVtkObject() {
   m_a = vec3_t(0, 0, 0);
   m_b = vec3_t(0, 1, 0);
   m_c = vec3_t(0, 0, 1);
+  m_Normal_a = vec3_t(0, 0, 0);
+  m_Normal_b = vec3_t(0, 0, 0);
+  m_Normal_c = vec3_t(0, 0, 0);
   setupTriangle();
 }
 

@@ -101,6 +101,7 @@ class BezierTriangle : public Triangle {
   
   void saveBezierTriangle(QString filename);
   
+  void getBezierSurface(vtkUnstructuredGrid* bezier, int N);
 };
 
 #endif

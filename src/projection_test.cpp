@@ -203,14 +203,10 @@ void Projection_test::checkInterpolationGrid() {
 
 void Projection_test::Bezier_circle_test() {
   int N = 10;
-  int N_cells = (N - 1) * (N - 1);
-  int N_points = (N * N + N) / 2;
 
-  EG_VTKSP(vtkUnstructuredGrid, bezier);
-  allocateGrid(bezier, 6*N_cells, 6*N_points);
-
-  vtkIdType offset = 0;
-
+  MeshPartition new_grid_partition;
+  bool first = true;
+  
   for (int i = 0; i < 6; i++) {
     vec3_t X_200(0, 0, 0);
     double alpha = i * 60;
@@ -227,16 +223,24 @@ void Projection_test::Bezier_circle_test() {
     vec3_t X_101 = X_002;
     vec3_t X_110 = X_020;
 
+    // create the local grid
     BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
-    offset += addBezierSurface(&B, bezier, offset, N);
+    EG_VTKSP(vtkUnstructuredGrid, bezier);
+    B.getBezierSurface(bezier, N);
+    // add the local grid
+    if(first) {
+      first = false;
+      new_grid_partition.setGrid(bezier);
+      new_grid_partition.setAllCells();
+    }
+    else {
+      MeshPartition grid_partition(bezier, true);
+      new_grid_partition.addPartition(grid_partition);
+    }
+    
   }
 
-  saveGrid(bezier, "bezier");
-}
-
-int idx_func2(int N, int i, int j) {
-  int offset = -i * (i - 2 * N - 1) / 2;
-  return offset + j;
+  saveGrid(new_grid_partition.getGrid(), "bezier_all");
 }
 
 void Projection_test::bezierFunctionTest() {
@@ -350,16 +354,16 @@ void Projection_test::bezierFunctionTest() {
   for (int i = 0; i < N - 1; i++) {
     for (int j = 0; j < N - 1 - i; j++) {
       vtkIdType pts_triangle1[3];
-      pts_triangle1[0] = offset + idx_func2(N, i  , j);
-      pts_triangle1[1] = offset + idx_func2(N, i + 1, j);
-      pts_triangle1[2] = offset + idx_func2(N, i  , j + 1);
+      pts_triangle1[0] = offset + trigrid_idx(N, i  , j);
+      pts_triangle1[1] = offset + trigrid_idx(N, i + 1, j);
+      pts_triangle1[2] = offset + trigrid_idx(N, i  , j + 1);
       bezier->InsertNextCell(VTK_TRIANGLE, 3, pts_triangle1); cell_count++;
 
       if (i + j < N - 2) {
         vtkIdType pts_triangle2[3];
-        pts_triangle2[0] = offset + idx_func2(N, i + 1, j);
-        pts_triangle2[1] = offset + idx_func2(N, i + 1, j + 1);
-        pts_triangle2[2] = offset + idx_func2(N, i  , j + 1);
+        pts_triangle2[0] = offset + trigrid_idx(N, i + 1, j);
+        pts_triangle2[1] = offset + trigrid_idx(N, i + 1, j + 1);
+        pts_triangle2[2] = offset + trigrid_idx(N, i  , j + 1);
         bezier->InsertNextCell(VTK_TRIANGLE, 3, pts_triangle2); cell_count++;
       }
     }
@@ -463,16 +467,16 @@ void Projection_test::bezierProjectionTest() {
   for (int i = 0; i < N - 1; i++) {
     for (int j = 0; j < N - 1 - i; j++) {
       vtkIdType pts_triangle1[3];
-      pts_triangle1[0] = offset + idx_func2(N, i  , j);
-      pts_triangle1[1] = offset + idx_func2(N, i + 1, j);
-      pts_triangle1[2] = offset + idx_func2(N, i  , j + 1);
+      pts_triangle1[0] = offset + trigrid_idx(N, i  , j);
+      pts_triangle1[1] = offset + trigrid_idx(N, i + 1, j);
+      pts_triangle1[2] = offset + trigrid_idx(N, i  , j + 1);
       bezier->InsertNextCell(VTK_TRIANGLE, 3, pts_triangle1); cell_count++;
 
       if (i + j < N - 2) {
         vtkIdType pts_triangle2[3];
-        pts_triangle2[0] = offset + idx_func2(N, i + 1, j);
-        pts_triangle2[1] = offset + idx_func2(N, i + 1, j + 1);
-        pts_triangle2[2] = offset + idx_func2(N, i  , j + 1);
+        pts_triangle2[0] = offset + trigrid_idx(N, i + 1, j);
+        pts_triangle2[1] = offset + trigrid_idx(N, i + 1, j + 1);
+        pts_triangle2[2] = offset + trigrid_idx(N, i  , j + 1);
         bezier->InsertNextCell(VTK_TRIANGLE, 3, pts_triangle2); cell_count++;
       }
     }
@@ -484,10 +488,6 @@ void Projection_test::bezierProjectionTest() {
   qDebug() << "cell_count=" << cell_count;
 
   saveGrid(bezier, "bezierProjectionTest");
-}
-
-vtkIdType idx_func_quad(int N, int i, int j) {
-  return i*N + j;
 }
 
 void Projection_test::bezierQuads() {
@@ -529,10 +529,10 @@ void Projection_test::bezierQuads() {
   for (int i = 0; i < N - 1; i++) {
     for (int j = 0; j < N - 1; j++) {
       vtkIdType pts_quad[4];
-      pts_quad[0] = offset + idx_func_quad(N, i  , j);
-      pts_quad[1] = offset + idx_func_quad(N, i + 1, j);
-      pts_quad[2] = offset + idx_func_quad(N, i + 1, j + 1);
-      pts_quad[3] = offset + idx_func_quad(N, i  , j + 1);
+      pts_quad[0] = offset + quadgrid_idx(N, i  , j);
+      pts_quad[1] = offset + quadgrid_idx(N, i + 1, j);
+      pts_quad[2] = offset + quadgrid_idx(N, i + 1, j + 1);
+      pts_quad[3] = offset + quadgrid_idx(N, i  , j + 1);
       bezier->InsertNextCell(VTK_QUAD, 4, pts_quad); cell_count++;
     }
   }
@@ -673,10 +673,10 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
   for (int i = 0; i < N - 1; i++) {
     for (int j = 0; j < N - 1; j++) {
       vtkIdType pts_quad[4];
-      pts_quad[0] = offset + idx_func_quad(N, i  , j);
-      pts_quad[1] = offset + idx_func_quad(N, i + 1, j);
-      pts_quad[2] = offset + idx_func_quad(N, i + 1, j + 1);
-      pts_quad[3] = offset + idx_func_quad(N, i  , j + 1);
+      pts_quad[0] = offset + quadgrid_idx(N, i  , j);
+      pts_quad[1] = offset + quadgrid_idx(N, i + 1, j);
+      pts_quad[2] = offset + quadgrid_idx(N, i + 1, j + 1);
+      pts_quad[3] = offset + quadgrid_idx(N, i  , j + 1);
 
       bezier->InsertNextCell(VTK_QUAD, 4, pts_quad);
       bezier_projection->InsertNextCell(VTK_QUAD, 4, pts_quad);

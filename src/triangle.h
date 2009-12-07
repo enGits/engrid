@@ -40,6 +40,7 @@ class Triangle : public EgVtkObject {
     double m_A;
     double m_smallest_length;
     bool m_Valid;
+    vec3_t m_Normal_a, m_Normal_b, m_Normal_c;
 
   public:
     QVector <bool> m_has_neighbour; ///< True if edge i has a neighbour in the grid

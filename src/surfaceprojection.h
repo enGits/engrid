@@ -138,7 +138,8 @@ private: // methods
 public: // methods
 
   SurfaceProjection(); ///< Constructor
-
+  ~SurfaceProjection(); ///< Destructor
+  
   template <class C>
   void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 

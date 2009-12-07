@@ -59,6 +59,12 @@ SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
   m_ExactMode = 0;
 }
 
+SurfaceProjection::~SurfaceProjection()
+{
+  m_InterpolationGrid->Delete();
+  m_BezierGrid->Delete();
+}
+
 void SurfaceProjection::setBackgroundGrid_initOctree()
 {
   writeGrid(m_BGrid, "background");
@@ -1092,7 +1098,10 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   allocateGrid(m_InterpolationGrid , N_cells, N_points);
   makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
   
-  allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
+  MeshPartition new_grid_partition;
+  bool first = true;
+  
+//   allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
 
   vtkIdType node_count = m_BGrid->GetNumberOfPoints();
   int cell_count = m_BGrid->GetNumberOfCells();
@@ -1130,9 +1139,21 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
       //cout<<"+++++++++++++++++++++++++"<<endl;
     }
     
+    // create the local grid
     BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
-    offset += addBezierSurface(&bezier_triangle, m_BezierGrid, offset, N);
-
+    EG_VTKSP(vtkUnstructuredGrid, bezier);
+    bezier_triangle.getBezierSurface(bezier, N);
+    // add the local grid
+    if(first) {
+      first = false;
+      new_grid_partition.setGrid(bezier);
+      new_grid_partition.setAllCells();
+    }
+    else {
+      MeshPartition grid_partition(bezier, true);
+      new_grid_partition.addPartition(grid_partition);
+    }
+    
     vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];
     
@@ -1162,7 +1183,9 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   //qDebug()<<"offset="<<offset;
 
   saveGrid(m_InterpolationGrid, filename+"_InterpolationGrid");
+  makeCopy(new_grid_partition.getGrid(), m_BezierGrid);
   saveGrid(m_BezierGrid, filename+"_BezierGrid");
+//   saveGrid(new_grid_partition.getGrid(), filename+"_BezierGrid");
   this->writeGrid(m_BGrid,filename+"_BGrid");
   
 }
@@ -1412,6 +1435,10 @@ void SurfaceProjection::updateBackgroundGridInfo()
   // store the bezier triangles
   m_BezierTriangles.resize(m_Triangles.size());
   for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
+    
+    m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
+    m_Triangles[i_tri].m_Normal_b = m_NodeNormals[m_Triangles[i_tri].m_id_b];
+    m_Triangles[i_tri].m_Normal_c = m_NodeNormals[m_Triangles[i_tri].m_id_c];
     
     Triangle T = m_Triangles[i_tri];
     vec3_t g_A = T.m_a;

@@ -57,29 +57,6 @@ void BezierTriangle::getControlPoints(vec3_t& X_200, vec3_t& X_020, vec3_t& X_00
   X_110 = m_X_110;
 }
 
-void BezierTriangle::writeBezierSurface(QString filename, int N) {
-  //qDebug()<<"writeBezierSurface called";
-//   int N=10;
-  int N_cells = (N - 1) * (N - 1);
-  int N_points = (N * N + N) / 2;
-
-  //qDebug()<<"N_cells="<<N_cells;
-  //qDebug()<<"N_points="<<N_points;
-
-  EG_VTKSP(vtkUnstructuredGrid, bezier);
-  allocateGrid(bezier, N_cells, N_points);
-
-  vtkIdType offset = 0;
-  offset += addBezierSurface(this, bezier, offset, N);
-
-//   BezierTriangle B(m_X_200, m_X_020, m_X_002, m_X_011-vec3_t(0,0,1), m_X_101-vec3_t(0,0,1), m_X_110-vec3_t(0,0,1));
-//   offset += B.addBezierSurface(bezier, offset, N);
-
-  //qDebug()<<"offset="<<offset;
-
-  saveGrid(bezier, filename);
-}
-
 vec3_t BezierTriangle::quadraticBezierTriangle(double u, double v, double w) {
   double total = u + v + w;
   u = u / total;
@@ -820,8 +797,6 @@ void BezierTriangle::saveBezierTriangle(QString filename)
   int N_cells = 2;
   int N_points = 6;
   int N = 10;
-  int N_cells_per_triangle = (N-1)*(N-1);
-  int N_points_per_triangle = (N*N+N)/2;
   
   //qDebug()<<"N_cells="<<N_cells;
   //qDebug()<<"N_points="<<N_points;
@@ -830,8 +805,6 @@ void BezierTriangle::saveBezierTriangle(QString filename)
   
   EG_VTKSP(vtkUnstructuredGrid, interpolationGrid);
   allocateGrid(interpolationGrid , N_cells, N_points);
-  EG_VTKSP(vtkUnstructuredGrid, bezierGrid);
-  allocateGrid(bezierGrid, N_cells_per_triangle, N_points_per_triangle);
   
   vtkIdType node_count = 0;
   int cell_count = 0;
@@ -846,9 +819,6 @@ void BezierTriangle::saveBezierTriangle(QString filename)
   interpolationGrid->GetPoints()->SetPoint(node_count, m_X_011.data()); idx_J1=node_count; node_count++;
   interpolationGrid->GetPoints()->SetPoint(node_count, m_X_101.data()); idx_J2=node_count; node_count++;
   interpolationGrid->GetPoints()->SetPoint(node_count, m_X_110.data()); idx_J3=node_count; node_count++;
-  
-  int offset = 0;
-  addBezierSurface(this, bezierGrid, offset, N);
   
   vtkIdType polyline[7];
   polyline[0]=pts[0];
@@ -867,5 +837,55 @@ void BezierTriangle::saveBezierTriangle(QString filename)
   //qDebug()<<"offset="<<offset;
   
   saveGrid(interpolationGrid, filename+"_InterpolationGrid");
-  saveGrid(bezierGrid, filename+"_BezierGrid");
+}
+
+void BezierTriangle::writeBezierSurface(QString filename, int N) {
+  EG_VTKSP(vtkUnstructuredGrid, bezier);
+  getBezierSurface(bezier, N);
+  saveGrid(bezier, filename);
+}
+
+void BezierTriangle::getBezierSurface(vtkUnstructuredGrid* bezier, int N)
+{
+  int N_cells = (N - 1) * (N - 1);
+  int N_points = (N * N + N) / 2;
+  allocateGrid(bezier, N_cells, N_points);
+  
+  int offset = 0;
+  
+  vtkIdType node_count = 0;
+  for(int i=0;i<N;i++) {
+    for(int j=0;j<N-i;j++) {
+      double x = i/(double)(N-1);
+      double y = j/(double)(N-1);
+      vec3_t bary_coords = getBarycentricCoordinates(x,y);
+      double u,v,w;
+      u=bary_coords[0];
+      v=bary_coords[1];
+      w=bary_coords[2];
+      vec3_t M = this->quadraticBezierTriangle(u, v, w);
+      bezier->GetPoints()->SetPoint(offset + node_count, M.data());node_count++;
+    }
+  }
+  
+  int cell_count = 0;
+  for(int i=0;i<N-1;i++) {
+    for(int j=0;j<N-1-i;j++) {
+      
+      vtkIdType pts_triangle1[3];
+      pts_triangle1[0]=offset + trigrid_idx(N, i  ,j  );
+      pts_triangle1[1]=offset + trigrid_idx(N, i+1,j  );
+      pts_triangle1[2]=offset + trigrid_idx(N, i  ,j+1);
+      bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle1);cell_count++;
+      
+      if(i+j<N-2) {
+        vtkIdType pts_triangle2[3];
+        pts_triangle2[0]=offset + trigrid_idx(N, i+1,j  );
+        pts_triangle2[1]=offset + trigrid_idx(N, i+1,j+1);
+        pts_triangle2[2]=offset + trigrid_idx(N, i  ,j+1);
+        bezier->InsertNextCell(VTK_TRIANGLE,3,pts_triangle2);cell_count++;
+      }
+      
+    }
+  }
 }

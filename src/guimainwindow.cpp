@@ -1905,7 +1905,7 @@ void GuiMainWindow::storeSurfaceProjection()
   }
   m_SurfProj.clear();
   cout << "storing background grid for surface projection:" << endl;
-  EG_VTKSP(vtkUnstructuredGrid,new_grid);
+//   EG_VTKSP(vtkUnstructuredGrid,new_grid);
   MeshPartition new_grid_partition;
   bool first = true;
   
@@ -1981,8 +1981,8 @@ void GuiMainWindow::storeSurfaceProjection()
     }
   }
   writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
-  qDebug()<<"=====> new_grid->GetNumberOfPoints()="<<new_grid->GetNumberOfPoints();
-  qDebug()<<"=====> new_grid->GetNumberOfCells()="<<new_grid->GetNumberOfCells();
+//   qDebug()<<"=====> new_grid->GetNumberOfPoints()="<<new_grid->GetNumberOfPoints();
+//   qDebug()<<"=====> new_grid->GetNumberOfCells()="<<new_grid->GetNumberOfCells();
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)

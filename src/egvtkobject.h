@@ -522,8 +522,6 @@ public: // methods
   QSet<int> getBoundaryCodes();
   void setDebugLevel(int a_DebugLevel) { DebugLevel = a_DebugLevel; }
   
-  vtkIdType addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N);
- 
   bool saveGrid( vtkUnstructuredGrid* a_grid, QString file_name );
 
 private:
