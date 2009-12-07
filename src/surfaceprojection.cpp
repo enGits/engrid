@@ -1419,22 +1419,15 @@ void SurfaceProjection::updateBackgroundGridInfo()
   ///------------------------------
   /// UNDER CONSTRUCTION
   ///------------------------------
-  /*
+  
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    Triangle T = m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
-    
-    for(int i=0;i<3;i++) {
-      int i_cell = _cells[id_cell];
-      if(c2c[i_cell][i]<0) {
-        m_Triangles[id_cell].m_has_neighbour[i] = false;
-      }
-      else {
-        m_Triangles[id_cell].m_has_neighbour[i] = true;
+    Triangle T = m_Triangles[id_cell];
+    for(int i_edge = 0; i_edge < 3; i_edge++) {
+      if(!m_ControlPoints.contains(OrderedPair(p1,p2))) {
+      
       }
     }
-    
   }
-  */
   
   for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
     m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
