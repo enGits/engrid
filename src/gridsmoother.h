@@ -58,7 +58,6 @@ protected: // attributes
   
   double m_WTet;
   double m_ETet;
-  double m_WTetCrit;
   double m_WTetSave;
   double m_WH;
   double m_WPar;

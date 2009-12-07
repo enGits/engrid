@@ -42,7 +42,6 @@ GridSmoother::GridSmoother()
 
   getSet("boundary layer", "tetra weighting",                    0.1,   m_WTet);
   getSet("boundary layer", "tetra exponent",                     1.2,   m_ETet);
-  getSet("boundary layer", "tetra critical weighting",          10.0,   m_WTetCrit);
   getSet("boundary layer", "layer height weighting",             1.0,   m_WH);
   getSet("boundary layer", "parallel edges weighting",           3.0,   m_WPar);
   getSet("boundary layer", "parallel faces weighting",           5.0,   m_WN);
@@ -292,21 +291,17 @@ double GridSmoother::func(vec3_t x)
         m_Grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
       if (type_cell == VTK_TETRA) {
-        double L = 0;
-        L = max((xn[0]-xn[1]).abs(), L);
-        L = max((xn[0]-xn[2]).abs(), L);
-        L = max((xn[0]-xn[3]).abs(), L);
-        L = max((xn[1]-xn[2]).abs(), L);
-        L = max((xn[1]-xn[3]).abs(), L);
-        L = max((xn[2]-xn[3]).abs(), L);
+        double L_max = 1e-20;
+        L_max = max((xn[0]-xn[1]).abs(), L_max);
+        L_max = max((xn[0]-xn[2]).abs(), L_max);
+        L_max = max((xn[0]-xn[3]).abs(), L_max);
+        L_max = max((xn[1]-xn[2]).abs(), L_max);
+        L_max = max((xn[1]-xn[3]).abs(), L_max);
+        L_max = max((xn[2]-xn[3]).abs(), L_max);
         double V1 = GeometryTools::cellVA(m_Grid, id_cell, true);
-        double V2 = 0.1178511301977579207*L*L*L;
-        double e = (V1-V2)/V2;
-        if (m_CriticalTetra[id_cell]) {
-          f += m_WTetCrit*pow(e, m_ETet);
-        } else {
-          f += m_WTet*pow(e, m_ETet);
-        }
+        double V2 = 0.1178511301977579207*L_max*L_max*L_max;
+        double e = fabs(V1-V2)/V2;
+        f += m_WTet*pow(e, m_ETet);
       }
       if (type_cell == VTK_WEDGE) {
         double L = 0;
