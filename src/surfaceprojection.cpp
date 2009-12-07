@@ -61,8 +61,8 @@ SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 
 SurfaceProjection::~SurfaceProjection()
 {
-  m_InterpolationGrid->Delete();
-  m_BezierGrid->Delete();
+//   m_InterpolationGrid->Delete();
+//   m_BezierGrid->Delete();
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree()
@@ -1099,6 +1099,7 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
   makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
   
   MeshPartition new_grid_partition;
+  EG_VTKSP(vtkUnstructuredGrid, bezier_first);
   bool first = true;
   
 //   allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
@@ -1139,17 +1140,17 @@ void SurfaceProjection::writeInterpolationGrid(QString filename)
       //cout<<"+++++++++++++++++++++++++"<<endl;
     }
     
-    // create the local grid
-    BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
-    EG_VTKSP(vtkUnstructuredGrid, bezier);
-    bezier_triangle.getBezierSurface(bezier, N);
     // add the local grid
+    BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
     if(first) {
       first = false;
-      new_grid_partition.setGrid(bezier);
+      bezier_triangle.getBezierSurface(bezier_first, N);
+      new_grid_partition.setGrid(bezier_first);
       new_grid_partition.setAllCells();
     }
     else {
+      EG_VTKSP(vtkUnstructuredGrid, bezier);
+      bezier_triangle.getBezierSurface(bezier, N);
       MeshPartition grid_partition(bezier, true);
       new_grid_partition.addPartition(grid_partition);
     }

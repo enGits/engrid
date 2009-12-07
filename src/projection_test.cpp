@@ -14,10 +14,10 @@ Projection_test::Projection_test() : SurfaceAlgorithm() {
 void Projection_test::operate() {
 //    project_picked_point();
 //   project_all_points();
-  project_all_points2();
+//   project_all_points2();
 //   Bezier_test();
 //   checkInterpolationGrid();
-//    Bezier_circle_test();
+  Bezier_circle_test();
 //   bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
@@ -206,6 +206,7 @@ void Projection_test::Bezier_circle_test() {
   int N = 10;
 
   MeshPartition new_grid_partition;
+  EG_VTKSP(vtkUnstructuredGrid, bezier_first);
   bool first = true;
   
   for (int i = 0; i < 6; i++) {
@@ -224,17 +225,17 @@ void Projection_test::Bezier_circle_test() {
     vec3_t X_101 = X_002;
     vec3_t X_110 = X_020;
 
-    // create the local grid
-    BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
-    EG_VTKSP(vtkUnstructuredGrid, bezier);
-    B.getBezierSurface(bezier, N);
     // add the local grid
+    BezierTriangle B(X_200, X_020, X_002, X_011, X_101, X_110);
     if(first) {
       first = false;
-      new_grid_partition.setGrid(bezier);
+      B.getBezierSurface(bezier_first, N);
+      new_grid_partition.setGrid(bezier_first);
       new_grid_partition.setAllCells();
     }
     else {
+      EG_VTKSP(vtkUnstructuredGrid, bezier);
+      B.getBezierSurface(bezier, N);
       MeshPartition grid_partition(bezier, true);
       new_grid_partition.addPartition(grid_partition);
     }

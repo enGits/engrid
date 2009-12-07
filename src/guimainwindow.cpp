@@ -1966,16 +1966,13 @@ void GuiMainWindow::storeSurfaceProjection()
     
     proj->writeGridWithNormals(basename);
     
-    //TODO: Make this work again later.
-//     proj->writeInterpolationGrid(basename);
+    proj->writeInterpolationGrid(basename);
     
     proj->writeTriangleGrid(basename);
     qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
       <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
-//     addGrid(new_grid, proj->getBezierGrid());
     
-    //TODO: Make this work again later.
-/*    if(first) {
+    if(first) {
       first = false;
       new_grid_partition.setGrid(proj->getBezierGrid());
       new_grid_partition.setAllCells();
@@ -1983,14 +1980,10 @@ void GuiMainWindow::storeSurfaceProjection()
     else {
       MeshPartition grid_partition(proj->getBezierGrid(), true);
       new_grid_partition.addPartition(grid_partition);
-    }*/
+    }
   }
   
-    //TODO: Make this work again later.
-//   writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
-  
-//   qDebug()<<"=====> new_grid->GetNumberOfPoints()="<<new_grid->GetNumberOfPoints();
-//   qDebug()<<"=====> new_grid->GetNumberOfCells()="<<new_grid->GetNumberOfCells();
+    writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
