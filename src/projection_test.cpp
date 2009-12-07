@@ -2,6 +2,7 @@
 #include "surfaceprojection.h"
 
 #include "beziertriangle.h"
+#include "laplacesmoother.h"
 
 #include "vtkUnstructuredGridWriter.h"
 
@@ -707,6 +708,31 @@ void Projection_test::project_all_points2() {
   mesher();
   
   // correct curvature
+  LaplaceSmoother lap;
+  lap.setCorrectCurvature(true);
+  lap.setNoCheck(true);
+  lap.setGrid(m_Grid);
+  QVector<vtkIdType> cls;
+  getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
+  lap.setCells(cls);
+  lap.setNumberOfIterations(1);
+  m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
+  lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
+  if (m_UseProjectionForSmoothing) {
+    lap.setProjectionOn();
+  } else {
+    lap.setProjectionOff();
+  }
+  if (m_UseNormalCorrectionForSmoothing) {
+    lap.setNormalCorrectionOn();
+  } else {
+    lap.setNormalCorrectionOff();
+  }
+  lap();
+  m_SmoothSuccess = lap.succeeded();
+  
+  return;
+  
   QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   foreach (int bc, bcs) {
     GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
@@ -736,4 +762,116 @@ void Projection_test::project_all_points2() {
   }
   
   m_Grid->Modified();
+}
+
+bool Projection_test::setNewPosition(vtkIdType id_node, vec3_t x_new)
+{
+  using namespace GeometryTools;
+  
+  vec3_t x_old;
+  m_Grid->GetPoint(id_node, x_old.data());
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+  bool move = true;
+  
+  vec3_t n(0,0,0);
+  QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
+  double A_max = 0;//area of the biggest neighbour cell of id_node
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
+    A_max = max(A, A_max);
+    cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+    cell_normals[i].normalise();
+  }
+  int N = 0;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
+    if (A > 0.01*A_max) {
+      n += cell_normals[i];
+      ++N;
+    }
+  }
+  if (N == 0) {
+    EG_BUG;
+    move = false;
+  } else {
+    n.normalise();
+    double L_max = 0;// distance to the furthest neighbour node of id_node
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vec3_t xn;
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+      double L = (xn - x_old).abs();
+      L_max = max(L, L_max);
+    }
+    vec3_t x_summit = x_new + L_max*n;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vec3_t x[3];
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
+      if (N_pts != 3) {
+        EG_BUG;
+      }
+      for (int j = 0; j < N_pts; ++j) {
+        m_Grid->GetPoint(pts[j], x[j].data());
+      }
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+//         saveGrid(m_Grid, "after_move1");
+//         qWarning()<<"Cannot move point "<<id_node<<" because negative tetraVol.";
+        move = false;
+//         m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+//         saveGrid(m_Grid, "before_move1");
+//         EG_BUG;
+        break;
+      }
+    }
+  }
+  if (move) {
+    for (int i = 0; i < cell_normals.size(); ++i) {
+      for (int j = 0; j < cell_normals.size(); ++j) {
+        if (cell_normals[i]*cell_normals[j] < -1000*0.1) {//Why -1000*0.1?
+          saveGrid(m_Grid, "after_move2");
+          qWarning()<<"Cannot move point "<<id_node<<" because opposite cell_normals.";
+          move = false;
+          m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+          saveGrid(m_Grid, "before_move2");
+          EG_BUG;
+          break;
+        }
+      }
+    }
+  }
+  
+  if (!move) {
+    // comment this out if you want points to always move
+    m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+//     saveGrid(m_Grid, "before_move");
+  }
+  return move;
+}
+
+bool Projection_test::moveNode(vtkIdType id_node, vec3_t &Dx)
+{
+/*  vec3_t x_old;
+  m_Grid->GetPoint(id_node, x_old.data());
+  bool moved = false;
+  for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
+    vec3_t x_new = x_old + Dx;
+    int i_nodes = m_Part.localNode(id_node);
+    if (m_NodeToBc[i_nodes].size() == 1) {
+      int bc = m_NodeToBc[i_nodes][0];
+      x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+    } else {
+      for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+        foreach (int bc, m_NodeToBc[i_nodes]) {
+          x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+        }
+      }
+    }
+    if (setNewPosition(id_node, x_new)) {
+      moved = true;
+      Dx = x_new - x_old;
+      break;
+    }
+    Dx *= 0.5;
+  }
+  return moved;*/
 }

@@ -35,6 +35,8 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_UseProjection = true;
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
+  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  m_NoCheck = false;
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -44,8 +46,10 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+  
   bool move = true;
-
+  if(m_NoCheck) return move;
+  
   vec3_t n(0,0,0);
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
   double A_max = 0;//area of the biggest neighbour cell of id_node
@@ -156,15 +160,12 @@ void LaplaceSmoother::operate()
 {
 //   qDebug()<<"LaplaceSmoother::operate() called";
   
-  bool correctCurvature;
-  getSet("surface meshing", "correct curvature (experimental)", false, correctCurvature);
-  
   QSet<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
     foreach (int bc, bcs) {
       GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
-      GuiMainWindow::pointer()->getSurfProj(bc)->setCorrectCurvature(correctCurvature);
+      GuiMainWindow::pointer()->getSurfProj(bc)->setCorrectCurvature(m_correctCurvature);
     }
   }
   UpdatePotentialSnapPoints(false, false);

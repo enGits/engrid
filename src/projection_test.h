@@ -31,6 +31,11 @@ class Projection_test : public SurfaceAlgorithm {
       virtual void before();
       virtual void operate();*/
 
+private: // methods
+  
+  bool setNewPosition(vtkIdType id_node, vec3_t x_new);
+  bool moveNode(vtkIdType id_node, vec3_t &Dx);
+  
 };
 
 #endif // PROJECTION_TEST_H

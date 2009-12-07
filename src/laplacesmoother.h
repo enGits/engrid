@@ -40,7 +40,9 @@ private:
 
   QVector<QVector<int> > m_NodeToBc;
 
-
+  bool      m_correctCurvature;
+  bool      m_NoCheck;
+  
 private: // methods
 
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
@@ -58,6 +60,12 @@ public:
   void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
   bool succeeded() { return m_Success; }
 
+public:
+  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
+  bool getCorrectCurvature() { return m_correctCurvature; }
+  void setNoCheck(bool b) { m_NoCheck = b; }
+  bool getNoCheck() { return m_NoCheck; }
+  
 };
 
 #endif
