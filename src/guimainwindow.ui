@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -175,6 +175,7 @@
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
+    <addaction name="actionExportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -299,7 +300,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>501</height>
+          <height>507</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -681,7 +682,7 @@
           <x>0</x>
           <y>0</y>
           <width>228</width>
-          <height>557</height>
+          <height>531</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1591,6 +1592,11 @@
   <action name="actionTest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="actionExportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
    </property>
   </action>
  </widget>

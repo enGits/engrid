@@ -458,6 +458,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCgnsWriter()                 { EG_STDINTERSLOT( CgnsWriter ); }
     void callVtkReader()                  { EG_STDREADERSLOT( VtkReader ); }
     void callBlenderReader()              { EG_STDREADERSLOT( BlenderReader ); }
+    void callBlenderWriter()              { EG_STDREADERSLOT( BlenderWriter ); }
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
