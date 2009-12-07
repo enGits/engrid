@@ -39,7 +39,9 @@ GridSmoother::GridSmoother()
   m_FNew                   = 0;
   m_H                      = 1.5;
 
-  getSet("boundary layer", "tetra weighting",                    1.0,   m_WTet);
+  getSet("boundary layer", "tetra weighting",                    0.1,   m_WTet);
+  getSet("boundary layer", "tetra exponent",                     1.2,   m_ETet);
+  getSet("boundary layer", "tetra critical weighting",          10.0,   m_WTetCrit);
   getSet("boundary layer", "layer height weighting",             1.0,   m_WH);
   getSet("boundary layer", "parallel edges weighting",           3.0,   m_WPar);
   getSet("boundary layer", "parallel faces weighting",           5.0,   m_WN);
@@ -94,6 +96,39 @@ void GridSmoother::markNodes()
     if (id_node > m_Grid->GetNumberOfPoints()) EG_BUG;
     if (m_NodeMarked[id_node]) {
       ++m_NumMarkedNodes;
+    }
+  }
+}
+
+void GridSmoother::findCriticalTetras()
+{
+  m_CriticalTetra.fill(false, m_Grid->GetNumberOfCells());
+  QVector<bool> pure_tetra_node(m_Grid->GetNumberOfPoints(), true);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, m_Grid)) {
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      if (type_cell != VTK_TETRA) {
+        vtkIdType N_pts, *pts;
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i = 0; i < N_pts; ++i) {
+          pure_tetra_node[pts[i]] = false;
+        }
+      }
+    }
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    if (type_cell == VTK_TETRA) {
+      vtkIdType N_pts, *pts;
+      bool crit = true;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        if (pure_tetra_node[pts[i]]) {
+          crit = false;
+          break;
+        }
+      }
+      m_CriticalTetra[id_cell] = crit;
     }
   }
 }
@@ -255,17 +290,20 @@ double GridSmoother::func(vec3_t x)
       }
       if (type_cell == VTK_TETRA) {
         double L = 0;
-        L += (xn[0]-xn[1]).abs();
-        L += (xn[0]-xn[2]).abs();
-        L += (xn[0]-xn[3]).abs();
-        L += (xn[1]-xn[2]).abs();
-        L += (xn[1]-xn[3]).abs();
-        L += (xn[2]-xn[3]).abs();
-        L /= 6;
+        L = max((xn[0]-xn[1]).abs(), L);
+        L = max((xn[0]-xn[2]).abs(), L);
+        L = max((xn[0]-xn[3]).abs(), L);
+        L = max((xn[1]-xn[2]).abs(), L);
+        L = max((xn[1]-xn[3]).abs(), L);
+        L = max((xn[2]-xn[3]).abs(), L);
         double V1 = GeometryTools::cellVA(m_Grid, id_cell, true);
-        double V2 = sqrt(1.0/72.0)*L*L*L;
-        double e = sqr((V1-V2)/V2);
-        f += m_WTet*e;
+        double V2 = 0.1178511301977579207*L*L*L;
+        double e = (V1-V2)/V2;
+        if (m_CriticalTetra[id_cell]) {
+          f += m_WTetCrit*pow(e, m_ETet);
+        } else {
+          f += m_WTet*pow(e, m_ETet);
+        }
       }
       if (type_cell == VTK_WEDGE) {
         double L = 0;
@@ -430,6 +468,7 @@ void GridSmoother::addToStencil(double C, vec3_t x)
 void GridSmoother::operateOptimisation()
 {
   markNodes();
+  findCriticalTetras();
 
   l2g_t nodes = m_Part.getNodes();
   l2g_t cells = m_Part.getCells();

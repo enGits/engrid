@@ -39,6 +39,7 @@ private: // attributes
   
   bool          m_SmoothPrisms;
   QVector<bool> m_NodeMarked;
+  QVector<bool> m_CriticalTetra;
   int           m_NumMarkedNodes;
   
 protected: // attributes
@@ -55,6 +56,8 @@ protected: // attributes
   double m_FMaxNew;
   
   double m_WTet;
+  double m_ETet;
+  double m_WTetCrit;
   double m_WTetSave;
   double m_WH;
   double m_WPar;
@@ -107,6 +110,7 @@ protected: // methods
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
+  void findCriticalTetras();
   void setPrismWeighting() { m_WTetSave = m_WTet; m_WTet = 0; };
   void setAllWeighting() { m_WTet = m_WTetSave; };
   void computeNormals();
