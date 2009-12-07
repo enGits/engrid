@@ -96,6 +96,10 @@ private:
 
   bool m_correctCurvature; ///< Should correctCurvature() be used?
 
+public:
+  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
+  bool getCorrectCurvature() { return m_correctCurvature; }
+  
 // variables for exact projection surfaces
 public:
   int m_ExactMode;

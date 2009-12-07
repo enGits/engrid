@@ -154,12 +154,17 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 
 void LaplaceSmoother::operate()
 {
-  qDebug()<<"LaplaceSmoother::operate() called";
+//   qDebug()<<"LaplaceSmoother::operate() called";
+  
+  bool correctCurvature;
+  getSet("surface meshing", "correct curvature (experimental)", false, correctCurvature);
+  
   QSet<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
     foreach (int bc, bcs) {
       GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
+      GuiMainWindow::pointer()->getSurfProj(bc)->setCorrectCurvature(correctCurvature);
     }
   }
   UpdatePotentialSnapPoints(false, false);

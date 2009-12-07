@@ -14,10 +14,10 @@ Projection_test::Projection_test() : SurfaceAlgorithm() {
 void Projection_test::operate() {
 //    project_picked_point();
 //   project_all_points();
-//   project_all_points2();
+  project_all_points2();
 //   Bezier_test();
 //   checkInterpolationGrid();
-  Bezier_circle_test();
+//   Bezier_circle_test();
 //   bezierFunctionTest();
 //   bezierProjectionTest();
 //   bezierQuads();
@@ -697,9 +697,20 @@ void Projection_test::bezierProjectionTest2(BezierTriangle bezier_triangle, QStr
 
 void Projection_test::project_all_points2() {
   
+  // store projection surface
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
+  
+  // mesh surface
+  SurfaceMesher mesher;
+  mesher();
+  
+  // correct curvature
   QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   foreach (int bc, bcs) {
     GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
+    GuiMainWindow::pointer()->getSurfProj(bc)->setCorrectCurvature(true);
   }
   
   QVector <bool> alreadyprojected(m_Grid->GetNumberOfPoints(), false);

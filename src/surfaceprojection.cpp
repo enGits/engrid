@@ -753,7 +753,6 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
   if(m_ExactMode==4) return cuboid(xp);
   if(m_ExactMode==5) return cylinder(xp);*/
   
-  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
 //   qDebug()<<"=== m_correctCurvature="<<m_correctCurvature<<" ===";
   
 //   qWarning()<<"@@@@@@@@@@@@ xp="<<xp[0]<<xp[1]<<xp[2]<<endl;
