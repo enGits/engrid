@@ -353,7 +353,7 @@ double GridSmoother::func(vec3_t x)
           f += m_WN*e;
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = sqr((A1-A2)/(A1+A2));
+          double e = sqr(0.5*(A1-A2)/A1);
           f += m_WA*e;
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
