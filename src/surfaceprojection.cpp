@@ -389,23 +389,6 @@ vec3_t SurfaceProjection::projectWithLevelSet(vec3_t x)
   return x;
 }
 
-// #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
-// if (!grid->GetCellData()->GetArray(FIELD)) { \
-// EG_VTKSP(TYPE, var); \
-// var->SetName(FIELD); \
-// var->SetNumberOfValues(Ncells); \
-// grid->GetCellData()->AddArray(var); \
-// for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
-// var->SetValue(i,0); \
-// } \
-// } else if (OW) { \
-// EG_VTKDCC(TYPE, var, grid, FIELD); \
-// var->SetNumberOfValues(Ncells); \
-// for (int i = 0; i < grid->GetNumberOfCells(); ++i) { \
-// var->SetValue(i,0); \
-// } \
-// }
-
 void SurfaceProjection::writeGridWithNormals(QString filename)
 {
   //qDebug()<<"void SurfaceProjection::writeGridWithNormals() called";
@@ -1432,32 +1415,35 @@ void SurfaceProjection::updateBackgroundGridInfo()
 //     qDebug()<<"m_NodeNormals["<<id_node<<"]="<<m_NodeNormals[id_node];
   }
   
-  // store the bezier triangles
-  m_BezierTriangles.resize(m_Triangles.size());
+  // get the control points
+/*  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
+    m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)] = 0.5*(T.m_b + T.m_c);
+    m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)] = 0.5*(T.m_c + T.m_a);
+    m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)] = 0.5*(T.m_a + T.m_b);
+  }*/
   for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
-    
     m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
     m_Triangles[i_tri].m_Normal_b = m_NodeNormals[m_Triangles[i_tri].m_id_b];
     m_Triangles[i_tri].m_Normal_c = m_NodeNormals[m_Triangles[i_tri].m_id_c];
     
     Triangle T = m_Triangles[i_tri];
-    vec3_t g_A = T.m_a;
-    vec3_t g_B = T.m_b;
-    vec3_t g_C = T.m_c;
-    
-  //qDebug()<<"=== ORTHOGONAL PLANES ===";
-    vec3_t g_J1, g_J2, g_J3;
-    getControlPoints_orthogonal(T,g_J1,g_J2,g_J3, 1e99);
-  //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-    vec3_t g_K1, g_K2, g_K3;
-    getControlPoints_nonorthogonal(T,g_K1,g_K2,g_K3, 1e99);
-    
-    vec3_t X_200 = g_A;
-    vec3_t X_020 = g_B;
-    vec3_t X_002 = g_C;
-    vec3_t X_011 = g_K1;
-    vec3_t X_101 = g_K2;
-    vec3_t X_110 = g_K3;
+    vec3_t X_011, X_101, X_110;
+    getControlPoints_nonorthogonal(T,X_011, X_101, X_110, 1e99);
+    m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)] = X_011;
+    m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)] = X_101;
+    m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)] = X_110;
+  }
+  
+  // store the bezier triangles
+  m_BezierTriangles.resize(m_Triangles.size());
+  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
+    Triangle T = m_Triangles[i_tri];
+    vec3_t X_200 = T.m_a;
+    vec3_t X_020 = T.m_b;
+    vec3_t X_002 = T.m_c;
+    vec3_t X_011 = m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)];
+    vec3_t X_101 = m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)];
+    vec3_t X_110 = m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)];
     
     m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
     m_BezierTriangles[i_tri].m_has_neighbour = m_Triangles[i_tri].m_has_neighbour;

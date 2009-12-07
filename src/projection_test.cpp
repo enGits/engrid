@@ -703,9 +703,13 @@ void Projection_test::project_all_points2() {
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   
+  writeGrid(m_Grid, "allinone_before_meshing");
+  
   // mesh surface
   SurfaceMesher mesher;
   mesher();
+  
+  writeGrid(m_Grid, "allinone_after_meshing");
   
   // correct curvature
   LaplaceSmoother lap;
@@ -731,7 +735,10 @@ void Projection_test::project_all_points2() {
   lap();
   m_SmoothSuccess = lap.succeeded();
   
+  writeGrid(m_Grid, "allinone_after_correctCurvature");
+  
   return;
+  EG_BUG;
   
   QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   foreach (int bc, bcs) {

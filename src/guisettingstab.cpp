@@ -31,7 +31,7 @@ using namespace std;
 GuiSettingsTab::GuiSettingsTab(QString org, QString app, QString group, QWidget *parent): QWidget(parent)
 {
 
-  qDebug() << "group=" << group;
+//   qDebug() << "group=" << group;
 
   QFormLayout *permissionsLayout = new QFormLayout;
 
