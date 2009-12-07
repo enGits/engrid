@@ -79,7 +79,17 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       double L = (xn - x_old).abs();
       L_max = max(L, L_max);
     }
-    vec3_t x_summit = x_new + L_max*n;
+    
+    vec3_t x_summit;
+    if(m_correctCurvature) {
+      // better for mesher with interpolation
+      x_summit = x_new + L_max*n;
+    }
+    else {
+    // better for mesher without interpolation
+      x_summit = x_old + L_max*n;
+    }
+    
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
       vtkIdType N_pts, *pts;

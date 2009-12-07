@@ -1416,23 +1416,56 @@ void SurfaceProjection::updateBackgroundGridInfo()
   }
   
   // get the control points
-/*  for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
-    m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)] = 0.5*(T.m_b + T.m_c);
-    m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)] = 0.5*(T.m_c + T.m_a);
-    m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)] = 0.5*(T.m_a + T.m_b);
-  }*/
+  ///------------------------------
+  /// UNDER CONSTRUCTION
+  ///------------------------------
+  /*
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    Triangle T = m_Triangles[id_cell] = Triangle(m_BGrid, id_cell);
+    
+    for(int i=0;i<3;i++) {
+      int i_cell = _cells[id_cell];
+      if(c2c[i_cell][i]<0) {
+        m_Triangles[id_cell].m_has_neighbour[i] = false;
+      }
+      else {
+        m_Triangles[id_cell].m_has_neighbour[i] = true;
+      }
+    }
+    
+  }
+  */
+  
   for(int i_tri=0; i_tri<m_Triangles.size(); i_tri++) {
     m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
     m_Triangles[i_tri].m_Normal_b = m_NodeNormals[m_Triangles[i_tri].m_id_b];
     m_Triangles[i_tri].m_Normal_c = m_NodeNormals[m_Triangles[i_tri].m_id_c];
     
     Triangle T = m_Triangles[i_tri];
+    vec3_t X_200 = T.m_a;
+    vec3_t X_020 = T.m_b;
+    vec3_t X_002 = T.m_c;
     vec3_t X_011, X_101, X_110;
     getControlPoints_nonorthogonal(T,X_011, X_101, X_110, 1e99);
     m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)] = X_011;
     m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)] = X_101;
     m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)] = X_110;
+    
+    /*
+    foreach(triangle) {
+      foreach(side) {
+        if(side not done) {
+          foreach(triangle in stencil) {
+            foreach(different edge and point) {
+              if(intersection) x=intersection
+            }
+          }
+        }
+      }
+    }
+    */
   }
+  ///------------------------------
   
   // store the bezier triangles
   m_BezierTriangles.resize(m_Triangles.size());
