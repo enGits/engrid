@@ -54,6 +54,7 @@ protected: // attributes
   double m_FNew;
   double m_FMaxOld;
   double m_FMaxNew;
+  double m_ReductionFactor;
   
   double m_WTet;
   double m_ETet;

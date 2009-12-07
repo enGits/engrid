@@ -30,7 +30,8 @@
 GridSmoother::GridSmoother()
 {
   m_NumIterations          = 5;
-  m_NumRelaxations         = 5;
+  m_NumRelaxations         = 1;
+  m_ReductionFactor        = 0.2;
   m_NumBoundaryCorrections = 20;
   m_NumSearch              = 10;
   m_LSearch                = 0.5;
@@ -179,6 +180,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       }
     }
   }
+
+
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
@@ -671,7 +674,7 @@ void GridSmoother::operateOptimisation()
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
     //cout << N_blocked << " movements blocked" << endl;
-    //cout << m_NumSearched << " movements by search" << endl;
+    cout << m_NumSearched << " movements by search" << endl;
     //cout << N_illegal << " nodes in illegal positions" << endl;
     
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
