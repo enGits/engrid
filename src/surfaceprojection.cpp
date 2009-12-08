@@ -1423,9 +1423,9 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     Triangle T = m_Triangles[id_cell];
     for(int i_edge = 0; i_edge < 3; i_edge++) {
-      if(!m_ControlPoints.contains(OrderedPair(p1,p2))) {
+/*      if(!m_ControlPoints.contains(OrderedPair(p1,p2))) {
       
-      }
+      }*/
     }
   }
   
