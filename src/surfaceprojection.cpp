@@ -841,7 +841,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
       }
     }
   }
-  if (true || need_full_search) {
+  if (need_full_search) {
 //     qDebug()<<"starting full search";
     ++m_NumFull;
     double d_min = 1e99;
@@ -897,7 +897,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     if (id_node < 0) {
       EG_BUG;
     }
-    x = projectWithGeometry_original(x, id_node);
+    x = projectWithGeometry(x, id_node);
   }
 //   writeGrid(m_FGrid,"m_FGrid");
 //   writeGrid(m_BGrid,"m_BGrid");

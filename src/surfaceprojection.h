@@ -173,7 +173,7 @@ template <class C>
 void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
 {
   setBackgroundGrid_setupGrid(grid, cells);
-  updateBackgroundGridInfo_original();
+  updateBackgroundGridInfo();
   if (m_UseLevelSet) {
     setBackgroundGrid_initOctree();
     setBackgroundGrid_refineFromNodes();
