@@ -726,6 +726,68 @@ vec3_t SurfaceProjection::cylinder(vec3_t center, double radius, int i_tri, vec3
   return cylinder(center, radius, g_M);
 }
 
+vec3_t SurfaceProjection::projectWithGeometry_original(vec3_t xp, vtkIdType id_node)
+{
+  vec3_t x_proj(1e99,1e99,1e99), r_proj;
+  bool on_triangle = false;
+  bool need_full_search = false;
+  if (id_node >= m_ProjTriangles.size()) {
+    int old_size = m_ProjTriangles.size();
+    m_ProjTriangles.resize(m_FGrid->GetNumberOfPoints());
+    for (int i = old_size; i < m_ProjTriangles.size(); ++i) {
+      m_ProjTriangles[i] = -1;
+    }
+    need_full_search = true;
+  } else {
+    int i_triangles = m_ProjTriangles[id_node];
+    if (i_triangles < 0) {
+      need_full_search = true;
+    } else {
+      if (i_triangles >= m_Triangles.size()) {
+        EG_BUG;
+      }
+      Triangle T = m_Triangles[i_triangles];
+      vec3_t xi, ri;
+      double d;
+      int side;
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
+      if (!intersects || (d > 0.1*T.m_smallest_length)) {
+        need_full_search = true;
+      } else {
+        x_proj = xi;
+        r_proj = ri;
+        on_triangle = intersects;
+        ++m_NumDirect;
+      }
+    }
+  }
+  if (need_full_search) {
+    ++m_NumFull;
+    double d_min = 1e99;
+    for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
+      Triangle T = m_Triangles[i_triangles];
+      double d;
+      vec3_t xi, ri;
+      int side;
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
+      if (d < d_min) {
+        x_proj = xi;
+        r_proj = ri;
+        d_min = d;
+        m_ProjTriangles[id_node] = i_triangles;
+        on_triangle = intersects;
+      }
+    }
+    if (x_proj[0] > 1e98) {
+      EG_BUG;
+    }
+  }
+  if (on_triangle) {
+    //x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
+  }
+  return x_proj;
+}
+
 vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node)
 {
   checkVector(xp);
@@ -835,7 +897,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node)
     if (id_node < 0) {
       EG_BUG;
     }
-    x = projectWithGeometry(x, id_node);
+    x = projectWithGeometry_original(x, id_node);
   }
 //   writeGrid(m_FGrid,"m_FGrid");
 //   writeGrid(m_BGrid,"m_BGrid");
@@ -1270,6 +1332,88 @@ vec3_t SurfaceProjection::cylinder(vec3_t M)
   M-*/
 }
 
+void SurfaceProjection::updateBackgroundGridInfo_original()
+{
+  getAllCells(m_Cells, m_BGrid);
+  getNodesFromCells(m_Cells, m_Nodes, m_BGrid);
+  QVector<int> m_LNodes(m_Nodes.size());
+  for (int i = 0; i < m_LNodes.size(); ++i) {
+    m_LNodes[i] = i;
+  }
+  createNodeToNode(m_Cells, m_Nodes, m_LNodes, m_N2N, m_BGrid);
+  m_EdgeLength.fill(1e99, m_BGrid->GetNumberOfPoints());
+  foreach (vtkIdType id_node, m_Nodes) {
+    vec3_t x;
+    m_BGrid->GetPoints()->GetPoint(id_node, x.data());
+    foreach (vtkIdType id_neigh, m_N2N[id_node]) {
+      vec3_t xn;
+      m_BGrid->GetPoints()->GetPoint(id_neigh, xn.data());
+      m_EdgeLength[id_node] = min(m_EdgeLength[id_node], (x-xn).abs());
+    }
+    if (m_N2N[id_node].size() < 2) {
+      EG_BUG;
+    }
+  }
+  // create m_Triangles
+  m_Triangles.resize(m_BGrid->GetNumberOfCells());
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType Npts, *pts;
+    m_BGrid->GetCellPoints(id_cell, Npts, pts);
+    if (Npts == 3) {
+      m_BGrid->GetPoints()->GetPoint(pts[0], m_Triangles[id_cell].m_a.data());
+      m_BGrid->GetPoints()->GetPoint(pts[1], m_Triangles[id_cell].m_b.data());
+      m_BGrid->GetPoints()->GetPoint(pts[2], m_Triangles[id_cell].m_c.data());
+      m_Triangles[id_cell].m_id_a = pts[0];
+      m_Triangles[id_cell].m_id_b = pts[1];
+      m_Triangles[id_cell].m_id_c = pts[2];
+      m_Triangles[id_cell].m_g1 = m_Triangles[id_cell].m_b - m_Triangles[id_cell].m_a;
+      m_Triangles[id_cell].m_g2 = m_Triangles[id_cell].m_c - m_Triangles[id_cell].m_a;
+      m_Triangles[id_cell].m_g3 = m_Triangles[id_cell].m_g1.cross(m_Triangles[id_cell].m_g2);
+      m_Triangles[id_cell].m_A  = 0.5*m_Triangles[id_cell].m_g3.abs();
+      m_Triangles[id_cell].m_g3.normalise();
+      m_Triangles[id_cell].m_G.column(0, m_Triangles[id_cell].m_g1);
+      m_Triangles[id_cell].m_G.column(1, m_Triangles[id_cell].m_g2);
+      m_Triangles[id_cell].m_G.column(2, m_Triangles[id_cell].m_g3);
+      m_Triangles[id_cell].m_GI = m_Triangles[id_cell].m_G.inverse();
+      m_Triangles[id_cell].m_smallest_length = (m_Triangles[id_cell].m_b - m_Triangles[id_cell].m_a).abs();
+      m_Triangles[id_cell].m_smallest_length = min(m_Triangles[id_cell].m_smallest_length, (m_Triangles[id_cell].m_c - m_Triangles[id_cell].m_b).abs());
+      m_Triangles[id_cell].m_smallest_length = min(m_Triangles[id_cell].m_smallest_length, (m_Triangles[id_cell].m_a - m_Triangles[id_cell].m_c).abs());
+    } else {
+      EG_ERR_RETURN("only triangles allowed at the moment");
+    }
+  }
+  
+  // compute node normals
+  m_NodeNormals.resize(m_BGrid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    m_NodeNormals[id_node] = vec3_t(0,0,0);
+  }
+  foreach (Triangle T, m_Triangles) {
+    m_NodeNormals[T.m_id_a] += T.m_A*T.m_g3;
+    m_NodeNormals[T.m_id_b] += T.m_A*T.m_g3;
+    m_NodeNormals[T.m_id_c] += T.m_A*T.m_g3;
+  }
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    m_NodeNormals[id_node].normalise();
+  }
+  
+  // compute maximum angle per node
+  QVector<double> min_cos(m_BGrid->GetNumberOfPoints(), 1.0);
+  foreach (Triangle T, m_Triangles) {
+    double cosa = T.m_g3*m_NodeNormals[T.m_id_a];
+    double cosb = T.m_g3*m_NodeNormals[T.m_id_b];
+    double cosc = T.m_g3*m_NodeNormals[T.m_id_c];
+    min_cos[T.m_id_a] = min(cosa, min_cos[T.m_id_a]);
+    min_cos[T.m_id_b] = min(cosb, min_cos[T.m_id_b]);
+    min_cos[T.m_id_c] = min(cosc, min_cos[T.m_id_c]);
+  }
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
+    m_EdgeLength[id_node] *= m_RadiusFactor*min_cos[id_node]/s;
+  }
+  
+}
+
 void SurfaceProjection::updateBackgroundGridInfo()
 {
   EG_VTKDCN(vtkCharArray, node_type, m_BGrid, "node_type");//node type
@@ -1395,7 +1539,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
       else {
         t1 = x0-x1;
       }
-      vec3_t n1 = m_Triangles[id_cell].g3;
+      vec3_t n1 = m_Triangles[id_cell].m_g3;
       vec3_t Nedge1 = t1.cross(n1);
       qDebug()<<"Nedge1="<<Nedge1;*/
       

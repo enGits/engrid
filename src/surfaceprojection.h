@@ -127,6 +127,7 @@ private: // methods
   void setBackgroundGrid_computeLevelSet();
 
   void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
+  void updateBackgroundGridInfo_original();
   
   vec3_t calcGradG(vec3_t x);
   double calcG(vec3_t x);
@@ -134,6 +135,8 @@ private: // methods
   vec3_t projectWithLevelSet(vec3_t x);
 
   vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node); ///< project onto m_BGrid, eventually using correctCurvature
+  vec3_t projectWithGeometry_original(vec3_t x, vtkIdType id_node);
+    
   vec3_t correctCurvature1(int i_tri, vec3_t g_M); ///< correct curvature by using double interpolation
   vec3_t correctCurvature2(int i_tri, vec3_t g_M); ///< correct curvature by using bezier surfaces
   
@@ -170,7 +173,7 @@ template <class C>
 void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
 {
   setBackgroundGrid_setupGrid(grid, cells);
-  updateBackgroundGridInfo();
+  updateBackgroundGridInfo_original();
   if (m_UseLevelSet) {
     setBackgroundGrid_initOctree();
     setBackgroundGrid_refineFromNodes();
