@@ -24,7 +24,7 @@ win32 {
 }
 ################
 
-LIBS += -lgsl -lgslcblas -lm
+LIBS += -lm
 
 # VTK libs
 LIBS += -lQVTK

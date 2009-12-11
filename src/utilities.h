@@ -294,4 +294,10 @@ inline vtkIdType quadgrid_idx(vtkIdType N, int i, int j) {
   return i*N + j;
 }
 
+// solver functions
+// x^3 + a x^2 + b x + c = 0
+int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2);
+// a x^2 + b x + c = 0
+int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1);
+
 #endif

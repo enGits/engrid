@@ -29,7 +29,6 @@ using namespace GeometryTools;
 #include "vtkUnstructuredGridWriter.h"
 
 #include <vtkCellLocator.h>
-#include <gsl/gsl_poly.h>
 
 BezierTriangle::BezierTriangle() : Triangle() {
 }
@@ -291,28 +290,6 @@ vec3_t BezierTriangle::projectOnQuadraticBezierTriangle(vec3_t g_M, int output) 
 
 }
 
-vec2_t secondDegreeSolver(double a, double b, double c) {
-  double x1, x2;
-
-  if (a == 0) {
-    if (b == 0) {
-      EG_BUG;
-    } else {
-      x1 = -c / b;
-      x2 = x1;
-    }
-  } else {
-    double delta = pow(b, 2) - 4 * a * c;
-    if (delta < 0) {
-      EG_BUG;
-    } else {
-      x1 = (-b + sqrt(delta)) / (2 * a);
-      x2 = (-b - sqrt(delta)) / (2 * a);
-    }
-  }
-  return vec2_t(x1, x2);
-}
-
 double BezierTriangle::z_func(vec2_t t_M) {
   return z_func(t_M[0], t_M[1]);
 }
@@ -540,8 +517,8 @@ vec3_t BezierTriangle::projectOnBezierSide(vec3_t g_M, int side, double& Lmin, d
   
   double x[3];
   int N;
-  if(coeff3!=0) N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
-  else N = gsl_poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
+  if(coeff3!=0) N = poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  else N = poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
   
   if(N==0) EG_BUG;
   
@@ -608,8 +585,8 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, 
   
   double x[3];
   int N;
-  if(coeff3!=0) N = gsl_poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
-  else N = gsl_poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
+  if(coeff3!=0) N = poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  else N = poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
   
   if(N==0) EG_BUG;
   
