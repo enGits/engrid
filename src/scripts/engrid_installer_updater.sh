@@ -121,7 +121,9 @@ install_QT()
   tar -xzvf ./$ARCHIVE_QT
   cd $(basename $ARCHIVE_QT .tar.gz)
   mkdir -p $QTPREFIX
-  echo yes | ./configure --prefix=$QTPREFIX -opensource
+#   echo yes | ./configure --prefix=$QTPREFIX -opensource
+  echo yes | ./configure --prefix=$QTPREFIX -opensource -nomake examples -nomake demos -nomake docs -no-webkit -no-phonon -no-phonon-backend -no-qt3support -no-accessibility -silent
+
   make && make install
   cd -
 }
