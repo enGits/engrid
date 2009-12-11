@@ -1569,7 +1569,7 @@ void SurfaceProjection::updateBackgroundGridInfo() {
       }// end of loop through edges
     }// end of loop through cells
   
-    qDebug()<<"=== CONTROL POINTS READY ===";
+//     qDebug()<<"=== CONTROL POINTS READY ===";
     
   } else {
     for (int i_tri = 0; i_tri < m_Triangles.size(); i_tri++) {
@@ -1613,7 +1613,7 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     m_BezierTriangles[i_tri].m_has_neighbour = m_Triangles[i_tri].m_has_neighbour;
   }
 
-  qDebug()<<"=== BEZIER TRIANGLES READY ===";
+//   qDebug()<<"=== BEZIER TRIANGLES READY ===";
   
   // compute maximum angle per node
   QVector<double> min_cos(m_BGrid->GetNumberOfPoints(), 1.0);
@@ -1630,7 +1630,7 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     m_EdgeLength[id_node] *= m_RadiusFactor * min_cos[id_node] / s;
   }
   
-  qDebug()<<"=== UPDATE BGRID DONE ===";
+//   qDebug()<<"=== UPDATE BGRID DONE ===";
 }
 
 vec3_t SurfaceProjection::correctCurvature2(int i_tri, vec3_t g_M) {
