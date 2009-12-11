@@ -44,10 +44,10 @@ private: // attributes
   
 protected: // attributes
   
-  int    m_NumIterations;
-  int    m_NumRelaxations;
-  int    m_NumBoundaryCorrections;
-  int    m_NumSearch;
+  int m_NumIterations;
+  int m_NumRelaxations;
+  int m_NumBoundaryCorrections;
+  int m_NumSearch;
   
   double m_LSearch;
   double m_FOld;
@@ -55,6 +55,7 @@ protected: // attributes
   double m_FMaxOld;
   double m_FMaxNew;
   double m_ReductionFactor;
+  double m_PostSmoothingStrength;
   
   double m_WTet;
   double m_ETet;
@@ -82,6 +83,7 @@ protected: // attributes
   double m_CritAngle;
   
   bool m_SimpleOperation;
+  bool m_PostOperation;
 
   struct stencil_node_t {
     vec3_t x;
@@ -119,6 +121,7 @@ protected: // methods
 
   void operateOptimisation();
   void operateSimple();
+  void operatePostSmoothing();
 
 public: // methods
   
@@ -132,6 +135,8 @@ public: // methods
   void prismsOff() { m_SmoothPrisms = false; };
   void simpleOn()  { m_SimpleOperation = true; }
   void simpleOff() { m_SimpleOperation = false; }
+  void postOn()  { simpleOff(); m_PostOperation = true; }
+  void postOff() { m_PostOperation = false; }
 
   double improvement();
   

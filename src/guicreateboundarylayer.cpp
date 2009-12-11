@@ -34,6 +34,8 @@ GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "number of smoothing iterations", 5, m_NumIterations);
   getSet("boundary layer", "number of pre-steps", 2, m_NumPreSteps);
+  getSet("boundary layer", "number of post-steps", 1, m_NumPostSteps);
+  getSet("boundary layer", "post smoothing strength", 0.1, m_PostStrength);
   getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
 }
 
@@ -183,6 +185,11 @@ void GuiCreateBoundaryLayer::operate()
     vol.getTraceCells(layer_cells);
   }
 
+  smooth.postOn();
+  for (int j = 0; j < m_NumPostSteps; ++j) {
+    smooth.setAllCells();
+    smooth();
+  }
   {
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {

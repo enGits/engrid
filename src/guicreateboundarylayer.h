@@ -40,7 +40,9 @@ private: // attributes
   QVector<vtkIdType> layer_cells;
   int m_NumIterations;
   int m_NumPreSteps;
+  int m_NumPostSteps;
   bool m_WriteDebugFile;
+  double m_PostStrength;
     
 private: // methods
   
