@@ -281,5 +281,17 @@ QDebug operator<<(QDebug dbg, const vec3_t &v);
 QDebug operator<<(QDebug dbg, const vec2_t &v);
 
 bool checkVector(vec3_t V);
+bool checkVector(vec2_t V);
+
+/// returns the index of a node in a structured triangle grid
+inline vtkIdType trigrid_idx(vtkIdType N, int i, int j) {
+  int offset = -i * (i - 2 * N - 1) / 2;
+  return offset + j;
+}
+
+/// returns the index of a node in a structured quad grid
+inline vtkIdType quadgrid_idx(vtkIdType N, int i, int j) {
+  return i*N + j;
+}
 
 #endif

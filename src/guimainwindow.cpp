@@ -359,7 +359,7 @@ void GuiMainWindow::setupVtk()
   
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
-  
+  m_PickedObject = 0;
 //   cbc->Delete();
 }
 
@@ -719,9 +719,11 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
     m_PickedPoint = id_node;
     m_PickActor->GetProperty()->SetColor(0,0,1);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 1;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -749,9 +751,11 @@ bool GuiMainWindow::pickCell(vtkIdType id_cell)
     m_PickedCell = id_cell;
     m_PickActor->GetProperty()->SetColor(1,0,0);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 2;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -1529,6 +1533,8 @@ void GuiMainWindow::pickCallBack
 
 vtkIdType GuiMainWindow::getPickedCell()
 {
+  if(!ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_cell = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1546,6 +1552,8 @@ vtkIdType GuiMainWindow::getPickedCell()
 
 vtkIdType GuiMainWindow::getPickedPoint()
 {
+  if(ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_point = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1897,6 +1905,11 @@ void GuiMainWindow::storeSurfaceProjection()
   }
   m_SurfProj.clear();
   cout << "storing background grid for surface projection:" << endl;
+//   EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  MeshPartition new_grid_partition;
+  bool first = true;
+  
+  QFileInfo file_info(m_CurrentFilename);
   
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection();
@@ -1913,7 +1926,30 @@ void GuiMainWindow::storeSurfaceProjection()
       proj->writeOctree(file_name);
       cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
     }
+    QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
+    
+    proj->m_ExactMode = 0;
+    
+    if(DebugLevel>100) {
+      proj->writeGridWithNormals(basename);
+      proj->writeInterpolationGrid(basename);
+      proj->writeTriangleGrid(basename);
+      qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
+        <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
+      
+      if(first) {
+        first = false;
+        new_grid_partition.setGrid(proj->getBezierGrid());
+        new_grid_partition.setAllCells();
+      }
+      else {
+        MeshPartition grid_partition(proj->getBezierGrid(), true);
+        new_grid_partition.addPartition(grid_partition);
+      }
+    }
   }
+  
+  if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
@@ -1959,7 +1995,7 @@ void GuiMainWindow::readRecentFiles()
     QString date_text = file_dates.at(i);
     QDateTime date = QDateTime::fromString(date_text,"dd.MM.yyyy_hh:mm:ss");
     addRecentFile(new_file,date);
-  };
+  }
 }
 
 void GuiMainWindow::writeRecentFiles()
@@ -1972,7 +2008,7 @@ void GuiMainWindow::writeRecentFiles()
     QString date_text = i.value().toString("dd.MM.yyyy_hh:mm:ss");
     file_names.append(file_name);
     file_dates.append(date_text);
-  };
+  }
   m_qset.setValue("FileNames",file_names);
   m_qset.setValue("FileDates",file_dates);
 }
@@ -1987,10 +2023,10 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
       if (i.value() <= old) {
         old = i.value();
         j = i;
-      };
-    };
+      }
+    }
     m_RecentFiles.erase(j);
-  };
+  }
   this->recentFileMenu()->clear();
   QMap<int,QString> menu_map;
   QDateTime now = QDateTime::currentDateTime();
@@ -1999,11 +2035,89 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
     action_text += " -> ";
     action_text += i.key();
     menu_map[i.value().secsTo(now)] = action_text;
-  };
+  }
   {
     for (QMap<int,QString>::iterator i = menu_map.begin(); i != menu_map.end(); ++i) {
       QAction *action = new QAction(i.value(),this);
       this->recentFileMenu()->addAction(action);
-    };
-  };
+    }
+  }
+}
+
+void GuiMainWindow::callInsertNewCell()
+{
+  bool ok1,ok2,ok3,ok4;
+  vtkIdType pts[3];
+  pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
+  if (ok1 && ok2 && ok3 && ok4) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells() + 1, m_Grid->GetNumberOfPoints() );
+    makeCopyNoAlloc(m_Grid, new_grid);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
+    QMessageBox::information(NULL, "new cell", tr("The new cell has ID = %1").arg(id_new_cell));
+    qDebug()<<tr("The new cell has ID = %1").arg(id_new_cell);
+  }
+}
+
+void GuiMainWindow::callMergeNodes()
+{
+  bool ok1,ok2;
+  vtkIdType id_node1 = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_node2 = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  if (ok1 && ok2) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
+    
+    QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
+    QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
+    
+    vtkIdType id_new_node = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if(id_node!=id_node1 && id_node!=id_node2) {
+        vec3_t x;
+        m_Grid->GetPoints()->GetPoint(id_node, x.data());
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node] = id_new_node;
+        id_new_node++;
+      }
+      else if(id_node==id_node1) {
+        vec3_t x1;
+        m_Grid->GetPoints()->GetPoint(id_node1, x1.data());
+        vec3_t x2;
+        m_Grid->GetPoints()->GetPoint(id_node2, x2.data());
+        vec3_t x = 0.5*(x1+x2);
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node1] = id_new_node;
+        old2new_nodes[id_node2] = id_new_node;
+        id_new_node++;
+      }
+      else {
+      }
+    }
+    
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      QVector<vtkIdType> new_pts(N_pts);
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = old2new_nodes[pts[i]];
+      }
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    }
+    
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
+    qDebug()<<"The fusion is complete.";
+  }
+  
 }

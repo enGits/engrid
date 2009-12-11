@@ -37,6 +37,13 @@ public:
 
   SurfaceMesher();
 
+private:
+  bool m_interpolateAfterMeshing;
+  
+public:
+  void setInterpolateAfterMeshing(bool b) { m_interpolateAfterMeshing = b; }
+  bool getInterpolateAfterMeshing() { return m_interpolateAfterMeshing; }
+  
 };
 
 #endif

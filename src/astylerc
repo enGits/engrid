@@ -57,7 +57,7 @@
 #--fill-empty-lines
 
 #BracketsCloseHeaders="1"
---break-closing-brackets
+#--break-closing-brackets
 
 #BlockBreakAll="0"
 #--break-blocks=all
@@ -73,3 +73,9 @@
 
 #FillForce="1"
 --convert-tabs
+
+#process all subdirs
+#--recursive
+
+# Attach brackets to their pre-block statements ( e.g. Java / K&R style ).
+--brackets=attach

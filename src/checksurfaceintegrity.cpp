@@ -22,6 +22,8 @@
 //
 #include "checksurfaceintegrity.h"
 // #include "egvtkobject.h"
+#include "geometrytools.h"
+using namespace GeometryTools;
 
 CheckSurfaceIntegrity::CheckSurfaceIntegrity() : SurfaceOperation()
 {
@@ -44,9 +46,15 @@ bool CheckSurfaceIntegrity::isWaterTight()
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2n   = getPartN2N();
+  l2g_t  cells = getPartCells();
   
   bool first = true;
   foreach(vtkIdType id_node1, nodes) {
+    vec3_t x;
+    m_Grid->GetPoints()->GetPoint(id_node1, x.data());
+    if(!checkVector(x)) {
+      qDebug()<<"point "<<id_node1<<" is NAN or INF";
+    };
     foreach(int i_node2, n2n[_nodes[id_node1]]) {
       vtkIdType id_node2 = nodes[i_node2];
       QSet <vtkIdType> edge_cells;
@@ -63,6 +71,13 @@ bool CheckSurfaceIntegrity::isWaterTight()
       if(edge_cells.size()!=2) BadCells.unite(edge_cells);
     }
   }
+  
+  foreach(vtkIdType id_cell, cells) {
+    if(cellVA(m_Grid, id_cell)<=0) {
+      qDebug()<<"cell "<<id_cell<<" is empty.";
+    }
+  }
+  
   if( Nmin==2 && Nmax==2 ) return(true);
   else return(false);
 }

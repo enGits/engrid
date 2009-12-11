@@ -40,6 +40,7 @@
 #include "simplefoamwriter.h"
 #include "deletepickedcell.h"
 #include "deletepickedpoint.h"
+#include "mergenodes.h"
 #include "boxselect.h"
 #include "fixstl.h"
 #include "cgnswriter.h"

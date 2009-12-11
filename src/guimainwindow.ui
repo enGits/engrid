@@ -136,6 +136,8 @@
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
+    <addaction name="actionInsertNewCell"/>
+    <addaction name="actionMergeNodes"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
@@ -189,6 +191,7 @@
     <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
     <addaction name="actionFixCADgeometry"/>
+    <addaction name="actionProjection_test"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -1242,7 +1245,7 @@
   </action>
   <action name="actionDeletePickedCell">
    <property name="text">
-    <string>delete picked cell</string>
+    <string>Delete picked cell</string>
    </property>
   </action>
   <action name="actionFixSTL">
@@ -1574,6 +1577,11 @@
     <string>fix CAD geometry</string>
    </property>
   </action>
+  <action name="actionProjection_test">
+   <property name="text">
+    <string>projection test</string>
+   </property>
+  </action>
   <action name="actionImportBlenderFile">
    <property name="text">
     <string>Blender</string>
@@ -1594,9 +1602,19 @@
     <string>test</string>
    </property>
   </action>
+  <action name="actionInsertNewCell">
+   <property name="text">
+    <string>Insert new cell</string>
+   </property>
+  </action>
   <action name="actionExportBlenderFile">
    <property name="text">
     <string>Blender</string>
+   </property>
+  </action>
+  <action name="actionMergeNodes">
+   <property name="text">
+    <string>Merge nodes</string>
    </property>
   </action>
  </widget>

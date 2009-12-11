@@ -522,10 +522,10 @@ public: // methods
   QSet<int> getBoundaryCodes();
   void setDebugLevel(int a_DebugLevel) { DebugLevel = a_DebugLevel; }
   
-  vtkIdType addBezierSurface(BezierTriangle* bezier_triangle, vtkUnstructuredGrid* bezier, int offset, int N);
- 
   bool saveGrid( vtkUnstructuredGrid* a_grid, QString file_name );
 
+  vtkIdType addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGrid *grid_to_add, vtkIdType offset);
+  
 private:
   void addVtkTypeInfo(vtkUnstructuredGrid* a_grid); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
 };

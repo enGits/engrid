@@ -93,6 +93,8 @@ connect(ui.actionSimpleFoamWriter,SIGNAL(triggered()),this,SLOT(callSimpleFoamWr
 connect(ui.actionFoamCaseWriter, SIGNAL(triggered()), this, SLOT(callFoamCaseWriter()));
 connect(ui.actionDeleteBadAspectTris,SIGNAL(triggered()),this,SLOT(callDeleteBadAspectTris()));
 connect(ui.actionDeletePickedCell,SIGNAL(triggered()),this,SLOT(callDeletePickedCell()));
+connect(ui.actionMergeNodes,SIGNAL(triggered()),this,SLOT(callMergeNodes()));
+connect(ui.actionInsertNewCell,SIGNAL(triggered()),this,SLOT(callInsertNewCell()));
 connect(ui.actionDeletePickedPoint,SIGNAL(triggered()),this,SLOT(callDeletePickedPoint()));
 connect(ui.actionBoxSelect,SIGNAL(triggered()),this,SLOT(callBoxSelect()));
 connect(ui.actionCheck_surface_integrity,SIGNAL(triggered()),this,SLOT(callCheckSurfaceIntegrity()));
@@ -112,6 +114,7 @@ connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderR
 connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
+connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));

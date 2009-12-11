@@ -56,7 +56,7 @@ void SurfaceAlgorithm::readVMD()
         m_VMDvector[i].setNodes(formula);
         in >> row >> column >> formula;
         m_VMDvector[i].density = formula.toDouble();
-        cout << m_VMDvector[i] << endl;
+//         cout << m_VMDvector[i] << endl;
       }
     } else {
       EG_ERR_RETURN(QObject::tr("The number of boundary conditions don't match between the mesh and the settings table.\n column_count=%1 tmp_bcs.size()=%2").arg(column_count).arg(tmp_bcs.size()));

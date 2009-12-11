@@ -20,30 +20,16 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef MERGENODES_H
+#define MERGENODES_H
 
-#include "deletepickedcell.h"
-#include "guimainwindow.h"
-#include "deletepickedpoint.h"
-#include "deletecells.h"
+#include "surfaceoperation.h"
 
-#include <vtkCell.h>
-#include <vtkGenericCell.h>
+class MergeNodes : public SurfaceOperation {
+public: // methods
+  MergeNodes();
+protected: // methods
+  virtual void operate();
+};
 
-void DeletePickedCell::operate()
-{
-  vtkIdType id_cell = GuiMainWindow::pointer()->getPickedCell();
-  cout<<"You picked "<<id_cell<<endl;
-  if( id_cell<0 || GuiMainWindow::pointer()->getPickedObject()!=2 ) {
-    QApplication::restoreOverrideCursor();
-    EG_ERR_RETURN("Error: No cell picked.");
-  }
-    
-  QVector <vtkIdType> targets;
-  targets.push_back(id_cell);
-  DeleteCells terminator;
-  terminator.setCellsToDelete(targets);
-  terminator();
-  
-/*  vtkIdType N_pts, *pts;
-  m_Grid->GetCellPoints(id_cell, N_pts, pts);*/
-}
+#endif

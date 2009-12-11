@@ -24,6 +24,8 @@ win32 {
 }
 ################
 
+LIBS += -lgsl -lgslcblas -lm
+
 # VTK libs
 LIBS += -lQVTK
 LIBS += -lvtkCommon
@@ -297,3 +299,9 @@ SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
 SOURCES += guiedgelengthsourcesphere.cpp
+HEADERS += triangle.h
+SOURCES += triangle.cpp
+HEADERS += projection_test.h
+SOURCES += projection_test.cpp
+HEADERS += mergenodes.h
+SOURCES += mergenodes.cpp
