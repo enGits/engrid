@@ -54,10 +54,13 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "sharp features on edges exponent",   1.3,   m_ESharp2);
   getSet("boundary layer", "number of smoothing sub-iterations", 5,     m_NumIterations);
   getSet("boundary layer", "angle for sharp features",           45.00, m_CritAngle);
+  getSet("boundary layer", "post smoothing strength",            0.1,   m_PostSmoothingStrength);
 
   getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
   
   m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
+  m_SimpleOperation = false;
+  m_PostOperation = false;
 
 }
 
@@ -871,12 +874,69 @@ void GridSmoother::operateSimple()
   }
 }
 
+void GridSmoother::operatePostSmoothing()
+{
+  QVector<bool> top_node(m_Grid->GetNumberOfPoints(), false);
+  QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      top_node[pts[3]] = true;
+      top_node[pts[4]] = true;
+      top_node[pts[5]] = true;
+    }
+  }
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    m_Grid->GetPoint(id_node1, x_new[id_node1].data());
+    if (top_node[id_node1]) {
+      double w = m_PostSmoothingStrength;
+      vec3_t x_av(0,0,0);
+      vec3_t x_old;
+      m_Grid->GetPoint(id_node1, x_old.data());
+      QSet<vtkIdType> ids;
+      for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node1, i);
+        if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
+          vtkIdType N_pts, *pts;
+          m_Grid->GetCellPoints(id_cell, N_pts, pts);
+          for (int j = 0; j < 6; ++j) {
+            if (top_node[pts[j]] && (pts[j] != id_node1)) {
+              ids.insert(pts[j]);
+            }
+          }
+        }
+      }
+      foreach (vtkIdType id_node2, ids) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node2, x.data());
+        x_av += x;
+      }
+      if (ids.size() > 0) {
+        x_av *= 1.0/ids.size();
+        x_new[id_node1] = w*x_av + (1-w)*x_old;
+      }
+    }
+  }
+  l2g_t nodes = m_Part.getNodes();
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vtkIdType id_node = m_Part.globalNode(i_nodes);
+    vec3_t x_old;
+    m_Grid->GetPoint(id_node, x_old.data());
+    vec3_t Dx = x_new[id_node] - x_old;
+    correctDx(i_nodes, Dx);
+    moveNode(i_nodes, Dx);
+  }
+}
+
 void GridSmoother::operate()
 {
   markNodes();
   computeNormals();
   if (m_SimpleOperation) {
     operateSimple();
+  } else if (m_PostOperation) {
+    operatePostSmoothing();
   } else {
     operateOptimisation();
   }
