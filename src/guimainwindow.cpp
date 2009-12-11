@@ -1928,48 +1928,11 @@ void GuiMainWindow::storeSurfaceProjection()
     }
     QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
     
-//     if(m_ExactMode==1) return ellipsoid(xp);
-//     if(m_ExactMode==2) return ellipse(xp);
-//     if(m_ExactMode==3) return rectangle(xp);
-//     if(m_ExactMode==4) return cuboid(xp);
-//     if(m_ExactMode==5) return cylinder(xp);
-    
     proj->m_ExactMode = 0;
     
-/*    if(bc==1) {
-      proj->m_ExactMode = 2;
-      proj->m_center = vec3_t(0,0,-1);
-      proj->m_Rx = vec3_t(1,0,0);
-      proj->m_Ry = vec3_t(0,1,0);
-      proj->m_Rz = vec3_t(0,0,1);
-    }
-    else if (bc==2) {
-      proj->m_ExactMode = 2;
-      proj->m_center = vec3_t(0,0,1);
-      proj->m_Rx = vec3_t(1,0,0);
-      proj->m_Ry = vec3_t(0,1,0);
-      proj->m_Rz = vec3_t(0,0,1);
-    }
-    else if(bc==3) {
-      proj->m_ExactMode = 5;
-      proj->m_center = vec3_t(0,0,0);
-      proj->m_Rx = vec3_t(1,0,0);
-      proj->m_Ry = vec3_t(0,1,0);
-      proj->m_Rz = vec3_t(0,0,1);
-    }*/
-    
-/*    vec3_t titi;
-    titi=vec3_t(0,0,0);
-    qWarning()<<"proj->ellipse("<<titi<<")="<<proj->ellipse(titi);
-    titi=vec3_t(1,1,1);
-    qWarning()<<"proj->ellipse("<<titi<<")="<<proj->ellipse(titi);*/
-    
-    DebugLevel = 1000;
     if(DebugLevel>100) {
       proj->writeGridWithNormals(basename);
-      
       proj->writeInterpolationGrid(basename);
-      
       proj->writeTriangleGrid(basename);
       qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
         <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
@@ -1986,9 +1949,7 @@ void GuiMainWindow::storeSurfaceProjection()
     }
   }
   
-//   if(DebugLevel>100) 
-  writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
-  DebugLevel = 0;
+  if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)

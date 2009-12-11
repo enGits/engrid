@@ -35,7 +35,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_AllowFeatureEdgeSwapping = false;
   m_EdgeAngle = m_FeatureAngle;
   
-  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  getSet("surface meshing", "interpolate after meshing (experimental)", false, m_interpolateAfterMeshing);
 }
 
 void SurfaceMesher::operate()
@@ -106,7 +106,7 @@ void SurfaceMesher::operate()
     cout << N2 << " full searches" << endl;
   }
   
-  if(m_correctCurvature) {
+  if(m_interpolateAfterMeshing) {
     qDebug()<<"+++ CORRECTING CURVATURE +++";
     // correct curvature
     LaplaceSmoother lap;
