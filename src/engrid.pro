@@ -36,9 +36,12 @@ message(QMAKE_CXXFLAGS : $${QMAKE_CXXFLAGS} )
 # DEFINES += VTK_LEGACY_REMOVE
 QMAKE_CXXFLAGS += -Wall
 
-# QMAKE_CXXFLAGS += -pg
 # QMAKE_CXXFLAGS += -O3
+
+# for profiling with gprof
+# QMAKE_CXXFLAGS += -pg
 # QMAKE_LFLAGS += -pg
+
 QT += xml \
     network \
     opengl

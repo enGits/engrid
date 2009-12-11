@@ -1170,3 +1170,23 @@ void EgVtkObject::addVtkTypeInfo(vtkUnstructuredGrid* a_grid)
   }
   a_grid->GetCellData()->AddArray(vtk_type);
 }
+
+vtkIdType EgVtkObject::addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGrid *grid_to_add, vtkIdType offset)
+{
+  for (vtkIdType id_node = 0; id_node < grid_to_add->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    grid_to_add->GetPoints()->GetPoint(id_node, x.data());
+    main_grid->GetPoints()->SetPoint(offset + id_node, x.data());
+    copyNodeData(grid_to_add, id_node, main_grid, offset + id_node);
+  }
+  for (vtkIdType id_cell = 0; id_cell < grid_to_add->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    vtkIdType type_cell = grid_to_add->GetCellType(id_cell);
+    grid_to_add->GetCellPoints(id_cell, N_pts, pts);
+    QVector <vtkIdType> new_pts(N_pts);
+    for(int i=0;i<N_pts;i++) new_pts[i] = offset + pts[i];
+    vtkIdType id_new_cell = main_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+    copyCellData(grid_to_add, id_cell, main_grid, id_new_cell);
+  }
+  return( offset + grid_to_add->GetNumberOfPoints() );
+}

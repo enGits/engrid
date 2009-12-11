@@ -1964,6 +1964,7 @@ void GuiMainWindow::storeSurfaceProjection()
     titi=vec3_t(1,1,1);
     qWarning()<<"proj->ellipse("<<titi<<")="<<proj->ellipse(titi);*/
     
+    DebugLevel = 1000;
     if(DebugLevel>100) {
       proj->writeGridWithNormals(basename);
       
@@ -1985,7 +1986,9 @@ void GuiMainWindow::storeSurfaceProjection()
     }
   }
   
-  if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
+//   if(DebugLevel>100) 
+  writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
+  DebugLevel = 0;
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)

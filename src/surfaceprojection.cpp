@@ -59,8 +59,8 @@ SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm() {
 }
 
 SurfaceProjection::~SurfaceProjection() {
-//   m_InterpolationGrid->Delete();
-//   m_BezierGrid->Delete();
+  m_InterpolationGrid->Delete();
+  m_BezierGrid->Delete();
 }
 
 void SurfaceProjection::setBackgroundGrid_initOctree() {
@@ -1115,14 +1115,18 @@ void SurfaceProjection::writeInterpolationGrid(QString filename) {
   EG_VTKSP(vtkUnstructuredGrid, bezier_first);
   bool first = true;
 
-//   allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
+  allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
 
   vtkIdType node_count = m_BGrid->GetNumberOfPoints();
   int cell_count = m_BGrid->GetNumberOfCells();
 
   vtkIdType offset = 0;
 
+  qDebug()<<"writeInterpolationGrid--> __LINE__="<<__LINE__;
+  
   for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
+    qDebug()<<"i_triangles="<<i_triangles;
+    
     Triangle T = m_Triangles[i_triangles];
     if (i_triangles == 1) {
       //cout<<"+++++++++++++++++++++++++"<<endl;
@@ -1155,7 +1159,14 @@ void SurfaceProjection::writeInterpolationGrid(QString filename) {
 
     // add the local grid
     BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
-    if (first) {
+    qDebug()<<"adding local grid...";
+    EG_VTKSP(vtkUnstructuredGrid, bezier);
+    bezier_triangle.getBezierSurface(bezier, N);
+    offset = addGrid(m_BezierGrid, bezier,offset);
+/*    MeshPartition grid_partition(bezier, true);
+    new_grid_partition.addPartition(grid_partition);*/
+    
+/*    if (first) {
       first = false;
       bezier_triangle.getBezierSurface(bezier_first, N);
       new_grid_partition.setGrid(bezier_first);
@@ -1165,8 +1176,9 @@ void SurfaceProjection::writeInterpolationGrid(QString filename) {
       bezier_triangle.getBezierSurface(bezier, N);
       MeshPartition grid_partition(bezier, true);
       new_grid_partition.addPartition(grid_partition);
-    }
-
+    }*/
+    qDebug()<<"DONE";
+    
     vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];
 
@@ -1191,12 +1203,14 @@ void SurfaceProjection::writeInterpolationGrid(QString filename) {
 
   }
 
+  qDebug()<<"writeInterpolationGrid--> __LINE__="<<__LINE__;
+  
   //qDebug()<<"node_count="<<node_count;
   //qDebug()<<"cell_count="<<cell_count;
   //qDebug()<<"offset="<<offset;
 
   saveGrid(m_InterpolationGrid, filename + "_InterpolationGrid");
-  makeCopy(new_grid_partition.getGrid(), m_BezierGrid);
+//   makeCopy(new_grid_partition.getGrid(), m_BezierGrid);
   saveGrid(m_BezierGrid, filename + "_BezierGrid");
 //   saveGrid(new_grid_partition.getGrid(), filename+"_BezierGrid");
   this->writeGrid(m_BGrid, filename + "_BGrid");
@@ -1525,6 +1539,7 @@ void SurfaceProjection::updateBackgroundGridInfo() {
   MeshPartition m_BGrid_partition(m_BGrid, true);
 
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    qDebug()<<"id_cell="<<id_cell;
     Triangle T = m_Triangles[id_cell];
     for (int i_edge = 0; i_edge < 3; i_edge++) {
 
@@ -1621,6 +1636,8 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     }// end of loop through edges
   }// end of loop through cells
 
+  qDebug()<<"=== CONTROL POINTS READY ===";
+  
   /*  for (int i_tri = 0; i_tri < m_Triangles.size(); i_tri++) {
       m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
       m_Triangles[i_tri].m_Normal_b = m_NodeNormals[m_Triangles[i_tri].m_id_b];
@@ -1658,6 +1675,8 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     m_BezierTriangles[i_tri].m_has_neighbour = m_Triangles[i_tri].m_has_neighbour;
   }
 
+  qDebug()<<"=== BEZIER TRIANGLES READY ===";
+  
   // compute maximum angle per node
   QVector<double> min_cos(m_BGrid->GetNumberOfPoints(), 1.0);
   foreach(Triangle T, m_Triangles) {
@@ -1672,6 +1691,8 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     double s = sqrt(1.0 - sqr(min(1 - 1e-20, min_cos[id_node])));
     m_EdgeLength[id_node] *= m_RadiusFactor * min_cos[id_node] / s;
   }
+  
+  qDebug()<<"=== UPDATE BGRID DONE ===";
 }
 
 vec3_t SurfaceProjection::correctCurvature2(int i_tri, vec3_t g_M) {
