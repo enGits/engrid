@@ -855,9 +855,9 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
 //      if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   if (m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
 //    }
-  if (!on_triangle) {
+//   if (!on_triangle) {
 //     qDebug()<<"WARNING: Not on triangle! id_node="<<id_node;
-  }
+//   }
 
 //   writeGrid(m_BGrid,"m_BGrid");
 
@@ -1097,24 +1097,14 @@ void SurfaceProjection::writeTriangleGrid(QString filename) {
 }
 
 void SurfaceProjection::writeInterpolationGrid(QString filename) {
-  int N_cells = m_BGrid->GetNumberOfCells() + 2 * m_BGrid->GetNumberOfCells();
-  int N_points = m_BGrid->GetNumberOfPoints() + 6 * m_BGrid->GetNumberOfCells();
-  int N = 10;
-  int N_cells_per_triangle = (N - 1) * (N - 1);
-  int N_points_per_triangle = (N * N + N) / 2;
-
-  //qDebug()<<"N_cells="<<N_cells;
-  //qDebug()<<"N_points="<<N_points;
-  //qDebug()<<"N_cells_per_triangle="<<N_cells_per_triangle;
-  //qDebug()<<"N_points_per_triangle="<<N_points_per_triangle;
-
+  int N_cells = m_BGrid->GetNumberOfCells() + 1 * m_BGrid->GetNumberOfCells();
+  int N_points = m_BGrid->GetNumberOfPoints() + 3 * m_BGrid->GetNumberOfCells();
   allocateGrid(m_InterpolationGrid , N_cells, N_points);
   makeCopyNoAlloc(m_BGrid, m_InterpolationGrid);
 
-  MeshPartition new_grid_partition;
-  EG_VTKSP(vtkUnstructuredGrid, bezier_first);
-  bool first = true;
-
+  int N = 10;
+  int N_cells_per_triangle = (N - 1) * (N - 1);
+  int N_points_per_triangle = (N * N + N) / 2;
   allocateGrid(m_BezierGrid, m_Triangles.size()*N_cells_per_triangle, m_Triangles.size()*N_points_per_triangle);
 
   vtkIdType node_count = m_BGrid->GetNumberOfPoints();
@@ -1122,113 +1112,55 @@ void SurfaceProjection::writeInterpolationGrid(QString filename) {
 
   vtkIdType offset = 0;
 
-  qDebug()<<"writeInterpolationGrid--> __LINE__="<<__LINE__;
+/*  qWarning()<<"m_Triangles.size()="<<m_Triangles.size();
+  qWarning()<<"m_BezierTriangles.size()="<<m_BezierTriangles.size();
+  qWarning()<<"m_BGrid->GetNumberOfCells()="<<m_BGrid->GetNumberOfCells();
+  qWarning()<<"m_BGrid->GetNumberOfPoints()="<<m_BGrid->GetNumberOfPoints();*/
   
   for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
     qDebug()<<"i_triangles="<<i_triangles;
     
-    Triangle T = m_Triangles[i_triangles];
-    if (i_triangles == 1) {
-      //cout<<"+++++++++++++++++++++++++"<<endl;
-    }
-    vec3_t J1, K1;
-    vec3_t J2, K2;
-    vec3_t J3, K3;
-    //qDebug()<<"=== ORTHOGONAL PLANES ===";
-    getControlPoints_orthogonal(T, J1, J2, J3, 1e99);
-    //qDebug()<<"=== NON-ORTHOGONAL PLANES ===";
-    getControlPoints_nonorthogonal(T, K1, K2, K3, 1e99);
+    BezierTriangle bezier_triangle = m_BezierTriangles[i_triangles];
+    // add the local grid
+    EG_VTKSP(vtkUnstructuredGrid, bezier);
+    bezier_triangle.getBezierSurface(bezier, N);
+    offset = addGrid(m_BezierGrid, bezier,offset);
+    
+    vec3_t K1 = bezier_triangle.m_X_011;
+    vec3_t K2 = bezier_triangle.m_X_101;
+    vec3_t K3 = bezier_triangle.m_X_110;
 
-    vtkIdType idx_J1, idx_J2, idx_J3;
-    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J1.data()); idx_J1 = node_count; node_count++;
-    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J2.data()); idx_J2 = node_count; node_count++;
-    m_InterpolationGrid->GetPoints()->SetPoint(node_count, J3.data()); idx_J3 = node_count; node_count++;
     vtkIdType idx_K1, idx_K2, idx_K3;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K1.data()); idx_K1 = node_count; node_count++;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K2.data()); idx_K2 = node_count; node_count++;
     m_InterpolationGrid->GetPoints()->SetPoint(node_count, K3.data()); idx_K3 = node_count; node_count++;
-
-    if (i_triangles == 1) {
-      //cout<<"+++++++++++++++++++++++++"<<endl;
-      //cout<<"A="<<T.m_a<<" B="<<T.m_b<<" C="<<T.m_c<<endl;
-      //cout<<"J1="<<J1<<" K1="<<K1<<endl;
-      //cout<<"J2="<<J2<<" K2="<<K2<<endl;
-      //cout<<"J3="<<J3<<" K3="<<K3<<endl;
-      //cout<<"+++++++++++++++++++++++++"<<endl;
-    }
-
-    // add the local grid
-    BezierTriangle bezier_triangle(T.m_a, T.m_b, T.m_c, K1, K2, K3);
-    qDebug()<<"adding local grid...";
-    EG_VTKSP(vtkUnstructuredGrid, bezier);
-    bezier_triangle.getBezierSurface(bezier, N);
-    offset = addGrid(m_BezierGrid, bezier,offset);
-/*    MeshPartition grid_partition(bezier, true);
-    new_grid_partition.addPartition(grid_partition);*/
     
-/*    if (first) {
-      first = false;
-      bezier_triangle.getBezierSurface(bezier_first, N);
-      new_grid_partition.setGrid(bezier_first);
-      new_grid_partition.setAllCells();
-    } else {
-      EG_VTKSP(vtkUnstructuredGrid, bezier);
-      bezier_triangle.getBezierSurface(bezier, N);
-      MeshPartition grid_partition(bezier, true);
-      new_grid_partition.addPartition(grid_partition);
-    }*/
-    qDebug()<<"DONE";
-    
-    vtkIdType polyline_ortho[7];
     vtkIdType polyline_nonortho[7];
-
-    polyline_ortho[0] = T.m_id_a;
-    polyline_ortho[1] = idx_J3;
-    polyline_ortho[2] = T.m_id_b;
-    polyline_ortho[3] = idx_J1;
-    polyline_ortho[4] = T.m_id_c;
-    polyline_ortho[5] = idx_J2;
-    polyline_ortho[6] = T.m_id_a;
-
-    polyline_nonortho[0] = T.m_id_a;
+    polyline_nonortho[0] = bezier_triangle.m_id_a;
     polyline_nonortho[1] = idx_K3;
-    polyline_nonortho[2] = T.m_id_b;
+    polyline_nonortho[2] = bezier_triangle.m_id_b;
     polyline_nonortho[3] = idx_K1;
-    polyline_nonortho[4] = T.m_id_c;
+    polyline_nonortho[4] = bezier_triangle.m_id_c;
     polyline_nonortho[5] = idx_K2;
-    polyline_nonortho[6] = T.m_id_a;
-
-    m_InterpolationGrid->InsertNextCell(4, 7, polyline_ortho); cell_count++;
+    polyline_nonortho[6] = bezier_triangle.m_id_a;
+    
+//     for(int i=0;i<7;i++) qWarning()<<"polyline_nonortho["<<i<<"]="<<polyline_nonortho[i];
+    
     m_InterpolationGrid->InsertNextCell(4, 7, polyline_nonortho); cell_count++;
 
   }
 
-  qDebug()<<"writeInterpolationGrid--> __LINE__="<<__LINE__;
+/*  qWarning()<<"node_count="<<node_count;
+  qWarning()<<"cell_count="<<cell_count;
   
-  //qDebug()<<"node_count="<<node_count;
-  //qDebug()<<"cell_count="<<cell_count;
-  //qDebug()<<"offset="<<offset;
-
+  qWarning()<<"m_InterpolationGrid->GetNumberOfPoints()="<<m_InterpolationGrid->GetNumberOfPoints();
+  qWarning()<<"m_InterpolationGrid->GetNumberOfCells()="<<m_InterpolationGrid->GetNumberOfCells();*/
+  
   saveGrid(m_InterpolationGrid, filename + "_InterpolationGrid");
-//   makeCopy(new_grid_partition.getGrid(), m_BezierGrid);
   saveGrid(m_BezierGrid, filename + "_BezierGrid");
-//   saveGrid(new_grid_partition.getGrid(), filename+"_BezierGrid");
   this->writeGrid(m_BGrid, filename + "_BGrid");
 
 }
-
-// mat2_t SurfaceProjection::Jacobian_Matrix(double x, double y)
-// {
-//   mat2_t J;
-//   return J;
-// }
-
-// vec2_t BezierProjectionFunction(double x, double y)
-// {
-//   vec2_t F;
-//   quadraticBezierTriangle(double u, double v, double w, vec3_t X_200, vec3_t X_020, vec3_t X_002, vec3_t X_011, vec3_t X_101, vec3_t X_110);
-//   return F;
-// }
 
 vec3_t SurfaceProjection::getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2) {
   l2l_t  n2n   = getPartN2N();
@@ -1536,109 +1468,111 @@ void SurfaceProjection::updateBackgroundGridInfo() {
   /// UNDER CONSTRUCTION
   ///------------------------------
 
-  MeshPartition m_BGrid_partition(m_BGrid, true);
-
-  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    qDebug()<<"id_cell="<<id_cell;
-    Triangle T = m_Triangles[id_cell];
-    for (int i_edge = 0; i_edge < 3; i_edge++) {
-
-      // preparations
-      vtkIdType id_cell1 = id_cell;
-      vtkIdType id_cell2 = m_BGrid_partition.c2cGG(id_cell, i_edge);
-
-      vtkIdType N_pts1, *pts1;
-      if (id_cell1 != -1) {
-        m_BGrid->GetCellPoints(id_cell1, N_pts1, pts1);
-      }
-      vtkIdType N_pts2, *pts2;
-      if (id_cell2 != -1) {
-        m_BGrid->GetCellPoints(id_cell2, N_pts2, pts2);
-      }
-
-      vtkIdType p1 = pts1[i_edge];
-      vtkIdType p2 = pts1[(i_edge+1)%N_pts1];
-
-      if (!m_ControlPoints.contains(OrderedPair(p1, p2))) {
-
-        // calculate control point
-        vec3_t control_point;
-        vec3_t X_011, X_101, X_110;
-        getControlPoints_nonorthogonal(T, X_011, X_101, X_110, 1e99);
-        if (i_edge == 0) {
-          control_point = X_110;
-        } else if (i_edge == 1) {
-          control_point = X_011;
-        } else {
-          control_point = X_101;
-        }
-
-        //id_cell1
-        if (id_cell1 != -1) {
-          for (int j_edge = 0; j_edge < 3; j_edge++) {
-            vtkIdType a = pts1[j_edge];
-            vtkIdType b = pts1[(j_edge+1)%N_pts1];
-            vtkIdType c = pts1[(j_edge+2)%N_pts1];
-            if (a == p1 || a == p2) {
-              if (!m_ControlPoints.contains(OrderedPair(b, c))) {
-                vec3_t other_control_point = m_ControlPoints[OrderedPair(b, c)];
-
-                vec3_t segment_A, segment_B;
-                vec3_t triangle_A, triangle_B, triangle_C;
-                m_BGrid->GetPoints()->GetPoint(a, segment_A.data());
-                m_BGrid->GetPoints()->GetPoint(b, triangle_A.data());
-                m_BGrid->GetPoints()->GetPoint(c, triangle_B.data());
-                segment_B = control_point;
-                triangle_C = other_control_point;
-
-                vec3_t xi, ri;
-                if (intersectEdgeAndTriangle(triangle_A, triangle_B, triangle_C, segment_A, segment_B, xi, ri)) {
-                  control_point = xi;
-                }
-
-              }
-            }
-          }
-        }
-
-        //id_cell2
-        if (id_cell2 != -1) {
-          for (int j_edge = 0; j_edge < 3; j_edge++) {
-            vtkIdType a = pts2[j_edge];
-            vtkIdType b = pts2[(j_edge+1)%N_pts2];
-            vtkIdType c = pts2[(j_edge+2)%N_pts2];
-            if (a == p1 || a == p2) {
-              if (!m_ControlPoints.contains(OrderedPair(b, c))) {
-                vec3_t other_control_point = m_ControlPoints[OrderedPair(b, c)];
-
-                vec3_t segment_A, segment_B;
-                vec3_t triangle_A, triangle_B, triangle_C;
-                m_BGrid->GetPoints()->GetPoint(a, segment_A.data());
-                m_BGrid->GetPoints()->GetPoint(b, triangle_A.data());
-                m_BGrid->GetPoints()->GetPoint(c, triangle_B.data());
-                segment_B = control_point;
-                triangle_C = other_control_point;
-
-                vec3_t xi, ri;
-                if (intersectEdgeAndTriangle(triangle_A, triangle_B, triangle_C, segment_A, segment_B, xi, ri)) {
-                  control_point = xi;
-                }
-
-              }
-            }
-          }
-        }
-
-        // set final point
-        m_ControlPoints[OrderedPair(p1, p2)] = control_point;
-
-      }// end of if(!m_ControlPoints.contains(OrderedPair(p1,p2)))
-    }// end of loop through edges
-  }// end of loop through cells
-
-  qDebug()<<"=== CONTROL POINTS READY ===";
+  if(false) {
+    MeshPartition m_BGrid_partition(m_BGrid, true);
   
-  /*  for (int i_tri = 0; i_tri < m_Triangles.size(); i_tri++) {
+    for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+      qDebug()<<"id_cell="<<id_cell;
+      Triangle T = m_Triangles[id_cell];
+      for (int i_edge = 0; i_edge < 3; i_edge++) {
+  
+        // preparations
+        vtkIdType id_cell1 = id_cell;
+        vtkIdType id_cell2 = m_BGrid_partition.c2cGG(id_cell, i_edge);
+  
+        vtkIdType N_pts1, *pts1;
+        if (id_cell1 != -1) {
+          m_BGrid->GetCellPoints(id_cell1, N_pts1, pts1);
+        }
+        vtkIdType N_pts2, *pts2;
+        if (id_cell2 != -1) {
+          m_BGrid->GetCellPoints(id_cell2, N_pts2, pts2);
+        }
+  
+        vtkIdType p1 = pts1[i_edge];
+        vtkIdType p2 = pts1[(i_edge+1)%N_pts1];
+  
+        if (!m_ControlPoints.contains(OrderedPair(p1, p2))) {
+  
+          // calculate control point
+          vec3_t control_point;
+          vec3_t X_011, X_101, X_110;
+          getControlPoints_nonorthogonal(T, X_011, X_101, X_110, 1e99);
+          if (i_edge == 0) {
+            control_point = X_110;
+          } else if (i_edge == 1) {
+            control_point = X_011;
+          } else {
+            control_point = X_101;
+          }
+  
+          //id_cell1
+          if (id_cell1 != -1) {
+            for (int j_edge = 0; j_edge < 3; j_edge++) {
+              vtkIdType a = pts1[j_edge];
+              vtkIdType b = pts1[(j_edge+1)%N_pts1];
+              vtkIdType c = pts1[(j_edge+2)%N_pts1];
+              if (a == p1 || a == p2) {
+                if (!m_ControlPoints.contains(OrderedPair(b, c))) {
+                  vec3_t other_control_point = m_ControlPoints[OrderedPair(b, c)];
+  
+                  vec3_t segment_A, segment_B;
+                  vec3_t triangle_A, triangle_B, triangle_C;
+                  m_BGrid->GetPoints()->GetPoint(a, segment_A.data());
+                  m_BGrid->GetPoints()->GetPoint(b, triangle_A.data());
+                  m_BGrid->GetPoints()->GetPoint(c, triangle_B.data());
+                  segment_B = control_point;
+                  triangle_C = other_control_point;
+  
+                  vec3_t xi, ri;
+                  if (intersectEdgeAndTriangle(triangle_A, triangle_B, triangle_C, segment_A, segment_B, xi, ri)) {
+                    control_point = xi;
+                  }
+  
+                }
+              }
+            }
+          }
+  
+          //id_cell2
+          if (id_cell2 != -1) {
+            for (int j_edge = 0; j_edge < 3; j_edge++) {
+              vtkIdType a = pts2[j_edge];
+              vtkIdType b = pts2[(j_edge+1)%N_pts2];
+              vtkIdType c = pts2[(j_edge+2)%N_pts2];
+              if (a == p1 || a == p2) {
+                if (!m_ControlPoints.contains(OrderedPair(b, c))) {
+                  vec3_t other_control_point = m_ControlPoints[OrderedPair(b, c)];
+  
+                  vec3_t segment_A, segment_B;
+                  vec3_t triangle_A, triangle_B, triangle_C;
+                  m_BGrid->GetPoints()->GetPoint(a, segment_A.data());
+                  m_BGrid->GetPoints()->GetPoint(b, triangle_A.data());
+                  m_BGrid->GetPoints()->GetPoint(c, triangle_B.data());
+                  segment_B = control_point;
+                  triangle_C = other_control_point;
+  
+                  vec3_t xi, ri;
+                  if (intersectEdgeAndTriangle(triangle_A, triangle_B, triangle_C, segment_A, segment_B, xi, ri)) {
+                    control_point = xi;
+                  }
+  
+                }
+              }
+            }
+          }
+  
+          // set final point
+          m_ControlPoints[OrderedPair(p1, p2)] = control_point;
+  
+        }// end of if(!m_ControlPoints.contains(OrderedPair(p1,p2)))
+      }// end of loop through edges
+    }// end of loop through cells
+  
+    qDebug()<<"=== CONTROL POINTS READY ===";
+    
+  } else {
+    for (int i_tri = 0; i_tri < m_Triangles.size(); i_tri++) {
       m_Triangles[i_tri].m_Normal_a = m_NodeNormals[m_Triangles[i_tri].m_id_a];
       m_Triangles[i_tri].m_Normal_b = m_NodeNormals[m_Triangles[i_tri].m_id_b];
       m_Triangles[i_tri].m_Normal_c = m_NodeNormals[m_Triangles[i_tri].m_id_c];
@@ -1652,7 +1586,8 @@ void SurfaceProjection::updateBackgroundGridInfo() {
       m_ControlPoints[OrderedPair(T.m_id_b, T.m_id_c)] = X_011;
       m_ControlPoints[OrderedPair(T.m_id_c, T.m_id_a)] = X_101;
       m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)] = X_110;
-    }*/
+    }
+  }
   ///------------------------------
 
   // store the bezier triangles
@@ -1672,6 +1607,9 @@ void SurfaceProjection::updateBackgroundGridInfo() {
     vec3_t X_110 = m_ControlPoints[OrderedPair(T.m_id_a, T.m_id_b)];
 
     m_BezierTriangles[i_tri] = BezierTriangle(X_200, X_020, X_002, X_011, X_101, X_110);
+    m_BezierTriangles[i_tri].m_id_a = T.m_id_a;
+    m_BezierTriangles[i_tri].m_id_b = T.m_id_b;
+    m_BezierTriangles[i_tri].m_id_c = T.m_id_c;
     m_BezierTriangles[i_tri].m_has_neighbour = m_Triangles[i_tri].m_has_neighbour;
   }
 

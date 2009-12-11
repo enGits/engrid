@@ -27,19 +27,12 @@
 #include "egvtkobject.h"
 
 Triangle::Triangle() : EgVtkObject() {
-  m_id_a = 0;
-  m_id_b = 0;
-  m_id_c = 0;
-  m_a = vec3_t(0, 0, 0);
-  m_b = vec3_t(0, 1, 0);
-  m_c = vec3_t(0, 0, 1);
-  m_Normal_a = vec3_t(0, 0, 0);
-  m_Normal_b = vec3_t(0, 0, 0);
-  m_Normal_c = vec3_t(0, 0, 0);
+  setDefaults();
   setupTriangle();
 }
 
 Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) : EgVtkObject() {
+  setDefaults();
   m_a = a_a;
   m_b = a_b;
   m_c = a_c;
@@ -47,6 +40,7 @@ Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) : EgVtkObject() {
 }
 
 Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) : EgVtkObject() {
+  setDefaults();
   m_id_a = a_id_a;
   m_id_b = a_id_b;
   m_id_c = a_id_c;
@@ -57,6 +51,7 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id
 }
 
 Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)  : EgVtkObject() {
+  setDefaults();
   vtkIdType Npts, *pts;
   a_grid->GetCellPoints(a_id_cell, Npts, pts);
   if (Npts == 3) {
@@ -70,6 +65,19 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)  : EgVtkObj
   } else {
     EG_ERR_RETURN("only triangles allowed at the moment");
   }
+}
+
+void Triangle::setDefaults()
+{
+  m_id_a = 0;
+  m_id_b = 0;
+  m_id_c = 0;
+  m_a = vec3_t(0, 0, 0);
+  m_b = vec3_t(0, 1, 0);
+  m_c = vec3_t(0, 0, 1);
+  m_Normal_a = vec3_t(0, 0, 0);
+  m_Normal_b = vec3_t(0, 0, 0);
+  m_Normal_c = vec3_t(0, 0, 0);
 }
 
 void Triangle::setupTriangle() {

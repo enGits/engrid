@@ -32,6 +32,7 @@
 
 #include <vtkUnstructuredGrid.h>
 
+/// \todo As a subclass of Triangle, BezierTriangle should not need the ABC points
 class BezierTriangle : public Triangle {
   public:
     vec3_t m_X_200;

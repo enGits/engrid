@@ -37,6 +37,13 @@ public:
 
   SurfaceMesher();
 
+private:
+  bool m_correctCurvature; ///< Should correctCurvature() be used?
+  
+public:
+  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
+  bool getCorrectCurvature() { return m_correctCurvature; }
+  
 };
 
 #endif

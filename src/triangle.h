@@ -51,7 +51,8 @@ class Triangle : public EgVtkObject {
     Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c);
     Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell);
     void setupTriangle();
-
+    void setDefaults();
+  
   public:
     /**
      * Calculates the closest (NOT the projection!) point (xi,ri) of point xp on the triangle.

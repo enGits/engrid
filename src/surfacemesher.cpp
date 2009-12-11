@@ -24,6 +24,8 @@
 #include "surfacemesher.h"
 #include "guimainwindow.h"
 
+#include "laplacesmoother.h"
+
 SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
@@ -32,6 +34,8 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_UseNormalCorrectionForSmoothing = true;
   m_AllowFeatureEdgeSwapping = false;
   m_EdgeAngle = m_FeatureAngle;
+  
+  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
 }
 
 void SurfaceMesher::operate()
@@ -100,5 +104,32 @@ void SurfaceMesher::operate()
     }
     cout << N1 << " direct projections" << endl;
     cout << N2 << " full searches" << endl;
+  }
+  
+  if(m_correctCurvature) {
+    qDebug()<<"+++ CORRECTING CURVATURE +++";
+    // correct curvature
+    LaplaceSmoother lap;
+    lap.setCorrectCurvature(true);
+    lap.setNoCheck(true);
+    lap.setGrid(m_Grid);
+    QVector<vtkIdType> cls;
+    getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
+    lap.setCells(cls);
+    lap.setNumberOfIterations(1);
+    m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
+    lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
+    if (m_UseProjectionForSmoothing) {
+      lap.setProjectionOn();
+    } else {
+      lap.setProjectionOff();
+    }
+    if (m_UseNormalCorrectionForSmoothing) {
+      lap.setNormalCorrectionOn();
+    } else {
+      lap.setNormalCorrectionOff();
+    }
+    lap();
+    m_SmoothSuccess = lap.succeeded();
   }
 }
