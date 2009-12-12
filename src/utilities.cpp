@@ -356,14 +356,14 @@ QDebug operator<<(QDebug dbg, const dcmplx &c) {
 
 dcmplx complex_pow(dcmplx base, double power)
 {
-  qDebug()<<"power="<<power;
-  qDebug()<<"base="<<base;
-  qDebug()<<"abs(base)="<<abs(base);
-  qDebug()<<"norm(base)="<<norm(base);
-  qDebug()<<"pow(abs(base),power)="<<pow(abs(base),power);
+//  qDebug()<<"power="<<power;
+//  qDebug()<<"base="<<base;
+//  qDebug()<<"abs(base)="<<abs(base);
+//  qDebug()<<"norm(base)="<<norm(base);
+//  qDebug()<<"pow(abs(base),power)="<<pow(abs(base),power);
   dcmplx i(0,1);
   double alpha = atan2(imag(base),real(base));
-  qDebug()<<"angle="<<alpha;
+//  qDebug()<<"angle="<<alpha;
   return pow(abs(base),power)*exp(power*alpha*i);
 }
 
@@ -374,9 +374,9 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   dcmplx omega_1 = dcmplx(-0.5,  0.5 * sqrt(3));
   dcmplx omega_2 = dcmplx(-0.5, -0.5 * sqrt(3));
 
-  qDebug()<<"m="<<m;
-  qDebug()<<"k="<<k;
-  qDebug()<<"n="<<n;
+//  qDebug()<<"m="<<m;
+//  qDebug()<<"k="<<k;
+//  qDebug()<<"n="<<n;
   
   dcmplx up = (m + sqrt(n)) / 2.;
   dcmplx down = (m - sqrt(n)) / 2.;
@@ -385,10 +385,10 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   double p = b-pow(a,2)/3;
   dcmplx beta = k/alpha;//complex_pow(down, 1. / 3.);
   
-  qDebug()<<"up="<<up;
-  qDebug()<<"down="<<down;
-  qDebug()<<"alpha="<<alpha;
-  qDebug()<<"beta="<<beta;
+//  qDebug()<<"up="<<up;
+//  qDebug()<<"down="<<down;
+//  qDebug()<<"alpha="<<alpha;
+//  qDebug()<<"beta="<<beta;
   
   dcmplx x[3];
   x[0] = -1. / 3.*(a + alpha + beta);
@@ -398,7 +398,7 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   double tol = 1e-4;
   QVector <double> xreal;
   for (int i = 0; i < 3; i++) {
-    qDebug()<<"x["<<i<<"]="<<real(x[i])<<" + "<<imag(x[i])<<" *i";
+//    qDebug()<<"x["<<i<<"]="<<real(x[i])<<" + "<<imag(x[i])<<" *i";
     if (abs(imag(x[i])) < tol) {
       xreal.push_back(real(x[i]));
     }

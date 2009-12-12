@@ -163,6 +163,7 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 
 int main( int argc, char ** argv )
 {
+/*
   double a,b,c;
   double x[3];
   int N;
@@ -183,6 +184,7 @@ int main( int argc, char ** argv )
   qDebug()<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
   for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
   exit(0);
+*/
   
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
