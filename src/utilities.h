@@ -18,6 +18,9 @@ using namespace std;
 
 #include "vtkUnstructuredGrid.h"
 
+#include <complex>
+using namespace std;
+
 /** Restricts value to the CYCLIC [min,max[ range.
  * Equivalent to min + modulo(value-min, max-min)
  * @param value value to restrict
@@ -295,6 +298,9 @@ inline vtkIdType quadgrid_idx(vtkIdType N, int i, int j) {
 }
 
 // solver functions
+typedef complex<double> dcmplx;
+QDebug operator<<(QDebug dbg, const dcmplx &c);
+dcmplx complex_pow(dcmplx base, double power);
 // x^3 + a x^2 + b x + c = 0
 int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2);
 // a x^2 + b x + c = 0

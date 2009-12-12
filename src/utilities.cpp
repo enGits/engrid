@@ -28,9 +28,6 @@
 #include "egvtkobject.h"
 #include "vtkCell.h"
 
-#include <complex>
-using namespace std;
-
 double toDouble(QString str) {
   str.replace(QString(QObject::tr(",")), QString(QObject::tr(".")));
   return(str.toDouble());
@@ -352,7 +349,23 @@ QDebug operator<<(QDebug dbg, const vec2_t &v) {
   return dbg.space();
 }
 
-typedef complex<double> dcmplx;
+QDebug operator<<(QDebug dbg, const dcmplx &c) {
+  dbg.nospace() << real(c)<<" + "<<imag(c)<<" *i";
+  return dbg.space();
+}
+
+dcmplx complex_pow(dcmplx base, double power)
+{
+  qDebug()<<"power="<<power;
+  qDebug()<<"base="<<base;
+  qDebug()<<"abs(base)="<<abs(base);
+  qDebug()<<"norm(base)="<<norm(base);
+  qDebug()<<"pow(abs(base),power)="<<pow(abs(base),power);
+  dcmplx i(0,1);
+  double alpha = atan2(imag(base),real(base));
+  qDebug()<<"angle="<<alpha;
+  return pow(abs(base),power)*exp(power*alpha*i);
+}
 
 int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2) {
   double m = 2 * pow(a, 3) - 9 * a * b + 27 * c;
@@ -361,16 +374,31 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   dcmplx omega_1 = dcmplx(-0.5,  0.5 * sqrt(3));
   dcmplx omega_2 = dcmplx(-0.5, -0.5 * sqrt(3));
 
+  qDebug()<<"m="<<m;
+  qDebug()<<"k="<<k;
+  qDebug()<<"n="<<n;
+  
+  dcmplx up = (m + sqrt(n)) / 2.;
+  dcmplx down = (m - sqrt(n)) / 2.;
+  
+  dcmplx alpha = complex_pow(up, 1. / 3.);
+  double p = b-pow(a,2)/3;
+  dcmplx beta = k/alpha;//complex_pow(down, 1. / 3.);
+  
+  qDebug()<<"up="<<up;
+  qDebug()<<"down="<<down;
+  qDebug()<<"alpha="<<alpha;
+  qDebug()<<"beta="<<beta;
+  
   dcmplx x[3];
-  x[0] = -1. / 3.*(a + pow((m + sqrt(n)) / 2., 1. / 3.) + pow((m - sqrt(n)) / 2., 1. / 3.));
-
-  x[1] = -1. / 3.*(a + pow((m + sqrt(n)) / 2., 1. / 3.) * omega_2 + pow((m - sqrt(n)) / 2., 1. / 3.) * omega_1);
-
-  x[2] = -1. / 3.*(a + pow((m + sqrt(n)) / 2., 1. / 3.) * omega_1 + pow((m - sqrt(n)) / 2., 1. / 3.) * omega_2);
+  x[0] = -1. / 3.*(a + alpha + beta);
+  x[1] = -1. / 3.*(a + alpha * omega_2 + beta * omega_1);
+  x[2] = -1. / 3.*(a + alpha * omega_1 + beta * omega_2);
 
   double tol = 1e-4;
   QVector <double> xreal;
   for (int i = 0; i < 3; i++) {
+    qDebug()<<"x["<<i<<"]="<<real(x[i])<<" + "<<imag(x[i])<<" *i";
     if (abs(imag(x[i])) < tol) {
       xreal.push_back(real(x[i]));
     }
@@ -389,7 +417,7 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
 int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1) {
   if (a == 0) {
     if (b == 0) {
-      EG_BUG;
+      return(0);
     } else {
       *x0 = -c / b;
       return(1);
@@ -397,7 +425,7 @@ int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1)
   } else {
     double delta = pow(b, 2) - 4 * a * c;
     if (delta < 0) {
-      EG_BUG;
+      return(0);
     } else {
       *x0 = (-b + sqrt(delta)) / (2 * a);
       *x1 = (-b - sqrt(delta)) / (2 * a);

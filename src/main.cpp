@@ -163,6 +163,27 @@ void engridMessageHandler(QtMsgType type, const char *msg)
 
 int main( int argc, char ** argv )
 {
+  double a,b,c;
+  double x[3];
+  int N;
+  
+  // x^3 + a x^2 + b x + c = 0
+  a=1;
+  b=2;
+  c=3;
+  N = poly_solve_cubic( a, b, c, &(x[0]), &(x[1]), &(x[2]));
+  qDebug()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
+  for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
+  
+  // a x^2 + b x + c = 0
+  a=1;
+  b=2;
+  c=3;
+  N = poly_solve_quadratic( a, b, c, &(x[0]), &(x[1]));
+  qDebug()<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
+  for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
+  exit(0);
+  
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   
