@@ -585,10 +585,22 @@ bool BezierTriangle::insideBezierCurve(vec2_t t_M, int side, vec2_t& t_tangent, 
   
   double x[3];
   int N;
-  if(coeff3!=0) N = poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
-  else N = poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
+  if(coeff3!=0) {
+    qWarning()<<"using poly_solve_cubic";
+    N = poly_solve_cubic(coeff2/coeff3, coeff1/coeff3, coeff0/coeff3, &(x[0]), &(x[1]), &(x[2]));
+  }
+  else {
+    qWarning()<<"using poly_solve_quadratic";
+    N = poly_solve_quadratic (coeff2, coeff1, coeff0, &(x[0]), &(x[1]));
+  }
   
-  if(N==0) EG_BUG;
+  if(N==0) {
+    qWarning()<<"coeff3="<<coeff3;
+    qWarning()<<"coeff2="<<coeff2;
+    qWarning()<<"coeff1="<<coeff1;
+    qWarning()<<"coeff0="<<coeff0;
+    EG_BUG;
+  }
   
   double L[3];
   double Lmin = 0;

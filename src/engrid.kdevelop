@@ -154,9 +154,9 @@
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>./engrid</mainprogram>
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
-      <globalcwd></globalcwd>
+      <programargs>-f ~/Geometries/simulations_engrid/testing/MultipleVolumes/CylinderInBox_S0.egc</programargs>
+      <globaldebugarguments>-f ~/Geometries/simulations_engrid/testing/MultipleVolumes/CylinderInBox_S0.egc</globaldebugarguments>
+      <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
