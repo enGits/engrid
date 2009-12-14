@@ -82,7 +82,7 @@ int InsertPoints::insertPoints()
         bool selected_edge = true;
         for(int i_cell_neighbour=1;i_cell_neighbour<S.id_cell.size();i_cell_neighbour++) {
           vtkIdType id_cell_neighbour = S.id_cell[i_cell_neighbour];
-          if(!m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) selected_edge=false;
+          if( !m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour)) || S.type_cell[i_cell_neighbour] != VTK_TRIANGLE) selected_edge=false;
         }// end of loop through neighbour cells
         if(selected_edge) {
           vtkIdType id_node1 = pts[j];
@@ -114,28 +114,21 @@ int InsertPoints::insertPoints()
 
   //counter
   foreach (edge_t E, edges) {
-    if (E.S.id_cell.size()==2 && (E.S.type_cell[1] == VTK_TRIANGLE)) {
-      int i_cells1 = _cells[E.S.id_cell[0]];
-      int i_cells2 = _cells[E.S.id_cell[1]];
-      if (!marked_cells[i_cells1]  && !marked_cells[i_cells2]) {
-        stencil_vector[i_cells1] = E.S;
-        marked_cells[i_cells1] = 1;
-        marked_cells[i_cells2] = 2;
-        ++num_newpoints;
-        num_newcells += 2;
-      }
-    } else if (E.S.id_cell.size()==1) {
-      int i_cells1 = _cells[E.S.id_cell[0]];
-      if (!marked_cells[i_cells1]) {
-        stencil_vector[i_cells1] = E.S;
-        marked_cells[i_cells1] = 1;
-        ++num_newpoints;
-        num_newcells += 1;
-      }
+    int i_cells1 = _cells[E.S.id_cell[0]];
+    bool all_unmarked = true;
+    for(int i=0; i<E.S.id_cell.size();i++) {
+      int i_cells = _cells[E.S.id_cell[i]];
+      if (marked_cells[i_cells]) all_unmarked=false;
     }
-    else {
-      qWarning()<<"E.S.id_cell.size()="<<E.S.id_cell.size();
-      EG_BUG;
+    if(all_unmarked) {
+      stencil_vector[i_cells1] = E.S;
+      marked_cells[i_cells1] = 1;
+      for(int i=1; i<E.S.id_cell.size();i++) {
+        int i_cells = _cells[E.S.id_cell[i]];
+        marked_cells[i_cells] = 2;
+      }
+      ++num_newpoints;
+      num_newcells += E.S.id_cell.size();
     }
   }
 
