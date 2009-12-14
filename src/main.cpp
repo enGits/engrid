@@ -161,30 +161,46 @@ void engridMessageHandler(QtMsgType type, const char *msg)
   }
 }
 
+double getNumber(QString text)
+{
+  double myNumber = 0;
+  while (true) {
+    qDebug() << text;
+    string input = "";
+    getline(cin, input);
+    
+    // This code converts from string to number safely.
+    stringstream myStream(input);
+    if (myStream >> myNumber)
+      break;
+    qDebug() << "Invalid number, please try again" << endl;
+  }
+  return myNumber;
+}
+
 int main( int argc, char ** argv )
 {
-/*
+
   double a,b,c;
   double x[3];
   int N;
   
   // x^3 + a x^2 + b x + c = 0
-  a=1;
-  b=2;
-  c=3;
+  a = getNumber("a=");
+  b = getNumber("b=");
+  c = getNumber("c=");
   N = poly_solve_cubic( a, b, c, &(x[0]), &(x[1]), &(x[2]));
   qDebug()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
   for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
   
   // a x^2 + b x + c = 0
-  a=1;
-  b=2;
-  c=3;
+  a = getNumber("a=");
+  b = getNumber("b=");
+  c = getNumber("c=");
   N = poly_solve_quadratic( a, b, c, &(x[0]), &(x[1]));
   qDebug()<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
   for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
   exit(0);
-*/
   
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
