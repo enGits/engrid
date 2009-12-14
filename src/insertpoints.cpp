@@ -224,6 +224,8 @@ int InsertPoints::insertPoints()
 
 char InsertPoints::getNewNodeType(stencil_t S)
 {
+//   cout<<"S="<<S<<endl;
+  
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
   
@@ -235,10 +237,15 @@ char InsertPoints::getNewNodeType(stencil_t S)
     QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node1);
     if( PSP.contains(id_node2) ) {
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-      if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
+      if(S.id_cell.size()<1) {
         return VTK_BOUNDARY_EDGE_VERTEX;
-      } else {
-        return VTK_FEATURE_EDGE_VERTEX;
+      }
+      else {
+        if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
+          return VTK_BOUNDARY_EDGE_VERTEX;
+        } else {
+          return VTK_FEATURE_EDGE_VERTEX;
+        }
       }
     } else {
       return VTK_SIMPLE_VERTEX;
