@@ -52,7 +52,6 @@ int InsertPoints::insertPoints()
   g2l_t _cells = getPartLocalCells();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2c   = getPartN2C();
-  l2l_t  c2c = getPartC2C();
   
   UpdatePotentialSnapPoints(true);
    
@@ -79,24 +78,26 @@ int InsertPoints::insertPoints()
       //find best side to split (longest)
       for (int j = 0; j < 3; ++j) {
         //check if neighbour cell on this side is also selected
-        int i_cell_neighbour = c2c[_cells[id_cell]][j];
-        if(i_cell_neighbour!=-1) {
-          vtkIdType id_cell_neighbour = cells[i_cell_neighbour];
-          if(m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) {
-            vtkIdType id_node1 = pts[j];
-            vtkIdType id_node2 = pts[(j+1)%N_pts];
-            double L  = distance(m_Grid, id_node1, id_node2);
-            double L1 = characteristic_length_desired->GetValue(id_node1);
-            double L2 = characteristic_length_desired->GetValue(id_node2);
-            if (L > m_Threshold*min(L1,L2)) {
-              if (L > L_max) {
-                j_split = j;
-                L_max = L;
-              }
+        stencil_t S = getStencil(id_cell, j);
+        bool selected_edge = true;
+        for(int i_cell_neighbour=1;i_cell_neighbour<S.id_cell.size();i_cell_neighbour++) {
+          vtkIdType id_cell_neighbour = S.id_cell[i_cell_neighbour];
+          if(!m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) selected_edge=false;
+        }// end of loop through neighbour cells
+        if(selected_edge) {
+          vtkIdType id_node1 = pts[j];
+          vtkIdType id_node2 = pts[(j+1)%N_pts];
+          double L  = distance(m_Grid, id_node1, id_node2);
+          double L1 = characteristic_length_desired->GetValue(id_node1);
+          double L2 = characteristic_length_desired->GetValue(id_node2);
+          if (L > m_Threshold*min(L1,L2)) {
+            if (L > L_max) {
+              j_split = j;
+              L_max = L;
             }
           }
         }
-      }
+      }// end of loop through sides
       if (j_split != -1) {
         stencil_t S = getStencil(id_cell, j_split);
         edge_t E;
@@ -123,7 +124,7 @@ int InsertPoints::insertPoints()
         ++num_newpoints;
         num_newcells += 2;
       }
-    } else if (E.S.id_cell.size()!=2) {
+    } else if (E.S.id_cell.size()==1) {
       int i_cells1 = _cells[E.S.id_cell[0]];
       if (!marked_cells[i_cells1]) {
         stencil_vector[i_cells1] = E.S;
@@ -131,6 +132,10 @@ int InsertPoints::insertPoints()
         ++num_newpoints;
         num_newcells += 1;
       }
+    }
+    else {
+      qWarning()<<"E.S.id_cell.size()="<<E.S.id_cell.size();
+      EG_BUG;
     }
   }
 
