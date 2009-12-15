@@ -455,7 +455,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       if ( ContainsSnapPoint ) { // potential dead cell
         if ( invincible ) {
           // TEST 3: TOPOLOGICAL: Check that empty lines aren't left behind when a cell is killed
-          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+          if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would leave behind empty lines." << endl;
           IsValidSnapPoint = false; continue;
         }
         else {
@@ -480,7 +480,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
         // TEST 4: GEOMETRICAL: area + inversion check
         if (m_PerformGeometricChecks) {
           if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
-            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because area+inversion check failed." << endl;
             IsValidSnapPoint = false; continue;
           }
 
@@ -488,8 +488,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           vec3_t P;
           m_Grid->GetPoint( PSP, P.data() );
           if (flippedCell(DeadNode, P, id_cell)) {
-            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-            IsValidSnapPoint = false; continue;
+//             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because flipped cell test failed." << endl;
+//             IsValidSnapPoint = false; continue;
           }
         }
         
@@ -500,7 +500,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     
     // TEST 6: TOPOLOGICAL: survivor check
     if ( m_Grid->GetNumberOfCells() + num_newcells <= 0 ) {
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because survivor test failed." << endl;
       IsValidSnapPoint = false; continue;
     }
     
@@ -510,10 +510,13 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     }
   } //end of loop through potential SnapPoints
   
+  /*
   if(SnapPoint>=0 && DeadCells.size()!=2) {
-    qDebug()<<"SnapPoint>=0 && DeadCells.size()!=2";
+    qWarning() << "SnapPoint>=0 && DeadCells.size()!=2";
+    qWarning() << "SnapPoint==" << SnapPoint << " && DeadCells.size()=" << DeadCells.size();
     EG_BUG;
   }
+  */
   
   return ( SnapPoint );
 }
@@ -531,9 +534,9 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   int num_points = m_Grid->GetNumberOfPoints();
   int num_cells = m_Grid->GetNumberOfCells();
   
-  if ( num_newcells != 2*num_newpoints ) {
+/*  if ( num_newcells != 2*num_newpoints ) {
     EG_BUG;
-  }
+  }*/
   
   //allocate
   EG_VTKSP( vtkUnstructuredGrid, dst );
