@@ -75,7 +75,7 @@ void SurfaceMesher::operate()
       swap();
     }
     */
-    num_deleted = 0;//deleteNodes();
+    num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     //swap();
     computeMeshDensity();

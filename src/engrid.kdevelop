@@ -154,8 +154,8 @@
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>./engrid</mainprogram>
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
+      <programargs>-f ~/Geometries/MultipleVolumes/multiple_volumes4.egc</programargs>
+      <globaldebugarguments>-f ~/Geometries/MultipleVolumes/multiple_volumes4.egc</globaldebugarguments>
       <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>

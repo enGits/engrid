@@ -199,23 +199,35 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
     QVector <vtkIdType> EdgeCells_1i;
     QVector <vtkIdType> EdgeCells_2i;
     QVector <vtkIdType> inter;
-    int N;
+    int Ncells;
     
     // intersection1
-    N = getEdgeCells( id_node1, intersection1, EdgeCells_1i );
-    if ( N != 2 ) EG_BUG;
-    N = getEdgeCells( id_node2, intersection1, EdgeCells_2i );
-    if ( N != 2 ) EG_BUG;
+    Ncells = getEdgeCells( id_node1, intersection1, EdgeCells_1i );
+    if ( N != 2 ) {
+      qWarning()<<"Ncells="<<Ncells;
+      EG_BUG;
+    }
+    Ncells = getEdgeCells( id_node2, intersection1, EdgeCells_2i );
+    if ( Ncells != 2 ) {
+      qWarning()<<"Ncells="<<Ncells;
+      EG_BUG;
+    }
     qcontIntersection( EdgeCells_1i, EdgeCells_2i, inter );
-    if ( inter.size() <= 0 ) EG_BUG;
+    if ( inter.size() <= 0 ) EG_BUG;// (id_node1, id_node2, intersection1) is not a cell
     
     // intersection2
-    N = getEdgeCells( id_node1, intersection2, EdgeCells_1i );
-    if ( N != 2 ) EG_BUG;
-    N = getEdgeCells( id_node2, intersection2, EdgeCells_2i );
-    if ( N != 2 ) EG_BUG;
+    Ncells = getEdgeCells( id_node1, intersection2, EdgeCells_1i );
+    if ( Ncells != 2 ) {
+      qWarning()<<"Ncells="<<Ncells;
+      EG_BUG;
+    }
+    Ncells = getEdgeCells( id_node2, intersection2, EdgeCells_2i );
+    if ( Ncells != 2 ) {
+      qWarning()<<"Ncells="<<Ncells;
+      EG_BUG;
+    }
     qcontIntersection( EdgeCells_1i, EdgeCells_2i, inter );
-    if ( inter.size() <= 0 ) EG_BUG;
+    if ( inter.size() <= 0 ) EG_BUG;// (id_node1, id_node2, intersection2) is not a cell
     
     // check if DeadNode, PSP and common points form a tetrahedron.
     if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
@@ -242,10 +254,6 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
 
 bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell)
 {
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t  cells = getPartCells();
-  l2l_t  n2c   = getPartN2C();
-  
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   
