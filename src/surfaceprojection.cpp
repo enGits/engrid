@@ -785,6 +785,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
   bool on_triangle = false;
   bool need_full_search = false;
 
+  if(DebugLevel>90) need_full_search = true;
+  
   if (id_node >= m_ProjTriangles.size()) { //if there is no known triangle on which to project
     int old_size = m_ProjTriangles.size();
     m_ProjTriangles.resize(m_FGrid->GetNumberOfPoints());
@@ -809,6 +811,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
         need_full_search = true;
       } else {
         x_proj = xi; x_proj_set = true;
+        if(DebugLevel>90) qWarning()<<"before full search T="<<T.m_a<<T.m_b<<T.m_c;
         if (x_proj[0] > 1e98) { // should never happen
           EG_BUG;
         }
@@ -818,8 +821,13 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
       }
     }
   }
+  if(DebugLevel>90) qWarning()<<"before full search x_proj="<<x_proj;
+/*  int foo_i_triangles = m_ProjTriangles[id_node];
+  Triangle foo_T = m_Triangles[foo_i_triangles];
+  if(DebugLevel>90) qWarning()<<"before full search foo_T="<<foo_T.m_a<<foo_T.m_b<<foo_T.m_c;*/
+  
   if (need_full_search) {
-//     qDebug()<<"starting full search. m_Triangles.size()="<<m_Triangles.size();
+    if(DebugLevel>90) qWarning()<<"starting full search. m_Triangles.size()="<<m_Triangles.size();
     ++m_NumFull;
     double d_min = 1e99;
     bool first = true;
@@ -829,6 +837,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
       vec3_t xi, ri;
       int side;
       bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
+      if(DebugLevel>90) qWarning()<<"T="<<T.m_a<<T.m_b<<T.m_c;
+      if(DebugLevel>90) qWarning()<<"d="<<d;
 //       if(d>9000) qWarning()<<"d="<<d;
       if (d >= 1e99) EG_BUG;
       if (/*first ||*/ d < d_min) {
@@ -841,9 +851,10 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
         m_ProjTriangles[id_node] = i_triangles;
         on_triangle = intersects;
         first = false;
+        if(DebugLevel>90) qWarning()<<"new triangle: T="<<T.m_a<<T.m_b<<T.m_c;
       }
-//       qDebug()<<"full search done";
     }
+    if(DebugLevel>90) qWarning()<<"full search done";
     if (!x_proj_set) {   // should never happen
       checkVector(xp);
       qWarning() << "No projection found for point xp=" << xp[0] << xp[1] << xp[2] << endl;
@@ -851,6 +862,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
       EG_BUG;
     }
   }
+  if(DebugLevel>90) qWarning()<<"final x_proj="<<x_proj;
 //    if(on_triangle) {
 //      if(m_correctCurvature) x_proj = correctCurvature(m_ProjTriangles[id_node], r_proj);
   if (m_correctCurvature) x_proj = correctCurvature2(m_ProjTriangles[id_node], xp);
@@ -865,6 +877,8 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
 }
 
 vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node) {
+//   if(DebugLevel>90) EG_BUG;
+  
   checkVector(x);
 
   if (m_UseLevelSet) {

@@ -533,6 +533,13 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           }
 
           // TEST 5: GEOMETRICAL: flipped cell test
+          vec3_t P;
+          m_Grid->GetPoint( PSP, P.data() );
+          if (flippedCell(DeadNode, P, id_cell)) {
+            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
+            IsValidSnapPoint = false;
+          }
+          
           // id_cell
           // DeadNode -> PSP
           // index_DeadNode -> index_PSP
