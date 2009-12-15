@@ -200,6 +200,10 @@ bool RemovePoints::checkForDestroyedVolumes( vtkIdType id_node1, vtkIdType id_no
     int i_common_point_1 = intersection[i];
     vtkIdType id_common_point_1 = nodes[i_common_point_1];
     if(!isCell(id_node1, id_node2, id_common_point_1)) {
+      if(DebugLevel>100) {
+        qDebug()<<"test 0 failed";
+        qDebug()<<"id_node1, id_node2, id_common_point_1="<< id_node1 << id_node2 << id_common_point_1;
+      }
       return true;
     }
     // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell. => For any pair of common points (cp1,cp2), (cp1,cp2,DeadNode)+(cp1,cp2,PSP) must not be cells at the same time!
@@ -207,6 +211,11 @@ bool RemovePoints::checkForDestroyedVolumes( vtkIdType id_node1, vtkIdType id_no
       int i_common_point_2 = intersection[j];
       vtkIdType id_common_point_2 = nodes[i_common_point_2];
       if( isCell(id_common_point_1, id_common_point_2, id_node1) && isCell(id_common_point_1, id_common_point_2, id_node2) ) {
+        if(DebugLevel>100) {
+          qDebug()<<"test 1 failed";
+          qDebug()<<"id_common_point_1, id_common_point_2, id_node1=" << id_common_point_1 << id_common_point_2 << id_node1;
+          qDebug()<<"id_common_point_1, id_common_point_2, id_node2=" << id_common_point_1 << id_common_point_2 << id_node2;
+        }
         return true;
       }
     }
@@ -396,7 +405,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     
     // TEST -1 : TOPOLOGICAL : Is the node already marked?
     if(marked_nodes[PSP]) {
-      IsValidSnapPoint = false;
+      IsValidSnapPoint = false; continue;
     }
     
     // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
@@ -404,17 +413,17 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     int N_common_points = 0;
     if(checkForDestroyedVolumes(DeadNode, PSP, N_common_points)) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would destroy volume." << endl;
-      IsValidSnapPoint = false;
+      IsValidSnapPoint = false; continue;
     }
 /*    bool IsTetra = true;
     if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
+      IsValidSnapPoint = false; continue;
     }
     // TEST 2: TOPOLOGICAL: DeadNode, PSP and common points must not form a tetrahedron.
     if ( IsTetra ) { //tetra check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
+      IsValidSnapPoint = false; continue;
     }*/
     
     //count number of points and cells to remove + analyse cell transformations
@@ -447,7 +456,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
         if ( invincible ) {
           // TEST 3: TOPOLOGICAL: Check that empty lines aren't left behind when a cell is killed
           if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-          IsValidSnapPoint = false;
+          IsValidSnapPoint = false; continue;
         }
         else {
           if(IsValidSnapPoint) {
@@ -472,7 +481,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
         if (m_PerformGeometricChecks) {
           if ( Old_N*New_N < 0 || New_N*New_N < Old_N*Old_N*1. / 100. ) {
             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-            IsValidSnapPoint = false;
+            IsValidSnapPoint = false; continue;
           }
 
           // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
@@ -480,7 +489,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           m_Grid->GetPoint( PSP, P.data() );
           if (flippedCell(DeadNode, P, id_cell)) {
             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-            IsValidSnapPoint = false;
+            IsValidSnapPoint = false; continue;
           }
         }
         
@@ -492,7 +501,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     // TEST 6: TOPOLOGICAL: survivor check
     if ( m_Grid->GetNumberOfCells() + num_newcells <= 0 ) {
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false;
+      IsValidSnapPoint = false; continue;
     }
     
     if ( IsValidSnapPoint ) {

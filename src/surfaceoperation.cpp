@@ -686,5 +686,11 @@ bool SurfaceOperation::isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType 
     writeGrid(m_Grid, "abort");
     EG_BUG;// multiple cells in the same place
   }
-  return(inter.size()>=0);
+  if(DebugLevel>100) {
+    qDebug()<<"(id_node1, id_node2, id_node3)="<<"("<<id_node1<<", "<<id_node2<<", "<<id_node3<<")";
+    qDebug()<<"EdgeCells_12="<<EdgeCells_12;
+    qDebug()<<"EdgeCells_13="<<EdgeCells_13;
+    qDebug()<<"inter="<<inter;
+  }
+  return(inter.size()>0);
 }
