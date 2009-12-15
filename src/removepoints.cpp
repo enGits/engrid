@@ -321,6 +321,54 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
   return( N );
 }
 
+bool RemovePoints::flippedCell2(vtkIdType id_node, vec3_t x_new)
+{
+  /*
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    
+    vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+    
+    vtkIdType N_pts, *pts;
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    if(N_pts!=3) EG_BUG;
+    
+    int i_pts=0;
+    for(i_pts=0; i_pts<N_pts; i_pts++) {
+      if(pts[i_pts]==id_node) break;
+    }
+    if(pts[i_pts]!=id_node) EG_BUG;
+    
+    vec3_t x1, x2, x_old;
+    m_Grid->GetPoint(pts[(i_pts+1)%N_pts],x1.data());
+    m_Grid->GetPoint(pts[(i_pts+2)%N_pts],x2.data());
+    
+    vec3_t old_cell_normal = GeometryTools::triNormal(x_old, x1, x2);
+    vec3_t new_cell_normal = GeometryTools::triNormal(x_new, x1, x2);
+    
+    if(old_cell_normal.abs2()==0) EG_BUG;
+    if(old_cell_normal.abs2()==0) EG_BUG;
+    
+    GeometryTools::cellNormal(m_Grid, );
+    cell_normals.normalise();
+    
+    vtkIdType *pts;
+    vtkIdType npts;
+    vec3_t n(0,0,0);
+    grid->GetCellPoints(i, npts, pts);
+    if (npts == 3) {
+      return triNormal(grid,pts[0],pts[1],pts[2]);
+    } else if (npts == 4) {
+      return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
+    } else {
+      EG_BUG;
+    }
+    return n;
+    
+  }
+  */
+  return true;
+}
+
 /// \todo adapt for multiple volumes
 bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell)
 {
@@ -402,7 +450,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   vtkIdType SnapPoint = -1;
   
   QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( DeadNode );
-  foreach( vtkIdType PSP, PSP_vector ) {
+  foreach( vtkIdType PSP, PSP_vector ) { // loop through potential snappoints
+    
     bool IsValidSnapPoint = true;
     
     // TEST -1 : TOPOLOGICAL : Is the node already marked?
@@ -417,16 +466,6 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would destroy volume." << endl;
       IsValidSnapPoint = false; continue;
     }
-/*    bool IsTetra = true;
-    if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false; continue;
-    }
-    // TEST 2: TOPOLOGICAL: DeadNode, PSP and common points must not form a tetrahedron.
-    if ( IsTetra ) { //tetra check
-      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-      IsValidSnapPoint = false; continue;
-    }*/
     
     //count number of points and cells to remove + analyse cell transformations
     num_newpoints = -1;
@@ -435,6 +474,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     MutatedCells.clear();
     foreach( int i_cell, n2c[_nodes[DeadNode]] ) { //loop through potentially dead cells
       vtkIdType id_cell = cells[i_cell];
+      
       //get points around cell
       vtkIdType num_pts, *pts;
       m_Grid->GetCellPoints( id_cell, num_pts, pts );
@@ -445,15 +485,21 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       }
       
       bool ContainsSnapPoint = false;
-      bool invincible = false;
+      bool invincible = false; // a point with only one cell is declared invincible.
+      int index_PSP, index_DeadNode;
       for ( int i = 0; i < num_pts; ++i ) {
         if ( pts[i] == PSP ) {
           ContainsSnapPoint = true;
+          index_PSP = i;
+        }
+        if ( pts[i] == DeadNode ) {
+          index_DeadNode = i;
         }
         if ( pts[i] != DeadNode && pts[i] != PSP &&  n2c[_nodes[pts[i]]].size() <= 1 ) {
           invincible = true;
         }
       }
+      
       if ( ContainsSnapPoint ) { // potential dead cell
         if ( invincible ) {
           // TEST 3: TOPOLOGICAL: Check that empty lines aren't left behind when a cell is killed
@@ -486,13 +532,22 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
             IsValidSnapPoint = false; continue;
           }
 
-          // TEST 5: GEOMETRICAL: flipped cell test from old laplace smoother
-          vec3_t P;
-          m_Grid->GetPoint( PSP, P.data() );
-          if (flippedCell(DeadNode, P, id_cell)) {
+          // TEST 5: GEOMETRICAL: flipped cell test
+          // id_cell
+          // DeadNode -> PSP
+          // index_DeadNode -> index_PSP
+          /*
+          vec3_t x_old, x_new;
+          m_Grid->GetPoint( DeadNode, x_old.data() );
+          m_Grid->GetPoint( PSP, x_new.data() );
+          m_Grid->GetPoint( pts[], x_new.data() );
+          m_Grid->GetPoint( PSP, x_new.data() );
+          
+          if (flippedCell2(DeadNode, P, id_cell)) {
             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because flipped cell test failed." << endl;
             IsValidSnapPoint = false; continue;
           }
+          */
         }
         
         //mutated cell
