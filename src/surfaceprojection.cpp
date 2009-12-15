@@ -819,7 +819,7 @@ vec3_t SurfaceProjection::projectWithGeometry(vec3_t xp, vtkIdType id_node) {
     }
   }
   if (need_full_search) {
-//     qDebug()<<"starting full search";
+//     qDebug()<<"starting full search. m_Triangles.size()="<<m_Triangles.size();
     ++m_NumFull;
     double d_min = 1e99;
     bool first = true;

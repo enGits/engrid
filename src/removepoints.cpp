@@ -53,6 +53,7 @@ void RemovePoints::markFeatureEdges()
     m_IsFeatureNode[i] = false;
   }
   if (m_ProtectFeatureEdges) {
+    EG_BUG;// needs to be adapted to multiple volumes first! c2c is undefined!
     for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
       vtkIdType id_cell1 = cells[i_cells];
       vtkIdType N_pts, *pts;
@@ -320,6 +321,7 @@ int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, 
   return( N );
 }
 
+/// \todo adapt for multiple volumes
 bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell)
 {
   vec3_t x_old;
@@ -488,8 +490,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           vec3_t P;
           m_Grid->GetPoint( PSP, P.data() );
           if (flippedCell(DeadNode, P, id_cell)) {
-//             if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because flipped cell test failed." << endl;
-//             IsValidSnapPoint = false; continue;
+            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because flipped cell test failed." << endl;
+            IsValidSnapPoint = false; continue;
           }
         }
         

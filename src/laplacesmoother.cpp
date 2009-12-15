@@ -220,6 +220,7 @@ void LaplaceSmoother::operate()
 //     }
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      qDebug()<<"i_nodes/nodes.size()="<<i_nodes<<"/"<<nodes.size();
       vtkIdType id_node = nodes[i_nodes];
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {

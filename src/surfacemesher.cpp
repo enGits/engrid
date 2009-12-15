@@ -82,6 +82,7 @@ void SurfaceMesher::operate()
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
+      cout << "  swapping     : " << i+1 << "/" << m_NumSmoothSteps << endl;
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
