@@ -177,6 +177,65 @@ void RemovePoints::operate()
   m_NumRemoved = N1 - N2;
 }
 
+/// \todo finish this function and optimize it.
+bool RemovePoints::checkForDestroyedVolumes( vtkIdType id_node1, vtkIdType id_node2, int& N_common_points )
+{
+  if(id_node1==id_node2) EG_BUG;
+  
+  l2l_t  n2n   = getPartN2N();
+  l2l_t  n2c   = getPartN2C();
+  g2l_t _nodes = getPartLocalNodes();
+  l2g_t nodes  = getPartNodes();
+  l2g_t cells = getPartCells();
+  
+  QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
+  QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
+  QVector<int> intersection;
+  qcontIntersection( node1_neighbours, node2_neighbours, intersection );
+  // set N_common_points
+  N_common_points = intersection.size();
+  
+  // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
+  for(int i=0; i<intersection.size();i++) {
+    int i_common_point_1 = intersection[i];
+    vtkIdType id_common_point_1 = nodes[i_common_point_1];
+    if(!isCell(id_node1, id_node2, id_common_point_1)) {
+      return true;
+    }
+    // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell. => For any pair of common points (cp1,cp2), (cp1,cp2,DeadNode)+(cp1,cp2,PSP) must not be cells at the same time!
+    for(int j=i+1; j<intersection.size();j++) {
+      int i_common_point_2 = intersection[j];
+      vtkIdType id_common_point_2 = nodes[i_common_point_2];
+      if( isCell(id_common_point_1, id_common_point_2, id_node1) && isCell(id_common_point_1, id_common_point_2, id_node2) ) {
+        return true;
+      }
+    }
+  }
+  
+  /*
+  // check if DeadNode, PSP and common points form a tetrahedron.
+  if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
+    //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
+    QVector<int> S1 = n2c[_nodes[intersection1]];
+    QVector<int> S2 = n2c[_nodes[intersection2]];
+    QVector<int> Si;
+    qcontIntersection( S1, S2, Si );
+    int counter = 0;
+    foreach( int i_cell, Si ) {
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints( cells[i_cell], num_pts, pts );
+      for ( int i = 0; i < num_pts; ++i ) {
+        if ( pts[i] == id_node1 || pts[i] == id_node2 ) counter++;
+      }
+    }
+    if ( counter >= 2 ) {
+      IsTetra = true;
+    }
+  }
+  */
+  return false;
+}
+
 int RemovePoints::NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra )
 {
   l2l_t  n2n   = getPartN2N();
@@ -341,9 +400,13 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     }
     
     // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
-    
-    // TEST 1: TOPOLOGICAL: Number of common points must not exceed 2.
-    bool IsTetra = true;
+    // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell.
+    int N_common_points = 0;
+    if(checkForDestroyedVolumes(DeadNode, PSP, N_common_points)) {
+      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would destroy volume." << endl;
+      IsValidSnapPoint = false;
+    }
+/*    bool IsTetra = true;
     if ( NumberOfCommonPoints( DeadNode, PSP, IsTetra ) > 2 ) { //common point check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
@@ -352,7 +415,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     if ( IsTetra ) { //tetra check
       if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
       IsValidSnapPoint = false;
-    }
+    }*/
     
     //count number of points and cells to remove + analyse cell transformations
     num_newpoints = -1;

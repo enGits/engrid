@@ -668,3 +668,23 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node 
   }
   return m_PotentialSnapPoints[id_node];
 }
+
+bool SurfaceOperation::isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3)
+{
+  QVector <vtkIdType> EdgeCells_12;
+  QVector <vtkIdType> EdgeCells_13;
+  QVector <vtkIdType> inter;
+  
+  getEdgeCells( id_node1, id_node2, EdgeCells_12 );
+  getEdgeCells( id_node1, id_node3, EdgeCells_13 );
+  qcontIntersection( EdgeCells_12, EdgeCells_13, inter );
+  if(inter.size()>1) {
+    qWarning()<<"(id_node1, id_node2, id_node3)="<<"("<<id_node1<<", "<<id_node2<<", "<<id_node3<<")";
+    qWarning()<<"EdgeCells_12="<<EdgeCells_12;
+    qWarning()<<"EdgeCells_13="<<EdgeCells_13;
+    qWarning()<<"inter="<<inter;
+    writeGrid(m_Grid, "abort");
+    EG_BUG;// multiple cells in the same place
+  }
+  return(inter.size()>=0);
+}

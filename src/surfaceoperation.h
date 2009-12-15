@@ -156,6 +156,8 @@ public:
   double T_min( int w );
 
   //---------------------------------------------------
+  
+  bool isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3);
 };
 
 #endif
