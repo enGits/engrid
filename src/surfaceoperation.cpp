@@ -149,8 +149,6 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
 
   l2g_t nodes  = getPartNodes();
   l2g_t cells  = getPartCells();
-  g2l_t _cells = getPartLocalCells();
-  l2l_t c2c    = getPartC2C();
 
   m_PotentialSnapPoints.resize( nodes.size() );
 
@@ -169,8 +167,18 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
     m_Grid->GetCellPoints( id_cell, Npts, pts );
     for ( int i = 0; i < Npts; i++ ) {
 
-      int i_neighbour_cell = c2c[_cells[id_cell]][i];
-      if ( i_neighbour_cell >= 0 && cells[i_neighbour_cell] < id_cell ) continue;//already visited edge
+      QVector <vtkIdType> EdgeCells;
+      int Ncells = getEdgeCells( pts[i], pts[(i+1)%Npts], EdgeCells );
+      
+      bool already_visited_edge = false;
+      for(int i_cell=0;i_cell<Ncells;i_cell++) {
+        if(EdgeCells[i_cell]<id_cell) {
+          already_visited_edge = true;
+          break;
+        }
+      }
+      
+      if ( already_visited_edge ) continue;//already visited edge
       num_edges++;
 
       vtkIdType id_node1 = pts[i];
@@ -659,4 +667,30 @@ QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node 
     EG_BUG;
   }
   return m_PotentialSnapPoints[id_node];
+}
+
+bool SurfaceOperation::isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3)
+{
+  QVector <vtkIdType> EdgeCells_12;
+  QVector <vtkIdType> EdgeCells_13;
+  QVector <vtkIdType> inter;
+  
+  getEdgeCells( id_node1, id_node2, EdgeCells_12 );
+  getEdgeCells( id_node1, id_node3, EdgeCells_13 );
+  qcontIntersection( EdgeCells_12, EdgeCells_13, inter );
+  if(inter.size()>1) {
+    qWarning()<<"(id_node1, id_node2, id_node3)="<<"("<<id_node1<<", "<<id_node2<<", "<<id_node3<<")";
+    qWarning()<<"EdgeCells_12="<<EdgeCells_12;
+    qWarning()<<"EdgeCells_13="<<EdgeCells_13;
+    qWarning()<<"inter="<<inter;
+    writeGrid(m_Grid, "abort");
+    EG_BUG;// multiple cells in the same place
+  }
+  if(DebugLevel>100) {
+    qDebug()<<"(id_node1, id_node2, id_node3)="<<"("<<id_node1<<", "<<id_node2<<", "<<id_node3<<")";
+    qDebug()<<"EdgeCells_12="<<EdgeCells_12;
+    qDebug()<<"EdgeCells_13="<<EdgeCells_13;
+    qDebug()<<"inter="<<inter;
+  }
+  return(inter.size()>0);
 }
