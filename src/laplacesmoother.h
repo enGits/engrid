@@ -66,8 +66,6 @@ public:
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
   
-  QVector<vec3_t> m_x_new_orig;
-  
 };
 
 #endif

@@ -137,9 +137,6 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
-  vec3_t x_new_before_projection;
-  vec3_t x_new_after_projection;
-  
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
@@ -149,11 +146,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
-        x_new_before_projection = x_new;
-//         GuiMainWindow::pointer()->getSurfProj(bc)->setDebugLevel(100);
-        
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
-        x_new_after_projection = x_new;
       } else {
         for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
@@ -209,7 +202,6 @@ void LaplaceSmoother::operate()
   }
 
   QVector<vec3_t> x_new(nodes.size());
-  m_x_new_orig.resize(nodes.size());
 
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
 
@@ -228,7 +220,6 @@ void LaplaceSmoother::operate()
 //     }
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-//       qDebug()<<"i_nodes/nodes.size()="<<i_nodes<<"/"<<nodes.size();
       vtkIdType id_node = nodes[i_nodes];
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
@@ -246,7 +237,6 @@ void LaplaceSmoother::operate()
             }
 //             n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
-            m_x_new_orig[i_nodes] = x_new[i_nodes];
 
 //             if (m_UseNormalCorrection) {
 //               vec3_t dx = x_new[i_nodes] - x_old;
