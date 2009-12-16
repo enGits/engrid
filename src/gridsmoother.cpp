@@ -30,7 +30,7 @@
 GridSmoother::GridSmoother()
 {
   m_NumIterations          = 5;
-  m_NumRelaxations         = 1;
+  m_NumRelaxations         = 5;
   m_ReductionFactor        = 0.2;
   m_NumBoundaryCorrections = 20;
   m_NumSearch              = 10;
@@ -40,7 +40,8 @@ GridSmoother::GridSmoother()
   m_FNew                   = 0;
   m_H                      = 1.5;
 
-  getSet("boundary layer", "tetra weighting",                    1.0,   m_WTet);
+  getSet("boundary layer", "tetra weighting",                    0.1,   m_WTet);
+  getSet("boundary layer", "tetra exponent",                     1.2,   m_ETet);
   getSet("boundary layer", "layer height weighting",             1.0,   m_WH);
   getSet("boundary layer", "parallel edges weighting",           3.0,   m_WPar);
   getSet("boundary layer", "parallel faces weighting",           5.0,   m_WN);
@@ -53,10 +54,13 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "sharp features on edges exponent",   1.3,   m_ESharp2);
   getSet("boundary layer", "number of smoothing sub-iterations", 5,     m_NumIterations);
   getSet("boundary layer", "angle for sharp features",           45.00, m_CritAngle);
+  getSet("boundary layer", "post smoothing strength",            0.1,   m_PostSmoothingStrength);
 
   getSet("boundary layer", "use strict prism checking", false, m_StrictPrismChecking);
   
   m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
+  m_SimpleOperation = false;
+  m_PostOperation = false;
 
 }
 
@@ -95,6 +99,39 @@ void GridSmoother::markNodes()
     if (id_node > m_Grid->GetNumberOfPoints()) EG_BUG;
     if (m_NodeMarked[id_node]) {
       ++m_NumMarkedNodes;
+    }
+  }
+}
+
+void GridSmoother::findCriticalTetras()
+{
+  m_CriticalTetra.fill(false, m_Grid->GetNumberOfCells());
+  QVector<bool> pure_tetra_node(m_Grid->GetNumberOfPoints(), true);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, m_Grid)) {
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      if (type_cell != VTK_TETRA) {
+        vtkIdType N_pts, *pts;
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i = 0; i < N_pts; ++i) {
+          pure_tetra_node[pts[i]] = false;
+        }
+      }
+    }
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    if (type_cell == VTK_TETRA) {
+      vtkIdType N_pts, *pts;
+      bool crit = true;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        if (pure_tetra_node[pts[i]]) {
+          crit = false;
+          break;
+        }
+      }
+      m_CriticalTetra[id_cell] = crit;
     }
   }
 }
@@ -257,18 +294,17 @@ double GridSmoother::func(vec3_t x)
         m_Grid->GetPoint(pts[i_pts],xn[i_pts].data());
       }
       if (type_cell == VTK_TETRA) {
-        double L = 0;
-        L += (xn[0]-xn[1]).abs();
-        L += (xn[0]-xn[2]).abs();
-        L += (xn[0]-xn[3]).abs();
-        L += (xn[1]-xn[2]).abs();
-        L += (xn[1]-xn[3]).abs();
-        L += (xn[2]-xn[3]).abs();
-        L /= 6;
+        double L_max = 1e-20;
+        L_max = max((xn[0]-xn[1]).abs(), L_max);
+        L_max = max((xn[0]-xn[2]).abs(), L_max);
+        L_max = max((xn[0]-xn[3]).abs(), L_max);
+        L_max = max((xn[1]-xn[2]).abs(), L_max);
+        L_max = max((xn[1]-xn[3]).abs(), L_max);
+        L_max = max((xn[2]-xn[3]).abs(), L_max);
         double V1 = GeometryTools::cellVA(m_Grid, id_cell, true);
-        double V2 = sqrt(1.0/72.0)*L*L*L;
-        double e = sqr((V1-V2)/V2);
-        f += m_WTet*e;
+        double V2 = 0.1178511301977579207*L_max*L_max*L_max;
+        double e = fabs(V1-V2)/V2;
+        f += m_WTet*pow(e, m_ETet);
       }
       if (type_cell == VTK_WEDGE) {
         double L = 0;
@@ -356,7 +392,7 @@ double GridSmoother::func(vec3_t x)
           f += m_WN*e;
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
-          double e = sqr((A1-A2)/(A1+A2));
+          double e = sqr(0.5*(A1-A2)/A1);
           f += m_WA*e;
         }
         if ((h0 > 0.01*L) && (h1 > 0.01*L) && (h2 > 0.01*L)) {
@@ -433,6 +469,7 @@ void GridSmoother::addToStencil(double C, vec3_t x)
 void GridSmoother::operateOptimisation()
 {
   markNodes();
+  findCriticalTetras();
 
   l2g_t nodes = m_Part.getNodes();
   l2g_t cells = m_Part.getCells();
@@ -634,7 +671,7 @@ void GridSmoother::operateOptimisation()
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
-    cout << N4 << " type 4 movements (gradient)" << endl;
+    cout << N4 << " type 4 movements (sharp edges)" << endl;
     //cout << N_blocked << " movements blocked" << endl;
     cout << m_NumSearched << " type 5 movements (search)" << endl;
     //cout << N_illegal << " nodes in illegal positions" << endl;
@@ -838,12 +875,69 @@ void GridSmoother::operateSimple()
   }
 }
 
+void GridSmoother::operatePostSmoothing()
+{
+  QVector<bool> top_node(m_Grid->GetNumberOfPoints(), false);
+  QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      top_node[pts[3]] = true;
+      top_node[pts[4]] = true;
+      top_node[pts[5]] = true;
+    }
+  }
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    m_Grid->GetPoint(id_node1, x_new[id_node1].data());
+    if (top_node[id_node1]) {
+      double w = m_PostSmoothingStrength;
+      vec3_t x_av(0,0,0);
+      vec3_t x_old;
+      m_Grid->GetPoint(id_node1, x_old.data());
+      QSet<vtkIdType> ids;
+      for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node1, i);
+        if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
+          vtkIdType N_pts, *pts;
+          m_Grid->GetCellPoints(id_cell, N_pts, pts);
+          for (int j = 0; j < 6; ++j) {
+            if (top_node[pts[j]] && (pts[j] != id_node1)) {
+              ids.insert(pts[j]);
+            }
+          }
+        }
+      }
+      foreach (vtkIdType id_node2, ids) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node2, x.data());
+        x_av += x;
+      }
+      if (ids.size() > 0) {
+        x_av *= 1.0/ids.size();
+        x_new[id_node1] = w*x_av + (1-w)*x_old;
+      }
+    }
+  }
+  l2g_t nodes = m_Part.getNodes();
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vtkIdType id_node = m_Part.globalNode(i_nodes);
+    vec3_t x_old;
+    m_Grid->GetPoint(id_node, x_old.data());
+    vec3_t Dx = x_new[id_node] - x_old;
+    correctDx(i_nodes, Dx);
+    moveNode(i_nodes, Dx);
+  }
+}
+
 void GridSmoother::operate()
 {
   markNodes();
   computeNormals();
   if (m_SimpleOperation) {
     operateSimple();
+  } else if (m_PostOperation) {
+    operatePostSmoothing();
   } else {
     operateOptimisation();
   }
