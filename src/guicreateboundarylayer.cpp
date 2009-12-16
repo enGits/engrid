@@ -37,6 +37,9 @@ GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
   getSet("boundary layer", "number of post-steps", 1, m_NumPostSteps);
   getSet("boundary layer", "post smoothing strength", 0.1, m_PostStrength);
   getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
+  
+  connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
 }
 
 void GuiCreateBoundaryLayer::before()
@@ -206,4 +209,18 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(m_Grid);
   createIndices(m_Grid);
+}
+
+void GuiCreateBoundaryLayer::SelectAll_BC()
+{
+  for (int i = 0; i < ui.listWidgetBC->count(); ++i) {
+    ui.listWidgetBC->item(i)->setCheckState(Qt::Checked);
+  }
+}
+
+void GuiCreateBoundaryLayer::ClearAll_BC()
+{
+  for (int i = 0; i < ui.listWidgetBC->count(); ++i) {
+    ui.listWidgetBC->item(i)->setCheckState(Qt::Unchecked);
+  }
 }

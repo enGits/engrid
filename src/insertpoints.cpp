@@ -50,9 +50,6 @@ int InsertPoints::insertPoints()
   setAllSurfaceCells();
   l2g_t  cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
-  g2l_t _nodes = getPartLocalNodes();
-  l2l_t  n2c   = getPartN2C();
-  l2l_t  c2c = getPartC2C();
   
   UpdatePotentialSnapPoints(true);
    
@@ -79,24 +76,26 @@ int InsertPoints::insertPoints()
       //find best side to split (longest)
       for (int j = 0; j < 3; ++j) {
         //check if neighbour cell on this side is also selected
-        int i_cell_neighbour = c2c[_cells[id_cell]][j];
-        if(i_cell_neighbour!=-1) {
-          vtkIdType id_cell_neighbour = cells[i_cell_neighbour];
-          if(m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour))) {
-            vtkIdType id_node1 = pts[j];
-            vtkIdType id_node2 = pts[(j+1)%N_pts];
-            double L  = distance(m_Grid, id_node1, id_node2);
-            double L1 = characteristic_length_desired->GetValue(id_node1);
-            double L2 = characteristic_length_desired->GetValue(id_node2);
-            if (L > m_Threshold*min(L1,L2)) {
-              if (L > L_max) {
-                j_split = j;
-                L_max = L;
-              }
+        stencil_t S = getStencil(id_cell, j);
+        bool selected_edge = true;
+        for(int i_cell_neighbour=1;i_cell_neighbour<S.id_cell.size();i_cell_neighbour++) {
+          vtkIdType id_cell_neighbour = S.id_cell[i_cell_neighbour];
+          if( !m_BoundaryCodes.contains(cell_code->GetValue(id_cell_neighbour)) || S.type_cell[i_cell_neighbour] != VTK_TRIANGLE) selected_edge=false;
+        }// end of loop through neighbour cells
+        if(selected_edge) {
+          vtkIdType id_node1 = pts[j];
+          vtkIdType id_node2 = pts[(j+1)%N_pts];
+          double L  = distance(m_Grid, id_node1, id_node2);
+          double L1 = characteristic_length_desired->GetValue(id_node1);
+          double L2 = characteristic_length_desired->GetValue(id_node2);
+          if (L > m_Threshold*min(L1,L2)) {
+            if (L > L_max) {
+              j_split = j;
+              L_max = L;
             }
           }
         }
-      }
+      }// end of loop through sides
       if (j_split != -1) {
         stencil_t S = getStencil(id_cell, j_split);
         edge_t E;
@@ -113,24 +112,21 @@ int InsertPoints::insertPoints()
 
   //counter
   foreach (edge_t E, edges) {
-    if (E.S.id_cell.size()==2 && (E.S.type_cell[1] == VTK_TRIANGLE)) {
-      int i_cells1 = _cells[E.S.id_cell[0]];
-      int i_cells2 = _cells[E.S.id_cell[1]];
-      if (!marked_cells[i_cells1]  && !marked_cells[i_cells2]) {
-        stencil_vector[i_cells1] = E.S;
-        marked_cells[i_cells1] = 1;
-        marked_cells[i_cells2] = 2;
-        ++num_newpoints;
-        num_newcells += 2;
+    int i_cells1 = _cells[E.S.id_cell[0]];
+    bool all_unmarked = true;
+    for(int i=0; i<E.S.id_cell.size();i++) {
+      int i_cells = _cells[E.S.id_cell[i]];
+      if (marked_cells[i_cells]) all_unmarked=false;
+    }
+    if(all_unmarked) {
+      stencil_vector[i_cells1] = E.S;
+      marked_cells[i_cells1] = 1;
+      for(int i=1; i<E.S.id_cell.size();i++) {
+        int i_cells = _cells[E.S.id_cell[i]];
+        marked_cells[i_cells] = 2;
       }
-    } else if (E.S.id_cell.size()!=2) {
-      int i_cells1 = _cells[E.S.id_cell[0]];
-      if (!marked_cells[i_cells1]) {
-        stencil_vector[i_cells1] = E.S;
-        marked_cells[i_cells1] = 1;
-        ++num_newpoints;
-        num_newcells += 1;
-      }
+      ++num_newpoints;
+      num_newcells += E.S.id_cell.size();
     }
   }
 
@@ -163,54 +159,44 @@ int InsertPoints::insertPoints()
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
       node_type->SetValue(id_new_node, getNewNodeType(S) );
       
-      if(S.id_cell.size()==2 && S.type_cell[1]==VTK_TRIANGLE) { //2 triangles
-        //four new triangles
-        vtkIdType pts_triangle[4][3];
+      // insert new cells
+      //four new triangles
+      int N = S.id_cell.size();
+      vtkIdType pts_triangle[2*N][3];
+      
+      for(int i_triangle=0; i_triangle<N; i_triangle++) {
+        vtkIdType *pts, N_pts;
+        grid_tmp->GetCellPoints(S.id_cell[i_triangle], N_pts, pts);
         
-        pts_triangle[0][0] = S.id_node[0];
-        pts_triangle[0][1] = S.p1;
-        pts_triangle[0][2] = id_new_node;
+        bool direct;
+        for(int i_pts = 0; i_pts<N_pts; i_pts++) {
+          if( pts[i_pts] == S.p1 ) {
+            if( pts[(i_pts+1)%N_pts] == S.p2 ) direct = true;
+            else direct = false;
+          }
+        }
+        if(direct) {
+          pts_triangle[i_triangle][0] = S.p1;
+          pts_triangle[i_triangle][1] = id_new_node;
+          pts_triangle[i_triangle][2] = S.id_node[i_triangle];
+          
+          pts_triangle[i_triangle+N][0] = id_new_node;
+          pts_triangle[i_triangle+N][1] = S.p2;
+          pts_triangle[i_triangle+N][2] = S.id_node[i_triangle];
+        }
+        else {
+          pts_triangle[i_triangle][0] = S.p2;
+          pts_triangle[i_triangle][1] = id_new_node;
+          pts_triangle[i_triangle][2] = S.id_node[i_triangle];
+          
+          pts_triangle[i_triangle+N][0] = id_new_node;
+          pts_triangle[i_triangle+N][1] = S.p1;
+          pts_triangle[i_triangle+N][2] = S.id_node[i_triangle];
+        }
         
-        pts_triangle[1][0] = S.p1;
-        pts_triangle[1][1] = S.id_node[1];
-        pts_triangle[1][2] = id_new_node;
-        
-        pts_triangle[2][0] = S.id_node[1];
-        pts_triangle[2][1] = S.p2;
-        pts_triangle[2][2] = id_new_node;
-        
-        pts_triangle[3][0] = S.p2;
-        pts_triangle[3][1] = S.id_node[0];
-        pts_triangle[3][2] = id_new_node;
-        
-        grid_tmp->ReplaceCell(S.id_cell[0] , 3, pts_triangle[0]);
-        grid_tmp->ReplaceCell(S.id_cell[1] , 3, pts_triangle[1]);
-        
-        vtkIdType newCellId;
-        
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[2]);
-        copyCellData(grid_tmp,S.id_cell[1],grid_tmp,newCellId);
-        
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[3]);
-        copyCellData(grid_tmp,S.id_cell[0],grid_tmp,newCellId);
-      } else if(S.id_cell.size()!=2) { //1 triangle
-        //two new triangles
-        vtkIdType pts_triangle[2][3];
-        pts_triangle[0][0] = S.id_node[0];
-        pts_triangle[0][1] = S.p1;
-        pts_triangle[0][2] = id_new_node;
-        pts_triangle[1][0] = S.p2;
-        pts_triangle[1][1] = S.id_node[0];
-        pts_triangle[1][2] = id_new_node;
-        
-        grid_tmp->ReplaceCell(S.id_cell[0] , 3, pts_triangle[0]);
-        
-        vtkIdType newCellId;
-        newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[1]);
-        copyCellData(grid_tmp,S.id_cell[0],grid_tmp,newCellId);
-      } else {
-        cout<<"I DON'T KNOW HOW TO SPLIT THIS CELL!!!"<<endl;
-        EG_BUG;
+        grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle]);
+        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N]);
+        copyCellData(grid_tmp,S.id_cell[i_triangle],grid_tmp,newCellId);
       }
       
       //increment ID
@@ -226,6 +212,8 @@ int InsertPoints::insertPoints()
 
 char InsertPoints::getNewNodeType(stencil_t S)
 {
+//   cout<<"S="<<S<<endl;
+  
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
   
@@ -237,10 +225,15 @@ char InsertPoints::getNewNodeType(stencil_t S)
     QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node1);
     if( PSP.contains(id_node2) ) {
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-      if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
+      if(S.id_cell.size()<1) {
         return VTK_BOUNDARY_EDGE_VERTEX;
-      } else {
-        return VTK_FEATURE_EDGE_VERTEX;
+      }
+      else {
+        if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
+          return VTK_BOUNDARY_EDGE_VERTEX;
+        } else {
+          return VTK_FEATURE_EDGE_VERTEX;
+        }
       }
     } else {
       return VTK_SIMPLE_VERTEX;

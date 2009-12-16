@@ -150,7 +150,10 @@ public: // methods
   template <class C>
   void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
-  void setForegroundGrid(vtkUnstructuredGrid* grid) {m_FGrid = grid; } ///< set m_FGrid
+  void setForegroundGrid(vtkUnstructuredGrid* grid) {
+    m_FGrid = grid;
+    m_ProjTriangles.clear(); // this makes sure a full search is run everytime a new foreground grid is set.
+  } ///< set m_FGrid
 
   vec3_t project(vec3_t x, vtkIdType id_node = -1);
   int getNumOctreeCells() { return m_OTGrid.getNumCells(); }

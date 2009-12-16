@@ -58,6 +58,10 @@ public: // methods
   
   GuiCreateBoundaryLayer();
 
+private slots:
+  void SelectAll_BC();
+  void ClearAll_BC();
+  
 };
 
 #endif

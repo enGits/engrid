@@ -374,21 +374,12 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   dcmplx omega_1 = dcmplx(-0.5,  0.5 * sqrt(3));
   dcmplx omega_2 = dcmplx(-0.5, -0.5 * sqrt(3));
 
-//   qDebug()<<"m="<<m;
-//   qDebug()<<"k="<<k;
-//   qDebug()<<"n="<<n;
-  
   dcmplx up = (m + sqrt(n)) / 2.;
   dcmplx down = (m - sqrt(n)) / 2.;
   
   dcmplx alpha = complex_pow(up, 1. / 3.);
   double p = b-pow(a,2)/3;
   dcmplx beta = k/alpha;//complex_pow(down, 1. / 3.);
-  
-//   qDebug()<<"up="<<up;
-//   qDebug()<<"down="<<down;
-//   qDebug()<<"alpha="<<alpha;
-//   qDebug()<<"beta="<<beta;
   
   dcmplx x[3];
   x[0] = -1. / 3.*(a + alpha + beta);
@@ -410,6 +401,21 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   if (xreal.size() > 1) *x1 = xreal[1];
   if (xreal.size() > 2) *x2 = xreal[2];
 
+  if(xreal.size()==0) {
+    qWarning()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
+    qWarning()<<"m="<<m;
+    qWarning()<<"k="<<k;
+    qWarning()<<"n="<<n;
+    qWarning()<<"up="<<up;
+    qWarning()<<"down="<<down;
+    qWarning()<<"alpha="<<alpha;
+    qWarning()<<"beta="<<beta;
+    for (int i = 0; i < 3; i++) {
+      qWarning()<<"x["<<i<<"]="<<x[i];
+    }
+    EG_BUG;
+  }
+  
   return(xreal.size());
 }
 

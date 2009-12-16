@@ -122,7 +122,11 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
       QVector <vtkIdType> mutated_cells;
       int l_num_newpoints = 0;
       int l_num_newcells = 0;
+    
+      setDebugLevel(11);
       vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+      setDebugLevel(0);
+    
       if(snap_point >= 0) {
         // add deadnode/snappoint pair
         deadnode_vector.push_back(id_node);
