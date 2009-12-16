@@ -23,9 +23,13 @@
 #include "guidivideboundarylayer.h"
 #include "math/linsolve.h"
 
+#include "volumedefinition.h"
+#include "guimainwindow.h"
+
 void GuiDivideBoundaryLayer::before()
 {
-  populateBoundaryCodes(ui.listWidget);
+  populateBoundaryCodes(ui.listWidgetBC);
+  populateVolumes(ui.listWidgetVC);
 }
 
 void GuiDivideBoundaryLayer::findBoundaryLayer()
@@ -96,7 +100,7 @@ void GuiDivideBoundaryLayer::findBoundaryLayer1()
   l2l_t  c2c   = getPartC2C();
 
   QSet<int> bcs;
-  getSelectedItems(ui.listWidget, bcs);
+  getSelectedItems(ui.listWidgetBC, bcs);
   QVector<vtkIdType> scells;
   getSurfaceCells(bcs, scells, m_Grid);
   
@@ -476,6 +480,38 @@ void GuiDivideBoundaryLayer::operate1()
 
 void GuiDivideBoundaryLayer::operate()
 {
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to selected volume
+  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
+  QString volume_name = getSelectedVolume(ui.listWidgetVC);
+  VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
+  foreach (int bc, m_BoundaryCodes) {
+    qDebug()<<"V.getSign("<<bc<<")="<<V.getSign(bc);
+    if (V.getSign(bc) == 0) {
+      QString msg;
+      msg.setNum(bc);
+      msg = "Boundary code " + msg + " is not part of the volume '" + volume_name +"'.";
+      EG_ERR_RETURN(msg);
+    }
+  }
+  
+  EG_VTKSP(vtkUnstructuredGrid, rest_grid);
+  {
+    EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+    MeshPartition volume(volume_name);
+    MeshPartition rest(m_Grid);
+    rest.setRemainder(volume);
+    volume.setVolumeOrientation();
+    volume.extractToVtkGrid(vol_grid);
+    rest.extractToVtkGrid(rest_grid);
+    makeCopy(vol_grid, m_Grid);
+  }
+  setAllCells();
+  
+  //   writeGrid(m_Grid,"selected_volume");
+  //   return;
+  ///////////////////////////////////////////////////////////////
+  
   y_computed = false;
   N_layers = ui.spinBoxLayers->value();
   h = ui.lineEditH->text().toDouble();
@@ -576,5 +612,15 @@ void GuiDivideBoundaryLayer::operate()
   }
   
   makeCopy(new_grid, m_Grid);
-}
 
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to modified selected volume + unselected volumes
+  {
+    MeshPartition volume(m_Grid, true);
+    MeshPartition rest(rest_grid, true);
+    volume.addPartition(rest);
+  }
+  resetOrientation(m_Grid);
+  createIndices(m_Grid);
+  ///////////////////////////////////////////////////////////////
+}

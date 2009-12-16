@@ -64,10 +64,13 @@ void GuiCreateBoundaryLayer::before()
 
 void GuiCreateBoundaryLayer::operate()
 {
-  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes);
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to selected volume
+  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
   QString volume_name = getSelectedVolume(ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   foreach (int bc, m_BoundaryCodes) {
+    qDebug()<<"V.getSign("<<bc<<")="<<V.getSign(bc);
     if (V.getSign(bc) == 0) {
       QString msg;
       msg.setNum(bc);
@@ -87,8 +90,12 @@ void GuiCreateBoundaryLayer::operate()
     rest.extractToVtkGrid(rest_grid);
     makeCopy(vol_grid, m_Grid);
   }
-
   setAllCells();
+  
+  //   writeGrid(m_Grid,"selected_volume");
+  //   return;
+  ///////////////////////////////////////////////////////////////
+  
   l2g_t  nodes = getPartNodes();
   l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
@@ -202,6 +209,8 @@ void GuiCreateBoundaryLayer::operate()
     }
   }
 
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to modified selected volume + unselected volumes
   {
     MeshPartition volume(m_Grid, true);
     MeshPartition rest(rest_grid, true);
@@ -209,6 +218,7 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(m_Grid);
   createIndices(m_Grid);
+  ///////////////////////////////////////////////////////////////
 }
 
 void GuiCreateBoundaryLayer::SelectAll_BC()
