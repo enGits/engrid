@@ -671,8 +671,9 @@ void GridSmoother::operateOptimisation()
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
+    cout << N4 << " type 4 movements (gradient)" << endl;
     //cout << N_blocked << " movements blocked" << endl;
-    cout << m_NumSearched << " movements by search" << endl;
+    cout << m_NumSearched << " type 5 movements (search)" << endl;
     //cout << N_illegal << " nodes in illegal positions" << endl;
     
     cout << start.secsTo(QTime::currentTime()) << " seconds elapsed" << endl;
