@@ -30,7 +30,7 @@
 GridSmoother::GridSmoother()
 {
   m_NumIterations          = 5;
-  m_NumRelaxations         = 1;
+  m_NumRelaxations         = 5;
   m_ReductionFactor        = 0.2;
   m_NumBoundaryCorrections = 20;
   m_NumSearch              = 10;
@@ -671,7 +671,7 @@ void GridSmoother::operateOptimisation()
     cout << N1 << " type 1 movements (simple)" << endl;
     cout << N2 << " type 2 movements (Newton)" << endl;
     cout << N3 << " type 3 movements (gradient)" << endl;
-    cout << N4 << " type 4 movements (gradient)" << endl;
+    cout << N4 << " type 4 movements (sharp edges)" << endl;
     //cout << N_blocked << " movements blocked" << endl;
     cout << m_NumSearched << " type 5 movements (search)" << endl;
     //cout << N_illegal << " nodes in illegal positions" << endl;
