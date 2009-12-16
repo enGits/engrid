@@ -163,24 +163,6 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       }
     }
     if (setNewPosition(id_node, x_new)) {
-      if(abs(x_old[0]-1)>1e-4 && abs(x_old[1]+1)<1e-4 && abs(x_new[0]-1)<1e-4 && abs(x_new[1]+1)<1e-4 && (x_old-x_new).abs2()>1e-4) { // moving on plane Y=-1 from X!=1 to X==1.
-        m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
-        writeGrid(m_Grid,"before_move");
-        m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
-        writeGrid(m_Grid,"after_move");
-        qWarning()<<"id_node="<<id_node;
-        qWarning()<<"x_old="<<x_old;
-        qWarning()<<"x_new="<<x_new;
-        int i_nodes = m_Part.localNode(id_node);
-        qWarning()<<"m_NodeToBc[i_nodes].size()="<<m_NodeToBc[i_nodes].size();
-        qWarning()<<"m_x_new_orig[i_nodes]="<<m_x_new_orig[i_nodes];
-        qWarning()<<"x_new_before_projection"<<x_new_before_projection;
-        qWarning()<<"x_new_after_projection"<<x_new_after_projection;
-        int bc = m_NodeToBc[i_nodes][0];
-        GuiMainWindow::pointer()->getSurfProj(bc)->setDebugLevel(100);
-        GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new_before_projection, id_node);
-        EG_BUG;
-      }
       moved = true;
       Dx = x_new - x_old;
       break;
