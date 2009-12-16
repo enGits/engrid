@@ -118,23 +118,23 @@ void GuiSettingsViewer::save()
       m_settings->endGroup();
     }
 
-//     N = (ST->filename_dialoglineedit_name).size();
-//     for (int i = 0; i < N; i++) {
-//       m_settings->beginGroup(QObject::tr("Filename"));
-//       key = ST->filename_dialoglineedit_name[i];
-//       QString value = ST->filename_dialoglineedit[i]->text();
-//       m_settings->setValue(key, value);
-//       m_settings->endGroup();
-//     }
+    N = (ST->filename_dialoglineedit_name).size();
+    for (int i = 0; i < N; i++) {
+      m_settings->beginGroup(QObject::tr("Filename"));
+      key = ST->filename_dialoglineedit_name[i];
+      QString value = ST->filename_dialoglineedit[i]->text();
+      m_settings->setValue(key, value);
+      m_settings->endGroup();
+    }
 
-//     N = (ST->directory_dialoglineedit_name).size();
-//     for (int i = 0; i < N; i++) {
-//       m_settings->beginGroup(QObject::tr("Directory"));
-//       key = ST->directory_dialoglineedit_name[i];
-//       QString value = ST->directory_dialoglineedit[i]->text();
-//       m_settings->setValue(key, value);
-//       m_settings->endGroup();
-//     }
+    N = (ST->directory_dialoglineedit_name).size();
+    for (int i = 0; i < N; i++) {
+      m_settings->beginGroup(QObject::tr("Directory"));
+      key = ST->directory_dialoglineedit_name[i];
+      QString value = ST->directory_dialoglineedit[i]->text();
+      m_settings->setValue(key, value);
+      m_settings->endGroup();
+    }
 
     if (group != QObject::tr("General")) m_settings->endGroup();
   }
