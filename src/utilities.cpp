@@ -367,56 +367,87 @@ dcmplx complex_pow(dcmplx base, double power)
   return pow(abs(base),power)*exp(power*alpha*i);
 }
 
-int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2) {
-  double m = 2 * pow(a, 3) - 9 * a * b + 27 * c;
-  double k = pow(a, 2) - 3 * b;
-  dcmplx n = pow(m, 2) - 4 * pow(k, 3);
-  dcmplx omega_1 = dcmplx(-0.5,  0.5 * sqrt(3));
-  dcmplx omega_2 = dcmplx(-0.5, -0.5 * sqrt(3));
+#define SWAP(a,b) do { double tmp = b ; b = a ; a = tmp ; } while(0)
 
-  dcmplx up = (m + sqrt(n)) / 2.;
-  dcmplx down = (m - sqrt(n)) / 2.;
+int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2)
+{
+  double q = (a * a - 3 * b);
+  double r = (2 * a * a * a - 9 * a * b + 27 * c);
   
-  dcmplx alpha = complex_pow(up, 1. / 3.);
-  double p = b-pow(a,2)/3;
-  dcmplx beta = k/alpha;//complex_pow(down, 1. / 3.);
+  double Q = q / 9;
+  double R = r / 54;
   
-  dcmplx x[3];
-  x[0] = -1. / 3.*(a + alpha + beta);
-  x[1] = -1. / 3.*(a + alpha * omega_2 + beta * omega_1);
-  x[2] = -1. / 3.*(a + alpha * omega_1 + beta * omega_2);
-
-  double tol = 1e-4;
-  QVector <double> xreal;
-  for (int i = 0; i < 3; i++) {
-//     qDebug()<<"x["<<i<<"]="<<real(x[i])<<" + "<<imag(x[i])<<" *i";
-    if (abs(imag(x[i])) < tol) {
-      xreal.push_back(real(x[i]));
-    }
+  double Q3 = Q * Q * Q;
+  double R2 = R * R;
+  
+  double CR2 = 729 * r * r;
+  double CQ3 = 2916 * q * q * q;
+  
+  if (R == 0 && Q == 0)
+  {
+    *x0 = - a / 3 ;
+    *x1 = - a / 3 ;
+    *x2 = - a / 3 ;
+    return 3 ;
   }
-
-  qSort(xreal.begin(), xreal.end());
-
-  if (xreal.size() > 0) *x0 = xreal[0];
-  if (xreal.size() > 1) *x1 = xreal[1];
-  if (xreal.size() > 2) *x2 = xreal[2];
-
-  if(xreal.size()==0) {
-    qWarning()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
-    qWarning()<<"m="<<m;
-    qWarning()<<"k="<<k;
-    qWarning()<<"n="<<n;
-    qWarning()<<"up="<<up;
-    qWarning()<<"down="<<down;
-    qWarning()<<"alpha="<<alpha;
-    qWarning()<<"beta="<<beta;
-    for (int i = 0; i < 3; i++) {
-      qWarning()<<"x["<<i<<"]="<<x[i];
+  else if (CR2 == CQ3) 
+  {
+      /* this test is actually R2 == Q3, written in a form suitable
+         for exact computation with integers */
+    
+      /* Due to finite precision some double roots may be missed, and
+         considered to be a pair of complex roots z = x +/- epsilon i
+         close to the real axis. */
+    
+    double sqrtQ = sqrt (Q);
+    
+    if (R > 0)
+    {
+      *x0 = -2 * sqrtQ  - a / 3;
+      *x1 = sqrtQ - a / 3;
+      *x2 = sqrtQ - a / 3;
     }
-    EG_BUG;
+    else
+    {
+      *x0 = - sqrtQ  - a / 3;
+      *x1 = - sqrtQ - a / 3;
+      *x2 = 2 * sqrtQ - a / 3;
+    }
+    return 3 ;
   }
-  
-  return(xreal.size());
+  else if (CR2 < CQ3) /* equivalent to R2 < Q3 */
+  {
+    double sqrtQ = sqrt (Q);
+    double sqrtQ3 = sqrtQ * sqrtQ * sqrtQ;
+    double theta = acos (R / sqrtQ3);
+    double norm = -2 * sqrtQ;
+    *x0 = norm * cos (theta / 3) - a / 3;
+    *x1 = norm * cos ((theta + 2.0 * M_PI) / 3) - a / 3;
+    *x2 = norm * cos ((theta - 2.0 * M_PI) / 3) - a / 3;
+    
+      /* Sort *x0, *x1, *x2 into increasing order */
+    
+    if (*x0 > *x1)
+      SWAP(*x0, *x1) ;
+    
+    if (*x1 > *x2)
+    {
+      SWAP(*x1, *x2) ;
+      
+      if (*x0 > *x1)
+        SWAP(*x0, *x1) ;
+    }
+    
+    return 3;
+  }
+  else
+  {
+    double sgnR = (R >= 0 ? 1 : -1);
+    double A = -sgnR * pow (fabs (R) + sqrt (R2 - Q3), 1.0/3.0);
+    double B = Q / A ;
+    *x0 = A + B - a / 3;
+    return 1;
+  }
 }
 
 // a x^2 + b x + c = 0

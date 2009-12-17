@@ -154,8 +154,8 @@
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>./engrid</mainprogram>
-      <programargs>-f ~/Geometries/MultipleVolumes/multiple_volumes4_0.4.egc</programargs>
-      <globaldebugarguments>-f ~/Geometries/MultipleVolumes/multiple_volumes4_0.4.egc</globaldebugarguments>
+      <programargs>-f ~/Geometries/MultipleVolumes/split_cube3.egc</programargs>
+      <globaldebugarguments>-f ~/Geometries/MultipleVolumes/split_cube3.egc</globaldebugarguments>
       <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>

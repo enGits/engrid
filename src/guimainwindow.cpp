@@ -1930,6 +1930,7 @@ void GuiMainWindow::storeSurfaceProjection()
     
     proj->m_ExactMode = 0;
     
+//     DebugLevel = 100;
     if(DebugLevel>100) {
       proj->writeGridWithNormals(basename);
       proj->writeInterpolationGrid(basename);
@@ -1950,6 +1951,7 @@ void GuiMainWindow::storeSurfaceProjection()
   }
   
   if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
+//   DebugLevel = 0;
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
