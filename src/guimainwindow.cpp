@@ -76,6 +76,23 @@ bool GuiMainWindow::m_UnSaved = true;
 
 GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
+  setupGuiMainWindow();
+  if(m_open_last) {
+    if(m_qset.contains("LatestFile")) {
+//       qDebug()<<"Opening latest";
+      open(m_qset.value("LatestFile").toString());
+    }
+  }
+}
+
+GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
+{
+  setupGuiMainWindow();
+  open(file_name);
+}
+
+void GuiMainWindow::setupGuiMainWindow()
+{
   ui.setupUi(this);
   THIS = this;
   
@@ -160,6 +177,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
   bool undo_redo_mode;
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
+  getSet("General", "open last used file on startup", false, m_open_last);
   
   ui.actionFoamWriter->setEnabled(exp_features);
   
@@ -1088,7 +1106,7 @@ void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
   QFileInfo file_info(m_CurrentFilename);
-  qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
+//   qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
@@ -1127,6 +1145,8 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
+//     qDebug()<<"Setting new latest file to "<<file_name;
+    m_qset.setValue("LatestFile",file_name);
     resetOperationCounter();
     quickSave();
   }
@@ -1188,6 +1208,8 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
+//     qDebug()<<"Setting new latest file to "<<file_name;
+    m_qset.setValue("LatestFile",file_name);
   }
   
   return(file_name);
@@ -1981,7 +2003,6 @@ void GuiMainWindow::openRecent(QAction *action)
   qDebug()<<"GuiMainWindow::openRecent called";
   QString file_name = action->text().right(action->text().length()-23);
   this->open(file_name);
-//   this->addRecentFile(file_name,QDateTime::currentDateTime());
 }
 
 void GuiMainWindow::readRecentFiles()
@@ -1991,7 +2012,7 @@ void GuiMainWindow::readRecentFiles()
   QStringList file_names = m_qset.value("FileNames").toStringList();
   QStringList file_dates = m_qset.value("FileDates").toStringList();
   int N = min(10,m_qset.value("NumberOfFiles").toInt());
-  cout << "NumberOfFiles=" << N << endl;
+//   cout << "NumberOfFiles=" << N << endl;
   for (int i = 0; i < N; ++i) {
     QString new_file = file_names.at(i);
     QString date_text = file_dates.at(i);
