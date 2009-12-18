@@ -56,7 +56,7 @@ void SurfaceMesher::operate()
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
-  bool done = false;
+  bool done = (iter >= m_NumMaxIter);
   //swap();
   //done = true;
   while (!done) {
