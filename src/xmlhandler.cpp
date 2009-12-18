@@ -30,60 +30,66 @@
 
 #include "engrid.h"
 
-XmlHandler::XmlHandler(QObject *parent)
-: QObject(parent)
-{
+#include <iostream>
+using namespace std;
+
+XmlHandler::XmlHandler(QString tagName, QObject *parent)
+    : QObject(parent) {
   m_parent = parent;
+
+  // initialise XML document
+  QDomElement root = m_XmlDoc.createElement(tagName);
+  m_XmlDoc.appendChild(root);
 }
 
 
-XmlHandler::~XmlHandler()
-{
+XmlHandler::~XmlHandler() {
 }
 
-void XmlHandler::openXml(QString file_name)
-{
-  qDebug()<<"Opening "<<file_name;
+void XmlHandler::openXml(QString file_name) {
+//   qDebug() << "Opening " << file_name;
   QFile xml_file(file_name);
   if (!xml_file.open(QIODevice::ReadOnly)) {
-    qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
-    qWarning()<<"QDir::current()="<<QDir::current();
-    qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
+    qWarning() << "Failed to open xml_file " << xml_file.fileName();
+    qWarning() << "QDir::current()=" << QDir::current();
+    qWarning() << "QDir::currentPath()=" << QDir::currentPath();
     EG_BUG;
   }
   if (!m_XmlDoc.setContent(&xml_file)) {
-    QMessageBox::critical((QWidget*)m_parent, "Open failed", "Error reading enGrid case file:\n" + file_name);
+    QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), tr("Error reading XML file:\n") + file_name);
   }
   xml_file.close();
+
+  // initialize m_DomNode
+  resetToTopNode();
 }
 
-void XmlHandler::saveXml(QString file_name)
-{
+void XmlHandler::saveXml(QString file_name) {
   QString buffer = m_XmlDoc.toString(2);
   QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
   f << buffer << endl;
+  xml_file.close();
 }
 
-QString XmlHandler::getXmlSection(QString name)
-{
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
+QString XmlHandler::getXmlSection(QString name) {
+  QStringList tags = name.toLower().split(tr("/"), QString::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   bool found = true;
-  QString section_text = "";
+  QString section_text = tr("");
   try {
-    foreach (QString tag, tags) {
+    foreach(QString tag, tags) {
       QDomNodeList nodes = element.elementsByTagName(tag);
       if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
+        EG_ERR_RETURN(tr("error retrieving XML section '") + name + tr("'"));
       }
       if (nodes.size() == 0) {
         found = false;
         break;
       }
       if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
+        EG_ERR_RETURN(tr("error retrieving XML section '") + name + tr("'"));
       }
       element = nodes.at(0).toElement();
     }
@@ -96,22 +102,21 @@ QString XmlHandler::getXmlSection(QString name)
   return section_text;
 }
 
-void XmlHandler::setXmlSection(QString name, QString contents)
-{
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
+void XmlHandler::setXmlSection(QString name, QString contents) {
+  QStringList tags = name.toLower().split(tr("/"), QString::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   try {
-    foreach (QString tag, tags) {
+    foreach(QString tag, tags) {
       QDomNodeList nodes = element.elementsByTagName(tag);
       if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
+        EG_ERR_RETURN(tr("error retrieving XML section '") + name + tr("'"));
       }
       if (nodes.size() == 0) {
         QDomElement new_element = m_XmlDoc.createElement(tag);
         element.appendChild(new_element);
         element = new_element;
       } else if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
+        EG_ERR_RETURN(tr("error retrieving XML section '") + name + tr("'"));
       } else {
         element = nodes.at(0).toElement();
       }
@@ -124,4 +129,92 @@ void XmlHandler::setXmlSection(QString name, QString contents)
   } catch (Error err) {
     err.display();
   }
+}
+
+QStringList XmlHandler::allKeys() {
+  QStringList ret;
+  QDomNode dom_node;
+  dom_node = m_XmlDoc.firstChild();
+  parseNode(dom_node, ret, dom_node.nodeName());
+  return(ret);
+}
+
+QStringList XmlHandler::childGroups() {
+  QStringList ret;
+
+  for (QDomNode sub_node = m_DomNode.firstChild(); !sub_node.isNull(); sub_node = sub_node.nextSibling()) {
+    if (sub_node.nodeType() == QDomNode::ElementNode) {
+      ret << sub_node.nodeName();
+    }
+  }
+
+  return(ret);
+}
+
+QStringList XmlHandler::childKeys() {
+  QStringList ret;
+  qDebug() << "m_DomNode.nodeName()=" << m_DomNode.nodeName();
+  QString output = parseNode(m_DomNode, ret, m_DomNode.nodeName());
+  qDebug() << "output=" << output;
+  qDebug() << "ret=" << ret;
+  return(ret);
+}
+
+QString XmlHandler::group(bool absolute) {
+  if (!absolute) {
+    return m_DomNode.nodeName();
+  } else {
+    QString section;
+    QString stop_node = m_XmlDoc.firstChild().nodeName();
+    QDomNode parent_node = m_DomNode;
+    while (!parent_node.isNull() && parent_node.nodeName() != stop_node) {
+      section = parent_node.nodeName() + tr("/") + section;
+      parent_node = parent_node.parentNode();
+    }
+    return section;
+  }
+}
+
+void XmlHandler::setGroup(const QString & prefix) {
+  resetToTopNode();
+  beginGroup(prefix);
+}
+
+void XmlHandler::beginGroup(const QString & prefix) {
+  QStringList tag_list = prefix.split(tr("/"));
+  foreach(QString tag, tag_list) {
+    if (!tag.isEmpty()) {
+      QDomElement dom_element = m_DomNode.toElement();
+      QDomNodeList dom_node_list = dom_element.elementsByTagName(tag);
+      m_DomNode = dom_node_list.at(0);
+    }
+  }
+}
+
+void XmlHandler::endGroup() {
+  if (!m_DomNode.parentNode().isNull()) m_DomNode = m_DomNode.parentNode();
+}
+
+QString XmlHandler::parseNode(const QDomNode& dom_node, QStringList& string_list, QString stop_node) {
+  QString section;
+
+  if (dom_node.nodeType() == QDomNode::TextNode) {
+    QDomNode parent_node = dom_node.parentNode();
+    while (!parent_node.isNull() && parent_node.nodeName() != stop_node) {
+      section = parent_node.nodeName() + tr("/") + section;
+      parent_node = parent_node.parentNode();
+    }
+    string_list << section;
+  }
+
+  for (QDomNode sub_node = dom_node.firstChild(); !sub_node.isNull(); sub_node = sub_node.nextSibling()) {
+    parseNode(sub_node, string_list, stop_node);
+  }
+
+//   qDebug() << "section=" << section;
+  return(section);
+}
+
+void XmlHandler::resetToTopNode() {
+  m_DomNode = m_XmlDoc.firstChild();
 }
