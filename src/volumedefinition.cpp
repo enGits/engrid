@@ -39,10 +39,10 @@ void VolumeDefinition::addBC(int bc, int sign)
   bcs[bc] = sign;
 }
 
- int VolumeDefinition::getSign(int bc)
- {
-   if (bcs.contains(bc)) {
-     return bcs[bc];
-   }
-   return 0;
- }
+int VolumeDefinition::getSign(int bc)
+{
+  if (bcs.contains(bc)) {
+    return bcs[bc];
+  }
+  return 0;
+}

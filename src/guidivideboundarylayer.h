@@ -51,10 +51,12 @@ private: // attributes
   QVector<double> y;
   QVector<bool> insert_cell;
   
+  vtkUnstructuredGrid* m_rest_grid;///< used to store unselected volumes
+  
 private: // methods
   
-  void findBoundaryLayer1();
-  void findBoundaryLayer();
+  void findBoundaryLayer1();/// \todo Unused function. Delete if deprecated.
+  bool findBoundaryLayer();
   void createEdges(vtkUnstructuredGrid *new_grid);
   inline double sech(double x) { return 1.0/cosh(x); };
   void bisectF(double &f1, double &f2);
@@ -64,9 +66,9 @@ private: // methods
 protected: // methods
   
   virtual void before();
-  virtual void operate1();
+  virtual void operate1();/// \todo Unused function. Delete if deprecated.
   virtual void operate();
-  
+  void after();
 };
 
 #endif

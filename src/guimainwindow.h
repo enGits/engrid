@@ -226,14 +226,19 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void openGrid( QString file_name );
 
   public: // methods
-
+    GuiMainWindow();///< Default constructor.
+    GuiMainWindow(QString file_name);///< Constructor which opens a file directly.
+  
+  private:
     /**
-     * The constructor connects the menu and toolbar actions and
+     * This function connects the menu and toolbar actions and
      * the VTK basics(i.e. renderer, actor, ...) will be set up.
      * Furthermore preferences will be read from qset.
      */
-    GuiMainWindow();
-
+    void setupGuiMainWindow();
+    bool m_open_last;
+  
+  public:
     /**
      * Preferences will be written back.
      */
