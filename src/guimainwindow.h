@@ -379,8 +379,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void resetOperationCounter();
 
-    void openXml( QString file_name );     ///< Open the case from an XML file
-    void saveXml( QString file_name );     ///< Save the case in an XML file
+    bool openXml( QString file_name );     ///< Open the case from an XML file
+    bool saveXml( QString file_name );     ///< Save the case in an XML file
     void open();                           ///< Open an existing case
     void open( QString file_name, bool update_current_filename = true ); ///< Open case file_name
     void save();                           ///< Save the current case

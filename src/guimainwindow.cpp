@@ -1129,11 +1129,14 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
     no_case_file = true;
     grid_file_name = stripFromExtension(file_name);
   }
+  if (!no_case_file) {
+    if(!openXml(file_name)) {
+      QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+      return;
+    }
+  }
   if(update_current_filename) {
     GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
-  }
-  if (!no_case_file) {
-    openXml(file_name);
   }
   openGrid(grid_file_name);
   openBC();
@@ -1152,29 +1155,35 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   }
 }
 
-void GuiMainWindow::openXml(QString file_name)
+bool GuiMainWindow::openXml(QString file_name)
 {
   QFile xml_file(file_name);
   if (!xml_file.open(QIODevice::ReadOnly)) {
-    qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
-    qWarning()<<"QDir::current()="<<QDir::current();
-    qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
-    qWarning()<<"getCwd()="<<getCwd();
-    EG_BUG;
+    QString error_message = "Failed to open xml_file " + xml_file.fileName();
+    error_message += QString("\n") + tr("Error reading enGrid case file:\n%1").arg(file_name);
+    error_message += QString("\n") + "QDir::current()=" + QDir::current().absolutePath();
+    error_message += QString("\n") + "QDir::currentPath()=" + QDir::currentPath();
+    error_message += QString("\n") + "getCwd()=" + getCwd();
+    
+    qWarning()<<error_message;
+    QMessageBox::critical(this, tr("Open failed"), error_message);
+    return(false);
   }
   if (!m_XmlDoc.setContent(&xml_file)) {
     QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+    return(false);
   }
   xml_file.close();
 }
 
-void GuiMainWindow::saveXml(QString file_name)
+bool GuiMainWindow::saveXml(QString file_name)
 {
   QString buffer = m_XmlDoc.toString(0);
   QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
   f << buffer << endl;
+  return(true);
 }
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
