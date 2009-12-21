@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-thermoType hThermo<pureMixture<sutherlandTransport<specieThermo<hConstThermo<perfectGas>>>>>;
+thermoType hPsiThermo<pureMixture<sutherlandTransport<specieThermo<hConstThermo<perfectGas>>>>>;
 mixture air 1 {{{DoubleLineEdit: molar mass: : 28.96}}} {{{DoubleLineEdit: specific heat at constant pressure: : 1004.5}}} 0 {{{DoubleLineEdit: Sutherland constant: : 1.458e-06}}} {{{DoubleLineEdit: Sutherland temperature: : 110.4}}};
 
 // ************************************************************************* //

@@ -36,6 +36,7 @@ divSchemes
     div(phi,omega)   Gauss {{{ComboBox: omega convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind}}};
     div((nuEff*dev(grad(U).T())))  Gauss linear;
     div((muEff*dev2(grad(U).T()))) Gauss linear;
+    div(U,p)         Gauss linearUpwind Gauss;
 }
 
 laplacianSchemes
@@ -52,6 +53,7 @@ laplacianSchemes
     laplacian(DnuTildaEff,nuTilda) Gauss linear corrected;
     laplacian(1,p)                 Gauss linear corrected;
     laplacian((rho|A(U)),p)        Gauss linear corrected;
+    laplacian((rho*(1|A(U))),p)    Gauss linear corrected;
 }
 
 interpolationSchemes

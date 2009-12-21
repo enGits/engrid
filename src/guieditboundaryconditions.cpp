@@ -426,7 +426,7 @@ void GuiEditBoundaryConditions::stringToTable(QString hostfile_txt)
   foreach(QString host_weight, host_weight_list) {
     if(!host_weight.isEmpty()){
       QStringList values = host_weight.split(":");
-      qWarning()<<"values="<<values;
+//       qWarning()<<"values="<<values;
       host.push_back(values[0].trimmed());
       weight.push_back(values[1].trimmed());
     }
