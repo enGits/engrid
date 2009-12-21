@@ -35,18 +35,22 @@ class XmlHandler : public QObject {
     QDomDocument m_XmlDoc; ///< XML document describing the templates to use
     QObject *m_parent;///< Parent widget (for message boxes)
     QDomNode m_DomNode;///< current node in the DOM tree
+    QString m_TagName;
 
   public:
     QDomNode getDomNode() { return m_DomNode; }///< Returns m_DomNode
 
   public:
     XmlHandler(QString tagName, QObject *parent = 0);///< Constructor
-    ~XmlHandler();///< Destructor
+  //~XmlHandler();///< Destructor
     void openXml(QString file_name);///< Open XML file
     void saveXml(QString file_name);///< Save XML file
     QString getXmlSection(QString name);///< get contents of XML section
     void setXmlSection(QString name, QString contents);///< set contents of XML section
-
+    void resetXmlDoc();///< Initialize or reset m_XmlDoc
+    QString getBuffer();
+    QDomDocument* getXmlDoc() {return &m_XmlDoc;}
+  
   public:
     /// Returns a list of all keys, including subkeys, that can be read using the XmlHandler object.
     QStringList allKeys();

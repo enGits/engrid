@@ -38,13 +38,19 @@ XmlHandler::XmlHandler(QString tagName, QObject *parent)
   m_parent = parent;
 
   // initialise XML document
-  QDomElement root = m_XmlDoc.createElement(tagName);
+  m_TagName = tagName;
+  QDomElement root = m_XmlDoc.createElement(m_TagName);
   m_XmlDoc.appendChild(root);
+      
+/*      resetXmlDoc();
+
+      m_XmlDoc.clear();
+      QDomElement root = m_XmlDoc.createElement(m_TagName);
+      m_XmlDoc.appendChild(root);*/
 }
 
-
-XmlHandler::~XmlHandler() {
-}
+// XmlHandler::~XmlHandler() {
+// }
 
 void XmlHandler::openXml(QString file_name) {
 //   qDebug() << "Opening " << file_name;
@@ -217,4 +223,11 @@ QString XmlHandler::parseNode(const QDomNode& dom_node, QStringList& string_list
 
 void XmlHandler::resetToTopNode() {
   m_DomNode = m_XmlDoc.firstChild();
+}
+
+void XmlHandler::resetXmlDoc()
+{
+  m_XmlDoc.clear();
+  QDomElement root = m_XmlDoc.createElement(m_TagName);
+  m_XmlDoc.appendChild(root);
 }

@@ -64,6 +64,7 @@ class GuiMainWindow;
 #include "std_includes.h"
 #include "fixcadgeometry.h"
 #include "projection_test.h"
+#include "xmlhandler.h"
 
 /**
  * This is the main GUI class of enGrid.
@@ -75,6 +76,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
   private: // attributes
 
+    XmlHandler* m_XmlHandler;
     QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
 
     Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.

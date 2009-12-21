@@ -191,21 +191,22 @@ void GuiMainWindow::setupGuiMainWindow()
   style->Delete();
 
   // initialise XML document
-//   QDomElement root = m_XmlDoc.createElement("engridcase");
-//   m_XmlDoc.appendChild(root);
-  this->resetXmlDoc();
+  m_XmlHandler = new XmlHandler("engridcase");
+//   this->resetXmlDoc();
   
   m_SolverIndex = 0;
   
   readRecentFiles();
+  
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 void GuiMainWindow::resetXmlDoc()
 {
-  m_XmlDoc.clear();
+  m_XmlHandler->resetXmlDoc();
+/*  m_XmlDoc.clear();
   QDomElement root = m_XmlDoc.createElement("engridcase");
-  m_XmlDoc.appendChild(root);
+  m_XmlDoc.appendChild(root);*/
 }
 
 GuiMainWindow::~GuiMainWindow()
@@ -229,6 +230,7 @@ GuiMainWindow::~GuiMainWindow()
   dir.rmdir(m_LogDir);
 #endif
   
+  delete m_XmlHandler;
 }
 
 void GuiMainWindow::setupVtk()
@@ -929,7 +931,8 @@ void GuiMainWindow::resetOperationCounter()
 
 QString GuiMainWindow::getXmlSection(QString name)
 {
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
+  return m_XmlHandler->getXmlSection(name);
+/*  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   bool found = true;
   QString section_text = "";
@@ -954,12 +957,13 @@ QString GuiMainWindow::getXmlSection(QString name)
   if (found) {
     section_text = element.text();
   }
-  return section_text;
+  return section_text;*/
 }
 
 void GuiMainWindow::setXmlSection(QString name, QString contents)
 {
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
+  m_XmlHandler->setXmlSection(name,contents);
+/*  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
   QDomElement element = m_XmlDoc.documentElement();
   try {
     foreach (QString tag, tags) {
@@ -984,7 +988,7 @@ void GuiMainWindow::setXmlSection(QString name, QString contents)
     element.appendChild(text_node);
   } catch (Error err) {
     err.display();
-  }
+  }*/
 }
 
 void GuiMainWindow::openPhysicalBoundaryConditions()
