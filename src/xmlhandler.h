@@ -43,8 +43,8 @@ class XmlHandler : public QObject {
   public:
     XmlHandler(QString tagName, QObject *parent = 0);///< Constructor
   //~XmlHandler();///< Destructor
-    void openXml(QString file_name);///< Open XML file
-    void saveXml(QString file_name);///< Save XML file
+    bool openXml(QString file_name);///< Open XML file
+    bool saveXml(QString file_name);///< Save XML file
     QString getXmlSection(QString name);///< get contents of XML section
     void setXmlSection(QString name, QString contents);///< set contents of XML section
     void resetXmlDoc();///< Initialize or reset m_XmlDoc

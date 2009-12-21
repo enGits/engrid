@@ -30,6 +30,8 @@
 
 #include "engrid.h"
 
+#include "guimainwindow.h"
+
 #include <iostream>
 using namespace std;
 
@@ -52,17 +54,26 @@ XmlHandler::XmlHandler(QString tagName, QObject *parent)
 // XmlHandler::~XmlHandler() {
 // }
 
-void XmlHandler::openXml(QString file_name) {
-//   qDebug() << "Opening " << file_name;
+bool XmlHandler::openXml(QString file_name) {
   QFile xml_file(file_name);
   if (!xml_file.open(QIODevice::ReadOnly)) {
     qWarning() << "Failed to open xml_file " << xml_file.fileName();
     qWarning() << "QDir::current()=" << QDir::current();
     qWarning() << "QDir::currentPath()=" << QDir::currentPath();
-    EG_BUG;
+    QString error_message = "Failed to open xml_file " + xml_file.fileName();
+    error_message += QString("\n") + tr("Error reading enGrid case file:\n%1").arg(file_name);
+    error_message += QString("\n") + "QDir::current()=" + QDir::current().absolutePath();
+    error_message += QString("\n") + "QDir::currentPath()=" + QDir::currentPath();
+    error_message += QString("\n") + "getCwd()=" + GuiMainWindow::pointer()->getCwd();
+    
+    qWarning()<<error_message;
+    QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), error_message);
+    return(false);
   }
   if (!m_XmlDoc.setContent(&xml_file)) {
     QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), tr("Error reading XML file:\n") + file_name);
+    QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+    return(false);
   }
   xml_file.close();
 
@@ -70,13 +81,15 @@ void XmlHandler::openXml(QString file_name) {
   resetToTopNode();
 }
 
-void XmlHandler::saveXml(QString file_name) {
+bool XmlHandler::saveXml(QString file_name) {
   QString buffer = m_XmlDoc.toString(2);
+//   QString buffer = m_XmlDoc.toString(0);
   QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
   f << buffer << endl;
   xml_file.close();
+  return(true);
 }
 
 QString XmlHandler::getXmlSection(QString name) {

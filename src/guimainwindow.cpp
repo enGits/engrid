@@ -1161,7 +1161,8 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 
 bool GuiMainWindow::openXml(QString file_name)
 {
-  QFile xml_file(file_name);
+  return m_XmlHandler->openXml(file_name);
+  /*  QFile xml_file(file_name);
   if (!xml_file.open(QIODevice::ReadOnly)) {
     QString error_message = "Failed to open xml_file " + xml_file.fileName();
     error_message += QString("\n") + tr("Error reading enGrid case file:\n%1").arg(file_name);
@@ -1177,17 +1178,18 @@ bool GuiMainWindow::openXml(QString file_name)
     QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
     return(false);
   }
-  xml_file.close();
+  xml_file.close();*/
 }
 
 bool GuiMainWindow::saveXml(QString file_name)
 {
-  QString buffer = m_XmlDoc.toString(0);
+  return m_XmlHandler->saveXml(file_name);
+/*  QString buffer = m_XmlDoc.toString(0);
   QFile xml_file(file_name);
   xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream f(&xml_file);
   f << buffer << endl;
-  return(true);
+  return(true);*/
 }
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
