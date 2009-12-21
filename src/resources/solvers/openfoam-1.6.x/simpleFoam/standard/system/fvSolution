@@ -1,0 +1,78 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.4                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          fvSolution;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+    p PCG
+    {
+        maxIter          1000;
+        preconditioner   DIC;
+        tolerance        1e-06;
+        relTol           0;
+    };
+
+    U PBiCG
+    {
+        preconditioner   DILU;
+        tolerance        1e-05;
+        relTol           0;
+    };
+    k PBiCG
+    {
+        preconditioner   DILU;
+        tolerance        1e-05;
+        relTol           0;
+    };
+    omega PBiCG
+    {
+        preconditioner   DILU;
+        tolerance        1e-05;
+        relTol           0;
+    };
+    epsilon PBiCG
+    {
+        preconditioner   DILU;
+        tolerance        1e-05;
+        relTol           0;
+    };
+
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors {{{SpinBox: non-orthogonal correctors: 0,10,1: 2}}};
+}
+
+relaxationFactors
+{
+    p       {{{DoubleSpinBox: p relaxation factor      : 0,1,0.05,2: 0.3}}};
+    U       {{{DoubleSpinBox: U relaxation factor      : 0,1,0.05,2: 0.7}}};
+    k       {{{DoubleSpinBox: k relaxation factor      : 0,1,0.05,2: 0.7}}};
+    epsilon {{{DoubleSpinBox: epsilon relaxation factor: 0,1,0.05,2: 0.7}}};
+    omega   {{{DoubleSpinBox: omega relaxation factor  : 0,1,0.05,2: 0.7}}};
+}
+
+
+// ************************************************************************* //

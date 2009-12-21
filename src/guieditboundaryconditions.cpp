@@ -42,7 +42,7 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
   connect(ui.listWidgetBoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
   connect(ui.pushButton_AddProcess, SIGNAL(clicked()), this, SLOT(addProcess()));
   connect(ui.pushButton_RemoveProcess, SIGNAL(clicked()), this, SLOT(deleteProcess()));
-  connect(ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()()));
+  connect(ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()));
   connect(ui.pushButton_ExportHostFile, SIGNAL(clicked()), this, SLOT(exportHostFile()));
   
   setupSolvers();
