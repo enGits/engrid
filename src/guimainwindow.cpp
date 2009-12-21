@@ -1194,7 +1194,8 @@ bool GuiMainWindow::saveXml(QString file_name)
 
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
-  QString buffer = m_XmlDoc.toString(0);
+//   QString buffer = m_XmlDoc.toString(0);
+  QString buffer = m_XmlHandler->getBuffer(0);
   
   if(update_current_filename) QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   

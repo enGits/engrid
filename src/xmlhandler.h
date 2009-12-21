@@ -48,7 +48,7 @@ class XmlHandler : public QObject {
     QString getXmlSection(QString name);///< get contents of XML section
     void setXmlSection(QString name, QString contents);///< set contents of XML section
     void resetXmlDoc();///< Initialize or reset m_XmlDoc
-    QString getBuffer();
+    QString getBuffer( int indent = 1 ) { return m_XmlDoc.toString(indent); }
     QDomDocument* getXmlDoc() {return &m_XmlDoc;}
   
   public:
