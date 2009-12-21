@@ -42,15 +42,14 @@ class XmlHandler : public QObject {
 
   public:
     XmlHandler(QString tagName, QObject *parent = 0);///< Constructor
-  //~XmlHandler();///< Destructor
     bool openXml(QString file_name);///< Open XML file
     bool saveXml(QString file_name);///< Save XML file
     QString getXmlSection(QString name);///< get contents of XML section
     void setXmlSection(QString name, QString contents);///< set contents of XML section
     void resetXmlDoc();///< Initialize or reset m_XmlDoc
-    QString getBuffer( int indent = 1 ) { return m_XmlDoc.toString(indent); }
+    QString getBuffer(int indent = 1) { return m_XmlDoc.toString(indent); }
     QDomDocument* getXmlDoc() {return &m_XmlDoc;}
-  
+
   public:
     /// Returns a list of all keys, including subkeys, that can be read using the XmlHandler object.
     QStringList allKeys();

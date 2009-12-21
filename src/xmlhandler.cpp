@@ -30,8 +30,6 @@
 
 #include "engrid.h"
 
-// #include "guimainwindow.h"
-
 #include <iostream>
 using namespace std;
 
@@ -43,45 +41,27 @@ XmlHandler::XmlHandler(QString tagName, QObject *parent)
   m_TagName = tagName;
   QDomElement root = m_XmlDoc.createElement(m_TagName);
   m_XmlDoc.appendChild(root);
-      
-/*      resetXmlDoc();
-
-      m_XmlDoc.clear();
-      QDomElement root = m_XmlDoc.createElement(m_TagName);
-      m_XmlDoc.appendChild(root);*/
 }
-
-// XmlHandler::~XmlHandler() {
-// }
 
 bool XmlHandler::openXml(QString file_name) {
   QFile xml_file(file_name);
   if (!xml_file.open(QIODevice::ReadOnly)) {
-//     qWarning() << "Failed to open xml_file " << xml_file.fileName();
-//     qWarning() << "QDir::current()=" << QDir::current();
-//     qWarning() << "QDir::currentPath()=" << QDir::currentPath();
     QString error_message = "Failed to open xml_file " + xml_file.fileName();
-//     error_message += QString("\n") + tr("Error reading enGrid case file:\n%1").arg(file_name);
     error_message += QString("\n") + "QDir::current()=" + QDir::current().absolutePath();
     error_message += QString("\n") + "QDir::currentPath()=" + QDir::currentPath();
-//     error_message += QString("\n") + "getCwd()=" + GuiMainWindow::pointer()->getCwd();
-    
-    qWarning()<<error_message;
-//     QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), error_message);
-//     EG_BUG;
+
+    qWarning() << error_message;
     return(false);
   }
   if (!m_XmlDoc.setContent(&xml_file)) {
-    qWarning()<<tr("Error reading XML file:\n").arg(file_name)<<"\n setContent failed.";
-//     QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), tr("Error reading XML file:\n").arg(file_name));
-//     QMessageBox::critical((QWidget*)m_parent, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+    qWarning() << tr("Error reading XML file:\n").arg(file_name) << "\n setContent failed.";
     return(false);
   }
   xml_file.close();
 
   // initialize m_DomNode
   resetToTopNode();
-  
+
   return(true);
 }
 
@@ -242,8 +222,7 @@ void XmlHandler::resetToTopNode() {
   m_DomNode = m_XmlDoc.firstChild();
 }
 
-void XmlHandler::resetXmlDoc()
-{
+void XmlHandler::resetXmlDoc() {
   m_XmlDoc.clear();
   QDomElement root = m_XmlDoc.createElement(m_TagName);
   m_XmlDoc.appendChild(root);
