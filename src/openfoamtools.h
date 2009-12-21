@@ -45,6 +45,7 @@ private: // attributes
   QStringList m_Arguments;
   QString     m_OpenFoamPath;
   QString     m_OpenFoamArch;
+  QString     m_ParaviewPath;
   QString     m_MainHost;
 
 private: // methods
@@ -69,7 +70,8 @@ public slots:
   void runDecomposePar();
   void runPostProcessingTools();
   void runImportFluentCase();
-
+  void runParaview();
+  
   void stopSolverProcess();
 
   void finishedHandler(int exitCode, QProcess::ExitStatus exitStatus);

@@ -59,6 +59,9 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent)
   m_OpenFoamArch = "linux64GccDPOpt";
   getSet("General", "OpenFOAM architecture", m_OpenFoamArch, m_OpenFoamArch);
 
+  m_ParaviewPath = "paraview";
+  getSet("General", "Paraview path", m_ParaviewPath, m_ParaviewPath, 1);
+  
 }
 
 OpenFOAMTools::~OpenFOAMTools()
@@ -299,10 +302,31 @@ void OpenFOAMTools::runDecomposePar()
 
 void OpenFOAMTools::runPostProcessingTools()
 {
+  if (getArguments() < 0) {
+    return;
+  }
   QStringList args;
   args << "-latestTime";
   runTool("applications/bin", "reconstructPar", args);
   runTool("applications/bin", "foamToVTK", args);
+}
+
+void OpenFOAMTools::runParaview()
+{
+  QStringList args;
+  m_ToolsProcess->start( m_ParaviewPath, args);
+  do {
+    m_ToolsProcess->waitForFinished(500);
+    if (m_SolverProcess->state() == QProcess::NotRunning) {
+      cout << m_ToolsProcess->readAllStandardOutput().data();
+      flush(cout);
+    }
+    QApplication::processEvents();
+  } while (m_ToolsProcess->state() == QProcess::Running);
+  if (m_SolverProcess->state() == QProcess::NotRunning) {
+    cout << m_ToolsProcess->readAllStandardOutput().data();
+    flush(cout);
+  }
 }
 
 void OpenFOAMTools::stopSolverProcess()
