@@ -204,9 +204,6 @@ void GuiMainWindow::setupGuiMainWindow()
 void GuiMainWindow::resetXmlDoc()
 {
   m_XmlHandler->resetXmlDoc();
-/*  m_XmlDoc.clear();
-  QDomElement root = m_XmlDoc.createElement("engridcase");
-  m_XmlDoc.appendChild(root);*/
 }
 
 GuiMainWindow::~GuiMainWindow()
@@ -932,63 +929,11 @@ void GuiMainWindow::resetOperationCounter()
 QString GuiMainWindow::getXmlSection(QString name)
 {
   return m_XmlHandler->getXmlSection(name);
-/*  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
-  QDomElement element = m_XmlDoc.documentElement();
-  bool found = true;
-  QString section_text = "";
-  try {
-    foreach (QString tag, tags) {
-      QDomNodeList nodes = element.elementsByTagName(tag);
-      if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      if (nodes.size() == 0) {
-        found = false;
-        break;
-      }
-      if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      element = nodes.at(0).toElement();
-    }
-  } catch (Error err) {
-    err.display();
-  }
-  if (found) {
-    section_text = element.text();
-  }
-  return section_text;*/
 }
 
 void GuiMainWindow::setXmlSection(QString name, QString contents)
 {
   m_XmlHandler->setXmlSection(name,contents);
-/*  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
-  QDomElement element = m_XmlDoc.documentElement();
-  try {
-    foreach (QString tag, tags) {
-      QDomNodeList nodes = element.elementsByTagName(tag);
-      if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      if (nodes.size() == 0) {
-        QDomElement new_element = m_XmlDoc.createElement(tag);
-        element.appendChild(new_element);
-        element = new_element;
-      } else if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      } else {
-        element = nodes.at(0).toElement();
-      }
-    }
-    while (element.hasChildNodes()) {
-      element.removeChild(element.firstChild());
-    }
-    QDomText text_node = m_XmlDoc.createTextNode(contents);
-    element.appendChild(text_node);
-  } catch (Error err) {
-    err.display();
-  }*/
 }
 
 void GuiMainWindow::openPhysicalBoundaryConditions()
@@ -1134,7 +1079,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
     grid_file_name = stripFromExtension(file_name);
   }
   if (!no_case_file) {
-    if(!openXml(file_name)) {
+    if(!m_XmlHandler->openXml(file_name)) {
       QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
       return;
     }
@@ -1159,42 +1104,8 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   }
 }
 
-bool GuiMainWindow::openXml(QString file_name)
-{
-  return m_XmlHandler->openXml(file_name);
-  /*  QFile xml_file(file_name);
-  if (!xml_file.open(QIODevice::ReadOnly)) {
-    QString error_message = "Failed to open xml_file " + xml_file.fileName();
-    error_message += QString("\n") + tr("Error reading enGrid case file:\n%1").arg(file_name);
-    error_message += QString("\n") + "QDir::current()=" + QDir::current().absolutePath();
-    error_message += QString("\n") + "QDir::currentPath()=" + QDir::currentPath();
-    error_message += QString("\n") + "getCwd()=" + getCwd();
-    
-    qWarning()<<error_message;
-    QMessageBox::critical(this, tr("Open failed"), error_message);
-    return(false);
-  }
-  if (!m_XmlDoc.setContent(&xml_file)) {
-    QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
-    return(false);
-  }
-  xml_file.close();*/
-}
-
-bool GuiMainWindow::saveXml(QString file_name)
-{
-  return m_XmlHandler->saveXml(file_name);
-/*  QString buffer = m_XmlDoc.toString(0);
-  QFile xml_file(file_name);
-  xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
-  QTextStream f(&xml_file);
-  f << buffer << endl;
-  return(true);*/
-}
-
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
-//   QString buffer = m_XmlDoc.toString(0);
   QString buffer = m_XmlHandler->getBuffer(0);
   
   if(update_current_filename) QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1215,7 +1126,8 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   saveBC();
   savePhysicalBoundaryConditions();
-  saveXml(file_name);
+//   saveXml(file_name);
+  m_XmlHandler->saveXml(file_name);
   
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);

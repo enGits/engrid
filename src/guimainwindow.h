@@ -77,7 +77,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   private: // attributes
 
     XmlHandler* m_XmlHandler;
-  //QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
 
     Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.
     vtkUnstructuredGrid *m_Grid;          ///< The current state of the grid that is being generated.
@@ -381,8 +380,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void resetOperationCounter();
 
-    bool openXml( QString file_name );     ///< Open the case from an XML file
-    bool saveXml( QString file_name );     ///< Save the case in an XML file
     void open();                           ///< Open an existing case
     void open( QString file_name, bool update_current_filename = true ); ///< Open case file_name
     void save();                           ///< Save the current case
