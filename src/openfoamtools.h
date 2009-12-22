@@ -27,8 +27,9 @@
 #include <QProcess>
 
 #include "egvtkobject.h"
+#include "foamobject.h"
 
-class OpenFOAMTools : public QObject, public EgVtkObject
+class OpenFOAMTools : public QObject, public EgVtkObject, public FoamObject
 {
   Q_OBJECT;
 
@@ -41,19 +42,27 @@ private: // attributes
   QString     m_WorkingDirectory;
   int         m_NumProcesses;
   QString     m_HostFile;
-  QString     m_Program;
-  QStringList m_Arguments;
   QString     m_OpenFoamPath;
   QString     m_OpenFoamArch;
   QString     m_ParaviewPath;
   QString     m_MainHost;
 
+  QString     m_Program_Solver;
+  QStringList m_Arguments_Solver;
+  
+  QString     m_Program_Tools;
+  QStringList m_Arguments_Tools;
+  
+  QString m_FullCommand_Solver;
+  QString m_FullCommand_Tools;
+  
 private: // methods
 
   void    writeMpiParameters();
   int     getArguments();
   void    runTool(QString path, QString name, QStringList args = QStringList());
   QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };
+  void    runFOO(QString path, QString name, QStringList args = QStringList());
 
 public:
 
@@ -71,14 +80,22 @@ public slots:
   void runPostProcessingTools();
   void runImportFluentCase();
   void runParaview();
+  void setCaseDirectory();
   
   void stopSolverProcess();
 
-  void finishedHandler(int exitCode, QProcess::ExitStatus exitStatus);
-  void readFromStderr();
-  void readFromStdout();
-  void startedHandler();
+  // handlers Solver
+  void finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus);
+  void readFromStderr_Solver();
+  void readFromStdout_Solver();
+  void startedHandler_Solver();
 
+  // handlers Tools
+  void finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus);
+  void readFromStderr_Tools();
+  void readFromStdout_Tools();
+  void startedHandler_Tools();
+  
 };
 
 #endif

@@ -202,6 +202,7 @@
     <addaction name="actionStopProcesses"/>
     <addaction name="actionPreparePostProcessing"/>
     <addaction name="actionStartParaView"/>
+    <addaction name="actionSetCaseDirectory"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
@@ -1615,6 +1616,11 @@
   <action name="actionMergeNodes">
    <property name="text">
     <string>Merge nodes</string>
+   </property>
+  </action>
+  <action name="actionSetCaseDirectory">
+   <property name="text">
+    <string>Set case directory</string>
    </property>
   </action>
  </widget>
