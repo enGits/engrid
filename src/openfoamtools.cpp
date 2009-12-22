@@ -35,7 +35,6 @@
 using namespace std;
 
 OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent) {
-  qDebug() << "00000000000000000000000000000000000000000";
   m_SolverProcess = new QProcess(this);
   m_ToolsProcess = new QProcess(this);
 
