@@ -169,7 +169,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
           for (int k = 0; k < 4; ++k) { // node
             m_Grid->GetPoint(pts[E.priTet(i,j,k)], xtet[k].data());
           }
-          if (GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]) < 0) {
+          double V = GeometryTools::tetraVol(xtet[0], xtet[1], xtet[2], xtet[3]);
+          if (V <= 0) {
             ok = false;
           }
         }
@@ -477,9 +478,9 @@ void GridSmoother::operateOptimisation()
   l2l_t n2c = m_Part.getN2C();
   l2l_t n2n = m_Part.getN2N();
 
-  EG_VTKDCC(vtkIntArray,    bc,          m_Grid, "cell_code");
-  EG_VTKDCN(vtkIntArray,    node_status, m_Grid, "node_status");
-  EG_VTKDCN(vtkIntArray,    node_layer,  m_Grid, "node_layer");
+  EG_VTKDCC(vtkIntArray, bc,          m_Grid, "cell_code");
+  EG_VTKDCN(vtkIntArray, node_status, m_Grid, "node_status");
+  EG_VTKDCN(vtkIntArray, node_layer,  m_Grid, "node_layer");
   
   m_IdFoot.fill(-1, m_Grid->GetNumberOfPoints());
   m_L.fill(0, m_Grid->GetNumberOfPoints());
@@ -695,6 +696,10 @@ void GridSmoother::operateOptimisation()
     cout << "total prism error (new) = " << m_FNew << endl;
     double f_old     = max(1e-10, m_FOld);
     cout << "total prism improvement = " << 100*(1 - m_FNew/f_old) << "%" << endl;
+
+    //writeDebugFile("gridsmoother");
+    //EG_BUG;
+
   }
   cout << "done" << endl;
 }
@@ -765,11 +770,17 @@ void GridSmoother::computeNormals()
     }
     if (num_bcs > 0) {
       if (num_bcs > 1) {
-        for (int i = 0; i < num_bcs; ++i) {
-          for (int j = i + 1; j < num_bcs; ++j) {
-            vec3_t n = normal[i] + normal[j];
-            n.normalise();
-            m_NodeNormal[id_node] += n;
+        if (num_bcs == 3) {
+          for (int i = 0; i < num_bcs; ++i) {
+            for (int j = i + 1; j < num_bcs; ++j) {
+              vec3_t n = normal[i] + normal[j];
+              n.normalise();
+              m_NodeNormal[id_node] += n;
+            }
+          }
+        } else {
+          for (int i = 0; i < num_bcs; ++i) {
+            m_NodeNormal[id_node] += normal[i];
           }
         }
       } else {
@@ -798,15 +809,27 @@ void GridSmoother::computeNormals()
               if (j < m_Part.c2cLSize(i) - 1) {
                 id_node2 = pts[j+1];
               }
-              m_IsSharpNode[id_node1] = true;
-              m_IsSharpNode[id_node2] = true;
+              if (id_node1 == 7 || id_node2 == 7) {
+                cout << "Hello" << endl;
+              }
+              vec3_t x_node1, x_node2;
+              m_Grid->GetPoint(id_node1, x_node1.data());
+              m_Grid->GetPoint(id_node2, x_node2.data());
+              vec3_t x_corner = 0.5*(x_node1 + x_node2);
+              vec3_t x_cell1 = cellCentre(m_Grid, id_cell1);
+              vec3_t x_cell2 = cellCentre(m_Grid, id_cell2);
+              vec3_t v_cell1 = x_cell2 - x_cell1;
+              vec3_t v_cell2 = x_cell1 - x_cell2;
+              if (n1*v_cell1 > 0 || n2*v_cell2 > 0) {
+                m_IsSharpNode[id_node1] = true;
+                m_IsSharpNode[id_node2] = true;
+              }
             }
           }
         }
       }
     }
   }
-  m_IsTripleNode.fill(false, m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_IsSharpNode[id_node]) {
       QVector<vec3_t> normals;
@@ -942,4 +965,65 @@ void GridSmoother::operate()
     operateOptimisation();
   }
 }
+void GridSmoother::writeDebugFile(QString file_name)
+{
+  QVector<vtkIdType> bcells;
+  getSurfaceCells(m_BoundaryCodes, bcells, m_Grid);
+  MeshPartition bpart(m_Grid);
+  bpart.setCells(bcells);
+  /*
+  QVector<vtkIdType> foot2field(bpart.getNumberOfNodes(), -1);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vtkIdType id_foot = m_IdFoot[id_node];
+    if (id_foot != -1) {
+      if (bpart.localNode(id_foot) == -1) {
+        EG_BUG;
+      }
+      foot2field[bpart.localNode(id_foot)] = id_node;
+    }
+  }
+  */
+  file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtk";
+  QFile file(file_name);
+  file.open(QIODevice::WriteOnly);
+  QTextStream f(&file);
+  f << "# vtk DataFile Version 2.0\n";
+  f << "m_NodeNormal\n";
+  f << "ASCII\n";
+  f << "DATASET UNSTRUCTURED_GRID\n";
+  f << "POINTS " << bpart.getNumberOfNodes() << " float\n";
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
+    vec3_t x;
+    vtkIdType id_node = bpart.globalNode(i);
+    m_Grid->GetPoint(id_node, x.data());
+    f << x[0] << " " << x[1] << " " << x[2] << "\n";
+  }
+  f << "CELLS " << bpart.getNumberOfCells() << " " << 4*bpart.getNumberOfCells() << "\n";
+  for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
+    vtkIdType id_cell = bpart.globalCell(i);
+    vtkIdType N_pts, *pts;
+    if (m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
+      EG_BUG;
+    }
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    QVector<int> nds(3);
+    for (int j = 0; j < 3; ++j) {
+      nds[j] = bpart.localNode(pts[j]);
+    }
+    f << "3 " << nds[0] << " " << nds[1] << " " << nds[2] << "\n";
+  }
+
+  f << "CELL_TYPES " << bpart.getNumberOfCells() << "\n";
+  for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
+    f << VTK_TRIANGLE << "\n";
+  }
+  f << "POINT_DATA " << bpart.getNumberOfNodes() << "\n";
+  f << "VECTORS N float\n";
+
+  for (int i = 0; i < bpart.getNumberOfNodes(); ++i) {
+    vtkIdType id_node = bpart.globalNode(i);
+    f << m_NodeNormal[id_node][0] << " " << m_NodeNormal[id_node][1] << " " << m_NodeNormal[id_node][2] << "\n";
+  }
+}
+
 
