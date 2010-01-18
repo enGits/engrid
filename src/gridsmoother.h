@@ -74,10 +74,9 @@ protected: // attributes
 
   bool m_StrictPrismChecking;
 
-  QVector<vtkIdType>  m_FootToField;
-  QVector<bool>       m_IsSharpNode;
-  QVector<bool>       m_IsTripleNode;
-  MeshPartition       m_BPart;
+  QVector<vtkIdType> m_FootToField;
+  QVector<bool>      m_IsSharpNode;
+  MeshPartition      m_BPart;
 
   double m_RelativeHeight;
   double m_CritAngle;
@@ -122,6 +121,8 @@ protected: // methods
   void operateOptimisation();
   void operateSimple();
   void operatePostSmoothing();
+
+  void writeDebugFile(QString file_name);
 
 public: // methods
   
