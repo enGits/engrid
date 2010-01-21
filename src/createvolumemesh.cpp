@@ -290,12 +290,17 @@ void CreateVolumeMesh::computeMeshDensity()
       DH_max = 0;
       for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
         if (!fixed[i_nodes]) {
+          bool relax_node = true;
           vec3_t x;
           m_Grid->GetPoint(nodes[i_nodes], x.data());
           double cl_src = m_ELSManager.minEdgeLength(x);
           if (cl_src > 0) {
-            H[i_nodes] = cl_src;
-          } else {
+            if (cl_src < H[i_nodes]) {
+              H[i_nodes] = cl_src;
+              relax_node = false;
+            }
+          }
+          if (relax_node) {
             double H0 = H[i_nodes];
             H[i_nodes] = 0.0;
             int N = 0;
