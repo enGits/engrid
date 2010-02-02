@@ -21,8 +21,8 @@ CONFIG += qt \
 # VERSION INFO
 # get "git revision number"
 ENGRID_VERSION = \\\"1.1-pre-release\\\"
-win32 : GIT_DESCRIBE = \\\"\\\"
-else : GIT_DESCRIBE = \\\"$$system(git describe)\\\"
+win32:GIT_DESCRIBE = \\\"\\\"
+else:GIT_DESCRIBE = \\\"$$system(git describe)\\\"
 message(GIT_DESCRIBE : $${GIT_DESCRIBE} )
 message(ENGRID_VERSION : $${ENGRID_VERSION})
 message(Qt version : $$[QT_VERSION])
@@ -37,11 +37,9 @@ message(QMAKE_CXXFLAGS : $${QMAKE_CXXFLAGS} )
 QMAKE_CXXFLAGS += -Wall
 
 # QMAKE_CXXFLAGS += -O3
-
 # for profiling with gprof
 # QMAKE_CXXFLAGS += -pg
 # QMAKE_LFLAGS += -pg
-
 QT += xml \
     network \
     opengl

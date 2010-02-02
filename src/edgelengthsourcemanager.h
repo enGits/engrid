@@ -59,6 +59,7 @@ public:
   void edit();
   void remove();
   void addSphere();
+  void addCone();
 
 };
 

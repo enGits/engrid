@@ -122,6 +122,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   m_ELSManager.read();
   m_ELSManager.populateListWidget();
   connect(ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
+  connect(ui.pushButtonAddCone,      SIGNAL(clicked()), this, SLOT(addCone()));
   connect(ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
   connect(ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
 
