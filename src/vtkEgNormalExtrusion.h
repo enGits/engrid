@@ -38,7 +38,10 @@ protected: // attributes
   QVector<double> layer_y;
   vec3_t origin, axis, fixed_normal;
   double min_dist;
-  
+  double m_ScaleX;
+  double m_ScaleY;
+  double m_ScaleZ;
+
 public: // methods
   
   static vtkEgNormalExtrusion* New();
@@ -51,10 +54,14 @@ public: // methods
   void SetFixed() { mode = fixed; };
   void SetPlanar() { mode = planar; };
   void SetRotation() { mode = rotation; };
-  
+  void SetRestrictNone() { m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 1; }
+  void SetRestrictXY() { m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 0; }
+  void SetRestrictXZ() { m_ScaleX = 1; m_ScaleY = 0; m_ScaleZ = 1; }
+  void SetRestrictYZ() { m_ScaleX = 0; m_ScaleY = 1; m_ScaleZ = 1; }
+
 protected: // methods
   
-  vtkEgNormalExtrusion() { mode = normal; };
+  vtkEgNormalExtrusion() { mode = normal; m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 1; };
   ~vtkEgNormalExtrusion() {};
   virtual void ExecuteEg();
   

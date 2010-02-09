@@ -100,7 +100,20 @@ void GuiNormalExtrusion::operate()
                          ui.lineEditCylinderNY->text().toDouble(),
                          ui.lineEditCylinderNZ->text().toDouble()));
   }
-  
+
+  if (ui.radioButtonNoRestrict->isChecked()) {
+    extr->SetRestrictNone();
+  }
+  if (ui.radioButtonXY->isChecked()) {
+    extr->SetRestrictXY();
+  }
+  if (ui.radioButtonXZ->isChecked()) {
+    extr->SetRestrictXZ();
+  }
+  if (ui.radioButtonYZ->isChecked()) {
+    extr->SetRestrictYZ();
+  }
+
   QSet<int> bcs;
   getSelectedItems(ui.listWidget, bcs);
   extr->SetBoundaryCodes(bcs);
