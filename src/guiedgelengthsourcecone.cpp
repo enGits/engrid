@@ -115,7 +115,7 @@ double GuiEdgeLengthSourceCone::edgeLength(vec3_t x)
   double R = m_R1 + l/L*(m_R2 - m_R1);
   vec3_t a = l*n;
   double r = (x - a).abs();
-  if (r > R) {
+  if (r > R || l < 0 || l > L) {
     return -1;
   }
   return m_Length1 + r/R*(m_Length2 - m_Length1);

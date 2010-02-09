@@ -180,6 +180,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditX1</tabstop>
+  <tabstop>lineEditY1</tabstop>
+  <tabstop>lineEditZ1</tabstop>
+  <tabstop>lineEditX2</tabstop>
+  <tabstop>lineEditY2</tabstop>
+  <tabstop>lineEditZ2</tabstop>
+  <tabstop>lineEditEL1</tabstop>
+  <tabstop>lineEditEL2</tabstop>
+  <tabstop>lineEditR1</tabstop>
+  <tabstop>lineEditR2</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
