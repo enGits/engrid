@@ -285,8 +285,10 @@ void CreateVolumeMesh::computeMeshDensity()
   QString num = "0";
   cout << "relaxing mesh size : " << qPrintable(num) << "% done" << endl;
   if (N_non_fixed > 0) {
-    double DH_max;
+    double DH_max = 1e99;
+    double DH_last;
     do {
+      DH_last = DH_max;
       DH_max = 0;
       for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
         if (!fixed[i_nodes]) {
@@ -312,7 +314,9 @@ void CreateVolumeMesh::computeMeshDensity()
               EG_BUG;
             }
             H[i_nodes] /= N;
-            DH_max = max(H[i_nodes] - H0, DH_max);
+            double dH = 1.0*(H[i_nodes] - H0);
+            H[i_nodes] = H0 + dH;
+            DH_max = max(dH, DH_max);
           }
         }
       }
@@ -321,9 +325,10 @@ void CreateVolumeMesh::computeMeshDensity()
       new_num.setNum(100*e,'f',0);
       if (new_num != num) {
         num = new_num;
-        cout << "relaxing mesh size : " << qPrintable(num) << "% done" << endl;
+        cout << "relaxing mesh size : " << qPrintable(num) << "% done " << endl;
       }
-    } while (DH_max > 1e-3*H_min);
+
+    } while (DH_max > 1e-3*H_min && DH_max < DH_last);
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vec3_t x1, x2;
       m_Grid->GetPoint(nodes[i_nodes], x1.data());
