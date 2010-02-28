@@ -459,6 +459,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
     void callUpdateSurfProj() { EG_STDSLOT( UpdateSurfProj ); }
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
+    void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     
     void callFixSTL();
 

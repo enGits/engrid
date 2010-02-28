@@ -308,3 +308,6 @@ SOURCES += mergenodes.cpp
 FORMS += guiedgelengthsourcecone.ui
 HEADERS += guiedgelengthsourcecone.h
 SOURCES += guiedgelengthsourcecone.cpp
+FORMS += guimergevolumes.ui
+HEADERS += guimergevolumes.h
+SOURCES += guimergevolumes.cpp
