@@ -37,6 +37,7 @@ private:
   bool      m_UseNormalCorrection;
   double    m_UnderRelaxation;
   bool      m_Success;
+  int       m_ProjectionIterations;
 
   QVector<QVector<int> > m_NodeToBc;
 
@@ -61,10 +62,12 @@ public:
   bool succeeded() { return m_Success; }
 
 public:
+
   void setCorrectCurvature(bool b) { m_correctCurvature = b; }
   bool getCorrectCurvature() { return m_correctCurvature; }
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
+  void setProjectionIterations(int n) { m_ProjectionIterations = n; }
   
 };
 

@@ -74,7 +74,8 @@ QString vector2csv(QVector <double> vector) {
   return csv;
 }
 
-QVector <double> csv2vector(QString csv) {
+QVector <double> csv2vector(QString csv)
+{
   QVector <double> vector;
   if (csv.isEmpty()) return vector;
   QStringList list = csv.split(QObject::tr(";"));
@@ -84,7 +85,8 @@ QVector <double> csv2vector(QString csv) {
   return vector;
 }
 
-mat3_t rotationMatrix_X(double a_rad) {
+mat3_t rotationMatrix_X(double a_rad)
+{
   mat3_t Rx;
   Rx[0][0] = 1; Rx[0][1] = 0;           Rx[0][2] = 0;
   Rx[1][0] = 0; Rx[1][1] = cos(a_rad);  Rx[1][2] = sin(a_rad);
@@ -92,7 +94,8 @@ mat3_t rotationMatrix_X(double a_rad) {
   return Rx;
 }
 
-mat3_t rotationMatrix_Y(double a_rad) {
+mat3_t rotationMatrix_Y(double a_rad)
+{
   mat3_t Ry;
   Ry[0][0] = cos(a_rad); Ry[0][1] = 0; Ry[0][2] = -sin(a_rad);
   Ry[1][0] = 0;          Ry[1][1] = 1; Ry[1][2] = 0;
@@ -100,7 +103,8 @@ mat3_t rotationMatrix_Y(double a_rad) {
   return Ry;
 }
 
-mat3_t rotationMatrix_Z(double a_rad) {
+mat3_t rotationMatrix_Z(double a_rad)
+{
   mat3_t Rz;
   Rz[0][0] = cos(a_rad);  Rz[0][1] = sin(a_rad); Rz[0][2] = 0;
   Rz[1][0] = -sin(a_rad); Rz[1][1] = cos(a_rad); Rz[1][2] = 0;
@@ -108,14 +112,13 @@ mat3_t rotationMatrix_Z(double a_rad) {
   return Rz;
 }
 
-mat3_t rotateRelativeZXZ(double angle_1_rad, double angle_2_rad, double angle_3_rad) {
+mat3_t rotateRelativeZXZ(double angle_1_rad, double angle_2_rad, double angle_3_rad)
+{
   return rotationMatrix_Z(angle_3_rad)*rotationMatrix_X(angle_2_rad)*rotationMatrix_Z(angle_1_rad);
 }
 
-mat3_t rotateAbsoluteZXY(double angle_1_rad, double angle_2_rad, double angle_3_rad) {
-  /*  cout<<"rotationMatrix_Z(angle_1_rad)="<<rotationMatrix_Z(angle_1_rad)<<endl;
-    cout<<"rotationMatrix_X(angle_2_rad)="<<rotationMatrix_X(angle_2_rad)<<endl;
-    cout<<"rotationMatrix_Y(angle_3_rad)="<<rotationMatrix_Y(angle_3_rad)<<endl;*/
+mat3_t rotateAbsoluteZXY(double angle_1_rad, double angle_2_rad, double angle_3_rad)
+{
   return rotationMatrix_Z(angle_1_rad)*rotationMatrix_X(angle_2_rad)*rotationMatrix_Y(angle_3_rad);
 }
 
@@ -311,59 +314,54 @@ char Str2VertexType(QString S) {
   else return((char) - 1);
 }
 
-bool checkVector(vec3_t V) {
+bool checkVector(vec3_t V)
+{
   for (int i = 0; i < 3; i++) {
     if (isnan(V[i])) {
-//       EG_ERR_RETURN("NAN");
       return false;
     }
     if (isinf(V[i])) {
-//       EG_ERR_RETURN("INFINITY");
       return false;
     }
   }
   return true;
 }
 
-bool checkVector(vec2_t V) {
+bool checkVector(vec2_t V)
+{
   for (int i = 0; i < 2; i++) {
     if (isnan(V[i])) {
-//       EG_ERR_RETURN("NAN");
       return false;
     }
     if (isinf(V[i])) {
-//       EG_ERR_RETURN("INFINITY");
       return false;
     }
   }
   return true;
 }
 
-QDebug operator<<(QDebug dbg, const vec3_t &v) {
+QDebug operator<<(QDebug dbg, const vec3_t &v)
+{
   dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";
   return dbg.space();
 }
 
-QDebug operator<<(QDebug dbg, const vec2_t &v) {
+QDebug operator<<(QDebug dbg, const vec2_t &v)
+{
   dbg.nospace() << "(" << v[0] << ", " << v[1] << ")";
   return dbg.space();
 }
 
-QDebug operator<<(QDebug dbg, const dcmplx &c) {
+QDebug operator<<(QDebug dbg, const dcmplx &c)
+{
   dbg.nospace() << real(c)<<" + "<<imag(c)<<" *i";
   return dbg.space();
 }
 
 dcmplx complex_pow(dcmplx base, double power)
 {
-//  qDebug()<<"power="<<power;
-//  qDebug()<<"base="<<base;
-//  qDebug()<<"abs(base)="<<abs(base);
-//  qDebug()<<"norm(base)="<<norm(base);
-//  qDebug()<<"pow(abs(base),power)="<<pow(abs(base),power);
   dcmplx i(0,1);
   double alpha = atan2(imag(base),real(base));
-//  qDebug()<<"angle="<<alpha;
   return pow(abs(base),power)*exp(power*alpha*i);
 }
 
@@ -392,12 +390,12 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
   }
   else if (CR2 == CQ3) 
   {
-      /* this test is actually R2 == Q3, written in a form suitable
-         for exact computation with integers */
+    // this test is actually R2 == Q3, written in a form suitable
+    // for exact computation with integers
     
-      /* Due to finite precision some double roots may be missed, and
-         considered to be a pair of complex roots z = x +/- epsilon i
-         close to the real axis. */
+    // Due to finite precision some double roots may be missed, and
+    // considered to be a pair of complex roots z = x +/- epsilon i
+    // close to the real axis.
     
     double sqrtQ = sqrt (Q);
     
@@ -406,17 +404,13 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
       *x0 = -2 * sqrtQ  - a / 3;
       *x1 = sqrtQ - a / 3;
       *x2 = sqrtQ - a / 3;
-    }
-    else
-    {
+    } else {
       *x0 = - sqrtQ  - a / 3;
       *x1 = - sqrtQ - a / 3;
       *x2 = 2 * sqrtQ - a / 3;
     }
-    return 3 ;
-  }
-  else if (CR2 < CQ3) /* equivalent to R2 < Q3 */
-  {
+    return 3;
+  } else if (CR2 < CQ3) { // equivalent to R2 < Q3
     double sqrtQ = sqrt (Q);
     double sqrtQ3 = sqrtQ * sqrtQ * sqrtQ;
     double theta = acos (R / sqrtQ3);
@@ -425,23 +419,21 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
     *x1 = norm * cos ((theta + 2.0 * M_PI) / 3) - a / 3;
     *x2 = norm * cos ((theta - 2.0 * M_PI) / 3) - a / 3;
     
-      /* Sort *x0, *x1, *x2 into increasing order */
+    // Sort *x0, *x1, *x2 into increasing order
     
-    if (*x0 > *x1)
-      SWAP(*x0, *x1) ;
-    
+    if (*x0 > *x1) {
+      SWAP(*x0, *x1);
+    }
     if (*x1 > *x2)
     {
-      SWAP(*x1, *x2) ;
-      
-      if (*x0 > *x1)
-        SWAP(*x0, *x1) ;
+      SWAP(*x1, *x2);
+      if (*x0 > *x1) {
+        SWAP(*x0, *x1);
+      }
     }
     
     return 3;
-  }
-  else
-  {
+  } else {
     double sgnR = (R >= 0 ? 1 : -1);
     double A = -sgnR * pow (fabs (R) + sqrt (R2 - Q3), 1.0/3.0);
     double B = Q / A ;
@@ -451,7 +443,8 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
 }
 
 // a x^2 + b x + c = 0
-int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1) {
+int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1)
+{
   if (a == 0) {
     if (b == 0) {
       return(0);
