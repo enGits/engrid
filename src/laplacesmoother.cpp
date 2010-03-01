@@ -253,21 +253,6 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = x_old;
               m_Success = false;
             }
-            /*
-            if (m_UseProjection) {
-              if (m_NodeToBc[_nodes[id_node]].size() == 1) {
-                int bc = m_NodeToBc[_nodes[id_node]][0];
-                x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-              } else {
-                for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-                  foreach (int bc, m_NodeToBc[_nodes[id_node]]) {
-                    x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-                  }
-                }
-              }
-              m_Grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
-            }
-            */
           }
         }
       }
