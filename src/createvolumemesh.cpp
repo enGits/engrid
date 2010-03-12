@@ -282,27 +282,21 @@ void CreateVolumeMesh::computeMeshDensity()
     }
   }
   boxes.clear();
-  QString num = "0";
-  cout << "relaxing mesh size : " << qPrintable(num) << "% done" << endl;
-  if (N_non_fixed > 0) {
-    double DH_max = 1e99;
-    double DH_last;
-    do {
-      DH_last = DH_max;
-      DH_max = 0;
-      for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-        if (!fixed[i_nodes]) {
-          bool relax_node = true;
-          vec3_t x;
-          m_Grid->GetPoint(nodes[i_nodes], x.data());
-          double cl_src = m_ELSManager.minEdgeLength(x);
-          if (cl_src > 0) {
-            if (cl_src < H[i_nodes]) {
-              H[i_nodes] = cl_src;
-              relax_node = false;
-            }
-          }
-          if (relax_node) {
+
+  // pass 1
+  {
+    QString num = "0";
+    cout << "relaxing mesh size (pass1): " << qPrintable(num) << "% done" << endl;
+    if (N_non_fixed > 0) {
+      double DH_max = 1e99;
+      double DH_last;
+      do {
+        DH_last = DH_max;
+        DH_max = 0;
+        for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+          if (!fixed[i_nodes]) {
+            vec3_t x;
+            m_Grid->GetPoint(nodes[i_nodes], x.data());
             double H0 = H[i_nodes];
             H[i_nodes] = 0.0;
             int N = 0;
@@ -319,36 +313,102 @@ void CreateVolumeMesh::computeMeshDensity()
             DH_max = max(dH, DH_max);
           }
         }
-      }
-      QString new_num;
-      double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
-      new_num.setNum(100*e,'f',0);
-      if (new_num != num) {
-        num = new_num;
-        cout << "relaxing mesh size : " << qPrintable(num) << "% done " << endl;
-      }
-
-    } while (DH_max > 1e-3*H_min && DH_max < DH_last);
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      vec3_t x1, x2;
-      m_Grid->GetPoint(nodes[i_nodes], x1.data());
-      x2 = x1;
-      foreach (int j_nodes, n2n[i_nodes]) {
-        vec3_t xj;
-        m_Grid->GetPoint(nodes[j_nodes], xj.data());
-        for (int k = 0; k < 3; ++k) {
-          x1[k] = min(xj[k], x1[k]);
-          x2[k] = max(xj[k], x2[k]);
+        QString new_num;
+        double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
+        new_num.setNum(100*e,'f',0);
+        if (new_num != num) {
+          num = new_num;
+          cout << "relaxing mesh size (pass1): " << qPrintable(num) << "% done " << endl;
         }
-      }
-      box_t B;
-      B.x1 =x1;
-      B.x2 =x2;
-      B.h = H[i_nodes];
-      boxes.append(B);
+      } while (DH_max > 1e-3*H_min && DH_max < DH_last);
     }
   }
+
+  // sources
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vec3_t x;
+    m_Grid->GetPoint(nodes[i_nodes], x.data());
+    double cl_src = m_ELSManager.minEdgeLength(x);
+    if (cl_src > 0) {
+      if (cl_src < H[i_nodes]) {
+        H[i_nodes] = cl_src;
+        fixed[i_nodes] = true;
+        --N_non_fixed;
+      }
+    }
+  }
+
+  // pass 2
+  {
+    QString num = "0";
+    cout << "relaxing mesh size (pass2): " << qPrintable(num) << "% done" << endl;
+    if (N_non_fixed > 0) {
+      double DH_max = 1e99;
+      double DH_last;
+      do {
+        DH_last = DH_max;
+        DH_max = 0;
+        for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+          if (!fixed[i_nodes]) {
+            bool relax_node = true;
+            vec3_t x;
+            m_Grid->GetPoint(nodes[i_nodes], x.data());
+            double cl_src = m_ELSManager.minEdgeLength(x);
+            if (cl_src > 0) {
+              if (cl_src < H[i_nodes]) {
+                H[i_nodes] = cl_src;
+                relax_node = false;
+              }
+            }
+            if (relax_node) {
+              double H0 = H[i_nodes];
+              H[i_nodes] = 0.0;
+              int N = 0;
+              foreach (int j_nodes, n2n[i_nodes]) {
+                H[i_nodes] += H[j_nodes];
+                ++N;
+              }
+              if (N == 0) {
+                EG_BUG;
+              }
+              H[i_nodes] /= N;
+              double dH = 1.0*(H[i_nodes] - H0);
+              H[i_nodes] = H0 + dH;
+              DH_max = max(dH, DH_max);
+            }
+          }
+        }
+        QString new_num;
+        double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
+        new_num.setNum(100*e,'f',0);
+        if (new_num != num) {
+          num = new_num;
+          cout << "relaxing mesh size (pass2): " << qPrintable(num) << "% done " << endl;
+        }
+      } while (DH_max > 1e-3*H_min && DH_max < DH_last);
+    }
+  }
+
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vec3_t x1, x2;
+    m_Grid->GetPoint(nodes[i_nodes], x1.data());
+    x2 = x1;
+    foreach (int j_nodes, n2n[i_nodes]) {
+      vec3_t xj;
+      m_Grid->GetPoint(nodes[j_nodes], xj.data());
+      for (int k = 0; k < 3; ++k) {
+        x1[k] = min(xj[k], x1[k]);
+        x2[k] = max(xj[k], x2[k]);
+      }
+    }
+    box_t B;
+    B.x1 =x1;
+    B.x2 =x2;
+    B.h = H[i_nodes];
+    boxes.append(B);
+  }
 }
+
 
 void CreateVolumeMesh::operate()
 {
