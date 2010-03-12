@@ -24,6 +24,7 @@
 #include "surfacemesher.h"
 #include "vertexmeshdensity.h"
 #include "guimainwindow.h"
+#include "deletestraynodes.h"
 
 #include <vtkMath.h>
 
@@ -48,6 +49,11 @@ FixCadGeometry::FixCadGeometry()
 
 void FixCadGeometry::operate()
 {
+  {
+    DeleteStrayNodes del;
+    del();
+  }
+
   setAllCells();
 
   //prepare BCmap
