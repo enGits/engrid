@@ -311,3 +311,5 @@ SOURCES += guiedgelengthsourcecone.cpp
 FORMS += guimergevolumes.ui
 HEADERS += guimergevolumes.h
 SOURCES += guimergevolumes.cpp
+HEADERS += deletestraynodes.h
+SOURCES += deletestraynodes.cpp
