@@ -26,7 +26,7 @@
 SmoothAndSwapSurface::SmoothAndSwapSurface()
 {
   EG_TYPENAME;
-  m_PerformGeometricTests = true;
+  m_PerformGeometricTests = false;
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = false;
   m_AllowFeatureEdgeSwapping = true;
@@ -39,7 +39,7 @@ void SmoothAndSwapSurface::operate()
   swap();
   cout << "smoothing" << endl;
   for (int i = 0; i < 1; ++i) {
-    smooth(10);
+    smooth(1);
   }
   cout << "2nd Delaunay swap" << endl;
   swap();
