@@ -20,55 +20,28 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef LAPLACESMOOTHER_H
-#define LAPLACESMOOTHER_H
+#ifndef GUIMERGEVOLUMES_H
+#define GUIMERGEVOLUMES_H
 
-#include "surfaceoperation.h"
-#include "surfaceprojection.h"
+#include "dialogoperation.h"
+#include "ui_guimergevolumes.h"
 
-class LaplaceSmoother : public SurfaceOperation
+class GuiMergeVolumes : public DialogOperation<Ui::GuiMergeVolumes, Operation>
 {
 
-private:
+  Q_OBJECT;
 
-  QSet<int> m_BCs;
-  int       m_NumberOfIterations;
-  bool      m_UseProjection;
-  bool      m_UseNormalCorrection;
-  double    m_UnderRelaxation;
-  bool      m_Success;
-  int       m_ProjectionIterations;
+private: // attributes
 
-  QVector<QVector<int> > m_NodeToBc;
+protected: // methods
 
-  bool      m_correctCurvature;
-  bool      m_NoCheck;
-  
-private: // methods
+  virtual void before();
+  virtual void operate();
 
-  bool setNewPosition(vtkIdType id_node, vec3_t x_new);
-  bool moveNode(vtkIdType id_node, vec3_t &Dx);
+public: // methods
 
+  GuiMergeVolumes();
 
-public:
-
-  LaplaceSmoother(); ///< default constructor
-  virtual void operate(); ///< Run operation
-  void setNumberOfIterations(int N) { m_NumberOfIterations = N;} ///< Set number of iterations
-  void setProjectionOn() { m_UseProjection = true; }
-  void setProjectionOff() { m_UseProjection = false; }
-  void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
-  void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
-  bool succeeded() { return m_Success; }
-
-public:
-
-  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature() { return m_correctCurvature; }
-  void setNoCheck(bool b) { m_NoCheck = b; }
-  bool getNoCheck() { return m_NoCheck; }
-  void setProjectionIterations(int n) { m_ProjectionIterations = n; }
-  
 };
 
-#endif
+#endif // GUIMERGEVOLUMES_H

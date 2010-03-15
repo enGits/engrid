@@ -61,7 +61,7 @@ bool GuiEdgeLengthSourceCone::read(QString txt)
     if (words.size() < 11) {
       return false;
     }
-    m_Name = words[0];
+    m_Name = words[0].trimmed();
     m_X1 = vec3_t(words[1].toDouble(), words[2].toDouble(), words[3].toDouble());
     m_X2 = vec3_t(words[4].toDouble(), words[5].toDouble(), words[6].toDouble());
     m_R1 = words[7].toDouble();

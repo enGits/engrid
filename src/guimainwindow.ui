@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>20</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -146,6 +146,7 @@
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
+    <addaction name="actionMergeVolumes"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
@@ -304,7 +305,7 @@
           <x>0</x>
           <y>0</y>
           <width>212</width>
-          <height>507</height>
+          <height>485</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -685,8 +686,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>228</width>
-          <height>531</height>
+          <width>214</width>
+          <height>533</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1621,6 +1622,11 @@
   <action name="actionSetCaseDirectory">
    <property name="text">
     <string>Set case directory</string>
+   </property>
+  </action>
+  <action name="actionMergeVolumes">
+   <property name="text">
+    <string>merge volumes</string>
    </property>
   </action>
  </widget>

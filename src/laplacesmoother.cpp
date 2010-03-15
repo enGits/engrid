@@ -37,6 +37,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
   m_NoCheck = false;
+  m_ProjectionIterations = 20;
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -148,7 +149,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
         int bc = m_NodeToBc[i_nodes][0];
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
       } else {
-        for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
+        for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
             x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
           }
@@ -252,21 +253,6 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = x_old;
               m_Success = false;
             }
-            /*
-            if (m_UseProjection) {
-              if (m_NodeToBc[_nodes[id_node]].size() == 1) {
-                int bc = m_NodeToBc[_nodes[id_node]][0];
-                x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-              } else {
-                for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
-                  foreach (int bc, m_NodeToBc[_nodes[id_node]]) {
-                    x_new[i_nodes] = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new[i_nodes], id_node);
-                  }
-                }
-              }
-              m_Grid->GetPoints()->SetPoint(nodes[i_nodes], x_new[i_nodes].data());
-            }
-            */
           }
         }
       }

@@ -91,6 +91,8 @@ void BlenderReader::operate()
         }
       }
 
+      cout << "smallest edge length is " << L << endl;
+
       // delete duplicate nodes
       QList<vec3_t> non_dup;
       QVector<int> o2n(nodes.size());
@@ -99,7 +101,8 @@ void BlenderReader::operate()
         o2n[i] = num_non_dup;
         bool dup = false;
         for (int j = 0; j < i; ++j) {
-          if ((nodes[i] - nodes[j]).abs() < 0.1*L) {
+          double l = (nodes[i] - nodes[j]).abs();
+          if (l < 0.1*L || l == 0) {
             o2n[i] = o2n[j];
             dup = true;
             break;
