@@ -34,7 +34,7 @@ GridSmoother::GridSmoother()
   m_NumBoundaryCorrections = 50;
 
   getSet("boundary layer", "number of smoothing sub-iterations",       5,     m_NumIterations);
-  //getSet("boundary layer", "angle for sharp features",                 45.00, m_CritAngle);
+  getSet("boundary layer", "prism layer clearance",                    0.2,   m_LayerClearance);
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
   getSet("boundary layer", "number of normal vector relax iterations", 10,    m_NumNormalRelaxations);
   getSet("boundary layer", "number of layer height relax iterations",  3,     m_NumHeightRelaxations);
@@ -92,6 +92,22 @@ bool GridSmoother::noCollision(vtkIdType id_node)
       vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
       if (m_IdFoot[id_neigh] != -1) {
         front_neigh.insert(id_neigh);
+      } else {
+        QSet<vtkIdType> neigh_prisms;
+        for (int j = 0; j < m_Part.n2cGSize(id_neigh); ++j) {
+          vtkIdType id_cell = m_Part.n2cGG(id_neigh, j);
+          if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
+            neigh_prisms.insert(id_cell);
+          }
+        }
+        if (neigh_prisms.size() == 0) {
+          for (int j = 0; j < m_Part.n2nGSize(id_neigh); ++j) {
+            vtkIdType id_next_neigh = m_Part.n2nGG(id_neigh, j);
+            if (m_IdFoot[id_next_neigh] != -1) {
+              front_neigh.insert(id_next_neigh);
+            }
+          }
+        }
       }
     }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -142,18 +158,20 @@ bool GridSmoother::noCollision(vtkIdType id_node)
           n2 += alpha*n;
         }
         n2.normalise();
-        vec3_t x1, x2, xf1, xf2;
-        m_Grid->GetPoint(id_node, x1.data());
-        m_Grid->GetPoint(id_neigh, x2.data());
-        m_Grid->GetPoint(m_IdFoot[id_node], xf1.data());
-        m_Grid->GetPoint(m_IdFoot[id_neigh], xf2.data());
-        double l1 = (x1-xf1).abs();
-        double l2 = (x2-xf2).abs();
-        if (n1*(x2-x1) < 0.5*l1) {
-          cleared = false;
-        }
-        if (n2*(x1-x2) < 0.5*l2) {
-          cleared = false;
+        if (n1*n2 < 0) {
+          vec3_t x1, x2, xf1, xf2;
+          m_Grid->GetPoint(id_node, x1.data());
+          m_Grid->GetPoint(id_neigh, x2.data());
+          m_Grid->GetPoint(m_IdFoot[id_node], xf1.data());
+          m_Grid->GetPoint(m_IdFoot[id_neigh], xf2.data());
+          double l1 = (x1-xf1)*n1;
+          double l2 = (x2-xf2)*n2;
+          if (n1*(x2-x1) < m_LayerClearance*l1) {
+            cleared = false;
+          }
+          if (n2*(x1-x2) < m_LayerClearance*l2) {
+            cleared = false;
+          }
         }
       }
     }
@@ -580,6 +598,9 @@ void GridSmoother::computeFeet()
       m_IdFoot[pts[3]] = pts[0];
       m_IdFoot[pts[4]] = pts[1];
       m_IdFoot[pts[5]] = pts[2];
+      m_NodeMarked[pts[0]] = false;
+      m_NodeMarked[pts[1]] = false;
+      m_NodeMarked[pts[2]] = false;
     }
   }
 }

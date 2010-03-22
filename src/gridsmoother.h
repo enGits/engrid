@@ -36,7 +36,6 @@ class GridSmoother : public SurfaceOperation
   
 private: // attributes
   
-  //bool          m_SmoothPrisms;
   QVector<bool> m_NodeMarked;
   QVector<bool> m_SurfNode;
   int           m_NumMarkedNodes;
@@ -50,30 +49,17 @@ protected: // attributes
   int m_NumNormalRelaxations;
   int m_NumHeightRelaxations;
 
-  //double m_LSearch;
-  //double m_FOld;
-  //double m_FNew;
-  //double m_FMaxOld;
-  //double m_FMaxNew;
-  //double m_ReductionFactor;
   double m_Blending;
   double m_AbsoluteHeight;
   double m_RelativeHeight;
   double m_CritAngle;
+  double m_LayerClearance;
 
   bool m_StrictPrismChecking;
 
   QVector<vtkIdType> m_FootToField;
-  //QVector<bool>      m_IsSharpNode;
-  //MeshPartition      m_BPart;
-
-  //double m_V0;
-  //double m_L0;
-  //double m_SumC;
-  //int    m_INodesOpt;
 
   QVector<vtkIdType> m_IdFoot;
-  //QVector<double>    m_L;
   QVector<double>    m_Height;
   QVector<vec3_t>    m_NodeNormal;
 
@@ -105,9 +91,6 @@ public: // methods
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
 
-  //void prismsOn()  { m_SmoothPrisms = true; };
-  //void prismsOff() { m_SmoothPrisms = false; };
-  
 };
 
 
