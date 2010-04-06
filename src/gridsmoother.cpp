@@ -539,6 +539,26 @@ void GridSmoother::computeHeights()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_SurfNode[id_node]) {
       m_Height[id_node] = cl->GetValue(id_node);
+      // if undefined: compute height from surrounding edges
+      if (m_Height[id_node] < 1e-99) {
+        m_Height[id_node] = 0;
+        int N = 0;
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          vtkIdType id_neigh_node = m_Part.n2nGG(id_node, i);
+          if (m_SurfNode[id_neigh_node]) {
+            ++N;
+            vec3_t xn;
+            m_Grid->GetPoint(id_neigh_node, xn.data());
+            m_Height[id_node] += (x - xn).abs();
+          }
+        }
+        if (N == 0) {
+          EG_BUG;
+        }
+        m_Height[id_node] /= N;
+      }
     }
   }
   for (int iter = 0; iter < m_NumHeightRelaxations; ++iter) {
