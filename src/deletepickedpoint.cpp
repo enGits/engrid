@@ -125,6 +125,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
     
       setDebugLevel(11);
       vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+      qDebug()<<"snap_point="<<snap_point;
       setDebugLevel(0);
     
       if(snap_point >= 0) {

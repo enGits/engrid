@@ -29,6 +29,7 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 #include "meshpartition.h"
+#include "removepoints.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -151,6 +152,10 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
+
+  RemovePoints remove_points;
+  remove_points.setBoundaryCodes(m_BoundaryCodes);
+
   DeleteTetras del;
   del.setGrid(m_Grid);
   
@@ -178,6 +183,7 @@ void GuiCreateBoundaryLayer::operate()
     smooth();
     del.setAllCells();
     del();
+    remove_points();
     swap();
     vol.setTraceCells(layer_cells);
     vol();

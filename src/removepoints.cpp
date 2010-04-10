@@ -438,7 +438,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   // preparations
   l2l_t n2c = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
-  l2g_t cells = getPartCells();
+  l2g_t cells = getPartCells();// all cells
   
   EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
   if ( node_type->GetValue( DeadNode ) == VTK_FIXED_VERTEX ) {
@@ -450,10 +450,18 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   vtkIdType SnapPoint = -1;
   
   QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( DeadNode );
+
   foreach( vtkIdType PSP, PSP_vector ) { // loop through potential snappoints
     
     bool IsValidSnapPoint = true;
     
+    if(PSP<0 || PSP>=marked_nodes.size()) {
+        cout << "ERROR: PSP=" << PSP << " marked_nodes.size()=" << marked_nodes.size() << endl;
+        writeGrid(m_Grid,"snappoint_grid.vtu");
+        writeCells(m_Grid, cells, "snappoint_cells.vtu");
+        EG_BUG;
+    }
+
     // TEST -1 : TOPOLOGICAL : Is the node already marked?
     if(marked_nodes[PSP]) {
       IsValidSnapPoint = false; continue;
@@ -481,7 +489,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       
       if ( num_pts != 3 ) {
         cout << "ERROR: Non-triangle detected!" << endl;
-        EG_BUG;
+        IsValidSnapPoint = false; continue;
       }
       
       bool ContainsSnapPoint = false;

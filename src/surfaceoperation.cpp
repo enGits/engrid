@@ -664,6 +664,7 @@ vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )
 {
   if ((id_node < 0) || (id_node >= m_PotentialSnapPoints.size())) {
+    // UpdatePotentialSnapPoints should probably be called before using this function.
     EG_BUG;
   }
   return m_PotentialSnapPoints[id_node];
