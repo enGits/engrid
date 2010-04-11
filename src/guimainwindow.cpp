@@ -186,7 +186,8 @@ void GuiMainWindow::setupGuiMainWindow()
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
   
-  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+//  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+  vtkInteractorStyle *style = vtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
   style->Delete();
 

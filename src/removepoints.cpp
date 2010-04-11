@@ -503,7 +503,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       m_Grid->GetCellPoints( id_cell, num_pts, pts );
       
       if ( num_pts != 3 ) {
-        cout << "ERROR: Non-triangle detected!" << endl;
+        qWarning() << "ERROR: Non-triangle detected!" << endl;
         //IsValidSnapPoint = false; continue;
         EG_BUG;
       }
@@ -700,6 +700,7 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
         for ( int i = 0; i < src_num_pts; i++ ) {
           if (is_deadnode[src_pts[i]]) {
             qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
+            saveGrid(m_Grid,"crash");
             EG_BUG;
           }
           dst_pts[i] = src_pts[i] - OffSet[src_pts[i]];
