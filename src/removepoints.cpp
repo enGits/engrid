@@ -69,7 +69,7 @@ void RemovePoints::markFeatureEdges()
         vec3_t x1, x2;
         m_Grid->GetPoint(id_node1, x1.data());
         m_Grid->GetPoint(id_node2, x2.data());
-        double L = (x1-x2).abs();
+        //double L = (x1-x2).abs();
         //if (L > 0.5*characteristic_length_desired->GetValue(id_node1)) {
         {
           vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
@@ -106,7 +106,9 @@ void RemovePoints::operate()
   l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  nodes = getPartNodes();
-  
+  l2l_t  n2c   = getPartN2C();
+  l2g_t cells = getPartCells();
+
   UpdatePotentialSnapPoints(false);
   
   EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type" );
@@ -127,15 +129,19 @@ void RemovePoints::operate()
   //count
   for (int i_selected_nodes = 0; i_selected_nodes < selected_nodes.size(); ++i_selected_nodes) {
     vtkIdType id_node = selected_nodes[i_selected_nodes];
-    int i_nodes = _nodes[id_node];
+    int i_node = _nodes[id_node];
     if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-      if (!marked_nodes[i_nodes] && !m_IsFeatureNode[i_nodes]) {
+      if (!marked_nodes[i_node] && !m_IsFeatureNode[i_node]) {
+
+	// preparations
         vec3_t xi;
         m_Grid->GetPoint(id_node, xi.data());
         double cl_node = characteristic_length_desired->GetValue(id_node);
         bool remove_node = false;
-        for (int j = 0; j < n2n[i_nodes].size(); ++j) {
-          vtkIdType id_neigh = nodes[n2n[i_nodes][j]];
+
+	// check if node is worth removing
+        for (int j = 0; j < n2n[i_node].size(); ++j) {
+          vtkIdType id_neigh = nodes[n2n[i_node][j]];
           double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
           vec3_t xj;
           m_Grid->GetPoint(id_neigh, xj.data());
@@ -145,6 +151,15 @@ void RemovePoints::operate()
             break;
           }
         }
+
+	// check that node is only surrounded by triangles
+	foreach( int i_cell, n2c[i_node] ) { //loop through potentially dead cells
+		vtkIdType id_cell = cells[i_cell];
+		if (m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
+		            remove_node = false;
+		}
+	}
+
         if (remove_node) {
           // local values
           QVector <vtkIdType> dead_cells;
@@ -489,7 +504,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       
       if ( num_pts != 3 ) {
         cout << "ERROR: Non-triangle detected!" << endl;
-        IsValidSnapPoint = false; continue;
+        //IsValidSnapPoint = false; continue;
+        EG_BUG;
       }
       
       bool ContainsSnapPoint = false;
