@@ -665,9 +665,9 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   foreach (vtkIdType id_cell, all_deadcells) {
     is_deadcell[id_cell] = true;
   }
-  QVector<bool> is_allmutatedcell(m_Grid->GetNumberOfCells(), false);
+  QVector<bool> is_mutatedcell(m_Grid->GetNumberOfCells(), false);
   foreach (vtkIdType id_cell, all_mutatedcells) {
-    is_allmutatedcell[id_cell] = true;
+    is_mutatedcell[id_cell] = true;
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
     if (!is_deadcell[id_cell]) { //if the cell isn't dead
@@ -678,7 +678,7 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
       
       dst_num_pts = 3;//src_num_pts;
       
-      if (is_allmutatedcell[id_cell]) { //mutated cell
+      if (is_mutatedcell[id_cell]) { //mutated cell
         int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
           int DeadIndex = glob2dead[src_pts[i]];
