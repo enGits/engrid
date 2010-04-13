@@ -622,9 +622,9 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   int num_points = m_Grid->GetNumberOfPoints();
   int num_cells = m_Grid->GetNumberOfCells();
   
-/*  if ( num_newcells != 2*num_newpoints ) {
-    EG_BUG;
-  }*/
+//  if ( num_newcells != 2*num_newpoints ) {
+//    EG_BUG;
+//  }
   
   //allocate
   EG_VTKSP( vtkUnstructuredGrid, dst );
@@ -661,16 +661,16 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   }
 
   //Copy undead cells
-  QVector<bool> is_alldeadcell(m_Grid->GetNumberOfCells(), false);
+  QVector<bool> is_deadcell(m_Grid->GetNumberOfCells(), false);
   foreach (vtkIdType id_cell, all_deadcells) {
-    is_alldeadcell[id_cell] = true;
+    is_deadcell[id_cell] = true;
   }
   QVector<bool> is_allmutatedcell(m_Grid->GetNumberOfCells(), false);
   foreach (vtkIdType id_cell, all_mutatedcells) {
     is_allmutatedcell[id_cell] = true;
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
-    if (!is_alldeadcell[id_cell]) { //if the cell isn't dead
+    if (!is_deadcell[id_cell]) { //if the cell isn't dead
       vtkIdType src_num_pts, *src_pts;
       vtkIdType dst_num_pts, dst_pts[3];
       m_Grid->GetCellPoints( id_cell, src_num_pts, src_pts );
