@@ -30,6 +30,7 @@
 #include "deletecells.h"
 #include "meshpartition.h"
 #include "removepoints.h"
+#include "egvtkobject.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -182,7 +183,9 @@ void GuiCreateBoundaryLayer::operate()
     smooth.setAllCells();
     smooth();
     del.setAllCells();
-    del();
+    saveGrid(m_Grid,"del_before");
+    del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
+    saveGrid(m_Grid,"del_after");
     remove_points();
     swap();
     vol.setTraceCells(layer_cells);
