@@ -672,13 +672,17 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {//loop through src cells
     if (!is_deadcell[id_cell]) { //if the cell isn't dead
       vtkIdType src_num_pts, *src_pts;
-      vtkIdType dst_num_pts, dst_pts[3];
       m_Grid->GetCellPoints( id_cell, src_num_pts, src_pts );
       vtkIdType type_cell = m_Grid->GetCellType( id_cell );
       
-      dst_num_pts = 3;//src_num_pts;
-      
+      vtkIdType dst_num_pts = src_num_pts;
+      vtkIdType dst_pts[dst_num_pts];
+
       if (is_mutatedcell[id_cell]) { //mutated cell
+          if(dst_num_pts!=3) {
+              qWarning()<<"A non-triangle cell was mutated!";
+              EG_BUG;
+          }
         int num_deadnode = 0;
         for ( int i = 0; i < src_num_pts; i++ ) {
           int DeadIndex = glob2dead[src_pts[i]];
