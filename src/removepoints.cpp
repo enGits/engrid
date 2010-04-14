@@ -683,6 +683,8 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
       vtkIdType dst_pts[dst_num_pts];
 
       if (is_mutatedcell[id_cell]) { //mutated cell
+          // Not fully supported yet
+          EG_BUG;
           if(dst_num_pts!=3) {
               qWarning()<<"A non-triangle cell was mutated!";
               EG_BUG;
@@ -710,7 +712,7 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
             qWarning() << "FATAL ERROR: Normal cell contains a dead node!";
             qWarning() << "is_deadnode="<<is_deadnode;
             qWarning() << "src_pts["<<i<<"]="<<src_pts[i];
-            qWarning() << "type_cell="<<type_cell<<" VTK_TRIANGLE=" <<VTK_TRIANGLE << " VTK_QUAD="<<VTK_QUAD;
+            qWarning() << "type_cell=" << type_cell << " VTK_TRIANGLE=" <<VTK_TRIANGLE << " VTK_QUAD=" << VTK_QUAD;
             saveGrid(m_Grid,"crash");
             EG_BUG;
           }
@@ -718,16 +720,13 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
         }
       }
       // copy the cell
+      //\todo adapt type_cell in the case of mutated cells!
       vtkIdType id_new_cell = dst->InsertNextCell( type_cell, dst_num_pts, dst_pts );
       copyCellData( m_Grid, id_cell, dst, id_new_cell );
     }
   }
   
   makeCopy( dst, m_Grid );
-  
-  if ( -num_newpoints != deadnode_vector.size() ) {
-    EG_BUG;
-  }
   
   int final_num_points = m_Grid->GetNumberOfPoints();
   if ( initial_num_points - final_num_points != deadnode_vector.size() ) {
