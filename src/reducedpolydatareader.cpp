@@ -193,7 +193,7 @@ void ReducedPolyDataReader::operate()
       vec3_t x1(bounds[0], bounds[2], bounds[4]);
       vec3_t x2(bounds[1], bounds[3], bounds[5]);
       double m_MaxEdgeLength = (x1-x2).abs()/20;
-      double m_MinEdgeLength = (x1-x2).abs()/100;
+//      double m_MinEdgeLength = (x1-x2).abs()/100;
       vec3_t x12 = 0.5*(x1 + x2);
       vec3_t dx = x2 - x1;
       double d = max(dx[0], max(dx[1], dx[2]));

@@ -187,7 +187,9 @@ void RemovePoints::operate()
   }
 
   //delete
-  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
+  if(num_newpoints != -deadnode_vector.size()) EG_BUG;
+  if(num_newcells != -all_deadcells.size()) EG_BUG;
+  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells);
 
   int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
@@ -199,10 +201,10 @@ bool RemovePoints::checkForDestroyedVolumes( vtkIdType id_node1, vtkIdType id_no
   if(id_node1==id_node2) EG_BUG;
   
   l2l_t  n2n   = getPartN2N();
-  l2l_t  n2c   = getPartN2C();
+//  l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t nodes  = getPartNodes();
-  l2g_t cells = getPartCells();
+//  l2g_t cells = getPartCells();
   
   QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
   QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
@@ -613,8 +615,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
                                      const QVector<vtkIdType>& snappoint_vector,
                                      const QVector<vtkIdType>& all_deadcells,
-                                     const QVector<vtkIdType>& all_mutatedcells,
-                                     int& num_newpoints, int& num_newcells)
+                                     const QVector<vtkIdType>& all_mutatedcells)
 {
   int initial_num_points = m_Grid->GetNumberOfPoints();
   
@@ -622,6 +623,9 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
   int num_points = m_Grid->GetNumberOfPoints();
   int num_cells = m_Grid->GetNumberOfCells();
   
+  int num_newcells = -all_deadcells.size();
+  int num_newpoints = -deadnode_vector.size();
+
 //  if ( num_newcells != 2*num_newpoints ) {
 //    EG_BUG;
 //  }
