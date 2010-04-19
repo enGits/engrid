@@ -185,8 +185,12 @@ void GuiCreateBoundaryLayer::operate()
     del.setAllCells();
     saveGrid(m_Grid,"del_before");
     del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
+
     saveGrid(m_Grid,"del_after");
     remove_points();
+    saveGrid(m_Grid,"after_removepoints");
+//    EG_BUG;
+
     swap();
     vol.setTraceCells(layer_cells);
     vol();
