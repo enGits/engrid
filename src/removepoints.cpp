@@ -45,7 +45,7 @@ void RemovePoints::markFeatureEdges() {
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
 
-  writeCells(m_Grid, cells, "markFeatureEdges_cells.vtu");
+//  writeCells(m_Grid, cells, "markFeatureEdges_cells.vtu");
 
   l2l_t  c2c   = getPartC2C();
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
@@ -110,7 +110,7 @@ void RemovePoints::operate() {
 
   full_partition.setAllCells();
   l2g_t cells_all = full_partition.getCells();
-  writeCells(m_Grid, cells_all, "cells_all.vtu");
+//  writeCells(m_Grid, cells_all, "cells_all.vtu");
   l2g_t  nodes_all = full_partition.getNodes();
   qWarning()<<"nodes_all.size()="<<nodes_all.size();
 
@@ -119,13 +119,13 @@ void RemovePoints::operate() {
 
   setAllSurfaceCells();
   l2g_t cells_surface = getPartCells();
-  writeCells(m_Grid, cells_surface, "cells_surface.vtu");
+//  writeCells(m_Grid, cells_surface, "cells_surface.vtu");
   l2g_t  nodes_surface = getPartNodes();
   qWarning()<<"nodes_surface.size()="<<nodes_surface.size();
 
   setAllVolumeCells();
   l2g_t cells_volume = getPartCells();
-  writeCells(m_Grid, cells_volume, "cells_volume.vtu");
+//  writeCells(m_Grid, cells_volume, "cells_volume.vtu");
   l2g_t  nodes_volume = getPartNodes();
   qWarning()<<"nodes_volume.size()="<<nodes_volume.size();
 
@@ -150,7 +150,7 @@ void RemovePoints::operate() {
 
   markFeatureEdges();
 
-  writeCells(m_Grid, cells, "RemovePoints_cells.vtu");
+//  writeCells(m_Grid, cells, "RemovePoints_cells.vtu");
 
   UpdatePotentialSnapPoints(false);
 
@@ -315,7 +315,7 @@ int RemovePoints::NumberOfCommonPoints(vtkIdType id_node1, vtkIdType id_node2, b
   l2g_t nodes  = getPartNodes();
   l2g_t cells = getPartCells();
 
-  writeCells(m_Grid, cells, "NumberOfCommonPoints_cells.vtu");
+//  writeCells(m_Grid, cells, "NumberOfCommonPoints_cells.vtu");
 
   QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
   QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
@@ -526,7 +526,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   g2l_t _nodes = getPartLocalNodes();
   l2g_t cells = getPartCells();// all SURFACE cells
 
-  writeCells(m_Grid, cells, "FindSnapPoint_cells.vtu");
+//  writeCells(m_Grid, cells, "FindSnapPoint_cells.vtu");
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   if(node_type->GetValue(DeadNode) == VTK_FIXED_VERTEX) {

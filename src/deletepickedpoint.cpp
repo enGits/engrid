@@ -138,9 +138,9 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
         all_deadcells += dead_cells;
         all_mutatedcells += mutated_cells;
         // mark neighbour nodes
-        foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
-          marked_nodes[nodes[i_node_neighbour]] = true;
-        }
+//        foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
+//          marked_nodes[nodes[i_node_neighbour]] = true;
+//        }
       }
     }
   
@@ -152,5 +152,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
   
+  createIndices(m_Grid);
+
   return( m_NumRemoved == 1 );
 }

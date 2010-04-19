@@ -188,6 +188,9 @@ void GuiCreateBoundaryLayer::operate()
 
     saveGrid(m_Grid,"del_after");
     remove_points();
+    cout << "!!!!!!!!!!!!!! REMOVED POINTS: " << remove_points.getNumRemoved() << endl;
+    if(remove_points.getNumRemoved()>0) EG_BUG;
+
     saveGrid(m_Grid,"after_removepoints");
 //    EG_BUG;
 
