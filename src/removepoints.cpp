@@ -102,17 +102,20 @@ void RemovePoints::operate() {
 
   /////////////////////
 
-//  MeshPartition volume(m_Grid, true);
+  MeshPartition full_partition(m_Grid, true);
 //  MeshPartition surface(m_Grid, true);
 //    volume.addPartition(surface);
 //
 //  this->m_Part.addPartition();
 
-  setAllCells();
-  l2g_t cells_all = getPartCells();
+  full_partition.setAllCells();
+  l2g_t cells_all = full_partition.getCells();
   writeCells(m_Grid, cells_all, "cells_all.vtu");
-  l2g_t  nodes_all = getPartNodes();
+  l2g_t  nodes_all = full_partition.getNodes();
   qWarning()<<"nodes_all.size()="<<nodes_all.size();
+
+  g2l_t _nodes_all = full_partition.getLocalNodes();
+  l2l_t  n2c_all   = full_partition.getN2C();
 
   setAllSurfaceCells();
   l2g_t cells_surface = getPartCells();
@@ -142,7 +145,7 @@ void RemovePoints::operate() {
   l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  nodes = getPartNodes(); // only surface nodes
-  l2l_t  n2c   = getPartN2C();
+  l2l_t  n2c   = getPartN2C(); // only surface n2c
   l2g_t cells = getPartCells(); // only surface cells
 
   markFeatureEdges();
@@ -194,10 +197,11 @@ void RemovePoints::operate() {
         }
 
         // check that node is only surrounded by triangles
-        foreach(int i_cell, n2c[i_node]) {   //loop through potentially dead cells
-          vtkIdType id_cell = cells[i_cell];
+//        if(id_node>=_nodes_all)
+        foreach(int i_cell, n2c_all[_nodes_all[id_node]]) {   //loop through potentially dead cells
+          vtkIdType id_cell = cells_all[i_cell];
 
-          if( m_Grid->GetCellType(id_cell) == VTK_WEDGE ) EG_BUG;
+//          if( m_Grid->GetCellType(id_cell) == VTK_WEDGE ) EG_BUG;
 
           if(m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
             remove_node = false;
