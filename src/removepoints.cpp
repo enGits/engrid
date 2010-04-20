@@ -141,6 +141,10 @@ void RemovePoints::operate() {
   QVector<vtkIdType> selected_nodes;
   getNodesFromCells(selected_cells, selected_nodes, m_Grid);
 
+  foreach(vtkIdType id_node, selected_nodes) {
+    if(id_node == 838) EG_BUG;
+  }
+
   setAllSurfaceCells();
   l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
@@ -173,6 +177,9 @@ void RemovePoints::operate() {
   //count
   for(int i_selected_nodes = 0; i_selected_nodes < selected_nodes.size(); ++i_selected_nodes) {
     vtkIdType id_node = selected_nodes[i_selected_nodes];
+    if(id_node == 838) EG_BUG;
+
+
     int i_node = _nodes[id_node];
     if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
       if(!marked_nodes[i_node] && !m_IsFeatureNode[i_node]) {
@@ -192,6 +199,7 @@ void RemovePoints::operate() {
           double L = (xi - xj).abs();
           if(L < 0.5 *(cl_node + cl_neigh) / m_Threshold) {
             remove_node = true;
+//            EG_BUG;
             break;
           }
         }
@@ -205,10 +213,12 @@ void RemovePoints::operate() {
 
           if(m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
             remove_node = false;
+            qDebug()<<"Could not remove node "<<id_node<<" because it is next to a cell of type "<<m_Grid->GetCellType(id_cell);
           }
         }
 
         if(remove_node) {
+          EG_BUG;
           // local values
           QVector <vtkIdType> dead_cells;
           QVector <vtkIdType> mutated_cells;
