@@ -105,10 +105,24 @@ void GuiCreateBoundaryLayer::operate()
   setAllCells();
   
   l2g_t  nodes = getPartNodes();
-  l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
   l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
   getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
+
+  // fill m_LayerAdjacentBoundaryCodes
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  foreach(vtkIdType id_cell, layer_cells) {
+      foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
+          m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+      }
+  }
+  qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
+  m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
+  qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
+//  EG_BUG;
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
@@ -155,7 +169,7 @@ void GuiCreateBoundaryLayer::operate()
   swap.setBoundaryCodes(m_BoundaryCodes);
 
   RemovePoints remove_points;
-  remove_points.setBoundaryCodes(m_BoundaryCodes);
+  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
 
   DeleteTetras del;
   del.setGrid(m_Grid);
@@ -189,7 +203,7 @@ void GuiCreateBoundaryLayer::operate()
     saveGrid(m_Grid,"del_after");
     remove_points();
     cout << "!!!!!!!!!!!!!! REMOVED POINTS: " << remove_points.getNumRemoved() << endl;
-    if(remove_points.getNumRemoved()>0) EG_BUG;
+//    if(remove_points.getNumRemoved()>0) EG_BUG;
 
     saveGrid(m_Grid,"after_removepoints");
 //    EG_BUG;

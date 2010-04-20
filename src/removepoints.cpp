@@ -141,10 +141,6 @@ void RemovePoints::operate() {
   QVector<vtkIdType> selected_nodes;
   getNodesFromCells(selected_cells, selected_nodes, m_Grid);
 
-  foreach(vtkIdType id_node, selected_nodes) {
-    if(id_node == 838) EG_BUG;
-  }
-
   setAllSurfaceCells();
   l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
@@ -177,8 +173,6 @@ void RemovePoints::operate() {
   //count
   for(int i_selected_nodes = 0; i_selected_nodes < selected_nodes.size(); ++i_selected_nodes) {
     vtkIdType id_node = selected_nodes[i_selected_nodes];
-    if(id_node == 838) EG_BUG;
-
 
     int i_node = _nodes[id_node];
     if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
@@ -218,7 +212,6 @@ void RemovePoints::operate() {
         }
 
         if(remove_node) {
-          EG_BUG;
           // local values
           QVector <vtkIdType> dead_cells;
           QVector <vtkIdType> mutated_cells;

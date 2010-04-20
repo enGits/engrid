@@ -44,7 +44,8 @@ private: // attributes
   int    m_NumPostSteps;
   bool   m_WriteDebugFile;
   double m_PostStrength;
-    
+  QSet<int> m_LayerAdjacentBoundaryCodes; /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
+
 private: // methods
   
   void deleteTouchingPrisms(int layer, double L);
@@ -62,7 +63,6 @@ public: // methods
 private slots:
   void SelectAll_BC();
   void ClearAll_BC();
-  
 };
 
 #endif
