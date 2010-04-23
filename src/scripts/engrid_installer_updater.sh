@@ -124,7 +124,7 @@ install_QT()
 #   echo yes | ./configure --prefix=$QTPREFIX -opensource
   echo yes | ./configure --prefix=$QTPREFIX -opensource -nomake examples -nomake demos -nomake docs -no-webkit -no-phonon -no-phonon-backend -no-qt3support -no-accessibility -silent
 
-  make && make install
+  make $MAKEOPTIONS_ALL && make install
   cd -
 }
 
@@ -137,7 +137,7 @@ install_VTK()
   mkdir -p $VTKPREFIX
   cmake -DCMAKE_INSTALL_PREFIX:PATH=$VTKPREFIX -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_USE_GUISUPPORT:BOOL=ON -DVTK_USE_QVTK:BOOL=ON -DDESIRED_QT_VERSION:STRING=4  .
   chmod 644 Utilities/vtktiff/tif_fax3sm.c
-  make && make install
+  make $MAKEOPTIONS_ALL && make install
   cd -
 }
 
@@ -150,7 +150,7 @@ install_CGNS()
   mkdir -p $CGNSPREFIX
   mkdir -p $CGNSPREFIX/include
   mkdir -p $CGNSPREFIX/lib
-  ./configure --prefix=$CGNSPREFIX && make && make install
+  ./configure --prefix=$CGNSPREFIX && make $MAKEOPTIONS_ALL && make install
   cd -
 }
 
@@ -165,7 +165,7 @@ build_engrid()
   echo "Build netgen"
   ./scripts/build-nglib.sh
   echo "Build enGrid"
-  qmake $PROJECT_FILE && make $MAKEOPTIONS
+  qmake $PROJECT_FILE && make $MAKEOPTIONS_ALL $MAKEOPTIONS_ENGRID
   cd $ORIG_WD
 }
 
@@ -182,14 +182,14 @@ update_engrid()
   cd $SRCPREFIX/engrid/src
   echo "Update enGrid"
   git pull
-  qmake $PROJECT_FILE && make $MAKEOPTIONS
+  qmake $PROJECT_FILE && make $MAKEOPTIONS_ALL $MAKEOPTIONS_ENGRID
   cd -
 }
 
 rebuild_engrid()
 {
   cd $SRCPREFIX/engrid/src
-  qmake && make distclean && qmake $PROJECT_FILE && make $MAKEOPTIONS
+  qmake && make distclean && qmake $PROJECT_FILE && make $MAKEOPTIONS_ALL $MAKEOPTIONS_ENGRID
   cd -
 }
 

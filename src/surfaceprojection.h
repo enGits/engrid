@@ -26,7 +26,6 @@
 class SurfaceProjection;
 
 #include "egvtkobject.h"
-#include "octree.h"
 #include "guimainwindow.h"
 #include "geometrytools.h"
 #include "vtkCharArray.h"
@@ -55,11 +54,14 @@ private: // attributes
   vtkUnstructuredGrid*   m_BezierGrid;
   
 public:
+
   /// get m_BGrid
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
+
   /// get m_InterpolationGrid
   vtkUnstructuredGrid* getInterpolationGrid() { return m_InterpolationGrid; }
-    /// get m_BezierGrid
+
+  /// get m_BezierGrid
   vtkUnstructuredGrid* getBezierGrid() { return m_BezierGrid; }
   
 private:
@@ -75,33 +77,20 @@ private:
   QVector<Triangle>       m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<BezierTriangle> m_BezierTriangles; ///< The bezier triangle corresponding to m_Triangles
   QVector<QVector<int> >  m_N2N;
-  Octree                  m_OTGrid;
-  QVector<double>         m_G;
-  QVector<bool>           m_GSet;
-  double                  m_Relax;
-  double                  m_DistExp;
-  double                  m_DistWeight;
-  double                  m_DirWeight;
-  double                  m_DirExp;
-  double                  m_WeightOffset;
-  double                  m_MinOTLength;
-  int                     m_MaxOTCells;
-  double                  m_Length;
-  int                     m_MaxIter;
-  double                  m_ConvLimit;
   double                  m_RadiusFactor;
-  bool                    m_UseLevelSet;
   int                     m_NumDirect;
   int                     m_NumFull;
 
   bool m_correctCurvature; ///< Should correctCurvature() be used?
 
 public:
+
   void setCorrectCurvature(bool b) { m_correctCurvature = b; }
   bool getCorrectCurvature() { return m_correctCurvature; }
   
 // variables for exact projection surfaces
 public:
+
   int m_ExactMode;
   vec3_t m_center;
   vec3_t m_Rx;
@@ -119,24 +108,9 @@ private: // methods
 
   template <class C>
   void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells); ///< copy the cells from grid to m_BGrid
-  void setBackgroundGrid_initOctree();
-  void setBackgroundGrid_refineFromNodes();
-  void setBackgroundGrid_refineFromEdges();
-  void setBackgroundGrid_refineFromFaces();
-  void setBackgroundGrid_initLevelSet();
-  void setBackgroundGrid_computeLevelSet();
 
   void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
-  void updateBackgroundGridInfo_original();
   
-  vec3_t calcGradG(vec3_t x);
-  double calcG(vec3_t x);
-
-  vec3_t projectWithLevelSet(vec3_t x);
-
-  vec3_t projectWithGeometry(vec3_t x, vtkIdType id_node); ///< project onto m_BGrid, eventually using correctCurvature
-  vec3_t projectWithGeometry_original(vec3_t x, vtkIdType id_node);
-    
   vec3_t correctCurvature1(int i_tri, vec3_t g_M); ///< correct curvature by using double interpolation
   vec3_t correctCurvature2(int i_tri, vec3_t g_M); ///< correct curvature by using bezier surfaces
   
@@ -156,9 +130,6 @@ public: // methods
   } ///< set m_FGrid
 
   vec3_t project(vec3_t x, vtkIdType id_node = -1);
-  int getNumOctreeCells() { return m_OTGrid.getNumCells(); }
-  void writeOctree(QString file_name);
-  bool usesLevelSet() { return m_UseLevelSet; }; ///< Set whether or not to use the level set method
 
   int getNumDirectProjections() { return m_NumDirect; }
   int getNumFullSearches() { return m_NumFull; }
@@ -177,13 +148,6 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
 {
   setBackgroundGrid_setupGrid(grid, cells);
   updateBackgroundGridInfo();
-  if (m_UseLevelSet) {
-    setBackgroundGrid_initOctree();
-    setBackgroundGrid_refineFromNodes();
-    setBackgroundGrid_refineFromEdges();
-    setBackgroundGrid_refineFromFaces();
-    setBackgroundGrid_computeLevelSet();
-  }
 }
 
 template <class C>

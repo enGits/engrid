@@ -118,6 +118,7 @@ void SurfaceMesher::operate()
     getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
     lap.setCells(cls);
     lap.setNumberOfIterations(1);
+    lap.setProjectionIterations(2);
     m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
     lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
     if (m_UseProjectionForSmoothing) {

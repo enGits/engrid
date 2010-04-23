@@ -26,20 +26,18 @@
 
 class GridSmoother;
 
-#include "operation.h"
-#include "optimisation.h"
+#include "surfaceoperation.h"
 
 #include <vtkCellLocator.h>
 #include <QSettings>
 
-class GridSmoother : public Operation, public Optimisation
+class GridSmoother : public SurfaceOperation
 {
   
 private: // attributes
   
-  bool          m_SmoothPrisms;
   QVector<bool> m_NodeMarked;
-  QVector<bool> m_CriticalTetra;
+  QVector<bool> m_SurfNode;
   int           m_NumMarkedNodes;
   
 protected: // attributes
@@ -48,79 +46,38 @@ protected: // attributes
   int m_NumRelaxations;
   int m_NumBoundaryCorrections;
   int m_NumSearch;
-  
-  double m_LSearch;
-  double m_FOld;
-  double m_FNew;
-  double m_FMaxOld;
-  double m_FMaxNew;
-  double m_ReductionFactor;
-  double m_PostSmoothingStrength;
-  
-  double m_WTet;
-  double m_ETet;
-  double m_WTetSave;
-  double m_WH;
-  double m_WPar;
-  double m_WN;
-  double m_WA;
-  double m_WSkew;
-  double m_WOrth;
-  double m_WSharp1;
-  double m_ESharp1;
-  double m_WSharp2;
-  double m_ESharp2;
-  double m_H;
+  int m_NumNormalRelaxations;
+  int m_NumHeightRelaxations;
+
+  double m_Blending;
+  double m_AbsoluteHeight;
+  double m_RelativeHeight;
+  double m_CritAngle;
+  double m_LayerClearance;
 
   bool m_StrictPrismChecking;
 
   QVector<vtkIdType> m_FootToField;
-  QVector<bool>      m_IsSharpNode;
-  MeshPartition      m_BPart;
 
-  double m_RelativeHeight;
-  double m_CritAngle;
-  
-  bool m_SimpleOperation;
-  bool m_PostOperation;
-
-  struct stencil_node_t {
-    vec3_t x;
-    double C;
-  };
-  double m_V0;
-  double m_L0;
-  double m_SumC;
-  int    m_INodesOpt;
-
-  QList<stencil_node_t> m_Stencil;
-  QVector<vtkIdType>    m_IdFoot;
-  QVector<double>       m_L;
-  QVector<vec3_t>       m_NodeNormal;
+  QVector<vtkIdType> m_IdFoot;
+  QVector<double>    m_Height;
+  QVector<vec3_t>    m_NodeNormal;
 
 protected: // methods
   
   virtual void operate();
-  virtual double func(vec3_t x);
-  
-  double errThickness(double x);
   
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
-  void resetStencil();
-  void addToStencil(double C, vec3_t x);
   void correctDx(int i_nodes, vec3_t &Dx);
   bool moveNode(int i_nodes, vec3_t &Dx);
   void markNodes();
-  void findCriticalTetras();
-  void setPrismWeighting() { m_WTetSave = m_WTet; m_WTet = 0; };
-  void setAllWeighting() { m_WTet = m_WTetSave; };
   void computeNormals();
+  void relaxNormalVectors();
+  void correctNormalVectors();
+  void computeHeights();
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
-
-  void operateOptimisation();
-  void operateSimple();
-  void operatePostSmoothing();
+  bool noCollision(vtkIdType id_node);
 
   void writeDebugFile(QString file_name);
 
@@ -131,16 +88,9 @@ public: // methods
   void setNumRelaxations        (int N)    { m_NumRelaxations = N; };
   void setNumBoundaryCorrections(int N)    { m_NumBoundaryCorrections = N; };
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
+  void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
+  void setBlending              (double b) { m_Blending = b; }
 
-  void prismsOn()  { m_SmoothPrisms = true; };
-  void prismsOff() { m_SmoothPrisms = false; };
-  void simpleOn()  { m_SimpleOperation = true; }
-  void simpleOff() { m_SimpleOperation = false; }
-  void postOn()  { simpleOff(); m_PostOperation = true; }
-  void postOff() { m_PostOperation = false; }
-
-  double improvement();
-  
 };
 
 

@@ -1869,13 +1869,6 @@ void GuiMainWindow::storeSurfaceProjection()
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, m_Grid);
     proj->setBackgroundGrid(m_Grid, cls);
-    if (proj->usesLevelSet()) {
-      QString file_name;
-      file_name.setNum(bc);
-      file_name = "OctreeBC" + file_name;
-      proj->writeOctree(file_name);
-      cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
-    }
     QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
     
     proj->m_ExactMode = 0;

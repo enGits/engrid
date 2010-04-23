@@ -150,7 +150,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
   l2g_t nodes  = getPartNodes();
   l2g_t cells  = getPartCells();
 
-  m_PotentialSnapPoints.resize( nodes.size() );
+  m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
 
   //initialize default values
   EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );

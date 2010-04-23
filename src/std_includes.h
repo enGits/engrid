@@ -28,6 +28,7 @@
 #include "guisetboundarycode.h"
 #include "guideletebadaspecttris.h"
 #include "guipick.h"
+#include "guimergevolumes.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
