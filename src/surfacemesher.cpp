@@ -85,7 +85,8 @@ void SurfaceMesher::operate()
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
-    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    //done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    done = (iter >= m_NumMaxIter);
     cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
   }
