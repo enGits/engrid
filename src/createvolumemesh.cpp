@@ -570,6 +570,9 @@ void CreateVolumeMesh::operate()
       }
     }
     makeCopy(vol_grid, m_Grid);
+
+    saveGrid(m_Grid, "CRASH");
+
     for (int i = 0; i < trace_cells.size(); ++i) {
       if (old2new_cell[trace_cells[i]] == -1) {
         EG_BUG;

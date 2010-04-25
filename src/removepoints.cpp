@@ -152,7 +152,8 @@ void RemovePoints::operate() {
 
 //  writeCells(m_Grid, cells, "RemovePoints_cells.vtu");
 
-  UpdatePotentialSnapPoints(false);
+//  UpdatePotentialSnapPoints(false);
+  UpdatePotentialSnapPoints(true);// TEMPORARY
 
   EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type");
   EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code");
@@ -207,7 +208,7 @@ void RemovePoints::operate() {
 
           if(m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
             remove_node = false;
-            qDebug()<<"Could not remove node "<<id_node<<" because it is next to a cell of type "<<m_Grid->GetCellType(id_cell);
+//            qDebug()<<"Could not remove node "<<id_node<<" because it is next to a cell of type "<<m_Grid->GetCellType(id_cell);
           }
         }
 

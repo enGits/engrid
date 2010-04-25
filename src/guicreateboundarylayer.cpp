@@ -121,6 +121,9 @@ void GuiCreateBoundaryLayer::operate()
   }
   qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
   m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
+
+//  m_LayerAdjacentBoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
+
   qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
 //  EG_BUG;
 
@@ -170,6 +173,9 @@ void GuiCreateBoundaryLayer::operate()
 
   RemovePoints remove_points;
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+//  remove_points.setProtectFeatureEdgesOn();
+  UpdatePotentialSnapPoints(true);
+
 
   DeleteTetras del;
   del.setGrid(m_Grid);
