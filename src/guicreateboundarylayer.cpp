@@ -173,9 +173,7 @@ void GuiCreateBoundaryLayer::operate()
 
   RemovePoints remove_points;
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
-//  remove_points.setProtectFeatureEdgesOn();
-  UpdatePotentialSnapPoints(true);
-
+  remove_points.setUpdatePSPOn();
 
   DeleteTetras del;
   del.setGrid(m_Grid);

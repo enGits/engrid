@@ -38,6 +38,7 @@ RemovePoints::RemovePoints() : SurfaceOperation() {
   getSet("surface meshing", "point removal threshold", 2, m_Threshold);
   m_ProtectFeatureEdges = false;
   m_PerformGeometricChecks = true;
+  m_UpdatePSP = false;
 }
 
 void RemovePoints::markFeatureEdges() {
@@ -152,8 +153,7 @@ void RemovePoints::operate() {
 
 //  writeCells(m_Grid, cells, "RemovePoints_cells.vtu");
 
-//  UpdatePotentialSnapPoints(false);
-  UpdatePotentialSnapPoints(true);// TEMPORARY
+  UpdatePotentialSnapPoints(m_UpdatePSP);
 
   EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type");
   EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code");

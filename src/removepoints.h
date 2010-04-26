@@ -43,6 +43,7 @@ protected:
   double m_Threshold;
   bool   m_ProtectFeatureEdges;
   bool   m_PerformGeometricChecks;
+  bool   m_UpdatePSP;
 
   QVector<bool> m_IsFeatureNode;
 
@@ -57,6 +58,8 @@ public:
   void setProtectFeatureEdgesOff() { m_ProtectFeatureEdges = false; }
   void setPerformGeometricChecksOn()  { m_PerformGeometricChecks = true; }
   void setPerformGeometricChecksOff() { m_PerformGeometricChecks = false; }
+  void setUpdatePSPOn()  { m_UpdatePSP = true; }
+  void setUpdatePSPOff() { m_UpdatePSP = false; }
 
 protected:
 
