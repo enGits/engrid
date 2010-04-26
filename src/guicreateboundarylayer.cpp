@@ -29,8 +29,6 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 #include "meshpartition.h"
-#include "removepoints.h"
-#include "egvtkobject.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
