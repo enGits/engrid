@@ -114,20 +114,17 @@ void GuiCreateBoundaryLayer::operate()
   l2l_t  c2c   = getPartC2C();
   getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
 
-  // fill m_LayerAdjacentBoundaryCodes
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  foreach(vtkIdType id_cell, layer_cells) {
-      foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
-          m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+  if(ui.checkBoxRemovePoints->isChecked()) {
+      // fill m_LayerAdjacentBoundaryCodes
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+      foreach(vtkIdType id_cell, layer_cells) {
+          foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
+              m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+          }
       }
+      m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
+      qDebug() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
   }
-  qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
-  m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
-
-//  m_LayerAdjacentBoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
-
-  qWarning() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
-//  EG_BUG;
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
