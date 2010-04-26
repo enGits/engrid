@@ -43,6 +43,7 @@ private: // attributes
   int    m_NumPreSteps;
   int    m_NumPostSteps;
   bool   m_WriteDebugFile;
+  bool   m_RemovePoints;
   double m_PostStrength;
   QSet<int> m_LayerAdjacentBoundaryCodes; /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
 

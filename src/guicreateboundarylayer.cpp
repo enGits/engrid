@@ -35,6 +35,7 @@
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "number of smoothing iterations", 10, m_NumIterations);
+  getSet("boundary layer", "remove points", true, m_RemovePoints);
 
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
@@ -50,6 +51,7 @@ void GuiCreateBoundaryLayer::before()
       break;
     }
   }
+  ui.checkBoxRemovePoints->setChecked(m_RemovePoints);
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
@@ -201,16 +203,12 @@ void GuiCreateBoundaryLayer::operate()
     smooth.setAllCells();
     smooth();
     del.setAllCells();
-    saveGrid(m_Grid,"del_before");
     del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
 
-    saveGrid(m_Grid,"del_after");
-    remove_points();
-    cout << "!!!!!!!!!!!!!! REMOVED POINTS: " << remove_points.getNumRemoved() << endl;
-//    if(remove_points.getNumRemoved()>0) EG_BUG;
-
-    saveGrid(m_Grid,"after_removepoints");
-//    EG_BUG;
+    if(ui.checkBoxRemovePoints->isChecked()) {
+        remove_points();
+        qDebug() << "removed points: " << remove_points.getNumRemoved();
+    }
 
     swap();
     vol.setTraceCells(layer_cells);
