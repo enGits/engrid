@@ -33,6 +33,7 @@
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
   getSet("boundary layer", "number of smoothing iterations", 10, m_NumIterations);
+  getSet("boundary layer", "remove points", true, m_RemovePoints);
 
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
@@ -48,6 +49,7 @@ void GuiCreateBoundaryLayer::before()
       break;
     }
   }
+  ui.checkBoxRemovePoints->setChecked(m_RemovePoints);
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
@@ -103,10 +105,24 @@ void GuiCreateBoundaryLayer::operate()
   setAllCells();
   
   l2g_t  nodes = getPartNodes();
-  l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
   l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
   getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
+
+  if(ui.checkBoxRemovePoints->isChecked()) {
+      // fill m_LayerAdjacentBoundaryCodes
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+      foreach(vtkIdType id_cell, layer_cells) {
+          foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
+              m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+          }
+      }
+      m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
+      qDebug() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
+  }
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
@@ -151,6 +167,11 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
+
+  RemovePoints remove_points;
+  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  remove_points.setUpdatePSPOn();
+
   DeleteTetras del;
   del.setGrid(m_Grid);
   
@@ -177,7 +198,13 @@ void GuiCreateBoundaryLayer::operate()
     smooth.setAllCells();
     smooth();
     del.setAllCells();
-    del();
+    del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
+
+    if(ui.checkBoxRemovePoints->isChecked()) {
+        remove_points();
+        qDebug() << "removed points: " << remove_points.getNumRemoved();
+    }
+
     swap();
     vol.setTraceCells(layer_cells);
     vol();

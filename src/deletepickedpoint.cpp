@@ -125,6 +125,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
     
       setDebugLevel(11);
       vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+      qDebug()<<"snap_point="<<snap_point;
       setDebugLevel(0);
     
       if(snap_point >= 0) {
@@ -137,17 +138,21 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
         all_deadcells += dead_cells;
         all_mutatedcells += mutated_cells;
         // mark neighbour nodes
-        foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
-          marked_nodes[nodes[i_node_neighbour]] = true;
-        }
+//        foreach(int i_node_neighbour, n2n[_nodes[id_node]]) {
+//          marked_nodes[nodes[i_node_neighbour]] = true;
+//        }
       }
     }
   
   //delete
-  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells, num_newpoints, num_newcells);
+  if(num_newpoints != -deadnode_vector.size()) EG_BUG;
+  if(num_newcells != -all_deadcells.size()) EG_BUG;
+  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells);
   
   int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
   
+  createIndices(m_Grid);
+
   return( m_NumRemoved == 1 );
 }
