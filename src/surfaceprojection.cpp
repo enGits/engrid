@@ -838,13 +838,8 @@ void SurfaceProjection::updateBackgroundGridInfo() {
   readVMD();
 
   UpdatePotentialSnapPoints(true, false);
-//  l2l_t  n2n   = getPartN2N();
-//  l2l_t  n2c = getPartN2C();
   l2l_t  c2c   = getPartC2C();
-//  l2g_t cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
-//  l2g_t nodes = getPartNodes();
-//  g2l_t _nodes = getPartLocalNodes();
 
 //   qDebug()<<"getBoundaryCodes()="<<getBoundaryCodes();
 
