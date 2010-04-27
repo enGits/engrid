@@ -30,8 +30,10 @@ set -x
 
 RECIPIENTS='mtaverne@engits.com ogloth@engits.com'
 
+NIGHTLYDIR=/var/www/ftp/nightly
+
 #Create a nightly source tarball and put it on the FTP server
-./scripts/makedist.bash .. /srv/ftp/nightly
+./scripts/makedist.bash .. $NIGHTLYDIR
 
 #Update online documentation
 /usr/bin/doxygen Doxyfile
@@ -56,5 +58,6 @@ else
   mailx -s "ENGRID: build test successful" $RECIPIENTS < ./build.log
 fi
 
-# copy nightly build into /opt/shared/bin/
-cp -v ./engrid /opt/shared/bin/ || (echo mailx -s "failed to copy engrid into /opt/shared/bin/" $RECIPIENTS)
+# copy nightly build into nightly build directory
+DATE=$(date +%Y%m%d_%H%M%S)
+cp -v ./engrid "$NIGHTLYDIR/engrid_$DATE" || (echo mailx -s "failed to copy engrid into $NIGHTLYDIR" $RECIPIENTS)
