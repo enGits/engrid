@@ -31,7 +31,8 @@ set -ex
 FAILURE=0
 
 #set up environment
-source ./scripts/setup_paths.sh engits yes
+# source ./scripts/setup_paths.sh engits yes
+source /opt/engits/bin/engrid_environment.sh
 
 echo "BUILDING TOOLS":
 echo "gcc = $(which gcc)"
