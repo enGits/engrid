@@ -14,11 +14,7 @@ CONFIG += qt debug_and_release thread
 DEFINES += QT_NO_DEBUG
 #DEFINES += QT_DEBUG
 
-#QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
-# get "git revision number"
-QMAKE_CXXFLAGS += -DENGRID_VERSION=\\\"`git describe`\\\"
-
-QMAKE_CXXFLAGS += -Wall
+include(engrid-version.pri)
 
 #
 # some hacks to reuse the OpenFOAM paraview files
@@ -26,7 +22,6 @@ QMAKE_CXXFLAGS += -Wall
 VTKDIR = $(ParaView_DIR)
 
 !win32 {
-    LIBS += -L./netgen_svn
     LIBS += -L$(ParaView_DIR)/lib/paraview-3.5
     QMAKE_CXXFLAGS += -DVTK_EXCLUDE_STRSTREAM_HEADERS
 # reuse the OpenFOAM paraview files
@@ -43,9 +38,6 @@ VTKDIR = $(ParaView_DIR)
     INCLUDEPATH += $(ParaView_DIR)/VTK
     INCLUDEPATH += $(ParaView_DIR)/VTK/GUISupport/Qt
     INCLUDEPATH += $(ParaView_DIR)/VTK/Utilities
-# netgen includes
-    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-    INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 }
 
 win32 {
@@ -69,9 +61,6 @@ win32 {
     INCLUDEPATH += $$VTK_SRCDIR\IO
     INCLUDEPATH += $$VTK_SRCDIR\RENDER~1
     INCLUDEPATH += $$VTK_DIR
-    INCLUDEPATH += netgen_svn\netgen-mesher\netgen\nglib
-    INCLUDEPATH += netgen_svn\netgen-mesher\netgen\libsrc\general
-    LIBS += -Lnetgen_svn\release
     DEFINES += _USE_MATH_DEFINES
 }
 

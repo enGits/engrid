@@ -1,28 +1,33 @@
+######################################################################
 # common libraries, includes, source files for the engrid*.pro files
+######################################################################
+
+########
+# FLAGS
+########
+# to get rid of deprecated header warnings caused by including QVTKwidget.h
+# DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
+# DEFINES += VTK_LEGACY_REMOVE
+QMAKE_CXXFLAGS += -Wall
+
+# for profiling with gprof
+# QMAKE_CXXFLAGS += -pg
+# QMAKE_CXXFLAGS += -O3
+# QMAKE_LFLAGS += -pg
 QT += xml \
     network \
     opengl
-RESOURCES += engrid.qrc
 
-################
-# netgen lib
-################
 !win32 {
-    LIBS += -L./netgen_svn
-    LIBS += -lng
 #   LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
 
-win32 {
-	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-        LIBS += -Lnetgen_svn/release
-        LIBS += -lsuperman
+############
+# LIBRARIES
+############
 
-	#Z:\mtaverne\Development\engrid\src\netgen_svn\release
-}
-################
+include(engrid-netgen.pri)
 
 LIBS += -lm
 
@@ -60,6 +65,19 @@ LIBS += -lvtksys
 # LIBS += -lvtkViews
 LIBS += -lvtkVolumeRendering
 LIBS += -lvtkWidgets
+
+############
+# RESOURCES
+############
+OTHER_FILES += checkcomments.py \
+    todo.txt
+
+RESOURCES += engrid.qrc
+
+##############
+# SOURCE CODE
+##############
+
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -268,9 +286,6 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
-
-OTHER_FILES += checkcomments.py \
-    todo.txt
 
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
