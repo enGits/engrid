@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=enGrid
 Exec=/usr/bin/engrid
-Icon=/usr/share/pixmaps/engrid.png
+Icon=/usr/share/pixmaps/engrid.xpm
 Terminal=false
 Type=Application
 StartupNotify=true
