@@ -56,7 +56,7 @@ fi
 if [ $1 = 'ubuntu' ]
 then
   export VTKLIBDIR=/usr/lib/
-  export VTKINCDIR=/usr/include/vtk-5.2/
+  export VTKINCDIR=/usr/include/vtk-5.4/
 fi
 
 #OpenSUSE
