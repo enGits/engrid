@@ -167,10 +167,11 @@ build_engrid()
     tar -xzvf ./$ARCHIVE_ENGRID
   else
     git clone $GIT_URL_ENGRID
+    cd $SRCPREFIX/engrid/src
+    if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
   fi
 
-  cd engrid/src
-  if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
+  cd $SRCPREFIX/engrid/src
 
   echo "Build netgen"
 
