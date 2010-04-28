@@ -42,7 +42,7 @@ fi
 
 DIR=$(readlink -f $1)
 BASE="engrid"
-DESTDIR=$2
+DESTDIR=$(readlink -f $2)
 
 ORIG=`pwd`
 
