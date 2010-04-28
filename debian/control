@@ -2,7 +2,7 @@ Source: engrid
 Section: science
 Priority: extra
 Maintainer: Mike Taverne <mtaverne@engits.com>
-Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libvtk5-dev, libvtk5-qt4-dev
+Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libvtk5-dev (>=5.4.2), libvtk5-qt4-dev (>=5.4.2), libnglib-dev, libcgns-dev
 Standards-Version: 3.8.3
 Homepage: http://engits.eu
 
