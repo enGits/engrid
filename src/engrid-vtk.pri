@@ -1,22 +1,10 @@
 !debian {
   !openfoam {
-    # install
-    target.path = /usr/bin
-    # target.path = $$PREFIX/bin
-    INSTALLS += target
-
-    # #######################
-    # VTK
     INCLUDEPATH += $(VTKINCDIR)
     LIBS += -L$(VTKLIBDIR)
-    # #######################
   }
   else {
     message("Configuring for OpenFOAM+paraview")
-    # install
-    target.path = ../platforms/$(WM_ARCH)
-    # target.path = $$PREFIX/bin
-    INSTALLS += target
 
     # #######################
     #

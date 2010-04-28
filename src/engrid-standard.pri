@@ -14,6 +14,20 @@ CONFIG += qt \
 
 include(engrid-version.pri)
 
+!openfoam {
+    # install
+    target.path = /usr/bin
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+else {
+    message("Configuring for OpenFOAM+paraview")
+    # install
+    target.path = ../platforms/$(WM_ARCH)
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+
 ########
 # FLAGS
 ########
