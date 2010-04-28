@@ -44,6 +44,12 @@ QT += xml \
 ############
 
 include(engrid-netgen.pri)
+include(engrid-vtk.pri)
+
+CGNS {
+  message("Configuring for CGNS support")
+  include(engrid-cgns.pri)
+}
 
 LIBS += -lm
 
