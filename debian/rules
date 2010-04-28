@@ -9,13 +9,12 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export VTKLIBDIR=/usr/lib/
-export VTKINCDIR=/usr/include/vtk-5.0/
-
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/qmake.mk
-
 # Add here any variable or target overrides you need.
 QMAKE=qmake-qt4
 CFLAGS=-O3
 CXXFLAGS=-O3
+DEB_BUILDDIR=src
+DEB_QMAKE_CONFIG_VAL=debian
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/qmake.mk

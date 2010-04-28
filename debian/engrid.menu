@@ -1,0 +1,6 @@
+?package(engrid):\
+        needs="X11"\
+        section="Science/Engineering"\
+        title="enGrid"\
+        icon="/usr/share/pixmaps/engrid.png"\
+        command="/usr/bin/engrid"

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=enGrid
+Exec=/usr/bin/engrid
+Icon=/usr/share/pixmaps/engrid.png
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Development;
