@@ -2,9 +2,25 @@
 # common libraries, includes, source files for the engrid*.pro files
 ######################################################################
 
+TEMPLATE = app
+LANGUAGE = C++
+TARGET   = engrid
+
+# CONFIG += qt release thread
+# CONFIG += qt debug thread
+CONFIG += qt \
+    debug_and_release \
+    thread
+
+include(engrid-version.pri)
+
 ########
 # FLAGS
 ########
+
+# DEFINES += QT_NO_DEBUG
+# DEFINES += QT_DEBUG
+
 # to get rid of deprecated header warnings caused by including QVTKwidget.h
 # DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
 # DEFINES += VTK_LEGACY_REMOVE

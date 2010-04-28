@@ -1,17 +1,3 @@
-TEMPLATE = app
-LANGUAGE = C++
-TARGET   = engrid
-
-# CONFIG += qt release thread
-# CONFIG += qt debug thread
-CONFIG += qt \
-    debug_and_release \
-    thread
-
-# DEFINES += QT_NO_DEBUG
-# DEFINES += QT_DEBUG
-
-include(engrid-version.pri)
 include(engrid-standard.pri)
 
 # install
