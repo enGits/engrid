@@ -2,20 +2,24 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET   = engrid
 
-# install
-target.path = ../platforms/$(WM_ARCH)
+# CONFIG += qt release thread
+# CONFIG += qt debug thread
+CONFIG += qt \
+    debug_and_release \
+    thread
 
-INSTALLS += target
-
-#CONFIG += qt release thread
-#CONFIG += qt debug thread
-CONFIG += qt debug_and_release thread
-
-DEFINES += QT_NO_DEBUG
-#DEFINES += QT_DEBUG
+# DEFINES += QT_NO_DEBUG
+# DEFINES += QT_DEBUG
 
 include(engrid-version.pri)
+include(engrid-standard.pri)
 
+# install
+target.path = ../platforms/$(WM_ARCH)
+# target.path = $$PREFIX/bin
+INSTALLS += target
+
+# #######################
 #
 # some hacks to reuse the OpenFOAM paraview files
 #
@@ -63,5 +67,4 @@ win32 {
     INCLUDEPATH += $$VTK_DIR
     DEFINES += _USE_MATH_DEFINES
 }
-
-include (engrid-standard.pri)
+# #######################
