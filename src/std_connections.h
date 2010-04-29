@@ -113,6 +113,7 @@ connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAi
 connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderReader()));
 connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
 connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes()));
+connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));

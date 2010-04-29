@@ -38,6 +38,8 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
   getSet("boundary layer", "number of normal vector relax iterations", 10,    m_NumNormalRelaxations);
   getSet("boundary layer", "number of layer height relax iterations",  3,     m_NumHeightRelaxations);
+  getSet("boundary layer", "radar angle",                              60,    m_RadarAngle);
+  getSet("boundary layer", "maximal layer height in gaps",             0.2,   m_MaxHeightInGaps);
 
   //m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
 }
@@ -176,6 +178,9 @@ bool GridSmoother::noCollision(vtkIdType id_node)
       }
     }
   }
+  if (!cleared) {
+    m_CollisionDetected = true;
+  }
   return cleared;
 }
 
@@ -285,6 +290,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 
 bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 {
+  m_CollisionDetected = false;
   l2g_t nodes = m_Part.getNodes();
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
@@ -534,6 +540,7 @@ void GridSmoother::relaxNormalVectors()
 
 void GridSmoother::computeHeights()
 {
+  // first pass (intial heigh)
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired" );
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -561,6 +568,43 @@ void GridSmoother::computeHeights()
       }
     }
   }
+
+  // second pass (correct with absolute height if required)
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_SurfNode[id_node]) {
+      m_Height[id_node] = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_node];
+    }
+  }
+
+  // third pass (gaps)
+  QList<vtkIdType> surf_nodes;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_SurfNode[id_node]) {
+      surf_nodes.append(id_node);
+    }
+  }
+  foreach (vtkIdType id_node1, surf_nodes) {
+    foreach (vtkIdType id_node2, surf_nodes) {
+      if (id_node1 != id_node2) {
+        const vec3_t& n1 = m_NodeNormal[id_node1];
+        const vec3_t& n2 = m_NodeNormal[id_node2];
+        vec3_t x1, x2;
+        m_Grid->GetPoint(id_node1, x1.data());
+        m_Grid->GetPoint(id_node2, x2.data());
+        vec3_t Dx = x2 - x1;
+        double a = Dx*n1;
+        if (a > 0) {
+          double b = Dx.abs();
+          double alpha = 180.0/M_PI*acos(a/b);
+          if (alpha < m_RadarAngle) {
+            m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+          }
+        }
+      }
+    }
+  }
+
+  // fourth pass (smoothing)
   for (int iter = 0; iter < m_NumHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -654,9 +698,9 @@ void GridSmoother::simpleNodeMovement(int i_nodes)
   if (id_foot != -1) {
     vec3_t x_foot, x_node;
     m_Grid->GetPoint(id_foot, x_foot.data());
-    double H = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_foot];
+    //double H = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_foot];
+    double H = m_Height[id_foot];
     x_new = x_foot + H*m_NodeNormal[id_foot];
-    //m_L[id_node] = H;
   } else {
     if (m_SurfNode[id_node]) {
       x_new = x_surf;

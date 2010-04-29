@@ -364,3 +364,6 @@ HEADERS += guimergevolumes.h
 SOURCES += guimergevolumes.cpp
 HEADERS += deletestraynodes.h
 SOURCES += deletestraynodes.cpp
+HEADERS += guimirrormesh.h
+SOURCES += guimirrormesh.cpp
+FORMS += guimirrormesh.ui

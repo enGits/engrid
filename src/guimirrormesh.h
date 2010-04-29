@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008,2009 Oliver Gloth                                     +
+// + Copyright 2008-2010 Oliver Gloth                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,44 +20,23 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef guimirrormesh_H
+#define guimirrormesh_H
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
+class GuiMirrorMesh;
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
+#include "dialogoperation.h"
+#include "ui_guimirrormesh.h"
 
-// -------------------------------------------
+class GuiMirrorMesh : public DialogOperation<Ui::GuiMirrorMesh, Operation>
+{
+  
+  Q_OBJECT;
+  
+protected: // methods
+  
+  virtual void operate();
+  
+};
+
+#endif
