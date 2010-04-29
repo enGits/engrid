@@ -1,0 +1,11 @@
+engrid (1.1-pre-release-ubuntu2) karmic; urgency=low
+
+  * pre-release of v1.1
+
+ -- Mike Taverne <mtaverne@engits.com>  Wed, 28 Apr 2010 20:15:22 +0200
+
+engrid (1.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Mike Taverne <mtaverne@engits.com>  Tue, 30 Dec 2008 18:21:00 +0100

@@ -14,6 +14,20 @@ CONFIG += qt \
 
 include(engrid-version.pri)
 
+!openfoam {
+    # install
+    target.path = /usr/bin
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+else {
+    message("Configuring for OpenFOAM+paraview")
+    # install
+    target.path = ../platforms/$(WM_ARCH)
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+
 ########
 # FLAGS
 ########
@@ -44,6 +58,12 @@ QT += xml \
 ############
 
 include(engrid-netgen.pri)
+include(engrid-vtk.pri)
+
+CGNS {
+  message("Configuring for CGNS support")
+  include(engrid-cgns.pri)
+}
 
 LIBS += -lm
 
