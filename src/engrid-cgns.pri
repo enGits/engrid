@@ -5,11 +5,17 @@
 DEFINES += CGNS_SUPPORT
 
 !win32 {
-    LIBS += -L$(CGNSLIBDIR)
-    INCLUDEPATH += $(CGNSINCDIR)
+    !debian {
+        LIBS += -L$(CGNSLIBDIR)
+        INCLUDEPATH += $(CGNSINCDIR)
+    }
 }
 
 LIBS    += -lcgns
+
+debian {
+    LIBS += -lhdf5
+}
 
 #
 # end
