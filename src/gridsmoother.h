@@ -54,6 +54,8 @@ protected: // attributes
   double m_RelativeHeight;
   double m_CritAngle;
   double m_LayerClearance;
+  double m_RadarAngle;
+  double m_MaxHeightInGaps;
 
   bool m_StrictPrismChecking;
   bool m_CollisionDetected;
