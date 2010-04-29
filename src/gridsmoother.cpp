@@ -176,6 +176,9 @@ bool GridSmoother::noCollision(vtkIdType id_node)
       }
     }
   }
+  if (!cleared) {
+    m_CollisionDetected = true;
+  }
   return cleared;
 }
 
@@ -285,6 +288,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 
 bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
 {
+  m_CollisionDetected = false;
   l2g_t nodes = m_Part.getNodes();
   vtkIdType id_node = nodes[i_nodes];
   vec3_t x_old;
@@ -656,7 +660,6 @@ void GridSmoother::simpleNodeMovement(int i_nodes)
     m_Grid->GetPoint(id_foot, x_foot.data());
     double H = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_foot];
     x_new = x_foot + H*m_NodeNormal[id_foot];
-    //m_L[id_node] = H;
   } else {
     if (m_SurfNode[id_node]) {
       x_new = x_surf;

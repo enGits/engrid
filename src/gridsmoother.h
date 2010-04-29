@@ -56,6 +56,7 @@ protected: // attributes
   double m_LayerClearance;
 
   bool m_StrictPrismChecking;
+  bool m_CollisionDetected;
 
   QVector<vtkIdType> m_FootToField;
 
@@ -84,9 +85,9 @@ protected: // methods
 public: // methods
   
   GridSmoother();
-  void setNumIterations         (int N)    { m_NumIterations  = N; };
-  void setNumRelaxations        (int N)    { m_NumRelaxations = N; };
-  void setNumBoundaryCorrections(int N)    { m_NumBoundaryCorrections = N; };
+  void setNumIterations         (int N)    { m_NumIterations  = N; }
+  void setNumRelaxations        (int N)    { m_NumRelaxations = N; }
+  void setNumBoundaryCorrections(int N)    { m_NumBoundaryCorrections = N; }
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
