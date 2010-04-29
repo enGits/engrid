@@ -167,6 +167,7 @@ void MeshPartition::addPartition(const MeshPartition& part)
     setCells(new_cells);
   } else {
     double tol = 1e-3*min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
+    cout << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
     loc->SetDataSet(m_Grid);
@@ -185,6 +186,7 @@ void MeshPartition::addPartition(const MeshPartition& part)
         ++N;
       }
     }
+    cout << m_Grid->GetNumberOfCells() + part.m_Cells.size() << ", " << N << endl;
     allocateGrid(new_grid, m_Grid->GetNumberOfCells() + part.m_Cells.size(), N);
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       vec3_t x;

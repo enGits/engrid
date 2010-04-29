@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -141,6 +141,7 @@
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
+    <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
@@ -304,8 +305,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>212</width>
-          <height>485</height>
+          <width>211</width>
+          <height>521</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -686,8 +687,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>214</width>
-          <height>533</height>
+          <width>219</width>
+          <height>546</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1627,6 +1628,11 @@
   <action name="actionMergeVolumes">
    <property name="text">
     <string>merge volumes</string>
+   </property>
+  </action>
+  <action name="actionMirrorMesh">
+   <property name="text">
+    <string>mirror</string>
    </property>
   </action>
  </widget>
