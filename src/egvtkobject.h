@@ -513,7 +513,6 @@ protected: // methods
    */
   void getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids);
 
-
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }

@@ -39,7 +39,6 @@ void GuiMirrorMesh::operate()
     m_Grid->GetPoint(id_node, x.data());
     double h = n*(x-x0);
     vec3_t xm = x - 2*h*n;
-    //cout << x << ", " << xm << endl;
     mirror_grid->GetPoints()->SetPoint(id_node, xm.data());
     copyNodeData(m_Grid, id_node, mirror_grid, id_node);
   }
@@ -48,8 +47,29 @@ void GuiMirrorMesh::operate()
     vtkIdType N_pts, *pts;
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType new_pts[N_pts];
-    for (int i = 0; i < N_pts; ++i) {
-      new_pts[i] = pts[N_pts - i - 1];
+    vtkIdType cell_type = m_Grid->GetCellType(id_cell);
+    if (cell_type == VTK_WEDGE) {
+      new_pts[0] = pts[3];
+      new_pts[1] = pts[4];
+      new_pts[2] = pts[5];
+      new_pts[3] = pts[0];
+      new_pts[4] = pts[1];
+      new_pts[5] = pts[2];
+    } else if (cell_type == VTK_HEXAHEDRON) {
+      new_pts[0] = pts[4];
+      new_pts[1] = pts[5];
+      new_pts[2] = pts[6];
+      new_pts[3] = pts[7];
+      new_pts[4] = pts[0];
+      new_pts[5] = pts[1];
+      new_pts[6] = pts[2];
+      new_pts[7] = pts[3];
+    } else if (cell_type == VTK_PYRAMID) {
+      EG_BUG;
+    } else {
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = pts[N_pts - i - 1];
+      }
     }
     id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts);
     copyCellData(m_Grid, id_cell, mirror_grid, id_new_cell);
@@ -57,5 +77,6 @@ void GuiMirrorMesh::operate()
   MeshPartition part1(m_Grid, true);
   MeshPartition part2(mirror_grid, true);
   part1.addPartition(part2);
+  eliminateDuplicateCells();
 }
 

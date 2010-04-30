@@ -232,3 +232,59 @@ void Operation::populateVolumes(QListWidget *lw)
     lwi->setText(V.getName());
   }
 }
+
+void Operation::eliminateDuplicateCells(bool surf_only)
+{
+  QVector<vtkIdType> cells;
+  if (surf_only) {
+    getAllSurfaceCells(cells, m_Grid);
+  } else {
+    getAllCells(cells, m_Grid);
+  }
+  QVector<QVector<vtkIdType> > cell_nodes(cells.size());
+
+  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    vtkIdType id_cell = cells[i_cells];
+    if (!surf_only || isSurface(id_cell, m_Grid)) {
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      QVector<vtkIdType> nodes(N_pts);
+      for (int i = 0; i < N_pts; ++i) {
+        nodes[i] = pts[i];
+      }
+      qSort(nodes);
+      cell_nodes[i_cells] = nodes;
+    }
+  }
+  QList<vtkIdType> new_cells;
+  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    vtkIdType id_cell1 = cells[i_cells];
+    bool duplicate_cell = false;
+    if (!surf_only || isSurface(id_cell1, m_Grid)) {
+      for (int j_cells = 0; j_cells < cells.size(); ++j_cells) {
+        vtkIdType id_cell2 = cells[j_cells];
+        if (i_cells != j_cells) {
+          if (!surf_only || isSurface(id_cell2, m_Grid)) {
+            if (cell_nodes[i_cells] == cell_nodes[j_cells]) {
+              duplicate_cell = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (!duplicate_cell) {
+      new_cells.append(id_cell1);
+    }
+  }
+  if (surf_only) {
+    QVector<vtkIdType> vol_cells;
+    getAllVolumeCells(vol_cells, m_Grid);
+    foreach(vtkIdType id_cell, vol_cells) {
+      new_cells.append(id_cell);
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  makeCopy(m_Grid, new_grid, new_cells);
+  makeCopy(new_grid, m_Grid);
+}

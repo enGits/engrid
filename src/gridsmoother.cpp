@@ -38,7 +38,7 @@ GridSmoother::GridSmoother()
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
   getSet("boundary layer", "number of normal vector relax iterations", 10,    m_NumNormalRelaxations);
   getSet("boundary layer", "number of layer height relax iterations",  3,     m_NumHeightRelaxations);
-  getSet("boundary layer", "radar angle",                              60,    m_RadarAngle);
+  getSet("boundary layer", "radar angle",                              30,    m_RadarAngle);
   getSet("boundary layer", "maximal layer height in gaps",             0.2,   m_MaxHeightInGaps);
 
   //m_CritAngle = GeometryTools::deg2rad(m_CritAngle);

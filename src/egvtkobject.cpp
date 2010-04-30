@@ -1190,3 +1190,4 @@ vtkIdType EgVtkObject::addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGr
   }
   return( offset + grid_to_add->GetNumberOfPoints() );
 }
+
