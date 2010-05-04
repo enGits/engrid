@@ -1631,6 +1631,9 @@
    </property>
   </action>
   <action name="actionMirrorMesh">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>mirror</string>
    </property>

@@ -180,7 +180,8 @@ void GuiMainWindow::setupGuiMainWindow()
   getSet("General", "open last used file on startup", false, m_open_last);
   
   ui.actionFoamWriter->setEnabled(exp_features);
-  
+  ui.actionMirrorMesh->setEnabled(exp_features);
+
   m_ReferenceSize=0.2;
   
   ui.doubleSpinBox_HueMin->setValue(0.667);
