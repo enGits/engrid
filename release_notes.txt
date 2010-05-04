@@ -1,0 +1,24 @@
+
+1.2
+===
+
+After about a year of a rolling release (called 1.1-pre-release) we have decided
+to make a "proper" release available. We encourage everybody to test this
+release and report any problems. Before mid May it is envisaged to finalise this
+release which will then be called 1.2.0. Furthermore we will also try to create
+binary packages for various Linux distributions and it is planned to include the
+1.2.0 release on the USB stick provided at the OpenFOAM workshop in Gothenburg
+(22-24 June).
+
+Version 1.2 of enGrid has a significantly improved algorithm for boundary layer
+creation and an integrated surface mesher. A file template mechanism offers the
+possibility to create dedicated solver output for OPENFOAM (OPENFOAM is a
+registered trade mark of OpenCFD Limited) or other solvers. Currently simpleFoam
+and rhoSimpleFoam are supported (versions 1.5 & 1.6). Contributions for other
+solvers would be most welcome and we will certainly help anybody who wants to
+extend enGrid's export capabilities.
+
+In the future we will publish regular bug-fixes for this release and are
+planning to release 1.3 towards the end of 2010. The emphasis for 1.3 will be
+put on performance, robustness and documentation along with small improvements
+that arise from daily engineering tasks.
