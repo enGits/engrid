@@ -1,5 +1,5 @@
-title : standard simpleFoam;
-section : openfoam/simpleFoam/standard;
+title : standard simpleFoam 1.5;
+section : openfoam-1.5/simpleFoam/standard;
 binary : simpleFoam;
 files :
   system/controlDict,
@@ -13,8 +13,8 @@ files :
   system/fvSchemes,
   system/fvSolution;
 =
-title : standard rhoSimpleFoam;
-section : openfoam/rhoSimpleFoam/standard;
+title : standard rhoSimpleFoam 1.5;
+section : openfoam-1.5/rhoSimpleFoam/standard;
 binary : rhoSimpleFoam;
 files :
   system/controlDict,
@@ -28,5 +28,34 @@ files :
   constant/RASProperties,
   system/fvSchemes,
   system/fvSolution;
-
-
+=
+title : standard simpleFoam 1.6.x;
+section : openfoam-1.6.x/simpleFoam/standard;
+binary : simpleFoam;
+files :
+  system/controlDict,
+  0/U,
+  0/p,
+  0/k,
+  0/epsilon,
+  0/omega,
+  constant/transportProperties,
+  constant/RASProperties,
+  system/fvSchemes,
+  system/fvSolution;
+=
+title : standard rhoSimpleFoam 1.6.x;
+section : openfoam-1.6.x/rhoSimpleFoam/standard;
+binary : rhoSimpleFoam;
+files :
+  system/controlDict,
+  0/U,
+  0/p,
+  0/T,
+  0/k,
+  0/epsilon,
+  0/omega,
+  constant/thermophysicalProperties,
+  constant/RASProperties,
+  system/fvSchemes,
+  system/fvSolution;

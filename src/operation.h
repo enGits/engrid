@@ -108,6 +108,13 @@ protected: // methods
   virtual void operate() = 0;
   void setTypeName(QString name);
 
+  /**
+   * Eliminate cells with identical node indices.
+   * @param surf_only if set to false all cells will be checked, otherwise surface cells only.
+   *                  Careful with eliminating volume cells -- this can be extremely slow.
+   */
+  void eliminateDuplicateCells(bool surf_only = true);
+
   l2g_t getPartNodes()       { return m_Part.getNodes(); }
   l2g_t getPartCells() const { return m_Part.getCells(); }
   g2l_t getPartLocalNodes()  { return m_Part.getLocalNodes(); }

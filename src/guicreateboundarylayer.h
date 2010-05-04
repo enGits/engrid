@@ -38,10 +38,15 @@ class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer
 private: // attributes
   
   QVector<vtkIdType> layer_cells;
-  int m_NumIterations;
-  int m_NumPreSteps;
-  bool m_WriteDebugFile;
-    
+
+  int    m_NumIterations;
+  int    m_NumPreSteps;
+  int    m_NumPostSteps;
+  bool   m_WriteDebugFile;
+  bool   m_RemovePoints;
+  double m_PostStrength;
+  QSet<int> m_LayerAdjacentBoundaryCodes; /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
+
 private: // methods
   
   void deleteTouchingPrisms(int layer, double L);
@@ -56,6 +61,9 @@ public: // methods
   
   GuiCreateBoundaryLayer();
 
+private slots:
+  void SelectAll_BC();
+  void ClearAll_BC();
 };
 
 #endif

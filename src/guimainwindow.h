@@ -63,6 +63,8 @@ class GuiMainWindow;
 #include "openfoamtools.h"
 #include "std_includes.h"
 #include "fixcadgeometry.h"
+#include "projection_test.h"
+#include "xmlhandler.h"
 
 /**
  * This is the main GUI class of enGrid.
@@ -74,7 +76,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
   private: // attributes
 
-    QDomDocument         m_XmlDoc;        ///< XML document describing the complete case
+    XmlHandler* m_XmlHandler;
 
     Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.
     vtkUnstructuredGrid *m_Grid;          ///< The current state of the grid that is being generated.
@@ -138,6 +140,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkEgBoundaryCodesFilter* m_BCodesFilter; ///< VTK filter to extract boundary elements with certain codes
     vtkCellPicker*            m_CellPicker;   ///< VTK CellPicker to pick cells for various user interactions
     vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
+    int                       m_PickedObject;   ///< 0=none, 1=node, 2=cell
 
     QString      m_CurrentFilename;      ///< The current file name of the grid.
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
@@ -224,14 +227,19 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void openGrid( QString file_name );
 
   public: // methods
-
+    GuiMainWindow();///< Default constructor.
+    GuiMainWindow(QString file_name);///< Constructor which opens a file directly.
+  
+  private:
     /**
-     * The constructor connects the menu and toolbar actions and
+     * This function connects the menu and toolbar actions and
      * the VTK basics(i.e. renderer, actor, ...) will be set up.
      * Furthermore preferences will be read from qset.
      */
-    GuiMainWindow();
-
+    void setupGuiMainWindow();
+    bool m_open_last;
+  
+  public:
     /**
      * Preferences will be written back.
      */
@@ -306,6 +314,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      */
     vtkIdType getPickedPoint();
 
+    vtkIdType getPickedObject() { return m_PickedObject; }
+  
     /**
      * Access to the QSettings object
      */
@@ -370,8 +380,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void resetOperationCounter();
 
-    void openXml( QString file_name );     ///< Open the case from an XML file
-    void saveXml( QString file_name );     ///< Save the case in an XML file
     void open();                           ///< Open an existing case
     void open( QString file_name, bool update_current_filename = true ); ///< Open case file_name
     void save();                           ///< Save the current case
@@ -442,6 +450,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSetBoundaryCode()  { EG_STDINTERSLOT( GuiSetBoundaryCode ); }
     void callDeleteBadAspectTris() { EG_STDINTERSLOT( GuiDeleteBadAspectTris ); }
     void callDeletePickedCell() { EG_STDSLOT( DeletePickedCell ); }
+    void callMergeNodes();
+    void callInsertNewCell();
     void callDeletePickedPoint();
     void callBoxSelect() { EG_STDINTERSLOT( BoxSelect ); }
     void callCheckSurfaceIntegrity() { EG_STDINTERSLOT( CheckSurfaceIntegrity ); }
@@ -449,6 +459,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
     void callUpdateSurfProj() { EG_STDSLOT( UpdateSurfProj ); }
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
+    void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
+    void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     
     void callFixSTL();
 
@@ -458,6 +470,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCgnsWriter()                 { EG_STDINTERSLOT( CgnsWriter ); }
     void callVtkReader()                  { EG_STDREADERSLOT( VtkReader ); }
     void callBlenderReader()              { EG_STDREADERSLOT( BlenderReader ); }
+    void callBlenderWriter()              { EG_STDREADERSLOT( BlenderWriter ); }
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
@@ -467,6 +480,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
+    void callProjection_test()             { EG_STDSLOT(Projection_test); }
 
 };
 

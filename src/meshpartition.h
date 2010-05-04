@@ -99,6 +99,11 @@ public: // methods
   void setCells(const C& cls);
 
   /**
+   * Define the mesh partition by defining all its cells.
+   */
+  void setAllCells();
+  
+  /**
    * Define the mesh partition by giving a symbolic volume name.
    * The grid will be changed to the default (main) grid that is currently loaded into ENGRID.
    * @param volume_name the symbolic volume name
@@ -189,6 +194,12 @@ inline void MeshPartition::setCells(const C& cls)
   m_Cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
+}
+
+inline void MeshPartition::setAllCells() {
+  QVector <vtkIdType> all_cells;
+  getAllCells(all_cells, m_Grid);
+  this->setCells(all_cells);
 }
 
 inline void MeshPartition::checkNodes()
@@ -334,7 +345,9 @@ inline int MeshPartition::n2cLL(int i_nodes, int j)
 inline vtkIdType MeshPartition::n2cLG(int i_nodes, int j)
 {
   checkN2C();
-  return m_Cells[m_N2C[i_nodes][j]];
+  int i_cell = m_N2C[i_nodes][j];
+  if(i_cell<0) return(-1);
+  else return m_Cells[i_cell];
 }
 
 inline int MeshPartition::n2cGSize(vtkIdType id_node)
@@ -352,7 +365,9 @@ inline int MeshPartition::n2cGL(vtkIdType id_node, int j)
 inline vtkIdType MeshPartition::n2cGG(vtkIdType id_node, int j)
 {
   checkN2C();
-  return m_Cells[m_N2C[m_LNodes[id_node]][j]];
+  int i_cell = m_N2C[m_LNodes[id_node]][j];
+  if(i_cell<0) return(-1);
+  else return m_Cells[i_cell];
 }
 
 inline int MeshPartition::c2cLSize(int i_cells)
@@ -370,7 +385,9 @@ inline int MeshPartition::c2cLL(int i_cells, int j)
 inline vtkIdType MeshPartition::c2cLG(int i_cells, int j)
 {
   checkC2C();
-  return m_Cells[m_C2C[i_cells][j]];
+  int i_cell = m_C2C[i_cells][j];
+  if(i_cell<0) return(-1);
+  else return m_Cells[i_cell];
 }
 
 inline int MeshPartition::c2cGSize(vtkIdType id_cell)
@@ -391,7 +408,9 @@ inline vtkIdType MeshPartition::c2cGG(vtkIdType id_cell, int j)
 {
   checkC2C();
   checkLCells();
-  return m_Cells[m_C2C[m_LCells[id_cell]][j]];
+  int i_cell = m_C2C[m_LCells[id_cell]][j];
+  if(i_cell<0) return(-1);
+  else return m_Cells[i_cell];
 }
 
 inline int MeshPartition::getNumberOfCells()
@@ -425,7 +444,8 @@ inline int MeshPartition::localCell(vtkIdType id_cell)
 
 inline vtkIdType MeshPartition::globalCell(int i)
 {
-  return m_Cells[i];
+  if(i<0) return(-1);
+  else return m_Cells[i];
 }
 
 #endif // MESHPARTITION_H

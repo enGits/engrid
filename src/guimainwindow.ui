@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -136,14 +136,18 @@
     <addaction name="actionDeleteBadAspectTris"/>
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
+    <addaction name="actionInsertNewCell"/>
+    <addaction name="actionMergeNodes"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
     <addaction name="actionNormalExtrusion"/>
+    <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
+    <addaction name="actionMergeVolumes"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
@@ -175,6 +179,7 @@
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportCGNS"/>
+    <addaction name="actionExportBlenderFile"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -188,6 +193,7 @@
     <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
     <addaction name="actionFixCADgeometry"/>
+    <addaction name="actionProjection_test"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -198,6 +204,7 @@
     <addaction name="actionStopProcesses"/>
     <addaction name="actionPreparePostProcessing"/>
     <addaction name="actionStartParaView"/>
+    <addaction name="actionSetCaseDirectory"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
@@ -298,8 +305,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>212</width>
-          <height>501</height>
+          <width>211</width>
+          <height>521</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -680,8 +687,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>228</width>
-          <height>557</height>
+          <width>219</width>
+          <height>546</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1241,7 +1248,7 @@
   </action>
   <action name="actionDeletePickedCell">
    <property name="text">
-    <string>delete picked cell</string>
+    <string>Delete picked cell</string>
    </property>
   </action>
   <action name="actionFixSTL">
@@ -1573,6 +1580,11 @@
     <string>fix CAD geometry</string>
    </property>
   </action>
+  <action name="actionProjection_test">
+   <property name="text">
+    <string>projection test</string>
+   </property>
+  </action>
   <action name="actionImportBlenderFile">
    <property name="text">
     <string>Blender</string>
@@ -1591,6 +1603,39 @@
   <action name="actionTest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="actionInsertNewCell">
+   <property name="text">
+    <string>Insert new cell</string>
+   </property>
+  </action>
+  <action name="actionExportBlenderFile">
+   <property name="text">
+    <string>Blender</string>
+   </property>
+  </action>
+  <action name="actionMergeNodes">
+   <property name="text">
+    <string>Merge nodes</string>
+   </property>
+  </action>
+  <action name="actionSetCaseDirectory">
+   <property name="text">
+    <string>Set case directory</string>
+   </property>
+  </action>
+  <action name="actionMergeVolumes">
+   <property name="text">
+    <string>merge volumes</string>
+   </property>
+  </action>
+  <action name="actionMirrorMesh">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>mirror</string>
    </property>
   </action>
  </widget>

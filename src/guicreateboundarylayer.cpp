@@ -32,9 +32,11 @@
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
-  getSet("boundary layer", "number of smoothing iterations", 5, m_NumIterations);
-  getSet("boundary layer", "number of pre-steps", 2, m_NumPreSteps);
-  getSet("boundary layer", "write debug file", false, m_WriteDebugFile);
+  getSet("boundary layer", "number of smoothing iterations", 10, m_NumIterations);
+  getSet("boundary layer", "remove points", true, m_RemovePoints);
+
+  connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
 }
 
 void GuiCreateBoundaryLayer::before()
@@ -47,22 +49,40 @@ void GuiCreateBoundaryLayer::before()
       break;
     }
   }
+  ui.checkBoxRemovePoints->setChecked(m_RemovePoints);
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
-  double h;
-  getSet("boundary layer", "relative height of boundary layer", 1.5, h);
-  int hi = 20*h;
-  h = 0.05*hi;
-  ui.doubleSpinBoxHeight->setValue(h);
+  double hr, ha, b;
+  getSet("boundary layer", "relative height of boundary layer", 1.0, hr);
+  getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
+  getSet("boundary layer", "blending between absolute and relative", 0.0, b);
+  {
+    int hi = 20*hr;
+    hr = 0.05*hi;
+    ui.doubleSpinBoxHeight->setValue(hr);
+  }
+  {
+    QString num;
+    num.setNum(ha);
+    ui.lineEditAbsolute->setText(num);
+  }
+  {
+    int bi = 20*b;
+    b = 0.05*bi;
+    ui.doubleSpinBoxBlending->setValue(b);
+  }
 }
 
 void GuiCreateBoundaryLayer::operate()
 {
-  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes);
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to selected volume
+  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
   QString volume_name = getSelectedVolume(ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   foreach (int bc, m_BoundaryCodes) {
+    qDebug()<<"V.getSign("<<bc<<")="<<V.getSign(bc);
     if (V.getSign(bc) == 0) {
       QString msg;
       msg.setNum(bc);
@@ -82,13 +102,27 @@ void GuiCreateBoundaryLayer::operate()
     rest.extractToVtkGrid(rest_grid);
     makeCopy(vol_grid, m_Grid);
   }
-
   setAllCells();
+  
   l2g_t  nodes = getPartNodes();
-  l2g_t  cells = getPartCells();
   g2l_t _nodes = getPartLocalNodes();
+  l2g_t  cells = getPartCells();
+  g2l_t _cells = getPartLocalCells();
   l2l_t  n2c   = getPartN2C();
+  l2l_t  c2c   = getPartC2C();
   getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
+
+  if(ui.checkBoxRemovePoints->isChecked()) {
+      // fill m_LayerAdjacentBoundaryCodes
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+      foreach(vtkIdType id_cell, layer_cells) {
+          foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
+              m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+          }
+      }
+      m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
+      qDebug() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
+  }
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
@@ -125,8 +159,6 @@ void GuiCreateBoundaryLayer::operate()
   GridSmoother smooth;
   smooth.setGrid(m_Grid);
   smooth.setBoundaryCodes(m_BoundaryCodes);
-  smooth.prismsOn();
-  //smooth.setNumIterations(5);
   
   SeedSimplePrismaticLayer seed_layer; 
   
@@ -135,6 +167,11 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
+
+  RemovePoints remove_points;
+  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  remove_points.setUpdatePSPOn();
+
   DeleteTetras del;
   del.setGrid(m_Grid);
   
@@ -150,33 +187,24 @@ void GuiCreateBoundaryLayer::operate()
     seed_layer.getLayerCells(layer_cells);
   }
   
-  double H = ui.doubleSpinBoxHeight->value();
-
-  if (!ui.checkBoxImprove->isChecked() && m_NumPreSteps > 0) {
-    double h = 0.01*H*ui.doubleSpinBoxPush->value();
-    smooth.setRelativeHeight(h);
-    smooth.simpleOn();
-    for (int i = 0; i < m_NumPreSteps; ++i) {
-      cout << "improving prismatic layer -> pre-step " << i+1 << "/" << m_NumPreSteps << endl;
-      smooth.setAllCells();
-      smooth();
-      del.setAllCells();
-      del();
-      swap();
-      vol.setTraceCells(layer_cells);
-      vol();
-      vol.getTraceCells(layer_cells);
-    }
-  }
-
-  smooth.setRelativeHeight(H);
-  smooth.simpleOff();
+  double Hr = ui.doubleSpinBoxHeight->value();
+  double Ha = ui.lineEditAbsolute->text().toDouble();
+  double bl = ui.doubleSpinBoxBlending->value();
+  smooth.setRelativeHeight(Hr);
+  smooth.setAbsoluteHeight(Ha);
+  smooth.setBlending(bl);
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     smooth.setAllCells();
     smooth();
     del.setAllCells();
-    del();
+    del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
+
+    if(ui.checkBoxRemovePoints->isChecked()) {
+        remove_points();
+        qDebug() << "removed points: " << remove_points.getNumRemoved();
+    }
+
     swap();
     vol.setTraceCells(layer_cells);
     vol();
@@ -192,6 +220,8 @@ void GuiCreateBoundaryLayer::operate()
     }
   }
 
+  ///////////////////////////////////////////////////////////////
+  // set m_Grid to modified selected volume + unselected volumes
   {
     MeshPartition volume(m_Grid, true);
     MeshPartition rest(rest_grid, true);
@@ -199,4 +229,19 @@ void GuiCreateBoundaryLayer::operate()
   }
   resetOrientation(m_Grid);
   createIndices(m_Grid);
+  ///////////////////////////////////////////////////////////////
+}
+
+void GuiCreateBoundaryLayer::SelectAll_BC()
+{
+  for (int i = 0; i < ui.listWidgetBC->count(); ++i) {
+    ui.listWidgetBC->item(i)->setCheckState(Qt::Checked);
+  }
+}
+
+void GuiCreateBoundaryLayer::ClearAll_BC()
+{
+  for (int i = 0; i < ui.listWidgetBC->count(); ++i) {
+    ui.listWidgetBC->item(i)->setCheckState(Qt::Unchecked);
+  }
 }

@@ -43,6 +43,7 @@ protected:
   double m_Threshold;
   bool   m_ProtectFeatureEdges;
   bool   m_PerformGeometricChecks;
+  bool   m_UpdatePSP;
 
   QVector<bool> m_IsFeatureNode;
 
@@ -57,6 +58,8 @@ public:
   void setProtectFeatureEdgesOff() { m_ProtectFeatureEdges = false; }
   void setPerformGeometricChecksOn()  { m_PerformGeometricChecks = true; }
   void setPerformGeometricChecksOff() { m_PerformGeometricChecks = false; }
+  void setUpdatePSPOn()  { m_UpdatePSP = true; }
+  void setUpdatePSPOff() { m_UpdatePSP = false; }
 
 protected:
 
@@ -66,9 +69,7 @@ protected:
   bool DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
                          const QVector<vtkIdType>& snappoint_vector,
                          const QVector<vtkIdType>& all_deadcells,
-                         const QVector<vtkIdType>& all_mutatedcells,
-                         int& num_newpoints,
-                         int& num_newcells);
+                         const QVector<vtkIdType>& all_mutatedcells);
   
   /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
   vtkIdType FindSnapPoint( vtkIdType DeadNode,
@@ -79,10 +80,14 @@ protected:
   
   /// returns true if moving id_node to position P leads to flipped cells
   bool flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell);
+  bool flippedCell2(vtkIdType id_node, vec3_t x_new);
   
   /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
   int NumberOfCommonPoints( vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra );
 
+  /// returns number of common neighbour nodes of id_node1 and id_node2. IsTetra becomes true if id_node1 and id_node2 belong to the edge of a tetrahedron.
+  bool checkForDestroyedVolumes( vtkIdType id_node1, vtkIdType id_node2, int& N_common_points );
+  
 };
 
 #endif

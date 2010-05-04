@@ -37,10 +37,13 @@ private:
   bool      m_UseNormalCorrection;
   double    m_UnderRelaxation;
   bool      m_Success;
+  int       m_ProjectionIterations;
 
   QVector<QVector<int> > m_NodeToBc;
 
-
+  bool      m_correctCurvature;
+  bool      m_NoCheck;
+  
 private: // methods
 
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
@@ -49,15 +52,23 @@ private: // methods
 
 public:
 
-  LaplaceSmoother();
-  virtual void operate();
-  void setNumberOfIterations(int N) { m_NumberOfIterations = N;}
+  LaplaceSmoother(); ///< default constructor
+  virtual void operate(); ///< Run operation
+  void setNumberOfIterations(int N) { m_NumberOfIterations = N;} ///< Set number of iterations
   void setProjectionOn() { m_UseProjection = true; }
   void setProjectionOff() { m_UseProjection = false; }
   void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
   void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
   bool succeeded() { return m_Success; }
 
+public:
+
+  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
+  bool getCorrectCurvature() { return m_correctCurvature; }
+  void setNoCheck(bool b) { m_NoCheck = b; }
+  bool getNoCheck() { return m_NoCheck; }
+  void setProjectionIterations(int n) { m_ProjectionIterations = n; }
+  
 };
 
 #endif

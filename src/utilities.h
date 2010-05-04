@@ -18,6 +18,9 @@ using namespace std;
 
 #include "vtkUnstructuredGrid.h"
 
+#include <complex>
+using namespace std;
+
 /** Restricts value to the CYCLIC [min,max[ range.
  * Equivalent to min + modulo(value-min, max-min)
  * @param value value to restrict
@@ -281,5 +284,26 @@ QDebug operator<<(QDebug dbg, const vec3_t &v);
 QDebug operator<<(QDebug dbg, const vec2_t &v);
 
 bool checkVector(vec3_t V);
+bool checkVector(vec2_t V);
+
+/// returns the index of a node in a structured triangle grid
+inline vtkIdType trigrid_idx(vtkIdType N, int i, int j) {
+  int offset = -i * (i - 2 * N - 1) / 2;
+  return offset + j;
+}
+
+/// returns the index of a node in a structured quad grid
+inline vtkIdType quadgrid_idx(vtkIdType N, int i, int j) {
+  return i*N + j;
+}
+
+// solver functions
+typedef complex<double> dcmplx;
+QDebug operator<<(QDebug dbg, const dcmplx &c);
+dcmplx complex_pow(dcmplx base, double power);
+// x^3 + a x^2 + b x + c = 0
+int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2);
+// a x^2 + b x + c = 0
+int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1);
 
 #endif

@@ -28,6 +28,8 @@
 #include "guisetboundarycode.h"
 #include "guideletebadaspecttris.h"
 #include "guipick.h"
+#include "guimergevolumes.h"
+#include "guimirrormesh.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
@@ -40,6 +42,7 @@
 #include "simplefoamwriter.h"
 #include "deletepickedcell.h"
 #include "deletepickedpoint.h"
+#include "mergenodes.h"
 #include "boxselect.h"
 #include "fixstl.h"
 #include "cgnswriter.h"
@@ -55,5 +58,6 @@
 #include "insertpoints.h"
 #include "seligairfoilreader.h"
 #include "blenderreader.h"
+#include "blenderwriter.h"
 
 // -------------------------------------------

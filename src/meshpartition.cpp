@@ -288,3 +288,4 @@ double MeshPartition::getSmallestEdgeLength() const
   }
   return L;
 }
+

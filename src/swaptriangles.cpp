@@ -63,6 +63,11 @@ void SwapTriangles::operate()
           for (int j = 0; j < 3; ++j) {
             bool swap = false;
             stencil_t S = getStencil(id_cell, j);
+            /*
+            if (S.id_cell[0] == 16 || S.id_cell[1] == 16) {
+              cout << "breakpoint" << endl;
+            }
+            */
             if(S.id_cell.size() == 2 && S.sameBC) {
               if (S.type_cell[1] == VTK_TRIANGLE) {
                 if(!isEdge(S.id_node[0], S.id_node[1]) ) {
@@ -80,7 +85,13 @@ void SwapTriangles::operate()
 
                     bool force_swap = false;
                     if (m_SmallAreaSwap) {
-                      force_swap = n1.abs() < m_SmallAreaRatio*n2.abs() || n2.abs() < m_SmallAreaRatio*n1.abs();
+                      double A1 = n1.abs();
+                      double A2 = n2.abs();
+                      if (isnan(A1) || isnan(A2)) {
+                        force_swap = true;
+                      } else {
+                        force_swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
+                      }
                     }
                     if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
                       if(testSwap(S)) {

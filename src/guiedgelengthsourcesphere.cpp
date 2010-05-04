@@ -55,7 +55,7 @@ bool GuiEdgeLengthSourceSphere::read(QString txt)
     if (words.size() < 7) {
       return false;
     }
-    m_Name = words[0];
+    m_Name = words[0].trimmed();
     m_Centre = vec3_t(words[1].toDouble(), words[2].toDouble(), words[3].toDouble());
     m_Radius = words[4].toDouble();
     m_Length1 = words[5].toDouble();

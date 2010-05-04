@@ -30,7 +30,7 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = true;
   m_AllowFeatureEdgeSwapping = true;
-  m_RespectFeatureEdgesForDeleteNodes = true;
+  m_RespectFeatureEdgesForDeleteNodes = false;
   m_FeatureAngleForDeleteNodes = m_FeatureAngle;
 }
 
@@ -45,20 +45,12 @@ void ReduceSurfaceTriangulation::pass1()
   while (!done) {
     ++iter;
     cout << "\npass-1 iteration-" << iter << ":" << endl;
-    cout << "computing 'snap-points'" << endl;
-    UpdatePotentialSnapPoints(true, false);
-    cout << "computing characteristic length" << endl;
     computeMeshDensity();
-    cout << "removing nodes" << endl;
     int num_deleted = deleteNodes();
     num_del_max = max(num_del_max, num_deleted);
     cout << "deleted nodes  : " << num_deleted << endl;
-    cout << "performing delaunay swap" << endl;
     swap();
-    cout << "computing 'snap-points'" << endl;
-    UpdatePotentialSnapPoints(true, false);
-    cout << "smoothing" << endl;
-    smooth(1);
+    //smooth(1);
     done = num_deleted <= num_del_max/100;
     cout << "total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "total cells : " << m_Grid->GetNumberOfCells() << endl;

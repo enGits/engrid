@@ -76,6 +76,23 @@ bool GuiMainWindow::m_UnSaved = true;
 
 GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
+  setupGuiMainWindow();
+  if(m_open_last) {
+    if(m_qset.contains("LatestFile")) {
+//       qDebug()<<"Opening latest";
+      open(m_qset.value("LatestFile").toString());
+    }
+  }
+}
+
+GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
+{
+  setupGuiMainWindow();
+  open(file_name);
+}
+
+void GuiMainWindow::setupGuiMainWindow()
+{
   ui.setupUi(this);
   THIS = this;
   
@@ -160,9 +177,11 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
   bool undo_redo_mode;
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
+  getSet("General", "open last used file on startup", false, m_open_last);
   
   ui.actionFoamWriter->setEnabled(exp_features);
-  
+  ui.actionMirrorMesh->setEnabled(exp_features);
+
   m_ReferenceSize=0.2;
   
   ui.doubleSpinBox_HueMin->setValue(0.667);
@@ -173,21 +192,19 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   style->Delete();
 
   // initialise XML document
-//   QDomElement root = m_XmlDoc.createElement("engridcase");
-//   m_XmlDoc.appendChild(root);
-  this->resetXmlDoc();
+  m_XmlHandler = new XmlHandler("engridcase");
+//   this->resetXmlDoc();
   
   m_SolverIndex = 0;
   
   readRecentFiles();
+  
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
 void GuiMainWindow::resetXmlDoc()
 {
-  m_XmlDoc.clear();
-  QDomElement root = m_XmlDoc.createElement("engridcase");
-  m_XmlDoc.appendChild(root);
+  m_XmlHandler->resetXmlDoc();
 }
 
 GuiMainWindow::~GuiMainWindow()
@@ -211,6 +228,7 @@ GuiMainWindow::~GuiMainWindow()
   dir.rmdir(m_LogDir);
 #endif
   
+  delete m_XmlHandler;
 }
 
 void GuiMainWindow::setupVtk()
@@ -359,7 +377,7 @@ void GuiMainWindow::setupVtk()
   
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
-  
+  m_PickedObject = 0;
 //   cbc->Delete();
 }
 
@@ -719,9 +737,11 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
     m_PickedPoint = id_node;
     m_PickActor->GetProperty()->SetColor(0,0,1);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 1;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -749,9 +769,11 @@ bool GuiMainWindow::pickCell(vtkIdType id_cell)
     m_PickedCell = id_cell;
     m_PickActor->GetProperty()->SetColor(1,0,0);
     m_PickActor->VisibilityOn();
+    m_PickedObject = 2;
     return(true);
   } else {
     m_PickActor->VisibilityOff();
+    m_PickedObject = 0;
     return(false);
   }
 }
@@ -907,62 +929,12 @@ void GuiMainWindow::resetOperationCounter()
 
 QString GuiMainWindow::getXmlSection(QString name)
 {
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
-  QDomElement element = m_XmlDoc.documentElement();
-  bool found = true;
-  QString section_text = "";
-  try {
-    foreach (QString tag, tags) {
-      QDomNodeList nodes = element.elementsByTagName(tag);
-      if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      if (nodes.size() == 0) {
-        found = false;
-        break;
-      }
-      if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      element = nodes.at(0).toElement();
-    }
-  } catch (Error err) {
-    err.display();
-  }
-  if (found) {
-    section_text = element.text();
-  }
-  return section_text;
+  return m_XmlHandler->getXmlSection(name);
 }
 
 void GuiMainWindow::setXmlSection(QString name, QString contents)
 {
-  QStringList tags = name.toLower().split("/", QString::SkipEmptyParts);
-  QDomElement element = m_XmlDoc.documentElement();
-  try {
-    foreach (QString tag, tags) {
-      QDomNodeList nodes = element.elementsByTagName(tag);
-      if (nodes.size() > 1) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      }
-      if (nodes.size() == 0) {
-        QDomElement new_element = m_XmlDoc.createElement(tag);
-        element.appendChild(new_element);
-        element = new_element;
-      } else if (!nodes.at(0).isElement()) {
-        EG_ERR_RETURN("error retrieving XML section '" + name + "'");
-      } else {
-        element = nodes.at(0).toElement();
-      }
-    }
-    while (element.hasChildNodes()) {
-      element.removeChild(element.firstChild());
-    }
-    QDomText text_node = m_XmlDoc.createTextNode(contents);
-    element.appendChild(text_node);
-  } catch (Error err) {
-    err.display();
-  }
+  m_XmlHandler->setXmlSection(name,contents);
 }
 
 void GuiMainWindow::openPhysicalBoundaryConditions()
@@ -1084,7 +1056,7 @@ void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
   QFileInfo file_info(m_CurrentFilename);
-  qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
+//   qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
@@ -1107,11 +1079,14 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
     no_case_file = true;
     grid_file_name = stripFromExtension(file_name);
   }
+  if (!no_case_file) {
+    if(!m_XmlHandler->openXml(file_name)) {
+      QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
+      return;
+    }
+  }
   if(update_current_filename) {
     GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
-  }
-  if (!no_case_file) {
-    openXml(file_name);
   }
   openGrid(grid_file_name);
   openBC();
@@ -1123,39 +1098,16 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
+//     qDebug()<<"Setting new latest file to "<<file_name;
+    m_qset.setValue("LatestFile",file_name);
     resetOperationCounter();
     quickSave();
   }
 }
 
-void GuiMainWindow::openXml(QString file_name)
-{
-  QFile xml_file(file_name);
-  if (!xml_file.open(QIODevice::ReadOnly)) {
-    qWarning()<<"Failed to open xml_file "<<xml_file.fileName();
-    qWarning()<<"QDir::current()="<<QDir::current();
-    qWarning()<<"QDir::currentPath()="<<QDir::currentPath();
-    qWarning()<<"getCwd()="<<getCwd();
-    EG_BUG;
-  }
-  if (!m_XmlDoc.setContent(&xml_file)) {
-    QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
-  }
-  xml_file.close();
-}
-
-void GuiMainWindow::saveXml(QString file_name)
-{
-  QString buffer = m_XmlDoc.toString(0);
-  QFile xml_file(file_name);
-  xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
-  QTextStream f(&xml_file);
-  f << buffer << endl;
-}
-
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
-  QString buffer = m_XmlDoc.toString(0);
+  QString buffer = m_XmlHandler->getBuffer(0);
   
   if(update_current_filename) QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   
@@ -1175,7 +1127,8 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   saveBC();
   savePhysicalBoundaryConditions();
-  saveXml(file_name);
+//   saveXml(file_name);
+  m_XmlHandler->saveXml(file_name);
   
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
@@ -1184,6 +1137,8 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
   
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
+//     qDebug()<<"Setting new latest file to "<<file_name;
+    m_qset.setValue("LatestFile",file_name);
   }
   
   return(file_name);
@@ -1529,6 +1484,8 @@ void GuiMainWindow::pickCallBack
 
 vtkIdType GuiMainWindow::getPickedCell()
 {
+  if(!ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_cell = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1546,6 +1503,8 @@ vtkIdType GuiMainWindow::getPickedCell()
 
 vtkIdType GuiMainWindow::getPickedPoint()
 {
+  if(ui.radioButton_CellPicker->isChecked()) return(-1);
+  
   vtkIdType picked_point = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1897,6 +1856,11 @@ void GuiMainWindow::storeSurfaceProjection()
   }
   m_SurfProj.clear();
   cout << "storing background grid for surface projection:" << endl;
+//   EG_VTKSP(vtkUnstructuredGrid,new_grid);
+  MeshPartition new_grid_partition;
+  bool first = true;
+  
+  QFileInfo file_info(m_CurrentFilename);
   
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection();
@@ -1906,14 +1870,32 @@ void GuiMainWindow::storeSurfaceProjection()
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, m_Grid);
     proj->setBackgroundGrid(m_Grid, cls);
-    if (proj->usesLevelSet()) {
-      QString file_name;
-      file_name.setNum(bc);
-      file_name = "OctreeBC" + file_name;
-      proj->writeOctree(file_name);
-      cout << "  bc " << bc << ": " << proj->getNumOctreeCells() << endl;
+    QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
+    
+    proj->m_ExactMode = 0;
+    
+//     DebugLevel = 100;
+    if(DebugLevel>100) {
+      proj->writeGridWithNormals(basename);
+      proj->writeInterpolationGrid(basename);
+      proj->writeTriangleGrid(basename);
+      qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
+        <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
+      
+      if(first) {
+        first = false;
+        new_grid_partition.setGrid(proj->getBezierGrid());
+        new_grid_partition.setAllCells();
+      }
+      else {
+        MeshPartition grid_partition(proj->getBezierGrid(), true);
+        new_grid_partition.addPartition(grid_partition);
+      }
     }
   }
+  
+  if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
+//   DebugLevel = 0;
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
@@ -1943,7 +1925,6 @@ void GuiMainWindow::openRecent(QAction *action)
   qDebug()<<"GuiMainWindow::openRecent called";
   QString file_name = action->text().right(action->text().length()-23);
   this->open(file_name);
-//   this->addRecentFile(file_name,QDateTime::currentDateTime());
 }
 
 void GuiMainWindow::readRecentFiles()
@@ -1953,13 +1934,13 @@ void GuiMainWindow::readRecentFiles()
   QStringList file_names = m_qset.value("FileNames").toStringList();
   QStringList file_dates = m_qset.value("FileDates").toStringList();
   int N = min(10,m_qset.value("NumberOfFiles").toInt());
-  cout << "NumberOfFiles=" << N << endl;
+//   cout << "NumberOfFiles=" << N << endl;
   for (int i = 0; i < N; ++i) {
     QString new_file = file_names.at(i);
     QString date_text = file_dates.at(i);
     QDateTime date = QDateTime::fromString(date_text,"dd.MM.yyyy_hh:mm:ss");
     addRecentFile(new_file,date);
-  };
+  }
 }
 
 void GuiMainWindow::writeRecentFiles()
@@ -1972,7 +1953,7 @@ void GuiMainWindow::writeRecentFiles()
     QString date_text = i.value().toString("dd.MM.yyyy_hh:mm:ss");
     file_names.append(file_name);
     file_dates.append(date_text);
-  };
+  }
   m_qset.setValue("FileNames",file_names);
   m_qset.setValue("FileDates",file_dates);
 }
@@ -1987,10 +1968,10 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
       if (i.value() <= old) {
         old = i.value();
         j = i;
-      };
-    };
+      }
+    }
     m_RecentFiles.erase(j);
-  };
+  }
   this->recentFileMenu()->clear();
   QMap<int,QString> menu_map;
   QDateTime now = QDateTime::currentDateTime();
@@ -1999,11 +1980,89 @@ void GuiMainWindow::addRecentFile(QString file_name, QDateTime date)
     action_text += " -> ";
     action_text += i.key();
     menu_map[i.value().secsTo(now)] = action_text;
-  };
+  }
   {
     for (QMap<int,QString>::iterator i = menu_map.begin(); i != menu_map.end(); ++i) {
       QAction *action = new QAction(i.value(),this);
       this->recentFileMenu()->addAction(action);
-    };
-  };
+    }
+  }
+}
+
+void GuiMainWindow::callInsertNewCell()
+{
+  bool ok1,ok2,ok3,ok4;
+  vtkIdType pts[3];
+  pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
+  if (ok1 && ok2 && ok3 && ok4) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells() + 1, m_Grid->GetNumberOfPoints() );
+    makeCopyNoAlloc(m_Grid, new_grid);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
+    QMessageBox::information(NULL, "new cell", tr("The new cell has ID = %1").arg(id_new_cell));
+    qDebug()<<tr("The new cell has ID = %1").arg(id_new_cell);
+  }
+}
+
+void GuiMainWindow::callMergeNodes()
+{
+  bool ok1,ok2;
+  vtkIdType id_node1 = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_node2 = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  if (ok1 && ok2) {
+    EG_VTKSP( vtkUnstructuredGrid, new_grid );
+    allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
+    
+    QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
+    QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
+    
+    vtkIdType id_new_node = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if(id_node!=id_node1 && id_node!=id_node2) {
+        vec3_t x;
+        m_Grid->GetPoints()->GetPoint(id_node, x.data());
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node] = id_new_node;
+        id_new_node++;
+      }
+      else if(id_node==id_node1) {
+        vec3_t x1;
+        m_Grid->GetPoints()->GetPoint(id_node1, x1.data());
+        vec3_t x2;
+        m_Grid->GetPoints()->GetPoint(id_node2, x2.data());
+        vec3_t x = 0.5*(x1+x2);
+        new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+        copyNodeData(m_Grid, id_node, new_grid, id_new_node);
+        old2new_nodes[id_node1] = id_new_node;
+        old2new_nodes[id_node2] = id_new_node;
+        id_new_node++;
+      }
+      else {
+      }
+    }
+    
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      QVector<vtkIdType> new_pts(N_pts);
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = old2new_nodes[pts[i]];
+      }
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+    }
+    
+    makeCopy(new_grid, m_Grid);
+    m_Grid->Modified();
+    qDebug()<<"The fusion is complete.";
+  }
+  
 }

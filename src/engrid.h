@@ -71,6 +71,17 @@ typedef vtkLongLongArray vtkLongArray_t;
   throw err; \
 };
 
+#define EG_ERR_DISPLAY(TXT) \
+{ \
+QString line; \
+line.setNum(__LINE__); \
+QString txt = QString(TXT) + "\n\nfile: " + __FILE__ + "\nline:" + line + "\n\n"; \
+Error err; \
+err.setText(txt); \
+err.setType(Error::ExitOperation); \
+err.display(); \
+};
+
 #ifdef QT_DEBUG
 #define EG_BUG \
 { \

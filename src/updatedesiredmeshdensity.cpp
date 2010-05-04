@@ -38,7 +38,7 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   QSet<int> all_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(all_bcs);
   QSet<int> fixed_bcs = all_bcs - m_BoundaryCodes;
-  QVector<double> edge_length(m_Grid->GetNumberOfPoints(), 0);
+  QVector<double> edge_length(m_Grid->GetNumberOfPoints(), 1e99);
   QVector<int> edge_count(m_Grid->GetNumberOfPoints(), 0);
   m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -58,8 +58,8 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
             j = 0;
           }
           double L = (x[i] - x[j]).abs();
-          edge_length[pts[i]] += L;
-          edge_length[pts[j]] += L;
+          edge_length[pts[i]] = min(edge_length[pts[i]], L);
+          edge_length[pts[j]] = min(edge_length[pts[j]], L);
           ++edge_count[pts[i]];
           ++edge_count[pts[j]];
         }
@@ -69,8 +69,10 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (edge_count[id_node] > 0) {
-      if(edge_length[id_node]/edge_count[id_node]==0) EG_BUG;
-      characteristic_length_desired->SetValue(id_node, edge_length[id_node]/edge_count[id_node]);
+      if (edge_length[id_node] > 1e98) {
+        EG_BUG;
+      }
+      characteristic_length_desired->SetValue(id_node, edge_length[id_node]);
     }
   }
 }

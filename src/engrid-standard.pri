@@ -1,28 +1,71 @@
+######################################################################
 # common libraries, includes, source files for the engrid*.pro files
+######################################################################
+
+TEMPLATE = app
+LANGUAGE = C++
+TARGET   = engrid
+
+# CONFIG += qt release thread
+# CONFIG += qt debug thread
+CONFIG += qt \
+    debug_and_release \
+    thread
+
+include(engrid-version.pri)
+
+!openfoam {
+    # install
+    target.path = /usr/bin
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+else {
+    message("Configuring for OpenFOAM+paraview")
+    # install
+    target.path = ../platforms/$(WM_ARCH)
+    # target.path = $$PREFIX/bin
+    INSTALLS += target
+}
+
+########
+# FLAGS
+########
+
+# DEFINES += QT_NO_DEBUG
+# DEFINES += QT_DEBUG
+
+# to get rid of deprecated header warnings caused by including QVTKwidget.h
+# DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
+# DEFINES += VTK_LEGACY_REMOVE
+QMAKE_CXXFLAGS += -Wall
+
+# for profiling with gprof
+# QMAKE_CXXFLAGS += -pg
+# QMAKE_CXXFLAGS += -O3
+# QMAKE_LFLAGS += -pg
 QT += xml \
     network \
     opengl
-RESOURCES += engrid.qrc
 
-################
-# netgen lib
-################
 !win32 {
-    LIBS += -L./netgen_svn
-    LIBS += -lng
 #   LIBS += -Wl,-rpath
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
 
-win32 {
-	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-	INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-        LIBS += -Lnetgen_svn/release
-        LIBS += -lsuperman
+############
+# LIBRARIES
+############
 
-	#Z:\mtaverne\Development\engrid\src\netgen_svn\release
+include(engrid-netgen.pri)
+include(engrid-vtk.pri)
+
+CGNS {
+  message("Configuring for CGNS support")
+  include(engrid-cgns.pri)
 }
-################
+
+LIBS += -lm
 
 # VTK libs
 LIBS += -lQVTK
@@ -58,6 +101,19 @@ LIBS += -lvtksys
 # LIBS += -lvtkViews
 LIBS += -lvtkVolumeRendering
 LIBS += -lvtkWidgets
+
+############
+# RESOURCES
+############
+OTHER_FILES += checkcomments.py \
+    todo.txt
+
+RESOURCES += engrid.qrc
+
+##############
+# SOURCE CODE
+##############
+
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -267,9 +323,6 @@ FORMS = guicreateboundarylayer.ui \
     guipick.ui \
     guicreatevolumemesh.ui
 
-OTHER_FILES += checkcomments.py \
-    todo.txt
-
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
@@ -284,6 +337,8 @@ HEADERS += fixcadgeometry.h
 SOURCES += fixcadgeometry.cpp
 HEADERS += blenderreader.h
 SOURCES += blenderreader.cpp
+HEADERS += blenderwriter.h
+SOURCES += blenderwriter.cpp
 HEADERS += beziertriangle.h
 SOURCES += beziertriangle.cpp
 HEADERS += dialoglineedit/dialoglineedit.h
@@ -295,3 +350,20 @@ SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
 SOURCES += guiedgelengthsourcesphere.cpp
+HEADERS += triangle.h
+SOURCES += triangle.cpp
+HEADERS += projection_test.h
+SOURCES += projection_test.cpp
+HEADERS += mergenodes.h
+SOURCES += mergenodes.cpp
+FORMS += guiedgelengthsourcecone.ui
+HEADERS += guiedgelengthsourcecone.h
+SOURCES += guiedgelengthsourcecone.cpp
+FORMS += guimergevolumes.ui
+HEADERS += guimergevolumes.h
+SOURCES += guimergevolumes.cpp
+HEADERS += deletestraynodes.h
+SOURCES += deletestraynodes.cpp
+HEADERS += guimirrormesh.h
+SOURCES += guimirrormesh.cpp
+FORMS += guimirrormesh.ui

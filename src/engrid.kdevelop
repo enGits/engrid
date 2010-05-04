@@ -153,10 +153,10 @@
     </general>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>/data1/home/mtaverne/Development/engrid_master/src/engrid</mainprogram>
-      <programargs>-f ~/Geometries/Probe_S0.egc</programargs>
-      <globaldebugarguments>-f ~/Geometries/Probe_S0.egc</globaldebugarguments>
-      <globalcwd>/data1/home/mtaverne/Development/engrid_master/src/engrid</globalcwd>
+      <mainprogram>./engrid</mainprogram>
+      <programargs/>
+      <globaldebugarguments/>
+      <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>

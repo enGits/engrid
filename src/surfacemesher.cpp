@@ -24,6 +24,8 @@
 #include "surfacemesher.h"
 #include "guimainwindow.h"
 
+#include "laplacesmoother.h"
+
 SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
@@ -32,6 +34,8 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   m_UseNormalCorrectionForSmoothing = true;
   m_AllowFeatureEdgeSwapping = false;
   m_EdgeAngle = m_FeatureAngle;
+  
+  getSet("surface meshing", "interpolate after meshing (experimental)", false, m_interpolateAfterMeshing);
 }
 
 void SurfaceMesher::operate()
@@ -52,7 +56,7 @@ void SurfaceMesher::operate()
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
-  bool done = false;
+  bool done = (iter >= m_NumMaxIter);
   //swap();
   //done = true;
   while (!done) {
@@ -81,7 +85,8 @@ void SurfaceMesher::operate()
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
-    done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    //done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
+    done = (iter >= m_NumMaxIter);
     cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
   }
@@ -100,5 +105,33 @@ void SurfaceMesher::operate()
     }
     cout << N1 << " direct projections" << endl;
     cout << N2 << " full searches" << endl;
+  }
+  
+  if(m_interpolateAfterMeshing) {
+    qDebug()<<"+++ CORRECTING CURVATURE +++";
+    // correct curvature
+    LaplaceSmoother lap;
+    lap.setCorrectCurvature(true);
+    lap.setNoCheck(true);
+    lap.setGrid(m_Grid);
+    QVector<vtkIdType> cls;
+    getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
+    lap.setCells(cls);
+    lap.setNumberOfIterations(1);
+    lap.setProjectionIterations(2);
+    m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
+    lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
+    if (m_UseProjectionForSmoothing) {
+      lap.setProjectionOn();
+    } else {
+      lap.setProjectionOff();
+    }
+    if (m_UseNormalCorrectionForSmoothing) {
+      lap.setNormalCorrectionOn();
+    } else {
+      lap.setNormalCorrectionOff();
+    }
+    lap();
+    m_SmoothSuccess = lap.succeeded();
   }
 }

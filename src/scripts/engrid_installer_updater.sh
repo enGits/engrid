@@ -135,7 +135,7 @@ install_VTK()
   tar -xzvf ./$ARCHIVE_VTK
   cd ./VTK
   mkdir -p $VTKPREFIX
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=$VTKPREFIX -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_USE_GUISUPPORT:BOOL=ON -DVTK_USE_QVTK:BOOL=ON -DDESIRED_QT_VERSION:STRING=4  .
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=$VTKPREFIX -DBUILD_SHARED_LIBS:BOOL=ON -DVTK_USE_GUISUPPORT:BOOL=ON -DVTK_USE_QVTK:BOOL=ON -DVTK_USE_QT:BOOL=ON -DDESIRED_QT_VERSION:STRING=4  .
   chmod 644 Utilities/vtktiff/tif_fax3sm.c
   make $MAKEOPTIONS_ALL && make install
   cd -
@@ -157,33 +157,82 @@ install_CGNS()
 build_engrid()
 {
   ORIG_WD=$(pwd)
+
   mkdir -p $SRCPREFIX
   cd $SRCPREFIX
-  git clone $URL_ENGRID
-  cd engrid/src
-  if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
+
+  if [ $DOWNLOAD_ENGRID = 1 ];
+  then
+    wget $URL_ENGRID;
+    tar -xzvf ./$ARCHIVE_ENGRID
+  else
+    git clone $GIT_URL_ENGRID
+    cd $SRCPREFIX/engrid/src
+    if [ $BRANCH != "master" ]; then git checkout -b $BRANCH origin/$BRANCH; fi;
+  fi
+
+  cd $SRCPREFIX/engrid/src
+
   echo "Build netgen"
-  ./scripts/build-nglib.sh
+
+  if [ $DOWNLOAD_NETGEN = 1 ];
+  then
+    cd $SRCPREFIX/engrid/src/netgen_svn
+    wget $URL_NETGEN;
+    tar -xzvf ./$ARCHIVE_NETGEN
+    qmake && make $MAKEOPTIONS_ALL
+    cd $SRCPREFIX/engrid/src
+  else
+    ./scripts/build-nglib.sh
+  fi
+
   echo "Build enGrid"
   qmake $PROJECT_FILE && make $MAKEOPTIONS_ALL $MAKEOPTIONS_ENGRID
+
   cd $ORIG_WD
 }
 
 update_netgen()
 {
+  ORIG_WD=$(pwd)
+
   cd $SRCPREFIX/engrid/src
   echo "Update netgen"
-  ./scripts/build-nglib.sh
-  cd -
+
+  if [ $DOWNLOAD_NETGEN = 1 ];
+  then
+    cd $SRCPREFIX/engrid/src/netgen_svn
+    wget $URL_NETGEN;
+    tar -xzvf ./$ARCHIVE_NETGEN
+    qmake && make $MAKEOPTIONS_ALL
+    cd $SRCPREFIX/engrid/src
+  else
+    ./scripts/build-nglib.sh
+  fi
+
+  cd $ORIG_WD
 }
 
 update_engrid()
 {
+  ORIG_WD=$(pwd)
+
   cd $SRCPREFIX/engrid/src
   echo "Update enGrid"
-  git pull
+
+  if [ $DOWNLOAD_ENGRID = 1 ];
+  then
+    cd $SRCPREFIX
+    wget $URL_ENGRID;
+    tar -xzvf ./$ARCHIVE_ENGRID
+    cd $SRCPREFIX/engrid/src
+  else
+    git pull
+  fi
+
   qmake $PROJECT_FILE && make $MAKEOPTIONS_ALL $MAKEOPTIONS_ENGRID
-  cd -
+
+  cd $ORIG_WD
 }
 
 rebuild_engrid()

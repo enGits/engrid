@@ -27,55 +27,73 @@
 #include <QProcess>
 
 #include "egvtkobject.h"
+#include "foamobject.h"
 
-class OpenFOAMTools : public QObject, public EgVtkObject
-{
-  Q_OBJECT;
+class OpenFOAMTools : public QObject, public EgVtkObject, public FoamObject {
+    Q_OBJECT;
 
-private: // attributes
+  private: // attributes
 
-  QProcess*   m_SolverProcess;
-  QProcess*   m_ToolsProcess;
-  QString     m_SolverBinary;
-  QString     m_StrippedSolverBinary;
-  QString     m_WorkingDirectory;
-  int         m_NumProcesses;
-  QString     m_HostFile;
-  QString     m_Program;
-  QStringList m_Arguments;
-  QString     m_OpenFoamPath;
-  QString     m_OpenFoamArch;
-  QString     m_MainHost;
+    QProcess*   m_SolverProcess;
+    QProcess*   m_ToolsProcess;
+    QString     m_SolverBinary;
+    QString     m_StrippedSolverBinary;
+    QString     m_WorkingDirectory;
+    int         m_NumProcesses;
+    QString     m_HostFile;
+    QString     m_OpenFoamPath;
+    QString     m_OpenFoamArch;
+    QString     m_ParaviewPath;
+    QString     m_MainHost;
 
-private: // methods
+    QString     m_Program_Solver;
+    QStringList m_Arguments_Solver;
 
-  void    writeMpiParameters();
-  int     getArguments();
-  void    runTool(QString path, QString name, QStringList args = QStringList());
-  QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };
+    QString     m_Program_Tools;
+    QStringList m_Arguments_Tools;
 
-public:
+    QString m_FullCommand_Solver;
+    QString m_FullCommand_Tools;
 
-  OpenFOAMTools(QObject *parent = 0);
-  ~OpenFOAMTools();
+  private: // methods
 
-public: // methods
+    void    writeMpiParameters();
+    int     getArguments();
+    void    runTool(QString path, QString name, QStringList args = QStringList());
+    QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };
+    void    runFOO(QString path, QString name, QStringList args = QStringList());
+
+  public:
+
+    OpenFOAMTools(QObject *parent = 0);
+    ~OpenFOAMTools();
+
+  public: // methods
 
 
 
-public slots:
+  public slots:
 
-  void runSolver();
-  void runDecomposePar();
-  void runPostProcessingTools();
-  void runImportFluentCase();
+    void runSolver();
+    void runDecomposePar();
+    void runPostProcessingTools();
+    void runImportFluentCase();
+    void runParaview();
+    void setCaseDirectory();
 
-  void stopSolverProcess();
+    void stopSolverProcess();
 
-  void finishedHandler(int exitCode, QProcess::ExitStatus exitStatus);
-  void readFromStderr();
-  void readFromStdout();
-  void startedHandler();
+    // handlers Solver
+    void finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus);
+    void readFromStderr_Solver();
+    void readFromStdout_Solver();
+    void startedHandler_Solver();
+
+    // handlers Tools
+    void finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus);
+    void readFromStderr_Tools();
+    void readFromStdout_Tools();
+    void startedHandler_Tools();
 
 };
 

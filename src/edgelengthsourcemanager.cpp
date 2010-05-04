@@ -24,6 +24,7 @@
 #include "edgelengthsourcemanager.h"
 
 #include "guiedgelengthsourcesphere.h"
+#include "guiedgelengthsourcecone.h"
 #include "guimainwindow.h"
 
 EdgeLengthSourceManager::EdgeLengthSourceManager()
@@ -31,6 +32,7 @@ EdgeLengthSourceManager::EdgeLengthSourceManager()
   m_Sources.clear();
   m_Samples.clear();
   m_Samples.push_back(new GuiEdgeLengthSourceSphere);
+  m_Samples.push_back(new GuiEdgeLengthSourceCone);
   m_ListWidget = NULL;
 }
 
@@ -67,6 +69,12 @@ void EdgeLengthSourceManager::read()
       if (sample->read(line.trimmed())) {
         if (dynamic_cast<GuiEdgeLengthSourceSphere*>(sample)) {
           GuiEdgeLengthSourceSphere *S = new GuiEdgeLengthSourceSphere;
+          S->read(line.trimmed());
+          m_Sources.push_back(S);
+          break;
+        }
+        if (dynamic_cast<GuiEdgeLengthSourceCone*>(sample)) {
+          GuiEdgeLengthSourceCone *S = new GuiEdgeLengthSourceCone;
           S->read(line.trimmed());
           m_Sources.push_back(S);
           break;
@@ -133,6 +141,15 @@ void EdgeLengthSourceManager::addSphere()
 {
   QString name = "sphere" + timeStamp();
   GuiEdgeLengthSourceSphere *S = new GuiEdgeLengthSourceSphere;
+  S->setName(name);
+  m_Sources.append(S);
+  populateListWidget();
+}
+
+void EdgeLengthSourceManager::addCone()
+{
+  QString name = "cone" + timeStamp();
+  GuiEdgeLengthSourceCone *S = new GuiEdgeLengthSourceCone;
   S->setName(name);
   m_Sources.append(S);
   populateListWidget();

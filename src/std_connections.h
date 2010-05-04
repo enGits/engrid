@@ -78,25 +78,27 @@ connect(ui.lineEditClipNZ, SIGNAL(textChanged(QString)), this, SLOT(setClipNZ(QS
 
 connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
 
-connect(ui.actionCreateSurfaceMesh,SIGNAL(triggered()),this,SLOT(callCreateSurfaceMesh()));
-connect(ui.actionCreateBoundaryLayer,SIGNAL(triggered()),this,SLOT(callCreateBoundaryLayer()));
-connect(ui.actionDivideBoundaryLayer,SIGNAL(triggered()),this,SLOT(callDivideBoundaryLayer()));
-connect(ui.actionDeleteVolumeGrid,SIGNAL(triggered()),this,SLOT(callDeleteTetras()));
-connect(ui.actionFixSTL,SIGNAL(triggered()),this,SLOT(callFixSTL()));
-connect(ui.actionCreateVolumeMesh,SIGNAL(triggered()),this,SLOT(callCreateVolumeMesh()));
-connect(ui.actionSmoothVolumeGrid,SIGNAL(triggered()),this,SLOT(callSmoothVolumeGrid()));
-connect(ui.actionVtkReader,SIGNAL(triggered()),this,SLOT(callVtkReader()));
-connect(ui.actionPolyDataReader,SIGNAL(triggered()),this,SLOT(callPolyDataReader()));
-connect(ui.actionSetBoundaryCode,SIGNAL(triggered()),this,SLOT(callSetBoundaryCode()));
-connect(ui.actionFoamWriter,SIGNAL(triggered()),this,SLOT(callFoamWriter()));
-connect(ui.actionSimpleFoamWriter,SIGNAL(triggered()),this,SLOT(callSimpleFoamWriter()));
+connect(ui.actionCreateSurfaceMesh, SIGNAL(triggered()), this, SLOT(callCreateSurfaceMesh()));
+connect(ui.actionCreateBoundaryLayer, SIGNAL(triggered()), this, SLOT(callCreateBoundaryLayer()));
+connect(ui.actionDivideBoundaryLayer, SIGNAL(triggered()), this, SLOT(callDivideBoundaryLayer()));
+connect(ui.actionDeleteVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteTetras()));
+connect(ui.actionFixSTL, SIGNAL(triggered()), this, SLOT(callFixSTL()));
+connect(ui.actionCreateVolumeMesh, SIGNAL(triggered()), this, SLOT(callCreateVolumeMesh()));
+connect(ui.actionSmoothVolumeGrid, SIGNAL(triggered()), this, SLOT(callSmoothVolumeGrid()));
+connect(ui.actionVtkReader, SIGNAL(triggered()), this, SLOT(callVtkReader()));
+connect(ui.actionPolyDataReader, SIGNAL(triggered()), this, SLOT(callPolyDataReader()));
+connect(ui.actionSetBoundaryCode, SIGNAL(triggered()), this, SLOT(callSetBoundaryCode()));
+connect(ui.actionFoamWriter, SIGNAL(triggered()), this, SLOT(callFoamWriter()));
+connect(ui.actionSimpleFoamWriter, SIGNAL(triggered()), this, SLOT(callSimpleFoamWriter()));
 connect(ui.actionFoamCaseWriter, SIGNAL(triggered()), this, SLOT(callFoamCaseWriter()));
-connect(ui.actionDeleteBadAspectTris,SIGNAL(triggered()),this,SLOT(callDeleteBadAspectTris()));
-connect(ui.actionDeletePickedCell,SIGNAL(triggered()),this,SLOT(callDeletePickedCell()));
-connect(ui.actionDeletePickedPoint,SIGNAL(triggered()),this,SLOT(callDeletePickedPoint()));
-connect(ui.actionBoxSelect,SIGNAL(triggered()),this,SLOT(callBoxSelect()));
-connect(ui.actionCheck_surface_integrity,SIGNAL(triggered()),this,SLOT(callCheckSurfaceIntegrity()));
-connect(ui.actionPick_cell_point,SIGNAL(triggered()),this,SLOT(callPick_cell_point()));
+connect(ui.actionDeleteBadAspectTris, SIGNAL(triggered()), this, SLOT(callDeleteBadAspectTris()));
+connect(ui.actionDeletePickedCell, SIGNAL(triggered()), this, SLOT(callDeletePickedCell()));
+connect(ui.actionMergeNodes, SIGNAL(triggered()), this, SLOT(callMergeNodes()));
+connect(ui.actionInsertNewCell, SIGNAL(triggered()), this, SLOT(callInsertNewCell()));
+connect(ui.actionDeletePickedPoint, SIGNAL(triggered()), this, SLOT(callDeletePickedPoint()));
+connect(ui.actionBoxSelect, SIGNAL(triggered()), this, SLOT(callBoxSelect()));
+connect(ui.actionCheck_surface_integrity, SIGNAL(triggered()), this, SLOT(callCheckSurfaceIntegrity()));
+connect(ui.actionPick_cell_point, SIGNAL(triggered()), this, SLOT(callPick_cell_point()));
 connect(ui.actionTransform, SIGNAL(triggered()), this, SLOT(callTransform()));
 connect(ui.actionExportCGNS, SIGNAL(triggered()), this, SLOT(callCgnsWriter()));
 connect(ui.actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
@@ -109,8 +111,12 @@ connect(ui.actionEliminateSmallBranches, SIGNAL(triggered()), this, SLOT(callEli
 connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoothAndSwapSurface()));
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
 connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderReader()));
+connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
+connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes()));
+connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
+connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));
@@ -119,5 +125,8 @@ connect(ui.actionPreparePostProcessing, SIGNAL(triggered()), &m_OpenFoamTools, S
 connect(ui.actionStopProcesses,         SIGNAL(triggered()), &m_OpenFoamTools, SLOT(stopSolverProcess()));
 connect(ui.actionImportFluentCase,      SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runImportFluentCase()));
 
-connect(ui.menuOpen_recent,SIGNAL(triggered(QAction*)),this,SLOT(openRecent(QAction*)));
+connect(ui.actionStartParaView,         SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runParaview()));
+connect(ui.actionSetCaseDirectory,      SIGNAL(triggered()), &m_OpenFoamTools, SLOT(setCaseDirectory()));
+
+connect(ui.menuOpen_recent, SIGNAL(triggered(QAction*)), this, SLOT(openRecent(QAction*)));
 // -------------------------------------------

@@ -45,16 +45,14 @@ void DeleteCells::operate()
   QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
   QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
   {
-    {
-      vtkIdType id_new = 0;
-      foreach (vtkIdType id_node, new_nodes) {  
-        vec3_t x;
-        m_Grid->GetPoints()->GetPoint(id_node, x.data());
-        new_grid ->GetPoints()->SetPoint(id_new, x.data());
-        copyNodeData(m_Grid, id_node, new_grid, id_new);
-        old2new_nodes[id_node] = id_new;
-        ++id_new;
-      }
+    vtkIdType id_new = 0;
+    foreach (vtkIdType id_node, new_nodes) {
+      vec3_t x;
+      m_Grid->GetPoints()->GetPoint(id_node, x.data());
+      new_grid ->GetPoints()->SetPoint(id_new, x.data());
+      copyNodeData(m_Grid, id_node, new_grid, id_new);
+      old2new_nodes[id_node] = id_new;
+      ++id_new;
     }
   }
   {

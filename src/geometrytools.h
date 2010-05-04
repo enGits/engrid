@@ -81,6 +81,8 @@ double intersection(vec3_t x_straight, vec3_t v_straight,
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol = 1e-4);
 
+bool isInsideTriangle(vec2_t t_M, double tol = 1e-4);
+
 /** Calculates the intersection point M between the lines (r1,u1) and (r2,u2).
  * @param k1 Returned by reference. Verifies M = r1+k1*u1
  * @param k2 Returned by reference. Verifies M = r2+k2*u2
@@ -94,6 +96,16 @@ bool intersection (double &k1, double &k2, vec2_t r1, vec2_t u1, vec2_t r2, vec2
 
 void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<vec3_t> > &Tout);
 
+/** Returns the volume of a tetrahedron.
+ * V= v1*(v2^v3) with vi=xi-x0
+ * If neg = false and V<0, it will return V=-1e99, else it returns V.
+ * @param x0 point 0 of the tetrahedron
+ * @param x1 point 1 of the tetrahedron
+ * @param x2 point 2 of the tetrahedron
+ * @param x3 point 3 of the tetrahedron
+ * @param neg If neg = false and V<0, it will return V=-1e99, else it returns V.
+ * @return volume of the tetrahedron
+ */
 double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg = false);
 
 double pyraVol(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4, vec3_t x5, bool neg = false);
@@ -116,6 +128,7 @@ vec3_t quadNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTy
 
 vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i);
 
+/// Returns the area or volume of a cell.
 double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg = false);
   
 inline vec2_t turnRight(const vec2_t &v)
@@ -187,9 +200,17 @@ vec3_t getBarycentricCoordinates(double x, double y);
 
 vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB);
 
+/** Projects vector V onto plane (O,i,j)
+ * @param V The vector to project
+ * @param i A vector of the plane
+ * @param j A vector of the plane
+ * @return Returns a 2D vector (x,y) so that V = x*i +y*j
+ */
 vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j);
 
 vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
+
+vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N);
 
 };
 

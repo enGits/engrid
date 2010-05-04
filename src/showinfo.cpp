@@ -24,6 +24,8 @@
 
 #include "insertpoints.h"
 
+#include "guimainwindow.h"
+
 #include "geometrytools.h"
 using namespace GeometryTools;
 
@@ -99,6 +101,12 @@ void ShowInfo::operate()
       cout<<"Q_L1("<<PickedPoint<<")="<<Q_L1(PickedPoint)<<endl;
       cout<<"Q_L2("<<PickedPoint<<")="<<Q_L2(PickedPoint)<<endl;
       cout<<"CurrentVertexAvgDist("<<PickedPoint<<")="<<CurrentVertexAvgDist(PickedPoint)<<endl;
+
+      setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
+      UpdatePotentialSnapPoints(true, true);
+      QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( PickedPoint );
+      qDebug()<<"PSP_vector="<<PSP_vector;
+
       cout<<"====================================="<<endl;
     } else {
       cout<<"Invalid point"<<endl;

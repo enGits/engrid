@@ -195,7 +195,6 @@ void sliceTriangle(const vector<vec3_t> &Tin, vec3_t x, vec3_t n, vector<vector<
   }
 }
 
-
 double tetraVol(const vec3_t& x0, const vec3_t& x1, const vec3_t& x2, const vec3_t& x3, bool neg)
 {
   static double f16 = 1.0/6.0;
@@ -421,6 +420,16 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
   return(xc);
 }
 
+bool isInsideTriangle(vec2_t t_M, double tol)
+{
+  if(t_M[0]<0-tol || 1+tol<t_M[0] || t_M[1]<0-tol || 1+tol<t_M[1] || t_M[0]+t_M[1]>1+tol) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
                               const vec3_t& x1, const vec3_t& x2, vec3_t& xi, vec3_t& ri, double tol)
 {
@@ -447,7 +456,19 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
+  if(G.det()==0) EG_BUG;
+//   qWarning()<<"inverting matrix";
+//   qWarning()<<"g1="<<g1;
+//   qWarning()<<"g2="<<g2;
+//   qWarning()<<"g3="<<g3;
+  
+  checkVector(g1);
+  checkVector(g2);
+  checkVector(g3);
+//   qWarning()<<"G.det()="<<G.det();
+  G.inverse();
   mat3_t GI = G.inverse();
+//   qWarning()<<"inverting matrix successful";
   ri = xi - a;
   ri = GI*ri;
 
@@ -460,15 +481,17 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   }
   
   // intersection outside of triangle?
-  if (ri[0] + ri[1] > 1) {
-    return false;
-  }
-  if ((ri[0] < 0 - tol) || (ri[0] > 1 + tol)) {
-    return false;
-  }
-  if ((ri[1] < 0 - tol) || (ri[1] > 1 + tol)) {
-    return false;
-  }
+  // TODO: can be simplified.
+  if(!isInsideTriangle(vec2_t(ri[0],ri[1]),tol)) return false;
+//   if (ri[0] + ri[1] > 1) {
+//     return false;
+//   }
+//   if ((ri[0] < 0 - tol) || (ri[0] > 1 + tol)) {
+//     return false;
+//   }
+//   if ((ri[1] < 0 - tol) || (ri[1] > 1 + tol)) {
+//     return false;
+//   }
 
   return true;
 }
@@ -504,6 +527,12 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
 
 vec3_t getBarycentricCoordinates(double x, double y)
 {
+  if(isnan(x) || isinf(x) || isnan(y) || isinf(y)) {
+    qWarning()<<"x="<<x;
+    qWarning()<<"y="<<y;
+    EG_BUG;
+  }
+  
   double x_1=0;
   double y_1=0;
   double x_2=1;
@@ -603,6 +632,8 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   //cout<<"p_nA="<<p_nA<<endl;
   //cout<<"p_tA="<<p_tA<<endl;
   //cout<<"p_K="<<p_K<<endl;
+  if(p_K[0]<0) p_K[0] = 0;
+  if(p_K[0]>1) p_K[0] = 1;
   vec3_t K = A + p_K[0]*u + p_K[1]*v;
   //cout<<"K="<<K<<endl;
   return K;
@@ -610,9 +641,17 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
 
 vec2_t projectVectorOnPlane(vec3_t V,vec3_t i,vec3_t j)
 {
+  if(i.abs2()==0) EG_BUG;
+  if(j.abs2()==0) EG_BUG;
   double x = V*i/i.abs2();
   double y = V*j/j.abs2();
   return vec2_t(x,y);
+}
+
+vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N)
+{
+  double k = ((M-A)*N)/N.abs2();
+  return( M - k*N );
 }
 
 vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u)

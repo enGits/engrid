@@ -48,6 +48,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
       node_normals[i] = fixed_normal;
     }
   }
+  for (int i = 0; i < node_normals.size(); ++ i) {
+    node_normals[i][0] *= m_ScaleX;
+    node_normals[i][1] *= m_ScaleY;
+    node_normals[i][2] *= m_ScaleZ;
+  }
   n1.resize(nodes.size());
   n2.resize(nodes.size());
   

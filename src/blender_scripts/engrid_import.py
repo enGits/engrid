@@ -51,7 +51,8 @@ def readEngrid(filename):
   
   #print "object_names=",object_names
   
-  verts = []
+  global_verts = []
+  offset = 0
   for i_object in range(0, Nobjects):
     line = in_file.readline()
     words = line.split()
@@ -60,6 +61,7 @@ def readEngrid(filename):
     #print "Nverts=",Nverts
     #print "Nfaces=",Nfaces
     
+    local_verts = []
     for i_vert in range(0, Nverts):
       line = in_file.readline()
       words = line.split()
@@ -67,7 +69,8 @@ def readEngrid(filename):
       y = float(words[1])
       z = float(words[2])
       #print "x,y,z=",x,y,z
-      verts.append( Vector(x,y,z) )
+      local_verts.append( Vector(x,y,z) )
+      global_verts.append( Vector(x,y,z) )
     
     faces = []
     for i_face in range(0, Nfaces):
@@ -82,13 +85,15 @@ def readEngrid(filename):
             return
           face_verts = []
           for i_face_vert in range(0, Nverts_in_face):
-            idx = int(words[i_face_vert + 1])
+            idx = int(words[i_face_vert + 1]) - offset
             face_verts.append(idx)
           #print "face_verts=",face_verts
           faces.append(face_verts)
     
     #print "Adding object ",object_names[i_object]
-    BPyAddMesh.add_mesh_simple(object_names[i_object], verts, [], faces)
+    BPyAddMesh.add_mesh_simple(object_names[i_object], local_verts, [], faces)
+
+    offset += Nverts
 
   in_file.close()
 

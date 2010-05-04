@@ -16,8 +16,8 @@ DialogLineEdit::DialogLineEdit(QWidget *parent)
 DialogLineEdit::DialogLineEdit(bool openfile, QWidget *parent)
     : QWidget(parent)
 {
-  m_openfile = openfile;
   build();
+  m_openfile = openfile;
 }
 
 void DialogLineEdit::build()
@@ -54,7 +54,7 @@ void DialogLineEdit::openDialog()
 
   if (m_UseFileDialog) {
     QString name;
-    qDebug() << "m_dir=" << m_dir;
+//     qDebug() << "m_dir=" << m_dir;
     if (m_openfile) name = QFileDialog::getOpenFileName(NULL, m_caption, m_dir, m_filter);
     else name = getDirectory(NULL, m_caption, m_dir);
 
