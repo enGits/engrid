@@ -32,7 +32,7 @@ make
 
 %install
 mkdir -p %buildroot/%_bindir
-%__cp engrid %buildroot/%_bindir
+%__cp src/engrid %buildroot/%_bindir
 
 %clean
 rm -fr %buildroot
