@@ -27,12 +27,13 @@
 cd netgen_svn
 wget http://files.engits.eu/netgen-4.9.13-RC.tar.gz
 tar xzf netgen-4.9.13-RC.tar.gz
+rm netgen-4.9.13-RC.tar.gz
 rm -rf netgen-mesher
 mkdir netgen-mesher
 mv netgen-4.9.13-RC netgen-mesher/netgen
 qmake
 make clean
-make
+make -j4
 cd ..
 
 # ----------------------------------------------------------------- end-of-file
