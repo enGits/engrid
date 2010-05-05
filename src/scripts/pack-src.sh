@@ -26,12 +26,10 @@ cd git.tmp
 git clone ssh://engits.eu/git/engrid.git
 cd engrid
 git checkout $1
-#rm -rf .git
-#rm -rf OBS
-#rm -rf debian
-#rm -rf manual
-cp -R ../../netgen_svn/netgen-mesher src/netgen_svn/
-rm -rf src/netgen_svn/netgen-mesher/.svn
+rm -rf .git
+rm -rf OBS
+rm -rf debian
+rm -rf manual
 cd ..
 mv engrid engrid-$2
 tar cvzf ../engrid-$2.tar.gz engrid-$2

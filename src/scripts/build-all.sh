@@ -23,5 +23,6 @@
 # 
 scripts/build-nglib.sh
 qmake
-make
+make clean
+make release -j4
 
