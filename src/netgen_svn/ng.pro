@@ -129,6 +129,7 @@ SOURCES  = \
 ./netgen-mesher/netgen/libsrc/meshing/smoothing2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/meshfunc2d.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/pyramid2rls.cpp \
+./netgen-mesher/netgen/libsrc/meshing/prism2rls.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/netrule3.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/adfront2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/specials.cpp \
