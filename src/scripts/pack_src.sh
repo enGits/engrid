@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
@@ -21,18 +21,17 @@
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
-
-# DESCRIPTION:
-
-cd netgen_svn
-wget http://files.engits.eu/netgen-4.9.13-RC.tar.gz
-tar xzf netgen-4.9.13-RC.tar.gz
-rm -rf netgen-mesher
-mkdir netgen-mesher
-mv netgen-4.9.13-RC netgen-mesher/netgen
-qmake
-make clean
-make
+mkdir git.tmp
+cd git.tmp
+git clone ssh://engits.eu/git/engrid.git
+cd engrid
+git checkout $1
+rm -rf .git
+rm -rf OBS
+rm -rf debian
+rm -rf manual
 cd ..
-
-# ----------------------------------------------------------------- end-of-file
+mv engrid engrid-$2
+tar cvzf ../engrid-$2.tar.gz engrid-$2
+cd ..
+rm -rf git.tmp
