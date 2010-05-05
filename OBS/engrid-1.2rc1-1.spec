@@ -15,17 +15,18 @@ Url:		http://engits.eu/engrid
 Requires:	libqt4 vtk-qt
 BuildRequires:  libqt4-devel vtk-devel
 Source:		http://files.engits.eu/engrid-1.2rc1.tar.gz
-Patch:
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
 
 %prep
-%setup
+%setup 
 
 %build
+OBS/build.sh
 
 %install
+OBS/inst.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -34,8 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun
 
 %files
-%defattr(-,root,root)
-%doc ChangeLog README COPYING
+/usr/bin/engrid
 
 %changelog
 * Wed May 05 2010 ogloth@ogloth-LAPTOP
