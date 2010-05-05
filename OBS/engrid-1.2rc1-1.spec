@@ -5,7 +5,7 @@
 
 # norootforbuild
 
-Name:           engrid-1.2rc1-1
+Name:           engrid
 Version:	1.2rc1
 Release:	1
 Summary:	open-source mesh generator for CFD
@@ -20,13 +20,15 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %description
 
 %prep
-%setup 
+%setup
 
 %build
-OBS/build.sh
+cd src
+export VTKINCDIR=/usr/inlcude/vtk
+scripts/build_all.sh
 
 %install
-OBS/inst.sh
+cp src/engrid /usr/bin
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -38,5 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/engrid
 
 %changelog
-* Wed May 05 2010 ogloth@ogloth-LAPTOP
+* Wed May 05 2010 ogloth@engits.com
+- first attempt to create RPM package for enGrid
+
 

@@ -30,6 +30,7 @@ rm -rf .git
 cp -R ../../netgen_svn/netgen-mesher src/netgen_svn/
 rm -rf src/netgen_svn/netgen-mesher/.svn
 cd ..
-tar cvzf ../engrid-src-$1.tar.gz engrid
+mv engrid engrid-$2
+tar cvzf ../engrid-$2.tar.gz engrid-$2
 cd ..
 rm -rf git.tmp
