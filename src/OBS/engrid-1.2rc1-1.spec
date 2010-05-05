@@ -12,8 +12,8 @@ Summary:	open-source mesh generator for CFD
 Group:		Applications/Engineering
 License:	GPL
 Url:		http://engits.eu/engrid
-Requires:	libqt4 vtk
-BuildRequires:  libqt4-devel vtk netgen
+Requires:	libqt4 vtk netgen
+BuildRequires:  libqt4-devel vtk vtk-devel netgen netgen-devel
 Source:		http://files.engits.eu/engrid-1.2rc1.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -27,22 +27,19 @@ cd src
 export CXXFLAGS="$RPM_OPT_FLAGS"
 export VTKINCDIR=%_includedir/vtk
 export VTKLIBDIR=%_libdir
-scripts/build-all.sh
+qmake
+make
 
 %install
-cp src/engrid /usr/bin
+mkdir -p %buildroot/%_bindir
+%__cp engrid %buildroot/%_bindir
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-%post
-%postun
+rm -fr %buildroot
 
 %files
-/usr/bin/engrid
+%defattr(-,root,root)
+%doc engrid_manual.pdf
+%_bindir/engrid
 
 %changelog
-* Wed May 05 2010 ogloth@engits.com
-- first attempt to create RPM package for enGrid
-
-

@@ -26,6 +26,7 @@ cd git.tmp
 git clone ssh://engits.eu/git/engrid.git
 cd engrid
 git checkout $1
+rm -rf .*ignore
 rm -rf .git
 rm -rf OBS
 rm -rf debian
