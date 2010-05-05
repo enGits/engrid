@@ -39,7 +39,6 @@ rm -fr %buildroot
 
 %files
 %defattr(-,root,root)
-%doc engrid_manual.pdf
 %_bindir/engrid
 
 %changelog
