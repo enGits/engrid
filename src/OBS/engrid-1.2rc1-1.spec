@@ -24,8 +24,10 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %build
 cd src
-export VTKINCDIR=/usr/inlcude/vtk
-scripts/build_all.sh
+export CXXFLAGS="$RPM_OPT_FLAGS"
+export VTKINCDIR=%_includedir/vtk
+export VTKLIBDIR=%_libdir
+scripts/build-all.sh
 
 %install
 cp src/engrid /usr/bin
