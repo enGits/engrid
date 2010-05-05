@@ -1718,12 +1718,7 @@ void GuiMainWindow::about()
   QMessageBox box(this);
   
   QString title="ENGRID";
-  QString version = QString("version ") + ENGRID_VERSION;
-  #ifdef GIT_DESCRIBE
-  if(!QString(GIT_DESCRIBE).isEmpty()) {
-      version +=  QString(" - ") + GIT_DESCRIBE;
-  }
-  #endif
+  QString version = QString("version 1.2rc1");
   
   version += " built on ";
   version += QString(__DATE__);
@@ -1732,26 +1727,23 @@ void GuiMainWindow::about()
   
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
-                       "Marie-Curie-Strasse 8<br/>"
-                       "79539 Loerrach<br/>"
+                       "Postfach 32<br/>"
+                       "79674 Todtnau<br/>"
                        "Germany<br/>");
   
-  QString mainurl="<a href=\"http://www.engits.com\">www.engits.com</a>";
-  QString mail="<a href=\"mailto:info@engits.com\">info@engits.com</a>";
-  QString gnuurl="<a href=\"http://www.gnu.org/licenses\">http://www.gnu.org/licenses</a>";
+  QString mainurl="http://engits.eu";
+  QString mail="info@engits.com";
+  QString gnuurl="http://www.gnu.org/licenses";
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
-  QString bugurl="<a href=\"http://sourceforge.net/tracker2/?func=add&group_id=245110&atid=1126548\">the bugtracker available on Sourceforge</a>";
-  QString bugreporting=tr("To submit a bug report, please use ")+bugurl;
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
                                   "<p>%2</p>"
                                   "<p>%3</p>"
                                   "<p>Homepage: %4</p>"
                                   "<p>E-mail: %5</p>"
-                                  "<p>%6</p>"
-                                  "<p>%7</p></center>")
-              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license).arg(bugreporting));
+                                  "<p>%6</p>")
+              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();

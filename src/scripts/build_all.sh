@@ -21,10 +21,7 @@
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
-cd netgen_svn
-qmake
-make
-cd ..
+scripts/build-nglib.sh
 qmake
 make
 

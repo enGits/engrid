@@ -1,7 +1,7 @@
 QT       -= gui
 
 win32 {
-	TARGET = superman
+	TARGET = nglib
 }
 
 TEMPLATE = lib
@@ -140,7 +140,6 @@ SOURCES  = \
 ./netgen-mesher/netgen/libsrc/meshing/meshing2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/delaunay.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/pyramidrls.cpp \
-./netgen-mesher/netgen/libsrc/meshing/prism2rls_2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/improve2gen.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/zrefine.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/clusters.cpp \
@@ -154,7 +153,6 @@ SOURCES  = \
 ./netgen-mesher/netgen/libsrc/meshing/meshclass.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/netrule2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/secondorder.cpp \
-./netgen-mesher/netgen/libsrc/meshing/prism2rls.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/ruler2.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/paralleltop.cpp \
 ./netgen-mesher/netgen/libsrc/meshing/tetrarls.cpp \

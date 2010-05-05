@@ -12,8 +12,8 @@ Summary:	open-source mesh generator for CFD
 Group:		Applications/Engineering
 License:	GPL
 Url:		http://engits.eu/engrid
-Requires:	libqt4 vtk-qt
-BuildRequires:  libqt4-devel vtk-devel
+Requires:	libqt4 vtk
+BuildRequires:  libqt4-devel vtk netgen
 Source:		http://files.engits.eu/engrid-1.2rc1.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
