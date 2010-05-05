@@ -29,7 +29,9 @@ git checkout $1
 rm -rf .git
 rm -rf OBS
 rm -rf debian
-rm -rf manual
+rm -rf manual/*.od?
+rm -rf manual/figures
+rm -rf manual/sketches
 cd ..
 mv engrid engrid-$2
 tar cvzf ../engrid-$2.tar.gz engrid-$2
