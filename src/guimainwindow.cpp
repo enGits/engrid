@@ -1989,12 +1989,13 @@ void GuiMainWindow::callInsertNewCell()
   pts[0] = QInputDialog::getInteger(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
   pts[1] = QInputDialog::getInteger(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
   pts[2] = QInputDialog::getInteger(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInteger(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
 #else
   pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
   pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
   pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
-#endif
   vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
+#endif
   if (ok1 && ok2 && ok3 && ok4) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells() + 1, m_Grid->GetNumberOfPoints() );
@@ -2011,8 +2012,13 @@ void GuiMainWindow::callInsertNewCell()
 void GuiMainWindow::callMergeNodes()
 {
   bool ok1,ok2;
+#if QT_VERSION < 0x040500
+  vtkIdType id_node1 = QInputDialog::getInteger(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_node2 = QInputDialog::getInteger(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+#else
   vtkIdType id_node1 = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
   vtkIdType id_node2 = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+#endif
   if (ok1 && ok2) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
