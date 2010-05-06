@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Mike Taverne <mtaverne@engits.com>
 Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libqt4-opengl-dev, libvtk5-dev (>=5.4.2), libvtk5-qt4-dev (>=5.4.2), libnglib-dev, libcgns-dev, libhdf5-serial-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Homepage: http://engits.eu
 
 Package: engrid
@@ -17,10 +17,7 @@ Description: open-source mesh generation
  uses the VTK data structures as well as the *.vtu file format. To create
  grids for OPENFOAM® (OPENFOAM® is a registered trade mark of OpenCFD Limited),
  the GMSH format can be used. GMSH is also an excellent open-source tool to
- create surface triangulations for ENGRID. It is planned to provide native
- OPENFOAM support, hopefully in the 1.0 release (before the end of 2008). For
- future releases, export capabilities for complete OPENFOAM cases (including
- boundary conditions) and support for polyhedral cells are planned as well.
+ create surface triangulations for ENGRID.
  ENGRID is released under the GPL and we hope that it is a useful addition to
  the open-source CFD community. So far the implemented algorithm proved to be
  quite robust and it does not require much user interaction.
@@ -38,10 +35,7 @@ Description: Documentation for enGrid
  uses the VTK data structures as well as the *.vtu file format. To create
  grids for OPENFOAM® (OPENFOAM® is a registered trade mark of OpenCFD Limited),
  the GMSH format can be used. GMSH is also an excellent open-source tool to
- create surface triangulations for ENGRID. It is planned to provide native
- OPENFOAM support, hopefully in the 1.0 release (before the end of 2008). For
- future releases, export capabilities for complete OPENFOAM cases (including
- boundary conditions) and support for polyhedral cells are planned as well.
+ create surface triangulations for ENGRID.
  ENGRID is released under the GPL and we hope that it is a useful addition to
  the open-source CFD community. So far the implemented algorithm proved to be
  quite robust and it does not require much user interaction.
@@ -60,10 +54,7 @@ Description: Blender scripts for enGrid
  uses the VTK data structures as well as the *.vtu file format. To create
  grids for OPENFOAM® (OPENFOAM® is a registered trade mark of OpenCFD Limited),
  the GMSH format can be used. GMSH is also an excellent open-source tool to
- create surface triangulations for ENGRID. It is planned to provide native
- OPENFOAM support, hopefully in the 1.0 release (before the end of 2008). For
- future releases, export capabilities for complete OPENFOAM cases (including
- boundary conditions) and support for polyhedral cells are planned as well.
+ create surface triangulations for ENGRID.
  ENGRID is released under the GPL and we hope that it is a useful addition to
  the open-source CFD community. So far the implemented algorithm proved to be
  quite robust and it does not require much user interaction.

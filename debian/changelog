@@ -1,3 +1,34 @@
+engrid (1.2rc1-ubuntu7) lucid; urgency=low
+
+  * Description update
+
+ -- Mike Taverne <mtaverne@engits.com>  Thu, 06 May 2010 12:31:47 +0200
+
+engrid (1.2rc1-ubuntu6) lucid; urgency=low
+
+  * New upstream release
+
+ -- Mike Taverne <mtaverne@engits.com>  Thu, 06 May 2010 09:27:57 +0200
+
+engrid (1.1-pre-release-ubuntu5) lucid; urgency=low
+
+  * Lucid port
+
+ -- Mike Taverne <mtaverne@engits.com>  Fri, 30 Apr 2010 04:56:26 +0200
+
+engrid (1.1-pre-release-ubuntu4) karmic; urgency=low
+
+  * New upstream release
+  * boundary layer creation improvements + mirror mesh beta
+
+ -- Mike Taverne <mtaverne@engits.com>  Fri, 30 Apr 2010 00:17:36 +0200
+
+engrid (1.1-pre-release-ubuntu3) karmic; urgency=low
+
+  * New Debian packaging
+
+ -- Mike Taverne <mtaverne@engits.com>  Wed, 28 Apr 2010 21:23:44 +0200
+
 engrid (1.1-pre-release-ubuntu2) karmic; urgency=low
 
   * pre-release of v1.1
