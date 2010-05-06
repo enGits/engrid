@@ -152,39 +152,25 @@ double getPhi(vec3_t V) {
   return V[0] == 0.0 && V[1] == 0.0 ? 0.0 : atan2(V[1], V[0]);
 }
 
-QString getDirectory(QWidget * parent, const QString & caption, const QString & selected) {
+QString getDirectory(QWidget * parent, const QString & caption, const QString & selected)
+{
   qDebug() << "selected=" << selected;
-//   QFileDialog filedialog;
-//   filedialog.selectFile(selected);
   QFileInfo fileinfo(selected);
   QString dir = fileinfo.absolutePath();
   qDebug() << "dir=" << dir;
 
-  /*  QFileDialogArgs args;
-    args.parent = parent;
-    args.caption = caption;
-    args.directory = QFileDialogPrivate::workingDirectory(dir);
-    args.mode = (options & ShowDirsOnly ? DirectoryOnly : Directory);
-    args.options = options;*/
-
   // create a qt dialog
   QFileDialog dialog(parent, caption, dir);//(args);
   dialog.setFileMode(QFileDialog::Directory);
-//   dialog.setFileMode(QFileDialog::DirectoryOnly);
+#if QT_VERSION >= 0x040500
   dialog.setOption(QFileDialog::ShowDirsOnly, true);
-  /*  args.parent = parent;
-    args.caption = caption;
-    args.directory = QFileDialogPrivate::workingDirectory(dir);*/
-//   args.mode = (options & ShowDirsOnly ? DirectoryOnly : Directory);
-//   args.options = options;
-
+#endif
   dialog.selectFile(selected);
+
   if (dialog.exec() == QDialog::Accepted) {
     return dialog.selectedFiles().value(0);
   }
-
   return QString();
-//   return filedialog.getExistingDirectory (parent, caption, dir);
 }
 
 int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool ncells, bool points, bool cells) {
