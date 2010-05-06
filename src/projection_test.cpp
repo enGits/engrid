@@ -879,6 +879,7 @@ bool Projection_test::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 bool Projection_test::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
+  return false;
 /*  vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
