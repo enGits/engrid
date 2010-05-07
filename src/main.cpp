@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008,2009 Oliver Gloth                                     +
+// + Copyright 2008-2010 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -54,38 +54,49 @@ void appendLicense(int argc, char ** argv)
   };
   for (int i = 2; i < argc; ++i) {
     QString filename(argv[i]);
-    QString buffer = "//\n";
-    buffer += "// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    buffer += "// +                                                                      +\n";
-    buffer += "// + This file is part of enGrid.                                         +\n";
-    buffer += "// +                                                                      +\n";
-    buffer += "// + Copyright " + year_text + " Oliver Gloth" + year_end_text;
-    buffer += "// +                                                                      +\n";
-    buffer += "// + enGrid is free software: you can redistribute it and/or modify       +\n";
-    buffer += "// + it under the terms of the GNU General Public License as published by +\n";
-    buffer += "// + the Free Software Foundation, either version 3 of the License, or    +\n";
-    buffer += "// + (at your option) any later version.                                  +\n";
-    buffer += "// +                                                                      +\n";
-    buffer += "// + enGrid is distributed in the hope that it will be useful,            +\n";
-    buffer += "// + but WITHOUT ANY WARRANTY; without even the implied warranty of       +\n";
-    buffer += "// + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +\n";
-    buffer += "// + GNU General Public License for more details.                         +\n";
-    buffer += "// +                                                                      +\n";
-    buffer += "// + You should have received a copy of the GNU General Public License    +\n";
-    buffer += "// + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +\n";
-    buffer += "// +                                                                      +\n";
-    buffer += "// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    buffer += "//\n";
+    QString comment = "// ";
+    QString buffer = "";
+    bool script = false;
+    if (filename.right(3) == ".sh")   script = true;
+    if (filename.right(3) == ".py")   script = true;
+    if (filename.right(5) == ".bash") script = true;
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+    QTextStream f(&file);
+    if (script) {
+      comment = "# ";
+      QString line = f.readLine();
+      buffer += line + "\n";
+    }
+    buffer += comment + "\n";
+    buffer += comment + "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "+ This file is part of enGrid.                                         +\n";
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "+ Copyright " + year_text + " enGits GmbH" + year_end_text;
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "+ enGrid is free software: you can redistribute it and/or modify       +\n";
+    buffer += comment + "+ it under the terms of the GNU General Public License as published by +\n";
+    buffer += comment + "+ the Free Software Foundation, either version 3 of the License, or    +\n";
+    buffer += comment + "+ (at your option) any later version.                                  +\n";
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "+ enGrid is distributed in the hope that it will be useful,            +\n";
+    buffer += comment + "+ but WITHOUT ANY WARRANTY; without even the implied warranty of       +\n";
+    buffer += comment + "+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +\n";
+    buffer += comment + "+ GNU General Public License for more details.                         +\n";
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "+ You should have received a copy of the GNU General Public License    +\n";
+    buffer += comment + "+ along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +\n";
+    buffer += comment + "+                                                                      +\n";
+    buffer += comment + "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    buffer += comment + "\n";
     {
       bool src_code = false;
-      QFile file(filename);
-      file.open(QIODevice::ReadOnly);
-      QTextStream f(&file);
       while (!f.atEnd()) {
         QString line = f.readLine();
         if (!src_code) {
-          if (line.size() >= 2) {
-            if (line.left(2) != "//") {
+          if (line.size() >= comment.length()-1) {
+            if (line.left(comment.length()-1) != comment.left(comment.length()-1)) {
               src_code = true;
             };
           } else {

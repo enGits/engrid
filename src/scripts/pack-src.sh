@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-#
+#!/bin/sh
+# 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # +                                                                      +
 # + This file is part of enGrid.                                         +
 # +                                                                      +
-# + Copyright 2008,2009 Oliver Gloth                                     +
+# + Copyright 2008-2010 enGits GmbH                                     +
 # +                                                                      +
 # + enGrid is free software: you can redistribute it and/or modify       +
 # + it under the terms of the GNU General Public License as published by +
@@ -17,47 +17,23 @@
 # + GNU General Public License for more details.                         +
 # +                                                                      +
 # + You should have received a copy of the GNU General Public License    +
-# + along with enGrid. If not, see <http:#www.gnu.org/licenses/>.        +
+# + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#
-# DESCRIPTION:
-# This script outputs all lines prefixed with "///@@@" in the input files given.
-
-import sys
-
-def trimline(line):
-  append = False
-  trimmedline = ''
-  for i in range (0,len(line)):
-    #print line[i]
-    if line[i] != ' ':
-      append = True
-    if append:
-      trimmedline = trimmedline + line[i]
-  return trimmedline
-    
-def fileinfo(name,ln):
-  info = str(ln)
-  while len(info) < 5:
-    info = info + ' '
-  info = name + ' line ' + info;
-  return info    
-
-for i in range(1,len(sys.argv)):
-  f = open(sys.argv[i])
-  #print f
-  line = f.readline()
-  conti = True
-  ln = 1
-  while line:
-    tline = trimline(line)
-    #print tline
-    if tline[0:6] == '///@@@':
-      print fileinfo(sys.argv[i],ln) + ':' + tline[6:len(tline)-1]
-      conti = True
-    else:
-      conti = False
-    line = f.readline()
-    ln = ln + 1
-  f.close
+# 
+mkdir git.tmp
+cd git.tmp
+git clone ssh://engits.eu/git/engrid.git
+cd engrid
+git checkout $1
+git describe > src/engrid_version.h
+rm -rf .*ignore
+rm -rf .git
+rm -rf OBS
+rm -rf debian
+rm -rf manual
+cd ..
+mv engrid engrid-$2
+tar cvzf ../engrid-$2.tar.gz engrid-$2
+cd ..
+rm -rf git.tmp

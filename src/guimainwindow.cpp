@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008,2009 Oliver Gloth                                     +
+// + Copyright 2008-2010 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -67,6 +67,7 @@ using namespace GeometryTools;
 #include "guitransform.h"
 #include "egvtkinteractorstyle.h"
 #include "showinfo.h"
+#include "engrid_version.h"
 
 QString GuiMainWindow::m_cwd = ".";
 QSettings GuiMainWindow::m_qset("enGits","enGrid");
@@ -1718,12 +1719,17 @@ void GuiMainWindow::about()
   QMessageBox box(this);
   
   QString title="ENGRID";
-  QString version = QString("version ") + ENGRID_VERSION;
-  #ifdef GIT_DESCRIBE
-  if(!QString(GIT_DESCRIBE).isEmpty()) {
-      version +=  QString(" - ") + GIT_DESCRIBE;
+  QString version = GIT_VERSION;
+  bool git = true;
+  if (version.length() >= 5) {
+    if (version.left(6) == "fatal") {
+      version = ENGRID_VERSION;
+      git = false;
+    }
   }
-  #endif
+  if (git) {
+    version += " (from GIT)";
+  }
   
   version += " built on ";
   version += QString(__DATE__);
@@ -1732,26 +1738,23 @@ void GuiMainWindow::about()
   
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
-                       "Marie-Curie-Strasse 8<br/>"
-                       "79539 Loerrach<br/>"
+                       "Postfach 32<br/>"
+                       "79674 Todtnau<br/>"
                        "Germany<br/>");
   
-  QString mainurl="<a href=\"http://www.engits.com\">www.engits.com</a>";
-  QString mail="<a href=\"mailto:info@engits.com\">info@engits.com</a>";
-  QString gnuurl="<a href=\"http://www.gnu.org/licenses\">http://www.gnu.org/licenses</a>";
+  QString mainurl="http://engits.eu";
+  QString mail="info@engits.com";
+  QString gnuurl="http://www.gnu.org/licenses";
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
-  QString bugurl="<a href=\"http://sourceforge.net/tracker2/?func=add&group_id=245110&atid=1126548\">the bugtracker available on Sourceforge</a>";
-  QString bugreporting=tr("To submit a bug report, please use ")+bugurl;
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
                                   "<p>%2</p>"
                                   "<p>%3</p>"
                                   "<p>Homepage: %4</p>"
                                   "<p>E-mail: %5</p>"
-                                  "<p>%6</p>"
-                                  "<p>%7</p></center>")
-              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license).arg(bugreporting));
+                                  "<p>%6</p>")
+              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
@@ -1993,10 +1996,17 @@ void GuiMainWindow::callInsertNewCell()
 {
   bool ok1,ok2,ok3,ok4;
   vtkIdType pts[3];
+#if QT_VERSION < 0x040500
+  pts[0] = QInputDialog::getInteger(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  pts[1] = QInputDialog::getInteger(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+  pts[2] = QInputDialog::getInteger(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
+  vtkIdType id_cell = QInputDialog::getInteger(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
+#else
   pts[0] = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
   pts[1] = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
   pts[2] = QInputDialog::getInt(this, tr("id_node3"),tr("id_node3:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok3);
   vtkIdType id_cell = QInputDialog::getInt(this, tr("copy cell data from id_cell"),tr("copy cell data from id_cell:"), 0, 0, m_Grid->GetNumberOfCells(), 1, &ok4);
+#endif
   if (ok1 && ok2 && ok3 && ok4) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells() + 1, m_Grid->GetNumberOfPoints() );
@@ -2013,8 +2023,13 @@ void GuiMainWindow::callInsertNewCell()
 void GuiMainWindow::callMergeNodes()
 {
   bool ok1,ok2;
+#if QT_VERSION < 0x040500
+  vtkIdType id_node1 = QInputDialog::getInteger(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
+  vtkIdType id_node2 = QInputDialog::getInteger(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+#else
   vtkIdType id_node1 = QInputDialog::getInt(this, tr("id_node1"),tr("id_node1:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok1);
   vtkIdType id_node2 = QInputDialog::getInt(this, tr("id_node2"),tr("id_node2:"), 0, 0, m_Grid->GetNumberOfPoints(), 1, &ok2);
+#endif
   if (ok1 && ok2) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
