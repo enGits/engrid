@@ -67,6 +67,7 @@ using namespace GeometryTools;
 #include "guitransform.h"
 #include "egvtkinteractorstyle.h"
 #include "showinfo.h"
+#include "engrid_version.h"
 
 QString GuiMainWindow::m_cwd = ".";
 QSettings GuiMainWindow::m_qset("enGits","enGrid");
@@ -1718,7 +1719,17 @@ void GuiMainWindow::about()
   QMessageBox box(this);
   
   QString title="ENGRID";
-  QString version = QString("version 1.2rc1");
+  QString version = GIT_VERSION;
+  bool git = true;
+  if (version.length() >= 5) {
+    if (version.left(6) == "fatal") {
+      version = ENGRID_VERSION;
+      git = false;
+    }
+  }
+  if (git) {
+    version += " (from GIT)";
+  }
   
   version += " built on ";
   version += QString(__DATE__);

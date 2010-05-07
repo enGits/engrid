@@ -1,7 +1,5 @@
 # ###############################
 # VERSION INFO
 
-QMAKE_CXXFLAGS += -DENGRID_VERSION="1.2rc1"
+QMAKE_CXXFLAGS += -DGIT_VERSION=\\\"`git describe`"\\\"
 
-# deprecated date/time define
-# QMAKE_CXXFLAGS += -DAPP_VERSION=\\\"`date +'\"%a_%b_%d,_%Y\"'`\\\"
