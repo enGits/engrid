@@ -53,7 +53,6 @@ protected: // attributes
   double m_AbsoluteHeight;
   double m_RelativeHeight;
   double m_CritAngle;
-  double m_LayerClearance;
   double m_RadarAngle;
   double m_MaxHeightInGaps;
 
@@ -80,7 +79,6 @@ protected: // methods
   void computeHeights();
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
-  bool noCollision(vtkIdType id_node);
 
   void writeDebugFile(QString file_name);
 
