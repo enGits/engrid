@@ -6,14 +6,14 @@
 # norootforbuild
 
 Name:           engrid
-Version:	1.2rc2
+Version:	1.2rc3
 Release:	1
 Summary:	open-source mesh generator for CFD
 Group:		Applications/Engineering
 License:	GPL
 Url:		http://engits.eu/engrid
 Requires:	libqt4 vtk vtk-qt netgen
-BuildRequires:  libqt4-devel vtk vtk-qt vtk-devel netgen netgen-devel
+BuildRequires:  libqt4-devel vtk vtk-qt vtk-devel netgen netgen-devel git
 Source:		http://files.engits.eu/engrid-1.2rc2.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
