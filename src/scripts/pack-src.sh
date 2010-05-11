@@ -26,7 +26,9 @@ cd git.tmp
 git clone ssh://engits.eu/git/engrid.git
 cd engrid
 git checkout $1
-git describe > src/engrid_version.h
+echo "#ifndef ENGRID_VERSION" > src/engrid_version.h
+echo "#define ENGRID_VERSION \"`git describe`\"" >> src/engrid_version.h
+echo "#endif" >> src/engrid_version.h
 rm -rf .*ignore
 rm -rf .git
 rm -rf OBS
