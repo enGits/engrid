@@ -135,7 +135,6 @@ void RemovePoints::operate() {
   int num_newpoints = 0;
   int num_newcells = 0;
 
-  qWarning()<<"nodes.size()="<<nodes.size();
   QVector <bool> marked_nodes(nodes.size(), false); // takes local as argument!
 
   QVector <vtkIdType> deadnode_vector;

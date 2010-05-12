@@ -34,11 +34,10 @@ GridSmoother::GridSmoother()
   m_NumBoundaryCorrections = 50;
 
   getSet("boundary layer", "number of smoothing sub-iterations",       5,     m_NumIterations);
-  getSet("boundary layer", "prism layer clearance",                    0.2,   m_LayerClearance);
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
   getSet("boundary layer", "number of normal vector relax iterations", 10,    m_NumNormalRelaxations);
   getSet("boundary layer", "number of layer height relax iterations",  3,     m_NumHeightRelaxations);
-  getSet("boundary layer", "radar angle",                              30,    m_RadarAngle);
+  getSet("boundary layer", "radar angle",                              45,    m_RadarAngle);
   getSet("boundary layer", "maximal layer height in gaps",             0.2,   m_MaxHeightInGaps);
 
   //m_CritAngle = GeometryTools::deg2rad(m_CritAngle);
@@ -83,108 +82,6 @@ void GridSmoother::markNodes()
   }
 }
 
-bool GridSmoother::noCollision(vtkIdType id_node)
-{
-  return true; // TEST
-  bool cleared = true;
-  vtkIdType id_foot = m_IdFoot[id_node];
-  if (id_foot != -1) {
-    QSet<vtkIdType> front_neigh;
-    QSet<vtkIdType> own_prisms;
-    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-      vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-      if (m_IdFoot[id_neigh] != -1) {
-        front_neigh.insert(id_neigh);
-      } else {
-        QSet<vtkIdType> neigh_prisms;
-        for (int j = 0; j < m_Part.n2cGSize(id_neigh); ++j) {
-          vtkIdType id_cell = m_Part.n2cGG(id_neigh, j);
-          if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
-            neigh_prisms.insert(id_cell);
-          }
-        }
-        if (neigh_prisms.size() == 0) {
-          for (int j = 0; j < m_Part.n2nGSize(id_neigh); ++j) {
-            vtkIdType id_next_neigh = m_Part.n2nGG(id_neigh, j);
-            if (m_IdFoot[id_next_neigh] != -1) {
-              front_neigh.insert(id_next_neigh);
-            }
-          }
-        }
-      }
-    }
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
-        own_prisms.insert(id_cell);
-      }
-    }
-    foreach (vtkIdType id_neigh, front_neigh) {
-      QSet<vtkIdType> neigh_prisms;
-      for (int i = 0; i < m_Part.n2cGSize(id_neigh); ++i) {
-        vtkIdType id_cell = m_Part.n2cGG(id_neigh, i);
-        if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
-          neigh_prisms.insert(id_cell);
-        }
-      }
-      QSet<vtkIdType> all_prisms = neigh_prisms + own_prisms;
-      if (all_prisms.size() == neigh_prisms.size() + own_prisms.size()) { // here is a collision candidate!
-        vec3_t n1(0,0,0);
-        foreach (vtkIdType id_cell, own_prisms) {
-          vtkIdType N_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, N_pts, pts);
-          vec3_t a, b, c;
-          m_Grid->GetPoint(pts[0], a.data());
-          m_Grid->GetPoint(pts[2], b.data());
-          m_Grid->GetPoint(pts[1], c.data());
-          vec3_t u = b - a;
-          vec3_t v = c - a;
-          vec3_t n = u.cross(v);
-          n.normalise();
-          double alpha = GeometryTools::angle(u, v);
-          n1 += alpha*n;
-        }
-        n1.normalise();
-        vec3_t n2(0,0,0);
-        foreach (vtkIdType id_cell, neigh_prisms) {
-          vtkIdType N_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, N_pts, pts);
-          vec3_t a, b, c;
-          m_Grid->GetPoint(pts[0], a.data());
-          m_Grid->GetPoint(pts[2], b.data());
-          m_Grid->GetPoint(pts[1], c.data());
-          vec3_t u = b - a;
-          vec3_t v = c - a;
-          vec3_t n = u.cross(v);
-          n.normalise();
-          double alpha = GeometryTools::angle(u, v);
-          n2 += alpha*n;
-        }
-        n2.normalise();
-        if (n1*n2 < 0) {
-          vec3_t x1, x2, xf1, xf2;
-          m_Grid->GetPoint(id_node, x1.data());
-          m_Grid->GetPoint(id_neigh, x2.data());
-          m_Grid->GetPoint(m_IdFoot[id_node], xf1.data());
-          m_Grid->GetPoint(m_IdFoot[id_neigh], xf2.data());
-          double l1 = (x1-xf1)*n1;
-          double l2 = (x2-xf2)*n2;
-          if (n1*(x2-x1) < m_LayerClearance*l1) {
-            cleared = false;
-          }
-          if (n2*(x1-x2) < m_LayerClearance*l2) {
-            cleared = false;
-          }
-        }
-      }
-    }
-  }
-  if (!cleared) {
-    m_CollisionDetected = true;
-  }
-  return cleared;
-}
-
 bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 {
   using namespace GeometryTools;
@@ -192,7 +89,7 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
-  bool move = noCollision(id_node);
+  bool move = true;
 
   if (move) {
     Elements E;
@@ -386,71 +283,6 @@ void GridSmoother::computeNormals()
       m_NodeNormal[id_node].normalise();
     }
   }
-  /*
-  m_IsSharpNode.fill(false, m_Grid->GetNumberOfPoints());
-  for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
-    vtkIdType id_cell1 = m_Part.globalCell(i);
-    if (isSurface(id_cell1, m_Grid)) {
-      if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell1))) {
-        vec3_t n1 = cellNormal(m_Grid, id_cell1);
-        n1.normalise();
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_cell1, N_pts, pts);
-        for (int j = 0; j < m_Part.c2cLSize(i); ++j) {
-          vtkIdType id_cell2 = m_Part.c2cLG(i, j);
-          if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell2))) {
-            vec3_t n2 = cellNormal(m_Grid, id_cell2);
-            n2.normalise();
-            if (GeometryTools::angle(n1, n2) > m_CritAngle) {
-              vtkIdType id_node1 = pts[j];
-              vtkIdType id_node2 = pts[0];
-              if (j < m_Part.c2cLSize(i) - 1) {
-                id_node2 = pts[j+1];
-              }
-              vec3_t x_node1, x_node2;
-              m_Grid->GetPoint(id_node1, x_node1.data());
-              m_Grid->GetPoint(id_node2, x_node2.data());
-              vec3_t x_corner = 0.5*(x_node1 + x_node2);
-              vec3_t x_cell1 = cellCentre(m_Grid, id_cell1);
-              vec3_t x_cell2 = cellCentre(m_Grid, id_cell2);
-              vec3_t v_cell1 = x_cell2 - x_cell1;
-              vec3_t v_cell2 = x_cell1 - x_cell2;
-              if (n1*v_cell1 > 0 || n2*v_cell2 > 0) {
-                m_IsSharpNode[id_node1] = true;
-                m_IsSharpNode[id_node2] = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  */
-  /*
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_IsSharpNode[id_node]) {
-      QVector<vec3_t> normals;
-      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-        if (isSurface(id_cell, m_Grid)) {
-          if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell))) {
-            vec3_t n = cellNormal(m_Grid, id_cell);
-            n.normalise();
-            normals.push_back(n);
-          }
-        }
-      }
-      int N = 0;
-      foreach (vec3_t n1, normals) {
-        foreach (vec3_t n2, normals) {
-          if (GeometryTools::angle(n1, n2) > m_CritAngle) {
-            ++N;
-          }
-        }
-      }
-    }
-  }
-  */
 
   relaxNormalVectors();
 
@@ -529,14 +361,13 @@ void GridSmoother::relaxNormalVectors()
     }
     m_NodeNormal = n_new;
     correctNormalVectors();
+    /*
     QString num;
     num.setNum(iter);
     num = "normals_" + num;
     writeDebugFile(num);
+    */
   }
-
-  //writeDebugFile("normals");
-  //EG_BUG;
 }
 
 void GridSmoother::computeHeights()
