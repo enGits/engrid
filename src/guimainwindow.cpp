@@ -1727,6 +1727,10 @@ void GuiMainWindow::about()
       git = false;
     }
   }
+  if (version.length() <= 1) {
+    version = ENGRID_VERSION;
+    git = false;
+  }
   if (git) {
     version += " (from GIT)";
   }

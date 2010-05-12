@@ -36,6 +36,6 @@ rm -rf debian
 rm -rf manual
 cd ..
 mv engrid engrid-$2
-tar cvzf ../engrid-$2.tar.gz engrid-$2
+tar cvzf ../../engrid-$2.tar.gz engrid-$2
 cd ..
 rm -rf git.tmp
