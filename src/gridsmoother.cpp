@@ -85,6 +85,7 @@ void GridSmoother::markNodes()
 
 bool GridSmoother::noCollision(vtkIdType id_node)
 {
+  return true; // TEST
   bool cleared = true;
   vtkIdType id_foot = m_IdFoot[id_node];
   if (id_foot != -1) {
