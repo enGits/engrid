@@ -220,15 +220,13 @@ char InsertPoints::getNewNodeType(stencil_t S)
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   if( node_type->GetValue(id_node1)==VTK_SIMPLE_VERTEX || node_type->GetValue(id_node2)==VTK_SIMPLE_VERTEX ) {
     return VTK_SIMPLE_VERTEX;
-  }
-  else {
+  } else {
     QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node1);
     if( PSP.contains(id_node2) ) {
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
       if(S.id_cell.size()<1) {
         return VTK_BOUNDARY_EDGE_VERTEX;
-      }
-      else {
+      } else {
         if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
           return VTK_BOUNDARY_EDGE_VERTEX;
         } else {
