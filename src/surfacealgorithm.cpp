@@ -144,7 +144,7 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
       node_type->SetValue(id_node, getNodeType(id_node, true));
     }
     EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");//what we have
-    node_meshdensity_current->SetValue(id_node, CurrentVertexAvgDist(id_node));
+    node_meshdensity_current->SetValue(id_node, currentVertexAvgDist(id_node));
 
     EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");//density index from table
     VertexMeshDensity nodeVMD = getVMD(id_node);

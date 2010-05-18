@@ -38,7 +38,6 @@ SurfaceOperation::SurfaceOperation() : Operation()
   m_Convergence = 0;
   m_NumberOfIterations = 20;
   m_RelaxationFactor = 0.01;
-  //m_AllowFeatureEdgeVertices = 1;//0 by default in VTK, but we need 1 to avoid the "potatoe effect" ^^
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
   getSet("surface meshing", "feature angle", 180, m_FeatureAngle);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
@@ -411,21 +410,6 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
   return( edge );
 }
 
-QSet <int> SurfaceOperation::getBCset( vtkIdType id_node )
-{
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t  cells = getPartCells();
-  l2l_t  n2c   = getPartN2C();
-
-  EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
-  QSet <int> bc;
-  foreach( int i_cell, n2c[_nodes[id_node]] ) {
-    vtkIdType id_cell = cells[i_cell];
-    bc.insert( cell_code->GetValue( id_cell ) );
-  }
-  return( bc );
-}
-
 VertexMeshDensity SurfaceOperation::getVMD( vtkIdType id_node )
 {
   g2l_t _nodes = getPartLocalNodes();
@@ -448,7 +432,7 @@ VertexMeshDensity SurfaceOperation::getVMD( vtkIdType id_node )
 }
 
 //////////////////////////////////////////////
-double SurfaceOperation::CurrentVertexAvgDist( vtkIdType id_node )
+double SurfaceOperation::currentVertexAvgDist( vtkIdType id_node )
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -471,49 +455,8 @@ double SurfaceOperation::CurrentVertexAvgDist( vtkIdType id_node )
 
 double SurfaceOperation::CurrentMeshDensity( vtkIdType id_node )
 {
-  return 1.0 / CurrentVertexAvgDist( id_node );
+  return 1.0 / currentVertexAvgDist( id_node );
 }
-
-double SurfaceOperation::DesiredVertexAvgDist( vtkIdType id_node )
-{
-  l2g_t  nodes = getPartNodes();
-  g2l_t _nodes = getPartLocalNodes();
-  l2l_t  n2n   = getPartN2N();
-
-  double total_dist = 0;
-  double avg_dist = 0;
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
-  int N = n2n[_nodes[id_node]].size();
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_dist += 1. / characteristic_length_desired->GetValue( id_node_neighbour );
-  }
-  avg_dist = total_dist / ( double )N;
-  return( avg_dist );
-}
-
-double SurfaceOperation::DesiredMeshDensity( vtkIdType id_node )
-{
-  l2g_t  nodes = getPartNodes();
-  g2l_t _nodes = getPartLocalNodes();
-  l2l_t  n2n   = getPartN2N();
-
-  double total_density = 0;
-  double avg_density = 0;
-  EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
-  int N = n2n[_nodes[id_node]].size();
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    total_density += characteristic_length_desired->GetValue( id_node_neighbour );
-  }
-  avg_density = total_density / ( double )N;
-  return( avg_density );
-}
-
-///////////////////////////////////////////
-
-//---------------------------------------------------
-//Utility functions used in Roland's formulas
 
 ///\todo change meshdensity fields to edgelength fields since this is what is mostly used?
 
@@ -522,22 +465,6 @@ double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
 {
   EG_VTKDCN( vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   return( 1.0 / characteristic_length_desired->GetValue( id_node ) );
-}
-
-//other functions
-///perimeter
-double SurfaceOperation::perimeter( vtkIdType id_cell )
-{
-  double ret = 0;
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints( id_cell, num_pts, pts );
-  for ( int i = 0; i < num_pts; i++ ) {
-    vec3_t A, B;
-    m_Grid->GetPoints()->GetPoint( pts[i], A.data() );
-    m_Grid->GetPoints()->GetPoint( pts[( i+1 )%num_pts], B.data() );
-    ret += ( B - A ).abs();
-  }
-  return( ret );
 }
 
 /// mean desired edge length for id_cell
@@ -550,115 +477,6 @@ double SurfaceOperation::meanDesiredEdgeLength( vtkIdType id_cell )
     total += desiredEdgeLength( pts[i] );
   }
   return total / ( double )num_pts;
-}
-
-///\todo Should be renamed to be more explicit if possible
-
-/// perimeter / sum of the desired edge lengths
-double SurfaceOperation::Q_L( vtkIdType id_cell )
-{
-  double denom_sum = 0;
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints( id_cell, num_pts, pts );
-  for ( int i = 0; i < num_pts; i++ ) {
-    denom_sum += desiredEdgeLength( pts[i] );
-  }
-  return( perimeter( id_cell ) / denom_sum );
-}
-
-/// sum(2*edgelength,edges(id_node))/sum(desired edgelengths of each edgepoint,edges(id_node))
-double SurfaceOperation::Q_L1( vtkIdType id_node )
-{
-  l2l_t n2n = getPartN2N();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
-
-  double num_sum = 0;
-  double denom_sum = 0;
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    num_sum += 2 * distance( m_Grid, id_node_neighbour, id_node );
-    denom_sum += desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
-  }
-  return( num_sum / denom_sum );
-}
-
-/// minimum of sum(2*edgelength)/sum(desired edgelengths of each edgepoint) for each edge of id_node
-double SurfaceOperation::Q_L2( vtkIdType id_node )
-{
-  l2l_t n2n = getPartN2N();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
-
-  QVector <double> V;
-  double num, denom;
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    num = 2 * distance( m_Grid, id_node_neighbour, id_node );
-    denom = desiredEdgeLength( id_node ) + desiredEdgeLength( id_node_neighbour );
-    V.push_back( num / denom );
-  }
-  qSort( V.begin(), V.end() );
-  return( V[0] );
-}
-
-/// Value to minimize for mesh smoothing. w allows putting more weight on the form or the area of triangles.
-double SurfaceOperation::T_min( int w )
-{
-  l2g_t cells = getPartCells();
-  double T = 0;
-  foreach( vtkIdType id_cell, cells ) {
-    T += areaOfCircumscribedCircle( m_Grid, id_cell ) / pow( cellVA( m_Grid, id_cell ), w ) * pow( meanDesiredEdgeLength( id_cell ), 2 * ( w - 1 ) );
-  }
-  return( T );
-}
-
-//---------------------------------------------------
-
-vtkIdType SurfaceOperation::getClosestNode( vtkIdType id_node )
-{
-  l2l_t n2n = getPartN2N();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
-
-  vec3_t C;
-  m_Grid->GetPoint( id_node, C.data() );
-  vtkIdType id_minlen = -1;
-  double minlen = -1;
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    vec3_t M;
-    m_Grid->GetPoint( id_node_neighbour, M.data() );
-    double len = ( M - C ).abs();
-    if ( minlen < 0 or len < minlen ) {
-      minlen = len;
-      id_minlen = id_node_neighbour;
-    }
-  }
-  return( id_minlen );
-}
-
-vtkIdType SurfaceOperation::getFarthestNode( vtkIdType id_node )
-{
-  l2l_t n2n = getPartN2N();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t nodes = getPartNodes();
-
-  vec3_t C;
-  m_Grid->GetPoint( id_node, C.data() );
-  vtkIdType id_maxlen = -1;
-  double maxlen = -1;
-  foreach( int i_node_neighbour, n2n[_nodes[id_node]] ) {
-    vtkIdType id_node_neighbour = nodes[i_node_neighbour];
-    vec3_t M;
-    m_Grid->GetPoint( id_node_neighbour, M.data() );
-    double len = ( M - C ).abs();
-    if ( maxlen < 0 or len > maxlen ) {
-      maxlen = len;
-      id_maxlen = id_node_neighbour;
-    }
-  }
-  return( id_maxlen );
 }
 
 QVector <vtkIdType> SurfaceOperation::getPotentialSnapPoints( vtkIdType id_node )

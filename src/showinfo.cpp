@@ -71,7 +71,7 @@ void ShowInfo::operate()
         cout<<"pts["<<i<<"]="<<X<<endl;
       }
       cout<<"area="<<cellVA(m_Grid,PickedCell)<<endl;
-      cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
+      //cout<<"Q_L("<<PickedCell<<")="<<Q_L(PickedCell)<<endl;
       cout<<"====================================="<<endl;
     } else {
       cout<<"Invalid cell"<<endl;
@@ -98,9 +98,9 @@ void ShowInfo::operate()
       m_Grid->GetPoint(PickedPoint,X.data());
       cout<<"X="<<X<<endl;
       cout<<"desiredEdgeLength("<<PickedPoint<<")="<<desiredEdgeLength(PickedPoint)<<endl;
-      cout<<"Q_L1("<<PickedPoint<<")="<<Q_L1(PickedPoint)<<endl;
-      cout<<"Q_L2("<<PickedPoint<<")="<<Q_L2(PickedPoint)<<endl;
-      cout<<"CurrentVertexAvgDist("<<PickedPoint<<")="<<CurrentVertexAvgDist(PickedPoint)<<endl;
+      //cout<<"Q_L1("<<PickedPoint<<")="<<Q_L1(PickedPoint)<<endl;
+      //cout<<"Q_L2("<<PickedPoint<<")="<<Q_L2(PickedPoint)<<endl;
+      cout<<"currentVertexAvgDist("<<PickedPoint<<")="<<currentVertexAvgDist(PickedPoint)<<endl;
 
       setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
       UpdatePotentialSnapPoints(true, true);
