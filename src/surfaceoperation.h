@@ -51,16 +51,18 @@ private:
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
 
 
-protected:
+protected: // attributes
 
-  ///\todo Remove useless attributes
-  //attributes for determining node types and for smoothing operations
-  double m_Convergence;
-  int    m_NumberOfIterations;
-  double m_RelaxationFactor;
   double m_FeatureAngle;
   double m_EdgeAngle;
   int    m_BoundarySmoothing;
+
+  QVector<vec3_t>    m_NodeNormal; ///< node normal vectors
+
+
+protected: // methods
+
+
 
 
 public:
@@ -75,11 +77,6 @@ public:
   /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
   int UpdatePotentialSnapPoints(bool update_node_types, bool fix_unselected = true);
 
-  //--------------------------------------
-  //Special for UpdatePotentialSnapPoints
-  void setConvergence( double C )           { m_Convergence = C; }
-  void setNumberOfIterations( int N )       { m_NumberOfIterations = N; }
-  void setRelaxationFactor( double RF )     { m_RelaxationFactor = RF; }
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
   void setBoundarySmoothing(int BS) { m_BoundarySmoothing = BS; }
