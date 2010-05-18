@@ -695,3 +695,10 @@ bool SurfaceOperation::isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType 
   }
   return(inter.size()>0);
 }
+
+vec3_t SurfaceOperation::transform(vtkIdType id_node, vec3_t x)
+{
+  vec3_t x0;
+  m_Grid->GetPoint(id_node, x0.data());
+  return x;
+}

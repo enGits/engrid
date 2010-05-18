@@ -158,6 +158,15 @@ public:
   //---------------------------------------------------
   
   bool isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3);
+
+  /**
+   * Compute locally transformed coordinates. This is required for an-isotropic triangulations.
+   * @param id_node the centre of the transformation
+   * @param x the untransformed coordinates
+   * @return the transformed coordinates
+   */
+  vec3_t transform(vtkIdType id_node, vec3_t x);
+
 };
 
 #endif
