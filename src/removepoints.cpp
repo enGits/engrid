@@ -158,26 +158,21 @@ void RemovePoints::operate() {
         for(int j = 0; j < n2n[i_node].size(); ++j) {
           vtkIdType id_neigh = nodes[n2n[i_node][j]];
           double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
-          vec3_t xj;
-          m_Grid->GetPoint(id_neigh, xj.data());
+          vec3_t xj = transform(id_node, id_neigh);
+          //m_Grid->GetPoint(id_neigh, xj.data());
           double L = (xi - xj).abs();
           if(L < 0.5 *(cl_node + cl_neigh) / m_Threshold) {
             remove_node = true;
-//            EG_BUG;
             break;
           }
         }
 
         // check that node is only surrounded by triangles
-//        if(id_node>=_nodes_all)
         foreach(int i_cell, n2c_all[_nodes_all[id_node]]) {   //loop through potentially dead cells
           vtkIdType id_cell = cells_all[i_cell];
 
-//          if( m_Grid->GetCellType(id_cell) == VTK_WEDGE ) EG_BUG;
-
           if(m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
             remove_node = false;
-//            qDebug()<<"Could not remove node "<<id_node<<" because it is next to a cell of type "<<m_Grid->GetCellType(id_cell);
           }
         }
 
@@ -217,7 +212,8 @@ void RemovePoints::operate() {
 }
 
 /// \todo finish this function and optimize it.
-bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_node2, int& N_common_points) {
+bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_node2, int& N_common_points)
+{
   if(id_node1 == id_node2) EG_BUG;
 
   l2l_t  n2n   = getPartN2N();
@@ -257,7 +253,9 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
     }
   }
 
-  /*
+
+  FIX THIS!!!!
+/*
   // check if DeadNode, PSP and common points form a tetrahedron.
   if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2
     //check if (node1,intersection1,intersection2) and (node2,intersection1,intersection2) are defined as cells!
@@ -277,7 +275,7 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
       IsTetra = true;
     }
   }
-  */
+*/
   return false;
 }
 
