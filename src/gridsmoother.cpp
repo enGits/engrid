@@ -71,6 +71,19 @@ void GridSmoother::markNodes()
     }
     qCopy(new_mark.begin(),new_mark.end(),m_NodeMarked.begin());
   }
+  QSet<int> free_bcs = m_BoundaryCodes + m_LayerAdjacentBoundaryCodes;
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
+      if (!free_bcs.contains(cell_code->GetValue(id_cell))) {
+        vtkIdType N_pts, *pts;
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+          m_NodeMarked[pts[i_pts]] = false;
+        }
+      }
+    }
+  }
   m_NumMarkedNodes = 0;
   QVector<vtkIdType> nodes = m_Part.getNodes();
   foreach (vtkIdType id_node, nodes) {

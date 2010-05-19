@@ -112,17 +112,14 @@ void GuiCreateBoundaryLayer::operate()
   l2l_t  c2c   = getPartC2C();
   getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
 
-  if(ui.checkBoxRemovePoints->isChecked()) {
-      // fill m_LayerAdjacentBoundaryCodes
-      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-      foreach(vtkIdType id_cell, layer_cells) {
-          foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
-              m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
-          }
-      }
-      m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
-      qDebug() << "m_LayerAdjacentBoundaryCodes =" << m_LayerAdjacentBoundaryCodes;
+  // fill m_LayerAdjacentBoundaryCodes
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  foreach(vtkIdType id_cell, layer_cells) {
+    foreach(int i_cell_neighbour, c2c[_cells[id_cell]]) {
+      m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(cells[i_cell_neighbour]));
+    }
   }
+  m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
 
   cout << "\n\ncreating boundary layer mesh)" << endl;
   
@@ -159,6 +156,7 @@ void GuiCreateBoundaryLayer::operate()
   GridSmoother smooth;
   smooth.setGrid(m_Grid);
   smooth.setBoundaryCodes(m_BoundaryCodes);
+  smooth.setLayerAdjacentBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   
   SeedSimplePrismaticLayer seed_layer; 
   
