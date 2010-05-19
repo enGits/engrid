@@ -57,12 +57,13 @@ protected: // attributes
   double m_EdgeAngle;
   int    m_BoundarySmoothing;
 
-  QVector<vec3_t>    m_NodeNormal; ///< node normal vectors
+  QVector<vec3_t> m_NodeNormal; ///< node normal vectors
+  double m_StretchingFactor;
 
 
 protected: // methods
 
-
+  void computeNormals();
 
 
 public:
@@ -80,7 +81,6 @@ public:
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
   void setBoundarySmoothing(int BS) { m_BoundarySmoothing = BS; }
-  //--------------------------------------
 
 
   double currentVertexAvgDist(vtkIdType id_node);                 ///< Returns the average distance of id_node to its neighbours
@@ -118,11 +118,13 @@ public:
 
   /**
    * Compute locally transformed coordinates. This is required for an-isotropic triangulations.
-   * @param id_node the centre of the transformation
-   * @param x the untransformed coordinates
+   * @param id__centre_node the centre of the transformation
+   * @param id_node the node whose coordinates will be transformed
    * @return the transformed coordinates
    */
-  vec3_t transform(vtkIdType id_node, vec3_t x);
+  vec3_t transform(vtkIdType id_centre_node, vtkIdType id_node);
+
+  void setStretchingFactor(double sf) { m_StretchingFactor = sf; }
 
 };
 

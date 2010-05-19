@@ -209,6 +209,7 @@ int SurfaceAlgorithm::deleteNodes()
   RemovePoints remove_points;
   remove_points.setGrid(m_Grid);
   remove_points.setBoundaryCodes(m_BoundaryCodes);
+  remove_points.setStretchingFactor(m_StretchingFactor);
   if (m_RespectFeatureEdgesForDeleteNodes) {
     remove_points.setProtectFeatureEdgesOn();
   } else {
