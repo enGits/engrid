@@ -54,6 +54,7 @@ void ReduceSurfaceTriangulation::pass1()
     done = num_deleted <= num_del_max/100;
     cout << "total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "total cells : " << m_Grid->GetNumberOfCells() << endl;
+    done = true;
   }
 }
 
@@ -66,6 +67,7 @@ void ReduceSurfaceTriangulation::pass2()
 
 void ReduceSurfaceTriangulation::operate()
 {
+  //setStretchingFactor(5.0);
   prepare();
   //writeGrid(m_Grid, "take1");
   updateNodeInfo(true);
