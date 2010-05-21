@@ -513,6 +513,13 @@ protected: // methods
    */
   void getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids);
 
+  /**
+   * Get all boundary codes fo a grid.
+   * @param grid the grid to extract the boundaru codes from
+   * @return a set with all boundary codes
+   */
+  QSet<int> getAllBoundaryCodes(vtkUnstructuredGrid *grid);
+
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }

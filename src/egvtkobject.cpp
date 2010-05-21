@@ -908,16 +908,9 @@ vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_su
   return id_vol;
 }
 
-///\todo Why not simply use m_BoundaryCodes = bcs; ?
-//WARNING: Do never call this->setBoundaryCodes(this->m_BoundaryCodes) as this will empty m_BoundaryCodes!!!
 void EgVtkObject::setBoundaryCodes(const QSet<int> &bcs)
 {
   m_BoundaryCodes = bcs;
-/*  m_BoundaryCodes.clear();
-  int bc;
-  foreach(bc, bcs) {
-    m_BoundaryCodes.insert(bc);
-  }*/
 }
 
 QSet<int> EgVtkObject::getBoundaryCodes()
@@ -1191,3 +1184,14 @@ vtkIdType EgVtkObject::addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGr
   return( offset + grid_to_add->GetNumberOfPoints() );
 }
 
+QSet<int> EgVtkObject::getAllBoundaryCodes(vtkUnstructuredGrid *grid)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  QSet<int> bcs;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      bcs.insert(cell_code->GetValue(id_cell));
+    }
+  }
+  return bcs;
+}

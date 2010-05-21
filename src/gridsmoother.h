@@ -64,6 +64,7 @@ protected: // attributes
   QVector<vtkIdType> m_IdFoot;
   QVector<double>    m_Height;
   QVector<vec3_t>    m_NodeNormal;
+  QSet<int>          m_LayerAdjacentBoundaryCodes;
 
 protected: // methods
   
@@ -91,6 +92,8 @@ public: // methods
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
+
+  void setLayerAdjacentBoundaryCodes(const QSet<int> &abcs) { m_LayerAdjacentBoundaryCodes = abcs; }
 
 };
 

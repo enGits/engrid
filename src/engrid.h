@@ -39,13 +39,7 @@
 #include "geometrytools.h"
 #include "containertricks.h"
 
-#ifndef ENGRID_VERSION
-  #define ENGRID_VERSION "undefined version"
-#endif
-
-#ifndef GIT_DESCRIBE
-  #define GIT_DESCRIBE "git description not available"
-#endif
+#include "engrid_version.h"
 
 #ifdef WIN32
 typedef vtkLongLongArray vtkLongArray_t;
