@@ -289,3 +289,12 @@ double MeshPartition::getSmallestEdgeLength() const
   return L;
 }
 
+bool MeshPartition::hasNeighNode(vtkIdType id_node, vtkIdType id_neigh)
+{
+  for (int i = 0; i < n2nGSize(id_node); ++i) {
+    if (n2nGG(id_node, i) == id_neigh) {
+      return true;
+    }
+  }
+  return false;
+}

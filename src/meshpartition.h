@@ -185,6 +185,8 @@ public: // methods
   int       c2cGL(vtkIdType id_cell, int j);
   vtkIdType c2cGG(vtkIdType id_cell, int j);
 
+  bool hasNeighNode(vtkIdType id_node, vtkIdType id_neigh);
+
 };
 
 
