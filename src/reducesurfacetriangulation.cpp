@@ -29,7 +29,7 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
   m_PerformGeometricTests = true;
   m_UseProjectionForSmoothing = false;
   m_UseNormalCorrectionForSmoothing = true;
-  m_AllowFeatureEdgeSwapping = true;
+  m_AllowFeatureEdgeSwapping = false;
   m_RespectFeatureEdgesForDeleteNodes = false;
   m_FeatureAngleForDeleteNodes = m_FeatureAngle;
 }
@@ -49,12 +49,16 @@ void ReduceSurfaceTriangulation::pass1()
     int num_deleted = deleteNodes();
     num_del_max = max(num_del_max, num_deleted);
     cout << "deleted nodes  : " << num_deleted << endl;
-    swap();
+    int N = 5;
+    for (int i = 0; i < N; ++i) {
+      cout << "edge swap " << i+1 << "/" << N << endl;
+      swap();
+    }
     //smooth(1);
     done = num_deleted <= num_del_max/100;
     cout << "total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "total cells : " << m_Grid->GetNumberOfCells() << endl;
-    done = true;
+    //done = true;
   }
 }
 
@@ -67,7 +71,7 @@ void ReduceSurfaceTriangulation::pass2()
 
 void ReduceSurfaceTriangulation::operate()
 {
-  //setStretchingFactor(5.0);
+  setStretchingFactor(1.0);
   prepare();
   //writeGrid(m_Grid, "take1");
   updateNodeInfo(true);

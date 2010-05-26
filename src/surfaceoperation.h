@@ -118,11 +118,12 @@ public:
 
   /**
    * Compute locally transformed coordinates. This is required for an-isotropic triangulations.
-   * @param id__centre_node the centre of the transformation
+   * @param id__cnode the centre of the transformation
    * @param id_node the node whose coordinates will be transformed
    * @return the transformed coordinates
    */
-  vec3_t transform(vtkIdType id_centre_node, vtkIdType id_node);
+  vec3_t transform(vtkIdType id_cnode, vtkIdType id_node);
+  vec3_t transform(vtkIdType id_cnode1, vtkIdType id_cnode2, vtkIdType id_cnode3, vtkIdType id_cnode4, vtkIdType id_node);
 
   void setStretchingFactor(double sf) { m_StretchingFactor = sf; }
 

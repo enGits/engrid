@@ -32,7 +32,7 @@ class SwapTriangles : public SurfaceOperation
   
 private: // attributes
   
-  QVector<bool> m_Marked;
+  QVector<bool> m_Swapped;
   bool          m_RespectBC;
   bool          m_FeatureSwap;
   bool          m_SmallAreaSwap;
@@ -49,6 +49,7 @@ private: // methods
     
 protected: // methods
   
+  int swap();
   virtual void operate();
 
 public:

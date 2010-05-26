@@ -1857,18 +1857,11 @@ void GuiMainWindow::markOutputLine()
 
 void GuiMainWindow::storeSurfaceProjection()
 {
-  qDebug()<<"@@@ GuiMainWindow::storeSurfaceProjection called";
   foreach (SurfaceProjection* proj, m_SurfProj) {
     delete proj;
   }
   m_SurfProj.clear();
-  cout << "storing background grid for surface projection:" << endl;
-//   EG_VTKSP(vtkUnstructuredGrid,new_grid);
-  MeshPartition new_grid_partition;
-  bool first = true;
-  
-  QFileInfo file_info(m_CurrentFilename);
-  
+  int pindex_start = 1;
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection();
     m_SurfProj[bc] = proj;
@@ -1877,32 +1870,25 @@ void GuiMainWindow::storeSurfaceProjection()
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, m_Grid);
     proj->setBackgroundGrid(m_Grid, cls);
-    QString basename = file_info.completeBaseName() + "_" + QString::number(bc);
-    
-    proj->m_ExactMode = 0;
-    
-//     DebugLevel = 100;
-    if(DebugLevel>100) {
-      proj->writeGridWithNormals(basename);
-      proj->writeInterpolationGrid(basename);
-      proj->writeTriangleGrid(basename);
-      qDebug()<<"=====> bc="<<bc<<" proj->getBezierGrid()->GetNumberOfPoints()="<<proj->getBezierGrid()->GetNumberOfPoints()
-        <<" proj->getBezierGrid()->GetNumberOfCells()="<<proj->getBezierGrid()->GetNumberOfCells();
-      
-      if(first) {
-        first = false;
-        new_grid_partition.setGrid(proj->getBezierGrid());
-        new_grid_partition.setAllCells();
-      }
-      else {
-        MeshPartition grid_partition(proj->getBezierGrid(), true);
-        new_grid_partition.addPartition(grid_partition);
-      }
-    }
+    m_PIndexStart[proj] = pindex_start;
+    pindex_start += cls.size();
   }
-  
-  if(DebugLevel>100) writeGrid(new_grid_partition.getGrid(), file_info.completeBaseName() + "_projection_surface");
-//   DebugLevel = 0;
+}
+
+vtkIdType GuiMainWindow::pindexToCellId(int pindex, SurfaceProjection *proj)
+{
+  if (pindex == 0) {
+    return -1;
+  }
+  return pindex - m_PIndexStart[proj];
+}
+
+int GuiMainWindow::cellIdToPIndex(vtkIdType id_cell, SurfaceProjection *proj)
+{
+  if (id_cell < 0) {
+    return 0;
+  }
+  return id_cell + m_PIndexStart[proj];
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)

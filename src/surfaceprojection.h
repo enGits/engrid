@@ -32,7 +32,6 @@ class SurfaceProjection;
 #include "surfaceoperation.h"
 #include "surfacealgorithm.h"
 #include "triangle.h"
-#include "beziertriangle.h"
 
 class SurfaceProjection : public SurfaceAlgorithm
 {
@@ -47,101 +46,55 @@ private: // data-types
     double La, Lb;
   };
 
-private: // attributes
-
-  vtkUnstructuredGrid*   m_BGrid; ///< background grid used for projection and interpolation of the bezier surface
-  vtkUnstructuredGrid*   m_InterpolationGrid;
-  vtkUnstructuredGrid*   m_BezierGrid;
-  
-public:
-
-  /// get m_BGrid
-  vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
-
-  /// get m_InterpolationGrid
-  vtkUnstructuredGrid* getInterpolationGrid() { return m_InterpolationGrid; }
-
-  /// get m_BezierGrid
-  vtkUnstructuredGrid* getBezierGrid() { return m_BezierGrid; }
-  
-private:
-  /// A vector associating each node of m_FGrid with a Triangle (index for m_Triangles) on which it should be projected (closest triangle from m_Triangles).
-  QVector<vtkIdType>     m_ProjTriangles;
-  
-  vtkUnstructuredGrid*    m_FGrid; ///< The foreground grid to project.
-  QVector<double>         m_EdgeLength;
-  QVector<vtkIdType>      m_Cells;
-  QVector<vtkIdType>      m_Nodes;
-  QVector<vec3_t>         m_NodeNormals; ///< The surface normal at each node of m_BGrid
-  QMap < pair <vtkIdType, vtkIdType>, vec3_t > m_ControlPoints;
-  QVector<Triangle>       m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
-  QVector<BezierTriangle> m_BezierTriangles; ///< The bezier triangle corresponding to m_Triangles
-  QVector<QVector<int> >  m_N2N;
-  double                  m_RadiusFactor;
-  int                     m_NumDirect;
-  int                     m_NumFull;
-
-  bool m_correctCurvature; ///< Should correctCurvature() be used?
-
-public:
-
-  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature() { return m_correctCurvature; }
-  
-// variables for exact projection surfaces
-public:
-
-  int m_ExactMode;
-  vec3_t m_center;
-  vec3_t m_Rx;
-  vec3_t m_Ry;
-  vec3_t m_Rz;
-  vec3_t cylinder(vec3_t center, double radius, vec3_t g_M);
-  vec3_t cylinder(vec3_t center, double radius, int i_tri, vec3_t r);
-  vec3_t ellipsoid(vec3_t M);
-  vec3_t ellipse(vec3_t M);
-  vec3_t rectangle(vec3_t M);
-  vec3_t cuboid(vec3_t M);
-  vec3_t cylinder(vec3_t M);
-  
 private: // methods
 
   template <class C>
   void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells); ///< copy the cells from grid to m_BGrid
 
-  void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
-  
-  vec3_t correctCurvature1(int i_tri, vec3_t g_M); ///< correct curvature by using double interpolation
-  vec3_t correctCurvature2(int i_tri, vec3_t g_M); ///< correct curvature by using bezier surfaces
-  
-  vec3_t getEdgeNormal(vtkIdType id_node1, vtkIdType id_node2);
+protected: // attributes
+
+  vtkUnstructuredGrid*   m_BGrid; ///< the background grid defining the geometry
+  MeshPartition          m_BPart;
+  vtkUnstructuredGrid*   m_FGrid; ///< the foreground grid to project
+  QVector<double>        m_EdgeLength;
+  QVector<vtkIdType>     m_Cells;
+  QVector<vtkIdType>     m_Nodes;
+  QVector<vec3_t>        m_NodeNormals; ///< The surface normal at each node of m_BGrid
+  QVector<Triangle>      m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
+  QVector<QVector<int> > m_N2N;
+  bool                   m_correctCurvature; ///< Should correctCurvature() be used?
+  int                    m_NumNeighSearches;
+
+protected: // methods
+
+  virtual void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
+  virtual vec3_t correctCurvature(int, vec3_t g_M);
+  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
   
 public: // methods
 
-  SurfaceProjection(); ///< Constructor
-  ~SurfaceProjection(); ///< Destructor
+  static long int Nfull;
+
+  SurfaceProjection();
+  ~SurfaceProjection();
   
-  template <class C>
-  void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
+  template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
-  void setForegroundGrid(vtkUnstructuredGrid* grid) {
-    m_FGrid = grid;
-    m_ProjTriangles.clear(); // this makes sure a full search is run everytime a new foreground grid is set.
-  } ///< set m_FGrid
+  void    setForegroundGrid(vtkUnstructuredGrid* grid);
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1);
 
-  vec3_t project(vec3_t x, vtkIdType id_node = -1);
+  vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
 
-  int getNumDirectProjections() { return m_NumDirect; }
-  int getNumFullSearches() { return m_NumFull; }
+  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
+  bool getCorrectCurvature() { return m_correctCurvature; }
 
-  void writeGridWithNormals(QString filename);
-  void writeInterpolationGrid(QString filename);
-  void writeTriangleGrid(QString filename);
-  
-  int getControlPoints_orthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax); ///< get the orthogonal control points
-  int getControlPoints_nonorthogonal(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110, double Lmax); ///< get the non-orthogonal control points
-  int limitControlPoints(Triangle T, vec3_t& X_011, vec3_t& X_101, vec3_t& X_110);
 };
+
+
+inline void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
+{
+  m_FGrid = grid;
+}
 
 template <class C>
 void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)

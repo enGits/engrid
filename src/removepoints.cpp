@@ -122,6 +122,7 @@ void RemovePoints::operate() {
   l2g_t  nodes = getPartNodes(); // only surface nodes
 
   markFeatureEdges();
+  computeNormals();
 
   UpdatePotentialSnapPoints(m_UpdatePSP);
 
@@ -214,7 +215,9 @@ void RemovePoints::operate() {
 /// \todo finish this function and optimize it.
 bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_node2, int& N_common_points)
 {
-  if(id_node1 == id_node2) EG_BUG;
+  if (id_node1 == id_node2) {
+    EG_BUG;
+  }
 
   l2l_t  n2n   = getPartN2N();
   g2l_t _nodes = getPartLocalNodes();
@@ -222,14 +225,14 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
 
   QVector<int> node1_neighbours = n2n[_nodes[id_node1]];
   QVector<int> node2_neighbours = n2n[_nodes[id_node2]];
-  QVector<int> intersection;
-  qcontIntersection(node1_neighbours, node2_neighbours, intersection);
+  QVector<int> common_points;
+  qcontIntersection(node1_neighbours, node2_neighbours, common_points);
   // set N_common_points
-  N_common_points = intersection.size();
+  N_common_points = common_points.size();
 
   // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
-  for(int i = 0; i < intersection.size(); i++) {
-    int i_common_point_1 = intersection[i];
+  for(int i = 0; i < N_common_points; i++) {
+    int i_common_point_1 = common_points[i];
     vtkIdType id_common_point_1 = nodes[i_common_point_1];
     if(!isCell(id_node1, id_node2, id_common_point_1)) {
       if(DebugLevel > 100) {
@@ -238,9 +241,11 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
       }
       return true;
     }
-    // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell. => For any pair of common points (cp1,cp2), (cp1,cp2,DeadNode)+(cp1,cp2,PSP) must not be cells at the same time!
-    for(int j = i + 1; j < intersection.size(); j++) {
-      int i_common_point_2 = intersection[j];
+    // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell.
+    //                      => For any pair of common points (cp1,cp2), (cp1,cp2,DeadNode)+(cp1,cp2,PSP)
+    //                         must not be cells at the same time!
+    for(int j = i + 1; j < common_points.size(); j++) {
+      int i_common_point_2 = common_points[j];
       vtkIdType id_common_point_2 = nodes[i_common_point_2];
       if(isCell(id_common_point_1, id_common_point_2, id_node1) && isCell(id_common_point_1, id_common_point_2, id_node2)) {
         if(DebugLevel > 100) {
@@ -253,8 +258,46 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
     }
   }
 
+  QSet<vtkIdType> all_faces;
+  for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+    for (int j = 0; j < m_Part.n2cGSize(m_Part.n2nGG(id_node1, i)); ++j) {
+      all_faces.insert(m_Part.n2cGG(m_Part.n2nGG(id_node1, i), j));
+    }
+  }
+  for (int i = 0; i < m_Part.n2nGSize(id_node2); ++i) {
+    for (int j = 0; j < m_Part.n2cGSize(m_Part.n2nGG(id_node2, i)); ++j) {
+      all_faces.insert(m_Part.n2cGG(m_Part.n2nGG(id_node2, i), j));
+    }
+  }
+  QSet<vtkIdType> near_faces;
+  for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
+    near_faces.insert(m_Part.n2cGG(id_node1, i));
+  }
+  for (int i = 0; i < m_Part.n2cGSize(id_node2); ++i) {
+    near_faces.insert(m_Part.n2cGG(id_node2, i));
+  }
+  QSet<vtkIdType> far_faces = all_faces - near_faces;
+  bool tetra = true;
+  foreach (vtkIdType id_cell, far_faces) {
+    vtkIdType N_pts, *pts;
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    for (int i = 0; i < N_pts; ++i) {
+      if (!m_Part.hasNeighNode(pts[i], id_node1) && !m_Part.hasNeighNode(pts[i], id_node2)) {
+        tetra = false;
+        break;
+      }
+    }
+    if (!tetra) {
+      break;
+    }
+  }
+  if (tetra) {
+    return true;
+  }
 
-  FIX THIS!!!!
+
+
+  //FIX THIS!!!!
 /*
   // check if DeadNode, PSP and common points form a tetrahedron.
   if ( n2n[_nodes[intersection1]].contains( _nodes[intersection2] ) ) { //if there's an edge between intersection1 and intersection2

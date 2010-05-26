@@ -82,6 +82,8 @@ void SurfaceMesher::operate()
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       smooth(1);
+      cout << SurfaceProjection::Nfull << " full searches" << endl;
+      SurfaceProjection::Nfull = 0;
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
@@ -94,17 +96,11 @@ void SurfaceMesher::operate()
   updateNodeInfo(false);
   computeMeshDensity();
   {
-    int N1 = 0;
-    int N2 = 0;
     QSet<int> bcs;
     GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
     foreach (int bc, bcs) {
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
-      N1 += proj->getNumDirectProjections();
-      N2 += proj->getNumFullSearches();
     }
-    cout << N1 << " direct projections" << endl;
-    cout << N2 << " full searches" << endl;
   }
   
   if(m_interpolateAfterMeshing) {

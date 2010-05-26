@@ -22,7 +22,6 @@
 //
 #include "egvtkobject.h"
 #include "guimainwindow.h"
-#include "beziertriangle.h"
 
 #include <vtkCellData.h>
 #include <vtkPointData.h>
@@ -708,6 +707,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_desired",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
+  EGVTKOBJECT_COPYNODEDATA("node_pindex", vtkLongArray_t);
 }
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
@@ -769,7 +769,8 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
   EGVTKOBJECT_CREATENODEFIELD("node_specified_density",    vtkIntArray,    overwrite); //density index from table
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite); //what we have
-  EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray, overwrite);   //node type
+  EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray,   overwrite); //node type
+  EGVTKOBJECT_CREATENODEFIELD("node_pindex",               vtkLongArray_t, overwrite);
 }
 
 void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)
