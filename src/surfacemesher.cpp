@@ -59,6 +59,8 @@ void SurfaceMesher::operate()
   bool done = (iter >= m_NumMaxIter);
   //swap();
   //done = true;
+  int Nfull = 0;
+  int Nhalf = 0;
   while (!done) {
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
@@ -81,9 +83,13 @@ void SurfaceMesher::operate()
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      smooth(1);
-      cout << SurfaceProjection::Nfull << " full searches" << endl;
       SurfaceProjection::Nfull = 0;
+      SurfaceProjection::Nhalf = 0;
+      smooth(1);
+      Nfull += SurfaceProjection::Nfull;
+      Nhalf += SurfaceProjection::Nhalf;
+      cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
+      cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
@@ -102,7 +108,9 @@ void SurfaceMesher::operate()
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
     }
   }
-  
+  cout << Nfull << " full searches in total" << endl;
+  cout << Nhalf << " half searches in total" << endl;
+
   if(m_interpolateAfterMeshing) {
     qDebug()<<"+++ CORRECTING CURVATURE +++";
     // correct curvature

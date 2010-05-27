@@ -64,18 +64,27 @@ protected: // attributes
   QVector<QVector<int> > m_N2N;
   bool                   m_correctCurvature; ///< Should correctCurvature() be used?
   int                    m_NumNeighSearches;
+  int                    m_BC;
+  QMap<vtkIdType,vtkIdType> m_Pindex;
+
+protected: // static attributes
+
+  static vtkIdType m_LastPindex;
 
 protected: // methods
 
   virtual void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
   virtual vec3_t correctCurvature(int, vec3_t g_M);
   void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
-  
+  vtkIdType getProjTriangle(vtkIdType id_node);
+  void setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
+
 public: // methods
 
   static long int Nfull;
+  static long int Nhalf;
 
-  SurfaceProjection();
+  SurfaceProjection(int bc = 0);
   ~SurfaceProjection();
   
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
@@ -88,19 +97,27 @@ public: // methods
   void setCorrectCurvature(bool b) { m_correctCurvature = b; }
   bool getCorrectCurvature() { return m_correctCurvature; }
 
+public: // static methods
+
+  static void resetPindex() { m_LastPindex = 0; }
+
 };
 
-
-inline void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
-{
-  m_FGrid = grid;
-}
 
 template <class C>
 void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
 {
   setBackgroundGrid_setupGrid(grid, cells);
   updateBackgroundGridInfo();
+  setForegroundGrid(grid);
+  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    vtkIdType id_cell = cells[i_cells];
+    vtkIdType N_pts, *pts;
+    grid->GetCellPoints(id_cell, N_pts, pts);
+    for (int i = 0; i < N_pts; ++i) {
+      setProjTriangle(pts[i], i_cells);
+    }
+  }
 }
 
 template <class C>

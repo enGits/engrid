@@ -161,7 +161,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;    ///< all physical boundary conditions definitions
 
     QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
-    QMap<SurfaceProjection*, int>   m_PIndexStart;
 
     int m_SolverIndex;// deprecated
     OpenFOAMTools m_OpenFoamTools;
@@ -352,8 +351,6 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void setFilename(QString filename) { m_CurrentFilename = filename; }
   
     SurfaceProjection* getSurfProj(int bc);
-    vtkIdType pindexToCellId(int pindex, SurfaceProjection *proj);
-    int cellIdToPIndex(vtkIdType id_cell, SurfaceProjection *proj);
     bool checkSurfProj();
 
   public slots:

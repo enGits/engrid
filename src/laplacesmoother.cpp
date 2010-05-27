@@ -220,6 +220,7 @@ void LaplaceSmoother::operate()
 //       }
 //     }
 
+    int count = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
@@ -256,7 +257,15 @@ void LaplaceSmoother::operate()
           }
         }
       }
+      ++count;
+      if (count >= 1000) {
+        cout << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << endl;
+        cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
+        cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
+        count = 0;
+      }
     }
+    cout << "    " << nodes.size() << " of " << nodes.size() << " nodes done." << endl;
     if (m_Success) {
       break;
     }

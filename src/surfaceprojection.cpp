@@ -25,11 +25,14 @@
 #include <math.h>
 
 long int SurfaceProjection::Nfull = 0;
+long int SurfaceProjection::Nhalf = 0;
+vtkIdType SurfaceProjection::m_LastPindex = 0;
 
-SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
+SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
 {
   m_BGrid = vtkUnstructuredGrid::New();
   this->setGrid(m_BGrid);
+  m_BC = bc;
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
   getSet("surface meshing", "number ofneighbour searches", 2, m_NumNeighSearches);
 }
@@ -39,16 +42,19 @@ SurfaceProjection::~SurfaceProjection()
   m_BGrid->Delete();
 }
 
+void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
+{
+  m_FGrid = grid;
+}
+
 void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle)
 {
-  //cout << "searchNewTriangle: " << xp << ',' << tri << endl;
   x_proj = vec3_t(1e99, 1e99, 1e99);
   r_proj = vec3_t(0, 0, 0);
   vec3_t xi, ri;
   on_triangle = false;
-
   double d_min = 1e99;
-  //tri = -1;
+  bool tri_found = false;
   if (id_tri >= 0) {
     QSet<vtkIdType> tris;
     tris.insert(id_tri);
@@ -72,18 +78,23 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
           r_proj = ri;
           on_triangle = true;
           id_tri = i_cand;
+          ++Nhalf;
           return;
-        } else if (d < d_min) {
-          //tri = i_cand;
-          //x_proj = xi;
-          //r_proj = ri;
+        } else if (d < 0.1*m_Triangles[i_cand].m_smallest_length) {
+          if (d < d_min) {
+            x_proj = xi;
+            r_proj = ri;
+            id_tri = i_cand;
+            tri_found = true;
+          }
         }
       }
       tris += candidates;
     }
-    //return;
   }
-  {
+  if (tri_found) {
+    ++Nhalf;
+  } else {
     // full search :-(
     ++Nfull;
     bool x_proj_set = false;
@@ -175,15 +186,40 @@ void SurfaceProjection::updateBackgroundGridInfo()
   m_BPart.setAllCells();
 }
 
+
+vtkIdType SurfaceProjection::getProjTriangle(vtkIdType id_node)
+{
+  EG_VTKDCN(vtkLongArray_t, pi, m_FGrid, "node_pindex");
+  vtkIdType pindex = pi->GetValue(id_node);
+  vtkIdType proj_triangle = -1;
+  if (pindex < 0) {
+    pindex = m_LastPindex;
+    ++m_LastPindex;
+    m_Pindex[pindex] = -1;
+  } else {
+    proj_triangle = m_Pindex[pindex];
+  }
+  return proj_triangle;
+}
+
+void SurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle)
+{
+  EG_VTKDCN(vtkLongArray_t, pi, m_FGrid, "node_pindex");
+  vtkIdType pindex = pi->GetValue(id_node);
+  if (pindex < 0) {
+    pindex = m_LastPindex;
+    pi->SetValue(id_node, pindex);
+    ++m_LastPindex;
+  }
+  m_Pindex[pindex] = proj_triangle;
+}
+
+
 vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
 {
-  //cout << "project: " << xp << ',' << id_node << endl;
   checkVector(xp);
   if (id_node < 0) {
     EG_BUG;
-  }
-  if (id_node == 4) {
-    cout << "break" << endl;
   }
 
   vec3_t x_proj(1e99, 1e99, 1e99);
@@ -194,12 +230,8 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
   bool on_triangle = false;
   bool need_search = false;
 
-  EG_VTKDCN(vtkLongArray_t, pindex, m_FGrid, "node_pindex");
-  int pi = pindex->GetValue(id_node);
-  //vtkIdType proj_triangle = GuiMainWindow::pointer()->pindexToCellId(pindex->GetValue(id_node), this);
-  vtkIdType proj_triangle = GuiMainWindow::pointer()->pindexToCellId(pi, this);
+  vtkIdType proj_triangle = getProjTriangle(id_node);
 
-  /*
   if (proj_triangle == -1) { //if there is no known triangle on which to project
     need_search = true;
   } else { //if there is a known triangle on which to project
@@ -223,11 +255,10 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
       on_triangle = intersects;
     }
   }
-  */
-  need_search = true;
+  //need_search = true;
   if (need_search) {
     searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
-    pindex->SetValue(id_node, GuiMainWindow::pointer()->cellIdToPIndex(proj_triangle, this));
+    setProjTriangle(id_node, proj_triangle);
   }
   if (m_correctCurvature) {
     x_proj = correctCurvature(proj_triangle, xp);

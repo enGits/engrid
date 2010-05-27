@@ -1861,34 +1861,20 @@ void GuiMainWindow::storeSurfaceProjection()
     delete proj;
   }
   m_SurfProj.clear();
-  int pindex_start = 1;
+  EG_VTKDCN(vtkLongArray_t, pindex, m_Grid, "node_pindex");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    pindex->SetValue(id_node, -1);
+  }
+  SurfaceProjection::resetPindex();
   foreach (int bc, m_AllBoundaryCodes) {
-    SurfaceProjection *proj = new SurfaceProjection();
+    SurfaceProjection *proj = new SurfaceProjection(bc);
     m_SurfProj[bc] = proj;
     QSet<int> bcs;
     bcs.insert(bc);
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, m_Grid);
     proj->setBackgroundGrid(m_Grid, cls);
-    m_PIndexStart[proj] = pindex_start;
-    pindex_start += cls.size();
   }
-}
-
-vtkIdType GuiMainWindow::pindexToCellId(int pindex, SurfaceProjection *proj)
-{
-  if (pindex == 0) {
-    return -1;
-  }
-  return pindex - m_PIndexStart[proj];
-}
-
-int GuiMainWindow::cellIdToPIndex(vtkIdType id_cell, SurfaceProjection *proj)
-{
-  if (id_cell < 0) {
-    return 0;
-  }
-  return id_cell + m_PIndexStart[proj];
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
