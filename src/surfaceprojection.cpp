@@ -90,6 +90,9 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
         }
       }
       tris += candidates;
+      if (tri_found) {
+        return;
+      }
     }
   }
   if (tri_found) {
@@ -194,6 +197,7 @@ vtkIdType SurfaceProjection::getProjTriangle(vtkIdType id_node)
   vtkIdType proj_triangle = -1;
   if (pindex < 0) {
     pindex = m_LastPindex;
+    pi->SetValue(id_node, pindex);
     ++m_LastPindex;
     m_Pindex[pindex] = -1;
   } else {
