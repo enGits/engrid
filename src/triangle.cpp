@@ -164,7 +164,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     x2 = xp - scal * this->m_g3 + this->m_g3;
   }
   // (xi,ri) gets set to the intersection of the line with the plane here!
-  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_a, this->m_b, this->m_c, x1, x2, xi, ri, 1e-3);
+  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_a, this->m_b, this->m_c, x1, x2, xi, ri);
   if (intersects_face || !restrict_to_triangle) {
     vec3_t dx = xp - this->m_a;
     d = fabs(dx * this->m_g3);
