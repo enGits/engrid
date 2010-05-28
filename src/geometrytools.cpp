@@ -420,14 +420,12 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
   return(xc);
 }
 
-bool isInsideTriangle(vec2_t t_M, double tol)
+bool isInsideTriangle(vec2_t r, double tol)
 {
-  if(t_M[0]<0-tol || 1+tol<t_M[0] || t_M[1]<0-tol || 1+tol<t_M[1] || t_M[0]+t_M[1]>1+tol) {
+  if (r[0] < 0-tol || 1+tol < r[0] || r[1] < 0-tol || 1+tol < r[1] || r[0]+r[1] > 1+tol) {
     return false;
   }
-  else {
-    return true;
-  }
+  return true;
 }
 
 bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
