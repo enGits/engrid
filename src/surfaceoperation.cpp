@@ -320,24 +320,24 @@ char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
   return( type );
 }
 
-int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QVector <vtkIdType> &EdgeCells )
+int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QVector <vtkIdType> &EdgeCells)
 {
   g2l_t _nodes = getPartLocalNodes();
   l2g_t cells  = getPartCells();
   l2l_t n2c    = getPartN2C();
 
   QSet<vtkIdType> S1;
-  foreach( int i, n2c[_nodes[id_node1]] ) {
-    S1.insert( cells[i] );
+  foreach (int i, n2c[_nodes[id_node1]]) {
+    S1.insert(cells[i]);
   }
 
   QSet<vtkIdType> S2;
   foreach( int i, n2c[_nodes[id_node2]] ) {
-    S2.insert( cells[i] );
+    S2.insert(cells[i]);
   }
 
-  S2.intersect( S1 );
-  EdgeCells = Set2Vector( S2, false );
+  S2.intersect(S1);
+  EdgeCells = Set2Vector(S2, false);
   return EdgeCells.size();
 }
 
