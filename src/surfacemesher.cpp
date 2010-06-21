@@ -30,9 +30,12 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
   m_PerformGeometricTests = true;
-  m_UseProjectionForSmoothing = true;
-  m_UseNormalCorrectionForSmoothing = true;
-  m_AllowFeatureEdgeSwapping = false;
+  //m_UseProjectionForSmoothing = true;
+  getSet("surface meshing", "use surface projection for smoothing", true, m_UseProjectionForSmoothing);
+  getSet("surface meshing", "use normal correction for smoothing", false, m_UseNormalCorrectionForSmoothing);
+  getSet("surface meshing", "allow feature edge swapping", false, m_AllowFeatureEdgeSwapping);
+  //m_UseNormalCorrectionForSmoothing = true;
+  //m_AllowFeatureEdgeSwapping = false;
   m_EdgeAngle = m_FeatureAngle;
   
   getSet("surface meshing", "interpolate after meshing (experimental)", false, m_interpolateAfterMeshing);
@@ -57,29 +60,20 @@ void SurfaceMesher::operate()
   int num_deleted = 0;
   int iter = 0;
   bool done = (iter >= m_NumMaxIter);
-  //swap();
-  //done = true;
   int Nfull = 0;
   int Nhalf = 0;
   while (!done) {
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
     computeMeshDensity();
+    //return;
     num_inserted = insertNodes();
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
     swap();
     computeMeshDensity();
-    /*
-    for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      smooth(1);
-      swap();
-    }
-    */
     num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
-    //swap();
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
