@@ -38,6 +38,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
   m_NoCheck = false;
   m_ProjectionIterations = 20;
+  m_FreeProjectionForEdges = false;
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -147,11 +148,15 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
-            x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node);
+            if (m_FreeProjectionForEdges) {
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectFree(x_new, id_node);
+            } else {
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node);
+            }
           }
         }
       }
@@ -205,28 +210,17 @@ void LaplaceSmoother::operate()
   QVector<vec3_t> x_new(nodes.size());
 
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
-
     m_Success = true;
-
-//     QVector<vec3_t> node_normals;
-//     if (m_UseNormalCorrection) {
-//       node_normals.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
-//       vec3_t n(0,0,0);
-//       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-//         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-//           node_normals[id_node] += GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
-//         }
-//         node_normals[id_node].normalise();
-//       }
-//     }
-
+    computeNormals();
+    SurfaceProjection::Nfull = 0;
+    SurfaceProjection::Nhalf = 0;
     int count = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
         if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
-//           vec3_t n(0,0,0);
+          vec3_t n(0,0,0);
           if (snap_points.size() > 0) {
             vec3_t x_old;
             vec3_t x;
@@ -235,16 +229,18 @@ void LaplaceSmoother::operate()
             foreach (vtkIdType id_snap_node, snap_points) {
               m_Grid->GetPoint(id_snap_node, x.data());
               x_new[i_nodes] += x;
-//               n += node_normals[id_snap_node];
+              n += m_NodeNormal[id_snap_node];
             }
-//             n.normalise();
+            n.normalise();
             x_new[i_nodes] *= 1.0/snap_points.size();
 
-//             if (m_UseNormalCorrection) {
-//               vec3_t dx = x_new[i_nodes] - x_old;
-//               dx = (dx*n)*n;
-//               x_new[i_nodes] -= dx;
-//             }
+            if (m_UseNormalCorrection) {
+              vec3_t dx = x_new[i_nodes] - x_old;
+              double scal = dx*n;
+              //if (scal < 0) {
+                x_new[i_nodes] += scal*n;
+              //}
+            }
 
             vec3_t Dx = x_new[i_nodes] - x_old;
             Dx *= m_UnderRelaxation;

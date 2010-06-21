@@ -38,6 +38,7 @@ private:
   double    m_UnderRelaxation;
   bool      m_Success;
   int       m_ProjectionIterations;
+  bool      m_FreeProjectionForEdges;
 
   QVector<QVector<int> > m_NodeToBc;
 
@@ -68,7 +69,9 @@ public:
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
   void setProjectionIterations(int n) { m_ProjectionIterations = n; }
-  
+  void setFreeProjectionForEdgesOn() { m_FreeProjectionForEdges = true; }
+  void setFreeProjectionForEdgesOff() { m_FreeProjectionForEdges = false; }
+
 };
 
 #endif
