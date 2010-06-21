@@ -63,8 +63,9 @@ public:
   int  getNode     (int i) { return m_Node[i]; }
   int  getNeighbour(int i) { return m_Neighbour[i]; }
   bool hasChildren ()      { return m_Child[0] != -1; }
+  int  getParent   ()      { return m_Parent; }
 
-  int getEdgeNode(Octree* octree, int n1, int n2, int f);
+  int  getEdgeNode(Octree* octree, int n1, int n2, int f);
   void getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse = false);
   void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes, bool reverse = false);
 
@@ -144,6 +145,7 @@ public: // methods
   double getDy(const OctreeCell& cell);
   double getDz(const OctreeCell& cell);
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
+  int    getParent(int cell) { return m_Cells[cell].m_Parent; }
   int    findCell(vec3_t x);
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
