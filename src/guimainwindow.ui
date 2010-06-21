@@ -130,6 +130,7 @@
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
     <addaction name="actionSurfaceMesher"/>
+    <addaction name="actionSharpenEdges"/>
     <addaction name="actionReduceSurfaceTriangulation"/>
     <addaction name="actionSmoothAndSwapSurface"/>
     <addaction name="actionEliminateSmallBranches"/>
@@ -192,6 +193,7 @@
     <addaction name="actionShowInfo"/>
     <addaction name="actionBoxSelect"/>
     <addaction name="actionCheck_surface_integrity"/>
+    <addaction name="actionCheckForOverlap"/>
     <addaction name="actionFixCADgeometry"/>
     <addaction name="actionProjection_test"/>
    </widget>
@@ -1636,6 +1638,22 @@
    </property>
    <property name="text">
     <string>mirror</string>
+   </property>
+  </action>
+  <action name="actionSharpenEdges">
+   <property name="text">
+    <string>sharpen edges</string>
+   </property>
+   <property name="toolTip">
+    <string>sharpen edges (e.g. after import from snappyHexMesh)</string>
+   </property>
+  </action>
+  <action name="actionCheckForOverlap">
+   <property name="text">
+    <string>check for overlapping faces</string>
+   </property>
+   <property name="toolTip">
+    <string>check for overlapping faces</string>
    </property>
   </action>
  </widget>
