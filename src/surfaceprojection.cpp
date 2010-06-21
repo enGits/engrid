@@ -35,6 +35,7 @@ SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
   m_BC = bc;
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
   getSet("surface meshing", "number ofneighbour searches", 2, m_NumNeighSearches);
+  m_CritDistance = 0.1;
 }
 
 SurfaceProjection::~SurfaceProjection()
@@ -59,6 +60,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
     QSet<vtkIdType> tris;
     tris.insert(id_tri);
     for (int i_search = 0; i_search < m_NumNeighSearches; ++i_search) {
+    //for (int i_search = 0; i_search < 100; ++i_search) {
       QSet<vtkIdType> candidates;
       foreach (int i_tri, tris) {
         for (int k = 0; k < m_BPart.c2cGSize(i_tri); ++k) {
@@ -73,14 +75,14 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
         if (i_cand > m_BGrid->GetNumberOfCells()) EG_BUG;
         int side;
         double d;
-        if(m_Triangles[i_cand].projectOnTriangle(xp, xi, ri, d, side, true)) {
+        if(m_Triangles[i_cand].projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle)) {
           x_proj = xi;
           r_proj = ri;
           on_triangle = true;
           id_tri = i_cand;
           ++Nhalf;
           return;
-        } else if (d < 0.1*m_Triangles[i_cand].m_smallest_length) {
+        } else if (d < m_CritDistance*m_Triangles[i_cand].m_smallest_length) {
           if (d < d_min) {
             x_proj = xi;
             r_proj = ri;
@@ -106,7 +108,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
       Triangle T = m_Triangles[i_triangles];
       double d;
       int side;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
       if (d >= 1e99) {
         EG_BUG;
       }
@@ -246,8 +248,8 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
     vec3_t xi, ri;
     double d;
     int side;
-    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
-    if (!intersects || (d > 0.1*T.m_smallest_length)) {
+    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+    if (!intersects || (d > m_CritDistance*T.m_smallest_length)) {
       need_search = true;
     } else {
       x_proj = xi;
@@ -268,6 +270,18 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
     x_proj = correctCurvature(proj_triangle, xp);
   }
   return x_proj;
+}
+
+vec3_t SurfaceProjection::projectFree(vec3_t x, vtkIdType id_node)
+{
+  m_RestrictToTriangle = false;
+  return project(x, id_node);
+}
+
+vec3_t SurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node)
+{
+  m_RestrictToTriangle = true;
+  return project(x, id_node);
 }
 
 vec3_t SurfaceProjection::correctCurvature(int, vec3_t g_M)

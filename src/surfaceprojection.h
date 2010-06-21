@@ -65,11 +65,14 @@ protected: // attributes
   bool                   m_correctCurvature; ///< Should correctCurvature() be used?
   int                    m_NumNeighSearches;
   int                    m_BC;
+  bool                   m_RestrictToTriangle;
+  double                 m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
 
 protected: // static attributes
 
   static vtkIdType m_LastPindex;
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1);
 
 protected: // methods
 
@@ -90,7 +93,8 @@ public: // methods
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
   void    setForegroundGrid(vtkUnstructuredGrid* grid);
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1);
+  virtual vec3_t projectRestricted(vec3_t x, vtkIdType id_node = -1);
+  virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1);
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
 
