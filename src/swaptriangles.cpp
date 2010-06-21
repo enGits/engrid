@@ -109,18 +109,18 @@ int SwapTriangles::swap()
   int N_swaps = 0;
   setAllSurfaceCells();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  QVector<bool> l_marked(m_Grid->GetNumberOfCells(), false);
+  QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
     vtkIdType id_cell = m_Part.globalCell(i);
     if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
-      if (!l_marked[id_cell] && !m_Swapped[id_cell]) {
+      if (!marked[id_cell] && !m_Swapped[id_cell]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
           stencil_t S = getStencil(id_cell, j);
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
-                if (!l_marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
+                if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
                   vec3_t x3[4], x3_0(0,0,0);
                   vec2_t x[4];
 
@@ -189,19 +189,23 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            l_marked[S.id_cell[0]] = true;
-            l_marked[S.id_cell[1]] = true;
-            for (int k = 0; k > m_Part.n2cGSize(S.id_node[0]); ++k) {
-              l_marked[m_Part.n2cGG(S.id_node[0], k)] = true;
+            marked[S.id_cell[0]] = true;
+            marked[S.id_cell[1]] = true;
+            for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {
+              vtkIdType id_neigh = m_Part.n2cGG(S.id_node[0], k);
+              marked[id_neigh] = true;
             }
-            for (int k = 0; k > m_Part.n2cGSize(S.id_node[1]); ++k) {
-              l_marked[m_Part.n2cGG(S.id_node[1], k)] = true;
+            for (int k = 0; k < m_Part.n2cGSize(S.id_node[1]); ++k) {
+              vtkIdType id_neigh = m_Part.n2cGG(S.id_node[1], k);
+              marked[id_neigh] = true;
             }
-            for (int k = 0; k > m_Part.n2cGSize(S.p1); ++k) {
-              l_marked[m_Part.n2cGG(S.p1, k)] = true;
+            for (int k = 0; k < m_Part.n2cGSize(S.p1); ++k) {
+              vtkIdType id_neigh = m_Part.n2cGG(S.p1, k);
+              marked[id_neigh] = true;
             }
-            for (int k = 0; k > m_Part.n2cGSize(S.p2); ++k) {
-              l_marked[m_Part.n2cGG(S.p2, k)] = true;
+            for (int k = 0; k < m_Part.n2cGSize(S.p2); ++k) {
+              vtkIdType id_neigh = m_Part.n2cGG(S.p2, k);
+              marked[id_neigh] = true;
             }
             vtkIdType new_pts1[3], new_pts2[3];
             new_pts1[0] = S.p1;
@@ -233,18 +237,24 @@ int SwapTriangles::swap()
 
 void SwapTriangles::operate()
 {
-  int N_swaps;
-  int N_total = 0;
+  cout << "swapping edges for surface triangles ..." << endl;
+  long int N_swaps      = 100000000;
+  long int N_last_swaps = 100000001;
   int loop = 1;
-  do {
+  while ((N_swaps > 0) && (loop <= m_MaxNumLoops) && (N_swaps < N_last_swaps)) {
+    N_last_swaps = N_swaps;
+    //cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
     m_Swapped.fill(false, m_Grid->GetNumberOfCells());
     N_swaps = 0;
     int N;
+    int sub_loop = 0;
     do {
+      ++sub_loop;
       N = swap();
+      //cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
       N_swaps += N;
     } while (N > 0);
     ++loop;
-  } while ((N_swaps > 0) && (loop <= m_MaxNumLoops));
+  }
 }
 
