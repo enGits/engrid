@@ -699,11 +699,14 @@ void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_field
       ++N;
     }
   }
-  allocateGrid(grid, N, m_Nodes.size(), create_fields);
+  allocateGrid(grid, N, m_Nodes.size());
+  //allocateGrid(grid, N, m_Nodes.size(), create_fields);
   for (int id_node = 0; id_node < m_Nodes.size(); ++id_node) {
     grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].m_Position.data());
   }
-  foreach (OctreeCell cell, m_Cells) {
+  EG_VTKDCC(vtkIntArray, cell_index, grid, "cell_code");
+  for (int i_cells = 0; i_cells < m_Cells.size(); ++i_cells) {
+    OctreeCell cell = m_Cells[i_cells];
     if (cell.m_Child[0] == -1) {
       vtkIdType Npts = 8;
       vtkIdType pts[8];
@@ -720,7 +723,8 @@ void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_field
           EG_BUG;
         }
       }
-      grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
+      vtkIdType id_cell = grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
+      cell_index->SetValue(id_cell, i_cells);
     }
   }
 }
