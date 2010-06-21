@@ -31,14 +31,17 @@ class FixCadGeometry: public SurfaceAlgorithm
 protected: // methods
   
   void customUpdateNodeInfo();
+  void callMesher();
+  void setDesiredLength(double L = 1e99);
+  void copyFaces(const QVector<bool> &copy_face);
+  void fixNonManifold1();
+  void fixNonManifold2();
+
   virtual void operate();
-  
   
 public: // methods
   
   FixCadGeometry();
-  void mesher();
-  void setDesiredLength(double L = 1e99);
   
 };
 
