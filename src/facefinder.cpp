@@ -154,8 +154,8 @@ int FaceFinder::refine()
       for (int node = 0; node < 8; ++node) {
         vec3_t x = m_Octree.getNodePosition(cell, node);
         double d;
-        //d = (x - m_Centres[id_cell]).abs();
-        if (d < m_Octree.getDx(cell)) {
+        d = (x - m_Centres[id_cell]).abs();
+        //if (d < m_Octree.getDx(cell)) {
         if (d < 1.5*m_CritLength[parent]) {
           m_Faces[cell].append(id_cell);
           m_CritLength[cell] = max(m_CritLength[cell], calcCritLength(id_cell));
