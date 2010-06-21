@@ -32,16 +32,29 @@ CheckSurfaceIntegrity::CheckSurfaceIntegrity() : SurfaceOperation()
 
 void CheckSurfaceIntegrity::operate()
 {
-  cout<<"this->isWaterTight()="<<this->isWaterTight()<<endl;
-  cout<<"this->Nmin="<<this->Nmin<<endl;
-  cout<<"this->Nmax="<<this->Nmax<<endl;
-  cout<<"this->BadCells="<<this->BadCells<<endl;
+  bool ok = isWaterTight();
+  if (ok) {
+    cout << "The mesh is OK!" << endl;
+  } else {
+    cout << "The mesh is not water-tight" << endl;
+    for (int i = 0; i < m_NumCells.size(); ++i) {
+      if (m_NumCells[i] > 0) {
+        cout << "  " << m_NumCells[i] << " edges with " << i << " faces" << endl;
+      }
+    }
+    cout << "bad cells:" << endl;
+    foreach (vtkIdType id_cell, m_BadCells) {
+      cout << id_cell << " ";
+    }
+    cout << endl;
+  }
 }
 
 bool CheckSurfaceIntegrity::isWaterTight()
 {
   setAllSurfaceCells();
-  BadCells.clear();
+  m_BadCells.clear();
+  m_NumCells.fill(0, 1000);
 
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
@@ -58,17 +71,22 @@ bool CheckSurfaceIntegrity::isWaterTight()
     foreach(int i_node2, n2n[_nodes[id_node1]]) {
       vtkIdType id_node2 = nodes[i_node2];
       QSet <vtkIdType> edge_cells;
-      int N = getEdgeCells(id_node1, id_node2,edge_cells);
+      int N = getEdgeCells(id_node1, id_node2, edge_cells);
       if(first) {
         first = false;
-        Nmin = N;
-        Nmax = N;
+        m_Nmin = N;
+        m_Nmax = N;
+      } else {
+        m_Nmin = min(m_Nmin, N);
+        m_Nmax = max(m_Nmax, N);
       }
-      else {
-        Nmin = min(Nmin,N);
-        Nmax = max(Nmax,N);
+      if (N >= 1000) {
+        EG_BUG;
       }
-      if(edge_cells.size()!=2) BadCells.unite(edge_cells);
+      ++m_NumCells[N];
+      if (edge_cells.size() != 2) {
+        m_BadCells.unite(edge_cells);
+      }
     }
   }
   
@@ -78,6 +96,9 @@ bool CheckSurfaceIntegrity::isWaterTight()
     }
   }
   
-  if( Nmin==2 && Nmax==2 ) return(true);
-  else return(false);
+  if (m_Nmin == 2 && m_Nmax == 2) {
+    return(true);
+  } else {
+    return(false);
+  }
 }

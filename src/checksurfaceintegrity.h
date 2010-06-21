@@ -27,20 +27,27 @@
 
 class CheckSurfaceIntegrity : public SurfaceOperation
 {
+
 private:
-  bool WaterTight;
-  int Nmin;
-  int Nmax;
-  QSet <vtkIdType> BadCells;
+
+  bool m_IsWaterTight;
+  int  m_Nmin;
+  int  m_Nmax;
+  QSet <vtkIdType> m_BadCells;
+  QVector<int> m_NumCells;
   
+
 public:
+
   CheckSurfaceIntegrity();
   bool isWaterTight();
-  int getNmin() { return(Nmin); }
-  int getNmax() { return(Nmax); }
-  QSet <vtkIdType> getBadCells() { return(BadCells); }
+  int getNmin() { return(m_Nmin); }
+  int getNmax() { return(m_Nmax); }
+  QSet <vtkIdType> getBadCells() { return(m_BadCells); }
   
+
 protected: // methods
+
   virtual void operate();
   
 };
