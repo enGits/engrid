@@ -1,40 +1,38 @@
-######################################################################
+# #####################################################################
 # common libraries, includes, source files for the engrid*.pro files
-######################################################################
-
+# #####################################################################
 TEMPLATE = app
 LANGUAGE = C++
-TARGET   = engrid
+TARGET = engrid
 
 # CONFIG += qt release thread
 # CONFIG += qt debug thread
 CONFIG += qt \
     debug_and_release \
     thread
-
 include(engrid-version.pri)
-
-!openfoam {
+!openfoam { 
     # install
     target.path = /usr/bin
+    
     # target.path = $$PREFIX/bin
     INSTALLS += target
 }
-else {
+else { 
     message("Configuring for OpenFOAM+paraview")
+    
     # install
     target.path = ../platforms/$(WM_ARCH)
+    
     # target.path = $$PREFIX/bin
     INSTALLS += target
 }
 
-########
+# #######
 # FLAGS
-########
-
+# #######
 # DEFINES += QT_NO_DEBUG
 # DEFINES += QT_DEBUG
-
 # to get rid of deprecated header warnings caused by including QVTKwidget.h
 # DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
 # DEFINES += VTK_LEGACY_REMOVE
@@ -47,24 +45,18 @@ QMAKE_CXXFLAGS += -Wall
 QT += xml \
     network \
     opengl
+!win32:# LIBS += -Wl,-rpath
+QMAKE_CXXFLAGS += -Wno-deprecated
 
-!win32 {
-#   LIBS += -Wl,-rpath
-    QMAKE_CXXFLAGS += -Wno-deprecated
-}
-
-############
+# ###########
 # LIBRARIES
-############
-
+# ###########
 include(engrid-netgen.pri)
 include(engrid-vtk.pri)
-
-CGNS {
-  message("Configuring for CGNS support")
-  include(engrid-cgns.pri)
+CGNS { 
+    message("Configuring for CGNS support")
+    include(engrid-cgns.pri)
 }
-
 LIBS += -lm
 
 # VTK libs
@@ -102,18 +94,16 @@ LIBS += -lvtksys
 LIBS += -lvtkVolumeRendering
 LIBS += -lvtkWidgets
 
-############
+# ###########
 # RESOURCES
-############
+# ###########
 OTHER_FILES += checkcomments.py \
     todo.txt
-
 RESOURCES += engrid.qrc
 
-##############
+# #############
 # SOURCE CODE
-##############
-
+# #############
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -213,8 +203,11 @@ HEADERS = boundarycondition.h \
     foamobject.h \
     multipagewidgetpage.h \
     xmlhandler.h \
-    openfoamtools.h
-
+    openfoamtools.h \
+    sharpenedges.h \
+    checkforoverlap.h \
+    timer.h \
+    facefinder.h
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -307,8 +300,11 @@ SOURCES = main.cpp \
     multipagewidgetpage.cpp \
     xmlhandler.cpp \
     reducedpolydatareader.cpp \
-    openfoamtools.cpp
-
+    openfoamtools.cpp \
+    sharpenedges.cpp \
+    checkforoverlap.cpp \
+    timer.cpp \
+    facefinder.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -322,7 +318,6 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
-
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
@@ -343,7 +338,8 @@ HEADERS += dialoglineedit/dialoglineedit.h
 SOURCES += dialoglineedit/dialoglineedit.cpp
 HEADERS += utilities.h
 SOURCES += utilities.cpp
-HEADERS += edgelengthsourcemanager.h edgelengthsource.h
+HEADERS += edgelengthsourcemanager.h \
+    edgelengthsource.h
 SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
