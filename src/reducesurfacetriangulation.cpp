@@ -22,16 +22,20 @@
 //
 
 #include "reducesurfacetriangulation.h"
+#include "surfaceprojection.h"
 
 ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
   EG_TYPENAME;
-  m_PerformGeometricTests = true;
-  m_UseProjectionForSmoothing = false;
-  m_UseNormalCorrectionForSmoothing = true;
-  m_AllowFeatureEdgeSwapping = false;
-  m_RespectFeatureEdgesForDeleteNodes = false;
-  m_FeatureAngleForDeleteNodes = m_FeatureAngle;
+  m_PerformGeometricTests             = true;
+  m_UseProjectionForSmoothing         = false;
+  m_UseNormalCorrectionForSmoothing   = true;
+  m_AllowFeatureEdgeSwapping          = true;
+  m_RespectFeatureEdgesForDeleteNodes = true;
+  m_FeatureAngleForDeleteNodes        = deg2rad(20);
+
+  m_NumDelaunaySweeps = 10;
+  m_NumSmoothSteps = 1;
 }
 
 void ReduceSurfaceTriangulation::pass1()
@@ -49,13 +53,16 @@ void ReduceSurfaceTriangulation::pass1()
     int num_deleted = deleteNodes();
     num_del_max = max(num_del_max, num_deleted);
     cout << "deleted nodes  : " << num_deleted << endl;
-    int N = 5;
-    for (int i = 0; i < N; ++i) {
-      cout << "edge swap " << i+1 << "/" << N << endl;
+    for (int i = 0; i < m_NumSmoothSteps; ++i) {
+      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      SurfaceProjection::Nfull = 0;
+      SurfaceProjection::Nhalf = 0;
+      smooth(1);
+      cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
+      cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
       swap();
     }
-    //smooth(1);
-    done = num_deleted <= num_del_max/100;
+    done = num_deleted <= max(num_initial_nodes/100, num_del_max/100);
     cout << "total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "total cells : " << m_Grid->GetNumberOfCells() << endl;
     //done = true;
