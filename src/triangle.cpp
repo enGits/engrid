@@ -152,7 +152,8 @@ vec2_t Triangle::global3DToLocal2D(vec3_t g_M) {
   return vec2_t(l_M[0], l_M[1]);
 }
 
-bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle) {
+bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle)
+{
   side = -1;
   double scal = (xp - this->m_a) * this->m_g3;
   vec3_t x1, x2;
@@ -165,7 +166,8 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
   }
   // (xi,ri) gets set to the intersection of the line with the plane here!
   bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_a, this->m_b, this->m_c, x1, x2, xi, ri);
-  if (intersects_face || !restrict_to_triangle) {
+  vec3_t xi_free = xi;
+  if (intersects_face) {
     vec3_t dx = xp - this->m_a;
     d = fabs(dx * this->m_g3);
   } else {
@@ -235,13 +237,12 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
       EG_BUG;
     }
   }
+  if (!intersects_face && !restrict_to_triangle) {
+    xi = xi_free;
+  }
   if (xi[0] > 1e98) { // should never happen
     EG_BUG;
   }
-  /*  if (not( 0<=ri[0] && ri[0]<=1 && 0<=ri[1] && ri[1]<=1 && ri[2]==0 )) {
-      qWarning()<<"ri="<<ri;
-      EG_BUG;
-    }*/
   return intersects_face;
 }
 
