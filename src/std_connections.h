@@ -114,6 +114,8 @@ connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderR
 connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
 connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes()));
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
+connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
+connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));

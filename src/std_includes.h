@@ -59,5 +59,7 @@
 #include "seligairfoilreader.h"
 #include "blenderreader.h"
 #include "blenderwriter.h"
+#include "sharpenedges.h"
+#include "checkforoverlap.h"
 
 // -------------------------------------------
