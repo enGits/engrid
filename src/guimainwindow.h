@@ -477,6 +477,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
+    void callSharpenEdges()               { EG_STDSLOT(SharpenEdges); }
+    void callCheckForOverlap()            { EG_STDSLOT(CheckForOverlap); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 
