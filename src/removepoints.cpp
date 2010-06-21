@@ -41,54 +41,38 @@ RemovePoints::RemovePoints() : SurfaceOperation() {
   m_UpdatePSP = false;
 }
 
-void RemovePoints::markFeatureEdges() {
-  l2g_t  nodes = getPartNodes();
-  g2l_t _nodes = getPartLocalNodes();
-  l2g_t  cells = getPartCells();
-
-  l2l_t  c2c   = getPartC2C();
+void RemovePoints::markFeatureEdges()
+{
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
-  m_IsFeatureNode.resize(nodes.size());
-  for(int i = 0; i < m_IsFeatureNode.size(); ++i) {
-    m_IsFeatureNode[i] = false;
-  }
+  m_IsFeatureNode.fill(false, m_Part.getNumberOfNodes());
   if(m_ProtectFeatureEdges) {
-    EG_BUG;// needs to be adapted to multiple volumes first! c2c is undefined!
-    for(int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-      vtkIdType id_cell1 = cells[i_cells];
-
-      if( m_Grid->GetCellType(id_cell1) == VTK_WEDGE ) EG_BUG;
-
-      vtkIdType N_pts, *pts;
-      m_Part.getGrid()->GetCellPoints(id_cell1, N_pts, pts);
-      for(int j = 0; j < c2c[i_cells].size(); ++j) {
-        int j_cells = c2c[i_cells][j];
-        vtkIdType id_cell2 = cells[j_cells];
-
-        if( m_Grid->GetCellType(id_cell2) == VTK_WEDGE ) EG_BUG;
-
-        vtkIdType id_node1 = pts[j];
-        vtkIdType id_node2 = pts[0];
-        if(j < c2c[i_cells].size() - 1) {
-          id_node2 = pts[j+1];
-        }
-        vec3_t x1, x2;
-        m_Grid->GetPoint(id_node1, x1.data());
-        m_Grid->GetPoint(id_node2, x2.data());
-        //double L = (x1-x2).abs();
-        //if (L > 0.5*characteristic_length_desired->GetValue(id_node1)) {
-        {
-          vec3_t n1 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell1);
-          vec3_t n2 = GeometryTools::cellNormal(m_Part.getGrid(), id_cell2);
-          if(GeometryTools::angle(n1, n2) > m_FeatureAngle) {
-            m_IsFeatureNode[_nodes[id_node1]] = true;
-            m_IsFeatureNode[_nodes[id_node2]] = true;
+    for (int i_nodes = 0; i_nodes < m_Part.getNumberOfNodes(); ++i_nodes) {
+      if (!m_IsFeatureNode[i_nodes]) {
+        vtkIdType id_node1 = m_Part.globalNode(i_nodes);
+        for (int j = 0; j < m_Part.n2nLSize(i_nodes); ++j) {
+          vtkIdType id_node2 = m_Part.n2nLG(i_nodes, j);
+          QSet<vtkIdType> edge_cells;
+          int N = getEdgeCells(id_node1, id_node2, edge_cells);
+          if (N != 2) {
+            m_IsFeatureNode[i_nodes] = true;
+            m_IsFeatureNode[m_Part.localNode(id_node2)] = true;
+          } else {
+            QSet<vtkIdType>::iterator iter = edge_cells.begin();
+            vtkIdType id_cell1 = *iter;
+            ++iter;
+            vtkIdType id_cell2 = *iter;
+            vec3_t n1 = cellNormal(m_Grid, id_cell1);
+            vec3_t n2 = cellNormal(m_Grid, id_cell2);
+            if (angle(n1, n2) >= m_FeatureAngle) {
+              m_IsFeatureNode[i_nodes] = true;
+              m_IsFeatureNode[m_Part.localNode(id_node2)] = true;
+            }
           }
         }
       }
     }
     int N = 0;
-    for(int i = 0; i < m_IsFeatureNode.size(); ++i) {
+    for (int i = 0; i < m_IsFeatureNode.size(); ++i) {
       if(m_IsFeatureNode[i]) {
         ++N;
       }
@@ -97,7 +81,8 @@ void RemovePoints::markFeatureEdges() {
   }
 }
 
-void RemovePoints::operate() {
+void RemovePoints::operate()
+{
 
   /////////////////////
 
