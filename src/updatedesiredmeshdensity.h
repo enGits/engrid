@@ -41,6 +41,7 @@ private: //attributes
   QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
   double                      m_MaxEdgeLength;
   double                      m_NodesPerQuarterCircle;
+  int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
 

@@ -30,6 +30,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   EG_TYPENAME;
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
+  getSet("surface meshing", "minmal number of cells across", 0, m_MinMumCellsAcross);
 }
 
 
@@ -94,7 +95,7 @@ void UpdateDesiredMeshDensity::operate()
 
   QVector<vec3_t> normals(cells.size(), vec3_t(0,0,0));
   QVector<vec3_t> centres(cells.size(), vec3_t(0,0,0));
-  QVector<double> cl_radius(nodes.size(), 1e99);
+  QVector<double> cl_pre(nodes.size(), 1e99);
 
   computeExistingLengths();
   if (m_BoundaryCodes.size() == 0) {
@@ -131,11 +132,53 @@ void UpdateDesiredMeshDensity::operate()
             double R  = 0.5*a/sin(alpha);
             double cl = 0.5*R*M_PI/m_NodesPerQuarterCircle;
             for (int k = 0; k < N_pts; ++k) {
-              cl_radius[_nodes[pts[k]]] = min(cl_radius[_nodes[pts[k]]], cl);
+              cl_pre[_nodes[pts[k]]] = min(cl_pre[_nodes[pts[k]]], cl);
             }
           }
         }
       }
+    }
+  }
+
+  // cells across branches
+  computeNormals();
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    vtkIdType id_node = nodes[i_nodes];
+    QSet<vtkIdType> local_nodes;
+    local_nodes.insert(id_node);
+    for (int i_level = 0; i_level < 3*m_MinMumCellsAcross; ++i_level) {
+      foreach (vtkIdType id_node, local_nodes) {
+        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          local_nodes.insert(m_Part.n2nGG(id_node, i));
+        }
+      }
+    }
+    double scal_min = 0.1;
+    bool found = false;
+    double d = 1e99;
+    foreach (vtkIdType id_node1, local_nodes) {
+      foreach (vtkIdType id_node2, local_nodes) {
+        if (id_node1 != id_node2) {
+          vec3_t n1 = m_NodeNormal[id_node1];
+          vec3_t n2 = m_NodeNormal[id_node2];
+          vec3_t x1, x2;
+          m_Grid->GetPoint(id_node1, x1.data());
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t u = x2 - x1;
+          double uabs = u.abs();
+          u.normalise();
+          double scal1 = n1*n2;
+          double scal2 = n1*u;
+          if (scal1 < scal_min && scal2 > 0.1) {
+            scal_min = scal1;
+            found = true;
+            d = scal2*uabs;
+          }
+        }
+      }
+    }
+    if (found) {
+      cl_pre[i_nodes] = min(cl_pre[i_nodes], d/m_MinMumCellsAcross);
     }
   }
 
@@ -159,7 +202,7 @@ void UpdateDesiredMeshDensity::operate()
     if (m_Fixed[id_node]) {
       cl = characteristic_length_desired->GetValue(id_node);
     }
-    cl = min(cl_radius[i_nodes], cl);
+    cl = min(cl_pre[i_nodes], cl);
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
     double cl_src = m_ELSManager.minEdgeLength(x);
