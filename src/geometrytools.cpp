@@ -454,43 +454,30 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
-  if(G.det()==0) EG_BUG;
-//   qWarning()<<"inverting matrix";
-//   qWarning()<<"g1="<<g1;
-//   qWarning()<<"g2="<<g2;
-//   qWarning()<<"g3="<<g3;
+  if(G.det()==0) {
+    EG_BUG;
+  }
   
   checkVector(g1);
   checkVector(g2);
   checkVector(g3);
-//   qWarning()<<"G.det()="<<G.det();
   G.inverse();
   mat3_t GI = G.inverse();
-//   qWarning()<<"inverting matrix successful";
   ri = xi - a;
   ri = GI*ri;
 
   // intersection outside of edge range?
-  if (k < 0 - tol*(x1-x2).abs()) {
+  if (k < 0 - tol) {
     return false;
   }
-  if (k > 1 + tol*(x1-x2).abs()) {
+  if (k > 1 + tol) {
     return false;
   }
   
   // intersection outside of triangle?
-  // TODO: can be simplified.
-  if(!isInsideTriangle(vec2_t(ri[0],ri[1]),tol)) return false;
-//   if (ri[0] + ri[1] > 1) {
-//     return false;
-//   }
-//   if ((ri[0] < 0 - tol) || (ri[0] > 1 + tol)) {
-//     return false;
-//   }
-//   if ((ri[1] < 0 - tol) || (ri[1] > 1 + tol)) {
-//     return false;
-//   }
-
+  if (!isInsideTriangle(vec2_t(ri[0],ri[1]),tol)) {
+    return false;
+  }
   return true;
 }
 
