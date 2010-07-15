@@ -49,6 +49,7 @@ protected: // attributes
   int    m_NumMaxIter;
   int    m_NumSmoothSteps;
   double m_MaxEdgeLength;
+  double m_MinEdgeLength;
   double m_NodesPerQuarterCircle;
   bool   m_RespectFeatureEdgesForDeleteNodes;
   double m_FeatureAngleForDeleteNodes;

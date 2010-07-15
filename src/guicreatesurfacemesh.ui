@@ -21,7 +21,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -199,6 +199,20 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>minimal edge length</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEditMinimalEdgeLength">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>cell growth factor:</string>
@@ -222,13 +236,13 @@
      <item>
       <widget class="QDoubleSpinBox" name="doubleSpinBoxCurvature">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="singleStep">
-        <double>0.100000000000000</double>
+        <double>0.500000000000000</double>
        </property>
        <property name="value">
-        <double>0.000000000000000</double>
+        <double>4.000000000000000</double>
        </property>
       </widget>
      </item>
