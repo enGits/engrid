@@ -241,6 +241,71 @@ void FixCadGeometry::fixNonManifold2()
   cout << "done." << endl;
 }
 
+void FixCadGeometry::markNonManifold()
+{
+  cout << "marking non-manifold edges\n" << endl;
+  int new_bc = 0;
+  m_NumNonManifold = 0;
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QVector<bool> nm_face(m_Grid->GetNumberOfCells(), false);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
+      new_bc = max(new_bc, cell_code->GetValue(id_cell));
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        QSet <vtkIdType> edge_cells;
+        int N = 0;
+        if (i < N_pts - 1) {
+          N = getEdgeCells(pts[i], pts[i+1], edge_cells);
+        } else {
+          N = getEdgeCells(pts[i], pts[0], edge_cells);
+        }
+        if (N != 2) {
+          nm_face[id_cell] = true;
+          ++m_NumNonManifold;
+          break;
+        }
+      }
+    }
+  }
+  m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
+  foreach (int bc, m_BoundaryCodes) {
+    ++new_bc;
+    QString bc_name = "NM_" + GuiMainWindow::pointer()->getBC(bc).getName();
+    for (int level = 0; level < 2; ++level) {
+      QVector<bool> new_nm_face = nm_face;
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+        if (isSurface(id_cell, m_Grid)) {
+          if ((cell_code->GetValue(id_cell)) == bc && nm_face[id_cell]) {
+            vtkIdType N_pts, *pts;
+            m_Grid->GetCellPoints(id_cell, N_pts, pts);
+            for (int i = 0; i < N_pts; ++i) {
+              for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
+                vtkIdType id_neigh = m_Part.n2cGG(pts[i], j);
+                if (cell_code->GetValue(id_neigh) == bc ) {
+                  new_nm_face[id_neigh] = true;
+                }
+              }
+            }
+          }
+        }
+      }
+      nm_face = new_nm_face;
+    }
+    GuiMainWindow::pointer()->addBC(new_bc, BoundaryCondition(bc_name, "patch"));
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, m_Grid)) {
+        if (cell_code->GetValue(id_cell) == bc && nm_face[id_cell]) {
+          cell_code->SetValue(id_cell, new_bc);
+        }
+      }
+    }
+  }
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
+  cout << "done." << endl;
+}
+
 void FixCadGeometry::operate()
 {
   {
@@ -249,49 +314,53 @@ void FixCadGeometry::operate()
   }
 
   setAllCells();
+  markNonManifold();
 
-  //prepare BCmap
-  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
-  QSet <int> bcs;
-  l2g_t cells = m_Part.getCells();
-  foreach (vtkIdType id_cell, cells) {
-    if (isSurface(id_cell, m_Grid)) {
-      bcs.insert(bc->GetValue(id_cell));
+  if (m_NumNonManifold == 0) {
+
+    //prepare BCmap
+    EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+    QSet <int> bcs;
+    l2g_t cells = m_Part.getCells();
+    foreach (vtkIdType id_cell, cells) {
+      if (isSurface(id_cell, m_Grid)) {
+        bcs.insert(bc->GetValue(id_cell));
+      }
     }
+    QMap <int,int> BCmap;
+    foreach(int bc, bcs) {
+      BCmap[bc] = 1;
+    }
+
+    //set density infinite
+    VertexMeshDensity VMD;
+    VMD.density = 1e99;
+    VMD.BCmap = BCmap;
+    qWarning()<<"VMD.BCmap="<<VMD.BCmap;
+    m_VMDvector.push_back(VMD);
+
+    customUpdateNodeInfo();
+
+    // fix non manifold edges
+    //fixNonManifold1();
+    //fixNonManifold2();
+
+    //call surface mesher
+    setGrid(m_Grid);
+    setBoundaryCodes(bcs);
+    setVertexMeshDensityVector(m_VMDvector);
+    setDesiredLength();
+
+    /*
+    callMesher();
+
+    // correct surface orientation
+    CorrectSurfaceOrientation correct;
+    correct.setGrid(m_Grid);
+    correct.setAllCells();
+    correct();
+    */
   }
-  QMap <int,int> BCmap;
-  foreach(int bc, bcs) {
-    BCmap[bc] = 1;
-  }
-
-  //set density infinite
-  VertexMeshDensity VMD;
-  VMD.density = 1e99;
-  VMD.BCmap = BCmap;
-  qWarning()<<"VMD.BCmap="<<VMD.BCmap;
-  m_VMDvector.push_back(VMD);
-
-  customUpdateNodeInfo();
-
-  // fix non manifold edges
-  fixNonManifold1();
-  fixNonManifold2();
-
-  //call surface mesher
-  setGrid(m_Grid);
-  setBoundaryCodes(bcs);
-  setVertexMeshDensityVector(m_VMDvector);
-  setDesiredLength();
-
-  /*
-  callMesher();
-
-  // correct surface orientation
-  CorrectSurfaceOrientation correct;
-  correct.setGrid(m_Grid);
-  correct.setAllCells();
-  correct();
-  */
 
   // finalise
   createIndices(m_Grid);

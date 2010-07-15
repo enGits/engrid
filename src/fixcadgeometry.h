@@ -27,6 +27,10 @@
 
 class FixCadGeometry: public SurfaceAlgorithm
 {
+
+private: // attributes
+
+  int m_NumNonManifold;
   
 protected: // methods
   
@@ -36,6 +40,7 @@ protected: // methods
   void copyFaces(const QVector<bool> &copy_face);
   void fixNonManifold1();
   void fixNonManifold2();
+  void markNonManifold();
 
   virtual void operate();
   
