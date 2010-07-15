@@ -211,7 +211,7 @@ GuiMainWindow* Operation::mainWindow()
 
 void Operation::populateBoundaryCodes(QListWidget *lw)
 {
-  QSet<int> bcs;
+  QVector<int> bcs;
   mainWindow()->getAllBoundaryCodes(bcs);
   foreach(int bc, bcs) {
     QListWidgetItem *lwi = new QListWidgetItem(lw);

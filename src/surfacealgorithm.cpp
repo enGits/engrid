@@ -58,7 +58,7 @@ void SurfaceAlgorithm::readVMD()
   if(!buffer.isEmpty()) {
     QTextStream in(&buffer, QIODevice::ReadOnly);
     in >> row_count >> column_count;
-    QSet<int> tmp_bcs;
+    QVector<int> tmp_bcs;
     GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
     if (column_count == tmp_bcs.size() + 3) {
       m_VMDvector.fill(VertexMeshDensity(), row_count);
@@ -91,11 +91,12 @@ void SurfaceAlgorithm::readSettings()
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
   QTextStream in(&buffer, QIODevice::ReadOnly);
   in >> m_MaxEdgeLength;
+  in >> m_MinEdgeLength;
   in >> m_GrowthFactor;
   in >> m_NodesPerQuarterCircle;
   int num_bcs;
   in >> num_bcs;
-  QSet<int> tmp_bcs;
+  QVector<int> tmp_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
   m_BoundaryCodes.clear();
   if (num_bcs == tmp_bcs.size()) {
@@ -165,8 +166,7 @@ void SurfaceAlgorithm::swap()
   swap.setFeatureAngle(m_FeatureAngle);
   swap.setMaxNumLoops(m_NumDelaunaySweeps);
   swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
-  QSet<int> rest_bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(rest_bcs);
+  QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   rest_bcs -= m_BoundaryCodes;
   swap.setBoundaryCodes(rest_bcs);
   swap();

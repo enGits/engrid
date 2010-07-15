@@ -72,6 +72,7 @@ void SurfaceMesher::operate()
     updateNodeInfo();
     swap();
     computeMeshDensity();
+    //EG_ERR_RETURN("Test!");
     num_deleted = deleteNodes();
     cout << "  deleted nodes  : " << num_deleted << endl;
     computeMeshDensity();
@@ -96,7 +97,7 @@ void SurfaceMesher::operate()
   updateNodeInfo(false);
   computeMeshDensity();
   {
-    QSet<int> bcs;
+    QVector<int> bcs;
     GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
     foreach (int bc, bcs) {
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);

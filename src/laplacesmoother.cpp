@@ -176,7 +176,7 @@ void LaplaceSmoother::operate()
 {
 //   qDebug()<<"LaplaceSmoother::operate() called";
   
-  QSet<int> bcs;
+  QVector<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
     foreach (int bc, bcs) {
@@ -253,13 +253,7 @@ void LaplaceSmoother::operate()
           }
         }
       }
-      ++count;
-      if (count >= 1000) {
-        cout << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << endl;
-        cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
-        cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
-        count = 0;
-      }
+      m_Timer << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << Timer::endl;
     }
     cout << "    " << nodes.size() << " of " << nodes.size() << " nodes done." << endl;
     if (m_Success) {

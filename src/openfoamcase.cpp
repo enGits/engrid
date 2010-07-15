@@ -292,7 +292,7 @@ void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
 
 void OpenFOAMcase::writeBoundaryConditions()
 {
-  QSet<int> bcs;
+  QVector<int> bcs;
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   QString U_buffer = "";

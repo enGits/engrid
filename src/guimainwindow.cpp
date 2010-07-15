@@ -1766,14 +1766,12 @@ void GuiMainWindow::about()
 }
 
 ///\todo Why not use bcs = m_AllBoundaryCodes; ?
-void GuiMainWindow::getAllBoundaryCodes(QSet<int> &bcs)
+void GuiMainWindow::getAllBoundaryCodes(QVector<int> &bcs)
 {
-  bcs = m_AllBoundaryCodes;
-//   qWarning()<<"m_AllBoundaryCodes="<<m_AllBoundaryCodes;
-//   bcs.clear();
-//   foreach (int bc, m_AllBoundaryCodes) {
-//     bcs.insert(bc);
-//   }
+  m_AllBoundaryCodes;
+  bcs.resize(m_AllBoundaryCodes.size());
+  qCopy(m_AllBoundaryCodes.begin(), m_AllBoundaryCodes.end(), bcs.begin());
+  qSort(bcs);
 }
 
 QSet<int> GuiMainWindow::getAllBoundaryCodes()
@@ -1832,7 +1830,7 @@ void GuiMainWindow::createDefaultVol()
   QList<VolumeDefinition> vols = getAllVols();
   if (vols.size() == 0) {
     VolumeDefinition V("default", 1);
-    QSet<int> bcs;
+    QVector<int> bcs;
     getAllBoundaryCodes(bcs);
     foreach (int bc, bcs) {
       V.addBC(bc, 1);

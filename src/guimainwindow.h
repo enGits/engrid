@@ -339,9 +339,9 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     static void lock() { m_Mutex.lock(); }
     static void unlock() { m_Mutex.unlock(); }
     static bool tryLock() { return m_Mutex.tryLock(); }
-    void getAllBoundaryCodes( QSet<int> &bcs );
+    void getAllBoundaryCodes(QVector<int> &bcs);
     QSet<int> getAllBoundaryCodes();
-    void getDisplayBoundaryCodes( QSet<int> &bcs );
+    void getDisplayBoundaryCodes(QSet<int> &bcs);
     vtkPointPicker* getPointPicker() { return ( m_PointPicker );}
     vtkSphereSource* getPickSphere() { return ( m_PickSphere );}
     bool pickPoint( vtkIdType id_point );
