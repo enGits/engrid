@@ -35,7 +35,7 @@ void CheckForOverlap::operate()
 {
   cout << "testing mesh for overlapping faces ..." << endl;
   Timer timer;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(m_BoundaryCodes);
+  m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
   QVector<bool> is_overlap(m_Grid->GetNumberOfCells(), false);
   QVector<vtkIdType> faces;
   getAllSurfaceCells(faces, m_Grid);
@@ -44,7 +44,7 @@ void CheckForOverlap::operate()
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
   FaceFinder find;
-  find.setMaxNumFaces(1);
+  find.setMaxNumFaces(100);
   find.setGrid(m_Grid);
 
   int N_searches = 0;
@@ -72,6 +72,9 @@ void CheckForOverlap::operate()
     }
     QVector<vtkIdType> close_faces;
     find.getCloseFaces(xc, close_faces);
+    if (close_faces.size() == 0) {
+      EG_BUG;
+    }
     ++N_buckets;
     N_faces += close_faces.size();
     foreach (vtkIdType id_face2, close_faces) {
@@ -85,7 +88,7 @@ void CheckForOverlap::operate()
         }
         for (int i = 0; i < x1.size() - 1; ++i) {
           vec3_t x, r;
-          if (intersectEdgeAndTriangle(x2[0], x2[1], x2[2], x1[i], x1[i+1], x, r, 0.2)) {
+          if (intersectEdgeAndTriangle(x2[0], x2[1], x2[2], x1[i], x1[i+1], x, r, 1e-6)) {
             is_overlap[id_face1] = true;
             is_overlap[id_face2] = true;
           }
