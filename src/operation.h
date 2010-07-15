@@ -29,6 +29,7 @@ class GuiMainWindow;
 #include "egvtkobject.h"
 #include "vertexmeshdensity.h"
 #include "meshpartition.h"
+#include "timer.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkCellType.h>
@@ -99,6 +100,7 @@ protected: // attributes
   vtkUnstructuredGrid* m_Grid;     ///< The main grid the operation operates on.
   vtkUnstructuredGrid* m_RestGrid; ///< The remainder grid (not part of the selected volume)
   MeshPartition        m_Part;     ///< the partition containing the subset of cells and nodes
+  Timer                m_Timer;    ///< Timer object for periodic output
 
 protected: // methods
   
