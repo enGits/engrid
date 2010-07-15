@@ -83,10 +83,6 @@ void EliminateSmallBranches::fill(vtkIdType id_cell)
 void EliminateSmallBranches::fillFromLargestVolume()
 {
   l2g_t  cells = m_Part.getCells();
-  g2l_t _cells = m_Part.getLocalCells();
-  g2l_t _nodes = m_Part.getLocalNodes();
-  l2l_t  n2c   = m_Part.getN2C();
-  l2l_t  c2c   = m_Part.getC2C();
   cout << "filling from largest volume" << endl;
   double vol_max = 0;
   vtkIdType id_largest_cell = -1;
