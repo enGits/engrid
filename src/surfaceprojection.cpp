@@ -34,7 +34,6 @@ SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
   this->setGrid(m_BGrid);
   m_BC = bc;
   getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
-  getSet("surface meshing", "number ofneighbour searches", 2, m_NumNeighSearches);
   m_CritDistance = 0.1;
 }
 
@@ -53,63 +52,38 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
   x_proj = vec3_t(1e99, 1e99, 1e99);
   r_proj = vec3_t(0, 0, 0);
   vec3_t xi, ri;
+  double d_min      = 1e99;
+  bool   x_proj_set = false;
   on_triangle = false;
-  double d_min = 1e99;
-  bool tri_found = false;
-  if (id_tri >= 0) {
-    QSet<vtkIdType> tris;
-    tris.insert(id_tri);
-    for (int i_search = 0; i_search < m_NumNeighSearches; ++i_search) {
-    //for (int i_search = 0; i_search < 100; ++i_search) {
-      QSet<vtkIdType> candidates;
-      foreach (int i_tri, tris) {
-        for (int k = 0; k < m_BPart.c2cGSize(i_tri); ++k) {
-          int new_cand = m_BPart.c2cGG(i_tri,k);
-          if (!tris.contains(new_cand) && new_cand >= 0) {
-            candidates.insert(m_BPart.c2cGG(i_tri,k));
-          }
-        }
-      }
-      foreach (int i_cand, candidates) {
-        if (i_cand < 0) EG_BUG;
-        if (i_cand > m_BGrid->GetNumberOfCells()) EG_BUG;
-        int side;
-        double d;
-        if(m_Triangles[i_cand].projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle)) {
-          x_proj = xi;
-          r_proj = ri;
-          on_triangle = true;
-          id_tri = i_cand;
-          ++Nhalf;
-          return;
-        } else if (d < m_CritDistance*m_Triangles[i_cand].m_smallest_length) {
-          if (d < d_min) {
-            x_proj = xi;
-            r_proj = ri;
-            id_tri = i_cand;
-            tri_found = true;
-          }
-        }
-      }
-      tris += candidates;
-      if (tri_found) {
-        return;
-      }
+  QVector<vtkIdType> close_faces;
+  m_FaceFinder.getCloseFaces(xp, close_faces);
+  foreach (vtkIdType id_triangle, close_faces) {
+    Triangle T = m_Triangles[id_triangle];
+    double d;
+    int side;
+    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+    if (d >= 1e99) {
+      EG_BUG;
+    }
+    if (d < d_min) {
+      x_proj = xi;
+      x_proj_set = true;
+      r_proj = ri;
+      d_min = d;
+      id_tri = id_triangle;
+      on_triangle = intersects;
     }
   }
-  if (tri_found) {
-    ++Nhalf;
-  } else {
-    // full search :-(
-    ++Nfull;
-    bool x_proj_set = false;
-    d_min = 1e99;
-    for (int i_triangles = 0; i_triangles < m_Triangles.size(); ++i_triangles) {
-      Triangle T = m_Triangles[i_triangles];
+  if (!x_proj_set) { // should never happen
+    for (vtkIdType id_triangle = 0; id_triangle < m_BGrid->GetNumberOfCells(); ++id_triangle) {
+      Triangle T = m_Triangles[id_triangle];
       double d;
       int side;
       bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
       if (d >= 1e99) {
+        EG_BUG;
+      }
+      if (d < 0) {
         EG_BUG;
       }
       if (d < d_min) {
@@ -117,7 +91,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
         x_proj_set = true;
         r_proj = ri;
         d_min = d;
-        id_tri = i_triangles;
+        id_tri = id_triangle;
         on_triangle = intersects;
       }
     }
@@ -189,6 +163,7 @@ void SurfaceProjection::updateBackgroundGridInfo()
   }
   m_BPart.setGrid(m_BGrid);
   m_BPart.setAllCells();
+  computeSurfaceCurvature();
 }
 
 
@@ -287,4 +262,38 @@ vec3_t SurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node)
 vec3_t SurfaceProjection::correctCurvature(int, vec3_t g_M)
 {
   return g_M;
+}
+
+void SurfaceProjection::computeSurfaceCurvature()
+{
+  m_Radius.fill(1e99, m_BGrid->GetNumberOfCells());
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    m_BGrid->GetCellPoints(id_cell, N_pts, pts);
+    vec3_t x[N_pts+1];
+    vec3_t n[N_pts+1];
+    for (int i = 0; i < N_pts; ++i) {
+      m_BGrid->GetPoint(pts[i], x[i].data());
+      n[i] = m_NodeNormals[pts[i]];
+    }
+    x[N_pts] = x[0];
+    n[N_pts] = n[0];
+    for (int i = 0; i < N_pts; ++i) {
+      double alpha = max(1e-3,acos(n[i]*n[i+1]));
+      double a     = (x[i]-x[i+1]).abs();
+      m_Radius[id_cell] = min(m_Radius[id_cell], a/alpha);
+    }
+  }
+}
+
+double SurfaceProjection::getRadius(vtkIdType id_node)
+{
+  vec3_t x;
+  m_FGrid->GetPoint(id_node, x.data());
+  projectRestricted(x, id_node);
+  vtkIdType id_tri = getProjTriangle(id_node);
+  if (id_tri == -1) {
+    EG_BUG;
+  }
+  return m_Radius[id_tri];
 }

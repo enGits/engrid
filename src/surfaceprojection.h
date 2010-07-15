@@ -32,6 +32,7 @@ class SurfaceProjection;
 #include "surfaceoperation.h"
 #include "surfacealgorithm.h"
 #include "triangle.h"
+#include "facefinder.h"
 
 class SurfaceProjection : public SurfaceAlgorithm
 {
@@ -53,21 +54,22 @@ private: // methods
 
 protected: // attributes
 
-  vtkUnstructuredGrid*   m_BGrid; ///< the background grid defining the geometry
-  MeshPartition          m_BPart;
-  vtkUnstructuredGrid*   m_FGrid; ///< the foreground grid to project
-  QVector<double>        m_EdgeLength;
-  QVector<vtkIdType>     m_Cells;
-  QVector<vtkIdType>     m_Nodes;
-  QVector<vec3_t>        m_NodeNormals; ///< The surface normal at each node of m_BGrid
-  QVector<Triangle>      m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
-  QVector<QVector<int> > m_N2N;
-  bool                   m_correctCurvature; ///< Should correctCurvature() be used?
-  int                    m_NumNeighSearches;
-  int                    m_BC;
-  bool                   m_RestrictToTriangle;
-  double                 m_CritDistance;
+  vtkUnstructuredGrid*      m_BGrid; ///< the background grid defining the geometry
+  MeshPartition             m_BPart;
+  vtkUnstructuredGrid*      m_FGrid; ///< the foreground grid to project
+  QVector<double>           m_EdgeLength;
+  QVector<vtkIdType>        m_Cells;
+  QVector<vtkIdType>        m_Nodes;
+  QVector<vec3_t>           m_NodeNormals; ///< The surface normal at each node of m_BGrid
+  QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
+  QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
+  QVector<QVector<int> >    m_N2N;
+  bool                      m_correctCurvature; ///< Should correctCurvature() be used?
+  int                       m_BC;
+  bool                      m_RestrictToTriangle;
+  double                    m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
+  FaceFinder                m_FaceFinder;
 
 protected: // static attributes
 
@@ -81,6 +83,7 @@ protected: // methods
   void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
   vtkIdType getProjTriangle(vtkIdType id_node);
   void setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
+  void computeSurfaceCurvature();
 
 public: // methods
 
@@ -97,9 +100,10 @@ public: // methods
   virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1);
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
+  double getRadius(vtkIdType id_node);
 
   void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature() { return m_correctCurvature; }
+  bool getCorrectCurvature()       { return m_correctCurvature; }
 
 public: // static methods
 
@@ -116,12 +120,16 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setForegroundGrid(grid);
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
     vtkIdType id_cell = cells[i_cells];
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    m_BGrid->GetCellPoints(id_cell, N_pts, pts);
     for (int i = 0; i < N_pts; ++i) {
-      setProjTriangle(pts[i], i_cells);
+      setProjTriangle(pts[i], id_cell);
     }
   }
+  m_FaceFinder.setMaxNumFaces(100);
+  m_FaceFinder.setGrid(m_BGrid);
 }
 
 template <class C>
