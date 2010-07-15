@@ -26,6 +26,7 @@
 Timer::Timer()
 {
   reset(10);
+  print = false;
 }
 
 Timer::Timer(int secs)
@@ -39,7 +40,7 @@ void Timer::reset(int secs)
   m_LastTimeout = QTime::currentTime();
 }
 
-bool Timer::operator()()
+bool Timer::timeout()
 {
   QTime now = QTime::currentTime();
   bool timeout = m_LastTimeout.secsTo(now) >= m_Secs;
@@ -48,3 +49,5 @@ bool Timer::operator()()
   }
   return timeout;
 }
+
+

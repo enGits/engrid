@@ -24,10 +24,16 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include <iostream>
 #include <qdatetime.h>
+#include <typeinfo>
 
 class Timer
 {
+
+private: // attributes
+
+  bool print;
 
 protected: // attributes
 
@@ -35,13 +41,47 @@ protected: // attributes
   int m_Secs;
 
 
+public: // attributes
+
+  static const char endl = '\n';
+
+
 public:
 
   Timer();
   Timer(int secs);
   void reset(int secs = 0);
-  bool operator()();
+  bool timeout();
+  bool operator()() { return timeout(); }
 
+  template <class T> Timer& operator<<(T t);
+
+};
+
+template <class T>
+Timer& Timer::operator<<(T t)
+{
+  if (print) {
+    bool endl_received = false;
+    if (typeid(T) == typeid(const char)) {
+      endl_received = true;
+    }
+    if (print) {
+      if (endl_received) {
+        std::cout << std::endl;
+        print = false;
+      } else {
+        std::cout << t;
+      }
+    } else {
+      if (endl_received) {
+        if (timeout()) {
+          print = true;
+        }
+      }
+    }
+  }
+  return (*this);
 };
 
 #endif // TIMER_H
