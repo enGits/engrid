@@ -144,8 +144,8 @@ void RemovePoints::operate()
         for(int j = 0; j < n2n[i_node].size(); ++j) {
           vtkIdType id_neigh = nodes[n2n[i_node][j]];
           double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
-          vec3_t xj = transform(id_node, id_neigh);
-          //m_Grid->GetPoint(id_neigh, xj.data());
+          vec3_t xj;
+          m_Grid->GetPoint(id_neigh, xj.data());
           double L = (xi - xj).abs();
           if(L < 0.5 *(cl_node + cl_neigh) / m_Threshold) {
             remove_node = true;

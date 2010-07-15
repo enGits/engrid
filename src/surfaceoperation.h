@@ -116,15 +116,6 @@ public:
 
   bool isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3);
 
-  /**
-   * Compute locally transformed coordinates. This is required for an-isotropic triangulations.
-   * @param id__cnode the centre of the transformation
-   * @param id_node the node whose coordinates will be transformed
-   * @return the transformed coordinates
-   */
-  vec3_t transform(vtkIdType id_cnode, vtkIdType id_node);
-  vec3_t transform(vtkIdType id_cnode1, vtkIdType id_cnode2, vtkIdType id_cnode3, vtkIdType id_cnode4, vtkIdType id_node);
-
   void setStretchingFactor(double sf) { m_StretchingFactor = sf; }
 
 };

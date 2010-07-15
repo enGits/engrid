@@ -111,6 +111,7 @@ int SwapTriangles::swap()
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
+    m_Timer << "  cell " << i+1 << "/" << m_Part.getNumberOfCells() << Timer::endl;
     vtkIdType id_cell = m_Part.globalCell(i);
     if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
@@ -124,14 +125,10 @@ int SwapTriangles::swap()
                   vec3_t x3[4], x3_0(0,0,0);
                   vec2_t x[4];
 
-                  //m_Grid->GetPoint(S.id_node[0], x3[0].data());
-                  //m_Grid->GetPoint(S.p1,         x3[1].data());
-                  //m_Grid->GetPoint(S.id_node[1], x3[2].data());
-                  //m_Grid->GetPoint(S.p2,         x3[3].data());
-                  x3[0] = transform(S.id_node[0], S.id_node[1], S.p1, S.p2, S.id_node[0]);
-                  x3[1] = transform(S.id_node[0], S.id_node[1], S.p1, S.p2, S.p1);
-                  x3[2] = transform(S.id_node[0], S.id_node[1], S.p1, S.p2, S.id_node[1]);
-                  x3[3] = transform(S.id_node[0], S.id_node[1], S.p1, S.p2, S.p2);
+                  m_Grid->GetPoint(S.id_node[0], x3[0].data());
+                  m_Grid->GetPoint(S.p1,         x3[1].data());
+                  m_Grid->GetPoint(S.id_node[1], x3[2].data());
+                  m_Grid->GetPoint(S.p2,         x3[3].data());
 
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
