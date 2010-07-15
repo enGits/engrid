@@ -36,8 +36,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 
 void UpdateDesiredMeshDensity::computeExistingLengths()
 {
-  QSet<int> all_bcs;
-  GuiMainWindow::pointer()->getAllBoundaryCodes(all_bcs);
+  QSet<int> all_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   QSet<int> fixed_bcs = all_bcs - m_BoundaryCodes;
   QVector<double> edge_length(m_Grid->GetNumberOfPoints(), 1e99);
   QVector<int> edge_count(m_Grid->GetNumberOfPoints(), 0);
@@ -85,10 +84,8 @@ void UpdateDesiredMeshDensity::operate()
   
   setAllSurfaceCells();
   l2g_t  nodes = getPartNodes();
-  g2l_t _nodes = getPartLocalNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2n   = getPartN2N();
-  l2l_t  c2c   = getPartC2C();
 
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    characteristic_length_specified, m_Grid, "node_specified_density");
@@ -103,40 +100,26 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   if (m_NodesPerQuarterCircle > 1e-3) {
-
-    // compute node normals
-    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-      normals[i_cells] = GeometryTools::cellNormal(m_Grid, cells[i_cells]);
-      normals[i_cells].normalise();
-      centres[i_cells] = cellCentre(m_Grid, cells[i_cells]);
-    }
-
-    // compute characteristic length according to nodes per quarter circle
-    for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-      vec3_t xi = centres[i_cells];
+    QVector<double> R(nodes.size(), 0);
+    QVector<int> count(nodes.size(), 0);
+    foreach (vtkIdType id_cell, cells) {
       vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(cells[i_cells], N_pts, pts);
-      for (int j = 0; j < c2c[i_cells].size(); ++j) {
-        int j_cells = c2c[i_cells][j];
-        if (cell_code->GetValue(cells[i_cells]) == cell_code->GetValue(cells[j_cells])) {
-          vec3_t xj = centres[j_cells];
-          double cosa  = normals[i_cells]*normals[j_cells];
-          double alpha = acos(cosa);
-          if (alpha > 0.01*M_PI) {
-            vec3_t va = xi - xj;
-            vec3_t n1 = normals[i_cells] + normals[j_cells];
-            vec3_t n2 = GeometryTools::orthogonalVector(n1);
-            n2.normalise();
-            va -= (va*n2)*n2;
-            double a  = va.abs();
-            double R  = 0.5*a/sin(alpha);
-            double cl = 0.5*R*M_PI/m_NodesPerQuarterCircle;
-            for (int k = 0; k < N_pts; ++k) {
-              cl_pre[_nodes[pts[k]]] = min(cl_pre[_nodes[pts[k]]], cl);
-            }
-          }
-        }
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      int bc = cell_code->GetValue(id_cell);
+      for (int i = 0; i < N_pts; ++i) {
+        int i_nodes = m_Part.localNode(pts[i]);
+        ++count[i_nodes];
+        R[i_nodes] += GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]);
       }
+    }
+    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      if (count[i_nodes] > 0) {
+        R[i_nodes] /= count[i_nodes];
+      } else {
+        EG_BUG;
+      }
+      cl_pre[i_nodes] = max(m_MinEdgeLength, min(cl_pre[i_nodes], 0.5*R[i_nodes]*M_PI/m_NodesPerQuarterCircle));
+      //cl_pre[i_nodes] = R[i_nodes];
     }
   }
 
@@ -210,6 +193,8 @@ void UpdateDesiredMeshDensity::operate()
       cl = min(cl, cl_src);
     }
     
+    cl = max(m_MinEdgeLength, cl);
+
     if(cl == 0) EG_BUG;
     characteristic_length_desired->SetValue(id_node, cl);
     

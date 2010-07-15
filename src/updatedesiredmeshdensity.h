@@ -40,6 +40,7 @@ private: //attributes
   double                      m_GrowthFactor;
   QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
   double                      m_MaxEdgeLength;
+  double                      m_MinEdgeLength;
   double                      m_NodesPerQuarterCircle;
   int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
@@ -57,6 +58,7 @@ public: //methods
   virtual void operate();
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
   void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
+  void setMinEdgeLength(double l) { m_MinEdgeLength = l; }
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf) { m_GrowthFactor = cgf; }
 
