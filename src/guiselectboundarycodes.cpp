@@ -39,16 +39,21 @@ void GuiSelectBoundaryCodes::setDisplayBoundaryCodes(const QSet<int> &bcs)
 void GuiSelectBoundaryCodes::before()
 {
   populateBoundaryCodes(ui.listWidget);
-  int row = 0;
-  for (QSet<int>::iterator i = m_BoundaryCodes.begin(); i != m_BoundaryCodes.end(); ++i) {
-    bool checked = m_DisplayBoundaryCodes.contains(*i);
+  for (int row = 0; row < ui.listWidget->count(); ++row) {
+    QString txt = ui.listWidget->item(row)->text();
+    QStringList words = txt.split(":");
+    if (words.size() < 1) {
+      EG_BUG;
+    }
+    int bc = words[0].toInt();
+    bool checked = m_DisplayBoundaryCodes.contains(bc);
     if (checked) {
       ui.listWidget->item(row)->setCheckState(Qt::Checked);
     } else {
       ui.listWidget->item(row)->setCheckState(Qt::Unchecked);
     }
-    ++row;
   }
+
   connect(ui.pushButtonSelect, SIGNAL(clicked()), this, SLOT(selectAll()));
   connect(ui.pushButtonDeselect, SIGNAL(clicked()), this, SLOT(deselectAll()));
   connect(ui.pushButton_SaveSelectionAsGrid, SIGNAL(clicked()), this, SLOT(saveSelectionAsGrid()));
