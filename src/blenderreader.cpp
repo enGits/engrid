@@ -23,6 +23,7 @@
 
 #include "blenderreader.h"
 #include "guimainwindow.h"
+#include "pointfinder.h"
 
 BlenderReader::BlenderReader()
 {
@@ -94,18 +95,24 @@ void BlenderReader::operate()
       cout << "smallest edge length is " << L << endl;
 
       // delete duplicate nodes
+      PointFinder finder;
+      finder.setPoints(nodes);
       QList<vec3_t> non_dup;
       QVector<int> o2n(nodes.size());
       int num_non_dup = 0;
       for (int i = 0; i < nodes.size(); ++i) {
         o2n[i] = num_non_dup;
         bool dup = false;
-        for (int j = 0; j < i; ++j) {
-          double l = (nodes[i] - nodes[j]).abs();
-          if (l < 0.1*L || l == 0) {
-            o2n[i] = o2n[j];
-            dup = true;
-            break;
+        QVector<int> close_points;
+        finder.getClosePoints(nodes[i], close_points);
+        foreach (int j, close_points) {
+          if (i > j) {
+            double l = (nodes[i] - nodes[j]).abs();
+            if (l < 0.1*L || l == 0) {
+              o2n[i] = o2n[j];
+              dup = true;
+              break;
+            }
           }
         }
         if (!dup) {
