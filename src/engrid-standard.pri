@@ -207,7 +207,14 @@ HEADERS = boundarycondition.h \
     sharpenedges.h \
     checkforoverlap.h \
     timer.h \
-    facefinder.h
+    facefinder.h \
+    math/linsolve.h \
+    math/mathvector.h \
+    math/mathvector_methods.h \
+    math/mathvector_operators.h \
+    math/mathvector_structs.h \
+    math/smallsquarematrix.h \
+    pointfinder.h
 SOURCES = main.cpp \
     boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -304,7 +311,8 @@ SOURCES = main.cpp \
     sharpenedges.cpp \
     checkforoverlap.cpp \
     timer.cpp \
-    facefinder.cpp
+    facefinder.cpp \
+    pointfinder.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \

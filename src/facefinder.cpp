@@ -22,7 +22,6 @@
 //
 #include "facefinder.h"
 #include "triangle.h"
-#include "timer.h"
 
 FaceFinder::FaceFinder()
 {
@@ -48,25 +47,13 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
     vec3_t x1(bounds[0], bounds[2], bounds[4]);
     vec3_t x2(bounds[1], bounds[3], bounds[5]);
     vec3_t xc = 0.5*(x1 + x2);
-    vec3_t Dx1 = xc - x1;
-    vec3_t Dx2 = x2 - xc;
-    if (fabs(Dx1[0]) > fabs(Dx1[1]) && fabs(Dx1[0]) > fabs(Dx1[2])) {
-      Dx1 = vec3_t(Dx1[0], Dx1[0], Dx1[0]);
-    } else if (fabs(Dx1[1]) > fabs(Dx1[0]) && fabs(Dx1[1]) > fabs(Dx1[2])) {
-      Dx1 = vec3_t(Dx1[1], Dx1[1], Dx1[1]);
+    vec3_t Dx = x2 - xc;
+    if (fabs(Dx[0]) >= fabs(Dx[1]) && fabs(Dx[0]) >= fabs(Dx[2])) {
+      Dx = vec3_t(Dx[0], Dx[0], Dx[0]);
+    } else if (fabs(Dx[1]) >= fabs(Dx[0]) && fabs(Dx[1]) >=  fabs(Dx[2])) {
+      Dx = vec3_t(Dx[1], Dx[1], Dx[1]);
     } else {
-      Dx1 = vec3_t(Dx1[2], Dx1[2], Dx1[2]);
-    }
-    if (fabs(Dx2[0]) > fabs(Dx2[1]) && fabs(Dx2[0]) > fabs(Dx2[2])) {
-      Dx2 = vec3_t(Dx2[0], Dx2[0], Dx2[0]);
-    } else if (fabs(Dx2[1]) > fabs(Dx2[0]) && fabs(Dx2[1]) > fabs(Dx2[2])) {
-      Dx2 = vec3_t(Dx2[1], Dx2[1], Dx2[1]);
-    } else {
-      Dx2 = vec3_t(Dx2[2], Dx2[2], Dx2[2]);
-    }
-    vec3_t Dx = Dx1;
-    if (Dx2.abs() > Dx1.abs()) {
-      Dx = Dx2;
+      Dx = vec3_t(Dx[2], Dx[2], Dx[2]);
     }
     x1 = xc - 2*Dx;
     x2 = xc + 2*Dx;
@@ -87,11 +74,7 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
   cout << "  largest critical length: " << m_CritLength[0] << endl;
   do {
     N = refine();
-    //cout << N << " new hexes" << endl;
   } while (N > 0);
-  EG_VTKSP(vtkUnstructuredGrid, otgrid);
-  m_Octree.toVtkGrid(otgrid, true, true);
-  writeGrid(otgrid, "octree");
 }
 
 double FaceFinder::calcCritLength(vtkIdType id_cell)
@@ -119,7 +102,7 @@ int FaceFinder::refine()
   m_Octree.resetRefineMarks();
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     double dx = m_Octree.getDx(cell);
-    if (!m_Octree.hasChildren(cell)  && m_Faces[cell].size() > m_MaxFaces  && dx > 2*m_MinSize && dx > 2*m_CritLength[cell]) {
+    if (!m_Octree.hasChildren(cell)  && m_Faces[cell].size() > m_MaxFaces  && dx > 2*m_MinSize && dx > m_CritLength[cell]) {
       m_Octree.markToRefine(cell);
       ++N_new;
     }
@@ -137,12 +120,11 @@ int FaceFinder::refine()
   }
   m_Faces.insert(N, N_new, QList<vtkIdType>());
   m_CritLength.insert(N, N_new, 0.0);
-  cout << N_new << " new hexes" << endl;
   int N_min = m_Grid->GetNumberOfCells();
   int N_max = 0;
   int N_ave = 0;
-  Timer timer;
   for (int cell = N; cell < m_Octree.getNumCells(); ++cell) {
+    m_Timer << "  " << m_Octree.getNumCells() << " octree cells" << Timer::endl;
     if (m_Octree.getNumCells() != N + N_new) {
       EG_BUG;
     }
@@ -155,16 +137,12 @@ int FaceFinder::refine()
         vec3_t x = m_Octree.getNodePosition(cell, node);
         double d;
         d = (x - m_Centres[id_cell]).abs();
-        //if (d < m_Octree.getDx(cell)) {
-        if (d < 1.5*m_CritLength[parent]) {
+        if (d < m_Octree.getDx(cell)) {
           m_Faces[cell].append(id_cell);
           m_CritLength[cell] = max(m_CritLength[cell], calcCritLength(id_cell));
           break;
         }
       }
-    }
-    if (timer()) {
-      cout << "cell: " << cell-N+1 << "/" << N_new << endl;
     }
     N_min = min(N_min, m_Faces[cell].size());
     N_max = max(N_max, m_Faces[cell].size());
@@ -181,25 +159,20 @@ int FaceFinder::refine()
   if (N_faces == 0) {
     EG_BUG;
   }
-  cout << "average: " << N_faces/N_cells << " faces/bucket" << endl;
   return N_new;
 }
 
 void FaceFinder::getCloseFaces(vec3_t x, QVector<vtkIdType> &faces)
 {
   int cell = m_Octree.findCell(x);
-  /*
-  if (m_Faces[cell].size() == 0) {
-    cell = m_Octree.getParent(cell);
-  }
-  */
-  //vec3_t xc = m_Octree.getCellCentre(cell);
-  //qWarning() << xc;
   if (cell < 0) {
     EG_BUG;
   }
   if (m_Octree.hasChildren(cell)) {
     EG_BUG;
+  }
+  while (m_Faces[cell].size() == 0 && m_Octree.getParent(cell) >= 0) {
+    cell = m_Octree.getParent(cell);
   }
   faces.resize(m_Faces[cell].size());
   qCopy(m_Faces[cell].begin(), m_Faces[cell].end(), faces.begin());

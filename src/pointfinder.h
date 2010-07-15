@@ -20,8 +20,8 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef FACEFINDER_H
-#define FACEFINDER_H
+#ifndef POINTFINDER_H
+#define POINTFINDER_H
 
 #include "octree.h"
 #include "triangle.h"
@@ -30,34 +30,32 @@
 #include <QVector>
 #include <QList>
 
-class FaceFinder : public EgVtkObject
+class PointFinder : public EgVtkObject
 {
 
-  Octree m_Octree;
-  vtkUnstructuredGrid *m_Grid;
-  QVector<QList<vtkIdType> > m_Faces;
-  double m_MinSize;
-  int    m_MaxFaces;
-  QVector<Triangle> m_Triangles;
-  QVector<vec3_t>   m_Centres;
-  QVector<double>   m_CritLength;
-  Timer m_Timer;
+  Octree               m_Octree;
+  QVector<vec3_t>      m_Points;
+  double               m_MinSize;
+  int                  m_MaxPoints;
+  Timer                m_Timer;
+  QVector<QList<int> > m_Buckets;
 
 
 private: // methods
 
-  double calcCritLength(vtkIdType id_cell);
   int refine();
 
 
 public: // methods
 
-  FaceFinder();
+  PointFinder();
 
   void setGrid(vtkUnstructuredGrid *grid);
-  void setMaxNumFaces(int N) { m_MaxFaces = N; }
-  void getCloseFaces(vec3_t x, QVector<vtkIdType> &faces);
+  void setPoints(const QVector<vec3_t> &points);
+  void setMaxNumPoints(int N) { m_MaxPoints = N; }
+  void getClosePoints(vec3_t x, QVector<int> &points);
 
 };
 
-#endif // FACEFINDER_H
+
+#endif // POINTFINDER_H
