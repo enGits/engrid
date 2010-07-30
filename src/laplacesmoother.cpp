@@ -70,7 +70,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     }
   }
   if (N == 0) {
-    EG_BUG;
+    //EG_BUG;
     move = false;
   } else {
     n.normalise();
