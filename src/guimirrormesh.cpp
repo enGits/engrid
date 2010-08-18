@@ -21,6 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "guimirrormesh.h"
+#include "guimainwindow.h"
 
 void GuiMirrorMesh::operate()
 {
@@ -76,7 +77,14 @@ void GuiMirrorMesh::operate()
   }
   MeshPartition part1(m_Grid, true);
   MeshPartition part2(mirror_grid, true);
-  part1.addPartition(part2);
+  double tol = ui.lineEditTolerance->text().toDouble();
+  if (ui.radioButtonRelative->isChecked()) {
+    tol = -tol;
+  }
+  cout << "adding partition" << endl;
+  part1.addPartition(part2, tol);
+  cout << "eliminating duplicate cells" << endl;
   eliminateDuplicateCells();
+  GuiMainWindow::pointer()->updateBoundaryCodes(false);
 }
 

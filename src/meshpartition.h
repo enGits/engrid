@@ -139,8 +139,10 @@ public: // methods
    * If both partitions do not have the same underlying grid the grid will be extended in order
    * to add the other partition.
    * @param part the partition to add
+   * @param tol the tolerance to identify duplicate nodes
+   *        (negative values denote a relative tolerance -- relative to the smallest edge length)
    */
-  void addPartition(const MeshPartition& part);
+  void addPartition(const MeshPartition& part, double tol = -1e-3);
 
   /**
    * compute the smallest edge length of the partition

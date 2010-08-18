@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>277</width>
-    <height>228</height>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <iconset resource="engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="1">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QGroupBox" name="groupBoxCylinder">
@@ -90,10 +90,53 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="2">
-    <layout class="QVBoxLayout"/>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>tolerance</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QRadioButton" name="radioButtonRelative">
+        <property name="text">
+         <string>relative</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButtonAbsolute">
+        <property name="text">
+         <string>absolute</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEditTolerance">
+        <property name="text">
+         <string>0.001</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item row="2" column="0" colspan="3">
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPushButton" name="pushButtonHelp">
@@ -113,19 +156,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="0" colspan="3">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

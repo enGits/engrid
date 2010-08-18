@@ -148,7 +148,7 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
   }
 }
 
-void MeshPartition::addPartition(const MeshPartition& part)
+void MeshPartition::addPartition(const MeshPartition& part, double tol)
 {
   if (m_Grid == part.m_Grid) {
     QVector<bool> cell_marked(m_Grid->GetNumberOfCells(), false);
@@ -166,13 +166,17 @@ void MeshPartition::addPartition(const MeshPartition& part)
     }
     setCells(new_cells);
   } else {
-    double tol = 1e-3*min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
+    if (tol < 0) {
+      tol *= -min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
+    }
+    cout << "  tol=" << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
     loc->SetDataSet(m_Grid);
     loc->BuildLocator();
     QVector<vtkIdType> pnode2node(part.m_Grid->GetNumberOfPoints());
     vtkIdType N = m_Grid->GetNumberOfPoints();
+    Timer T(10);
     for (vtkIdType id_pnode = 0; id_pnode < part.m_Grid->GetNumberOfPoints(); ++id_pnode) {
       vec3_t xp, x;
       part.m_Grid->GetPoint(id_pnode, xp.data());
