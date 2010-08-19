@@ -235,16 +235,9 @@ void Operation::populateVolumes(QListWidget *lw)
 
 void Operation::eliminateDuplicateCells(bool surf_only)
 {
-  QVector<vtkIdType> cells;
-  if (surf_only) {
-    getAllSurfaceCells(cells, m_Grid);
-  } else {
-    getAllCells(cells, m_Grid);
-  }
-  QVector<QVector<vtkIdType> > cell_nodes(cells.size());
+  QVector<QVector<vtkIdType> > cell_nodes(m_Grid->GetNumberOfCells());
 
-  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType id_cell = cells[i_cells];
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!surf_only || isSurface(id_cell, m_Grid)) {
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
@@ -253,21 +246,24 @@ void Operation::eliminateDuplicateCells(bool surf_only)
         nodes[i] = pts[i];
       }
       qSort(nodes);
-      cell_nodes[i_cells] = nodes;
+      cell_nodes[id_cell] = nodes;
     }
   }
   QList<vtkIdType> new_cells;
-  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType id_cell1 = cells[i_cells];
+  for (vtkIdType id_cell1 = 0; id_cell1 < m_Grid->GetNumberOfCells(); ++id_cell1) {
     bool duplicate_cell = false;
     if (!surf_only || isSurface(id_cell1, m_Grid)) {
-      for (int j_cells = 0; j_cells < cells.size(); ++j_cells) {
-        vtkIdType id_cell2 = cells[j_cells];
-        if (i_cells != j_cells) {
-          if (!surf_only || isSurface(id_cell2, m_Grid)) {
-            if (cell_nodes[i_cells] == cell_nodes[j_cells]) {
-              duplicate_cell = true;
-              break;
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell1, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
+          vtkIdType id_cell2 = m_Part.n2cGG(pts[i], j);
+          if (id_cell1 != id_cell2) {
+            if (!surf_only || isSurface(id_cell2, m_Grid)) {
+              if (cell_nodes[id_cell1] == cell_nodes[id_cell2]) {
+                duplicate_cell = true;
+                break;
+              }
             }
           }
         }

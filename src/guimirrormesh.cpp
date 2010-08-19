@@ -81,9 +81,8 @@ void GuiMirrorMesh::operate()
   if (ui.radioButtonRelative->isChecked()) {
     tol = -tol;
   }
-  cout << "adding partition" << endl;
   part1.addPartition(part2, tol);
-  cout << "eliminating duplicate cells" << endl;
+  m_Part.setAllCells();
   eliminateDuplicateCells();
   GuiMainWindow::pointer()->updateBoundaryCodes(false);
 }
