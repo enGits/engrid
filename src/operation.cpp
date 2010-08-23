@@ -273,13 +273,6 @@ void Operation::eliminateDuplicateCells(bool surf_only)
       new_cells.append(id_cell1);
     }
   }
-  if (surf_only) {
-    QVector<vtkIdType> vol_cells;
-    getAllVolumeCells(vol_cells, m_Grid);
-    foreach(vtkIdType id_cell, vol_cells) {
-      new_cells.append(id_cell);
-    }
-  }
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
   makeCopy(m_Grid, new_grid, new_cells);
   makeCopy(new_grid, m_Grid);

@@ -49,7 +49,12 @@ void GuiMirrorMesh::operate()
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType new_pts[N_pts];
     vtkIdType cell_type = m_Grid->GetCellType(id_cell);
-    if (cell_type == VTK_WEDGE) {
+    if (cell_type == VTK_TETRA) {
+      new_pts[0] = pts[0];
+      new_pts[1] = pts[1];
+      new_pts[2] = pts[3];
+      new_pts[3] = pts[2];
+    } else if (cell_type == VTK_WEDGE) {
       new_pts[0] = pts[3];
       new_pts[1] = pts[4];
       new_pts[2] = pts[5];

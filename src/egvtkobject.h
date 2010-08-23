@@ -639,18 +639,27 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, c
   getNodesFromCells(cells, nodes, src);
   allocateGrid(dst, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
+  QVector<vtkIdType> old2new(src->GetNumberOfPoints(), -1);
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     src->GetPoints()->GetPoint(id_node, x.data());
-    dst->GetPoints()->SetPoint(id_node, x.data());
+    dst->GetPoints()->SetPoint(id_new_node, x.data());
     copyNodeData(src, id_node, dst, id_new_node);
+    old2new[id_node] = id_new_node;
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = src->GetCellType(id_cell);
     src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    vtkIdType new_pts[N_pts];
+    for (int i = 0; i < N_pts; ++i) {
+      if (old2new[pts[i]] == -1) {
+        EG_BUG;
+      }
+      new_pts[i] = old2new[pts[i]];
+    }
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, new_pts);
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }
