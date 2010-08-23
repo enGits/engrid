@@ -41,15 +41,13 @@ void SetBoundaryCode::pass1()
   
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
-    DBC.insert(boundary_code);
     DBC.insert(9999);
-    
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     
     for (int i = 0; i < pair.size(); ++i) {
       int bc1 = cell_code->GetValue(pair[i].item1);
       int bc2 = cell_code->GetValue(pair[i].item2);
-      if(ProcessAll){
+      if (ProcessAll) {
         vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
         vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
         double cosa = (n1*n2)/(n1.abs()*n2.abs());
@@ -59,7 +57,7 @@ void SetBoundaryCode::pass1()
           pair[i].terminate = false;
         }
       } else {
-        if(DBC.contains(bc1) && DBC.contains(bc2)){
+        if (DBC.contains(bc2)) {
           vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
           vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
           double cosa = (n1*n2)/(n1.abs()*n2.abs());
