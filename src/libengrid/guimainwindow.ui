@@ -208,6 +208,12 @@
     <addaction name="actionStartParaView"/>
     <addaction name="actionSetCaseDirectory"/>
    </widget>
+   <widget class="QMenu" name="menuPlugins">
+    <property name="title">
+     <string>Plugins</string>
+    </property>
+    <addaction name="actionAbout_enGrid_plugins"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImport_2"/>
    <addaction name="menuExport"/>
@@ -215,6 +221,7 @@
    <addaction name="menuMesh"/>
    <addaction name="menuTools"/>
    <addaction name="menuSimulation"/>
+   <addaction name="menuPlugins"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -1654,6 +1661,11 @@
    </property>
    <property name="toolTip">
     <string>check for overlapping faces</string>
+   </property>
+  </action>
+  <action name="actionAbout_enGrid_plugins">
+   <property name="text">
+    <string>about enGrid plugins</string>
    </property>
   </action>
  </widget>

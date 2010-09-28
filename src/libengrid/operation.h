@@ -170,7 +170,7 @@ public: // methods
 
 //End of class Operation
 
-
+Q_DECLARE_INTERFACE(Operation, "eu.engits.enGrid.Operation/1.0")
 
 
 template <class T>

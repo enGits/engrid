@@ -1,109 +1,20 @@
-# #####################################################################
-# common libraries, includes, source files for the engrid*.pro files
-# #####################################################################
-TEMPLATE = app
+TEMPLATE = lib
 LANGUAGE = C++
-TARGET = engrid
+TARGET   = engrid
 
-# CONFIG += qt release thread
-# CONFIG += qt debug thread
-CONFIG += qt \
-    debug_and_release \
-    thread
-include(engrid-version.pri)
-!openfoam { 
-    # install
-    target.path = /usr/bin
-    
-    # target.path = $$PREFIX/bin
-    INSTALLS += target
-}
-else { 
-    message("Configuring for OpenFOAM+paraview")
-    
-    # install
-    target.path = ../platforms/$(WM_ARCH)
-    
-    # target.path = $$PREFIX/bin
-    INSTALLS += target
-}
-
-# #######
-# FLAGS
-# #######
-# DEFINES += QT_NO_DEBUG
-# DEFINES += QT_DEBUG
-# to get rid of deprecated header warnings caused by including QVTKwidget.h
-# DEFINES += VTK_EXCLUDE_STRSTREAM_HEADERS
-# DEFINES += VTK_LEGACY_REMOVE
+CONFIG         += qt debug_and_release thread
+QT             += xml network opengl
 QMAKE_CXXFLAGS += -Wall
-
-# for profiling with gprof
-# QMAKE_CXXFLAGS += -pg
-# QMAKE_CXXFLAGS += -O3
-# QMAKE_LFLAGS += -pg
-QT += xml \
-    network \
-    opengl
-!win32:# LIBS += -Wl,-rpath
 QMAKE_CXXFLAGS += -Wno-deprecated
+QMAKE_CXXFLAGS += -DGIT_VERSION=\\\"`git describe`"\\\"
 
-# ###########
-# LIBRARIES
-# ###########
-include(engrid-netgen.pri)
-include(engrid-vtk.pri)
-CGNS { 
-    message("Configuring for CGNS support")
-    include(engrid-cgns.pri)
-}
-LIBS += -lm
+INCLUDEPATH += ..
+INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
+INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
+INCLUDEPATH += $(VTKINCDIR)
 
-# VTK libs
-LIBS += -lQVTK
-LIBS += -lvtkCommon
-LIBS += -lvtkDICOMParser
-LIBS += -lvtkexoIIc
+RESOURCES   += ../engrid.qrc
 
-# LIBS += -lvtkexpat
-LIBS += -lvtkFiltering
-
-# LIBS += -lvtkfreetype
-LIBS += -lvtkftgl
-LIBS += -lvtkGenericFiltering
-LIBS += -lvtkGraphics
-LIBS += -lvtkHybrid
-LIBS += -lvtkImaging
-
-# LIBS += -lvtkInfovis
-LIBS += -lvtkIO
-
-# LIBS += -lvtkjpeg
-# LIBS += -lvtklibxml2
-# LIBS += -lvtkmetaio
-LIBS += -lvtkNetCDF
-
-# LIBS += -lvtkpng
-LIBS += -lvtkRendering
-
-# LIBS += -lvtksqlite
-LIBS += -lvtksys
-
-# LIBS += -lvtktiff
-# LIBS += -lvtkViews
-LIBS += -lvtkVolumeRendering
-LIBS += -lvtkWidgets
-
-# ###########
-# RESOURCES
-# ###########
-OTHER_FILES += checkcomments.py \
-    todo.txt
-RESOURCES += engrid.qrc
-
-# #############
-# SOURCE CODE
-# #############
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -208,14 +119,14 @@ HEADERS = boundarycondition.h \
     checkforoverlap.h \
     timer.h \
     facefinder.h \
-    math/linsolve.h \
-    math/mathvector.h \
-    math/mathvector_methods.h \
-    math/mathvector_operators.h \
-    math/mathvector_structs.h \
-    math/smallsquarematrix.h \
+    ../math/linsolve.h \
+    ../math/mathvector.h \
+    ../math/mathvector_methods.h \
+    ../math/mathvector_operators.h \
+    ../math/mathvector_structs.h \
+    ../math/smallsquarematrix.h \
     pointfinder.h
-SOURCES = main.cpp \
+SOURCES = \
     boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -342,12 +253,11 @@ HEADERS += blenderreader.h
 SOURCES += blenderreader.cpp
 HEADERS += blenderwriter.h
 SOURCES += blenderwriter.cpp
-HEADERS += dialoglineedit/dialoglineedit.h
-SOURCES += dialoglineedit/dialoglineedit.cpp
+HEADERS += dialoglineedit.h
+SOURCES += dialoglineedit.cpp
 HEADERS += utilities.h
 SOURCES += utilities.cpp
-HEADERS += edgelengthsourcemanager.h \
-    edgelengthsource.h
+HEADERS += edgelengthsourcemanager.h edgelengthsource.h
 SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h

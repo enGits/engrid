@@ -28,7 +28,7 @@
 #include <QtGui>
 #include <QVector>
 
-#include "dialoglineedit/dialoglineedit.h"
+#include "dialoglineedit.h"
 ///\todo fix problems with more than one boolean + general tab stuff
 
 /**

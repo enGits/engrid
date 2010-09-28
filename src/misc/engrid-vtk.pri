@@ -1,0 +1,2 @@
+INCLUDEPATH += $(VTKINCDIR)
+LIBS        += -L$(VTKLIBDIR)

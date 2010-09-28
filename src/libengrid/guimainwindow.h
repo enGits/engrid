@@ -162,6 +162,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
 
+    QMap<QAction*, Operation*> m_PluginOperations;
+
     int m_SolverIndex;// deprecated
     OpenFOAMTools m_OpenFoamTools;
   
@@ -224,6 +226,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void savePhysicalBoundaryConditions();
 
     void openGrid( QString file_name );
+
+    void pluginCalled();
 
   public: // methods
     GuiMainWindow();///< Default constructor.

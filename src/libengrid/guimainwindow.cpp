@@ -56,6 +56,7 @@
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 #include <QFileInfo>
+#include <QAction>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -199,9 +200,39 @@ void GuiMainWindow::setupGuiMainWindow()
   m_SolverIndex = 0;
   
   readRecentFiles();
+
+  // load plugins
+  QString plugin_path;
+  getSet("General", "plugin path", "/usr/lib/engrid", plugin_path);
+  QDir plugin_dir(plugin_path);
+  m_PluginOperations.clear();
+  foreach (QString file_name, plugin_dir.entryList(QDir::Files)) {
+    cout << qPrintable(plugin_dir.absoluteFilePath(file_name)) << endl;
+    QPluginLoader loader(plugin_dir.absoluteFilePath(file_name));
+    QObject *qobject = loader.instance();
+    if (!qobject) {
+      cout << "an error occurred while loading the plugins:\n";
+      cout << qPrintable(loader.errorString()) << "\n" << endl;
+    }
+    if (Operation *operation = qobject_cast<Operation*>(qobject)) {
+      QAction *action = new QAction(file_name, this);
+      connect(action, SIGNAL(triggered()), this, SLOT(pluginCalled()));
+      m_PluginOperations[action] = operation;
+      ui.menuPlugins->addAction(action);
+    }
+  }
   
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
+
+void GuiMainWindow::pluginCalled()
+{
+  QAction *action = qobject_cast<QAction*>(QObject::sender());
+  if (action) {
+    Operation *operation = m_PluginOperations[action];
+    operation->operator()();
+  }
+}
 
 void GuiMainWindow::resetXmlDoc()
 {
