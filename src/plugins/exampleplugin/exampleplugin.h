@@ -43,6 +43,8 @@ protected: // methods
 
 public: // methods
 
+  ExamplePlugin();
+
 };
 
 #endif

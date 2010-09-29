@@ -24,6 +24,11 @@
 
 #include <QtGui>
 
+ExamplePlugin::ExamplePlugin()
+{
+  m_MenuText = "a simple example plugin";
+}
+
 void ExamplePlugin::before()
 {
   ui.lineEdit_Scaling_X->setText("1");

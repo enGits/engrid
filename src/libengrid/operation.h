@@ -101,6 +101,7 @@ protected: // attributes
   vtkUnstructuredGrid* m_RestGrid; ///< The remainder grid (not part of the selected volume)
   MeshPartition        m_Part;     ///< the partition containing the subset of cells and nodes
   Timer                m_Timer;    ///< Timer object for periodic output
+  QString              m_MenuText; ///< The menu entry (mainly for plugins)
 
 protected: // methods
   
@@ -165,6 +166,7 @@ public: // methods
   static void collectGarbage();
 
   QString getTypeName() { return m_TypeName; }
+  QString getMenuText() { return m_MenuText; }
 
 };
 

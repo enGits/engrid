@@ -215,7 +215,7 @@ void GuiMainWindow::setupGuiMainWindow()
       cout << qPrintable(loader.errorString()) << "\n" << endl;
     }
     if (Operation *operation = qobject_cast<Operation*>(qobject)) {
-      QAction *action = new QAction(file_name, this);
+      QAction *action = new QAction(operation->getMenuText(), this);
       connect(action, SIGNAL(triggered()), this, SLOT(pluginCalled()));
       m_PluginOperations[action] = operation;
       ui.menuPlugins->addAction(action);

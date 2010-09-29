@@ -84,6 +84,7 @@ Operation::Operation()
   err = NULL;
   autoset = true;
   m_TypeName = "undefined";
+  m_MenuText = "undefined";
 }
 
 Operation::~Operation()
