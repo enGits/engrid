@@ -70,6 +70,7 @@ protected: // attributes
   double                    m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
   FaceFinder                m_FaceFinder;
+  vtkIdType                 m_LastProjTriangle;
 
 protected: // static attributes
 
@@ -78,12 +79,13 @@ protected: // static attributes
 
 protected: // methods
 
-  virtual void updateBackgroundGridInfo();///< Set up the background grid (triangles, bezier triangles, etc)
-  virtual vec3_t correctCurvature(int, vec3_t g_M);
-  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
+  virtual void   updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
+
+  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
   vtkIdType getProjTriangle(vtkIdType id_node);
-  void setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
-  void computeSurfaceCurvature();
+  void      setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
+  void      computeSurfaceCurvature();
+  void      interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, vec3_t &x, vec3_t &n);
 
 public: // methods
 
@@ -104,6 +106,8 @@ public: // methods
 
   void setCorrectCurvature(bool b) { m_correctCurvature = b; }
   bool getCorrectCurvature()       { return m_correctCurvature; }
+  vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
+  vtkIdType lastPprojTriangle() { return m_LastProjTriangle; }
 
 public: // static methods
 

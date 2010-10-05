@@ -31,30 +31,34 @@
 #include "math/smallsquarematrix.h"
 #include "egvtkobject.h"
 
-class Triangle : public EgVtkObject {
-  public:
-    vtkIdType m_id_a, m_id_b, m_id_c;
-    vec3_t m_a, m_b, m_c;
-    vec3_t m_g1, m_g2, m_g3;
-    mat3_t m_G, m_GI;
-    double m_A;
-    double m_smallest_length;
-    bool m_Valid;
-    vec3_t m_Normal_a, m_Normal_b, m_Normal_c;
+class Triangle : public EgVtkObject
+{
 
-  public:
-    QVector <bool> m_has_neighbour; ///< True if edge i has a neighbour in the grid
+protected:
 
-  public:
-    Triangle();
-    Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c);
-    Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c);
-    Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell);
-    void setupTriangle();
-    void setDefaults();
+  vtkIdType m_IdA;
+  vtkIdType m_IdB;
+  vtkIdType m_IdC;
+
+  vec3_t m_Xa, m_Xb, m_Xc;
+  vec3_t m_G1, m_G2, m_G3;
+  mat3_t m_G, m_GI;
+  double m_A;
+  double m_SmallestLength;
+  bool m_Valid;
+  vec3_t m_NormalA, m_NormalB, m_NormalC;
+  QVector <bool> m_HasNeighbour; ///< True if edge i has a neighbour in the grid
+
+public:
+
+  Triangle();
+  Triangle(vec3_t a, vec3_t b, vec3_t c);
+  Triangle(vtkUnstructuredGrid* grid, vtkIdType id_a, vtkIdType id_b, vtkIdType id_c);
+  Triangle(vtkUnstructuredGrid* grid, vtkIdType id_cell);
+  void setupTriangle();
+  void setDefaults();
   
-  public:
-    /**
+  /**
      * Calculates the closest (NOT the projection!) point (xi,ri) of point xp on the triangle.
      * @param xp Point to "project"
      * @param xi Global 3D coordinates of the closest point on the triangle.
@@ -62,14 +66,33 @@ class Triangle : public EgVtkObject {
      * @param d Distance of xp to (xi,ri)
      * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
     */
-    bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle);
+  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle);
 
-    vec3_t local3DToGlobal3D(vec3_t l_M);
-    vec3_t global3DToLocal3D(vec3_t g_M);
-    vec3_t local2DToGlobal3D(vec2_t l_M);
-    vec2_t global3DToLocal2D(vec3_t g_M);
+  vec3_t local3DToGlobal3D(vec3_t l_M);
+  vec3_t global3DToLocal3D(vec3_t g_M);
+  vec3_t local2DToGlobal3D(vec2_t l_M);
+  vec2_t global3DToLocal2D(vec3_t g_M);
 
-    void saveTriangle(QString filename);
+  void saveTriangle(QString filename);
+
+  bool hasNeighbour(int i) { return m_HasNeighbour[i]; }
+  void setNeighbourTrue(int i)  { m_HasNeighbour[i] = true; }
+  void setNeighbourFalse(int i) { m_HasNeighbour[i] = false; }
+  vtkIdType idA() { return m_IdA; }
+  vtkIdType idB() { return m_IdB; }
+  vtkIdType idC() { return m_IdC; }
+  vec3_t g1() { return m_G1; }
+  vec3_t g2() { return m_G2; }
+  vec3_t g3() { return m_G3; }
+  vec3_t a() { return m_Xa; }
+  vec3_t b() { return m_Xb; }
+  vec3_t c() { return m_Xc; }
+  vec3_t nA() { return m_NormalA; }
+  vec3_t nB() { return m_NormalB; }
+  vec3_t nC() { return m_NormalC; }
+  double smallestLength() { return m_SmallestLength; }
+
+
 };
 
 #endif

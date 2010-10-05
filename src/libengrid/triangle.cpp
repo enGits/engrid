@@ -26,41 +26,45 @@
 #include "utilities.h"
 #include "egvtkobject.h"
 
-Triangle::Triangle() : EgVtkObject() {
+Triangle::Triangle() : EgVtkObject()
+{
   setDefaults();
   setupTriangle();
 }
 
-Triangle::Triangle(vec3_t a_a, vec3_t a_b, vec3_t a_c) : EgVtkObject() {
+Triangle::Triangle(vec3_t a, vec3_t b, vec3_t c) : EgVtkObject()
+{
   setDefaults();
-  m_a = a_a;
-  m_b = a_b;
-  m_c = a_c;
+  m_Xa = a;
+  m_Xb = b;
+  m_Xc = c;
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_a, vtkIdType a_id_b, vtkIdType a_id_c) : EgVtkObject() {
+Triangle::Triangle(vtkUnstructuredGrid* grid, vtkIdType id_a, vtkIdType id_b, vtkIdType id_c) : EgVtkObject()
+{
   setDefaults();
-  m_id_a = a_id_a;
-  m_id_b = a_id_b;
-  m_id_c = a_id_c;
-  a_grid->GetPoints()->GetPoint(m_id_a, m_a.data());
-  a_grid->GetPoints()->GetPoint(m_id_b, m_b.data());
-  a_grid->GetPoints()->GetPoint(m_id_c, m_c.data());
+  m_IdA = id_a;
+  m_IdB = id_b;
+  m_IdC = id_c;
+  grid->GetPoints()->GetPoint(id_a, m_Xa.data());
+  grid->GetPoints()->GetPoint(id_b, m_Xb.data());
+  grid->GetPoints()->GetPoint(id_c, m_Xc.data());
   setupTriangle();
 }
 
-Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)  : EgVtkObject() {
+Triangle::Triangle(vtkUnstructuredGrid* grid, vtkIdType id_cell)  : EgVtkObject()
+{
   setDefaults();
   vtkIdType Npts, *pts;
-  a_grid->GetCellPoints(a_id_cell, Npts, pts);
+  grid->GetCellPoints(id_cell, Npts, pts);
   if (Npts == 3) {
-    m_id_a = pts[0];
-    m_id_b = pts[1];
-    m_id_c = pts[2];
-    a_grid->GetPoints()->GetPoint(m_id_a, m_a.data());
-    a_grid->GetPoints()->GetPoint(m_id_b, m_b.data());
-    a_grid->GetPoints()->GetPoint(m_id_c, m_c.data());
+    m_IdA = pts[0];
+    m_IdB = pts[1];
+    m_IdC = pts[2];
+    grid->GetPoints()->GetPoint(m_IdA, m_Xa.data());
+    grid->GetPoints()->GetPoint(m_IdB, m_Xb.data());
+    grid->GetPoints()->GetPoint(m_IdC, m_Xc.data());
     setupTriangle();
   } else {
     EG_ERR_RETURN("only triangles allowed at the moment");
@@ -69,125 +73,122 @@ Triangle::Triangle(vtkUnstructuredGrid* a_grid, vtkIdType a_id_cell)  : EgVtkObj
 
 void Triangle::setDefaults()
 {
-  m_id_a = 0;
-  m_id_b = 0;
-  m_id_c = 0;
-  m_a = vec3_t(0, 0, 0);
-  m_b = vec3_t(0, 1, 0);
-  m_c = vec3_t(0, 0, 1);
-  m_Normal_a = vec3_t(0, 0, 0);
-  m_Normal_b = vec3_t(0, 0, 0);
-  m_Normal_c = vec3_t(0, 0, 0);
+  m_IdA = 0;
+  m_IdB = 0;
+  m_IdC = 0;
+  m_Xa = vec3_t(0, 0, 0);
+  m_Xb = vec3_t(0, 1, 0);
+  m_Xc = vec3_t(0, 0, 1);
+  m_NormalA = vec3_t(0, 0, 0);
+  m_NormalB = vec3_t(0, 0, 0);
+  m_NormalC = vec3_t(0, 0, 0);
 }
 
-void Triangle::setupTriangle() {
-  m_has_neighbour.resize(6);
-  m_has_neighbour[0] = false;
-  m_has_neighbour[1] = false;
-  m_has_neighbour[2] = false;
-  m_has_neighbour[3] = false;
-  m_has_neighbour[4] = false;
-  m_has_neighbour[5] = false;
+void Triangle::setupTriangle()
+{
+  m_HasNeighbour.fill(false, 6);
 
-  m_g1 = m_b - m_a;
-  m_g2 = m_c - m_a;
-  m_g3 = m_g1.cross(m_g2);
+  m_G1 = m_Xb - m_Xa;
+  m_G2 = m_Xc - m_Xa;
+  m_G3 = m_G1.cross(m_G2);
   
-  if(m_g3.abs2()<=0) {
+  if(m_G3.abs2() <= 0) {
     m_Valid = false;
-  }
-  else {
+  } else {
     m_Valid = true;
   }
   
-  if(!checkVector(m_g3)) {
-    qWarning()<<"m_g1="<<m_g1;
-    qWarning()<<"m_g2="<<m_g2;
-    qWarning()<<"m_g3="<<m_g3;
-    vec3_t foo = vec3_t(0,0,0);
-    vec3_t bar = vec3_t(0,0,0);
-    qWarning()<<"foo.cross(bar)="<<foo.cross(bar);
+  if(!checkVector(m_G3)) {
+    qWarning() << "m_G1=" << m_G1;
+    qWarning() << "m_G2=" << m_G2;
+    qWarning() << "m_G3=" << m_G3;
     EG_BUG;
   }
   
-  m_A  = 0.5 * m_g3.abs();
-  if(m_Valid) m_g3.normalise();
+  m_A  = 0.5 * m_G3.abs();
+  if (m_Valid) {
+    m_G3.normalise();
+  }
 
-  if(!checkVector(m_g3)) {
-    qWarning()<<"m_g1="<<m_g1;
-    qWarning()<<"m_g2="<<m_g2;
-    qWarning()<<"m_g3="<<m_g3;
-    qWarning()<<"m_a="<<m_a;
-    qWarning()<<"m_b="<<m_b;
-    qWarning()<<"m_c="<<m_c;
+  if(!checkVector(m_G3)) {
+    qWarning() << "m_G1="<<m_G1;
+    qWarning() << "m_G2="<<m_G2;
+    qWarning() << "m_G3="<<m_G3;
+    qWarning() << "m_Xa="<<m_Xa;
+    qWarning() << "m_Xb="<<m_Xb;
+    qWarning() << "m_Xc="<<m_Xc;
     this->saveTriangle("crash");
     EG_BUG;
   }
   
-  m_G.column(0, m_g1);
-  m_G.column(1, m_g2);
-  m_G.column(2, m_g3);
+  m_G.column(0, m_G1);
+  m_G.column(1, m_G2);
+  m_G.column(2, m_G3);
   m_GI = m_G.inverse();
 
-  m_smallest_length = (m_b - m_a).abs();
-  m_smallest_length = min(m_smallest_length, (m_c - m_b).abs());
-  m_smallest_length = min(m_smallest_length, (m_a - m_c).abs());
+  m_SmallestLength = (m_Xb - m_Xa).abs();
+  m_SmallestLength = min(m_SmallestLength, (m_Xc - m_Xb).abs());
+  m_SmallestLength = min(m_SmallestLength, (m_Xa - m_Xc).abs());
 }
 
-vec3_t Triangle::local3DToGlobal3D(vec3_t l_M) {
-  return m_a + m_G*l_M;
+vec3_t Triangle::local3DToGlobal3D(vec3_t r)
+{
+  return m_Xa + m_G*r;
 }
 
-vec3_t Triangle::global3DToLocal3D(vec3_t g_M) {
-  vec3_t tmp = g_M - m_a;
+vec3_t Triangle::global3DToLocal3D(vec3_t x)
+{
+  vec3_t tmp = x - m_Xa;
   return m_GI*tmp;
 }
 
-vec3_t Triangle::local2DToGlobal3D(vec2_t l_M) {
-  return local3DToGlobal3D(vec3_t(l_M[0], l_M[1], 0));
+vec3_t Triangle::local2DToGlobal3D(vec2_t r)
+{
+  return local3DToGlobal3D(vec3_t(r[0], r[1], 0));
 }
 
-vec2_t Triangle::global3DToLocal2D(vec3_t g_M) {
-  vec3_t l_M = global3DToLocal3D(g_M);
-  return vec2_t(l_M[0], l_M[1]);
+vec2_t Triangle::global3DToLocal2D(vec3_t x)
+{
+  vec3_t r = global3DToLocal3D(x);
+  return vec2_t(r[0], r[1]);
 }
 
 bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle)
 {
   side = -1;
-  double scal = (xp - this->m_a) * this->m_g3;
+  double scal = (xp - this->m_Xa) * this->m_G3;
   vec3_t x1, x2;
   if (scal > 0) {
-    x1 = xp + this->m_g3;
-    x2 = xp - scal * this->m_g3 - this->m_g3;
+    x1 = xp + this->m_G3;
+    x2 = xp - scal * this->m_G3 - this->m_G3;
   } else {
-    x1 = xp - this->m_g3;
-    x2 = xp - scal * this->m_g3 + this->m_g3;
+    x1 = xp - this->m_G3;
+    x2 = xp - scal * this->m_G3 + this->m_G3;
   }
   // (xi,ri) gets set to the intersection of the line with the plane here!
-  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_a, this->m_b, this->m_c, x1, x2, xi, ri);
+  bool intersects_face = GeometryTools::intersectEdgeAndTriangle(this->m_Xa, this->m_Xb, this->m_Xc, x1, x2, xi, ri);
   vec3_t xi_free = xi;
   if (intersects_face) {
-    vec3_t dx = xp - this->m_a;
-    d = fabs(dx * this->m_g3);
+    vec3_t dx = xp - this->m_Xa;
+    d = fabs(dx * this->m_G3);
   } else {
-    double kab = GeometryTools::intersection(this->m_a, this->m_b - this->m_a, xp, this->m_b - this->m_a);
-    double kac = GeometryTools::intersection(this->m_a, this->m_c - this->m_a, xp, this->m_c - this->m_a);
-    double kbc = GeometryTools::intersection(this->m_b, this->m_c - this->m_b, xp, this->m_c - this->m_b);
+    double kab = GeometryTools::intersection(this->m_Xa, this->m_Xb - this->m_Xa, xp, this->m_Xb - this->m_Xa);
+    double kac = GeometryTools::intersection(this->m_Xa, this->m_Xc - this->m_Xa, xp, this->m_Xc - this->m_Xa);
+    double kbc = GeometryTools::intersection(this->m_Xb, this->m_Xc - this->m_Xb, xp, this->m_Xc - this->m_Xb);
 
-    double dab = (this->m_a + kab * (this->m_b - this->m_a) - xp).abs();
-    double dac = (this->m_a + kac * (this->m_c - this->m_a) - xp).abs();
-    double dbc = (this->m_b + kbc * (this->m_c - this->m_b) - xp).abs();
-    double da = (this->m_a - xp).abs();
-    double db = (this->m_b - xp).abs();
-    double dc = (this->m_c - xp).abs();
+    double dab = (this->m_Xa + kab * (this->m_Xb - this->m_Xa) - xp).abs();
+    double dac = (this->m_Xa + kac * (this->m_Xc - this->m_Xa) - xp).abs();
+    double dbc = (this->m_Xb + kbc * (this->m_Xc - this->m_Xb) - xp).abs();
+    double da = (this->m_Xa - xp).abs();
+    double db = (this->m_Xb - xp).abs();
+    double dc = (this->m_Xc - xp).abs();
 
     bool set = false;
     d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
 
     if (dab < d) {
       if ((kab >= 0) && (kab <= 1)) {
-        xi = this->m_a + kab * (this->m_b - this->m_a);
+        xi = this->m_Xa + kab * (this->m_Xb - this->m_Xa);
         ri = vec3_t(kab, 0, 0);
         d = dab;
         set = true;
@@ -196,7 +197,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     }
     if (dbc < d) {
       if ((kbc >= 0) && (kbc <= 1)) {
-        xi = this->m_b + kbc * (this->m_c - this->m_b);
+        xi = this->m_Xb + kbc * (this->m_Xc - this->m_Xb);
         ri = vec3_t(1 - kbc, kbc, 0);
         d = dbc;
         set = true;
@@ -205,7 +206,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     }
     if (dac < d) {
       if ((kac >= 0) && (kac <= 1)) {
-        xi = this->m_a + kac * (this->m_c - this->m_a);
+        xi = this->m_Xa + kac * (this->m_Xc - this->m_Xa);
         ri = vec3_t(0, kac, 0);
         d = dac;
         set = true;
@@ -213,21 +214,21 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
       }
     }
     if (da < d) {
-      xi = this->m_a;
+      xi = this->m_Xa;
       ri = vec3_t(0, 0);
       d = da;
       set = true;
       side = 3;
     }
     if (db < d) {
-      xi = this->m_b;
+      xi = this->m_Xb;
       ri = vec3_t(1, 0);
       d = db;
       set = true;
       side = 4;
     }
     if (dc < d) {
-      xi = this->m_c;
+      xi = this->m_Xc;
       ri = vec3_t(0, 1);
       d = dc;
       set = true;
@@ -258,9 +259,9 @@ void Triangle::saveTriangle(QString filename)
   int cell_count = 0;
   
   vtkIdType pts[3];
-  triangle_grid->GetPoints()->SetPoint(node_count, m_a.data()); pts[0]=node_count; node_count++;
-  triangle_grid->GetPoints()->SetPoint(node_count, m_b.data()); pts[1]=node_count; node_count++;
-  triangle_grid->GetPoints()->SetPoint(node_count, m_c.data()); pts[2]=node_count; node_count++;
+  triangle_grid->GetPoints()->SetPoint(node_count, m_Xa.data()); pts[0]=node_count; node_count++;
+  triangle_grid->GetPoints()->SetPoint(node_count, m_Xb.data()); pts[1]=node_count; node_count++;
+  triangle_grid->GetPoints()->SetPoint(node_count, m_Xc.data()); pts[2]=node_count; node_count++;
   
   triangle_grid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
   
