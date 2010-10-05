@@ -59,64 +59,51 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   
   setQuickSave(true);
 
-  m_tableWidget = new SettingsSheet();
-  ui.verticalLayout_SettingsSheet->addWidget(m_tableWidget);
-  
   populateBoundaryCodes(ui.listWidget);
   ui.lineEditMaximalEdgeLength->setText("1000");
 
   //Load settings
   readSettings();
   
-  int Nrow,Ncol;
-  Nrow=m_tableWidget->rowCount();
-  Ncol=m_tableWidget->columnCount();
-  
-  QList<QString> list;
-  list
-    <<"VTK_SIMPLE_VERTEX"
-    <<"VTK_FIXED_VERTEX"
-    <<"VTK_FEATURE_EDGE_VERTEX"
-    <<"VTK_BOUNDARY_EDGE_VERTEX"
-    <<"any";
-  
-  QList<QString> list2;
-  list2
-    << "yes"
-    <<"no"
-    <<"any";
-  
-  Nbc=ui.listWidget-> count ();
-  m_tableWidget->setColumnCount(Nbc+3);
-  VertexDelegate* item_delegate = new VertexDelegate(Nbc, list);
-  m_tableWidget->setItemDelegate(item_delegate);
-  
-  QStringList L;
-  for(int i = 0; i < Nbc; ++i) {
-    L << ui.listWidget->item(i)->text().split(":")[0];
-  }
-  L<<"Vertex Type";
-  L<<"Nodelist";
-  L<<"Edge Length";
-  m_tableWidget->setHorizontalHeaderLabels(L);
-  m_tableWidget->resizeColumnsToContents();
-  
+  Nbc = ui.listWidget-> count ();
   
   current_filename= GuiMainWindow::pointer()->getFilename();
-  qDebug()<<"current_filename="<<current_filename;
-  qDebug()<<"Loading settings from "+current_filename+".sp...";
-  
-  if (!m_tableWidget->readFile(0)) {
-    cout<<"Loading settingssheet failed"<<endl;
+
+  {
+    QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table");
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+
+    m_NumRows = 0;
+    m_NumCols = 0;
+    in >> m_NumRows >> m_NumCols;
+
+    if(m_NumCols != Nbc + 3) {
+      EG_ERR_RETURN(tr("The file is not compatible with the number of boundary codes."));
+    }
+
+    int row, column;
+    QString str;
+
+    m_Table.clear();
+    m_Table.fill(QVector<QString>(m_NumCols), m_NumRows);
+
+    for (int i = 0; i < m_NumRows; ++i) {
+      for (int j = 0; j < m_NumCols; ++j) {
+        in >> row >> column >> str;
+        if (str == "{{{empty}}}") {
+          str = "";
+        }
+        m_Table[row][column] = str;
+      }
+    }
   }
+  setTextFromTable();
+
   
   connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
   connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
-  connect(ui.pushButton_TestSet, SIGNAL(clicked()), this, SLOT(TestSet()));
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
-  connect(ui.pushButtonSave, SIGNAL(clicked()), this, SLOT(writeSettings()));
-  connect(ui.pushButtonSave, SIGNAL(clicked()), m_tableWidget, SLOT(writeFile()));
 
   m_ELSManager.setListWidget(ui.listWidgetSources);
   m_ELSManager.read();
@@ -204,117 +191,101 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
   }
 }
 
-void GuiCreateSurfaceMesh::TestSet()
+void GuiCreateSurfaceMesh::setTextFromTable()
 {
-  cout<<"Testing set"<<endl;
-  getSet();
-}
-
-//This is where we get the user defined mesh densities
-QVector <VertexMeshDensity> GuiCreateSurfaceMesh::getSet()
-{
-  cout<<"Getting set"<<endl;
-  QVector <VertexMeshDensity> VMDvector;
-  
-  cout<<"VMDvector:"<<VMDvector<<endl;
-  
-  int N_VMD=m_tableWidget->rowCount();
-  VMDvector.resize(N_VMD);
-  cout<<"VMDvector.size()="<<VMDvector.size()<<endl;
-  for(int i=0;i<N_VMD;i++)
-  {
-    for(int j=0;j<Nbc;j++)
-    {
-      int bc = m_tableWidget->horizontalHeaderItem(j)->text().toInt();
-      int state = CheckState2int( m_tableWidget->item(i,j)->checkState() );
-      VMDvector[i].BCmap[bc]=state;
+  QString text = "";
+  QSet<QString> values;
+  for (int i = 0; i < m_NumRows; ++i) {
+    values.insert(m_Table[i][m_NumCols-1]);
+  }
+  foreach (QString value, values) {
+    int Ni = 0;
+    for (int i = 0; i < m_NumRows; ++i) {
+      if (m_Table[i][m_NumCols-1] == value) {
+        ++Ni;
+      }
     }
-    VMDvector[i].type=Str2VertexType(m_tableWidget->item(i,Nbc)->text());
-    VMDvector[i].setNodes(m_tableWidget->item(i,Nbc+1)->text());
-    VMDvector[i].density=m_tableWidget->item(i,Nbc+2)->text().toDouble();
+    int ni = 0;
+    for (int i = 0; i < m_NumRows; ++i) {
+      if (m_Table[i][m_NumCols-1] == value) {
+        int Nj = 0;
+        for (int j = 0; j < m_NumCols-3; ++j) {
+          if (m_Table[i][j] == "2") {
+            ++Nj;
+          }
+        }
+        int nj = 0;
+        for (int j = 0; j < m_NumCols-3; ++j) {
+          if (m_Table[i][j] == "2") {
+            QString bc = ui.listWidget->item(j)->text().split(":")[1].trimmed();
+            text += bc;
+            ++nj;
+            if (nj < Nj) {
+              text += " <AND> ";
+            }
+          }
+        }
+        ++ni;
+        if (ni < Ni) {
+          text += " <OR>\n";
+        }
+      }
+    }
+    text += " = " + value + ";\n\n";
   }
-  cout<<"VMDvector:"<<VMDvector<<endl;
-  return(VMDvector);
+  ui.textEdit->setText(text);
 }
 
-void GuiCreateSurfaceMesh::AddSet()
+void GuiCreateSurfaceMesh::getTableFromText()
 {
-  cout<<"Adding set"<<endl;
-  int row=m_tableWidget->rowCount();
-  m_tableWidget->insertRow(row);
-  
-  int Nbc=ui.listWidget->count();
-  for(int i=0;i<Nbc;i++)
-  {
-    TriStateTableWidgetItem* newBC = new TriStateTableWidgetItem();
-    newBC->setFlags(Qt::ItemIsTristate | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
-    m_tableWidget->setItem(row, i, newBC);
+  QMap<QString, int> bc_map;
+  for (int i = 0; i < ui.listWidget->count(); ++i) {
+    bc_map[ui.listWidget->item(i)->text().split(":")[1].trimmed()] = i;
   }
-  QTableWidgetItem* item1 = new QTableWidgetItem("any");
-  m_tableWidget->setItem(row, Nbc, item1);
-  QTableWidgetItem* item2 = new QTableWidgetItem("");
-  m_tableWidget->setItem(row, Nbc+1, item2);
-  QTableWidgetItem* item3 = new QTableWidgetItem("-1");
-  m_tableWidget->setItem(row, Nbc+2, item3);
-  m_tableWidget->resizeColumnsToContents();
-}
-
-void GuiCreateSurfaceMesh::RemoveSet()
-{
-  cout<<"Removing set"<<endl;
-  m_tableWidget->removeRow(m_tableWidget->currentRow());
-  m_tableWidget->resizeColumnsToContents();
-}
-
-int GuiCreateSurfaceMesh::DisplayErrorScalars(vtkPolyDataAlgorithm* algo)
-{
-  return(0);
-  cout<<"==============="<<endl;
-  cout<<"ErrorScalars:"<<endl;
-  int N1,N2;
-  double dist;
-  N1=algo->GetOutput()->GetPointData()->GetNumberOfArrays();
-//   cout<<"nb of arrays="<<N1<<endl;
-  algo->GetOutput();//vtkPolyData
-//   cout<<algo->GetOutput()->GetPointData()<<endl;//vtkPointData*
-  vtkFloatArray *newScalars = vtkFloatArray::New();
-  newScalars=(vtkFloatArray *)algo->GetOutput()->GetPointData()->GetArray(1);
-  N1=newScalars->GetNumberOfComponents();
-  N2=newScalars->GetNumberOfTuples();
-  cout<<"Number of components=N1="<<N1<<endl;
-  cout<<"Number of tuples=N2="<<N2<<endl;
-  for (int i=0; i<N2; i++)
-  {
-    dist=newScalars->GetComponent(i-1,1);//strange, but works. O.o
-    cout<<"dist["<<i<<"]="<<dist<<endl;
+  QStringList rules = ui.textEdit->toPlainText().split(";", QString::SkipEmptyParts);
+  m_Table.clear();
+  foreach (QString rule, rules) {
+    rule = rule.trimmed();
+    QStringList parts = rule.split("=");
+    if (parts.count() > 1) {
+      QString left = parts[0].trimmed();
+      QString right = parts[1].trimmed();
+      QStringList rows = left.split("<OR>");
+      foreach (QString row, rows) {
+        row = row.trimmed();
+        m_Table.append(QVector<QString>(m_NumCols, "1"));
+        int r = m_Table.count() - 1;
+        m_Table[r][m_NumCols - 3] = "any";
+        m_Table[r][m_NumCols - 2] = "";
+        m_Table[r][m_NumCols - 1] = right;
+        QStringList cols = row.split("<AND>");
+        foreach (QString col, cols) {
+          col = col.trimmed();
+          m_Table[r][bc_map[col]] = "2";
+        }
+      }
+    }
   }
-  
-  cout<<"==============="<<endl;
-  newScalars->Delete();
-  return(0);
 }
 
 void GuiCreateSurfaceMesh::operate()
 {
   writeSettings();
-
-  m_tableWidget->writeFile();
-  return;
-
-
-  QSet<int> bcs;
-  getSelectedItems(ui.listWidget, bcs);
-
-  QVector <VertexMeshDensity> VMDvector = getSet();
-
-  SurfaceMesher surfacemesher;
-  surfacemesher.setGrid(m_Grid);
-  surfacemesher.setBoundaryCodes(bcs);
-  surfacemesher.setVertexMeshDensityVector(VMDvector);
-  surfacemesher.setMaxEdgeLength(ui.lineEditMaximalEdgeLength->text().toDouble());
-  surfacemesher.setNodesPerQuarterCircle(ui.doubleSpinBoxCurvature->value());
-
-  surfacemesher();
-
-  m_Grid->Modified();
+  getTableFromText();
+  QString buffer = "";
+  {
+    QTextStream out(&buffer, QIODevice::WriteOnly);
+    out << "\n";
+    out << m_NumRows << " " << m_NumCols << "\n";
+    for (int row = 0; row < m_NumRows; ++row) {
+      for (int column = 0; column < m_NumCols; ++column) {
+        QString str = m_Table[row][column];
+        if (str.isEmpty()) {
+          str = "{{{empty}}}";
+        }
+        out << row << " " << column << " " << str << "\n";
+      }
+    }
+  }
+  GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
 }

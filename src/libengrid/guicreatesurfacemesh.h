@@ -26,7 +26,6 @@
 #include "ui_guicreatesurfacemesh.h"
 #include "dialogoperation.h"
 #include "vertexmeshdensity.h"
-#include "settingssheet.h"
 #include "surfaceoperation.h"
 #include "edgelengthsourcemanager.h"
 
@@ -39,9 +38,6 @@ class GuiCreateSurfaceMesh : public DialogOperation<Ui::GuiCreateSurfaceMesh, Su
   
 private slots:
   
-  void AddSet();
-  void RemoveSet();
-  void TestSet();
   void SelectAll_BC();
   void ClearAll_BC();
   
@@ -52,20 +48,19 @@ protected: // methods
 private:
 
   int Nbc;
-  SettingsSheet* m_tableWidget;
   EdgeLengthSourceManager m_ELSManager;
+  int m_NumRows;
+  int m_NumCols;
+  QVector<QVector<QString> > m_Table;
+  void setTextFromTable();
+  void getTableFromText();
   
 public:
 
   GuiCreateSurfaceMesh();
   
-  QVector <VertexMeshDensity> getSet();
-  
   QString current_filename;
   
-  int DisplayErrorScalars(vtkPolyDataAlgorithm* algo);
-  int DisplayErrorVectors(vtkPolyDataAlgorithm* algo);
-
 public slots:
 
   int  readSettings();

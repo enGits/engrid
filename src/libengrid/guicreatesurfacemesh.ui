@@ -14,7 +14,7 @@
    <string>Create surface mesh</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="engrid.qrc">
+   <iconset resource="../engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -75,7 +75,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_SettingsSheet"/>
+            <widget class="QTextEdit" name="textEdit"/>
            </item>
            <item>
             <spacer name="horizontalSpacer">
@@ -103,13 +103,6 @@
               <widget class="QPushButton" name="pushButton_AddSet">
                <property name="text">
                 <string>Add set</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_TestSet">
-               <property name="text">
-                <string>Test</string>
                </property>
               </widget>
              </item>
@@ -280,19 +273,12 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonSave">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="engrid.qrc"/>
+  <include location="../engrid.qrc"/>
  </resources>
  <connections>
   <connection>
