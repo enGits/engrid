@@ -517,78 +517,80 @@ void SurfaceOperation::computeNormals()
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   m_NodeNormal.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    QSet<int> bcs;
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (isSurface(id_cell, m_Grid)) {
-        int bc = cell_code->GetValue(id_cell);
-        if (m_BoundaryCodes.contains(bc)) {
-          bcs.insert(bc);
+    if (m_Part.localNode(id_node) != -1) {
+      QSet<int> bcs;
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, m_Grid)) {
+          int bc = cell_code->GetValue(id_cell);
+          if (m_BoundaryCodes.contains(bc)) {
+            bcs.insert(bc);
+          }
         }
       }
-    }
-    int num_bcs = bcs.size();
-    QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
-    QMap<int,int> bcmap;
-    int i_bc = 0;
-    foreach (int bc, bcs) {
-      bcmap[bc] = i_bc;
-      ++i_bc;
-    }
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (isSurface(id_cell, m_Grid)) {
-        int bc = cell_code->GetValue(id_cell);
-        if (m_BoundaryCodes.contains(bc)) {
-          vtkIdType N_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, N_pts, pts);
-          vec3_t a, b, c;
-          for (int j = 0; j < N_pts; ++j) {
-            if (pts[j] == id_node) {
-              m_Grid->GetPoint(pts[j], a.data());
-              if (j > 0) {
-                m_Grid->GetPoint(pts[j-1], b.data());
-              } else {
-                m_Grid->GetPoint(pts[N_pts-1], b.data());
-              }
-              if (j < N_pts - 1) {
-                m_Grid->GetPoint(pts[j+1], c.data());
-              } else {
-                m_Grid->GetPoint(pts[0], c.data());
+      int num_bcs = bcs.size();
+      QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
+      QMap<int,int> bcmap;
+      int i_bc = 0;
+      foreach (int bc, bcs) {
+        bcmap[bc] = i_bc;
+        ++i_bc;
+      }
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, m_Grid)) {
+          int bc = cell_code->GetValue(id_cell);
+          if (m_BoundaryCodes.contains(bc)) {
+            vtkIdType N_pts, *pts;
+            m_Grid->GetCellPoints(id_cell, N_pts, pts);
+            vec3_t a, b, c;
+            for (int j = 0; j < N_pts; ++j) {
+              if (pts[j] == id_node) {
+                m_Grid->GetPoint(pts[j], a.data());
+                if (j > 0) {
+                  m_Grid->GetPoint(pts[j-1], b.data());
+                } else {
+                  m_Grid->GetPoint(pts[N_pts-1], b.data());
+                }
+                if (j < N_pts - 1) {
+                  m_Grid->GetPoint(pts[j+1], c.data());
+                } else {
+                  m_Grid->GetPoint(pts[0], c.data());
+                }
               }
             }
+            vec3_t u = b - a;
+            vec3_t v = c - a;
+            double alpha = GeometryTools::angle(u, v);
+            vec3_t n = u.cross(v);
+            n.normalise();
+            normal[bcmap[bc]] += alpha*n;
           }
-          vec3_t u = b - a;
-          vec3_t v = c - a;
-          double alpha = GeometryTools::angle(u, v);
-          vec3_t n = u.cross(v);
-          n.normalise();
-          normal[bcmap[bc]] += alpha*n;
         }
       }
-    }
-    for (int i = 0; i < num_bcs; ++i) {
-      normal[i].normalise();
-    }
-    if (num_bcs > 0) {
-      if (num_bcs > 1) {
-        if (num_bcs == 3) {
-          for (int i = 0; i < num_bcs; ++i) {
-            for (int j = i + 1; j < num_bcs; ++j) {
-              vec3_t n = normal[i] + normal[j];
-              n.normalise();
-              m_NodeNormal[id_node] += n;
+      for (int i = 0; i < num_bcs; ++i) {
+        normal[i].normalise();
+      }
+      if (num_bcs > 0) {
+        if (num_bcs > 1) {
+          if (num_bcs == 3) {
+            for (int i = 0; i < num_bcs; ++i) {
+              for (int j = i + 1; j < num_bcs; ++j) {
+                vec3_t n = normal[i] + normal[j];
+                n.normalise();
+                m_NodeNormal[id_node] += n;
+              }
+            }
+          } else {
+            for (int i = 0; i < num_bcs; ++i) {
+              m_NodeNormal[id_node] += normal[i];
             }
           }
         } else {
-          for (int i = 0; i < num_bcs; ++i) {
-            m_NodeNormal[id_node] += normal[i];
-          }
+          m_NodeNormal[id_node] = normal[0];
         }
-      } else {
-        m_NodeNormal[id_node] = normal[0];
+        m_NodeNormal[id_node].normalise();
       }
-      m_NodeNormal[id_node].normalise();
     }
   }
 }
