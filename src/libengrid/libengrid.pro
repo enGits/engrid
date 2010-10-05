@@ -89,7 +89,6 @@ HEADERS = boundarycondition.h \
     vertexdelegate.h \
     vertexmeshdensity.h \
     smoothingutilities.h \
-    settingssheet.h \
     laplacesmoother.h \
     deletepickedpoint.h \
     text3d.h \
@@ -193,7 +192,6 @@ SOURCES = \
     vertexdelegate.cpp \
     vertexmeshdensity.cpp \
     smoothingutilities.cpp \
-    settingssheet.cpp \
     laplacesmoother.cpp \
     deletepickedpoint.cpp \
     text3d.cpp \
