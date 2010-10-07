@@ -74,24 +74,21 @@ void SurfaceMesher::operate()
     computeMeshDensity();
     //EG_ERR_RETURN("Test!");
     num_deleted = deleteNodes();
-    cout << "  deleted nodes  : " << num_deleted << endl;
+    cout << "  deleted nodes : " << num_deleted << endl;
     computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
+      //cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       SurfaceProjection::Nfull = 0;
       SurfaceProjection::Nhalf = 0;
       smooth(1);
-      Nfull += SurfaceProjection::Nfull;
-      Nhalf += SurfaceProjection::Nhalf;
-      cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
-      cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
     //done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     done = (iter >= m_NumMaxIter);
-    cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
-    cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
+    cout << "  total nodes : " << m_Grid->GetNumberOfPoints() << endl;
+    cout << "  total cells : " << m_Grid->GetNumberOfCells() << endl;
+    cout << "  change ratio : " << double(num_inserted - num_deleted)/m_Grid->GetNumberOfPoints() << endl;
   }
   createIndices(m_Grid);
   updateNodeInfo(false);
@@ -103,8 +100,6 @@ void SurfaceMesher::operate()
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
     }
   }
-  cout << Nfull << " full searches in total" << endl;
-  cout << Nhalf << " half searches in total" << endl;
 
   if(m_interpolateAfterMeshing) {
     qDebug()<<"+++ CORRECTING CURVATURE +++";

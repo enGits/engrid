@@ -25,7 +25,6 @@
 #include "swaptriangles.h"
 #include "surfacemesher.h"
 #include "vertexdelegate.h"
-#include "settingssheet.h"
 #include "laplacesmoother.h"
 #include "guimainwindow.h"
 #include "containertricks.h"
@@ -77,8 +76,11 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     m_NumCols = 0;
     in >> m_NumRows >> m_NumCols;
 
+    if (m_NumRows == 0) {
+      m_NumCols = Nbc + 3;
+    }
     if(m_NumCols != Nbc + 3) {
-      EG_ERR_RETURN(tr("The file is not compatible with the number of boundary codes."));
+      EG_BUG;
     }
 
     int row, column;
@@ -100,8 +102,6 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   setTextFromTable();
 
   
-  connect(ui.pushButton_AddSet, SIGNAL(clicked()), this, SLOT(AddSet()));
-  connect(ui.pushButton_RemoveSet, SIGNAL(clicked()), this, SLOT(RemoveSet()));
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
 
@@ -266,6 +266,7 @@ void GuiCreateSurfaceMesh::getTableFromText()
       }
     }
   }
+  m_NumRows = m_Table.size();
 }
 
 void GuiCreateSurfaceMesh::operate()

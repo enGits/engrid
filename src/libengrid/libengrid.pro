@@ -6,7 +6,6 @@ CONFIG         += qt debug_and_release thread
 QT             += xml network opengl
 QMAKE_CXXFLAGS += -Wall
 QMAKE_CXXFLAGS += -Wno-deprecated
-QMAKE_CXXFLAGS += -DGIT_VERSION=\\\"`git describe`"\\\"
 
 INCLUDEPATH += ..
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib

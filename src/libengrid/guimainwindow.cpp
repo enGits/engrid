@@ -1750,22 +1750,7 @@ void GuiMainWindow::about()
   QMessageBox box(this);
   
   QString title="ENGRID";
-  QString version = GIT_VERSION;
-  bool git = true;
-  if (version.length() >= 5) {
-    if (version.left(6) == "fatal") {
-      version = ENGRID_VERSION;
-      git = false;
-    }
-  }
-  if (version.length() <= 1) {
-    version = ENGRID_VERSION;
-    git = false;
-  }
-  if (git) {
-    version += " (from GIT)";
-  }
-  
+  QString version = ENGRID_VERSION;
   version += " built on ";
   version += QString(__DATE__);
   version += " at ";

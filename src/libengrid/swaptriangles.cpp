@@ -111,7 +111,7 @@ int SwapTriangles::swap()
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
-    m_Timer << "  cell " << i+1 << "/" << m_Part.getNumberOfCells() << Timer::endl;
+    //m_Timer << "  cell " << i+1 << "/" << m_Part.getNumberOfCells() << Timer::endl;
     vtkIdType id_cell = m_Part.globalCell(i);
     if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
@@ -234,7 +234,7 @@ int SwapTriangles::swap()
 
 void SwapTriangles::operate()
 {
-  cout << "swapping edges for surface triangles ..." << endl;
+  //cout << "swapping edges for surface triangles ..." << endl;
   long int N_swaps      = 100000000;
   long int N_last_swaps = 100000001;
   int loop = 1;

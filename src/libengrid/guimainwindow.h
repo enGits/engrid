@@ -443,7 +443,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     // EG_STDINTERSLOT = foreground operation
     // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window.
   
-    void callCreateSurfaceMesh() { EG_STDSLOT( GuiCreateSurfaceMesh ); }
+    void callCreateSurfaceMesh() { EG_STDINTERSLOT( GuiCreateSurfaceMesh ); }
     void callCreateBoundaryLayer() { EG_STDSLOT( GuiCreateBoundaryLayer ); }
     void callDivideBoundaryLayer() { EG_STDSLOT( GuiDivideBoundaryLayer ); }
     void callDeleteVolumeGrid() { EG_STDSLOT( DeleteVolumeGrid ); }

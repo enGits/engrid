@@ -262,9 +262,9 @@ void LaplaceSmoother::operate()
           }
         }
       }
-      m_Timer << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << Timer::endl;
+      //m_Timer << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << Timer::endl;
     }
-    cout << "    " << nodes.size() << " of " << nodes.size() << " nodes done." << endl;
+    //cout << "    " << nodes.size() << " of " << nodes.size() << " nodes done." << endl;
     if (m_Success) {
       break;
     }

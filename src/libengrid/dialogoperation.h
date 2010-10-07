@@ -195,13 +195,20 @@ void DialogOperation<UI,OP>::operator()()
   };
   //Run the GUI
   if (ok) {
-    if (QDialog::exec()) {
-      //Run the operation
-      try {
-        OP::operator()();
-      } catch (Error err) {
-        err.display();
+    try {
+      if (!QDialog::exec()) {
+        ok = false;
       }
+    } catch (Error err) {
+      err.display();
+    }
+  }
+  //Run the operation
+  if (ok) {
+    try {
+      OP::operator()();
+    } catch (Error err) {
+      err.display();
     }
   }
 }

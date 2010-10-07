@@ -199,18 +199,32 @@ if (GRID->GetPointData()->GetScalars(NAME)) { \
 };
 
 #define EG_STDINTERSLOT(OPER) \
-OPER *oper = new OPER(); \
-(*oper)(); \
-oper->del(); \
-if(m_Grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
-updateActors(); \
+OPER *oper = NULL; \
+try { \
+  oper = new OPER(); \
+} catch (Error err) { \
+  err.display(); \
+} \
+if (oper) { \
+  (*oper)(); \
+  oper->del(); \
+  if(m_Grid->GetNumberOfPoints()) updateBoundaryCodes(false); \
+  updateActors(); \
+} \
 
 #define EG_STDSLOT(OPER) \
-OPER *oper = new OPER(); \
-oper->setLockGui(); \
-(*oper)(); \
-oper->del(); \
-updateActors(); \
+OPER *oper = NULL; \
+try { \
+  oper = new OPER(); \
+} catch (Error err) { \
+  err.display(); \
+} \
+if (oper) { \
+  oper->setLockGui(); \
+  (*oper)(); \
+  oper->del(); \
+  updateActors(); \
+} \
 
 #define EG_STDREADERSLOT(OPER) \
 OPER *oper = new OPER(); \
