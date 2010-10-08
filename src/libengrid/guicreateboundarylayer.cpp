@@ -76,6 +76,9 @@ void GuiCreateBoundaryLayer::before()
 
 void GuiCreateBoundaryLayer::operate()
 {
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
   ///////////////////////////////////////////////////////////////
   // set m_Grid to selected volume
   getSelectedItems(ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
