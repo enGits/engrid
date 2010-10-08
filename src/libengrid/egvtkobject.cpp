@@ -374,10 +374,24 @@ void EgVtkObject::addToC2C(vtkIdType id_cell, QVector<int> &_cells, QVector<QVec
 {
   c2c[_cells[id_cell]][j] = -1;
   grid->GetCellNeighbors(id_cell, nds, cls);
-  for (int i = 0; i < cls->GetNumberOfIds(); ++i) {
-    if (cls->GetId(i) != id_cell) {
-      if (_cells[cls->GetId(i)] != -1) {
-        c2c[_cells[id_cell]][j] = _cells[cls->GetId(i)];
+  if (isSurface(id_cell, grid)) {
+    for (int i = 0; i < cls->GetNumberOfIds(); ++i) {
+      if (cls->GetId(i) != id_cell) {
+        if (_cells[cls->GetId(i)] != -1) {
+          if (isSurface(cls->GetId(i), grid)) {
+            c2c[_cells[id_cell]][j] = _cells[cls->GetId(i)];
+          }
+        }
+      }
+    }
+  } else {
+    for (int i = 0; i < cls->GetNumberOfIds(); ++i) {
+      if (cls->GetId(i) != id_cell) {
+        if (_cells[cls->GetId(i)] != -1) {
+          if (isVolume(cls->GetId(i), grid) || c2c[_cells[id_cell]][j] == -1) {
+            c2c[_cells[id_cell]][j] = _cells[cls->GetId(i)];
+          }
+        }
       }
     }
   }
