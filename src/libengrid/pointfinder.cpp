@@ -142,10 +142,17 @@ int PointFinder::refine()
 void PointFinder::getClosePoints(vec3_t x, QVector<int> &points)
 {
   int cell = m_Octree.findCell(x);
+  if (cell < 0) {
+    EG_BUG;
+  }
   if (m_Octree.hasChildren(cell)) {
     EG_BUG;
   }
+  while (m_Buckets[cell].size() == 0 && m_Octree.getParent(cell) >= 0) {
+    cell = m_Octree.getParent(cell);
+  }
   points.resize(m_Buckets[cell].size());
   qCopy(m_Buckets[cell].begin(), m_Buckets[cell].end(), points.begin());
+
 }
 
