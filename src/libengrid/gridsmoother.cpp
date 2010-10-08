@@ -155,15 +155,16 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
 {
   l2g_t nodes = m_Part.getNodes();
   l2l_t n2c = m_Part.getN2C();
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  vec3_t x_old;
+  m_Grid->GetPoint(nodes[i_nodes],x_old.data());
   for (int i_boundary_correction = 0; i_boundary_correction < m_NumBoundaryCorrections; ++i_boundary_correction) {
     foreach (vtkIdType id_cell, n2c[i_nodes]) {
       if (isSurface(id_cell, m_Grid)) {
-        double A = GeometryTools::cellVA(m_Grid, id_cell);
-        if (A > 1e-20) {
-          vec3_t n = GeometryTools::cellNormal(m_Grid, id_cell);
-          n.normalise();
-          Dx -= (n*Dx)*n;
-        }
+        int bc = cell_code->GetValue(id_cell);
+        vec3_t x_new = x_old + Dx;
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, nodes[i_nodes]);
+        Dx = x_new - x_old;
       } else {
         if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
           vtkIdType N_pts, *pts;
