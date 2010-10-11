@@ -31,6 +31,8 @@ Tooltip: 'Export to Engrid'
 
 import Blender
 import bpy
+import BPyMesh
+
 
 def write(filename):
   
@@ -54,14 +56,20 @@ def write(filename):
       out.write('\n')
   for object in objects:
     if object.type == 'Mesh':
-      mesh  = object.getData(0,1)
+
+      mesh = BPyMesh.getMeshFromObject(object, None, True, False, bpy.data.scenes.active)
+      #mesh  = object.getData(0,1)
+      mesh.transform(object.matrixWorld)
       faces = mesh.faces
       nodes = mesh.verts
       out.write('%d' % len(nodes))
       out.write(' %d\n' % len(faces))
       for n in nodes:
-        out.write("%e " % n.co[0])
-        out.write("%e " % n.co[1])
+        #out.write("%e " % n.co[0])
+        #out.write("%e " % n.co[1])
+        #out.write("%e\n" % n.co[2])
+        out.write("%e "  % n.co[0])
+        out.write("%e "  % n.co[1])
         out.write("%e\n" % n.co[2])
       for f in faces:
         N = len(f.verts)
