@@ -62,12 +62,12 @@ connect(ui.actionStoreGeometry,          SIGNAL(triggered()),       this, SLOT(c
 
 connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
 
-connect(ui.actionViewXP, SIGNAL(triggered()), this, SLOT(viewXP()));
-connect(ui.actionViewXM, SIGNAL(triggered()), this, SLOT(viewXM()));
-connect(ui.actionViewYP, SIGNAL(triggered()), this, SLOT(viewYP()));
-connect(ui.actionViewYM, SIGNAL(triggered()), this, SLOT(viewYM()));
-connect(ui.actionViewZP, SIGNAL(triggered()), this, SLOT(viewZP()));
-connect(ui.actionViewZM, SIGNAL(triggered()), this, SLOT(viewZM()));
+connect(ui.actionViewRight,  SIGNAL(triggered()), this, SLOT(viewRight()));
+connect(ui.actionViewLeft,   SIGNAL(triggered()), this, SLOT(viewLeft()));
+connect(ui.actionViewTop,    SIGNAL(triggered()), this, SLOT(viewTop()));
+connect(ui.actionViewBottom, SIGNAL(triggered()), this, SLOT(viewBottom()));
+connect(ui.actionViewFront,  SIGNAL(triggered()), this, SLOT(viewFront()));
+connect(ui.actionViewBack,   SIGNAL(triggered()), this, SLOT(viewBack()));
 
 connect(ui.lineEditClipX, SIGNAL(textChanged(QString)), this, SLOT(setClipX(QString)));
 connect(ui.lineEditClipY, SIGNAL(textChanged(QString)), this, SLOT(setClipY(QString)));

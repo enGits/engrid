@@ -77,8 +77,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     XmlHandler* m_XmlHandler;
 
-    Ui::GuiMainWindow    ui;            ///< The user interface definition -- created by QtDesigner.
-    vtkUnstructuredGrid *m_Grid;          ///< The current state of the grid that is being generated.
+    Ui::GuiMainWindow    ui;     ///< The user interface definition -- created by QtDesigner.
+    vtkUnstructuredGrid *m_Grid; ///< The current state of the grid that is being generated.
 
     vtkRenderer *m_Renderer; ///< The VTK renderer object, used for visualising the grid
 
@@ -139,11 +139,11 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkEgBoundaryCodesFilter* m_BCodesFilter; ///< VTK filter to extract boundary elements with certain codes
     vtkCellPicker*            m_CellPicker;   ///< VTK CellPicker to pick cells for various user interactions
     vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
-    int                       m_PickedObject;   ///< 0=none, 1=node, 2=cell
+    int                       m_PickedObject; ///< 0=none, 1=node, 2=cell
 
     QString      m_CurrentFilename;      ///< The current file name of the grid.
     int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
-    bool         m_undo_redo_enabled;     ///< if true, undo/redo operations will be usable.
+    bool         m_undo_redo_enabled;    ///< if true, undo/redo operations will be usable.
     int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
     QString      m_LogDir;               ///< the log directory
     QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
@@ -225,7 +225,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void openPhysicalBoundaryConditions();
     void savePhysicalBoundaryConditions();
 
-    void openGrid( QString file_name );
+    void openGrid(QString file_name);
 
     void pluginCalled();
 
@@ -414,19 +414,20 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QString getXmlSection( QString name );                 ///< Get a section from the XML case description
     void    setXmlSection( QString name, QString contents ); ///< Set a section of the XML case description
 
-    void viewXP();
-    void viewXM();
-    void viewYP();
-    void viewYM();
-    void viewZP();
-    void viewZM();
+    void viewRight();
+    void viewLeft();
+    void viewTop();
+    void viewBottom();
+    void viewFront();
+    void viewBack();
 
     void appendOutput( QString txt ) { ui.textEditOutput->append( txt ); }
     void clearOutput() { ui.textEditOutput->clear(); }
     void updateOutput();
     void periodicUpdate();
 
-    void storeSurfaceProjection();
+    void storeSurfaceProjection(bool nosave = false);
+    void resetSurfaceProjection();
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:
@@ -460,7 +461,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCheckSurfaceIntegrity() { EG_STDINTERSLOT( CheckSurfaceIntegrity ); }
     void callPick_cell_point() { EG_STDINTERSLOT( GuiPick ); }
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
-    void callUpdateSurfProj() { EG_STDSLOT( UpdateSurfProj ); }
+    void callUpdateSurfProj() { EG_STDINTERSLOT( UpdateSurfProj ); }
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
     void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }

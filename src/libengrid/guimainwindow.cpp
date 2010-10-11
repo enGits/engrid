@@ -410,6 +410,8 @@ void GuiMainWindow::setupVtk()
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PickedObject = 0;
+
+  viewFront();
 //   cbc->Delete();
 }
 
@@ -1088,7 +1090,6 @@ void GuiMainWindow::open()
 {
   QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
   QFileInfo file_info(m_CurrentFilename);
-//   qDebug()<<"m_CurrentFilename="<<m_CurrentFilename;
   dialog.selectFile(file_info.completeBaseName() + ".egc");
   if (dialog.exec()) {
     QStringList selected_files = dialog.selectedFiles();
@@ -1103,7 +1104,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
   cout << "Opening " << qPrintable(file_name) << endl;
   
-  QFileInfo file_info(file_name);
+  //QFileInfo file_info(file_name);
   bool no_case_file = false;
   QString file_extension = getExtension(file_name);
   QString grid_file_name = file_name;
@@ -1120,6 +1121,14 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   if(update_current_filename) {
     GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
   }
+  resetSurfaceProjection();
+  {
+    QFile geo_file(file_name + ".geo.vtu");
+    if (geo_file.exists()) {
+      openGrid(file_name + ".geo");
+      storeSurfaceProjection(true);
+    }
+  }
   openGrid(grid_file_name);
   openBC();
   openPhysicalBoundaryConditions();
@@ -1130,7 +1139,6 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
-//     qDebug()<<"Setting new latest file to "<<file_name;
     m_qset.setValue("LatestFile",file_name);
     resetOperationCounter();
     quickSave();
@@ -1140,39 +1148,32 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
 QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 {
   QString buffer = m_XmlHandler->getBuffer(0);
-  
-  if(update_current_filename) QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  
+  if(update_current_filename) {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  }
   QFileInfo file_info(file_name);
   if (file_info.suffix().toLower() != "egc") {
     file_name += ".egc";
   }
-  cout << "Saving as " << qPrintable(file_name) << endl;
   if(update_current_filename) {
-    // update current filename
     GuiMainWindow::setCwd(file_info.absolutePath());
     m_CurrentFilename = file_name;
   }
   if(!saveGrid(m_Grid, file_name)) {
     QMessageBox::critical(this, QObject::tr("Save failed"), QObject::tr("The grid could not be saved as:\n%1").arg(file_name));
   }
-  
   saveBC();
   savePhysicalBoundaryConditions();
-//   saveXml(file_name);
   m_XmlHandler->saveXml(file_name);
-  
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(false);
-  
-  if(update_current_filename) QApplication::restoreOverrideCursor();
-  
+  if(update_current_filename) {
+    QApplication::restoreOverrideCursor();
+  }
   if(update_current_filename) {
     this->addRecentFile(file_name,QDateTime::currentDateTime());
-//     qDebug()<<"Setting new latest file to "<<file_name;
     m_qset.setValue("LatestFile",file_name);
   }
-  
   return(file_name);
 }
 
@@ -1617,80 +1618,134 @@ void GuiMainWindow::periodicUpdate()
   updateStatusBar();
 }
 
-void GuiMainWindow::viewXP()
+void GuiMainWindow::viewRight()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[0] += 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  if (use_blender) {
+    x[0] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,1);
+  } else {
+    x[0] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::viewXM()
+void GuiMainWindow::viewLeft()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[0] -= 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  if (use_blender) {
+    x[0] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,1);
+  } else {
+    x[0] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::viewYP()
+void GuiMainWindow::viewTop()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[1] += 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
+  if (use_blender) {
+    x[2] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  } else {
+    x[1] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::viewYM()
+void GuiMainWindow::viewBottom()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[1] -= 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
+  if (use_blender) {
+    x[2] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,-1,0);
+  } else {
+    x[1] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,-1);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::viewZP()
+void GuiMainWindow::viewFront()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[2] += 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  if (use_blender) {
+    x[1] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,1);
+  } else {
+    x[2] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
 
-void GuiMainWindow::viewZM()
+void GuiMainWindow::viewBack()
 {
+  bool use_blender;
+  getSet("General","use Blender definition for front, top, etc.", true, use_blender);
   getRenderer()->ResetCamera();
   double x[3];
   getRenderer()->GetActiveCamera()->GetFocalPoint(x);
-  x[2] -= 1;
-  getRenderer()->GetActiveCamera()->SetPosition(x);
-  getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
-  getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  if (use_blender) {
+    x[1] += 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,0,1);
+  } else {
+    x[2] -= 1;
+    getRenderer()->GetActiveCamera()->SetPosition(x);
+    getRenderer()->GetActiveCamera()->ComputeViewPlaneNormal();
+    getRenderer()->GetActiveCamera()->SetViewUp(0,1,0);
+  }
   getRenderer()->ResetCamera();
   getRenderWindow()->Render();
 }
@@ -1869,17 +1924,9 @@ void GuiMainWindow::markOutputLine()
   cout << "\n****************************************\n" << endl;
 }
 
-void GuiMainWindow::storeSurfaceProjection()
+void GuiMainWindow::storeSurfaceProjection(bool nosave)
 {
-  foreach (SurfaceProjection* proj, m_SurfProj) {
-    delete proj;
-  }
-  m_SurfProj.clear();
-  EG_VTKDCN(vtkLongArray_t, pindex, m_Grid, "node_pindex");
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    pindex->SetValue(id_node, -1);
-  }
-  SurfaceProjection::resetPindex();
+  resetSurfaceProjection();
   foreach (int bc, m_AllBoundaryCodes) {
     SurfaceProjection *proj = new SurfaceProjection(bc);
     m_SurfProj[bc] = proj;
@@ -1888,6 +1935,26 @@ void GuiMainWindow::storeSurfaceProjection()
     QVector<vtkIdType> cls;
     getSurfaceCells(bcs, cls, m_Grid);
     proj->setBackgroundGrid(m_Grid, cls);
+  }
+  if (!nosave) {
+    save();
+    saveGrid(m_Grid, m_CurrentFilename + ".geo");
+  }
+}
+
+void GuiMainWindow::resetSurfaceProjection()
+{
+  foreach (SurfaceProjection* proj, m_SurfProj) {
+    delete proj;
+  }
+  m_SurfProj.clear();
+  try {
+    EG_VTKDCN(vtkLongArray_t, pindex, m_Grid, "node_pindex");
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      pindex->SetValue(id_node, -1);
+    }
+    SurfaceProjection::resetPindex();
+  } catch (Error) {
   }
 }
 
@@ -2071,3 +2138,5 @@ void GuiMainWindow::callMergeNodes()
   }
   
 }
+
+

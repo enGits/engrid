@@ -14,7 +14,7 @@
    <string>enGrid - untitled.vtu</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="engrid.qrc">
+   <iconset resource="../engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -98,12 +98,12 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionViewZP"/>
-    <addaction name="actionViewZM"/>
-    <addaction name="actionViewXP"/>
-    <addaction name="actionViewYP"/>
-    <addaction name="actionViewXM"/>
-    <addaction name="actionViewYM"/>
+    <addaction name="actionViewFront"/>
+    <addaction name="actionViewBack"/>
+    <addaction name="actionViewRight"/>
+    <addaction name="actionViewTop"/>
+    <addaction name="actionViewLeft"/>
+    <addaction name="actionViewBottom"/>
     <addaction name="separator"/>
     <addaction name="actionZoomAll"/>
     <addaction name="actionZoomOnPickedObject"/>
@@ -608,7 +608,7 @@
             <string>   redraw</string>
            </property>
            <property name="icon">
-            <iconset resource="engrid.qrc">
+            <iconset resource="../engrid.qrc">
              <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
            </property>
           </widget>
@@ -904,16 +904,16 @@
    <addaction name="actionZoomAll"/>
    <addaction name="actionRedraw"/>
    <addaction name="separator"/>
-   <addaction name="actionViewZP"/>
-   <addaction name="actionViewZM"/>
-   <addaction name="actionViewXM"/>
-   <addaction name="actionViewXP"/>
-   <addaction name="actionViewYP"/>
-   <addaction name="actionViewYM"/>
+   <addaction name="actionViewFront"/>
+   <addaction name="actionViewBack"/>
+   <addaction name="actionViewLeft"/>
+   <addaction name="actionViewRight"/>
+   <addaction name="actionViewTop"/>
+   <addaction name="actionViewBottom"/>
   </widget>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/exit.png</normaloff>:/icons/resources/kde_icons/exit.png</iconset>
    </property>
    <property name="text">
@@ -948,7 +948,7 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/fileopen.png</normaloff>:/icons/resources/kde_icons/fileopen.png</iconset>
    </property>
    <property name="text">
@@ -960,7 +960,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/filesave.png</normaloff>:/icons/resources/kde_icons/filesave.png</iconset>
    </property>
    <property name="text">
@@ -972,7 +972,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/filesaveas.png</normaloff>:/icons/resources/kde_icons/filesaveas.png</iconset>
    </property>
    <property name="text">
@@ -989,7 +989,7 @@
   </action>
   <action name="actionZoomAll">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/viewmagfit.png</normaloff>:/icons/resources/kde_icons/viewmagfit.png</iconset>
    </property>
    <property name="text">
@@ -1006,7 +1006,7 @@
   </action>
   <action name="actionNormalExtrusion">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/extrusion.png</normaloff>:/icons/resources/icons/extrusion.png</iconset>
    </property>
    <property name="text">
@@ -1044,7 +1044,7 @@
   </action>
   <action name="actionSetBoundaryCode">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/setbc.png</normaloff>:/icons/resources/icons/setbc.png</iconset>
    </property>
    <property name="text">
@@ -1056,7 +1056,7 @@
   </action>
   <action name="actionChangeOrientation">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/reorder.png</normaloff>:/icons/resources/icons/reorder.png</iconset>
    </property>
    <property name="text">
@@ -1065,7 +1065,7 @@
   </action>
   <action name="actionCheckOrientation">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/checkorder.png</normaloff>:/icons/resources/icons/checkorder.png</iconset>
    </property>
    <property name="text">
@@ -1074,7 +1074,7 @@
   </action>
   <action name="actionImproveAspectRatio">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/aspectratio.png</normaloff>:/icons/resources/icons/aspectratio.png</iconset>
    </property>
    <property name="text">
@@ -1083,7 +1083,7 @@
   </action>
   <action name="actionCreateVolumeMesh">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/createvol.png</normaloff>:/icons/resources/icons/createvol.png</iconset>
    </property>
    <property name="text">
@@ -1092,7 +1092,7 @@
   </action>
   <action name="actionCreateSurfaceMesh">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/editsurfaceparameters.png</normaloff>:/icons/resources/icons/editsurfaceparameters.png</iconset>
    </property>
    <property name="text">
@@ -1109,7 +1109,7 @@
   </action>
   <action name="actionRedraw">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
    </property>
    <property name="text">
@@ -1121,7 +1121,7 @@
   </action>
   <action name="actionCreateBoundaryLayer">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/createblayer.png</normaloff>:/icons/resources/icons/createblayer.png</iconset>
    </property>
    <property name="text">
@@ -1140,7 +1140,7 @@
   </action>
   <action name="actionDeleteVolumeGrid">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
    </property>
    <property name="text">
@@ -1152,7 +1152,7 @@
   </action>
   <action name="actionDivideBoundaryLayer">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/divideblayer.png</normaloff>:/icons/resources/icons/divideblayer.png</iconset>
    </property>
    <property name="text">
@@ -1166,7 +1166,7 @@
   </action>
   <action name="actionSmoothVolumeGrid">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/smoothvol.png</normaloff>:/icons/resources/icons/smoothvol.png</iconset>
    </property>
    <property name="text">
@@ -1178,54 +1178,54 @@
     <string>clear output window</string>
    </property>
   </action>
-  <action name="actionViewZP">
+  <action name="actionViewFront">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewzplus.png</normaloff>:/icons/resources/icons/viewzplus.png</iconset>
    </property>
    <property name="text">
     <string>view from positive z direction</string>
    </property>
   </action>
-  <action name="actionViewZM">
+  <action name="actionViewBack">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewzminus.png</normaloff>:/icons/resources/icons/viewzminus.png</iconset>
    </property>
    <property name="text">
     <string>view from negative z direction</string>
    </property>
   </action>
-  <action name="actionViewXP">
+  <action name="actionViewRight">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewxplus.png</normaloff>:/icons/resources/icons/viewxplus.png</iconset>
    </property>
    <property name="text">
     <string>view from positive x direction</string>
    </property>
   </action>
-  <action name="actionViewYP">
+  <action name="actionViewTop">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewyplus.png</normaloff>:/icons/resources/icons/viewyplus.png</iconset>
    </property>
    <property name="text">
     <string>view from positive y direction</string>
    </property>
   </action>
-  <action name="actionViewXM">
+  <action name="actionViewLeft">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewxminus.png</normaloff>:/icons/resources/icons/viewxminus.png</iconset>
    </property>
    <property name="text">
     <string>view from negative x direction</string>
    </property>
   </action>
-  <action name="actionViewYM">
+  <action name="actionViewBottom">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/viewyminus.png</normaloff>:/icons/resources/icons/viewyminus.png</iconset>
    </property>
    <property name="text">
@@ -1267,7 +1267,7 @@
   </action>
   <action name="actionEditBoundaryConditions">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/editbc.png</normaloff>:/icons/resources/icons/editbc.png</iconset>
    </property>
    <property name="text">
@@ -1363,7 +1363,7 @@
   </action>
   <action name="actionExportCGNS">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/cgns_color.gif</normaloff>:/icons/resources/icons/cgns_color.gif</iconset>
    </property>
    <property name="text">
@@ -1380,7 +1380,7 @@
   </action>
   <action name="actionUndo">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/undo.png</normaloff>:/icons/resources/kde_icons/undo.png</iconset>
    </property>
    <property name="text">
@@ -1389,7 +1389,7 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/redo.png</normaloff>:/icons/resources/kde_icons/redo.png</iconset>
    </property>
    <property name="text">
@@ -1471,7 +1471,7 @@
   </action>
   <action name="actionFoamCaseWriter">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/of.png</normaloff>:/icons/resources/icons/of.png</iconset>
    </property>
    <property name="text">
@@ -1498,7 +1498,7 @@
   </action>
   <action name="actionRunSolver">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/kde_icons/launch.png</normaloff>:/icons/resources/kde_icons/launch.png</iconset>
    </property>
    <property name="text">
@@ -1517,7 +1517,7 @@
   </action>
   <action name="actionPreparePostProcessing">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/vtk.png</normaloff>:/icons/resources/icons/vtk.png</iconset>
    </property>
    <property name="text">
@@ -1537,7 +1537,7 @@
   </action>
   <action name="actionStartParaView">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/paraview.png</normaloff>:/icons/resources/icons/paraview.png</iconset>
    </property>
    <property name="text">
@@ -1551,7 +1551,7 @@
   </action>
   <action name="actionSurfaceMesher">
    <property name="icon">
-    <iconset resource="engrid.qrc">
+    <iconset resource="../engrid.qrc">
      <normaloff>:/icons/resources/icons/createsurfacemesh.png</normaloff>:/icons/resources/icons/createsurfacemesh.png</iconset>
    </property>
    <property name="text">
@@ -1678,7 +1678,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="engrid.qrc"/>
+  <include location="../engrid.qrc"/>
  </resources>
  <connections>
   <connection>
