@@ -35,7 +35,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_UseProjection = true;
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
-  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  getSet("surface meshing", "correct curvature", false, m_correctCurvature);
   m_NoCheck = false;
   m_ProjectionIterations = 20;
   m_FreeProjectionForEdges = false;

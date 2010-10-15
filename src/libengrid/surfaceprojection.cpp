@@ -33,7 +33,8 @@ SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
   m_BGrid = vtkUnstructuredGrid::New();
   this->setGrid(m_BGrid);
   m_BC = bc;
-  getSet("surface meshing", "correct curvature (experimental)", false, m_correctCurvature);
+  getSet("surface meshing", "correct curvature", true, m_correctCurvature);
+  getSet("surface meshing", "correct curvature with cubic function", false, m_UseCubicCorrection);
   m_CritDistance = 0.1;
 }
 
@@ -262,29 +263,56 @@ vec3_t SurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node)
 
 void SurfaceProjection::interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, vec3_t &xv, vec3_t &n)
 {
-  vec3_t v = x1 - x0;
-  double L = v.abs();
-  v.normalise();
-  xv = x0 + ((xv-x0)*v)*v;
-  double g0 = -1.0/tan(GeometryTools::angle(n0, v));
-  double g1 = -1.0/tan(GeometryTools::angle(n1, v));
   double x  = (xv-x0).abs()/(x1-x0).abs();
-  double a  = g0;
-  double b  = -2*g0-g1;
-  double c  = g0+g1;
-  /*
-  if (fabs(c) > 1e-6) {
-    double xi = b/(3*c); // inflexion
-    if (xi > 0 && xi < 1) {
-      a = 0;
-      b = 0;
-      c = 0;
+  n = (1-x)*n0 + x*n1;
+  n.normalise();
+  if (m_UseCubicCorrection) {
+    vec3_t v = x1 - x0;
+    double L = v.abs();
+    v.normalise();
+    xv = x0 + ((xv-x0)*v)*v;
+    double f = 0;
+    double g0 = -1.0/tan(GeometryTools::angle(n0, v));
+    double g1 = -1.0/tan(GeometryTools::angle(n1, v));
+    double a  = g0;
+    double b  = -2*g0-g1;
+    double c  = g0+g1;
+    /*
+    if (fabs(c) > 1e-6) {
+      double xi = b/(3*c); // inflexion
+      if (xi > 0 && xi < 1) {
+        a = 0;
+        b = 0;
+        c = 0;
+      }
+    }
+    */
+    f = (a*x+b*x*x+c*x*x*x);
+    xv += L*f*n;
+  } else {
+    bool ok = false;
+    n0.normalise();
+    n1.normalise();
+    vec3_t n_plane = n0.cross(n1);
+    if (n.abs() > 1e-3) {
+      n_plane.normalise();
+      vec3_t x0_plane = x0;
+      vec3_t x1_plane = x1 + GeometryTools::intersection(x1, n_plane, x0_plane, n_plane)*n_plane;
+      vec3_t n_i = x1_plane - x0_plane;
+      if (n_i.abs()/(x1-x0).abs() > 1e-6) {
+        n_i.normalise();
+        vec3_t x_i = 0.5*(x0_plane + x1_plane);
+        vec3_t x0_i = x0_plane + GeometryTools::intersection(x0_plane, n0, x_i, n_i)*n0;
+        vec3_t x1_i = x1_plane + GeometryTools::intersection(x1_plane, n1, x_i, n_i)*n1;
+        vec3_t origin = 0.5*(x0_i + x1_i);
+        double r = (x0-origin).abs();
+        vec3_t xc = origin + GeometryTools::intersection(origin, n_plane, xv, n_plane)*n_plane;
+        n = xv - xc;
+        n.normalise();
+        xv = xc+r*n;
+      }
     }
   }
-  */
-  n = (1-x)*n0 + x*n1;
-  double f = (a*x+b*x*x+c*x*x*x);
-  xv += L*f*n;
 }
 
 vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
@@ -294,42 +322,63 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
   if (proj_triangle != -1) {
     rx = m_Triangles[proj_triangle].global3DToLocal2D(x);
     correct = true;
-    /*
-    if (rx[0]+rx[1] < 1.0 && rx[0] > 0 && rx[1] > 0) {
-      correct = true;
-    }
-    */
   }
   if (correct) {
+    vec3_t xc = x;
     vec2_t ra(0,0);
     vec2_t rb(1,0);
     vec2_t rc(0,1);
     double k1 =0;
     double k2 =0;
-    GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
-    vec2_t rd = rc + k1*(rx-rc);
-    vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
-    GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
-    vec2_t re = ra + k1*(rx-ra);
-    vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
-    GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
-    vec2_t rf = rb + k1*(rx-rb);
-    vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
+    vec3_t a = m_Triangles[proj_triangle].a();
+    vec3_t b = m_Triangles[proj_triangle].b();
+    vec3_t c = m_Triangles[proj_triangle].c();
+    double ab = (a-b).abs();
+    double bc = (b-c).abs();
+    double ca = (c-a).abs();
     vec3_t na = m_NodeNormals[m_Triangles[proj_triangle].idA()];
     vec3_t nb = m_NodeNormals[m_Triangles[proj_triangle].idB()];
     vec3_t nc = m_NodeNormals[m_Triangles[proj_triangle].idC()];
-    vec3_t nd, ne, nf;
-    interpolate(m_Triangles[proj_triangle].a(), na, m_Triangles[proj_triangle].b(), nb, d, nd);
-    interpolate(m_Triangles[proj_triangle].b(), nb, m_Triangles[proj_triangle].c(), nc, e, ne);
-    interpolate(m_Triangles[proj_triangle].c(), nc, m_Triangles[proj_triangle].a(), na, f, nf);
-    vec3_t x1 = x;
-    vec3_t x2 = x;
-    vec3_t x3 = x;
-    vec3_t n;
-    interpolate(m_Triangles[proj_triangle].a(), na, e, ne, x1, n);
-    interpolate(m_Triangles[proj_triangle].b(), nb, f, nf, x2, n);
-    interpolate(m_Triangles[proj_triangle].c(), nc, d, nd, x3, n);
-    vec3_t xc = (1.0/3.0)*(x1+x2+x3);
+    vec3_t nd, ne, nf, n;
+    if (ab < bc && ab < ca) {
+      GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
+      vec2_t rd = rc + k1*(rx-rc);
+      vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
+      interpolate(a, na, b, nb, d, nd);
+      interpolate(c, nc, d, nd, xc, n);
+    } else if (bc < ab && bc < ca) {
+      GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
+      vec2_t re = ra + k1*(rx-ra);
+      vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
+      interpolate(b, nb, c, nc, e, ne);
+      interpolate(a, na, e, ne, xc, n);
+    } else if (ca < ab && ca < bc) {
+      GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
+      vec2_t rf = rb + k1*(rx-rb);
+      vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
+      interpolate(c, nc, a, na, f, nf);
+      interpolate(b, nb, f, nf, xc, n);
+    } else {
+      GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
+      vec2_t rd = rc + k1*(rx-rc);
+      vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
+      GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
+      vec2_t re = ra + k1*(rx-ra);
+      vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
+      GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
+      vec2_t rf = rb + k1*(rx-rb);
+      vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
+      interpolate(a, na, b, nb, d, nd);
+      interpolate(b, nb, c, nc, e, ne);
+      interpolate(c, nc, a, na, f, nf);
+      vec3_t x1 = x;
+      vec3_t x2 = x;
+      vec3_t x3 = x;
+      interpolate(a, na, e, ne, x1, n);
+      interpolate(b, nb, f, nf, x2, n);
+      interpolate(c, nc, d, nd, x3, n);
+      xc = (1.0/3.0)*(x1+x2+x3);
+    }
     // make sure that base point doesn't move
     vec3_t dx = x - m_Triangles[proj_triangle].a();
     dx -= (dx*m_Triangles[proj_triangle].g3())*m_Triangles[proj_triangle].g3();

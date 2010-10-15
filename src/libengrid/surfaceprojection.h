@@ -64,7 +64,8 @@ protected: // attributes
   QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
-  bool                      m_correctCurvature; ///< Should correctCurvature() be used?
+  bool                      m_correctCurvature;   ///< Should correctCurvature() be used?
+  bool                      m_UseCubicCorrection; ///< Should cubic curvature correction be used?
   int                       m_BC;
   bool                      m_RestrictToTriangle;
   double                    m_CritDistance;
