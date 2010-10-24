@@ -221,6 +221,11 @@ void GuiMainWindow::setupGuiMainWindow()
       ui.menuPlugins->addAction(action);
     }
   }
+
+  m_EscAction = new QAction("escape", this);
+  addAction(m_EscAction);
+  m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
+  connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
   
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
@@ -806,6 +811,7 @@ bool GuiMainWindow::pickCell(vtkIdType id_cell)
     m_PickedObject = 2;
     return(true);
   } else {
+    cout << "pickCell ..." << endl;
     m_PickActor->VisibilityOff();
     m_PickedObject = 0;
     return(false);
@@ -2139,4 +2145,11 @@ void GuiMainWindow::callMergeNodes()
   
 }
 
-
+void GuiMainWindow::onEsc()
+{
+  setPickMode(true, true);
+  pickCell(-1);
+  m_CellPicker->Pick(-1e99,-1e99,0,m_Renderer);
+  updateActors(true);
+  updateStatusBar();
+}
