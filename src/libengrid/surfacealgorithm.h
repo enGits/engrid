@@ -89,6 +89,7 @@ public:
   void setMaxEdgeLength(double l)         { m_MaxEdgeLength = l; }
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf)    { m_GrowthFactor = cgf; }
+  void setMaxNumIterations(int N)         { m_NumMaxIter = N; }
 
 };
 
