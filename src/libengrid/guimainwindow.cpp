@@ -207,18 +207,20 @@ void GuiMainWindow::setupGuiMainWindow()
   QDir plugin_dir(plugin_path);
   m_PluginOperations.clear();
   foreach (QString file_name, plugin_dir.entryList(QDir::Files)) {
-    cout << qPrintable(plugin_dir.absoluteFilePath(file_name)) << endl;
-    QPluginLoader loader(plugin_dir.absoluteFilePath(file_name));
-    QObject *qobject = loader.instance();
-    if (!qobject) {
-      cout << "an error occurred while loading the plugins:\n";
-      cout << qPrintable(loader.errorString()) << "\n" << endl;
-    }
-    if (Operation *operation = qobject_cast<Operation*>(qobject)) {
-      QAction *action = new QAction(operation->getMenuText(), this);
-      connect(action, SIGNAL(triggered()), this, SLOT(pluginCalled()));
-      m_PluginOperations[action] = operation;
-      ui.menuPlugins->addAction(action);
+    if (file_name.right(3) == ".so") {
+      cout << qPrintable(plugin_dir.absoluteFilePath(file_name)) << endl;
+      QPluginLoader loader(plugin_dir.absoluteFilePath(file_name));
+      QObject *qobject = loader.instance();
+      if (!qobject) {
+        cout << "an error occurred while loading the plugins:\n";
+        cout << qPrintable(loader.errorString()) << "\n" << endl;
+      }
+      if (Operation *operation = qobject_cast<Operation*>(qobject)) {
+        QAction *action = new QAction(operation->getMenuText(), this);
+        connect(action, SIGNAL(triggered()), this, SLOT(pluginCalled()));
+        m_PluginOperations[action] = operation;
+        ui.menuPlugins->addAction(action);
+      }
     }
   }
 
