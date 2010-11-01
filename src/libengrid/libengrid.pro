@@ -1,19 +1,19 @@
 TEMPLATE = lib
 LANGUAGE = C++
-TARGET   = engrid
-
-CONFIG         += qt debug_and_release thread
-QT             += xml network opengl
+TARGET = engrid
+CONFIG += qt \
+    debug_and_release \
+    thread
+QT += xml \
+    network \
+    opengl
 QMAKE_CXXFLAGS += -Wall
 QMAKE_CXXFLAGS += -Wno-deprecated
-
 INCLUDEPATH += ..
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 INCLUDEPATH += $(VTKINCDIR)
-
-RESOURCES   += ../engrid.qrc
-
+RESOURCES += ../engrid.qrc
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -123,9 +123,9 @@ HEADERS = boundarycondition.h \
     ../math/mathvector_operators.h \
     ../math/mathvector_structs.h \
     ../math/smallsquarematrix.h \
-    pointfinder.h
-SOURCES = \
-    boundarycondition.cpp \
+    pointfinder.h \
+    createboundarylayer.h
+SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
     cgnswriter.cpp \
@@ -220,7 +220,8 @@ SOURCES = \
     checkforoverlap.cpp \
     timer.cpp \
     facefinder.cpp \
-    pointfinder.cpp
+    pointfinder.cpp \
+    createboundarylayer.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -254,7 +255,8 @@ HEADERS += dialoglineedit.h
 SOURCES += dialoglineedit.cpp
 HEADERS += utilities.h
 SOURCES += utilities.cpp
-HEADERS += edgelengthsourcemanager.h edgelengthsource.h
+HEADERS += edgelengthsourcemanager.h \
+    edgelengthsource.h
 SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
