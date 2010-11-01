@@ -272,8 +272,20 @@ void SurfaceProjection::interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, 
     v.normalise();
     xv = x0 + ((xv-x0)*v)*v;
     double f = 0;
+    /*
     double g0 = -1.0/tan(GeometryTools::angle(n0, v));
     double g1 = -1.0/tan(GeometryTools::angle(n1, v));
+    */
+    double g0 = 0;
+    double g1 = 0;
+    {
+      double x0 = -(n0*v);
+      double y0 = sqrt(1-x0-x0);
+      g0 = x0/y0;
+      double x1 = -(n1*v);
+      double y1 = sqrt(1-x1-x1);
+      g1 = x1/y1;
+    }
     double a  = g0;
     double b  = -2*g0-g1;
     double c  = g0+g1;
