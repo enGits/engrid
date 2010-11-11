@@ -13,6 +13,7 @@ temp
 *.[oa]
 *.la
 *.so
+*.so.*
 *.jar
 
 # Qt generated files
