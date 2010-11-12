@@ -813,7 +813,6 @@ bool GuiMainWindow::pickCell(vtkIdType id_cell)
     m_PickedObject = 2;
     return(true);
   } else {
-    cout << "pickCell ..." << endl;
     m_PickActor->VisibilityOff();
     m_PickedObject = 0;
     return(false);
@@ -1196,6 +1195,14 @@ void GuiMainWindow::save()
 
 void GuiMainWindow::saveAs()
 {
+  //saveGrid(m_Grid, m_CurrentFilename + ".geo");
+  bool geo_file_exists = false;
+  QString old_geo_file = m_CurrentFilename + ".geo.vtu";
+  {
+    if (QFileInfo(old_geo_file).exists()) {
+      geo_file_exists = true;
+    }
+  }
   QFileDialog dialog(NULL, "write case to file", getCwd(), "enGrid case files (*.egc)");
   QFileInfo file_info(m_CurrentFilename);
   dialog.selectFile(file_info.completeBaseName() + ".egc");
@@ -1205,6 +1212,9 @@ void GuiMainWindow::saveAs()
     QStringList selected_files = dialog.selectedFiles();
     QString file_name = selected_files[0];
     if (!file_name.isNull()) {
+      QString new_geo_file = file_name + ".geo.vtu";
+      QFile geo_file(old_geo_file);
+      geo_file.copy(new_geo_file);
       saveAs(file_name);
       //for the undo/redo operations
       resetOperationCounter();

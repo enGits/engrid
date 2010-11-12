@@ -45,6 +45,7 @@ private: //attributes
   int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
+  bool                        m_OnlySurfaceCells;
 
 
 protected: // methods
@@ -61,6 +62,8 @@ public: //methods
   void setMinEdgeLength(double l) { m_MinEdgeLength = l; }
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf) { m_GrowthFactor = cgf; }
+  void setVolumeCellsOn() { m_OnlySurfaceCells = false; }
+  void setVolumeCellsOff() { m_OnlySurfaceCells = true; }
 
 };
 

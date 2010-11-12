@@ -173,6 +173,7 @@ void SharpenEdges::operate()
 {
   cout << "sharpening edges" << endl;
   assignBCs();
+  return;
 
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");

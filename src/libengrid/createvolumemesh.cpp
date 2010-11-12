@@ -23,6 +23,7 @@
 #include "createvolumemesh.h"
 #include "deletetetras.h"
 #include "guimainwindow.h"
+#include "updatedesiredmeshdensity.h"
 #include <vtkXMLUnstructuredGridWriter.h>
 
 CreateVolumeMesh::CreateVolumeMesh()
@@ -207,6 +208,7 @@ void CreateVolumeMesh::writeDebugInfo()
 
 void CreateVolumeMesh::computeMeshDensity()
 {
+  /*
   using namespace nglib;
   m_ELSManager.read();
   QVector<vtkIdType>  cells;
@@ -388,14 +390,131 @@ void CreateVolumeMesh::computeMeshDensity()
       } while (DH_max > 1e-3*H_min && DH_max < DH_last);
     }
   }
+  */
 
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+  boxes.clear();
+  /*
+  UpdateDesiredMeshDensity update;
+  update();
+  */
+  /*
+  QVector<vtkIdType>  cells;
+  QVector<vtkIdType>  nodes;
+  QVector<int>       _nodes;
+  QVector<QVector<int> >  c2c;
+  QVector<QSet<int> >     n2n;
+  getAllCellsOfType(VTK_TETRA, cells, m_Grid);
+  getNodesFromCells(cells, nodes, m_Grid);
+  createNodeMapping(nodes, _nodes, m_Grid);
+  createCellToCell(cells, c2c, m_Grid);
+  createNodeToNode(cells, nodes, _nodes, n2n, m_Grid);
+
+  */
+  //EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
+  QTextStream in(&buffer, QIODevice::ReadOnly);
+  in >> m_MaxEdgeLength;
+  in >> m_MinEdgeLength;
+  in >> m_GrowthFactor;
+  m_ELSManager.read();
+  QVector<double> H(m_Grid->GetNumberOfPoints(), m_MaxEdgeLength);
+
+  QVector<bool> fixed(m_Grid->GetNumberOfPoints(), false);
+  double H_min = 1e99;
+  vtkIdType id_min = -1;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    bool volume_only = true;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      if (isSurface(m_Part.n2cGG(id_node, i), m_Grid)) {
+        volume_only = false;
+      }
+      if (!volume_only) {
+        fixed[id_node] = true;
+        H[id_node] = 0;
+        int N = 0;
+        vec3_t xi;
+        m_Grid->GetPoint(id_node, xi.data());
+        for (int j = 0; j < m_Part.n2nGSize(id_node); ++j) {
+          if (m_Part.n2nGG(id_node, j)) {
+            vec3_t xj;
+            m_Grid->GetPoint(m_Part.n2nGG(id_node, j), xj.data());
+            H[id_node] += (xi-xj).abs();
+            ++N;
+          }
+        }
+        if (N < 2) {
+          EG_BUG;
+        }
+        H[id_node] /= N;
+        if (H[id_node] < H_min) {
+          id_min = id_node;
+          H_min = H[id_node];
+        }
+      }
+    }
+  }
+  //EG_BUG;
+  if (id_min < 0) {
+    EG_BUG;
+  }
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    double cl_src = m_ELSManager.minEdgeLength(x);
+    if (cl_src > 0) {
+      if (cl_src < H[id_node]) {
+        H[id_node] = cl_src;
+      }
+    }
+  }
+
+  QVector<bool> marked(m_Grid->GetNumberOfPoints(), false);
+  marked[id_min] = true;
+  bool done = false;
+  while (!done) {
+    done = true;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (marked[id_node] && H[id_node] <= H_min) {
+        vec3_t x1;
+        m_Grid->GetPoint(id_node, x1.data());
+        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
+          if (!marked[id_neigh]) {
+            vec3_t x2;
+            m_Grid->GetPoint(id_neigh, x2.data());
+            double dist = (x1 - x2).abs();
+            double h = H[id_node] + (m_GrowthFactor - 1)*dist;
+            H[id_neigh] = min(H[id_neigh], h);
+            marked[id_neigh] = true;
+            //H[id_neigh] += 1.0*H[id_node];
+            done = false;
+          }
+        }
+      }
+    }
+    H_min *= m_GrowthFactor;
+  }
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    double cl_src = m_ELSManager.minEdgeLength(x);
+    if (cl_src > 0) {
+      if (cl_src < H[id_node]) {
+        H[id_node] = cl_src;
+      }
+    }
+  }
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x1, x2;
-    m_Grid->GetPoint(nodes[i_nodes], x1.data());
+    m_Grid->GetPoint(id_node, x1.data());
     x2 = x1;
-    foreach (int j_nodes, n2n[i_nodes]) {
+    for (int j = 0; j < m_Part.n2nGSize(id_node); ++j) {
       vec3_t xj;
-      m_Grid->GetPoint(nodes[j_nodes], xj.data());
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, j), xj.data());
       for (int k = 0; k < 3; ++k) {
         x1[k] = min(xj[k], x1[k]);
         x2[k] = max(xj[k], x2[k]);
@@ -404,7 +523,7 @@ void CreateVolumeMesh::computeMeshDensity()
     box_t B;
     B.x1 =x1;
     B.x2 =x2;
-    B.h = H[i_nodes];
+    B.h = H[id_node];
     boxes.append(B);
   }
 }
@@ -413,16 +532,19 @@ void CreateVolumeMesh::computeMeshDensity()
 void CreateVolumeMesh::operate()
 {
   using namespace nglib;
+  setAllCells();
   if (m_Grid->GetNumberOfCells() == 0) {
     EG_ERR_RETURN("The grid appears to be empty.");
   }
   nglib::Ng_Init();
   Ng_Meshing_Parameters mp;
-  mp.maxh = maxh;
   mp.fineness = fineness;
   mp.secondorder = 0;
   Ng_Mesh *mesh = Ng_NewMesh();
   computeMeshDensity();
+  mp.maxh = m_MaxEdgeLength;
+  mp.minh = m_MinEdgeLength;
+  mp.grading = 1;
   prepare();
   QVector<vtkIdType> ng2eg(num_nodes_to_add+1);
   QVector<vtkIdType> eg2ng(m_Grid->GetNumberOfPoints());

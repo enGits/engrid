@@ -30,6 +30,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   EG_TYPENAME;
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
+  m_OnlySurfaceCells = true;
   getSet("surface meshing", "minmal number of cells across", 0, m_MinMumCellsAcross);
 }
 
@@ -82,7 +83,11 @@ void UpdateDesiredMeshDensity::operate()
   m_ELSManager.read();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   
-  setAllSurfaceCells();
+  if (m_OnlySurfaceCells) {
+    setAllSurfaceCells();
+  } else {
+    setAllCells();
+  }
   l2g_t  nodes = getPartNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2n   = getPartN2N();

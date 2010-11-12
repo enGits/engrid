@@ -41,6 +41,9 @@ private: // attributes
   
   double maxh;
   double fineness;
+  double m_GrowthFactor;
+  double m_MinEdgeLength;
+  double m_MaxEdgeLength;
   QVector<QVector<vtkIdType> > tri;
   QVector<bool> add_to_ng;
   int num_nodes_to_add;
