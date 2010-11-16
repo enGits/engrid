@@ -1807,6 +1807,7 @@ void GuiMainWindow::configure()
       LaplaceSmoother tmp08;
       SwapTriangles tmp09;
       OpenFOAMTools tmp10;
+      BlenderReader tmp11;
     } catch (Error err) {
       err.display();
     }
