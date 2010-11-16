@@ -34,6 +34,11 @@ protected: // methods
   virtual void operate();
 
 
+protected: // attributes
+
+  double m_RelativeTolerance;
+
+
 public: // methods
 
   BlenderReader();
