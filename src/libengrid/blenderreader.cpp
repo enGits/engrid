@@ -28,6 +28,8 @@
 BlenderReader::BlenderReader()
 {
   setFormat("Blender/Engrid files(*.begc *.BEGC)");
+  getSet("General", "tolerance for importing geometries (% of smallest edge length)", 0.1, m_RelativeTolerance);
+  m_RelativeTolerance *= 1e-3;
 }
 
 void BlenderReader::operate()
@@ -108,7 +110,7 @@ void BlenderReader::operate()
         foreach (int j, close_points) {
           if (i > j) {
             double l = (nodes[i] - nodes[j]).abs();
-            if (l < 0.1*L || l == 0) {
+            if (l < m_RelativeTolerance*L || l == 0) {
               o2n[i] = o2n[j];
               dup = true;
               break;
