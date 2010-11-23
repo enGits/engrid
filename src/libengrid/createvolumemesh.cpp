@@ -539,7 +539,7 @@ void CreateVolumeMesh::operate()
   nglib::Ng_Init();
   Ng_Meshing_Parameters mp;
   mp.fineness = fineness;
-  mp.secondorder = 0;
+  //mp.secondorder = 0;
   Ng_Mesh *mesh = Ng_NewMesh();
   computeMeshDensity();
   mp.maxh = m_MaxEdgeLength;
