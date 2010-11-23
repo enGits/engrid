@@ -88,7 +88,18 @@ void SurfaceMesher::operate()
     done = (iter >= m_NumMaxIter);
     cout << "  total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells : " << m_Grid->GetNumberOfCells() << endl;
-    cout << "  change ratio : " << double(num_inserted - num_deleted)/m_Grid->GetNumberOfPoints() << endl;
+    double change_ratio = 0;
+    double fluctuation_ratio = 0;
+    {
+      double N_new = m_Grid->GetNumberOfPoints();
+      double N_chg = num_inserted - num_deleted;
+      double N_max = max(num_inserted, num_deleted);
+      double N_old = N_new - N_chg;
+      change_ratio = 0.1*int(1000*N_chg/N_old);
+      fluctuation_ratio = 0.1*int(1000*N_max/N_old);
+    }
+    cout << "  change ratio : " << change_ratio << "%" << endl;
+    cout << "  fluctuation ratio : " << fluctuation_ratio << "%" << endl;
   }
   createIndices(m_Grid);
   updateNodeInfo(false);
