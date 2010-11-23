@@ -29,7 +29,7 @@ BlenderReader::BlenderReader()
 {
   setFormat("Blender/Engrid files(*.begc *.BEGC)");
   getSet("General", "tolerance for importing geometries (% of smallest edge length)", 0.1, m_RelativeTolerance);
-  m_RelativeTolerance *= 1e-3;
+  m_RelativeTolerance *= 1e-2;
 }
 
 void BlenderReader::operate()
