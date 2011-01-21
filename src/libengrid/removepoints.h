@@ -46,6 +46,7 @@ protected:
   bool   m_UpdatePSP;
 
   QVector<bool> m_IsFeatureNode;
+  QVector<bool> m_Fixed;
 
 public:
 
@@ -60,6 +61,8 @@ public:
   void setPerformGeometricChecksOff() { m_PerformGeometricChecks = false; }
   void setUpdatePSPOn()  { m_UpdatePSP = true; }
   void setUpdatePSPOff() { m_UpdatePSP = false; }
+  void setThreshold(double v) { m_Threshold = v; }
+  void fixNodes(const QVector<bool> &fixnodes);
 
 protected:
 

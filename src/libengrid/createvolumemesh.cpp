@@ -572,8 +572,11 @@ void CreateVolumeMesh::operate()
   Ng_Result res;
   try {
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
+    GuiMainWindow::pointer()->setSystemOutput();
     res = Ng_GenerateVolumeMesh (mesh, &mp);
+    GuiMainWindow::pointer()->setLogFileOutput();
   } catch (netgen::NgException ng_err) {
+    GuiMainWindow::pointer()->setLogFileOutput();
     writeDebugInfo();
     Error err;
     QString msg = "Netgen stopped with the following error:\n";

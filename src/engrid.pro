@@ -38,4 +38,6 @@ LIBS        += -lvtkWidgets
 OTHER_FILES += checkcomments.py todo.txt
 RESOURCES   += engrid.qrc
 
-SOURCES = main.cpp 
+SOURCES = main.cpp
+
+ 

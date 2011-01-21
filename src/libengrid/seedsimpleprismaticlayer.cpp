@@ -271,11 +271,13 @@ void SeedSimplePrismaticLayer::operate()
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
   allocateGrid(new_grid, m_Grid->GetNumberOfCells() + N_new_cells, m_Grid->GetNumberOfPoints() + N_new_points);
   vtkIdType id_new_node = 0;
-  EG_VTKDCN(vtkIntArray, node_status_old, m_Grid,   "node_status");
-  EG_VTKDCN(vtkIntArray, node_status_new, new_grid, "node_status");
-  EG_VTKDCN(vtkIntArray, node_layer_old,  m_Grid,   "node_layer");
-  EG_VTKDCN(vtkIntArray, node_layer_new,  new_grid, "node_layer");
-  EG_VTKDCC(vtkIntArray, bc,              m_Grid,   "cell_code");
+  EG_VTKDCN(vtkIntArray,    node_status_old, m_Grid,   "node_status");
+  EG_VTKDCN(vtkIntArray,    node_status_new, new_grid, "node_status");
+  EG_VTKDCN(vtkIntArray,    node_layer_old,  m_Grid,   "node_layer");
+  EG_VTKDCN(vtkIntArray,    node_layer_new,  new_grid, "node_layer");
+  EG_VTKDCC(vtkIntArray,    bc,              m_Grid,   "cell_code");
+  EG_VTKDCN(vtkDoubleArray, cl_old,          m_Grid,   "node_meshdensity_desired");
+  EG_VTKDCN(vtkDoubleArray, cl_new,          new_grid, "node_meshdensity_desired");
 
   l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
@@ -309,7 +311,7 @@ void SeedSimplePrismaticLayer::operate()
   foreach (vtkIdType id_node, split_nodes) {
     vec3_t x;
     m_Grid->GetPoints()->GetPoint(id_node, x.data());
-    
+    double h = cl_old->GetValue(id_node);
     
     if (n2f[id_node].size() > 0) {
       vec3_t n(0,0,0);
@@ -360,6 +362,7 @@ void SeedSimplePrismaticLayer::operate()
     }
     
     new_grid->GetPoints()->SetPoint(id_new_node, x.data());
+    cl_new->SetValue(id_new_node, h);
     old2new[id_node] = id_new_node;
     node_status_new->SetValue(id_new_node, node_status_old->GetValue(id_node));
     node_layer_new->SetValue(id_new_node, node_layer_old->GetValue(id_node) + 1);

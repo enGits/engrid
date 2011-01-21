@@ -253,11 +253,18 @@ int SurfaceOperation::UpdatePotentialSnapPoints( bool update_node_types, bool fi
   return( 0 );
 }
 
-char SurfaceOperation::getNodeType( vtkIdType id_node, bool fix_unselected )
+char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
 {
   l2g_t  nodes = getPartNodes();
   g2l_t _nodes = getPartLocalNodes();
   l2l_t  n2n   = getPartN2N();
+
+  // fix all vertices that are part of a volume element or a quad
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    if (m_Grid->GetCellType(m_Part.n2cGG(id_node, i)) != VTK_TRIANGLE) {
+      return VTK_FIXED_VERTEX;
+    }
+  }
 
   //initialize default value
   char type = VTK_SIMPLE_VERTEX;
@@ -368,7 +375,7 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
 
   //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
-  int numNei = getEdgeCells( a_node1, a_node2, neighbour_cells ) - 1;
+  int numNei = getEdgeCells(a_node1, a_node2, neighbour_cells) - 1;
 
   //set default value
   char edge = VTK_SIMPLE_VERTEX;

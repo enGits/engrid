@@ -44,6 +44,9 @@ private:
 
   bool      m_correctCurvature;
   bool      m_NoCheck;
+
+  QSet<vtkIdType> m_AllowedCellTypes;
+  QVector<bool> m_Fixed;
   
 private: // methods
 
@@ -61,6 +64,7 @@ public:
   void setNormalCorrectionOn() { m_UseNormalCorrection = true; }
   void setNormalCorrectionOff() { m_UseNormalCorrection = false; }
   bool succeeded() { return m_Success; }
+  void fixNodes(const QVector<bool> &fixnodes);
 
 public:
 

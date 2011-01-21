@@ -26,6 +26,7 @@
 class GuiCreateBoundaryLayer;
 
 #include "dialogoperation.h"
+#include "surfacemesher.h"
 #include "ui_guicreateboundarylayer.h"
 
 #include <QProgressDialog>
@@ -45,6 +46,7 @@ private: // attributes
   bool   m_WriteDebugFile;
   bool   m_RemovePoints;
   double m_PostStrength;
+
   QSet<int> m_LayerAdjacentBoundaryCodes; /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
 
 private: // methods
@@ -54,6 +56,9 @@ private: // methods
   
 protected: // methods
   
+  void smoothSurface();
+  void reduceSurface();
+
   virtual void before();
   virtual void operate();
   

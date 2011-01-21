@@ -46,6 +46,7 @@ void SurfaceMesher::operate()
   if (!GuiMainWindow::pointer()->checkSurfProj()) {
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
+  prepare();
   computeMeshDensity();
   prepare();
   if (m_BoundaryCodes.size() == 0) {

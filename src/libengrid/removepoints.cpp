@@ -81,8 +81,19 @@ void RemovePoints::markFeatureEdges()
   }
 }
 
+void RemovePoints::fixNodes(const QVector<bool> &fixnodes)
+{
+  if (fixnodes.size() != m_Grid->GetNumberOfPoints()) {
+    EG_BUG;
+  }
+  m_Fixed = fixnodes;
+}
+
 void RemovePoints::operate()
 {
+  if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
+    m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
+  }
 
   /////////////////////
 
@@ -131,7 +142,7 @@ void RemovePoints::operate()
     vtkIdType id_node = selected_nodes[i_selected_nodes];
 
     int i_node = _nodes[id_node];
-    if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+    if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX && !m_Fixed[id_node]) {
       if(!marked_nodes[i_node] && !m_IsFeatureNode[i_node]) {
 
         // preparations
@@ -173,6 +184,11 @@ void RemovePoints::operate()
             // add deadnode/snappoint pair
             deadnode_vector.push_back(id_node);
             snappoint_vector.push_back(snap_point);
+            double cl1 = characteristic_length_desired->GetValue(id_node);
+            double cl2 = characteristic_length_desired->GetValue(snap_point);
+            if (cl1 < cl2) {
+              characteristic_length_desired->SetValue(snap_point, cl1);
+            }
             // update global values
             num_newpoints += l_num_newpoints;
             num_newcells  += l_num_newcells;

@@ -187,6 +187,7 @@ void Operation::setMeshPartition(const MeshPartition &part)
 {
   m_Part.setGrid(part.getGrid());
   m_Part.setCells(part.getCells());
+  m_Grid = m_Part.getGrid();
 }
 
 void Operation::checkGrid()

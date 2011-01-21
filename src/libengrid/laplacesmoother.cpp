@@ -39,6 +39,8 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_NoCheck = false;
   m_ProjectionIterations = 20;
   m_FreeProjectionForEdges = false;
+  m_AllowedCellTypes.clear();
+  m_AllowedCellTypes.insert(VTK_TRIANGLE);
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -97,18 +99,15 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
       if (N_pts != 3) {
-        EG_BUG;
+        //EG_BUG;
+        move = false;
+        break;
       }
       for (int j = 0; j < N_pts; ++j) {
         m_Grid->GetPoint(pts[j], x[j].data());
       }
       if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
-//         saveGrid(m_Grid, "after_move1");
-//         qWarning()<<"Cannot move point "<<id_node<<" because negative tetraVol.";
         move = false;
-//         m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
-//         saveGrid(m_Grid, "before_move1");
-//         EG_BUG;
         break;
       }
     }
@@ -116,7 +115,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   if (move) {
     for (int i = 0; i < cell_normals.size(); ++i) {
       for (int j = 0; j < cell_normals.size(); ++j) {
-        if (cell_normals[i]*cell_normals[j] < -1000*0.1) {//Why -1000*0.1?
+        if (cell_normals[i]*cell_normals[j] < -100.0) {//Why -100.0?
           saveGrid(m_Grid, "after_move2");
           qWarning()<<"Cannot move point "<<id_node<<" because opposite cell_normals.";
           move = false;
@@ -130,9 +129,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   }
 
   if (!move) {
-    // comment this out if you want points to always move
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
-//     saveGrid(m_Grid, "before_move");
   }
   return move;
 }
@@ -180,11 +177,19 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   return moved;
 }
 
+void LaplaceSmoother::fixNodes(const QVector<bool> &fixnodes)
+{
+  if (fixnodes.size() != m_Grid->GetNumberOfPoints()) {
+    EG_BUG;
+  }
+  m_Fixed = fixnodes;
+}
 
 void LaplaceSmoother::operate()
 {
-//   qDebug()<<"LaplaceSmoother::operate() called";
-  
+  if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
+    m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
+  }
   QVector<int> bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
@@ -194,8 +199,9 @@ void LaplaceSmoother::operate()
     }
   }
   UpdatePotentialSnapPoints(false, false);
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type" );
+  EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type" );
+  EG_VTKDCN(vtkDoubleArray, cl,        m_Grid, "node_meshdensity_desired");
   QVector<vtkIdType> smooth_node(m_Grid->GetNumberOfPoints(), false);
   {
     l2g_t nodes = m_Part.getNodes();
@@ -218,6 +224,17 @@ void LaplaceSmoother::operate()
 
   QVector<vec3_t> x_new(nodes.size());
 
+  QVector<bool> blocked(nodes.size(), false);
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    for (int i = 0; i < m_Part.n2cLSize(i_nodes); ++i) {
+      vtkIdType type = m_Grid->GetCellType(m_Part.n2cLG(i_nodes, i));
+      if (!m_AllowedCellTypes.contains(type)) {
+        blocked[i_nodes] = true;
+        break;
+      }
+    }
+  }
+
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
     m_Success = true;
     computeNormals();
@@ -226,38 +243,43 @@ void LaplaceSmoother::operate()
     int count = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
-      if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-        if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-          QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
-          vec3_t n(0,0,0);
-          if (snap_points.size() > 0) {
-            vec3_t x_old;
-            vec3_t x;
-            x_new[i_nodes] = vec3_t(0,0,0);
-            m_Grid->GetPoint(id_node, x_old.data());
-            foreach (vtkIdType id_snap_node, snap_points) {
-              m_Grid->GetPoint(id_snap_node, x.data());
-              x_new[i_nodes] += x;
-              n += m_NodeNormal[id_snap_node];
-            }
-            n.normalise();
-            x_new[i_nodes] *= 1.0/snap_points.size();
+      if (!m_Fixed[id_node] && !blocked[id_node]) {
+        if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+          if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+            QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
+            vec3_t n(0,0,0);
+            if (snap_points.size() > 0) {
+              vec3_t x_old;
+              vec3_t x;
+              x_new[i_nodes] = vec3_t(0,0,0);
+              m_Grid->GetPoint(id_node, x_old.data());
+              double w_tot = 0;
+              foreach (vtkIdType id_snap_node, snap_points) {
+                m_Grid->GetPoint(id_snap_node, x.data());
+                double w = 1.0;//cl->GetValue(id_snap_node);
+                w_tot += w;
+                x_new[i_nodes] += w*x;
+                n += m_NodeNormal[id_snap_node];
+              }
+              n.normalise();
+              x_new[i_nodes] *= 1.0/w_tot;
 
-            if (m_UseNormalCorrection) {
-              vec3_t dx = x_new[i_nodes] - x_old;
-              double scal = dx*n;
-              //if (scal < 0) {
-                x_new[i_nodes] += scal*n;
-              //}
-            }
+              if (m_UseNormalCorrection) {
+                vec3_t dx = x_new[i_nodes] - x_old;
+                double scal = dx*n;
+                //if (scal < 0) {
+                  x_new[i_nodes] += scal*n;
+                //}
+              }
 
-            vec3_t Dx = x_new[i_nodes] - x_old;
-            Dx *= m_UnderRelaxation;
-            if (moveNode(id_node, Dx)) {
-              x_new[i_nodes] = x_old + Dx;
-            } else {
-              x_new[i_nodes] = x_old;
-              m_Success = false;
+              vec3_t Dx = x_new[i_nodes] - x_old;
+              Dx *= m_UnderRelaxation;
+              if (moveNode(id_node, Dx)) {
+                x_new[i_nodes] = x_old + Dx;
+              } else {
+                x_new[i_nodes] = x_old;
+                m_Success = false;
+              }
             }
           }
         }

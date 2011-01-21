@@ -29,6 +29,9 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 #include "meshpartition.h"
+#include "laplacesmoother.h"
+#include "updatedesiredmeshdensity.h"
+//#include "blayersurfimprovement.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -72,6 +75,71 @@ void GuiCreateBoundaryLayer::before()
     b = 0.05*bi;
     ui.doubleSpinBoxBlending->setValue(b);
   }
+}
+
+void GuiCreateBoundaryLayer::reduceSurface()
+{
+  RemovePoints remove_points;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  remove_points.setMeshPartition(part);
+  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  remove_points.setUpdatePSPOn();
+  remove_points.setThreshold(2.0);
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = false;
+      }
+    }
+  }
+  for (int layer = 0; layer < 3; ++layer) {
+    QVector<bool> tmp = fix;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!tmp[id_node]) {
+        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+          fix[part.n2nGG(id_node, i)] = false;
+        }
+      }
+    }
+  }
+  remove_points.fixNodes(fix);
+  remove_points();
+}
+
+void GuiCreateBoundaryLayer::smoothSurface()
+{
+  LaplaceSmoother smooth;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  smooth.setMeshPartition(part);
+  smooth.setNumberOfIterations(5);
+  smooth.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = false;
+      }
+    }
+  }
+  for (int layer = 0; layer < 3; ++layer) {
+    QVector<bool> tmp = fix;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!tmp[id_node]) {
+        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+          fix[part.n2nGG(id_node, i)] = false;
+        }
+      }
+    }
+  }
+
+  smooth.fixNodes(fix);
+  smooth();
 }
 
 void GuiCreateBoundaryLayer::operate()
@@ -171,10 +239,6 @@ void GuiCreateBoundaryLayer::operate()
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
 
-  RemovePoints remove_points;
-  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
-  remove_points.setUpdatePSPOn();
-
   DeleteTetras del;
   del.setGrid(m_Grid);
   
@@ -202,13 +266,11 @@ void GuiCreateBoundaryLayer::operate()
     smooth();
     del.setAllCells();
     del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
-
-    if(delete_nodes) {
-        remove_points();
-        qDebug() << "removed points: " << remove_points.getNumRemoved();
+    if (delete_nodes) {
+      reduceSurface();
     }
-
     swap();
+    smoothSurface();
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);

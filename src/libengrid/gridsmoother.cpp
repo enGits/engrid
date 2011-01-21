@@ -47,7 +47,7 @@ void GridSmoother::markNodes()
 {
   m_NodeMarked.fill(false,m_Grid->GetNumberOfPoints());
   QVector<bool> new_mark(m_Grid->GetNumberOfPoints());
-  for (int i_iterations = 0; i_iterations < 4; ++i_iterations) {
+  for (int i_iterations = 0; i_iterations < 1; ++i_iterations) {
     qCopy(m_NodeMarked.begin(),m_NodeMarked.end(),new_mark.begin());
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bool mark_cell = false;
@@ -571,6 +571,24 @@ void GridSmoother::simpleNodeMovement(int i_nodes)
 void GridSmoother::operate()
 {
   markNodes();
+  /*
+  {
+    m_NodeMarked.fill(true, m_Grid->GetNumberOfPoints());
+    QSet<int> free_bcs = m_BoundaryCodes + m_LayerAdjacentBoundaryCodes;
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, m_Grid)) {
+        if (!free_bcs.contains(cell_code->GetValue(id_cell))) {
+          vtkIdType N_pts, *pts;
+          m_Grid->GetCellPoints(id_cell, N_pts, pts);
+          for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+            m_NodeMarked[pts[i_pts]] = false;
+          }
+        }
+      }
+    }
+  }
+  */
   computeNormals();
   computeFeet();
   computeHeights();

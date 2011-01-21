@@ -153,6 +153,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     QString      m_LogFileName;          ///< log file to collect program output for display in the output window
     long int     m_N_chars;              ///< number of lines that have been read from the log file
     FILE*        m_SystemStdout;
+    FILE*        m_LogFileStdout;
     QTimer       m_GarbageTimer;
     QTimer       m_LogTimer;
 
@@ -358,6 +359,9 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   
     SurfaceProjection* getSurfProj(int bc);
     bool checkSurfProj();
+
+    void setSystemOutput() { stdout = m_SystemStdout; }
+    void setLogFileOutput() { stdout = m_LogFileStdout; }
 
   public slots:
 
