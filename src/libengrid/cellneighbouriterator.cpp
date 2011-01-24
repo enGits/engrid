@@ -52,11 +52,6 @@ void CellNeighbourIterator::operate()
         mark1[_cells[pair[i].item2]] = true;
       }
     }
-    for (int i = 0; i < pair.size(); ++i) {
-      if (pair[i].terminate) {
-        mark1[_cells[pair[i].item2]] = false;
-      }
-    }
     {
       int N = 0;
       for (int i = 0; i < cells.size(); ++i) {
