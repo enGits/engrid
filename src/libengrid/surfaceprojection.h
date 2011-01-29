@@ -158,11 +158,11 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
     grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType new_pts[N_pts];
+    QVector<vtkIdType> new_pts(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = _nodes[pts[i]];
     }
-    vtkIdType id_new_cell = m_BGrid->InsertNextCell(type_cell, N_pts, new_pts);
+    vtkIdType id_new_cell = m_BGrid->InsertNextCell(type_cell, N_pts, new_pts.data());
     copyCellData(grid,id_cell,m_BGrid,id_new_cell);
   }
 }

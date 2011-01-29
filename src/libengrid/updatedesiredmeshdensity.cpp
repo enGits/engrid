@@ -48,7 +48,7 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
       if (fixed_bcs.contains(cell_code->GetValue(id_cell))) {
         vtkIdType N_pts, *pts;
         m_Grid->GetCellPoints(id_cell, N_pts, pts);
-        vec3_t x[N_pts];
+        QVector<vec3_t> x(N_pts);
         for (int i = 0; i < N_pts; ++i) {
           m_Grid->GetPoint(pts[i], x[i].data());
           m_Fixed[pts[i]] = true;

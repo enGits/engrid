@@ -652,14 +652,14 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, c
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = src->GetCellType(id_cell);
     src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType new_pts[N_pts];
+    QVector<vtkIdType> new_pts(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       if (old2new[pts[i]] == -1) {
         EG_BUG;
       }
       new_pts[i] = old2new[pts[i]];
     }
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, new_pts);
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, new_pts.data());
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }

@@ -162,7 +162,7 @@ int InsertPoints::insertPoints()
       // insert new cells
       //four new triangles
       int N = S.id_cell.size();
-      vtkIdType pts_triangle[2*N][3];
+      QVector<QVector<vtkIdType>> pts_triangle(2*N,QVector<vtkIdType>(3));
       
       for(int i_triangle=0; i_triangle<N; i_triangle++) {
         vtkIdType *pts, N_pts;
@@ -194,8 +194,8 @@ int InsertPoints::insertPoints()
           pts_triangle[i_triangle+N][2] = S.id_node[i_triangle];
         }
         
-        grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle]);
-        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N]);
+        grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle].data());
+        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N].data());
         copyCellData(grid_tmp,S.id_cell[i_triangle],grid_tmp,newCellId);
       }
       

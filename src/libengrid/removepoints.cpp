@@ -773,7 +773,7 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
 
       vtkIdType dst_num_pts = src_num_pts;
-      vtkIdType dst_pts[dst_num_pts];
+      QVector<vtkIdType> dst_pts(dst_num_pts);
 
       if(is_mutatedcell[id_cell]) {  //mutated cell
         if(dst_num_pts != 3) {
@@ -844,7 +844,7 @@ bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
 
       // copy the cell
       //\todo adapt type_cell in the case of mutilated cells!
-      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_num_pts, dst_pts);
+      vtkIdType id_new_cell = dst->InsertNextCell(type_cell, dst_num_pts, dst_pts.data());
       copyCellData(m_Grid, id_cell, dst, id_new_cell);
     } //end of undead cell processing
   } //end of loop through src cells

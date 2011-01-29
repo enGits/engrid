@@ -408,8 +408,8 @@ void SurfaceProjection::computeSurfaceCurvature()
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
     m_BGrid->GetCellPoints(id_cell, N_pts, pts);
-    vec3_t x[N_pts+1];
-    vec3_t n[N_pts+1];
+    QVector<vec3_t> x(N_pts+1);
+    QVector<vec3_t> n(N_pts+1);
     for (int i = 0; i < N_pts; ++i) {
       m_BGrid->GetPoint(pts[i], x[i].data());
       n[i] = m_NodeNormals[pts[i]];

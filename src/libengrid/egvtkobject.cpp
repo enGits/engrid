@@ -869,7 +869,7 @@ void EgVtkObject::reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face)
   EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(id_face, N_pts, pts);
-  vtkIdType new_pts[N_pts];
+  QVector<vtkIdType> new_pts(N_pts);
   for (int i = 0; i < N_pts; ++i) {
     new_pts[i] = pts[N_pts - i - 1];
   }
@@ -878,7 +878,7 @@ void EgVtkObject::reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face)
   } else {
     cell_curdir->SetValue(id_face, 0);
   }
-  grid->ReplaceCell(id_face, N_pts, new_pts);
+  grid->ReplaceCell(id_face, N_pts, new_pts.data());
 }
 
 void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
