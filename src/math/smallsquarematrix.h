@@ -250,7 +250,7 @@ inline T SmallSquareMatrix<T,N>::det()
   SmallSquareMatrix<T,N> a = *this;
 
   int n=N;
-  int k,i,j,p[n];
+  int k,i,j,p[N];
   T q,s,max,h,det;
     
   det=1;
