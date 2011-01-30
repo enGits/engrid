@@ -76,7 +76,7 @@ GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
 bool GuiMainWindow::m_UnSaved = true;
 
-GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
+LIBENGRID_DLL GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
   setupGuiMainWindow();
   if(m_open_last) {
@@ -87,7 +87,7 @@ GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   }
 }
 
-GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
+LIBENGRID_DLL GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
 {
   setupGuiMainWindow();
   open(file_name);
@@ -138,7 +138,11 @@ void GuiMainWindow::setupGuiMainWindow()
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
+#ifdef _MSC_VER
+  QString user = QString(getenv("USERNAME"));
+#else 
   QString user = QString(getenv("USER"));
+#endif // _MSC_VER
   QString basename="enGrid_output.txt";
   
   // define temporary path
@@ -249,7 +253,7 @@ void GuiMainWindow::resetXmlDoc()
   m_XmlHandler->resetXmlDoc();
 }
 
-GuiMainWindow::~GuiMainWindow()
+LIBENGRID_DLL GuiMainWindow::~GuiMainWindow()
 {
   writeRecentFiles();
   

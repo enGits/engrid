@@ -23,7 +23,17 @@
 #ifndef mainwindow_H
 #define mainwindow_H
 
-class GuiMainWindow;
+#ifdef _MSC_VER
+   #ifdef LIBENGRID_EXPORTS || libengrid_EXPORTS
+      #define LIBENGRID_DLL   __declspec(dllexport)
+   #else
+      #define LIBENGRID_DLL   __declspec(dllimport)
+   #endif
+#else
+   #define LIBENGRID_DLL 
+#endif
+
+#include <stdio.h>
 
 #include <QMainWindow>
 #include <QSettings>
@@ -233,8 +243,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void onEsc();
 
   public: // methods
-    GuiMainWindow();///< Default constructor.
-    GuiMainWindow(QString file_name);///< Constructor which opens a file directly.
+    LIBENGRID_DLL GuiMainWindow();///< Default constructor.
+    LIBENGRID_DLL GuiMainWindow(QString file_name);///< Constructor which opens a file directly.
   
   private:
     /**
@@ -249,7 +259,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     /**
      * Preferences will be written back.
      */
-    virtual ~GuiMainWindow();
+    LIBENGRID_DLL virtual ~GuiMainWindow();
 
     /**
      * Get the VTK render window
@@ -360,8 +370,8 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     SurfaceProjection* getSurfProj(int bc);
     bool checkSurfProj();
 
-    void setSystemOutput() { stdout = m_SystemStdout; }
-    void setLogFileOutput() { stdout = m_LogFileStdout; }
+    void setSystemOutput() { freopen("CON","w",m_SystemStdout); }
+    void setLogFileOutput() { freopen("CON","w",m_LogFileStdout); }
 
   public slots:
 
