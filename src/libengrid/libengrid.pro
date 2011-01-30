@@ -1,19 +1,77 @@
 TEMPLATE = lib
 LANGUAGE = C++
-TARGET = engrid
+TARGET   = engrid
+
+# Enable this if the VTK from the ParaView sources and 
+# installation want to be used
+# Note: Currently only for Windows Compiles with MSVC
+Use_VTK_Win_ParaView = yes
+
+
 CONFIG += qt \
-    debug_and_release \
-    thread
-QT += xml \
-    network \
-    opengl
-QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -Wno-deprecated
+          debug_and_release \
+          thread
+    
+QT     += xml \
+          network \
+          opengl
+    
+win32-msvc* {
+    QMAKE_CXXFLAGS += -W3
+    DEFINES += LIBENGRID_EXPORTS
+} else {    
+    QMAKE_CXXFLAGS += -Wall
+    QMAKE_CXXFLAGS += -Wno-deprecated
+}
+
 INCLUDEPATH += ..
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-INCLUDEPATH += $(VTKINCDIR)
+
+win32-msvc* {
+    LIBS += -L../netgen_svn/release -lnglib
+} else {
+    LIBS += -lm
+    LIBS += -L../netgen_svn -lng
+}
+
+win32-msvc* {
+    DEFINES += _USE_MATH_DEFINES
+        
+    !isEmpty(Use_VTK_Win_ParaView) {
+        include(../misc/engrid-vtk-win_paraview.pri)
+    } else {
+        INCLUDEPATH += $(VTKINCDIR)
+        LIBS += -L$(VTKLIBDIR)
+    }
+} else {
+    INCLUDEPATH += $(VTKINCDIR)
+    LIBS += -L$(VTKLIBDIR)
+}
+
+LIBS += -lvtkzlib    
+LIBS += -lvtkexpat
+LIBS += -lvtkfreetype
+LIBS += -lQVTK
+LIBS += -lvtkCommon
+LIBS += -lvtkDICOMParser
+LIBS += -lvtkexoIIc
+LIBS += -lvtkFiltering
+LIBS += -lvtkftgl
+LIBS += -lvtkGenericFiltering
+LIBS += -lvtkGraphics
+LIBS += -lvtkHybrid
+LIBS += -lvtkImaging
+LIBS += -lvtkIO
+LIBS += -lvtkNetCDF
+LIBS += -lvtkRendering
+LIBS += -lvtksys
+LIBS += -lvtkVolumeRendering
+LIBS += -lvtkWidgets
+
+
 RESOURCES += ../engrid.qrc
+
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -125,6 +183,7 @@ HEADERS = boundarycondition.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
     createboundarylayer.h
+    
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -222,6 +281,7 @@ SOURCES = boundarycondition.cpp \
     facefinder.cpp \
     pointfinder.cpp \
     createboundarylayer.cpp
+    
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -235,6 +295,7 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui
+    
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
@@ -256,7 +317,7 @@ SOURCES += dialoglineedit.cpp
 HEADERS += utilities.h
 SOURCES += utilities.cpp
 HEADERS += edgelengthsourcemanager.h \
-    edgelengthsource.h
+           edgelengthsource.h
 SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
