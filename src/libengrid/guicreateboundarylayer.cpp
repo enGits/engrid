@@ -31,7 +31,6 @@
 #include "meshpartition.h"
 #include "laplacesmoother.h"
 #include "updatedesiredmeshdensity.h"
-//#include "blayersurfimprovement.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -238,6 +237,7 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
+  swap.setVerboseOn();
 
   DeleteTetras del;
   del.setGrid(m_Grid);
@@ -271,6 +271,7 @@ void GuiCreateBoundaryLayer::operate()
     }
     swap();
     smoothSurface();
+    swap();
     vol.setTraceCells(layer_cells);
     vol();
     vol.getTraceCells(layer_cells);
