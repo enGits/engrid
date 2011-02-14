@@ -37,6 +37,7 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_MaxNumLoops = 20;
   m_SmallAreaSwap = false;
   m_SmallAreaRatio = 1e-3;
+  m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
 }
 
@@ -234,13 +235,13 @@ int SwapTriangles::swap()
 
 void SwapTriangles::operate()
 {
-  //cout << "swapping edges for surface triangles ..." << endl;
+  if (m_Verbose) cout << "swapping edges for surface triangles ..." << endl;
   long int N_swaps      = 100000000;
   long int N_last_swaps = 100000001;
   int loop = 1;
   while ((N_swaps > 0) && (loop <= m_MaxNumLoops) && (N_swaps < N_last_swaps)) {
     N_last_swaps = N_swaps;
-    //cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
+    if (m_Verbose) cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
     m_Swapped.fill(false, m_Grid->GetNumberOfCells());
     N_swaps = 0;
     int N;
@@ -248,7 +249,7 @@ void SwapTriangles::operate()
     do {
       ++sub_loop;
       N = swap();
-      //cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
+      if (m_Verbose) cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
       N_swaps += N;
     } while (N > 0);
     ++loop;

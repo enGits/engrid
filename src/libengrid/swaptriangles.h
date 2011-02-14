@@ -36,6 +36,7 @@ private: // attributes
   bool          m_RespectBC;
   bool          m_FeatureSwap;
   bool          m_SmallAreaSwap;
+  bool          m_Verbose;
   int           m_MaxNumLoops;
   double        m_SmallAreaRatio;
   
@@ -60,6 +61,8 @@ public:
   void setFeatureSwap(bool b)    { m_FeatureSwap = b; }
   void setMaxNumLoops(int n)     { m_MaxNumLoops = n; }
   void setSmallAreaSwap(bool b)  { m_SmallAreaSwap = b; }
+  void setVerboseOn() { m_Verbose = true; }
+  void setVerboseOff() { m_Verbose = false; }
 
 };
 
