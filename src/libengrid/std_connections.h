@@ -116,6 +116,7 @@ connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes(
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
+connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
@@ -131,4 +132,5 @@ connect(ui.actionStartParaView,         SIGNAL(triggered()), &m_OpenFoamTools, S
 connect(ui.actionSetCaseDirectory,      SIGNAL(triggered()), &m_OpenFoamTools, SLOT(setCaseDirectory()));
 
 connect(ui.menuOpen_recent, SIGNAL(triggered(QAction*)), this, SLOT(openRecent(QAction*)));
+
 // -------------------------------------------
