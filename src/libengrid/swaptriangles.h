@@ -27,6 +27,9 @@ class SwapTriangles;
 
 #include "surfaceoperation.h"
 
+/**
+  * \todo This class desperately needs a clean-up and optimisation!
+  */
 class SwapTriangles : public SurfaceOperation
 {
   
@@ -39,7 +42,8 @@ private: // attributes
   bool          m_Verbose;
   int           m_MaxNumLoops;
   double        m_SmallAreaRatio;
-  
+  double        m_SurfErrorThreshold;
+
 private: // methods
   
   ///returns true if performing a swap on the stencil does not change the orientation of the cells (tetra volume test)
@@ -51,6 +55,7 @@ private: // methods
 protected: // methods
   
   int swap();
+  void computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2);
   virtual void operate();
 
 public:
