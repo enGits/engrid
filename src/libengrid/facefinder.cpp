@@ -164,17 +164,39 @@ int FaceFinder::refine()
 
 void FaceFinder::getCloseFaces(vec3_t x, QVector<vtkIdType> &faces)
 {
-  int cell = m_Octree.findCell(x);
-  if (cell < 0) {
-    EG_BUG;
+  if (m_Octree.isInsideBounds(x)) {
+    int cell = m_Octree.findCell(x);
+    if (cell < 0) {
+      EG_BUG;
+    }
+    if (m_Octree.hasChildren(cell)) {
+      EG_BUG;
+    }
+    while (m_Faces[cell].size() == 0 && m_Octree.getParent(cell) >= 0) {
+      cell = m_Octree.getParent(cell);
+    }
+    faces.resize(m_Faces[cell].size());
+    qCopy(m_Faces[cell].begin(), m_Faces[cell].end(), faces.begin());
+  } else {
+    faces.clear();
   }
-  if (m_Octree.hasChildren(cell)) {
-    EG_BUG;
+}
+
+vtkIdType FaceFinder::getClosestFace(vec3_t x, double &L_min)
+{
+  QVector<vtkIdType> faces;
+  getCloseFaces(x, faces);
+  vtkIdType id_close = -1;
+  foreach (vtkIdType id_face, faces) {
+    vec3_t xi, ri;
+    int side;
+    double L;
+    m_Triangles[id_face].projectOnTriangle(x, xi, ri, L, side, true);
+    if (L < L_min) {
+      L_min = L;
+      id_close = id_face;
+    }
   }
-  while (m_Faces[cell].size() == 0 && m_Octree.getParent(cell) >= 0) {
-    cell = m_Octree.getParent(cell);
-  }
-  faces.resize(m_Faces[cell].size());
-  qCopy(m_Faces[cell].begin(), m_Faces[cell].end(), faces.begin());
+  return id_close;
 }
 
