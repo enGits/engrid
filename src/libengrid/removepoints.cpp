@@ -143,7 +143,7 @@ void RemovePoints::operate()
 
     int i_node = _nodes[id_node];
     if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX && !m_Fixed[id_node]) {
-      if(!marked_nodes[i_node] && !m_IsFeatureNode[i_node]) {
+      if (!marked_nodes[i_node]) {
 
         // preparations
         vec3_t xi;
@@ -554,6 +554,11 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
     bool IsValidSnapPoint = true;
 
+    if (m_Fixed[PSP]) {
+      IsValidSnapPoint = false;
+      continue;
+    }
+
     if(_nodes[PSP] < 0 || _nodes[PSP] >= marked_nodes.size()) {
       cout << "ERROR: _nodes[PSP]=" << _nodes[PSP] << " marked_nodes.size()=" << marked_nodes.size() << endl;
       writeGrid(m_Grid, "snappoint_grid.vtu");
@@ -563,7 +568,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
     // TEST -1 : TOPOLOGICAL : Is the node already marked?
     if(marked_nodes[_nodes[PSP]]) {
-      IsValidSnapPoint = false; continue;
+      IsValidSnapPoint = false;
+      continue;
     }
 
     // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
@@ -571,7 +577,14 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
     int N_common_points = 0;
     if(checkForDestroyedVolumes(DeadNode, PSP, N_common_points)) {
       if(DebugLevel > 10) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would destroy volume." << endl;
-      IsValidSnapPoint = false; continue;
+      IsValidSnapPoint = false;
+      continue;
+    }
+
+    // TEST 2: normal irregularity
+    if (normalIrregularity(DeadNode) > normalIrregularity(PSP)) {
+      IsValidSnapPoint = false;
+      continue;
     }
 
     //count number of points and cells to remove + analyse cell transformations
