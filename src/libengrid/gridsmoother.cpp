@@ -114,7 +114,21 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       vtkIdType id_cell = cells[i_cells];
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if (type_cell == VTK_TETRA) {
-        if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
+        vtkIdType N_pts, *pts;
+        vec3_t x[4];
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i = 0; i < 4; ++i) {
+          m_Grid->GetPoint(pts[i], x[i].data());
+        }
+        double L_max = 0;
+        for (int i = 0; i < 4; ++i) {
+          for (int j = 0; j < 4; ++j) {
+            if (i != j) {
+              L_max = max(L_max, (x[i]-x[j]).abs());
+            }
+          }
+        }
+        if (GeometryTools::cellVA(m_Grid, id_cell) < 1e-3*L_max*L_max*L_max) {
           move = false;
         }
       }
