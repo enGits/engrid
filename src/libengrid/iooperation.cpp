@@ -97,6 +97,7 @@ void IOOperation::readOutputFileName(QString default_filename)
 
 void IOOperation::readOutputDirectory()
 {
+  QApplication::restoreOverrideCursor();
   m_FileName = QFileDialog::getExistingDirectory(NULL, "write OpenFOAM mesh", GuiMainWindow::getCwd());
   if (!m_FileName.isNull()) {
     GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
@@ -104,10 +105,12 @@ void IOOperation::readOutputDirectory()
   } else {
     m_Valid = false;
   }
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void IOOperation::readInputDirectory(QString title_txt)
 {
+  QApplication::restoreOverrideCursor();
   m_FileName = QFileDialog::getExistingDirectory(NULL, title_txt, GuiMainWindow::getCwd());
   if (!m_FileName.isNull()) {
     GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
@@ -115,6 +118,7 @@ void IOOperation::readInputDirectory(QString title_txt)
   } else {
     m_Valid = false;
   }
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 bool IOOperation::isValid()
