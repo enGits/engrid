@@ -36,6 +36,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
   getSet("surface meshing", "correct curvature", false, m_correctCurvature);
+  getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   m_NoCheck = false;
   m_ProjectionIterations = 20;
   m_FreeProjectionForEdges = false;
@@ -240,10 +241,9 @@ void LaplaceSmoother::operate()
     computeNormals();
     SurfaceProjection::Nfull = 0;
     SurfaceProjection::Nhalf = 0;
-    int count = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
-      if (!m_Fixed[id_node] && !blocked[id_node]) {
+      if (!m_Fixed[id_node] && !blocked[i_nodes]) {
         if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
@@ -254,12 +254,15 @@ void LaplaceSmoother::operate()
               x_new[i_nodes] = vec3_t(0,0,0);
               m_Grid->GetPoint(id_node, x_old.data());
               double w_tot = 0;
+              double L_min = 1e99;
               foreach (vtkIdType id_snap_node, snap_points) {
                 m_Grid->GetPoint(id_snap_node, x.data());
-                double w = 1.0;//cl->GetValue(id_snap_node);
+                double w = 1.0;
                 w_tot += w;
                 x_new[i_nodes] += w*x;
                 n += m_NodeNormal[id_snap_node];
+                double L = (x - x_old).abs();
+                L_min = min(L, L_min);
               }
               n.normalise();
               x_new[i_nodes] *= 1.0/w_tot;
@@ -267,13 +270,12 @@ void LaplaceSmoother::operate()
               if (m_UseNormalCorrection) {
                 vec3_t dx = x_new[i_nodes] - x_old;
                 double scal = dx*n;
-                //if (scal < 0) {
-                  x_new[i_nodes] += scal*n;
-                //}
+                x_new[i_nodes] += scal*n;
               }
 
               vec3_t Dx = x_new[i_nodes] - x_old;
               Dx *= m_UnderRelaxation;
+              Dx -= m_FeatureMagic*L_min*m_NodeNormal[id_node];
               if (moveNode(id_node, Dx)) {
                 x_new[i_nodes] = x_old + Dx;
               } else {
