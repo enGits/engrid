@@ -602,4 +602,18 @@ void SurfaceOperation::computeNormals()
   }
 }
 
-
+double SurfaceOperation::normalIrregularity(vtkIdType id_node)
+{
+  double nirr = 0;
+  QVector<vec3_t> nc(m_Part.n2cGSize(id_node));
+  for (int i = 0; i < nc.size(); ++i) {
+    nc[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+    nc[i].normalise();
+  }
+  for (int i = 0; i < nc.size(); ++i) {
+    for (int j = i + 1; j < nc.size(); ++j) {
+      nirr += 1.0 - nc[i]*nc[j];
+    }
+  }
+  return nirr;
+}

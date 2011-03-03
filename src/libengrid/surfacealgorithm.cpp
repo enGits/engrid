@@ -210,12 +210,13 @@ int SurfaceAlgorithm::deleteNodes()
   remove_points.setGrid(m_Grid);
   remove_points.setBoundaryCodes(m_BoundaryCodes);
   remove_points.setStretchingFactor(m_StretchingFactor);
+  remove_points.setFeatureAngle(m_FeatureAngle);
   if (m_RespectFeatureEdgesForDeleteNodes) {
     remove_points.setProtectFeatureEdgesOn();
   } else {
     remove_points.setProtectFeatureEdgesOff();
   }
-  remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
+  //remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
   if (m_PerformGeometricTests) {
     remove_points.setPerformGeometricChecksOn();
   } else {
