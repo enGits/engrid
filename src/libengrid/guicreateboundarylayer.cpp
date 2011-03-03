@@ -87,6 +87,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setUpdatePSPOn();
   remove_points.setThreshold(2.0);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     for (int i = 0; i < part.n2cGSize(id_node); ++i) {
       if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
@@ -104,6 +105,14 @@ void GuiCreateBoundaryLayer::reduceSurface()
       }
     }
   }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = true;
+      }
+    }
+  }
+
   remove_points.fixNodes(fix);
   remove_points();
 }
