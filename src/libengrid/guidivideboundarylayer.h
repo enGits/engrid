@@ -33,42 +33,34 @@ class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer
   
 private: // attributes
   
-  int    N_layers;
-  double h;
-  double F;
-  double f;
-  double H;
-  int    N_prisms;
-  int    N_hexes;
-  int    N_quads;
-  bool   y_computed;
+  int    m_NumLayers;
+  int    m_NumPrisms;
+  int    m_NumQuads;
+  double m_RelativeHeight;
+  double m_AbsoluteHeight;
+  double m_Blending;
+  double m_DesiredStretching;
   
-  QSet<QPair<vtkIdType,vtkIdType> > pairs;
-  QVector<QVector<vtkIdType> > edges;
-  QVector<bool> is_blayer_node;
-  QVector<int> old2edge;
-  QVector<double> x;
-  QVector<double> y;
-  QVector<bool> insert_cell;
-  
-  vtkUnstructuredGrid* m_rest_grid;///< used to store unselected volumes
+  QSet<QPair<vtkIdType,vtkIdType> > m_Pairs;
+  QVector<QVector<vtkIdType> >      m_Edges;
+  QVector<bool>                     m_IsBlayerNode;
+  QVector<int>                      m_Old2Edge;
+  QVector<double>                   m_Y;
+  QVector<bool>                     m_InsertCell;
+  vtkUnstructuredGrid*              m_RestGrid;///< used to store unselected volumes
   
 private: // methods
   
-  void findBoundaryLayer1();/// \todo Unused function. Delete if deprecated.
   bool findBoundaryLayer();
   void createEdges(vtkUnstructuredGrid *new_grid);
-  inline double sech(double x) { return 1.0/cosh(x); };
-  void bisectF(double &f1, double &f2);
-  void computeF();
   void computeY();
-  
+  void finalise();
+
 protected: // methods
   
   virtual void before();
-  virtual void operate1();/// \todo Unused function. Delete if deprecated.
   virtual void operate();
-  void after();
+
 };
 
 #endif

@@ -199,7 +199,11 @@ void SurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_triang
 
 vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
 {
-  checkVector(xp);
+  if (!checkVector(xp)) {
+    qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;
+    writeGrid(GuiMainWindow::pointer()->getGrid(), "griddump");
+    EG_BUG;
+  }
 
   vec3_t x_proj(1e99, 1e99, 1e99);
   vec3_t r_proj(0, 0, 0);
