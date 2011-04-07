@@ -179,7 +179,7 @@ double getNumber(QString text)
     qDebug() << text;
     string input = "";
     getline(cin, input);
-    
+
     // This code converts from string to number safely.
     stringstream myStream(input);
     if (myStream >> myNumber)
@@ -195,7 +195,7 @@ int main( int argc, char ** argv )
   double a,b,c;
   double x[3];
   int N;
-  
+
   // x^3 + a x^2 + b x + c = 0
   a = getNumber("a=");
   b = getNumber("b=");
@@ -203,7 +203,7 @@ int main( int argc, char ** argv )
   N = poly_solve_cubic( a, b, c, &(x[0]), &(x[1]), &(x[2]));
   qDebug()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
   for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
-  
+
   // a x^2 + b x + c = 0
   a = getNumber("a=");
   b = getNumber("b=");
@@ -213,10 +213,11 @@ int main( int argc, char ** argv )
   for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
   exit(0);
   */
-  
+
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
-  
+  int app_result=0;
+
   ///\todo use gnu getopt ? Check windows/mac compatibility.
   if (argc > 1) {
     if (QString(argv[1]) == QString("-h")) {
@@ -241,13 +242,15 @@ int main( int argc, char ** argv )
       GuiMainWindow w(filename);
       w.show();
       a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-      a.exec();
+      app_result = a.exec();
     }
   } else {
     QApplication a( argc, argv );
     GuiMainWindow w;
     w.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-    a.exec();
+    app_result = a.exec();
   };
-};
+
+  return app_result;
+}
