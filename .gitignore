@@ -36,6 +36,8 @@ release
 debug
 Release
 Debug
+Release-static
+Debug-static
 
 # generated Makefiles
 Makefile
@@ -85,3 +87,8 @@ docs
 
 *.vtk
 *.kdevses
+
+# ignore Visual Studio local files
+*.suo
+*.ncb
+*.vcproj.*
