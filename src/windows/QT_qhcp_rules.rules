@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="QT Help Collection File Generation"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="QCollectionGenerator"
+			DisplayName="QT Help Collection File Generation"
+			CommandLine="Q:\4.5.1-vc\bin\qtvars.bat qcollectiongenerator.exe &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(InputDir)$(InputName).qhc&quot;"
+			Outputs="&quot;$(InputDir)\$(InputName).qhc&quot;"
+			FileExtensions="*.qhcp"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>
