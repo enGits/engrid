@@ -13,13 +13,17 @@ win32 {
 
 win32 {
 	DEFINES += NO_PARALLEL_THREADS
-	DEFINES += NGLIB_EXPORTS    
-	DEFINES += DLL_EXPORT    
+	DEFINES += NGLIB_EXPORTS
+	#DEFINES += DLL_EXPORT
 }
 
 win32-msvc* {
     DEFINES += MSVC_EXPRESS
 }        
+
+win32-g++* {
+  QMAKE_CXXFLAGS += -Wno-undefined,--enable-runtime-pseudo-reloc
+}
 
 DEFINES     += vtkRendering_EXPORTS
 

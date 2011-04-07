@@ -17,6 +17,9 @@ QT     += xml \
 
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
+} win32-g++* {
+    QMAKE_CXXFLAGS += -Wall
+    QMAKE_CXXFLAGS += -Wno-deprecated,no-undefined,--enable-runtime-pseudo-reloc
 } else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
@@ -29,6 +32,8 @@ INCLUDEPATH += libengrid
 INCLUDEPATH += $${OUT_PWD}/libengrid
 
 win32-msvc* {
+    LIBS += -L./libengrid/release -lengrid
+} win32-g++* {
     LIBS += -L./libengrid/release -lengrid
 } else {
     LIBS += -lm
@@ -43,6 +48,8 @@ win32-msvc* {
     } else {
         INCLUDEPATH += $(VTKINCDIR)
     }
+} win32-g++* {
+    INCLUDEPATH += $(VTKINCDIR)
 } else {
     INCLUDEPATH += $(VTKINCDIR)
 }

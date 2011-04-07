@@ -19,6 +19,12 @@ QT     += xml \
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
     DEFINES += LIBENGRID_EXPORTS
+    #DEFINES += DLL_EXPORT
+} win32-g++* {
+    DEFINES += LIBENGRID_EXPORTS
+    #DEFINES += DLL_EXPORT
+    QMAKE_CXXFLAGS += -Wall
+    QMAKE_CXXFLAGS += -Wno-deprecated,no-undefined,--enable-runtime-pseudo-reloc
 } else {    
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
@@ -29,6 +35,9 @@ INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
 win32-msvc* {
+    LIBS += -L../netgen_svn/release -lnglib
+} win32-g++* {
+    LIBS += -lm
     LIBS += -L../netgen_svn/release -lnglib
 } else {
     LIBS += -lm
@@ -44,6 +53,9 @@ win32-msvc* {
         INCLUDEPATH += $(VTKINCDIR)
         LIBS += -L$(VTKLIBDIR)
     }
+} win32-g++* {
+    INCLUDEPATH += $(VTKINCDIR)
+    LIBS += -L$(VTKLIBDIR)
 } else {
     INCLUDEPATH += $(VTKINCDIR)
     LIBS += -L$(VTKLIBDIR)
