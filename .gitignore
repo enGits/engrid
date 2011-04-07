@@ -32,11 +32,16 @@ callgrind*
 /platforms/
 engrid
 engrid_debug
+release
+debug
+Release
+Debug
 
 # generated Makefiles
 Makefile
 Makefile.Debug
 Makefile.Release
+Makefile.*engrid*
 
 netgen_svn
 tmp.txt
