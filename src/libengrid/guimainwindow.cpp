@@ -76,7 +76,7 @@ GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
 bool GuiMainWindow::m_UnSaved = true;
 
-LIBENGRID_DLL GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
+GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 {
   setupGuiMainWindow();
   if(m_open_last) {
@@ -87,7 +87,7 @@ LIBENGRID_DLL GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
   }
 }
 
-LIBENGRID_DLL GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
+GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
 {
   setupGuiMainWindow();
   open(file_name);
@@ -97,7 +97,7 @@ void GuiMainWindow::setupGuiMainWindow()
 {
   ui.setupUi(this);
   THIS = this;
-  
+
   // restore window size
   if(m_qset.contains("GuiMainWindow")) {
     setGeometry(m_qset.value("GuiMainWindow").toRect());
@@ -105,7 +105,7 @@ void GuiMainWindow::setupGuiMainWindow()
   else {
     this->setWindowState(Qt::WindowMaximized);
   }
-  
+
   // restore dockwidget positions
   if(m_qset.contains("dockWidget_states")) {
     restoreState(m_qset.value("dockWidget_states").toByteArray());
@@ -116,9 +116,9 @@ void GuiMainWindow::setupGuiMainWindow()
     ui.dockWidget_node_cell_info->hide();
     ui.dockWidget_DebuggingUtilities->hide();
   }
-  
+
 # include "std_connections.h"
-  
+
   if (m_qset.contains("working_directory")) {
     m_cwd = m_qset.value("working_directory").toString();
   }
@@ -129,22 +129,22 @@ void GuiMainWindow::setupGuiMainWindow()
   m_CurrentFilename = "untitled.egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
-  
+
   m_StatusLabel = new QLabel(this);
   statusBar()->addWidget(m_StatusLabel);
-  
+
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
-#ifdef _MSC_VER
+#ifdef WIN32
   QString user = QString(getenv("USERNAME"));
-#else 
+#else
   QString user = QString(getenv("USER"));
-#endif // _MSC_VER
+#endif // WIN32
   QString basename="enGrid_output.txt";
-  
+
   // define temporary path
   QDir dir("/");
   if (m_qset.contains("tmp_directory")) {
@@ -155,7 +155,7 @@ void GuiMainWindow::setupGuiMainWindow()
   QDateTime now = QDateTime::currentDateTime();
   m_LogDir = m_LogDir + "/" + "enGrid_" + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz") + "/";
   dir.mkpath(m_LogDir);
-  
+
   m_LogFileName = m_LogDir + basename;
   cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
@@ -164,38 +164,38 @@ void GuiMainWindow::setupGuiMainWindow()
     EG_BUG;
   }
   m_LogFileStdout = stdout;
-  
+
   m_Busy = false;
-  
+
   setPickMode(true,true);
   m_PickedPoint = -1;
   m_PickedCell = -1;
-  
+
   updateStatusBar();
-  
+
   connect(&m_GarbageTimer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
   m_GarbageTimer.start(1000);
-  
+
   connect(&m_LogTimer, SIGNAL(timeout()), this, SLOT(updateOutput()));
   m_LogTimer.start(1000);
-  
+
   m_N_chars = 0;
-  
+
   bool exp_features=false;
   getSet("General","enable experimental features",false,exp_features);
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
   bool undo_redo_mode;
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
   getSet("General", "open last used file on startup", false, m_open_last);
-  
+
   ui.actionFoamWriter->setEnabled(exp_features);
   ui.actionMirrorMesh->setEnabled(exp_features);
 
   m_ReferenceSize=0.2;
-  
+
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
-  
+
   egvtkInteractorStyle *style = egvtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
   style->Delete();
@@ -203,9 +203,9 @@ void GuiMainWindow::setupGuiMainWindow()
   // initialise XML document
   m_XmlHandler = new XmlHandler("engridcase");
 //   this->resetXmlDoc();
-  
+
   m_SolverIndex = 0;
-  
+
   readRecentFiles();
 
   // load plugins
@@ -235,7 +235,7 @@ void GuiMainWindow::setupGuiMainWindow()
   addAction(m_EscAction);
   m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
   connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
-  
+
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -253,13 +253,13 @@ void GuiMainWindow::resetXmlDoc()
   m_XmlHandler->resetXmlDoc();
 }
 
-LIBENGRID_DLL GuiMainWindow::~GuiMainWindow()
+GuiMainWindow::~GuiMainWindow()
 {
   writeRecentFiles();
-  
+
   m_qset.setValue("GuiMainWindow", this->geometry());
   m_qset.setValue("dockWidget_states", this->saveState());
-  
+
 #ifndef QT_DEBUG
   QDirIterator it(m_LogDir);
   while (it.hasNext()) {
@@ -273,7 +273,7 @@ LIBENGRID_DLL GuiMainWindow::~GuiMainWindow()
   QDir dir(m_LogDir);
   dir.rmdir(m_LogDir);
 #endif
-  
+
   delete m_XmlHandler;
 }
 
@@ -409,7 +409,7 @@ void GuiMainWindow::setupVtk()
   m_PickActor   = vtkActor::New();
   m_CellPicker  = vtkCellPicker::New();
   m_PointPicker = vtkPointPicker::New();
-  
+
   m_PickSphere->SetRadius(0.25); //in case the user starts picking points instead of cells
   m_PickMapper->SetInput(m_PickSphere->GetOutput());
   m_PickActor->SetMapper(m_PickMapper);
@@ -417,10 +417,10 @@ void GuiMainWindow::setupVtk()
   m_PickActor->GetProperty()->SetColor(0,0,1);
   m_PickActor->VisibilityOff();
   getRenderer()->AddActor(m_PickActor);
-  
+
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(pickCallBack);
-  
+
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PickedObject = 0;
@@ -450,7 +450,7 @@ void GuiMainWindow::exit()
   QCoreApplication::exit();
 }
 
-vtkRenderWindow* GuiMainWindow::getRenderWindow() 
+vtkRenderWindow* GuiMainWindow::getRenderWindow()
 {
   return ui.qvtkWidget->GetRenderWindow();
 }
@@ -730,7 +730,7 @@ void GuiMainWindow::updateActors(bool forced)
 {
 //   qDebug()<<"QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); called()";
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  
+
   //if (!tryLock()) return;
   try {
     m_Axes->SetInput(m_Grid);
@@ -741,7 +741,7 @@ void GuiMainWindow::updateActors(bool forced)
     err.display();
   }
   //unlock();
-  
+
 //   qDebug()<<"QApplication::restoreOverrideCursor(); called()";
   QApplication::restoreOverrideCursor();
 }
@@ -830,6 +830,7 @@ void GuiMainWindow::importSTL()
 {
   StlReader stl;
   stl();
+  //FIXME: emits an error if no file is imported, so check if there is a valid file
   updateBoundaryCodes(true);
   updateActors();
   updateStatusBar();
@@ -1117,7 +1118,7 @@ void GuiMainWindow::open()
 void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
   cout << "Opening " << qPrintable(file_name) << endl;
-  
+
   //QFileInfo file_info(file_name);
   bool no_case_file = false;
   QString file_extension = getExtension(file_name);
@@ -1267,7 +1268,7 @@ void GuiMainWindow::updateStatusBar()
   num.setNum(Ntris);  txt += num + " triangles, ";
   num.setNum(Nquads); txt += num + " quads), ";
   num.setNum(Nnodes); txt += num + " nodes";
-  
+
   if(ui.radioButton_CellPicker->isChecked())
   {
     QString pick_txt = ", picked cell: ";
@@ -1337,10 +1338,10 @@ void GuiMainWindow::updateStatusBar()
       tmp.setNum(id_node);
       pick_txt += " id_node=" + tmp;
     }
-    
+
     txt += pick_txt;
   }
-  
+
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
@@ -1461,7 +1462,7 @@ void GuiMainWindow::viewNodeIDs()
     m_NodeTextPolyDataMapper.clear();
     m_NodeTextVectorText.clear();
   }
-  
+
   getRenderWindow()->Render();
 }
 
@@ -1476,9 +1477,9 @@ void GuiMainWindow::viewCellIDs()
     m_CellTextFollower.resize(N);
     for (vtkIdType id_cell = 0; id_cell < N; ++id_cell){
       m_CellTextVectorText[id_cell] = vtkVectorText::New();
-      
+
       QString tmp;
-      
+
       if(ui.comboBox_CellTextField->currentIndex()==0) {
         tmp.setNum(id_cell);
       } else if (ui.comboBox_CellTextField->currentIndex()>0) {
@@ -1486,7 +1487,7 @@ void GuiMainWindow::viewCellIDs()
         tmp.setNum(current_cell_field->GetValue(id_cell));
       }
       else EG_BUG;
-      
+
       m_CellTextVectorText[id_cell]->SetText(qPrintable(tmp));
       m_CellTextPolyDataMapper[id_cell]=vtkPolyDataMapper::New();
       m_CellTextPolyDataMapper[id_cell]->SetInputConnection(m_CellTextVectorText[id_cell]->GetOutputPort());
@@ -1520,15 +1521,15 @@ void GuiMainWindow::viewCellIDs()
     m_CellTextPolyDataMapper.clear();
     m_CellTextVectorText.clear();
   }
-  
+
   getRenderWindow()->Render();
 }
 
 void GuiMainWindow::pickCallBack
 (
-  vtkObject *caller, 
-  unsigned long int eid, 
-  void *clientdata, 
+  vtkObject *caller,
+  unsigned long int eid,
+  void *clientdata,
   void *calldata
 )
 {
@@ -1543,7 +1544,7 @@ void GuiMainWindow::pickCallBack
 vtkIdType GuiMainWindow::getPickedCell()
 {
   if(!ui.radioButton_CellPicker->isChecked()) return(-1);
-  
+
   vtkIdType picked_cell = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1562,7 +1563,7 @@ vtkIdType GuiMainWindow::getPickedCell()
 vtkIdType GuiMainWindow::getPickedPoint()
 {
   if(ui.radioButton_CellPicker->isChecked()) return(-1);
-  
+
   vtkIdType picked_point = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1639,7 +1640,7 @@ void GuiMainWindow::exportBinaryPly()
 
 void GuiMainWindow::periodicUpdate()
 {
-  Operation::collectGarbage(); 
+  Operation::collectGarbage();
   updateStatusBar();
 }
 
@@ -1801,7 +1802,7 @@ void GuiMainWindow::editBoundaryConditions()
 void GuiMainWindow::configure()
 {
   {
-    // Just to create initial entries in the settings file 
+    // Just to create initial entries in the settings file
     // so that the options menu isn't empty at first start.
     try {
       GridSmoother tmp01;
@@ -1822,27 +1823,27 @@ void GuiMainWindow::configure()
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
   settings.exec();
-  
+
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
 }
 
 void GuiMainWindow::about()
 {
   QMessageBox box(this);
-  
+
   QString title="ENGRID";
   QString version = ENGRID_VERSION;
   version += " built on ";
   version += QString(__DATE__);
   version += " at ";
   version += QString(__TIME__);
-  
+
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
                        "Postfach 32<br/>"
                        "79674 Todtnau<br/>"
                        "Germany<br/>");
-  
+
   QString mainurl="http://engits.eu";
   QString mail="info@engits.com";
   QString gnuurl="http://www.gnu.org/licenses";
@@ -1859,7 +1860,7 @@ void GuiMainWindow::about()
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
-  
+
 }
 
 ///\todo Why not use bcs = m_AllBoundaryCodes; ?
@@ -2116,10 +2117,10 @@ void GuiMainWindow::callMergeNodes()
   if (ok1 && ok2) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
-    
+
     QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
     QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
-    
+
     vtkIdType id_new_node = 0;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if(id_node!=id_node1 && id_node!=id_node2) {
@@ -2145,7 +2146,7 @@ void GuiMainWindow::callMergeNodes()
       else {
       }
     }
-    
+
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
@@ -2157,12 +2158,12 @@ void GuiMainWindow::callMergeNodes()
       vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
-    
+
     makeCopy(new_grid, m_Grid);
     m_Grid->Modified();
     qDebug()<<"The fusion is complete.";
   }
-  
+
 }
 
 void GuiMainWindow::onEsc()
