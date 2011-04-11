@@ -372,8 +372,15 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     SurfaceProjection* getSurfProj(int bc);
     bool checkSurfProj();
 
+#if defined( __GNUC__ )
+    void setSystemOutput() { stdout = m_SystemStdout; }
+    void setLogFileOutput() { stdout = m_LogFileStdout; }
+#elif defined( _MSC_VER )
     void setSystemOutput() { freopen("CON","w",m_SystemStdout); }
     void setLogFileOutput() { freopen("CON","w",m_LogFileStdout); }
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
 
   public slots:
 
