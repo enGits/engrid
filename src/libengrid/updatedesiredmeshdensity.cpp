@@ -170,6 +170,47 @@ void UpdateDesiredMeshDensity::operate()
     }
   }
 
+  // gaps
+  /*
+  {
+    QVectorM<bool> is_surf_node(m_Grid->GetNumberOfPoints(), false);
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      for (int i = 0; i < N_pts; ++i) {
+        is_surf_node[pts[i]] = true;
+      }
+    }
+    QList<vtkIdType> surf_nodes;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (is_surf_node[id_node]) {
+        surf_nodes.append(id_node);
+      }
+    }
+    foreach (vtkIdType id_node1, surf_nodes) {
+      foreach (vtkIdType id_node2, surf_nodes) {
+        if (id_node1 != id_node2) {
+          const vec3_t& n1 = m_NodeNormal[id_node1];
+          const vec3_t& n2 = m_NodeNormal[id_node2];
+          vec3_t x1, x2;
+          m_Grid->GetPoint(id_node1, x1.data());
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t Dx = x2 - x1;
+          double a = Dx*n1;
+          if (a > 0) {
+            double b = Dx.abs();
+            double alpha = 180.0/M_PI*acos(a/b);
+            if (alpha < m_RadarAngle) {
+              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+            }
+          }
+        }
+      }
+    }
+  }
+  */
+
+
   // set everything to desired mesh density and find maximal mesh-density
   double cl_min = 1e99;
   int i_nodes_min = -1;
