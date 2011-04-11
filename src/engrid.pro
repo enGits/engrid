@@ -2,6 +2,8 @@ TEMPLATE  = subdirs
 LANGUAGE  = C++
 CONFIG   += ordered
 
+CONFIG += debug_and_release
+
 SUBDIRS   = netgen
 SUBDIRS  += libengrid
 SUBDIRS  += engrid

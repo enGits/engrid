@@ -2,7 +2,7 @@ TEMPLATE = lib
 LANGUAGE = C++
 
 CONFIG += staticlib \
-          release \
+          debug_and_release \
           warn_off
 
 QT       -= gui
