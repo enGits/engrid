@@ -71,7 +71,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
 				PreprocessorDefinitions="LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -161,7 +161,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
 				PreprocessorDefinitions="LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -219,463 +219,463 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libengrid\blenderreader.cpp"
+				RelativePath="..\..\..\libengrid\blenderreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\blenderwriter.cpp"
+				RelativePath="..\..\..\libengrid\blenderwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\boundarycondition.cpp"
+				RelativePath="..\..\..\libengrid\boundarycondition.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\boxselect.cpp"
+				RelativePath="..\..\..\libengrid\boxselect.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\celllayeriterator.cpp"
+				RelativePath="..\..\..\libengrid\celllayeriterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\cellneighbouriterator.cpp"
+				RelativePath="..\..\..\libengrid\cellneighbouriterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\cgnswriter.cpp"
+				RelativePath="..\..\..\libengrid\cgnswriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\checkforoverlap.cpp"
+				RelativePath="..\..\..\libengrid\checkforoverlap.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\checksurfaceintegrity.cpp"
+				RelativePath="..\..\..\libengrid\checksurfaceintegrity.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\correctsurfaceorientation.cpp"
+				RelativePath="..\..\..\libengrid\correctsurfaceorientation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\createboundarylayer.cpp"
+				RelativePath="..\..\..\libengrid\createboundarylayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\createvolumemesh.cpp"
+				RelativePath="..\..\..\libengrid\createvolumemesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletecells.cpp"
+				RelativePath="..\..\..\libengrid\deletecells.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletepickedcell.cpp"
+				RelativePath="..\..\..\libengrid\deletepickedcell.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletepickedpoint.cpp"
+				RelativePath="..\..\..\libengrid\deletepickedpoint.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletestraynodes.cpp"
+				RelativePath="..\..\..\libengrid\deletestraynodes.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletetetras.cpp"
+				RelativePath="..\..\..\libengrid\deletetetras.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletevolumegrid.cpp"
+				RelativePath="..\..\..\libengrid\deletevolumegrid.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\dialoglineedit.cpp"
+				RelativePath="..\..\..\libengrid\dialoglineedit.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\edgelengthsourcemanager.cpp"
+				RelativePath="..\..\..\libengrid\edgelengthsourcemanager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\egvtkinteractorstyle.cpp"
+				RelativePath="..\..\..\libengrid\egvtkinteractorstyle.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\egvtkobject.cpp"
+				RelativePath="..\..\..\libengrid\egvtkobject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\elements.cpp"
+				RelativePath="..\..\..\libengrid\elements.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\eliminatesmallbranches.cpp"
+				RelativePath="..\..\..\libengrid\eliminatesmallbranches.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\error.cpp"
+				RelativePath="..\..\..\libengrid\error.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\facefinder.cpp"
+				RelativePath="..\..\..\libengrid\facefinder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\filetemplate.cpp"
+				RelativePath="..\..\..\libengrid\filetemplate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\fixcadgeometry.cpp"
+				RelativePath="..\..\..\libengrid\fixcadgeometry.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\fixstl.cpp"
+				RelativePath="..\..\..\libengrid\fixstl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamobject.cpp"
+				RelativePath="..\..\..\libengrid\foamobject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamreader.cpp"
+				RelativePath="..\..\..\libengrid\foamreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamwriter.cpp"
+				RelativePath="..\..\..\libengrid\foamwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\geometrytools.cpp"
+				RelativePath="..\..\..\libengrid\geometrytools.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshiooperation.cpp"
+				RelativePath="..\..\..\libengrid\gmshiooperation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshreader.cpp"
+				RelativePath="..\..\..\libengrid\gmshreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshwriter.cpp"
+				RelativePath="..\..\..\libengrid\gmshwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gridsmoother.cpp"
+				RelativePath="..\..\..\libengrid\gridsmoother.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreateboundarylayer.cpp"
+				RelativePath="..\..\..\libengrid\guicreateboundarylayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatesurfacemesh.cpp"
+				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatevolumemesh.cpp"
+				RelativePath="..\..\..\libengrid\guicreatevolumemesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guideletebadaspecttris.cpp"
+				RelativePath="..\..\..\libengrid\guideletebadaspecttris.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guidivideboundarylayer.cpp"
+				RelativePath="..\..\..\libengrid\guidivideboundarylayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcecone.cpp"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcesphere.cpp"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guieditboundaryconditions.cpp"
+				RelativePath="..\..\..\libengrid\guieditboundaryconditions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiimproveaspectratio.cpp"
+				RelativePath="..\..\..\libengrid\guiimproveaspectratio.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimainwindow.cpp"
+				RelativePath="..\..\..\libengrid\guimainwindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimergevolumes.cpp"
+				RelativePath="..\..\..\libengrid\guimergevolumes.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimirrormesh.cpp"
+				RelativePath="..\..\..\libengrid\guimirrormesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guinormalextrusion.cpp"
+				RelativePath="..\..\..\libengrid\guinormalextrusion.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guipick.cpp"
+				RelativePath="..\..\..\libengrid\guipick.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiselectboundarycodes.cpp"
+				RelativePath="..\..\..\libengrid\guiselectboundarycodes.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisetboundarycode.cpp"
+				RelativePath="..\..\..\libengrid\guisetboundarycode.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisettingstab.cpp"
+				RelativePath="..\..\..\libengrid\guisettingstab.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisettingsviewer.cpp"
+				RelativePath="..\..\..\libengrid\guisettingsviewer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guitransform.cpp"
+				RelativePath="..\..\..\libengrid\guitransform.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guivolumedelegate.cpp"
+				RelativePath="..\..\..\libengrid\guivolumedelegate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\insertpoints.cpp"
+				RelativePath="..\..\..\libengrid\insertpoints.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\iooperation.cpp"
+				RelativePath="..\..\..\libengrid\iooperation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\iterator.cpp"
+				RelativePath="..\..\..\libengrid\iterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\laplacesmoother.cpp"
+				RelativePath="..\..\..\libengrid\laplacesmoother.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\layeriterator.cpp"
+				RelativePath="..\..\..\libengrid\layeriterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\mergenodes.cpp"
+				RelativePath="..\..\..\libengrid\mergenodes.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\meshpartition.cpp"
+				RelativePath="..\..\..\libengrid\meshpartition.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\multipagewidget.cpp"
+				RelativePath="..\..\..\libengrid\multipagewidget.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\multipagewidgetpage.cpp"
+				RelativePath="..\..\..\libengrid\multipagewidgetpage.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\neutralwriter.cpp"
+				RelativePath="..\..\..\libengrid\neutralwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\nodelayeriterator.cpp"
+				RelativePath="..\..\..\libengrid\nodelayeriterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\octree.cpp"
+				RelativePath="..\..\..\libengrid\octree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\openfoamcase.cpp"
+				RelativePath="..\..\..\libengrid\openfoamcase.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\openfoamtools.cpp"
+				RelativePath="..\..\..\libengrid\openfoamtools.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\operation.cpp"
+				RelativePath="..\..\..\libengrid\operation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\optimisation.cpp"
+				RelativePath="..\..\..\libengrid\optimisation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\physicalboundarycondition.cpp"
+				RelativePath="..\..\..\libengrid\physicalboundarycondition.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\plywriter.cpp"
+				RelativePath="..\..\..\libengrid\plywriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\pointfinder.cpp"
+				RelativePath="..\..\..\libengrid\pointfinder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\polydatareader.cpp"
+				RelativePath="..\..\..\libengrid\polydatareader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\polymesh.cpp"
+				RelativePath="..\..\..\libengrid\polymesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\reducedpolydatareader.cpp"
+				RelativePath="..\..\..\libengrid\reducedpolydatareader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\reducesurfacetriangulation.cpp"
+				RelativePath="..\..\..\libengrid\reducesurfacetriangulation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\removepoints.cpp"
+				RelativePath="..\..\..\libengrid\removepoints.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\seedsimpleprismaticlayer.cpp"
+				RelativePath="..\..\..\libengrid\seedsimpleprismaticlayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\seligairfoilreader.cpp"
+				RelativePath="..\..\..\libengrid\seligairfoilreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\setboundarycode.cpp"
+				RelativePath="..\..\..\libengrid\setboundarycode.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\sharpenedges.cpp"
+				RelativePath="..\..\..\libengrid\sharpenedges.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\showinfo.cpp"
+				RelativePath="..\..\..\libengrid\showinfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\simplefoamwriter.cpp"
+				RelativePath="..\..\..\libengrid\simplefoamwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\smoothandswapsurface.cpp"
+				RelativePath="..\..\..\libengrid\smoothandswapsurface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\smoothingutilities.cpp"
+				RelativePath="..\..\..\libengrid\smoothingutilities.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\stlreader.cpp"
+				RelativePath="..\..\..\libengrid\stlreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\stlwriter.cpp"
+				RelativePath="..\..\..\libengrid\stlwriter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfacealgorithm.cpp"
+				RelativePath="..\..\..\libengrid\surfacealgorithm.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfacemesher.cpp"
+				RelativePath="..\..\..\libengrid\surfacemesher.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfaceoperation.cpp"
+				RelativePath="..\..\..\libengrid\surfaceoperation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfaceprojection.cpp"
+				RelativePath="..\..\..\libengrid\surfaceprojection.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\swaptriangles.cpp"
+				RelativePath="..\..\..\libengrid\swaptriangles.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\text3d.cpp"
+				RelativePath="..\..\..\libengrid\text3d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\timer.cpp"
+				RelativePath="..\..\..\libengrid\timer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\triangle.cpp"
+				RelativePath="..\..\..\libengrid\triangle.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\tricoord.cpp"
+				RelativePath="..\..\..\libengrid\tricoord.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\updatedesiredmeshdensity.cpp"
+				RelativePath="..\..\..\libengrid\updatedesiredmeshdensity.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\updatesurfproj.cpp"
+				RelativePath="..\..\..\libengrid\updatesurfproj.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\utilities.cpp"
+				RelativePath="..\..\..\libengrid\utilities.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vertexdelegate.cpp"
+				RelativePath="..\..\..\libengrid\vertexdelegate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vertexmeshdensity.cpp"
+				RelativePath="..\..\..\libengrid\vertexmeshdensity.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\volumedefinition.cpp"
+				RelativePath="..\..\..\libengrid\volumedefinition.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgBoundaryCodesFilter.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgBoundaryCodesFilter.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgEliminateShortEdges.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgEliminateShortEdges.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgExtractVolumeCells.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgExtractVolumeCells.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgGridFilter.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgGridFilter.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgNormalExtrusion.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgNormalExtrusion.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgPolyDataToUnstructuredGridFilter.cxx"
+				RelativePath="..\..\..\libengrid\vtkEgPolyDataToUnstructuredGridFilter.cxx"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkImplicitPolyData.cpp"
+				RelativePath="..\..\..\libengrid\vtkImplicitPolyData.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkreader.cpp"
+				RelativePath="..\..\..\libengrid\vtkreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\xmlhandler.cpp"
+				RelativePath="..\..\..\libengrid\xmlhandler.cpp"
 				>
 			</File>
 			<Filter
@@ -1029,7 +1029,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libengrid\blenderreader.h"
+				RelativePath="..\..\..\libengrid\blenderreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1047,7 +1047,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\blenderwriter.h"
+				RelativePath="..\..\..\libengrid\blenderwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1065,7 +1065,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\boundarycondition.h"
+				RelativePath="..\..\..\libengrid\boundarycondition.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1083,7 +1083,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\boxselect.h"
+				RelativePath="..\..\..\libengrid\boxselect.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1101,7 +1101,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\celllayeriterator.h"
+				RelativePath="..\..\..\libengrid\celllayeriterator.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1119,7 +1119,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\cellneighbouriterator.h"
+				RelativePath="..\..\..\libengrid\cellneighbouriterator.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1137,7 +1137,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\cgnswriter.h"
+				RelativePath="..\..\..\libengrid\cgnswriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1155,7 +1155,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\checkforoverlap.h"
+				RelativePath="..\..\..\libengrid\checkforoverlap.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1173,7 +1173,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\checksurfaceintegrity.h"
+				RelativePath="..\..\..\libengrid\checksurfaceintegrity.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1191,7 +1191,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\containertricks.h"
+				RelativePath="..\..\..\libengrid\containertricks.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1209,7 +1209,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\correctsurfaceorientation.h"
+				RelativePath="..\..\..\libengrid\correctsurfaceorientation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1227,7 +1227,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\createboundarylayer.h"
+				RelativePath="..\..\..\libengrid\createboundarylayer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1245,7 +1245,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\createvolumemesh.h"
+				RelativePath="..\..\..\libengrid\createvolumemesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1263,7 +1263,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletecells.h"
+				RelativePath="..\..\..\libengrid\deletecells.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1281,7 +1281,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletepickedcell.h"
+				RelativePath="..\..\..\libengrid\deletepickedcell.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1299,7 +1299,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletepickedpoint.h"
+				RelativePath="..\..\..\libengrid\deletepickedpoint.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1317,7 +1317,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletestraynodes.h"
+				RelativePath="..\..\..\libengrid\deletestraynodes.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1335,7 +1335,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletetetras.h"
+				RelativePath="..\..\..\libengrid\deletetetras.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1353,7 +1353,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\deletevolumegrid.h"
+				RelativePath="..\..\..\libengrid\deletevolumegrid.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1371,7 +1371,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\dialoglineedit.h"
+				RelativePath="..\..\..\libengrid\dialoglineedit.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1382,7 +1382,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\dialogoperation.h"
+				RelativePath="..\..\..\libengrid\dialogoperation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1400,7 +1400,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\edgelengthsource.h"
+				RelativePath="..\..\..\libengrid\edgelengthsource.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1418,7 +1418,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\edgelengthsourcemanager.h"
+				RelativePath="..\..\..\libengrid\edgelengthsourcemanager.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1436,7 +1436,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\egvtkinteractorstyle.h"
+				RelativePath="..\..\..\libengrid\egvtkinteractorstyle.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1454,7 +1454,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\egvtkobject.h"
+				RelativePath="..\..\..\libengrid\egvtkobject.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1472,7 +1472,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\elements.h"
+				RelativePath="..\..\..\libengrid\elements.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1490,7 +1490,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\eliminatesmallbranches.h"
+				RelativePath="..\..\..\libengrid\eliminatesmallbranches.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1508,7 +1508,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\engrid.h"
+				RelativePath="..\..\..\libengrid\engrid.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1526,7 +1526,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\error.h"
+				RelativePath="..\..\..\libengrid\error.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1544,7 +1544,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\facefinder.h"
+				RelativePath="..\..\..\libengrid\facefinder.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1562,7 +1562,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\filetemplate.h"
+				RelativePath="..\..\..\libengrid\filetemplate.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1573,7 +1573,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\fixcadgeometry.h"
+				RelativePath="..\..\..\libengrid\fixcadgeometry.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1591,7 +1591,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\fixstl.h"
+				RelativePath="..\..\..\libengrid\fixstl.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1609,7 +1609,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamobject.h"
+				RelativePath="..\..\..\libengrid\foamobject.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1627,7 +1627,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamreader.h"
+				RelativePath="..\..\..\libengrid\foamreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1645,7 +1645,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\foamwriter.h"
+				RelativePath="..\..\..\libengrid\foamwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1663,7 +1663,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\geometrytools.h"
+				RelativePath="..\..\..\libengrid\geometrytools.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1681,7 +1681,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshiooperation.h"
+				RelativePath="..\..\..\libengrid\gmshiooperation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1699,7 +1699,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshreader.h"
+				RelativePath="..\..\..\libengrid\gmshreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1717,7 +1717,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gmshwriter.h"
+				RelativePath="..\..\..\libengrid\gmshwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1735,7 +1735,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\gridsmoother.h"
+				RelativePath="..\..\..\libengrid\gridsmoother.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1753,7 +1753,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreateboundarylayer.h"
+				RelativePath="..\..\..\libengrid\guicreateboundarylayer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1771,7 +1771,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatesurfacemesh.h"
+				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1789,7 +1789,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatevolumemesh.h"
+				RelativePath="..\..\..\libengrid\guicreatevolumemesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1807,7 +1807,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guideletebadaspecttris.h"
+				RelativePath="..\..\..\libengrid\guideletebadaspecttris.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1825,7 +1825,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guidivideboundarylayer.h"
+				RelativePath="..\..\..\libengrid\guidivideboundarylayer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1843,7 +1843,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcecone.h"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1861,7 +1861,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcesphere.h"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1879,7 +1879,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guieditboundaryconditions.h"
+				RelativePath="..\..\..\libengrid\guieditboundaryconditions.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1897,7 +1897,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiimproveaspectratio.h"
+				RelativePath="..\..\..\libengrid\guiimproveaspectratio.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1915,7 +1915,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimainwindow.h"
+				RelativePath="..\..\..\libengrid\guimainwindow.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1933,7 +1933,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimergevolumes.h"
+				RelativePath="..\..\..\libengrid\guimergevolumes.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1951,7 +1951,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimirrormesh.h"
+				RelativePath="..\..\..\libengrid\guimirrormesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1969,7 +1969,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guinormalextrusion.h"
+				RelativePath="..\..\..\libengrid\guinormalextrusion.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1987,7 +1987,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guipick.h"
+				RelativePath="..\..\..\libengrid\guipick.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2005,7 +2005,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiselectboundarycodes.h"
+				RelativePath="..\..\..\libengrid\guiselectboundarycodes.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2023,7 +2023,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisetboundarycode.h"
+				RelativePath="..\..\..\libengrid\guisetboundarycode.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2041,7 +2041,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisettingstab.h"
+				RelativePath="..\..\..\libengrid\guisettingstab.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2059,7 +2059,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisettingsviewer.h"
+				RelativePath="..\..\..\libengrid\guisettingsviewer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2077,7 +2077,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guitransform.h"
+				RelativePath="..\..\..\libengrid\guitransform.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2095,7 +2095,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guivolumedelegate.h"
+				RelativePath="..\..\..\libengrid\guivolumedelegate.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2113,7 +2113,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\insertpoints.h"
+				RelativePath="..\..\..\libengrid\insertpoints.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2131,7 +2131,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\iooperation.h"
+				RelativePath="..\..\..\libengrid\iooperation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2149,7 +2149,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\iterator.h"
+				RelativePath="..\..\..\libengrid\iterator.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2167,7 +2167,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\laplacesmoother.h"
+				RelativePath="..\..\..\libengrid\laplacesmoother.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2185,7 +2185,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\layeriterator.h"
+				RelativePath="..\..\..\libengrid\layeriterator.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2203,7 +2203,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\linsolve.h"
+				RelativePath="..\..\..\math\linsolve.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2221,7 +2221,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\mathvector.h"
+				RelativePath="..\..\..\math\mathvector.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2239,7 +2239,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\mathvector_methods.h"
+				RelativePath="..\..\..\math\mathvector_methods.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2257,7 +2257,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\mathvector_operators.h"
+				RelativePath="..\..\..\math\mathvector_operators.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2275,7 +2275,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\mathvector_structs.h"
+				RelativePath="..\..\..\math\mathvector_structs.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2293,7 +2293,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\mergenodes.h"
+				RelativePath="..\..\..\libengrid\mergenodes.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2311,7 +2311,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\meshpartition.h"
+				RelativePath="..\..\..\libengrid\meshpartition.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2329,7 +2329,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\multipagewidget.h"
+				RelativePath="..\..\..\libengrid\multipagewidget.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -2340,7 +2340,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\multipagewidgetpage.h"
+				RelativePath="..\..\..\libengrid\multipagewidgetpage.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -2351,7 +2351,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\neutralwriter.h"
+				RelativePath="..\..\..\libengrid\neutralwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2369,7 +2369,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\nodelayeriterator.h"
+				RelativePath="..\..\..\libengrid\nodelayeriterator.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2387,7 +2387,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\octree.h"
+				RelativePath="..\..\..\libengrid\octree.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2405,7 +2405,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\openfoamcase.h"
+				RelativePath="..\..\..\libengrid\openfoamcase.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2423,7 +2423,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\openfoamtools.h"
+				RelativePath="..\..\..\libengrid\openfoamtools.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -2434,7 +2434,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\operation.h"
+				RelativePath="..\..\..\libengrid\operation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2452,7 +2452,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\optimisation.h"
+				RelativePath="..\..\..\libengrid\optimisation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2470,7 +2470,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\physicalboundarycondition.h"
+				RelativePath="..\..\..\libengrid\physicalboundarycondition.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2488,7 +2488,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\plywriter.h"
+				RelativePath="..\..\..\libengrid\plywriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2506,7 +2506,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\pointfinder.h"
+				RelativePath="..\..\..\libengrid\pointfinder.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2524,7 +2524,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\polydatareader.h"
+				RelativePath="..\..\..\libengrid\polydatareader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2542,7 +2542,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\polymesh.h"
+				RelativePath="..\..\..\libengrid\polymesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2560,7 +2560,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\reducedpolydatareader.h"
+				RelativePath="..\..\..\libengrid\reducedpolydatareader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2578,7 +2578,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\reducesurfacetriangulation.h"
+				RelativePath="..\..\..\libengrid\reducesurfacetriangulation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2596,7 +2596,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\removepoints.h"
+				RelativePath="..\..\..\libengrid\removepoints.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2614,7 +2614,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\seedsimpleprismaticlayer.h"
+				RelativePath="..\..\..\libengrid\seedsimpleprismaticlayer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2632,7 +2632,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\seligairfoilreader.h"
+				RelativePath="..\..\..\libengrid\seligairfoilreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2650,7 +2650,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\setboundarycode.h"
+				RelativePath="..\..\..\libengrid\setboundarycode.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2668,7 +2668,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\sharpenedges.h"
+				RelativePath="..\..\..\libengrid\sharpenedges.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2686,7 +2686,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\showinfo.h"
+				RelativePath="..\..\..\libengrid\showinfo.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2704,7 +2704,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\simplefoamwriter.h"
+				RelativePath="..\..\..\libengrid\simplefoamwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2722,7 +2722,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\math\smallsquarematrix.h"
+				RelativePath="..\..\..\math\smallsquarematrix.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2740,7 +2740,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\smoothandswapsurface.h"
+				RelativePath="..\..\..\libengrid\smoothandswapsurface.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2758,7 +2758,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\smoothingutilities.h"
+				RelativePath="..\..\..\libengrid\smoothingutilities.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2776,7 +2776,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\sortablevector.h"
+				RelativePath="..\..\..\libengrid\sortablevector.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2794,7 +2794,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\std_connections.h"
+				RelativePath="..\..\..\libengrid\std_connections.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2812,7 +2812,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\std_includes.h"
+				RelativePath="..\..\..\libengrid\std_includes.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2830,7 +2830,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\stlreader.h"
+				RelativePath="..\..\..\libengrid\stlreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2848,7 +2848,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\stlwriter.h"
+				RelativePath="..\..\..\libengrid\stlwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2866,7 +2866,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfacealgorithm.h"
+				RelativePath="..\..\..\libengrid\surfacealgorithm.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2884,7 +2884,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfacemesher.h"
+				RelativePath="..\..\..\libengrid\surfacemesher.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2902,7 +2902,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfaceoperation.h"
+				RelativePath="..\..\..\libengrid\surfaceoperation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2920,7 +2920,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\surfaceprojection.h"
+				RelativePath="..\..\..\libengrid\surfaceprojection.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2938,7 +2938,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\swaptriangles.h"
+				RelativePath="..\..\..\libengrid\swaptriangles.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2956,7 +2956,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\text3d.h"
+				RelativePath="..\..\..\libengrid\text3d.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2974,7 +2974,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\timer.h"
+				RelativePath="..\..\..\libengrid\timer.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2992,7 +2992,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\triangle.h"
+				RelativePath="..\..\..\libengrid\triangle.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3010,7 +3010,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\tricoord.h"
+				RelativePath="..\..\..\libengrid\tricoord.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3028,7 +3028,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\tvtkoperation.h"
+				RelativePath="..\..\..\libengrid\tvtkoperation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3046,7 +3046,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\uniquevector.h"
+				RelativePath="..\..\..\libengrid\uniquevector.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3064,7 +3064,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\updatedesiredmeshdensity.h"
+				RelativePath="..\..\..\libengrid\updatedesiredmeshdensity.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3082,7 +3082,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\updatesurfproj.h"
+				RelativePath="..\..\..\libengrid\updatesurfproj.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3100,7 +3100,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\utilities.h"
+				RelativePath="..\..\..\libengrid\utilities.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3118,7 +3118,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vertexdelegate.h"
+				RelativePath="..\..\..\libengrid\vertexdelegate.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -3129,7 +3129,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vertexmeshdensity.h"
+				RelativePath="..\..\..\libengrid\vertexmeshdensity.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3147,7 +3147,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\volumedefinition.h"
+				RelativePath="..\..\..\libengrid\volumedefinition.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3165,7 +3165,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgBoundaryCodesFilter.h"
+				RelativePath="..\..\..\libengrid\vtkEgBoundaryCodesFilter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3183,7 +3183,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgEliminateShortEdges.h"
+				RelativePath="..\..\..\libengrid\vtkEgEliminateShortEdges.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3201,7 +3201,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgExtractVolumeCells.h"
+				RelativePath="..\..\..\libengrid\vtkEgExtractVolumeCells.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3219,7 +3219,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgGridFilter.h"
+				RelativePath="..\..\..\libengrid\vtkEgGridFilter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3237,7 +3237,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgNormalExtrusion.h"
+				RelativePath="..\..\..\libengrid\vtkEgNormalExtrusion.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3255,7 +3255,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkEgPolyDataToUnstructuredGridFilter.h"
+				RelativePath="..\..\..\libengrid\vtkEgPolyDataToUnstructuredGridFilter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3273,7 +3273,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkImplicitPolyData.h"
+				RelativePath="..\..\..\libengrid\vtkImplicitPolyData.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3291,7 +3291,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\vtkreader.h"
+				RelativePath="..\..\..\libengrid\vtkreader.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3309,7 +3309,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\xmlhandler.h"
+				RelativePath="..\..\..\libengrid\xmlhandler.h"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -3323,7 +3323,7 @@
 				Name="UI Header Files"
 				>
 				<File
-					RelativePath="..\..\libengrid\ui_guicreateboundarylayer.h"
+					RelativePath="..\..\..\libengrid\ui_guicreateboundarylayer.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3334,7 +3334,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guicreatesurfacemesh.h"
+					RelativePath="..\..\..\libengrid\ui_guicreatesurfacemesh.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3345,7 +3345,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guicreatevolumemesh.h"
+					RelativePath="..\..\..\libengrid\ui_guicreatevolumemesh.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3356,7 +3356,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guideletebadaspecttris.h"
+					RelativePath="..\..\..\libengrid\ui_guideletebadaspecttris.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3367,7 +3367,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guidivideboundarylayer.h"
+					RelativePath="..\..\..\libengrid\ui_guidivideboundarylayer.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3378,7 +3378,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guiedgelengthsourcecone.h"
+					RelativePath="..\..\..\libengrid\ui_guiedgelengthsourcecone.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3389,7 +3389,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guiedgelengthsourcesphere.h"
+					RelativePath="..\..\..\libengrid\ui_guiedgelengthsourcesphere.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3400,7 +3400,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guieditboundaryconditions.h"
+					RelativePath="..\..\..\libengrid\ui_guieditboundaryconditions.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3411,7 +3411,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guiimproveaspectratio.h"
+					RelativePath="..\..\..\libengrid\ui_guiimproveaspectratio.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3422,7 +3422,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guimainwindow.h"
+					RelativePath="..\..\..\libengrid\ui_guimainwindow.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3433,7 +3433,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guimergevolumes.h"
+					RelativePath="..\..\..\libengrid\ui_guimergevolumes.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3444,7 +3444,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guimirrormesh.h"
+					RelativePath="..\..\..\libengrid\ui_guimirrormesh.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3455,7 +3455,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guinormalextrusion.h"
+					RelativePath="..\..\..\libengrid\ui_guinormalextrusion.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3466,7 +3466,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guipick.h"
+					RelativePath="..\..\..\libengrid\ui_guipick.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3477,7 +3477,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guiselectboundarycodes.h"
+					RelativePath="..\..\..\libengrid\ui_guiselectboundarycodes.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3488,7 +3488,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guisetboundarycode.h"
+					RelativePath="..\..\..\libengrid\ui_guisetboundarycode.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3499,7 +3499,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\libengrid\ui_guitransform.h"
+					RelativePath="..\..\..\libengrid\ui_guitransform.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -3517,7 +3517,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\engrid.qrc"
+				RelativePath="..\..\..\engrid.qrc"
 				>
 			</File>
 		</Filter>
@@ -3525,76 +3525,76 @@
 			Name="Form Files"
 			>
 			<File
-				RelativePath="..\..\libengrid\guicreateboundarylayer.ui"
+				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatesurfacemesh.ui"
+				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guicreatevolumemesh.ui"
+				RelativePath="..\..\..\libengrid\guicreatevolumemesh.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guideletebadaspecttris.ui"
+				RelativePath="..\..\..\libengrid\guideletebadaspecttris.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guidivideboundarylayer.ui"
+				RelativePath="..\..\..\libengrid\guidivideboundarylayer.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcecone.ui"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiedgelengthsourcesphere.ui"
+				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guieditboundaryconditions.ui"
+				RelativePath="..\..\..\libengrid\guieditboundaryconditions.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiimproveaspectratio.ui"
+				RelativePath="..\..\..\libengrid\guiimproveaspectratio.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimainwindow.ui"
+				RelativePath="..\..\..\libengrid\guimainwindow.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimergevolumes.ui"
+				RelativePath="..\..\..\libengrid\guimergevolumes.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guimirrormesh.ui"
+				RelativePath="..\..\..\libengrid\guimirrormesh.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guinormalextrusion.ui"
+				RelativePath="..\..\..\libengrid\guinormalextrusion.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guipick.ui"
+				RelativePath="..\..\..\libengrid\guipick.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guiselectboundarycodes.ui"
+				RelativePath="..\..\..\libengrid\guiselectboundarycodes.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guisetboundarycode.ui"
+				RelativePath="..\..\..\libengrid\guisetboundarycode.ui"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libengrid\guitransform.ui"
+				RelativePath="..\..\..\libengrid\guitransform.ui"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\libengrid\libengrid.pro"
+			RelativePath="..\..\..\libengrid\libengrid.pro"
 			>
 		</File>
 	</Files>

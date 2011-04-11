@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\netgen_svn\;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
 				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;NGLIB_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;_WIN32_WINNT=0x0502;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\netgen_svn\;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
 				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;NGLIB_EXPORTS;DLL_EXPORT;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -160,503 +160,503 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\acisgeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\acisgeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront3.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront3.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\adtree.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\adtree.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\algprim.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\algprim.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\array.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\array.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\autodiff.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\autodiff.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\autoptr.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\autoptr.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\basegeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\basegeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bisect.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bisect.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\bitarray.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\bitarray.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\boundarylayer.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\boundarylayer.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\brick.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\brick.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\classifyhpel.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\classifyhpel.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\clusters.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\clusters.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\csg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\csg.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csg.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgparser.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgparser.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\curve2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\curve2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\curvedelems.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\curvedelems.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\densemat.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\densemat.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\dynamicmem.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\dynamicmem.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\edgeflw.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\edgeflw.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\explicitcurve2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\explicitcurve2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\extrusion.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\extrusion.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\findip.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\findip.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\findip2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\findip2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\flags.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\flags.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\gencyl.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\gencyl.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geom2dmesh.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geom2dmesh.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom3d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom3d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomfuncs.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomfuncs.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\geoml.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\geoml.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomobjects.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomobjects.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomobjects2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomobjects2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomops.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomops.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomops2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomops2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\geomsearch.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\geomsearch.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomtest3d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomtest3d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\global.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\global.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\hashtabl.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\hashtabl.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_hex.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_hex.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_prism.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_prism.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_pyramid.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_pyramid.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_quad.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_quad.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_segm.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_segm.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_tet.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_tet.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_trig.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hpref_trig.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hprefinement.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hprefinement.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\identify.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\identify.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve3.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve3.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\localh.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\localh.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\manifold.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\manifold.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshclass.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshclass.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing3.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing3.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\meshstlsurface.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\meshstlsurface.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\meshsurf.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\meshsurf.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtool.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtool.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtype.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtype.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mpi_interface.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mpi_interface.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\msghandler.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\msghandler.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\mydefs.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\mydefs.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\mystdlib.h"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\mystdlib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mystring.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mystring.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\netgenout.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\netgenout.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\ngexception.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\ngexception.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\nglib\nglib.h"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\nglib\nglib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\occgeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\occgeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occmeshsurf.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occmeshsurf.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\optmem.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\optmem.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\parallel.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\parallel.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\parallelinterface.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\parallelinterface.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\paralleltop.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\paralleltop.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\parthreads.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\parthreads.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\polyhedra.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\polyhedra.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\polynomial.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\polynomial.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\profiler.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\profiler.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\revolution.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\revolution.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler3.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler3.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\seti.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\seti.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\singularref.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\singularref.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\solid.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\solid.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\sort.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\sort.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\spbita2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\spbita2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\specials.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\specials.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\specpoin.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\specpoin.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\spline3d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\spline3d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry2.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry2.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\stack.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\stack.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\stlgeom.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\stlgeom.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlline.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlline.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltool.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltool.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltopology.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltopology.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\surface.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\surface.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\symbolta.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\symbolta.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\table.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\table.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\template.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\template.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\topology.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\topology.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\transform3d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\transform3d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\triapprox.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\triapprox.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\validate.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\validate.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\vector.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\vector.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeuser.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeuser.hpp"
 				>
 			</File>
 		</Filter>
@@ -672,528 +672,528 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\adfront3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\adtree.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\adtree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\algprim.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\algprim.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\array.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\array.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\basegeom.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\basegeom.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bcfunctions.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bcfunctions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\bfgs.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\bfgs.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bisect.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\bisect.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\bitarray.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\bitarray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\boundarylayer.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\boundarylayer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\brick.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\brick.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\bspline2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\bspline2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\clusters.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\clusters.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgeom.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgeom.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgparser.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\csgparser.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\curve2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\curve2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\curvedelems.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\curvedelems.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\delaunay.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\delaunay.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\densemat.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\densemat.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\dynamicmem.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\dynamicmem.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\edgeflw.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\edgeflw.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\explicitcurve2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\explicitcurve2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\extrusion.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\extrusion.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\flags.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\flags.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\gencyl.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\gencyl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\genmesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\genmesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\genmesh2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\genmesh2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geom2dmesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geom2dmesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom3d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geom3d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomfuncs.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomfuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\geomsearch.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\geomsearch.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomtest3d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\geomtest3d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\global.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\global.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\hashtabl.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\hashtabl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hprefinement.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\hprefinement.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\identify.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\identify.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2gen.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve2gen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\improve3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linopt.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linopt.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linsearch.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linsearch.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\localh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\localh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\manifold.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\manifold.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshclass.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshclass.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshfunc2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\meshstlsurface.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\meshstlsurface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\meshsurf.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\meshsurf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtool.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtool.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtype.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshtype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\msghandler.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\msghandler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mystring.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\mystring.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\netrule2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\netrule2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\netrule3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\netrule3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\ngexception.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\ngexception.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\nglib\nglib.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\nglib\nglib.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occconstruction.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occconstruction.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occgenmesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occgenmesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occgeom.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occgeom.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occmeshsurf.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\occ\occmeshsurf.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\optmem.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\optmem.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parallelmesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parallelmesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\paralleltop.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\paralleltop.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parser2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parser2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parser3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\parser3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\parthreads.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\parthreads.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\polyhedra.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\polyhedra.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\polynomial.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\polynomial.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\prism2rls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\prism2rls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\profiler.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\profiler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\pyramid2rls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\pyramid2rls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\pyramidrls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\pyramidrls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\quadrls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\quadrls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\read_fnf_mesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\read_fnf_mesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\readtetmesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\readtetmesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\readuser.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\readuser.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\refine.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\refine.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\revolution.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\revolution.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\ruler3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\secondorder.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\secondorder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\seti.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\seti.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\singularref.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\singularref.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing2.5.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing2.5.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing3.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\smoothing3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\solid.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\solid.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\sort.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\sort.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\spbita2d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\spbita2d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\specials.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\specials.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\specpoin.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\specpoin.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\spline.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\spline3d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\spline3d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\splinegeometry.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeom.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeom.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeomchart.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeomchart.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeommesh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlgeommesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlline.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stlline.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltool.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltool.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltopology.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\stlgeom\stltopology.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\surface.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\surface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\symbolta.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\symbolta.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\table.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\table.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\tetrarls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\tetrarls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\topology.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\topology.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\transform3d.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\transform3d.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\triapprox.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\csg\triapprox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\triarls.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\triarls.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\validate.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\validate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeabaqus.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeabaqus.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writediffpack.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writediffpack.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writedolfin.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writedolfin.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeelmer.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeelmer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writefeap.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writefeap.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writefluent.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writefluent.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writegmsh.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writegmsh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writegmsh2.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writegmsh2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writejcm.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writejcm.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeOpenFOAM15x.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeOpenFOAM15x.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writepermas.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writepermas.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetecplot.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetecplot.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetet.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetet.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetochnog.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writetochnog.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeuser.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\writeuser.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\wuchemnitz.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\interface\wuchemnitz.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\zrefine.cpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\zrefine.cpp"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\netgen_svn\ng.pro"
+			RelativePath="..\..\..\netgen_svn\ng.pro"
 			>
 		</File>
 	</Files>

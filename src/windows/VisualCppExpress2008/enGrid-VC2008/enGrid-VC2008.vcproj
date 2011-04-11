@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
 				PreprocessorDefinitions="_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -159,7 +159,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\;&quot;..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
 				PreprocessorDefinitions="_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -217,7 +217,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\main.cpp"
+				RelativePath="..\..\..\main.cpp"
 				>
 			</File>
 			<Filter
@@ -257,16 +257,16 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\engrid.qrc"
+				RelativePath="..\..\..\engrid.qrc"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\engrid.pro"
+			RelativePath="..\..\..\engrid.pro"
 			>
 		</File>
 		<File
-			RelativePath="..\..\engrid_app.pro"
+			RelativePath="..\..\..\engrid_app.pro"
 			>
 		</File>
 	</Files>
