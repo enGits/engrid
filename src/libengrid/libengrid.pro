@@ -19,10 +19,10 @@ QT     += xml \
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
     DEFINES += LIBENGRID_EXPORTS
-    #DEFINES += DLL_EXPORT
+    DEFINES += DLL_EXPORT
 } win32-g++* {
     DEFINES += LIBENGRID_EXPORTS
-    #DEFINES += DLL_EXPORT
+    DEFINES += DLL_EXPORT
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated,no-undefined,--enable-runtime-pseudo-reloc
 } else {    

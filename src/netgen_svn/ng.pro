@@ -1,9 +1,9 @@
 TEMPLATE = lib
 LANGUAGE = C++
 
-CONFIG += staticlib \
-          debug_and_release \
+CONFIG += debug_and_release \
           warn_off
+#staticlib
 
 QT       -= gui
 
@@ -14,7 +14,7 @@ win32 {
 win32 {
 	DEFINES += NO_PARALLEL_THREADS
 	DEFINES += NGLIB_EXPORTS
-	#DEFINES += DLL_EXPORT
+	DEFINES += DLL_EXPORT
 }
 
 win32-msvc* {
@@ -62,6 +62,7 @@ SOURCES  = \
 ./netgen-mesher/netgen/libsrc/interface/writepermas.cpp \
 ./netgen-mesher/netgen/libsrc/interface/writeelmer.cpp \
 ./netgen-mesher/netgen/libsrc/interface/writegmsh2.cpp \
+./netgen-mesher/netgen/libsrc/interface/writeOpenFOAM15x.cpp \
 ./netgen-mesher/netgen/libsrc/interface/wuchemnitz.cpp \
 ./netgen-mesher/netgen/libsrc/general/ngexception.cpp \
 ./netgen-mesher/netgen/libsrc/general/parthreads.cpp \
