@@ -372,10 +372,10 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     SurfaceProjection* getSurfProj(int bc);
     bool checkSurfProj();
 
-#if defined( __GNUC__ ) //for gcc
+#if defined( __linux__ ) //for Linux
     void setSystemOutput() { stdout = m_SystemStdout; }
     void setLogFileOutput() { stdout = m_LogFileStdout; }
-#elif defined( _MSC_VER ) //for MS Visual C++
+#elif defined( _WIN32 ) //for Windows
     void setSystemOutput() { freopen("CON","w",m_SystemStdout); }
     void setLogFileOutput() { freopen("CON","w",m_LogFileStdout); }
 #else
