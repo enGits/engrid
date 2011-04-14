@@ -261,13 +261,17 @@ GuiMainWindow::~GuiMainWindow()
   m_qset.setValue("dockWidget_states", this->saveState());
 
 #ifndef QT_DEBUG
+  setSystemOutput(); //close the output to the log file 
   QDirIterator it(m_LogDir);
   while (it.hasNext()) {
     QString str = it.next();
     QFileInfo fileinfo(str);
     if(fileinfo.isFile()) {
       QFile file(str);
-      if(!file.remove()) qDebug() << "Failed to remove " << file.fileName();
+      if(!file.remove()) {
+        setLogFileOutput(); //reinstate the connection to the log file 
+        qDebug() << "Failed to remove " << file.fileName();
+      }
     }
   }
   QDir dir(m_LogDir);
