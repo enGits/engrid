@@ -11,7 +11,7 @@ Use_VTK_Win_ParaView = yes
 CONFIG += qt \
           debug_and_release \
           thread
-    
+
 QT     += xml \
           network \
           opengl
@@ -21,10 +21,13 @@ win32-msvc* {
     DEFINES += LIBENGRID_EXPORTS
     DEFINES += DLL_EXPORT
 } win32-g++* {
+    CONFIG += console
     DEFINES += LIBENGRID_EXPORTS
     DEFINES += DLL_EXPORT
     QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated,no-undefined,--enable-runtime-pseudo-reloc
+    QMAKE_CXXFLAGS += -Wno-deprecated
+    QMAKE_CXXFLAGS += -Wl,--no-undefined
+    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
 } else {    
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated

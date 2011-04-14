@@ -18,8 +18,11 @@ QT     += xml \
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
 } win32-g++* {
+    CONFIG += console
     QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated,no-undefined,--enable-runtime-pseudo-reloc
+    QMAKE_CXXFLAGS += -Wno-deprecated
+    QMAKE_CXXFLAGS += -Wl,--no-undefined
+    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
 } else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
@@ -28,8 +31,10 @@ win32-msvc* {
 INCLUDEPATH += netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += netgen_svn/netgen-mesher/netgen/libsrc/general
 
+#various paths for the same thing, due to some crazy bugs between versions on qt/qmake/gcc
 INCLUDEPATH += libengrid
 INCLUDEPATH += $${OUT_PWD}/libengrid
+INCLUDEPATH += $${OUT_PWD}/.
 
 win32-msvc* {
     LIBS += -L./libengrid/release -lengrid

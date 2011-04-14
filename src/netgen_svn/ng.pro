@@ -22,7 +22,9 @@ win32-msvc* {
 }        
 
 win32-g++* {
-  QMAKE_CXXFLAGS += -Wno-undefined,--enable-runtime-pseudo-reloc
+  QMAKE_CXXFLAGS += -Wno-deprecated
+  QMAKE_CXXFLAGS += -Wl,--no-undefined
+  QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
 }
 
 DEFINES     += vtkRendering_EXPORTS
