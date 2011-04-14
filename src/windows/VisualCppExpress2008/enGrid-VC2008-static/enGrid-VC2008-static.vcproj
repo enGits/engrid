@@ -39,6 +39,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="cmd /c $(SolutionDir)deploy_includes.bat&#x0D;&#x0A;cmd /c $(SolutionDir)copylibs.bat $(ConfigurationName) $(TargetDir)ext_libs\&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="QCollectionGenerator"
@@ -69,9 +70,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				AdditionalOptions="/MP @&quot;$(SolutionDir)\qt_vtk_includes.rsp&quot;"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\libengrid"
 				PreprocessorDefinitions="LIBENGRID_STATIC;MSVC_EXPRESS;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -91,7 +92,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="qtmaind.lib QtGuid4.lib QtCored4.lib QtXmld4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
-				AdditionalLibraryDirectories="&quot;Q:\4.5.1-vc\lib&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\bin_lib_debug&quot;;$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(OutDir)\ext_libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -157,6 +158,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="THIS SOLUTION IS NOT MEANT FOR RELEASE!"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				RuntimeLibrary="2"
@@ -2903,11 +2905,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
 					>
 				</File>
 				<File
@@ -2947,11 +2949,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
 					>
 				</File>
 				<File
@@ -3003,11 +3005,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
 					>
 				</File>
 				<File
@@ -3027,11 +3029,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
 					>
 				</File>
 				<File
@@ -3067,11 +3069,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
 					>
 				</File>
 				<File
@@ -3121,11 +3123,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
 					>
 				</File>
 				<File

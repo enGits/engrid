@@ -39,6 +39,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="QCollectionGenerator"
@@ -69,9 +70,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="@&quot;$(SolutionDir)\qt_vtk_includes.rsp&quot;"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
-				PreprocessorDefinitions="_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid"
+				PreprocessorDefinitions="DLL_EXPORT;_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -91,7 +93,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="libengrid.lib QtGuid4.lib QtCored4.lib QtXmld4.lib"
 				OutputFile="$(OutDir)\engrid.exe"
-				AdditionalLibraryDirectories="&quot;Q:\4.5.1-vc\lib&quot;;$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(OutDir)\ext_libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -115,6 +117,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -157,10 +160,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="@&quot;$(SolutionDir)\qt_vtk_includes.rsp&quot;"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid;&quot;Q:\4.5.1-vc\include&quot;;&quot;Q:\4.5.1-vc\include\Qt&quot;;&quot;Q:\4.5.1-vc\include\QtCore&quot;;&quot;Q:\4.5.1-vc\include\QtGui&quot;;&quot;Q:\4.5.1-vc\include\QtHelp&quot;;&quot;Q:\4.5.1-vc\include\QtNetwork&quot;;&quot;Q:\4.5.1-vc\include\QtOpenGL&quot;;&quot;Q:\4.5.1-vc\include\QtScript&quot;;&quot;Q:\4.5.1-vc\include\QtSql&quot;;&quot;Q:\4.5.1-vc\include\QtSvg&quot;;&quot;Q:\4.5.1-vc\include\QtTest&quot;;&quot;Q:\4.5.1-vc\include\QtUiTools&quot;;&quot;Q:\4.5.1-vc\include\QtWebKit&quot;;&quot;Q:\4.5.1-vc\include\QtXml&quot;;&quot;Q:\4.5.1-vc\include\QtXmlPatterns&quot;;&quot;Q:\4.5.1-vc\src&quot;;&quot;P:\OpenAPIs\VTK 5.4\VTK\include\vtk-5.4&quot;"
-				PreprocessorDefinitions="_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid"
+				PreprocessorDefinitions="DLL_EXPORT;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -177,10 +181,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libengrid.lib QtGui4.lib QtCore4.lib QtXml4.lib"
+				AdditionalDependencies="QtGui4.lib QtCore4.lib QtXml4.lib"
 				OutputFile="$(OutDir)\engrid.exe"
-				AdditionalLibraryDirectories="&quot;Q:\4.5.1-vc\lib&quot;;$(OutDir)"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories="$(OutDir);$(OutDir)\ext_libs"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -242,6 +246,18 @@
 				<Filter
 					Name="Release"
 					>
+					<File
+						RelativePath=".\Release\qrc_engrid.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>

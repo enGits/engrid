@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			CharacterSet="2"
 			>
 			<Tool
@@ -42,7 +42,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
-				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;NGLIB_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;_WIN32_WINNT=0x0502;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;DLL_EXPORT;NGLIB_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;_WIN32_WINNT=0x0502;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -59,10 +59,13 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -74,6 +77,9 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -81,7 +87,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -106,7 +112,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;"
-				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;NGLIB_EXPORTS;DLL_EXPORT;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="MSVC_EXPRESS;NO_PARALLEL_THREADS;DLL_EXPORT;NGLIB_EXPORTS;DLL_EXPORT;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -123,7 +129,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -292,11 +298,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
 				>
 			</File>
 			<File
@@ -336,11 +342,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
 				>
 			</File>
 			<File
@@ -392,11 +398,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
 				>
 			</File>
 			<File
@@ -416,11 +422,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
 				>
 			</File>
 			<File
@@ -456,11 +462,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
 				>
 			</File>
 			<File
@@ -496,11 +502,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
+				RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
 				>
 			</File>
 			<File
