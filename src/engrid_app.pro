@@ -43,6 +43,7 @@ win32-msvc* {
 } else {
     LIBS += -lm
     LIBS += -L./libengrid -lengrid
+    LIBS += -L./netgen_svn -lng
 }
 
 win32-msvc* {
