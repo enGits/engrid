@@ -25,14 +25,40 @@ diff -ur netgen-4.9.13/libsrc/general/ngexception.hpp netgen/libsrc/general/ngex
  {
    /// verbal description of exception
    string what;
+diff -ur netgen-4.9.13/libsrc/include/mydefs.hpp netgen/libsrc/include/mydefs.hpp
+--- netgen-4.9.13/libsrc/include/mydefs.hpp	Thu May 20 23:07:04 2010
++++ netgen/libsrc/include/mydefs.hpp	Fri Apr 15 11:38:43 2011
+@@ -19,16 +19,16 @@
+ // in Linux, "PACKAGE_VERSION" is replaced 
+ // in the configure/make phases, with the 
+ // right version number
+-#ifdef WIN32
++#if defined(WIN32) || !defined(PACKAGE_VERSION)
+ #define PACKAGE_VERSION "4.9.13"
+ #endif
+ 
+ 
+-#ifdef WIN32
+-    #define DLL_HEADER   __declspec(dllexport)
+-#else
+-    #define DLL_HEADER 
+-#endif
++//#ifdef WIN32
++//    #define DLL_HEADER   __declspec(dllexport)
++//#else
++//    #define DLL_HEADER 
++//#endif
+ 
+ 
+ 
 diff -ur netgen-4.9.13/libsrc/interface/writeuser.hpp netgen/libsrc/interface/writeuser.hpp
 --- netgen-4.9.13/libsrc/interface/writeuser.hpp	Tue Oct 27 23:11:52 2009
-+++ netgen/libsrc/interface/writeuser.hpp	Thu Apr  7 14:19:24 2011
++++ netgen/libsrc/interface/writeuser.hpp	Wed Apr 13 12:02:46 2011
 @@ -58,6 +58,7 @@
  
  // Philippose - 29/01/2009
  // Added GMSH v2.xx Mesh Export support
-+extern 
++extern
  void WriteGmsh2Format (const Mesh & mesh,
                         const CSGeometry & geom,
                         const string & filename);
