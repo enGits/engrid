@@ -57,6 +57,7 @@ public: // methods
   void setGrid(vtkUnstructuredGrid *grid);
   void setMaxNumFaces(int N) { m_MaxFaces = N; }
   void getCloseFaces(vec3_t x, QVector<vtkIdType> &faces);
+  vtkIdType getClosestFace(vec3_t x, double &L);
 
 };
 

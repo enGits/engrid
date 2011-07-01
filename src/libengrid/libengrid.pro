@@ -34,6 +34,7 @@ win32-msvc* {
 }
 
 INCLUDEPATH += ..
+INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
@@ -197,8 +198,9 @@ HEADERS = boundarycondition.h \
     ../math/mathvector_structs.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
-    createboundarylayer.h
-    
+    createboundarylayer.h \
+    brlcadreader.h
+
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -295,8 +297,9 @@ SOURCES = boundarycondition.cpp \
     timer.cpp \
     facefinder.cpp \
     pointfinder.cpp \
-    createboundarylayer.cpp
-    
+    createboundarylayer.cpp \
+    brlcadreader.cpp
+
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \

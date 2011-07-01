@@ -32,6 +32,7 @@ GridSmoother::GridSmoother()
   m_NumIterations          = 5;
   m_NumRelaxations         = 5;
   m_NumBoundaryCorrections = 50;
+  m_DesiredStretching      = 1.2;
 
   getSet("boundary layer", "number of smoothing sub-iterations",       5,     m_NumIterations);
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
@@ -114,7 +115,21 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       vtkIdType id_cell = cells[i_cells];
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if (type_cell == VTK_TETRA) {
-        if (GeometryTools::cellVA(m_Grid, id_cell) < 0) {
+        vtkIdType N_pts, *pts;
+        vec3_t x[4];
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i = 0; i < 4; ++i) {
+          m_Grid->GetPoint(pts[i], x[i].data());
+        }
+        double L_max = 0;
+        for (int i = 0; i < 4; ++i) {
+          for (int j = 0; j < 4; ++j) {
+            if (i != j) {
+              L_max = max(L_max, (x[i]-x[j]).abs());
+            }
+          }
+        }
+        if (GeometryTools::cellVA(m_Grid, id_cell) < 1e-3*L_max*L_max*L_max) {
           move = false;
         }
       }
@@ -384,9 +399,9 @@ void GridSmoother::relaxNormalVectors()
   }
 }
 
-void GridSmoother::computeHeights()
+void GridSmoother::computeDesiredHeights()
 {
-  // first pass (intial heigh)
+  // first pass (intial height)
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired" );
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -414,12 +429,82 @@ void GridSmoother::computeHeights()
       }
     }
   }
+  QVector<double> Dh_max = m_Height;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    Dh_max[id_node] *= sqrt(6.0)/3; // use stretching as well??
+  }
 
   // second pass (correct with absolute height if required)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_SurfNode[id_node]) {
       m_Height[id_node] = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_node];
     }
+  }
+
+
+  QVector<double> h(m_Grid->GetNumberOfPoints(), 0);
+  QVector<double> h_opt(m_Grid->GetNumberOfPoints(), 0);
+  int num_layers = 0;
+  double err_max = 1e99;
+  double err_sq_max = 1e99;
+  m_NumLayers = 0;
+  do {
+    ++num_layers;
+    double err_sq = 0;
+    double err_max_iter = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_SurfNode[id_node]) {
+        double Dh = m_Height[id_node];
+        h[id_node] = m_Height[id_node];
+        double total_ratio = Dh_max[id_node]/Dh;
+        double stretch = pow(total_ratio, 1.0/num_layers);
+        for (int i = 1; i < num_layers; ++i) {
+          Dh *= stretch;
+          h[id_node] += Dh;
+        }
+        double err;
+        if (fabs(stretch) > fabs(m_DesiredStretching)) {
+          err = fabs(stretch - m_DesiredStretching)/m_DesiredStretching;
+        } else {
+          err = fabs(stretch - m_DesiredStretching)/stretch;
+        }
+        err_max_iter = max(err_max_iter, err);
+        err_sq += err*err;
+      }
+    }
+    if (err_sq < err_sq_max) {
+      m_NumLayers = num_layers;
+      h_opt = h;
+      err_sq_max = err_sq;
+    }
+  } while (num_layers < 200);
+  cout << "found " << m_NumLayers << " as optimal number of layers" << endl;
+  m_Height = h_opt;
+}
+
+void GridSmoother::computeHeights()
+{
+  {
+    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+    cout << "get: " << qPrintable(blayer_txt) << endl;
+    QTextStream s(&blayer_txt);
+    if (!s.atEnd()) s >> m_AbsoluteHeight;
+    if (!s.atEnd()) s >> m_RelativeHeight;
+    if (!s.atEnd()) s >> m_Blending;
+    if (!s.atEnd()) s >> m_DesiredStretching;
+    if (!s.atEnd()) s >> m_NumLayers;
+  }
+  computeDesiredHeights();
+  {
+    QString blayer_txt = "";
+    QTextStream s(&blayer_txt);
+    s << m_AbsoluteHeight << " ";
+    s << m_RelativeHeight << " ";
+    s << m_Blending << " ";
+    s << m_DesiredStretching << " ";
+    s << m_NumLayers << " ";
+    cout << "set: " << qPrintable(blayer_txt) << endl;
+    GuiMainWindow::pointer()->setXmlSection("blayer", blayer_txt);
   }
 
   // third pass (gaps)

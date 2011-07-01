@@ -179,10 +179,12 @@ void BrlcadReader::findBoundaryCodes()
   GuiMainWindow::pointer()->clearBCs();
   int bc_max = 1;
   QVector<int> bc_map(num_grids+1,9999);
+  m_BC2GridIndex.clear();
   for (int i_grid = 0; i_grid < num_grids; ++i_grid) {
     if (bc_exists[i_grid]) {
       bc_map[i_grid+1] = bc_max;
       GuiMainWindow::pointer()->addBC(bc_max, BoundaryCondition(m_BCNames[grids[i_grid]], "patch"));
+      m_BC2GridIndex[bc_max] = i_grid;
       ++bc_max;
     }
   }
@@ -194,6 +196,61 @@ void BrlcadReader::findBoundaryCodes()
   if (has_errors) {
     GuiMainWindow::pointer()->addBC(9999, BoundaryCondition("error-faces", "patch"));
   }
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
+}
+
+void BrlcadReader::createBackgroundGeometry()
+{
+  // make a backup of the existing grid
+  EG_VTKSP(vtkUnstructuredGrid, backup_grid);
+  makeCopy(m_Grid, backup_grid);
+
+  QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+
+  // count total number of nodes and faces for background geometry
+  int num_nodes = 0;
+  int num_faces = 0;
+  foreach (int bc, bcs) {
+    int i_grid = m_BC2GridIndex[bc];
+    num_nodes += m_Grids[i_grid]->GetNumberOfPoints();
+    num_faces += m_Grids[i_grid]->GetNumberOfCells();
+  }
+  allocateGrid(m_Grid, num_faces, num_nodes);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  // copy STL grids into background grid
+  vtkIdType id_node_max = 0;
+  foreach (int bc, bcs) {
+    int i_grid = m_BC2GridIndex[bc];
+
+    // copy nodes
+    QVector<int> local2global(m_Grids[i_grid]->GetNumberOfPoints());
+    for (vtkIdType id_node = 0; id_node < m_Grids[i_grid]->GetNumberOfPoints(); ++id_node) {
+      local2global[id_node] = id_node_max;
+      vec3_t x;
+      m_Grids[i_grid]->GetPoint(id_node, x.data());
+      m_Grid->GetPoints()->SetPoint(id_node_max, x.data());
+      ++id_node_max;
+    }
+
+    // copy faces
+    for (vtkIdType id_face = 0; id_face < m_Grids[i_grid]->GetNumberOfCells(); ++id_face) {
+      vtkIdType *pts, N_pts;
+      m_Grids[i_grid]->GetCellPoints(id_face, N_pts, pts);
+      QVector<vtkIdType> new_pts(N_pts);
+      for (int i = 0; i < N_pts; ++i) {
+        new_pts[i] = local2global[pts[i]];
+      }
+      vtkIdType id_new_face = m_Grid->InsertNextCell(m_Grids[i_grid]->GetCellType(id_face), N_pts, new_pts.data());
+      cell_code->SetValue(id_new_face, bc);
+    }
+  }
+
+  // store background grid for surface projection
+  GuiMainWindow::pointer()->storeSurfaceProjection();
+
+  // restore the initial grid from the backup copy
+  makeCopy(backup_grid, m_Grid);
 }
 
 void BrlcadReader::operate()
@@ -209,5 +266,6 @@ void BrlcadReader::operate()
     }
     processStlFile(dir.path() + "/volume.stl", false);
     findBoundaryCodes();
+    createBackgroundGeometry();
   }
 }

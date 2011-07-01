@@ -61,5 +61,6 @@
 #include "blenderwriter.h"
 #include "sharpenedges.h"
 #include "checkforoverlap.h"
+#include "brlcadreader.h"
 
 // -------------------------------------------

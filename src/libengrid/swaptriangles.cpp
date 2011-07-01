@@ -37,7 +37,9 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_MaxNumLoops = 20;
   m_SmallAreaSwap = false;
   m_SmallAreaRatio = 1e-3;
+  m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
+  getSet("surface meshing", "threshold for surface errors", 10.0, m_SurfErrorThreshold);
 }
 
 bool SwapTriangles::testSwap(stencil_t S)
@@ -104,6 +106,55 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
   return(ret);
 }
 
+void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2)
+{
+  using namespace GeometryTools;
+  err1 = 0;
+  err2 = 0;
+  if (m_SurfErrorThreshold <= 0) {
+    return;
+  }
+  SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
+  if (!proj) {
+    return;
+  }
+  vec3_t n11 = triNormal(x[0], x[1], x[3]);
+  vec3_t n12 = triNormal(x[1], x[2], x[3]);
+  vec3_t n21 = triNormal(x[0], x[1], x[2]);
+  vec3_t n22 = triNormal(x[0], x[2], x[3]);
+  vec3_t n   = n11 + n12 + n21 + n22;
+  n.normalise();
+  vec3_t err_vec = 0.5*(x[0] + x[2] - x[1] - x[3]);
+  double appr_err = fabs(n*err_vec);
+  /*
+  if (angle(n11, n12) <= m_FeatureAngle && angle(n21, n22) <= m_FeatureAngle) {
+    return;
+  }
+  */
+
+  double L = 0;
+  L = max(L, (x[0] - x[1]).abs());
+  L = max(L, (x[0] - x[2]).abs());
+  L = max(L, (x[0] - x[3]).abs());
+  L = max(L, (x[1] - x[2]).abs());
+  L = max(L, (x[1] - x[3]).abs());
+  L = max(L, (x[2] - x[3]).abs());
+
+  if (appr_err > m_SurfErrorThreshold*L) {
+    static const double f13 = 1.0/3.0;
+    vec3_t x012 = f13*(x[0] + x[1] + x[2]);
+    vec3_t x013 = f13*(x[0] + x[1] + x[3]);
+    vec3_t x023 = f13*(x[0] + x[2] + x[3]);
+    vec3_t x123 = f13*(x[1] + x[2] + x[3]);
+    vec3_t xp012 = proj->projectRestricted(x012);
+    vec3_t xp013 = proj->projectRestricted(x013);
+    vec3_t xp023 = proj->projectRestricted(x023);
+    vec3_t xp123 = proj->projectRestricted(x123);
+    err1 = max((x013 - xp013).abs(), (x123 - xp123).abs())/L;
+    err2 = max((x012 - xp012).abs(), (x023 - xp023).abs())/L;
+  }
+}
+
 int SwapTriangles::swap()
 {
   int N_swaps = 0;
@@ -122,7 +173,8 @@ int SwapTriangles::swap()
             if (S.type_cell[1] == VTK_TRIANGLE) {
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
                 if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
-                  vec3_t x3[4], x3_0(0,0,0);
+                  QVector<vec3_t> x3(4);
+                  vec3_t x3_0(0,0,0);
                   vec2_t x[4];
 
                   m_Grid->GetPoint(S.id_node[0], x3[0].data());
@@ -144,7 +196,21 @@ int SwapTriangles::swap()
                     }
                   }
                   if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
-                    if(testSwap(S)) {
+
+                    // surface errors
+                    double se1, se2;
+                    bool surf_block = false;
+                    if (m_SurfErrorThreshold > 0) {
+                      computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
+                      if (se2 > se1 && se2 > m_SurfErrorThreshold) {
+                        surf_block = true;
+                      } else {
+                        if (se2 < se1 && se1 > m_SurfErrorThreshold) {
+                          swap = true;
+                        }
+                      }
+                    }
+                    if (!swap && !surf_block) {
                       vec3_t n = n1 + n2;
                       n.normalise();
                       vec3_t ex = orthogonalVector(n);
@@ -178,7 +244,8 @@ int SwapTriangles::swap()
                           swap = true;
                         }
                       }
-                    }// end of testswap
+                    }
+                  //}// end of testswap
                   } //end of if feature angle
                 } //end of if l_marked
               } //end of if TestSwap
@@ -186,44 +253,46 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            marked[S.id_cell[0]] = true;
-            marked[S.id_cell[1]] = true;
-            for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {
-              vtkIdType id_neigh = m_Part.n2cGG(S.id_node[0], k);
-              marked[id_neigh] = true;
+            if (testSwap(S)) {
+              marked[S.id_cell[0]] = true;
+              marked[S.id_cell[1]] = true;
+              for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {
+                vtkIdType id_neigh = m_Part.n2cGG(S.id_node[0], k);
+                marked[id_neigh] = true;
+              }
+              for (int k = 0; k < m_Part.n2cGSize(S.id_node[1]); ++k) {
+                vtkIdType id_neigh = m_Part.n2cGG(S.id_node[1], k);
+                marked[id_neigh] = true;
+              }
+              for (int k = 0; k < m_Part.n2cGSize(S.p1); ++k) {
+                vtkIdType id_neigh = m_Part.n2cGG(S.p1, k);
+                marked[id_neigh] = true;
+              }
+              for (int k = 0; k < m_Part.n2cGSize(S.p2); ++k) {
+                vtkIdType id_neigh = m_Part.n2cGG(S.p2, k);
+                marked[id_neigh] = true;
+              }
+              vtkIdType new_pts1[3], new_pts2[3];
+              new_pts1[0] = S.p1;
+              new_pts1[1] = S.id_node[1];
+              new_pts1[2] = S.id_node[0];
+              new_pts2[0] = S.id_node[1];
+              new_pts2[1] = S.p2;
+              new_pts2[2] = S.id_node[0];
+              vtkIdType old_pts1[3], old_pts2[3];
+              old_pts1[0] = S.id_node[0];
+              old_pts1[1] = S.p1;
+              old_pts1[2] = S.p2;
+              old_pts2[0] = S.id_node[1];
+              old_pts2[1] = S.p2;
+              old_pts2[2] = S.p1;
+              m_Grid->ReplaceCell(S.id_cell[0], 3, new_pts1);
+              m_Grid->ReplaceCell(S.id_cell[1], 3, new_pts2);
+              m_Swapped[S.id_cell[0]] = true;
+              m_Swapped[S.id_cell[1]] = true;
+              ++N_swaps;
+              break;
             }
-            for (int k = 0; k < m_Part.n2cGSize(S.id_node[1]); ++k) {
-              vtkIdType id_neigh = m_Part.n2cGG(S.id_node[1], k);
-              marked[id_neigh] = true;
-            }
-            for (int k = 0; k < m_Part.n2cGSize(S.p1); ++k) {
-              vtkIdType id_neigh = m_Part.n2cGG(S.p1, k);
-              marked[id_neigh] = true;
-            }
-            for (int k = 0; k < m_Part.n2cGSize(S.p2); ++k) {
-              vtkIdType id_neigh = m_Part.n2cGG(S.p2, k);
-              marked[id_neigh] = true;
-            }
-            vtkIdType new_pts1[3], new_pts2[3];
-            new_pts1[0] = S.p1;
-            new_pts1[1] = S.id_node[1];
-            new_pts1[2] = S.id_node[0];
-            new_pts2[0] = S.id_node[1];
-            new_pts2[1] = S.p2;
-            new_pts2[2] = S.id_node[0];
-            vtkIdType old_pts1[3], old_pts2[3];
-            old_pts1[0] = S.id_node[0];
-            old_pts1[1] = S.p1;
-            old_pts1[2] = S.p2;
-            old_pts2[0] = S.id_node[1];
-            old_pts2[1] = S.p2;
-            old_pts2[2] = S.p1;
-            m_Grid->ReplaceCell(S.id_cell[0], 3, new_pts1);
-            m_Grid->ReplaceCell(S.id_cell[1], 3, new_pts2);
-            m_Swapped[S.id_cell[0]] = true;
-            m_Swapped[S.id_cell[1]] = true;
-            ++N_swaps;
-            break;
           } //end of if swap
         } //end of loop through sides
       } //end of if marked
@@ -234,13 +303,13 @@ int SwapTriangles::swap()
 
 void SwapTriangles::operate()
 {
-  //cout << "swapping edges for surface triangles ..." << endl;
+  if (m_Verbose) cout << "swapping edges for surface triangles ..." << endl;
   long int N_swaps      = 100000000;
   long int N_last_swaps = 100000001;
   int loop = 1;
   while ((N_swaps > 0) && (loop <= m_MaxNumLoops) && (N_swaps < N_last_swaps)) {
     N_last_swaps = N_swaps;
-    //cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
+    if (m_Verbose) cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
     m_Swapped.fill(false, m_Grid->GetNumberOfCells());
     N_swaps = 0;
     int N;
@@ -248,7 +317,7 @@ void SwapTriangles::operate()
     do {
       ++sub_loop;
       N = swap();
-      //cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
+      if (m_Verbose) cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
       N_swaps += N;
     } while (N > 0);
     ++loop;

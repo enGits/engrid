@@ -199,8 +199,9 @@ void SurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_triang
 
 vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
 {
-  checkVector(xp);
-  if (id_node < 0) {
+  if (!checkVector(xp)) {
+    qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;
+    writeGrid(GuiMainWindow::pointer()->getGrid(), "griddump");
     EG_BUG;
   }
 
@@ -212,7 +213,10 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
   bool on_triangle = false;
   bool need_search = false;
 
-  vtkIdType proj_triangle = getProjTriangle(id_node);
+  vtkIdType proj_triangle = -1;
+  if (id_node != -1) {
+    getProjTriangle(id_node);
+  }
 
   if (proj_triangle == -1) { //if there is no known triangle on which to project
     need_search = true;
@@ -240,7 +244,9 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
   //need_search = true;
   if (need_search) {
     searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
-    setProjTriangle(id_node, proj_triangle);
+    if (id_node != -1) {
+      setProjTriangle(id_node, proj_triangle);
+    }
   }
   if (m_correctCurvature) {
     x_proj = correctCurvature(proj_triangle, x_proj);

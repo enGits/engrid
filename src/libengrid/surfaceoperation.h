@@ -64,7 +64,7 @@ protected: // attributes
 protected: // methods
 
   void computeNormals();
-
+  double normalIrregularity(vtkIdType id_node);
 
 public:
 

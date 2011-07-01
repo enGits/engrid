@@ -149,6 +149,7 @@ public: // methods
   int    findCell(vec3_t x);
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
+  bool   isInsideBounds(vec3_t x);
 
   void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true, bool create_fields = false);
 

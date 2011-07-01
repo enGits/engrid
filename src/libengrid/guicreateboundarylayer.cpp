@@ -31,7 +31,6 @@
 #include "meshpartition.h"
 #include "laplacesmoother.h"
 #include "updatedesiredmeshdensity.h"
-//#include "blayersurfimprovement.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -56,10 +55,19 @@ void GuiCreateBoundaryLayer::before()
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
-  double hr, ha, b;
+  double hr, ha, b, ds = 1.5;
   getSet("boundary layer", "relative height of boundary layer", 1.0, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
-  getSet("boundary layer", "blending between absolute and relative", 0.0, b);
+  getSet("boundary layer", "blending between absolute and relative", 1.0, b);
+  {
+    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+    cout << "get: " << qPrintable(blayer_txt) << endl;
+    QTextStream s(&blayer_txt);
+    if (!s.atEnd()) s >> ha;
+    if (!s.atEnd()) s >> hr;
+    if (!s.atEnd()) s >> b;
+    if (!s.atEnd()) s >> ds;
+  }
   {
     int hi = 20*hr;
     hr = 0.05*hi;
@@ -75,6 +83,9 @@ void GuiCreateBoundaryLayer::before()
     b = 0.05*bi;
     ui.doubleSpinBoxBlending->setValue(b);
   }
+  {
+    ui.doubleSpinBoxStretching->setValue(ds);
+  }
 }
 
 void GuiCreateBoundaryLayer::reduceSurface()
@@ -88,6 +99,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setUpdatePSPOn();
   remove_points.setThreshold(2.0);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     for (int i = 0; i < part.n2cGSize(id_node); ++i) {
       if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
@@ -105,6 +117,14 @@ void GuiCreateBoundaryLayer::reduceSurface()
       }
     }
   }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = true;
+      }
+    }
+  }
+
   remove_points.fixNodes(fix);
   remove_points();
 }
@@ -238,6 +258,7 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
+  swap.setVerboseOn();
 
   DeleteTetras del;
   del.setGrid(m_Grid);
@@ -246,7 +267,9 @@ void GuiCreateBoundaryLayer::operate()
     cout << "preparing prismatic layer" << endl;
     seed_layer.setGrid(m_Grid);
     del();
-    vol();
+    if (ui.checkBoxSafeMode->isChecked()) {
+      vol();
+    }
     seed_layer.setAllCells();
     seed_layer.setLayerCells(layer_cells);
     seed_layer.setBoundaryCodes(m_BoundaryCodes);
@@ -260,6 +283,7 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setRelativeHeight(Hr);
   smooth.setAbsoluteHeight(Ha);
   smooth.setBlending(bl);
+  smooth.setDesiredStretching(ui.doubleSpinBoxStretching->value());
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     smooth.setAllCells();
@@ -271,8 +295,11 @@ void GuiCreateBoundaryLayer::operate()
     }
     swap();
     smoothSurface();
+    swap();
     vol.setTraceCells(layer_cells);
-    vol();
+    if (ui.checkBoxSafeMode->isChecked()) {
+      vol();
+    }
     vol.getTraceCells(layer_cells);
   }
 

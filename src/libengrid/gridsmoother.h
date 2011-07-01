@@ -55,6 +55,8 @@ protected: // attributes
   double m_CritAngle;
   double m_RadarAngle;
   double m_MaxHeightInGaps;
+  double m_DesiredStretching;
+  int    m_NumLayers;
 
   bool m_StrictPrismChecking;
   bool m_CollisionDetected;
@@ -77,6 +79,7 @@ protected: // methods
   void computeNormals();
   void relaxNormalVectors();
   void correctNormalVectors();
+  void computeDesiredHeights();
   void computeHeights();
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
@@ -92,6 +95,7 @@ public: // methods
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
+  void setDesiredStretching     (double s) { m_DesiredStretching = s; }
 
   void setLayerAdjacentBoundaryCodes(const QSet<int> &abcs) { m_LayerAdjacentBoundaryCodes = abcs; }
 

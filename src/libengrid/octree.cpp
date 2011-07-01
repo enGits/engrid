@@ -1076,3 +1076,14 @@ void Octree::getEdges(int cell, QVector<SortedPair<int> >& edges)
   edges[11].v1 = getNode(cell, 6); edges[11].v2 = getNode(cell, 7);
 }
 
+bool Octree::isInsideBounds(vec3_t x)
+{
+  bool inside = true;
+  for (int i = 0; i < 3; ++i) {
+    if ((x[i] < m_Corner1[i]) || (x[i] > m_Corner2[i])) {
+      inside = false;
+      break;
+    }
+  }
+  return inside;
+}

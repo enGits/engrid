@@ -30,6 +30,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
   m_PerformGeometricTests = true;
+  //m_RespectFeatureEdgesForDeleteNodes = true;
   //m_UseProjectionForSmoothing = true;
   getSet("surface meshing", "use surface projection for smoothing", true, m_UseProjectionForSmoothing);
   getSet("surface meshing", "use normal correction for smoothing", false, m_UseNormalCorrectionForSmoothing);

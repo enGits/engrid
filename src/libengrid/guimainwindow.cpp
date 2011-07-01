@@ -1207,6 +1207,7 @@ void GuiMainWindow::save()
 
 void GuiMainWindow::saveAs()
 {
+  QApplication::restoreOverrideCursor();
   //saveGrid(m_Grid, m_CurrentFilename + ".geo");
   bool geo_file_exists = false;
   QString old_geo_file = m_CurrentFilename + ".geo.vtu";
@@ -1221,6 +1222,7 @@ void GuiMainWindow::saveAs()
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QStringList selected_files = dialog.selectedFiles();
     QString file_name = selected_files[0];
     if (!file_name.isNull()) {
@@ -1233,6 +1235,7 @@ void GuiMainWindow::saveAs()
       quickSave();
     }
   }
+  QApplication::restoreOverrideCursor();
 }
 
 void GuiMainWindow::updateStatusBar()

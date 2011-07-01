@@ -143,7 +143,7 @@ void RemovePoints::operate()
 
     int i_node = _nodes[id_node];
     if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX && !m_Fixed[id_node]) {
-      if(!marked_nodes[i_node] && !m_IsFeatureNode[i_node]) {
+      if (!marked_nodes[i_node]) {
 
         // preparations
         vec3_t xi;
@@ -554,6 +554,11 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
     bool IsValidSnapPoint = true;
 
+    if (m_Fixed[PSP]) {
+      IsValidSnapPoint = false;
+      continue;
+    }
+
     if(_nodes[PSP] < 0 || _nodes[PSP] >= marked_nodes.size()) {
       cout << "ERROR: _nodes[PSP]=" << _nodes[PSP] << " marked_nodes.size()=" << marked_nodes.size() << endl;
       writeGrid(m_Grid, "snappoint_grid.vtu");
@@ -563,15 +568,22 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
     // TEST -1 : TOPOLOGICAL : Is the node already marked?
     if(marked_nodes[_nodes[PSP]]) {
-      IsValidSnapPoint = false; continue;
+      IsValidSnapPoint = false;
+      continue;
     }
 
     // TEST 0: TOPOLOGICAL: DeadNode, PSP and any common point must belong to a cell.
     // TEST 1: TOPOLOGICAL: Moving DeadNode to PSP must not lay any cell on another cell.
     int N_common_points = 0;
     if(checkForDestroyedVolumes(DeadNode, PSP, N_common_points)) {
-      if(DebugLevel > 10) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would destroy volume." << endl;
-      IsValidSnapPoint = false; continue;
+      IsValidSnapPoint = false;
+      continue;
+    }
+
+    // TEST 2: normal irregularity
+    if (normalIrregularity(DeadNode) > normalIrregularity(PSP)) {
+      IsValidSnapPoint = false;
+      continue;
     }
 
     //count number of points and cells to remove + analyse cell transformations
@@ -589,9 +601,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       m_Grid->GetCellPoints(id_cell, num_pts, pts);
 
       if(num_pts != 3) {
-        qWarning() << "ERROR: Non-triangle detected!" << endl;
-        IsValidSnapPoint = false; continue;
-//        EG_BUG;
+        IsValidSnapPoint = false;
+        continue;
       }
 
       bool ContainsSnapPoint = false;
@@ -613,8 +624,8 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       if(ContainsSnapPoint) {    // potential dead cell
         if(invincible) {
           // TEST 3: TOPOLOGICAL: Check that empty lines aren't left behind when a cell is killed
-          if(DebugLevel > 10) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because it would leave behind empty lines." << endl;
-          IsValidSnapPoint = false; continue;
+          IsValidSnapPoint = false;
+          continue;
         } else {
           if(IsValidSnapPoint) {
             DeadCells.push_back(id_cell);
@@ -630,39 +641,22 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
           OldTriangle[i] = pts[i];
           NewTriangle[i] = ((pts[i] == DeadNode) ? PSP : pts[i]);
         }
-        vec3_t Old_N = triNormal(m_Grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
-        vec3_t New_N = triNormal(m_Grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        //vec3_t Old_N = triNormal(m_Grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        //vec3_t New_N = triNormal(m_Grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        vec3_t n_old = triNormal(m_Grid, OldTriangle[0], OldTriangle[1], OldTriangle[2]);
+        vec3_t n_new = triNormal(m_Grid, NewTriangle[0], NewTriangle[1], NewTriangle[2]);
+        double A_old = n_old.abs();
+        double A_new = n_new.abs();
+        n_old.normalise();
+        n_new.normalise();
 
         // TEST 4: GEOMETRICAL: area + inversion check
         if(m_PerformGeometricChecks) {
-          if(Old_N * New_N < 0 || New_N * New_N < Old_N * Old_N * 1. / 100.) {
-            if(DebugLevel > 10) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because area+inversion check failed." << endl;
-            IsValidSnapPoint = false; continue;
+          //if(Old_N * New_N < 0.1 || New_N * New_N < Old_N * Old_N * 1. / 100.) {
+          if (n_old * n_new < 0.2 || A_new < 0.1*A_old) {
+            IsValidSnapPoint = false;
+            continue;
           }
-
-          // TEST 5: GEOMETRICAL: flipped cell test
-          /*          vec3_t P;
-                    m_Grid->GetPoint( PSP, P.data() );
-                    if (flippedCell(DeadNode, P, id_cell)) {
-                      if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << "." << endl;
-                      IsValidSnapPoint = false;
-                    }*/
-
-          // id_cell
-          // DeadNode -> PSP
-          // index_DeadNode -> index_PSP
-          /*
-          vec3_t x_old, x_new;
-          m_Grid->GetPoint( DeadNode, x_old.data() );
-          m_Grid->GetPoint( PSP, x_new.data() );
-          m_Grid->GetPoint( pts[], x_new.data() );
-          m_Grid->GetPoint( PSP, x_new.data() );
-
-          if (flippedCell2(DeadNode, P, id_cell)) {
-            if ( DebugLevel > 10 ) cout << "Sorry, but you are not allowed to move point " << DeadNode << " to point " << PSP << " because flipped cell test failed." << endl;
-            IsValidSnapPoint = false; continue;
-          }
-          */
         }
 
         //mutated cell
@@ -683,14 +677,6 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
       break;
     }
   } //end of loop through potential SnapPoints
-
-  /*
-  if(SnapPoint>=0 && DeadCells.size()!=2) {
-    qWarning() << "SnapPoint>=0 && DeadCells.size()!=2";
-    qWarning() << "SnapPoint==" << SnapPoint << " && DeadCells.size()=" << DeadCells.size();
-    EG_BUG;
-  }
-  */
 
   return (SnapPoint);
 }

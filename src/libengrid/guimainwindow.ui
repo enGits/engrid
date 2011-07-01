@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1067</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -87,6 +87,7 @@
     <addaction name="actionImportFluentCase"/>
     <addaction name="actionImportSeligAirfoil"/>
     <addaction name="actionImportBlenderFile"/>
+    <addaction name="actionImportBrlcad"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -314,8 +315,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>211</width>
-          <height>521</height>
+          <width>215</width>
+          <height>474</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -696,8 +697,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>219</width>
-          <height>546</height>
+          <width>215</width>
+          <height>494</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1666,6 +1667,14 @@
   <action name="actionAbout_enGrid_plugins">
    <property name="text">
     <string>about enGrid plugins</string>
+   </property>
+  </action>
+  <action name="actionImportBrlcad">
+   <property name="text">
+    <string>BRL-CAD</string>
+   </property>
+   <property name="toolTip">
+    <string>import BRL-CAD (as STL)</string>
    </property>
   </action>
  </widget>

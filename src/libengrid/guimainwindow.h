@@ -509,6 +509,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
     void callSharpenEdges()               { EG_STDSLOT(SharpenEdges); }
     void callCheckForOverlap()            { EG_STDSLOT(CheckForOverlap); }
+    void callBrlcadReader()               { EG_STDREADERSLOT(BrlcadReader); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 

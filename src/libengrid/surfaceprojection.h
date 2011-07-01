@@ -133,7 +133,7 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
       setProjTriangle(pts[i], id_cell);
     }
   }
-  m_FaceFinder.setMaxNumFaces(100);
+  m_FaceFinder.setMaxNumFaces(10);
   m_FaceFinder.setGrid(m_BGrid);
 }
 
