@@ -249,10 +249,12 @@ inline T SmallSquareMatrix<T,N>::det()
   // copy yourself to protect matrix entries
   SmallSquareMatrix<T,N> a = *this;
 
-  int n=N;
-  int k,i,j,p[N];
+  int n;
+  n=N;
+  int k,i,j;
+  vector<int> p(n);
   T q,s,max,h,det;
-    
+
   det=1;
   for(k=0;k<n-1;k++)
     {

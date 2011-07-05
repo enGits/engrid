@@ -238,6 +238,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\brlcadreader.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\celllayeriterator.cpp"
 				>
 			</File>
@@ -1442,6 +1446,10 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\brlcadreader.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\celllayeriterator.h"
