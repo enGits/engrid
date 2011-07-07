@@ -358,6 +358,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void setFilename(QString filename) { m_CurrentFilename = filename; }
   
     SurfaceProjection* getSurfProj(int bc);
+    void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     bool checkSurfProj();
 
     void setSystemOutput() { stdout = m_SystemStdout; }
@@ -433,7 +434,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void periodicUpdate();
 
     void storeSurfaceProjection(bool nosave = false);
-    void resetSurfaceProjection();
+    void resetSurfaceProjection();    
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:

@@ -45,6 +45,8 @@ protected: // methods
   void findBoundaryCodes();
   void createBackgroundGeometry();
 
+  void readAndInflate();
+
   virtual void operate();
 
 

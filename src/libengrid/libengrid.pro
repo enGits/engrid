@@ -14,7 +14,8 @@ INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 INCLUDEPATH += $(VTKINCDIR)
-RESOURCES += ../engrid.qrc
+INCLUDEPATH += $(BRLCAD_HOME)/include
+RESOURCES += engrid.qrc
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -126,7 +127,9 @@ HEADERS = boundarycondition.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
     createboundarylayer.h \
-    brlcadreader.h
+    brlcadreader.h \
+    brlcadprojection.h \
+    guiinflatemesh.h
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -224,7 +227,9 @@ SOURCES = boundarycondition.cpp \
     facefinder.cpp \
     pointfinder.cpp \
     createboundarylayer.cpp \
-    brlcadreader.cpp
+    brlcadreader.cpp \
+    brlcadprojection.cpp \
+    guiinflatemesh.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -237,7 +242,8 @@ FORMS = guicreateboundarylayer.ui \
     guicreatesurfacemesh.ui \
     guitransform.ui \
     guipick.ui \
-    guicreatevolumemesh.ui
+    guicreatevolumemesh.ui \
+    guiinflatemesh.ui
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h

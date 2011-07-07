@@ -15,8 +15,12 @@ INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 
 LIBS += -lm
-LIBS += -L./netgen_svn -lng
+LIBS += -ltcl8.5
 LIBS += -L./libengrid -lengrid
+LIBS += -L$(BRLCAD_HOME)/lib
+LIBS += -lbn -lbu -lopenNURBS
+LIBS += $(BRLCAD_HOME)/lib/librt.a
+LIBS += -L./netgen_svn -lng
 
 INCLUDEPATH += $(VTKINCDIR)
 LIBS        += -L$(VTKLIBDIR)
@@ -38,7 +42,7 @@ LIBS        += -lvtkVolumeRendering
 LIBS        += -lvtkWidgets
 
 OTHER_FILES += checkcomments.py todo.txt
-RESOURCES   += engrid.qrc
+RESOURCES   += libengrid/engrid.qrc
 
 SOURCES = main.cpp
 

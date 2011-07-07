@@ -536,7 +536,8 @@ void CreateVolumeMesh::operate()
   if (m_Grid->GetNumberOfCells() == 0) {
     EG_ERR_RETURN("The grid appears to be empty.");
   }
-  nglib::Ng_Init();
+  //nglib::Ng_Init();
+  Ng_Init();
   Ng_Meshing_Parameters mp;
   mp.fineness = fineness;
   //mp.secondorder = 0;
@@ -573,6 +574,7 @@ void CreateVolumeMesh::operate()
   try {
     foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
     GuiMainWindow::pointer()->setSystemOutput();
+    writeDebugInfo();
     res = Ng_GenerateVolumeMesh (mesh, &mp);
     GuiMainWindow::pointer()->setLogFileOutput();
   } catch (netgen::NgException ng_err) {

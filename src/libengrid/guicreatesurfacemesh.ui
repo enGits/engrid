@@ -14,7 +14,7 @@
    <string>Create surface mesh</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../engrid.qrc">
+   <iconset resource="engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -255,7 +255,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../engrid.qrc"/>
+  <include location="engrid.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -29,9 +29,13 @@
 
 #include <vtkSTLReader.h>
 
+#include "brlcadprojection.h"
+#include "guiinflatemesh.h"
+
 BrlcadReader::BrlcadReader()
 {
   EG_TYPENAME;
+  setFormat("BRL_CAD database files (*.g)");
 }
 
 void BrlcadReader::processStlFile(QString file_name, bool append_to_list)
@@ -253,8 +257,23 @@ void BrlcadReader::createBackgroundGeometry()
   makeCopy(backup_grid, m_Grid);
 }
 
+void BrlcadReader::readAndInflate()
+{
+  QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+  readInputFileName(file_info.completeBaseName() + ".g");
+  if (isValid()) {
+    GuiMainWindow::pointer()->resetSurfaceProjection();
+    BrlCadProjection *brl_proj = new BrlCadProjection(getFileName());
+    GuiMainWindow::pointer()->setSurfProj(brl_proj, 0);
+    GuiInflateMesh inflate;
+    inflate();
+  }
+}
+
 void BrlcadReader::operate()
 {
+  readAndInflate();
+  /*
   readInputDirectory("Select BRL-CAD export directory");
   if (isValid()) {
     QDir dir(getFileName());
@@ -268,4 +287,5 @@ void BrlcadReader::operate()
     findBoundaryCodes();
     createBackgroundGeometry();
   }
+  */
 }

@@ -53,7 +53,7 @@ package=netgen-mesher
     echo "making $package"
     echo
 
-    make
+    make -j4
 )
 
 # ----------------------------------------------------------------- end-of-file

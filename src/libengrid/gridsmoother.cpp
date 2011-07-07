@@ -114,6 +114,33 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     foreach (int i_cells, n2c[id_node]) {
       vtkIdType id_cell = cells[i_cells];
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+
+      if (type_cell == VTK_TRIANGLE) {
+        vtkIdType N_pts, *pts;
+        vec3_t x[3];
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        for (int i = 0; i < 3; ++i) {
+          m_Grid->GetPoint(pts[i], x[i].data());
+        }
+        double L_max = 0;
+        for (int i = 0; i < 3; ++i) {
+          for (int j = 0; j < 3; ++j) {
+            if (i != j) {
+              L_max = max(L_max, (x[i]-x[j]).abs());
+            }
+          }
+        }
+        if (GeometryTools::cellVA(m_Grid, id_cell) < 1e-3*L_max*L_max*L_max) {
+          move = false;
+        } else if (m_NodeNormal[id_node].abs() > 0.1) {
+          vec3_t n = GeometryTools::triNormal(x[0], x[1], x[2]);
+          n.normalise();
+          if (n*m_NodeNormal[id_node] < 0.1) {
+            move = false;
+          }
+        }
+      }
+
       if (type_cell == VTK_TETRA) {
         vtkIdType N_pts, *pts;
         vec3_t x[4];
@@ -258,6 +285,7 @@ void GridSmoother::computeNormals()
     }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
         if (m_BoundaryCodes.contains(bc)) {
@@ -314,6 +342,25 @@ void GridSmoother::computeNormals()
   }
 
   relaxNormalVectors();
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_NodeNormal[id_node].abs() < 0.1) {
+      vec3_t n(0,0,0);
+      int N = 0;
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+        if (isSurface(id_cell, m_Grid)) {
+          n += GeometryTools::cellNormal(m_Grid, id_cell);
+          ++N;
+        }
+      }
+      if (N) {
+        n.normalise();
+        m_NodeNormal[id_node] = n;
+      }
+    }
+  }
 
 }
 
@@ -656,24 +703,6 @@ void GridSmoother::simpleNodeMovement(int i_nodes)
 void GridSmoother::operate()
 {
   markNodes();
-  /*
-  {
-    m_NodeMarked.fill(true, m_Grid->GetNumberOfPoints());
-    QSet<int> free_bcs = m_BoundaryCodes + m_LayerAdjacentBoundaryCodes;
-    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (isSurface(id_cell, m_Grid)) {
-        if (!free_bcs.contains(cell_code->GetValue(id_cell))) {
-          vtkIdType N_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, N_pts, pts);
-          for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-            m_NodeMarked[pts[i_pts]] = false;
-          }
-        }
-      }
-    }
-  }
-  */
   computeNormals();
   computeFeet();
   computeHeights();
@@ -687,22 +716,11 @@ void GridSmoother::operate()
 
 void GridSmoother::writeDebugFile(QString file_name)
 {
-  QVector<vtkIdType> bcells;
-  getSurfaceCells(m_BoundaryCodes, bcells, m_Grid);
+  QVector<vtkIdType> bcells;  
+  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
+  getSurfaceCells(bcs, bcells, m_Grid);
   MeshPartition bpart(m_Grid);
   bpart.setCells(bcells);
-  /*
-  QVector<vtkIdType> foot2field(bpart.getNumberOfNodes(), -1);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vtkIdType id_foot = m_IdFoot[id_node];
-    if (id_foot != -1) {
-      if (bpart.localNode(id_foot) == -1) {
-        EG_BUG;
-      }
-      foot2field[bpart.localNode(id_foot)] = id_node;
-    }
-  }
-  */
   file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtk";
   QFile file(file_name);
   file.open(QIODevice::WriteOnly);
@@ -718,24 +736,32 @@ void GridSmoother::writeDebugFile(QString file_name)
     m_Grid->GetPoint(id_node, x.data());
     f << x[0] << " " << x[1] << " " << x[2] << "\n";
   }
-  f << "CELLS " << bpart.getNumberOfCells() << " " << 4*bpart.getNumberOfCells() << "\n";
+  f << "CELLS " << bpart.getNumberOfCells() << " ";
+  int N = 0;
   for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
     vtkIdType id_cell = bpart.globalCell(i);
     vtkIdType N_pts, *pts;
-    if (m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
-      EG_BUG;
-    }
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<int> nds(3);
-    for (int j = 0; j < 3; ++j) {
-      nds[j] = bpart.localNode(pts[j]);
+    N += 1 + N_pts;
+  }
+  f << N << "\n";
+  for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
+    vtkIdType id_cell = bpart.globalCell(i);
+    vtkIdType N_pts, *pts;
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    QVector<int> nds(N_pts);
+    f << N_pts;
+    for (int j = 0; j < N_pts; ++j) {
+      f << " " << bpart.localNode(pts[j]);
     }
-    f << "3 " << nds[0] << " " << nds[1] << " " << nds[2] << "\n";
+    f << "\n";
   }
 
   f << "CELL_TYPES " << bpart.getNumberOfCells() << "\n";
   for (int i = 0; i < bpart.getNumberOfCells(); ++ i) {
-    f << VTK_TRIANGLE << "\n";
+    vtkIdType id_cell = bpart.globalCell(i);
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    f << type_cell << "\n";
   }
   f << "POINT_DATA " << bpart.getNumberOfNodes() << "\n";
   f << "VECTORS N float\n";
