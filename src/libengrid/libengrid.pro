@@ -198,8 +198,7 @@ HEADERS = boundarycondition.h \
     ../math/mathvector_structs.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
-    createboundarylayer.h \
-    brlcadreader.h
+    createboundarylayer.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -297,8 +296,7 @@ SOURCES = boundarycondition.cpp \
     timer.cpp \
     facefinder.cpp \
     pointfinder.cpp \
-    createboundarylayer.cpp \
-    brlcadreader.cpp
+    createboundarylayer.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

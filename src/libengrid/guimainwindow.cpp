@@ -1994,9 +1994,12 @@ void GuiMainWindow::resetSurfaceProjection()
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 {
+  QString bc_txt;
+  bc_txt.setNum(bc);
   if (!m_SurfProj.contains(bc)) {
-    QString bc_txt;
-    bc_txt.setNum(bc);
+    bc = 0;
+  }
+  if (!m_SurfProj.contains(bc)) {
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
   return m_SurfProj[bc];

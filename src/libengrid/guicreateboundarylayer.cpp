@@ -52,6 +52,7 @@ void GuiCreateBoundaryLayer::before()
     }
   }
   ui.checkBoxRemovePoints->setChecked(m_RemovePoints);
+  ui.checkBoxSafeMode->setChecked(false);
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
@@ -97,7 +98,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setMeshPartition(part);
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   remove_points.setUpdatePSPOn();
-  remove_points.setThreshold(2.0);
+  remove_points.setThreshold(3);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -267,9 +268,7 @@ void GuiCreateBoundaryLayer::operate()
     cout << "preparing prismatic layer" << endl;
     seed_layer.setGrid(m_Grid);
     del();
-    if (ui.checkBoxSafeMode->isChecked()) {
-      vol();
-    }
+    vol();
     seed_layer.setAllCells();
     seed_layer.setLayerCells(layer_cells);
     seed_layer.setBoundaryCodes(m_BoundaryCodes);
@@ -286,10 +285,12 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setDesiredStretching(ui.doubleSpinBoxStretching->value());
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
+    if (!ui.checkBoxSafeMode->isChecked()) {
+      del.setAllCells();
+      del();
+    }
     smooth.setAllCells();
     smooth();
-    del.setAllCells();
-    del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
     if (delete_nodes) {
       reduceSurface();
     }

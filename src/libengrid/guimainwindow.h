@@ -370,6 +370,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setFilename(QString filename) { m_CurrentFilename = filename; }
 
     SurfaceProjection* getSurfProj(int bc);
+    void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     bool checkSurfProj();
 
 #if defined( __linux__ ) //for Linux
@@ -452,7 +453,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void periodicUpdate();
 
     void storeSurfaceProjection(bool nosave = false);
-    void resetSurfaceProjection();
+    void resetSurfaceProjection();    
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:
@@ -509,7 +510,6 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
     void callSharpenEdges()               { EG_STDSLOT(SharpenEdges); }
     void callCheckForOverlap()            { EG_STDSLOT(CheckForOverlap); }
-    void callBrlcadReader()               { EG_STDREADERSLOT(BrlcadReader); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 
