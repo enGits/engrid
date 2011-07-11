@@ -70,13 +70,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="@&quot;$(SolutionDir)\qt_vtk_includes.rsp&quot;"
+				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid"
-				PreprocessorDefinitions="NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;_USE_MATH_DEFINES;WIN32;_DEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_DEBUG;_CRT_SECURE_NO_WARNINGS"
-				MinimalRebuild="true"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -91,9 +91,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libengrid.lib QtGuid4.lib QtCored4.lib QtXmld4.lib"
+				AdditionalDependencies="libengrid.lib QtGui4.lib QtCore4.lib QtXml4.lib"
 				OutputFile="$(OutDir)\engrid.exe"
-				AdditionalLibraryDirectories="$(OutDir);$(OutDir)\ext_libs"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party\VTK\lib&quot;;&quot;..\..\..\third_party\Qt\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -161,10 +161,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="@&quot;$(SolutionDir)\qt_vtk_includes.rsp&quot;"
+				AdditionalOptions="/MP"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\libengrid"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns"
 				PreprocessorDefinitions="DLL_EXPORT;_USE_MATH_DEFINES;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -182,9 +182,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="QtGui4.lib QtCore4.lib QtXml4.lib"
+				AdditionalDependencies="libengrid.lib QtGui4.lib QtCore4.lib QtXml4.lib"
 				OutputFile="$(OutDir)\engrid.exe"
-				AdditionalLibraryDirectories="$(OutDir);$(OutDir)\ext_libs"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party\VTK\lib&quot;;&quot;..\..\..\third_party\Qt\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
