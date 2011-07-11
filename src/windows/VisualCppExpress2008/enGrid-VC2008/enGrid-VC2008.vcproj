@@ -49,12 +49,14 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="Update and Release Language files"
 			/>
 			<Tool
 				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="QTResBuilder"
@@ -140,12 +142,14 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="Update and Release Language files"
 			/>
 			<Tool
 				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="QTResBuilder"

@@ -134,6 +134,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -146,6 +147,7 @@
 			/>
 			<Tool
 				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="QCollectionGenerator"
@@ -3418,20 +3420,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\vertexdelegate.h"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vertexmeshdensity.h"
