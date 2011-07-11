@@ -14,13 +14,13 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath="..\QT_qrc_rules.rules"
-		/>
-		<ToolFile
 			RelativePath="..\QT_moc_rule.rules"
 		/>
 		<ToolFile
 			RelativePath="..\QT_qhcp_rules.rules"
+		/>
+		<ToolFile
+			RelativePath="..\QT_qrc_rules.rules"
 		/>
 		<ToolFile
 			RelativePath="..\QT_ts_rule.rules"
@@ -42,23 +42,25 @@
 				CommandLine=""
 			/>
 			<Tool
-				Name="QT MOC Builder"
+				Name="QCollectionGenerator"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
 				CommandLine=""
 			/>
 			<Tool
-				Name="QTResBuilder"
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="Update and Release Language files"
 			/>
 			<Tool
 				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
-				Name="QCollectionGenerator"
+				Name="QTResBuilder"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -133,22 +135,24 @@
 				CommandLine=""
 			/>
 			<Tool
-				Name="QT MOC Builder"
+				Name="QCollectionGenerator"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="QTResBuilder"
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
 				Name="Update and Release Language files"
 			/>
 			<Tool
 				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
 			/>
 			<Tool
-				Name="QCollectionGenerator"
+				Name="QTResBuilder"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -235,10 +239,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\boxselect.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\libengrid\brlcadreader.cpp"
 				>
 			</File>
 			<File
@@ -3418,20 +3418,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\vertexdelegate.h"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vertexmeshdensity.h"
@@ -3988,7 +3974,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\engrid.qrc"
+				RelativePath="..\..\..\libengrid\engrid.qrc"
 				>
 			</File>
 		</Filter>
