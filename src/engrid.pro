@@ -7,6 +7,8 @@ CONFIG         += qt debug_and_release thread
 QT             += xml network opengl
 QMAKE_CXXFLAGS += -Wall
 QMAKE_CXXFLAGS += -Wno-deprecated
+QMAKE_CXXFLAGS += -g
+QMAKE_LFLAGS   += -g
 
 INCLUDEPATH += ./libengrid
 INCLUDEPATH += ./libengrid-build

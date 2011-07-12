@@ -9,6 +9,7 @@ QT += xml \
     opengl
 QMAKE_CXXFLAGS += -Wall
 QMAKE_CXXFLAGS += -Wno-deprecated
+QMAKE_CXXFLAGS += -g
 INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
