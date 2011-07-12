@@ -34,6 +34,7 @@ SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
   this->setGrid(m_BGrid);
   m_BC = bc;
   getSet("surface meshing", "correct curvature", true, m_correctCurvature);
+  m_correctCurvature = false;
   getSet("surface meshing", "correct curvature with cubic function", false, m_UseCubicCorrection);
   m_CritDistance = 0.1;
 }
@@ -211,45 +212,49 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
 
   // initilizing booleans
   bool on_triangle = false;
-  bool need_search = false;
 
   vtkIdType proj_triangle = -1;
   if (id_node != -1) {
-    getProjTriangle(id_node);
+    proj_triangle = getProjTriangle(id_node);
   }
 
-  if (proj_triangle == -1) { //if there is no known triangle on which to project
-    need_search = true;
-  } else { //if there is a known triangle on which to project
-    if (proj_triangle >= m_Triangles.size()) {
-      EG_BUG;
-    }
-    Triangle T = m_Triangles[proj_triangle];
-    vec3_t xi, ri;
-    double d;
-    int side;
-    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
-    if (!intersects || (d > m_CritDistance*T.smallestLength())) {
-      need_search = true;
-    } else {
-      x_proj = xi;
-      x_proj_set = true;
-      if (x_proj[0] > 1e98) { // should never happen
-        EG_BUG;
-      }
-      r_proj = ri;
-      on_triangle = intersects;
-    }
-  }
-  //need_search = true;
-  if (need_search) {
+  if (proj_triangle == -1) {
     searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
     if (id_node != -1) {
       setProjTriangle(id_node, proj_triangle);
     }
   }
+  if (proj_triangle >= m_Triangles.size()) {
+    EG_BUG;
+  }
+  Triangle T = m_Triangles[proj_triangle];
+  vec3_t xi, ri;
+  double d;
+  int side;
+  bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+  if (!intersects || (d > m_CritDistance*T.smallestLength())) {
+    searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
+    T = m_Triangles[proj_triangle];
+    T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+    if (id_node != -1) {
+      setProjTriangle(id_node, proj_triangle);
+    }
+  }
+  x_proj = xi;
+  x_proj_set = true;
+  if (x_proj[0] > 1e98) { // should never happen
+    EG_BUG;
+  }
+  r_proj = ri;
+  on_triangle = intersects;
+  if (!checkVector(x_proj)) {
+    EG_BUG;
+  }
   if (m_correctCurvature) {
-    x_proj = correctCurvature(proj_triangle, x_proj);
+    vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
+    if (checkVector(x_corr)) {
+      x_proj = x_corr;
+    }
   }
   m_LastProjTriangle = proj_triangle;
   return x_proj;
@@ -358,25 +363,40 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
     vec3_t nb = m_NodeNormals[m_Triangles[proj_triangle].idB()];
     vec3_t nc = m_NodeNormals[m_Triangles[proj_triangle].idC()];
     vec3_t nd, ne, nf, n;
-    if (ab < bc && ab < ca) {
-      GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
-      vec2_t rd = rc + k1*(rx-rc);
-      vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
-      interpolate(a, na, b, nb, d, nd);
-      interpolate(c, nc, d, nd, xc, n);
-    } else if (bc < ab && bc < ca) {
-      GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
-      vec2_t re = ra + k1*(rx-ra);
-      vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
-      interpolate(b, nb, c, nc, e, ne);
-      interpolate(a, na, e, ne, xc, n);
-    } else if (ca < ab && ca < bc) {
-      GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
-      vec2_t rf = rb + k1*(rx-rb);
-      vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
-      interpolate(c, nc, a, na, f, nf);
-      interpolate(b, nb, f, nf, xc, n);
+
+    GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
+    vec2_t rd = rc + k1*(rx-rc);
+    vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
+    interpolate(a, na, b, nb, d, nd);
+    vec3_t xc_ab = xc;
+    interpolate(c, nc, d, nd, xc_ab, n);
+    double dev_ab = (xc_ab - d).abs2();
+
+    GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
+    vec2_t re = ra + k1*(rx-ra);
+    vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
+    interpolate(b, nb, c, nc, e, ne);
+    vec3_t xc_bc = xc;
+    interpolate(a, na, e, ne, xc_bc, n);
+    double dev_bc = (xc_bc - e).abs2();
+
+    GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
+    vec2_t rf = rb + k1*(rx-rb);
+    vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
+    interpolate(c, nc, a, na, f, nf);
+    vec3_t xc_ca = xc;
+    interpolate(b, nb, f, nf, xc_ca, n);
+    double dev_ca = (xc_ca - f).abs2();
+
+    if        (dev_ab <= dev_bc && dev_ab <= dev_ca) {
+      xc = xc_ab;
+    } else if (dev_bc <= dev_ab && dev_bc <= dev_ca) {
+      xc = xc_bc;
     } else {
+      xc = xc_ca;
+    }
+    /*
+    {
       GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
       vec2_t rd = rc + k1*(rx-rc);
       vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
@@ -386,6 +406,7 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
       GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
       vec2_t rf = rb + k1*(rx-rb);
       vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
+
       interpolate(a, na, b, nb, d, nd);
       interpolate(b, nb, c, nc, e, ne);
       interpolate(c, nc, a, na, f, nf);
@@ -397,13 +418,27 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
       interpolate(c, nc, d, nd, x3, n);
       xc = (1.0/3.0)*(x1+x2+x3);
     }
+    */
+
     // make sure that base point doesn't move
     vec3_t dx = x - m_Triangles[proj_triangle].a();
     dx -= (dx*m_Triangles[proj_triangle].g3())*m_Triangles[proj_triangle].g3();
     vec3_t dxc = xc - m_Triangles[proj_triangle].a();
     dxc -= (dxc*m_Triangles[proj_triangle].g3())*m_Triangles[proj_triangle].g3();
     xc += dx - dxc;
-    return xc;
+    if (checkVector(xc)) {
+      /*
+      xc -= x;
+      if (xc.abs()/m_Triangles[proj_triangle].smallestHeight() > 1.0) {
+        xc = x;
+      } else {
+        xc += x;
+      }
+      */
+      return xc;
+    } else {
+      return x;
+    }
   }
   return x;
 }
