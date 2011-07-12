@@ -38,7 +38,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   getSet("surface meshing", "correct curvature", false, m_correctCurvature);
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   m_NoCheck = false;
-  m_ProjectionIterations = 20;
+  m_ProjectionIterations = 50;
   m_FreeProjectionForEdges = false;
   m_AllowedCellTypes.clear();
   m_AllowedCellTypes.insert(VTK_TRIANGLE);
@@ -94,7 +94,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     // better for mesher without interpolation
       x_summit = x_old + L_max*n;
     }
-    
+
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
       vtkIdType N_pts, *pts;
@@ -137,6 +137,9 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
+  if (!checkVector(Dx)) {
+    return false;
+  }
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
@@ -161,7 +164,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           if (m_correctCurvature) {
             foreach (int bc, m_NodeToBc[i_nodes]) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastPprojTriangle(), x_new);
+              //x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastPprojTriangle(), x_new);
             }
           }
         }
