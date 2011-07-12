@@ -45,7 +45,8 @@ protected:
   mat3_t m_G, m_GI;
   double m_A;
   double m_SmallestLength;
-  bool m_Valid;
+  double m_SmallestHeight;
+  bool   m_Valid;
   vec3_t m_NormalA, m_NormalB, m_NormalC;
   QVector <bool> m_HasNeighbour; ///< True if edge i has a neighbour in the grid
 
@@ -91,6 +92,7 @@ public:
   vec3_t nB() { return m_NormalB; }
   vec3_t nC() { return m_NormalC; }
   double smallestLength() { return m_SmallestLength; }
+  double smallestHeight() { return m_SmallestHeight; }
 
 
 };

@@ -129,6 +129,12 @@ void Triangle::setupTriangle()
   m_SmallestLength = (m_Xb - m_Xa).abs();
   m_SmallestLength = min(m_SmallestLength, (m_Xc - m_Xb).abs());
   m_SmallestLength = min(m_SmallestLength, (m_Xa - m_Xc).abs());
+
+  // compute minimal height
+  double ha = (GeometryTools::projectPointOnEdge(m_Xa, m_Xb, (m_Xc - m_Xb)) - m_Xa).abs();
+  double hb = (GeometryTools::projectPointOnEdge(m_Xb, m_Xa, (m_Xc - m_Xa)) - m_Xb).abs();
+  double hc = (GeometryTools::projectPointOnEdge(m_Xc, m_Xa, (m_Xb - m_Xa)) - m_Xc).abs();
+  m_SmallestHeight = min(ha, min(hb, hc));
 }
 
 vec3_t Triangle::local3DToGlobal3D(vec3_t r)
