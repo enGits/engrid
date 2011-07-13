@@ -32,7 +32,8 @@ NIGHTLYDIR=/var/www/ftp/nightly
 ./scripts/makedist.bash .. $NIGHTLYDIR
 
 #Update online documentation
-/usr/bin/doxygen Doxyfile
+/opt/shared/alternatives/bin/doxygen
+#/usr/bin/doxygen Doxyfile
 
 #Generate TODO lists
 ./scripts/checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail
