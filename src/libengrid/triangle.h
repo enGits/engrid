@@ -48,6 +48,7 @@ protected:
   double m_SmallestHeight;
   bool   m_Valid;
   vec3_t m_NormalA, m_NormalB, m_NormalC;
+  vec3_t m_RNormalA, m_RNormalB, m_RNormalC;
   QVector <bool> m_HasNeighbour; ///< True if edge i has a neighbour in the grid
 
 public:
@@ -91,8 +92,12 @@ public:
   vec3_t nA() { return m_NormalA; }
   vec3_t nB() { return m_NormalB; }
   vec3_t nC() { return m_NormalC; }
+  vec3_t rNa() { return m_RNormalA; }
+  vec3_t rNb() { return m_RNormalB; }
+  vec3_t rNc() { return m_RNormalC; }
   double smallestLength() { return m_SmallestLength; }
   double smallestHeight() { return m_SmallestHeight; }
+  void setNormals(vec3_t na, vec3_t nb, vec3_t nc);
 
 
 };

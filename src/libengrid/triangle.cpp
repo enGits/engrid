@@ -135,6 +135,7 @@ void Triangle::setupTriangle()
   double hb = (GeometryTools::projectPointOnEdge(m_Xb, m_Xa, (m_Xc - m_Xa)) - m_Xb).abs();
   double hc = (GeometryTools::projectPointOnEdge(m_Xc, m_Xa, (m_Xb - m_Xa)) - m_Xc).abs();
   m_SmallestHeight = min(ha, min(hb, hc));
+
 }
 
 vec3_t Triangle::local3DToGlobal3D(vec3_t r)
@@ -272,4 +273,15 @@ void Triangle::saveTriangle(QString filename)
   triangle_grid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
   
   saveGrid(triangle_grid, filename+"_triangle_grid");
+}
+
+void Triangle::setNormals(vec3_t na, vec3_t nb, vec3_t nc)
+{
+  m_NormalA = na;
+  m_NormalB = nb;
+  m_NormalC = nc;
+  // compute normal vectors in local coordinate system
+  m_RNormalA = global3DToLocal3D(a() + nA());
+  m_RNormalB = global3DToLocal3D(a() + nB());
+  m_RNormalC = global3DToLocal3D(a() + nC());
 }

@@ -63,7 +63,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
     Triangle T = m_Triangles[id_triangle];
     double d;
     int side;
-    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+    bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
     if (d >= 1e99) {
       EG_BUG;
     }
@@ -81,7 +81,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
       Triangle T = m_Triangles[id_triangle];
       double d;
       int side;
-      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
+      bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, true);
       if (d >= 1e99) {
         EG_BUG;
       }
@@ -163,6 +163,11 @@ void SurfaceProjection::updateBackgroundGridInfo()
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     m_NodeNormals[id_node].normalise();
   }
+  for (int i = 0; i < m_Triangles.size(); ++i) {
+    Triangle &T = m_Triangles[i];
+    T.setNormals(m_NodeNormals[T.idA()], m_NodeNormals[T.idB()], m_NodeNormals[T.idC()]);
+  }
+
   m_BPart.setGrid(m_BGrid);
   m_BPart.setAllCells();
   computeSurfaceCurvature();
@@ -340,107 +345,25 @@ void SurfaceProjection::interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, 
 
 vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
 {
-  bool correct = false;
-  vec2_t rx;
+  vec3_t x_corr = x;
   if (proj_triangle != -1) {
-    rx = m_Triangles[proj_triangle].global3DToLocal2D(x);
-    correct = true;
-  }
-  if (correct) {
-    vec3_t xc = x;
-    vec2_t ra(0,0);
-    vec2_t rb(1,0);
-    vec2_t rc(0,1);
-    double k1 =0;
-    double k2 =0;
-    vec3_t a = m_Triangles[proj_triangle].a();
-    vec3_t b = m_Triangles[proj_triangle].b();
-    vec3_t c = m_Triangles[proj_triangle].c();
-    double ab = (a-b).abs();
-    double bc = (b-c).abs();
-    double ca = (c-a).abs();
-    vec3_t na = m_NodeNormals[m_Triangles[proj_triangle].idA()];
-    vec3_t nb = m_NodeNormals[m_Triangles[proj_triangle].idB()];
-    vec3_t nc = m_NodeNormals[m_Triangles[proj_triangle].idC()];
-    vec3_t nd, ne, nf, n;
-
-    GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
-    vec2_t rd = rc + k1*(rx-rc);
-    vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
-    interpolate(a, na, b, nb, d, nd);
-    vec3_t xc_ab = xc;
-    interpolate(c, nc, d, nd, xc_ab, n);
-    double dev_ab = (xc_ab - d).abs2();
-
-    GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
-    vec2_t re = ra + k1*(rx-ra);
-    vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
-    interpolate(b, nb, c, nc, e, ne);
-    vec3_t xc_bc = xc;
-    interpolate(a, na, e, ne, xc_bc, n);
-    double dev_bc = (xc_bc - e).abs2();
-
-    GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
-    vec2_t rf = rb + k1*(rx-rb);
-    vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
-    interpolate(c, nc, a, na, f, nf);
-    vec3_t xc_ca = xc;
-    interpolate(b, nb, f, nf, xc_ca, n);
-    double dev_ca = (xc_ca - f).abs2();
-
-    if        (dev_ab <= dev_bc && dev_ab <= dev_ca) {
-      xc = xc_ab;
-    } else if (dev_bc <= dev_ab && dev_bc <= dev_ca) {
-      xc = xc_bc;
-    } else {
-      xc = xc_ca;
-    }
-    /*
-    {
-      GeometryTools::intersection(k1, k2, rc, rx-rc, ra, rb-ra);
-      vec2_t rd = rc + k1*(rx-rc);
-      vec3_t d = m_Triangles[proj_triangle].local2DToGlobal3D(rd);
-      GeometryTools::intersection(k1, k2, ra, rx-ra, rb, rc-rb);
-      vec2_t re = ra + k1*(rx-ra);
-      vec3_t e = m_Triangles[proj_triangle].local2DToGlobal3D(re);
-      GeometryTools::intersection(k1, k2, rb, rx-rb, rc, ra-rc);
-      vec2_t rf = rb + k1*(rx-rb);
-      vec3_t f = m_Triangles[proj_triangle].local2DToGlobal3D(rf);
-
-      interpolate(a, na, b, nb, d, nd);
-      interpolate(b, nb, c, nc, e, ne);
-      interpolate(c, nc, a, na, f, nf);
-      vec3_t x1 = x;
-      vec3_t x2 = x;
-      vec3_t x3 = x;
-      interpolate(a, na, e, ne, x1, n);
-      interpolate(b, nb, f, nf, x2, n);
-      interpolate(c, nc, d, nd, x3, n);
-      xc = (1.0/3.0)*(x1+x2+x3);
-    }
-    */
-
-    // make sure that base point doesn't move
-    vec3_t dx = x - m_Triangles[proj_triangle].a();
-    dx -= (dx*m_Triangles[proj_triangle].g3())*m_Triangles[proj_triangle].g3();
-    vec3_t dxc = xc - m_Triangles[proj_triangle].a();
-    dxc -= (dxc*m_Triangles[proj_triangle].g3())*m_Triangles[proj_triangle].g3();
-    xc += dx - dxc;
-    if (checkVector(xc)) {
-      /*
-      xc -= x;
-      if (xc.abs()/m_Triangles[proj_triangle].smallestHeight() > 1.0) {
-        xc = x;
-      } else {
-        xc += x;
-      }
-      */
-      return xc;
-    } else {
-      return x;
+    Triangle &T = m_Triangles[proj_triangle];
+    vec3_t rx = T.global3DToLocal3D(x);
+    double w1 = 1.0 - rx[0] - rx[1];
+    double w2 = rx[0];
+    double w3 = rx[1];
+    double k1 = GeometryTools::intersection(x, T.g3(), T.a(), T.nA());
+    double k2 = GeometryTools::intersection(x, T.g3(), T.b(), T.nB());
+    double k3 = GeometryTools::intersection(x, T.g3(), T.c(), T.nC());
+    double S = 0.5;
+    double k = w1*k1 + w2*k2 + w3*k3;
+    k -= rx[2];
+    x_corr = x + S*k*T.g3();
+    if (!checkVector(x_corr)) {
+      x_corr = x;
     }
   }
-  return x;
+  return x_corr;
 }
 
 void SurfaceProjection::computeSurfaceCurvature()
