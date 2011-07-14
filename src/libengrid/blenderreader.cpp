@@ -36,7 +36,7 @@ void BlenderReader::operate()
 {
   try {
     QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
-    readInputFileName(file_info.completeBaseName() + ".begc");
+    readInputFileName(file_info.completeBaseName() + ".begc", false);
     if (isValid()) {
       // read raw data from exported file
       QFile file(getFileName());
@@ -162,10 +162,29 @@ void BlenderReader::operate()
       UpdateNodeIndex(m_Grid);
       UpdateCellIndex(m_Grid);
 
-      // set the boundary names
-      GuiMainWindow::pointer()->clearBCs();
-      for (int i_part = 0; i_part < part_name.size(); ++i_part) {
-        GuiMainWindow::pointer()->addBC(part_bc[i_part], BoundaryCondition(part_name[i_part], "patch"));
+      // check and set the boundary names if required
+      int update_required = true;
+      QSet<int> old_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+      if (old_bcs.size() == part_name.size()) {
+        QSet<QString> old_names;
+        foreach (int bc, old_bcs) {
+          old_names.insert(GuiMainWindow::pointer()->getBC(bc).getName());
+        }
+        QSet<QString> new_names;
+        foreach (QString name, part_name) {
+          new_names.insert(name);
+        }
+        if (old_names == new_names) {
+          update_required = false;
+          cout << "no update required" << endl;
+        }
+      }
+      if (update_required) {
+        GuiMainWindow::pointer()->resetXmlDoc();
+        GuiMainWindow::pointer()->clearBCs();
+        for (int i_part = 0; i_part < part_name.size(); ++i_part) {
+          GuiMainWindow::pointer()->addBC(part_bc[i_part], BoundaryCondition(part_name[i_part], "patch"));
+        }
       }
 
     }
