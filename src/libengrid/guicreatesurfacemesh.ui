@@ -31,7 +31,13 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="1" column="1">
-          <widget class="QTextEdit" name="textEdit"/>
+          <widget class="QTextEdit" name="textEdit">
+           <property name="font">
+            <font>
+             <family>Liberation Mono</family>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QListWidget" name="listWidget">
