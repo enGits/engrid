@@ -126,7 +126,8 @@ HEADERS = boundarycondition.h \
     ../math/mathvector_structs.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
-    createboundarylayer.h
+    createboundarylayer.h \
+    guisurfacemesher.h
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -223,7 +224,8 @@ SOURCES = boundarycondition.cpp \
     timer.cpp \
     facefinder.cpp \
     pointfinder.cpp \
-    createboundarylayer.cpp
+    createboundarylayer.cpp \
+    guisurfacemesher.cpp
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -236,7 +238,8 @@ FORMS = guicreateboundarylayer.ui \
     guicreatesurfacemesh.ui \
     guitransform.ui \
     guipick.ui \
-    guicreatevolumemesh.ui
+    guicreatevolumemesh.ui \
+    guisurfacemesher.ui
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
