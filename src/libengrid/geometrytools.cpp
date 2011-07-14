@@ -24,6 +24,7 @@
 #include "containertricks.h"
 #include "engrid.h"
 #include "utilities.h"
+#include "math/linsolve.h"
 
 #include <vtkCellType.h>
 #include <cmath>
@@ -454,14 +455,7 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
-  if(G.det()==0) {
-    EG_BUG;
-  }
   
-  checkVector(g1);
-  checkVector(g2);
-  checkVector(g3);
-  G.inverse();
   mat3_t GI = G.inverse();
   ri = xi - a;
   ri = GI*ri;
