@@ -33,9 +33,6 @@ SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
   m_BGrid = vtkUnstructuredGrid::New();
   this->setGrid(m_BGrid);
   m_BC = bc;
-  getSet("surface meshing", "correct curvature", true, m_correctCurvature);
-  m_correctCurvature = false;
-  getSet("surface meshing", "correct curvature with cubic function", false, m_UseCubicCorrection);
   m_CritDistance = 0.1;
 }
 
@@ -203,7 +200,7 @@ void SurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_triang
 }
 
 
-vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
+vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature)
 {
   if (!checkVector(xp)) {
     qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;
@@ -255,7 +252,7 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
   if (!checkVector(x_proj)) {
     EG_BUG;
   }
-  if (m_correctCurvature) {
+  if (correct_curvature) {
     vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
     if (checkVector(x_corr)) {
       x_proj = x_corr;
@@ -265,82 +262,16 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node)
   return x_proj;
 }
 
-vec3_t SurfaceProjection::projectFree(vec3_t x, vtkIdType id_node)
+vec3_t SurfaceProjection::projectFree(vec3_t x, vtkIdType id_node, bool correct_curvature)
 {
   m_RestrictToTriangle = false;
-  return project(x, id_node);
+  return project(x, id_node, correct_curvature);
 }
 
-vec3_t SurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node)
+vec3_t SurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node, bool correct_curvature)
 {
   m_RestrictToTriangle = true;
-  return project(x, id_node);
-}
-
-void SurfaceProjection::interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, vec3_t &xv, vec3_t &n)
-{
-  double x  = (xv-x0).abs()/(x1-x0).abs();
-  n = (1-x)*n0 + x*n1;
-  n.normalise();
-  if (m_UseCubicCorrection) {
-    vec3_t v = x1 - x0;
-    double L = v.abs();
-    v.normalise();
-    xv = x0 + ((xv-x0)*v)*v;
-    double f = 0;
-    /*
-    double g0 = -1.0/tan(GeometryTools::angle(n0, v));
-    double g1 = -1.0/tan(GeometryTools::angle(n1, v));
-    */
-    double g0 = 0;
-    double g1 = 0;
-    {
-      double x0 = -(n0*v);
-      double y0 = sqrt(1-x0-x0);
-      g0 = x0/y0;
-      double x1 = -(n1*v);
-      double y1 = sqrt(1-x1-x1);
-      g1 = x1/y1;
-    }
-    double a  = g0;
-    double b  = -2*g0-g1;
-    double c  = g0+g1;
-    /*
-    if (fabs(c) > 1e-6) {
-      double xi = b/(3*c); // inflexion
-      if (xi > 0 && xi < 1) {
-        a = 0;
-        b = 0;
-        c = 0;
-      }
-    }
-    */
-    f = (a*x+b*x*x+c*x*x*x);
-    xv += L*f*n;
-  } else {
-    bool ok = false;
-    n0.normalise();
-    n1.normalise();
-    vec3_t n_plane = n0.cross(n1);
-    if (n.abs() > 1e-3) {
-      n_plane.normalise();
-      vec3_t x0_plane = x0;
-      vec3_t x1_plane = x1 + GeometryTools::intersection(x1, n_plane, x0_plane, n_plane)*n_plane;
-      vec3_t n_i = x1_plane - x0_plane;
-      if (n_i.abs()/(x1-x0).abs() > 1e-6) {
-        n_i.normalise();
-        vec3_t x_i = 0.5*(x0_plane + x1_plane);
-        vec3_t x0_i = x0_plane + GeometryTools::intersection(x0_plane, n0, x_i, n_i)*n0;
-        vec3_t x1_i = x1_plane + GeometryTools::intersection(x1_plane, n1, x_i, n_i)*n1;
-        vec3_t origin = 0.5*(x0_i + x1_i);
-        double r = (x0-origin).abs();
-        vec3_t xc = origin + GeometryTools::intersection(origin, n_plane, xv, n_plane)*n_plane;
-        n = xv - xc;
-        n.normalise();
-        xv = xc+r*n;
-      }
-    }
-  }
+  return project(x, id_node, correct_curvature);
 }
 
 vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
@@ -368,6 +299,7 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
 
 void SurfaceProjection::computeSurfaceCurvature()
 {
+  /*
   m_Radius.fill(1e99, m_BGrid->GetNumberOfCells());
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
@@ -382,8 +314,30 @@ void SurfaceProjection::computeSurfaceCurvature()
     n[N_pts] = n[0];
     for (int i = 0; i < N_pts; ++i) {
       double alpha = max(1e-3,acos(n[i]*n[i+1]));
-      double a     = (x[i]-x[i+1]).abs();
-      m_Radius[id_cell] = min(m_Radius[id_cell], a/alpha);
+      if (alpha > 1e-3) {
+        double a = (x[i]-x[i+1]).abs();
+        m_Radius[id_cell] = min(m_Radius[id_cell], a/alpha);
+      }
+    }
+  }
+  */
+  m_Radius.fill(1e99, m_BGrid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x1;
+    m_BGrid->GetPoint(id_node, x1.data());
+    for (int i = 0; i < m_BPart.n2nGSize(id_node); ++i) {
+      vtkIdType id_neigh = m_BPart.n2nGG(id_node, i);
+      double scal_prod = max(-1.0, min(1.0, m_NodeNormals[id_node]*m_NodeNormals[id_neigh]));
+      double alpha = max(1e-3, acos(scal_prod));
+      if (alpha > 1e-3) {
+        vec3_t x2;
+        m_BGrid->GetPoint(id_neigh, x2.data());
+        double a = (x1 - x2).abs();
+        m_Radius[id_node] = min(m_Radius[id_node], a/alpha);
+        if (m_Radius[id_node] < 1e-3) {
+          cout << "Science goes Boink!" << endl;
+        }
+      }
     }
   }
 }
@@ -397,5 +351,15 @@ double SurfaceProjection::getRadius(vtkIdType id_node)
   if (id_tri == -1) {
     EG_BUG;
   }
-  return m_Radius[id_tri];
+  Triangle &T = m_Triangles[id_tri];
+  vec2_t r = T.global3DToLocal2D(x);
+  double Ra   = m_Radius[T.idA()];
+  double Rb   = m_Radius[T.idB()];
+  double Rc   = m_Radius[T.idC()];
+  double R    = min(Ra, min(Rb, Rc));
+  double Rmax = max(Ra, max(Rb, Rc));
+  if (Rmax < 1e90) {
+    R = Ra + r[0]*(Rb - Ra) + r[1]*(Rc - Ra);
+  }
+  return R;
 }

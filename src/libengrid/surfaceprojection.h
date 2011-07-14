@@ -64,8 +64,6 @@ protected: // attributes
   QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
-  bool                      m_correctCurvature;   ///< Should correctCurvature() be used?
-  bool                      m_UseCubicCorrection; ///< Should cubic curvature correction be used?
   int                       m_BC;
   bool                      m_RestrictToTriangle;
   double                    m_CritDistance;
@@ -76,7 +74,7 @@ protected: // attributes
 protected: // static attributes
 
   static vtkIdType m_LastPindex;
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1);
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
 
 protected: // methods
 
@@ -86,7 +84,6 @@ protected: // methods
   vtkIdType getProjTriangle(vtkIdType id_node);
   void      setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
   void      computeSurfaceCurvature();
-  void      interpolate(vec3_t x0, vec3_t n0, vec3_t x1, vec3_t n1, vec3_t &x, vec3_t &n);
 
 public: // methods
 
@@ -99,14 +96,12 @@ public: // methods
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
   void    setForegroundGrid(vtkUnstructuredGrid* grid);
-  virtual vec3_t projectRestricted(vec3_t x, vtkIdType id_node = -1);
-  virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1);
+  virtual vec3_t projectRestricted(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
+  virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
   double getRadius(vtkIdType id_node);
 
-  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature()       { return m_correctCurvature; }
   vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
   vtkIdType lastPprojTriangle() { return m_LastProjTriangle; }
 

@@ -73,7 +73,7 @@ protected: // methods
 
   void prepare();
   void swap();
-  void smooth(int N_iter);
+  void smooth(int N_iter, bool correct_curvature = false);
   int  insertNodes();
   int  deleteNodes();
   void computeMeshDensity();
@@ -90,6 +90,8 @@ public:
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf)    { m_GrowthFactor = cgf; }
   void setMaxNumIterations(int N)         { m_NumMaxIter = N; }
+  void setNumSmoothSteps(int N)           { m_NumSmoothSteps = N; }
+  void setNumDelaunaySweeps(int N)        { m_NumDelaunaySweeps = N; }
 
 };
 

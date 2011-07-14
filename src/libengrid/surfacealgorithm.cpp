@@ -81,7 +81,7 @@ void SurfaceAlgorithm::readVMD()
 //         cout << m_VMDvector[i] << endl;
       }
     } else {
-      EG_ERR_RETURN(QObject::tr("The number of boundary conditions don't match between the mesh and the settings table.\n column_count=%1 tmp_bcs.size()=%2").arg(column_count).arg(tmp_bcs.size()));
+      EG_ERR_RETURN(QObject::tr("Mismatch of number of boundary codes!"));
     }
   }
 }
@@ -172,7 +172,7 @@ void SurfaceAlgorithm::swap()
   swap();
 }
 
-void SurfaceAlgorithm::smooth(int N_iter)
+void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
 {
   LaplaceSmoother lap;
   lap.setGrid(m_Grid);
@@ -181,6 +181,7 @@ void SurfaceAlgorithm::smooth(int N_iter)
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
   lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
+  lap.setCorrectCurvature(correct_curveture);
   if (m_UseProjectionForSmoothing) {
     lap.setProjectionOn();
   } else {

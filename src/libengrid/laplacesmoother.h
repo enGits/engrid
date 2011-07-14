@@ -43,7 +43,7 @@ private:
 
   QVector<QVector<int> > m_NodeToBc;
 
-  bool      m_correctCurvature;
+  bool      m_CorrectCurvature;
   bool      m_NoCheck;
 
   QSet<vtkIdType> m_AllowedCellTypes;
@@ -69,8 +69,8 @@ public:
 
 public:
 
-  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature() { return m_correctCurvature; }
+  void setCorrectCurvature(bool b) { m_CorrectCurvature = b; }
+  bool getCorrectCurvature() { return m_CorrectCurvature; }
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
   void setProjectionIterations(int n) { m_ProjectionIterations = n; }
