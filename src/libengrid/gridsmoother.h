@@ -65,7 +65,6 @@ protected: // attributes
 
   QVector<vtkIdType> m_IdFoot;
   QVector<double>    m_Height;
-  QVector<vec3_t>    m_NodeNormal;
   QSet<int>          m_LayerAdjacentBoundaryCodes;
 
 protected: // methods
