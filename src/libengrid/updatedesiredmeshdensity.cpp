@@ -105,26 +105,21 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   if (m_NodesPerQuarterCircle > 1e-3) {
-    QVector<double> R(nodes.size(), 0);
-    QVector<int> count(nodes.size(), 0);
+    QVector<double> R(nodes.size(), 1e99);
     foreach (vtkIdType id_cell, cells) {
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       int bc = cell_code->GetValue(id_cell);
       for (int i = 0; i < N_pts; ++i) {
         int i_nodes = m_Part.localNode(pts[i]);
-        ++count[i_nodes];
-        R[i_nodes] += GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]);
+        R[i_nodes] = min(R[i_nodes], GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]));
       }
     }
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (count[i_nodes] > 0) {
-        R[i_nodes] /= count[i_nodes];
-      } else {
+      if (cl_pre[i_nodes] == 0) {
         EG_BUG;
       }
       cl_pre[i_nodes] = max(m_MinEdgeLength, min(cl_pre[i_nodes], 0.5*R[i_nodes]*M_PI/m_NodesPerQuarterCircle));
-      //cl_pre[i_nodes] = R[i_nodes];
     }
   }
 

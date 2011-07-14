@@ -183,12 +183,12 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     double kac = GeometryTools::intersection(this->m_Xa, this->m_Xc - this->m_Xa, xp, this->m_Xc - this->m_Xa);
     double kbc = GeometryTools::intersection(this->m_Xb, this->m_Xc - this->m_Xb, xp, this->m_Xc - this->m_Xb);
 
-    double dab = (this->m_Xa + kab * (this->m_Xb - this->m_Xa) - xp).abs();
-    double dac = (this->m_Xa + kac * (this->m_Xc - this->m_Xa) - xp).abs();
-    double dbc = (this->m_Xb + kbc * (this->m_Xc - this->m_Xb) - xp).abs();
-    double da = (this->m_Xa - xp).abs();
-    double db = (this->m_Xb - xp).abs();
-    double dc = (this->m_Xc - xp).abs();
+    double dab = (this->m_Xa + kab * (this->m_Xb - this->m_Xa) - xp).abs2();
+    double dac = (this->m_Xa + kac * (this->m_Xc - this->m_Xa) - xp).abs2();
+    double dbc = (this->m_Xb + kbc * (this->m_Xc - this->m_Xb) - xp).abs2();
+    double da = (this->m_Xa - xp).abs2();
+    double db = (this->m_Xb - xp).abs2();
+    double dc = (this->m_Xc - xp).abs2();
 
     bool set = false;
     d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
@@ -244,6 +244,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     if (!set) {
       EG_BUG;
     }
+    d = sqrt(d);
   }
   if (!intersects_face && !restrict_to_triangle) {
     xi = xi_free;
