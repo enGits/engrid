@@ -974,6 +974,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\libengrid\guisurfacemesher.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\libengrid\guitransform.cpp"
 					>
 				</File>
@@ -4520,11 +4524,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\geometry2d.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\geom2d\geometry2d.hpp"
 					>
 				</File>
 				<File
@@ -4564,11 +4568,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\gprim\gprim.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\gprim.hpp"
 					>
 				</File>
 				<File
@@ -4620,11 +4624,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\linalg.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\linalg.hpp"
 					>
 				</File>
 				<File
@@ -4644,11 +4648,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\meshing.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\meshing\meshing.hpp"
 					>
 				</File>
 				<File
@@ -4684,11 +4688,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\myadt.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general\myadt.hpp"
 					>
 				</File>
 				<File
@@ -4756,11 +4760,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include\opti.hpp"
+					RelativePath="..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\linalg\opti.hpp"
 					>
 				</File>
 				<File
@@ -4999,6 +5003,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\guisetboundarycode.ui"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\libengrid\guisurfacemesher.ui"
 					>
 				</File>
 				<File

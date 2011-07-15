@@ -446,6 +446,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guisurfacemesher.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guitransform.cpp"
 				>
 			</File>
@@ -2316,6 +2320,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guisurfacemesher.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guitransform.h"
 				>
 			</File>
@@ -4043,6 +4051,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisetboundarycode.ui"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guisurfacemesher.ui"
 				>
 			</File>
 			<File
