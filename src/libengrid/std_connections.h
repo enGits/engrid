@@ -116,7 +116,8 @@ connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes(
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
-connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
+//FIXME: dead slot callBrlcadReader()
+//connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()
