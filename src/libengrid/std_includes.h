@@ -61,5 +61,5 @@
 #include "blenderwriter.h"
 #include "sharpenedges.h"
 #include "checkforoverlap.h"
-
+#include "guisurfacemesher.h"
 // -------------------------------------------

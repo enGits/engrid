@@ -1227,6 +1227,10 @@ void GuiMainWindow::saveAs()
     QString file_name = selected_files[0];
     if (!file_name.isNull()) {
       QString new_geo_file = file_name + ".geo.vtu";
+      {
+        QFile file(new_geo_file);
+        file.remove();
+      }
       QFile geo_file(old_geo_file);
       geo_file.copy(new_geo_file);
       saveAs(file_name);
@@ -1960,19 +1964,23 @@ void GuiMainWindow::markOutputLine()
 
 void GuiMainWindow::storeSurfaceProjection(bool nosave)
 {
-  resetSurfaceProjection();
-  foreach (int bc, m_AllBoundaryCodes) {
-    SurfaceProjection *proj = new SurfaceProjection(bc);
-    m_SurfProj[bc] = proj;
-    QSet<int> bcs;
-    bcs.insert(bc);
-    QVector<vtkIdType> cls;
-    getSurfaceCells(bcs, cls, m_Grid);
-    proj->setBackgroundGrid(m_Grid, cls);
-  }
-  if (!nosave) {
-    save();
-    saveGrid(m_Grid, m_CurrentFilename + ".geo");
+  try {
+    resetSurfaceProjection();
+    foreach (int bc, m_AllBoundaryCodes) {
+      SurfaceProjection *proj = new SurfaceProjection(bc);
+      m_SurfProj[bc] = proj;
+      QSet<int> bcs;
+      bcs.insert(bc);
+      QVector<vtkIdType> cls;
+      getSurfaceCells(bcs, cls, m_Grid);
+      proj->setBackgroundGrid(m_Grid, cls);
+    }
+    if (!nosave) {
+      save();
+      saveGrid(m_Grid, m_CurrentFilename + ".geo");
+    }
+  } catch (Error E) {
+    E.display();
   }
 }
 

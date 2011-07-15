@@ -28,21 +28,23 @@
 class SurfaceMesher : public SurfaceAlgorithm
 {
 
+protected: // attributes
+
 protected: // methods
 
-    virtual void operate();
-
+  virtual void operate();
 
 public:
 
   SurfaceMesher();
 
-private:
-  bool m_interpolateAfterMeshing;
-  
+protected:
+
+  bool m_CorrectCurvature;
+
 public:
-  void setInterpolateAfterMeshing(bool b) { m_interpolateAfterMeshing = b; }
-  bool getInterpolateAfterMeshing() { return m_interpolateAfterMeshing; }
+
+  void setCorrectCurvature(bool flag) { m_CorrectCurvature = flag; }
   
 };
 

@@ -504,7 +504,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
-    void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
+    void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }

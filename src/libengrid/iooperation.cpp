@@ -43,7 +43,7 @@ void IOOperation::setExtension(QString extension)
   m_ExtensionTxt = extension;
 }
 
-void IOOperation::readInputFileName(QString default_filename)
+void IOOperation::readInputFileName(QString default_filename, bool reset)
 {
   QApplication::restoreOverrideCursor();
   
@@ -56,7 +56,9 @@ void IOOperation::readInputFileName(QString default_filename)
       GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
       GuiMainWindow::setUnsaved(true);
       GuiMainWindow::pointer()->setFilename(m_FileName);
-      GuiMainWindow::pointer()->resetXmlDoc();
+      if (reset) {
+        GuiMainWindow::pointer()->resetXmlDoc();
+      }
       m_Valid = true;
     } else {
       m_Valid = false;

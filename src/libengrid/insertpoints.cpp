@@ -217,6 +217,10 @@ char InsertPoints::getNewNodeType(stencil_t S)
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
 
+  if (S.id_cell.size() != 2) {
+    EG_ERR_RETURN("The surface mesh is not water-tight");
+  }
+  
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   if( node_type->GetValue(id_node1)==VTK_SIMPLE_VERTEX || node_type->GetValue(id_node2)==VTK_SIMPLE_VERTEX ) {
     return VTK_SIMPLE_VERTEX;

@@ -89,7 +89,7 @@ public: // methods
   IOOperation();
   virtual ~IOOperation() {}
 
-  void readInputFileName(QString default_filename);                      ///< Open a QFileDialog and make the user input a file name for opening or importing.
+  void readInputFileName(QString default_filename, bool reset = true);   ///< Open a QFileDialog and make the user input a file name for opening or importing.
   void readOutputFileName(QString default_filename);                     ///< Open a QFileDialog and make the user input a file name for saving or exporting.
   void readOutputDirectory();                                            ///< Open a QFileDialog and make the user input a directory name for exporting.
   void readInputDirectory(QString title_txt = "select input directory"); ///< Open a QFileDialog and make the user input a directory name for importing.
