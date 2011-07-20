@@ -43,12 +43,14 @@ if [ $1 = 'ubuntu' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/
-elif [ $1 = 'opensuse-11.4' ]
+elif [ $1 = 'opensuse-11.4-64' ]
 then
   export VTKLIBDIR=/usr/lib64
   export VTKINCDIR=/usr/include/vtk-5.6
   zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
   zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+else
+  help
 fi
 
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
@@ -67,5 +69,5 @@ cd ..
 qmake
 make
 cd ../..
-echo "You can start enGrid by typing: `pwd`/engrid/run.bash
+echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
 
