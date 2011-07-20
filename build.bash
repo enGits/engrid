@@ -43,6 +43,7 @@ if [ $1 = 'ubuntu' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/
+  sudo apt-get install git subversion libvtk5-qt4-dev qt4-dev-tools
 elif [ $1 = 'opensuse-11.4' ]
 then
 #  export VTKLIBDIR=/usr/lib64

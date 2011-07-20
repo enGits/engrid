@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 olddir=`pwd`
 cd `dirname $0`
-sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-sudo zypper install vtk-qt
+sudo apt-get install libctk5-qt4
 echo "`pwd`/run.bash" >> engrid
 sudo cp engrid /usr/bin
 echo "Icon=`pwd`/src/libengrid/resources/icons/G.png" >> engrid.desktop
