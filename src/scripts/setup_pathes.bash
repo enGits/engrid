@@ -22,29 +22,32 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
 
+help ()
+{
+  echo "usage :"
+  echo "source `basename $0` CONFIGURATION"
+  echo "CONFIGURATION = ubuntu"
+  echo "                opensuse-11.4-64"
+  exit 0
+}
+
 # Check if all parameters are present
 # If no, exit
 if [ $# -ne 1 ]
 then
-        echo "usage :"
-        echo "source `basename $0` CONFIGURATION ENABLE_CGNS"
-        echo "CONFIGURATION = ubuntu"
-        echo "                opensuse-11.4"
-        exit 0
+  help
 fi
 
-# Ubuntu
 if [ $1 = 'ubuntu' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/
-fi
-
-# OpenSUSE 11.4
-if [ $1 = 'opensuse-11.4' ]
+elif [ $1 = 'opensuse-11.4-64' ]
 then
   export VTKLIBDIR=/usr/lib64
   export VTKINCDIR=/usr/include/vtk-5.6
+else
+  help
 fi
 
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH

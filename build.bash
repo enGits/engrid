@@ -22,15 +22,20 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 
 
+help ()
+{
+  echo "usage :"
+  echo "`basename $0` CONFIGURATION"
+  echo "CONFIGURATION = ubuntu"
+  echo "                opensuse-11.4-64"
+  exit 0
+}
+
 # Check if all parameters are present
 # If no, exit
 if [ $# -ne 1 ]
 then
-        echo "usage :"
-        echo "source `basename $0` CONFIGURATION"
-        echo "CONFIGURATION = ubuntu"
-        echo "                opensuse-11.4"
-        exit 0
+  help
 fi
 
 # Ubuntu
@@ -38,20 +43,12 @@ if [ $1 = 'ubuntu' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/
-fi
-
-# OpenSUSE 11.4
-if [ $1 = 'opensuse-11.4' ]
+elif [ $1 = 'opensuse-11.4' ]
 then
   export VTKLIBDIR=/usr/lib64
   export VTKINCDIR=/usr/include/vtk-5.6
   zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-  zypper install git-core
-  zypper install subversion
-  zypper install libqt4-devel
-  zypper install make
-  zypper install vtk-qt
-  zypper install vtk-devel
+  zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
 fi
 
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
@@ -65,7 +62,7 @@ source scripts/setup_pathes.bash $1
 scripts/build-nglib.sh
 cd libengrid
 qmake
-make
+make -j4
 cd ..
 qmake
 make
