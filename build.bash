@@ -26,8 +26,9 @@ help ()
 {
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
-  echo "CONFIGURATION = ubuntu-10.04"
-  echo "                ubuntu-11.04"
+  echo "CONFIGURATION = ubuntu"
+  echo "                opensuse-11.2"
+  echo "                opensuse-11.3"
   echo "                opensuse-11.4"
   exit 0
 }
@@ -39,35 +40,36 @@ then
   help
 fi
 
+config_name = $1
+
 # Ubuntu
-if [ $1 = 'ubuntu-10.04' ]
+if [ $1 = 'ubuntu' ]
 then
-  export VTKLIBDIR=/usr/lib/
-  export VTKINCDIR=/usr/include/vtk-5.4/
   sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
-elif [ $1 = 'ubuntu-11.04' ]
+elif [ $1 = 'opensuse-11.2' ]
 then
-  export VTKLIBDIR=/usr/lib/
-  export VTKINCDIR=/usr/include/vtk-5.4/
-  sudo apt-get install git subversion libvtk5-qt4-dev qt4-dev-tools
+  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
+  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse"
+elif [ $1 = 'opensuse-11.3' ]
+then
+  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
+  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse"
 elif [ $1 = 'opensuse-11.4' ]
 then
-#  export VTKLIBDIR=/usr/lib64
-  export VTKINCDIR=/usr/include/vtk-5.6
   sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
   sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse"
 else
   help
 fi
-
-export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
 
 git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
 cd engrid
 git checkout -b release-1.3 remotes/origin/release-1.3
 cd src
-source scripts/setup_pathes.bash $1
+source scripts/setup_pathes.bash $config_name
 scripts/build-nglib.sh
 cd libengrid
 qmake
