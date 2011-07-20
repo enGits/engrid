@@ -26,7 +26,8 @@ help ()
 {
   echo "usage :"
   echo "source `basename $0` CONFIGURATION"
-  echo "CONFIGURATION = ubuntu"
+  echo "CONFIGURATION = ubuntu-10.04"
+  echo "                ubuntu-11.04"
   echo "                opensuse-11.4"
   exit 0
 }
@@ -38,7 +39,11 @@ then
   help
 fi
 
-if [ $1 = 'ubuntu' ]
+if [ $1 = 'ubuntu-10.04' ]
+then
+  export VTKLIBDIR=/usr/lib/
+  export VTKINCDIR=/usr/include/vtk-5.4/
+elif [ $1 = 'ubuntu-11.04' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/

@@ -26,7 +26,8 @@ help ()
 {
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
-  echo "CONFIGURATION = ubuntu"
+  echo "CONFIGURATION = ubuntu-10.04"
+  echo "                ubuntu-11.04"
   echo "                opensuse-11.4"
   exit 0
 }
@@ -39,7 +40,12 @@ then
 fi
 
 # Ubuntu
-if [ $1 = 'ubuntu' ]
+if [ $1 = 'ubuntu-10.04' ]
+then
+  export VTKLIBDIR=/usr/lib/
+  export VTKINCDIR=/usr/include/vtk-5.4/
+  sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+elif [ $1 = 'ubuntu-11.04' ]
 then
   export VTKLIBDIR=/usr/lib/
   export VTKINCDIR=/usr/include/vtk-5.4/
