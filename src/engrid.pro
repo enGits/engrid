@@ -19,9 +19,6 @@ INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
 LIBS += -lm
 LIBS += -ltcl8.5
 LIBS += -L./libengrid -lengrid
-LIBS += -L$(BRLCAD_HOME)/lib
-LIBS += -lbn -lbu -lopenNURBS
-LIBS += $(BRLCAD_HOME)/lib/librt.a
 LIBS += -L./netgen_svn -lng
 
 INCLUDEPATH += $(VTKINCDIR)
