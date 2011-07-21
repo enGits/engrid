@@ -33,7 +33,6 @@ help ()
   echo "                opensuse-11.3-64"
   echo "                opensuse-11.4-32"
   echo "                opensuse-11.4-64"
-  exit 0
 }
 
 # Check if all parameters are present
@@ -41,60 +40,56 @@ help ()
 if [ $# -ne 1 ]
 then
   help
-fi
-
-config_name = $1
-
-# Ubuntu
-if [ $1 = 'ubuntu' ]
-then
-  sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
-elif [ $1 = 'opensuse-11.2-32' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse32"
-elif [ $1 = 'opensuse-11.3-32' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse"
-elif [ $1 = 'opensuse-11.4-32' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse32"
-elif [ $1 = 'opensuse-11.2-64' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse64"
-elif [ $1 = 'opensuse-11.3-64' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse64"
-elif [ $1 = 'opensuse-11.4-64' ]
-then
-  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse64"
 else
-  help
+  config_name=$1
+  if [ $1 = 'ubuntu' ]
+  then
+    sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+  elif [ $1 = 'opensuse-11.2-32' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse32"
+  elif [ $1 = 'opensuse-11.3-32' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse"
+  elif [ $1 = 'opensuse-11.4-32' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse32"
+  elif [ $1 = 'opensuse-11.2-64' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse64"
+  elif [ $1 = 'opensuse-11.3-64' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse64"
+  elif [ $1 = 'opensuse-11.4-64' ]
+  then
+    sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+    sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+    config_name="opensuse64"
+  else
+    help
+  fi
+  git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
+  cd engrid
+  git checkout -b release-1.3 remotes/origin/release-1.3
+  cd src
+  source scripts/setup_pathes.bash $config_name
+  source scripts/build-nglib.sh
+  cd libengrid
+  qmake
+  make -j4
+  cd ..
+  qmake
+  make
+  cd ../..
+  echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
 fi
-
-git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
-cd engrid
-git checkout -b release-1.3 remotes/origin/release-1.3
-cd src
-source scripts/setup_pathes.bash $config_name
-scripts/build-nglib.sh
-cd libengrid
-qmake
-make -j4
-cd ..
-qmake
-make
-cd ../..
-echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
-
