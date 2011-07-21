@@ -28,7 +28,6 @@ help ()
   echo "source `basename $0` CONFIGURATION"
   echo "CONFIGURATION = ubuntu"
   echo "                opensuse"
-  exit 0
 }
 
 # Check if all parameters are present
@@ -36,17 +35,17 @@ help ()
 if [ $# -ne 1 ]
 then
   help
-fi
-
-if [ $1 = 'ubuntu' ]
-then
-  export VTKINCDIR=/usr/include/vtk-5.4/
-elif [ $1 = 'opensuse' ]
-then
-  export VTKINCDIR=/usr/include/vtk-5.6
 else
-  help
+  if [ $1 = 'ubuntu' ]
+  then
+    export VTKINCDIR=/usr/include/vtk-5.4/
+  elif [ $1 = 'opensuse' ]
+  then
+    export VTKINCDIR=/usr/include/vtk-5.6
+  else
+    help
+  fi
+  export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
 fi
 
-export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
