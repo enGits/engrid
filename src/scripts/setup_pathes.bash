@@ -55,10 +55,12 @@ else
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib
+    alias qmake=qmake-qt4
   elif [ $1 = 'fedora64' ]
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib64
+    alias qmake=qmake-qt4
   else
     help
   fi
