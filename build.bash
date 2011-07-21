@@ -26,7 +26,9 @@ help ()
 {
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
-  echo "CONFIGURATION = ubuntu"
+  echo "CONFIGURATION = fedora-15-32"
+  echo "                fedora-15-64"
+  echo "                ubuntu"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
@@ -75,6 +77,22 @@ else
     sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
     sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
     config_name="opensuse64"
+  elif [ $1 = 'fedora-15-32' ]
+  then
+    sudo yum -y install git
+    sudo yum -y install subversion
+    sudo yum -y install wget
+    sudo yum -y install gcc-c++
+    sudo yum -y install vtk-qt
+    config_name="fedora32"
+  elif [ $1 = 'fedora-15-64' ]
+  then
+    sudo yum -y install git
+    sudo yum -y install subversion
+    sudo yum -y install wget
+    sudo yum -y install gcc-c++
+    sudo yum -y install vtk-qt
+    config_name="fedora64"
   else
     help
   fi
