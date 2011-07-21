@@ -29,6 +29,8 @@ help ()
   echo "CONFIGURATION = ubuntu"
   echo "                opensuse32"
   echo "                opensuse64"
+  echo "                fedora32"
+  echo "                fedora64"
 }
 
 # Check if all parameters are present
@@ -48,6 +50,14 @@ else
   elif [ $1 = 'opensuse64' ]
   then
     export VTKINCDIR=/usr/include/vtk-5.6
+    export VTKLIBDIR=/usr/lib64
+  elif [ $1 = 'fedora32' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
+    export VTKLIBDIR=/usr/lib
+  elif [ $1 = 'fedora64' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib64
   else
     help
