@@ -1590,8 +1590,9 @@ void GuiMainWindow::changeSurfaceOrientation()
     for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
     for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
   }
-  updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  updateActors();
+  m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::checkSurfaceOrientation()
@@ -1602,7 +1603,9 @@ void GuiMainWindow::checkSurfaceOrientation()
     corr_surf.setStart(picked_cell);
   }
   corr_surf();
+  m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
   updateActors();
+  m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::improveAspectRatio()
