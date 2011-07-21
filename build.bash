@@ -27,9 +27,12 @@ help ()
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
   echo "CONFIGURATION = ubuntu"
-  echo "                opensuse-11.2"
-  echo "                opensuse-11.3"
-  echo "                opensuse-11.4"
+  echo "                opensuse-11.2-32"
+  echo "                opensuse-11.2-64"
+  echo "                opensuse-11.3-32"
+  echo "                opensuse-11.3-64"
+  echo "                opensuse-11.4-32"
+  echo "                opensuse-11.4-64"
   exit 0
 }
 
@@ -46,21 +49,36 @@ config_name = $1
 if [ $1 = 'ubuntu' ]
 then
   sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
-elif [ $1 = 'opensuse-11.2' ]
+elif [ $1 = 'opensuse-11.2-32' ]
 then
   sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
   sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse"
-elif [ $1 = 'opensuse-11.3' ]
+  config_name="opensuse32"
+elif [ $1 = 'opensuse-11.3-32' ]
 then
   sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
   sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
   config_name="opensuse"
-elif [ $1 = 'opensuse-11.4' ]
+elif [ $1 = 'opensuse-11.4-32' ]
 then
   sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
   sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-  config_name="opensuse"
+  config_name="opensuse32"
+elif [ $1 = 'opensuse-11.2-64' ]
+then
+  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
+  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse64"
+elif [ $1 = 'opensuse-11.3-64' ]
+then
+  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
+  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse64"
+elif [ $1 = 'opensuse-11.4-64' ]
+then
+  sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+  sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+  config_name="opensuse64"
 else
   help
 fi
