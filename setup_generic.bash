@@ -4,6 +4,7 @@ echo "a script in the directory '/usr/bin' as well as a desktop"
 echo "file in the directory '/usr/share/applications'."
 echo ""
 if [ `sudo whoami` != 'root' ]
+then
   echo "You seem to not be able to execute commands as root (via sudo)."
   echo "Please make sure you have sufficient permissions; alternatively"
   echo "you can directly execute this script as root."
@@ -13,6 +14,7 @@ else
   cp engrid iengrid
   echo "`pwd`/run.bash" >> iengrid
   sudo cp iengrid /usr/bin/engrid
+  sudo chmod a+x /usr/bin/engrid
   cp engrid.desktop iengrid.desktop
   echo "Icon=`pwd`/src/libengrid/resources/icons/G.png" >> iengrid.desktop
   sudo cp iengrid.desktop /usr/share/applications/engrid.desktop
