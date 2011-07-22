@@ -61,7 +61,7 @@ else
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib64
-    chmod +x scrips/qmake
+    chmod +x scripts/qmake
     export PATH=$PATH:`pwd`/scripts
   else
     help

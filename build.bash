@@ -28,6 +28,8 @@ help ()
   echo "`basename $0` CONFIGURATION"
   echo "CONFIGURATION = fedora-15-32"
   echo "                fedora-15-64"
+  echo "                fedora-14-32"
+  echo "                fedora-14-64"
   echo "                ubuntu"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
@@ -43,14 +45,18 @@ if [ $# -ne 1 ]
 then
   help
 else
+  echo ""
   echo "This script makes use of the command 'sudo' to execute"
   echo "the system's package manager in order to install all"
   echo "required dependencies"
   echo ""
-  if [ `sudo whoami` != 'root' ]
+  whoami=`sudo whoami`
+  if [ "$(whoami)" != 'root' ]
+  then
     echo "You seem to not be able to execute commands as root (via sudo)."
     echo "Please make sure you have sufficient permissions; alternatively"
     echo "you can directly execute this script as root."
+    echo ""
   else
     config_name=$1
     if [ $1 = 'ubuntu' ]
@@ -113,8 +119,8 @@ else
     else
       help
     fi
-    echo $config_name > engrid/config.txt
     git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
+    echo $config_name > engrid/config.txt
     cd engrid
     git checkout -b release-1.3 remotes/origin/release-1.3
     cd src
@@ -127,8 +133,10 @@ else
     qmake
     make
     cd ../..
+    echo ""
     echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
     echo "If you want to install a link in '/usr/bin' as well as an entry in the"
     echo "desktop menus, please execute 'source engrid/setup_generic.bash'"
+    echo ""
   fi
 fi
