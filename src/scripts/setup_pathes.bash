@@ -25,7 +25,7 @@
 help ()
 {
   echo "usage :"
-  echo "source `basename $0` CONFIGURATION"
+  echo "source setup_pathes.bash CONFIGURATION"
   echo "CONFIGURATION = ubuntu"
   echo "                opensuse32"
   echo "                opensuse64"
@@ -55,14 +55,14 @@ else
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib
-    chmod +x `dirname $0`/qmake
-    export PATH=$PATH:`dirname $0`
+    chmod +x scripts/qmake
+    export PATH=$PATH:`pwd`/scripts
   elif [ $1 = 'fedora64' ]
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib64
-    chmod +x `dirname $0`/qmake
-    export PATH=$PATH:`dirname $0`
+    chmod +x scrips/qmake
+    export PATH=$PATH:`pwd`/scripts
   else
     help
   fi
