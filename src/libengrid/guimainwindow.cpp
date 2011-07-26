@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "guimainwindow.h"
 #include "guiselectboundarycodes.h"
 #include "guiimproveaspectratio.h"
@@ -1602,6 +1602,7 @@ void GuiMainWindow::changeSurfaceOrientation()
   }
   updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  //m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::checkSurfaceOrientation()
@@ -1613,6 +1614,8 @@ void GuiMainWindow::checkSurfaceOrientation()
   }
   corr_surf();
   updateActors();
+  m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  //m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::improveAspectRatio()

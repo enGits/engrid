@@ -4,7 +4,7 @@
 # +                                                                      +
 # + This file is part of enGrid.                                         +
 # +                                                                      +
-# + Copyright 2008-2010 enGits GmbH                                     +
+# + Copyright 2008-2011 enGits GmbH                                     +
 # +                                                                      +
 # + enGrid is free software: you can redistribute it and/or modify       +
 # + it under the terms of the GNU General Public License as published by +
@@ -27,7 +27,7 @@
 cd netgen_svn
 wget http://engits.eu/files/netgen-4.9.13.zip
 unzip netgen-4.9.13.zip
-rm netgen-4.9.13.zip
+rm -f netgen-4.9.13.zip
 rm -rf netgen-mesher
 mkdir netgen-mesher
 mv netgen-4.9.13 netgen-mesher/netgen

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "insertpoints.h"
 
 #include "guimainwindow.h"
@@ -217,9 +217,11 @@ char InsertPoints::getNewNodeType(stencil_t S)
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
 
+  /*
   if (S.id_cell.size() != 2) {
     EG_ERR_RETURN("The surface mesh is not water-tight");
   }
+  */
   
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   if( node_type->GetValue(id_node1)==VTK_SIMPLE_VERTEX || node_type->GetValue(id_node2)==VTK_SIMPLE_VERTEX ) {

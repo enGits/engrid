@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "surfaceprojection.h"
 
 #include <math.h>
@@ -299,28 +299,6 @@ vec3_t SurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
 
 void SurfaceProjection::computeSurfaceCurvature()
 {
-  /*
-  m_Radius.fill(1e99, m_BGrid->GetNumberOfCells());
-  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_BGrid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vec3_t> x(N_pts+1);
-    QVector<vec3_t> n(N_pts+1);
-    for (int i = 0; i < N_pts; ++i) {
-      m_BGrid->GetPoint(pts[i], x[i].data());
-      n[i] = m_NodeNormals[pts[i]];
-    }
-    x[N_pts] = x[0];
-    n[N_pts] = n[0];
-    for (int i = 0; i < N_pts; ++i) {
-      double alpha = max(1e-3,acos(n[i]*n[i+1]));
-      if (alpha > 1e-3) {
-        double a = (x[i]-x[i+1]).abs();
-        m_Radius[id_cell] = min(m_Radius[id_cell], a/alpha);
-      }
-    }
-  }
-  */
   m_Radius.fill(1e99, m_BGrid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
     vec3_t x1;
@@ -334,12 +312,46 @@ void SurfaceProjection::computeSurfaceCurvature()
         m_BGrid->GetPoint(id_neigh, x2.data());
         double a = (x1 - x2).abs();
         m_Radius[id_node] = min(m_Radius[id_node], a/alpha);
-        if (m_Radius[id_node] < 1e-3) {
-          cout << "Science goes Boink!" << endl;
-        }
       }
     }
   }
+
+  // compute weighted (distance) average of radii
+  QVector<double> R_new(m_BGrid->GetNumberOfPoints(), 1e99);
+  for (vtkIdType id_node = 0; id_node < m_BGrid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x1;
+    m_BGrid->GetPoint(id_node, x1.data());
+    int N = m_BPart.n2nGSize(id_node);
+    QVector<double> L(N);
+    QVector<double> R(N, -1);
+    double Lmax = 0;
+    bool average = false;
+    for (int i = 0; i < N; ++i) {
+      vtkIdType id_neigh = m_BPart.n2nGG(id_node, i);
+      vec3_t x2;
+      m_BGrid->GetPoint(id_neigh, x2.data());
+      L[i] = (x2 - x1).abs();
+      if (m_Radius[id_neigh] < 1e90 && L[i] > 0) {
+        R[i] = m_Radius[id_neigh];
+        Lmax = max(Lmax, L[i]);
+        average = true;
+      }
+    }
+    if (average) {
+      R_new[id_node] = 0;
+      double total_weight = 0;
+      for (int i = 0; i < N; ++i) {
+        if (R[i] > 0) {
+          R_new[id_node] += Lmax/L[i] * R[i];
+          total_weight += Lmax/L[i];
+          //R_new[id_node] += R[i];
+          //total_weight += 1.0;
+        }
+      }
+      R_new[id_node] /= total_weight;
+    }
+  }
+  m_Radius = R_new;
 }
 
 double SurfaceProjection::getRadius(vtkIdType id_node)

@@ -1,0 +1,257 @@
+<engridcase>
+  <openfoam-1.5>
+    <simplefoam>
+      <standard>
+        <controldict>
+ start from = startTime;
+ start iteration = 0;
+ last iteration = 1000;
+ write interval = 100;
+</controldict>
+        <u>
+ initial u = 0;
+ initial v = 0;
+ initial w = 0;
+</u>
+        <p>
+ initial pressure = 0;
+</p>
+        <k/>
+        <epsilon/>
+        <omega/>
+        <transportproperties>
+ kinematic viscosity = 1e-6;
+</transportproperties>
+        <rasproperties>
+ turbulence model = kOmegaSST;
+ freeze turbulent properties = on;
+</rasproperties>
+        <fvschemes>
+ U convection scheme = linearUpwind Gauss;
+ k convection scheme = upwind;
+ epsilon convection scheme = upwind;
+ omega convection scheme = upwind;
+</fvschemes>
+        <fvsolution>
+ non-orthogonal correctors = 2;
+ p relaxation factor       = 0.3;
+ U relaxation factor       = 0.7;
+ k relaxation factor       = 0.7;
+ epsilon relaxation factor = 0.7;
+ omega relaxation factor   = 0.7;
+</fvsolution>
+      </standard>
+    </simplefoam>
+    <rhosimplefoam>
+      <standard>
+        <controldict>
+ start from = startTime;
+ start iteration = 0;
+ last iteration = 1000;
+ write interval = 100;
+</controldict>
+        <u>
+ initial u = 0;
+ initial v = 0;
+ initial w = 0;
+</u>
+        <p>
+ initial pressure = 100000;
+</p>
+        <t>
+ initial temperature = 300;
+</t>
+        <k/>
+        <epsilon/>
+        <omega/>
+        <thermophysicalproperties>
+ molar mass = 28.96;
+ specific heat at constant pressure = 1004.5;
+ Sutherland constant = 1.458e-06;
+ Sutherland temperature = 110.4;
+</thermophysicalproperties>
+        <rasproperties>
+ turbulence model = kOmegaSST;
+ freeze turbulent properties = on;
+</rasproperties>
+        <fvschemes>
+ U convection scheme = linearUpwind Gauss;
+ h convection scheme = linearUpwind Gauss;
+ k convection scheme = upwind;
+ epsilon convection scheme = upwind;
+ omega convection scheme = upwind;
+</fvschemes>
+        <fvsolution>
+ non-orthogonal correctors = 2;
+ minimal pressure = 1000;
+ p relaxation factor       = 0.3;
+ U relaxation factor       = 0.7;
+ h relaxation factor       = 0.7;
+ k relaxation factor       = 0.7;
+ epsilon relaxation factor = 0.7;
+ omega relaxation factor   = 0.7;
+</fvsolution>
+      </standard>
+    </rhosimplefoam>
+  </openfoam-1.5>
+  <openfoam-1.6.x>
+    <simplefoam>
+      <standard>
+        <controldict>
+ start from = startTime;
+ start iteration = 0;
+ last iteration = 1000;
+ write interval = 100;
+</controldict>
+        <u>
+ initial u = 0;
+ initial v = 0;
+ initial w = 0;
+</u>
+        <p>
+ initial pressure = 0;
+</p>
+        <k/>
+        <epsilon/>
+        <omega/>
+        <transportproperties>
+ kinematic viscosity = 1e-6;
+</transportproperties>
+        <rasproperties>
+ turbulence model = kOmegaSST;
+ freeze turbulent properties = on;
+</rasproperties>
+        <fvschemes>
+ U convection scheme = linearUpwind Gauss;
+ k convection scheme = upwind;
+ epsilon convection scheme = upwind;
+ omega convection scheme = upwind;
+</fvschemes>
+        <fvsolution>
+ non-orthogonal correctors = 2;
+ p relaxation factor       = 0.3;
+ U relaxation factor       = 0.7;
+ k relaxation factor       = 0.7;
+ epsilon relaxation factor = 0.7;
+ omega relaxation factor   = 0.7;
+</fvsolution>
+      </standard>
+    </simplefoam>
+    <rhosimplefoam>
+      <standard>
+        <controldict>
+ start from = startTime;
+ start iteration = 0;
+ last iteration = 1000;
+ write interval = 100;
+</controldict>
+        <u>
+ initial u = 0;
+ initial v = 0;
+ initial w = 0;
+</u>
+        <p>
+ initial pressure = 100000;
+</p>
+        <t>
+ initial temperature = 300;
+</t>
+        <k/>
+        <epsilon/>
+        <omega/>
+        <thermophysicalproperties>
+ molar mass = 28.96;
+ specific heat at constant pressure = 1004.5;
+ Sutherland constant = 1.458e-06;
+ Sutherland temperature = 110.4;
+</thermophysicalproperties>
+        <rasproperties>
+ turbulence model = kOmegaSST;
+ freeze turbulent properties = on;
+</rasproperties>
+        <fvschemes>
+ U convection scheme = linearUpwind Gauss;
+ h convection scheme = linearUpwind Gauss;
+ k convection scheme = upwind;
+ epsilon convection scheme = upwind;
+ omega convection scheme = upwind;
+</fvschemes>
+        <fvsolution>
+ non-orthogonal correctors = 2;
+ minimal pressure = 1000;
+ p relaxation factor       = 0.3;
+ U relaxation factor       = 0.7;
+ h relaxation factor       = 0.7;
+ k relaxation factor       = 0.7;
+ epsilon relaxation factor = 0.7;
+ omega relaxation factor   = 0.7;
+</fvsolution>
+      </standard>
+    </rhosimplefoam>
+  </openfoam-1.6.x>
+  <solver>
+    <general>
+      <solver_type>0</solver_type>
+      <solver_binary>simpleFoam</solver_binary>
+      <host_weight_list/>
+    </general>
+  </solver>
+  <engrid>
+    <bc>
+1 BackBottom patch
+2 BackTop patch
+3 Bottom patch
+4 Div patch
+5 FrontBottom patch
+6 FrontTop patch
+7 LeftBottom patch
+8 LeftTop patch
+9 RightBottom patch
+10 RightTop patch
+11 Top patch
+-1 Bottom 1:1,2:0,3:1,4:1,5:1,6:0,7:1,8:0,9:1,10:0,11:0
+-2 Top 1:0,2:1,3:0,4:-1,5:0,6:1,7:0,8:1,9:0,10:1,11:1
+</bc>
+    <physical>
+</physical>
+    <surface>
+      <settings>
+0.5
+0
+1.2
+0
+11
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+</settings>
+      <table>
+1 14
+0 0 1
+0 1 1
+0 2 1
+0 3 2
+0 4 1
+0 5 1
+0 6 1
+0 7 1
+0 8 1
+0 9 1
+0 10 1
+0 11 any
+0 12 {{{empty}}}
+0 13 0.1
+</table>
+    </surface>
+    <sources/>
+  </engrid>
+</engridcase>
+

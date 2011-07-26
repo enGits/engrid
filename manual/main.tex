@@ -1,0 +1,235 @@
+\documentclass[british]{book}
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\makeatletter
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx} 
+\usepackage{amssymb}
+\usepackage{calc,layouts}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{xspace}
+\usepackage{color}
+\usepackage{ifthen}
+\usepackage{boxedminipage}
+\usepackage{lastpage}
+\usepackage{setspace}
+\usepackage{natbib}
+\usepackage[german,british]{babel}
+
+\setlength\textheight{220mm}
+\setlength\textwidth{155mm}
+\setlength\evensidemargin{15mm}
+\setlength\oddsidemargin{15mm}
+\setlength\topmargin{-15mm}
+\setlength\headheight{15mm}
+\setlength\parindent{0mm}
+\setlength\parskip{2mm}
+
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault}
+\linespread{1.3}\selectfont
+
+\setcounter{secnumdepth}{5}
+\titleformat{\section}{\LARGE \bf}{\hspace{-20mm}\parbox[b]{20mm}{\thesection}}{0mm}{}
+\titleformat{\subsection}{\Large \bf}{\hspace{-20mm}\parbox[b]{20mm}{\thesubsection}}{0mm}{}
+\titleformat{\subsubsection}{\large \bf}{\hspace{-20mm}\parbox[b]{20mm}{\thesubsubsection}}{0mm}{}
+\titleformat{\paragraph}{\bf}{\hspace{-20mm}\parbox[b]{20mm}{\theparagraph}}{0mm}{}
+\titleformat{\subparagraph}{}{\hspace{-20mm}\parbox[b]{20mm}{\thesubparagraph}}{0mm}{}
+
+\renewcommand\l@section{\vspace{3mm}\bfseries\@dottedtocline{1}{0mm}{10mm}}
+\renewcommand\l@subsection{\normalfont\@dottedtocline{2}{0mm}{15mm}}
+\renewcommand\l@subsubsection{\normalfont\@dottedtocline{2}{0mm}{20mm}}
+\renewcommand\bibsection{\section{\refname}}
+
+\newcommand\makeengitstitle
+{
+  \pagestyle{empty}
+  
+  \hspace{0mm}
+  \begin{minipage}[t]{130mm}
+    {
+      \vspace{3mm}
+      \begin{center}
+        \includegraphics[width=75mm]{logo_engits.png}
+        $~$\\
+        \vspace{10mm}
+        \large
+        \begin{tabular}{l}
+          \begin{tabular}{l}
+            \vspace{-1mm} enGits GmbH\\
+            \iflanguage{british} {
+              \vspace{-1mm} Postfach 32\\
+              \vspace{-1mm} 79670 Todtnau\\
+              \vspace{0mm} Germany\\
+            }
+            {}
+            \iflanguage{german} {
+              \vspace{-1mm} Postfach 32\\
+              \vspace{-1mm} 79670 Todtnau\\
+              \vspace{0mm} Deutschland\\
+            }
+            {}
+          \end{tabular}\\
+          \begin{tabular}{lcl}
+            \iflanguage{german} {
+              \vspace{-1mm} Telefon & : & +49 (0)7671 992 511 0 \\
+              \vspace{-1mm} Telefax & : & +49 (0)7671 992 511 2 \\
+              \vspace{-1mm} E-Mail & : & info@engits.com \\
+            }
+            {}
+            \iflanguage{british} {
+              \vspace{-1mm} phone & : & +49 (0)7671 992 511 0 \\
+              \vspace{-1mm} fax & : & +49 (0)7671 992 511 0 \\
+              \vspace{-1mm} email & : & info@engits.com \\
+            }
+            {}
+          \end{tabular}\\
+        \end{tabular}
+        \vspace{3mm}$~$\\
+      \end{center}
+    }
+  \end{minipage}
+  
+  \begin{minipage}[c][100mm][c]{130mm}
+    \begin{center}
+      {
+        \begin{spacing}{1.5}
+          \bf 
+          \huge 
+          \engitstitle
+        \end{spacing}
+      }
+    \end{center}
+  \end{minipage}
+  \\
+  \begin{minipage}{130mm}
+    \begin{center}
+      \begin{tabular}{|p{2cm}|p{81mm}|}
+        \hline
+        \iflanguage{british}{title}{}
+        \iflanguage{german}{Titel}{}
+        & \engitstitle \\
+        \hline
+        \iflanguage{british}{date}{}
+        \iflanguage{german}{Datum}{}
+        & \engitsdate \\
+        \hline
+        \iflanguage{british}{author}{}
+        \iflanguage{german}{Autor}{}
+        & \engitsauthor \\
+        \hline
+        \iflanguage{british}{version & \engitsversion \\}{}
+        \iflanguage{german}{Version & \ifthenelse{\equal{\engitsversion}{draft}}{Entwurf}{\engitsversion} \\}{}
+        \hline
+      \end{tabular}
+    \end{center}
+  \end{minipage}
+  \clearpage
+  \pagestyle{fancy}
+}
+
+%\newenvironment{engitsstandard}{\setlength\parskip{2mm}}{\setlength\parskip{2mm}}
+\newenvironment{engitstoc}{\setlength\parskip{0mm}}{\setlength\parskip{2mm}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhfoffset{0mm}
+\fancyhfoffset[LO,LE]{20mm}
+\fancyhead[LE,LO]{
+  \includegraphics[width=50mm]{logo_engits.png}
+}
+\fancyhead[RE,RO]{
+  \begin{minipage}[b]{12cm}
+    \begin{flushright}
+      {\bf\engitstitle} \\ \engitsauthor \\
+      \iflanguage{british}{version \engitsversion, }{}
+      \iflanguage{german}{Version \ifthenelse{\equal{\engitsversion}{draft}}{Entwurf, }{\engitsversion, }}{}
+      \engitsdate
+    \end{flushright}
+  \end{minipage}
+}
+\fancyfoot[RE,RO]{
+  \iflanguage{british}{page \thepage {} of \pageref{LastPage}}{}
+  \iflanguage{german}{Seite \thepage {} von \pageref{LastPage}}{}
+}
+
+\newcommand\eg{ENGRID\ }
+\newcommand\foam{OpenFOAM\textsuperscript{\textregistered}\ }
+\newcommand\netgen{NETGEN\ }
+\newcommand\egv{1.0}
+\newcommand\sqt{\char`\"{}}
+\newcommand\eqt{\char`\"{}\ }
+\newcommand\arr{\guillemotright\ }
+\newcommand\menu[1]{\textcolor{blue}{\it \hspace{5mm} #1}}
+
+\definecolor{darkred}{rgb}{0.5,0,0}
+
+\newcommand\important[1]
+{
+  $~$\\
+  \begin{minipage}{15mm}
+    \includegraphics[width=1cm]{figures/important}
+  \end{minipage}
+  \begin{minipage}{110mm}
+    \begin{flushleft}
+      {\textcolor{darkred}{#1}}
+    \end{flushleft}
+  \end{minipage}
+  \\
+  \vspace{3mm}
+}
+
+\makeatother
+\usepackage{babel}
+
+\newcommand\comment[2]{{\color{red}{\bf#1}\it#2}}
+
+\begin{document}
+\newcommand\engitsversion{draft}
+\newcommand\engitsauthor{O. Gloth}
+\newcommand\engitstitle{enGrid manual}
+\newcommand\engitsdate{\today}
+\selectlanguage{british}
+\makeengitstitle
+\clearpage
+
+Copyright \copyright 2008 enGits GmbH.\\
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version~1.2 or any later version
+published by the Free Software Foundation; with
+no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of
+the license is included in the section entitled
+\char`\"{}GNU~Free~Documentation~License\char`\"{}.
+\clearpage
+
+\begin{engitstoc}
+\tableofcontents{}
+\end{engitstoc}
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% include all chapters here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Tutorials}
+\include{tutorial_01}
+
+\appendix
+
+\chapter{GNU Free Documentation License}
+
+\include{gpl}
+
+%\addcontentsline{toc}{section}{References}
+
+\begin{flushleft}
+\bibliographystyle{plain}
+\bibliography{engits}
+\par\end{flushleft}
+\end{document}

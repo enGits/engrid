@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "guicreateboundarylayer.h"
 #include "guimainwindow.h"
 #include "seedsimpleprismaticlayer.h"
@@ -57,9 +57,9 @@ void GuiCreateBoundaryLayer::before()
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
   double hr, ha, b, ds = 1.5;
-  getSet("boundary layer", "relative height of boundary layer", 1.0, hr);
+  getSet("boundary layer", "relative height of boundary layer", 0.01, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
-  getSet("boundary layer", "blending between absolute and relative", 1.0, b);
+  getSet("boundary layer", "blending between absolute and relative", 0.0, b);
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
     cout << "get: " << qPrintable(blayer_txt) << endl;
@@ -70,8 +70,8 @@ void GuiCreateBoundaryLayer::before()
     if (!s.atEnd()) s >> ds;
   }
   {
-    int hi = 20*hr;
-    hr = 0.05*hi;
+    int hi = 2000*hr;
+    hr = 0.0005*hi;
     ui.doubleSpinBoxHeight->setValue(hr);
   }
   {

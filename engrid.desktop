@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=enGrid
+Comment=Mesh Generation for CFD Simulations
+Type=Application
+Exec=engrid
+Categories=Education;Engineering;
