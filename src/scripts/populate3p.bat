@@ -1,13 +1,17 @@
 @echo off
+SETLOCAL EnableDelayedExpansion
 rem =============== Developer configuration area ===============
 
-rem VTK: source the environment variables for the chosen VTK installation
+rem VTK: environment variables for the chosen VTK installation
 set VTKINCDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\include\paraview-3.8
 set VTKBINDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\bin
 set VTKLIBDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\lib\paraview-3.8
 
 rem Qt: batch file with environment variables for the chosen qt installation
 set QTbatchfile=Q:\4.6.2\qtvars.bat
+
+rem NSIS: path to where NSIS is installed
+set NSIS_DIR=P:\NSIS
 
 rem ============= End Developer configuration area =============
 
@@ -75,15 +79,31 @@ echo Prefix = %CD% >> bin\qt.conf
 echo Demos = demos >> bin\qt.conf
 echo Examples = examples >> bin\qt.conf
 
-rem create the qtvars.bt file
+rem create the qtvars.bat file
 echo @echo off > bin\qtvars.bat
 echo echo Setting QMAKESPEC to %QMAKESPEC% >> bin\qtvars.bat
 echo set QMAKESPEC=%QMAKESPEC% >> bin\qtvars.bat
 echo echo Setting QTDIR environment variable to %CD% >> bin\qtvars.bat
 echo set QTDIR=%CD% >> bin\qtvars.bat
 echo echo Putting Qt\bin in the current PATH environment variable. >> bin\qtvars.bat
-echo set PATH=%CD%\bin;^%PATH^% >> bin\qtvars.bat
+echo set PATH=%CD%\bin;^%%PATH^%% >> bin\qtvars.bat
 echo. >> bin\qtvars.bat
+
+rem going back to the third_party folder
+cd ..
+
+
+rem Copy NSIS Installation
+echo Copying NSIS files, please wait...
+IF NOT EXIST NSIS mkdir NSIS
+cd NSIS
+xcopy /s "%NSIS_DIR%\*.*" . > NUL:
+
+rem create the nsisvars.bat file
+echo @echo off > nsisvars.bat
+echo echo Putting NSIS in the current PATH environment variable. >> nsisvars.bat
+echo set PATH=%CD%;^%%PATH^%% >> nsisvars.bat
+echo. >> nsisvars.bat
 
 rem going back to the third_party folder
 cd ..

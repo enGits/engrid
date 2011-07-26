@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="NSIS Custom builds"
+	Version="8,00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Build NSIS script"
+			DisplayName="NSIS Script Compiler"
+			CommandLine="call $(SolutionDir)\makeNSIS.bat &quot;$(InputDir)$(InputFileName)&quot; &quot;[OutputFolder]&quot; [OptionalDefine] [BuildName] [BuildVersion] [BUILDVERSIONx4]"
+			Outputs="[OutputFolder]\$(InputName)_[BuildVersion]_setup_[BuildName].exe"
+			FileExtensions="*.nsi"
+			ExecutionDescription="Building installer"
+			>
+			<Properties>
+				<StringProperty
+					Name="OptionalDefine"
+					DisplayName="Define Macro for NSIS script"
+					PropertyPageName="Build Options"
+					Description="The macro name here should be the one associated with this project."
+					Switch="[value]"
+					DefaultValue="MSVC2008"
+				/>
+				<StringProperty
+					Name="BuildName"
+					DisplayName="Build Name"
+					PropertyPageName="Build Options"
+					Description="Name for the setup file to be built."
+					Switch="[value]"
+					DefaultValue="&quot;win32&quot;"
+				/>
+				<StringProperty
+					Name="BuildVersion"
+					DisplayName="Build Version"
+					PropertyPageName="Build Options"
+					Description="The version number of this build."
+					Switch="[value]"
+					DefaultValue="1.0"
+				/>
+				<StringProperty
+					Name="OutputFolder"
+					DisplayName="Output Folder"
+					PropertyPageName="Build Options"
+					Description="The output folder where the installer will be placed."
+					Switch="[value]"
+					DefaultValue="$(OutDir)"
+				/>
+				<StringProperty
+					Name="BUILDVERSIONx4"
+					DisplayName="Explicit version number"
+					PropertyPageName="Build Options"
+					Description="Explicit version numbering. Must be of format X.X.X.X, where X values must be integers."
+					Switch="[value]"
+					DefaultValue="1.0.0.0"
+				/>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>
