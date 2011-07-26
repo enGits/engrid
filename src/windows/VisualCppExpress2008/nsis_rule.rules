@@ -9,6 +9,7 @@
 			DisplayName="NSIS Script Compiler"
 			CommandLine="call $(SolutionDir)\makeNSIS.bat &quot;$(InputDir)$(InputFileName)&quot; &quot;[OutputFolder]&quot; [OptionalDefine] [BuildName] [BuildVersion] [BUILDVERSIONx4]"
 			Outputs="[OutputFolder]\$(InputName)_[BuildVersion]_setup_[BuildName].exe"
+			AdditionalDependencies="[FileDependencies]"
 			FileExtensions="*.nsi"
 			ExecutionDescription="Building installer"
 			>
@@ -20,6 +21,8 @@
 					Description="The macro name here should be the one associated with this project."
 					Switch="[value]"
 					DefaultValue="MSVC2008"
+					Delimited="true"
+					Inheritable="true"
 				/>
 				<StringProperty
 					Name="BuildName"
@@ -28,6 +31,8 @@
 					Description="Name for the setup file to be built."
 					Switch="[value]"
 					DefaultValue="&quot;win32&quot;"
+					Delimited="true"
+					Inheritable="true"
 				/>
 				<StringProperty
 					Name="BuildVersion"
@@ -36,6 +41,8 @@
 					Description="The version number of this build."
 					Switch="[value]"
 					DefaultValue="1.0"
+					Delimited="true"
+					Inheritable="true"
 				/>
 				<StringProperty
 					Name="OutputFolder"
@@ -44,6 +51,8 @@
 					Description="The output folder where the installer will be placed."
 					Switch="[value]"
 					DefaultValue="$(OutDir)"
+					Delimited="true"
+					Inheritable="true"
 				/>
 				<StringProperty
 					Name="BUILDVERSIONx4"
@@ -52,6 +61,17 @@
 					Description="Explicit version numbering. Must be of format X.X.X.X, where X values must be integers."
 					Switch="[value]"
 					DefaultValue="1.0.0.0"
+					Delimited="true"
+					Inheritable="true"
+				/>
+				<StringProperty
+					Name="FileDependencies"
+					DisplayName="Additional Dependencies"
+					PropertyPageName="Build Options"
+					Description="Paths to files that the installer is dependent on."
+					Switch="[value]"
+					Delimited="true"
+					Inheritable="true"
 				/>
 			</Properties>
 		</CustomBuildRule>
