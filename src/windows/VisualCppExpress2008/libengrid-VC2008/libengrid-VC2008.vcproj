@@ -3985,6 +3985,10 @@
 				RelativePath="..\..\..\libengrid\engrid.qrc"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\libengrid\resources\libengrid.rc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Form Files"

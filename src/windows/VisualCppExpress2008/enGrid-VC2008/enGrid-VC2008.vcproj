@@ -282,6 +282,10 @@
 				RelativePath="..\..\..\libengrid\engrid.qrc"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\libengrid\resources\libengrid.rc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\..\engrid.pro"

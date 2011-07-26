@@ -1,0 +1,26 @@
+
+#define IDR_VERSION 1
+IDR_VERSION VERSIONINFO
+FILEVERSION 4.9.13.0
+PRODUCTVERSION 4.9.13.0
+FILEOS 0x00000004
+FILETYPE 0x00000001
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "FFFF0000"
+    BEGIN
+      VALUE "FileVersion", "4.9.13.0"
+      VALUE "ProductVersion", "4.9.13.0"
+      VALUE "CompanyName", ""
+      VALUE "FileDescription", ""
+      VALUE "InternalName", "nglib.dll\0"
+      VALUE "LegalCopyright", ""
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0xFFFF, 0x0000
+  END
+END
+

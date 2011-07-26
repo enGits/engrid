@@ -114,7 +114,7 @@ FunctionEnd
 
 Function finishpageaction
   SetShellVarContext all
-  CreateShortCut "$DESKTOP\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\G.ico"
+  CreateShortCut "$DESKTOP\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\engrid.exe"
   StrCpy $DESKTOP_ICON "1"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_DIR_REGKEY}" "DesktopIcon" "$DESKTOP_ICON"
 FunctionEnd
@@ -236,7 +236,6 @@ Section "MainSection" SEC01
   File "${SRC_ROOT}\licence.txt"
   File "${SRC_ROOT}\license.txt"
   File "${SRC_ROOT}\licence_exe.txt"
-  File "${SRC_ROOT}\libengrid\resources\icons\G.ico"
 
   ;Install libraries
   !include install_libraries.nsh
@@ -246,7 +245,7 @@ Section "MainSection" SEC01
   ;Create links
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\G.ico"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\enGrid.lnk" "$INSTDIR\engrid.exe" " " "$INSTDIR\engrid.exe"
 
 SectionEnd
 
@@ -333,7 +332,6 @@ Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\${PRODUCT_NAME}_wiki.url"
   Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\G.ico"
   Delete "$INSTDIR\engrid.exe"
   Delete "$INSTDIR\libengrid.dll"
   Delete "$INSTDIR\nglib.dll"
