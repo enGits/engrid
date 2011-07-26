@@ -61,6 +61,7 @@
 #include <stdio.h>
 
 #include "geometrytools.h"
+#include "engrid_version.h"
 
 using namespace GeometryTools;
 
