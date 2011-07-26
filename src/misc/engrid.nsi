@@ -1,4 +1,4 @@
-!define FASTBUILD ; uncomment for debugging this script
+; !define FASTBUILD ; uncomment for debugging this script
 
 ;Accepted name defines:
 ;  USE_mingw32
