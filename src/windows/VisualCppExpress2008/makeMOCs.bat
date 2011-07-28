@@ -1,7 +1,7 @@
 @echo off
 
 rem source the environment variables for the chosen qt installation
-call %~dp0\qtvars.bat
+call %~dp0\qtvars.bat %6
 
 set TARGETFILE=%3\moc_%2.cpp
 

@@ -47,6 +47,7 @@ Makefile.*engrid*
 
 netgen_svn
 third_party
+third_party64
 tmp.txt
 *.kdevelop.pcs
 engrid.kdevelop.ignore_pcs

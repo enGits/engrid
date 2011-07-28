@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="QT MOC Builder"
 			DisplayName="QT MOC Builder - For non Qt classes using signals and slots"
-			CommandLine="call $(SolutionDir)\makeMOCs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir)"
+			CommandLine="call $(SolutionDir)\makeMOCs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir) $(PlatformName)"
 			Outputs="$(IntDir)\moc_$(InputName).cpp"
 			FileExtensions="*.h"
 			>

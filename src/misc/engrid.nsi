@@ -3,6 +3,7 @@
 ;Accepted name defines:
 ;  USE_mingw32
 ;  USE_VisualCppExpress2008
+;  USE_VisualCppExpress2008_x64
 
 ;Accepted value defines:
 ; OUTPUTFOLDER="Folder path"
@@ -20,6 +21,16 @@
   !define QTBINDIR "${SRC_ROOT}\third_party\Qt\bin"
   !define VTKBINDIR "${SRC_ROOT}\third_party\VTK\bin"
   !define VTKLIBDIR "${SRC_ROOT}\third_party\VTK\lib"
+!endif
+
+!ifdef USE_VisualCppExpress2008_x64
+  !define QTBINDIR "${SRC_ROOT}\third_party64\Qt\bin"
+  !define VTKBINDIR "${SRC_ROOT}\third_party64\VTK\bin"
+  !define VTKLIBDIR "${SRC_ROOT}\third_party64\VTK\lib"
+  !ifndef USE_VisualCppExpress2008
+  !define USE_VisualCppExpress2008 ; useful for redundant operations!
+  !endif
+  !define WIN64
 !endif
 
 ; FIXME: These two are to be dropped?
@@ -56,6 +67,10 @@ RequestExecutionLevel user
 !addincludedir NSIS
 !addplugindir NSIS
 !include UAC.nsh
+
+!ifdef WIN64
+!include x64.nsh
+!endif
 
 ; Load headers for file functions
 !include "FileFunc.nsh"
@@ -136,6 +151,11 @@ FunctionEnd
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "${OUTPUTFOLDER}\${PRODUCT_NAME}_${PRODUCT_VERSION}_setup_${BUILDVERSION}.exe"
+!ifdef WIN64
+  InstallDir "$PROGRAMFILES64\enGits\enGrid"
+!else
+  InstallDir "$PROGRAMFILES\enGits\enGrid"
+!endif
 InstallDir "$PROGRAMFILES\enGits\enGrid"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -156,13 +176,30 @@ VIAddVersionKey OriginalFilename "${PRODUCT_NAME}_${PRODUCT_VERSION}_setup_${BUI
 
 Function .onInit
 
+!ifdef WIN64
+  SetRegView 64
+  ${DisableX64FSRedirection}
+
+  ${If} ${RunningX64}
+    ${EnableX64FSRedirection}
+  ${else}
+    MessageBox MB_OK "Sorry this application runs only on x64 machines"
+    Abort
+  ${EndIf}
+!endif
+
   ;Extract InstallOptions files
   ;$PLUGINSDIR will automatically be removed when the installer closes
 
   InitPluginsDir
 
   ; Initialize global variables
+!ifdef WIN64
+  StrCpy $ICONS_GROUP "enGits\${PRODUCT_NAME} (x64)"
+  StrCpy $INSTDIR "$PROGRAMFILES64\enGits\enGrid"
+!else
   StrCpy $ICONS_GROUP "enGits\${PRODUCT_NAME}"
+!endif
   StrCpy $DESKTOP_ICON "0"
 
   ; Force installation as super-user
@@ -227,8 +264,11 @@ Section "MainSection" SEC01
   File "${SRC_ROOT}\release\engrid.exe"
   File "${SRC_ROOT}\release\libengrid.dll"
   File "${SRC_ROOT}\release\nglib.dll"
-!endif
-!ifdef USE_VisualCppExpress2008
+!else ifdef USE_VisualCppExpress2008_x64
+  File "${SRC_ROOT}\windows\VisualCppExpress2008\x64\Release\engrid.exe"
+  File "${SRC_ROOT}\windows\VisualCppExpress2008\x64\Release\libengrid.dll"
+  File "${SRC_ROOT}\windows\VisualCppExpress2008\x64\Release\nglib.dll"
+!else ifdef USE_VisualCppExpress2008
   File "${SRC_ROOT}\windows\VisualCppExpress2008\Release\engrid.exe"
   File "${SRC_ROOT}\windows\VisualCppExpress2008\Release\libengrid.dll"
   File "${SRC_ROOT}\windows\VisualCppExpress2008\Release\nglib.dll"
@@ -293,6 +333,11 @@ Function un.OnUnInstFailed
 FunctionEnd
 
 Function un.onInit
+
+!ifdef WIN64
+  SetRegView 64
+  ${DisableX64FSRedirection}
+!endif
 
 UAC_Elevate:
     UAC::RunElevated
@@ -363,15 +408,18 @@ Section Uninstall
   ; this is a "just in case" for Program Files only. It will not take care of other custom folders!
   ${GetParent} "$INSTDIR" $R0
 
+!ifndef WIN64
   StrCmp $R0 "$PROGRAMFILES\enGits" 0 +3
     IfFileExists "$PROGRAMFILES\enGits" 0 +2
       RMDir "$PROGRAMFILES\enGits"
   StrCmp $R0 "$PROGRAMFILES32\enGits" 0 +3
     IfFileExists "$PROGRAMFILES32\enGits" 0 +2
       RMDir "$PROGRAMFILES32\enGits"
-  ;StrCmp $R0 "$PROGRAMFILES64\enGits" 0 +3
-  ;  IfFileExists "$PROGRAMFILES64\enGits" 0 +2
-  ;    RMDir "$PROGRAMFILES64\enGits"
+!else
+  StrCmp $R0 "$PROGRAMFILES64\enGits" 0 +3
+    IfFileExists "$PROGRAMFILES64\enGits" 0 +2
+      RMDir "$PROGRAMFILES64\enGits"
+!endif
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"

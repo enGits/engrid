@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="QCollectionGenerator"
 			DisplayName="QT Help Collection File Generation"
-			CommandLine="$(SolutionDir)\qtvars.bat&#x0D;&#x0A;qcollectiongenerator.exe &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(InputDir)$(InputName).qhc&quot;&#x0D;&#x0A;"
+			CommandLine="$(SolutionDir)\qtvars.bat $(PlatformName) qcollectiongenerator.exe &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(InputDir)$(InputName).qhc&quot;&#x0D;&#x0A;"
 			Outputs="&quot;$(InputDir)\$(InputName).qhc&quot;"
 			FileExtensions="*.qhcp"
 			>

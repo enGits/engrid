@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="Build NSIS script"
 			DisplayName="NSIS Script Compiler"
-			CommandLine="call $(SolutionDir)\makeNSIS.bat &quot;$(InputDir)$(InputFileName)&quot; &quot;[OutputFolder]&quot; [OptionalDefine] [BuildName] [BuildVersion] [BUILDVERSIONx4]"
+			CommandLine="call $(SolutionDir)\makeNSIS.bat &quot;$(InputDir)$(InputFileName)&quot; &quot;[OutputFolder]&quot; [OptionalDefine] [BuildName] [BuildVersion] [BUILDVERSIONx4] $(PlatformName)"
 			Outputs="[OutputFolder]\$(InputName)_[BuildVersion]_setup_[BuildName].exe"
 			AdditionalDependencies="[FileDependencies]"
 			FileExtensions="*.nsi"
