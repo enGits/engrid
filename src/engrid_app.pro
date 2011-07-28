@@ -62,7 +62,7 @@ win32-msvc* {
 
 
 OTHER_FILES += checkcomments.py todo.txt
-RESOURCES   += engrid.qrc
+RESOURCES   += libengrid/engrid.qrc
 
 SOURCES = main.cpp
 

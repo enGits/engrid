@@ -87,7 +87,7 @@ LIBS += -lvtkVolumeRendering
 LIBS += -lvtkWidgets
 
 
-RESOURCES += ../engrid.qrc
+RESOURCES += engrid.qrc
 
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
