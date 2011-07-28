@@ -149,7 +149,7 @@ public:
    *  @param ele_max a linear norm
    */
   T linNorm_0() {
-    size_t i,j;
+    uint_t i,j;
     T ele_max, qq;
     ele_max = (*this)[0][0] * (*this)[0][0];
     for(i=0;i<N;i++) {
