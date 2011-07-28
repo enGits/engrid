@@ -156,7 +156,6 @@ OutFile "${OUTPUTFOLDER}\${PRODUCT_NAME}_${PRODUCT_VERSION}_setup_${BUILDVERSION
 !else
   InstallDir "$PROGRAMFILES\enGits\enGrid"
 !endif
-InstallDir "$PROGRAMFILES\enGits\enGrid"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
