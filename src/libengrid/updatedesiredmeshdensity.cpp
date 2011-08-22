@@ -31,7 +31,12 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
   m_OnlySurfaceCells = true;
-  getSet("surface meshing", "minmal number of cells across", 0, m_MinMumCellsAcross);
+  
+  m_GrowthFactor = 0.0;
+  m_MinEdgeLength = 0.0;
+  m_MinMumCellsAcross = 0;
+  
+  getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
 
