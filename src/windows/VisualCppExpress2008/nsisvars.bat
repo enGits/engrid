@@ -1,6 +1,6 @@
 
 rem source the environment variables for the chosen NSIS installation
-IF %1 == win32 call %~dp0..\..\third_party\NSIS\nsisvars.bat
+IF %1 == Win32 call %~dp0..\..\third_party\NSIS\nsisvars.bat
 IF %1 == x64 call %~dp0..\..\third_party64\NSIS\nsisvars.bat
 
 rem throw the first parameter away
