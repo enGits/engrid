@@ -2,7 +2,7 @@
   Delete "$INSTDIR\tutorials\01_Damper\Throttle.msh"
   Delete "$INSTDIR\tutorials\01_Damper\Damper.stl"
   Delete "$INSTDIR\tutorials\01_Damper\Damper.blend"
-  RMDir "$INSTDIR\tutorials\01_Throttle"
+  RMDir "$INSTDIR\tutorials\01_Damper"
 
   Delete "$INSTDIR\tutorials\02_Sphere\Sphere_S1.egc.vtu"
   Delete "$INSTDIR\tutorials\02_Sphere\Sphere_S1.egc"
