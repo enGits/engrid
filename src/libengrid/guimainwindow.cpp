@@ -1859,19 +1859,27 @@ void GuiMainWindow::about()
                        "79674 Todtnau<br/>"
                        "Germany<br/>");
 
-  QString mainurl="http://engits.eu";
-  QString mail="info@engits.com";
-  QString gnuurl="http://www.gnu.org/licenses";
+  QString mainurl="<a href=\"http://engits.eu/\">http://engits.eu</a>";
+  QString mail="<a href=\"mailto:info@engits.com\">info@engits.com</a>";
+  QString gnuurl="<a href=\"http://www.gnu.org/licenses\">http://www.gnu.org/licenses</a>";
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
+  QString contributions=tr("Contributions:");
+  QStringList contributionsList;
+
+  contributionsList<< tr("<a href=\"http://sourceforge.net/users/philippose/\">Philippose Rajan</a>");
+  contributionsList<< tr("<a href=\"http://sourceforge.net/users/wyldckat/\">Bruno Santos</a> <a href=\"http://www.bluecape.com.pt/\">(sponsored by blueCAPE Lda)</a>");
+
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
                                   "<p>%2</p>"
                                   "<p>%3</p>"
                                   "<p>Homepage: %4</p>"
                                   "<p>E-mail: %5</p>"
-                                  "<p>%6</p>")
-              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license));
+                                  "<p>%6</p></center>"
+                                  "<p>%7</p><blockquote>%8</blockquote>")
+              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license)
+              .arg(contributions).arg(contributionsList.join("<br/>")));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
