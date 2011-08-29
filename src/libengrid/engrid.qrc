@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="/icons" >
+  <qresource prefix="/icons">
     <file>resources/icons/editbc.png</file>
     <file>resources/icons/editsurfaceparameters.png</file>
     <file>resources/icons/createsurfacemesh.png</file>
@@ -36,7 +36,8 @@
     <file>resources/kde_icons/stop.png</file>
     <file>resources/icons/paraview.png</file>
   </qresource>
-  <qresource prefix="/" >
+  <qresource prefix="/">
+    <file>../contributions.htm</file>
     <file>resources/solvers/solvers.txt</file>
     <file>resources/solvers/openfoam-1.5/simpleFoam/standard/constant/RASProperties</file>
     <file>resources/solvers/openfoam-1.5/simpleFoam/standard/constant/transportProperties</file>

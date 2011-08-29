@@ -1844,6 +1844,24 @@ void GuiMainWindow::configure()
 
 void GuiMainWindow::about()
 {
+  //Load the HTML code snippet with the list of contributions
+  QFileInfo fileinfo;
+  fileinfo.setFile(":/contributions.htm");
+  QFile file(fileinfo.filePath());
+  if (!file.exists()) {
+    qDebug() << "ERROR: " << fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qDebug() << "ERROR:  Failed to open file " << fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream(&file);
+  QString contributionsIncluded = text_stream.readAll();
+  file.close();
+
+
+  //Do the About box
   QMessageBox box(this);
 
   QString title="ENGRID";
@@ -1865,10 +1883,6 @@ void GuiMainWindow::about()
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
   QString contributions=tr("Contributions:");
-  QStringList contributionsList;
-
-  contributionsList<< tr("<a href=\"http://sourceforge.net/users/philippose/\">Philippose Rajan</a>");
-  contributionsList<< tr("<a href=\"http://sourceforge.net/users/wyldckat/\">Bruno Santos</a> <a href=\"http://www.bluecape.com.pt/\">(sponsored by blueCAPE Lda)</a>");
 
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
@@ -1879,7 +1893,7 @@ void GuiMainWindow::about()
                                   "<p>%6</p></center>"
                                   "<p>%7</p><blockquote>%8</blockquote>")
               .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license)
-              .arg(contributions).arg(contributionsList.join("<br/>")));
+              .arg(contributions).arg(contributionsIncluded));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
