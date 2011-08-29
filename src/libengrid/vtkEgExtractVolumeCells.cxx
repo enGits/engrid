@@ -26,7 +26,8 @@ vtkStandardNewMacro(vtkEgExtractVolumeCells)
 
 vtkEgExtractVolumeCells::vtkEgExtractVolumeCells()
 {
-  SetClippingOff();
+  //SetClippingOff uses an IF to check the value first, which may have unexpected behavior in some OSes.
+  m_Clip = false;   SetClippingOff();
   SetX(vec3_t(0,0,0));
   SetN(vec3_t(1,0,0));
   m_ExtrTetras   = true;
