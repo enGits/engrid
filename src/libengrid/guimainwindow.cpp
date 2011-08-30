@@ -1231,11 +1231,11 @@ void GuiMainWindow::save()
 
     //FIXME: This is more of a hack than a fix...
     if(GuiMainWindow::tryLock()) {
+      GuiMainWindow::unlock(); //must unlock before continuing.
       saveAs();
     } else {
-      cout << endl
-           << "ERROR: Please save the project before running the requested operation."
-           << endl;
+      EG_ERR_RETURN("Please save the project before running the requested operation "
+                    "or after the current operation is complete.");
     }
   } else {
     saveAs(m_CurrentFilename);
