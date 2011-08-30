@@ -417,6 +417,16 @@ void CreateVolumeMesh::computeMeshDensity()
   in >> m_MaxEdgeLength;
   in >> m_MinEdgeLength;
   in >> m_GrowthFactor;
+
+  //FIXME: This is just a temporary patch for sanity checking.
+  if(fabs(m_MaxEdgeLength)<1e-32)
+  {
+    cout<<endl
+        <<"ERROR: Maximum Edge Length is invalid. Please set the proper value in 'Mesh -> edit surface parameters'"
+        <<endl;
+    EG_BUG
+  }
+
   m_ELSManager.read();
   QVector<double> H(m_Grid->GetNumberOfPoints(), m_MaxEdgeLength);
 
