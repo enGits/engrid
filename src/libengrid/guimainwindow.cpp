@@ -1234,8 +1234,10 @@ void GuiMainWindow::save()
       GuiMainWindow::unlock(); //must unlock before continuing.
       saveAs();
     } else {
-      EG_ERR_RETURN("Please save the project before running the requested operation "
-                    "or after the current operation is complete.");
+      cout <<endl
+           << "WARNING: Please save the project before running the requested operation "
+              "or after the current operation is complete."
+           <<endl;
     }
   } else {
     saveAs(m_CurrentFilename);
