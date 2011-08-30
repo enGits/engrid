@@ -1228,7 +1228,15 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 void GuiMainWindow::save()
 {
   if ( m_CurrentFilename == "untitled.egc" || m_UnSaved ) {
-    saveAs();
+
+    //FIXME: This is more of a hack than a fix...
+    if(GuiMainWindow::tryLock()) {
+      saveAs();
+    } else {
+      cout << endl
+           << "ERROR: Please save the project before running the requested operation."
+           << endl;
+    }
   } else {
     saveAs(m_CurrentFilename);
   }
