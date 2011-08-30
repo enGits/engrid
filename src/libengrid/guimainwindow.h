@@ -164,8 +164,19 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     bool         m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
     QString      m_LogFileName;          ///< log file to collect program output for display in the output window
     long int     m_N_chars;              ///< number of lines that have been read from the log file
+#if defined( __linux__ ) //for Linux
+    int          m_SystemStdout;
+    int          m_LogFileStdout;
+    fpos_t m_SystemStdout_pos;
+    fpos_t m_LogFileStdout_pos;
+#elif defined( _WIN32 ) //for Windows
+    //Windows always uses CON
     FILE*        m_SystemStdout;
     FILE*        m_LogFileStdout;
+#else
+  #error "Please define the proper way to save/recover the stdout."
+#endif
+
     QTimer       m_GarbageTimer;
     QTimer       m_LogTimer;
 
@@ -373,15 +384,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     bool checkSurfProj();
 
-#if defined( __linux__ ) //for Linux
-    void setSystemOutput() { stdout = m_SystemStdout; }
-    void setLogFileOutput() { stdout = m_LogFileStdout; }
-#elif defined( _WIN32 ) //for Windows
-    void setSystemOutput() { freopen("CON","w",m_SystemStdout); }
-    void setLogFileOutput() { freopen("CON","w",m_LogFileStdout); }
-#else
-  #error "Please define the proper way to recover the stdout."
-#endif
+    void setSystemOutput();
+    void setLogFileOutput();
 
   public slots:
 

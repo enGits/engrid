@@ -160,11 +160,29 @@ void GuiMainWindow::setupGuiMainWindow()
   m_LogFileName = m_LogDir + basename;
   cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
+#if defined( __linux__ ) //for Linux
+  //Sources for POSIX redirection:
+  //   http://c-faq.com/stdio/undofreopen.html
+  //   http://stackoverflow.com/questions/4832603/how-could-i-temporary-redirect-stdout-to-a-file-in-a-c-program
+
+  fflush(stdout);
+  fgetpos(stdout, &m_SystemStdout_pos);
+  m_SystemStdout = dup(fileno(stdout)); //backup a duplicate of the stdout
+  if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
+    EG_BUG;
+  }
+  m_LogFileStdout = dup(fileno(stdout)); //backup a duplicate of the log_out
+
+#elif defined( _WIN32 ) //for Windows
   m_SystemStdout = stdout;
   if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
     EG_BUG;
   }
   m_LogFileStdout = stdout;
+
+#else
+  #error "Please define the proper way to save the stdout."
+#endif
 
   m_Busy = false;
 
@@ -280,6 +298,16 @@ GuiMainWindow::~GuiMainWindow()
 #endif
 
   delete m_XmlHandler;
+
+#if defined( __linux__ ) //for Linux
+  ::close(m_SystemStdout); //close this duplicate
+  ::close(m_LogFileStdout); //close this duplicate
+
+#elif defined( _WIN32 ) //for Windows
+  //Nothing to do so far
+#else
+  #error "Please define the proper way to close the saved stdouts."
+#endif
 }
 
 void GuiMainWindow::setupVtk()
@@ -2050,6 +2078,51 @@ bool GuiMainWindow::checkSurfProj()
   }
   return ok;
 }
+
+void GuiMainWindow::setSystemOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_LogFileStdout_pos); //store current position
+    dup2(m_SystemStdout, fileno(stdout)); //reassign the original stdout to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_SystemStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen("CON","a",m_SystemStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
+void GuiMainWindow::setLogFileOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_SystemStdout_pos); //store current position
+    dup2(m_LogFileStdout, fileno(stdout)); //reassign the log_out to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_LogFileStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen(qPrintable(m_LogFileName),"a",m_LogFileStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
 
 void GuiMainWindow::openRecent(QAction *action)
 {
