@@ -421,10 +421,7 @@ void CreateVolumeMesh::computeMeshDensity()
   //FIXME: This is just a temporary patch for sanity checking.
   if(fabs(m_MaxEdgeLength)<1e-32)
   {
-    cout<<endl
-        <<"ERROR: Maximum Edge Length is invalid. Please set the proper value in 'Mesh -> edit surface parameters'"
-        <<endl;
-    EG_BUG
+    EG_ERR_RETURN("Maximum Edge Length is invalid. Please set the proper value in 'Mesh -> edit surface parameters'.");
   }
 
   m_ELSManager.read();
