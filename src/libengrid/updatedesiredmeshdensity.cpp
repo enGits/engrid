@@ -250,7 +250,7 @@ void UpdateDesiredMeshDensity::operate()
     }
   }
   if (i_nodes_min == -1) {
-    EG_BUG;
+    EG_ERR_RETURN("There are no edges that need improving.")
   }
 
   // start from smallest characteristic length and loop as long as nodes are updated
