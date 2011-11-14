@@ -65,9 +65,6 @@ def write(filename):
       out.write('%d' % len(nodes))
       out.write(' %d\n' % len(faces))
       for n in nodes:
-        #out.write("%e " % n.co[0])
-        #out.write("%e " % n.co[1])
-        #out.write("%e\n" % n.co[2])
         out.write("%e "  % n.co[0])
         out.write("%e "  % n.co[1])
         out.write("%e\n" % n.co[2])
