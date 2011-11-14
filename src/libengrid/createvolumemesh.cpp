@@ -208,215 +208,18 @@ void CreateVolumeMesh::writeDebugInfo()
 
 void CreateVolumeMesh::computeMeshDensity()
 {
-  /*
-  using namespace nglib;
-  m_ELSManager.read();
-  QVector<vtkIdType>  cells;
-  QVector<vtkIdType>  nodes;
-  QVector<int>       _nodes;
-  QVector<QVector<int> >  c2c;
-  QVector<QSet<int> >     n2n;
-  getAllCellsOfType(VTK_TETRA, cells, m_Grid);
-  getNodesFromCells(cells, nodes, m_Grid);
-  createNodeMapping(nodes, _nodes, m_Grid);
-  createCellToCell(cells, c2c, m_Grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, m_Grid);
-  QVector<bool> fixed(nodes.size(), false);
-  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType id_cell = cells[i_cells];
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    if (c2c[i_cells][0] == -1) {
-      fixed[_nodes[pts[0]]] = true;
-      fixed[_nodes[pts[1]]] = true;
-      fixed[_nodes[pts[2]]] = true;
-    }
-    if (c2c[i_cells][1] == -1) {
-      fixed[_nodes[pts[0]]] = true;
-      fixed[_nodes[pts[1]]] = true;
-      fixed[_nodes[pts[3]]] = true;
-    }
-    if (c2c[i_cells][2] == -1) {
-      fixed[_nodes[pts[0]]] = true;
-      fixed[_nodes[pts[2]]] = true;
-      fixed[_nodes[pts[3]]] = true;
-    }
-    if (c2c[i_cells][3] == -1) {
-      fixed[_nodes[pts[1]]] = true;
-      fixed[_nodes[pts[2]]] = true;
-      fixed[_nodes[pts[3]]] = true;
-    }
-  }
-  QVector<double> H(nodes.size(), 0.0);
-  double H_min = 1e99;
-  vec3_t X1, X2;
-  bool first_node = true;
-  int N_non_fixed = 0;
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    if (fixed[i_nodes]) {
-      ++N_non_fixed;
-      int N = 0;
-      vec3_t xi;
-      m_Grid->GetPoint(nodes[i_nodes], xi.data());
-      if (first_node) {
-        X1 = xi;
-        X2 = xi;
-        first_node = false;
-      } else {
-        for (int k = 0; k < 3; ++k) {
-          X1[k] = min(xi[k], X1[k]);
-          X2[k] = max(xi[k], X2[k]);
-        }
-      }
-      foreach (int j_nodes, n2n[i_nodes]) {
-        if (fixed[j_nodes]) {
-          vec3_t xj;
-          m_Grid->GetPoint(nodes[j_nodes], xj.data());
-          H[i_nodes] += (xi-xj).abs();
-          ++N;
-        }
-      }
-      if (N < 2) {
-        EG_BUG;
-      }
-      H[i_nodes] /= N;
-      H_min = min(H[i_nodes], H_min);
-    }
-  }
   boxes.clear();
-
-  // pass 1
-  {
-    QString num = "0";
-    cout << "relaxing mesh size (pass1): " << qPrintable(num) << "% done" << endl;
-    if (N_non_fixed > 0) {
-      double DH_max = 1e99;
-      double DH_last;
-      do {
-        DH_last = DH_max;
-        DH_max = 0;
-        for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-          if (!fixed[i_nodes]) {
-            vec3_t x;
-            m_Grid->GetPoint(nodes[i_nodes], x.data());
-            double H0 = H[i_nodes];
-            H[i_nodes] = 0.0;
-            int N = 0;
-            foreach (int j_nodes, n2n[i_nodes]) {
-              H[i_nodes] += H[j_nodes];
-              ++N;
-            }
-            if (N == 0) {
-              EG_BUG;
-            }
-            H[i_nodes] /= N;
-            double dH = 1.0*(H[i_nodes] - H0);
-            H[i_nodes] = H0 + dH;
-            DH_max = max(dH, DH_max);
-          }
-        }
-        QString new_num;
-        double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
-        new_num.setNum(100*e,'f',0);
-        if (new_num != num) {
-          num = new_num;
-          cout << "relaxing mesh size (pass1): " << qPrintable(num) << "% done " << endl;
-        }
-      } while (DH_max > 1e-3*H_min && DH_max < DH_last);
-    }
-  }
-
-  // sources
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    vec3_t x;
-    m_Grid->GetPoint(nodes[i_nodes], x.data());
-    double cl_src = m_ELSManager.minEdgeLength(x);
-    if (cl_src > 0) {
-      if (cl_src < H[i_nodes]) {
-        H[i_nodes] = cl_src;
-        fixed[i_nodes] = true;
-        --N_non_fixed;
-      }
-    }
-  }
-
-  // pass 2
-  {
-    QString num = "0";
-    cout << "relaxing mesh size (pass2): " << qPrintable(num) << "% done" << endl;
-    if (N_non_fixed > 0) {
-      double DH_max = 1e99;
-      double DH_last;
-      do {
-        DH_last = DH_max;
-        DH_max = 0;
-        for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-          if (!fixed[i_nodes]) {
-            bool relax_node = true;
-            vec3_t x;
-            m_Grid->GetPoint(nodes[i_nodes], x.data());
-            double cl_src = m_ELSManager.minEdgeLength(x);
-            if (cl_src > 0) {
-              if (cl_src < H[i_nodes]) {
-                H[i_nodes] = cl_src;
-                relax_node = false;
-              }
-            }
-            if (relax_node) {
-              double H0 = H[i_nodes];
-              H[i_nodes] = 0.0;
-              int N = 0;
-              foreach (int j_nodes, n2n[i_nodes]) {
-                H[i_nodes] += H[j_nodes];
-                ++N;
-              }
-              if (N == 0) {
-                EG_BUG;
-              }
-              H[i_nodes] /= N;
-              double dH = 1.0*(H[i_nodes] - H0);
-              H[i_nodes] = H0 + dH;
-              DH_max = max(dH, DH_max);
-            }
-          }
-        }
-        QString new_num;
-        double e = min(1.0,max(0.0,-log10(DH_max/H_min)/3));
-        new_num.setNum(100*e,'f',0);
-        if (new_num != num) {
-          num = new_num;
-          cout << "relaxing mesh size (pass2): " << qPrintable(num) << "% done " << endl;
-        }
-      } while (DH_max > 1e-3*H_min && DH_max < DH_last);
-    }
-  }
-  */
-
-  boxes.clear();
-  /*
-  UpdateDesiredMeshDensity update;
-  update();
-  */
-  /*
-  QVector<vtkIdType>  cells;
-  QVector<vtkIdType>  nodes;
-  QVector<int>       _nodes;
-  QVector<QVector<int> >  c2c;
-  QVector<QSet<int> >     n2n;
-  getAllCellsOfType(VTK_TETRA, cells, m_Grid);
-  getNodesFromCells(cells, nodes, m_Grid);
-  createNodeMapping(nodes, _nodes, m_Grid);
-  createCellToCell(cells, c2c, m_Grid);
-  createNodeToNode(cells, nodes, _nodes, n2n, m_Grid);
-
-  */
-  //EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
-  QTextStream in(&buffer, QIODevice::ReadOnly);
-  in >> m_MaxEdgeLength;
-  in >> m_MinEdgeLength;
-  in >> m_GrowthFactor;
+  if (!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    in >> m_MaxEdgeLength;
+    in >> m_MinEdgeLength;
+    in >> m_GrowthFactor;
+  } else {
+    m_MaxEdgeLength = 1000.0;
+    m_MinEdgeLength = 0.0;
+    m_GrowthFactor = 1.5;
+  }
   m_ELSManager.read();
   QVector<double> H(m_Grid->GetNumberOfPoints(), m_MaxEdgeLength);
 
@@ -447,6 +250,9 @@ void CreateVolumeMesh::computeMeshDensity()
           EG_BUG;
         }
         H[id_node] /= N;
+		if (H[id_node] < 0) {
+	      EG_BUG;
+		}
         if (H[id_node] < H_min) {
           id_min = id_node;
           H_min = H[id_node];
@@ -454,7 +260,6 @@ void CreateVolumeMesh::computeMeshDensity()
       }
     }
   }
-  //EG_BUG;
   if (id_min < 0) {
     EG_BUG;
   }
@@ -486,6 +291,9 @@ void CreateVolumeMesh::computeMeshDensity()
             m_Grid->GetPoint(id_neigh, x2.data());
             double dist = (x1 - x2).abs();
             double h = H[id_node] + (m_GrowthFactor - 1)*dist;
+            if (h < 0) {
+              EG_BUG;
+            }
             H[id_neigh] = min(H[id_neigh], h);
             marked[id_neigh] = true;
             //H[id_neigh] += 1.0*H[id_node];
@@ -523,6 +331,9 @@ void CreateVolumeMesh::computeMeshDensity()
     box_t B;
     B.x1 =x1;
     B.x2 =x2;
+	if (H[id_node] < 0) {
+      EG_BUG;
+	}
     B.h = H[id_node];
     boxes.append(B);
   }
@@ -572,7 +383,11 @@ void CreateVolumeMesh::operate()
   }
   Ng_Result res;
   try {
-    foreach (box_t B, boxes) Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
+    int box_counter = 0;
+    foreach (box_t B, boxes) {
+      Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
+      ++box_counter;
+    }
     GuiMainWindow::pointer()->setSystemOutput();
     writeDebugInfo();
     res = Ng_GenerateVolumeMesh (mesh, &mp);
