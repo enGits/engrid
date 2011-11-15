@@ -26,7 +26,9 @@ help ()
 {
   echo "usage :"
   echo "source setup_pathes.bash CONFIGURATION"
-  echo "CONFIGURATION = ubuntu"
+  echo "CONFIGURATION = ubuntu-11.10"
+  echo "                ubuntu-11.04"
+  echo "                ubuntu-10.10"
   echo "                opensuse32"
   echo "                opensuse64"
   echo "                fedora32"
@@ -39,9 +41,17 @@ if [ $# -ne 1 ]
 then
   help
 else
-  if [ $1 = 'ubuntu' ]
+  if [ $1 = 'ubuntu-10.10' ]
   then
     export VTKINCDIR=/usr/include/vtk-5.4/
+    export VTKLIBDIR=/usr/lib
+  elif [ $1 = 'ubuntu-11.04' ]
+  then
+    export VTKINCDIR=/usr/include/vtk-5.4/
+    export VTKLIBDIR=/usr/lib
+  elif [ $1 = 'ubuntu-11.10' ]
+  then
+    export VTKINCDIR=/usr/include/vtk-5.6/
     export VTKLIBDIR=/usr/lib
   elif [ $1 = 'opensuse32' ]
   then
