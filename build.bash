@@ -30,7 +30,9 @@ help ()
   echo "                fedora-15-64"
   echo "                fedora-14-32"
   echo "                fedora-14-64"
-  echo "                ubuntu"
+  echo "                ubuntu-10.10"
+  echo "                ubuntu-11.04"
+  echo "                ubuntu-11.10"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
@@ -59,9 +61,15 @@ else
     echo ""
   else
     config_name=$1
-    if [ $1 = 'ubuntu' ]
+    if [ $1 = 'ubuntu-10.10' ]
     then
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+    elif [ $1 = 'ubuntu-11.04' ]
+    then
+      sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+    elif [ $1 = 'ubuntu-11.10' ]
+    then
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'opensuse-11.2-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
