@@ -15,7 +15,7 @@ INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 INCLUDEPATH += $(VTKINCDIR)
-RESOURCES += ../engrid.qrc
+RESOURCES += engrid.qrc
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
