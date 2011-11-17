@@ -32,13 +32,22 @@ callgrind*
 /platforms/
 engrid
 engrid_debug
+release
+debug
+Release
+Debug
+Release-static
+Debug-static
 
 # generated Makefiles
 Makefile
 Makefile.Debug
 Makefile.Release
+Makefile.*engrid*
 
 netgen_svn
+third_party
+third_party64
 tmp.txt
 *.kdevelop.pcs
 engrid.kdevelop.ignore_pcs
@@ -80,3 +89,8 @@ docs
 
 *.vtk
 *.kdevses
+
+# ignore Visual Studio local files
+*.suo
+*.ncb
+*.vcproj.*

@@ -139,11 +139,11 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType new_pts[N_pts];
+    QVector<vtkIdType> new_pts(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = m_LNodes[pts[i]];
     }
-    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
 }
@@ -217,11 +217,11 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = part.m_Grid->GetCellType(id_pcell);
       part.m_Grid->GetCellPoints(id_pcell, N_pts, pts);
-      vtkIdType new_pts[N_pts];
+      QVector<vtkIdType> new_pts(N_pts);
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = pnode2node[pts[i]];
       }
-      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts);
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
       copyCellData(part.m_Grid, id_pcell, new_grid, id_new_cell);
       new_cells.append(id_new_cell);
     }
@@ -236,7 +236,7 @@ double MeshPartition::getSmallestEdgeLength() const
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     vtkIdType N_pts, *pts;
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    vec3_t x[N_pts];
+    QVector<vec3_t> x(N_pts);
     for (int i = 0; i < N_pts; ++i) {
       m_Grid->GetPoint(pts[i], x[i].data());
     }

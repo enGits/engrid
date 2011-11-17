@@ -48,6 +48,7 @@ private: // attributes
   
   bool    m_Valid;        ///< flag to determine if a valid file has been selected
   QString m_FileName;     ///< file name to read -- normally set by inputReadFileName()
+  char m_FileName_cc[1024]; ///< "const char *" copy version of file name to read -- only used by getCFileName()
   QString m_FormatTxt;    ///< file format string (e.g. *.stl, *.vtu, ...)
   QString m_ExtensionTxt; ///< file extension for write operations
 

@@ -31,7 +31,12 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
   m_OnlySurfaceCells = true;
-  getSet("surface meshing", "minmal number of cells across", 0, m_MinMumCellsAcross);
+  
+  m_GrowthFactor = 0.0;
+  m_MinEdgeLength = 0.0;
+  m_MinMumCellsAcross = 0;
+  
+  getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
 
@@ -48,7 +53,7 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
       if (fixed_bcs.contains(cell_code->GetValue(id_cell))) {
         vtkIdType N_pts, *pts;
         m_Grid->GetCellPoints(id_cell, N_pts, pts);
-        vec3_t x[N_pts];
+        QVector<vec3_t> x(N_pts);
         for (int i = 0; i < N_pts; ++i) {
           m_Grid->GetPoint(pts[i], x[i].data());
           m_Fixed[pts[i]] = true;
@@ -245,7 +250,7 @@ void UpdateDesiredMeshDensity::operate()
     }
   }
   if (i_nodes_min == -1) {
-    EG_BUG;
+    EG_ERR_RETURN("There are no edges that need improving.")
   }
 
   // start from smallest characteristic length and loop as long as nodes are updated

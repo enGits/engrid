@@ -41,7 +41,8 @@ private: // attributes
   QVector<int> m_VolToSurfMap;
   QVector<int> m_SurfToVolMap;
   int          m_FirstBoundaryFace;
-  QString      m_Buffer;
+  QByteArray   m_Buffer;
+  QString      m_BufferedFileName;
 
 
 private: // methods
@@ -53,7 +54,7 @@ private: // methods
 protected: // methods
 
   void readFile(QString file_name);
-  QString* getBuffer() { return &m_Buffer; }
+  QByteArray* getBuffer() { return &m_Buffer; }
   void buildMaps();
   int numVolNodes() { return m_VolToSurfMap.size(); }
   int numSurfNodes() { return m_SurfToVolMap.size(); }

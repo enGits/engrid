@@ -46,22 +46,22 @@ void InsertPoints::operate()
 int InsertPoints::insertPoints()
 {
   QTime start = QTime::currentTime();
-  
+
   setAllSurfaceCells();
   l2g_t  cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
-  
+
   UpdatePotentialSnapPoints(true);
-   
+
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
 
   int num_newpoints=0;
   int num_newcells=0;
-  
+
   QVector <int> marked_cells(cells.size(), 0);
   QVector <stencil_t> stencil_vector(cells.size());
-  
+
   // find potential edges for splitting
   QList<edge_t> edges;
   for (int i = 0; i < cells.size(); ++i) {
@@ -136,38 +136,38 @@ int InsertPoints::insertPoints()
   EG_VTKSP(vtkUnstructuredGrid,grid_tmp);
   allocateGrid(grid_tmp, l_N_cells + num_newcells, l_N_points + num_newpoints);
   makeCopyNoAlloc(m_Grid, grid_tmp);
-  
+
   //initialize new node counter
   vtkIdType id_new_node = l_N_points;
-  
+
   //actor
   for (int i = 0; i < cells.size(); i++) {
     if (marked_cells[i] == 1) {
       stencil_t S = stencil_vector[i];
-      
+
       //calculate midpoint
       vec3_t A,B;
       grid_tmp->GetPoint(S.p1,A.data());
       grid_tmp->GetPoint(S.p2,B.data());
       vec3_t M=0.5*(A+B);
-      
+
       //add point
       grid_tmp->GetPoints()->SetPoint(id_new_node, M.data());
       copyNodeData(grid_tmp,S.p1,grid_tmp,id_new_node); ///\todo maybe trouble
-      
+
       // inserted edge point = type of the edge on which it is inserted
       EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
       node_type->SetValue(id_new_node, getNewNodeType(S) );
-      
+
       // insert new cells
       //four new triangles
       int N = S.id_cell.size();
-      vtkIdType pts_triangle[2*N][3];
-      
+      QVector< QVector<vtkIdType> > pts_triangle(2*N,QVector<vtkIdType>(3));
+
       for(int i_triangle=0; i_triangle<N; i_triangle++) {
         vtkIdType *pts, N_pts;
         grid_tmp->GetCellPoints(S.id_cell[i_triangle], N_pts, pts);
-        
+
         bool direct;
         for(int i_pts = 0; i_pts<N_pts; i_pts++) {
           if( pts[i_pts] == S.p1 ) {
@@ -179,7 +179,7 @@ int InsertPoints::insertPoints()
           pts_triangle[i_triangle][0] = S.p1;
           pts_triangle[i_triangle][1] = id_new_node;
           pts_triangle[i_triangle][2] = S.id_node[i_triangle];
-          
+
           pts_triangle[i_triangle+N][0] = id_new_node;
           pts_triangle[i_triangle+N][1] = S.p2;
           pts_triangle[i_triangle+N][2] = S.id_node[i_triangle];
@@ -188,32 +188,32 @@ int InsertPoints::insertPoints()
           pts_triangle[i_triangle][0] = S.p2;
           pts_triangle[i_triangle][1] = id_new_node;
           pts_triangle[i_triangle][2] = S.id_node[i_triangle];
-          
+
           pts_triangle[i_triangle+N][0] = id_new_node;
           pts_triangle[i_triangle+N][1] = S.p1;
           pts_triangle[i_triangle+N][2] = S.id_node[i_triangle];
         }
-        
-        grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle]);
-        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N]);
+
+        grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle].data());
+        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N].data());
         copyCellData(grid_tmp,S.id_cell[i_triangle],grid_tmp,newCellId);
       }
-      
+
       //increment ID
       id_new_node++;
     }
   }
-  
+
   //update grid
   makeCopy(grid_tmp,m_Grid);
-  
+
   return(0);
 }
 
 char InsertPoints::getNewNodeType(stencil_t S)
 {
 //   cout<<"S="<<S<<endl;
-  
+
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
 
@@ -232,6 +232,9 @@ char InsertPoints::getNewNodeType(stencil_t S)
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
       if(S.id_cell.size()<1) {
         return VTK_BOUNDARY_EDGE_VERTEX;
+      } else if (S.id_cell.size()==1) {
+        EG_ERR_RETURN("Invalid surface mesh. Check this with 'Tools -> Check surface integrity'.")
+        return VTK_FEATURE_EDGE_VERTEX; //at best, this would be a feature edge, since it's loose.
       } else {
         if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
           return VTK_BOUNDARY_EDGE_VERTEX;

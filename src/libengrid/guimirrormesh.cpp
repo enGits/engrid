@@ -47,7 +47,7 @@ void GuiMirrorMesh::operate()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType new_pts[N_pts];
+    QVector<vtkIdType> new_pts(N_pts);
     vtkIdType cell_type = m_Grid->GetCellType(id_cell);
     if (cell_type == VTK_TETRA) {
       new_pts[0] = pts[0];
@@ -77,7 +77,7 @@ void GuiMirrorMesh::operate()
         new_pts[i] = pts[N_pts - i - 1];
       }
     }
-    id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts);
+    id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, mirror_grid, id_new_cell);
   }
   MeshPartition part1(m_Grid, true);

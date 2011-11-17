@@ -116,10 +116,12 @@ connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes(
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
-connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
+//FIXME: dead slot callBrlcadReader()
+//connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
-connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
+//FIXME: dead slot callProjection_test()
+//connect(ui.actionProjection_test, SIGNAL(triggered()), this, SLOT(callProjection_test()));
 
 // OpenFOAMtools
 connect(ui.actionRunSolver,             SIGNAL(triggered()), &m_OpenFoamTools, SLOT(runSolver()));

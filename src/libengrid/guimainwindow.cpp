@@ -61,6 +61,7 @@
 #include <stdio.h>
 
 #include "geometrytools.h"
+#include "engrid_version.h"
 
 using namespace GeometryTools;
 
@@ -97,7 +98,7 @@ void GuiMainWindow::setupGuiMainWindow()
 {
   ui.setupUi(this);
   THIS = this;
-  
+
   // restore window size
   if(m_qset.contains("GuiMainWindow")) {
     setGeometry(m_qset.value("GuiMainWindow").toRect());
@@ -105,7 +106,7 @@ void GuiMainWindow::setupGuiMainWindow()
   else {
     this->setWindowState(Qt::WindowMaximized);
   }
-  
+
   // restore dockwidget positions
   if(m_qset.contains("dockWidget_states")) {
     restoreState(m_qset.value("dockWidget_states").toByteArray());
@@ -116,7 +117,7 @@ void GuiMainWindow::setupGuiMainWindow()
     ui.dockWidget_node_cell_info->hide();
     ui.dockWidget_DebuggingUtilities->hide();
   }
-  
+
 # include "std_connections.h"
 
   if (m_qset.contains("working_directory")) {
@@ -129,18 +130,22 @@ void GuiMainWindow::setupGuiMainWindow()
   m_CurrentFilename = "untitled.egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
-  
+
   m_StatusLabel = new QLabel(this);
   statusBar()->addWidget(m_StatusLabel);
-  
+
   QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
   txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
+#ifdef WIN32
+  QString user = QString(getenv("USERNAME"));
+#else
   QString user = QString(getenv("USER"));
+#endif // WIN32
   QString basename="enGrid_output.txt";
-  
+
   // define temporary path
   QDir dir("/");
   if (m_qset.contains("tmp_directory")) {
@@ -151,47 +156,65 @@ void GuiMainWindow::setupGuiMainWindow()
   QDateTime now = QDateTime::currentDateTime();
   m_LogDir = m_LogDir + "/" + "enGrid_" + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz") + "/";
   dir.mkpath(m_LogDir);
-  
+
   m_LogFileName = m_LogDir + basename;
   cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
+#if defined( __linux__ ) //for Linux
+  //Sources for POSIX redirection:
+  //   http://c-faq.com/stdio/undofreopen.html
+  //   http://stackoverflow.com/questions/4832603/how-could-i-temporary-redirect-stdout-to-a-file-in-a-c-program
+
+  fflush(stdout);
+  fgetpos(stdout, &m_SystemStdout_pos);
+  m_SystemStdout = dup(fileno(stdout)); //backup a duplicate of the stdout
+  if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
+    EG_BUG;
+  }
+  m_LogFileStdout = dup(fileno(stdout)); //backup a duplicate of the log_out
+
+#elif defined( _WIN32 ) //for Windows
   m_SystemStdout = stdout;
   if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
     EG_BUG;
   }
   m_LogFileStdout = stdout;
-  
+
+#else
+  #error "Please define the proper way to save the stdout."
+#endif
+
   m_Busy = false;
-  
+
   setPickMode(true,true);
   m_PickedPoint = -1;
   m_PickedCell = -1;
-  
+
   updateStatusBar();
-  
+
   connect(&m_GarbageTimer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
   m_GarbageTimer.start(1000);
-  
+
   connect(&m_LogTimer, SIGNAL(timeout()), this, SLOT(updateOutput()));
   m_LogTimer.start(1000);
-  
+
   m_N_chars = 0;
-  
+
   bool exp_features=false;
   getSet("General","enable experimental features",false,exp_features);
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
   bool undo_redo_mode;
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
   getSet("General", "open last used file on startup", false, m_open_last);
-  
+
   ui.actionFoamWriter->setEnabled(exp_features);
   ui.actionMirrorMesh->setEnabled(exp_features);
 
   m_ReferenceSize=0.2;
-  
+
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
-  
+
   egvtkInteractorStyle *style = egvtkInteractorStyle::New();
   getInteractor()->SetInteractorStyle(style);
   style->Delete();
@@ -199,9 +222,9 @@ void GuiMainWindow::setupGuiMainWindow()
   // initialise XML document
   m_XmlHandler = new XmlHandler("engridcase");
 //   this->resetXmlDoc();
-  
+
   m_SolverIndex = 0;
-  
+
   readRecentFiles();
 
   // load plugins
@@ -231,7 +254,7 @@ void GuiMainWindow::setupGuiMainWindow()
   addAction(m_EscAction);
   m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
   connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
-  
+
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -252,25 +275,39 @@ void GuiMainWindow::resetXmlDoc()
 GuiMainWindow::~GuiMainWindow()
 {
   writeRecentFiles();
-  
+
   m_qset.setValue("GuiMainWindow", this->geometry());
   m_qset.setValue("dockWidget_states", this->saveState());
-  
+
 #ifndef QT_DEBUG
+  setSystemOutput(); //close the output to the log file 
   QDirIterator it(m_LogDir);
   while (it.hasNext()) {
     QString str = it.next();
     QFileInfo fileinfo(str);
     if(fileinfo.isFile()) {
       QFile file(str);
-      if(!file.remove()) qDebug() << "Failed to remove " << file.fileName();
+      if(!file.remove()) {
+        setLogFileOutput(); //reinstate the connection to the log file 
+        qDebug() << "Failed to remove " << file.fileName();
+      }
     }
   }
   QDir dir(m_LogDir);
   dir.rmdir(m_LogDir);
 #endif
-  
+
   delete m_XmlHandler;
+
+#if defined( __linux__ ) //for Linux
+  ::close(m_SystemStdout); //close this duplicate
+  ::close(m_LogFileStdout); //close this duplicate
+
+#elif defined( _WIN32 ) //for Windows
+  //Nothing to do so far
+#else
+  #error "Please define the proper way to close the saved stdouts."
+#endif
 }
 
 void GuiMainWindow::setupVtk()
@@ -405,7 +442,7 @@ void GuiMainWindow::setupVtk()
   m_PickActor   = vtkActor::New();
   m_CellPicker  = vtkCellPicker::New();
   m_PointPicker = vtkPointPicker::New();
-  
+
   m_PickSphere->SetRadius(0.25); //in case the user starts picking points instead of cells
   m_PickMapper->SetInput(m_PickSphere->GetOutput());
   m_PickActor->SetMapper(m_PickMapper);
@@ -413,10 +450,10 @@ void GuiMainWindow::setupVtk()
   m_PickActor->GetProperty()->SetColor(0,0,1);
   m_PickActor->VisibilityOff();
   getRenderer()->AddActor(m_PickActor);
-  
+
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(pickCallBack);
-  
+
   m_CellPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PickedObject = 0;
@@ -446,7 +483,7 @@ void GuiMainWindow::exit()
   QCoreApplication::exit();
 }
 
-vtkRenderWindow* GuiMainWindow::getRenderWindow() 
+vtkRenderWindow* GuiMainWindow::getRenderWindow()
 {
   return ui.qvtkWidget->GetRenderWindow();
 }
@@ -726,7 +763,7 @@ void GuiMainWindow::updateActors(bool forced)
 {
 //   qDebug()<<"QApplication::setOverrideCursor(QCursor(Qt::WaitCursor)); called()";
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  
+
   //if (!tryLock()) return;
   try {
     m_Axes->SetInput(m_Grid);
@@ -737,7 +774,7 @@ void GuiMainWindow::updateActors(bool forced)
     err.display();
   }
   //unlock();
-  
+
 //   qDebug()<<"QApplication::restoreOverrideCursor(); called()";
   QApplication::restoreOverrideCursor();
 }
@@ -826,6 +863,7 @@ void GuiMainWindow::importSTL()
 {
   StlReader stl;
   stl();
+  //FIXME: emits an error if no file is imported, so check if there is a valid file
   updateBoundaryCodes(true);
   updateActors();
   updateStatusBar();
@@ -1113,7 +1151,7 @@ void GuiMainWindow::open()
 void GuiMainWindow::open(QString file_name, bool update_current_filename)
 {
   cout << "Opening " << qPrintable(file_name) << endl;
-  
+
   //QFileInfo file_info(file_name);
   bool no_case_file = false;
   QString file_extension = getExtension(file_name);
@@ -1190,7 +1228,17 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 void GuiMainWindow::save()
 {
   if ( m_CurrentFilename == "untitled.egc" || m_UnSaved ) {
-    saveAs();
+
+    //FIXME: This is more of a hack than a fix...
+    if(GuiMainWindow::tryLock()) {
+      GuiMainWindow::unlock(); //must unlock before continuing.
+      saveAs();
+    } else {
+      cout <<endl
+           << "WARNING: Please save the project before running the requested operation "
+              "or after the current operation is complete."
+           <<endl;
+    }
   } else {
     saveAs(m_CurrentFilename);
   }
@@ -1270,7 +1318,7 @@ void GuiMainWindow::updateStatusBar()
   num.setNum(Ntris);  txt += num + " triangles, ";
   num.setNum(Nquads); txt += num + " quads), ";
   num.setNum(Nnodes); txt += num + " nodes";
-  
+
   if(ui.radioButton_CellPicker->isChecked())
   {
     QString pick_txt = ", picked cell: ";
@@ -1340,10 +1388,10 @@ void GuiMainWindow::updateStatusBar()
       tmp.setNum(id_node);
       pick_txt += " id_node=" + tmp;
     }
-    
+
     txt += pick_txt;
   }
-  
+
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
   unlock();
@@ -1464,7 +1512,7 @@ void GuiMainWindow::viewNodeIDs()
     m_NodeTextPolyDataMapper.clear();
     m_NodeTextVectorText.clear();
   }
-  
+
   getRenderWindow()->Render();
 }
 
@@ -1479,9 +1527,9 @@ void GuiMainWindow::viewCellIDs()
     m_CellTextFollower.resize(N);
     for (vtkIdType id_cell = 0; id_cell < N; ++id_cell){
       m_CellTextVectorText[id_cell] = vtkVectorText::New();
-      
+
       QString tmp;
-      
+
       if(ui.comboBox_CellTextField->currentIndex()==0) {
         tmp.setNum(id_cell);
       } else if (ui.comboBox_CellTextField->currentIndex()>0) {
@@ -1489,7 +1537,7 @@ void GuiMainWindow::viewCellIDs()
         tmp.setNum(current_cell_field->GetValue(id_cell));
       }
       else EG_BUG;
-      
+
       m_CellTextVectorText[id_cell]->SetText(qPrintable(tmp));
       m_CellTextPolyDataMapper[id_cell]=vtkPolyDataMapper::New();
       m_CellTextPolyDataMapper[id_cell]->SetInputConnection(m_CellTextVectorText[id_cell]->GetOutputPort());
@@ -1523,15 +1571,15 @@ void GuiMainWindow::viewCellIDs()
     m_CellTextPolyDataMapper.clear();
     m_CellTextVectorText.clear();
   }
-  
+
   getRenderWindow()->Render();
 }
 
 void GuiMainWindow::pickCallBack
 (
-  vtkObject *caller, 
-  unsigned long int eid, 
-  void *clientdata, 
+  vtkObject *caller,
+  unsigned long int eid,
+  void *clientdata,
   void *calldata
 )
 {
@@ -1546,7 +1594,7 @@ void GuiMainWindow::pickCallBack
 vtkIdType GuiMainWindow::getPickedCell()
 {
   if(!ui.radioButton_CellPicker->isChecked()) return(-1);
-  
+
   vtkIdType picked_cell = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1565,7 +1613,7 @@ vtkIdType GuiMainWindow::getPickedCell()
 vtkIdType GuiMainWindow::getPickedPoint()
 {
   if(ui.radioButton_CellPicker->isChecked()) return(-1);
-  
+
   vtkIdType picked_point = -1;
   if (m_Grid->GetNumberOfCells() > 0) {
     m_BCodesFilter->Update();
@@ -1645,7 +1693,7 @@ void GuiMainWindow::exportBinaryPly()
 
 void GuiMainWindow::periodicUpdate()
 {
-  Operation::collectGarbage(); 
+  Operation::collectGarbage();
   updateStatusBar();
 }
 
@@ -1807,7 +1855,7 @@ void GuiMainWindow::editBoundaryConditions()
 void GuiMainWindow::configure()
 {
   {
-    // Just to create initial entries in the settings file 
+    // Just to create initial entries in the settings file
     // so that the options menu isn't empty at first start.
     try {
       GridSmoother tmp01;
@@ -1828,44 +1876,66 @@ void GuiMainWindow::configure()
   GuiSettingsViewer settings(&m_qset);
   settings.CreateViewer();
   settings.exec();
-  
+
   getSet("General","enable undo+redo",false,m_undo_redo_enabled);
 }
 
 void GuiMainWindow::about()
 {
+  //Load the HTML code snippet with the list of contributions
+  QFileInfo fileinfo;
+  fileinfo.setFile(":/contributions.htm");
+  QFile file(fileinfo.filePath());
+  if (!file.exists()) {
+    qDebug() << "ERROR: " << fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qDebug() << "ERROR:  Failed to open file " << fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream(&file);
+  QString contributionsIncluded = text_stream.readAll();
+  file.close();
+
+
+  //Do the About box
   QMessageBox box(this);
-  
+
   QString title="ENGRID";
   QString version = ENGRID_VERSION;
   version += " built on ";
   version += QString(__DATE__);
   version += " at ";
   version += QString(__TIME__);
-  
+
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
                        "Postfach 32<br/>"
                        "79674 Todtnau<br/>"
                        "Germany<br/>");
-  
-  QString mainurl="http://engits.eu";
-  QString mail="info@engits.com";
-  QString gnuurl="http://www.gnu.org/licenses";
+
+  QString mainurl="<a href=\"http://engits.eu/\">http://engits.eu</a>";
+  QString mail="<a href=\"mailto:info@engits.com\">info@engits.com</a>";
+  QString gnuurl="<a href=\"http://www.gnu.org/licenses\">http://www.gnu.org/licenses</a>";
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
+  QString contributions=tr("Contributions:");
+
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
                                   "<p>%2</p>"
                                   "<p>%3</p>"
                                   "<p>Homepage: %4</p>"
                                   "<p>E-mail: %5</p>"
-                                  "<p>%6</p>")
-              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license));
+                                  "<p>%6</p></center>"
+                                  "<p>%7</p><blockquote>%8</blockquote>")
+              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license)
+              .arg(contributions).arg(contributionsIncluded));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
-  
+
 }
 
 ///\todo Why not use bcs = m_AllBoundaryCodes; ?
@@ -2019,6 +2089,51 @@ bool GuiMainWindow::checkSurfProj()
   return ok;
 }
 
+void GuiMainWindow::setSystemOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_LogFileStdout_pos); //store current position
+    dup2(m_SystemStdout, fileno(stdout)); //reassign the original stdout to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_SystemStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen("CON","a",m_SystemStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
+void GuiMainWindow::setLogFileOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_SystemStdout_pos); //store current position
+    dup2(m_LogFileStdout, fileno(stdout)); //reassign the log_out to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_LogFileStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen(qPrintable(m_LogFileName),"a",m_LogFileStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
+
 void GuiMainWindow::openRecent(QAction *action)
 {
   qDebug()<<"GuiMainWindow::openRecent called";
@@ -2129,10 +2244,10 @@ void GuiMainWindow::callMergeNodes()
   if (ok1 && ok2) {
     EG_VTKSP( vtkUnstructuredGrid, new_grid );
     allocateGrid( new_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints() - 1 );
-    
+
     QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
     QVector<vtkIdType> old2new_cells(m_Grid->GetNumberOfCells(), -1);
-    
+
     vtkIdType id_new_node = 0;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if(id_node!=id_node1 && id_node!=id_node2) {
@@ -2158,7 +2273,7 @@ void GuiMainWindow::callMergeNodes()
       else {
       }
     }
-    
+
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
@@ -2170,12 +2285,12 @@ void GuiMainWindow::callMergeNodes()
       vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
-    
+
     makeCopy(new_grid, m_Grid);
     m_Grid->Modified();
     qDebug()<<"The fusion is complete.";
   }
-  
+
 }
 
 void GuiMainWindow::onEsc()

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="QT User Interface"
+	Version="8,00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="QT User Interface Builder"
+			DisplayName="QT User Interface builder"
+			CommandLine="call $(SolutionDir)\makeUIs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir) $(PlatformName)"
+			Outputs="$(InputDir)\ui_$(InputName).h;$(IntDir)\moc_$(InputName).cpp"
+			AdditionalDependencies="$(InputDir)\$(InputName).h"
+			FileExtensions="*.ui"
+			>
+			<Properties>
+				<StringProperty
+					Name="DebugDefine"
+					DisplayName="Define &quot;Debug&quot; Macro (DEBUG or NDEBUG)"
+					Category="Build Options"
+					Switch="[value]"
+					DefaultValue="DEBUG"
+				/>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

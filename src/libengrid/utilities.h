@@ -41,6 +41,13 @@ using namespace std;
 #include "vtkUnstructuredGrid.h"
 
 #include <complex>
+
+#ifdef _MSC_VER
+#include <float.h>
+#define isnan(x) _isnan(x)
+#define isinf(x) !_finite(x)
+#endif
+
 using namespace std;
 
 /** Restricts value to the CYCLIC [min,max[ range.

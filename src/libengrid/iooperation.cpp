@@ -130,7 +130,9 @@ bool IOOperation::isValid()
 
 const char* IOOperation::getCFileName()
 {
-  return qPrintable(m_FileName);
+  //NOTE: The char pointer will be invalid after the statement in which qPrintable() is used.
+  qstrcpy(m_FileName_cc,qPrintable(m_FileName));
+  return const_cast<const char *>(m_FileName_cc); //type cast needed for proper output. Technically it will be constant until the next change...
 }
 
 QString IOOperation::getFileName()

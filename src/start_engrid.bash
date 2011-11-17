@@ -1,4 +1,4 @@
 #!/bin/bash
-export LD_LIBRARY_PATH=./libengrid:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=./libengrid:./netgen_svn:$LD_LIBRARY_PATH
 ./engrid
 

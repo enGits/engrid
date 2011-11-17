@@ -39,7 +39,7 @@
 #include "geometrytools.h"
 #include "containertricks.h"
 
-#include "engrid_version.h"
+// #include "engrid_version.h" //Moved this to the only place where it was being used for now...
 
 #ifdef WIN32
 typedef vtkLongLongArray vtkLongArray_t;

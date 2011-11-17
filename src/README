@@ -1,7 +1,8 @@
-For detailed compiling & installation instructions, please refer to: http://engits.com/phpBB3/viewtopic.php?f=2&t=34
+For detailed compiling & installation instructions, please refer to: http://engits.eu/wiki/index.php/Installation
 
 qmake project files:
 ====================
-engrid.pro : Default, No CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR
-engrid.pro.OpenFOAM-paraview : No CGNS support, Uses the VTK libraries from $(ParaView_DIR)/lib/paraview-3.5 and include files from INCLUDEPATH += $(ParaView_INST_DIR)/VTK
-engrid.pro.cgns : With CGNS support, Uses the VTK libraries specified by VTKLIBDIR and VTKINCDIR
+engrid.pro : main project file for enGrid. Should run qmake on it like this: qmake -recursive engrid.pro
+engrid_app.pro : has the project properties for building the main application.
+netgen_svn/ng.pro : has the properties for building the nglib.
+libengrid/libengrid.pro : has the properties for building enGrid's core library.

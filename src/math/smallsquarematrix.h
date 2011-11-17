@@ -149,7 +149,7 @@ public:
    *  @param ele_max a linear norm
    */
   T linNorm_0() {
-    size_t i,j;
+    uint_t i,j;
     T ele_max, qq;
     ele_max = (*this)[0][0] * (*this)[0][0];
     for(i=0;i<N;i++) {
@@ -249,10 +249,12 @@ inline T SmallSquareMatrix<T,N>::det()
   // copy yourself to protect matrix entries
   SmallSquareMatrix<T,N> a = *this;
 
-  int n=N;
-  int k,i,j,p[n];
+  int n;
+  n=N;
+  int k,i,j;
+  vector<int> p(n);
   T q,s,max,h,det;
-    
+
   det=1;
   for(k=0;k<n-1;k++)
     {

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="QT Resource File"
+	Version="8,00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="QTResBuilder"
+			DisplayName="QT Resource Builder"
+			CommandLine="$(SolutionDir)\qtvars.bat $(PlatformName) rcc.exe -name $(InputName) &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(IntDir)\qrc_$(InputName).cpp&quot;"
+			Outputs="&quot;$(IntDir)\qrc_$(InputName).cpp&quot;"
+			FileExtensions="*.qrc"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

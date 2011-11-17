@@ -869,7 +869,7 @@ void EgVtkObject::reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face)
   EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
   vtkIdType N_pts, *pts;
   grid->GetCellPoints(id_face, N_pts, pts);
-  vtkIdType new_pts[N_pts];
+  QVector<vtkIdType> new_pts(N_pts);
   for (int i = 0; i < N_pts; ++i) {
     new_pts[i] = pts[N_pts - i - 1];
   }
@@ -878,7 +878,7 @@ void EgVtkObject::reorientateFace(vtkUnstructuredGrid *grid, vtkIdType id_face)
   } else {
     cell_curdir->SetValue(id_face, 0);
   }
-  grid->ReplaceCell(id_face, N_pts, new_pts);
+  grid->ReplaceCell(id_face, N_pts, new_pts.data());
 }
 
 void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
@@ -899,8 +899,7 @@ void EgVtkObject::resetOrientation(vtkUnstructuredGrid *grid)
 
 vtkIdType EgVtkObject::findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c)
 {
-  vtkIdType N_pts, *pts;
-  if (_cells.size()) N_pts = N_pts; // dummy statement to get rid of compiler warning ...
+  vtkIdType N_pts=0, *pts=NULL; //allways initialize variables, otherwise unexpected results will occur!
   grid->GetCellPoints(id_surf, N_pts, pts);
   QVector<QSet<int> > inters(N_pts-1);
   qcontIntersection(n2c[_nodes[pts[0]]], n2c[_nodes[pts[1]]], inters[0]);

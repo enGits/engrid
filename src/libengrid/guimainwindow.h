@@ -23,7 +23,19 @@
 #ifndef mainwindow_H
 #define mainwindow_H
 
-class GuiMainWindow;
+#ifdef DLL_EXPORT
+   #if defined(LIBENGRID_EXPORTS) || defined(libengrid_EXPORTS)
+      #define LIBENGRID_DLL   __declspec(dllexport)
+   #else
+      #define LIBENGRID_DLL   __declspec(dllimport)
+   #endif
+   #define CLASS_LIBENGRID_DLL LIBENGRID_DLL
+#else
+   #define LIBENGRID_DLL
+   #define CLASS_LIBENGRID_DLL
+#endif
+
+#include <stdio.h>
 
 #include <QMainWindow>
 #include <QSettings>
@@ -68,7 +80,7 @@ class GuiMainWindow;
 /**
  * This is the main GUI class of enGrid.
  */
-class GuiMainWindow : public QMainWindow, public EgVtkObject
+class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 {
 
     Q_OBJECT;
@@ -152,8 +164,19 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     bool         m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
     QString      m_LogFileName;          ///< log file to collect program output for display in the output window
     long int     m_N_chars;              ///< number of lines that have been read from the log file
+#if defined( __linux__ ) //for Linux
+    int          m_SystemStdout;
+    int          m_LogFileStdout;
+    fpos_t m_SystemStdout_pos;
+    fpos_t m_LogFileStdout_pos;
+#elif defined( _WIN32 ) //for Windows
+    //Windows always uses CON
     FILE*        m_SystemStdout;
     FILE*        m_LogFileStdout;
+#else
+  #error "Please define the proper way to save/recover the stdout."
+#endif
+
     QTimer       m_GarbageTimer;
     QTimer       m_LogTimer;
 
@@ -168,7 +191,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     int m_SolverIndex;// deprecated
     OpenFOAMTools m_OpenFoamTools;
-  
+
   // recent file list support
   private:
     QMap<QString,QDateTime> m_RecentFiles;
@@ -178,10 +201,10 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void addRecentFile(QString file_name, QDateTime date);
   private slots:
     void openRecent(QAction *action);
-  
+
   public:
     void resetXmlDoc();
-  
+
   private: // static attributes
 
     /**
@@ -201,7 +224,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      * Is the current case unsaved?
      */
     static bool m_UnSaved;
-  
+
     /** a static this pointer (somewhat ugly, but there is only one MainWindow) */
     static GuiMainWindow* THIS;
 
@@ -235,7 +258,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
   public: // methods
     GuiMainWindow();///< Default constructor.
     GuiMainWindow(QString file_name);///< Constructor which opens a file directly.
-  
+
   private:
     /**
      * This function connects the menu and toolbar actions and
@@ -244,7 +267,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      */
     void setupGuiMainWindow();
     bool m_open_last;
-  
+
   public:
     /**
      * Preferences will be written back.
@@ -287,7 +310,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     /// Returns the index of the solver to use. The index corresponds to the position in solvers.txt .
     void setSolverIndex(int x) {m_SolverIndex = x;}
     int getSolverIndex() {return m_SolverIndex;}
-  
+
   public: // static methods
 
     /**
@@ -307,7 +330,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
      * @param unsaved Do you want to be asked where to save when clicking on save next time?
      */
     static void setUnsaved( bool unsaved );
-  
+
     /**
      * Get the currently picked cell.
      * @return the picked cell ID or -1 if no cell has been picked
@@ -321,7 +344,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkIdType getPickedPoint();
 
     vtkIdType getPickedObject() { return m_PickedObject; }
-  
+
     /**
      * Access to the QSettings object
      */
@@ -356,13 +379,13 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
 
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
-  
+
     SurfaceProjection* getSurfProj(int bc);
     void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     bool checkSurfProj();
 
-    void setSystemOutput() { stdout = m_SystemStdout; }
-    void setLogFileOutput() { stdout = m_LogFileStdout; }
+    void setSystemOutput();
+    void setLogFileOutput();
 
   public slots:
 
@@ -450,7 +473,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     // EG_STDSLOT = background operation (There can not be more than one background operation!)
     // EG_STDINTERSLOT = foreground operation
     // Note: In practice, EG_STDINTERSLOT locks everything, while EG_STDSLOT prevents other operations, but doesn't lock the text output or prevent minimizing the window.
-  
+
     void callCreateSurfaceMesh() { EG_STDINTERSLOT( GuiCreateSurfaceMesh ); }
     void callCreateBoundaryLayer() { EG_STDSLOT( GuiCreateBoundaryLayer ); }
     void callDivideBoundaryLayer() { EG_STDSLOT( GuiDivideBoundaryLayer ); }
@@ -472,7 +495,7 @@ class GuiMainWindow : public QMainWindow, public EgVtkObject
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
     void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
-    
+
     void callFixSTL();
 
     void callFoamWriter()                 { EG_STDINTERSLOT( FoamWriter ); }

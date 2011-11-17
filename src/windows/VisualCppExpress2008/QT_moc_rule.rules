@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="QT MOC Builder - For non Qt classes using signals and slots"
+	Version="8,00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="QT MOC Builder"
+			DisplayName="QT MOC Builder - For non Qt classes using signals and slots"
+			CommandLine="call $(SolutionDir)\makeMOCs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir) $(PlatformName)"
+			Outputs="$(IntDir)\moc_$(InputName).cpp"
+			FileExtensions="*.h"
+			>
+			<Properties>
+				<StringProperty
+					Name="DebugDefine"
+					DisplayName="Define &quot;Debug&quot; Macro (DEBUG or NDEBUG)"
+					Category="Build Options"
+					Switch="[value]"
+					DefaultValue="DEBUG"
+				/>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>
