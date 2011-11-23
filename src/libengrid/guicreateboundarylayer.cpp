@@ -62,7 +62,6 @@ void GuiCreateBoundaryLayer::before()
   getSet("boundary layer", "blending between absolute and relative", 0.0, b);
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
-    cout << "get: " << qPrintable(blayer_txt) << endl;
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> ha;
     if (!s.atEnd()) s >> hr;
@@ -259,7 +258,7 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
-  swap.setVerboseOn();
+  swap.setVerboseOff();
 
   DeleteTetras del;
   del.setGrid(m_Grid);

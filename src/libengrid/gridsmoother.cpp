@@ -525,7 +525,6 @@ void GridSmoother::computeDesiredHeights()
       err_sq_max = err_sq;
     }
   } while (num_layers < 200);
-  cout << "found " << m_NumLayers << " as optimal number of layers" << endl;
   m_Height = h_opt;
 }
 
@@ -533,7 +532,6 @@ void GridSmoother::computeHeights()
 {
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
-    cout << "get: " << qPrintable(blayer_txt) << endl;
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> m_AbsoluteHeight;
     if (!s.atEnd()) s >> m_RelativeHeight;
@@ -550,7 +548,6 @@ void GridSmoother::computeHeights()
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
     s << m_NumLayers << " ";
-    cout << "set: " << qPrintable(blayer_txt) << endl;
     GuiMainWindow::pointer()->setXmlSection("blayer", blayer_txt);
   }
 
