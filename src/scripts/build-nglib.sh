@@ -28,9 +28,12 @@ cd netgen_svn
 wget http://engits.eu/files/netgen-4.9.13.zip
 unzip netgen-4.9.13.zip
 rm -f netgen-4.9.13.zip
-rm -rf netgen-mesher
+[ -e netgen-mesher ] && rm -rf netgen-mesher
 mkdir netgen-mesher
 mv netgen-4.9.13 netgen-mesher/netgen
+cd netgen-mesher
+patch -p0 < ../nglib_engrid_mods.diff
+cd ..
 qmake
 make clean
 make -j4

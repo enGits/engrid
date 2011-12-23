@@ -1,48 +1,16 @@
-TEMPLATE = app
-LANGUAGE = C++
-TARGET   = engrid
-SUBDIRS  = libengrid
+TEMPLATE  = subdirs
+LANGUAGE  = C++
+CONFIG   += ordered recursive
 
-CONFIG         += qt debug_and_release thread
-QT             += xml network opengl
-QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -Wno-deprecated
-QMAKE_CXXFLAGS += -g
-QMAKE_LFLAGS   += -g
+CONFIG += debug_and_release
 
-INCLUDEPATH += ./libengrid
-INCLUDEPATH += ./libengrid-build
-INCLUDEPATH += ../engrid-build
-INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
-INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
+SUBDIRS   = netgen
+SUBDIRS  += libengrid
+SUBDIRS  += engrid
 
-LIBS += -lm
-LIBS += -ltcl8.5
-LIBS += -L./libengrid -lengrid
-LIBS += -L./netgen_svn -lng
+netgen.file = netgen_svn/ng.pro
+libengrid.file    = libengrid/libengrid.pro
+libengrid.depends = netgen
 
-INCLUDEPATH += $(VTKINCDIR)
-LIBS        += -L$(VTKLIBDIR)
-LIBS        += -lQVTK
-LIBS        += -lvtkCommon
-LIBS        += -lvtkDICOMParser
-LIBS        += -lvtkexoIIc
-LIBS        += -lvtkFiltering
-LIBS        += -lvtkftgl
-LIBS        += -lvtkGenericFiltering
-LIBS        += -lvtkGraphics
-LIBS        += -lvtkHybrid
-LIBS        += -lvtkImaging
-LIBS        += -lvtkIO
-#LIBS        += -lvtkNetCDF
-LIBS        += -lvtkRendering
-LIBS        += -lvtksys
-LIBS        += -lvtkVolumeRendering
-LIBS        += -lvtkWidgets
-
-OTHER_FILES += checkcomments.py todo.txt
-RESOURCES   += libengrid/engrid.qrc
-
-SOURCES = main.cpp
-
- 
+engrid.file    = engrid.pro.app
+engrid.depends = libengrid 
