@@ -15,7 +15,7 @@ CONFIG += qt \
 QT     += xml \
           network \
           opengl
-    
+
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
     DEFINES += LIBENGRID_EXPORTS
@@ -28,7 +28,7 @@ win32-msvc* {
     QMAKE_CXXFLAGS += -Wno-deprecated
     QMAKE_CXXFLAGS += -Wl,--no-undefined
     QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
-} else {    
+} else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
@@ -42,7 +42,7 @@ INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 #INCLUDEPATH for VTK depends on the compiler
 win32-msvc* {
     DEFINES += _USE_MATH_DEFINES
-        
+
     !isEmpty(Use_VTK_Win_ParaView) {
         include(../misc/engrid-vtk-win_paraview.pri)
     } else {

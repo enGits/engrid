@@ -23,7 +23,7 @@ win32 {
 
 win32-msvc* {
     DEFINES += MSVC_EXPRESS
-}        
+}
 
 win32-g++* {
   QMAKE_CXXFLAGS += -Wno-deprecated
