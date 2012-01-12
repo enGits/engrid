@@ -55,11 +55,11 @@ else
     export VTKLIBDIR=/usr/lib
   elif [ $1 = 'opensuse32' ]
   then
-    export VTKINCDIR=/usr/include/vtk-5.6
+    export VTKINCDIR=/usr/include/vtk-5.8
     export VTKLIBDIR=/usr/lib
   elif [ $1 = 'opensuse64' ]
   then
-    export VTKINCDIR=/usr/include/vtk-5.6
+    export VTKINCDIR=/usr/include/vtk-5.8
     export VTKLIBDIR=/usr/lib64
   elif [ $1 = 'fedora32' ]
   then
