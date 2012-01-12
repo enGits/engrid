@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -305,7 +305,7 @@
           <x>0</x>
           <y>0</y>
           <width>215</width>
-          <height>476</height>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -577,6 +577,16 @@
              <widget class="QCheckBox" name="checkBoxHexa">
               <property name="text">
                <string>hexas</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxPoly">
+              <property name="text">
+               <string>polyhedra</string>
               </property>
               <property name="checked">
                <bool>true</bool>

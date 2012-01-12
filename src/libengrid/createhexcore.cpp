@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,65 +19,46 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef __vtkEgExtractVolumeCells_h
-#define __vtkEgExtractVolumeCells_h
+//
 
-class vtkEgExtractVolumeCells;
+#include "createhexcore.h"
 
-#include "vtkEgGridFilter.h"
-
-class vtkEgExtractVolumeCells : public vtkEgGridFilter
+CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi)
 {
-  
-protected: // attributes
-  
-  bool    m_Clip;
-  bool    m_ExtrTetras;
-  bool    m_ExtrHexes;
-  bool    m_ExtrWedges;
-  bool    m_ExtrPyramids;
-  bool    m_ExtrPolys;
-  vec3_t  m_X;
-  vec3_t  m_N;
+  m_X1 = x1;
+  m_X2 = x2;
+  m_Xi = xi;
+}
 
-public: // methods
-  
-  static vtkEgExtractVolumeCells* New();
-  void SetX(vec3_t x);
-  void Setx(double x);
-  void Sety(double y);
-  void Setz(double z);
-  void SetN(vec3_t n);
-  void Setnx(double nx);
-  void Setny(double ny);
-  void Setnz(double nz);
-  void SetClippingOn();
-  void SetClippingOff();
-  void SetAllOn();
-  void SetAllOff();
-  void SetTetrasOn();
-  void SetTetrasOff();
-  void SetPyramidsOn();
-  void SetPyramidsOff();
-  void SetWedgesOn();
-  void SetWedgesOff();
-  void SetHexesOn();
-  void SetHexesOff();
-  void SetPolysOn();
-  void SetPolysOff();
+void CreateHexCore::refineOctree()
+{
+  m_Octree.resetRefineMarks();
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+  do {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      bool is_surf_node = false;
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        if (isSurface(m_Part.n2cGG(id_node, i), m_Grid)) {
+          is_surf_node = true;
+          break;
+        }
+      }
+      if (is_surf_node) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        int i_otcell = m_Octree.findCell(x);
+        double h = m_Octree.getDx(i_otcell);
+        h = max(h, m_Octree.getDy(i_otcell));
+        h = max(h, m_Octree.getDz(i_otcell));
+        if (h > cl->GetValue(id_node)) {
+          m_Octree.markToRefine(i_otcell);
+        }
+      }
+    }
+  } while (m_Octree.refineAll());
+}
 
-protected: // methods
-  
-  vtkEgExtractVolumeCells();
-  ~vtkEgExtractVolumeCells() {}
-  virtual void ExecuteEg();
-  
-private: // methods
-  
-  vtkEgExtractVolumeCells (const vtkEgExtractVolumeCells&);
-  void operator= (const vtkEgExtractVolumeCells&);
-  
-};
-
-#endif
+void CreateHexCore::operate()
+{
+  m_Octree.setBounds(m_X1, m_X2);
+}

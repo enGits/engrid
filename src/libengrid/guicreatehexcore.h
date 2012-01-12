@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,65 +19,29 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef __vtkEgExtractVolumeCells_h
-#define __vtkEgExtractVolumeCells_h
+//
 
-class vtkEgExtractVolumeCells;
+#ifndef GUICREATEHEXCORE_H
+#define GUICREATEHEXCORE_H
 
-#include "vtkEgGridFilter.h"
+#include "dialogoperation.h"
+#include "ui_guicreatehexcore.h"
+#include "createhexcore.h"
 
-class vtkEgExtractVolumeCells : public vtkEgGridFilter
+class GuiCreateHexCore : public DialogOperation<Ui::GuiCreateHexCore, Operation>
 {
-  
-protected: // attributes
-  
-  bool    m_Clip;
-  bool    m_ExtrTetras;
-  bool    m_ExtrHexes;
-  bool    m_ExtrWedges;
-  bool    m_ExtrPyramids;
-  bool    m_ExtrPolys;
-  vec3_t  m_X;
-  vec3_t  m_N;
 
-public: // methods
-  
-  static vtkEgExtractVolumeCells* New();
-  void SetX(vec3_t x);
-  void Setx(double x);
-  void Sety(double y);
-  void Setz(double z);
-  void SetN(vec3_t n);
-  void Setnx(double nx);
-  void Setny(double ny);
-  void Setnz(double nz);
-  void SetClippingOn();
-  void SetClippingOff();
-  void SetAllOn();
-  void SetAllOff();
-  void SetTetrasOn();
-  void SetTetrasOff();
-  void SetPyramidsOn();
-  void SetPyramidsOff();
-  void SetWedgesOn();
-  void SetWedgesOff();
-  void SetHexesOn();
-  void SetHexesOff();
-  void SetPolysOn();
-  void SetPolysOff();
+  Q_OBJECT
 
 protected: // methods
-  
-  vtkEgExtractVolumeCells();
-  ~vtkEgExtractVolumeCells() {}
-  virtual void ExecuteEg();
-  
-private: // methods
-  
-  vtkEgExtractVolumeCells (const vtkEgExtractVolumeCells&);
-  void operator= (const vtkEgExtractVolumeCells&);
-  
+
+  virtual void before();
+  virtual void operate();
+
+public:
+
+  GuiCreateHexCore();
+
 };
 
-#endif
+#endif // GUICREATEHEXCORE_H

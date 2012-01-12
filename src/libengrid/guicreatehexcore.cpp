@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,65 +19,25 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef __vtkEgExtractVolumeCells_h
-#define __vtkEgExtractVolumeCells_h
+//
 
-class vtkEgExtractVolumeCells;
+#include "guicreatehexcore.h"
 
-#include "vtkEgGridFilter.h"
-
-class vtkEgExtractVolumeCells : public vtkEgGridFilter
+GuiCreateHexCore::GuiCreateHexCore()
 {
-  
-protected: // attributes
-  
-  bool    m_Clip;
-  bool    m_ExtrTetras;
-  bool    m_ExtrHexes;
-  bool    m_ExtrWedges;
-  bool    m_ExtrPyramids;
-  bool    m_ExtrPolys;
-  vec3_t  m_X;
-  vec3_t  m_N;
+}
 
-public: // methods
-  
-  static vtkEgExtractVolumeCells* New();
-  void SetX(vec3_t x);
-  void Setx(double x);
-  void Sety(double y);
-  void Setz(double z);
-  void SetN(vec3_t n);
-  void Setnx(double nx);
-  void Setny(double ny);
-  void Setnz(double nz);
-  void SetClippingOn();
-  void SetClippingOff();
-  void SetAllOn();
-  void SetAllOff();
-  void SetTetrasOn();
-  void SetTetrasOff();
-  void SetPyramidsOn();
-  void SetPyramidsOff();
-  void SetWedgesOn();
-  void SetWedgesOff();
-  void SetHexesOn();
-  void SetHexesOff();
-  void SetPolysOn();
-  void SetPolysOff();
+void GuiCreateHexCore::before()
+{
 
-protected: // methods
-  
-  vtkEgExtractVolumeCells();
-  ~vtkEgExtractVolumeCells() {}
-  virtual void ExecuteEg();
-  
-private: // methods
-  
-  vtkEgExtractVolumeCells (const vtkEgExtractVolumeCells&);
-  void operator= (const vtkEgExtractVolumeCells&);
-  
-};
+}
 
-#endif
+void GuiCreateHexCore::operate()
+{
+  vec3_t x1(ui.lineEditC1X->text().toDouble(), ui.lineEditC1Z->text().toDouble(), ui.lineEditC1Y->text().toDouble());
+  vec3_t x2(ui.lineEditC2X->text().toDouble(), ui.lineEditC2Z->text().toDouble(), ui.lineEditC2Y->text().toDouble());
+  vec3_t xi(ui.lineEditCiX->text().toDouble(), ui.lineEditCiZ->text().toDouble(), ui.lineEditCiY->text().toDouble());
+  CreateHexCore create_hex_core(x1, x2, xi);
+  create_hex_core();
+}
+

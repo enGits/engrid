@@ -100,6 +100,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkActor* m_WedgeActor;
     vtkActor* m_PyramidActor;
     vtkActor* m_HexaActor;
+    vtkActor* m_PolyhedraActor;
     vtkActor* m_VolumeWireActor;
 
     vtkProperty*       m_BackfaceProperty;
@@ -112,6 +113,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkPolyDataMapper* m_PyramidMapper;
     vtkPolyDataMapper* m_WedgeMapper;
     vtkPolyDataMapper* m_HexaMapper;
+    vtkPolyDataMapper* m_PolyhedraMapper;
     vtkPolyDataMapper* m_VolumeWireMapper;
 
     vtkEgExtractVolumeCells *m_ExtrVol;
@@ -119,12 +121,14 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkEgExtractVolumeCells *m_ExtrPyramids;
     vtkEgExtractVolumeCells *m_ExtrWedges;
     vtkEgExtractVolumeCells *m_ExtrHexes;
+    vtkEgExtractVolumeCells *m_ExtrPolyhedra;
 
     vtkGeometryFilter *m_VolumeGeometry;
     vtkGeometryFilter *m_TetraGeometry;
     vtkGeometryFilter *m_PyramidGeometry;
     vtkGeometryFilter *m_WedgeGeometry;
     vtkGeometryFilter *m_HexaGeometry;
+    vtkGeometryFilter *m_PolyhedraGeometry;
 
     vtkIdType m_PickedPoint;      ///< Picked point
     vtkIdType m_PickedCell;       ///< Picked cell
