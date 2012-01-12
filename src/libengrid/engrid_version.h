@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2011 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -22,9 +22,9 @@
 // 
 #ifndef ENGRID_VERSION
 #if defined(WIN64) || defined(__MAC64) || defined(__LINUX64)
-  #define ENGRID_VERSION "1.3beta_x64"
+  #define ENGRID_VERSION "1.3.0_x64"
 #else
-  #define ENGRID_VERSION "1.3beta"
+  #define ENGRID_VERSION "1.3.0"
 #endif
 #define ENGRID_VERSION_FULLVER 1,3,0,0
 #define ENGRID_COMPANY_NAME "enGits GmbH"
