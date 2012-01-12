@@ -21,7 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 #ifndef ENGRID_VERSION
-#ifdef WIN64
+#if defined(WIN64) || defined(__MAC64) || defined(__LINUX64)
   #define ENGRID_VERSION "1.3beta_x64"
 #else
   #define ENGRID_VERSION "1.3beta"

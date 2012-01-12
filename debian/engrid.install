@@ -1,3 +1,5 @@
 src/engrid /usr/bin
+src/libengrid/libengrid.so* /usr/lib/
+src/netgen_svn/libng.so* /usr/lib/
 debian/engrid.desktop /usr/share/applications/
 src/resources/icons/engrid.xpm /usr/share/pixmaps/

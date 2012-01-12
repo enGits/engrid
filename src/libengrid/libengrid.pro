@@ -1,21 +1,61 @@
 TEMPLATE = lib
 LANGUAGE = C++
-TARGET = engrid
+TARGET   = engrid
+
+# Enable this if the VTK from the ParaView sources and 
+# installation want to be used
+# Note: Currently only for Windows Compiles with MSVC
+Use_VTK_Win_ParaView = yes
+
+
 CONFIG += qt \
-    debug_and_release \
-    thread
-QT += xml \
-    network \
-    opengl
-QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -Wno-deprecated
-QMAKE_CXXFLAGS += -g
+          debug_and_release \
+          thread
+
+QT     += xml \
+          network \
+          opengl
+
+win32-msvc* {
+    QMAKE_CXXFLAGS += -W3
+    DEFINES += LIBENGRID_EXPORTS
+    DEFINES += DLL_EXPORT
+} win32-g++* {
+    CONFIG += console
+    DEFINES += LIBENGRID_EXPORTS
+    DEFINES += DLL_EXPORT
+    QMAKE_CXXFLAGS += -Wall
+    QMAKE_CXXFLAGS += -Wno-deprecated
+    QMAKE_CXXFLAGS += -Wl,--no-undefined
+    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
+} else {
+    QMAKE_CXXFLAGS += -Wall
+    QMAKE_CXXFLAGS += -Wno-deprecated
+}
+
+
 INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-INCLUDEPATH += $(VTKINCDIR)
+
+#INCLUDEPATH for VTK depends on the compiler
+win32-msvc* {
+    DEFINES += _USE_MATH_DEFINES
+
+    !isEmpty(Use_VTK_Win_ParaView) {
+        include(../misc/engrid-vtk-win_paraview.pri)
+    } else {
+        INCLUDEPATH += $(VTKINCDIR)
+    }
+} win32-g++* {
+    INCLUDEPATH += $(VTKINCDIR)
+} else {
+    INCLUDEPATH += $(VTKINCDIR)
+}
+
 RESOURCES += engrid.qrc
+
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
     cellneighbouriterator.h \
@@ -130,6 +170,7 @@ HEADERS = boundarycondition.h \
     guisurfacemesher.h \
     guicreatehexcore.h \
     createhexcore.h
+
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
     cellneighbouriterator.cpp \
@@ -230,6 +271,7 @@ SOURCES = boundarycondition.cpp \
     guisurfacemesher.cpp \
     guicreatehexcore.cpp \
     createhexcore.cpp
+
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
     guidivideboundarylayer.ui \
@@ -245,6 +287,7 @@ FORMS = guicreateboundarylayer.ui \
     guicreatevolumemesh.ui \
     guisurfacemesher.ui \
     guicreatehexcore.ui
+    
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
 HEADERS += reducesurfacetriangulation.h
@@ -266,7 +309,7 @@ SOURCES += dialoglineedit.cpp
 HEADERS += utilities.h
 SOURCES += utilities.cpp
 HEADERS += edgelengthsourcemanager.h \
-    edgelengthsource.h
+           edgelengthsource.h
 SOURCES += edgelengthsourcemanager.cpp
 FORMS += guiedgelengthsourcesphere.ui
 HEADERS += guiedgelengthsourcesphere.h
