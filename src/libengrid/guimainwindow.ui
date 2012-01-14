@@ -142,6 +142,7 @@
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="actionMergeVolumes"/>
+    <addaction name="actionOptimiseOrthogonalty"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
@@ -1676,6 +1677,11 @@
     <string>import BRL-CAD (as STL)</string>
    </property>
   </action>
+  <action name="actionOptimiseOrthogonalty">
+   <property name="text">
+    <string>optimise orthogonalty</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="9"/>
  <customwidgets>
@@ -1686,6 +1692,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>
  </resources>
  <connections>

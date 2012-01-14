@@ -1,6 +1,6 @@
 TEMPLATE = app
 LANGUAGE = C++
-TARGET   = engrid
+#TARGET   = engrid
 
 # Enable this if the VTK from the ParaView sources and 
 # installation want to be used

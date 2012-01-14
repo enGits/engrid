@@ -169,7 +169,8 @@ HEADERS = boundarycondition.h \
     createboundarylayer.h \
     guisurfacemesher.h \
     guicreatehexcore.h \
-    createhexcore.h
+    createhexcore.h \
+    orthogonalityoptimiser.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -270,7 +271,8 @@ SOURCES = boundarycondition.cpp \
     createboundarylayer.cpp \
     guisurfacemesher.cpp \
     guicreatehexcore.cpp \
-    createhexcore.cpp
+    createhexcore.cpp \
+    orthogonalityoptimiser.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

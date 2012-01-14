@@ -499,6 +499,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
     void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
+    void callOrthogonalityOptimiser() { EG_STDSLOT(OrthogonalityOptimiser); }
 
     void callFixSTL();
 
