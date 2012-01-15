@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "laplacesmoother.h"
 #include <vtkCellLocator.h>
 #include <vtkCharArray.h>
@@ -35,10 +35,9 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_UseProjection = true;
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
-  getSet("surface meshing", "correct curvature", false, m_correctCurvature);
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   m_NoCheck = false;
-  m_ProjectionIterations = 20;
+  m_ProjectionIterations = 50;
   m_FreeProjectionForEdges = false;
   m_AllowedCellTypes.clear();
   m_AllowedCellTypes.insert(VTK_TRIANGLE);
@@ -86,7 +85,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     }
     
     vec3_t x_summit;
-    if(m_correctCurvature) {
+    if(m_CorrectCurvature) {
       // better for mesher with interpolation
       x_summit = x_new + L_max*n;
     }
@@ -94,7 +93,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     // better for mesher without interpolation
       x_summit = x_old + L_max*n;
     }
-    
+
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
       vtkIdType N_pts, *pts;
@@ -137,6 +136,9 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
+  if (!checkVector(Dx)) {
+    return false;
+  }
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
@@ -146,20 +148,20 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node);
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node, m_CorrectCurvature);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
             if (m_FreeProjectionForEdges) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectFree(x_new, id_node);
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectFree(x_new, id_node, m_CorrectCurvature);
             } else {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node);
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node, m_CorrectCurvature);
             }
           }
         }
 
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
-          if (m_correctCurvature) {
+          if (m_CorrectCurvature) {
             foreach (int bc, m_NodeToBc[i_nodes]) {
               x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastPprojTriangle(), x_new);
             }
@@ -196,7 +198,6 @@ void LaplaceSmoother::operate()
   if (m_UseProjection) {
     foreach (int bc, bcs) {
       GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
-      GuiMainWindow::pointer()->getSurfProj(bc)->setCorrectCurvature(m_correctCurvature);
     }
   }
   UpdatePotentialSnapPoints(false, false);
@@ -212,7 +213,6 @@ void LaplaceSmoother::operate()
   }
   setAllSurfaceCells();
   l2g_t  nodes = m_Part.getNodes();
-  g2l_t _nodes = m_Part.getLocalNodes();
   m_NodeToBc.resize(nodes.size());
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     QSet<int> bcs;

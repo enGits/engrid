@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "iooperation.h"
 #include "guimainwindow.h"
 
@@ -43,7 +43,7 @@ void IOOperation::setExtension(QString extension)
   m_ExtensionTxt = extension;
 }
 
-void IOOperation::readInputFileName(QString default_filename)
+void IOOperation::readInputFileName(QString default_filename, bool reset)
 {
   QApplication::restoreOverrideCursor();
   
@@ -56,7 +56,9 @@ void IOOperation::readInputFileName(QString default_filename)
       GuiMainWindow::setCwd(QFileInfo(m_FileName).absolutePath());
       GuiMainWindow::setUnsaved(true);
       GuiMainWindow::pointer()->setFilename(m_FileName);
-      GuiMainWindow::pointer()->resetXmlDoc();
+      if (reset) {
+        GuiMainWindow::pointer()->resetXmlDoc();
+      }
       m_Valid = true;
     } else {
       m_Valid = false;

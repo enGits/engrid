@@ -14,7 +14,7 @@
    <string>Create surface mesh</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../engrid.qrc">
+   <iconset resource="engrid.qrc">
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -31,7 +31,13 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="1" column="1">
-          <widget class="QTextEdit" name="textEdit"/>
+          <widget class="QTextEdit" name="textEdit">
+           <property name="font">
+            <font>
+             <family>Liberation Mono</family>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QListWidget" name="listWidget">
@@ -255,7 +261,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../engrid.qrc"/>
+  <include location="engrid.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef SURFACEALGORITHM_H
 #define SURFACEALGORITHM_H
 
@@ -73,7 +73,7 @@ protected: // methods
 
   void prepare();
   void swap();
-  void smooth(int N_iter);
+  void smooth(int N_iter, bool correct_curvature = false);
   int  insertNodes();
   int  deleteNodes();
   void computeMeshDensity();
@@ -90,6 +90,8 @@ public:
   void setNodesPerQuarterCircle(double N) { m_NodesPerQuarterCircle = N; }
   void setCellGrowthFactor(double cgf)    { m_GrowthFactor = cgf; }
   void setMaxNumIterations(int N)         { m_NumMaxIter = N; }
+  void setNumSmoothSteps(int N)           { m_NumSmoothSteps = N; }
+  void setNumDelaunaySweeps(int N)        { m_NumDelaunaySweeps = N; }
 
 };
 

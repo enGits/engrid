@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef LAPLACESMOOTHER_H
 #define LAPLACESMOOTHER_H
 
@@ -43,7 +43,7 @@ private:
 
   QVector<QVector<int> > m_NodeToBc;
 
-  bool      m_correctCurvature;
+  bool      m_CorrectCurvature;
   bool      m_NoCheck;
 
   QSet<vtkIdType> m_AllowedCellTypes;
@@ -69,8 +69,8 @@ public:
 
 public:
 
-  void setCorrectCurvature(bool b) { m_correctCurvature = b; }
-  bool getCorrectCurvature() { return m_correctCurvature; }
+  void setCorrectCurvature(bool b) { m_CorrectCurvature = b; }
+  bool getCorrectCurvature() { return m_CorrectCurvature; }
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
   void setProjectionIterations(int n) { m_ProjectionIterations = n; }

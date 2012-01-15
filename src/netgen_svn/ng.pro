@@ -3,13 +3,17 @@ LANGUAGE = C++
 
 CONFIG += debug_and_release \
           warn_off
-#staticlib
 
 QT       -= gui
 
 win32 {
 	TARGET = nglib
 }
+
+INCLUDEPATH += netgen-mesher/netgen/libsrc/include
+INCLUDEPATH += ./netgen-mesher/netgen/nglib
+
+#INCLUDEPATH += .
 
 win32 {
 	DEFINES += NO_PARALLEL_THREADS
@@ -19,7 +23,7 @@ win32 {
 
 win32-msvc* {
     DEFINES += MSVC_EXPRESS
-}        
+}
 
 win32-g++* {
   QMAKE_CXXFLAGS += -Wno-deprecated
@@ -28,7 +32,6 @@ win32-g++* {
 }
 
 DEFINES     += vtkRendering_EXPORTS
-
 #DEFINES     += PIC
 #DEFINES     += HAVE_CONFIG_H
 
@@ -38,9 +41,6 @@ DEFINES     += vtkRendering_EXPORTS
 #PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
 #PreprocessorDefinitions="WNT;WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;OCCGEOMETRY;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
 #PreprocessorDefinitions="WNT;WIN32;NDEBUG;_WINDOWS;_USRDLL;NGLIB_EXPORTS;MSVC_EXPRESS;OCCGEOMETRY;_OCC64;WINVER=0x0600;NTDDI_VERSION=NTDDI_VISTA"
-
-INCLUDEPATH += netgen-mesher/netgen/libsrc/include
-INCLUDEPATH += ./netgen-mesher/netgen/nglib
 
 SOURCES  = \
 ./netgen-mesher/netgen/libsrc/occ/occmeshsurf.cpp \
@@ -172,4 +172,8 @@ SOURCES  = \
 ./netgen-mesher/netgen/libsrc/geom2d/geom2dmesh.cpp \
 ./netgen-mesher/netgen/libsrc/geom2d/genmesh2d.cpp \
 ./netgen-mesher/netgen/libsrc/geom2d/spline.cpp \
-./netgen-mesher/netgen/nglib/nglib.cpp \
+./netgen-mesher/netgen/nglib/nglib.cpp
+
+# These don't seem necessary for the library itself
+#./netgen-mesher/netgen/nglib/ng_stl.cpp \
+#./netgen-mesher/netgen/nglib/ng_vol.cpp

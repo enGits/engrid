@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef SURFACEMESHER_H
 #define SURFACEMESHER_H
 
@@ -28,21 +28,23 @@
 class SurfaceMesher : public SurfaceAlgorithm
 {
 
+protected: // attributes
+
 protected: // methods
 
-    virtual void operate();
-
+  virtual void operate();
 
 public:
 
   SurfaceMesher();
 
-private:
-  bool m_interpolateAfterMeshing;
-  
+protected:
+
+  bool m_CorrectCurvature;
+
 public:
-  void setInterpolateAfterMeshing(bool b) { m_interpolateAfterMeshing = b; }
-  bool getInterpolateAfterMeshing() { return m_interpolateAfterMeshing; }
+
+  void setCorrectCurvature(bool flag) { m_CorrectCurvature = flag; }
   
 };
 

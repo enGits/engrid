@@ -11,6 +11,9 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
@@ -99,6 +102,100 @@
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="2"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libengrid.lib QtGui4.lib QtCore4.lib QtXml4.lib"
+				OutputFile="$(OutDir)\engrid.exe"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party64\VTK\lib&quot;;&quot;..\..\..\third_party64\Qt\lib&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -217,6 +314,101 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="DLL_EXPORT;_USE_MATH_DEFINES;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libengrid.lib QtGui4.lib QtCore4.lib QtXml4.lib"
+				OutputFile="$(OutDir)\engrid.exe"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party64\VTK\lib&quot;;&quot;..\..\..\third_party64\Qt\lib&quot;"
+				GenerateDebugInformation="false"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -247,6 +439,14 @@
 								Name="VCCLCompilerTool"
 							/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 				</Filter>
 				<Filter
@@ -257,6 +457,14 @@
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -279,7 +487,11 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\engrid.qrc"
+				RelativePath="..\..\..\libengrid\engrid.qrc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\resources\libengrid.rc"
 				>
 			</File>
 		</Filter>

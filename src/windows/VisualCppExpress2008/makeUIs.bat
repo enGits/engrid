@@ -1,6 +1,6 @@
 
 rem source the environment variables for the chosen qt installation
-call %~dp0\qtvars.bat
+call %~dp0\qtvars.bat %6
 
 echo Processing UI file: %2
 

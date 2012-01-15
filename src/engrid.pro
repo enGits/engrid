@@ -1,6 +1,6 @@
 TEMPLATE  = subdirs
 LANGUAGE  = C++
-CONFIG   += ordered
+CONFIG   += ordered recursive
 
 CONFIG += debug_and_release
 
@@ -9,9 +9,8 @@ SUBDIRS  += libengrid
 SUBDIRS  += engrid
 
 netgen.file = netgen_svn/ng.pro
-
 libengrid.file    = libengrid/libengrid.pro
 libengrid.depends = netgen
 
-engrid.file    = engrid_app.pro
+engrid.file    = engrid.pro.app
 engrid.depends = libengrid 

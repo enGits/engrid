@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #ifndef FOAMOBJECT_H
 #define FOAMOBJECT_H
@@ -41,7 +41,8 @@ private: // attributes
   QVector<int> m_VolToSurfMap;
   QVector<int> m_SurfToVolMap;
   int          m_FirstBoundaryFace;
-  QString      m_Buffer;
+  QByteArray   m_Buffer;
+  QString      m_BufferedFileName;
 
 
 private: // methods
@@ -53,7 +54,7 @@ private: // methods
 protected: // methods
 
   void readFile(QString file_name);
-  QString* getBuffer() { return &m_Buffer; }
+  QByteArray* getBuffer() { return &m_Buffer; }
   void buildMaps();
   int numVolNodes() { return m_VolToSurfMap.size(); }
   int numSurfNodes() { return m_SurfToVolMap.size(); }

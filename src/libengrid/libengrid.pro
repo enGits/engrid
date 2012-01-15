@@ -15,7 +15,7 @@ CONFIG += qt \
 QT     += xml \
           network \
           opengl
-    
+
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
     DEFINES += LIBENGRID_EXPORTS
@@ -28,65 +28,33 @@ win32-msvc* {
     QMAKE_CXXFLAGS += -Wno-deprecated
     QMAKE_CXXFLAGS += -Wl,--no-undefined
     QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
-} else {    
+} else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
+
 
 INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
-win32-msvc* {
-    LIBS += -L../netgen_svn/release -lnglib
-} win32-g++* {
-    LIBS += -lm
-    LIBS += -L../netgen_svn/release -lnglib
-} else {
-    LIBS += -lm
-    LIBS += -L../netgen_svn -lng
-}
-
+#INCLUDEPATH for VTK depends on the compiler
 win32-msvc* {
     DEFINES += _USE_MATH_DEFINES
-        
+
     !isEmpty(Use_VTK_Win_ParaView) {
         include(../misc/engrid-vtk-win_paraview.pri)
     } else {
         INCLUDEPATH += $(VTKINCDIR)
-        LIBS += -L$(VTKLIBDIR)
     }
 } win32-g++* {
     INCLUDEPATH += $(VTKINCDIR)
-    LIBS += -L$(VTKLIBDIR)
 } else {
     INCLUDEPATH += $(VTKINCDIR)
-    LIBS += -L$(VTKLIBDIR)
 }
 
-LIBS += -lvtkzlib    
-LIBS += -lvtkexpat
-LIBS += -lvtkfreetype
-LIBS += -lQVTK
-LIBS += -lvtkCommon
-LIBS += -lvtkDICOMParser
-LIBS += -lvtkexoIIc
-LIBS += -lvtkFiltering
-LIBS += -lvtkftgl
-LIBS += -lvtkGenericFiltering
-LIBS += -lvtkGraphics
-LIBS += -lvtkHybrid
-LIBS += -lvtkImaging
-LIBS += -lvtkIO
-LIBS += -lvtkNetCDF
-LIBS += -lvtkRendering
-LIBS += -lvtksys
-LIBS += -lvtkVolumeRendering
-LIBS += -lvtkWidgets
-
-
-RESOURCES += ../engrid.qrc
+RESOURCES += engrid.qrc
 
 HEADERS = boundarycondition.h \
     celllayeriterator.h \
@@ -199,7 +167,7 @@ HEADERS = boundarycondition.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
     createboundarylayer.h \
-    brlcadreader.h
+    guisurfacemesher.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -298,7 +266,7 @@ SOURCES = boundarycondition.cpp \
     facefinder.cpp \
     pointfinder.cpp \
     createboundarylayer.cpp \
-    brlcadreader.cpp
+    guisurfacemesher.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -312,7 +280,8 @@ FORMS = guicreateboundarylayer.ui \
     guicreatesurfacemesh.ui \
     guitransform.ui \
     guipick.ui \
-    guicreatevolumemesh.ui
+    guicreatevolumemesh.ui \
+    guisurfacemesher.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "removepoints.h"
 
 #include "checksurfaceintegrity.h"
@@ -152,15 +152,31 @@ void RemovePoints::operate()
         bool remove_node = false;
 
         // check if node is worth removing
-        for(int j = 0; j < n2n[i_node].size(); ++j) {
+        for (int j = 0; j < n2n[i_node].size(); ++j) {
           vtkIdType id_neigh = nodes[n2n[i_node][j]];
           double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
           vec3_t xj;
           m_Grid->GetPoint(id_neigh, xj.data());
           double L = (xi - xj).abs();
-          if(L < 0.5 *(cl_node + cl_neigh) / m_Threshold) {
+          //double cl_crit = 0.5 *(cl_node + cl_neigh) / m_Threshold;
+          double cl_crit = max(cl_node, cl_neigh) / m_Threshold;
+          if(L < cl_crit) {
             remove_node = true;
             break;
+          }
+        }
+
+        // force removal of "tripod" nodes
+        if (m_Part.n2cGSize(id_node) == 3) {
+          bool tri_only = true;
+          for (int j = 0; j < 3; ++j) {
+            if (m_Grid->GetCellType(m_Part.n2cGG(id_node, j)) != VTK_TRIANGLE) {
+              tri_only = false;
+              break;
+            }
+          }
+          if (tri_only) {
+            remove_node = true;
           }
         }
 
@@ -554,10 +570,10 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 
     bool IsValidSnapPoint = true;
 
-    if (m_Fixed[PSP]) {
-      IsValidSnapPoint = false;
-      continue;
-    }
+//    if (m_Fixed[PSP]) {
+//      IsValidSnapPoint = false;
+//      continue;
+//    }
 
     if(_nodes[PSP] < 0 || _nodes[PSP] >= marked_nodes.size()) {
       cout << "ERROR: _nodes[PSP]=" << _nodes[PSP] << " marked_nodes.size()=" << marked_nodes.size() << endl;

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "surfacealgorithm.h"
 
 #include "insertpoints.h"
@@ -34,8 +34,8 @@
 SurfaceAlgorithm::SurfaceAlgorithm()
 {
   EG_TYPENAME;
-  getSet("surface meshing", "maximal number of iterations", 20, m_NumMaxIter);
-  getSet("surface meshing", "number of smoothing steps"   ,  1, m_NumSmoothSteps);
+  getSet("surface meshing", "maximal number of iterations",  5, m_NumMaxIter);
+  getSet("surface meshing", "number of smoothing steps"   ,  2, m_NumSmoothSteps);
   getSet("surface meshing", "number of Delaunay sweeps"   ,  1, m_NumDelaunaySweeps);
   m_NodesPerQuarterCircle = 0;
   m_RespectFeatureEdgesForDeleteNodes = false;
@@ -81,7 +81,7 @@ void SurfaceAlgorithm::readVMD()
 //         cout << m_VMDvector[i] << endl;
       }
     } else {
-      EG_ERR_RETURN(QObject::tr("The number of boundary conditions don't match between the mesh and the settings table.\n column_count=%1 tmp_bcs.size()=%2").arg(column_count).arg(tmp_bcs.size()));
+      EG_ERR_RETURN(QObject::tr("Mismatch of number of boundary codes!"));
     }
   }
 }
@@ -172,7 +172,7 @@ void SurfaceAlgorithm::swap()
   swap();
 }
 
-void SurfaceAlgorithm::smooth(int N_iter)
+void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
 {
   LaplaceSmoother lap;
   lap.setGrid(m_Grid);
@@ -181,6 +181,7 @@ void SurfaceAlgorithm::smooth(int N_iter)
   lap.setCells(cls);
   lap.setNumberOfIterations(N_iter);
   lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
+  lap.setCorrectCurvature(correct_curveture);
   if (m_UseProjectionForSmoothing) {
     lap.setProjectionOn();
   } else {

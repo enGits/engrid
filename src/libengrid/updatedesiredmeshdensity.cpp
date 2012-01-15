@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "updatedesiredmeshdensity.h"
 #include "guimainwindow.h"
 
@@ -31,7 +31,12 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_MaxEdgeLength = 1e99;
   m_NodesPerQuarterCircle = 0;
   m_OnlySurfaceCells = true;
-  getSet("surface meshing", "minmal number of cells across", 0, m_MinMumCellsAcross);
+  
+  m_GrowthFactor = 0.0;
+  m_MinEdgeLength = 0.0;
+  m_MinMumCellsAcross = 0;
+  
+  getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
 
@@ -105,26 +110,21 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   if (m_NodesPerQuarterCircle > 1e-3) {
-    QVector<double> R(nodes.size(), 0);
-    QVector<int> count(nodes.size(), 0);
+    QVector<double> R(nodes.size(), 1e99);
     foreach (vtkIdType id_cell, cells) {
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       int bc = cell_code->GetValue(id_cell);
       for (int i = 0; i < N_pts; ++i) {
         int i_nodes = m_Part.localNode(pts[i]);
-        ++count[i_nodes];
-        R[i_nodes] += GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]);
+        R[i_nodes] = min(R[i_nodes], GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]));
       }
     }
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      if (count[i_nodes] > 0) {
-        R[i_nodes] /= count[i_nodes];
-      } else {
+      if (cl_pre[i_nodes] == 0) {
         EG_BUG;
       }
       cl_pre[i_nodes] = max(m_MinEdgeLength, min(cl_pre[i_nodes], 0.5*R[i_nodes]*M_PI/m_NodesPerQuarterCircle));
-      //cl_pre[i_nodes] = R[i_nodes];
     }
   }
 
@@ -250,7 +250,7 @@ void UpdateDesiredMeshDensity::operate()
     }
   }
   if (i_nodes_min == -1) {
-    EG_BUG;
+    EG_ERR_RETURN("There are no edges that need improving.")
   }
 
   // start from smallest characteristic length and loop as long as nodes are updated

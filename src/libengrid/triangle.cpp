@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "triangle.h"
 #include "geometrytools.h"
 #include "engrid.h"
@@ -129,6 +129,13 @@ void Triangle::setupTriangle()
   m_SmallestLength = (m_Xb - m_Xa).abs();
   m_SmallestLength = min(m_SmallestLength, (m_Xc - m_Xb).abs());
   m_SmallestLength = min(m_SmallestLength, (m_Xa - m_Xc).abs());
+
+  // compute minimal height
+  double ha = (GeometryTools::projectPointOnEdge(m_Xa, m_Xb, (m_Xc - m_Xb)) - m_Xa).abs();
+  double hb = (GeometryTools::projectPointOnEdge(m_Xb, m_Xa, (m_Xc - m_Xa)) - m_Xb).abs();
+  double hc = (GeometryTools::projectPointOnEdge(m_Xc, m_Xa, (m_Xb - m_Xa)) - m_Xc).abs();
+  m_SmallestHeight = min(ha, min(hb, hc));
+
 }
 
 vec3_t Triangle::local3DToGlobal3D(vec3_t r)
@@ -176,12 +183,12 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     double kac = GeometryTools::intersection(this->m_Xa, this->m_Xc - this->m_Xa, xp, this->m_Xc - this->m_Xa);
     double kbc = GeometryTools::intersection(this->m_Xb, this->m_Xc - this->m_Xb, xp, this->m_Xc - this->m_Xb);
 
-    double dab = (this->m_Xa + kab * (this->m_Xb - this->m_Xa) - xp).abs();
-    double dac = (this->m_Xa + kac * (this->m_Xc - this->m_Xa) - xp).abs();
-    double dbc = (this->m_Xb + kbc * (this->m_Xc - this->m_Xb) - xp).abs();
-    double da = (this->m_Xa - xp).abs();
-    double db = (this->m_Xb - xp).abs();
-    double dc = (this->m_Xc - xp).abs();
+    double dab = (this->m_Xa + kab * (this->m_Xb - this->m_Xa) - xp).abs2();
+    double dac = (this->m_Xa + kac * (this->m_Xc - this->m_Xa) - xp).abs2();
+    double dbc = (this->m_Xb + kbc * (this->m_Xc - this->m_Xb) - xp).abs2();
+    double da = (this->m_Xa - xp).abs2();
+    double db = (this->m_Xb - xp).abs2();
+    double dc = (this->m_Xc - xp).abs2();
 
     bool set = false;
     d = 1e99;//max(max(max(max(max(dab,dac),dbc),da),db),dc);
@@ -237,6 +244,7 @@ bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, i
     if (!set) {
       EG_BUG;
     }
+    d = sqrt(d);
   }
   if (!intersects_face && !restrict_to_triangle) {
     xi = xi_free;
@@ -266,4 +274,15 @@ void Triangle::saveTriangle(QString filename)
   triangle_grid->InsertNextCell(VTK_TRIANGLE,3,pts);cell_count++;
   
   saveGrid(triangle_grid, filename+"_triangle_grid");
+}
+
+void Triangle::setNormals(vec3_t na, vec3_t nb, vec3_t nc)
+{
+  m_NormalA = na;
+  m_NormalB = nb;
+  m_NormalC = nc;
+  // compute normal vectors in local coordinate system
+  m_RNormalA = global3DToLocal3D(a() + nA());
+  m_RNormalB = global3DToLocal3D(a() + nB());
+  m_RNormalC = global3DToLocal3D(a() + nC());
 }

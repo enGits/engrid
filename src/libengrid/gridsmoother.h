@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #ifndef gridsmoother_H
 #define gridsmoother_H
@@ -65,7 +65,6 @@ protected: // attributes
 
   QVector<vtkIdType> m_IdFoot;
   QVector<double>    m_Height;
-  QVector<vec3_t>    m_NodeNormal;
   QSet<int>          m_LayerAdjacentBoundaryCodes;
 
 protected: // methods

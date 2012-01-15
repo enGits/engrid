@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #include "foamobject.h"
 #include <iostream>
@@ -29,6 +29,7 @@
 FoamObject::FoamObject()
 {
   m_CaseDir = "";
+  m_BufferedFileName = "";
 }
 
 int FoamObject::deleteBetween(int i, QString str1, QString str2)
@@ -52,25 +53,33 @@ void FoamObject::stripBuffer()
   if (i != -1) {
     deleteBetween(i, "{", "}");
   }
-  m_Buffer.remove("FoamFile");
-  m_Buffer = m_Buffer.replace("{", " ");
-  m_Buffer = m_Buffer.replace("}", " ");
-  m_Buffer = m_Buffer.replace("(", " ");
-  m_Buffer = m_Buffer.replace(")", " ");
-  m_Buffer = m_Buffer.replace(";", " ");
+  m_Buffer.replace("FoamFile","");
+  m_Buffer.replace("{", " ");
+  m_Buffer.replace("}", " ");
+  m_Buffer.replace("(", " ");
+  m_Buffer.replace(")", " ");
+  m_Buffer.replace(";", " ");
   m_Buffer = m_Buffer.simplified();
 }
 
 void FoamObject::readFile(QString file_name)
 {
   file_name = m_CaseDir + "/" + file_name;
-  QFile file(file_name);
-  if (!file.open(QIODevice::ReadOnly)) {
-    EG_ERR_RETURN(QString("error loading file:\n") + file_name);
+  if(m_BufferedFileName != m_CaseDir + "/" + file_name) {
+    m_BufferedFileName = file_name;
+    QFile file(file_name);
+    if (!file.open(QIODevice::ReadOnly)) {
+      EG_ERR_RETURN(QString("error loading file:\n") + file_name);
+    }
+    QTextStream f(&file);
+    m_Buffer = "";
+    m_Buffer.reserve(file.size());
+    while(!f.atEnd())
+    {
+      m_Buffer += f.readLine() + "\n";
+    }
+    stripBuffer();
   }
-  QTextStream f(&file);
-  m_Buffer = f.readAll();
-  stripBuffer();
 }
 
 void FoamObject::buildMaps()

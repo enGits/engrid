@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008 Oliver Gloth                                          +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #ifndef SmallSquareMatrix_HH
 #define SmallSquareMatrix_HH
@@ -149,7 +149,7 @@ public:
    *  @param ele_max a linear norm
    */
   T linNorm_0() {
-    size_t i,j;
+    uint_t i,j;
     T ele_max, qq;
     ele_max = (*this)[0][0] * (*this)[0][0];
     for(i=0;i<N;i++) {

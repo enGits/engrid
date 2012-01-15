@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef engrid_H
 #define engrid_H
 
@@ -39,7 +39,7 @@
 #include "geometrytools.h"
 #include "containertricks.h"
 
-#include "engrid_version.h"
+// #include "engrid_version.h" //Moved this to the only place where it was being used for now...
 
 #ifdef WIN32
 typedef vtkLongLongArray vtkLongArray_t;

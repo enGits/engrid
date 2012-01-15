@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "guicreateboundarylayer.h"
 #include "guimainwindow.h"
 #include "seedsimpleprismaticlayer.h"
@@ -52,16 +52,16 @@ void GuiCreateBoundaryLayer::before()
     }
   }
   ui.checkBoxRemovePoints->setChecked(m_RemovePoints);
+  ui.checkBoxSafeMode->setChecked(false);
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
   double hr, ha, b, ds = 1.5;
-  getSet("boundary layer", "relative height of boundary layer", 1.0, hr);
+  getSet("boundary layer", "relative height of boundary layer", 0.01, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
-  getSet("boundary layer", "blending between absolute and relative", 1.0, b);
+  getSet("boundary layer", "blending between absolute and relative", 0.0, b);
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
-    cout << "get: " << qPrintable(blayer_txt) << endl;
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> ha;
     if (!s.atEnd()) s >> hr;
@@ -69,8 +69,8 @@ void GuiCreateBoundaryLayer::before()
     if (!s.atEnd()) s >> ds;
   }
   {
-    int hi = 20*hr;
-    hr = 0.05*hi;
+    int hi = 2000*hr;
+    hr = 0.0005*hi;
     ui.doubleSpinBoxHeight->setValue(hr);
   }
   {
@@ -97,7 +97,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setMeshPartition(part);
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   remove_points.setUpdatePSPOn();
-  remove_points.setThreshold(2.0);
+  remove_points.setThreshold(3);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -258,7 +258,7 @@ void GuiCreateBoundaryLayer::operate()
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   swap.setBoundaryCodes(m_BoundaryCodes);
-  swap.setVerboseOn();
+  swap.setVerboseOff();
 
   DeleteTetras del;
   del.setGrid(m_Grid);
@@ -267,9 +267,7 @@ void GuiCreateBoundaryLayer::operate()
     cout << "preparing prismatic layer" << endl;
     seed_layer.setGrid(m_Grid);
     del();
-    if (ui.checkBoxSafeMode->isChecked()) {
-      vol();
-    }
+    vol();
     seed_layer.setAllCells();
     seed_layer.setLayerCells(layer_cells);
     seed_layer.setBoundaryCodes(m_BoundaryCodes);
@@ -286,10 +284,12 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setDesiredStretching(ui.doubleSpinBoxStretching->value());
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
+    if (!ui.checkBoxSafeMode->isChecked()) {
+      del.setAllCells();
+      del();
+    }
     smooth.setAllCells();
     smooth();
-    del.setAllCells();
-    del();// does not delete prismatic boundary layer! (->remove points must handle wedges)
     if (delete_nodes) {
       reduceSurface();
     }

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef mainwindow_H
 #define mainwindow_H
 
@@ -164,8 +164,19 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     bool         m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
     QString      m_LogFileName;          ///< log file to collect program output for display in the output window
     long int     m_N_chars;              ///< number of lines that have been read from the log file
+#if defined( __linux__ ) //for Linux
+    int          m_SystemStdout;
+    int          m_LogFileStdout;
+    fpos_t m_SystemStdout_pos;
+    fpos_t m_LogFileStdout_pos;
+#elif defined( _WIN32 ) //for Windows
+    //Windows always uses CON
     FILE*        m_SystemStdout;
     FILE*        m_LogFileStdout;
+#else
+  #error "Please define the proper way to save/recover the stdout."
+#endif
+
     QTimer       m_GarbageTimer;
     QTimer       m_LogTimer;
 
@@ -370,17 +381,11 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setFilename(QString filename) { m_CurrentFilename = filename; }
 
     SurfaceProjection* getSurfProj(int bc);
+    void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     bool checkSurfProj();
 
-#if defined( __linux__ ) //for Linux
-    void setSystemOutput() { stdout = m_SystemStdout; }
-    void setLogFileOutput() { stdout = m_LogFileStdout; }
-#elif defined( _WIN32 ) //for Windows
-    void setSystemOutput() { freopen("CON","w",m_SystemStdout); }
-    void setLogFileOutput() { freopen("CON","w",m_LogFileStdout); }
-#else
-  #error "Please define the proper way to recover the stdout."
-#endif
+    void setSystemOutput();
+    void setLogFileOutput();
 
   public slots:
 
@@ -452,7 +457,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void periodicUpdate();
 
     void storeSurfaceProjection(bool nosave = false);
-    void resetSurfaceProjection();
+    void resetSurfaceProjection();    
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:
@@ -503,13 +508,12 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
-    void callSurfaceMesher()              { EG_STDSLOT(SurfaceMesher); }
+    void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }
     void callEliminateSmallBranches()     { EG_STDSLOT(EliminateSmallBranches); }
     void callSmoothAndSwapSurface()       { EG_STDSLOT(SmoothAndSwapSurface); }
     void callSharpenEdges()               { EG_STDSLOT(SharpenEdges); }
     void callCheckForOverlap()            { EG_STDSLOT(CheckForOverlap); }
-    void callBrlcadReader()               { EG_STDREADERSLOT(BrlcadReader); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
 

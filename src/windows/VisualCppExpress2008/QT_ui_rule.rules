@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="QT User Interface Builder"
 			DisplayName="QT User Interface builder"
-			CommandLine="call $(SolutionDir)\makeUIs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir)"
+			CommandLine="call $(SolutionDir)\makeUIs.bat $(InputFileName) $(InputName) $(IntDir) [DebugDefine] $(InputDir) $(PlatformName)"
 			Outputs="$(InputDir)\ui_$(InputName).h;$(IntDir)\moc_$(InputName).cpp"
 			AdditionalDependencies="$(InputDir)\$(InputName).h"
 			FileExtensions="*.ui"

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "guimainwindow.h"
 #include "guiselectboundarycodes.h"
 #include "guiimproveaspectratio.h"
@@ -61,6 +61,7 @@
 #include <stdio.h>
 
 #include "geometrytools.h"
+#include "engrid_version.h"
 
 using namespace GeometryTools;
 
@@ -159,11 +160,29 @@ void GuiMainWindow::setupGuiMainWindow()
   m_LogFileName = m_LogDir + basename;
   cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
 
+#if defined( __linux__ ) //for Linux
+  //Sources for POSIX redirection:
+  //   http://c-faq.com/stdio/undofreopen.html
+  //   http://stackoverflow.com/questions/4832603/how-could-i-temporary-redirect-stdout-to-a-file-in-a-c-program
+
+  fflush(stdout);
+  fgetpos(stdout, &m_SystemStdout_pos);
+  m_SystemStdout = dup(fileno(stdout)); //backup a duplicate of the stdout
+  if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
+    EG_BUG;
+  }
+  m_LogFileStdout = dup(fileno(stdout)); //backup a duplicate of the log_out
+
+#elif defined( _WIN32 ) //for Windows
   m_SystemStdout = stdout;
   if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
     EG_BUG;
   }
   m_LogFileStdout = stdout;
+
+#else
+  #error "Please define the proper way to save the stdout."
+#endif
 
   m_Busy = false;
 
@@ -279,6 +298,16 @@ GuiMainWindow::~GuiMainWindow()
 #endif
 
   delete m_XmlHandler;
+
+#if defined( __linux__ ) //for Linux
+  ::close(m_SystemStdout); //close this duplicate
+  ::close(m_LogFileStdout); //close this duplicate
+
+#elif defined( _WIN32 ) //for Windows
+  //Nothing to do so far
+#else
+  #error "Please define the proper way to close the saved stdouts."
+#endif
 }
 
 void GuiMainWindow::setupVtk()
@@ -1199,7 +1228,17 @@ QString GuiMainWindow::saveAs(QString file_name, bool update_current_filename)
 void GuiMainWindow::save()
 {
   if ( m_CurrentFilename == "untitled.egc" || m_UnSaved ) {
-    saveAs();
+
+    //FIXME: This is more of a hack than a fix...
+    if(GuiMainWindow::tryLock()) {
+      GuiMainWindow::unlock(); //must unlock before continuing.
+      saveAs();
+    } else {
+      cout <<endl
+           << "WARNING: Please save the project before running the requested operation "
+              "or after the current operation is complete."
+           <<endl;
+    }
   } else {
     saveAs(m_CurrentFilename);
   }
@@ -1227,6 +1266,10 @@ void GuiMainWindow::saveAs()
     QString file_name = selected_files[0];
     if (!file_name.isNull()) {
       QString new_geo_file = file_name + ".geo.vtu";
+      {
+        QFile file(new_geo_file);
+        file.remove();
+      }
       QFile geo_file(old_geo_file);
       geo_file.copy(new_geo_file);
       saveAs(file_name);
@@ -1597,6 +1640,7 @@ void GuiMainWindow::changeSurfaceOrientation()
   }
   updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  //m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::checkSurfaceOrientation()
@@ -1608,6 +1652,8 @@ void GuiMainWindow::checkSurfaceOrientation()
   }
   corr_surf();
   updateActors();
+  m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
+  //m_Renderer->GetRenderWindow()->Render();
 }
 
 void GuiMainWindow::improveAspectRatio()
@@ -1836,6 +1882,24 @@ void GuiMainWindow::configure()
 
 void GuiMainWindow::about()
 {
+  //Load the HTML code snippet with the list of contributions
+  QFileInfo fileinfo;
+  fileinfo.setFile(":/contributions.htm");
+  QFile file(fileinfo.filePath());
+  if (!file.exists()) {
+    qDebug() << "ERROR: " << fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qDebug() << "ERROR:  Failed to open file " << fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream(&file);
+  QString contributionsIncluded = text_stream.readAll();
+  file.close();
+
+
+  //Do the About box
   QMessageBox box(this);
 
   QString title="ENGRID";
@@ -1851,19 +1915,23 @@ void GuiMainWindow::about()
                        "79674 Todtnau<br/>"
                        "Germany<br/>");
 
-  QString mainurl="http://engits.eu";
-  QString mail="info@engits.com";
-  QString gnuurl="http://www.gnu.org/licenses";
+  QString mainurl="<a href=\"http://engits.eu/\">http://engits.eu</a>";
+  QString mail="<a href=\"mailto:info@engits.com\">info@engits.com</a>";
+  QString gnuurl="<a href=\"http://www.gnu.org/licenses\">http://www.gnu.org/licenses</a>";
   QString license=tr("ENGRID is licenced under the GPL version 3.<br/>"
                      "(see ")+gnuurl+tr(" for details)<br/>");
+  QString contributions=tr("Contributions:");
+
   box.setText(QString::fromLatin1("<center><img src=\":/icons/resources/icons/G.png\">"
                                   "<h3>%1</h3>"
                                   "<p>%2</p>"
                                   "<p>%3</p>"
                                   "<p>Homepage: %4</p>"
                                   "<p>E-mail: %5</p>"
-                                  "<p>%6</p>")
-              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license));
+                                  "<p>%6</p></center>"
+                                  "<p>%7</p><blockquote>%8</blockquote>")
+              .arg(title).arg(version).arg(address).arg(mainurl).arg(mail).arg(license)
+              .arg(contributions).arg(contributionsIncluded));
   box.setWindowTitle(tr("about ENGRID"));
   box.setIcon(QMessageBox::NoIcon);
   box.exec();
@@ -1960,19 +2028,23 @@ void GuiMainWindow::markOutputLine()
 
 void GuiMainWindow::storeSurfaceProjection(bool nosave)
 {
-  resetSurfaceProjection();
-  foreach (int bc, m_AllBoundaryCodes) {
-    SurfaceProjection *proj = new SurfaceProjection(bc);
-    m_SurfProj[bc] = proj;
-    QSet<int> bcs;
-    bcs.insert(bc);
-    QVector<vtkIdType> cls;
-    getSurfaceCells(bcs, cls, m_Grid);
-    proj->setBackgroundGrid(m_Grid, cls);
-  }
-  if (!nosave) {
-    save();
-    saveGrid(m_Grid, m_CurrentFilename + ".geo");
+  try {
+    resetSurfaceProjection();
+    foreach (int bc, m_AllBoundaryCodes) {
+      SurfaceProjection *proj = new SurfaceProjection(bc);
+      m_SurfProj[bc] = proj;
+      QSet<int> bcs;
+      bcs.insert(bc);
+      QVector<vtkIdType> cls;
+      getSurfaceCells(bcs, cls, m_Grid);
+      proj->setBackgroundGrid(m_Grid, cls);
+    }
+    if (!nosave) {
+      save();
+      saveGrid(m_Grid, m_CurrentFilename + ".geo");
+    }
+  } catch (Error E) {
+    E.display();
   }
 }
 
@@ -1994,9 +2066,12 @@ void GuiMainWindow::resetSurfaceProjection()
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 {
+  QString bc_txt;
+  bc_txt.setNum(bc);
   if (!m_SurfProj.contains(bc)) {
-    QString bc_txt;
-    bc_txt.setNum(bc);
+    bc = 0;
+  }
+  if (!m_SurfProj.contains(bc)) {
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
   return m_SurfProj[bc];
@@ -2013,6 +2088,51 @@ bool GuiMainWindow::checkSurfProj()
   }
   return ok;
 }
+
+void GuiMainWindow::setSystemOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_LogFileStdout_pos); //store current position
+    dup2(m_SystemStdout, fileno(stdout)); //reassign the original stdout to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_SystemStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen("CON","a",m_SystemStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
+void GuiMainWindow::setLogFileOutput()
+{
+#if defined( __linux__ ) //for Linux
+
+  if(m_SystemStdout != fileno(stdout))
+  {
+    fflush(stdout);
+    fgetpos(stdout, &m_SystemStdout_pos); //store current position
+    dup2(m_LogFileStdout, fileno(stdout)); //reassign the log_out to stdout
+    clearerr(stdout);
+    fsetpos(stdout, &m_LogFileStdout_pos);        /* for C9X */
+  }
+
+#elif defined( _WIN32 ) //for Windows
+
+  freopen(qPrintable(m_LogFileName),"a",m_LogFileStdout);
+
+#else
+  #error "Please define the proper way to recover the stdout."
+#endif
+}
+
 
 void GuiMainWindow::openRecent(QAction *action)
 {

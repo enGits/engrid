@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "surfaceoperation.h"
 
 #include "guimainwindow.h"
@@ -403,7 +403,7 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     }
 //     qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
     if(m_BoundaryCodes.isEmpty()) {
-      EG_ERR_RETURN("no boundary codes specified");
+      //EG_ERR_RETURN("no boundary codes specified");
     }
     if(fix_unselected) {
       if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {

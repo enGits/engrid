@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #include "surfacemesher.h"
 #include "guimainwindow.h"
@@ -30,16 +30,11 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 {
   EG_TYPENAME;
   m_PerformGeometricTests = true;
-  //m_RespectFeatureEdgesForDeleteNodes = true;
-  //m_UseProjectionForSmoothing = true;
-  getSet("surface meshing", "use surface projection for smoothing", true, m_UseProjectionForSmoothing);
-  getSet("surface meshing", "use normal correction for smoothing", false, m_UseNormalCorrectionForSmoothing);
-  getSet("surface meshing", "allow feature edge swapping", false, m_AllowFeatureEdgeSwapping);
-  //m_UseNormalCorrectionForSmoothing = true;
-  //m_AllowFeatureEdgeSwapping = false;
+  getSet("surface meshing", "use surface projection for smoothing", true,  m_UseProjectionForSmoothing);
+  getSet("surface meshing", "use normal correction for smoothing",  false, m_UseNormalCorrectionForSmoothing);
+  getSet("surface meshing", "allow feature edge swapping",          false, m_AllowFeatureEdgeSwapping);
+  getSet("surface meshing", "correct curvature",                    false, m_CorrectCurvature);
   m_EdgeAngle = m_FeatureAngle;
-  
-  getSet("surface meshing", "interpolate after meshing (experimental)", false, m_interpolateAfterMeshing);
 }
 
 void SurfaceMesher::operate()
@@ -73,20 +68,17 @@ void SurfaceMesher::operate()
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
     swap();
-    computeMeshDensity();
-    //EG_ERR_RETURN("Test!");
+    //computeMeshDensity();
     num_deleted = deleteNodes();
     cout << "  deleted nodes : " << num_deleted << endl;
-    computeMeshDensity();
+    //computeMeshDensity();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      //cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
       SurfaceProjection::Nfull = 0;
       SurfaceProjection::Nhalf = 0;
-      smooth(1);
+      smooth(1, m_CorrectCurvature);
       swap();
     }
     int N_crit = m_Grid->GetNumberOfPoints()/100;
-    //done = (iter >= m_NumMaxIter) || ((num_inserted - num_deleted < N_crit) && (num_inserted + num_deleted < N_crit));
     done = (iter >= m_NumMaxIter);
     cout << "  total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells : " << m_Grid->GetNumberOfCells() << endl;
@@ -112,33 +104,5 @@ void SurfaceMesher::operate()
     foreach (int bc, bcs) {
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
     }
-  }
-
-  if(m_interpolateAfterMeshing) {
-    qDebug()<<"+++ CORRECTING CURVATURE +++";
-    // correct curvature
-    LaplaceSmoother lap;
-    lap.setCorrectCurvature(true);
-    lap.setNoCheck(true);
-    lap.setGrid(m_Grid);
-    QVector<vtkIdType> cls;
-    getSurfaceCells(m_BoundaryCodes, cls, m_Grid);
-    lap.setCells(cls);
-    lap.setNumberOfIterations(1);
-    lap.setProjectionIterations(2);
-    m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
-    lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
-    if (m_UseProjectionForSmoothing) {
-      lap.setProjectionOn();
-    } else {
-      lap.setProjectionOff();
-    }
-    if (m_UseNormalCorrectionForSmoothing) {
-      lap.setNormalCorrectionOn();
-    } else {
-      lap.setNormalCorrectionOff();
-    }
-    lap();
-    m_SmoothSuccess = lap.succeeded();
   }
 }

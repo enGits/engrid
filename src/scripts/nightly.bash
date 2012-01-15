@@ -4,7 +4,7 @@
 # +                                                                      +
 # + This file is part of enGrid.                                         +
 # +                                                                      +
-# + Copyright 2008-2010 enGits GmbH                                     +
+# + Copyright 2008-2012 enGits GmbH                                     +
 # +                                                                      +
 # + enGrid is free software: you can redistribute it and/or modify       +
 # + it under the terms of the GNU General Public License as published by +
@@ -32,7 +32,8 @@ NIGHTLYDIR=/var/www/ftp/nightly
 ./scripts/makedist.bash .. $NIGHTLYDIR
 
 #Update online documentation
-/usr/bin/doxygen Doxyfile
+/opt/shared/alternatives/bin/doxygen
+#/usr/bin/doxygen Doxyfile
 
 #Generate TODO lists
 ./scripts/checkcomments.py *.h *.cxx *.cpp math/*.h > comments.mail

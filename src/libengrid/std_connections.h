@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 //connect(ui.action,SIGNAL(triggered()),this,SLOT(call()));
 
@@ -116,7 +116,8 @@ connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes(
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
-connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
+//FIXME: dead slot callBrlcadReader()
+//connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

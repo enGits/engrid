@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #ifndef iooperation_H
 #define iooperation_H
 
@@ -89,7 +89,7 @@ public: // methods
   IOOperation();
   virtual ~IOOperation() {}
 
-  void readInputFileName(QString default_filename);                      ///< Open a QFileDialog and make the user input a file name for opening or importing.
+  void readInputFileName(QString default_filename, bool reset = true);   ///< Open a QFileDialog and make the user input a file name for opening or importing.
   void readOutputFileName(QString default_filename);                     ///< Open a QFileDialog and make the user input a file name for saving or exporting.
   void readOutputDirectory();                                            ///< Open a QFileDialog and make the user input a directory name for exporting.
   void readInputDirectory(QString title_txt = "select input directory"); ///< Open a QFileDialog and make the user input a directory name for importing.

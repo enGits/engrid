@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2010 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 #include "insertpoints.h"
 
 #include "guimainwindow.h"
@@ -217,6 +217,12 @@ char InsertPoints::getNewNodeType(stencil_t S)
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
 
+  /*
+  if (S.id_cell.size() != 2) {
+    EG_ERR_RETURN("The surface mesh is not water-tight");
+  }
+  */
+  
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   if( node_type->GetValue(id_node1)==VTK_SIMPLE_VERTEX || node_type->GetValue(id_node2)==VTK_SIMPLE_VERTEX ) {
     return VTK_SIMPLE_VERTEX;
@@ -226,6 +232,9 @@ char InsertPoints::getNewNodeType(stencil_t S)
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
       if(S.id_cell.size()<1) {
         return VTK_BOUNDARY_EDGE_VERTEX;
+      } else if (S.id_cell.size()==1) {
+        EG_ERR_RETURN("Invalid surface mesh. Check this with 'Tools -> Check surface integrity'.")
+        return VTK_FEATURE_EDGE_VERTEX; //at best, this would be a feature edge, since it's loose.
       } else {
         if( cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1]) ) {
           return VTK_BOUNDARY_EDGE_VERTEX;

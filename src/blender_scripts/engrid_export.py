@@ -4,7 +4,7 @@
 # +                                                                      +
 # + This file is part of enGrid.                                         +
 # +                                                                      +
-# + Copyright 2008-2010 enGits GmbH                                     +
+# + Copyright 2008-2011 enGits GmbH                                     +
 # +                                                                      +
 # + enGrid is free software: you can redistribute it and/or modify       +
 # + it under the terms of the GNU General Public License as published by +
@@ -65,9 +65,6 @@ def write(filename):
       out.write('%d' % len(nodes))
       out.write(' %d\n' % len(faces))
       for n in nodes:
-        #out.write("%e " % n.co[0])
-        #out.write("%e " % n.co[1])
-        #out.write("%e\n" % n.co[2])
         out.write("%e "  % n.co[0])
         out.write("%e "  % n.co[1])
         out.write("%e\n" % n.co[2])

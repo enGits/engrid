@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VisualStudioToolFile
 	Name="QT Language File"
-	Version="8.00"
+	Version="8,00"
 	>
 	<Rules>
 		<CustomBuildRule
 			Name="Update and Release Language files"
 			DisplayName="Build Language Files"
-			CommandLine="call $(SolutionDir)\qtvars.bat&#x0D;&#x0A;lupdate [QTProjectFile]&#x0D;&#x0A;lrelease -removeidentical [QTProjectFile]&#x0D;&#x0A;copy &quot;$(InputDir)$(InputName).qm&quot; $(IntDir)\$(InputName).qm&#x0D;&#x0A;"
+			CommandLine="call $(SolutionDir)\qtvars.bat $(PlatformName)&#x0D;&#x0A;lupdate [QTProjectFile]&#x0D;&#x0A;lrelease -removeidentical [QTProjectFile]&#x0D;&#x0A;copy &quot;$(InputDir)$(InputName).qm&quot; $(IntDir)\$(InputName).qm&#x0D;&#x0A;"
 			Outputs="$(IntDir)\$(InputName).qm"
 			AdditionalDependencies="$(TargetName).pro"
 			FileExtensions="*.ts"
