@@ -97,7 +97,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib QVTK.lib vtkCommon.lib vtkDICOMParser.lib vtkexoIIc.lib vtkFiltering.lib vtkftgl.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkImaging.lib vtkIO.lib vtkRendering.lib vtksys.lib vtkVolumeRendering.lib vtkWidgets.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party\VTK\lib&quot;;&quot;..\..\..\third_party\Qt\lib&quot;"
 				GenerateDebugInformation="true"
@@ -190,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib QVTK.lib vtkCommon.lib vtkDICOMParser.lib vtkexoIIc.lib vtkFiltering.lib vtkftgl.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkImaging.lib vtkIO.lib vtkRendering.lib vtksys.lib vtkVolumeRendering.lib vtkWidgets.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party64\VTK\lib&quot;;&quot;..\..\..\third_party64\Qt\lib&quot;"
 				GenerateDebugInformation="true"
@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib QVTK.lib vtkCommon.lib vtkDICOMParser.lib vtkexoIIc.lib vtkFiltering.lib vtkftgl.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkImaging.lib vtkIO.lib vtkRendering.lib vtksys.lib vtkVolumeRendering.lib vtkWidgets.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party\VTK\lib&quot;;&quot;..\..\..\third_party\Qt\lib&quot;"
 				GenerateDebugInformation="false"
@@ -377,7 +377,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib QVTK.lib vtkCommon.lib vtkDICOMParser.lib vtkexoIIc.lib vtkFiltering.lib vtkftgl.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkImaging.lib vtkIO.lib vtkRendering.lib vtksys.lib vtkVolumeRendering.lib vtkWidgets.lib opengl32.lib glu32.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party64\VTK\lib&quot;;&quot;..\..\..\third_party64\Qt\lib&quot;"
 				GenerateDebugInformation="false"
@@ -458,6 +458,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createhexcore.cpp"
 				>
 			</File>
 			<File
@@ -566,6 +570,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.cpp"
 				>
 			</File>
 			<File
@@ -710,6 +718,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\optimisation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\orthogonalityoptimiser.cpp"
 				>
 			</File>
 			<File
@@ -928,6 +940,26 @@
 					</File>
 					<File
 						RelativePath=".\Debug\moc_guicreateboundarylayer.cpp"
+						>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\Debug\moc_guicreatehexcore.cpp"
 						>
 						<FileConfiguration
 							Name="Release|Win32"
@@ -1504,6 +1536,40 @@
 						<FileConfiguration
 							Name="Debug|x64"
 							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\Release\moc_guicreatehexcore.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -2452,6 +2518,42 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createhexcore.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -3579,6 +3681,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.h"
 				>
 			</File>
@@ -4284,6 +4390,42 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\optimisation.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\orthogonalityoptimiser.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -6022,6 +6164,42 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\..\..\libengrid\ui_guicreatehexcore.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatesurfacemesh.h"
 					>
 					<FileConfiguration
@@ -6618,6 +6796,10 @@
 			>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
 				>
 			</File>
 			<File

@@ -500,7 +500,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\engrid_app.pro"
+			RelativePath="..\..\..\engrid.pro.app"
 			>
 		</File>
 	</Files>

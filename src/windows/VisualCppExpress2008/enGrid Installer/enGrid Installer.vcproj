@@ -91,7 +91,7 @@
 				OptionalDefine="USE_VisualCppExpress2008"
 				BuildName="&quot;win32_MSVC2008&quot;"
 				BuildVersion="dev"
-				OutputFolder="$(SolutionDir)\.."
+				OutputFolder="$(SolutionDir).."
 				BUILDVERSIONx4="1.4.0.0"
 				FileDependencies="$(OutDir)\engrid.exe;$(OutDir)\libengrid.dll;$(OutDir)\nglib.dll"
 			/>
@@ -122,7 +122,7 @@
 				OptionalDefine="USE_VisualCppExpress2008_x64"
 				BuildName="&quot;win64_MSVC2008&quot;"
 				BuildVersion="dev"
-				OutputFolder="$(SolutionDir)\.."
+				OutputFolder="$(SolutionDir).."
 				BUILDVERSIONx4="1.4.0.0"
 				FileDependencies="$(OutDir)\engrid.exe;$(OutDir)\libengrid.dll;$(OutDir)\nglib.dll"
 			/>
