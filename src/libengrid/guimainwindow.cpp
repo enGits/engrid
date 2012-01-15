@@ -420,10 +420,26 @@ void GuiMainWindow::setupVtk()
   getRenderer()->AddActor(m_HexaActor);
   m_HexaActor->SetVisibility(0);
 
+  // polyhedra pipeline
+  m_PolyhedraActor    = vtkActor::New();
+  m_ExtrPolyhedra     = vtkEgExtractVolumeCells::New();
+  m_PolyhedraGeometry = vtkGeometryFilter::New();
+  m_PolyhedraMapper   = vtkPolyDataMapper::New();
+  //
+  m_ExtrPolyhedra->SetInput(m_Grid);
+  m_ExtrPolyhedra->SetAllOff();
+  m_ExtrPolyhedra->SetPolysOn();
+  m_PolyhedraGeometry->SetInput(m_ExtrPolyhedra->GetOutput());
+  m_PolyhedraMapper->SetInput(m_PolyhedraGeometry->GetOutput());
+  m_PolyhedraActor->SetMapper(m_PolyhedraMapper);
+  m_PolyhedraActor->GetProperty()->SetColor(1,0.5,0);
+  getRenderer()->AddActor(m_PolyhedraActor);
+  m_PolyhedraActor->SetVisibility(0);
+
   // volume wire pipeline
   m_VolumeWireActor  = vtkActor::New();
   m_ExtrVol          = vtkEgExtractVolumeCells::New();
-  m_VolumeGeometry    = vtkGeometryFilter::New();
+  m_VolumeGeometry   = vtkGeometryFilter::New();
   m_VolumeWireMapper = vtkPolyDataMapper::New();
   //
   m_ExtrVol->SetInput(m_Grid);
@@ -540,6 +556,7 @@ void GuiMainWindow::setClipX(const QString &txt)
   m_ExtrPyramids->Setx(txt.toDouble());
   m_ExtrWedges->Setx(txt.toDouble());
   m_ExtrHexes->Setx(txt.toDouble());
+  m_ExtrPolyhedra->Setx(txt.toDouble());
 }
 
 void GuiMainWindow::setClipY(const QString &txt)
@@ -549,6 +566,7 @@ void GuiMainWindow::setClipY(const QString &txt)
   m_ExtrPyramids->Sety(txt.toDouble());
   m_ExtrWedges->Sety(txt.toDouble());
   m_ExtrHexes->Sety(txt.toDouble());
+  m_ExtrPolyhedra->Sety(txt.toDouble());
 }
 
 void GuiMainWindow::setClipZ(const QString &txt)
@@ -558,6 +576,7 @@ void GuiMainWindow::setClipZ(const QString &txt)
   m_ExtrPyramids->Setz(txt.toDouble());
   m_ExtrWedges->Setz(txt.toDouble());
   m_ExtrHexes->Setz(txt.toDouble());
+  m_ExtrPolyhedra->Setz(txt.toDouble());
 }
 
 void GuiMainWindow::setClipNX(const QString &txt)
@@ -567,6 +586,7 @@ void GuiMainWindow::setClipNX(const QString &txt)
   m_ExtrPyramids->Setnx(txt.toDouble());
   m_ExtrWedges->Setnx(txt.toDouble());
   m_ExtrHexes->Setnx(txt.toDouble());
+  m_ExtrPolyhedra->Setnx(txt.toDouble());
 }
 
 void GuiMainWindow::setClipNY(const QString &txt)
@@ -576,6 +596,7 @@ void GuiMainWindow::setClipNY(const QString &txt)
   m_ExtrPyramids->Setny(txt.toDouble());
   m_ExtrWedges->Setny(txt.toDouble());
   m_ExtrHexes->Setny(txt.toDouble());
+  m_ExtrPolyhedra->Setny(txt.toDouble());
 }
 
 void GuiMainWindow::setClipNZ(const QString &txt)
@@ -585,6 +606,7 @@ void GuiMainWindow::setClipNZ(const QString &txt)
   m_ExtrPyramids->Setnz(txt.toDouble());
   m_ExtrWedges->Setnz(txt.toDouble());
   m_ExtrHexes->Setnz(txt.toDouble());
+  m_ExtrPolyhedra->Setnz(txt.toDouble());
 }
 
 void GuiMainWindow::updateSurfaceActors(bool forced)
@@ -739,6 +761,21 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       m_ExtrVol->SetHexesOff();
       m_HexaActor->SetVisibility(0);
     }
+    if (ui.checkBoxPoly->isChecked()) {
+      m_ExtrVol->SetPolysOn();
+      if (ui.checkBoxClip->isChecked()) {
+        m_ExtrPolyhedra->SetClippingOn();
+      } else {
+        m_ExtrPolyhedra->SetClippingOff();
+      }
+      if (forced) {
+        m_PolyhedraGeometry->Update();
+      }
+      m_PolyhedraActor->SetVisibility(1);
+    } else {
+      m_ExtrVol->SetPolysOff();
+      m_PolyhedraActor->SetVisibility(0);
+    }
 
     // wireframe
     if (ui.checkBoxClip->isChecked()) {
@@ -755,6 +792,7 @@ void GuiMainWindow::updateVolumeActors(bool forced)
     m_PyramidActor->VisibilityOff();
     m_WedgeActor->VisibilityOff();
     m_HexaActor->VisibilityOff();
+    m_PolyhedraActor->VisibilityOff();
     m_VolumeWireActor->VisibilityOff();
   }
 }

@@ -62,4 +62,5 @@
 #include "sharpenedges.h"
 #include "checkforoverlap.h"
 #include "guisurfacemesher.h"
+#include "orthogonalityoptimiser.h"
 // -------------------------------------------

@@ -167,7 +167,10 @@ HEADERS = boundarycondition.h \
     ../math/smallsquarematrix.h \
     pointfinder.h \
     createboundarylayer.h \
-    guisurfacemesher.h
+    guisurfacemesher.h \
+    guicreatehexcore.h \
+    createhexcore.h \
+    orthogonalityoptimiser.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -266,7 +269,10 @@ SOURCES = boundarycondition.cpp \
     facefinder.cpp \
     pointfinder.cpp \
     createboundarylayer.cpp \
-    guisurfacemesher.cpp
+    guisurfacemesher.cpp \
+    guicreatehexcore.cpp \
+    createhexcore.cpp \
+    orthogonalityoptimiser.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -281,7 +287,8 @@ FORMS = guicreateboundarylayer.ui \
     guitransform.ui \
     guipick.ui \
     guicreatevolumemesh.ui \
-    guisurfacemesher.ui
+    guisurfacemesher.ui \
+    guicreatehexcore.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp

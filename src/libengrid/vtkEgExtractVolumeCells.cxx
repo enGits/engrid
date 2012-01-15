@@ -145,6 +145,22 @@ void vtkEgExtractVolumeCells::SetHexesOff()
   }
 }
 
+void vtkEgExtractVolumeCells::SetPolysOn()
+{
+  if (!m_ExtrPolys) {
+    m_ExtrPolys = true;
+    Modified();
+  }
+}
+
+void vtkEgExtractVolumeCells::SetPolysOff()
+{
+  if (m_ExtrPolys) {
+    m_ExtrPolys = false;
+    Modified();
+  }
+}
+
 void vtkEgExtractVolumeCells::Setx(double x)
 {
   m_X[0] = x;
@@ -199,6 +215,9 @@ void vtkEgExtractVolumeCells::ExecuteEg()
         select = false;
       }
       if (!m_ExtrHexes && type_cell == VTK_HEXAHEDRON) {
+        select = false;
+      }
+      if (!m_ExtrPolys && type_cell == VTK_POLYHEDRON) {
         select = false;
       }
       if (m_Clip && select) {

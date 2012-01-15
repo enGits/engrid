@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2011 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,16 +19,36 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef ENGRID_VERSION
-#if defined(WIN64) || defined(__MAC64) || defined(__LINUX64)
-  #define ENGRID_VERSION "dev_x64"
-#else
-  #define ENGRID_VERSION "dev"
-#endif
-#define ENGRID_VERSION_FULLVER 1,4,0,0
-#define ENGRID_COMPANY_NAME "enGits GmbH"
-#define ENGRID_DESCRIPTION "enGrid is an open-source mesh generation software with CFD applications in mind."
-#define ENGRID_COPYRIGHT "GNU Public License (GPL). Developed by enGits GmbH - http://www.engits.eu"
-#define ENGRID_NAME "enGrid"
-#endif
+//
+
+#ifndef CREATEHEXCORE_H
+#define CREATEHEXCORE_H
+
+class CreateHexCore;
+
+#include "operation.h"
+#include "octree.h"
+
+class CreateHexCore : public Operation
+{
+
+protected: // attributes
+
+  vec3_t m_X1;
+  vec3_t m_X2;
+  vec3_t m_Xi;
+  Octree m_Octree;
+
+protected: // methods
+
+  virtual void operate();
+
+  void refineOctree();
+
+public:
+
+  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi);
+
+};
+
+#endif // CREATEHEXCORE_H

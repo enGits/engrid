@@ -37,6 +37,7 @@ protected: // attributes
   bool    m_ExtrHexes;
   bool    m_ExtrWedges;
   bool    m_ExtrPyramids;
+  bool    m_ExtrPolys;
   vec3_t  m_X;
   vec3_t  m_N;
 
@@ -63,7 +64,9 @@ public: // methods
   void SetWedgesOff();
   void SetHexesOn();
   void SetHexesOff();
-  
+  void SetPolysOn();
+  void SetPolysOff();
+
 protected: // methods
   
   vtkEgExtractVolumeCells();

@@ -331,9 +331,9 @@ void CreateVolumeMesh::computeMeshDensity()
     box_t B;
     B.x1 =x1;
     B.x2 =x2;
-	if (H[id_node] < 0) {
+    if (H[id_node] < 0) {
       EG_BUG;
-	}
+    }
     B.h = H[id_node];
     boxes.append(B);
   }
