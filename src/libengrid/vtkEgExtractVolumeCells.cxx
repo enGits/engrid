@@ -217,9 +217,12 @@ void vtkEgExtractVolumeCells::ExecuteEg()
       if (!m_ExtrHexes && type_cell == VTK_HEXAHEDRON) {
         select = false;
       }
+//    Polyhedron wasn't available before VTK 5.8.
+#if ! ( VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION < 8 )
       if (!m_ExtrPolys && type_cell == VTK_POLYHEDRON) {
         select = false;
       }
+#endif
       if (m_Clip && select) {
         vtkIdType *pts;
         vtkIdType  N_pts;
