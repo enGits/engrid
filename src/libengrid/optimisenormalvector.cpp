@@ -48,7 +48,35 @@ double OptimiseNormalVector::func(vec3_t n)
     double h = nf*n0;
     hf = min(h, hf);
   }
-  return sqr(hc) + sqr(1 - hf) + sqr(1 - n.abs());
+  return sqr(hc) + sqr(1 - hf);
+}
+
+vec3_t OptimiseNormalVector::optimise(vec3_t n)
+{
+  int count = 0;
+  computeDerivatives(n);
+  n.normalise();
+  double scale = 1;
+  while (count < 100 && scale > 2e-4) {
+    double ag = grad_f.abs();
+    double err1 = func(n);
+    vec3_t dn = -1.0*grad_f;
+    dn -= (n*dn)*n;
+    if (grad_f.abs() > 1e-10) {
+      dn.normalise();
+    }
+    double relax = min(scale, scale*grad_f.abs());
+    dn *= relax;
+    n += dn;
+    n.normalise();
+    double err2 = func(n);
+    if (err2 > err1) {
+      scale *= 0.1;
+    }
+    ++count;
+    computeDerivatives(n);
+  }
+  return n;
 }
 
 vec3_t OptimiseNormalVector::operator()(vec3_t n)

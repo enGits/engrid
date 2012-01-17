@@ -40,6 +40,8 @@ protected: // methods
 
 public:
 
+  virtual vec3_t optimise(vec3_t n);
+
   void addFace(vec3_t n);
   void addConstraint(vec3_t n);
   vec3_t operator()(vec3_t n);

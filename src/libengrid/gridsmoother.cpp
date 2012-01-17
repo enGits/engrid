@@ -264,18 +264,12 @@ void GridSmoother::computeNormals()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   m_NodeNormal.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
+  QVector<int> num_bcs(m_Grid->GetNumberOfPoints());
+  QVector<OptimiseNormalVector> n_opt(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     QSet<int> bcs;
-    {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      if (x.abs() < 1e-4) {
-        cout << "break" << endl;
-      }
-    }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      vtkIdType cell_type = m_Grid->GetCellType(id_cell);
       if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
         if (m_BoundaryCodes.contains(bc)) {
@@ -283,15 +277,14 @@ void GridSmoother::computeNormals()
         }
       }
     }
-    int num_bcs = bcs.size();
-    QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
+    num_bcs[id_node] = bcs.size();
+    QVector<vec3_t> normal(num_bcs[id_node], vec3_t(0,0,0));
     QMap<int,int> bcmap;
     int i_bc = 0;
     foreach (int bc, bcs) {
       bcmap[bc] = i_bc;
       ++i_bc;
     }
-    OptimiseNormalVector n_opt;
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
       if (isSurface(id_cell, m_Grid)) {
@@ -321,27 +314,27 @@ void GridSmoother::computeNormals()
         n.normalise();
         if (m_BoundaryCodes.contains(bc)) {
           normal[bcmap[bc]] += alpha*n;
-          n_opt.addFace(n);
+          n_opt[id_node].addFace(n);
         } else {
-          n_opt.addConstraint(n);
+          n_opt[id_node].addConstraint(n);
         }
       }
     }
-    for (int i = 0; i < num_bcs; ++i) {
+    for (int i = 0; i < num_bcs[id_node]; ++i) {
       normal[i].normalise();
     }
-    if (num_bcs > 0) {
-      if (num_bcs > 1) {
-        if (num_bcs == 3) {
-          for (int i = 0; i < num_bcs; ++i) {
-            for (int j = i + 1; j < num_bcs; ++j) {
+    if (num_bcs[id_node] > 0) {
+      if (num_bcs[id_node] > 1) {
+        if (num_bcs[id_node] == 3) {
+          for (int i = 0; i < num_bcs[id_node]; ++i) {
+            for (int j = i + 1; j < num_bcs[id_node]; ++j) {
               vec3_t n = normal[i] + normal[j];
               n.normalise();
               m_NodeNormal[id_node] += n;
             }
           }
         } else {
-          for (int i = 0; i < num_bcs; ++i) {
+          for (int i = 0; i < num_bcs[id_node]; ++i) {
             m_NodeNormal[id_node] += normal[i];
           }
         }
@@ -349,7 +342,7 @@ void GridSmoother::computeNormals()
         m_NodeNormal[id_node] = normal[0];
       }
       m_NodeNormal[id_node].normalise();
-      m_NodeNormal[id_node] = n_opt(m_NodeNormal[id_node]);
+      m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
       m_NodeNormal[id_node].normalise();
     }
   }
@@ -371,6 +364,9 @@ void GridSmoother::computeNormals()
         n.normalise();
         m_NodeNormal[id_node] = n;
       }
+    }
+    if (num_bcs[id_node] > 1) {
+      m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
     }
   }
 
