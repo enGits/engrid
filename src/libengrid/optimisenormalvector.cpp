@@ -22,11 +22,6 @@
 //
 #include "optimisenormalvector.h"
 
-OptimiseNormalVector::OptimiseNormalVector(vec3_t n)
-{
-  m_InitialNormal = n;
-}
-
 void OptimiseNormalVector::addConstraint(vec3_t n)
 {
   m_Constraints.append(n);
@@ -39,30 +34,29 @@ void OptimiseNormalVector::addFace(vec3_t n)
 
 double OptimiseNormalVector::func(vec3_t n)
 {
-  double err = 0;
-  err += sqr(n.abs() - 1);
-  n.normalise();
+  double hf = 1;
+  double hc = 0;
+  vec3_t n0 = n;
+  n0.normalise();
   foreach (vec3_t nc, m_Constraints) {
-    err += sqr(n*nc);
+    nc.normalise();
+    double h = nc*n0;
+    hc = max(h, fabs(hc));
   }
-  if (m_Faces.size() > 0) {
-    double h = 0;
-    foreach (vec3_t nf, m_Faces) {
-      h += n*nf;
-    }
-    h /= m_Faces.size();
-    foreach (vec3_t nf, m_Faces) {
-      err += sqr(h - n*nf);
-    }
+  foreach (vec3_t nf, m_Faces) {
+    nf.normalise();
+    double h = nf*n0;
+    hf = min(h, hf);
   }
-  return err;
+  return sqr(hc) + sqr(1 - hf) + sqr(1 - n.abs());
 }
 
-vec3_t OptimiseNormalVector::operator()()
+vec3_t OptimiseNormalVector::operator()(vec3_t n)
 {
-  vec3_t n_opt = optimise(m_InitialNormal);
+  vec3_t n_opt = optimise(n);
   if (!checkVector(n_opt)) {
-    n_opt = m_InitialNormal;
+    n_opt = n;
   }
+  n_opt.normalise();
   return n_opt;
 }

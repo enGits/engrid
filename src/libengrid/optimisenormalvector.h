@@ -31,7 +31,6 @@ class OptimiseNormalVector;
 class OptimiseNormalVector : public Optimisation, public EgVtkObject
 {
 
-  vec3_t m_InitialNormal;
   QList<vec3_t> m_Constraints;
   QList<vec3_t> m_Faces;
 
@@ -41,11 +40,9 @@ protected: // methods
 
 public:
 
-  OptimiseNormalVector(vec3_t n);
-
   void addFace(vec3_t n);
   void addConstraint(vec3_t n);
-  vec3_t operator()();
+  vec3_t operator()(vec3_t n);
 
 };
 
