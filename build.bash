@@ -39,6 +39,8 @@ help ()
   echo "                opensuse-11.3-64"
   echo "                opensuse-11.4-32"
   echo "                opensuse-11.4-64"
+  echo "                opensuse-12.1-32"
+  echo "                opensuse-12.1-64"
 }
 
 # Check if all parameters are present
@@ -63,15 +65,12 @@ else
     config_name=$1
     if [ $1 = 'ubuntu-10.10' ]
     then
-      sudo apt-get update
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'ubuntu-11.04' ]
     then
-      sudo apt-get update
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'ubuntu-11.10' ]
     then
-      sudo apt-get update
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'opensuse-11.2-32' ]
     then
@@ -82,12 +81,17 @@ else
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-      config_name="opensuse"
+      config_name="opensuse32"
     elif [ $1 = 'opensuse-11.4-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse32"
+    elif [ $1 = 'opensuse-12.1-32' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse32-12"
     elif [ $1 = 'opensuse-11.2-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
@@ -103,6 +107,11 @@ else
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse64"
+    elif [ $1 = 'opensuse-12.1-64' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse64-12"
     elif [ $1 = 'fedora-15-32' ]
     then
       sudo yum -y install git
@@ -130,16 +139,20 @@ else
     else
       help
     fi
-    #git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
-    git clone http://repo.or.cz/r/engrid.git
+    git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
+    #git clone http://repo.or.cz/r/engrid.git
     echo $config_name > engrid/config.txt
     cd engrid
     git checkout -b release-1.3 remotes/origin/release-1.3
     cd src
     source scripts/setup_pathes.bash $config_name
     source scripts/build-nglib.sh
-    qmake engrid.pro
+    cd libengrid
+    qmake
     make -j4
+    cd ..
+    qmake
+    make
     cd ../..
     echo ""
     echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
