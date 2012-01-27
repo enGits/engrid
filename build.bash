@@ -39,6 +39,8 @@ help ()
   echo "                opensuse-11.3-64"
   echo "                opensuse-11.4-32"
   echo "                opensuse-11.4-64"
+  echo "                opensuse-12.1-32"
+  echo "                opensuse-12.1-64"
 }
 
 # Check if all parameters are present
@@ -79,12 +81,17 @@ else
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-      config_name="opensuse"
+      config_name="opensuse32"
     elif [ $1 = 'opensuse-11.4-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse32"
+    elif [ $1 = 'opensuse-12.1-32' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse32-12"
     elif [ $1 = 'opensuse-11.2-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
@@ -100,6 +107,11 @@ else
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse64"
+    elif [ $1 = 'opensuse-12.1-64' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse64-12"
     elif [ $1 = 'fedora-15-32' ]
     then
       sudo yum -y install git

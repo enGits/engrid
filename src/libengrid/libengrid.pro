@@ -171,7 +171,8 @@ HEADERS = boundarycondition.h \
     guicreatehexcore.h \
     createhexcore.h \
     orthogonalityoptimiser.h \
-    optimisenormalvector.h
+    optimisenormalvector.h \
+    brlcadreader.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -274,7 +275,8 @@ SOURCES = boundarycondition.cpp \
     guicreatehexcore.cpp \
     createhexcore.cpp \
     orthogonalityoptimiser.cpp \
-    optimisenormalvector.cpp
+    optimisenormalvector.cpp \
+    brlcadreader.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

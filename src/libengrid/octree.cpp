@@ -744,7 +744,7 @@ int Octree::opposingFace(int i)
 void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
 {
   // it is not working yet
-  EG_BUG;
+  //EG_BUG;
 
   if (!m_SmoothTransition) {
     EG_BUG;

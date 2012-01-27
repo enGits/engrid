@@ -29,15 +29,31 @@ GuiCreateHexCore::GuiCreateHexCore()
 
 void GuiCreateHexCore::before()
 {
-
+  vec3_t x1( 1e99,  1e99,  1e99);
+  vec3_t x2(-1e99, -1e99, -1e99);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    for (int i = 0; i < 3; ++i) {
+      x1[i] = min(x1[i], x[i]);
+      x2[i] = max(x2[i], x[i]);
+    }
+  }
+  double xmin = min(x1[0], min(x1[1], x1[2]));
+  double xmax = max(x2[0], max(x2[1], x2[2]));
+  m_X1 = vec3_t(xmin, xmin, xmin);
+  m_X2 = vec3_t(xmax, xmax, xmax);
+  QString num;
+  vec3_t xi = 0.5*(x1 + x2);
+  num.setNum(xi[0]); ui.lineEditCiX->setText(num);
+  num.setNum(xi[1]); ui.lineEditCiY->setText(num);
+  num.setNum(xi[2]); ui.lineEditCiZ->setText(num);
 }
 
 void GuiCreateHexCore::operate()
 {
-  vec3_t x1(ui.lineEditC1X->text().toDouble(), ui.lineEditC1Z->text().toDouble(), ui.lineEditC1Y->text().toDouble());
-  vec3_t x2(ui.lineEditC2X->text().toDouble(), ui.lineEditC2Z->text().toDouble(), ui.lineEditC2Y->text().toDouble());
-  vec3_t xi(ui.lineEditCiX->text().toDouble(), ui.lineEditCiZ->text().toDouble(), ui.lineEditCiY->text().toDouble());
-  CreateHexCore create_hex_core(x1, x2, xi);
+  vec3_t xi(ui.lineEditCiX->text().toDouble(), ui.lineEditCiY->text().toDouble(), ui.lineEditCiZ->text().toDouble());
+  CreateHexCore create_hex_core(m_X1, m_X2, xi);
   create_hex_core();
 }
 

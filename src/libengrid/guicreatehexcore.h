@@ -33,6 +33,10 @@ class GuiCreateHexCore : public DialogOperation<Ui::GuiCreateHexCore, Operation>
 
   Q_OBJECT
 
+protected: // attributes
+
+  vec3_t m_X1, m_X2;
+
 protected: // methods
 
   virtual void before();

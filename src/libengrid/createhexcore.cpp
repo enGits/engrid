@@ -22,6 +22,7 @@
 //
 
 #include "createhexcore.h"
+#include "guimainwindow.h"
 
 CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi)
 {
@@ -36,21 +37,31 @@ void CreateHexCore::refineOctree()
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
   do {
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      bool is_surf_node = false;
+      vtkIdType id_surf = -1;
       for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-        if (isSurface(m_Part.n2cGG(id_node, i), m_Grid)) {
-          is_surf_node = true;
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, m_Grid)) {
+          id_surf = id_node;
           break;
+        } else {
+          vtkIdType cell_type = m_Grid->GetCellType(id_cell);
+          if (cell_type == VTK_WEDGE) {
+            vtkIdType N_pts, *pts;
+            m_Grid->GetCellPoints(id_cell, N_pts, pts);
+            if      (pts[3] == id_node) id_surf = pts[0];
+            else if (pts[4] == id_node) id_surf = pts[1];
+            else if (pts[5] == id_node) id_surf = pts[2];
+          }
         }
       }
-      if (is_surf_node) {
+      if (id_surf != -1) {
         vec3_t x;
         m_Grid->GetPoint(id_node, x.data());
         int i_otcell = m_Octree.findCell(x);
         double h = m_Octree.getDx(i_otcell);
         h = max(h, m_Octree.getDy(i_otcell));
         h = max(h, m_Octree.getDz(i_otcell));
-        if (h > cl->GetValue(id_node)) {
+        if (h > cl->GetValue(id_surf)) {
           m_Octree.markToRefine(i_otcell);
         }
       }
@@ -61,4 +72,8 @@ void CreateHexCore::refineOctree()
 void CreateHexCore::operate()
 {
   m_Octree.setBounds(m_X1, m_X2);
+  refineOctree();
+  EG_VTKSP(vtkUnstructuredGrid, otgrid);
+  m_Octree.toVtkGrid(otgrid, false);
+  saveGrid(otgrid, GuiMainWindow::pointer()->getCwd() + "/ot");
 }
