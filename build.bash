@@ -63,12 +63,15 @@ else
     config_name=$1
     if [ $1 = 'ubuntu-10.10' ]
     then
+      sudo apt-get update
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'ubuntu-11.04' ]
     then
+      sudo apt-get update
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'ubuntu-11.10' ]
     then
+      sudo apt-get update
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'opensuse-11.2-32' ]
     then
@@ -135,12 +138,8 @@ else
     cd src
     source scripts/setup_pathes.bash $config_name
     source scripts/build-nglib.sh
-    cd libengrid
-    qmake
+    qmake engrid.pro
     make -j4
-    cd ..
-    qmake
-    make
     cd ../..
     echo ""
     echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
