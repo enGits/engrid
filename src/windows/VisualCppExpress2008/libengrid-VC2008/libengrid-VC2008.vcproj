@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party\VTK\lib&quot;;&quot;..\..\..\third_party\Qt\lib&quot;"
 				GenerateDebugInformation="false"
@@ -377,7 +377,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtkpng.lib vtksys.lib vtktiff.lib vtkzlib.lib opengl32.lib glu32.lib QVTK.lib vtkQtChart.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\..\third_party64\VTK\lib&quot;;&quot;..\..\..\third_party64\Qt\lib&quot;"
 				GenerateDebugInformation="false"
