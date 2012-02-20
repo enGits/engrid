@@ -45,6 +45,30 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+/**
+  * A cell of an octree.<br/>
+  * <br/>
+  * <b>The node numbering is as follows:</b><br/>
+  * <pre>
+  * 0: i,  j,  k
+  * 1: i+1,j,  k
+  * 2: i,  j+1,k
+  * 3: i+1,j+1 k
+  * 4: i,  j,  k+1
+  * 5: i+1,j,  k+1
+  * 6: i,  j+1,k+1
+  * 7: i+1,j+1,k+1
+  * </pre>
+  * <b>The face numbering is as follows:</b><br/>
+  * <pre>
+  * 0: 0,4,6,2
+  * 1: 1,3,7,5
+  * 2: 0,1,5,4
+  * 3: 3,2,6,7
+  * 4: 0,2,3,1
+  * 5: 4,5,7,6
+  * </pre>
+  */
 class OctreeCell
 {
 
@@ -65,8 +89,17 @@ public:
   bool hasChildren ()      { return m_Child[0] != -1; }
   int  getParent   ()      { return m_Parent; }
 
+  /**
+    * Get the 'middle' node of an edge.
+    * @param octree the octree which holds this cell
+    * @param n1 the first node of the edge in local coordinates (0 <= n1 <= 7)
+    * @param n2 the second node of the edge in local coordinates (0 <= n2 <= 7)
+    * @param f the face index (0 <= f <= 6)
+    */
   int  getEdgeNode(Octree* octree, int n1, int n2, int f);
+
   void getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse = false);
+
   void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes, bool reverse = false);
 
 };
