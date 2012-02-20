@@ -454,6 +454,28 @@ void GridSmoother::relaxNormalVectors()
   }
 }
 
+void GridSmoother::getRules()
+{
+  QString rules_text = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
+  QStringList rules = rules_text.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    rule = rule.trimmed();
+    QStringList parts = rule.split("=");
+    if (parts.count() > 1) {
+      rule_t rule;
+      QString left = parts[0].trimmed();
+      rule.h = parts[1].trimmed().toDouble();
+      QStringList rows = left.split("<OR>");
+      foreach (QString row, rows) {
+        QStringList cols = row.split("<AND>");
+        foreach (QString col, cols) {
+          rule.bcs.insert(col.toInt());
+        }
+      }
+    }
+  }
+}
+
 void GridSmoother::computeDesiredHeights()
 {
   // first pass (intial height)
@@ -489,10 +511,27 @@ void GridSmoother::computeDesiredHeights()
     Dh_max[id_node] *= sqrt(6.0)/3; // use stretching as well??
   }
 
+  getRules();
   // second pass (correct with absolute height if required)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_SurfNode[id_node]) {
       m_Height[id_node] = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_node];
+      double h_rule = 1e99;
+      foreach (rule_t rule, m_Rules) {
+        bool apply_rule = true;
+        foreach (int bc, rule.bcs) {
+          if (!m_Part.hasBC(id_node, bc)) {
+            apply_rule = false;
+            break;
+          }
+        }
+        if (apply_rule) {
+          h_rule = min(h_rule, rule.h);
+        }
+      }
+      if (h_rule < 1e98) {
+        //m_Height[id_node] = h_rule;
+      }
     }
   }
 
@@ -538,7 +577,7 @@ void GridSmoother::computeDesiredHeights()
 void GridSmoother::computeHeights()
 {
   {
-    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> m_AbsoluteHeight;
     if (!s.atEnd()) s >> m_RelativeHeight;
@@ -555,7 +594,7 @@ void GridSmoother::computeHeights()
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
     s << m_NumLayers << " ";
-    GuiMainWindow::pointer()->setXmlSection("blayer", blayer_txt);
+    GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
   // third pass (gaps)

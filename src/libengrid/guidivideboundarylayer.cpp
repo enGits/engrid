@@ -30,7 +30,7 @@ void GuiDivideBoundaryLayer::before()
 {
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
-  QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+  QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
   QTextStream s(&blayer_txt);
   double v;
   if (!s.atEnd()) {

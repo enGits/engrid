@@ -59,6 +59,7 @@ void MeshPartition::resetTimeStamps()
   m_LNodesStamp = 0;
   m_N2NStamp = 0;
   m_N2CStamp = 0;
+  m_N2BCStamp = 0;
   m_C2CStamp = 0;
 }
 
@@ -301,4 +302,35 @@ bool MeshPartition::hasNeighNode(vtkIdType id_node, vtkIdType id_neigh)
     }
   }
   return false;
+}
+
+void MeshPartition::createNodeToBC()
+{
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  m_N2BC.resize(m_Nodes.size());
+  foreach (int i_node, m_Nodes) {
+    QSet<int> bcs;
+    for (int j = 0; j < n2cLSize(i_node); ++j) {
+      vtkIdType id_cell = n2cLG(i_node, j);
+      if (isSurface(id_cell, m_Grid)) {
+        bcs.insert(cell_code->GetValue(n2cLG(i_node, j)));
+      }
+    }
+    m_N2BC[i_node].resize(bcs.size());
+    foreach (int bc, bcs) {
+      m_N2BC[i_node].append(bc);
+    }
+  }
+}
+
+bool MeshPartition::hasBC(vtkIdType id_node, int bc)
+{
+  bool found = false;
+  for (int j = 0; j < n2bcGSize(id_node); ++j) {
+    if (n2bcG(id_node, j) == bc) {
+      found == true;
+      break;
+    }
+  }
+  return found;
 }

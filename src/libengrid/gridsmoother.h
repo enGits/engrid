@@ -33,12 +33,20 @@ class GridSmoother;
 
 class GridSmoother : public SurfaceOperation
 {
+
+private: // types
+
+  struct rule_t {
+    QSet<int> bcs;
+    double h;
+  };
   
 private: // attributes
   
   QVector<bool> m_NodeMarked;
   QVector<bool> m_SurfNode;
   int           m_NumMarkedNodes;
+  QList<rule_t> m_Rules;
   
 protected: // attributes
   
@@ -82,6 +90,7 @@ protected: // methods
   void computeHeights();
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
+  void getRules();
 
   void writeDebugFile(QString file_name);
 

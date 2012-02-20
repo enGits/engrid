@@ -100,7 +100,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     }
   }
   setTextFromTable();
-
+  ui.textEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   
   connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
@@ -289,4 +289,5 @@ void GuiCreateSurfaceMesh::operate()
     }
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
+  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", ui.textEditPrismaticLayers->toPlainText());
 }

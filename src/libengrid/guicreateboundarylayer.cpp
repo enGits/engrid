@@ -61,7 +61,7 @@ void GuiCreateBoundaryLayer::before()
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
   getSet("boundary layer", "blending between absolute and relative", 0.0, b);
   {
-    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> ha;
     if (!s.atEnd()) s >> hr;
