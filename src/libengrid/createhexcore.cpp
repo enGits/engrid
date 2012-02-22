@@ -69,11 +69,47 @@ void CreateHexCore::refineOctree()
   } while (m_Octree.refineAll());
 }
 
+void CreateHexCore::transferOctreeGrid()
+{
+  QVector<bool> delete_node(m_Octree.getNumNodes(), false);
+  for (vtkIdType id_node; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    int i_cell = m_Octree.findCell(x);
+    for (int i = 0; i < 8; ++i) {
+      delete_node[m_Octree.getNode(i_cell, i)] = true;
+    }
+  }
+  QVector<bool> delete_cell(m_Octree.getNumCells(), false);
+  for (int i = 0; i < m_Octree.getNumCells(); ++i) {
+    for (int j = 0; j < 8; ++j) {
+      if (delete_node[m_Octree.getNode(i,j)]) {
+        delete_cell[i] = true;
+        break;
+      }
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, otgrid);
+  m_Octree.toVtkGrid(otgrid, false, true);
+  MeshPartition add_part(otgrid);
+  QList<vtkIdType> add_cells;
+  for (vtkIdType id_cell = 0; id_cell < otgrid->GetNumberOfCells(); ++id_cell) {
+    int i_cell = m_Octree.findCell(cellCentre(otgrid, id_cell));
+    if (!delete_cell[i_cell]) {
+      //add_cells.append(id_cell);
+    }
+    add_cells.append(id_cell);
+  }
+  add_part.setCells(add_cells);
+  m_Part.addPartition(add_part);
+}
+
 void CreateHexCore::operate()
 {
   m_Octree.setBounds(m_X1, m_X2);
   refineOctree();
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
-  m_Octree.toVtkGrid(otgrid, false);
-  saveGrid(otgrid, GuiMainWindow::pointer()->getCwd() + "/ot");
+  transferOctreeGrid();
+  //m_Octree.toVtkGrid(otgrid, false, true);
+  //saveGrid(otgrid, GuiMainWindow::pointer()->getCwd() + "/ot");
 }

@@ -49,8 +49,9 @@ int OctreeCell::getEdgeNode(Octree* octree, int n1, int n2, int f)
     vec3_t x2 = octree->m_Nodes[m_Node[n2]].getPosition();
     double L = (x1-x2).abs();
     foreach (int n, face_nodes1) { //Hier stinkts!
-      if (face_nodes2.contains(n)) {
+      if (face_nodes2.contains(n)) {        
         vec3_t x = octree->m_Nodes[m_Node[n]].getPosition();
+        // vielleicht besser: vec3_t x = octree->m_Nodes[n].getPosition();
         if ((x-x1).abs() < 0.55*L) {
           edge_node = n;
           break;

@@ -44,6 +44,7 @@ protected: // methods
   virtual void operate();
 
   void refineOctree();
+  void transferOctreeGrid();
 
 public:
 
