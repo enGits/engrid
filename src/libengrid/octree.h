@@ -141,7 +141,19 @@ private: // methods
 
   int  opposingFace(int i);
 
+  /**
+    * Convert the octree into a vtkUnstructuredGrid with hanging nodes.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
   void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields);
+
+  /**
+    * Convert the octree into a vtkUnstructuredGrid without hanging nodes.
+    * This method does currently not work for cells on the border of the octree domain.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
   void toVtkGrid_Conforming(vtkUnstructuredGrid *grid, bool create_fields);
 
 

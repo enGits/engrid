@@ -744,9 +744,6 @@ int Octree::opposingFace(int i)
 
 void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
 {
-  // it is not working yet
-  //EG_BUG;
-
   if (!m_SmoothTransition) {
     EG_BUG;
   }
@@ -755,7 +752,9 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
   int num_hexes = 0;
   int num_tetras = 0;
   foreach (OctreeCell cell, m_Cells) {
-    if (!cell.hasChildren()) {
+
+    if (!cell.hasChildren()) { // only use cells which do not have children
+
       QList<QVector<int> > all_faces;
       QVector<QVector<int> > faces;
       for (int i = 0; i < 6; ++i) {
@@ -763,7 +762,7 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
         if (cell.getNeighbour(i) != -1) {
           OctreeCell neigh = m_Cells[cell.getNeighbour(i)];
           if (neigh.m_Level == cell.m_Level) {
-            if (neigh.m_Child[0] != -1) {
+            if (neigh.hasChildren()) {
               use_neighbour_faces = true;
             }
           }
