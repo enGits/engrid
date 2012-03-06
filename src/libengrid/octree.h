@@ -68,6 +68,7 @@ public:
   * 4: 0,2,3,1
   * 5: 4,5,7,6
   * </pre>
+  * Child cells are numbered in the same way as the nodes.
   */
 class OctreeCell
 {
@@ -85,18 +86,26 @@ public:
   OctreeCell();
 
   int  getNode     (int i) { return m_Node[i]; }
-  int  getNeighbour(int i) { return m_Neighbour[i]; }
   bool hasChildren ()      { return m_Child[0] != -1; }
   int  getParent   ()      { return m_Parent; }
+  int  getNeighbour(int i) { return m_Neighbour[i]; }
+
+  /**
+    * Find a node by global index.
+    * @param octree the octree which holds this cell
+    * @param the global node index in the octree
+    * @return the local node index (0-7)
+    */
+  int findNode(int i_node);
 
   /**
     * Get the 'middle' node of an edge.
     * @param octree the octree which holds this cell
     * @param n1 the first node of the edge in local coordinates (0 <= n1 <= 7)
     * @param n2 the second node of the edge in local coordinates (0 <= n2 <= 7)
-    * @param f the face index (0 <= f <= 6)
+    * @param this_cell_only if set to true the search will be restricted to this cell
     */
-  int  getEdgeNode(Octree* octree, int n1, int n2, int f);
+  int  getEdgeNode(Octree* octree, int n1, int n2, bool this_cell_only = false);
 
   void getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse = false);
 
@@ -112,6 +121,14 @@ class Octree : public EgVtkObject
 
   friend class OctreeCell;
 
+private: // types
+
+  struct node_t
+  {
+    vec3_t x;
+    vtkIdType id;
+  };
+
 private: // attributes
 
   vec3_t m_Origin;  ///< origin of internal coordinate system
@@ -125,11 +142,12 @@ private: // attributes
 
   bool   m_SmoothTransition;
 
-  QVector<OctreeNode> m_Nodes;
-  QVector<OctreeCell> m_Cells;
-  QVector<bool>       m_ToRefine;
-  QVector<int>        m_SameNodes;
-  int                 m_MaxCells;
+  QVector<OctreeNode>  m_Nodes;
+  QVector<OctreeCell>  m_Cells;
+  QVector<bool>        m_ToRefine;
+  QVector<int>         m_SameNodes;
+  int                  m_MaxCells;
+  QVector<QList<int> > m_Node2Cell;
 
 private: // methods
 
@@ -138,6 +156,7 @@ private: // methods
   void mergeNodes_updateCells();
   void mergeNodes();
   void checkNeighbours();
+  void buildNode2Cell();
 
   int  opposingFace(int i);
 
@@ -167,7 +186,7 @@ public: // methods
 
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
-  void markToRefine(int cell) { m_ToRefine[cell] = true; }
+  void markToRefine(int cell);
   bool markedForRefine(int cell) { return m_ToRefine[cell]; }
   int  refineAll();
   void resetRefineMarks();
