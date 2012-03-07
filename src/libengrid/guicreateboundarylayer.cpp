@@ -56,7 +56,7 @@ void GuiCreateBoundaryLayer::before()
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
   ui.spinBoxIterations->setValue(m_NumIterations);
-  double hr, ha, b, ds = 1.5;
+  double hr, ha, b, ds = 1.5, fr = 0.75;
   getSet("boundary layer", "relative height of boundary layer", 0.01, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
   getSet("boundary layer", "blending between absolute and relative", 0.0, b);
@@ -67,6 +67,7 @@ void GuiCreateBoundaryLayer::before()
     if (!s.atEnd()) s >> hr;
     if (!s.atEnd()) s >> b;
     if (!s.atEnd()) s >> ds;
+    if (!s.atEnd()) s >> fr;
   }
   {
     int hi = 2000*hr;
@@ -85,6 +86,7 @@ void GuiCreateBoundaryLayer::before()
   }
   {
     ui.doubleSpinBoxStretching->setValue(ds);
+    ui.doubleSpinBoxFarRatio->setValue(fr);
   }
 }
 
@@ -282,6 +284,7 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setAbsoluteHeight(Ha);
   smooth.setBlending(bl);
   smooth.setDesiredStretching(ui.doubleSpinBoxStretching->value());
+  smooth.setFarRatio(ui.doubleSpinBoxFarRatio->value());
   for (int j = 0; j < ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << ui.spinBoxIterations->value() << endl;
     if (!ui.checkBoxSafeMode->isChecked()) {

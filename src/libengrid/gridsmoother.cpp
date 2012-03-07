@@ -508,7 +508,7 @@ void GridSmoother::computeDesiredHeights()
   }
   QVector<double> Dh_max = m_Height;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    Dh_max[id_node] *= sqrt(6.0)/3; // use stretching as well??
+    Dh_max[id_node] *= m_FarRatio;
   }
 
   getRules();
@@ -584,6 +584,7 @@ void GridSmoother::computeHeights()
     if (!s.atEnd()) s >> m_Blending;
     if (!s.atEnd()) s >> m_DesiredStretching;
     if (!s.atEnd()) s >> m_NumLayers;
+    if (!s.atEnd()) s >> m_FarRatio;
   }
   computeDesiredHeights();
   {
@@ -594,6 +595,7 @@ void GridSmoother::computeHeights()
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
     s << m_NumLayers << " ";
+    s << m_FarRatio << " ";
     GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 

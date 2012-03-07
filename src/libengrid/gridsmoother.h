@@ -64,6 +64,7 @@ protected: // attributes
   double m_RadarAngle;
   double m_MaxHeightInGaps;
   double m_DesiredStretching;
+  double m_FarRatio;
   int    m_NumLayers;
 
   bool m_StrictPrismChecking;
@@ -104,6 +105,7 @@ public: // methods
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
   void setDesiredStretching     (double s) { m_DesiredStretching = s; }
+  void setFarRatio              (double r) { m_FarRatio = r; }
 
   void setLayerAdjacentBoundaryCodes(const QSet<int> &abcs) { m_LayerAdjacentBoundaryCodes = abcs; }
 
