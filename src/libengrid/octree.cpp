@@ -282,9 +282,6 @@ void Octree::mergeNodes_identifyDuplicates()
       if (i_node != j_node) {
         double distance = (m_Nodes[i_node].m_Position - m_Nodes[j_node].m_Position).abs();
         if (distance < tol) {
-          if (distance > 1e-10*tol) {
-            cout << "break" << endl;
-          }
           if (i_node > j_node) {
             m_SameNodes[i_node] = j_node;
           } else {
@@ -579,9 +576,6 @@ int Octree::refineAll()
                                                 + m_Nodes[nf[3]].m_Position + m_Nodes[nf[4]].m_Position + m_Nodes[nf[5]].m_Position);
 
       for (int child = 0; child < 8; ++child) {
-        if (N2 == 477 || N2 == 1645) {
-          cout << "break!" << endl;
-        }
         m_Cells[i_cells].m_Child[child] = N2;
         m_Cells[N2].m_Parent = i_cells;
         m_Cells[N2].m_Level = m_Cells[i_cells].m_Level + 1;
@@ -866,21 +860,6 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
     OctreeCell cell = m_Cells[i_cell];
     if (!cell.hasChildren()) { // only use cells which do not have children
       vec3_t x = getCellCentre(i_cell);
-
-      // BEGIN debug
-      double K = 0.25*0.75;
-      if (x[0] < -3*K) {
-        if (x[1] > 1*K && x[1] < 2*K) {
-          if (x[2] > 0*K && x[2] < 1*K) {
-            double dx = getDx(cell);
-            double dy = getDy(cell);
-            double dz = getDz(cell);
-            cout << "break!" << endl;
-          }
-        }
-      }
-      // END DEBUG
-
       QList<QVector<int> > all_faces;
       QVector<QVector<int> > faces;
       for (int i = 0; i < 6; ++i) {
