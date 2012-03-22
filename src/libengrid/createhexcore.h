@@ -45,6 +45,7 @@ protected: // methods
 
   void refineOctree();
   void transferOctreeGrid();
+  void deleteOutside(vtkUnstructuredGrid *grid);
 
 public:
 

@@ -23,6 +23,7 @@
 
 #include "createhexcore.h"
 #include "guimainwindow.h"
+#include "pointfinder.h"
 
 CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi)
 {
@@ -123,7 +124,68 @@ void CreateHexCore::transferOctreeGrid()
     //add_cells.append(id_cell);
   }
   add_part.setCells(add_cells);
-  m_Part.addPartition(add_part);
+  m_Part.addPartition(add_part);  
+  m_Part.setAllCells();
+  deleteOutside(m_Grid);
+}
+
+void CreateHexCore::deleteOutside(vtkUnstructuredGrid *grid)
+{
+  MeshPartition part(grid, true);
+  QVector<bool> is_inside(grid->GetNumberOfCells(), false);
+  vtkIdType id_start = -1;
+  double dmin = 1e99;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, grid)) {
+      vec3_t x = cellCentre(grid, id_cell);
+      double d = (x - m_Xi).abs();
+      if (d < dmin) {
+        dmin = d;
+        id_start = id_cell;
+      }
+    }
+  }
+  if (id_start == -1) {
+    EG_BUG;
+  }
+  is_inside[id_start] = true;
+  bool added = true;
+  while (added) {
+    added = false;
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (is_inside[id_cell]) {
+        for (int j = 0; j < part.c2cGSize(id_cell); ++j) {
+          vtkIdType id_neigh = part.c2cGG(id_cell, j);
+          if (id_neigh >= 0) {
+            if (!is_inside[id_neigh]) {
+              is_inside[id_neigh] = true;
+              added = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  int N = 0;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      is_inside[id_cell] = true;
+    }
+    if (is_inside[id_cell]) {
+      ++N;
+    }
+  }
+  QVector<vtkIdType> cls(N);
+  N = 0;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (is_inside[id_cell]) {
+      cls[N] = id_cell;
+      ++N;
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, return_grid);
+  makeCopy(grid, return_grid, cls);
+  makeCopy(return_grid, grid);
 }
 
 void CreateHexCore::operate()
@@ -132,6 +194,7 @@ void CreateHexCore::operate()
   refineOctree();
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
   transferOctreeGrid();
+  /*
   int N1 = m_Octree.getNumCells();
   int N2 = 0;
   for (int i = 0; i < N1; ++i) {
@@ -139,4 +202,5 @@ void CreateHexCore::operate()
   }
   m_Octree.toVtkGrid(otgrid, true, true);
   saveGrid(otgrid, GuiMainWindow::pointer()->getCwd() + "/ot");
+  */
 }
