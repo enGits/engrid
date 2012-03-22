@@ -99,6 +99,13 @@ void GuiSetBoundaryCode::operate()
         set_bc.setOnlyPickedCell(false);
         set_bc.setOnlyPickedCellAndNeighbours(false);
         set_bc.setStart(id_start);
+        QString bc_name = GuiMainWindow::pointer()->getBC(bc).getName();
+        if (bc_name == "unknown") {
+          bc_name.setNum(bc);
+          bc_name = "BC_" + bc_name.rightJustified(4, '0');
+          BoundaryCondition sym_bc(bc_name, "patch");
+          GuiMainWindow::pointer()->addBC(bc, sym_bc);
+        }
         set_bc();
         ++bc;
       }
