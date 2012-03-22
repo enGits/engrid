@@ -104,6 +104,13 @@ public: // methods
   void setCells(const C& cls);
 
   /**
+   * Define the mesh partition by defining boundary codes.
+   * @param bcs the boundary codes of the subset
+   */
+  template <class C>
+  void setBCs(const C& bcs);
+
+  /**
    * Define the mesh partition by defining all its cells.
    */
   void setAllCells();
@@ -208,6 +215,22 @@ inline void MeshPartition::setCells(const C& cls)
   m_Cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
+}
+
+template <class C>
+inline void MeshPartition::setBCs(const C& bcs)
+{
+  QList<vtkIdType> cls;
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    foreach (int bc, bcs) {
+      if (cell_code->GetValue(id_cell) == bc) {
+        cls.append(id_cell);
+        break;
+      }
+    }
+  }
+  setCells(cls);
 }
 
 inline void MeshPartition::setAllCells() {

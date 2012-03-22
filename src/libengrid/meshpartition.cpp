@@ -25,6 +25,7 @@
 #include "guimainwindow.h"
 
 #include <vtkKdTreePointLocator.h>
+#include <vtkClipDataSet.h>
 
 MeshPartition::MeshPartition()
 {
