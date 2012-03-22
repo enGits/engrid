@@ -17,77 +17,90 @@
 # ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
-    "name": "Export to enGrid (.begc)",
+    "name": "Import from enGrid (.begc)",
     "author": "Oliver Gloth",
     "version": (0, 1),
     "blender": (2, 5, 9),
     "api": 36079,
-    "location": "File > Export > enGrid (.begc)",
-    "description": "Export objects as boundaries to enGrid's Blender exchange format (*.begc)",
+    "location": "File > Import > enGrid (.begc)",
+    "description": "Import objects from enGrid's Blender exchange format (*.begc)",
     "warning": "",
     "wiki_url": "http://engits.eu/wiki",
     "tracker_url": "http://sourceforge.net/apps/mantisbt/engrid",
     "category": "Import-Export"}
 
-'''
-Usage Notes:
-'''
-
 import bpy
-from bpy.props import *
-import mathutils, math, struct
-from os import remove
 import time
-from bpy_extras.io_utils import ExportHelper
+from bpy.props import *
+from mathutils import *
+from os import remove
+from bpy_extras.io_utils import *
 
 
-def do_export(context, props, filepath):
-    out = open(filepath, "w")
-    N = 0
-    for obj in bpy.context.selected_objects:
-        if obj.type == 'MESH':
-            N = N + 1
+
+def do_import(context, props, filepath):
+    in_file = open(filepath, "r")
+    line = in_file.readline()
+    Nobjects = int(line)
+    object_names = []
+    for i in range(0, Nobjects):
+        line = in_file.readline()
+        object_names.append(line.strip())
+    
+    global_verts = []
+    offset = 0
+    for i_object in range(0, Nobjects):
+        line = in_file.readline()
+        words = line.split()
+        Nverts = int(words[0])
+        Nfaces = int(words[1])
         
-    out.write('%d\n' % N)
-    node_offset = 0    
-    
-    for obj in bpy.context.selected_objects:
-        if obj.type == 'MESH':
-            out.write(obj.name)
-            out.write('\n')    
-    
-    for obj in bpy.context.selected_objects:
-        if obj.type == 'MESH':
-            mesh = obj.data
-            mesh.transform(obj.matrix_world)
-            faces = mesh.faces
-            nodes = mesh.vertices
-            out.write('%d' % len(nodes))
-            out.write(' %d\n' % len(faces))
-            for n in nodes:
-                out.write("%e " % n.co[0])
-                out.write("%e " % n.co[1])
-                out.write("%e\n" % n.co[2])
-            for f in faces:
-                out.write("%d" % len(f.vertices))
-                for v in f.vertices:
-                    out.write(' %d' % (v + node_offset))
-                out.write('\n')
-            node_offset = node_offset + len(nodes)
-    
-    out.flush()
-    out.close()
+        local_verts = []
+        for i_vert in range(0, Nverts):
+            line = in_file.readline()
+            words = line.split()
+            x = float(words[0])
+            y = float(words[1])
+            z = float(words[2])
+            local_verts.append( Vector((x,y,z)) )
+            global_verts.append( Vector((x,y,z)) )
+        
+        faces = []
+        print ("Nfaces=", Nfaces)
+        for i_face in range(0, Nfaces):
+            line = in_file.readline()
+            words = line.split()
+            if len(words) < 3:
+                return
+            Nverts_in_face = int(words[0])
+            if len(words) != 1 + Nverts_in_face:
+                return
+            face_verts = []
+            for i_face_vert in range(0, Nverts_in_face):
+                idx = int(words[i_face_vert + 1]) - offset
+                face_verts.append(idx)
+            faces.append(face_verts)
+        
+        mesh = bpy.data.meshes.new(object_names[i_object])
+        mesh.from_pydata(local_verts, [], faces)
+        mesh.update()
+        from bpy_extras import object_utils
+        object_utils.object_data_add(context, mesh, operator=None)
+        #BPyAddMesh.add_mesh_simple(object_names[i_object], local_verts, [], faces)
+
+        offset += Nverts
+
+    in_file.close()
     return True
 
-
-###### EXPORT OPERATOR #######
-class Export_engrid(bpy.types.Operator, ExportHelper):
-    bl_idname = "export_shape.engrid"
-    bl_label = "Export enGrid (.begc)"
+    
+    
+###### IMPORT OPERATOR #######
+class Import_engrid(bpy.types.Operator, ImportHelper):
+    bl_idname = "import_shape.engrid"
+    bl_label = "Import enGrid (.begc)"
     filename_ext = ".begc"
-    
-
-    
+     
     @classmethod
     def poll(cls, context):
         return context.active_object.type in {'MESH', 'CURVE', 'SURFACE', 'FONT'}
@@ -98,13 +111,7 @@ class Export_engrid(bpy.types.Operator, ExportHelper):
         props = self.properties
         filepath = self.filepath
         filepath = bpy.path.ensure_ext(filepath, self.filename_ext)
-
-        exported = do_export(context, props, filepath)
-        
-        if exported:
-            print('finished export in %s seconds' %((time.time() - start_time)))
-            print(filepath)
-            
+        do_import(context, props, filepath)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -128,16 +135,17 @@ class Export_engrid(bpy.types.Operator, ExportHelper):
 ### REGISTER ###
 
 def menu_func(self, context):
-    self.layout.operator(Export_engrid.bl_idname, text="enGrid (.begc)")
+    self.layout.operator(Import_engrid.bl_idname, text="enGrid (.begc)")
 
 
 def register():
     bpy.utils.register_module(__name__)
-    bpy.types.INFO_MT_file_export.append(menu_func)
+    bpy.types.INFO_MT_file_import.append(menu_func)
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.INFO_MT_file_export.remove(menu_func)
+    bpy.types.INFO_MT_file_import.remove(menu_func)
     
 if __name__ == "__main__":
     register()
+
