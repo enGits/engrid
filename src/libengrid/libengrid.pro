@@ -172,7 +172,8 @@ HEADERS = boundarycondition.h \
     createhexcore.h \
     orthogonalityoptimiser.h \
     optimisenormalvector.h \
-    brlcadreader.h
+    brlcadreader.h \
+    eghashset.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \

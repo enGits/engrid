@@ -174,6 +174,8 @@ public: // methods
    */
   int getNumberOfCells();
 
+  vtkIdType getVolumeCell(vtkIdType id_face);
+
   int       localNode(vtkIdType id_node);
   vtkIdType globalNode(int i);
   int       localCell(vtkIdType id_cell);

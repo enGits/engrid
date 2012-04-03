@@ -505,6 +505,15 @@ protected: // methods
   void getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face, QVector<vtkIdType> &ids);
 
   /**
+   * Get the normal of a face of a volume cell.
+   * @param grid the unstructured grid
+   * @param id_cell the index of the cell
+   * @param i_face the index of the face within the cell
+   * @return the normal vector (absolute value corresponds to the area)
+   */
+  vec3_t getNormalOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face);
+
+  /**
    * Get an edge of a face/cell
    * @param grid the unstructured grid
    * @param id_cell the index of the cell
@@ -519,6 +528,15 @@ protected: // methods
    * @return a set with all boundary codes
    */
   QSet<int> getAllBoundaryCodes(vtkUnstructuredGrid *grid);
+
+  /**
+   * Check if a cell (face) contains a given node
+   * @param grid the unstructured grid
+   * @param id_cell the id of the cell to investigate
+   * @param id_node the id of the required node
+   * @return true if id_cell contains id_node
+   */
+  bool cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell, vtkIdType id_node);
 
 public: // methods
   

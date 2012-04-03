@@ -206,9 +206,16 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       ++nFaces;
       ++i;
       loop = (i < poly.numFaces());
-      if (loop) loop = (poly.boundaryCode(i) == bc);
-    };
-    f << "    " << BC.getName() << "\n";
+      if (loop) {
+        loop = (poly.boundaryCode(i) == bc);
+      }
+    }
+    QString bc_name = BC.getName();
+    if (bc_name == "unknown") {
+      bc_name.setNum(bc);
+      bc_name = "BC_" + bc_name.rightJustified(4, '0');
+    }
+    f << "    " << bc_name << "\n";
     f << "    {\n";
     f << "        type        " << BC.getType() << ";\n";
     f << "        nFaces      " << nFaces << ";\n";
