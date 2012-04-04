@@ -30,6 +30,7 @@
 #include "guipick.h"
 #include "guimergevolumes.h"
 #include "guimirrormesh.h"
+#include "guicreatehexcore.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
@@ -63,4 +64,6 @@
 #include "checkforoverlap.h"
 #include "guisurfacemesher.h"
 #include "orthogonalityoptimiser.h"
+#include "brlcadreader.h"
+
 // -------------------------------------------

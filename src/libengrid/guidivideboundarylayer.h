@@ -47,7 +47,6 @@ private: // attributes
   QVector<int>                      m_Old2Edge;
   QVector<double>                   m_Y;
   QVector<bool>                     m_InsertCell;
-  vtkUnstructuredGrid*              m_RestGrid;///< used to store unselected volumes
   
 private: // methods
   

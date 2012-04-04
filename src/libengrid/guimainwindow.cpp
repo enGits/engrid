@@ -242,6 +242,7 @@ void GuiMainWindow::setupGuiMainWindow()
         cout << qPrintable(loader.errorString()) << "\n" << endl;
       }
       if (Operation *operation = qobject_cast<Operation*>(qobject)) {
+        operation->setLockGui();
         QAction *action = new QAction(operation->getMenuText(), this);
         connect(action, SIGNAL(triggered()), this, SLOT(pluginCalled()));
         m_PluginOperations[action] = operation;
@@ -1415,9 +1416,9 @@ void GuiMainWindow::updateStatusBar()
       EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
       tmp.setNum(characteristic_length_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
-      EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");
-      tmp.setNum(node_meshdensity_current->GetValue(id_node));
-      pick_txt += " current density=" + tmp;
+      //EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");
+      //tmp.setNum(node_meshdensity_current->GetValue(id_node));
+      //pick_txt += " current density=" + tmp;
       EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
       tmp.setNum(node_specified_density->GetValue(id_node));
       pick_txt += " node_specified_density=" + tmp;

@@ -20,116 +20,32 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
+
 #include "polymesh.h"
 
-uint qHash(PolyMesh::node_t N) 
-{ 
-  uint h = 0;
-  if (N.type == PolyMesh::node) {
-    h = N.idx;
-  } else {
-    if (N.type == PolyMesh::cell) {
-      vtkIdType N_pts, *pts;
-      N.poly->grid->GetCellPoints(N.idx,N_pts,pts);
-      for (int i = 0; i < N_pts; ++i) h += pts[i];
-    } else {
-      QList<vtkIdType> nds;
-      if (N.type == PolyMesh::edge) N.poly->getEdge(N.idx,N.subidx,nds);
-      if (N.type == PolyMesh::face) N.poly->getFace(N.idx,N.subidx,nds);
-      foreach (vtkIdType p, nds) h += p;
-    };
-  };
-  return h;
-};
+// ==========
+//   face_t
+// ==========
 
-
-bool PolyMesh::node_t::operator==(const node_t N) const
+PolyMesh::face_t::face_t(int N, int o, int n, vec3_t rv, int b)
 {
-  QList<vtkIdType> nds;
-  if (type == edge) {
-    poly->getEdge(idx,subidx,nds);
-  };
-  if (type == face) {
-    poly->getFace(idx,subidx,nds);
-  };
-  bool match = ((type==N.type) && (idx==N.idx) && (subidx==N.subidx)); 
-  if (!match && (type == N.type) && (idx != N.idx)) {
-    if ((type == edge) || (type == face)) {
-      match = true;
-      QList<vtkIdType> nds1, nds2;
-      if (type == edge) {
-        poly->getEdge(idx,subidx,nds1);
-        poly->getEdge(N.idx,N.subidx,nds2);
-      };
-      if (type == face) {
-        poly->getFace(idx,subidx,nds1);
-        poly->getFace(N.idx,N.subidx,nds2);
-      };
-      foreach (vtkIdType p, nds1) {
-        if (!nds2.contains(p)) {
-          match = false;
-          break;
-        };
-      };
-    };
-  };
-  return match;
-};
+  node.resize(N);
+  owner = o;
+  neighbour = n;
+  bc = b;
+  ref_vec = rv;
+}
 
-ostream& operator<<(ostream &s, PolyMesh::node_t N)
+int PolyMesh::face_t::operator[](int i)
 {
-  if (N.type == PolyMesh::node) s << "node: ";
-  if (N.type == PolyMesh::edge) s << "edge: ";
-  if (N.type == PolyMesh::face) s << "face: ";
-  if (N.type == PolyMesh::cell) s << "cell: ";
-  s << N.idx << ',' << N.subidx;
-  if (N.type != PolyMesh::node) {
-    s << "(";
-    if (N.type == PolyMesh::cell) {
-      vtkIdType N_pts, *pts;
-      N.poly->grid->GetCellPoints(N.idx,N_pts,pts);
-      for (int i = 0; i < N_pts-1; ++i) s << pts[i] << ',';
-      s << pts[N_pts-1];
-    } else {
-      QList<vtkIdType> nds;
-      if (N.type == PolyMesh::edge) {
-        N.poly->getEdge(N.idx,N.subidx,nds);
-      } else {
-        N.poly->getFace(N.idx,N.subidx,nds);
-      };
-      QList<vtkIdType>::iterator i = nds.begin();
-      s << *i;
-      ++i;
-      while (i != nds.end()) {
-        s << ',' << *i;
-        ++i;
-      };
-    }; 
-    s << ")";
-  };
-  return s;
-};
-
-ostream& operator<<(ostream &s, PolyMesh::face_t F)
-{
-  s << "bc: " << F.bc << " owner: " << F.owner << " neighbour: " << F.neighbour;
-  for (int i = 0; i < F.node.size(); ++i) {
-    s << "\n  " << F.node[i];
-  };
-  return s;
-};
-
-void PolyMesh::face_t::checkOrientation()
-{
-  if (owner > neighbour) {
-    QVector<node_t> node_copy(node.size());
-    qCopy(node.begin(),node.end(),node_copy.begin());
-    for (int i = 0; i < node.size(); ++i) {
-      node[i] = node_copy[node.size()-i-1];
-    };
-    swap(owner,neighbour);
-  };
-};
+  while (i < 0) {
+    i += node.size();
+  }
+  while (i >= node.size()) {
+    i -= node.size();
+  }
+  return node[i];
+}
 
 bool PolyMesh::face_t::operator<(const face_t &F) const
 {
@@ -142,1695 +58,838 @@ bool PolyMesh::face_t::operator<(const face_t &F) const
     } else if (owner == F.owner) {
       if (neighbour < F.neighbour) {
         less = true;
-      };
-    };
-  };
-  
+      }
+    }
+  }
   return less;
-};
+}
 
-vec3_t PolyMesh::face_t::normal()
+bool PolyMesh::face_t::operator==(const face_t &F) const
 {
-  vec3_t x(0,0,0);
-  if (node.size() < 3) EG_BUG;
-  for (int i = 0; i < node.size(); ++i) {
-    x += vec3_t(node[i].x,node[i].y,node[i].z);
-  };
-  x *= 1.0/node.size();
-  vec3_t n(0,0,0);
-  for (int i = 0; i < node.size()-1; ++i) {
-    vec3_t a = vec3_t(node[i].x,node[i].y,node[i].z)-x; 
-    vec3_t b = vec3_t(node[i+1].x,node[i+1].y,node[i+1].z)-x; 
-    n += 0.5*(a.cross(b));
-  };
-  vec3_t a = vec3_t(node[node.size()-1].x,node[node.size()-1].y,node[node.size()-1].z) - x; 
-  vec3_t b = vec3_t(node[0].x,node[0].y,node[0].z) - x; 
-  n += 0.5*(a.cross(b));
-  return n;
-};
+  bool equal = false;
+  if (bc == F.bc) {
+    if (owner == F.owner) {
+      if (neighbour == F.neighbour) {
+        equal = true;
+      }
+    }
+  }
+  return equal;
+}
 
-void PolyMesh::getFace(vtkIdType idx, int subidx, QList<vtkIdType> &nodes)
+
+// ==========
+//   node_t
+// ==========
+
+PolyMesh::node_t::node_t(const QVector<vtkIdType> &ids)
 {
-  nodes.clear();
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(idx, N_pts, pts);
-  vtkIdType type_cell = grid->GetCellType(idx);
-  if (type_cell == VTK_TETRA) {
-    if (subidx == 0) {
-      nodes.append(pts[2]);
-      nodes.append(pts[1]);
-      nodes.append(pts[0]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[1]);
-      nodes.append(pts[3]);
-      nodes.append(pts[0]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[3]);
-      nodes.append(pts[2]);
-      nodes.append(pts[0]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[2]);
-      nodes.append(pts[3]);
-      nodes.append(pts[1]);
-    };
-  };
-  if (type_cell == VTK_WEDGE) {
-    if (subidx == 0) {
-      nodes.append(pts[0]);
-      nodes.append(pts[1]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[3]);
-      nodes.append(pts[5]);
-      nodes.append(pts[4]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[3]);
-      nodes.append(pts[4]);
-      nodes.append(pts[1]);
-      nodes.append(pts[0]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[1]);
-      nodes.append(pts[4]);
-      nodes.append(pts[2]);
-      nodes.append(pts[5]);
-    };
-    if (subidx == 4) {
-      nodes.append(pts[0]);
-      nodes.append(pts[2]);
-      nodes.append(pts[5]);
-      nodes.append(pts[3]);
-    };
-  };
-  if (type_cell == VTK_HEXAHEDRON) {
-    if (subidx == 0) {
-      nodes.append(pts[0]);
-      nodes.append(pts[3]);
-      nodes.append(pts[2]);
-      nodes.append(pts[1]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[4]);
-      nodes.append(pts[5]);
-      nodes.append(pts[6]);
-      nodes.append(pts[7]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[0]);
-      nodes.append(pts[1]);
-      nodes.append(pts[5]);
-      nodes.append(pts[4]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[3]);
-      nodes.append(pts[7]);
-      nodes.append(pts[6]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 4) {
-      nodes.append(pts[0]);
-      nodes.append(pts[4]);
-      nodes.append(pts[7]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 5) {
-      nodes.append(pts[1]);
-      nodes.append(pts[2]);
-      nodes.append(pts[6]);
-      nodes.append(pts[5]);
-    };
-  };
-};
+  id = ids;
+  qSort(id);
+}
 
-void PolyMesh::getEdge(vtkIdType idx, int subidx, QList<vtkIdType> &nodes)
+PolyMesh::node_t::node_t(vtkIdType id1)
 {
-  nodes.clear();
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(idx, N_pts, pts);
-  vtkIdType type_cell = grid->GetCellType(idx);
-  if (type_cell == VTK_TETRA) {
-    if (subidx == 0) {
-      nodes.append(pts[0]);
-      nodes.append(pts[1]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[0]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[0]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[1]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 4) {
-      nodes.append(pts[1]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 5) {
-      nodes.append(pts[2]);
-      nodes.append(pts[3]);
-    };
-  };
-  if (type_cell == VTK_WEDGE) {
-    if (subidx == 0) {
-      nodes.append(pts[0]);
-      nodes.append(pts[1]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[0]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[0]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[1]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 4) {
-      nodes.append(pts[1]);
-      nodes.append(pts[4]);
-    };
-    if (subidx == 5) {
-      nodes.append(pts[2]);
-      nodes.append(pts[5]);
-    };
-    if (subidx == 6) {
-      nodes.append(pts[3]);
-      nodes.append(pts[4]);
-    };
-    if (subidx == 7) {
-      nodes.append(pts[3]);
-      nodes.append(pts[5]);
-    };
-    if (subidx == 8) {
-      nodes.append(pts[4]);
-      nodes.append(pts[5]);
-    };
-  };
-  if (type_cell == VTK_HEXAHEDRON) {
-    if (subidx == 0) {
-      nodes.append(pts[0]);
-      nodes.append(pts[1]);
-    };
-    if (subidx == 1) {
-      nodes.append(pts[0]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 2) {
-      nodes.append(pts[0]);
-      nodes.append(pts[4]);
-    };
-    if (subidx == 3) {
-      nodes.append(pts[1]);
-      nodes.append(pts[2]);
-    };
-    if (subidx == 4) {
-      nodes.append(pts[1]);
-      nodes.append(pts[5]);
-    };
-    if (subidx == 5) {
-      nodes.append(pts[2]);
-      nodes.append(pts[3]);
-    };
-    if (subidx == 6) {
-      nodes.append(pts[2]);
-      nodes.append(pts[6]);
-    };
-    if (subidx == 7) {
-      nodes.append(pts[3]);
-      nodes.append(pts[7]);
-    };
-    if (subidx == 8) {
-      nodes.append(pts[4]);
-      nodes.append(pts[5]);
-    };
-    if (subidx == 9) {
-      nodes.append(pts[4]);
-      nodes.append(pts[7]);
-    };
-    if (subidx == 10) {
-      nodes.append(pts[5]);
-      nodes.append(pts[6]);
-    };
-    if (subidx == 11) {
-      nodes.append(pts[6]);
-      nodes.append(pts[7]);
-    };
-  };
-};
+  id.resize(1);
+  id[0] = id1;
+}
 
-PolyMesh::PolyMesh(vtkUnstructuredGrid *a_grid, bool dual_mesh)
+PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2)
 {
-  dbg = false;
-  dual = dual_mesh;
-  grid = a_grid;
-  weight.fill(1.0,grid->GetNumberOfPoints());
-  pass1();
-  pass2();
-  pass3();
-};
+  id.resize(2);
+  id[0] = id1;
+  id[1] = id2;
+  qSort(id);
+}
 
-int PolyMesh::pcIdxNode(vtkIdType id_node)
+PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3)
 {
-  if (node2pc[id_node] != -1) {
-    return node2pc[id_node];
-  };
-  node2pc[id_node] = id_newpc;
-  ++id_newpc;
-  return node2pc[id_node];
-};
+  id.resize(3);
+  id[0] = id1;
+  id[1] = id2;
+  id[2] = id3;
+  qSort(id);
+}
 
-int PolyMesh::pcIdxCell(vtkIdType id_cell)
+PolyMesh::node_t::node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3, vtkIdType id4)
 {
-  if (cell2pc[id_cell] != -1) {
-    return cell2pc[id_cell];
-  };
-  cell2pc[id_cell] = id_newpc;
-  ++id_newpc;
-  return cell2pc[id_cell];
-};
+  id.resize(4);
+  id[0] = id1;
+  id[1] = id2;
+  id[2] = id3;
+  id[3] = id4;
+  qSort(id);
+}
 
-void PolyMesh::pass1Tetras()
+bool PolyMesh::node_t::operator<(const PolyMesh::node_t &N) const
 {
-  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-  face_t F;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if (type_cell == VTK_TETRA) {
-      vtkIdType N_pts, *pts;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      
-      if (dual) {
-        
-      // edge 0 -> 1
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 0);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 1);
-        F.node[3]   = node_t(this, edge, id_cell, 0);
-        F.owner     = pcIdxNode(pts[0]);
-        F.neighbour = pcIdxNode(pts[1]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // edge 0 -> 2
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 2);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 0);
-        F.node[3]   = node_t(this, edge, id_cell, 1);
-        F.owner     = pcIdxNode(pts[0]);
-        F.neighbour = pcIdxNode(pts[2]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // edge 0 -> 3
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 1);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 2);
-        F.node[3]   = node_t(this, edge, id_cell, 2);
-        F.owner     = pcIdxNode(pts[0]);
-        F.neighbour = pcIdxNode(pts[3]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // edge 1 -> 2
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 0);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 3);
-        F.node[3]   = node_t(this, edge, id_cell, 3);
-        F.owner     = pcIdxNode(pts[1]);
-        F.neighbour = pcIdxNode(pts[2]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // edge 1 -> 3
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 3);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 1);
-        F.node[3]   = node_t(this, edge, id_cell, 4);
-        F.owner     = pcIdxNode(pts[1]);
-        F.neighbour = pcIdxNode(pts[3]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // edge 2 -> 3
-        F.node.resize(4);
-        F.node[0]   = node_t(this, face, id_cell, 2);
-        F.node[1]   = node_t(this, cell, id_cell, 0);
-        F.node[2]   = node_t(this, face, id_cell, 3);
-        F.node[3]   = node_t(this, edge, id_cell, 5);
-        F.owner     = pcIdxNode(pts[2]);
-        F.neighbour = pcIdxNode(pts[3]);
-        F.bc        = 0;
-        F.checkOrientation();
-        face_list.append(F);
-        
-      // boundary face 0
-        {
-          vtkIdType id_bcell = c2c[id_cell][0];
-          if (id_bcell == -1) EG_BUG;
-          if (isSurface(id_bcell, grid)) {
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 1);
-            F.node[1]   = node_t(this, face, id_cell, 0);
-            F.node[2]   = node_t(this, edge, id_cell, 0);
-            F.node[3]   = node_t(this, node, pts[0], 0);
-            F.owner     = pcIdxNode(pts[0]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 0);
-            F.node[1]   = node_t(this, face, id_cell, 0);
-            F.node[2]   = node_t(this, edge, id_cell, 3);
-            F.node[3]   = node_t(this, node, pts[1], 0);
-            F.owner     = pcIdxNode(pts[1]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 3);
-            F.node[1]   = node_t(this, face, id_cell, 0);
-            F.node[2]   = node_t(this, edge, id_cell, 1);
-            F.node[3]   = node_t(this, node, pts[2], 0);
-            F.owner     = pcIdxNode(pts[2]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-          };
-        };
-        
-      // boundary face 1
-        {
-          vtkIdType id_bcell = c2c[id_cell][1];
-          if (id_bcell == -1) EG_BUG;
-          if (isSurface(id_bcell, grid)) {
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 0);
-            F.node[1]   = node_t(this, face, id_cell, 1);
-            F.node[2]   = node_t(this, edge, id_cell, 2);
-            F.node[3]   = node_t(this, node, pts[0], 0);
-            F.owner     = pcIdxNode(pts[0]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 4);
-            F.node[1]   = node_t(this, face, id_cell, 1);
-            F.node[2]   = node_t(this, edge, id_cell, 0);
-            F.node[3]   = node_t(this, node, pts[1], 0);
-            F.owner     = pcIdxNode(pts[1]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 2);
-            F.node[1]   = node_t(this, face, id_cell, 1);
-            F.node[2]   = node_t(this, edge, id_cell, 4);
-            F.node[3]   = node_t(this, node, pts[3], 0);
-            F.owner     = pcIdxNode(pts[3]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-          };
-        };
-        
-      // boundary face 2
-        {
-          vtkIdType id_bcell = c2c[id_cell][2];
-          if (id_bcell == -1) EG_BUG;
-          if (isSurface(id_bcell, grid)) {
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 2);
-            F.node[1]   = node_t(this, face, id_cell, 2);
-            F.node[2]   = node_t(this, edge, id_cell, 1);
-            F.node[3]   = node_t(this, node, pts[0], 0);
-            F.owner     = pcIdxNode(pts[0]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 1);
-            F.node[1]   = node_t(this, face, id_cell, 2);
-            F.node[2]   = node_t(this, edge, id_cell, 5);
-            F.node[3]   = node_t(this, node, pts[2], 0);
-            F.owner     = pcIdxNode(pts[2]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 5);
-            F.node[1]   = node_t(this, face, id_cell, 2);
-            F.node[2]   = node_t(this, edge, id_cell, 2);
-            F.node[3]   = node_t(this, node, pts[3], 0);
-            F.owner     = pcIdxNode(pts[3]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-          };
-        };
-        
-      // boundary face 3
-        {
-          vtkIdType id_bcell = c2c[id_cell][3];
-          if (id_bcell == -1) EG_BUG;
-          if (isSurface(id_bcell, grid)) {
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 3);
-            F.node[1]   = node_t(this, face, id_cell, 3);
-            F.node[2]   = node_t(this, edge, id_cell, 4);
-            F.node[3]   = node_t(this, node, pts[1], 0);
-            F.owner     = pcIdxNode(pts[1]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 5);
-            F.node[1]   = node_t(this, face, id_cell, 3);
-            F.node[2]   = node_t(this, edge, id_cell, 3);
-            F.node[3]   = node_t(this, node, pts[2], 0);
-            F.owner     = pcIdxNode(pts[2]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-            F.node.resize(4);
-            F.node[0]   = node_t(this, edge, id_cell, 4);
-            F.node[1]   = node_t(this, face, id_cell, 3);
-            F.node[2]   = node_t(this, edge, id_cell, 5);
-            F.node[3]   = node_t(this, node, pts[3], 0);
-            F.owner     = pcIdxNode(pts[3]);
-            F.neighbour = -1;
-            F.bc        = bc->GetValue(id_bcell);
-            face_list.append(F);
-            
-          };
-        };
-      } else {
-      };
-    };
-  };
-};
+  int num = min(id.size(), N.id.size());
+  for (int i = 0; i < num; ++i) {
+    if (id[i] < N.id[i]) {
+      return true;
+    }
+    if (id[i] > N.id[i]) {
+      return false;
+    }
+  }
+  if (id.size() < N.id.size()) {
+    return true;
+  }
+  return false;
+}
 
-void PolyMesh::pass1Prisms()
+bool PolyMesh::node_t::operator>(const PolyMesh::node_t &N) const
 {
-  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-  face_t F;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if (type_cell == VTK_WEDGE) {
-      vtkIdType N_pts, *pts, id_ncell;
-      bool f0_split = false;
-      bool f1_split = false;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      
-      // face 0
-      id_ncell = c2c[id_cell][0];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        F.node.resize(3);
-        F.node[0] = node_t(this, node, pts[0], 0);
-        F.node[1] = node_t(this, node, pts[1], 0);
-        F.node[2] = node_t(this, node, pts[2], 0);
-        F.owner   = pcIdxCell(id_cell);
-        F.neighbour = -1;
-        face_list.append(F);
-      } else {
-        if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
-          F.bc = 0;
-          F.node.resize(3);
-          F.node[0]   = node_t(this, node, pts[0], 0);
-          F.node[1]   = node_t(this, node, pts[1], 0);
-          F.node[2]   = node_t(this, node, pts[2], 0);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxCell(id_ncell);
-          if (F.owner < F.neighbour) face_list.append(F);
-        } else {
-          f0_split = true;
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[0], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 0);
-          F.node[2]   = node_t(this, face, id_cell, 0);
-          F.node[3]   = node_t(this, edge, id_cell, 1);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[0]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[1], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 3);
-          F.node[2]   = node_t(this, face, id_cell, 0);
-          F.node[3]   = node_t(this, edge, id_cell, 0);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[1]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[2], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 1);
-          F.node[2]   = node_t(this, face, id_cell, 0);
-          F.node[3]   = node_t(this, edge, id_cell, 3);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[2]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-        };        
-      };
-      
-      // face 1
-      id_ncell = c2c[id_cell][1];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        F.node.resize(3);
-        F.node[0] = node_t(this, node, pts[3], 0);
-        F.node[1] = node_t(this, node, pts[5], 0);
-        F.node[2] = node_t(this, node, pts[4], 0);
-        F.owner   = pcIdxCell(id_cell);
-        F.neighbour = -1;
-        face_list.append(F);
-      } else {
-        if (grid->GetCellType(id_ncell) == VTK_WEDGE) {
-          F.bc = 0;
-          F.node.resize(3);
-          F.node[0]   = node_t(this, node, pts[3], 0);
-          F.node[1]   = node_t(this, node, pts[5], 0);
-          F.node[2]   = node_t(this, node, pts[4], 0);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxCell(id_ncell);
-          if (F.owner < F.neighbour) face_list.append(F);
-        } else {
-          f1_split = true;
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[3], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 7);
-          F.node[2]   = node_t(this, face, id_cell, 1);
-          F.node[3]   = node_t(this, edge, id_cell, 6);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[3]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[4], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 6);
-          F.node[2]   = node_t(this, face, id_cell, 1);
-          F.node[3]   = node_t(this, edge, id_cell, 8);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[4]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-          
-          F.node.resize(4);
-          F.node[0]   = node_t(this, node, pts[5], 0);
-          F.node[1]   = node_t(this, edge, id_cell, 8);
-          F.node[2]   = node_t(this, face, id_cell, 1);
-          F.node[3]   = node_t(this, edge, id_cell, 7);
-          F.owner     = pcIdxCell(id_cell);
-          F.neighbour = pcIdxNode(pts[5]);
-          F.bc        = 0;
-          F.checkOrientation();
-          face_list.append(F);
-        };        
-      };
-      
-      // face 2
-      id_ncell = c2c[id_cell][2];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.node.resize(4);
-      F.owner   = pcIdxCell(id_cell);
-      if (!f0_split && !f1_split) {
-        F.node.resize(4);
-        F.node[0] = node_t(this, node, pts[1], 0);
-        F.node[1] = node_t(this, node, pts[0], 0);
-        F.node[2] = node_t(this, node, pts[3], 0);
-        F.node[3] = node_t(this, node, pts[4], 0);
-      };
-      if (f0_split && !f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[1], 0);
-        F.node[1] = node_t(this, edge, id_cell, 0);
-        F.node[2] = node_t(this, node, pts[0], 0);
-        F.node[3] = node_t(this, node, pts[3], 0);
-        F.node[4] = node_t(this, node, pts[4], 0);
-      };
-      if (!f0_split && f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[1], 0);
-        F.node[1] = node_t(this, node, pts[0], 0);
-        F.node[2] = node_t(this, node, pts[3], 0);
-        F.node[3] = node_t(this, edge, id_cell, 6);
-        F.node[4] = node_t(this, node, pts[4], 0);
-      };
-      if (f0_split && f1_split) {
-        F.node.resize(6);
-        F.node[0] = node_t(this, node, pts[1], 0);
-        F.node[1] = node_t(this, edge, id_cell, 0);
-        F.node[2] = node_t(this, node, pts[0], 0);
-        F.node[3] = node_t(this, node, pts[3], 0);
-        F.node[4] = node_t(this, edge, id_cell, 6);
-        F.node[5] = node_t(this, node, pts[4], 0);
-      };
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 3
-      id_ncell = c2c[id_cell][3];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner   = pcIdxCell(id_cell);
-      if (!f0_split && !f1_split) {
-        F.node.resize(4);
-        F.node[0] = node_t(this, node, pts[2], 0);
-        F.node[1] = node_t(this, node, pts[1], 0);
-        F.node[2] = node_t(this, node, pts[4], 0);
-        F.node[3] = node_t(this, node, pts[5], 0);
-      };
-      if (f0_split && !f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[2], 0);
-        F.node[1] = node_t(this, edge, id_cell, 3);
-        F.node[2] = node_t(this, node, pts[1], 0);
-        F.node[3] = node_t(this, node, pts[4], 0);
-        F.node[4] = node_t(this, node, pts[5], 0);
-      };
-      if (!f0_split && f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[2], 0);
-        F.node[1] = node_t(this, node, pts[1], 0);
-        F.node[2] = node_t(this, node, pts[4], 0);
-        F.node[3] = node_t(this, edge, id_cell, 8);
-        F.node[4] = node_t(this, node, pts[5], 0);
-      };
-      if (f0_split && f1_split) {
-        F.node.resize(6);
-        F.node[0] = node_t(this, node, pts[2], 0);
-        F.node[1] = node_t(this, edge, id_cell, 3);
-        F.node[2] = node_t(this, node, pts[1], 0);
-        F.node[3] = node_t(this, node, pts[4], 0);
-        F.node[4] = node_t(this, edge, id_cell, 8);
-        F.node[5] = node_t(this, node, pts[5], 0);
-      };
-      
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 4
-      id_ncell = c2c[id_cell][4];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner   = pcIdxCell(id_cell);
-      if (!f0_split && !f1_split) {
-        F.node.resize(4);
-        F.node[0] = node_t(this, node, pts[0], 0);
-        F.node[1] = node_t(this, node, pts[2], 0);
-        F.node[2] = node_t(this, node, pts[5], 0);
-        F.node[3] = node_t(this, node, pts[3], 0);
-        F.owner   = pcIdxCell(id_cell);
-      };
-      if (f0_split && !f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[0], 0);
-        F.node[1] = node_t(this, edge, id_cell, 1);
-        F.node[2] = node_t(this, node, pts[2], 0);
-        F.node[3] = node_t(this, node, pts[5], 0);
-        F.node[4] = node_t(this, node, pts[3], 0);
-      };
-      if (!f0_split && f1_split) {
-        F.node.resize(5);
-        F.node[0] = node_t(this, node, pts[0], 0);
-        F.node[1] = node_t(this, node, pts[2], 0);
-        F.node[2] = node_t(this, node, pts[5], 0);
-        F.node[3] = node_t(this, edge, id_cell, 7);
-        F.node[4] = node_t(this, node, pts[3], 0);
-      };
-      if (f0_split && f1_split) {
-        F.node.resize(6);
-        F.node[0] = node_t(this, node, pts[0], 0);
-        F.node[1] = node_t(this, edge, id_cell, 1);
-        F.node[2] = node_t(this, node, pts[2], 0);
-        F.node[3] = node_t(this, node, pts[5], 0);
-        F.node[4] = node_t(this, edge, id_cell, 7);
-        F.node[5] = node_t(this, node, pts[3], 0);
-      };
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-    };
-  };
-};
+  int num = min(id.size(), N.id.size());
+  for (int i = 0; i < num; ++i) {
+    if (id[i] > N.id[i]) {
+      return true;
+    }
+    if (id[i] < N.id[i]) {
+      return false;
+    }
+  }
+  if (id.size() > N.id.size()) {
+    return true;
+  }
+  return false;
+}
 
-void PolyMesh::pass1Hexas()
+bool PolyMesh::node_t::operator==(const PolyMesh::node_t &N) const
 {
-  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
-  face_t F;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    if (type_cell == VTK_HEXAHEDRON) {
-      vtkIdType N_pts, *pts, id_ncell;
-      grid->GetCellPoints(id_cell, N_pts, pts);
-      
-      // face 0
-      id_ncell = c2c[id_cell][0];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[0], 0);
-      F.node[1] = node_t(this, node, pts[3], 0);
-      F.node[2] = node_t(this, node, pts[2], 0);
-      F.node[3] = node_t(this, node, pts[1], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 1
-      id_ncell = c2c[id_cell][1];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[4], 0);
-      F.node[1] = node_t(this, node, pts[5], 0);
-      F.node[2] = node_t(this, node, pts[6], 0);
-      F.node[3] = node_t(this, node, pts[7], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 2
-      id_ncell = c2c[id_cell][2];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[0], 0);
-      F.node[1] = node_t(this, node, pts[1], 0);
-      F.node[2] = node_t(this, node, pts[5], 0);
-      F.node[3] = node_t(this, node, pts[4], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 3
-      id_ncell = c2c[id_cell][3];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[3], 0);
-      F.node[1] = node_t(this, node, pts[7], 0);
-      F.node[2] = node_t(this, node, pts[6], 0);
-      F.node[3] = node_t(this, node, pts[2], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 4
-      id_ncell = c2c[id_cell][4];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[0], 0);
-      F.node[1] = node_t(this, node, pts[4], 0);
-      F.node[2] = node_t(this, node, pts[7], 0);
-      F.node[3] = node_t(this, node, pts[3], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-      // face 5
-      id_ncell = c2c[id_cell][5];
-      F.bc = 0;
-      if (id_ncell == -1) EG_BUG;
-      if (isSurface(id_ncell, grid)) {
-        F.bc = bc->GetValue(id_ncell);
-        id_ncell = -1;
-      };
-      F.owner = pcIdxCell(id_cell);
-      F.node.resize(4);
-      F.node[0] = node_t(this, node, pts[1], 0);
-      F.node[1] = node_t(this, node, pts[2], 0);
-      F.node[2] = node_t(this, node, pts[6], 0);
-      F.node[3] = node_t(this, node, pts[5], 0);
-      if (id_ncell != -1) {
-        F.neighbour = pcIdxCell(id_ncell);
-        if (F.owner < F.neighbour) face_list.append(F);
-      } else {
-        F.neighbour = -1;
-        face_list.append(F);
-      };
-      
-    };
-  };
-};
+  if (id.size() != N.id.size()) {
+    return false;
+  }
+  for (int i = 0; i < id.size(); ++i) {
+    if (id[i] != N.id[i]) {
+      return false;
+    }
+  }
+  return true;
+}
 
-void PolyMesh::sortFaces()
+
+
+
+
+// ============
+//   PolyMesh
+// ============
+
+PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
 {
-  bcs.clear();
-  foreach (face_t F, face_list) {
-    if (!bcs.contains(F.bc)) {
-      bcs.append(F.bc);
-    };
-  };
-  qSort(bcs.begin(),bcs.end());
-  QList<face_t> ordered_face_list;
-  foreach (int bc, bcs) {
-    foreach (face_t F, face_list) {
-      if (F.bc == bc) {
-        ordered_face_list.append(F);
-      };
-    };
-  };
-  faces.resize(ordered_face_list.size());
-  qCopy(ordered_face_list.begin(), ordered_face_list.end(), faces.begin());
-};
+  if (!dual_mesh) {
+    EG_BUG;
+  }
+  m_Grid = grid;
+  m_Part.setGrid(m_Grid);
+  m_Part.setAllCells();
+  findPolyCells();
+  createNodesAndFaces();
+  checkFaceOrientation();
 
-void PolyMesh::pass1()
-{   
-  cout << "creating polyhedral grid" << endl;
-  cell2pc.fill(-1,grid->GetNumberOfCells());
-  node2pc.fill(-1,grid->GetNumberOfPoints());
-  face_list.clear();
-  id_newpc = 0;
-  getAllCells(cells, grid);
-  createCellToCell(cells, c2c, grid);
-  cout << "pass 1 for tetras" << endl;
-  pass1Tetras();
-  cout << "pass 1 for prisms" << endl;
-  pass1Prisms();
-  cout << "pass 1 for hexas" << endl;
-  pass1Hexas();
-  cout << "sorting faces" << endl;
-  sortFaces();
-};
-
-void PolyMesh::createNodes()
-{
-  QHash<node_t,int> nodemap;
-  {
-    int id_node = 0;
-    foreach (face_t F, faces) {
-      foreach (node_t N, F.node) {
-        if (!nodemap.contains(N)) {
-          nodemap.insert(N, id_node);
-          ++id_node;
-        };
-      };
-    };
-  };
-  nodes.resize(nodemap.size());
-  QVector<bool> nodeset(nodemap.size(), false);
-  for (int i_face = 0; i_face < faces.size(); ++i_face) {
-    face_t F = faces[i_face];
-    for (int i_node = 0; i_node < F.node.size(); ++i_node) {
-      node_t N = F.node[i_node];
-      int i = nodemap.value(N);
-      if (!nodeset[i]) {
-        nodeset[i] = true;
-        nodes[i] = vec3_t(N.x,N.y,N.z);
-      };      
-      N.type = node;
-      N.idx = i;
-      N.subidx = 0;
-      F.node[i_node] = N;
-    };
-    faces[i_face] = F;
-  };
-};
-
-void PolyMesh::computeNodes()
-{
-  for (int i_face = 0; i_face < faces.size(); ++i_face) {
-    face_t F = faces[i_face];
-    for (int i_node = 0; i_node < F.node.size(); ++i_node) {
-      node_t N = F.node[i_node];
-      if (N.type == node) {
-        vec3_t x;
-        grid->GetPoint(N.idx, x.data());
-        N.x = x[0];
-        N.y = x[1];
-        N.z = x[2];
-      };
-      if (N.type == edge) {
-        vtkIdType N_pts, *pts;
-        vtkIdType type_cell = grid->GetCellType(N.idx);
-        grid->GetCellPoints(N.idx, N_pts, pts);
-        vec3_t x1, x2;
-        double w1=1, w2=1;
-        if (type_cell == VTK_TETRA) {
-          if (N.subidx == 0) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[1]];
-          };
-          if (N.subidx == 1) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[2]];
-          };
-          if (N.subidx == 2) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[3], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[3]];
-          };
-          if (N.subidx == 3) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            w1 = weight[pts[1]];
-            w2 = weight[pts[2]];
-          };
-          if (N.subidx == 4) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[3], x2.data());
-            w1 = weight[pts[1]];
-            w2 = weight[pts[3]];
-          };
-          if (N.subidx == 5) {
-            grid->GetPoint(pts[2], x1.data());
-            grid->GetPoint(pts[3], x2.data());
-            w1 = weight[pts[2]];
-            w2 = weight[pts[3]];
-          };
-        };
-        if (type_cell == VTK_WEDGE) {
-          if (N.subidx == 0) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[1]];
-          };
-          if (N.subidx == 1) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[2]];
-          };
-          if (N.subidx == 2) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[3], x2.data());
-            w1 = weight[pts[0]];
-            w2 = weight[pts[3]];
-          };
-          if (N.subidx == 3) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            w1 = weight[pts[1]];
-            w2 = weight[pts[2]];
-          };
-          if (N.subidx == 4) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[4], x2.data());
-            w1 = weight[pts[1]];
-            w2 = weight[pts[4]];
-          };
-          if (N.subidx == 5) {
-            grid->GetPoint(pts[2], x1.data());
-            grid->GetPoint(pts[5], x2.data());
-            w1 = weight[pts[2]];
-            w2 = weight[pts[5]];
-          };
-          if (N.subidx == 6) {
-            grid->GetPoint(pts[3], x1.data());
-            grid->GetPoint(pts[4], x2.data());
-            w1 = weight[pts[3]];
-            w2 = weight[pts[4]];
-          };
-          if (N.subidx == 7) {
-            grid->GetPoint(pts[3], x1.data());
-            grid->GetPoint(pts[5], x2.data());
-            w1 = weight[pts[3]];
-            w2 = weight[pts[5]];
-          };
-          if (N.subidx == 8) {
-            grid->GetPoint(pts[4], x1.data());
-            grid->GetPoint(pts[5], x2.data());
-            w1 = weight[pts[4]];
-            w2 = weight[pts[5]];
-          };
-        };
-        {
-          vec3_t x = 1.0/(w1+w2)*(w1*x1+w2*x2);
-          N.x = x[0];
-          N.y = x[1];
-          N.z = x[2];
-        };
-      };
-      if (N.type == face) {
-        vtkIdType N_pts, *pts;
-        vtkIdType type_cell = grid->GetCellType(N.idx);
-        grid->GetCellPoints(N.idx, N_pts, pts);
-        if (type_cell == VTK_TETRA) {
-          vec3_t x1, x2, x3;
-          double w1=1, w2=1, w3=1;
-          if (N.subidx == 0) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            grid->GetPoint(pts[2], x3.data());
-            w1 = faceW(weight[pts[0]]);
-            w2 = faceW(weight[pts[1]]);
-            w3 = faceW(weight[pts[2]]);
-          };
-          if (N.subidx == 1) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            grid->GetPoint(pts[3], x3.data());
-            w1 = faceW(weight[pts[0]]);
-            w2 = faceW(weight[pts[1]]);
-            w3 = faceW(weight[pts[3]]);
-          };
-          if (N.subidx == 2) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            grid->GetPoint(pts[3], x3.data());
-            w1 = faceW(weight[pts[0]]);
-            w2 = faceW(weight[pts[2]]);
-            w3 = faceW(weight[pts[3]]);
-          };
-          if (N.subidx == 3) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            grid->GetPoint(pts[3], x3.data());
-            w1 = faceW(weight[pts[1]]);
-            w2 = faceW(weight[pts[2]]);
-            w3 = faceW(weight[pts[3]]);
-          };
-          {
-            vec3_t x = 1.0/(w1+w2+w3)*(w1*x1+w2*x2+w3*x3);
-            N.x = x[0];
-            N.y = x[1];
-            N.z = x[2];
-          };
-        };
-        if (type_cell == VTK_WEDGE) {
-          vec3_t x1, x2, x3, x4;
-          double w1, w2, w3;
-          if (N.subidx == 0) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            grid->GetPoint(pts[2], x3.data());
-            w1 = faceW(weight[pts[0]]);
-            w2 = faceW(weight[pts[1]]);
-            w3 = faceW(weight[pts[2]]);
-            {
-              vec3_t x = 1.0/(w1+w2+w3)*(w1*x1+w2*x2+w3*x3);
-              N.x = x[0];
-              N.y = x[1];
-              N.z = x[2];
-            };
-          };
-          if (N.subidx == 1) {
-            grid->GetPoint(pts[3], x1.data());
-            grid->GetPoint(pts[4], x2.data());
-            grid->GetPoint(pts[5], x3.data());
-            w1 = faceW(weight[pts[3]]);
-            w2 = faceW(weight[pts[4]]);
-            w3 = faceW(weight[pts[5]]);
-            {
-              vec3_t x = 1.0/(w1+w2+w3)*(w1*x1+w2*x2+w3*x3);
-              N.x = x[0];
-              N.y = x[1];
-              N.z = x[2];
-            };
-          };
-          if (N.subidx == 2) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[1], x2.data());
-            grid->GetPoint(pts[3], x3.data());
-            grid->GetPoint(pts[4], x4.data());
-            {
-              vec3_t x = 0.25*(x1+x2+x3+x4);
-              N.x = x[0];
-              N.y = x[1];
-              N.z = x[2];
-            };
-          };
-          if (N.subidx == 3) {
-            grid->GetPoint(pts[1], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            grid->GetPoint(pts[4], x3.data());
-            grid->GetPoint(pts[5], x4.data());
-            {
-              vec3_t x = 0.25*(x1+x2+x3+x4);
-              N.x = x[0];
-              N.y = x[1];
-              N.z = x[2];
-            };
-          };
-          if (N.subidx == 4) {
-            grid->GetPoint(pts[0], x1.data());
-            grid->GetPoint(pts[2], x2.data());
-            grid->GetPoint(pts[3], x3.data());
-            grid->GetPoint(pts[5], x4.data());
-            {
-              vec3_t x = 0.25*(x1+x2+x3+x4);
-              N.x = x[0];
-              N.y = x[1];
-              N.z = x[2];
-            };
-          };
-        };
-      };
-      if (N.type == cell) {
-        vtkIdType N_pts, *pts;
-        grid->GetCellPoints(N.idx, N_pts, pts);
-        N.x = 0;
-        N.y = 0;
-        N.z = 0;
-        for (int j = 0; j < N_pts; ++j) {
-          vec3_t x;
-          grid->GetPoint(pts[j], x.data());
-          N.x += x[0];
-          N.y += x[1];
-          N.z += x[2];
-        };
-        N.x *= 1.0/N_pts;
-        N.y *= 1.0/N_pts;
-        N.z *= 1.0/N_pts;
-      };
-      F.node[i_node] = N;
-    };
-    faces[i_face] = F;
-  };
-};
-
-PolyMesh::face_t PolyMesh::combineFaces(QList<face_t> faces)
-{
-  if (faces.size() < 2) EG_BUG;
-  QVector<face_t> src_faces(faces.size());
-  QVector<face_t> dst_faces(faces.size());
-  qCopy(faces.begin(), faces.end(), src_faces.begin());
-  QVector<bool> src_used(src_faces.size(),false);
-  int N = src_faces.size()-1;
-  face_t F_cur = src_faces[0];
-  int i_cur = 0;
-  src_used[0] = true;
-  //int dir = 0;
-  node_t centre, before, after, match_node;
-  if (dbg) {
-    cout << "\n\ncombining faces:\n";
-    for (int i = 0; i < src_faces.size(); ++i) cout << src_faces[i] << endl;
-  };
-  {
-    int i;
-    for (i = 0; i < F_cur.node.size(); ++i) {
-      if (F_cur[i].type == node) {
-        centre = F_cur[i];
-        break;
-      };
-    };
-    if (i == F_cur.node.size()) {
-      for (i = 0; i < F_cur.node.size(); ++i) {
-        if (F_cur[i].type == edge) {
-          centre = F_cur[i];
-          break;
-        };
-      };
-      if (i == F_cur.node.size()) EG_BUG;
-    };
-    before = F_cur[i-1];
-    after  = F_cur[i+1];
-  };
-  if (dbg) cout << "check" << endl;
-  {
-    int i, j = 0;
-    match_node = after;
-    int loops = 0;
-    do {
-      for (i = 0; i < src_faces.size(); ++i) {
-        if (!src_used[i]) {
-          for (j = 0; j < src_faces[i].node.size(); ++j) {
-            if (src_faces[i][j] == centre) {
-              if (src_faces[i][j-1] == match_node) break;
-            };
-          };
-          if (j != src_faces[i].node.size()) break;
-        };
-      };
-      if (i != src_faces.size()) {
-        ++loops;
-        F_cur = src_faces[i];
-        i_cur = i;
-        before = F_cur[j-1];
-        after  = F_cur[j+1];
-        match_node = after;
-        src_used[i] = true;
-      }; 
-    } while ((i != src_faces.size()) && (loops < src_faces.size()));
-  };
-  if (dbg) cout << "check" << endl;
-  dst_faces[0] = F_cur;
-  int i_dst = 1;
-  for (int i = 0; i < src_faces.size(); ++i) {
-    if (i == i_cur) src_used[i] = true;
-    else            src_used[i] = false;
-  };
-  match_node = before;
-  //cout << "centre: " << centre << endl;
-  //cout << "match_node: " << match_node << endl;
-  //cout << "face 0: " << F_cur << endl;
-  if (dbg) cout << "check" << endl;
-  while (N > 0) {
-    int i, j = 0;
-    for (i = 0; i < src_faces.size(); ++i) {
-      if (!src_used[i]) {
-        for (j = 0; j < src_faces[i].node.size(); ++j) {
-          if (src_faces[i][j] == centre) {
-            if (src_faces[i][j+1] == match_node) break;
-          };
-        };
-        if (j != src_faces[i].node.size()) break;
-      };
-    };
-    if (i == src_faces.size()) EG_BUG;
-    dst_faces[i_dst] = src_faces[i];
-    src_used[i] = true;
-    //cout << "face " << i_dst << ": " << dst_faces[i_dst] << endl;
-    ++i_dst;
-    --N;
-    F_cur = src_faces[i];
-    match_node = F_cur[j-1];
-  };
-  if (dbg) cout << "check" << endl;
-  QList<node_t> new_nodes;
-  {
-    int i;
-    int k = 0;
-    for (i = 0; i < dst_faces.size(); ++i) {
-      int j;
-      for (j = 0; j < dst_faces[i].node.size(); ++j) {
-        if (dst_faces[i][j] == centre) break;
-      };
-      if (j == dst_faces[i].node.size()) EG_BUG;
-      //cout << "j=" << j << endl;
-      k = j + 1;
-      while (!(dst_faces[i][k+1] == dst_faces[i][j])) {
-        new_nodes.append(dst_faces[i][k]);
-        //cout << "appending " << dst_faces[i][k] << endl;
-        k += 1;
-      };
-    };
-    if (!(dst_faces[i-1][k] == new_nodes.first())) {
-      new_nodes.append(dst_faces[i-1][k]);
-      new_nodes.append(centre);
-    };
-  };
-  if (dbg) cout << "check" << endl;
-  face_t F_new;
-  F_new.owner = src_faces[0].owner;
-  F_new.neighbour = src_faces[0].neighbour;
-  F_new.bc = src_faces[0].bc;
-  F_new.node.resize(new_nodes.size());
   /*
-  if (dir < 0) {
-    QList<node_t>::iterator iter = new_nodes.begin();
-    int i = new_nodes.size()-1;
-    while (iter != new_nodes.end()) {
-      F_new.node[i] = *iter;
-      ++iter;
-      --i;
-    };
+  for (int i = 0; i < numCells(); ++i) {
+    vec3_t n_total(0,0,0);
+    for (int j = 0; j < m_Faces.size(); ++j) {
+      vec3_t n = faceNormal(j);
+      bool found = false;
+      if (m_Faces[j].owner == i) {
+        n_total += n;
+        found = true;
+      }
+      if (m_Faces[j].neighbour == i) {
+        n_total -= n;
+        found = true;
+      }
+      if (found) {
+        cout << "break" << endl;
+      }
+    }
+    cout << i << ", " << n_total << endl;
+  }
+  */
+}
+
+void PolyMesh::getFacesOfEdgeInsideCell(vtkIdType id_cell, vtkIdType id_node1, vtkIdType id_node2, int &face1, int &face2)
+{
+  vtkIdType num_pts, *pts;
+  m_Grid->GetCellPoints(id_cell, num_pts, pts);
+  face1 = -1;
+  face2 = -1;
+
+  if (m_Grid->GetCellType(id_cell) == VTK_TETRA) {
+    if        (id_node1 == pts[0]) {
+      if      (id_node2 == pts[1]) { face1 = 0; face2 = 1; }
+      else if (id_node2 == pts[2]) { face1 = 2; face2 = 0; }
+      else if (id_node2 == pts[3]) { face1 = 1; face2 = 2; }
+    } else if (id_node1 == pts[1]) {
+      if      (id_node2 == pts[0]) { face1 = 1; face2 = 0; }
+      else if (id_node2 == pts[2]) { face1 = 0; face2 = 3; }
+      else if (id_node2 == pts[3]) { face1 = 3; face2 = 1; }
+    } else if (id_node1 == pts[2]) {
+      if      (id_node2 == pts[0]) { face1 = 0; face2 = 2; }
+      else if (id_node2 == pts[1]) { face1 = 3; face2 = 0; }
+      else if (id_node2 == pts[3]) { face1 = 2; face2 = 3; }
+    } else if (id_node1 == pts[3]) {
+      if      (id_node2 == pts[0]) { face1 = 2; face2 = 1; }
+      else if (id_node2 == pts[1]) { face1 = 1; face2 = 3; }
+      else if (id_node2 == pts[2]) { face1 = 3; face2 = 2; }
+    }
+  } else if (m_Grid->GetCellType(id_cell) == VTK_PYRAMID) {
+    if        (id_node1 == pts[0]) {
+      if      (id_node2 == pts[1]) { face1 = 0; face2 = 1; }
+      else if (id_node2 == pts[3]) { face1 = 4; face2 = 0; }
+      else if (id_node2 == pts[4]) { face1 = 1; face2 = 4; }
+    } else if (id_node1 == pts[1]) {
+      if      (id_node2 == pts[0]) { face1 = 1; face2 = 0; }
+      else if (id_node2 == pts[2]) { face1 = 0; face2 = 2; }
+      else if (id_node2 == pts[4]) { face1 = 2; face2 = 1; }
+    } else if (id_node1 == pts[2]) {
+      if      (id_node2 == pts[1]) { face1 = 2; face2 = 0; }
+      else if (id_node2 == pts[3]) { face1 = 0; face2 = 3; }
+      else if (id_node2 == pts[4]) { face1 = 3; face2 = 2; }
+    } else if (id_node1 == pts[3]) {
+      if      (id_node2 == pts[0]) { face1 = 0; face2 = 4; }
+      else if (id_node2 == pts[2]) { face1 = 3; face2 = 0; }
+      else if (id_node2 == pts[4]) { face1 = 4; face2 = 3; }
+    } else if (id_node1 == pts[4]) {
+      if      (id_node2 == pts[0]) { face1 = 4; face2 = 1; }
+      else if (id_node2 == pts[1]) { face1 = 1; face2 = 2; }
+      else if (id_node2 == pts[2]) { face1 = 2; face2 = 3; }
+      else if (id_node2 == pts[3]) { face1 = 3; face2 = 4; }
+    }
   } else {
-    qCopy(new_nodes.begin(), new_nodes.end(), F_new.node.begin());
-  };
-  */
-  if (dbg) cout << "check" << endl;
-  qCopy(new_nodes.begin(), new_nodes.end(), F_new.node.begin());
-  //cout << "dir: " << dir << endl;
-  //cout << "new face: " << F_new << endl;
-  if (dbg) cout << "check" << endl;
-  return F_new;
-};
+    EG_BUG;
+  }
 
-void PolyMesh::pass2()
+  if (face1 == -1 || face2 == -1) {
+    EG_BUG;
+  }
+}
+
+void PolyMesh::getSortedEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QList<vtkIdType> &cells, bool &is_loop)
 {
-  cout << "pass 2" << endl;
-  QVector<vec3_t> nodex_save(grid->GetNumberOfPoints());
-  QVector<bool> node_changed(grid->GetNumberOfPoints(),false);
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    grid->GetPoint(id_node, nodex_save[id_node].data());
-  };
-  cout << "computing node coordinates" << endl;
-  computeNodes();
-  
-  cout << "adjusting outer layer prisms" << endl;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (grid->GetCellType(id_cell) == VTK_WEDGE) {
-      bool ok = true;
-      if (grid->GetCellType(c2c[id_cell][2]) == VTK_HEXAHEDRON) ok = false;
-      if (grid->GetCellType(c2c[id_cell][3]) == VTK_HEXAHEDRON) ok = false;
-      if (grid->GetCellType(c2c[id_cell][4]) == VTK_HEXAHEDRON) ok = false;
-      if (ok) {
-        vtkIdType N_pts, *pts;
-        grid->GetCellPoints(id_cell, N_pts, pts);
-        vec3_t x[6];
-        for (int i = 0; i < 6; ++i) grid->GetPoint(pts[i], x[i].data());
-        if (grid->GetCellType(c2c[id_cell][0]) == VTK_TETRA) {
-          if (!node_changed[pts[0]]) {
-            x[0] = 0.5*(x[0]+x[3]);
-            node_changed[pts[0]] = true;
-          };
-          if (!node_changed[pts[1]]) {
-            x[1] = 0.5*(x[1]+x[4]);
-            node_changed[pts[1]] = true;
-          };
-          if (!node_changed[pts[2]]) {
-            x[2] = 0.5*(x[2]+x[5]);
-            node_changed[pts[2]] = true;
-          };
-        };
-        if (grid->GetCellType(c2c[id_cell][1]) == VTK_TETRA) {
-          if (!node_changed[pts[3]]) {
-            x[3] = 0.5*(x[0]+x[3]);
-            node_changed[pts[3]] = true;
-          };
-          if (!node_changed[pts[4]]) {
-            x[4] = 0.5*(x[1]+x[4]);
-            node_changed[pts[4]] = true;
-          };
-          if (!node_changed[pts[5]]) {
-            x[5] = 0.5*(x[2]+x[5]);
-            node_changed[pts[5]] = true;
-          };
-        };
-        for (int i = 0; i < 6; ++i) grid->GetPoints()->SetPoint(pts[i], x[i].data());
-      };
-    };
-  };
-  for (int i_face = 0; i_face < faces.size(); ++i_face) {
-    face_t F = faces[i_face];
-    for (int i_node = 0; i_node < F.node.size(); ++i_node) {
-      node_t N = F.node[i_node];
-      if (N.type == node) {
-        vec3_t x;
-        grid->GetPoint(N.idx, x.data());
-        N.x = x[0];
-        N.y = x[1];
-        N.z = x[2];
-      };
-      F.node[i_node] = N;
-    };
-    faces[i_face] = F;
-  };
-  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-    grid->GetPoints()->SetPoint(id_node, nodex_save[id_node].data());
-  };
-  
-  if (faces.size() < 2) return;
-  cout << "sorting faces" << endl;
-  qStableSort(faces.begin(), faces.end());
-  QList<face_t> new_faces;
-  int i = 0;
-  cout << "combining faces (" << faces.size() << ")" << endl;
-  while (i < faces.size()) {
-    //cout << i << endl;
-    //if (i > 2230000) dbg = true;
-    //else dbg = false;
-    face_t F = faces[i];
-    QList<face_t> combine_faces;
-    while ((i < faces.size()) && (faces[i].owner == F.owner) && (faces[i].neighbour == F.neighbour)) {
-      combine_faces.append(faces[i]);
-      if (dbg) cout << i << endl;
-      ++i;
-    };
-    bool combine = false;
-    if (combine_faces.size() > 1) {
-      QList<face_t>::iterator j = combine_faces.begin();
-      int bc = j->bc;
-      combine = true;
-      double mincosa = 1.0;
-      vec3_t n(0,0,0);
-      while (j != combine_faces.end()) {
-        if (j->bc != bc) combine = false;
-        n += j->normal();
-        ++j;
-      };
-      if (combine) {
-        n.normalise();
-        j = combine_faces.begin();
-        while (j != combine_faces.end()) {
-          vec3_t nj = j->normal();
-          nj.normalise();
-          double cosa = n*nj;
-          mincosa = min(cosa,mincosa);
-          ++j;
-        };
-        if ((mincosa < cos(45.0*M_PI/180)) && (bc != 0)) {
-          combine = false;
-        };
-      };
-    };
-    if (combine) {
-      new_faces.append(combineFaces(combine_faces));
+  cells.clear();
+  vtkIdType id_start = -1;
+  for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
+    vtkIdType id_cell = m_Part.n2cGG(id_node1, i);
+    if (isVolume(id_cell, m_Grid)) {
+      if (m_Cell2PCell[id_cell] == -1) {
+        vtkIdType num_pts, *pts;
+        m_Grid->GetCellPoints(id_cell, num_pts, pts);
+        for (int j = 0; j < num_pts; ++j) {
+          if (pts[j] == id_node2) {
+            id_start = id_cell;
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (id_start == -1) {
+    EG_BUG;
+  }
+  vtkIdType id_cell_old = id_start;
+  vtkIdType id_cell_new = id_start;
+  cells.append(id_cell_new);
+  bool finished = false;
+  bool prepend = false;
+  while (!finished) {
+    do {
+      int f1, f2;
+      getFacesOfEdgeInsideCell(id_cell_new, id_node1, id_node2, f1, f2);
+      vtkIdType id_neigh1 = m_Part.c2cGG(id_cell_new, f1);
+      vtkIdType id_neigh2 = m_Part.c2cGG(id_cell_new, f2);
+      if (id_neigh1 == id_cell_old) {
+        id_cell_old = id_cell_new;
+        id_cell_new = id_neigh2;
+      } else {
+        id_cell_old = id_cell_new;
+        id_cell_new = id_neigh1;
+      }
+      if (prepend) {
+        cells.prepend(id_cell_new);
+      } else {
+        cells.append(id_cell_new);
+      }
+    } while (id_cell_new != id_start  &&  !isSurface(id_cell_new, m_Grid)  &&  m_Cell2PCell[id_cell_new] == -1);
+    if ((isSurface(id_cell_new, m_Grid) || m_Cell2PCell[id_cell_new] != -1) && !prepend) {
+      id_cell_new = cells[0];
+      id_cell_old = cells[1];
+      prepend = true;
     } else {
-      foreach (face_t F, combine_faces) {
-        new_faces.append(F);
-      };
-    };
-  };
-  cout << "sorting faces" << endl;
-  faces.resize(new_faces.size());
-  qCopy(new_faces.begin(), new_faces.end(), faces.begin());
-  qStableSort(faces.begin(), faces.end());
-};
+      finished = true;
+    }
+  }
 
-void PolyMesh::pass3()
-{
+  // check orientation (has to be from id_node1 to id_node2
+  vec3_t x1, x2;
+  m_Grid->GetPoint(id_node1, x1.data());
+  m_Grid->GetPoint(id_node2, x2.data());
+  vec3_t c = 0.5*(x1 + x2);
+  vec3_t e = x2 - x1;
+  QList<vtkIdType>::iterator iter_cell = cells.begin();
+  vtkIdType id_cell1 = *iter_cell;
+  ++iter_cell;
+  bool reorientate = false;
+  while (iter_cell != cells.end()) {
+    vtkIdType id_cell2 = *iter_cell;
+    vec3_t xc1 = cellCentre(m_Grid, id_cell1);
+    vec3_t xc2 = cellCentre(m_Grid, id_cell2);
+    vec3_t u = xc1 - c;
+    vec3_t v = xc2 - c;
+    vec3_t n = u.cross(v);
+    if (n*e > 0 && reorientate) {
+      EG_BUG;
+    }
+    if (n*e <= 0) {
+      reorientate = true;
+    }
+    id_cell1 = id_cell2;
+    ++iter_cell;
+  }
+  if (reorientate) {
+    QList<vtkIdType> cells_old = cells;
+    cells.clear();
+    foreach (vtkIdType id_cell, cells_old) {
+      cells.prepend(id_cell);
+    }
+  }
+
+  // remove last cell for loops
+  if (cells.size() > 1 && cells.first() == cells.last()) {
+    cells.pop_back();
+    is_loop = true;
+  } else {
+    is_loop = false;
+  }
   /*
-  QVector<vec3_t> n(grid->GetNumberOfPoints(),vec3_t(0,0,0));
-  for (int i = 0; i < faces.size(); ++i) {
-    for (int j = 0; j < faces[i].node.size(); ++j) {
-      node_t N = faces[i][j];
-      N.n = vec3_t(0,0,0);
-      faces[i].node[j] = N;
-    };
-  };
-  for (int i = 0; i < faces.size(); ++i) {
-    vec3_t ni = faces[i].normal();
-    for (int j = 0; j < faces[i].node.size(); ++j) {
-      node_t N = faces[i][j];
-      N.n += ni;
-      faces[i].node[j] = N;
-    };
-  };
-  for (int i = 0; i < faces.size(); ++i) {
-    for (int j = 0; j < faces[i].node.size(); ++j) {
-      node_t N = faces[i][j];
-      if (N.type == node) {
-        n[N.idx] += N.n;
-      };
-    };
-  };
-  for (int i = 0; i < faces.size(); ++i) {
-    for (int j = 0; j < faces[i].node.size(); ++j) {
-      node_t N = faces[i][j];
-      if (N.type == node) {
-        N.n = n[N.idx];
-      };
-      faces[i].node[j] = N;
-    };
-  };
-  for (int i = 0; i < n.size(); ++i) n[i].normalise();
-  double w_flat  = 1.0;
-  double w_sharp = 5.0;
-  double w_max = w_flat;
-  for (int i = 0; i < weight.size(); ++i) weight[i] = w_flat;
-  for (int i = 0; i < faces.size(); ++i) {
-    vec3_t ni = faces[i].normal();
-    ni.normalise();
-    for (int j = 0; j < faces[i].node.size(); ++j) {
-      node_t N = faces[i][j];
-      N.n.normalise();
-      double f = min(1.0,(1.0-N.n*ni));
-      N.w = w_flat + f*(w_sharp - w_flat);
-      w_max = max(w_max,N.w);
-      if (N.type == node) weight[N.idx] = N.w;
-      faces[i].node[j] = N;
-    };
-  };
-  cout << "maximal edge weighting : " << w_max << endl;
-  computeNodes();
+  if (prepend && (!isSurface(cells.first(), m_Grid) || !isSurface(cells.last(), m_Grid))) {
+    EG_BUG;
+  }
+  if (!prepend && (isSurface(cells.first(), m_Grid) || isSurface(cells.last(), m_Grid))) {
+    EG_BUG;
+  }
   */
-  cout << "pass 3" << endl;
-  createNodes();
-  return;
-  {
-    QVector<bool> is_boundary(nodes.size(),false);
-    QVector<bool> del_node(nodes.size(),false);
-    QVector<int> face_count(nodes.size(),0);
-    foreach (face_t F, faces) {
-      foreach (node_t N, F.node) {
-        if (N.type != node) EG_BUG;
-        if (F.bc != 0) {
-          is_boundary[N.idx] = true;
-        };
-      };
-    };
-    foreach (face_t F, faces) {
-      foreach (node_t N, F.node) {
-        if (is_boundary[N.idx]) {
-          if (F.bc != 0) {
-            ++face_count[N.idx];
-          };
+}
+
+bool PolyMesh::isDualFace(vtkIdType id_face)
+{
+  vtkIdType id_cell = m_Part.getVolumeCell(id_face);
+  if (m_Cell2PCell[id_cell] == -1) {
+    return true;
+  }
+  return false;
+}
+
+void PolyMesh::getSortedPointFaces(vtkIdType id_node, int bc, QList<vtkIdType> &faces, bool &is_loop)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  faces.clear();
+  vtkIdType id_start = -1;
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+    if (isSurface(id_cell, m_Grid)) {
+      if (cell_code->GetValue(id_cell) == bc && isDualFace(id_cell)) {
+        id_start = id_cell;
+        break;
+      }
+    }
+  }
+  if (id_start == -1) {
+    return;
+  }
+  vtkIdType id_face_old = id_start;
+  vtkIdType id_face_new = id_start;
+  faces.append(id_face_new);
+  bool finished = false;
+  bool prepend = false;
+  while (!finished) {
+    do {
+      QList<vtkIdType> id_neigh;
+      for (int i = 0; i < m_Part.c2cGSize(id_face_new); ++i) {
+        if (cellContainsNode(m_Grid, m_Part.c2cGG(id_face_new, i), id_node)) {
+          id_neigh.append(m_Part.c2cGG(id_face_new, i));
+        }
+      }
+      if (id_neigh[0] == id_face_old) {
+        id_face_old = id_face_new;
+        id_face_new = id_neigh[1];
+      } else {
+        id_face_old = id_face_new;
+        id_face_new = id_neigh[0];
+      }
+      if (cell_code->GetValue(id_face_new) == bc  &&  isDualFace(id_face_new)) {
+      //if (cell_code->GetValue(id_face_new) == bc) {
+        if (prepend) {
+          faces.prepend(id_face_new);
         } else {
-          ++face_count[N.idx];
-        };
-      };
-    };
-    QVector<int> old2new(nodes.size());
-    int N = 0;
-    {
-      int j = 0;
-      for (int i = 0; i < nodes.size(); ++i) {
-        old2new[i] = j;
-        int fc = 2;
-        if (face_count[i] <= fc) {
-          del_node[i] = true;
-          ++N;
+          faces.append(id_face_new);
+        }
+      }
+    } while (id_face_new != id_start  &&  cell_code->GetValue(id_face_new) == bc  &&  isDualFace(id_face_new));
+    if ((cell_code->GetValue(id_face_new) != bc || !isDualFace(id_face_new))  &&  !prepend) {
+      id_face_old = id_face_new;
+      id_face_new = faces[0];
+      if (faces.size() > 1) {
+        id_face_old = faces[1];
+      }
+      prepend = true;
+    } else {
+      finished = true;
+    }
+  }
+
+  // remove last face for loops
+  if (faces.size() > 1 && faces.first() == faces.last()) {
+    faces.pop_back();
+    is_loop = true;
+  } else {
+    is_loop = false;
+  }
+
+}
+
+void PolyMesh::findPolyCells()
+{
+  m_Cell2PCell.fill(-1, m_Grid->GetNumberOfCells());
+  m_Node2PCell.fill(-1, m_Grid->GetNumberOfPoints());
+  m_NumPolyCells = 0;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (!isHexCoreNode(id_node)) {
+      bool tetra_or_pyramid = false;
+      for (int j = 0; j < m_Part.n2cGSize(id_node); ++j) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, j);
+        vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+        if (type_cell == VTK_TETRA || type_cell == VTK_PYRAMID) {
+          tetra_or_pyramid = true;
+        }
+      }
+      if (tetra_or_pyramid) {
+        m_Node2PCell[id_node] = m_NumPolyCells;
+        ++m_NumPolyCells;
+      }
+    }
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    if (type_cell == VTK_WEDGE || type_cell == VTK_HEXAHEDRON) {
+      m_Cell2PCell[id_cell] = m_NumPolyCells;
+      ++m_NumPolyCells;
+    }
+  }
+}
+
+void PolyMesh::createFace(QList<node_t> nodes, int owner, int neighbour, vec3_t ref_vec, int bc)
+{
+  if (owner > neighbour && neighbour != -1) {
+    swap(owner, neighbour);
+    ref_vec *= -1;
+  }
+  face_t face(nodes.size(), owner, neighbour, ref_vec, bc);
+  for (int i = 0; i < nodes.size(); ++i) {
+    int idx = m_Nodes.insert(nodes[i]);
+    face.node[i] = idx;
+  }
+  m_Faces.append(face);
+}
+
+void PolyMesh::createCornerFace(vtkIdType id_cell, int i_face, vtkIdType id_node)
+{
+  QList<vtkIdType> edge_nodes;
+  QVector<vtkIdType> face_nodes;
+  getFaceOfCell(m_Grid, id_cell, i_face, face_nodes);
+  vtkIdType num_pts, *pts;
+  m_Grid->GetCellPoints(id_cell, num_pts, pts);
+  //vtkIdType id_node = pts[i_node];
+  for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+    vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+    if (face_nodes.contains(id_neigh)) {
+      edge_nodes.append(id_neigh);
+    }
+  }
+  if (edge_nodes.size() != 2) {
+    EG_BUG;
+  }
+  int owner = m_Cell2PCell[id_cell];
+  if (owner == -1) {
+    EG_BUG;
+  }
+  int neighbour = m_Node2PCell[id_node];
+  int bc = 0;
+  if (neighbour == -1) {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    vtkIdType id_face = m_Part.c2cGG(id_cell, i_face);
+    if (id_face == -1) {
+      EG_BUG;
+    }
+    if (!isSurface(id_cell, m_Grid)) {
+      EG_BUG;
+    }
+    bc = cell_code->GetValue(id_face);
+  }
+  QList<node_t> nodes;
+  nodes.append(node_t(id_node));
+  nodes.append(node_t(id_node, edge_nodes[0]));
+  nodes.append(node_t(face_nodes));
+  nodes.append(node_t(id_node, edge_nodes[1]));
+  vec3_t n = getNormalOfCell(m_Grid, id_cell, i_face);
+  n.normalise();
+  createFace(nodes, owner, neighbour, n, bc);
+}
+
+void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
+{
+  // check id additional edge node needs to be created
+
+  bool dual1 = false;
+  bool dual2 = false;
+  for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
+    if (m_Cell2PCell[m_Part.n2cGG(id_node1,i)] != -1) {
+      dual1 = true;
+      break;
+    }
+  }
+  for (int i = 0; i < m_Part.n2cGSize(id_node2); ++i) {
+    if (m_Cell2PCell[m_Part.n2cGG(id_node2,i)] != -1) {
+      dual2 = true;
+      break;
+    }
+  }
+  bool add_edge_node = dual1 && dual2;
+
+  /*
+  if (id_node1 == 109 && id_node2 == 119) {
+    cout << "break";
+  }
+  */
+
+  QList<vtkIdType> cells;
+  bool loop = false;
+  getSortedEdgeCells(id_node1, id_node2, cells, loop);
+  int owner     = m_Node2PCell[id_node1];
+  int neighbour = m_Node2PCell[id_node2];
+  if (owner == -1) {
+    EG_BUG;
+  }
+  if (neighbour == -1) {
+    EG_BUG;
+  }
+  if (owner > neighbour) {
+    swap(id_node1, id_node2);
+    swap(owner, neighbour);
+  }
+  QList<node_t> nodes;
+  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
+    node_t node;
+    vtkIdType num_pts1, *pts1;
+    m_Grid->GetCellPoints(cells[i_cells], num_pts1, pts1);
+    if (m_Cell2PCell[cells[i_cells]] != -1) {
+      int i_cells2 = 0;
+      if (i_cells == 0) {
+        i_cells2 = 1;
+      } else if (i_cells == cells.size() - 1) {
+        i_cells2 = cells.size() - 2;
+      } else {
+        EG_BUG;
+      }
+      vtkIdType num_pts2, *pts2;
+      m_Grid->GetCellPoints(cells[i_cells2], num_pts2, pts2);
+      QSet<vtkIdType> p1, p2;
+      for (int i_pts1 = 0; i_pts1 < num_pts1; ++i_pts1) {
+        p1.insert(pts1[i_pts1]);
+      }
+      for (int i_pts2 = 0; i_pts2 < num_pts2; ++i_pts2) {
+        p2.insert(pts2[i_pts2]);
+      }
+      QSet<vtkIdType> face_nodes = p1.intersect(p2);
+      node.id.resize(face_nodes.size());
+      int i = 0;
+      foreach (vtkIdType id_node, face_nodes) {
+        node.id[i] = id_node;
+        ++i;
+      }
+    } else {
+      node.id.resize(num_pts1);
+      for (int i_pts1 = 0; i_pts1 < num_pts1; ++i_pts1) {
+        node.id[i_pts1] = pts1[i_pts1];
+      }
+    }
+    qSort(node.id);
+    nodes.append(node);
+  }
+  if (!loop) {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    if (cell_code->GetValue(cells.first()) != cell_code->GetValue(cells.last()) || add_edge_node) {
+      nodes.append(node_t(id_node1, id_node2));
+    }
+  }
+  vec3_t x1, x2;
+  m_Grid->GetPoint(id_node1, x1.data());
+  m_Grid->GetPoint(id_node2, x2.data());
+  createFace(nodes, owner, neighbour, x2 - x1, 0);
+}
+
+void PolyMesh::createFaceFace(vtkIdType id_cell, int i_face)
+{
+  if (m_Cell2PCell[id_cell] == -1) {
+    EG_BUG;
+  }
+  int owner = m_Cell2PCell[id_cell];
+  int neighbour = -1;
+  vtkIdType id_neigh = m_Part.c2cGG(id_cell, i_face);
+  int bc = 0;
+  if (id_neigh != -1) {
+    if (isVolume(id_neigh, m_Grid)) {
+      if (m_Cell2PCell[id_neigh] == -1) {
+        EG_BUG;
+      }
+      neighbour = m_Cell2PCell[id_neigh];
+    } else {
+      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+      bc = cell_code->GetValue(id_neigh);
+    }
+  }
+  QVector<vtkIdType> tmp_node_ids;
+  getFaceOfCell(m_Grid, id_cell, i_face, tmp_node_ids);
+  vec3_t n = getNormalOfCell(m_Grid, id_cell, i_face);
+  n.normalise();
+  QVector<vtkIdType> node_ids(tmp_node_ids.size() + 1);
+  for (int i = 0; i < tmp_node_ids.size(); ++i) {
+    node_ids[i] = tmp_node_ids[i];
+  }
+  node_ids[node_ids.size() - 1] = node_ids[0];
+  QList<node_t> nodes;
+  for (int i = 0; i < node_ids.size() - 1; ++i) {
+    nodes.append(node_t(node_ids[i]));
+    if (m_Node2PCell[node_ids[i]] != -1 && m_Node2PCell[node_ids[i+1]] != -1) {
+      nodes.append(node_t(node_ids[i], node_ids[i+1]));
+    }
+  }
+  createFace(nodes, owner, neighbour, n, bc);
+}
+
+void PolyMesh::createPointFace(vtkIdType id_node, int bc)
+{
+  bool is_loop;
+  QList<vtkIdType> faces;
+  getSortedPointFaces(id_node, bc, faces, is_loop);
+  if (faces.size() == 0) {
+    return;
+  }
+  QList<node_t> nodes;
+  vec3_t n(0,0,0);
+  if (faces.size() == 0) {
+    EG_BUG;
+  }
+  foreach (vtkIdType id_face, faces) {
+    node_t node;
+    vtkIdType num_pts, *pts;
+    m_Grid->GetCellPoints(id_face, num_pts, pts);
+    node.id.resize(num_pts);
+    for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+      node.id[i_pts] = pts[i_pts];
+    }
+    qSort(node.id);
+    nodes.append(node);
+    n += GeometryTools::cellNormal(m_Grid, id_face);
+  }
+  n.normalise();
+  if (!is_loop) {
+    bool prepend = false;
+    vtkIdType id_face = faces.last();
+    while (id_face != -1) {
+      bool found = false;
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      QList<vtkIdType> id_neigh_node;
+      vtkIdType id_neigh = -1;
+      for (int i = 0; i < m_Part.c2cGSize(id_face); ++i) {
+        id_neigh = m_Part.c2cGG(id_face, i);
+        if (id_neigh == -1) {
+          EG_BUG;
+        }
+        if (!isSurface(id_neigh, m_Grid)) {
+          EG_BUG;
+        }
+        if (cellContainsNode(m_Grid, id_neigh, id_node)) {
+          if (!faces.contains(id_neigh)) {
+            if (found) {
+              EG_BUG;
+            }
+            for (int j = 0; j < num_pts; ++j) {
+              if (pts[j] != id_node && cellContainsNode(m_Grid, id_neigh, pts[j])) {
+                id_neigh_node.append(pts[j]);
+              }
+            }
+          }
+        }
+      }
+
+      if (id_neigh_node.size() == 0) {
+        EG_BUG;
+      }
+
+      if (id_neigh_node.size() == 1) {
+        if (prepend) {
+          nodes.prepend(node_t(id_node, id_neigh_node[0]));
+          id_face = -1;
         } else {
-          ++j;
-        };
-      };
-    };
-    cout << "removing " << N << " nodes" << endl;
-    for (int i = 0; i < faces.size(); ++i) {
-      face_t F = faces[i];
-      QList<node_t> new_node;
-      foreach (node_t N, F.node) {
-        if (!del_node[N.idx]) {
-          N.idx = old2new[N.idx];
-          new_node.append(N);
-        };
-      };
-      F.node.resize(new_node.size());
-      qCopy(new_node.begin(), new_node.end(), F.node.begin());
-      faces[i] = F;
-    };
-    QVector<vec3_t> new_nodes(nodes.size()-N);
-    for (int i = 0; i < nodes.size(); ++i) {
-      if (!del_node[i]) {
-        new_nodes[old2new[i]] = nodes[i];
-      };
-    };
-    nodes.resize(new_nodes.size());
-    qCopy(new_nodes.begin(), new_nodes.end(), nodes.begin());
-  };
-  cout << "done" << endl;
-};
+          nodes.append(node_t(id_node, id_neigh_node[0]));
+          prepend = true;
+          id_face = faces.first();
+        }
+      } else {
+        if (id_neigh_node.size() > 2) {
+          EG_BUG;
+        }
+        if (faces.size() != 1) {
+          EG_BUG;
+        }
+        nodes.prepend(node_t(id_node, id_neigh_node[0]));
+        /*
+        node_t node;
+        node.id.resize(num_pts);
+        for (int i = 0; i < num_pts; ++i) {
+          node.id[i] = pts[i];
+        }
+        qSort(node.id);
+        nodes.append(node);
+        */
+        nodes.append(node_t(id_node, id_neigh_node[1]));
+        id_face = -1;
+      }
+    }
+    nodes.prepend(node_t(id_node));
+  }
+  int owner     = m_Node2PCell[id_node];
+  int neighbour = -1;
+  createFace(nodes, owner, neighbour, n, bc);
+}
+
+void PolyMesh::createNodesAndFaces()
+{
+  m_Nodes.resize(m_Grid->GetNumberOfPoints());
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  // create all prismatic elements (hexes and prisms)
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Cell2PCell[id_cell] != -1) {
+      for (int i_face = 0; i_face < m_Part.c2cGSize(id_cell); ++i_face) {
+        vtkIdType id_neigh = m_Part.c2cGG(id_cell, i_face);
+        if (id_neigh == -1) {
+          EG_BUG;
+        }
+        bool create_corner_faces = false;
+        if (m_Cell2PCell[id_neigh] == -1 && !isSurface(id_neigh, m_Grid)) {
+          create_corner_faces = true;
+        }
+        if (create_corner_faces) {
+          QVector<vtkIdType> face_nodes;
+          getFaceOfCell(m_Grid, id_cell, i_face, face_nodes);
+          foreach (vtkIdType id_node, face_nodes) {
+            if (m_Node2PCell[id_node] == -1) {
+              EG_BUG;
+            }
+            createCornerFace(id_cell, i_face, id_node);
+          }
+        } else {
+          if (id_neigh > id_cell || isSurface(id_neigh, m_Grid)) {
+            createFaceFace(id_cell, i_face);
+          }
+        }
+      }
+    }
+  }
+
+  // create all dual cells
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_Node2PCell[id_node] != -1) {
+      for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node); ++i_neigh) {
+        vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
+        if (m_Node2PCell[id_neigh] != -1 && id_neigh > id_node) {
+          createEdgeFace(id_node, id_neigh);
+        }
+      }
+      QSet<int> bcs;
+      for (int i_cell = 0; i_cell < m_Part.n2cGSize(id_node); ++i_cell) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i_cell);
+        if (isSurface(id_cell, m_Grid)) {
+          bcs.insert(cell_code->GetValue(id_cell));
+        }
+      }
+      foreach (int bc, bcs) {
+        createPointFace(id_node, bc);
+      }
+    }
+  }
+
+  // compute node coordinates
+  QVector<node_t> nodes;
+  m_Nodes.getQVector(nodes);
+  m_Points.resize(nodes.size());
+  for (int i = 0; i < nodes.size(); ++i) {
+    if (nodes[i].id.size() == 0) {
+      EG_BUG;
+    }
+    m_Points[i] = vec3_t(0,0,0);
+    //cout << i << ": ";
+    foreach (vtkIdType id, nodes[i].id) {
+      vec3_t x;
+      //cout << id << " ";
+      m_Grid->GetPoint(id, x.data());
+      m_Points[i] += x;
+    }
+    //cout << endl;
+    m_Points[i] *= 1.0/nodes[i].id.size();
+  }
+
+  qSort(m_Faces);
+
+  QSet<int> bcs;
+  foreach (face_t face, m_Faces) {
+    if (face.bc != 0) {
+      bcs.insert(face.bc);
+    }
+  }
+  m_BCs.resize(bcs.size());
+  qCopy(bcs.begin(), bcs.end(), m_BCs.begin());
+
+}
+
+vec3_t PolyMesh::faceNormal(int i)
+{
+  int N = m_Faces[i].node.size();
+  QVector<vec3_t> x(N + 1);
+  vec3_t xc(0,0,0);
+  for (int j = 0; j < N; ++j) {
+    x[j] = m_Points[m_Faces[i].node[j]];
+    xc += x[j];
+  }
+  x[N] = x[0];
+  xc *= 1.0/N;
+  vec3_t n(0,0,0);
+  for (int j = 0; j < N; ++j) {
+    vec3_t u = x[j] - xc;
+    vec3_t v = x[j+1] - xc;
+    n += 0.5*u.cross(v);
+  }
+  return n;
+}
+
+void PolyMesh::checkFaceOrientation()
+{
+  for (int i = 0; i < m_Faces.size(); ++i) {
+    int N = m_Faces[i].node.size();
+    vec3_t n = faceNormal(i);
+    n.normalise();
+    if (n*m_Faces[i].ref_vec < 0) {
+      QVector<int> old_node = m_Faces[i].node;
+      for (int j = 0; j < N; ++j) {
+        m_Faces[i].node[j] = old_node[N-1-j];
+      }
+    }
+  }
+}
+

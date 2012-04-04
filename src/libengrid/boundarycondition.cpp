@@ -26,10 +26,10 @@ BoundaryCondition::BoundaryCondition()
 {
   name = "unknown";
   type = "patch";
-};
+}
 
 BoundaryCondition::BoundaryCondition(QString a_name, QString a_type)
 {
   name = a_name;
   type = a_type;
-};
+}

@@ -91,7 +91,7 @@ public: // methods
   
   Optimisation();
    
-  vec3_t optimise(vec3_t x);
+  virtual vec3_t optimise(vec3_t x);
   void setDeltas(double d) { Dx = d; Dy = d; Dz = d; };
   void setDx(double d) { Dx = d; };
   void setDy(double d) { Dy = d; };

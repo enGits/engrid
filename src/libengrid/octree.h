@@ -45,6 +45,31 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+/**
+  * A cell of an octree.<br/>
+  * <br/>
+  * <b>The node numbering is as follows:</b><br/>
+  * <pre>
+  * 0: i,  j,  k
+  * 1: i+1,j,  k
+  * 2: i,  j+1,k
+  * 3: i+1,j+1 k
+  * 4: i,  j,  k+1
+  * 5: i+1,j,  k+1
+  * 6: i,  j+1,k+1
+  * 7: i+1,j+1,k+1
+  * </pre>
+  * <b>The face numbering is as follows:</b><br/>
+  * <pre>
+  * 0: 0,4,6,2
+  * 1: 1,3,7,5
+  * 2: 0,1,5,4
+  * 3: 3,2,6,7
+  * 4: 0,2,3,1
+  * 5: 4,5,7,6
+  * </pre>
+  * Child cells are numbered in the same way as the nodes.
+  */
 class OctreeCell
 {
 
@@ -61,12 +86,29 @@ public:
   OctreeCell();
 
   int  getNode     (int i) { return m_Node[i]; }
-  int  getNeighbour(int i) { return m_Neighbour[i]; }
   bool hasChildren ()      { return m_Child[0] != -1; }
   int  getParent   ()      { return m_Parent; }
+  int  getNeighbour(int i) { return m_Neighbour[i]; }
 
-  int  getEdgeNode(Octree* octree, int n1, int n2, int f);
+  /**
+    * Find a node by global index.
+    * @param octree the octree which holds this cell
+    * @param the global node index in the octree
+    * @return the local node index (0-7)
+    */
+  int findNode(int i_node);
+
+  /**
+    * Get the 'middle' node of an edge.
+    * @param octree the octree which holds this cell
+    * @param n1 the first node of the edge in local coordinates (0 <= n1 <= 7)
+    * @param n2 the second node of the edge in local coordinates (0 <= n2 <= 7)
+    * @param this_cell_only if set to true the search will be restricted to this cell
+    */
+  int  getEdgeNode(Octree* octree, int n1, int n2, bool this_cell_only = false);
+
   void getFaceNodes(int i, Octree* octree, QVector<int>& face_nodes, bool reverse = false);
+
   void getFaceNodes(int i, Octree* octree, QVector<QVector<int> >& face_nodes, bool reverse = false);
 
 };
@@ -78,6 +120,14 @@ class Octree : public EgVtkObject
 {
 
   friend class OctreeCell;
+
+private: // types
+
+  struct node_t
+  {
+    vec3_t x;
+    vtkIdType id;
+  };
 
 private: // attributes
 
@@ -92,11 +142,12 @@ private: // attributes
 
   bool   m_SmoothTransition;
 
-  QVector<OctreeNode> m_Nodes;
-  QVector<OctreeCell> m_Cells;
-  QVector<bool>       m_ToRefine;
-  QVector<int>        m_SameNodes;
-  int                 m_MaxCells;
+  QVector<OctreeNode>  m_Nodes;
+  QVector<OctreeCell>  m_Cells;
+  QVector<bool>        m_ToRefine;
+  QVector<int>         m_SameNodes;
+  int                  m_MaxCells;
+  QVector<QList<int> > m_Node2Cell;
 
 private: // methods
 
@@ -105,10 +156,23 @@ private: // methods
   void mergeNodes_updateCells();
   void mergeNodes();
   void checkNeighbours();
+  void buildNode2Cell();
 
   int  opposingFace(int i);
 
+  /**
+    * Convert the octree into a vtkUnstructuredGrid with hanging nodes.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
   void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields);
+
+  /**
+    * Convert the octree into a vtkUnstructuredGrid without hanging nodes.
+    * This method does currently not work for cells on the border of the octree domain.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
   void toVtkGrid_Conforming(vtkUnstructuredGrid *grid, bool create_fields);
 
 
@@ -122,7 +186,7 @@ public: // methods
 
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
-  void markToRefine(int cell) { m_ToRefine[cell] = true; }
+  void markToRefine(int cell);
   bool markedForRefine(int cell) { return m_ToRefine[cell]; }
   int  refineAll();
   void resetRefineMarks();

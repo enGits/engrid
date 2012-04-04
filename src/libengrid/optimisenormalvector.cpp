@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2011 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,40 +20,71 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#include "optimisenormalvector.h"
 
-#include "guicreatehexcore.h"
-
-GuiCreateHexCore::GuiCreateHexCore()
+void OptimiseNormalVector::addConstraint(vec3_t n)
 {
+  m_Constraints.append(n);
 }
 
-void GuiCreateHexCore::before()
+void OptimiseNormalVector::addFace(vec3_t n)
 {
-  vec3_t x1( 1e99,  1e99,  1e99);
-  vec3_t x2(-1e99, -1e99, -1e99);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x;
-    m_Grid->GetPoint(id_node, x.data());
-    for (int i = 0; i < 3; ++i) {
-      x1[i] = min(x1[i], x[i]);
-      x2[i] = max(x2[i], x[i]);
-    }
+  m_Faces.append(n);
+}
+
+double OptimiseNormalVector::func(vec3_t n)
+{
+  double hf = 1;
+  double hc = 0;
+  vec3_t n0 = n;
+  n0.normalise();
+  foreach (vec3_t nc, m_Constraints) {
+    nc.normalise();
+    double h = nc*n0;
+    hc = max(h, fabs(hc));
   }
-  double xmin = min(x1[0], min(x1[1], x1[2]));
-  double xmax = max(x2[0], max(x2[1], x2[2]));
-  m_X1 = vec3_t(xmin, xmin, xmin);
-  m_X2 = vec3_t(xmax, xmax, xmax);
-  QString num;
-  vec3_t xi = 0.5*(x1 + x2);
-  num.setNum(xi[0]); ui.lineEditCiX->setText(num);
-  num.setNum(xi[1]); ui.lineEditCiY->setText(num);
-  num.setNum(xi[2]); ui.lineEditCiZ->setText(num);
+  foreach (vec3_t nf, m_Faces) {
+    nf.normalise();
+    double h = nf*n0;
+    hf = min(h, hf);
+  }
+  return sqr(hc) + sqr(1 - hf);
 }
 
-void GuiCreateHexCore::operate()
+vec3_t OptimiseNormalVector::optimise(vec3_t n)
 {
-  vec3_t xi(ui.lineEditCiX->text().toDouble(), ui.lineEditCiY->text().toDouble(), ui.lineEditCiZ->text().toDouble());
-  CreateHexCore create_hex_core(m_X1, m_X2, xi);
-  create_hex_core();
+  int count = 0;
+  computeDerivatives(n);
+  n.normalise();
+  double scale = 1;
+  while (count < 100 && scale > 2e-4) {
+    double ag = grad_f.abs();
+    double err1 = func(n);
+    vec3_t dn = -1.0*grad_f;
+    dn -= (n*dn)*n;
+    if (grad_f.abs() > 1e-10) {
+      dn.normalise();
+    }
+    double relax = min(scale, scale*grad_f.abs());
+    dn *= relax;
+    n += dn;
+    n.normalise();
+    double err2 = func(n);
+    if (err2 > err1) {
+      scale *= 0.1;
+    }
+    ++count;
+    computeDerivatives(n);
+  }
+  return n;
 }
 
+vec3_t OptimiseNormalVector::operator()(vec3_t n)
+{
+  vec3_t n_opt = optimise(n);
+  if (!checkVector(n_opt)) {
+    n_opt = n;
+  }
+  n_opt.normalise();
+  return n_opt;
+}

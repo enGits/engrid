@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1067</width>
-    <height>799</height>
+    <width>1063</width>
+    <height>795</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1067</width>
-     <height>20</height>
+     <width>1063</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -87,6 +87,7 @@
     <addaction name="actionImportFluentCase"/>
     <addaction name="actionImportSeligAirfoil"/>
     <addaction name="actionImportBlenderFile"/>
+    <addaction name="actionImportBrlcad"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -138,6 +139,7 @@
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
+    <addaction name="actionCreateHexCore"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
@@ -305,8 +307,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>215</width>
-          <height>501</height>
+          <width>216</width>
+          <height>489</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -697,8 +699,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>215</width>
-          <height>501</height>
+          <width>216</width>
+          <height>488</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1670,6 +1672,10 @@
    </property>
   </action>
   <action name="actionImportBrlcad">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/brlcad.png</normaloff>:/icons/resources/icons/brlcad.png</iconset>
+   </property>
    <property name="text">
     <string>BRL-CAD</string>
    </property>
@@ -1680,6 +1686,11 @@
   <action name="actionOptimiseOrthogonalty">
    <property name="text">
     <string>optimise orthogonalty</string>
+   </property>
+  </action>
+  <action name="actionCreateHexCore">
+   <property name="text">
+    <string>create hex core mesh</string>
    </property>
   </action>
  </widget>

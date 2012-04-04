@@ -33,12 +33,20 @@ class GridSmoother;
 
 class GridSmoother : public SurfaceOperation
 {
+
+private: // types
+
+  struct rule_t {
+    QSet<int> bcs;
+    double h;
+  };
   
 private: // attributes
   
   QVector<bool> m_NodeMarked;
   QVector<bool> m_SurfNode;
   int           m_NumMarkedNodes;
+  QList<rule_t> m_Rules;
   
 protected: // attributes
   
@@ -56,6 +64,7 @@ protected: // attributes
   double m_RadarAngle;
   double m_MaxHeightInGaps;
   double m_DesiredStretching;
+  double m_FarRatio;
   int    m_NumLayers;
 
   bool m_StrictPrismChecking;
@@ -82,6 +91,7 @@ protected: // methods
   void computeHeights();
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
+  void getRules();
 
   void writeDebugFile(QString file_name);
 
@@ -95,6 +105,7 @@ public: // methods
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }
   void setBlending              (double b) { m_Blending = b; }
   void setDesiredStretching     (double s) { m_DesiredStretching = s; }
+  void setFarRatio              (double r) { m_FarRatio = r; }
 
   void setLayerAdjacentBoundaryCodes(const QSet<int> &abcs) { m_LayerAdjacentBoundaryCodes = abcs; }
 

@@ -30,7 +30,7 @@ void GuiDivideBoundaryLayer::before()
 {
   populateBoundaryCodes(ui.listWidgetBC);
   populateVolumes(ui.listWidgetVC);
-  QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+  QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
   QTextStream s(&blayer_txt);
   double v;
   if (!s.atEnd()) {
@@ -202,7 +202,8 @@ void GuiDivideBoundaryLayer::operate()
       EG_ERR_RETURN(msg);
     }
   }
-  
+
+  EG_VTKSP(vtkUnstructuredGrid, rest_grid);
   {
     EG_VTKSP(vtkUnstructuredGrid, vol_grid);
     MeshPartition volume(volume_name);
@@ -210,7 +211,7 @@ void GuiDivideBoundaryLayer::operate()
     rest.setRemainder(volume);
     volume.setVolumeOrientation();
     volume.extractToVtkGrid(vol_grid);
-    rest.extractToVtkGrid(m_RestGrid);
+    rest.extractToVtkGrid(rest_grid);
     makeCopy(vol_grid, m_Grid);
   }
   setAllCells();
@@ -315,6 +316,18 @@ void GuiDivideBoundaryLayer::operate()
     }
     
     makeCopy(new_grid, m_Grid);
+
+    ///////////////////////////////////////////////////////////////
+    // set m_Grid to modified selected volume + unselected volumes
+    {
+      MeshPartition volume(m_Grid, true);
+      MeshPartition rest(rest_grid, true);
+      volume.addPartition(rest);
+    }
+    resetOrientation(m_Grid);
+    createIndices(m_Grid);
+    ///////////////////////////////////////////////////////////////
+
   }
 }
 

@@ -33,6 +33,7 @@ protected: // methods
   void buildNode2Face();
   void fixBoundaryNodes();
   double faceError(const face_t& face, vec3_t x);
+  vec3_t newPosition(vtkIdType id_node);
 
   virtual double func(vec3_t x);
   virtual void operate();

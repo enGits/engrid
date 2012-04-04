@@ -29,7 +29,7 @@ double OrthogonalityOptimiser::faceError(const face_t &face, vec3_t x)
 double OrthogonalityOptimiser::func(vec3_t x)
 {
   if (m_IdNode == 427) {
-    cout << "stop" << endl;
+    //cout << "stop" << endl;
   }
   double err = 0;
   foreach (int i_face, m_Node2Face[m_IdNode]) {
@@ -221,25 +221,60 @@ void OrthogonalityOptimiser::fixBoundaryNodes()
   }
 }
 
+vec3_t OrthogonalityOptimiser::newPosition(vtkIdType id_node)
+{
+  vec3_t x_old;
+  m_Grid->GetPoint(id_node, x_old.data());
+  if (m_Node2Face[id_node].size() == 0) {
+    return x_old;
+  }
+  vec3_t x_new(0,0,0);
+  foreach (int i_face, m_Node2Face[id_node]) {
+    const face_t &face = m_Faces[i_face];
+    vec3_t n = face.c1 - face.c2;
+    n.normalise();
+    vec3_t xm(0,0,0);
+    foreach (vtkIdType id_node, face.nodes) {
+      vec3_t xn;
+      m_Grid->GetPoint(id_node, xn.data());
+      xm += xn;
+    }
+    xm *= 1.0/face.nodes.size();
+    vec3_t v = x_old - xm;
+    if (!checkVector(v)) {
+      EG_BUG;
+    }
+    vec3_t Dx = (v*n)*n;
+    x_new += x_old - Dx;
+  }
+  x_new *= (1.0/m_Node2Face[id_node].size());
+  return x_new;
+}
+
 void OrthogonalityOptimiser::operate()
 {
   computeNormals();
   buildNode2Face();
   fixBoundaryNodes();
   l2g_t nodes = m_Part.getNodes();
+  int N = 0;
   foreach (vtkIdType id_node, nodes) {
     if (!m_Fixed[id_node]) {
       m_IdNode = id_node;
       vec3_t x_old;
       m_Grid->GetPoint(id_node, x_old.data());
-      vec3_t x_new = optimise(x_old);
-      if (!checkVector(x_new)) {
-        EG_BUG;
+      //vec3_t x_new = optimise(x_old);
+      vec3_t x_new = newPosition(id_node);
+      if (checkVector(x_new)) {
+        if (m_Projection[id_node]) {
+          x_new = m_Projection[id_node]->projectRestricted(x_new, id_node);
+        }
+        if (checkVector(x_new)) {
+          vec3_t Dx = x_new - x_old;
+          if (moveNode(id_node, Dx)) ++N;
+        }
       }
-      if (m_Projection[id_node]) {
-        x_new = m_Projection[id_node]->projectRestricted(x_new, id_node);
-      }
-      setNewPosition(id_node, x_new);
     }
   }
+  cout << N << " nodes optimised" << endl;
 }

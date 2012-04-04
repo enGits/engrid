@@ -22,8 +22,8 @@
 // 
 #include "gridsmoother.h"
 #include "guimainwindow.h"
-
 #include "elements.h"
+#include "optimisenormalvector.h"
 
 #include <QTime>
 
@@ -264,6 +264,8 @@ void GridSmoother::computeNormals()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   m_NodeNormal.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
+  QVector<int> num_bcs(m_Grid->GetNumberOfPoints());
+  QVector<OptimiseNormalVector> n_opt(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     QSet<int> bcs;
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -275,8 +277,8 @@ void GridSmoother::computeNormals()
         }
       }
     }
-    int num_bcs = bcs.size();
-    QVector<vec3_t> normal(num_bcs, vec3_t(0,0,0));
+    num_bcs[id_node] = bcs.size();
+    QVector<vec3_t> normal(num_bcs[id_node], vec3_t(0,0,0));
     QMap<int,int> bcmap;
     int i_bc = 0;
     foreach (int bc, bcs) {
@@ -285,58 +287,62 @@ void GridSmoother::computeNormals()
     }
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
-        if (m_BoundaryCodes.contains(bc)) {
-          vtkIdType N_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, N_pts, pts);
-          vec3_t a, b, c;
-          for (int j = 0; j < N_pts; ++j) {
-            if (pts[j] == id_node) {
-              m_Grid->GetPoint(pts[j], a.data());
-              if (j > 0) {
-                m_Grid->GetPoint(pts[j-1], b.data());
-              } else {
-                m_Grid->GetPoint(pts[N_pts-1], b.data());
-              }
-              if (j < N_pts - 1) {
-                m_Grid->GetPoint(pts[j+1], c.data());
-              } else {
-                m_Grid->GetPoint(pts[0], c.data());
-              }
+        vtkIdType N_pts, *pts;
+        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        vec3_t a, b, c;
+        for (int j = 0; j < N_pts; ++j) {
+          if (pts[j] == id_node) {
+            m_Grid->GetPoint(pts[j], a.data());
+            if (j > 0) {
+              m_Grid->GetPoint(pts[j-1], b.data());
+            } else {
+              m_Grid->GetPoint(pts[N_pts-1], b.data());
+            }
+            if (j < N_pts - 1) {
+              m_Grid->GetPoint(pts[j+1], c.data());
+            } else {
+              m_Grid->GetPoint(pts[0], c.data());
             }
           }
-          vec3_t u = b - a;
-          vec3_t v = c - a;
-          double alpha = GeometryTools::angle(u, v);
-          vec3_t n = u.cross(v);
-          n.normalise();
+        }
+        vec3_t u = b - a;
+        vec3_t v = c - a;
+        double alpha = GeometryTools::angle(u, v);
+        vec3_t n = u.cross(v);
+        n.normalise();
+        if (m_BoundaryCodes.contains(bc)) {
           normal[bcmap[bc]] += alpha*n;
+          n_opt[id_node].addFace(n);
+        } else {
+          n_opt[id_node].addConstraint(n);
         }
       }
     }
-    for (int i = 0; i < num_bcs; ++i) {
+    for (int i = 0; i < num_bcs[id_node]; ++i) {
       normal[i].normalise();
     }
-    if (num_bcs > 0) {
-      if (num_bcs > 1) {
-        if (num_bcs == 3) {
-          for (int i = 0; i < num_bcs; ++i) {
-            for (int j = i + 1; j < num_bcs; ++j) {
+    if (num_bcs[id_node] > 0) {
+      if (num_bcs[id_node] > 1) {
+        if (num_bcs[id_node] == 3) {
+          for (int i = 0; i < num_bcs[id_node]; ++i) {
+            for (int j = i + 1; j < num_bcs[id_node]; ++j) {
               vec3_t n = normal[i] + normal[j];
               n.normalise();
               m_NodeNormal[id_node] += n;
             }
           }
         } else {
-          for (int i = 0; i < num_bcs; ++i) {
+          for (int i = 0; i < num_bcs[id_node]; ++i) {
             m_NodeNormal[id_node] += normal[i];
           }
         }
       } else {
         m_NodeNormal[id_node] = normal[0];
       }
+      m_NodeNormal[id_node].normalise();
+      m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
       m_NodeNormal[id_node].normalise();
     }
   }
@@ -349,7 +355,6 @@ void GridSmoother::computeNormals()
       int N = 0;
       for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
         vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-        vtkIdType type_cell = m_Grid->GetCellType(id_cell);
         if (isSurface(id_cell, m_Grid)) {
           n += GeometryTools::cellNormal(m_Grid, id_cell);
           ++N;
@@ -359,6 +364,9 @@ void GridSmoother::computeNormals()
         n.normalise();
         m_NodeNormal[id_node] = n;
       }
+    }
+    if (num_bcs[id_node] > 1) {
+      m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
     }
   }
 
@@ -446,6 +454,28 @@ void GridSmoother::relaxNormalVectors()
   }
 }
 
+void GridSmoother::getRules()
+{
+  QString rules_text = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
+  QStringList rules = rules_text.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    rule = rule.trimmed();
+    QStringList parts = rule.split("=");
+    if (parts.count() > 1) {
+      rule_t rule;
+      QString left = parts[0].trimmed();
+      rule.h = parts[1].trimmed().toDouble();
+      QStringList rows = left.split("<OR>");
+      foreach (QString row, rows) {
+        QStringList cols = row.split("<AND>");
+        foreach (QString col, cols) {
+          rule.bcs.insert(col.toInt());
+        }
+      }
+    }
+  }
+}
+
 void GridSmoother::computeDesiredHeights()
 {
   // first pass (intial height)
@@ -478,13 +508,30 @@ void GridSmoother::computeDesiredHeights()
   }
   QVector<double> Dh_max = m_Height;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    Dh_max[id_node] *= sqrt(6.0)/3; // use stretching as well??
+    Dh_max[id_node] *= m_FarRatio;
   }
 
+  getRules();
   // second pass (correct with absolute height if required)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_SurfNode[id_node]) {
       m_Height[id_node] = m_Blending*m_AbsoluteHeight + (1.0-m_Blending)*m_RelativeHeight*m_Height[id_node];
+      double h_rule = 1e99;
+      foreach (rule_t rule, m_Rules) {
+        bool apply_rule = true;
+        foreach (int bc, rule.bcs) {
+          if (!m_Part.hasBC(id_node, bc)) {
+            apply_rule = false;
+            break;
+          }
+        }
+        if (apply_rule) {
+          h_rule = min(h_rule, rule.h);
+        }
+      }
+      if (h_rule < 1e98) {
+        //m_Height[id_node] = h_rule;
+      }
     }
   }
 
@@ -492,7 +539,6 @@ void GridSmoother::computeDesiredHeights()
   QVector<double> h(m_Grid->GetNumberOfPoints(), 0);
   QVector<double> h_opt(m_Grid->GetNumberOfPoints(), 0);
   int num_layers = 0;
-  double err_max = 1e99;
   double err_sq_max = 1e99;
   m_NumLayers = 0;
   do {
@@ -531,13 +577,14 @@ void GridSmoother::computeDesiredHeights()
 void GridSmoother::computeHeights()
 {
   {
-    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer");
+    QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
     if (!s.atEnd()) s >> m_AbsoluteHeight;
     if (!s.atEnd()) s >> m_RelativeHeight;
     if (!s.atEnd()) s >> m_Blending;
     if (!s.atEnd()) s >> m_DesiredStretching;
     if (!s.atEnd()) s >> m_NumLayers;
+    if (!s.atEnd()) s >> m_FarRatio;
   }
   computeDesiredHeights();
   {
@@ -548,7 +595,8 @@ void GridSmoother::computeHeights()
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
     s << m_NumLayers << " ";
-    GuiMainWindow::pointer()->setXmlSection("blayer", blayer_txt);
+    s << m_FarRatio << " ";
+    GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
   // third pass (gaps)
@@ -562,7 +610,6 @@ void GridSmoother::computeHeights()
     foreach (vtkIdType id_node2, surf_nodes) {
       if (id_node1 != id_node2) {
         const vec3_t& n1 = m_NodeNormal[id_node1];
-        const vec3_t& n2 = m_NodeNormal[id_node2];
         vec3_t x1, x2;
         m_Grid->GetPoint(id_node1, x1.data());
         m_Grid->GetPoint(id_node2, x2.data());

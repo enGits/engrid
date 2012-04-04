@@ -40,6 +40,7 @@ private: // attributes
   QVector<vtkIdType>     m_Nodes;  ///< all nodes of the mesh partition
   QVector<int>           m_LNodes; ///< inverse indexing for the nodes
   QVector<QVector<int> > m_N2C;    ///< node to cell information
+  QVector<QVector<int> > m_N2BC;   ///< node to boundary code information
   QVector<QVector<int> > m_N2N;    ///< node to node information
   QVector<QVector<int> > m_C2C;    ///< cell to cell information
 
@@ -49,9 +50,12 @@ private: // attributes
   int m_LNodesStamp; ///< "time"-stamp
   int m_N2NStamp;    ///< "time"-stamp
   int m_N2CStamp;    ///< "time"-stamp
+  int m_N2BCStamp;   ///< "time"-stamp
   int m_C2CStamp;    ///< "time"-stamp
 
 private: // methods
+
+  void createNodeToBC();
 
   void resetTimeStamps();
   void checkNodes();
@@ -59,6 +63,7 @@ private: // methods
   void checkLNodes();
   void checkN2N();
   void checkN2C();
+  void checkN2BC();
   void checkC2C();
 
 public: // methods
@@ -97,6 +102,13 @@ public: // methods
    */
   template <class C>
   void setCells(const C& cls);
+
+  /**
+   * Define the mesh partition by defining boundary codes.
+   * @param bcs the boundary codes of the subset
+   */
+  template <class C>
+  void setBCs(const C& bcs);
 
   /**
    * Define the mesh partition by defining all its cells.
@@ -162,6 +174,8 @@ public: // methods
    */
   int getNumberOfCells();
 
+  vtkIdType getVolumeCell(vtkIdType id_face);
+
   int       localNode(vtkIdType id_node);
   vtkIdType globalNode(int i);
   int       localCell(vtkIdType id_cell);
@@ -186,8 +200,13 @@ public: // methods
   int       c2cGSize(vtkIdType id_cell);
   int       c2cGL(vtkIdType id_cell, int j);
   vtkIdType c2cGG(vtkIdType id_cell, int j);
+  int       n2bcLSize(int i_nodes);
+  int       n2bcL(int i_nodes, int j);
+  int       n2bcGSize(vtkIdType id_node);
+  int       n2bcG(vtkIdType id_node, int j);
 
   bool hasNeighNode(vtkIdType id_node, vtkIdType id_neigh);
+  bool hasBC(vtkIdType id_node, int bc);
 
 };
 
@@ -198,6 +217,22 @@ inline void MeshPartition::setCells(const C& cls)
   m_Cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
+}
+
+template <class C>
+inline void MeshPartition::setBCs(const C& bcs)
+{
+  QList<vtkIdType> cls;
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    foreach (int bc, bcs) {
+      if (cell_code->GetValue(id_cell) == bc) {
+        cls.append(id_cell);
+        break;
+      }
+    }
+  }
+  setCells(cls);
 }
 
 inline void MeshPartition::setAllCells() {
@@ -246,6 +281,15 @@ inline void MeshPartition::checkN2C()
   if (m_LNodesStamp > m_N2CStamp) {
     createNodeToCell(m_Cells, m_Nodes, m_LNodes, m_N2C, m_Grid);
     m_N2CStamp = m_LNodesStamp;
+  }
+}
+
+inline void MeshPartition::checkN2BC()
+{
+  checkN2C();
+  if (m_N2CStamp > m_N2BCStamp) {
+    createNodeToBC();
+    m_N2BCStamp = m_N2CStamp;
   }
 }
 
@@ -450,6 +494,30 @@ inline vtkIdType MeshPartition::globalCell(int i)
 {
   if(i<0) return(-1);
   else return m_Cells[i];
+}
+
+inline int MeshPartition::n2bcLSize(int i_nodes)
+{
+  checkN2BC();
+  return m_N2BC[i_nodes].size();
+}
+
+inline int MeshPartition::n2bcL(int i_nodes, int j)
+{
+  checkN2BC();
+  return m_N2BC[i_nodes][j];
+}
+
+inline int MeshPartition::n2bcGSize(vtkIdType id_node)
+{
+  checkN2BC();
+  return m_N2BC[m_LNodes[id_node]].size();
+}
+
+inline int MeshPartition::n2bcG(vtkIdType id_node, int j)
+{
+  checkN2BC();
+  return m_N2BC[m_LNodes[id_node]][j];
 }
 
 #endif // MESHPARTITION_H

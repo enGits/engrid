@@ -117,8 +117,8 @@ connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
 connect(ui.actionOptimiseOrthogonalty, SIGNAL(triggered()), this, SLOT(callOrthogonalityOptimiser()));
-//FIXME: dead slot callBrlcadReader()
-//connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
+connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
+connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

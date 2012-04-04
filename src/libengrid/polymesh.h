@@ -26,94 +26,115 @@
 class PolyMesh;
 
 #include "egvtkobject.h"
+#include "meshpartition.h"
+#include "eghashset.h"
 
 class PolyMesh : public EgVtkObject
 {
   
 protected: // data types
-  
-  enum idx_t { node, edge, face, cell };
-  
-  struct node_t {
-    PolyMesh *poly; // 4
-    idx_t type;     // 4
-    vtkIdType idx;  // 4
-    int subidx;     // 4
-    //double w;       // 8
-    //vec3_t x;       // 24
-    //vec3_t n;       // 24
-    float x,y,z;
-    node_t(PolyMesh *p, idx_t t, int i, int si) { poly = p; type = t; idx = i; subidx = si; };
-    node_t() { poly = NULL, type = node, idx = 0; subidx = 0; };
-    bool operator==(const node_t N) const;
-  };
-  
-  friend uint qHash(node_t N);
-  friend ostream& operator<<(ostream& s, node_t N);
-  
-  struct face_t {
-    QVector<node_t> node;
-    int owner, neighbour, bc;
-    node_t operator[](int i) { while(i<0) i+=node.size(); while(i>=node.size()) i-=node.size(); return node[i]; };
-    void checkOrientation();
-    bool operator<(const face_t &F) const;
-    vec3_t normal();
-  };
-  
-  friend ostream& operator<<(ostream& s, face_t F);
 
+  struct face_t {
+    QVector<int> node;
+    int owner, neighbour;
+    int bc;
+    vec3_t ref_vec;
+    int operator[](int i);
+    bool operator<(const face_t &F) const;
+    bool operator==(const face_t &F) const;
+    face_t() {}
+    face_t(int N, int o, int n, vec3_t rv, int b = 0);
+    int hash() const { return node.first(); }
+  };
+
+  struct node_t {
+    QVector<vtkIdType> id;
+    node_t() {}
+    node_t(const QVector<vtkIdType> &ids);
+    node_t(vtkIdType id1);
+    node_t(vtkIdType id1, vtkIdType id2);
+    node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3);
+    node_t(vtkIdType id1, vtkIdType id2, vtkIdType id3, vtkIdType id4);
+    bool operator<(const node_t &N) const;
+    bool operator>(const node_t &N) const;
+    bool operator==(const node_t &N) const;
+    int hash() const { return id.first(); }
+  };
+
+  
 protected: // attributes
-  
-  bool dbg;
-  vtkUnstructuredGrid *grid;
-  QList<face_t> face_list;
-  QVector<face_t> faces;
-  QVector<int> cell2pc;
-  QVector<int> node2pc;
-  int id_newpc;
-  QVector<vtkIdType> cells;
-  QVector<vec3_t> nodes;
-  QVector<QVector<int> > c2c;
-  QList<int> bcs;
-  QVector<double> weight;
-  bool dual;
-  
+
+  vtkUnstructuredGrid *m_Grid;
+  MeshPartition        m_Part;
+  QVector<int>         m_Cell2PCell;
+  QVector<int>         m_Node2PCell;
+  QList<face_t>        m_Faces;
+  int                  m_NumPolyCells;
+  EgHashSet<node_t>    m_Nodes;
+  QVector<vec3_t>      m_Points;
+  QVector<int>         m_BCs;
+  //SortedHashSet<face_t> m_RawFaces;
+
+
+
 protected: // methods
-  
-  int pcIdxNode(vtkIdType id_node);
-  int pcIdxCell(vtkIdType id_node);
-  void pass1Tetras();
-  void pass1Prisms();
-  void pass1Hexas();
-  void pass1();
-  void computeNodes();
-  void createNodes();
-  void sortFaces();
-  face_t combineFaces(QList<face_t> faces);
-  double faceW(double w) { if (w > 1.01) return 0.5*w; else return w; };
-  
-  void pass2();
-  void pass3();
-  
+
+  bool isHexCoreNode(vtkIdType) { return false; }
+  bool isHexCoreCell(vtkIdType) { return false; }
+
+  /**
+    * Get internal indices of adjacent faces of an edge.
+    * See http://engits.eu/wiki/index.php/Manual/Element_Types for details about the internal indices.
+    * @param id_cell global id of the cell (only tetras allowed)
+    * @param id_node1 global id of the first node of the edge
+    * @param id_node2 global id of the second node of the edge
+    * @param face1 (return value) will hold the internal index of the first face (0,1,2,3)
+    * @param face2 (return value) will hold the internal index of the second face (0,1,2,3)
+    */
+  void getFacesOfEdgeInsideCell(vtkIdType id_cell, vtkIdType id_node1, vtkIdType id_node2, int &face1, int &face2);
+
+  /**
+    * Find all cells around an edge.
+    * This method will find all tetra cells around an edge in the mesh.
+    * It can either be a closed loop of tetras or a list which is terminated by surface elements.
+    * @param id_node1 first node of the edge
+    * @param id_node2 second node of the edge
+    * @param cells list of tetras/faces around the edge
+    */
+  void getSortedEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QList<vtkIdType> &cells, bool &is_loop);
+
+  bool isDualFace(vtkIdType id_face);
+  void getSortedPointFaces(vtkIdType id_node, int bc, QList<vtkIdType> &faces, bool &is_loop);
+
+  void findPolyCells();
+  void createFace(QList<node_t> nodes, int owner, int neighbour, vec3_t ref_vec, int bc);
+  void createCornerFace(vtkIdType id_cell, int i_face, vtkIdType id_node);
+  void createEdgeFace(vtkIdType id_node1, vtkIdType id_node2);
+  void createFaceFace(vtkIdType id_cell, int i_face);
+  void createPointFace(vtkIdType id_node, int bc);
+  void createNodesAndFaces();
+  void checkFaceOrientation();
+
+  vec3_t faceNormal(int i);
+   
 public: // methods
   
-  PolyMesh(vtkUnstructuredGrid *a_grid, bool dual_mesh = true);
-  int totalNumNodes() const { return nodes.size(); };
-  vec3_t nodeVector(int i) const { return nodes[i]; };
-  int numNodes(int i) const { return faces[i].node.size(); };
-  int nodeIndex(int i, int j) const { return faces[i].node[j].idx; };
-  int numFaces() const { return faces.size(); };
-  int numCells() const { return id_newpc; };
-  int owner(int i) const { return faces[i].owner; };
-  int neighbour(int i) const { return faces[i].neighbour; };
-  int boundaryCode(int i) const { return faces[i].bc; };
-  int numBCs() const { return bcs.size()-1; };
-  void getFace(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
-  void getEdge(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
+  PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh = true);
+
+  int    totalNumNodes() const         { return m_Points.size(); }
+  vec3_t nodeVector(int i) const       { return m_Points[i]; }
+  int    numNodes(int i) const         { return m_Faces[i].node.size(); }
+  int    nodeIndex(int i, int j) const { return m_Faces[i].node[j]; }
+  int    numFaces() const              { return m_Faces.size(); }
+  int    owner(int i) const            { return m_Faces[i].owner; }
+  int    neighbour(int i) const        { return m_Faces[i].neighbour; }
+  int    boundaryCode(int i) const     { return m_Faces[i].bc; }
+  int    numBCs() const                { return m_BCs.size(); }
+  int    numCells() const              { return m_NumPolyCells; }
+  //void getFace(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
+  //void getEdge(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
   
   
 };
-
-uint qHash(PolyMesh::node_t N);
 
 #endif
