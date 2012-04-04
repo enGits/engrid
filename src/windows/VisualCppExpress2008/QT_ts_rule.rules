@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="Update and Release Language files"
 			DisplayName="Build Language Files"
-			CommandLine="call $(SolutionDir)\qtvars.bat $(PlatformName)&#x0D;&#x0A;lupdate [QTProjectFile]&#x0D;&#x0A;lrelease -removeidentical [QTProjectFile]&#x0D;&#x0A;copy &quot;$(InputDir)$(InputName).qm&quot; $(IntDir)\$(InputName).qm&#x0D;&#x0A;"
+			CommandLine="call $(SolutionDir)qtvars.bat $(PlatformName)&#x0D;&#x0A;lupdate [QTProjectFile]&#x0D;&#x0A;lrelease -removeidentical [QTProjectFile]&#x0D;&#x0A;copy &quot;$(InputDir)$(InputName).qm&quot; $(IntDir)\$(InputName).qm&#x0D;&#x0A;"
 			Outputs="$(IntDir)\$(InputName).qm"
 			AdditionalDependencies="$(TargetName).pro"
 			FileExtensions="*.ts"

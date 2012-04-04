@@ -3,12 +3,12 @@ SETLOCAL EnableDelayedExpansion
 rem =============== Developer configuration area ===============
 
 rem VTK: environment variables for the chosen VTK installation
-set VTKINCDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\include\paraview-3.8
-set VTKBINDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\bin
-set VTKLIBDIR=C:\Program Files (x86)\ParaView-Development 3.8.1\lib\paraview-3.8
+set VTKINCDIR=P:\ParaView-3.12.0-win32-fulldev\include\paraview-3.12
+set VTKBINDIR=P:\ParaView-3.12.0-win32-fulldev\bin
+set VTKLIBDIR=P:\ParaView-3.12.0-win32-fulldev\lib\paraview-3.12
 
 rem Qt: batch file with environment variables for the chosen qt installation
-set QTbatchfile=Q:\4.6.2\qtvars.bat
+set QTbatchfile=Q:\4.6.3\qtvars.bat
 
 rem NSIS: path to where NSIS is installed
 set NSIS_DIR=P:\NSIS
