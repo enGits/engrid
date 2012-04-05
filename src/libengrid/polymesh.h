@@ -73,8 +73,12 @@ protected: // attributes
   EgHashSet<node_t>    m_Nodes;
   QVector<vec3_t>      m_Points;
   QVector<int>         m_BCs;
-  //SortedHashSet<face_t> m_RawFaces;
+  QVector<double>      m_PointWeights;
+  QVector<QList<int> > m_Point2Face;
+  QVector<vec3_t>      m_CellCentre;
 
+  double               m_AttractorWeight;
+  double               m_PullInFactor;
 
 
 protected: // methods
@@ -114,6 +118,8 @@ protected: // methods
   void createPointFace(vtkIdType id_node, int bc);
   void createNodesAndFaces();
   void checkFaceOrientation();
+  void computePoints();
+  void buildPoint2Face();
 
   vec3_t faceNormal(int i);
    
@@ -131,9 +137,8 @@ public: // methods
   int    boundaryCode(int i) const     { return m_Faces[i].bc; }
   int    numBCs() const                { return m_BCs.size(); }
   int    numCells() const              { return m_NumPolyCells; }
-  //void getFace(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
-  //void getEdge(vtkIdType idx, int subidx, QList<vtkIdType> &nodes);
-  
+
+  virtual vec3_t optimise(vec3_t x);
   
 };
 
