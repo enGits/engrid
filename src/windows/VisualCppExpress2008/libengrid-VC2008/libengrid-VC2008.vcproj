@@ -433,6 +433,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\brlcadreader.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\celllayeriterator.cpp"
 				>
 			</File>
@@ -458,6 +462,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createhexcore.cpp"
 				>
 			</File>
 			<File
@@ -566,6 +574,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.cpp"
 				>
 			</File>
 			<File
@@ -710,6 +722,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\optimisation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\optimisenormalvector.cpp"
 				>
 			</File>
 			<File
@@ -897,6 +913,10 @@
 				</File>
 				<File
 					RelativePath=".\$(IntDir)\moc_guicreateboundarylayer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\$(IntDir)\moc_guicreatehexcore.cpp"
 					>
 				</File>
 				<File
@@ -1475,6 +1495,42 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\createhexcore.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\createsurfacemesh.h"
 				>
 				<FileConfiguration
@@ -1840,6 +1896,42 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\edgelengthsourcemanager.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\eghashset.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2567,6 +2659,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.h"
 				>
 			</File>
@@ -3272,6 +3368,42 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\optimisation.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\optimisenormalvector.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -5046,6 +5178,42 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\..\..\libengrid\ui_guicreatehexcore.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatesurfacemesh.h"
 					>
 					<FileConfiguration
@@ -5642,6 +5810,10 @@
 			>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
 				>
 			</File>
 			<File
