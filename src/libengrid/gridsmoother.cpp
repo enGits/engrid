@@ -33,6 +33,7 @@ GridSmoother::GridSmoother()
   m_NumRelaxations         = 5;
   m_NumBoundaryCorrections = 50;
   m_DesiredStretching      = 1.2;
+  m_FirstCall = true;
 
   getSet("boundary layer", "number of smoothing sub-iterations",       5,     m_NumIterations);
   getSet("boundary layer", "use strict prism checking",                false, m_StrictPrismChecking);
@@ -746,10 +747,13 @@ void GridSmoother::simpleNodeMovement(int i_nodes)
 
 void GridSmoother::operate()
 {
-  markNodes();
-  computeNormals();
-  computeFeet();
-  computeHeights();
+  if (m_FirstCall) {
+    markNodes();
+    computeNormals();
+    computeFeet();
+    computeHeights();
+    m_FirstCall = false;
+  }
   l2g_t nodes = m_Part.getNodes();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     if (m_NodeMarked[nodes[i_nodes]]) {

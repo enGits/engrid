@@ -47,6 +47,7 @@ private: // attributes
   QVector<bool> m_SurfNode;
   int           m_NumMarkedNodes;
   QList<rule_t> m_Rules;
+  bool          m_FirstCall;
   
 protected: // attributes
   
@@ -106,6 +107,7 @@ public: // methods
   void setBlending              (double b) { m_Blending = b; }
   void setDesiredStretching     (double s) { m_DesiredStretching = s; }
   void setFarRatio              (double r) { m_FarRatio = r; }
+  void forceNormalCalculation   ()         { m_FirstCall = true; }
 
   void setLayerAdjacentBoundaryCodes(const QSet<int> &abcs) { m_LayerAdjacentBoundaryCodes = abcs; }
 
