@@ -51,6 +51,8 @@ protected: // attributes
   double m_MaxEdgeLength;
   double m_MinEdgeLength;
   double m_NodesPerQuarterCircle;
+  double m_FeatureResolution2D;
+  double m_FeatureResolution3D;
   bool   m_RespectFeatureEdgesForDeleteNodes;
   double m_FeatureAngleForDeleteNodes;
   bool   m_PerformGeometricTests;

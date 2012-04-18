@@ -26,12 +26,12 @@
 void GuiMirrorMesh::operate()
 {
   vec3_t x0, n;
-  x0[0] = ui.lineEditX0->text().toDouble();
-  x0[1] = ui.lineEditY0->text().toDouble();
-  x0[2] = ui.lineEditZ0->text().toDouble();
-  n[0] = ui.lineEditNX->text().toDouble();
-  n[1] = ui.lineEditNY->text().toDouble();
-  n[2] = ui.lineEditNZ->text().toDouble();
+  x0[0] = m_Ui.lineEditX0->text().toDouble();
+  x0[1] = m_Ui.lineEditY0->text().toDouble();
+  x0[2] = m_Ui.lineEditZ0->text().toDouble();
+  n[0] = m_Ui.lineEditNX->text().toDouble();
+  n[1] = m_Ui.lineEditNY->text().toDouble();
+  n[2] = m_Ui.lineEditNZ->text().toDouble();
   n.normalise();
   EG_VTKSP(vtkUnstructuredGrid, mirror_grid);
   EgVtkObject::allocateGrid(mirror_grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
@@ -82,8 +82,8 @@ void GuiMirrorMesh::operate()
   }
   MeshPartition part1(m_Grid, true);
   MeshPartition part2(mirror_grid, true);
-  double tol = ui.lineEditTolerance->text().toDouble();
-  if (ui.radioButtonRelative->isChecked()) {
+  double tol = m_Ui.lineEditTolerance->text().toDouble();
+  if (m_Ui.radioButtonRelative->isChecked()) {
     tol = -tol;
   }
   part1.addPartition(part2, tol);

@@ -25,7 +25,7 @@
 
 void GuiDeleteBadAspectTris::operate()
 {
-  double threshold = ui.doubleSpinBox->value();
+  double threshold = m_Ui.doubleSpinBox->value();
   QList<vtkIdType> new_cells;
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (isVolume(id_cell,m_Grid)) EG_ERR_RETURN("The grid contains volume cells");

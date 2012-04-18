@@ -41,17 +41,17 @@ void GuiSetBoundaryCode::before()
   m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCell,3);
   m_ButtonGroup->addButton(m_RadioButtonOnlyPickedCellAndNeighbours,4);
   m_ButtonGroup->addButton(m_RadioButtonAuto,5);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessOnlyVisible);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessAll);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonSelectAllVisible);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCell);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCellAndNeighbours);
-  ui.verticalLayout_PickMethod->addWidget(m_RadioButtonAuto);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessOnlyVisible);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonProcessAll);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonSelectAllVisible);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCell);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonOnlyPickedCellAndNeighbours);
+  m_Ui.verticalLayout_PickMethod->addWidget(m_RadioButtonAuto);
 
   //read settings
   QSettings local_qset("enGits","enGrid_GuisetBoundaryCode");
-  ui.doubleSpinBoxFeatureAngle->setValue(local_qset.value("FeatureAngle", 45).toDouble());
-  ui.spinBoxBoundaryCode->setValue(local_qset.value("BoundaryCode", 1).toInt());
+  m_Ui.doubleSpinBoxFeatureAngle->setValue(local_qset.value("FeatureAngle", 45).toDouble());
+  m_Ui.spinBoxBoundaryCode->setValue(local_qset.value("BoundaryCode", 1).toInt());
   m_ButtonGroup->button(local_qset.value("PickMethod",0).toInt())->setChecked(true);
 }
 
@@ -62,8 +62,8 @@ void GuiSetBoundaryCode::operate()
 
   //save settings
   QSettings local_qset("enGits","enGrid_GuisetBoundaryCode");
-  local_qset.setValue("FeatureAngle", ui.doubleSpinBoxFeatureAngle->value());
-  local_qset.setValue("BoundaryCode", ui.spinBoxBoundaryCode->value());
+  local_qset.setValue("FeatureAngle", m_Ui.doubleSpinBoxFeatureAngle->value());
+  local_qset.setValue("BoundaryCode", m_Ui.spinBoxBoundaryCode->value());
   local_qset.setValue("PickMethod", m_ButtonGroup->checkedId());
   
   SetBoundaryCode set_bc;
@@ -72,7 +72,7 @@ void GuiSetBoundaryCode::operate()
   if (m_RadioButtonAuto->isChecked()) {
     QSet <int> display_bcs;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(display_bcs);
-    int bc = ui.spinBoxBoundaryCode->value();
+    int bc = m_Ui.spinBoxBoundaryCode->value();
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       bc = max(bc, cell_code->GetValue(id_cell));
@@ -92,7 +92,7 @@ void GuiSetBoundaryCode::operate()
       if (id_start == -1) {
         done = true;
       } else {
-        set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
+        set_bc.setFeatureAngle(m_Ui.doubleSpinBoxFeatureAngle->value());
         set_bc.setBC(bc);
         set_bc.setProcessAll(false);
         set_bc.setSelectAllVisible(false);
@@ -112,8 +112,8 @@ void GuiSetBoundaryCode::operate()
     } while (!done);
   } else {
     if (0 <= mainWindow()->getPickedCell() && mainWindow()->getPickedCell() < GuiMainWindow::pointer()->getGrid()->GetNumberOfCells() ) {
-      set_bc.setFeatureAngle(ui.doubleSpinBoxFeatureAngle->value());
-      set_bc.setBC(ui.spinBoxBoundaryCode->value());
+      set_bc.setFeatureAngle(m_Ui.doubleSpinBoxFeatureAngle->value());
+      set_bc.setBC(m_Ui.spinBoxBoundaryCode->value());
 
       set_bc.setProcessAll(m_ButtonGroup->button(1)->isChecked());
       set_bc.setSelectAllVisible(m_ButtonGroup->button(2)->isChecked());

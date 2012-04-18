@@ -46,6 +46,8 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_AllowFeatureEdgeSwapping = true;
   m_AllowSmallAreaSwapping = false;
   m_GrowthFactor = 1.5;
+  m_FeatureResolution2D = 0;
+  m_FeatureResolution3D = 0;
 }
 
 void SurfaceAlgorithm::readVMD()
@@ -108,6 +110,10 @@ void SurfaceAlgorithm::readSettings()
       }
     }
   }
+  if (!in.atEnd()) {
+    in >> m_FeatureResolution2D;
+    in >> m_FeatureResolution3D;
+  }
 }
 
 void SurfaceAlgorithm::prepare()
@@ -132,6 +138,8 @@ void SurfaceAlgorithm::computeMeshDensity()
   update_desired_mesh_density.setNodesPerQuarterCircle(m_NodesPerQuarterCircle);
   update_desired_mesh_density.setCellGrowthFactor(m_GrowthFactor);
   update_desired_mesh_density.setBoundaryCodes(m_BoundaryCodes);
+  update_desired_mesh_density.setFeatureResolution2D(m_FeatureResolution2D);
+  update_desired_mesh_density.setFeatureResolution3D(m_FeatureResolution3D);
   update_desired_mesh_density();
 }
 

@@ -25,23 +25,23 @@
 
 void GuiPick::before()
 {
-  ui.spinBox_Point->setMaximum(m_Grid->GetNumberOfPoints()-1);
-  ui.spinBox_Cell->setMaximum(m_Grid->GetNumberOfCells()-1);
+  m_Ui.spinBox_Point->setMaximum(m_Grid->GetNumberOfPoints()-1);
+  m_Ui.spinBox_Cell->setMaximum(m_Grid->GetNumberOfCells()-1);
 }
 
 void GuiPick::operate()
 {
   cout<<"GuiPick called"<<endl;
-  if(ui.radioButton_Point->isChecked())
+  if(m_Ui.radioButton_Point->isChecked())
   {
-    vtkIdType nodeId=ui.spinBox_Point->value();
+    vtkIdType nodeId=m_Ui.spinBox_Point->value();
     cout<<"Pick point "<<nodeId<<endl;
     GuiMainWindow::pointer()->setPickMode(false,false);
     GuiMainWindow::pointer()->pickPoint(nodeId);
   }
   else
   {
-    vtkIdType cellId=ui.spinBox_Cell->value();
+    vtkIdType cellId=m_Ui.spinBox_Cell->value();
     cout<<"Pick cell "<<cellId<<endl;
     GuiMainWindow::pointer()->setPickMode(false,true);
     GuiMainWindow::pointer()->pickCell(cellId);

@@ -58,13 +58,13 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   
   setQuickSave(true);
 
-  populateBoundaryCodes(ui.listWidget);
-  ui.lineEditMaximalEdgeLength->setText("1000");
+  populateBoundaryCodes(m_Ui.listWidget);
+  m_Ui.lineEditMaximalEdgeLength->setText("1000");
 
   //Load settings
   readSettings();
   
-  Nbc = ui.listWidget-> count ();
+  Nbc = m_Ui.listWidget-> count ();
   
   current_filename= GuiMainWindow::pointer()->getFilename();
 
@@ -100,18 +100,18 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     }
   }
   setTextFromTable();
-  ui.textEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
+  m_Ui.textEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   
-  connect(ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
-  connect(ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+  connect(m_Ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(m_Ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
 
-  m_ELSManager.setListWidget(ui.listWidgetSources);
+  m_ELSManager.setListWidget(m_Ui.listWidgetSources);
   m_ELSManager.read();
   m_ELSManager.populateListWidget();
-  connect(ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
-  connect(ui.pushButtonAddCone,      SIGNAL(clicked()), this, SLOT(addCone()));
-  connect(ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
-  connect(ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
+  connect(m_Ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
+  connect(m_Ui.pushButtonAddCone,      SIGNAL(clicked()), this, SLOT(addCone()));
+  connect(m_Ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
+  connect(m_Ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
 
 }
 
@@ -124,27 +124,33 @@ int GuiCreateSurfaceMesh::readSettings()
     QTextStream in(&buffer, QIODevice::ReadOnly);
     QString str;
     in >> str;
-    ui.lineEditMaximalEdgeLength->setText(str);
+    m_Ui.lineEditMaximalEdgeLength->setText(str);
     in >> str;
-    ui.lineEditMinimalEdgeLength->setText(str);
+    m_Ui.lineEditMinimalEdgeLength->setText(str);
     in >> str;
-    ui.lineEditGrowthFactor->setText(str);
+    m_Ui.lineEditGrowthFactor->setText(str);
     double nodes_per_quarter_circle;
     in >> nodes_per_quarter_circle;
-    //nodes_per_quarter_circle = 0; ///\todo implement curvature resolution
-    ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
+    m_Ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
     int num_bcs;
     in >> num_bcs;
-    if (num_bcs == ui.listWidget->count()) {
+    if (num_bcs == m_Ui.listWidget->count()) {
       int check_state;
-      for (int i = 0; i < ui.listWidget->count(); ++i) {
+      for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
         in >> check_state;
         if (check_state == 1) {
-          ui.listWidget->item(i)->setCheckState(Qt::Checked);
+          m_Ui.listWidget->item(i)->setCheckState(Qt::Checked);
         } else {
-          ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+          m_Ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
         }
       }
+    }
+    if (!in.atEnd()) {
+      double v;
+      in >> v;
+      m_Ui.doubleSpinBox2DFeature->setValue(v);
+      in >> v;
+      m_Ui.doubleSpinBox3DFeature->setValue(v);
     }
   }
   m_ELSManager.read();
@@ -157,18 +163,20 @@ int GuiCreateSurfaceMesh::writeSettings()
   {
     QTextStream out(&buffer, QIODevice::WriteOnly);
     out << "\n";
-    out << ui.lineEditMaximalEdgeLength->text() << "\n";
-    out << ui.lineEditMinimalEdgeLength->text() << "\n";
-    out << ui.lineEditGrowthFactor->text() << "\n";
-    out << ui.doubleSpinBoxCurvature->value() << "\n";
-    out << ui.listWidget->count() << "\n";
-    for (int i = 0; i < ui.listWidget->count(); ++i) {
-      if (ui.listWidget->item(i)->checkState() == Qt::Checked) {
+    out << m_Ui.lineEditMaximalEdgeLength->text() << "\n";
+    out << m_Ui.lineEditMinimalEdgeLength->text() << "\n";
+    out << m_Ui.lineEditGrowthFactor->text() << "\n";
+    out << m_Ui.doubleSpinBoxCurvature->value() << "\n";
+    out << m_Ui.listWidget->count() << "\n";
+    for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
+      if (m_Ui.listWidget->item(i)->checkState() == Qt::Checked) {
         out << "1 \n";
       } else {
         out << "0 \n";
       }
     }
+    out << m_Ui.doubleSpinBox2DFeature->value() << "\n";
+    out << m_Ui.doubleSpinBox3DFeature->value() << "\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
   m_ELSManager.write();
@@ -179,15 +187,15 @@ int GuiCreateSurfaceMesh::writeSettings()
 
 void GuiCreateSurfaceMesh::SelectAll_BC()
 {
-  for (int i = 0; i < ui.listWidget->count(); ++i) {
-    ui.listWidget->item(i)->setCheckState(Qt::Checked);
+  for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
+    m_Ui.listWidget->item(i)->setCheckState(Qt::Checked);
   }
 }
 
 void GuiCreateSurfaceMesh::ClearAll_BC()
 {
-  for (int i = 0; i < ui.listWidget->count(); ++i) {
-    ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+  for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
+    m_Ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
   }
 }
 
@@ -217,7 +225,7 @@ void GuiCreateSurfaceMesh::setTextFromTable()
         int nj = 0;
         for (int j = 0; j < m_NumCols-3; ++j) {
           if (m_Table[i][j] == "2") {
-            QString bc = ui.listWidget->item(j)->text().split(":")[1].trimmed();
+            QString bc = m_Ui.listWidget->item(j)->text().split(":")[1].trimmed();
             text += bc;
             ++nj;
             if (nj < Nj) {
@@ -233,16 +241,16 @@ void GuiCreateSurfaceMesh::setTextFromTable()
     }
     text += " = " + value + ";\n\n";
   }
-  ui.textEdit->setText(text);
+  m_Ui.textEdit->setText(text);
 }
 
 void GuiCreateSurfaceMesh::getTableFromText()
 {
   QMap<QString, int> bc_map;
-  for (int i = 0; i < ui.listWidget->count(); ++i) {
-    bc_map[ui.listWidget->item(i)->text().split(":")[1].trimmed()] = i;
+  for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
+    bc_map[m_Ui.listWidget->item(i)->text().split(":")[1].trimmed()] = i;
   }
-  QStringList rules = ui.textEdit->toPlainText().split(";", QString::SkipEmptyParts);
+  QStringList rules = m_Ui.textEdit->toPlainText().split(";", QString::SkipEmptyParts);
   m_Table.clear();
   foreach (QString rule, rules) {
     rule = rule.trimmed();
@@ -289,5 +297,5 @@ void GuiCreateSurfaceMesh::operate()
     }
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
-  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", ui.textEditPrismaticLayers->toPlainText());
+  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.textEditPrismaticLayers->toPlainText());
 }

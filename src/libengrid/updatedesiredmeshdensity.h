@@ -34,6 +34,14 @@
 class UpdateDesiredMeshDensity : public SurfaceOperation
 {
 
+private: // data types
+
+  struct point_t {
+    vec3_t x;
+    vec3_t n;
+    QList<int> idx;
+  };
+
 private: //attributes
 
   QSet<int>                   m_BCs;
@@ -42,14 +50,19 @@ private: //attributes
   double                      m_MaxEdgeLength;
   double                      m_MinEdgeLength;
   double                      m_NodesPerQuarterCircle;
+  double                      m_FeatureResolution2D;
+  double                      m_FeatureResolution3D;
+  QVector<double>             m_FeatureSize;
   int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;
 
-
 protected: // methods
 
+  void computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res);
+  void computeFeature2D(QVector<double> &cl_pre);
+  void computeFeature3D(QVector<double> &cl_pre);
   void computeExistingLengths();
 
 
@@ -64,6 +77,8 @@ public: //methods
   void setCellGrowthFactor(double cgf) { m_GrowthFactor = cgf; }
   void setVolumeCellsOn() { m_OnlySurfaceCells = false; }
   void setVolumeCellsOff() { m_OnlySurfaceCells = true; }
+  void setFeatureResolution2D(double n) { m_FeatureResolution2D = n; }
+  void setFeatureResolution3D(double n) { m_FeatureResolution3D = n; }
 
 };
 

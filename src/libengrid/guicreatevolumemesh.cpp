@@ -32,12 +32,12 @@ GuiCreateVolumeMesh::GuiCreateVolumeMesh()
 void GuiCreateVolumeMesh::before()
 {
   GuiMainWindow::pointer()->createDefaultVol();
-  populateVolumes(ui.listWidget);
+  populateVolumes(m_Ui.listWidget);
 }
 
 void GuiCreateVolumeMesh::operate()
 {
-  QString volume_name = getSelectedVolume(ui.listWidget);
+  QString volume_name = getSelectedVolume(m_Ui.listWidget);
   VolumeDefinition V = mainWindow()->getVol(volume_name);
   CreateVolumeMesh mesh_volume;
   EG_VTKSP(vtkUnstructuredGrid, part_grid);

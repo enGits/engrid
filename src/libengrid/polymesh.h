@@ -138,8 +138,6 @@ public: // methods
   int    numBCs() const                { return m_BCs.size(); }
   int    numCells() const              { return m_NumPolyCells; }
 
-  virtual vec3_t optimise(vec3_t x);
-  
 };
 
 #endif

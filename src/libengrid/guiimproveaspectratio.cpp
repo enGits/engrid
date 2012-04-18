@@ -25,7 +25,7 @@
 
 void GuiImproveAspectRatio::before()
 {
-  ui.lineEditAspectRatio->setText("100.0");
+  m_Ui.lineEditAspectRatio->setText("100.0");
 };
 
 void GuiImproveAspectRatio::operate()
@@ -33,8 +33,8 @@ void GuiImproveAspectRatio::operate()
   EG_VTKSP(vtkEgEliminateShortEdges, elem);
   int N_elim = 0;
   int N_sweeps = 0;
-  elem->SetMaxRatio(ui.lineEditAspectRatio->text().toDouble());
-  elem->SetMaxLength(ui.lineEditLength->text().toDouble());
+  elem->SetMaxRatio(m_Ui.lineEditAspectRatio->text().toDouble());
+  elem->SetMaxLength(m_Ui.lineEditLength->text().toDouble());
   EG_VTKSP(vtkUnstructuredGrid,ug);
   do {
     ug->DeepCopy(m_Grid);

@@ -29,14 +29,14 @@ GuiMergeVolumes::GuiMergeVolumes()
 
 void GuiMergeVolumes::before()
 {
-  populateVolumes(ui.listWidgetVC1);
-  populateVolumes(ui.listWidgetVC2);
+  populateVolumes(m_Ui.listWidgetVC1);
+  populateVolumes(m_Ui.listWidgetVC2);
 }
 
 void GuiMergeVolumes::operate()
 {
-  QString vol_name1 = getSelectedVolume(ui.listWidgetVC1);
-  QString vol_name2 = getSelectedVolume(ui.listWidgetVC2);
+  QString vol_name1 = getSelectedVolume(m_Ui.listWidgetVC1);
+  QString vol_name2 = getSelectedVolume(m_Ui.listWidgetVC2);
   VolumeDefinition V1 = GuiMainWindow::pointer()->getVol(vol_name1);
   VolumeDefinition V2 = GuiMainWindow::pointer()->getVol(vol_name2);
   QSet<int> all_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
@@ -102,7 +102,7 @@ void GuiMergeVolumes::operate()
       new_vols.append(V);
     }
   }
-  VolumeDefinition V(ui.lineEditNewVol->text(), V1.getVC());
+  VolumeDefinition V(m_Ui.lineEditNewVol->text(), V1.getVC());
   foreach (int bc, all_bcs) {
     if (!del_bcs.contains(bc)) {
       if (V1.getSign(bc) != 0) {
