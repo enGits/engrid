@@ -160,29 +160,24 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
   if (m_FeatureResolution3D < 1e-3) {
     return;
   }
-  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  foreach (int bc, bcs) {
-    QList<point_t> points;
-    for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
-      if (isSurface(id_face, m_Grid)) {
-        if (cell_code->GetValue(id_face) == bc) {
-          vtkIdType num_pts, *pts;
-          m_Grid->GetCellPoints(id_face, num_pts, pts);
-          point_t P;
-          P.x = cellCentre(m_Grid, id_face);
-          P.n = cellNormal(m_Grid, id_face);
-          P.n.normalise();
-          P.n *= -1;
-          for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
-            P.idx.append(m_Part.localNode(pts[i_pts]));
-          }
-          points.append(P);
-        }
+  QList<point_t> points;
+  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+    if (isSurface(id_face, m_Grid)) {
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      point_t P;
+      P.x = cellCentre(m_Grid, id_face);
+      P.n = cellNormal(m_Grid, id_face);
+      P.n.normalise();
+      P.n *= -1;
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+        P.idx.append(m_Part.localNode(pts[i_pts]));
       }
+      points.append(P);
     }
-    computeFeature(points, cl_pre, m_FeatureResolution3D);
   }
+  computeFeature(points, cl_pre, m_FeatureResolution3D);
 }
 
 
