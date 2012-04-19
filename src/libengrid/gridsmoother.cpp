@@ -24,6 +24,7 @@
 #include "guimainwindow.h"
 #include "elements.h"
 #include "optimisenormalvector.h"
+#include "pointfinder.h"
 
 #include <QTime>
 
@@ -607,12 +608,26 @@ void GridSmoother::computeHeights()
       surf_nodes.append(id_node);
     }
   }
+  /*
+  QVector<vec3_t> points(surf_nodes.size());
+  for (int i = 0; i < surf_nodes.size(); ++i) {
+    m_Grid->GetPoint(surf_nodes[i], points[i].data());
+  }
+  PointFinder pfind;
+  pfind.setPoints(points);
+  */
   foreach (vtkIdType id_node1, surf_nodes) {
+    const vec3_t& n1 = m_NodeNormal[id_node1];
+    vec3_t x1;
+    m_Grid->GetPoint(id_node1, x1.data());
+    //QVector<int> close_points;
+    //pfind.getClosePoints(x1, close_points);
+    //foreach (int i, close_points) {
+      //vtkIdType id_node2 = surf_nodes[i];
     foreach (vtkIdType id_node2, surf_nodes) {
       if (id_node1 != id_node2) {
-        const vec3_t& n1 = m_NodeNormal[id_node1];
-        vec3_t x1, x2;
-        m_Grid->GetPoint(id_node1, x1.data());
+        //vec3_t x2 = points[i];
+        vec3_t x2;
         m_Grid->GetPoint(id_node2, x2.data());
         vec3_t Dx = x2 - x1;
         double a = Dx*n1;
