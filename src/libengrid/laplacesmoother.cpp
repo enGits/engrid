@@ -163,7 +163,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           if (m_CorrectCurvature) {
             foreach (int bc, m_NodeToBc[i_nodes]) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastPprojTriangle(), x_new);
+              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastProjTriangle(), x_new);
             }
           }
         }
