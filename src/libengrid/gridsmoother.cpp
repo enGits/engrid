@@ -608,6 +608,7 @@ void GridSmoother::computeHeights()
       surf_nodes.append(id_node);
     }
   }
+
   /*
   QVector<vec3_t> points(surf_nodes.size());
   for (int i = 0; i < surf_nodes.size(); ++i) {
@@ -621,6 +622,7 @@ void GridSmoother::computeHeights()
     vec3_t x1;
     m_Grid->GetPoint(id_node1, x1.data());
     //QVector<int> close_points;
+    //pfind.setSearchDistance(m_Height[id_node1]/m_MaxHeightInGaps);
     //pfind.getClosePoints(x1, close_points);
     //foreach (int i, close_points) {
       //vtkIdType id_node2 = surf_nodes[i];

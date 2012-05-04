@@ -26,6 +26,7 @@ PointFinder::PointFinder()
 {
   m_MinSize   = 1.0;
   m_MaxPoints = 100;
+  m_SearchDistance = -1;
 }
 
 void PointFinder::setGrid(vtkUnstructuredGrid *grid)
@@ -125,12 +126,18 @@ int PointFinder::refine()
       vec3_t xcell = m_Octree.getCellCentre(cell);
       vec3_t x = m_Points[i_points];
       bool append = true;
-      double Dx = m_Octree.getDx(cell);
-      double Dy = m_Octree.getDy(cell);
-      double Dz = m_Octree.getDz(cell);
-      if      (x[0] < xcell[0] - Dx || x[0] > xcell[0] + Dx) append = false;
-      else if (x[1] < xcell[1] - Dy || x[1] > xcell[1] + Dy) append = false;
-      else if (x[2] < xcell[2] - Dz || x[2] > xcell[2] + Dz) append = false;
+      if (m_SearchDistance > 0) {
+        if      (x[0] < xcell[0] - m_SearchDistance || x[0] > xcell[0] + m_SearchDistance) append = false;
+        else if (x[1] < xcell[1] - m_SearchDistance || x[1] > xcell[1] + m_SearchDistance) append = false;
+        else if (x[2] < xcell[2] - m_SearchDistance || x[2] > xcell[2] + m_SearchDistance) append = false;
+      } else {
+        double Dx = m_Octree.getDx(cell);
+        double Dy = m_Octree.getDy(cell);
+        double Dz = m_Octree.getDz(cell);
+        if      (x[0] < xcell[0] - Dx || x[0] > xcell[0] + Dx) append = false;
+        else if (x[1] < xcell[1] - Dy || x[1] > xcell[1] + Dy) append = false;
+        else if (x[2] < xcell[2] - Dz || x[2] > xcell[2] + Dz) append = false;
+      }
       if (append) {
         m_Buckets[cell].append(i_points);
       }
