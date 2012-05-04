@@ -52,6 +52,7 @@ private: //attributes
   double                      m_NodesPerQuarterCircle;
   double                      m_FeatureResolution2D;
   double                      m_FeatureResolution3D;
+  double                      m_FeatureThresholdAngle;
   QVector<double>             m_FeatureSize;
   int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
@@ -79,6 +80,7 @@ public: //methods
   void setVolumeCellsOff() { m_OnlySurfaceCells = true; }
   void setFeatureResolution2D(double n) { m_FeatureResolution2D = n; }
   void setFeatureResolution3D(double n) { m_FeatureResolution3D = n; }
+  void setFeatureThresholdAngle(double a) { m_FeatureThresholdAngle = a; }
 
 };
 

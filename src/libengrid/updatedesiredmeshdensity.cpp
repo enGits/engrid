@@ -37,6 +37,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_MinMumCellsAcross = 0;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
+  m_FeatureThresholdAngle = deg2rad(45.0);
 
   getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
@@ -98,8 +99,10 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
         vec3_t v = x2 - x1;
         if (n1*n2 < 0) {
           if (n1*v > 0) {
-            double l = v.abs()/fabs(n1*n2);
-            h = min(l/res, h);
+            if (GeometryTools::angle(n1, (-1)*n2) <= m_FeatureThresholdAngle) {
+              double l = v.abs()/fabs(n1*n2);
+              h = min(l/res, h);
+            }
           }
         }
       }
