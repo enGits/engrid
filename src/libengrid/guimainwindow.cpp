@@ -2070,7 +2070,7 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   try {
     resetSurfaceProjection();
     foreach (int bc, m_AllBoundaryCodes) {
-      SurfaceProjection *proj = new SurfaceProjection(bc);
+      SurfaceProjection *proj = new SurfaceProjection();
       m_SurfProj[bc] = proj;
       QSet<int> bcs;
       bcs.insert(bc);

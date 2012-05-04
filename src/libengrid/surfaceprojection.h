@@ -64,7 +64,6 @@ protected: // attributes
   QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
-  int                       m_BC;
   bool                      m_RestrictToTriangle;
   double                    m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
@@ -90,7 +89,7 @@ public: // methods
   static long int Nfull;
   static long int Nhalf;
 
-  SurfaceProjection(int bc = 0);
+  SurfaceProjection();
   ~SurfaceProjection();
   
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
@@ -103,7 +102,7 @@ public: // methods
   double getRadius(vtkIdType id_node);
 
   vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
-  vtkIdType lastPprojTriangle() { return m_LastProjTriangle; }
+  vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
 
 public: // static methods
 

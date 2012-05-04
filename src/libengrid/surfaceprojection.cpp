@@ -28,11 +28,12 @@ long int SurfaceProjection::Nfull = 0;
 long int SurfaceProjection::Nhalf = 0;
 vtkIdType SurfaceProjection::m_LastPindex = 0;
 
-SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
+//SurfaceProjection::SurfaceProjection(int bc) : SurfaceAlgorithm()
+SurfaceProjection::SurfaceProjection() : SurfaceAlgorithm()
 {
   m_BGrid = vtkUnstructuredGrid::New();
   this->setGrid(m_BGrid);
-  m_BC = bc;
+  //m_BC = bc;
   m_CritDistance = 0.1;
 }
 
