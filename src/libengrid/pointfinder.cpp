@@ -86,6 +86,12 @@ void PointFinder::setPoints(const QVector<vec3_t> &points)
   do {
     N = refine();
   } while (N > 0);
+  m_MaxBucketSize = 0;
+  m_MinBucketSize = points.size();
+  for (int i = 0; i < m_Buckets.size(); ++i) {
+    m_MinBucketSize = min(m_MinBucketSize, m_Buckets[i].size());
+    m_MaxBucketSize = max(m_MaxBucketSize, m_Buckets[i].size());
+  }
 }
 
 int PointFinder::refine()
@@ -96,7 +102,7 @@ int PointFinder::refine()
   m_Octree.resetRefineMarks();
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     double dx = m_Octree.getDx(cell);
-    if (!m_Octree.hasChildren(cell) && m_Buckets[cell].size() > m_MaxPoints  && dx > 2*m_MinSize) {
+    if (!m_Octree.hasChildren(cell) && m_Buckets[cell].size() > m_MaxPoints  && dx > 2*m_MinSize && dx > 2*m_SearchDistance) {
       m_Octree.markToRefine(cell);
       ++N_new;
     }
@@ -126,11 +132,14 @@ int PointFinder::refine()
       vec3_t xcell = m_Octree.getCellCentre(cell);
       vec3_t x = m_Points[i_points];
       bool append = true;
+      /*
       if (m_SearchDistance > 0) {
         if      (x[0] < xcell[0] - m_SearchDistance || x[0] > xcell[0] + m_SearchDistance) append = false;
         else if (x[1] < xcell[1] - m_SearchDistance || x[1] > xcell[1] + m_SearchDistance) append = false;
         else if (x[2] < xcell[2] - m_SearchDistance || x[2] > xcell[2] + m_SearchDistance) append = false;
-      } else {
+      } else
+      */
+      {
         double Dx = m_Octree.getDx(cell);
         double Dy = m_Octree.getDy(cell);
         double Dz = m_Octree.getDz(cell);

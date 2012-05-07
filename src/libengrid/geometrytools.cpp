@@ -459,6 +459,12 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   mat3_t GI = G.inverse();
   ri = xi - a;
   ri = GI*ri;
+  /*
+  {
+    vec3_t b = xi-a;
+    linsolve(G, b, ri);
+  }
+  */
 
   // intersection outside of edge range?
   if (k < 0 - tol) {

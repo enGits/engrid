@@ -79,7 +79,7 @@ protected: // methods
 
   virtual void   updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
 
-  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
+  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
   vtkIdType getProjTriangle(vtkIdType id_node);
   void      setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
   void      computeSurfaceCurvature();

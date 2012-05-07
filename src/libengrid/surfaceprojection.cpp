@@ -47,7 +47,7 @@ void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
   m_FGrid = grid;
 }
 
-void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle)
+void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle)
 {
   x_proj = vec3_t(1e99, 1e99, 1e99);
   r_proj = vec3_t(0, 0, 0);
@@ -55,9 +55,36 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
   double d_min      = 1e99;
   bool   x_proj_set = false;
   on_triangle = false;
-  QVector<vtkIdType> close_faces;
-  m_FaceFinder.getCloseFaces(xp, close_faces);
-  foreach (vtkIdType id_triangle, close_faces) {
+  QVector<vtkIdType> candidate_faces;
+  if (neigh_mode) {
+    if (id_tri == -1) {
+      EG_BUG;
+    }
+    QSet<vtkIdType> raw;
+    QSet<vtkIdType> src;
+    src.insert(id_tri);
+    for (int level = 0; level < 2; ++level) {
+      foreach (vtkIdType id_src, src) {
+        vtkIdType N_pts, *pts;
+        m_BGrid->GetCellPoints(id_src, N_pts, pts);
+        for (int i = 0; i < N_pts; ++i) {
+          for (int j = 0; j < m_BPart.n2cGSize(pts[i]); ++j) {
+            raw.insert(m_BPart.n2cGG(pts[i], j));
+          }
+        }
+      }
+      src = raw;
+    }
+    int i = 0;
+    candidate_faces.resize(raw.size());
+    foreach (vtkIdType id_cell, raw) {
+      candidate_faces[i] = id_cell;
+      ++i;
+    }
+  } else {
+    m_FaceFinder.getCloseFaces(xp, candidate_faces);
+  }
+  foreach (vtkIdType id_triangle, candidate_faces) {
     Triangle T = m_Triangles[id_triangle];
     double d;
     int side;
@@ -75,6 +102,7 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
     }
   }
   if (!x_proj_set) { // should never happen
+    EG_BUG;
     for (vtkIdType id_triangle = 0; id_triangle < m_BGrid->GetNumberOfCells(); ++id_triangle) {
       Triangle T = m_Triangles[id_triangle];
       double d;
@@ -222,7 +250,7 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_cu
   }
 
   if (proj_triangle == -1) {
-    searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
+    searchNewTriangle(xp, proj_triangle, x_proj, r_proj, false, on_triangle);
     if (id_node != -1) {
       setProjTriangle(id_node, proj_triangle);
     }
@@ -236,7 +264,10 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_cu
   int side;
   bool intersects = T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
   if (!intersects || (d > m_CritDistance*T.smallestLength())) {
-    searchNewTriangle(xp, proj_triangle, x_proj, r_proj, on_triangle);
+    searchNewTriangle(xp, proj_triangle, x_proj, r_proj, true, on_triangle);
+    if (!on_triangle) {
+      searchNewTriangle(xp, proj_triangle, x_proj, r_proj, false, on_triangle);
+    }
     T = m_Triangles[proj_triangle];
     T.projectOnTriangle(xp, xi, ri, d, side, m_RestrictToTriangle);
     if (id_node != -1) {

@@ -43,8 +43,8 @@ void SurfaceMesher::operate()
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   prepare();
-  computeMeshDensity();
-  prepare();
+  //computeMeshDensity(); //!!
+  //prepare(); //!!
   if (m_BoundaryCodes.size() == 0) {
     return;
   }
@@ -57,8 +57,8 @@ void SurfaceMesher::operate()
   int num_deleted = 0;
   int iter = 0;
   bool done = (iter >= m_NumMaxIter);
-  int Nfull = 0;
-  int Nhalf = 0;
+  //int Nfull = 0;
+  //int Nhalf = 0;
   while (!done) {
     ++iter;
     cout << "surface mesher iteration " << iter << ":" << endl;
@@ -68,17 +68,17 @@ void SurfaceMesher::operate()
     cout << "  inserted nodes : " << num_inserted << endl;
     updateNodeInfo();
     swap();
-    //computeMeshDensity();
+    //computeMeshDensity(); //!!
     num_deleted = deleteNodes();
     cout << "  deleted nodes : " << num_deleted << endl;
-    //computeMeshDensity();
+    //computeMeshDensity(); // !!
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       SurfaceProjection::Nfull = 0;
       SurfaceProjection::Nhalf = 0;
       smooth(1, m_CorrectCurvature);
       swap();
     }
-    int N_crit = m_Grid->GetNumberOfPoints()/100;
+    //int N_crit = m_Grid->GetNumberOfPoints()/100;
     done = (iter >= m_NumMaxIter);
     cout << "  total nodes : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells : " << m_Grid->GetNumberOfCells() << endl;
@@ -97,7 +97,7 @@ void SurfaceMesher::operate()
   }
   createIndices(m_Grid);
   updateNodeInfo(false);
-  computeMeshDensity();
+  //computeMeshDensity(); //!!
   {
     QVector<int> bcs;
     GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);

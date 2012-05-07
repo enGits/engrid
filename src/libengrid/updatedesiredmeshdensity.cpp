@@ -22,6 +22,7 @@
 // 
 #include "updatedesiredmeshdensity.h"
 #include "guimainwindow.h"
+#include "pointfinder.h"
 
 #include <vtkCharArray.h>
 
@@ -42,6 +43,19 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
+void UpdateDesiredMeshDensity::computeSearchDistance()
+{
+  m_SearchDistance = 0;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x1;
+    m_Grid->GetPoint(id_node, x1.data());
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vec3_t x2;
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x2.data());
+      m_SearchDistance = max(m_SearchDistance, (x1 - x2).abs());
+    }
+  }
+}
 
 void UpdateDesiredMeshDensity::computeExistingLengths()
 {
@@ -88,9 +102,21 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
 
 void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res)
 {
+  QVector<vec3_t> pts(points.size());
+  for (int i = 0; i < points.size(); ++i) {
+    pts[i] = points[i].x;
+  }
+  PointFinder pfind;
+  pfind.setSearchDistance(res*m_SearchDistance);
+  pfind.setPoints(pts);
   for (int i = 0; i < points.size(); ++i) {
     double h = 1e99;
-    for (int j = 0; j < points.size(); ++j) {
+    QVector<int> close_points;
+    pfind.getClosePoints(points[i].x, close_points);
+//    if (points[i].idx.contains(1434)) {
+//      cout << "break-point" << endl;
+//    }
+    foreach (int j, close_points) {
       if (i != j) {
         vec3_t x1 = points[i].x;
         vec3_t x2 = points[j].x;
@@ -99,7 +125,7 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
         vec3_t v = x2 - x1;
         if (n1*n2 < 0) {
           if (n1*v > 0) {
-            if (GeometryTools::angle(n1, (-1)*n2) <= m_FeatureThresholdAngle) {
+            if (fabs(GeometryTools::angle(n1, (-1)*n2)) <= m_FeatureThresholdAngle) {
               double l = v.abs()/fabs(n1*n2);
               h = min(l/res, h);
             }
@@ -239,18 +265,9 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   // cells across branches
+  computeSearchDistance();
   computeFeature2D(cl_pre);
   computeFeature3D(cl_pre);
-  /*
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    for (int i_bc = 0; i_bc < m_Part.n2bcLSize(i_nodes); ++i_bc) {
-      int bc = m_Part.n2bcL(i_nodes, i_bc);
-      if (bc != 0) {
-        cl_pre[i_nodes] = min(cl_pre[i_nodes], feature_res[m_Part.n2bcL(i_nodes, i_bc)]);
-      }
-    }
-  }
-  */
 
   // set everything to desired mesh density and find maximal mesh-density
   double cl_min = 1e99;

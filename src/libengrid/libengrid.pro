@@ -31,6 +31,8 @@ win32-msvc* {
 } else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
+    QMAKE_CXXFLAGS += -fno-omit-frame-pointer
+    QMAKE_CXXFLAGS += -g
 }
 
 

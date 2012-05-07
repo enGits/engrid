@@ -39,6 +39,8 @@ class PointFinder : public EgVtkObject
   int                  m_MaxPoints;
   Timer                m_Timer;
   QVector<QList<int> > m_Buckets;
+  int                  m_MinBucketSize;
+  int                  m_MaxBucketSize;
   double               m_SearchDistance;
 
 
@@ -56,6 +58,8 @@ public: // methods
   void setMaxNumPoints(int N) { m_MaxPoints = N; }
   void getClosePoints(vec3_t x, QVector<int> &points);
   void setSearchDistance(double d) { m_SearchDistance = d; }
+  int  minBucketSize() { return m_MinBucketSize; }
+  int  maxBucketSize() { return m_MaxBucketSize; }
 
 };
 

@@ -58,12 +58,14 @@ private: //attributes
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;
+  double                      m_SearchDistance;
 
 protected: // methods
 
   void computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res);
   void computeFeature2D(QVector<double> &cl_pre);
   void computeFeature3D(QVector<double> &cl_pre);
+  void computeSearchDistance();
   void computeExistingLengths();
 
 
