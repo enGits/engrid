@@ -41,7 +41,6 @@ class PointFinder : public EgVtkObject
   QVector<QList<int> > m_Buckets;
   int                  m_MinBucketSize;
   int                  m_MaxBucketSize;
-  double               m_SearchDistance;
 
 
 private: // methods
@@ -56,10 +55,10 @@ public: // methods
   void setGrid(vtkUnstructuredGrid *grid);
   void setPoints(const QVector<vec3_t> &points);
   void setMaxNumPoints(int N) { m_MaxPoints = N; }
-  void getClosePoints(vec3_t x, QVector<int> &points);
-  void setSearchDistance(double d) { m_SearchDistance = d; }
+  void getClosePoints(vec3_t x, QVector<int> &points, double dist = 0);
   int  minBucketSize() { return m_MinBucketSize; }
   int  maxBucketSize() { return m_MaxBucketSize; }
+  void writeOctreeMesh(QString file_name);
 
 };
 

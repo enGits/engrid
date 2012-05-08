@@ -615,11 +615,6 @@ void GridSmoother::computeHeights()
     m_Grid->GetPoint(surf_nodes[i], points[i].data());
   }
   PointFinder pfind;
-  double L_search = 0;
-  foreach (vtkIdType id_node1, surf_nodes) {
-    L_search = max(m_Height[id_node1]/m_MaxHeightInGaps, L_search);
-  }
-  pfind.setSearchDistance(L_search);
   pfind.setPoints(points);
 
   foreach (vtkIdType id_node1, surf_nodes) {

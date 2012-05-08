@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -43,18 +43,20 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
-void UpdateDesiredMeshDensity::computeSearchDistance()
+double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)
 {
-  m_SearchDistance = 0;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x1;
-    m_Grid->GetPoint(id_node, x1.data());
-    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-      vec3_t x2;
-      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x2.data());
-      m_SearchDistance = max(m_SearchDistance, (x1 - x2).abs());
-    }
+  vtkIdType N_pts, *pts;
+  m_Grid->GetCellPoints(id_face, N_pts, pts);
+  QVector<vec3_t> x(N_pts + 1);
+  for (int i = 0; i < N_pts; ++i) {
+    m_Grid->GetPoint(pts[i], x[i].data());
   }
+  x[N_pts] = x[0];
+  double L = 0;
+  for (int i = 0; i < N_pts; ++i) {
+    L = max(L, (x[i] - x[i+1]).abs());
+  }
+  return L;
 }
 
 void UpdateDesiredMeshDensity::computeExistingLengths()
@@ -102,22 +104,21 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
 
 void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res)
 {
+  int N = 0;
   QVector<vec3_t> pts(points.size());
   for (int i = 0; i < points.size(); ++i) {
     pts[i] = points[i].x;
   }
   PointFinder pfind;
-  pfind.setSearchDistance(res*m_SearchDistance);
+  pfind.setMaxNumPoints(5000);
   pfind.setPoints(pts);
   for (int i = 0; i < points.size(); ++i) {
     double h = 1e99;
     QVector<int> close_points;
-    pfind.getClosePoints(points[i].x, close_points);
-//    if (points[i].idx.contains(1434)) {
-//      cout << "break-point" << endl;
-//    }
+    pfind.getClosePoints(points[i].x, close_points, res*points[i].L);
     foreach (int j, close_points) {
       if (i != j) {
+        ++N;
         vec3_t x1 = points[i].x;
         vec3_t x2 = points[j].x;
         vec3_t n1 = points[i].n;
@@ -173,6 +174,7 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
                 for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
                   P.idx.append(m_Part.localNode(pts[i_pts]));
                 }
+                P.L = computeSearchDistance(id_face);
                 points.append(P);
               }
             }
@@ -203,6 +205,7 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         P.idx.append(m_Part.localNode(pts[i_pts]));
       }
+      P.L = computeSearchDistance(id_face);
       points.append(P);
     }
   }
@@ -265,7 +268,6 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   // cells across branches
-  computeSearchDistance();
   computeFeature2D(cl_pre);
   computeFeature3D(cl_pre);
 
