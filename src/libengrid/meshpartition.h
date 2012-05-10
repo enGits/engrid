@@ -104,6 +104,13 @@ public: // methods
   void setCells(const C& cls);
 
   /**
+   * Define the mesh partition by defining its nodes.
+   * @param nds the nodes of the subset
+   */
+  template <class C>
+  void setNodes(const C& nds);
+
+  /**
    * Define the mesh partition by defining boundary codes.
    * @param bcs the boundary codes of the subset
    */
@@ -217,6 +224,31 @@ inline void MeshPartition::setCells(const C& cls)
   m_Cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), m_Cells.begin());
   ++m_CellsStamp;
+}
+
+template <class C>
+inline void MeshPartition::setNodes(const C& nds)
+{
+  QList<vtkIdType> cls;
+  QVector<bool> node_inside(m_Grid->GetNumberOfPoints(), false);
+  foreach (vtkIdType id_node, nds) {
+    node_inside[id_node] = true;
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType N_pts, *pts;
+    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    bool append_cell = true;
+    for (int i = 0; i < N_pts; ++i) {
+      if (!node_inside[pts[i]]) {
+        append_cell = false;
+        break;
+      }
+    }
+    if (append_cell) {
+      cls.append(id_cell);
+    }
+  }
+  setCells(cls);
 }
 
 template <class C>
