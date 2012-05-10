@@ -106,9 +106,9 @@ void GuiEditBoundaryConditions::operate()
     for (int j = 3; j < m_Ui.T->columnCount(); ++j) {
       QString vol_name = m_Ui.T->horizontalHeaderItem(j)->text();
       VolumeDefinition V = vols[j];
-      if (m_Ui.T->item(i, j)->text() == "green")  V.addBC(bc,  1);
-      else if (m_Ui.T->item(i, j)->text() == "yellow") V.addBC(bc, -1);
-      else                                           V.addBC(bc,  0);
+      if      (m_Ui.T->item(i, j)->text() == "A <<") V.addBC(bc,  1);
+      else if (m_Ui.T->item(i, j)->text() == ">> B") V.addBC(bc, -1);
+      else                                            V.addBC(bc,  0);
       vols[j] = V;
     }
   }
@@ -142,8 +142,8 @@ void GuiEditBoundaryConditions::updateVol()
     m_Ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(V.getName()));
     for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
       int bc = m_Ui.T->item(i, 0)->text().toInt();
-      if (V.getSign(bc) ==  1) m_Ui.T->setItem(i, c, new QTableWidgetItem("green"));
-      else if (V.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
+      if      (V.getSign(bc) ==  1) m_Ui.T->setItem(i, c, new QTableWidgetItem("A <<"));
+      else if (V.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem(">> B"));
       else                          m_Ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
@@ -161,8 +161,8 @@ void GuiEditBoundaryConditions::addVol()
     m_Ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(NV.getName()));
     for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
       int bc = m_Ui.T->item(i, 0)->text().toInt();
-      if (NV.getSign(bc) == 1)  m_Ui.T->setItem(i, c, new QTableWidgetItem("green"));
-      else if (NV.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
+      if      (NV.getSign(bc) == 1)  m_Ui.T->setItem(i, c, new QTableWidgetItem("A <<"));
+      else if (NV.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem(">> B"));
       else                           m_Ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }

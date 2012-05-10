@@ -116,6 +116,13 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkPolyDataMapper* m_PolyhedraMapper;
     vtkPolyDataMapper* m_VolumeWireMapper;
 
+    double m_ColTetraR, m_ColTetraG, m_ColTetraB;
+    double m_ColPyraR,  m_ColPyraG,  m_ColPyraB;
+    double m_ColPrismR, m_ColPrismG, m_ColPrismB;
+    double m_ColHexR,   m_ColHexG,   m_ColHexB;
+    double m_ColAR,     m_ColAG,     m_ColAB;
+    double m_ColBR,     m_ColBG,     m_ColBB;
+
     vtkEgExtractVolumeCells *m_ExtrVol;
     vtkEgExtractVolumeCells *m_ExtrTetras;
     vtkEgExtractVolumeCells *m_ExtrPyramids;

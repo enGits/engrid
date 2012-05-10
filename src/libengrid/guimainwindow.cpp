@@ -313,6 +313,31 @@ GuiMainWindow::~GuiMainWindow()
 
 void GuiMainWindow::setupVtk()
 {
+  // colour settings
+  getSet("Colours", "'A' faces (1-red)",   0.5, m_ColAR);
+  getSet("Colours", "'A' faces (2-green)", 1.0, m_ColAG);
+  getSet("Colours", "'A' faces (3-blue)",  0.5, m_ColAB);
+
+  getSet("Colours", "'B' faces (1-red)",   1.0, m_ColBR);
+  getSet("Colours", "'B' faces (2-green)", 1.0, m_ColBG);
+  getSet("Colours", "'B' faces (3-blue)",  0.5, m_ColBB);
+
+  getSet("Colours", " tetras (1-red)",     1.0, m_ColTetraR);
+  getSet("Colours", " tetras (2-green)",   0.0, m_ColTetraG);
+  getSet("Colours", " tetras (3-blue)",    0.0, m_ColTetraB);
+
+  getSet("Colours", " prisms (1-red)",     0.0, m_ColPrismR);
+  getSet("Colours", " prisms (2-green)",   1.0, m_ColPrismG);
+  getSet("Colours", " prisms (3-blue)",    0.0, m_ColPrismB);
+
+  getSet("Colours", " pyramids (1-red)",   1.0, m_ColPyraR);
+  getSet("Colours", " pyramids (2-green)", 1.0, m_ColPyraG);
+  getSet("Colours", " pyramids (3-blue)",  0.0, m_ColPyraB);
+
+  getSet("Colours", " hexes (1-red)",      0.0, m_ColHexR);
+  getSet("Colours", " hexes (2-green)",    0.7, m_ColHexG);
+  getSet("Colours", " hexes (3-blue)",     1.0, m_ColHexB);
+
   m_Grid = vtkUnstructuredGrid::New();
   m_Renderer = vtkRenderer::New();
   getRenderWindow()->AddRenderer(m_Renderer);
@@ -342,9 +367,9 @@ void GuiMainWindow::setupVtk()
   m_SurfaceWireMapper->SetInput(m_SurfaceFilter->GetOutput());
   m_SurfaceMapper->SetLookupTable(m_LookupTable);
   m_SurfaceActor->GetProperty()->SetRepresentationToSurface();
-  m_SurfaceActor->GetProperty()->SetColor(0.5,1,0.5);
+  m_SurfaceActor->GetProperty()->SetColor(m_ColAR, m_ColAG, m_ColAB);
   m_SurfaceActor->SetBackfaceProperty(m_BackfaceProperty);
-  m_SurfaceActor->GetBackfaceProperty()->SetColor(1,1,0.5);
+  m_SurfaceActor->GetBackfaceProperty()->SetColor(m_ColBR, m_ColBG, m_ColBB);
   m_SurfaceActor->SetMapper(m_SurfaceMapper);
   getRenderer()->AddActor(m_SurfaceActor);
   m_SurfaceActor->SetVisibility(1);
@@ -369,7 +394,7 @@ void GuiMainWindow::setupVtk()
   m_TetraGeometry->SetInput(m_ExtrTetras->GetOutput());
   m_TetraMapper->SetInput(m_TetraGeometry->GetOutput());
   m_TetraActor->SetMapper(m_TetraMapper);
-  m_TetraActor->GetProperty()->SetColor(1,0,0);
+  m_TetraActor->GetProperty()->SetColor(m_ColTetraR, m_ColTetraG, m_ColTetraB);
   getRenderer()->AddActor(m_TetraActor);
   m_TetraActor->SetVisibility(0);
 
@@ -385,7 +410,7 @@ void GuiMainWindow::setupVtk()
   m_PyramidGeometry->SetInput(m_ExtrPyramids->GetOutput());
   m_PyramidMapper->SetInput(m_PyramidGeometry->GetOutput());
   m_PyramidActor->SetMapper(m_PyramidMapper);
-  m_PyramidActor->GetProperty()->SetColor(1,1,0);
+  m_PyramidActor->GetProperty()->SetColor(m_ColPyraR, m_ColPyraG, m_ColPyraB);
   getRenderer()->AddActor(m_PyramidActor);
   m_PyramidActor->SetVisibility(0);
 
@@ -401,7 +426,7 @@ void GuiMainWindow::setupVtk()
   m_WedgeGeometry->SetInput(m_ExtrWedges->GetOutput());
   m_WedgeMapper->SetInput(m_WedgeGeometry->GetOutput());
   m_WedgeActor->SetMapper(m_WedgeMapper);
-  m_WedgeActor->GetProperty()->SetColor(0,1,0);
+  m_WedgeActor->GetProperty()->SetColor(m_ColPrismR, m_ColPrismG, m_ColPrismB);
   getRenderer()->AddActor(m_WedgeActor);
   m_WedgeActor->SetVisibility(0);
 
@@ -417,7 +442,7 @@ void GuiMainWindow::setupVtk()
   m_HexaGeometry->SetInput(m_ExtrHexes->GetOutput());
   m_HexaMapper->SetInput(m_HexaGeometry->GetOutput());
   m_HexaActor->SetMapper(m_HexaMapper);
-  m_HexaActor->GetProperty()->SetColor(0,0.7,1);
+  m_HexaActor->GetProperty()->SetColor(m_ColHexR, m_ColHexG, m_ColHexB);
   getRenderer()->AddActor(m_HexaActor);
   m_HexaActor->SetVisibility(0);
 

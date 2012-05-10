@@ -44,5 +44,5 @@ int VolumeDefinition::getSign(int bc)
   if (bcs.contains(bc)) {
     return bcs[bc];
   }
-  return 0;
+  return 1;
 }
