@@ -42,8 +42,8 @@ QWidget *GuiVolumeDelegate::createEditor(QWidget *parent, const QStyleOptionView
 {
   if (index.column() >= first_column) {
     QComboBox *comboBox = new QComboBox(parent);
-    comboBox->addItem("green");
-    comboBox->addItem("yellow");
+    comboBox->addItem("A <<");
+    comboBox->addItem(">> B");
     comboBox->addItem(" ");
     connect(comboBox, SIGNAL(currentIndexChanged ( int )), this, SLOT(commitAndCloseEditor()));
     return comboBox;

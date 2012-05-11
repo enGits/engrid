@@ -28,8 +28,8 @@
 
 void GuiDivideBoundaryLayer::before()
 {
-  populateBoundaryCodes(ui.listWidgetBC);
-  populateVolumes(ui.listWidgetVC);
+  populateBoundaryCodes(m_Ui.listWidgetBC);
+  populateVolumes(m_Ui.listWidgetVC);
   QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
   QTextStream s(&blayer_txt);
   double v;
@@ -37,24 +37,24 @@ void GuiDivideBoundaryLayer::before()
     s >> v;
     QString num;
     num.setNum(v);
-    ui.lineEditAbsolute->setText(num);
+    m_Ui.lineEditAbsolute->setText(num);
   }
   if (!s.atEnd()) {
     s >> v; // relative height
-    ui.doubleSpinBoxHeight->setValue(v);
+    m_Ui.doubleSpinBoxHeight->setValue(v);
   }
   if (!s.atEnd()) {
     s >> v; // blending
-    ui.doubleSpinBoxBlending->setValue(v);
+    m_Ui.doubleSpinBoxBlending->setValue(v);
   }
   if (!s.atEnd()) {
     s >> v;
-    ui.doubleSpinBoxStretching->setValue(v);
+    m_Ui.doubleSpinBoxStretching->setValue(v);
   }
   if (!s.atEnd()) {
     int v;
     s >> v;
-    ui.spinBoxLayers->setValue(v);
+    m_Ui.spinBoxLayers->setValue(v);
   }
 
   m_RestGrid = vtkUnstructuredGrid::New();
@@ -190,8 +190,8 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
 void GuiDivideBoundaryLayer::operate()
 {
   // set m_Grid to selected volume
-  getSelectedItems(ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
-  QString volume_name = getSelectedVolume(ui.listWidgetVC);
+  getSelectedItems(m_Ui.listWidgetBC, m_BoundaryCodes); // fill m_BoundaryCodes with values from listWidgetBC
+  QString volume_name = getSelectedVolume(m_Ui.listWidgetVC);
   VolumeDefinition V = GuiMainWindow::pointer()->getVol(volume_name);
   foreach (int bc, m_BoundaryCodes) {
     qDebug()<<"V.getSign("<<bc<<")="<<V.getSign(bc);
@@ -216,11 +216,11 @@ void GuiDivideBoundaryLayer::operate()
   }
   setAllCells();
   
-  m_NumLayers = ui.spinBoxLayers->value();
-  m_RelativeHeight = ui.doubleSpinBoxHeight->value();
-  m_AbsoluteHeight = ui.lineEditAbsolute->text().toDouble();
-  m_Blending = ui.doubleSpinBoxBlending->value();
-  m_DesiredStretching = ui.doubleSpinBoxStretching->value();
+  m_NumLayers = m_Ui.spinBoxLayers->value();
+  m_RelativeHeight = m_Ui.doubleSpinBoxHeight->value();
+  m_AbsoluteHeight = m_Ui.lineEditAbsolute->text().toDouble();
+  m_Blending = m_Ui.doubleSpinBoxBlending->value();
+  m_DesiredStretching = m_Ui.doubleSpinBoxStretching->value();
   cout << "dividing boundary layer into " << m_NumLayers << " layers:" << endl;
   if(findBoundaryLayer()) {
     EG_VTKSP(vtkUnstructuredGrid,new_grid);

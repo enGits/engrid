@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,32 +19,42 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#include "guipick.h"
-#include "guimainwindow.h"
+//
 
-void GuiPick::before()
-{
-  m_Ui.spinBox_Point->setMaximum(m_Grid->GetNumberOfPoints()-1);
-  m_Ui.spinBox_Cell->setMaximum(m_Grid->GetNumberOfCells()-1);
-}
+#ifndef POLYMOLECULE_H
+#define POLYMOLECULE_H
 
-void GuiPick::operate()
+#include "egvtkobject.h"
+#include "polymesh.h"
+
+#include <QList>
+
+class PolyMolecule : public EgVtkObject
 {
-  cout<<"GuiPick called"<<endl;
-  if(m_Ui.radioButton_Point->isChecked())
-  {
-    vtkIdType nodeId=m_Ui.spinBox_Point->value();
-    cout<<"Pick point "<<nodeId<<endl;
-    GuiMainWindow::pointer()->setPickMode(false,false);
-    GuiMainWindow::pointer()->pickPoint(nodeId);
-  }
-  else
-  {
-    vtkIdType cellId=m_Ui.spinBox_Cell->value();
-    cout<<"Pick cell "<<cellId<<endl;
-    GuiMainWindow::pointer()->setPickMode(false,true);
-    GuiMainWindow::pointer()->pickCell(cellId);
-  }
-  updateActors();
+
+private: // data types
+
+  struct edge_t {
+    int node1;
+    int node2;
+    int face1;
+    int face2;
+  };
+
+private: // attributes
+
+  PolyMesh*             m_PolyMesh;
+  QList<int>            m_Nodes;
+  QVector<QList<int> >  m_Faces;
+  QList<QList<edge_t> > m_N2N;
+
+public:
+
+  PolyMolecule(PolyMesh *poly_mesh, const QList<int> &faces);
+
+  vec3_t getXNode(int node) { return m_PolyMesh->nodeVector(m_Nodes[node]); }
+  vec3_t getXFace(int face);
+
 };
+
+#endif // POLYMOLECULE_H

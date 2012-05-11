@@ -35,15 +35,15 @@
 
 GuiEditBoundaryConditions::GuiEditBoundaryConditions()
 {
-  connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
-  connect(ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
-  connect(ui.pushButtonAddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
-  connect(ui.pushButtonDeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
-  connect(ui.listWidgetBoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
-  connect(ui.pushButton_AddProcess, SIGNAL(clicked()), this, SLOT(addProcess()));
-  connect(ui.pushButton_RemoveProcess, SIGNAL(clicked()), this, SLOT(deleteProcess()));
-  connect(ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()));
-  connect(ui.pushButton_ExportHostFile, SIGNAL(clicked()), this, SLOT(exportHostFile()));
+  connect(m_Ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(addVol()));
+  connect(m_Ui.pushButtonDelete, SIGNAL(clicked()), this, SLOT(delVol()));
+  connect(m_Ui.pushButtonAddBoundaryType, SIGNAL(clicked()), this, SLOT(addBoundaryType()));
+  connect(m_Ui.pushButtonDeleteBoundaryType, SIGNAL(clicked()), this, SLOT(deleteBoundaryType()));
+  connect(m_Ui.listWidgetBoundaryType, SIGNAL(itemSelectionChanged()), this, SLOT(changePhysicalValues()));
+  connect(m_Ui.pushButton_AddProcess, SIGNAL(clicked()), this, SLOT(addProcess()));
+  connect(m_Ui.pushButton_RemoveProcess, SIGNAL(clicked()), this, SLOT(deleteProcess()));
+  connect(m_Ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()));
+  connect(m_Ui.pushButton_ExportHostFile, SIGNAL(clicked()), this, SLOT(exportHostFile()));
   
   setupSolvers();
   loadMpiParameters();
@@ -53,7 +53,7 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
   delegate->setFirstCol(3);
 
   //set initial tab
-  ui.tabWidget->setCurrentIndex(0);
+  m_Ui.tabWidget->setCurrentIndex(0);
 }
 
 GuiEditBoundaryConditions::~GuiEditBoundaryConditions()
@@ -65,55 +65,55 @@ void GuiEditBoundaryConditions::before()
 {
   if (!m_BcMap) EG_BUG;
   resetOrientation(m_Grid);
-  while (ui.T->rowCount()) ui.T->removeRow(0);
+  while (m_Ui.T->rowCount()) m_Ui.T->removeRow(0);
   foreach(int i, m_BoundaryCodes) {
     BoundaryCondition bc = (*m_BcMap)[i];
-    ui.T->insertRow(ui.T->rowCount());
-    int r = ui.T->rowCount() - 1;
-    ui.T->setItem(r, 0, new QTableWidgetItem());
-    ui.T->item(r, 0)->setFlags(ui.T->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
-    ui.T->item(r, 0)->setFlags(ui.T->item(r, 0)->flags() & (~Qt::ItemIsEditable));
-    ui.T->setItem(r, 1, new QTableWidgetItem());
-    ui.T->setItem(r, 2, new QTableWidgetItem());
+    m_Ui.T->insertRow(m_Ui.T->rowCount());
+    int r = m_Ui.T->rowCount() - 1;
+    m_Ui.T->setItem(r, 0, new QTableWidgetItem());
+    m_Ui.T->item(r, 0)->setFlags(m_Ui.T->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
+    m_Ui.T->item(r, 0)->setFlags(m_Ui.T->item(r, 0)->flags() & (~Qt::ItemIsEditable));
+    m_Ui.T->setItem(r, 1, new QTableWidgetItem());
+    m_Ui.T->setItem(r, 2, new QTableWidgetItem());
     QString idx;
     idx.setNum(i);
-    ui.T->item(r, 0)->setText(idx);
+    m_Ui.T->item(r, 0)->setText(idx);
     QString name = bc.getName();
     if (name == "unknown") name = QString("BC") + idx;
-    ui.T->item(r, 1)->setText(name);
-    ui.T->item(r, 2)->setText(bc.getType());
+    m_Ui.T->item(r, 1)->setText(name);
+    m_Ui.T->item(r, 2)->setText(bc.getType());
   }
 
   updateVol();
   updatePhysicalBoundaryConditions();
 
-  ui.T->setItemDelegate(delegate);
+  m_Ui.T->setItemDelegate(delegate);
 }
 
 void GuiEditBoundaryConditions::operate()
 {
   // BoundaryCondition and VolumeDefinition
-  QVector<VolumeDefinition> vols(ui.T->columnCount());
-  for (int j = 3; j < ui.T->columnCount(); ++j) {
-    QString vol_name = ui.T->horizontalHeaderItem(j)->text();
+  QVector<VolumeDefinition> vols(m_Ui.T->columnCount());
+  for (int j = 3; j < m_Ui.T->columnCount(); ++j) {
+    QString vol_name = m_Ui.T->horizontalHeaderItem(j)->text();
     VolumeDefinition V(vol_name, j - 2);
     vols[j] = V;
   }
-  for (int i = 0; i < ui.T->rowCount(); ++i) {
-    int bc = ui.T->item(i, 0)->text().toInt();
-    BoundaryCondition BC(ui.T->item(i, 1)->text(), ui.T->item(i, 2)->text());
+  for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+    int bc = m_Ui.T->item(i, 0)->text().toInt();
+    BoundaryCondition BC(m_Ui.T->item(i, 1)->text(), m_Ui.T->item(i, 2)->text());
     (*m_BcMap)[bc] = BC;
-    for (int j = 3; j < ui.T->columnCount(); ++j) {
-      QString vol_name = ui.T->horizontalHeaderItem(j)->text();
+    for (int j = 3; j < m_Ui.T->columnCount(); ++j) {
+      QString vol_name = m_Ui.T->horizontalHeaderItem(j)->text();
       VolumeDefinition V = vols[j];
-      if (ui.T->item(i, j)->text() == "green")  V.addBC(bc,  1);
-      else if (ui.T->item(i, j)->text() == "yellow") V.addBC(bc, -1);
-      else                                           V.addBC(bc,  0);
+      if      (m_Ui.T->item(i, j)->text() == "A <<") V.addBC(bc,  1);
+      else if (m_Ui.T->item(i, j)->text() == ">> B") V.addBC(bc, -1);
+      else                                            V.addBC(bc,  0);
       vols[j] = V;
     }
   }
   QList<VolumeDefinition> vol_list;
-  for (int j = 3; j < ui.T->columnCount(); ++j) {
+  for (int j = 3; j < m_Ui.T->columnCount(); ++j) {
     vol_list.append(vols[j]);
   }
   GuiMainWindow::pointer()->setAllVols(vol_list);
@@ -131,20 +131,20 @@ void GuiEditBoundaryConditions::operate()
 
 void GuiEditBoundaryConditions::updateVol()
 {
-  while (ui.T->columnCount() > 3) {
-    ui.T->removeColumn(3);
+  while (m_Ui.T->columnCount() > 3) {
+    m_Ui.T->removeColumn(3);
   }
   QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
   foreach(VolumeDefinition V, vols) {
     m_VolMap[V.getName()] = V;
-    int c = ui.T->columnCount();
-    ui.T->insertColumn(c);
-    ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(V.getName()));
-    for (int i = 0; i < ui.T->rowCount(); ++i) {
-      int bc = ui.T->item(i, 0)->text().toInt();
-      if (V.getSign(bc) ==  1) ui.T->setItem(i, c, new QTableWidgetItem("green"));
-      else if (V.getSign(bc) == -1) ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
-      else                          ui.T->setItem(i, c, new QTableWidgetItem(" "));
+    int c = m_Ui.T->columnCount();
+    m_Ui.T->insertColumn(c);
+    m_Ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(V.getName()));
+    for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+      int bc = m_Ui.T->item(i, 0)->text().toInt();
+      if      (V.getSign(bc) ==  1) m_Ui.T->setItem(i, c, new QTableWidgetItem("A <<"));
+      else if (V.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem(">> B"));
+      else                          m_Ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
 }
@@ -152,18 +152,18 @@ void GuiEditBoundaryConditions::updateVol()
 void GuiEditBoundaryConditions::addVol()
 {
   cout << "Adding volume" << endl;
-  QString name = ui.lineEditVolume->text();
+  QString name = m_Ui.lineEditVolume->text();
   if (!name.isEmpty() && !m_VolMap.contains(name)) {
-    VolumeDefinition NV(name, ui.T->columnCount() - 2);
+    VolumeDefinition NV(name, m_Ui.T->columnCount() - 2);
     m_VolMap[NV.getName()] = NV;
-    int c = ui.T->columnCount();
-    ui.T->insertColumn(c);
-    ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(NV.getName()));
-    for (int i = 0; i < ui.T->rowCount(); ++i) {
-      int bc = ui.T->item(i, 0)->text().toInt();
-      if (NV.getSign(bc) == 1)  ui.T->setItem(i, c, new QTableWidgetItem("green"));
-      else if (NV.getSign(bc) == -1) ui.T->setItem(i, c, new QTableWidgetItem("yellow"));
-      else                           ui.T->setItem(i, c, new QTableWidgetItem(" "));
+    int c = m_Ui.T->columnCount();
+    m_Ui.T->insertColumn(c);
+    m_Ui.T->setHorizontalHeaderItem(c, new QTableWidgetItem(NV.getName()));
+    for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+      int bc = m_Ui.T->item(i, 0)->text().toInt();
+      if      (NV.getSign(bc) == 1)  m_Ui.T->setItem(i, c, new QTableWidgetItem("A <<"));
+      else if (NV.getSign(bc) == -1) m_Ui.T->setItem(i, c, new QTableWidgetItem(">> B"));
+      else                           m_Ui.T->setItem(i, c, new QTableWidgetItem(" "));
     }
   }
 }
@@ -171,13 +171,13 @@ void GuiEditBoundaryConditions::addVol()
 void GuiEditBoundaryConditions::delVol()
 {
   cout << "Deleting volume" << endl;
-  int col = ui.T->currentColumn();
+  int col = m_Ui.T->currentColumn();
   cout << "col=" << col << endl;
   if (col > 2) {
-    QString name = ui.T->horizontalHeaderItem(col)->text();
+    QString name = m_Ui.T->horizontalHeaderItem(col)->text();
     cout << "name=" << qPrintable(name) << endl;
     m_VolMap.remove(name);
-    ui.T->removeColumn(col);
+    m_Ui.T->removeColumn(col);
   }
   else {
     cout << "Nothing to delete." << endl;
@@ -188,29 +188,29 @@ void GuiEditBoundaryConditions::delVol()
 
 void GuiEditBoundaryConditions::loadPhysicalValues()
 {
-  while (ui.tableWidgetPBC->rowCount()) {
-    ui.tableWidgetPBC->removeRow(0);
+  while (m_Ui.tableWidgetPBC->rowCount()) {
+    m_Ui.tableWidgetPBC->removeRow(0);
   }
   for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
     QString str;
     str.setNum(m_PBC_current.getVarValue(i));
-    ui.tableWidgetPBC->insertRow(ui.tableWidgetPBC->rowCount());
-    int r = ui.tableWidgetPBC->rowCount() - 1;
-    ui.tableWidgetPBC->setItem(r, 0, new QTableWidgetItem());
-    ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
-    ui.tableWidgetPBC->item(r, 0)->setFlags(ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsEditable));
-    ui.tableWidgetPBC->setItem(r, 1, new QTableWidgetItem());
-    ui.tableWidgetPBC->item(r, 0)->setText(m_PBC_current.getVarName(i));
-    ui.tableWidgetPBC->item(r, 1)->setText(str);
+    m_Ui.tableWidgetPBC->insertRow(m_Ui.tableWidgetPBC->rowCount());
+    int r = m_Ui.tableWidgetPBC->rowCount() - 1;
+    m_Ui.tableWidgetPBC->setItem(r, 0, new QTableWidgetItem());
+    m_Ui.tableWidgetPBC->item(r, 0)->setFlags(m_Ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsSelectable));
+    m_Ui.tableWidgetPBC->item(r, 0)->setFlags(m_Ui.tableWidgetPBC->item(r, 0)->flags() & (~Qt::ItemIsEditable));
+    m_Ui.tableWidgetPBC->setItem(r, 1, new QTableWidgetItem());
+    m_Ui.tableWidgetPBC->item(r, 0)->setText(m_PBC_current.getVarName(i));
+    m_Ui.tableWidgetPBC->item(r, 1)->setText(str);
   }
-  ui.tableWidgetPBC->resizeColumnsToContents();
+  m_Ui.tableWidgetPBC->resizeColumnsToContents();
 }
 
 void GuiEditBoundaryConditions::savePhysicalValues()
 {
   if(m_PhysicalBoundaryConditionsMap.contains(m_PBC_current.getName())) {
     for (int i = 0; i < m_PBC_current.getNumVars(); ++i) {
-      m_PBC_current.setValue(i, ui.tableWidgetPBC->item(i, 1)->text().toDouble());
+      m_PBC_current.setValue(i, m_Ui.tableWidgetPBC->item(i, 1)->text().toDouble());
     }
     m_PhysicalBoundaryConditionsMap[m_PBC_current.getName()] = m_PBC_current;
   }
@@ -218,9 +218,9 @@ void GuiEditBoundaryConditions::savePhysicalValues()
 
 void GuiEditBoundaryConditions::changePhysicalValues()
 {
-  if (ui.listWidgetBoundaryType->count() > 0) {
-    int index = ui.listWidgetBoundaryType->currentRow();
-    QString name = ui.listWidgetBoundaryType->currentItem()->text();
+  if (m_Ui.listWidgetBoundaryType->count() > 0) {
+    int index = m_Ui.listWidgetBoundaryType->currentRow();
+    QString name = m_Ui.listWidgetBoundaryType->currentItem()->text();
     savePhysicalValues();
     if(m_PhysicalBoundaryConditionsMap.contains(name)) {
       m_PBC_current = m_PhysicalBoundaryConditionsMap[name];
@@ -233,26 +233,26 @@ void GuiEditBoundaryConditions::changePhysicalValues()
 
 void GuiEditBoundaryConditions::addBoundaryType()
 {
-  QString name = ui.lineEditBoundaryType->text();
+  QString name = m_Ui.lineEditBoundaryType->text();
   if (!name.isEmpty() && !m_PhysicalBoundaryConditionsMap.contains(name)) {
     PhysicalBoundaryCondition PBC;
-    PBC.setName(ui.lineEditBoundaryType->text());
-    PBC.setIndex(ui.listWidgetBoundaryType->count());
-    PBC.setType(ui.comboBoxBoundaryType->currentText());
+    PBC.setName(m_Ui.lineEditBoundaryType->text());
+    PBC.setIndex(m_Ui.listWidgetBoundaryType->count());
+    PBC.setType(m_Ui.comboBoxBoundaryType->currentText());
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
-    ui.listWidgetBoundaryType->addItem(PBC.getName());
+    m_Ui.listWidgetBoundaryType->addItem(PBC.getName());
   }
 }
 
 void GuiEditBoundaryConditions::deleteBoundaryType()
 {
-  int row = ui.listWidgetBoundaryType->currentRow();
-  if (ui.listWidgetBoundaryType->count() <= 1) {
-    ui.listWidgetBoundaryType->clear();
+  int row = m_Ui.listWidgetBoundaryType->currentRow();
+  if (m_Ui.listWidgetBoundaryType->count() <= 1) {
+    m_Ui.listWidgetBoundaryType->clear();
     m_PhysicalBoundaryConditionsMap.clear();
   }
-  else if (0 <= row && row < ui.listWidgetBoundaryType->count()) {
-    QListWidgetItem* list_widget_item = ui.listWidgetBoundaryType->takeItem(row);
+  else if (0 <= row && row < m_Ui.listWidgetBoundaryType->count()) {
+    QListWidgetItem* list_widget_item = m_Ui.listWidgetBoundaryType->takeItem(row);
     m_PhysicalBoundaryConditionsMap.remove(list_widget_item->text());
     delete list_widget_item;
   }
@@ -261,19 +261,19 @@ void GuiEditBoundaryConditions::deleteBoundaryType()
 void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
 {
   // clear list
-  ui.listWidgetBoundaryType->clear();
+  m_Ui.listWidgetBoundaryType->clear();
   
   // fill list
   QList<PhysicalBoundaryCondition> physical_boundary_conditions = GuiMainWindow::pointer()->getAllPhysicalBoundaryConditions();
   foreach(PhysicalBoundaryCondition PBC, physical_boundary_conditions) {
-    ui.listWidgetBoundaryType->addItem(PBC.getName());
+    m_Ui.listWidgetBoundaryType->addItem(PBC.getName());
     m_PhysicalBoundaryConditionsMap[PBC.getName()] = PBC;
   }
   
   // select and load first item
-  if (ui.listWidgetBoundaryType->count() > 0) {
-    ui.listWidgetBoundaryType->setCurrentRow(0);
-    QString name = ui.listWidgetBoundaryType->currentItem()->text();
+  if (m_Ui.listWidgetBoundaryType->count() > 0) {
+    m_Ui.listWidgetBoundaryType->setCurrentRow(0);
+    QString name = m_Ui.listWidgetBoundaryType->currentItem()->text();
     if(m_PhysicalBoundaryConditionsMap.contains(name)) {
       m_PBC_current = m_PhysicalBoundaryConditionsMap[name];
       m_PBC_current.setIndex(0);
@@ -287,9 +287,9 @@ void GuiEditBoundaryConditions::updatePhysicalBoundaryConditions()
 
 void GuiEditBoundaryConditions::setupSolvers()
 {
-  m_multipagewidget_Solver = new MultiPageWidget(ui.tab_Solver);
+  m_multipagewidget_Solver = new MultiPageWidget(m_Ui.tab_Solver);
   m_multipagewidget_Solver->setObjectName(QString::fromUtf8("m_multipagewidget_Solver"));
-  ui.verticalLayout_Solver->addWidget(m_multipagewidget_Solver);
+  m_Ui.verticalLayout_Solver->addWidget(m_multipagewidget_Solver);
 
   QFileInfo fileinfo;
   fileinfo.setFile(":/resources/solvers/solvers.txt");
@@ -357,7 +357,7 @@ void GuiEditBoundaryConditions::saveSolverParameters()
 
 void GuiEditBoundaryConditions::addProcess()
 {
-  int row = ui.tableWidget_Processes->currentRow();
+  int row = m_Ui.tableWidget_Processes->currentRow();
   QString host, weight;
   if(row<0) {
     row = 0;
@@ -365,21 +365,21 @@ void GuiEditBoundaryConditions::addProcess()
     weight = "1";
   }
   else {
-    host = ui.tableWidget_Processes->item(row, 0)->text();
-    weight = ui.tableWidget_Processes->item(row, 1)->text();
+    host = m_Ui.tableWidget_Processes->item(row, 0)->text();
+    weight = m_Ui.tableWidget_Processes->item(row, 1)->text();
   }
   qDebug()<<"row="<<row;
-  ui.tableWidget_Processes->insertRow(row);
-  ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
-  ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
-  ui.tableWidget_Processes->item(row, 0)->setText(host);
-  ui.tableWidget_Processes->item(row, 1)->setText(weight);
-  ui.tableWidget_Processes->resizeColumnsToContents();
+  m_Ui.tableWidget_Processes->insertRow(row);
+  m_Ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
+  m_Ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
+  m_Ui.tableWidget_Processes->item(row, 0)->setText(host);
+  m_Ui.tableWidget_Processes->item(row, 1)->setText(weight);
+  m_Ui.tableWidget_Processes->resizeColumnsToContents();
 }
 
 void GuiEditBoundaryConditions::deleteProcess()
 {
-  ui.tableWidget_Processes->removeRow(ui.tableWidget_Processes->currentRow());
+  m_Ui.tableWidget_Processes->removeRow(m_Ui.tableWidget_Processes->currentRow());
 }
 
 void GuiEditBoundaryConditions::importHostFile()
@@ -407,12 +407,12 @@ void GuiEditBoundaryConditions::saveMpiParameters()
 QString GuiEditBoundaryConditions::tableToString()
 {
   QString hostfile_txt;
-  for(int row = 0; row < ui.tableWidget_Processes->rowCount(); row++) {
+  for(int row = 0; row < m_Ui.tableWidget_Processes->rowCount(); row++) {
     QString host, weight;
-    host = ui.tableWidget_Processes->item(row, 0)->text();
-    weight = ui.tableWidget_Processes->item(row, 1)->text();
+    host = m_Ui.tableWidget_Processes->item(row, 0)->text();
+    weight = m_Ui.tableWidget_Processes->item(row, 1)->text();
     hostfile_txt += host + ":" + weight;
-    if(row!=ui.tableWidget_Processes->rowCount()-1) hostfile_txt += ",";
+    if(row!=m_Ui.tableWidget_Processes->rowCount()-1) hostfile_txt += ",";
   }
   return(hostfile_txt);
 }
@@ -432,17 +432,17 @@ void GuiEditBoundaryConditions::stringToTable(QString hostfile_txt)
     }
   }
   
-  while (ui.tableWidget_Processes->rowCount()) {
-    ui.tableWidget_Processes->removeRow(0);
+  while (m_Ui.tableWidget_Processes->rowCount()) {
+    m_Ui.tableWidget_Processes->removeRow(0);
   }
   
   for(int i = 0; i < host.size(); i++) {
-    int row = ui.tableWidget_Processes->rowCount();
-    ui.tableWidget_Processes->insertRow(row);
-    ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
-    ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
-    ui.tableWidget_Processes->item(row, 0)->setText(host[i]);
-    ui.tableWidget_Processes->item(row, 1)->setText(weight[i]);
-    ui.tableWidget_Processes->resizeColumnsToContents();
+    int row = m_Ui.tableWidget_Processes->rowCount();
+    m_Ui.tableWidget_Processes->insertRow(row);
+    m_Ui.tableWidget_Processes->setItem(row, 0, new QTableWidgetItem());
+    m_Ui.tableWidget_Processes->setItem(row, 1, new QTableWidgetItem());
+    m_Ui.tableWidget_Processes->item(row, 0)->setText(host[i]);
+    m_Ui.tableWidget_Processes->item(row, 1)->setText(weight[i]);
+    m_Ui.tableWidget_Processes->resizeColumnsToContents();
   }
 }

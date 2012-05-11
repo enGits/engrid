@@ -85,6 +85,12 @@ void PointFinder::setPoints(const QVector<vec3_t> &points)
   do {
     N = refine();
   } while (N > 0);
+  m_MaxBucketSize = 0;
+  m_MinBucketSize = points.size();
+  for (int i = 0; i < m_Buckets.size(); ++i) {
+    m_MinBucketSize = min(m_MinBucketSize, m_Buckets[i].size());
+    m_MaxBucketSize = max(m_MaxBucketSize, m_Buckets[i].size());
+  }
 }
 
 int PointFinder::refine()
@@ -125,12 +131,14 @@ int PointFinder::refine()
       vec3_t xcell = m_Octree.getCellCentre(cell);
       vec3_t x = m_Points[i_points];
       bool append = true;
-      double Dx = m_Octree.getDx(cell);
-      double Dy = m_Octree.getDy(cell);
-      double Dz = m_Octree.getDz(cell);
-      if      (x[0] < xcell[0] - Dx || x[0] > xcell[0] + Dx) append = false;
-      else if (x[1] < xcell[1] - Dy || x[1] > xcell[1] + Dy) append = false;
-      else if (x[2] < xcell[2] - Dz || x[2] > xcell[2] + Dz) append = false;
+      {
+        double Dx = m_Octree.getDx(cell);
+        double Dy = m_Octree.getDy(cell);
+        double Dz = m_Octree.getDz(cell);
+        if      (x[0] < xcell[0] - 1.5*Dx || x[0] > xcell[0] + 1.5*Dx) append = false;
+        else if (x[1] < xcell[1] - 1.5*Dy || x[1] > xcell[1] + 1.5*Dy) append = false;
+        else if (x[2] < xcell[2] - 1.5*Dz || x[2] > xcell[2] + 1.5*Dz) append = false;
+      }
       if (append) {
         m_Buckets[cell].append(i_points);
       }
@@ -139,7 +147,7 @@ int PointFinder::refine()
   return N_new;
 }
 
-void PointFinder::getClosePoints(vec3_t x, QVector<int> &points)
+void PointFinder::getClosePoints(vec3_t x, QVector<int> &points, double dist)
 {
   int cell = m_Octree.findCell(x);
   if (cell < 0) {
@@ -148,7 +156,7 @@ void PointFinder::getClosePoints(vec3_t x, QVector<int> &points)
   if (m_Octree.hasChildren(cell)) {
     EG_BUG;
   }
-  while (m_Buckets[cell].size() == 0 && m_Octree.getParent(cell) >= 0) {
+  while ((m_Buckets[cell].size() == 0  || dist > m_Octree.getDx(cell)) && m_Octree.getParent(cell) >= 0) {
     cell = m_Octree.getParent(cell);
   }
   points.resize(m_Buckets[cell].size());
@@ -156,3 +164,9 @@ void PointFinder::getClosePoints(vec3_t x, QVector<int> &points)
 
 }
 
+void PointFinder::writeOctreeMesh(QString file_name)
+{
+  EG_VTKSP(vtkUnstructuredGrid, otg);
+  m_Octree.toVtkGrid(otg);
+  writeGrid(otg, file_name);
+}

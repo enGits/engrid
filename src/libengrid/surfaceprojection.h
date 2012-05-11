@@ -64,7 +64,6 @@ protected: // attributes
   QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
-  int                       m_BC;
   bool                      m_RestrictToTriangle;
   double                    m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
@@ -80,7 +79,7 @@ protected: // methods
 
   virtual void   updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
 
-  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
+  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
   vtkIdType getProjTriangle(vtkIdType id_node);
   void      setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
   void      computeSurfaceCurvature();
@@ -90,7 +89,7 @@ public: // methods
   static long int Nfull;
   static long int Nhalf;
 
-  SurfaceProjection(int bc = 0);
+  SurfaceProjection();
   ~SurfaceProjection();
   
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
@@ -102,8 +101,9 @@ public: // methods
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
   double getRadius(vtkIdType id_node);
 
-  vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
-  vtkIdType lastPprojTriangle() { return m_LastProjTriangle; }
+  vec3_t    correctCurvature(vtkIdType proj_triangle, vec3_t x);
+  vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
+  vec3_t    lastProjNormal() { return GeometryTools::cellNormal(m_BGrid, m_LastProjTriangle); }
 
 public: // static methods
 
@@ -118,9 +118,6 @@ void SurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& ce
   setBackgroundGrid_setupGrid(grid, cells);
   updateBackgroundGridInfo();
   setForegroundGrid(grid);
-  for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType id_cell = cells[i_cells];
-  }
   for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
     m_BGrid->GetCellPoints(id_cell, N_pts, pts);
@@ -137,7 +134,14 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
 {
   QVector<vtkIdType> nodes;
   getNodesFromCells(cells, nodes, grid);
-  allocateGrid(m_BGrid, cells.size(), nodes.size());
+  int num_new_cells = cells.size();
+  foreach (vtkIdType id_cell, cells) {
+    vtkIdType type_cell = grid->GetCellType(id_cell);
+    if (type_cell == VTK_QUAD) {
+      ++num_new_cells;
+    }
+  }
+  allocateGrid(m_BGrid, num_new_cells, nodes.size());
   
   QVector<vtkIdType> _nodes(grid->GetNumberOfPoints());
   vtkIdType id_new_node = 0;
@@ -153,13 +157,29 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid->GetCellType(id_cell);
     grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vtkIdType> new_pts(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
-      new_pts[i] = _nodes[pts[i]];
+    QVector<vtkIdType> new_pts(3);
+    if (type_cell == VTK_TRIANGLE) {
+      new_pts[0] = _nodes[pts[0]];
+      new_pts[1] = _nodes[pts[1]];
+      new_pts[2] = _nodes[pts[2]];
+      vtkIdType id_new_cell = m_BGrid->InsertNextCell(VTK_TRIANGLE, 3, new_pts.data());
+      copyCellData(grid, id_cell, m_BGrid, id_new_cell);
+    } else if (type_cell == VTK_QUAD) {
+      new_pts[0] = _nodes[pts[0]];
+      new_pts[1] = _nodes[pts[1]];
+      new_pts[2] = _nodes[pts[2]];
+      vtkIdType id_new_cell1 = m_BGrid->InsertNextCell(VTK_TRIANGLE, 3, new_pts.data());
+      copyCellData(grid, id_cell, m_BGrid, id_new_cell1);
+      new_pts[0] = _nodes[pts[2]];
+      new_pts[1] = _nodes[pts[3]];
+      new_pts[2] = _nodes[pts[0]];
+      vtkIdType id_new_cell2 = m_BGrid->InsertNextCell(VTK_TRIANGLE, 3, new_pts.data());
+      copyCellData(grid, id_cell, m_BGrid, id_new_cell2);
+    } else {
+      EG_BUG;
     }
-    vtkIdType id_new_cell = m_BGrid->InsertNextCell(type_cell, N_pts, new_pts.data());
-    copyCellData(grid,id_cell,m_BGrid,id_new_cell);
   }
+  writeGrid(m_BGrid, "m_BGrid");
 }
 
 #endif // SURFACEPROJECTION_H

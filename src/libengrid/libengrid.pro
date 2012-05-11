@@ -31,6 +31,8 @@ win32-msvc* {
 } else {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
+    QMAKE_CXXFLAGS += -fno-omit-frame-pointer
+    QMAKE_CXXFLAGS += -g
 }
 
 
@@ -173,7 +175,8 @@ HEADERS = boundarycondition.h \
     orthogonalityoptimiser.h \
     optimisenormalvector.h \
     brlcadreader.h \
-    eghashset.h
+    eghashset.h \
+    polymolecule.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -277,7 +280,8 @@ SOURCES = boundarycondition.cpp \
     createhexcore.cpp \
     orthogonalityoptimiser.cpp \
     optimisenormalvector.cpp \
-    brlcadreader.cpp
+    brlcadreader.cpp \
+    polymolecule.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

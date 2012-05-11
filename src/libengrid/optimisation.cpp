@@ -181,14 +181,15 @@ void Optimisation::computeDerivatives(vec3_t x)
   J[1][0] = J[0][1];
   J[2][0] = J[0][2];
   J[2][1] = J[1][2];
-};
+}
 
 vec3_t Optimisation::optimise(vec3_t x) 
 { 
   computeDerivatives(x);
   mat3_t M = J.inverse();
   return (-1)*(M*grad_f);
-};
+}
+
 
 void Optimisation::resetErrorFunctions(bool reset_average)
 {

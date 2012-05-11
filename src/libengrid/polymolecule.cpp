@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,32 +19,38 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#include "guipick.h"
-#include "guimainwindow.h"
+//
 
-void GuiPick::before()
+#include "polymolecule.h"
+
+PolyMolecule::PolyMolecule(PolyMesh *poly_mesh, const QList<int> &faces)
 {
-  m_Ui.spinBox_Point->setMaximum(m_Grid->GetNumberOfPoints()-1);
-  m_Ui.spinBox_Cell->setMaximum(m_Grid->GetNumberOfCells()-1);
+  m_PolyMesh = poly_mesh;
+  QSet<int> nodes;
+  QHash<int,int> node_map;
+  foreach (int face, faces) {
+    for (int i_node = 0; i_node < m_PolyMesh->numNodes(face); ++i_node) {
+      nodes.insert(m_PolyMesh->nodeIndex(face, i_node));
+    }
+  }
+  {
+    int N = 0;
+    foreach (int node, nodes) {
+      m_Nodes.append(node);
+      node_map[N] = node;
+      ++N;
+    }
+  }
+  m_Faces.resize(faces.size());
+  for (int i_face = 0; i_face < faces.size(); ++i_face) {
+    for (int i_node = 0; i_node < m_PolyMesh->numNodes(faces[i_face]); ++i_node) {
+      m_Faces[i_face].append(node_map[m_PolyMesh->nodeIndex(faces[i_face], i_node)]);
+    }
+    m_Faces[i_face].append(m_Faces[i_face].first());
+  }
 }
 
-void GuiPick::operate()
+vec3_t PolyMolecule::getXFace(int face)
 {
-  cout<<"GuiPick called"<<endl;
-  if(m_Ui.radioButton_Point->isChecked())
-  {
-    vtkIdType nodeId=m_Ui.spinBox_Point->value();
-    cout<<"Pick point "<<nodeId<<endl;
-    GuiMainWindow::pointer()->setPickMode(false,false);
-    GuiMainWindow::pointer()->pickPoint(nodeId);
-  }
-  else
-  {
-    vtkIdType cellId=m_Ui.spinBox_Cell->value();
-    cout<<"Pick cell "<<cellId<<endl;
-    GuiMainWindow::pointer()->setPickMode(false,true);
-    GuiMainWindow::pointer()->pickCell(cellId);
-  }
-  updateActors();
-};
+
+}

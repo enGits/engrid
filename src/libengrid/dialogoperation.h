@@ -45,7 +45,7 @@ class DialogOperation : public QDialog,
 protected: // attributes
   
   /** The user interface definition from QtDesigner */
-  UI ui;
+  UI m_Ui;
 
 protected: // methods
 
@@ -111,7 +111,7 @@ public: // methods
 template <class UI, class OP>
 DialogOperation<UI,OP>::DialogOperation()
 {
-  ui.setupUi(this);
+  m_Ui.setupUi(this);
 };
 
 template <class UI, class OP>

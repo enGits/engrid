@@ -45,14 +45,14 @@ void GuiCreateHexCore::before()
   m_X2 = vec3_t(xmax, xmax, xmax);
   QString num;
   vec3_t xi = 0.5*(x1 + x2);
-  num.setNum(xi[0]); ui.lineEditCiX->setText(num);
-  num.setNum(xi[1]); ui.lineEditCiY->setText(num);
-  num.setNum(xi[2]); ui.lineEditCiZ->setText(num);
+  num.setNum(xi[0]); m_Ui.lineEditCiX->setText(num);
+  num.setNum(xi[1]); m_Ui.lineEditCiY->setText(num);
+  num.setNum(xi[2]); m_Ui.lineEditCiZ->setText(num);
 }
 
 void GuiCreateHexCore::operate()
 {
-  vec3_t xi(ui.lineEditCiX->text().toDouble(), ui.lineEditCiY->text().toDouble(), ui.lineEditCiZ->text().toDouble());
+  vec3_t xi(m_Ui.lineEditCiX->text().toDouble(), m_Ui.lineEditCiY->text().toDouble(), m_Ui.lineEditCiZ->text().toDouble());
   CreateHexCore create_hex_core(m_X1, m_X2, xi);
   create_hex_core();
 }

@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -22,6 +22,7 @@
 // 
 #include "updatedesiredmeshdensity.h"
 #include "guimainwindow.h"
+#include "pointfinder.h"
 
 #include <vtkCharArray.h>
 
@@ -35,10 +36,28 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_GrowthFactor = 0.0;
   m_MinEdgeLength = 0.0;
   m_MinMumCellsAcross = 0;
-  
+  m_FeatureResolution2D = 0;
+  m_FeatureResolution3D = 0;
+  m_FeatureThresholdAngle = deg2rad(45.0);
+
   getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
+double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)
+{
+  vtkIdType N_pts, *pts;
+  m_Grid->GetCellPoints(id_face, N_pts, pts);
+  QVector<vec3_t> x(N_pts + 1);
+  for (int i = 0; i < N_pts; ++i) {
+    m_Grid->GetPoint(pts[i], x[i].data());
+  }
+  x[N_pts] = x[0];
+  double L = 0;
+  for (int i = 0; i < N_pts; ++i) {
+    L = max(L, (x[i] - x[i+1]).abs());
+  }
+  return L;
+}
 
 void UpdateDesiredMeshDensity::computeExistingLengths()
 {
@@ -83,6 +102,117 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   }
 }
 
+void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res)
+{
+  int N = 0;
+  QVector<vec3_t> pts(points.size());
+  for (int i = 0; i < points.size(); ++i) {
+    pts[i] = points[i].x;
+  }
+  PointFinder pfind;
+  pfind.setMaxNumPoints(5000);
+  pfind.setPoints(pts);
+  for (int i = 0; i < points.size(); ++i) {
+    double h = 1e99;
+    QVector<int> close_points;
+    pfind.getClosePoints(points[i].x, close_points, res*points[i].L);
+    foreach (int j, close_points) {
+      if (i != j) {
+        ++N;
+        vec3_t x1 = points[i].x;
+        vec3_t x2 = points[j].x;
+        vec3_t n1 = points[i].n;
+        vec3_t n2 = points[j].n;
+        vec3_t v = x2 - x1;
+        if (n1*n2 < 0) {
+          if (n1*v > 0) {
+            if (fabs(GeometryTools::angle(n1, (-1)*n2)) <= m_FeatureThresholdAngle) {
+              double l = v.abs()/fabs(n1*n2);
+              h = min(l/res, h);
+            }
+          }
+        }
+      }
+    }
+    foreach (int i_points, points[i].idx) {
+      cl_pre[i_points] = min(h, cl_pre[i_points]);
+    }
+  }
+}
+
+void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
+{
+  if (m_FeatureResolution2D < 1e-3) {
+    return;
+  }
+  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  foreach (int bc, bcs) {
+    QList<point_t> points;
+    for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+      if (isSurface(id_face, m_Grid)) {
+        if (cell_code->GetValue(id_face) == bc) {
+          vec3_t xc = cellCentre(m_Grid, id_face);
+          vtkIdType num_pts, *pts;
+          m_Grid->GetCellPoints(id_face, num_pts, pts);
+          QVector<vec3_t> xn(num_pts + 1);
+          for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+            m_Grid->GetPoint(pts[i_pts], xn[i_pts].data());
+          }
+          xn[num_pts] = xn[0];
+          for (int i_neigh = 0; i_neigh < m_Part.c2cGSize(id_face); ++i_neigh) {
+            vtkIdType id_neigh = m_Part.c2cGG(id_face, i_neigh);
+            if (id_neigh != -1) {
+              if (cell_code->GetValue(id_neigh) != bc) {
+                point_t P;
+                P.x = 0.5*(xn[i_neigh] + xn[i_neigh + 1]);
+                P.n = xc - xn[i_neigh];
+                vec3_t v = xn[i_neigh + 1] - xn[i_neigh];
+                v.normalise();
+                P.n -= (P.n*v)*v;
+                P.n.normalise();
+                for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+                  P.idx.append(m_Part.localNode(pts[i_pts]));
+                }
+                P.L = computeSearchDistance(id_face);
+                points.append(P);
+              }
+            }
+          }
+        }
+      }
+    }
+    computeFeature(points, cl_pre, m_FeatureResolution2D);
+  }
+}
+
+void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
+{
+  if (m_FeatureResolution3D < 1e-3) {
+    return;
+  }
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QList<point_t> points;
+  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+    if (isSurface(id_face, m_Grid)) {
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      point_t P;
+      P.x = cellCentre(m_Grid, id_face);
+      P.n = cellNormal(m_Grid, id_face);
+      P.n.normalise();
+      P.n *= -1;
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+        P.idx.append(m_Part.localNode(pts[i_pts]));
+      }
+      P.L = computeSearchDistance(id_face);
+      points.append(P);
+    }
+  }
+  computeFeature(points, cl_pre, m_FeatureResolution3D);
+}
+
+
 void UpdateDesiredMeshDensity::operate()
 {
   m_ELSManager.read();
@@ -96,6 +226,15 @@ void UpdateDesiredMeshDensity::operate()
   l2g_t  nodes = getPartNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2n   = getPartN2N();
+
+  /*
+  QMap<int, double> feature_res;
+  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
+  foreach (int bc, bcs) {
+    feature_res[bc] = computeFeature2D(bc);
+    feature_res[bc] = min(feature_res[bc], computeFeature3D(bc));
+  }
+  */
 
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    characteristic_length_specified, m_Grid, "node_specified_density");
@@ -129,94 +268,15 @@ void UpdateDesiredMeshDensity::operate()
   }
 
   // cells across branches
-  computeNormals();
-  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    vtkIdType id_node = nodes[i_nodes];
-    QSet<vtkIdType> local_nodes;
-    local_nodes.insert(id_node);
-    for (int i_level = 0; i_level < 3*m_MinMumCellsAcross; ++i_level) {
-      foreach (vtkIdType id_node, local_nodes) {
-        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          local_nodes.insert(m_Part.n2nGG(id_node, i));
-        }
-      }
-    }
-    double scal_min = 0.1;
-    bool found = false;
-    double d = 1e99;
-    foreach (vtkIdType id_node1, local_nodes) {
-      foreach (vtkIdType id_node2, local_nodes) {
-        if (id_node1 != id_node2) {
-          vec3_t n1 = m_NodeNormal[id_node1];
-          vec3_t n2 = m_NodeNormal[id_node2];
-          vec3_t x1, x2;
-          m_Grid->GetPoint(id_node1, x1.data());
-          m_Grid->GetPoint(id_node2, x2.data());
-          vec3_t u = x2 - x1;
-          double uabs = u.abs();
-          u.normalise();
-          double scal1 = n1*n2;
-          double scal2 = n1*u;
-          if (scal1 < scal_min && scal2 > 0.1) {
-            scal_min = scal1;
-            found = true;
-            d = scal2*uabs;
-          }
-        }
-      }
-    }
-    if (found) {
-      cl_pre[i_nodes] = min(cl_pre[i_nodes], d/m_MinMumCellsAcross);
-    }
-  }
-
-  // gaps
-  /*
-  {
-    QVectorM<bool> is_surf_node(m_Grid->GetNumberOfPoints(), false);
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
-        is_surf_node[pts[i]] = true;
-      }
-    }
-    QList<vtkIdType> surf_nodes;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (is_surf_node[id_node]) {
-        surf_nodes.append(id_node);
-      }
-    }
-    foreach (vtkIdType id_node1, surf_nodes) {
-      foreach (vtkIdType id_node2, surf_nodes) {
-        if (id_node1 != id_node2) {
-          const vec3_t& n1 = m_NodeNormal[id_node1];
-          const vec3_t& n2 = m_NodeNormal[id_node2];
-          vec3_t x1, x2;
-          m_Grid->GetPoint(id_node1, x1.data());
-          m_Grid->GetPoint(id_node2, x2.data());
-          vec3_t Dx = x2 - x1;
-          double a = Dx*n1;
-          if (a > 0) {
-            double b = Dx.abs();
-            double alpha = 180.0/M_PI*acos(a/b);
-            if (alpha < m_RadarAngle) {
-              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
-            }
-          }
-        }
-      }
-    }
-  }
-  */
-
+  computeFeature2D(cl_pre);
+  computeFeature3D(cl_pre);
 
   // set everything to desired mesh density and find maximal mesh-density
   double cl_min = 1e99;
   int i_nodes_min = -1;
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
     vtkIdType id_node = nodes[i_nodes];
-    double cl = 1e99;
+    double cl = m_MaxEdgeLength;
     if (m_BoundaryCodes.size() > 0) {
       int idx = characteristic_length_specified->GetValue(id_node);
       if (idx != -1) {
@@ -241,7 +301,9 @@ void UpdateDesiredMeshDensity::operate()
     
     cl = max(m_MinEdgeLength, cl);
 
-    if(cl == 0) EG_BUG;
+    if(cl == 0) {
+      EG_BUG;
+    }
     characteristic_length_desired->SetValue(id_node, cl);
     
     if (cl < cl_min) {
@@ -292,20 +354,4 @@ void UpdateDesiredMeshDensity::operate()
     cl_min *= m_GrowthFactor;
   } while (num_updated > 0);
 
-  // do a simple averaging step
-  /*
-  QVector<double> cl_save(m_Grid->GetNumberOfPoints(), 0.0);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    cl_save[id_node] = characteristic_length_desired->GetValue(id_node);
-  }
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    double cl_new = 0;
-    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-      cl_new += cl_save[m_Part.n2nGG(id_node, i)];
-    }
-    if (m_Part.n2nGSize(id_node) > 0) {
-      characteristic_length_desired->SetValue(id_node, cl_new/m_Part.n2nGSize(id_node));
-    }
-  }
-  */
 }
