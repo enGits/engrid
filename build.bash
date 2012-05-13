@@ -33,6 +33,7 @@ help ()
   echo "                ubuntu-10.10"
   echo "                ubuntu-11.04"
   echo "                ubuntu-11.10"
+  echo "                ubuntu-12.04"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
@@ -70,6 +71,9 @@ else
     then
       sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'ubuntu-11.10' ]
+    then
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
+    elif [ $1 = 'ubuntu-12.04' ]
     then
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'opensuse-11.2-32' ]
@@ -147,12 +151,8 @@ else
     cd src
     source scripts/setup_pathes.bash $config_name
     source scripts/build-nglib.sh
-    cd libengrid
     qmake
     make -j4
-    cd ..
-    qmake
-    make
     cd ../..
     echo ""
     echo "You can start enGrid by typing: `pwd`/engrid/run.bash (as non-root user)"
