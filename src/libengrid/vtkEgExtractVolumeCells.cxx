@@ -217,9 +217,11 @@ void vtkEgExtractVolumeCells::ExecuteEg()
       if (!m_ExtrHexes && type_cell == VTK_HEXAHEDRON) {
         select = false;
       }
-      if (!m_ExtrPolys && type_cell == VTK_POLYHEDRON) {
-        select = false;
-      }
+      // disabled to make compiling with VTL-5.6 possible
+      //
+      // if (!m_ExtrPolys && type_cell == VTK_POLYHEDRON) {
+      //   select = false;
+      // }
       if (m_Clip && select) {
         vtkIdType *pts;
         vtkIdType  N_pts;
