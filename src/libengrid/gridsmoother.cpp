@@ -132,7 +132,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
             }
           }
         }
-        if (GeometryTools::cellVA(m_Grid, id_cell) < 1e-3*L_max*L_max*L_max) {
+        double A = GeometryTools::cellVA(m_Grid, id_cell);
+        if (A < 1e-3*L_max*L_max) {
           move = false;
         } else if (m_NodeNormal[id_node].abs() > 0.1) {
           vec3_t n = GeometryTools::triNormal(x[0], x[1], x[2]);
@@ -249,6 +250,9 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   m_CollisionDetected = false;
   l2g_t nodes = m_Part.getNodes();
   vtkIdType id_node = nodes[i_nodes];
+  if (id_node == 27029) {
+    cout << "break-point" << endl;
+  }
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
