@@ -196,6 +196,15 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
 /** area of the circumscribed circle of the triangle */
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell);
 
+/** Compute the circumscribed circle of a triangle in 3D coordinates.
+  * @param a first node of the triangle
+  * @param b second node of the triangle
+  * @param c third node of the triangle
+  * @param x on return this will be the centre of the circumscribed circle
+  * @param radius on return this will be the radius of the circumscribed circle
+  */
+void computeCircumscribedCircle(vec3_t a, vec3_t b, vec3_t c, vec3_t &x, double &radius);
+
 vec3_t getBarycentricCoordinates(double x, double y);
 
 vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB);

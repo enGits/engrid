@@ -510,6 +510,25 @@ double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
   return(M_PI*R*R);
 }
 
+void computeCircumscribedCircle(vec3_t a, vec3_t b, vec3_t c, vec3_t &x, double &radius)
+{
+  double la = (b-c).abs();
+  double lb = (a-c).abs();
+  double lc = (a-b).abs();
+  double bca = sqr(la)*(sqr(lb) + sqr(lc) - sqr(la));
+  double bcb = sqr(lb)*(sqr(la) + sqr(lc) - sqr(lb));
+  double bcc = sqr(lc)*(sqr(la) + sqr(lb) - sqr(lc));
+  double sum = bca + bcb + bcc;
+  if (fabs(sum) < 1e-6) {
+    x = (1.0/3.0)*(a + b + c);
+    radius = 1e99;
+  } else {
+    x = bca*a + bcb*b + bcc*c;
+    x *= 1.0/sum;
+    radius = (x-a).abs();
+  }
+}
+
 vec3_t getBarycentricCoordinates(double x, double y)
 {
   if(isnan(x) || isinf(x) || isnan(y) || isinf(y)) {
