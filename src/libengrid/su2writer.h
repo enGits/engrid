@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,52 +19,34 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
+#ifndef SU2WRITER_H
+#define SU2WRITER_H
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
-#include "guicreatehexcore.h"
+#include "iooperation.h"
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
-#include "sharpenedges.h"
-#include "checkforoverlap.h"
-#include "guisurfacemesher.h"
-#include "orthogonalityoptimiser.h"
-#include "brlcadreader.h"
-#include "su2writer.h"
+class Su2Writer : public IOOperation
+{
 
-// -------------------------------------------
+private: // attributes
+
+  QFile* m_File;
+
+private: // methods
+
+  void writeHeader();
+  void writeElements();
+  void writeNodes();
+  void writeBoundaries();
+
+protected: // methods
+
+  virtual void operate();
+
+public:
+
+  Su2Writer();
+
+};
+
+#endif // SU2WRITER_H

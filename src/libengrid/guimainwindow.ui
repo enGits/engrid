@@ -175,6 +175,7 @@
     <addaction name="actionExportAsciiPly"/>
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
+    <addaction name="actionExportSu2"/>
     <addaction name="actionExportCGNS"/>
     <addaction name="actionExportBlenderFile"/>
    </widget>
@@ -307,8 +308,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>216</width>
-          <height>489</height>
+          <width>221</width>
+          <height>510</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -699,8 +700,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>216</width>
-          <height>488</height>
+          <width>231</width>
+          <height>514</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1691,6 +1692,11 @@
   <action name="actionCreateHexCore">
    <property name="text">
     <string>create hex core mesh</string>
+   </property>
+  </action>
+  <action name="actionExportSu2">
+   <property name="text">
+    <string>SU2</string>
    </property>
   </action>
  </widget>
