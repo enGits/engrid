@@ -582,6 +582,8 @@ void GridSmoother::computeDesiredHeights()
 
 void GridSmoother::computeHeights()
 {
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
@@ -606,41 +608,50 @@ void GridSmoother::computeHeights()
   }
 
   // third pass (gaps)
-  QList<vtkIdType> surf_nodes;
+  QList<vtkIdType> search_nodes;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_SurfNode[id_node]) {
-      surf_nodes.append(id_node);
+    bool append_node = false;
+    for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (isSurface(id_cell, m_Grid)) {
+        if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
+          append_node = true;
+          break;
+        }
+      }
+    }
+    if (append_node) {
+      search_nodes.append(id_node);
     }
   }
 
-
-  QVector<vec3_t> points(surf_nodes.size());
-  for (int i = 0; i < surf_nodes.size(); ++i) {
-    m_Grid->GetPoint(surf_nodes[i], points[i].data());
+  QVector<vec3_t> points(search_nodes.size());
+  for (int i = 0; i < search_nodes.size(); ++i) {
+    m_Grid->GetPoint(search_nodes[i], points[i].data());
   }
   PointFinder pfind;
   pfind.setPoints(points);
 
-  foreach (vtkIdType id_node1, surf_nodes) {
-    const vec3_t& n1 = m_NodeNormal[id_node1];
-    vec3_t x1;
-    m_Grid->GetPoint(id_node1, x1.data());
-    QVector<int> close_points;
-    pfind.getClosePoints(x1, close_points, 2*m_Height[id_node1]/m_MaxHeightInGaps);
-    foreach (int i, close_points) {
-      vtkIdType id_node2 = surf_nodes[i];
-    //foreach (vtkIdType id_node2, surf_nodes) {
-      if (id_node1 != id_node2) {
-        //vec3_t x2 = points[i];
-        vec3_t x2;
-        m_Grid->GetPoint(id_node2, x2.data());
-        vec3_t Dx = x2 - x1;
-        double a = Dx*n1;
-        if (a > 0) {
-          double b = Dx.abs();
-          double alpha = 180.0/M_PI*acos(a/b);
-          if (alpha < m_RadarAngle) {
-            m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    if (m_SurfNode[id_node1]) {
+      const vec3_t& n1 = m_NodeNormal[id_node1];
+      vec3_t x1;
+      m_Grid->GetPoint(id_node1, x1.data());
+      QVector<int> close_points;
+      pfind.getClosePoints(x1, close_points, 2*m_Height[id_node1]/m_MaxHeightInGaps);
+      foreach (int i, close_points) {
+        vtkIdType id_node2 = search_nodes[i];
+        if (id_node1 != id_node2) {
+          vec3_t x2;
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t Dx = x2 - x1;
+          double a = Dx*n1;
+          if (a > 0) {
+            double b = Dx.abs();
+            double alpha = 180.0/M_PI*acos(a/b);
+            if (alpha < m_RadarAngle) {
+              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+            }
           }
         }
       }
