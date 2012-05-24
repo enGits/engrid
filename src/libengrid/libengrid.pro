@@ -177,7 +177,8 @@ HEADERS = boundarycondition.h \
     brlcadreader.h \
     eghashset.h \
     polymolecule.h \
-    su2writer.h
+    su2writer.h \
+    booleangeometryoperation.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -283,7 +284,8 @@ SOURCES = boundarycondition.cpp \
     optimisenormalvector.cpp \
     brlcadreader.cpp \
     polymolecule.cpp \
-    su2writer.cpp
+    su2writer.cpp \
+    booleangeometryoperation.h
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
