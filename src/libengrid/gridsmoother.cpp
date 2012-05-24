@@ -610,13 +610,15 @@ void GridSmoother::computeHeights()
   // third pass (gaps)
   QList<vtkIdType> search_nodes;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    bool append_node = false;
-    for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
-      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (isSurface(id_cell, m_Grid)) {
-        if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
-          append_node = true;
-          break;
+    bool append_node = m_SurfNode[id_node];
+    if (!append_node) {
+      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, m_Grid)) {
+          if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
+            append_node = true;
+            break;
+          }
         }
       }
     }
