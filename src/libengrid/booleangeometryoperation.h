@@ -23,6 +23,8 @@
 #ifndef BOOLEANGEOMETRYOPERATION_H
 #define BOOLEANGEOMETRYOPERATION_H
 
+class BooleanGeometryOperation;
+
 #include "surfaceoperation.h"
 #include "surfaceprojection.h"
 

@@ -34,7 +34,7 @@ class GuiCreateBoundaryLayer;
 class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer, Operation>
 {
   
-  Q_OBJECT;
+  Q_OBJECT
   
 private: // attributes
   

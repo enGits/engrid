@@ -135,6 +135,7 @@
     <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
+    <addaction name="actionBooleanOperation"/>
     <addaction name="actionNormalExtrusion"/>
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
@@ -1697,6 +1698,11 @@
   <action name="actionExportSu2">
    <property name="text">
     <string>SU2</string>
+   </property>
+  </action>
+  <action name="actionBooleanOperation">
+   <property name="text">
+    <string>boolean operation</string>
    </property>
   </action>
  </widget>

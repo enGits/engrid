@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,53 +19,30 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
-#include "guicreatehexcore.h"
-
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
-#include "sharpenedges.h"
-#include "checkforoverlap.h"
-#include "guisurfacemesher.h"
-#include "orthogonalityoptimiser.h"
-#include "brlcadreader.h"
-#include "su2writer.h"
 #include "guibooleangeometryoperation.h"
+#include "booleangeometryoperation.h"
 
-// -------------------------------------------
+GuiBooleanGeometryOperation::GuiBooleanGeometryOperation()
+{
+}
+
+void GuiBooleanGeometryOperation::before()
+{
+  populateBoundaryCodes(m_Ui.m_ListWidgetBCs1);
+  populateBoundaryCodes(m_Ui.m_ListWidgetBCs2);
+}
+
+void GuiBooleanGeometryOperation::operate()
+{
+  QSet<int> bcs1, bcs2;
+  getSelectedItems(m_Ui.m_ListWidgetBCs1, bcs1);
+  getSelectedItems(m_Ui.m_ListWidgetBCs1, bcs2);
+  int s1, s2;
+  if      (m_Ui.m_ComboBox->currentText() == "add")      { s1 =  1; s2 =  1; }
+  else if (m_Ui.m_ComboBox->currentText() == "subtract") { s1 = -1; s2 =  1; }
+  else                                                   { s1 = -1; s2 = -1; }
+  BooleanGeometryOperation bool_op(m_Grid, bcs1, bcs2, s1, s2);
+  bool_op();
+}

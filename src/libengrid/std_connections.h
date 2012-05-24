@@ -120,6 +120,7 @@ connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOv
 connect(ui.actionOptimiseOrthogonalty, SIGNAL(triggered()), this, SLOT(callOrthogonalityOptimiser()));
 connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
+connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOperation()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()
