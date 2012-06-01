@@ -250,9 +250,6 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
   m_CollisionDetected = false;
   l2g_t nodes = m_Part.getNodes();
   vtkIdType id_node = nodes[i_nodes];
-  if (id_node == 27029) {
-    cout << "break-point" << endl;
-  }
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
@@ -660,7 +657,35 @@ void GridSmoother::computeHeights()
     }
   }
 
-  // fourth pass (smoothing)
+  // fourth pass ("neighbour" gaps)
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    if (m_SurfNode[id_node1]) {
+      vec3_t x1;
+      m_Grid->GetPoint(id_node1, x1.data());
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+        if (m_SurfNode[id_node2]) {
+          vec3_t x2;
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t v = x2 - x1;
+          double L = v.abs();
+          v.normalise();
+          if (v * m_NodeNormal[id_node1] > 0) {
+            double scale1 = m_NodeNormal[id_node1]*v;
+            double scale2 = m_NodeNormal[id_node2]*v;
+            if (scale1 > scale2) {
+              vec3_t up = m_NodeNormal[id_node2];
+              vec3_t vp = v.cross(up);
+              double k = intersection(x1, v, x2, up, vp);
+              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*k);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // fifth pass (smoothing)
   for (int iter = 0; iter < m_NumHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
