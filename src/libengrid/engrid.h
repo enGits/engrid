@@ -245,6 +245,12 @@ GRID->GetCellPoints(CELLID, N ## PTS, PTS);
 
 inline double sqr(double x) { return x*x; }
 
+template <class T>
+inline T sign1(T t) {
+  if (t >= 0) return 1;
+  return -1;
+}
+
 inline int factorial_rec(int num)
 {
   if (num<=1)
