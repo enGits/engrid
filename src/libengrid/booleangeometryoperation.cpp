@@ -21,7 +21,8 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "booleangeometryoperation.h"
-#include "vtkEgPolyDataToUnstructuredGridFilter.h"
+//#include "vtkEgPolyDataToUnstructuredGridFilter.h"
+#include "guimainwindow.h"
 
 #include <vtkGeometryFilter.h>
 #include <vtkFillHolesFilter.h>
@@ -33,9 +34,12 @@ void BooleanGeometryOperation::deleteNodes()
   QList<vtkIdType> keep_nodes;
   for (int i = 0; i < m_Part1.getNumberOfNodes(); ++i) {
     vtkIdType id_node = m_Part1.globalNode(i);
+    if (id_node == 4261) {
+      cout << "stop" << endl;
+    }
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
-    vec3_t x_proj = m_Proj2.projectRestricted(x, id_node, false);
+    vec3_t x_proj = m_Proj2.projectRestricted(x, -1, false);
     vec3_t n = m_Proj2.lastProjNormal();
     n.normalise();
     double L = 0;
@@ -50,9 +54,12 @@ void BooleanGeometryOperation::deleteNodes()
   }
   for (int i = 0; i < m_Part2.getNumberOfNodes(); ++i) {
     vtkIdType id_node = m_Part2.globalNode(i);
+    if (id_node == 4261) {
+      cout << "stop" << endl;
+    }
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
-    vec3_t x_proj = m_Proj1.projectRestricted(x, id_node, false);
+    vec3_t x_proj = m_Proj1.projectRestricted(x, -1, false);
     vec3_t n = m_Proj1.lastProjNormal();
     n.normalise();
     double L = 0;
@@ -111,7 +118,6 @@ bool BooleanGeometryOperation::fillGap_prepare()
             m_CurrentEdge.id1 = ids[i+1];
             m_CurrentEdge.id2 = ids[i];
             m_CurrentEdge.bc = cell_code->GetValue(id_cell);
-            //m_CurrentEdge.id_face = id_cell;
             m_CurrentTriangle.bc = m_CurrentEdge.bc;
             m_CurrentTriangle.id1 = ids[0];
             m_CurrentTriangle.id2 = ids[1];
@@ -131,6 +137,7 @@ bool BooleanGeometryOperation::fillGap_prepare()
   m_Node2Node.resize(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_OpenNode[id_node]) {
+      m_SplitNode[id_node] = true;
       m_Node2Cell[id_node].clear();
       for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
         m_Node2Cell[id_node].insert(m_Part.n2cGG(id_node, i));
@@ -306,6 +313,7 @@ void BooleanGeometryOperation::fillGap_createTriangles()
 void BooleanGeometryOperation::fillGap()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  m_SplitNode.fill(false, m_Grid->GetNumberOfPoints());
   do {
     m_Triangles.clear();
     if (fillGap_prepare()) {
@@ -322,8 +330,145 @@ void BooleanGeometryOperation::fillGap()
   } while (m_Triangles.size() > 0);
 }
 
+void BooleanGeometryOperation::smoothJunction_triangulate()
+{
+  QVector<bool> split_cell(m_Grid->GetNumberOfCells(), false);
+  for (int layer = 0; layer < m_NumCutLayers; ++layer) {
+    EG_FORALL_NODES(id_node, m_Grid) {
+      if (m_SplitNode[id_node]) {
+        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+          if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
+            split_cell[m_Part.n2cGG(id_node, i)] = true;
+          }
+        }
+      }
+    }
+    EG_FORALL_CELLS(id_cell, m_Grid) {
+      if (split_cell[id_cell]) {
+        EG_GET_CELL(id_cell, m_Grid);
+        for (int i = 0; i < num_pts; ++i) {
+          m_SplitNode[pts[i]] = true;
+        }
+      }
+    }
+  }
+  int num_new_faces = 0;
+  foreach (bool split, split_cell) {
+    if (split) {
+      ++num_new_faces;
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, grid);
+  allocateGrid(grid, m_Grid->GetNumberOfCells() + num_new_faces, m_Grid->GetNumberOfPoints());
+  EG_FORALL_NODES(id_node, m_Grid) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    grid->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(m_Grid, id_node, grid, id_node);
+  }
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    EG_GET_CELL(id_cell, m_Grid) {
+      if (split_cell[id_cell]) {
+        vtkIdType tri_pts[3];
+        tri_pts[0] = pts[0];
+        tri_pts[1] = pts[1];
+        tri_pts[2] = pts[2];
+        vtkIdType id_new;
+        id_new = grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+        copyCellData(m_Grid, id_cell, grid, id_new);
+        tri_pts[0] = pts[2];
+        tri_pts[1] = pts[3];
+        tri_pts[2] = pts[0];
+        id_new = grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+        copyCellData(m_Grid, id_cell, grid, id_new);
+      } else {
+        vtkIdType id_new = grid->InsertNextCell(type_cell, num_pts, pts);
+        copyCellData(m_Grid, id_cell, grid, id_new);
+      }
+    }
+  }
+  makeCopy(grid, m_Grid);
+  m_Part.setGrid(m_Grid);
+  m_Part.setAllCells();
+}
+
+void BooleanGeometryOperation::smoothJunction_updateBCs()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QList<int> bcs = m_BCs1 + m_BCs2;
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    EG_GET_CELL(id_cell, m_Grid);
+    if (type_cell == VTK_TRIANGLE) {
+      int bc_best = -1;
+      double L_min = 1e99;
+      foreach (int bc, bcs) {
+        double L_max = 0;
+        for (int i = 0; i < num_pts; ++i) {
+          vec3_t x_node;
+          m_Grid->GetPoint(pts[i], x_node.data());
+          vec3_t x_proj = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_node);
+          L_max = max(L_max, (x_node - x_proj).abs());
+        }
+        if (L_max < L_min) {
+          bc_best = bc;
+          L_min = L_max;
+        }
+      }
+      if (bc_best == -1) {
+        EG_BUG;
+      }
+      cell_code->SetValue(id_cell, bc_best);
+    }
+  }
+}
+
+double BooleanGeometryOperation::smoothJunction_mesher()
+{
+  prepare();
+  EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    characteristic_length_desired->SetValue(id_node, 1e-6);
+  }
+  updateNodeInfo(true);
+  computeMeshDensity();
+  int inserted_nodes = insertNodes();
+  int num_nodes = m_Grid->GetNumberOfPoints();
+  updateNodeInfo();
+  swap();
+  int deleted_nodes = SurfaceAlgorithm::deleteNodes();
+  for (int i = 0; i < 2; ++i) {
+    SurfaceProjection::Nfull = 0;
+    SurfaceProjection::Nhalf = 0;
+    smooth(1, true);
+    swap();
+  }
+  createIndices(m_Grid);
+  updateNodeInfo(false);
+  return double(inserted_nodes - deleted_nodes)/double(num_nodes);
+}
+
+void BooleanGeometryOperation::smoothJunction()
+{
+  smoothJunction_triangulate();
+  smoothJunction_updateBCs();
+  double change_ratio;
+  for (int iter = 1; iter <= 20; ++iter) {
+    change_ratio = smoothJunction_mesher();
+    smoothJunction_updateBCs();
+    cout << "iteration " << iter << ": change ratio = " << change_ratio*100 << "%" << endl;
+    if (change_ratio < 0.01 && iter >= 5) {
+      break;
+    }
+  }
+}
+
 void BooleanGeometryOperation::operate()
 {
+  if (!GuiMainWindow::pointer()->checkSurfProj()) {
+    GuiMainWindow::pointer()->storeSurfaceProjection();
+  }
   deleteNodes();
   fillGap();
+  smoothJunction();
 }

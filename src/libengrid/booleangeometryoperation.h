@@ -25,10 +25,10 @@
 
 class BooleanGeometryOperation;
 
-#include "surfaceoperation.h"
+#include "surfacealgorithm.h"
 #include "surfaceprojection.h"
 
-class BooleanGeometryOperation : public SurfaceOperation
+class BooleanGeometryOperation : public SurfaceAlgorithm
 {
 
 protected: // data types
@@ -50,10 +50,10 @@ protected: // data types
 private: // attributes
 
   edge_t                     m_CurrentEdge;
-  //QList<vtkIdType>         m_OpenNodes;
   QList<tri_t>               m_Triangles;
   tri_t                      m_CurrentTriangle;
   QVector<int>               m_OpenNode;
+  QVector<bool>              m_SplitNode;
   QVector<QSet<vtkIdType> >  m_Node2Cell;
   QVector<QSet<vtkIdType> >  m_Node2Node;
 
@@ -69,6 +69,7 @@ protected: // attributes
   int                  m_Side2;
   QList<int>           m_BCs1;
   QList<int>           m_BCs2;
+  int                  m_NumCutLayers;
 
 private: // methods
 
@@ -78,16 +79,23 @@ private: // methods
   bool fillGap_step();
   void fillGap_createTriangles();
 
+  void   smoothJunction_triangulate();
+  void   smoothJunction_updateBCs();
+  double smoothJunction_mesher();
+
 protected: // methods;
 
   void deleteNodes();
   void fillGap();
+  void smoothJunction();
 
 public: // methods
 
   template <class C> BooleanGeometryOperation(vtkUnstructuredGrid *grid, const C &bcs1, const C &bcs2, int side1, int side2);
 
   virtual void operate();
+
+  void setNumCutLayers(int N) { m_NumCutLayers = N; }
 
 };
 
@@ -119,6 +127,7 @@ BooleanGeometryOperation::BooleanGeometryOperation(vtkUnstructuredGrid *grid, co
   foreach (int bc, bcs2) {
     m_BCs2.append(bc);
   }
+  m_NumCutLayers = 1;
 }
 
 
