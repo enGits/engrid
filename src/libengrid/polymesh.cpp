@@ -203,30 +203,21 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
   for (int iter = 0; iter < 5; ++iter) {
     int num_bad = 0;
     int i_improve = 0;
-    double fp_min =  1e99;
     for (int i = 0; i < numCells(); ++i) {
       PolyMolecule pm(this, i);
       if (!pm.allPositive()) {
         ++i_improve;
-        //if (i_improve > 1) pm.fix();
-        //else pm.fix(true);
         pm.fix();
-        //fp = pm.minPyramidVolume();
         if (!pm.allPositive()) {
           ++num_bad;
-          //cout << i_improve << ". improvement failed" << endl;
-        } else {
-          //cout << i_improve << ". improvement succeeded" << endl;
         }
       }
-      //fp_min = min(fp, fp_min);
     }
     cout << i_improve << " cells out of " << numCells() << " were concave." << endl;
     cout << num_bad << " cells out of " << numCells() << " are still concave!" << endl;
-    //cout << "minimal face-pyramid:" << fp_min << endl;
     splitConcaveFaces();
     if (num_bad == 0) {
-      //break;
+      break;
     }
   }
 }

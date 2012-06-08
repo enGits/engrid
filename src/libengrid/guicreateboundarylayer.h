@@ -58,6 +58,7 @@ protected: // methods
   
   void smoothSurface();
   void reduceSurface();
+  void updateSurface();
   void insertPoints();
 
   virtual void before();

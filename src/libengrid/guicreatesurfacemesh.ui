@@ -270,6 +270,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="title">
        <string>prismatic layers</string>
       </attribute>

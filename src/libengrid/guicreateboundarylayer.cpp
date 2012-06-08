@@ -109,7 +109,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setMeshPartition(part);
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   remove_points.setUpdatePSPOn();
-  //remove_points.setThreshold(3);
+  remove_points.setThreshold(3);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -139,6 +139,50 @@ void GuiCreateBoundaryLayer::reduceSurface()
 
   remove_points.fixNodes(fix);
   remove_points();
+}
+
+void GuiCreateBoundaryLayer::updateSurface()
+{
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table").replace("\n", " ");
+  int row_count = 0;
+  int column_count = 0;
+  QVector <VertexMeshDensity>  vmd;
+  if(!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    in >> row_count >> column_count;
+    QVector<int> tmp_bcs;
+    GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
+    if (column_count == tmp_bcs.size() + 3) {
+      vmd.fill(VertexMeshDensity(), row_count);
+      for (int i = 0; i < row_count; ++i) {
+        int row, column;
+        QString formula;
+        foreach (int bc, tmp_bcs) {
+          in >> row >> column >> formula;
+          vmd[row].BCmap[bc] = formula.toInt();
+        }
+        in >> row >> column >> formula;
+        vmd[row].type = Str2VertexType(formula);
+        in >> row >> column >> formula;
+        if (formula == "{{{empty}}}") {
+          formula = "";
+        }
+        vmd[i].setNodes(formula);
+        in >> row >> column >> formula;
+        vmd[i].density = formula.toDouble();
+      }
+    } else {
+      EG_ERR_RETURN(QObject::tr("Mismatch of number of boundary codes!"));
+    }
+  }
+  UpdateDesiredMeshDensity update;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  update.setMeshPartition(part);
+  update.setVertexMeshDensityVector(vmd);
+  update.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  update();
 }
 
 void GuiCreateBoundaryLayer::insertPoints()
@@ -318,6 +362,7 @@ void GuiCreateBoundaryLayer::operate()
     smooth.setAllCells();
     smooth();
     if (delete_nodes) {
+      //updateSurface();
       reduceSurface();
       //insertPoints();
     }
