@@ -1425,6 +1425,7 @@ void GuiMainWindow::updateStatusBar()
     if (id_node < 0) {
       pick_txt += "no node picked";
     } else {
+      /*
       vec3_t x;
       m_Grid->GetPoints()->GetPoint(id_node,x.data());
       pick_txt += " [";
@@ -1437,6 +1438,7 @@ void GuiMainWindow::updateStatusBar()
         }
       }
       pick_txt += "]";
+      */
       QString tmp;
       EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
       tmp.setNum(characteristic_length_desired->GetValue(id_node));
