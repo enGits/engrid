@@ -448,12 +448,6 @@ void GridSmoother::relaxNormalVectors()
     }
     m_NodeNormal = n_new;
     correctNormalVectors();
-    /*
-    QString num;
-    num.setNum(iter);
-    num = "normals_" + num;
-    writeDebugFile(num);
-    */
   }
 }
 
@@ -588,8 +582,8 @@ void GridSmoother::computeHeights()
     if (!s.atEnd()) s >> m_RelativeHeight;
     if (!s.atEnd()) s >> m_Blending;
     if (!s.atEnd()) s >> m_DesiredStretching;
-    if (!s.atEnd()) s >> m_NumLayers;
     if (!s.atEnd()) s >> m_FarRatio;
+    if (!s.atEnd()) s >> m_NumLayers;
   }
   computeDesiredHeights();
   {
@@ -599,8 +593,8 @@ void GridSmoother::computeHeights()
     s << m_RelativeHeight << " ";
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
-    s << m_NumLayers << " ";
     s << m_FarRatio << " ";
+    s << m_NumLayers << " ";
     GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
@@ -686,23 +680,40 @@ void GridSmoother::computeHeights()
   }
 
   // fifth pass (smoothing)
+  QVector<int> num_bcs(m_Grid->GetNumberOfPoints(),0);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_SurfNode[id_node]) {
+      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+        int bc = m_Part.n2bcG(id_node, i);
+        if (m_BoundaryCodes.contains(bc)) {
+          ++num_bcs[id_node];
+        }
+      }
+    }
+  }
   for (int iter = 0; iter < m_NumHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_SurfNode[id_node]) {
-        int N = 0;
-        h_new[id_node] = 0;
+        QList<vtkIdType> snap_points;
         for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
           vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
-          if (m_SurfNode[id_neigh]) {
-            h_new[id_node] += m_Height[id_neigh];
-            ++N;
+          if (num_bcs[id_node] <= num_bcs[id_neigh]) {
+            if (!m_SurfNode[id_neigh]) {
+              EG_BUG;
+            }
+            snap_points.append(id_neigh);
           }
         }
-        if (N == 0) {
-          EG_BUG;
+        if (snap_points.size() > 0) {
+          h_new[id_node] = 0;
+          foreach (vtkIdType id_snap, snap_points) {
+            h_new[id_node] += m_Height[id_snap];
+          }
+          h_new[id_node] /= snap_points.size();
+        } else {
+          h_new[id_node] = m_Height[id_node];
         }
-        h_new[id_node] /= N;
       }
     }
     m_Height = h_new;
@@ -814,6 +825,9 @@ void GridSmoother::operate()
   }
   l2g_t nodes = m_Part.getNodes();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    if (nodes[i_nodes] == 1314 || nodes[i_nodes] == 1898) {
+      cout << "break" << endl;
+    }
     if (m_NodeMarked[nodes[i_nodes]]) {
       simpleNodeMovement(i_nodes);
     }
