@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -1187,6 +1187,12 @@ void GuiMainWindow::openGrid(QString file_name)
   vtu->SetFileName(qPrintable(file_name));
   vtu->Update();
   m_Grid->DeepCopy(vtu->GetOutput());
+  if (m_Grid->GetPointData()->GetArray("node_meshdensity_current")) {
+    m_Grid->GetPointData()->RemoveArray("node_meshdensity_current");
+  }
+  if (m_Grid->GetCellData()->GetArray("cell_VA")) {
+    m_Grid->GetCellData()->RemoveArray("cell_VA");
+  }
   createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
   openBC();
   openPhysicalBoundaryConditions();
