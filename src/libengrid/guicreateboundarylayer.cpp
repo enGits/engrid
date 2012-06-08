@@ -31,6 +31,7 @@
 #include "meshpartition.h"
 #include "laplacesmoother.h"
 #include "updatedesiredmeshdensity.h"
+#include "insertpoints.h"
 
 GuiCreateBoundaryLayer::GuiCreateBoundaryLayer()
 {
@@ -56,7 +57,8 @@ void GuiCreateBoundaryLayer::before()
   populateBoundaryCodes(m_Ui.listWidgetBC);
   populateVolumes(m_Ui.listWidgetVC);
   m_Ui.spinBoxIterations->setValue(m_NumIterations);
-  double hr, ha, b, ds = 1.5, fr = 0.75;
+  double hr, ha, b, ds = 1.5, fr = 0.8;
+  int num_layers = 0;
   getSet("boundary layer", "relative height of boundary layer", 0.01, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
   getSet("boundary layer", "blending between absolute and relative", 0.0, b);
@@ -68,6 +70,7 @@ void GuiCreateBoundaryLayer::before()
     if (!s.atEnd()) s >> b;
     if (!s.atEnd()) s >> ds;
     if (!s.atEnd()) s >> fr;
+    if (!s.atEnd()) s >> num_layers;
   }
   {
     int hi = 2000*hr;
@@ -88,6 +91,13 @@ void GuiCreateBoundaryLayer::before()
     m_Ui.doubleSpinBoxStretching->setValue(ds);
     m_Ui.doubleSpinBoxFarRatio->setValue(fr);
   }
+  if (num_layers > 0) {
+    QString num;
+    num.setNum(num_layers);
+    m_Ui.lineEditNumLayers->setText(num);
+  } else {
+    m_Ui.lineEditNumLayers->setText("not yet available");
+  }
 }
 
 void GuiCreateBoundaryLayer::reduceSurface()
@@ -99,7 +109,7 @@ void GuiCreateBoundaryLayer::reduceSurface()
   remove_points.setMeshPartition(part);
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   remove_points.setUpdatePSPOn();
-  remove_points.setThreshold(3);
+  //remove_points.setThreshold(3);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -129,6 +139,17 @@ void GuiCreateBoundaryLayer::reduceSurface()
 
   remove_points.fixNodes(fix);
   remove_points();
+}
+
+void GuiCreateBoundaryLayer::insertPoints()
+{
+  InsertPoints insert_points;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  insert_points.setMeshPartition(part);
+  insert_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  insert_points();
 }
 
 void GuiCreateBoundaryLayer::smoothSurface()
@@ -298,6 +319,7 @@ void GuiCreateBoundaryLayer::operate()
     smooth();
     if (delete_nodes) {
       reduceSurface();
+      //insertPoints();
     }
     swap();
     smoothSurface();

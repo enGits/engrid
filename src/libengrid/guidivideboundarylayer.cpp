@@ -52,6 +52,9 @@ void GuiDivideBoundaryLayer::before()
     m_Ui.doubleSpinBoxStretching->setValue(v);
   }
   if (!s.atEnd()) {
+    s >> v;
+  }
+  if (!s.atEnd()) {
     int v;
     s >> v;
     m_Ui.spinBoxLayers->setValue(v);
