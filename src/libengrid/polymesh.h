@@ -75,7 +75,9 @@ protected: // attributes
   QVector<int>         m_BCs;
   QVector<double>      m_PointWeights;
   QVector<QList<int> > m_Point2Face;
+  QVector<QList<int> > m_PCell2Face;
   QVector<vec3_t>      m_CellCentre;
+  QVector<bool>        m_IsBadCell;
 
   double               m_AttractorWeight;
   double               m_PullInFactor;
@@ -116,16 +118,22 @@ protected: // methods
   void createEdgeFace(vtkIdType id_node1, vtkIdType id_node2);
   void createFaceFace(vtkIdType id_cell, int i_face);
   void createPointFace(vtkIdType id_node, int bc);
+  void splitConcaveFaces();
   void createNodesAndFaces();
   void checkFaceOrientation();
   void computePoints();
   void buildPoint2Face();
+  void buildPCell2Face();
+  void triangulateBadFaces();
+  void splitConcaveCells();
 
   vec3_t faceNormal(int i);
    
 public: // methods
   
   PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh = true);
+
+  void   setNodeVector(int i, vec3_t x) { m_Points[i] = x; }
 
   int    totalNumNodes() const         { return m_Points.size(); }
   vec3_t nodeVector(int i) const       { return m_Points[i]; }
@@ -137,6 +145,8 @@ public: // methods
   int    boundaryCode(int i) const     { return m_Faces[i].bc; }
   int    numBCs() const                { return m_BCs.size(); }
   int    numCells() const              { return m_NumPolyCells; }
+  int    numFacesOfPCell(int i)        { return m_PCell2Face[i].size(); }
+  int    pcell2Face(int i, int j)      { return m_PCell2Face[i][j]; }
 
 };
 

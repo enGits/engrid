@@ -538,6 +538,12 @@ protected: // methods
    */
   bool cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell, vtkIdType id_node);
 
+  template <class C> void createPolyData(const C &x, vtkPolyData *poly_data, bool closed_loop = false);
+  void createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c);
+  void createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2c);
+  void createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2n);
+  template <class C> double convexRatio(const C &x, vec3_t n_plane, bool closed_loop = false);
+
 public: // methods
   
   EgVtkObject() { DebugLevel = 0; }
@@ -681,5 +687,54 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, c
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }
+
+template <class C>
+void EgVtkObject::createPolyData(const C &x, vtkPolyData *poly_data, bool closed_loop)
+{
+  int N = x.size();
+  if (closed_loop) {
+    --N;
+  }
+  EG_VTKSP(vtkPoints, points);
+  points->SetNumberOfPoints(N);
+  QVector<vtkIdType> pts(N);
+  for (int i = 0; i < N; ++i) {
+    points->SetPoint(i, x[i][0], x[i][1], x[i][2]);
+    pts[i] = i;
+  }
+  poly_data->Allocate(1);
+  poly_data->SetPoints(points);
+  poly_data->InsertNextCell(VTK_POLYGON, N, pts.data());
+}
+
+template <class C>
+double EgVtkObject::convexRatio(const C &x, vec3_t n_plane, bool closed_loop)
+{
+  double L_max = -1e99;
+  double L_min =  1e99;
+  int N = x.size();
+  if (closed_loop) {
+    --N;
+  }
+  for (int i = 0; i < N; ++i) {
+    for (int j = 0; j < N; ++j) {
+      int p1 = j;
+      int p2 = j+1;
+      if (j == N - 1 && !closed_loop) {
+        p2 = 0;
+      }
+      if (i != p1 && i != p2) {
+        vec3_t n = n_plane.cross(x[p2] - x[p1]);
+        n.normalise();
+        double L = (x[i] - x[j])*n;
+        L_max = max(L, L_max);
+        L_min = min(L, L_min);
+      }
+    }
+  }
+  return L_min/L_max;
+}
+
+
 
 #endif

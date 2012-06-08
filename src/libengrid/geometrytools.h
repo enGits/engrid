@@ -26,6 +26,8 @@
 #include "math/mathvector.h"
 #include "math/smallsquarematrix.h"
 
+#include <QVector>
+
 #include <vtkUnstructuredGrid.h>
 
 namespace GeometryTools
@@ -137,7 +139,7 @@ inline vec2_t turnRight(const vec2_t &v)
   u[0] =  v[1];
   u[1] = -v[0];
   return u;
-};
+}
 
 inline vec2_t turnLeft(const vec2_t &v)
 {
@@ -145,7 +147,7 @@ inline vec2_t turnLeft(const vec2_t &v)
   u[0] = -v[1];
   u[1] =  v[0];
   return u;
-};
+}
 
 //polygon must be numbered clockwise
 inline bool IsConvex(vec3_t a,vec3_t b,vec3_t c,vec3_t d)
@@ -161,7 +163,7 @@ inline bool IsConvex(vec3_t a,vec3_t b,vec3_t c,vec3_t d)
     if(n[2]>0) return(false);
   }
   return(true);
-};
+}
 
 inline bool IsConvex(vec2_t a_2D,vec2_t b_2D,vec2_t c_2D,vec2_t d_2D)
 {
@@ -170,7 +172,7 @@ inline bool IsConvex(vec2_t a_2D,vec2_t b_2D,vec2_t c_2D,vec2_t d_2D)
   vec3_t c_3D(c_2D[0],c_2D[1]);
   vec3_t d_3D(d_2D[0],d_2D[1]);
   return(IsConvex(a_3D,b_3D,c_3D,d_3D));
-};
+}
 
 /// return the angle with relation to another 3-vector
 double angle(const vec3_t & u, const vec3_t & v);
@@ -221,6 +223,79 @@ vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
 
 vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N);
 
-};
+template <class C>
+void planeFit(const C &pts, vec3_t &x0, vec3_t &n, bool closed_loop = false)
+{
+  x0 = vec3_t(0,0,0);
+  int N = pts.size();
+  if (!closed_loop) {
+    ++N;
+  }
+  QVector<vec3_t> x(N);
+  for (int i = 0; i < pts.size(); ++i) {
+    x[i] = pts[i];
+    x0 += x[i];
+  }
+  if (!closed_loop) {
+    x.last() = x.first();
+  }
+  x0 *= 1.0/pts.size();
+  for (int i = 0; i < x.size(); ++i) {
+    x[i] -= x0;
+  }
+  n = vec3_t(0,0,0);
+  for (int i = 0; i < x.size() - 1; ++i) {
+    n += x[i].cross(x[i+1]);
+  }
+  double a11 = 0, a12 = 0, a13 = 0;
+  double a21 = 0, a22 = 0, a23 = 0;
+  double a31 = 0, a32 = 0, a33 = 0;
+  for (int i = 0; i < x.size() - 1; ++i) {
+    a11 += x[i][0]*x[i][0];
+    a12 += x[i][0]*x[i][1];
+    a13 += x[i][0]*x[i][2];
+
+    a21 += x[i][0]*x[i][1];
+    a22 += x[i][1]*x[i][1];
+    a23 += x[i][1]*x[i][2];
+
+    a31 += x[i][0]*x[i][2];
+    a32 += x[i][1]*x[i][2];
+    a33 += x[i][2]*x[i][2];
+  }
+  //n[2] = n[2];
+  //n[1] = -a33*n[2]/(a22*a31 - a21*a32);
+  //n[0] = -(a12*n[1] + a13*n[2])/a11;
+  n.normalise();
+}
+
+template <class C>
+vec3_t polyNormal(const C &pts, bool closed_loop = false)
+{
+  vec3_t x0(0,0,0);
+  int N = pts.size();
+  if (!closed_loop) {
+    ++N;
+  }
+  QVector<vec3_t> x(N);
+  for (int i = 0; i < pts.size(); ++i) {
+    x[i] = pts[i];
+    x0 += x[i];
+  }
+  if (!closed_loop) {
+    x.last() = x.first();
+  }
+  x0 *= 1.0/pts.size();
+  for (int i = 0; i < x.size(); ++i) {
+    x[i] -= x0;
+  }
+  vec3_t n(0,0,0);
+  for (int i = 0; i < x.size() - 1; ++i) {
+    n += x[i].cross(x[i+1]);
+  }
+  return n;
+}
+
+}
 
 #endif

@@ -46,15 +46,115 @@ private: // attributes
   PolyMesh*             m_PolyMesh;
   QList<int>            m_Nodes;
   QVector<QList<int> >  m_Faces;
-  QList<QList<edge_t> > m_N2N;
+  QVector<vec3_t>       m_FaceNormals;
+  QVector<vec3_t>       m_NodeNormals;
+  QVector<QSet<int> >   m_N2N;
+  QVector<QSet<int> >   m_N2BadFaces;
+  PolyMolecule*         m_SplitCell1;
+  PolyMolecule*         m_SplitCell2;
+
+  int                   m_PCell;
+  vec3_t                m_CentreOfGravity;
+  double                m_MaxPyramidVolume;
+  double                m_MinPyramidVolume;
+  bool                  m_AllPositive;
+
+private: // methods
+
+  void computeCentreOfGravity();
+  void buildNode2Node();
+  void computeNormals();
+  void smooth(bool delaunay = true, bool write = false);
+  //void fillGaps();
+  void split(bool write = false);
+
+
+  template <class C> void init(PolyMesh *poly_mesh, const C &faces);
+  template <class C> void setSubMolecules(const C &face_indices1);
 
 public:
 
-  PolyMolecule(PolyMesh *poly_mesh, const QList<int> &faces);
+  PolyMolecule();
+  PolyMolecule(PolyMesh *poly_mesh, int i_pcell);
 
   vec3_t getXNode(int node) { return m_PolyMesh->nodeVector(m_Nodes[node]); }
   vec3_t getXFace(int face);
+  void   writeVtkFile(QString file_name);
+  void   createPolyData(vtkPolyData *poly_data);
+  double minPyramidVolume() { return m_MinPyramidVolume; }
+  double maxPyramidVolume() { return m_MaxPyramidVolume; }
+  void   fix(bool write = false);
+  bool   allPositive() { return m_AllPositive; }
 
 };
+
+template <class C>
+void PolyMolecule::init(PolyMesh *poly_mesh, const C &faces)
+{
+  m_PolyMesh = poly_mesh;
+  QSet<int> nodes;
+  QHash<int,int> node_map;
+  for (int i = 0; i < faces.size(); ++i) {
+    for (int j = 0; j < faces[i].size(); ++j) {
+      nodes.insert(faces[i][j]);
+    }
+  }
+  {
+    int N = 0;
+    foreach (int node, nodes) {
+      m_Nodes.append(node);
+      node_map[node] = N;
+      ++N;
+    }
+  }
+  m_Faces.resize(faces.size());
+  for (int i = 0; i < faces.size(); ++i) {
+    for (int j = 0; j < faces[i].size(); ++j) {
+      m_Faces[i].append(node_map[faces[i][j]]);
+    }
+  }
+  if (m_Nodes.size() == 0) {
+    EG_BUG;
+  }
+  if (m_Faces.size() == 0) {
+    EG_BUG;
+  }
+  computeCentreOfGravity();
+  buildNode2Node();
+  computeNormals();
+}
+
+template <class C>
+void PolyMolecule::setSubMolecules(const C &face_indices1)
+{
+  QList<int> face_indices2;
+  for (int i = 0; i < m_Faces.size(); ++i) {
+    if (!face_indices1.contains(i)) {
+      face_indices2.append(i);
+    }
+  }
+  QList<QList<int> > faces1;
+  foreach (int i, face_indices1) {
+    QList<int> face;
+    foreach (int node, m_Faces[i]) {
+      face.append(node);
+    }
+    faces1.append(face);
+  }
+  delete m_SplitCell1;
+  m_SplitCell1 = new PolyMolecule();
+  m_SplitCell1->init(m_PolyMesh, faces1);
+  QList<QList<int> > faces2;
+  foreach (int i, face_indices2) {
+    QList<int> face;
+    foreach (int node, m_Faces[i]) {
+      face.append(node);
+    }
+    faces2.append(face);
+  }
+  delete m_SplitCell2;
+  m_SplitCell2 = new PolyMolecule();
+  m_SplitCell2->init(m_PolyMesh, faces2);
+}
 
 #endif // POLYMOLECULE_H

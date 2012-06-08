@@ -238,10 +238,33 @@ zoomAll();
 #define EG_STDCONNECT(OPER) \
 connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
 
-#define EG_GETPTS(PTS,CELLID,GRID) \
-vtkIdType *PTS; \
-vtkIdType  N ## PTS; \
-GRID->GetCellPoints(CELLID, N ## PTS, PTS);
+/**
+  * Perform a loop over all cells of a grid.
+  * @param ID_CELL the cell index iteration variable
+  * @param GRID a pointer to the vtkUnstructuredGrid
+  */
+#define EG_FORALL_CELLS(ID_CELL, GRID) for (vtkIdType ID_CELL = 0; ID_CELL < GRID->GetNumberOfCells(); ++ID_CELL)
+
+/**
+  * Perform a loop over all nodes of a grid.
+  * @param ID_NODE the node index iteration variable
+  * @param GRID a pointer to the vtkUnstructuredGrid
+  */
+#define EG_FORALL_NODES(ID_NODE, GRID) for (vtkIdType ID_NODE = 0; ID_NODE < GRID->GetNumberOfPoints(); ++ID_NODE)
+
+/**
+  * Get the type and the nodes of a cell.
+  * The following variables are created:
+  * - num_pts (number of points)
+  * - pts (array with the points)
+  * - type_cell (VTK type of the cell)
+  * @param ID_CELL the cell index
+  * @param GRID a pointer to the vtkUnstructuredGrid
+  */
+#define EG_GET_CELL(ID_CELL, GRID) \
+  vtkIdType num_pts, *pts; \
+  vtkIdType type_cell = GRID->GetCellType(ID_CELL); \
+  GRID->GetCellPoints(ID_CELL, num_pts, pts);
 
 inline double sqr(double x) { return x*x; }
 
