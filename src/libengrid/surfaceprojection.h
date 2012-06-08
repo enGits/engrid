@@ -179,7 +179,6 @@ void SurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, c
       EG_BUG;
     }
   }
-  writeGrid(m_BGrid, "m_BGrid");
 }
 
 #endif // SURFACEPROJECTION_H
