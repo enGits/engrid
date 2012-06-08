@@ -43,11 +43,12 @@ private: // types
   
 private: // attributes
   
-  QVector<bool> m_NodeMarked;
-  QVector<bool> m_SurfNode;
-  int           m_NumMarkedNodes;
-  QList<rule_t> m_Rules;
-  bool          m_FirstCall;
+  QVector<bool>   m_NodeMarked;
+  QVector<bool>   m_SurfNode;
+  int             m_NumMarkedNodes;
+  QList<rule_t>   m_Rules;
+  bool            m_FirstCall;
+  QVector<vec3_t> m_GeoNormal;
   
 protected: // attributes
   

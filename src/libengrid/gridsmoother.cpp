@@ -350,6 +350,7 @@ void GridSmoother::computeNormals()
     }
   }
 
+  m_GeoNormal = m_NodeNormal;
   relaxNormalVectors();
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -598,12 +599,15 @@ void GridSmoother::computeHeights()
     GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
-  // third pass (gaps)
+  // compute height limiters
+  QVector<double> height_limit(m_Grid->GetNumberOfPoints(), 1e99);
+
+  // gaps
   QList<vtkIdType> search_nodes;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     bool append_node = m_SurfNode[id_node];
     if (!append_node) {
-      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
         vtkIdType id_cell = m_Part.n2cGG(id_node, i);
         if (isSurface(id_cell, m_Grid)) {
           if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
@@ -627,7 +631,6 @@ void GridSmoother::computeHeights()
 
   for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
     if (m_SurfNode[id_node1]) {
-      const vec3_t& n1 = m_NodeNormal[id_node1];
       vec3_t x1;
       m_Grid->GetPoint(id_node1, x1.data());
       QVector<int> close_points;
@@ -635,15 +638,21 @@ void GridSmoother::computeHeights()
       foreach (int i, close_points) {
         vtkIdType id_node2 = search_nodes[i];
         if (id_node1 != id_node2) {
-          vec3_t x2;
-          m_Grid->GetPoint(id_node2, x2.data());
-          vec3_t Dx = x2 - x1;
-          double a = Dx*n1;
-          if (a > 0) {
-            double b = Dx.abs();
-            double alpha = 180.0/M_PI*acos(a/b);
-            if (alpha < m_RadarAngle) {
-              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+          if (m_GeoNormal[id_node1]*m_GeoNormal[id_node2] < 0)  {
+            vec3_t x2;
+            m_Grid->GetPoint(id_node2, x2.data());
+            vec3_t Dx = x2 - x1;
+            double a = Dx*m_GeoNormal[id_node1];
+            if (a > 0) {
+              double c = Dx.abs();
+              double b = sqrt(sqr(c) - sqr(a));
+              double cos_beta = acos(fabs(m_GeoNormal[id_node1]*m_GeoNormal[id_node2]));
+              double e = b/cos_beta;
+              double d = sqrt(sqr(e) - sqr(b));
+              double alpha = 180.0/M_PI*acos(a/c);
+              if (alpha < m_RadarAngle) {
+                height_limit[id_node1] = min(height_limit[id_node1], m_MaxHeightInGaps*(a+d));
+              }
             }
           }
         }
@@ -651,7 +660,7 @@ void GridSmoother::computeHeights()
     }
   }
 
-  // fourth pass ("neighbour" gaps)
+  // "neighbour" gaps
   for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
     if (m_SurfNode[id_node1]) {
       vec3_t x1;
@@ -664,19 +673,24 @@ void GridSmoother::computeHeights()
           vec3_t v = x2 - x1;
           double L = v.abs();
           v.normalise();
-          if (v * m_NodeNormal[id_node1] > 0) {
-            double scale1 = m_NodeNormal[id_node1]*v;
-            double scale2 = m_NodeNormal[id_node2]*v;
-            if (scale1 > scale2) {
-              vec3_t up = m_NodeNormal[id_node2];
-              vec3_t vp = v.cross(up);
-              double k = intersection(x1, v, x2, up, vp);
-              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*k);
-            }
-          }
+          vec3_t n_plane = v.cross(m_NodeNormal[id_node1]);
+          n_plane.normalise(); //??
+          vec3_t n1_2d = m_NodeNormal[id_node1] - (m_NodeNormal[id_node1]*n_plane)*n_plane;
+          vec3_t n2_2d = m_NodeNormal[id_node2] - (m_NodeNormal[id_node2]*n_plane)*n_plane;
+          double s1 = n1_2d*v;
+          double s2 = n2_2d*v;
+          double m1 = sign1(s1)*sqrt(1 - sqr(s1))/max(1e-3, fabs(s1));
+          double m2 = sign1(s2)*sqrt(1 - sqr(s2))/max(1e-3, fabs(s2));
+          double C  = sign1(m2 - m1)*max(1e-3, fabs(m2 - m1));
+          double h  = m1*m2/C;
+          if (h < 0) h = 1000;
+          height_limit[id_node1] = min(height_limit[id_node1], 2*m_MaxHeightInGaps*h*L);
         }
       }
     }
+  }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Height[id_node] = min(height_limit[id_node], m_Height[id_node]);
   }
 
   // fifth pass (smoothing)
@@ -714,6 +728,7 @@ void GridSmoother::computeHeights()
         } else {
           h_new[id_node] = m_Height[id_node];
         }
+        h_new[id_node] = min(h_new[id_node], height_limit[id_node]);
       }
     }
     m_Height = h_new;
@@ -825,9 +840,6 @@ void GridSmoother::operate()
   }
   l2g_t nodes = m_Part.getNodes();
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    if (nodes[i_nodes] == 1314 || nodes[i_nodes] == 1898) {
-      cout << "break" << endl;
-    }
     if (m_NodeMarked[nodes[i_nodes]]) {
       simpleNodeMovement(i_nodes);
     }
