@@ -38,11 +38,12 @@ void GuiBooleanGeometryOperation::operate()
 {
   QSet<int> bcs1, bcs2;
   getSelectedItems(m_Ui.m_ListWidgetBCs1, bcs1);
-  getSelectedItems(m_Ui.m_ListWidgetBCs1, bcs2);
+  getSelectedItems(m_Ui.m_ListWidgetBCs2, bcs2);
   int s1, s2;
   if      (m_Ui.m_ComboBox->currentText() == "add")      { s1 =  1; s2 =  1; }
   else if (m_Ui.m_ComboBox->currentText() == "subtract") { s1 = -1; s2 =  1; }
   else                                                   { s1 = -1; s2 = -1; }
   BooleanGeometryOperation bool_op(m_Grid, bcs1, bcs2, s1, s2);
+  bool_op.setNumCutLayers(m_Ui.m_SpinBoxCutLayers->value());
   bool_op();
 }
