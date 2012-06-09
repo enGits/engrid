@@ -32,7 +32,7 @@ win32-msvc* {
     QMAKE_CXXFLAGS += -Wall
     QMAKE_CXXFLAGS += -Wno-deprecated
     QMAKE_CXXFLAGS += -fno-omit-frame-pointer
-    QMAKE_CXXFLAGS += -g
+#    QMAKE_CXXFLAGS += -g
 }
 
 
@@ -339,6 +339,9 @@ SOURCES += mergenodes.cpp
 FORMS += guiedgelengthsourcecone.ui
 HEADERS += guiedgelengthsourcecone.h
 SOURCES += guiedgelengthsourcecone.cpp
+FORMS += guiedgelengthsourcebox.ui
+HEADERS += guiedgelengthsourcebox.h
+SOURCES += guiedgelengthsourcebox.cpp
 FORMS += guimergevolumes.ui
 HEADERS += guimergevolumes.h
 SOURCES += guimergevolumes.cpp

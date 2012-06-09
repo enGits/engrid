@@ -199,7 +199,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
   buildPCell2Face();
   //triangulateBadFaces();
   //splitConcaveCells();
-  splitConcaveFaces();
+  //splitConcaveFaces();
   for (int iter = 0; iter < 5; ++iter) {
     int num_bad = 0;
     int i_improve = 0;
@@ -208,14 +208,14 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
       if (!pm.allPositive()) {
         ++i_improve;
         pm.fix();
-        if (!pm.allPositive()) {
+        if (pm.minPyramidVolume() <= 0) {
           ++num_bad;
         }
       }
     }
-    cout << i_improve << " cells out of " << numCells() << " were concave." << endl;
+    cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
     cout << num_bad << " cells out of " << numCells() << " are still concave!" << endl;
-    splitConcaveFaces();
+    //splitConcaveFaces();
     if (num_bad == 0) {
       break;
     }

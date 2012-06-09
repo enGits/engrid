@@ -25,6 +25,7 @@
 
 #include "guiedgelengthsourcesphere.h"
 #include "guiedgelengthsourcecone.h"
+#include "guiedgelengthsourcebox.h"
 #include "guimainwindow.h"
 
 EdgeLengthSourceManager::EdgeLengthSourceManager()
@@ -33,6 +34,7 @@ EdgeLengthSourceManager::EdgeLengthSourceManager()
   m_Samples.clear();
   m_Samples.push_back(new GuiEdgeLengthSourceSphere);
   m_Samples.push_back(new GuiEdgeLengthSourceCone);
+  m_Samples.push_back(new GuiEdgeLengthSourceBox);
   m_ListWidget = NULL;
 }
 
@@ -150,6 +152,15 @@ void EdgeLengthSourceManager::addCone()
 {
   QString name = "cone" + timeStamp();
   GuiEdgeLengthSourceCone *S = new GuiEdgeLengthSourceCone;
+  S->setName(name);
+  m_Sources.append(S);
+  populateListWidget();
+}
+
+void EdgeLengthSourceManager::addBox()
+{
+  QString name = "box" + timeStamp();
+  GuiEdgeLengthSourceBox *S = new GuiEdgeLengthSourceBox;
   S->setName(name);
   m_Sources.append(S);
   populateListWidget();

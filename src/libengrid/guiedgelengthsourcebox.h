@@ -20,59 +20,33 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-#ifndef guicreatesurfacemesh_H
-#define guicreatesurfacemesh_H
 
-#include "ui_guicreatesurfacemesh.h"
-#include "dialogoperation.h"
-#include "vertexmeshdensity.h"
-#include "surfaceoperation.h"
-#include "edgelengthsourcemanager.h"
+#ifndef GUIEDGELENGTHSOURCEBOX_H
+#define GUIEDGELENGTHSOURCEBOX_H
 
-#include <vtkPolyDataAlgorithm.h>
+#include "edgelengthsource.h"
+#include "ui_guiedgelengthsourcebox.h"
 
-class GuiCreateSurfaceMesh : public DialogOperation<Ui::GuiCreateSurfaceMesh, SurfaceOperation>
+
+class GuiEdgeLengthSourceBox : public GuiEdgeLengthSource<Ui::GuiEdgeLengthSourceBox>
 {
-  
-  Q_OBJECT;
-  
-private slots:
-  
-  void SelectAll_BC();
-  void ClearAll_BC();
-  
-protected: // methods
-  
-  virtual void operate();
+protected: // attributes
 
-private:
+  vec3_t m_X1;
+  vec3_t m_X2;
+  double m_Length;
 
-  int Nbc;
-  EdgeLengthSourceManager m_ELSManager;
-  int m_NumRows;
-  int m_NumCols;
-  QVector<QVector<QString> > m_Table;
-  void setTextFromTable();
-  void getTableFromText();
-  
-public:
 
-  GuiCreateSurfaceMesh();
-  
-  QString current_filename;
-  
-public slots:
+public: // methods
 
-  int  readSettings();
-  int  writeSettings();
-  void read()      { m_ELSManager.read(); }
-  void write()     { m_ELSManager.write(); }
-  void edit()      { m_ELSManager.edit(); }
-  void remove()    { m_ELSManager.remove(); }
-  void addSphere() { m_ELSManager.addSphere(); }
-  void addCone()   { m_ELSManager.addCone(); }
-  void addBox()    { m_ELSManager.addBox(); }
+  GuiEdgeLengthSourceBox();
+
+  virtual bool    read(QString txt);
+  virtual QString write();
+  virtual void    setDlgFields();
+  virtual void    readDlgFields();
+  virtual double  edgeLength(vec3_t x);
 
 };
 
-#endif
+#endif // GUIEDGELENGTHSOURCEBOX_H

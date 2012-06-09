@@ -218,7 +218,7 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0" rowspan="5">
+         <item row="0" column="0" rowspan="6">
           <widget class="QListWidget" name="listWidgetSources"/>
          </item>
          <item row="0" column="1">
@@ -228,7 +228,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -241,14 +241,14 @@
            </property>
           </spacer>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="QPushButton" name="pushButtonEditSource">
            <property name="text">
             <string>edit</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QPushButton" name="pushButtonDeleteSource">
            <property name="enabled">
             <bool>true</bool>
@@ -262,6 +262,13 @@
           <widget class="QPushButton" name="pushButtonAddCone">
            <property name="text">
             <string>add cone</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="pushButtonAddBox">
+           <property name="text">
+            <string>add box</string>
            </property>
           </widget>
          </item>
