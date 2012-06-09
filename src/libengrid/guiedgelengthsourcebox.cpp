@@ -31,7 +31,7 @@ GuiEdgeLengthSourceBox::GuiEdgeLengthSourceBox()
 }
 
 QString GuiEdgeLengthSourceBox::write()
-{
+{  
   QString txt = "box: " + name() + "; ";
   QString num;
   num.setNum(m_X1[0]); txt += num + "; ";
@@ -52,7 +52,7 @@ bool GuiEdgeLengthSourceBox::read(QString txt)
   }
   if (parts[0].trimmed() == "box") {
     QStringList words = parts[1].split(";");
-    if (words.size() < 11) {
+    if (words.size() < 8) {
       return false;
     }
     m_Name = words[0].trimmed();
@@ -94,7 +94,7 @@ double GuiEdgeLengthSourceBox::edgeLength(vec3_t x)
 {
   bool outside = false;
   for (int i = 0; i < 3; ++i) {
-    if (x[i] < m_X1[i] || x[i] > m_X1[i]) {
+    if (x[i] < m_X1[i] || x[i] > m_X2[i]) {
       outside = true;
       break;
     }

@@ -81,6 +81,12 @@ void EdgeLengthSourceManager::read()
           m_Sources.push_back(S);
           break;
         }
+        if (dynamic_cast<GuiEdgeLengthSourceBox*>(sample)) {
+          GuiEdgeLengthSourceBox *S = new GuiEdgeLengthSourceBox;
+          S->read(line.trimmed());
+          m_Sources.push_back(S);
+          break;
+        }
       }
     }
   }
