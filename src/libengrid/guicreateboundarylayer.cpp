@@ -59,9 +59,12 @@ void GuiCreateBoundaryLayer::before()
   m_Ui.spinBoxIterations->setValue(m_NumIterations);
   double hr, ha, b, ds = 1.5, fr = 0.8;
   int num_layers = 0;
+  int num_hr, num_nr;
   getSet("boundary layer", "relative height of boundary layer", 0.01, hr);
   getSet("boundary layer", "absolute height of boundary layer", 1.0, ha);
   getSet("boundary layer", "blending between absolute and relative", 0.0, b);
+  getSet("boundary layer", "number of layer height relax iterations",  5,  num_hr);
+  getSet("boundary layer", "number of normal vector relax iterations", 20, num_nr);
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
@@ -71,6 +74,8 @@ void GuiCreateBoundaryLayer::before()
     if (!s.atEnd()) s >> ds;
     if (!s.atEnd()) s >> fr;
     if (!s.atEnd()) s >> num_layers;
+    if (!s.atEnd()) s >> num_hr;
+    if (!s.atEnd()) s >> num_nr;
   }
   {
     int hi = 2000*hr;
@@ -83,14 +88,18 @@ void GuiCreateBoundaryLayer::before()
     m_Ui.lineEditAbsolute->setText(num);
   }
   {
-    int bi = 20*b;
-    b = 0.05*bi;
-    m_Ui.doubleSpinBoxBlending->setValue(b);
+    if (b > 0.5) {
+      m_Ui.checkBoxAbsolute->setChecked(true);
+    } else {
+      m_Ui.checkBoxAbsolute->setChecked(false);
+    }
   }
   {
     m_Ui.doubleSpinBoxStretching->setValue(ds);
     m_Ui.doubleSpinBoxFarRatio->setValue(fr);
   }
+  m_Ui.spinBoxHeightIterations->setValue(num_hr);
+  m_Ui.spinBoxNormalIterations->setValue(num_nr);
   if (num_layers > 0) {
     QString num;
     num.setNum(num_layers);
@@ -344,12 +353,17 @@ void GuiCreateBoundaryLayer::operate()
   
   double Hr = m_Ui.doubleSpinBoxHeight->value();
   double Ha = m_Ui.lineEditAbsolute->text().toDouble();
-  double bl = m_Ui.doubleSpinBoxBlending->value();
+  double bl = 0.0;
+  if (m_Ui.checkBoxAbsolute->isChecked()) {
+    bl = 1.0;
+  }
   smooth.setRelativeHeight(Hr);
   smooth.setAbsoluteHeight(Ha);
   smooth.setBlending(bl);
   smooth.setDesiredStretching(m_Ui.doubleSpinBoxStretching->value());
   smooth.setFarRatio(m_Ui.doubleSpinBoxFarRatio->value());
+  smooth.setNumHeightRelaxations(m_Ui.spinBoxHeightIterations->value());
+  smooth.setNumNormalRelaxations(m_Ui.spinBoxNormalIterations->value());
   for (int j = 0; j < m_Ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << m_Ui.spinBoxIterations->value() << endl;
     if (!m_Ui.checkBoxSafeMode->isChecked()) {

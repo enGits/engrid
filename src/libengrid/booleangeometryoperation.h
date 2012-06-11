@@ -86,6 +86,7 @@ private: // methods
 protected: // methods;
 
   void deleteNodes();
+  void checkOrientation();
   void fillGap();
   void smoothJunction();
 

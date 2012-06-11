@@ -150,4 +150,48 @@ public: // methods
 
 };
 
+
+
+
+inline int PolyMesh::face_t::operator[](int i)
+{
+  while (i < 0) {
+    i += node.size();
+  }
+  while (i >= node.size()) {
+    i -= node.size();
+  }
+  return node[i];
+}
+
+inline bool PolyMesh::face_t::operator<(const face_t &F) const
+{
+  bool less = false;
+  if (bc < F.bc) {
+    less = true;
+  } else if (bc == F.bc) {
+    if (owner < F.owner) {
+      less = true;
+    } else if (owner == F.owner) {
+      if (neighbour < F.neighbour) {
+        less = true;
+      }
+    }
+  }
+  return less;
+}
+
+inline bool PolyMesh::face_t::operator==(const face_t &F) const
+{
+  bool equal = false;
+  if (bc == F.bc) {
+    if (owner == F.owner) {
+      if (neighbour == F.neighbour) {
+        equal = true;
+      }
+    }
+  }
+  return equal;
+}
+
 #endif

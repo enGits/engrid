@@ -81,6 +81,32 @@ void BooleanGeometryOperation::deleteNodes()
   m_Part.setAllCells();
 }
 
+void BooleanGeometryOperation::checkOrientation()
+{
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+  EG_FORALL_CELLS (id_face, m_Grid) {
+    bool flip = false;
+    if (m_Side1*m_Side2 < 0) {
+      if (m_BCs1.contains(bc->GetValue(id_face)) && m_Side1 > 0) {
+        flip = true;
+      }
+      if (m_BCs2.contains(bc->GetValue(id_face)) && m_Side2 > 0) {
+        flip = true;
+      }
+    }
+    if (flip) {
+      EG_GET_CELL (id_face, m_Grid);
+      QVector<vtkIdType> old_pts(num_pts);
+      for (int i = 0; i < num_pts; ++i) {
+        old_pts[i] = pts[i];
+      }
+      for (int i = 0; i < num_pts; ++i) {
+        pts[i] = old_pts[num_pts - i - 1];
+      }
+    }
+  }
+}
+
 bool BooleanGeometryOperation::fillGap_prepare()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -102,9 +128,6 @@ bool BooleanGeometryOperation::fillGap_prepare()
           QList<int> bcs1 = m_BCs1;
           QList<int> bcs2 = m_BCs2;
           int bc = cell_code->GetValue(id_cell);
-          if (id_cell == 2898) {
-            cout << "break" << endl;
-          }
           if (m_BCs1.contains(cell_code->GetValue(id_cell))) {
             on = 1;
           } else if (m_BCs2.contains(cell_code->GetValue(id_cell))) {
@@ -222,6 +245,7 @@ bool BooleanGeometryOperation::fillGap_step()
   vec3_t n1 = triNormal(m_Grid, m_CurrentTriangle.id1, m_CurrentTriangle.id2, m_CurrentTriangle.id3);
   double A1 = n1.abs();
   double d_min = 1e99;
+  double amm = 1e99; // maximal minimal angle
   vec3_t x1, x2;
   m_Grid->GetPoint(id1, x1.data());
   m_Grid->GetPoint(id2, x2.data());
@@ -231,12 +255,19 @@ bool BooleanGeometryOperation::fillGap_step()
     vec3_t n2 = triNormal(m_Grid, id1, id2, id3);
     double A2 = n2.abs();
     if (n1*n2 > 0) {
-    //{
       vec3_t x3;
       m_Grid->GetPoint(id3, x3.data());
       double d = (x3 - 0.5*(x1+x2)).abs();
+      vec3_t v1 = x2 - x1;
+      vec3_t v2 = x3 - x2;
+      vec3_t v3 = x1 - x3;
+      double a1 = angle(v1, v2);
+      double a2 = angle(v2, v3);
+      double a3 = angle(v3, v1);
+      double a_min = min(a1, min(a2, a3));
       if (d < d_min) {
         d_min = d;
+        //amm = a_min;
         T.id1 = id1;
         T.id2 = id2;
         T.id3 = id3;
@@ -323,10 +354,12 @@ void BooleanGeometryOperation::fillGap()
         if (!fillGap_step()) {
           done = true;
         }
+        //done = true;
         ++count;
       }
       fillGap_createTriangles();
     }
+    //m_Triangles.clear();
   } while (m_Triangles.size() > 0);
 }
 
@@ -469,6 +502,7 @@ void BooleanGeometryOperation::operate()
     GuiMainWindow::pointer()->storeSurfaceProjection();
   }
   deleteNodes();
+  checkOrientation();
   fillGap();
-  smoothJunction();
+  //smoothJunction();
 }

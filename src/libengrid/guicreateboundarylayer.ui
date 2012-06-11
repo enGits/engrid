@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>391</width>
-    <height>639</height>
+    <width>500</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -24,23 +24,52 @@
     <normaloff>:/icons/resources/icons/G.png</normaloff>:/icons/resources/icons/G.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="1">
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxBlending">
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>stretching factor (hint)</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>relative height of first cell</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxFarRatio">
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
      <property name="maximum">
-      <double>1.000000000000000</double>
+      <double>5.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
      </property>
      <property name="value">
-      <double>1.000000000000000</double>
+      <double>0.800000000000000</double>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="lineEditAbsolute">
+   <item row="13" column="0">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>1</string>
+      <string>ratio last layer / far-field</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
@@ -105,7 +134,57 @@
      </layout>
     </widget>
    </item>
-   <item row="12" column="0" colspan="2">
+   <item row="12" column="1">
+    <widget class="QDoubleSpinBox" name="doubleSpinBoxStretching">
+     <property name="minimum">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>3.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.500000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="checkBoxSafeMode">
+     <property name="text">
+      <string>use safe mode?</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLineEdit" name="lineEditAbsolute">
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QCheckBox" name="checkBoxStrictHeightLimiter">
+     <property name="text">
+      <string>strict height limiter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>number of layers (read only)</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPushButton" name="pushButtonHelp">
@@ -139,31 +218,17 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label">
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="lineEditNumLayers">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
-      <string>number of iterations</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <string>not yet available</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QSpinBox" name="spinBoxIterations">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QCheckBox" name="checkBoxImprove">
-     <property name="text">
-      <string>improve existing layer?</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
+   <item row="10" column="1">
     <widget class="QDoubleSpinBox" name="doubleSpinBoxHeight">
      <property name="decimals">
       <number>4</number>
@@ -182,17 +247,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>relative height of first cell</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   <item row="9" column="1">
+    <widget class="QSpinBox" name="spinBoxIterations">
+     <property name="minimum">
+      <number>1</number>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>absolute height of first cell</string>
@@ -202,10 +264,17 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_5">
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="checkBoxImprove">
      <property name="text">
-      <string>blending (0=relative, 1=absolute)</string>
+      <string>improve existing layer?</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>number of iterations</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -219,93 +288,76 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label_3">
+   <item row="14" column="0">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>stretching factor (hint)</string>
+      <string>number of height relaxations</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxStretching">
-     <property name="minimum">
-      <double>0.500000000000000</double>
+   <item row="15" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>number of normal vector relaxations</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="1">
+    <widget class="QSpinBox" name="spinBoxHeightIterations">
      <property name="maximum">
-      <double>3.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.050000000000000</double>
+      <number>999</number>
      </property>
      <property name="value">
-      <double>1.500000000000000</double>
+      <number>5</number>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="checkBoxSafeMode">
-     <property name="text">
-      <string>use safe mode?</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>ratio last layer / far-field</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxFarRatio">
-     <property name="decimals">
-      <number>1</number>
-     </property>
-     <property name="minimum">
-      <double>0.000000000000000</double>
-     </property>
+   <item row="15" column="1">
+    <widget class="QSpinBox" name="spinBoxNormalIterations">
      <property name="maximum">
-      <double>5.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.100000000000000</double>
+      <number>999</number>
      </property>
      <property name="value">
-      <double>0.800000000000000</double>
+      <number>20</number>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_7">
+   <item row="6" column="1">
+    <widget class="QCheckBox" name="checkBoxAbsolute">
      <property name="text">
-      <string>number of layers (read only)</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="lineEditNumLayers">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>not yet available</string>
+      <string>use absolute height</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>listWidgetBC</tabstop>
+  <tabstop>pushButton_SelectAll_BC</tabstop>
+  <tabstop>pushButton_ClearAll_BC</tabstop>
+  <tabstop>listWidgetVC</tabstop>
+  <tabstop>checkBoxImprove</tabstop>
+  <tabstop>checkBoxRemovePoints</tabstop>
+  <tabstop>checkBoxSafeMode</tabstop>
+  <tabstop>checkBoxStrictHeightLimiter</tabstop>
+  <tabstop>checkBoxAbsolute</tabstop>
+  <tabstop>lineEditNumLayers</tabstop>
+  <tabstop>spinBoxIterations</tabstop>
+  <tabstop>doubleSpinBoxHeight</tabstop>
+  <tabstop>lineEditAbsolute</tabstop>
+  <tabstop>doubleSpinBoxStretching</tabstop>
+  <tabstop>doubleSpinBoxFarRatio</tabstop>
+  <tabstop>spinBoxHeightIterations</tabstop>
+  <tabstop>spinBoxNormalIterations</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>pushButtonHelp</tabstop>
+ </tabstops>
  <resources>
   <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>

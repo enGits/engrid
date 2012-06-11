@@ -38,21 +38,27 @@ private: // attributes
   int    m_NumQuads;
   double m_RelativeHeight;
   double m_AbsoluteHeight;
+  double m_FarRatio;
   double m_Blending;
   double m_DesiredStretching;
-  
+  double m_CritAngle1;
+  double m_CritAngle2;
+
   QSet<QPair<vtkIdType,vtkIdType> > m_Pairs;
   QVector<QVector<vtkIdType> >      m_Edges;
   QVector<bool>                     m_IsBlayerNode;
   QVector<int>                      m_Old2Edge;
   QVector<double>                   m_Y;
   QVector<bool>                     m_InsertCell;
+  QVector<double>                   m_MaxConvexAngle;
   
 private: // methods
   
   bool findBoundaryLayer();
+  void computeMaxConvexAngles();
   void createEdges(vtkUnstructuredGrid *new_grid);
-  void computeY();
+  void computeY1();
+  void computeY2();
   void finalise();
 
 protected: // methods

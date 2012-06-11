@@ -585,6 +585,8 @@ void GridSmoother::computeHeights()
     if (!s.atEnd()) s >> m_DesiredStretching;
     if (!s.atEnd()) s >> m_FarRatio;
     if (!s.atEnd()) s >> m_NumLayers;
+    if (!s.atEnd()) s >> m_NumHeightRelaxations;
+    if (!s.atEnd()) s >> m_NumNormalRelaxations;
   }
   computeDesiredHeights();
   {
@@ -596,6 +598,8 @@ void GridSmoother::computeHeights()
     s << m_DesiredStretching << " ";
     s << m_FarRatio << " ";
     s << m_NumLayers << " ";
+    s << m_NumHeightRelaxations << " ";
+    s << m_NumNormalRelaxations << " ";
     GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
@@ -681,14 +685,17 @@ void GridSmoother::computeHeights()
           double s2 = n2_2d*v;
           double m1 = sign1(s1)*sqrt(1 - sqr(s1))/max(1e-3, fabs(s1));
           double m2 = sign1(s2)*sqrt(1 - sqr(s2))/max(1e-3, fabs(s2));
-          double C  = sign1(m2 - m1)*max(1e-3, fabs(m2 - m1));
-          double h  = m1*m2/C;
-          if (h < 0) h = 1000;
-          height_limit[id_node1] = min(height_limit[id_node1], 2*m_MaxHeightInGaps*h*L);
+          if (fabs(m1) < 100 && fabs(m2) < 100) {
+            double C  = sign1(m2 - m1)*max(1e-3, fabs(m2 - m1));
+            double h  = m1*m2/C;
+            if (h < 0) h = 1000;
+            height_limit[id_node1] = min(height_limit[id_node1], 2*m_MaxHeightInGaps*h*L);
+          }
         }
       }
     }
   }
+
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     m_Height[id_node] = min(height_limit[id_node], m_Height[id_node]);
   }
@@ -728,7 +735,7 @@ void GridSmoother::computeHeights()
         } else {
           h_new[id_node] = m_Height[id_node];
         }
-        h_new[id_node] = min(h_new[id_node], height_limit[id_node]);
+        //h_new[id_node] = min(h_new[id_node], height_limit[id_node]);
       }
     }
     m_Height = h_new;

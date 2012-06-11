@@ -42,47 +42,6 @@ PolyMesh::face_t::face_t(int N, int o, int n, vec3_t rv, int b)
   ref_vec = rv;
 }
 
-int PolyMesh::face_t::operator[](int i)
-{
-  while (i < 0) {
-    i += node.size();
-  }
-  while (i >= node.size()) {
-    i -= node.size();
-  }
-  return node[i];
-}
-
-bool PolyMesh::face_t::operator<(const face_t &F) const
-{
-  bool less = false;
-  if (bc < F.bc) {
-    less = true;
-  } else if (bc == F.bc) {
-    if (owner < F.owner) {
-      less = true;
-    } else if (owner == F.owner) {
-      if (neighbour < F.neighbour) {
-        less = true;
-      }
-    }
-  }
-  return less;
-}
-
-bool PolyMesh::face_t::operator==(const face_t &F) const
-{
-  bool equal = false;
-  if (bc == F.bc) {
-    if (owner == F.owner) {
-      if (neighbour == F.neighbour) {
-        equal = true;
-      }
-    }
-  }
-  return equal;
-}
-
 
 // ==========
 //   node_t
@@ -188,7 +147,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
     EG_BUG;
   }
   m_AttractorWeight = 0.0;
-  m_PullInFactor = 0.5;
+  m_PullInFactor = 0.0;
   m_Grid = grid;
   m_Part.setGrid(m_Grid);
   m_Part.setAllCells();
@@ -197,9 +156,8 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
   checkFaceOrientation();
   buildPoint2Face();
   buildPCell2Face();
-  //triangulateBadFaces();
-  //splitConcaveCells();
-  //splitConcaveFaces();
+  m_PullInFactor = 0.5;
+  computePoints();
   for (int iter = 0; iter < 5; ++iter) {
     int num_bad = 0;
     int i_improve = 0;
@@ -208,18 +166,18 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
       if (!pm.allPositive()) {
         ++i_improve;
         pm.fix();
-        if (pm.minPyramidVolume() <= 0) {
+        if (pm.minPyramidVolume() < 0) {
           ++num_bad;
         }
       }
     }
     cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
-    cout << num_bad << " cells out of " << numCells() << " are still concave!" << endl;
-    //splitConcaveFaces();
+    //cout << num_bad << " cells out of " << numCells() << " are still concave!" << endl;
     if (num_bad == 0) {
       break;
     }
   }
+  qSort(m_Faces);
 }
 
 void PolyMesh::triangulateBadFaces()
@@ -1227,7 +1185,7 @@ void PolyMesh::splitConcaveFaces()
     }
   }
   m_Faces.append(new_faces);
-  qSort(m_Faces);
+  //qSort(m_Faces);
   buildPoint2Face();
   buildPCell2Face();
 }
