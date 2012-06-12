@@ -179,7 +179,8 @@ HEADERS = boundarycondition.h \
     polymolecule.h \
     su2writer.h \
     booleangeometryoperation.h \
-    guibooleangeometryoperation.h
+    guibooleangeometryoperation.h \
+    dolfynwriter.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -287,7 +288,8 @@ SOURCES = boundarycondition.cpp \
     polymolecule.cpp \
     su2writer.cpp \
     booleangeometryoperation.cpp \
-    guibooleangeometryoperation.cpp
+    guibooleangeometryoperation.cpp \
+    dolfynwriter.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
