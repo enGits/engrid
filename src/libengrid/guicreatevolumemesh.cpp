@@ -26,7 +26,7 @@
 #include "guimainwindow.h"
 
 GuiCreateVolumeMesh::GuiCreateVolumeMesh()
-{
+{  
 }
 
 void GuiCreateVolumeMesh::before()
@@ -39,6 +39,7 @@ void GuiCreateVolumeMesh::operate()
 {
   QString volume_name = getSelectedVolume(m_Ui.listWidget);
   VolumeDefinition V = mainWindow()->getVol(volume_name);
+
   CreateVolumeMesh mesh_volume;
   EG_VTKSP(vtkUnstructuredGrid, part_grid);
   EG_VTKSP(vtkUnstructuredGrid, rest_grid);
@@ -51,7 +52,9 @@ void GuiCreateVolumeMesh::operate()
     rest.extractToVtkGrid(rest_grid);
   }
   mesh_volume.setGrid(part_grid);
-  mesh_volume();
+  for (int i = 0; i < m_Ui.spinBoxIterations->value(); ++i) {
+    mesh_volume();
+  }
   EG_VTKDCC(vtkIntArray, cell_code, part_grid, "cell_code");
   for (vtkIdType id_cell = 0; id_cell < part_grid->GetNumberOfCells(); ++id_cell) {
     if (isVolume(id_cell, part_grid)) {
