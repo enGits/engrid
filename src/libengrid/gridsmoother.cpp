@@ -394,27 +394,15 @@ void GridSmoother::relaxNormalVectors()
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i = 0; i < N_pts; ++i) {
-        if (m_SurfNode[pts[i]]) {
+        if (m_SurfNode[pts[i]] && m_BoundaryCodes.contains(bc->GetValue(id_cell))) {
           n2bc[pts[i]].insert(bc->GetValue(id_cell));
         }
       }
     }
   }
-  QVector<int> num_bcs(m_Grid->GetNumberOfPoints(),0);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_SurfNode[id_node]) {
-      QList<vtkIdType> snap_points;
-      foreach (int bc, n2bc[id_node]) {
-        if (m_BoundaryCodes.contains(bc)) {
-          ++num_bcs[id_node];
-        }
-      }
-    }
-  }
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (num_bcs[id_node] == 0) {
+    if (n2bc[id_node].size() == 0) {
       m_SurfNode[id_node] = false;
-      n2bc[id_node].clear();
     }
   }
   for (int iter = 0; iter < m_NumNormalRelaxations; ++iter) {
@@ -423,10 +411,16 @@ void GridSmoother::relaxNormalVectors()
       if (m_SurfNode[id_node] ) {
         QList<vtkIdType> snap_points;
         for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
-          if (num_bcs[id_node] <= num_bcs[id_neigh]) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);          
+          bool append = true;
+          foreach (int bc, n2bc[id_node]) {
+            if (!n2bc[id_neigh].contains(bc)) {
+              append = false;
+              break;
+            }
+          }
+          if (append) {
             if (!m_SurfNode[id_neigh]) {
-              cout << id_node << ',' << m_Part.n2nGG(id_node,i) << ',' << num_bcs[id_node] << ',' << num_bcs[id_neigh] << endl;
               EG_BUG;
             }
             snap_points.append(id_neigh);
@@ -442,7 +436,6 @@ void GridSmoother::relaxNormalVectors()
           n_new[id_node] = m_NodeNormal[id_node];
         }
         if (n_new[id_node].abs() < 0.1) {
-          cout << id_node << ',' << n_new[id_node] << ',' << num_bcs[id_node] << ',' << n2bc[id_node] << endl;
           EG_BUG;
         }
       }
