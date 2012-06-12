@@ -176,6 +176,7 @@
     <addaction name="actionExportAsciiPly"/>
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
+    <addaction name="actionExportDolfyn"/>
     <addaction name="actionExportSu2"/>
     <addaction name="actionExportCGNS"/>
     <addaction name="actionExportBlenderFile"/>
@@ -1703,6 +1704,14 @@
   <action name="actionBooleanOperation">
    <property name="text">
     <string>boolean operation</string>
+   </property>
+  </action>
+  <action name="actionExportDolfyn">
+   <property name="text">
+    <string>Dolfyn</string>
+   </property>
+   <property name="toolTip">
+    <string>export to Dolfyn</string>
    </property>
   </action>
  </widget>
