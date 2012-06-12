@@ -149,6 +149,7 @@ bool GuiDivideBoundaryLayer::findBoundaryLayer()
 
 void GuiDivideBoundaryLayer::computeY1()
 {
+  /*
   double s1 = 0.01;
   double s2 = 10*m_DesiredStretching;
   while (fabs(s1-s2) > 1e-4) {
@@ -160,6 +161,21 @@ void GuiDivideBoundaryLayer::computeY1()
       s1 = s;
     } else {
       s2 = s;
+    }
+  }
+  */
+  double C1 = 0.0;
+  double C2 = 2.0;
+  while (C2 - C1 > 1e-6) {
+    double s = m_DesiredStretching;
+    for (int i = 2; i <= m_NumLayers; ++i) {
+      m_Y[i] = m_Y[i-1] + s*(m_Y[i-1] - m_Y[i-2]);
+      s *= 0.5*(C1 + C2);
+    }
+    if (m_Y[m_NumLayers] > 1) {
+      C2 = 0.5*(C1 + C2);
+    } else {
+      C1 = 0.5*(C1 + C2);
     }
   }
   m_Y.last() = 1;
