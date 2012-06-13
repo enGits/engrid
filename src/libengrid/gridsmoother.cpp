@@ -353,6 +353,7 @@ void GridSmoother::computeNormals()
   m_GeoNormal = m_NodeNormal;
   relaxNormalVectors();
 
+  /*
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_NodeNormal[id_node].abs() < 0.1) {
       vec3_t n(0,0,0);
@@ -373,6 +374,7 @@ void GridSmoother::computeNormals()
       m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
     }
   }
+  */
 
 }
 
