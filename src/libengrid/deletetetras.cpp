@@ -24,7 +24,6 @@
 
 void DeleteTetras::operate()
 {
-  cout << "deleting tetrahedral cells" << endl;
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
   QVector<vtkIdType> tetras, cells, nodes;
 

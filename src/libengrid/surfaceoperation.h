@@ -23,7 +23,7 @@
 #ifndef SURFACEOPERATION_H
 #define SURFACEOPERATION_H
 
-#include <operation.h>
+#include "operation.h"
 
 //==============================================
 

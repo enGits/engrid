@@ -132,7 +132,8 @@ bool GridSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
             }
           }
         }
-        if (GeometryTools::cellVA(m_Grid, id_cell) < 1e-3*L_max*L_max*L_max) {
+        double A = GeometryTools::cellVA(m_Grid, id_cell);
+        if (A < 1e-3*L_max*L_max) {
           move = false;
         } else if (m_NodeNormal[id_node].abs() > 0.1) {
           vec3_t n = GeometryTools::triNormal(x[0], x[1], x[2]);
@@ -349,6 +350,7 @@ void GridSmoother::computeNormals()
     }
   }
 
+  m_GeoNormal = m_NodeNormal;
   relaxNormalVectors();
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -366,12 +368,11 @@ void GridSmoother::computeNormals()
         n.normalise();
         m_NodeNormal[id_node] = n;
       }
-    }
-    if (num_bcs[id_node] > 1) {
-      m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
+      if (num_bcs[id_node] > 1) {
+        m_NodeNormal[id_node] = n_opt[id_node](m_NodeNormal[id_node]);
+      }
     }
   }
-
 }
 
 void GridSmoother::relaxNormalVectors()
@@ -392,27 +393,15 @@ void GridSmoother::relaxNormalVectors()
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       for (int i = 0; i < N_pts; ++i) {
-        if (m_SurfNode[pts[i]]) {
+        if (m_SurfNode[pts[i]] && m_BoundaryCodes.contains(bc->GetValue(id_cell))) {
           n2bc[pts[i]].insert(bc->GetValue(id_cell));
         }
       }
     }
   }
-  QVector<int> num_bcs(m_Grid->GetNumberOfPoints(),0);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_SurfNode[id_node]) {
-      QList<vtkIdType> snap_points;
-      foreach (int bc, n2bc[id_node]) {
-        if (m_BoundaryCodes.contains(bc)) {
-          ++num_bcs[id_node];
-        }
-      }
-    }
-  }
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (num_bcs[id_node] == 0) {
+    if (n2bc[id_node].size() == 0) {
       m_SurfNode[id_node] = false;
-      n2bc[id_node].clear();
     }
   }
   for (int iter = 0; iter < m_NumNormalRelaxations; ++iter) {
@@ -421,10 +410,16 @@ void GridSmoother::relaxNormalVectors()
       if (m_SurfNode[id_node] ) {
         QList<vtkIdType> snap_points;
         for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
-          if (num_bcs[id_node] <= num_bcs[id_neigh]) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);          
+          bool append = true;
+          foreach (int bc, n2bc[id_node]) {
+            if (!n2bc[id_neigh].contains(bc)) {
+              append = false;
+              break;
+            }
+          }
+          if (append) {
             if (!m_SurfNode[id_neigh]) {
-              cout << id_node << ',' << m_Part.n2nGG(id_node,i) << ',' << num_bcs[id_node] << ',' << num_bcs[id_neigh] << endl;
               EG_BUG;
             }
             snap_points.append(id_neigh);
@@ -440,19 +435,12 @@ void GridSmoother::relaxNormalVectors()
           n_new[id_node] = m_NodeNormal[id_node];
         }
         if (n_new[id_node].abs() < 0.1) {
-          cout << id_node << ',' << n_new[id_node] << ',' << num_bcs[id_node] << ',' << n2bc[id_node] << endl;
           EG_BUG;
         }
       }
     }
     m_NodeNormal = n_new;
     correctNormalVectors();
-    /*
-    QString num;
-    num.setNum(iter);
-    num = "normals_" + num;
-    writeDebugFile(num);
-    */
   }
 }
 
@@ -578,6 +566,8 @@ void GridSmoother::computeDesiredHeights()
 
 void GridSmoother::computeHeights()
 {
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+
   {
     QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
     QTextStream s(&blayer_txt);
@@ -585,8 +575,10 @@ void GridSmoother::computeHeights()
     if (!s.atEnd()) s >> m_RelativeHeight;
     if (!s.atEnd()) s >> m_Blending;
     if (!s.atEnd()) s >> m_DesiredStretching;
-    if (!s.atEnd()) s >> m_NumLayers;
     if (!s.atEnd()) s >> m_FarRatio;
+    if (!s.atEnd()) s >> m_NumLayers;
+    if (!s.atEnd()) s >> m_NumHeightRelaxations;
+    if (!s.atEnd()) s >> m_NumNormalRelaxations;
   }
   computeDesiredHeights();
   {
@@ -596,71 +588,146 @@ void GridSmoother::computeHeights()
     s << m_RelativeHeight << " ";
     s << m_Blending << " ";
     s << m_DesiredStretching << " ";
-    s << m_NumLayers << " ";
     s << m_FarRatio << " ";
+    s << m_NumLayers << " ";
+    s << m_NumHeightRelaxations << " ";
+    s << m_NumNormalRelaxations << " ";
     GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
   }
 
-  // third pass (gaps)
-  QList<vtkIdType> surf_nodes;
+  // compute height limiters
+  QVector<double> height_limit(m_Grid->GetNumberOfPoints(), 1e99);
+
+  // gaps
+  QList<vtkIdType> search_nodes;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_SurfNode[id_node]) {
-      surf_nodes.append(id_node);
+    bool append_node = m_SurfNode[id_node];
+    if (!append_node) {
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (isSurface(id_cell, m_Grid)) {
+          if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
+            append_node = true;
+            break;
+          }
+        }
+      }
+    }
+    if (append_node) {
+      search_nodes.append(id_node);
     }
   }
 
-
-  QVector<vec3_t> points(surf_nodes.size());
-  for (int i = 0; i < surf_nodes.size(); ++i) {
-    m_Grid->GetPoint(surf_nodes[i], points[i].data());
+  QVector<vec3_t> points(search_nodes.size());
+  for (int i = 0; i < search_nodes.size(); ++i) {
+    m_Grid->GetPoint(search_nodes[i], points[i].data());
   }
   PointFinder pfind;
   pfind.setPoints(points);
 
-  foreach (vtkIdType id_node1, surf_nodes) {
-    const vec3_t& n1 = m_NodeNormal[id_node1];
-    vec3_t x1;
-    m_Grid->GetPoint(id_node1, x1.data());
-    QVector<int> close_points;
-    pfind.getClosePoints(x1, close_points, 2*m_Height[id_node1]/m_MaxHeightInGaps);
-    foreach (int i, close_points) {
-      vtkIdType id_node2 = surf_nodes[i];
-    //foreach (vtkIdType id_node2, surf_nodes) {
-      if (id_node1 != id_node2) {
-        //vec3_t x2 = points[i];
-        vec3_t x2;
-        m_Grid->GetPoint(id_node2, x2.data());
-        vec3_t Dx = x2 - x1;
-        double a = Dx*n1;
-        if (a > 0) {
-          double b = Dx.abs();
-          double alpha = 180.0/M_PI*acos(a/b);
-          if (alpha < m_RadarAngle) {
-            m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    if (m_SurfNode[id_node1]) {
+      vec3_t x1;
+      m_Grid->GetPoint(id_node1, x1.data());
+      QVector<int> close_points;
+      pfind.getClosePoints(x1, close_points, 2*m_Height[id_node1]/m_MaxHeightInGaps);
+      foreach (int i, close_points) {
+        vtkIdType id_node2 = search_nodes[i];
+        if (id_node1 != id_node2) {
+          if (m_GeoNormal[id_node1]*m_GeoNormal[id_node2] < 0)  {
+            vec3_t x2;
+            m_Grid->GetPoint(id_node2, x2.data());
+            vec3_t Dx = x2 - x1;
+            double a = Dx*m_GeoNormal[id_node1];
+            if (a > 0) {
+              double c = Dx.abs();
+              double b = sqrt(sqr(c) - sqr(a));
+              double cos_beta = acos(fabs(m_GeoNormal[id_node1]*m_GeoNormal[id_node2]));
+              double e = b/cos_beta;
+              double d = sqrt(sqr(e) - sqr(b));
+              double alpha = 180.0/M_PI*acos(a/c);
+              if (alpha < m_RadarAngle) {
+                height_limit[id_node1] = min(height_limit[id_node1], m_MaxHeightInGaps*(a+d));
+              }
+            }
           }
         }
       }
     }
   }
 
-  // fourth pass (smoothing)
+  // "neighbour" gaps
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    if (m_SurfNode[id_node1]) {
+      vec3_t x1;
+      m_Grid->GetPoint(id_node1, x1.data());
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+        if (m_SurfNode[id_node2]) {
+          vec3_t x2;
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t v = x2 - x1;
+          double L = v.abs();
+          v.normalise();
+          vec3_t n_plane = v.cross(m_NodeNormal[id_node1]);
+          n_plane.normalise(); //??
+          vec3_t n1_2d = m_NodeNormal[id_node1] - (m_NodeNormal[id_node1]*n_plane)*n_plane;
+          vec3_t n2_2d = m_NodeNormal[id_node2] - (m_NodeNormal[id_node2]*n_plane)*n_plane;
+          double s1 = n1_2d*v;
+          double s2 = n2_2d*v;
+          double m1 = sign1(s1)*sqrt(1 - sqr(s1))/max(1e-3, fabs(s1));
+          double m2 = sign1(s2)*sqrt(1 - sqr(s2))/max(1e-3, fabs(s2));
+          if (fabs(m1) < 100 && fabs(m2) < 100) {
+            double C  = sign1(m2 - m1)*max(1e-3, fabs(m2 - m1));
+            double h  = m1*m2/C;
+            if (h < 0) h = 1000;
+            height_limit[id_node1] = min(height_limit[id_node1], 2*m_MaxHeightInGaps*h*L);
+          }
+        }
+      }
+    }
+  }
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Height[id_node] = min(height_limit[id_node], m_Height[id_node]);
+  }
+
+  // fifth pass (smoothing)
+  QVector<int> num_bcs(m_Grid->GetNumberOfPoints(),0);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_SurfNode[id_node]) {
+      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+        int bc = m_Part.n2bcG(id_node, i);
+        if (m_BoundaryCodes.contains(bc)) {
+          ++num_bcs[id_node];
+        }
+      }
+    }
+  }
   for (int iter = 0; iter < m_NumHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_SurfNode[id_node]) {
-        int N = 0;
-        h_new[id_node] = 0;
+        QList<vtkIdType> snap_points;
         for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
           vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
-          if (m_SurfNode[id_neigh]) {
-            h_new[id_node] += m_Height[id_neigh];
-            ++N;
+          if (num_bcs[id_node] <= num_bcs[id_neigh]) {
+            if (!m_SurfNode[id_neigh]) {
+              EG_BUG;
+            }
+            snap_points.append(id_neigh);
           }
         }
-        if (N == 0) {
-          EG_BUG;
+        if (snap_points.size() > 0) {
+          h_new[id_node] = 0;
+          foreach (vtkIdType id_snap, snap_points) {
+            h_new[id_node] += m_Height[id_snap];
+          }
+          h_new[id_node] /= snap_points.size();
+        } else {
+          h_new[id_node] = m_Height[id_node];
         }
-        h_new[id_node] /= N;
+        //h_new[id_node] = min(h_new[id_node], height_limit[id_node]);
       }
     }
     m_Height = h_new;

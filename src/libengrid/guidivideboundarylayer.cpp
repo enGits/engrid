@@ -30,6 +30,10 @@ void GuiDivideBoundaryLayer::before()
 {
   populateBoundaryCodes(m_Ui.listWidgetBC);
   populateVolumes(m_Ui.listWidgetVC);
+
+  getSet("boundary layer", "first critical angle",  180, m_CritAngle1);
+  getSet("boundary layer", "second critical angle", 270, m_CritAngle2);
+
   QString blayer_txt = GuiMainWindow::pointer()->getXmlSection("blayer/global");
   QTextStream s(&blayer_txt);
   double v;
@@ -52,19 +56,29 @@ void GuiDivideBoundaryLayer::before()
     m_Ui.doubleSpinBoxStretching->setValue(v);
   }
   if (!s.atEnd()) {
+    s >> v;
+    m_Ui.doubleSpinBoxFarRatio->setValue(v);
+  }
+  if (!s.atEnd()) {
     int v;
     s >> v;
     m_Ui.spinBoxLayers->setValue(v);
   }
+
+  m_Ui.doubleSpinBoxCritAngle1->setValue(m_CritAngle1);
+  m_Ui.doubleSpinBoxCritAngle2->setValue(m_CritAngle2);
 
   m_RestGrid = vtkUnstructuredGrid::New();
 }
 
 bool GuiDivideBoundaryLayer::findBoundaryLayer()
 {
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+
   l2g_t cells = getPartCells();
   l2l_t c2c   = getPartC2C();
 
+  m_BoundaryCodes.clear();
   m_Pairs.clear();
   m_InsertCell.fill(true,m_Grid->GetNumberOfCells());
   m_NumPrisms = 0;
@@ -91,6 +105,13 @@ bool GuiDivideBoundaryLayer::findBoundaryLayer()
           cout << x << endl;
           EG_BUG;
         }
+      }
+      {
+        vtkIdType id_tri = m_Part.c2cLG(i_cells, 0);
+        if (m_Grid->GetCellType(id_tri) != VTK_TRIANGLE) {
+          EG_BUG;
+        }
+        m_BoundaryCodes.insert(bc->GetValue(id_tri));
       }
       for (int j = 0; j < 2; ++j) {
         if (c2c[i_cells][j] != -1) {
@@ -122,11 +143,13 @@ bool GuiDivideBoundaryLayer::findBoundaryLayer()
     m_IsBlayerNode[P.second] = true;
   }
   
+  computeMaxConvexAngles();
   return(true);
 }
 
-void GuiDivideBoundaryLayer::computeY()
+void GuiDivideBoundaryLayer::computeY1()
 {
+  /*
   double s1 = 0.01;
   double s2 = 10*m_DesiredStretching;
   while (fabs(s1-s2) > 1e-4) {
@@ -140,11 +163,47 @@ void GuiDivideBoundaryLayer::computeY()
       s2 = s;
     }
   }
+  */
+  double C1 = 0.0;
+  double C2 = 2.0;
+  while (C2 - C1 > 1e-6) {
+    double s = m_DesiredStretching;
+    for (int i = 2; i <= m_NumLayers; ++i) {
+      m_Y[i] = m_Y[i-1] + s*(m_Y[i-1] - m_Y[i-2]);
+      s *= 0.5*(C1 + C2);
+    }
+    if (m_Y[m_NumLayers] > 1) {
+      C2 = 0.5*(C1 + C2);
+    } else {
+      C1 = 0.5*(C1 + C2);
+    }
+  }
   m_Y.last() = 1;
+}
+
+void GuiDivideBoundaryLayer::computeY2()
+{
+  double C1 = 0.0;
+  double C2 = 2.0;
+  double y_target = m_Y[m_NumLayers - 1];
+  while (C2 - C1 > 1e-6) {
+    double s = m_DesiredStretching;
+    for (int i = 2; i < m_NumLayers; ++i) {
+      m_Y[i] = m_Y[i-1] + s*(m_Y[i-1] - m_Y[i-2]);
+      s *= 0.5*(C1 + C2);
+    }
+    if (m_Y[m_NumLayers - 1] > y_target) {
+      C2 = 0.5*(C1 + C2);
+    } else {
+      C1 = 0.5*(C1 + C2);
+    }
+  }
+  m_Y[m_NumLayers - 1] = y_target;
 }
 
 void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
 {
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired" );
   m_Edges.fill(QVector<vtkIdType>(m_NumLayers+1), m_Pairs.size());
   m_Old2Edge.fill(-1, m_Grid->GetNumberOfPoints());
   int N = 0;
@@ -163,11 +222,29 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     m_Grid->GetPoint(P.first, x1.data());
     m_Grid->GetPoint(P.second, x2.data());
     vec3_t n = x2-x1;
+    double alpha = GeometryTools::rad2deg(m_MaxConvexAngle[P.first]);
     {
       m_Y.resize(m_NumLayers + 1);
       m_Y[0] = 0;
       m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*m_RelativeHeight;
-      computeY();
+      computeY1();
+    }
+    if (alpha > m_CritAngle1) {
+      double blend = min(1.0, (alpha - m_CritAngle1)/(m_CritAngle2 - m_CritAngle1));
+      double far_ratio = blend*m_FarRatio + (1-blend)*(1.0 - m_Y[m_NumLayers - 1])*n.abs()/cl->GetValue(P.first);
+      m_Y.resize(m_NumLayers + 1);
+      m_Y[0] = 0;
+      m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*m_RelativeHeight;
+      //m_Y[m_NumLayers - 1] = 1.0 - m_FarRatio*cl->GetValue(P.first)/n.abs();
+      m_Y[m_NumLayers - 1] = 1.0 - far_ratio*cl->GetValue(P.first)/n.abs();
+      m_Y[m_NumLayers] = 1.0;
+      //QVector<double> y1 = m_Y;
+      computeY2();
+      /*
+      for (int i = 0; i < m_NumLayers; ++i) {
+        m_Y[i] = blend*m_Y[i] + (1-blend)*y1[i];
+      }
+      */
     }
     ymin = min(ymin, m_Y[1]*n.abs());
     ymax = max(ymax, m_Y[1]*n.abs());
@@ -185,6 +262,53 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
   cout << "min(y) : " << ymin << endl;
   cout << "max(y) : " << ymax << endl;
   cout << LINE;
+}
+
+void GuiDivideBoundaryLayer::computeMaxConvexAngles()
+{
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+  m_MaxConvexAngle.fill(0, m_Grid->GetNumberOfPoints());
+  EG_FORALL_CELLS (id_cell1, m_Grid) {
+    if (isSurface(id_cell1, m_Grid)) {
+      if (m_BoundaryCodes.contains(bc->GetValue(id_cell1))) {
+        EG_GET_CELL (id_cell1, m_Grid);
+        QVector<vec3_t> x(num_pts + 1);
+        for (int i = 0; i < num_pts; ++i) {
+          m_Grid->GetPoint(pts[i], x[i].data());
+        }
+        x.last() = x.first();
+        vec3_t n1 = cellNormal(m_Grid, id_cell1);
+        n1.normalise();
+        vec3_t x1 = cellCentre(m_Grid, id_cell1);
+        for (int i = 0; i < num_pts; ++i) {
+          vec3_t xe = 0.5*(x[i] + x[i+1]);
+          vtkIdType id_cell2 = m_Part.c2cGG(id_cell1, i);
+          if (m_BoundaryCodes.contains(bc->GetValue(id_cell2))) {
+            vec3_t n2 = cellNormal(m_Grid, id_cell2);
+            n2.normalise();
+            double alpha = angle(n1, n2);
+            vec3_t v1 = x1 - xe;
+            vec3_t v2 = cellCentre(m_Grid, id_cell2) - xe;
+            vec3_t v = v1 + v2;
+            v.normalise();
+            double sp = v*(n1+n2);
+            if (sp > 0) {
+              alpha = M_PI + alpha;
+            } else {
+              alpha = M_PI - alpha;
+            }
+            vtkIdType p1 = pts[i];
+            vtkIdType p2 = pts[0];
+            if (i < num_pts - 1) {
+              p2 = pts[i+1];
+            }
+            m_MaxConvexAngle[p1] = max(m_MaxConvexAngle[p1], alpha);
+            m_MaxConvexAngle[p2] = max(m_MaxConvexAngle[p2], alpha);
+          }
+        }
+      }
+    }
+  }
 }
 
 void GuiDivideBoundaryLayer::operate()
@@ -216,11 +340,14 @@ void GuiDivideBoundaryLayer::operate()
   }
   setAllCells();
   
-  m_NumLayers = m_Ui.spinBoxLayers->value();
-  m_RelativeHeight = m_Ui.doubleSpinBoxHeight->value();
-  m_AbsoluteHeight = m_Ui.lineEditAbsolute->text().toDouble();
-  m_Blending = m_Ui.doubleSpinBoxBlending->value();
+  m_NumLayers         = m_Ui.spinBoxLayers->value();
+  m_RelativeHeight    = m_Ui.doubleSpinBoxHeight->value();
+  m_AbsoluteHeight    = m_Ui.lineEditAbsolute->text().toDouble();
+  m_Blending          = m_Ui.doubleSpinBoxBlending->value();
   m_DesiredStretching = m_Ui.doubleSpinBoxStretching->value();
+  m_FarRatio          = m_Ui.doubleSpinBoxFarRatio->value();
+  m_CritAngle1        = m_Ui.doubleSpinBoxCritAngle1->value();
+  m_CritAngle2        = m_Ui.doubleSpinBoxCritAngle2->value();
   cout << "dividing boundary layer into " << m_NumLayers << " layers:" << endl;
   if(findBoundaryLayer()) {
     EG_VTKSP(vtkUnstructuredGrid,new_grid);

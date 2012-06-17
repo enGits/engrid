@@ -176,7 +176,11 @@ HEADERS = boundarycondition.h \
     optimisenormalvector.h \
     brlcadreader.h \
     eghashset.h \
-    polymolecule.h
+    polymolecule.h \
+    su2writer.h \
+    booleangeometryoperation.h \
+    guibooleangeometryoperation.h \
+    dolfynwriter.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -281,7 +285,11 @@ SOURCES = boundarycondition.cpp \
     orthogonalityoptimiser.cpp \
     optimisenormalvector.cpp \
     brlcadreader.cpp \
-    polymolecule.cpp
+    polymolecule.cpp \
+    su2writer.cpp \
+    booleangeometryoperation.cpp \
+    guibooleangeometryoperation.cpp \
+    dolfynwriter.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -297,7 +305,8 @@ FORMS = guicreateboundarylayer.ui \
     guipick.ui \
     guicreatevolumemesh.ui \
     guisurfacemesher.ui \
-    guicreatehexcore.ui
+    guicreatehexcore.ui \
+    guibooleangeometryoperation.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
@@ -332,6 +341,9 @@ SOURCES += mergenodes.cpp
 FORMS += guiedgelengthsourcecone.ui
 HEADERS += guiedgelengthsourcecone.h
 SOURCES += guiedgelengthsourcecone.cpp
+FORMS += guiedgelengthsourcebox.ui
+HEADERS += guiedgelengthsourcebox.h
+SOURCES += guiedgelengthsourcebox.cpp
 FORMS += guimergevolumes.ui
 HEADERS += guimergevolumes.h
 SOURCES += guimergevolumes.cpp

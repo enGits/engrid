@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,53 +19,29 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef guidivideboundarylayer_H
-#define guidivideboundarylayer_H
+//
+#ifndef GUIBOOLEANGEOMETRYOPERATION_H
+#define GUIBOOLEANGEOMETRYOPERATION_H
 
-class GuiDivideBoundaryLayer;
+class GuiBooleanGeometryOperation;
 
 #include "dialogoperation.h"
-#include "ui_guidivideboundarylayer.h"
+#include "ui_guibooleangeometryoperation.h"
 
-class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer, Operation>
+class GuiBooleanGeometryOperation : public DialogOperation<Ui::GuiBooleanGeometryOperation, Operation>
 {
-  
-private: // attributes
-  
-  int    m_NumLayers;
-  int    m_NumPrisms;
-  int    m_NumQuads;
-  double m_RelativeHeight;
-  double m_AbsoluteHeight;
-  double m_FarRatio;
-  double m_Blending;
-  double m_DesiredStretching;
-  double m_CritAngle1;
-  double m_CritAngle2;
 
-  QSet<QPair<vtkIdType,vtkIdType> > m_Pairs;
-  QVector<QVector<vtkIdType> >      m_Edges;
-  QVector<bool>                     m_IsBlayerNode;
-  QVector<int>                      m_Old2Edge;
-  QVector<double>                   m_Y;
-  QVector<bool>                     m_InsertCell;
-  QVector<double>                   m_MaxConvexAngle;
-  
-private: // methods
-  
-  bool findBoundaryLayer();
-  void computeMaxConvexAngles();
-  void createEdges(vtkUnstructuredGrid *new_grid);
-  void computeY1();
-  void computeY2();
-  void finalise();
+  Q_OBJECT
 
 protected: // methods
-  
+
   virtual void before();
   virtual void operate();
 
+public:
+
+  GuiBooleanGeometryOperation();
+
 };
 
-#endif
+#endif // GUIBOOLEANGEOMETRYOPERATION_H

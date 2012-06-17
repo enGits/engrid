@@ -82,7 +82,7 @@ void CreateVolumeMesh::prepare()
       }
     } else if (type_cell == VTK_QUAD) {
       if (findVolumeCell(m_Grid, id_cell, _nodes, cells, _cells, n2c) == -1) {
-        EG_BUG;
+        //EG_BUG;
         T[0] = pts[0];
         T[1] = pts[1];
         T[2] = pts[2];

@@ -82,6 +82,13 @@ void SurfaceProjection::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &
   } else {
     m_FaceFinder.getCloseFaces(xp, candidate_faces);
   }
+  if (candidate_faces.size() == 0) {
+    // backup method -- really inefficient!
+    candidate_faces.resize(m_Triangles.size());
+    for (vtkIdType id_triangle = 0; id_triangle < m_Triangles.size(); ++id_triangle) {
+      candidate_faces[id_triangle] = id_triangle;
+    }
+  }
   foreach (vtkIdType id_triangle, candidate_faces) {
     Triangle T = m_Triangles[id_triangle];
     double d;

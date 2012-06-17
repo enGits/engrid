@@ -1268,3 +1268,81 @@ bool EgVtkObject::cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell,
   }
   return false;
 }
+
+void EgVtkObject::createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c)
+{
+  c2c.clear();
+  c2c.resize(poly_data->GetNumberOfCells());
+  QVector<QSet<vtkIdType> > n2c;
+  createPolyDataN2C(poly_data, n2c);
+  EG_FORALL_CELLS(id_poly, poly_data) {
+    EG_GET_CELL(id_poly, poly_data);
+    QSet<vtkIdType> ids;
+    for (int i = 0; i < num_pts; ++i) {
+      vtkIdType p1 = pts[i];
+      vtkIdType p2 = pts[0];
+      if (i < num_pts - 1) {
+        p2 = pts[i+1];
+      }
+      QSet<vtkIdType> shared_polys = n2c[p1];
+      shared_polys.intersect(n2c[p2]);
+      if (shared_polys.size() == 0) {
+        EG_BUG;
+      }
+      if (shared_polys.size() > 2) {
+        EG_BUG;
+      }
+      foreach (vtkIdType id_neigh, shared_polys) {
+        if (id_neigh != id_poly) {
+          ids.insert(id_neigh);
+        }
+      }
+    }
+    {
+      c2c[id_poly].resize(ids.size());
+      int i = 0;
+      foreach (vtkIdType id_neigh, ids) {
+        c2c[id_poly][i] = id_neigh;
+        ++i;
+      }
+    }
+  }
+}
+
+void EgVtkObject::createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2c)
+{
+  n2c.clear();
+  n2c.resize(poly_data->GetNumberOfPoints());
+  EG_FORALL_CELLS(id_face, poly_data) {
+    EG_GET_CELL(id_face, poly_data);
+    for (int i = 0; i < num_pts; ++i) {
+      n2c[pts[i]].insert(id_face);
+    }
+  }
+}
+
+void EgVtkObject::createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2n)
+{
+  n2n.clear();
+  n2n.resize(poly_data->GetNumberOfPoints());
+  EG_FORALL_CELLS(id_face, poly_data) {
+    EG_GET_CELL(id_face, poly_data);
+    n2n[pts[0]].insert(pts[num_pts - 1]);
+    n2n[pts[num_pts-1]].insert(pts[0]);
+    for (int i = 1; i < num_pts; ++i) {
+      n2n[pts[i]].insert(pts[i-1]);
+      n2n[pts[i-1]].insert(pts[i]);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+

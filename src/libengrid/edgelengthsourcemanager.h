@@ -60,6 +60,7 @@ public:
   void remove();
   void addSphere();
   void addCone();
+  void addBox();
 
 };
 

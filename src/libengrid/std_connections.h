@@ -33,6 +33,8 @@ connect(ui.actionExportAsciiStl,         SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportBinaryStl,        SIGNAL(triggered()),       this, SLOT(exportBinaryStl()));
 connect(ui.actionExportAsciiPly,         SIGNAL(triggered()),       this, SLOT(exportAsciiPly()));
 connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(exportBinaryPly()));
+connect(ui.actionExportSu2,              SIGNAL(triggered()),       this, SLOT(callExportSu2()));
+connect(ui.actionExportDolfyn,           SIGNAL(triggered()),       this, SLOT(callExportDolfyn()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
 connect(ui.actionZoomOnPickedObject,     SIGNAL(triggered()),       this, SLOT(zoomOnPickedObject()));
@@ -119,6 +121,7 @@ connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOv
 connect(ui.actionOptimiseOrthogonalty, SIGNAL(triggered()), this, SLOT(callOrthogonalityOptimiser()));
 connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
+connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOperation()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

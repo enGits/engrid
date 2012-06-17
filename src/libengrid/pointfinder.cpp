@@ -54,16 +54,16 @@ void PointFinder::setPoints(const QVector<vec3_t> &points)
     vec3_t xc = 0.5*(x1 + x2);
     vec3_t Dx1 = xc - x1;
     vec3_t Dx2 = x2 - xc;
-    if (fabs(Dx1[0]) > fabs(Dx1[1]) && fabs(Dx1[0]) > fabs(Dx1[2])) {
+    if (fabs(Dx1[0]) >= fabs(Dx1[1]) && fabs(Dx1[0]) >= fabs(Dx1[2])) {
       Dx1 = vec3_t(Dx1[0], Dx1[0], Dx1[0]);
-    } else if (fabs(Dx1[1]) > fabs(Dx1[0]) && fabs(Dx1[1]) > fabs(Dx1[2])) {
+    } else if (fabs(Dx1[1]) >= fabs(Dx1[0]) && fabs(Dx1[1]) >= fabs(Dx1[2])) {
       Dx1 = vec3_t(Dx1[1], Dx1[1], Dx1[1]);
     } else {
       Dx1 = vec3_t(Dx1[2], Dx1[2], Dx1[2]);
     }
-    if (fabs(Dx2[0]) > fabs(Dx2[1]) && fabs(Dx2[0]) > fabs(Dx2[2])) {
+    if (fabs(Dx2[0]) >= fabs(Dx2[1]) && fabs(Dx2[0]) >= fabs(Dx2[2])) {
       Dx2 = vec3_t(Dx2[0], Dx2[0], Dx2[0]);
-    } else if (fabs(Dx2[1]) > fabs(Dx2[0]) && fabs(Dx2[1]) > fabs(Dx2[2])) {
+    } else if (fabs(Dx2[1]) >= fabs(Dx2[0]) && fabs(Dx2[1]) >= fabs(Dx2[2])) {
       Dx2 = vec3_t(Dx2[1], Dx2[1], Dx2[1]);
     } else {
       Dx2 = vec3_t(Dx2[2], Dx2[2], Dx2[2]);

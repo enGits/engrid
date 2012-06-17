@@ -41,14 +41,14 @@ void CellLayerIterator::operate()
   for (int i_scell = 0; i_scell < surf_cells.size(); ++i_scell) {
     vtkIdType id_cell1 = surf_cells[i_scell];
     pair[i_scell].item1 = id_cell1;
-    EG_GETPTS(pts, id_cell1, m_Grid);
+    EG_GET_CELL(id_cell1, m_Grid);
     bool ok = false;
-    if (Npts > 0) {
+    if (num_pts > 0) {
       foreach (int i_cells_a, n2c[_nodes[pts[0]]]) {
         vtkIdType id_cell_a = cells[i_cells_a];
         if (!isSurface(id_cell_a, m_Grid)) {
           ok = true;
-          for (int i = 1; i < Npts; ++i) {
+          for (int i = 1; i < num_pts; ++i) {
             if (ok) {
               ok = false;
               foreach (int i_cells_b, n2c[_nodes[pts[i]]]) {

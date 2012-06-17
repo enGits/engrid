@@ -71,6 +71,7 @@ public slots:
   void remove()    { m_ELSManager.remove(); }
   void addSphere() { m_ELSManager.addSphere(); }
   void addCone()   { m_ELSManager.addCone(); }
+  void addBox()    { m_ELSManager.addBox(); }
 
 };
 

@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -1187,6 +1187,12 @@ void GuiMainWindow::openGrid(QString file_name)
   vtu->SetFileName(qPrintable(file_name));
   vtu->Update();
   m_Grid->DeepCopy(vtu->GetOutput());
+  if (m_Grid->GetPointData()->GetArray("node_meshdensity_current")) {
+    m_Grid->GetPointData()->RemoveArray("node_meshdensity_current");
+  }
+  if (m_Grid->GetCellData()->GetArray("cell_VA")) {
+    m_Grid->GetCellData()->RemoveArray("cell_VA");
+  }
   createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
   openBC();
   openPhysicalBoundaryConditions();
@@ -1425,6 +1431,7 @@ void GuiMainWindow::updateStatusBar()
     if (id_node < 0) {
       pick_txt += "no node picked";
     } else {
+      /*
       vec3_t x;
       m_Grid->GetPoints()->GetPoint(id_node,x.data());
       pick_txt += " [";
@@ -1437,6 +1444,7 @@ void GuiMainWindow::updateStatusBar()
         }
       }
       pick_txt += "]";
+      */
       QString tmp;
       EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
       tmp.setNum(characteristic_length_desired->GetValue(id_node));

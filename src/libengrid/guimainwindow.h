@@ -508,6 +508,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     void callOrthogonalityOptimiser() { EG_STDSLOT(OrthogonalityOptimiser); }
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
+    void callBooleanOperation() { EG_STDSLOT( GuiBooleanGeometryOperation ); }
 
     void callFixSTL();
 
@@ -522,6 +523,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
     void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }
+    void callExportSu2()                  { EG_STDREADERSLOT( Su2Writer ); }
+    void callExportDolfyn()               { EG_STDREADERSLOT( DolfynWriter ); }
 
     void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }

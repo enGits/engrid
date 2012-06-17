@@ -29,7 +29,7 @@
 class GuiCreateVolumeMesh : public DialogOperation<Ui::GuiCreateVolumeMesh, Operation>
 {
 
-  Q_OBJECT;
+  Q_OBJECT
 
 protected: // methods
 

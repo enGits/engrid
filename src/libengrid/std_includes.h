@@ -65,5 +65,8 @@
 #include "guisurfacemesher.h"
 #include "orthogonalityoptimiser.h"
 #include "brlcadreader.h"
+#include "su2writer.h"
+#include "guibooleangeometryoperation.h"
+#include "dolfynwriter.h"
 
 // -------------------------------------------

@@ -144,7 +144,7 @@ void Operation::operator()()
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         operate();
         QApplication::restoreOverrideCursor();
-        //cout << "secs. for " << qPrintable(getTypeName()) << ": " << elapsedTime() << endl;
+        cout << "secs. for " << qPrintable(getTypeName()) << ": " << elapsedTime() << endl;
       } catch (Error err) {
         err.display();
       }

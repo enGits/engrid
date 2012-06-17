@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,53 +19,31 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef guidivideboundarylayer_H
-#define guidivideboundarylayer_H
+//
 
-class GuiDivideBoundaryLayer;
+#include "guibooleangeometryoperation.h"
+#include "booleangeometryoperation.h"
 
-#include "dialogoperation.h"
-#include "ui_guidivideboundarylayer.h"
-
-class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer, Operation>
+GuiBooleanGeometryOperation::GuiBooleanGeometryOperation()
 {
-  
-private: // attributes
-  
-  int    m_NumLayers;
-  int    m_NumPrisms;
-  int    m_NumQuads;
-  double m_RelativeHeight;
-  double m_AbsoluteHeight;
-  double m_FarRatio;
-  double m_Blending;
-  double m_DesiredStretching;
-  double m_CritAngle1;
-  double m_CritAngle2;
+}
 
-  QSet<QPair<vtkIdType,vtkIdType> > m_Pairs;
-  QVector<QVector<vtkIdType> >      m_Edges;
-  QVector<bool>                     m_IsBlayerNode;
-  QVector<int>                      m_Old2Edge;
-  QVector<double>                   m_Y;
-  QVector<bool>                     m_InsertCell;
-  QVector<double>                   m_MaxConvexAngle;
-  
-private: // methods
-  
-  bool findBoundaryLayer();
-  void computeMaxConvexAngles();
-  void createEdges(vtkUnstructuredGrid *new_grid);
-  void computeY1();
-  void computeY2();
-  void finalise();
+void GuiBooleanGeometryOperation::before()
+{
+  populateBoundaryCodes(m_Ui.m_ListWidgetBCs1);
+  populateBoundaryCodes(m_Ui.m_ListWidgetBCs2);
+}
 
-protected: // methods
-  
-  virtual void before();
-  virtual void operate();
-
-};
-
-#endif
+void GuiBooleanGeometryOperation::operate()
+{
+  QSet<int> bcs1, bcs2;
+  getSelectedItems(m_Ui.m_ListWidgetBCs1, bcs1);
+  getSelectedItems(m_Ui.m_ListWidgetBCs2, bcs2);
+  int s1, s2;
+  if      (m_Ui.m_ComboBox->currentText() == "add")      { s1 =  1; s2 =  1; }
+  else if (m_Ui.m_ComboBox->currentText() == "subtract") { s1 = -1; s2 =  1; }
+  else                                                   { s1 = -1; s2 = -1; }
+  BooleanGeometryOperation bool_op(m_Grid, bcs1, bcs2, s1, s2);
+  bool_op.setNumCutLayers(m_Ui.m_SpinBoxCutLayers->value());
+  bool_op();
+}

@@ -43,11 +43,12 @@ private: // types
   
 private: // attributes
   
-  QVector<bool> m_NodeMarked;
-  QVector<bool> m_SurfNode;
-  int           m_NumMarkedNodes;
-  QList<rule_t> m_Rules;
-  bool          m_FirstCall;
+  QVector<bool>   m_NodeMarked;
+  QVector<bool>   m_SurfNode;
+  int             m_NumMarkedNodes;
+  QList<rule_t>   m_Rules;
+  bool            m_FirstCall;
+  QVector<vec3_t> m_GeoNormal;
   
 protected: // attributes
   
@@ -101,6 +102,8 @@ public: // methods
   GridSmoother();
   void setNumIterations         (int N)    { m_NumIterations  = N; }
   void setNumRelaxations        (int N)    { m_NumRelaxations = N; }
+  void setNumHeightRelaxations  (int N)    { m_NumHeightRelaxations = N; }
+  void setNumNormalRelaxations  (int N)    { m_NumNormalRelaxations = N; }
   void setNumBoundaryCorrections(int N)    { m_NumBoundaryCorrections = N; }
   void setRelativeHeight        (double h) { m_RelativeHeight = h; }
   void setAbsoluteHeight        (double h) { m_AbsoluteHeight = h; }

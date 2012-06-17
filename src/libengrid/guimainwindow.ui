@@ -135,6 +135,7 @@
     <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
     <addaction name="actionTransform"/>
+    <addaction name="actionBooleanOperation"/>
     <addaction name="actionNormalExtrusion"/>
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
@@ -175,6 +176,8 @@
     <addaction name="actionExportAsciiPly"/>
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
+    <addaction name="actionExportDolfyn"/>
+    <addaction name="actionExportSu2"/>
     <addaction name="actionExportCGNS"/>
     <addaction name="actionExportBlenderFile"/>
    </widget>
@@ -307,8 +310,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>216</width>
-          <height>489</height>
+          <width>221</width>
+          <height>510</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -699,8 +702,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>216</width>
-          <height>488</height>
+          <width>231</width>
+          <height>514</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1691,6 +1694,24 @@
   <action name="actionCreateHexCore">
    <property name="text">
     <string>create hex core mesh</string>
+   </property>
+  </action>
+  <action name="actionExportSu2">
+   <property name="text">
+    <string>SU2</string>
+   </property>
+  </action>
+  <action name="actionBooleanOperation">
+   <property name="text">
+    <string>boolean operation</string>
+   </property>
+  </action>
+  <action name="actionExportDolfyn">
+   <property name="text">
+    <string>Dolfyn</string>
+   </property>
+   <property name="toolTip">
+    <string>export to Dolfyn</string>
    </property>
   </action>
  </widget>

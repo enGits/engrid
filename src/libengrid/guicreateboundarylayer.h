@@ -34,7 +34,7 @@ class GuiCreateBoundaryLayer;
 class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer, Operation>
 {
   
-  Q_OBJECT;
+  Q_OBJECT
   
 private: // attributes
   
@@ -58,6 +58,8 @@ protected: // methods
   
   void smoothSurface();
   void reduceSurface();
+  void updateSurface();
+  void insertPoints();
 
   virtual void before();
   virtual void operate();

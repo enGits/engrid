@@ -20,52 +20,33 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-#ifndef guidivideboundarylayer_H
-#define guidivideboundarylayer_H
 
-class GuiDivideBoundaryLayer;
+#ifndef GUIEDGELENGTHSOURCEBOX_H
+#define GUIEDGELENGTHSOURCEBOX_H
 
-#include "dialogoperation.h"
-#include "ui_guidivideboundarylayer.h"
+#include "edgelengthsource.h"
+#include "ui_guiedgelengthsourcebox.h"
 
-class GuiDivideBoundaryLayer : public DialogOperation<Ui::GuiDivideBoundaryLayer, Operation>
+
+class GuiEdgeLengthSourceBox : public GuiEdgeLengthSource<Ui::GuiEdgeLengthSourceBox>
 {
-  
-private: // attributes
-  
-  int    m_NumLayers;
-  int    m_NumPrisms;
-  int    m_NumQuads;
-  double m_RelativeHeight;
-  double m_AbsoluteHeight;
-  double m_FarRatio;
-  double m_Blending;
-  double m_DesiredStretching;
-  double m_CritAngle1;
-  double m_CritAngle2;
+protected: // attributes
 
-  QSet<QPair<vtkIdType,vtkIdType> > m_Pairs;
-  QVector<QVector<vtkIdType> >      m_Edges;
-  QVector<bool>                     m_IsBlayerNode;
-  QVector<int>                      m_Old2Edge;
-  QVector<double>                   m_Y;
-  QVector<bool>                     m_InsertCell;
-  QVector<double>                   m_MaxConvexAngle;
-  
-private: // methods
-  
-  bool findBoundaryLayer();
-  void computeMaxConvexAngles();
-  void createEdges(vtkUnstructuredGrid *new_grid);
-  void computeY1();
-  void computeY2();
-  void finalise();
+  vec3_t m_X1;
+  vec3_t m_X2;
+  double m_Length;
 
-protected: // methods
-  
-  virtual void before();
-  virtual void operate();
+
+public: // methods
+
+  GuiEdgeLengthSourceBox();
+
+  virtual bool    read(QString txt);
+  virtual QString write();
+  virtual void    setDlgFields();
+  virtual void    readDlgFields();
+  virtual double  edgeLength(vec3_t x);
 
 };
 
-#endif
+#endif // GUIEDGELENGTHSOURCEBOX_H
