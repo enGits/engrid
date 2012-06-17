@@ -753,6 +753,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\polymolecule.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\reducedpolydatareader.cpp"
 				>
 			</File>
@@ -3620,6 +3624,42 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\polymesh.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\polymolecule.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
