@@ -407,6 +407,338 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release (Static)|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\libengrid.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release (Static)|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalOptions="/MACHINE:x64"
+				OutputFile="$(OutDir)\libengrid.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug (Static)|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="2"
+				WarningLevel="3"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\libengrid.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug (Static)|x64"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QT MOC Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="QTResBuilder"
+			/>
+			<Tool
+				Name="Update and Release Language files"
+			/>
+			<Tool
+				Name="QT User Interface Builder"
+				DebugDefine="NDEBUG"
+			/>
+			<Tool
+				Name="QCollectionGenerator"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns"
+				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="2"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalOptions="/MACHINE:x64"
+				OutputFile="$(OutDir)\libengrid.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -1093,6 +1425,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\blenderwriter.h"
@@ -1123,6 +1487,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1165,6 +1561,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\boundarycondition.h"
@@ -1195,6 +1623,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1237,6 +1697,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\brlcadreader.h"
@@ -1267,6 +1759,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1309,6 +1833,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\cellneighbouriterator.h"
@@ -1339,6 +1895,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1381,6 +1969,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\checkforoverlap.h"
@@ -1411,6 +2031,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1453,6 +2105,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\containertricks.h"
@@ -1483,6 +2167,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1525,6 +2241,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.h"
@@ -1555,6 +2303,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1597,6 +2377,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createsurfacemesh.h"
@@ -1627,6 +2439,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1669,6 +2513,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\deletecells.h"
@@ -1699,6 +2575,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1741,6 +2649,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\deletepickedpoint.h"
@@ -1771,6 +2711,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1813,6 +2785,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\deletetetras.h"
@@ -1843,6 +2847,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1885,10 +2921,56 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\dialoglineedit.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\dialogoperation.h"
@@ -1919,6 +3001,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1961,6 +3075,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\edgelengthsource.h"
@@ -1991,6 +3137,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2033,6 +3211,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\eghashset.h"
@@ -2063,6 +3273,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2105,6 +3347,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\egvtkobject.h"
@@ -2135,6 +3409,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2177,6 +3483,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\eliminatesmallbranches.h"
@@ -2207,6 +3545,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2249,6 +3619,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\engrid_version.h"
@@ -2279,6 +3681,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2321,6 +3755,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\facefinder.h"
@@ -2357,10 +3823,56 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\filetemplate.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\fixcadgeometry.h"
@@ -2391,6 +3903,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2433,6 +3977,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\fluentreader.h"
@@ -2463,6 +4039,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2505,6 +4113,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\foamreader.h"
@@ -2535,6 +4175,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2577,6 +4249,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\geometrytools.h"
@@ -2607,6 +4311,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2649,6 +4385,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\gmshreader.h"
@@ -2679,6 +4447,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2721,6 +4521,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\gridsmoother.h"
@@ -2757,102 +4589,470 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guibooleangeometryoperation.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatevolumemesh.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guideletebadaspecttris.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guidivideboundarylayer.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcebox.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guieditboundaryconditions.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiimproveaspectratio.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimainwindow.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimergevolumes.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimirrormesh.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guinormalextrusion.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guipick.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiselectboundarycodes.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisetboundarycode.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisettingstab.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisettingsviewer.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisurfacemesher.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guitransform.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guivolumedelegate.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\insertpoints.h"
@@ -2883,6 +5083,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2925,6 +5157,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\iterator.h"
@@ -2955,6 +5219,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -2997,6 +5293,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\layeriterator.h"
@@ -3027,6 +5355,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3069,6 +5429,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\math\mathvector.h"
@@ -3099,6 +5491,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3141,6 +5565,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\math\mathvector_operators.h"
@@ -3171,6 +5627,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3213,6 +5701,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\mergenodes.h"
@@ -3243,6 +5763,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3285,14 +5837,74 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\multipagewidget.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\multipagewidgetpage.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\neutralwriter.h"
@@ -3323,6 +5935,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3365,6 +6009,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\octree.h"
@@ -3395,6 +6071,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3437,10 +6145,56 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\openfoamtools.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\operation.h"
@@ -3471,6 +6225,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3513,6 +6299,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\optimisenormalvector.h"
@@ -3543,6 +6361,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3585,6 +6435,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\physicalboundarycondition.h"
@@ -3615,6 +6497,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3657,6 +6571,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\pointfinder.h"
@@ -3687,6 +6633,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3729,6 +6707,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\polymesh.h"
@@ -3759,6 +6769,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3801,6 +6843,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\reducedpolydatareader.h"
@@ -3831,6 +6905,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3873,6 +6979,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\removepoints.h"
@@ -3903,6 +7041,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -3945,6 +7115,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\seligairfoilreader.h"
@@ -3975,6 +7177,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4017,6 +7251,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\sharpenedges.h"
@@ -4047,6 +7313,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4089,6 +7387,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\simplefoamwriter.h"
@@ -4119,6 +7449,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4161,6 +7523,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\smoothandswapsurface.h"
@@ -4191,6 +7585,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4233,6 +7659,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\sortablevector.h"
@@ -4263,6 +7721,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4305,6 +7795,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\std_includes.h"
@@ -4335,6 +7857,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4377,6 +7931,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\stlwriter.h"
@@ -4407,6 +7993,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4449,6 +8067,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\surfacealgorithm.h"
@@ -4479,6 +8129,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4521,6 +8203,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\surfaceoperation.h"
@@ -4551,6 +8265,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4593,6 +8339,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\swaptriangles.h"
@@ -4623,6 +8401,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4665,6 +8475,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\timer.h"
@@ -4695,6 +8537,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4737,6 +8611,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\tricoord.h"
@@ -4767,6 +8673,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4809,6 +8747,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\uniquevector.h"
@@ -4839,6 +8809,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4881,6 +8883,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\updatesurfproj.h"
@@ -4911,6 +8945,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -4953,10 +9019,56 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vertexdelegate.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vertexmeshdensity.h"
@@ -4987,6 +9099,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -5029,6 +9173,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vtkEgBoundaryCodesFilter.h"
@@ -5059,6 +9235,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -5101,6 +9309,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vtkEgExtractVolumeCells.h"
@@ -5131,6 +9371,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -5173,6 +9445,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vtkEgNormalExtrusion.h"
@@ -5203,6 +9507,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -5245,6 +9581,38 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vtkImplicitPolyData.h"
@@ -5275,6 +9643,38 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -5317,10 +9717,56 @@
 						Name="QT MOC Builder"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\xmlhandler.h"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<Filter
 				Name="UI Header Files"
@@ -5354,6 +9800,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5396,6 +9874,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatehexcore.h"
@@ -5426,6 +9936,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5468,6 +10010,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatevolumemesh.h"
@@ -5498,6 +10072,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5540,6 +10146,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guidivideboundarylayer.h"
@@ -5570,6 +10208,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5612,6 +10282,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guiedgelengthsourcecone.h"
@@ -5642,6 +10344,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5684,6 +10418,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guieditboundaryconditions.h"
@@ -5714,6 +10480,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5756,6 +10554,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guimainwindow.h"
@@ -5786,6 +10616,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5828,6 +10690,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guimirrormesh.h"
@@ -5858,6 +10752,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5900,6 +10826,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guipick.h"
@@ -5930,6 +10888,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -5972,6 +10962,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guisetboundarycode.h"
@@ -6002,6 +11024,38 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -6044,6 +11098,38 @@
 							Name="QT MOC Builder"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 		</Filter>
@@ -6055,6 +11141,20 @@
 			<File
 				RelativePath="..\..\..\libengrid\engrid.qrc"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QTResBuilder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QTResBuilder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\resources\libengrid.rc"
@@ -6067,86 +11167,380 @@
 			<File
 				RelativePath="..\..\..\libengrid\guibooleangeometryoperation.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatevolumemesh.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guideletebadaspecttris.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guidivideboundarylayer.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcebox.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guieditboundaryconditions.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiimproveaspectratio.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimainwindow.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimergevolumes.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimirrormesh.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guinormalextrusion.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guipick.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiselectboundarycodes.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisetboundarycode.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisurfacemesher.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guitransform.ui"
 				>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					>
+					<Tool
+						Name="QT User Interface Builder"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<File
