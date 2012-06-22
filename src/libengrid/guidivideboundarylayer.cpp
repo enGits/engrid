@@ -183,7 +183,7 @@ void GuiDivideBoundaryLayer::computeY1()
 
 void GuiDivideBoundaryLayer::computeY2()
 {
-  double C1 =   0.0;
+  double C1 = 0.0;
   double C2 = 100.0;
   double y_target = m_Y[m_NumLayers - 1];
   while (C2 - C1 > 1e-6) {
@@ -197,7 +197,7 @@ void GuiDivideBoundaryLayer::computeY2()
       C1 = 0.5*(C1 + C2);
     }
   }
-  m_Y[m_NumLayers - 1] = y_target;
+  //m_Y[m_NumLayers - 1] = y_target;
 }
 
 void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
