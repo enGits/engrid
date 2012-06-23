@@ -164,7 +164,7 @@ void GuiDivideBoundaryLayer::computeY1()
     }
   }
   */
-  double C1 = 0.0;
+  double C1 = 0.1;
   double C2 = 2.0;
   while (C2 - C1 > 1e-6) {
     double s = m_DesiredStretching;
@@ -183,7 +183,7 @@ void GuiDivideBoundaryLayer::computeY1()
 
 void GuiDivideBoundaryLayer::computeY2()
 {
-  double C1 = 0.0;
+  double C1 = 1.0;
   double C2 = 100.0;
   double y_target = m_Y[m_NumLayers - 1];
   while (C2 - C1 > 1e-6) {
