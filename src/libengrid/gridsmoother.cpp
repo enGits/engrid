@@ -630,10 +630,11 @@ void GridSmoother::computeHeights()
       vec3_t x1;
       m_Grid->GetPoint(id_node1, x1.data());
       QVector<int> close_points;
-      pfind.getClosePoints(x1, close_points, 2*m_Height[id_node1]/m_MaxHeightInGaps);
+      pfind.getClosePoints(x1, close_points, 20*m_Height[id_node1]/m_MaxHeightInGaps);
       foreach (int i, close_points) {
         vtkIdType id_node2 = search_nodes[i];
         if (id_node1 != id_node2) {
+          /*
           if (m_GeoNormal[id_node1]*m_GeoNormal[id_node2] < 0)  {
             vec3_t x2;
             m_Grid->GetPoint(id_node2, x2.data());
@@ -649,6 +650,20 @@ void GridSmoother::computeHeights()
               if (alpha < m_RadarAngle) {
                 height_limit[id_node1] = min(height_limit[id_node1], m_MaxHeightInGaps*(a+d));
               }
+            }
+          }
+          */
+          const vec3_t& n1 = m_NodeNormal[id_node1];
+          vec3_t x1, x2;
+          m_Grid->GetPoint(id_node1, x1.data());
+          m_Grid->GetPoint(id_node2, x2.data());
+          vec3_t Dx = x2 - x1;
+          double a = Dx*n1;
+          if (a > 0) {
+            double b = Dx.abs();
+            double alpha = 180.0/M_PI*acos(a/b);
+            if (alpha < m_RadarAngle) {
+              m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
             }
           }
         }
