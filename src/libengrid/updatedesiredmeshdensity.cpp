@@ -307,8 +307,13 @@ void UpdateDesiredMeshDensity::operate()
     characteristic_length_desired->SetValue(id_node, cl);
     
     if (cl < cl_min) {
-      cl_min = cl;
-      i_nodes_min = i_nodes;
+      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+        if (m_BoundaryCodes.contains(m_Part.n2bcG(id_node, i))) {
+          cl_min = cl;
+          i_nodes_min = i_nodes;
+          break;
+        }
+      }
     }
   }
   if (i_nodes_min == -1) {
