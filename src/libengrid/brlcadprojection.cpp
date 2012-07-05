@@ -129,7 +129,7 @@ return(0);
 }
 */
 
-BrlCadProjection::BrlCadProjection(QString file_name) : SurfaceProjection(0)
+BrlCadProjection::BrlCadProjection(QString file_name)
 {
 
 }

@@ -40,6 +40,8 @@ INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
+INCLUDEPATH += /usr/brlcad/include/brlcad
+INCLUDEPATH += /usr/brlcad/include/openNURBS
 
 #INCLUDEPATH for VTK depends on the compiler
 win32-msvc* {
@@ -175,12 +177,14 @@ HEADERS = boundarycondition.h \
     orthogonalityoptimiser.h \
     optimisenormalvector.h \
     brlcadreader.h \
+    brlcadprojection.h \
     eghashset.h \
     polymolecule.h \
     su2writer.h \
     booleangeometryoperation.h \
     guibooleangeometryoperation.h \
-    dolfynwriter.h
+    dolfynwriter.h \
+    guibrlcadimportdialogue.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -285,11 +289,13 @@ SOURCES = boundarycondition.cpp \
     orthogonalityoptimiser.cpp \
     optimisenormalvector.cpp \
     brlcadreader.cpp \
+    brlcadprojection.cpp \
     polymolecule.cpp \
     su2writer.cpp \
     booleangeometryoperation.cpp \
     guibooleangeometryoperation.cpp \
-    dolfynwriter.cpp
+    dolfynwriter.cpp \
+    guibrlcadimportdialogue.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -306,7 +312,8 @@ FORMS = guicreateboundarylayer.ui \
     guicreatevolumemesh.ui \
     guisurfacemesher.ui \
     guicreatehexcore.ui \
-    guibooleangeometryoperation.ui
+    guibooleangeometryoperation.ui \
+    guibrlcadimportdialogue.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp

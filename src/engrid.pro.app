@@ -58,23 +58,24 @@ win32-msvc* {
     LIBS += -L./libengrid -lengrid
     LIBS += -L./netgen_svn -lng
 
-LIBS        += -L$(VTKLIBDIR)
-LIBS        += -lQVTK
-LIBS        += -lvtkCommon
-LIBS        += -lvtkDICOMParser
-LIBS        += -lvtkexoIIc
-LIBS        += -lvtkFiltering
-LIBS        += -lvtkftgl
-LIBS        += -lvtkGenericFiltering
-LIBS        += -lvtkGraphics
-LIBS        += -lvtkHybrid
-LIBS        += -lvtkImaging
-LIBS        += -lvtkIO
-#LIBS        += -lvtkNetCDF
-LIBS        += -lvtkRendering
-LIBS        += -lvtksys
-LIBS        += -lvtkVolumeRendering
-LIBS        += -lvtkWidgets
+    LIBS        += -L$(VTKLIBDIR)
+    LIBS        += -lQVTK
+    LIBS        += -lvtkCommon
+    LIBS        += -lvtkDICOMParser
+    LIBS        += -lvtkexoIIc
+    LIBS        += -lvtkFiltering
+    LIBS        += -lvtkftgl
+    LIBS        += -lvtkGenericFiltering
+    LIBS        += -lvtkGraphics
+    LIBS        += -lvtkHybrid
+    LIBS        += -lvtkImaging
+    LIBS        += -lvtkIO
+    #LIBS        += -lvtkNetCDF
+    LIBS        += -lvtkRendering
+    LIBS        += -lvtksys
+    LIBS        += -lvtkVolumeRendering
+    LIBS        += -lvtkWidgets
+    LIBS        += /usr/brlcad/lib/librt.so
 }
 
 OTHER_FILES += checkcomments.py todo.txt
