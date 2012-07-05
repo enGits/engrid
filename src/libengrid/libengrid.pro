@@ -40,7 +40,7 @@ INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-INCLUDEPATH += /usr/brlcad/include/brlcad
+INCLUDEPATH += /usr/brlcad/include
 INCLUDEPATH += /usr/brlcad/include/openNURBS
 
 #INCLUDEPATH for VTK depends on the compiler
@@ -184,7 +184,9 @@ HEADERS = boundarycondition.h \
     booleangeometryoperation.h \
     guibooleangeometryoperation.h \
     dolfynwriter.h \
-    guibrlcadimportdialogue.h
+    guibrlcadimportdialogue.h \
+    createcadtesselation.h \
+    createbrlcadtesselation.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -295,7 +297,9 @@ SOURCES = boundarycondition.cpp \
     booleangeometryoperation.cpp \
     guibooleangeometryoperation.cpp \
     dolfynwriter.cpp \
-    guibrlcadimportdialogue.cpp
+    guibrlcadimportdialogue.cpp \
+    createcadtesselation.cpp \
+    createbrlcadtesselation.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

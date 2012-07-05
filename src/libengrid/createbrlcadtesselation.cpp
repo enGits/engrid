@@ -20,57 +20,19 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "guibrlcadimportdialogue.h"
-#include "ui_guibrlcadimportdialogue.h"
+#include "createbrlcadtesselation.h"
 
-#include <QProcess>
-
-GuiBrlCadImportDialogue::GuiBrlCadImportDialogue(QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::GuiBrlCadImportDialogue)
+CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString object_name)
 {
-  ui->setupUi(this);
-}
-
-GuiBrlCadImportDialogue::~GuiBrlCadImportDialogue()
-{
-  delete ui;
-}
-
-void GuiBrlCadImportDialogue::prepare(QString file_name)
-{
-  QString program = "/usr/brlcad/bin/mged";
-  QStringList arguments;
-  QProcess proc(this);
-  arguments << "-c" << file_name<< "ls";
-  proc.start(program, arguments);
-  proc.waitForFinished();
-  QString output = proc.readAllStandardOutput() + proc.readAllStandardError();
-  QStringList objects = output.split(QRegExp("\\s+"));
-  ui->listWidget->clear();
-  foreach (QString obj, objects) {
-    ui->listWidget->addItem(obj);
-  }
-}
-
-bool GuiBrlCadImportDialogue::hasSelectedObject()
-{
-  if (ui->listWidget->selectedItems().size() == 1) {
-    return true;
-  }
-  return false;
-}
-
-QString GuiBrlCadImportDialogue::selectedObject()
-{
-  if (hasSelectedObject()) {
-    QString object_txt = ui->listWidget->selectedItems().first()->text();
-    QString object = object_txt.split("/").first();
-    return object;
+  m_Rtip = rt_dirbuild(qPrintable(file_name), m_IdBuf, sizeof(m_IdBuf));
+  if (m_Rtip) {
+    cout << qPrintable(object_name) << endl;
   } else {
-    EG_BUG;
+    cout << "2" << endl;
   }
 }
 
+void CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v)
+{
 
-
+}

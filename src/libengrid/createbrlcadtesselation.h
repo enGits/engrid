@@ -20,57 +20,31 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "guibrlcadimportdialogue.h"
-#include "ui_guibrlcadimportdialogue.h"
+#ifndef CREATEBRLCADTESSELATION_H
+#define CREATEBRLCADTESSELATION_H
 
-#include <QProcess>
+#include "createcadtesselation.h"
 
-GuiBrlCadImportDialogue::GuiBrlCadImportDialogue(QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::GuiBrlCadImportDialogue)
+#include "brlcad/vmath.h"
+#include "brlcad/raytrace.h"
+
+class CreateBrlCadTesselation : public CreateCadTesselation
 {
-  ui->setupUi(this);
-}
 
-GuiBrlCadImportDialogue::~GuiBrlCadImportDialogue()
-{
-  delete ui;
-}
+private: // attributes
 
-void GuiBrlCadImportDialogue::prepare(QString file_name)
-{
-  QString program = "/usr/brlcad/bin/mged";
-  QStringList arguments;
-  QProcess proc(this);
-  arguments << "-c" << file_name<< "ls";
-  proc.start(program, arguments);
-  proc.waitForFinished();
-  QString output = proc.readAllStandardOutput() + proc.readAllStandardError();
-  QStringList objects = output.split(QRegExp("\\s+"));
-  ui->listWidget->clear();
-  foreach (QString obj, objects) {
-    ui->listWidget->addItem(obj);
-  }
-}
+  struct application  m_Ap;
+  struct rt_i        *m_Rtip;
+  char                m_IdBuf[132];
 
-bool GuiBrlCadImportDialogue::hasSelectedObject()
-{
-  if (ui->listWidget->selectedItems().size() == 1) {
-    return true;
-  }
-  return false;
-}
+protected: // methods
 
-QString GuiBrlCadImportDialogue::selectedObject()
-{
-  if (hasSelectedObject()) {
-    QString object_txt = ui->listWidget->selectedItems().first()->text();
-    QString object = object_txt.split("/").first();
-    return object;
-  } else {
-    EG_BUG;
-  }
-}
+  virtual void shootRay(vec3_t x, vec3_t v);
 
+public:
 
+  CreateBrlCadTesselation(QString file_name, QString object_name);
 
+};
+
+#endif // CREATEBRLCADTESSELATION_H

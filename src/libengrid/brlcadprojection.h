@@ -8,8 +8,8 @@ class BrlCadProjection;
 //#include "common.h"
 //#include "machine.h"
 #include "engrid.h"
-#include "vmath.h"
-#include "raytrace.h"
+#include "brlcad/vmath.h"
+#include "brlcad/raytrace.h"
 
 class BrlCadProjection : public SurfaceProjection
 {

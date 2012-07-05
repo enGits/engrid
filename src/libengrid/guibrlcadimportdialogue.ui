@@ -6,29 +6,90 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>374</height>
+    <width>282</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QTreeWidget" name="treeWidget">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>bounding box</string>
      </property>
-     <column>
-      <property name="text">
-       <string>object</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>info</string>
-      </property>
-     </column>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>X2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Y1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEditX2"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>X1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEditX1"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Z1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Y2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Z2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEditY1"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEditZ1"/>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="lineEditY2"/>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLineEdit" name="lineEditZ2"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+     <zorder>lineEditX2</zorder>
+     <zorder>gridLayoutWidget</zorder>
     </widget>
    </item>
    <item>
