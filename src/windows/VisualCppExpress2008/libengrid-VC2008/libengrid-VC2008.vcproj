@@ -769,6 +769,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\brlcadprojection.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\brlcadreader.cpp"
 				>
 			</File>
@@ -798,6 +802,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createbrlcadtesselation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createcadtesselation.cpp"
 				>
 			</File>
 			<File
@@ -914,6 +926,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guibooleangeometryoperation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guibrlcadimportdialogue.cpp"
 				>
 			</File>
 			<File
@@ -1731,6 +1747,74 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\brlcadprojection.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\brlcadreader.h"
 				>
 				<FileConfiguration
@@ -2276,6 +2360,142 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createboundarylayer.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createbrlcadtesselation.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createcadtesselation.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -2957,20 +3177,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\dialoglineedit.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\dialogoperation.h"
@@ -3859,20 +4065,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\filetemplate.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\fixcadgeometry.h"
@@ -4625,434 +4817,102 @@
 			<File
 				RelativePath="..\..\..\libengrid\guibooleangeometryoperation.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guibrlcadimportdialogue.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatevolumemesh.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guideletebadaspecttris.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guidivideboundarylayer.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcebox.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guieditboundaryconditions.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiimproveaspectratio.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimainwindow.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimergevolumes.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimirrormesh.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guinormalextrusion.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guipick.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiselectboundarycodes.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisetboundarycode.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisettingstab.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisettingsviewer.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisurfacemesher.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guitransform.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guivolumedelegate.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\insertpoints.h"
@@ -5873,38 +5733,10 @@
 			<File
 				RelativePath="..\..\..\libengrid\multipagewidget.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\multipagewidgetpage.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\neutralwriter.h"
@@ -6181,20 +6013,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\openfoamtools.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\operation.h"
@@ -9055,20 +8873,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\vertexdelegate.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\vertexmeshdensity.h"
@@ -9753,20 +9557,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\xmlhandler.h"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT MOC Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<Filter
 				Name="UI Header Files"
@@ -11141,20 +10931,6 @@
 			<File
 				RelativePath="..\..\..\libengrid\engrid.qrc"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QTResBuilder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QTResBuilder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\resources\libengrid.rc"
@@ -11167,380 +10943,90 @@
 			<File
 				RelativePath="..\..\..\libengrid\guibooleangeometryoperation.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guibrlcadimportdialogue.ui"
+				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatesurfacemesh.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatevolumemesh.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guideletebadaspecttris.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guidivideboundarylayer.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcebox.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcecone.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiedgelengthsourcesphere.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guieditboundaryconditions.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiimproveaspectratio.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimainwindow.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimergevolumes.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guimirrormesh.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guinormalextrusion.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guipick.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guiselectboundarycodes.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisetboundarycode.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guisurfacemesher.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guitransform.ui"
 				>
-				<FileConfiguration
-					Name="Release (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug (Static)|x64"
-					>
-					<Tool
-						Name="QT User Interface Builder"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<File
