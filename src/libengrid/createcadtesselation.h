@@ -20,39 +20,28 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef BRLCADREADER_H
-#define BRLCADREADER_H
+#ifndef CREATECADTESSELATION_H
+#define CREATECADTESSELATION_H
 
-class BrlcadReader;
+#include "operation.h"
 
-#include "iooperation.h"
-
-#include <QMap>
-
-class BrlcadReader : public IOOperation
+class CreateCadTesselation : public Operation
 {
 
-private: // attributes
+protected: // attributes
 
-  QList<vtkUnstructuredGrid*> m_Grids;
-  QMap<vtkUnstructuredGrid*, QString> m_BCNames;
-  QMap<int,int> m_BC2GridIndex; ///< mapping of boundary condition to index within m_Grids (STL geometries)
-
+  vec3_t m_X;
+  vec3_t m_Normal;
 
 protected: // methods
 
-  void processStlFile(QString file_name, bool append_to_list = true);
-  void findBoundaryCodes();
-  void createBackgroundGeometry();
-
-  virtual void operateOld();
+  virtual void shootRay(vec3_t x, vec3_t v) = 0;
   virtual void operate();
-
 
 public: // methods
 
-  BrlcadReader();
+  CreateCadTesselation();
 
 };
 
-#endif // BRLCADREADER_H
+#endif // CREATECADTESSELATION_H

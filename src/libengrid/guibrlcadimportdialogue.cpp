@@ -20,39 +20,57 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef BRLCADREADER_H
-#define BRLCADREADER_H
+#include "guibrlcadimportdialogue.h"
+#include "ui_guibrlcadimportdialogue.h"
 
-class BrlcadReader;
+#include <QProcess>
 
-#include "iooperation.h"
-
-#include <QMap>
-
-class BrlcadReader : public IOOperation
+GuiBrlCadImportDialogue::GuiBrlCadImportDialogue(QWidget *parent) :
+  QDialog(parent),
+  ui(new Ui::GuiBrlCadImportDialogue)
 {
+  ui->setupUi(this);
+}
 
-private: // attributes
+GuiBrlCadImportDialogue::~GuiBrlCadImportDialogue()
+{
+  delete ui;
+}
 
-  QList<vtkUnstructuredGrid*> m_Grids;
-  QMap<vtkUnstructuredGrid*, QString> m_BCNames;
-  QMap<int,int> m_BC2GridIndex; ///< mapping of boundary condition to index within m_Grids (STL geometries)
+void GuiBrlCadImportDialogue::prepare(QString file_name)
+{
+  QString program = "/usr/brlcad/bin/mged";
+  QStringList arguments;
+  QProcess proc(this);
+  arguments << "-c" << file_name<< "ls";
+  proc.start(program, arguments);
+  proc.waitForFinished();
+  QString output = proc.readAllStandardOutput() + proc.readAllStandardError();
+  QStringList objects = output.split(QRegExp("\\s+"));
+  ui->listWidget->clear();
+  foreach (QString obj, objects) {
+    ui->listWidget->addItem(obj);
+  }
+}
+
+bool GuiBrlCadImportDialogue::hasSelectedObject()
+{
+  if (ui->listWidget->selectedItems().size() == 1) {
+    return true;
+  }
+  return false;
+}
+
+QString GuiBrlCadImportDialogue::selectedObject()
+{
+  if (hasSelectedObject()) {
+    QString object_txt = ui->listWidget->selectedItems().first()->text();
+    QString object = object_txt.split("/").first();
+    return object;
+  } else {
+    EG_BUG;
+  }
+}
 
 
-protected: // methods
 
-  void processStlFile(QString file_name, bool append_to_list = true);
-  void findBoundaryCodes();
-  void createBackgroundGeometry();
-
-  virtual void operateOld();
-  virtual void operate();
-
-
-public: // methods
-
-  BrlcadReader();
-
-};
-
-#endif // BRLCADREADER_H

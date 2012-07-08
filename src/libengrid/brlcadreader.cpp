@@ -26,12 +26,17 @@
 #include "setboundarycode.h"
 #include "facefinder.h"
 #include "guimainwindow.h"
+#include "guibrlcadimportdialogue.h"
+#include "createbrlcadtesselation.h"
 
 #include <vtkSTLReader.h>
 
 BrlcadReader::BrlcadReader()
 {
   EG_TYPENAME;
+  setFormat("BRL-CAD database files(*.g)");
+  setExtension(".g");
+
 }
 
 void BrlcadReader::processStlFile(QString file_name, bool append_to_list)
@@ -253,7 +258,7 @@ void BrlcadReader::createBackgroundGeometry()
   makeCopy(backup_grid, m_Grid);
 }
 
-void BrlcadReader::operate()
+void BrlcadReader::operateOld()
 {
   readInputDirectory("Select BRL-CAD export directory");
   if (isValid()) {
@@ -267,6 +272,23 @@ void BrlcadReader::operate()
     processStlFile(dir.path() + "/volume.stl", false);
     findBoundaryCodes();
     createBackgroundGeometry();
+  }
+}
+
+void BrlcadReader::operate()
+{
+  try {
+    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
+    readInputFileName(file_info.completeBaseName() + ".g");
+    if (isValid()) {
+      GuiBrlCadImportDialogue dlg;
+      dlg.prepare(getFileName());
+      if (dlg.exec() && dlg.hasSelectedObject()) {
+        CreateBrlCadTesselation brlcad_tess(getFileName(), dlg.selectedObject());
+      }
+    }
+  } catch (Error err) {
+    err.display();
   }
 }
 

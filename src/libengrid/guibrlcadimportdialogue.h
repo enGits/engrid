@@ -20,39 +20,34 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#ifndef BRLCADREADER_H
-#define BRLCADREADER_H
+#ifndef GUIBRLCADIMPORTDIALOGUE_H
+#define GUIBRLCADIMPORTDIALOGUE_H
 
-class BrlcadReader;
+#include <QDialog>
 
-#include "iooperation.h"
+#include "engrid.h"
 
-#include <QMap>
+namespace Ui {
+class GuiBrlCadImportDialogue;
+}
 
-class BrlcadReader : public IOOperation
+class GuiBrlCadImportDialogue : public QDialog
 {
+  Q_OBJECT
+  
+public:
 
-private: // attributes
+  explicit GuiBrlCadImportDialogue(QWidget *parent = 0);
+  ~GuiBrlCadImportDialogue();
 
-  QList<vtkUnstructuredGrid*> m_Grids;
-  QMap<vtkUnstructuredGrid*, QString> m_BCNames;
-  QMap<int,int> m_BC2GridIndex; ///< mapping of boundary condition to index within m_Grids (STL geometries)
+  void    prepare(QString file_name);
+  bool    hasSelectedObject();
+  QString selectedObject();
+  
+private:
 
-
-protected: // methods
-
-  void processStlFile(QString file_name, bool append_to_list = true);
-  void findBoundaryCodes();
-  void createBackgroundGeometry();
-
-  virtual void operateOld();
-  virtual void operate();
-
-
-public: // methods
-
-  BrlcadReader();
+  Ui::GuiBrlCadImportDialogue *ui;
 
 };
 
-#endif // BRLCADREADER_H
+#endif // GUIBRLCADIMPORTDIALOGUE_H
