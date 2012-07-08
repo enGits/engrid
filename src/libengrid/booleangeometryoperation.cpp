@@ -34,9 +34,6 @@ void BooleanGeometryOperation::deleteNodes()
   QList<vtkIdType> keep_nodes;
   for (int i = 0; i < m_Part1.getNumberOfNodes(); ++i) {
     vtkIdType id_node = m_Part1.globalNode(i);
-    if (id_node == 4261) {
-      cout << "stop" << endl;
-    }
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
     vec3_t x_proj = m_Proj2.projectRestricted(x, -1, false);
@@ -54,9 +51,6 @@ void BooleanGeometryOperation::deleteNodes()
   }
   for (int i = 0; i < m_Part2.getNumberOfNodes(); ++i) {
     vtkIdType id_node = m_Part2.globalNode(i);
-    if (id_node == 4261) {
-      cout << "stop" << endl;
-    }
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
     vec3_t x_proj = m_Proj1.projectRestricted(x, -1, false);
@@ -254,7 +248,7 @@ bool BooleanGeometryOperation::fillGap_step()
   foreach (vtkIdType id3, candidates) {
     vec3_t n2 = triNormal(m_Grid, id1, id2, id3);
     double A2 = n2.abs();
-    if (n1*n2 > 0) {
+    if (n1*n2 > 0 || m_Triangles.size() == 0) {
       vec3_t x3;
       m_Grid->GetPoint(id3, x3.data());
       double d = (x3 - 0.5*(x1+x2)).abs();
@@ -354,12 +348,12 @@ void BooleanGeometryOperation::fillGap()
         if (!fillGap_step()) {
           done = true;
         }
-        //done = true;
+        done = true;
         ++count;
       }
       fillGap_createTriangles();
     }
-    //m_Triangles.clear();
+    m_Triangles.clear();
   } while (m_Triangles.size() > 0);
 }
 

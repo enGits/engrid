@@ -207,8 +207,11 @@ void GuiMainWindow::setupGuiMainWindow()
   getSet("General","use RAM for undo+redo operations",false,undo_redo_mode);
   getSet("General", "open last used file on startup", false, m_open_last);
 
-  ui.actionFoamWriter->setEnabled(exp_features);
   ui.actionMirrorMesh->setEnabled(exp_features);
+  ui.actionBooleanOperation->setEnabled(exp_features);
+  ui.actionCreateHexCore->setEnabled(exp_features);
+  ui.actionOptimiseOrthogonalty->setEnabled(exp_features);
+  ui.actionImportFluentCase->setEnabled(exp_features);
 
   m_ReferenceSize=0.2;
 

@@ -364,6 +364,22 @@ void GuiCreateBoundaryLayer::operate()
   smooth.setFarRatio(m_Ui.doubleSpinBoxFarRatio->value());
   smooth.setNumHeightRelaxations(m_Ui.spinBoxHeightIterations->value());
   smooth.setNumNormalRelaxations(m_Ui.spinBoxNormalIterations->value());
+
+  {
+    QString blayer_txt = "";
+    QTextStream s(&blayer_txt);
+    s << Ha << " ";
+    s << Hr << " ";
+    s << bl << " ";
+    s << m_Ui.doubleSpinBoxStretching->value() << " ";
+    s << m_Ui.doubleSpinBoxFarRatio->value() << " ";
+    s << 0 << " ";
+    s << m_Ui.spinBoxHeightIterations->value() << " ";
+    s << m_Ui.spinBoxNormalIterations->value() << " ";
+    GuiMainWindow::pointer()->setXmlSection("blayer/global", blayer_txt);
+  }
+
+
   for (int j = 0; j < m_Ui.spinBoxIterations->value(); ++j) {
     cout << "improving prismatic layer -> iteration " << j+1 << "/" << m_Ui.spinBoxIterations->value() << endl;
     if (!m_Ui.checkBoxSafeMode->isChecked()) {

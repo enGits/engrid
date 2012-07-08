@@ -164,7 +164,7 @@ void GuiDivideBoundaryLayer::computeY1()
     }
   }
   */
-  double C1 = 0.0;
+  double C1 = 0.1;
   double C2 = 2.0;
   while (C2 - C1 > 1e-6) {
     double s = m_DesiredStretching;
@@ -183,14 +183,13 @@ void GuiDivideBoundaryLayer::computeY1()
 
 void GuiDivideBoundaryLayer::computeY2()
 {
-  double C1 = 0.0;
-  double C2 = 2.0;
+  double C1 = 1.0;
+  double C2 = 100.0;
   double y_target = m_Y[m_NumLayers - 1];
   while (C2 - C1 > 1e-6) {
-    double s = m_DesiredStretching;
+    double s = 0.5*(C1 + C2);
     for (int i = 2; i < m_NumLayers; ++i) {
       m_Y[i] = m_Y[i-1] + s*(m_Y[i-1] - m_Y[i-2]);
-      s *= 0.5*(C1 + C2);
     }
     if (m_Y[m_NumLayers - 1] > y_target) {
       C2 = 0.5*(C1 + C2);
@@ -198,7 +197,7 @@ void GuiDivideBoundaryLayer::computeY2()
       C1 = 0.5*(C1 + C2);
     }
   }
-  m_Y[m_NumLayers - 1] = y_target;
+  //m_Y[m_NumLayers - 1] = y_target;
 }
 
 void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
@@ -223,10 +222,11 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     m_Grid->GetPoint(P.second, x2.data());
     vec3_t n = x2-x1;
     double alpha = GeometryTools::rad2deg(m_MaxConvexAngle[P.first]);
+    double h_rel = m_RelativeHeight*cl->GetValue(P.first)/n.abs();
     {
       m_Y.resize(m_NumLayers + 1);
       m_Y[0] = 0;
-      m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*m_RelativeHeight;
+      m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*h_rel;
       computeY1();
     }
     if (alpha > m_CritAngle1) {
@@ -234,17 +234,10 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
       double far_ratio = blend*m_FarRatio + (1-blend)*(1.0 - m_Y[m_NumLayers - 1])*n.abs()/cl->GetValue(P.first);
       m_Y.resize(m_NumLayers + 1);
       m_Y[0] = 0;
-      m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*m_RelativeHeight;
-      //m_Y[m_NumLayers - 1] = 1.0 - m_FarRatio*cl->GetValue(P.first)/n.abs();
+      m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*h_rel;
       m_Y[m_NumLayers - 1] = 1.0 - far_ratio*cl->GetValue(P.first)/n.abs();
       m_Y[m_NumLayers] = 1.0;
-      //QVector<double> y1 = m_Y;
       computeY2();
-      /*
-      for (int i = 0; i < m_NumLayers; ++i) {
-        m_Y[i] = blend*m_Y[i] + (1-blend)*y1[i];
-      }
-      */
     }
     ymin = min(ymin, m_Y[1]*n.abs());
     ymax = max(ymax, m_Y[1]*n.abs());

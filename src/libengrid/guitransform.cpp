@@ -27,8 +27,10 @@
 #include "swaptriangles.h"
 #include "deletetetras.h"
 #include "deletecells.h"
-#include <cmath>
 #include "geometrytools.h"
+#include "guimainwindow.h"
+
+#include <cmath>
 
 using namespace GeometryTools;
 
@@ -96,23 +98,62 @@ void GuiTransform::operate()
   cout << "AngleInDegrees=" << m_Ui.AngleInDegrees->checkState() << endl;
   cout << "Scaling_Vector=" << Scaling_Vector << endl;
   
-  foreach(vtkIdType id_node, nodes)
-  {
-    vec3_t x;
-    m_Grid->GetPoint(id_node, x.data());
-    
-    x[0]+=Translation_Vector[0];
-    x[1]+=Translation_Vector[1];
-    x[2]+=Translation_Vector[2];
-    
-    Rotation_Direction_Vector.normalise();
-    x = Rotation_Origin_Vector + GeometryTools::rotate(x-Rotation_Origin_Vector,Rotation_Direction_Vector,Rotation_Angle);
-    
-    x[0]*=Scaling_Vector[0];
-    x[1]*=Scaling_Vector[1];
-    x[2]*=Scaling_Vector[2];
-    
-    m_Grid->GetPoints()->SetPoint(id_node, x.data());
+  QVector<bool> transform_node(nodes.size(), false);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  if (m_Ui.radioButtonNoRestriction->isChecked()) {
+    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      transform_node[i_nodes] = true;
+    }
+  }
+
+  if (m_Ui.radioButtonVolumeAreas->isChecked()) {
+    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      for (int j = 0; j < m_Part.n2cLSize(i_nodes); ++j) {
+        vtkIdType id_cell = m_Part.n2cLG(i_nodes, j);
+        if (isVolume(id_cell, m_Grid)) {
+          transform_node[i_nodes] = true;
+          break;
+        }
+      }
+    }
+  }
+
+  if (m_Ui.radioButtonVisibleBoundaries->isChecked()) {
+    QSet<int> bcs;
+    GuiMainWindow::pointer()->getDisplayBoundaryCodes(bcs);
+    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+      for (int j = 0; j < m_Part.n2cLSize(i_nodes); ++j) {
+        vtkIdType id_cell = m_Part.n2cLG(i_nodes, j);
+        if (isSurface(id_cell, m_Grid)) {
+          if (bcs.contains(cell_code->GetValue(id_cell))) {
+            transform_node[i_nodes] = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    if (transform_node[i_nodes]) {
+      vtkIdType id_node = nodes[i_nodes];
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+
+      x[0]+=Translation_Vector[0];
+      x[1]+=Translation_Vector[1];
+      x[2]+=Translation_Vector[2];
+
+      Rotation_Direction_Vector.normalise();
+      x = Rotation_Origin_Vector + GeometryTools::rotate(x-Rotation_Origin_Vector,Rotation_Direction_Vector,Rotation_Angle);
+
+      x[0]*=Scaling_Vector[0];
+      x[1]*=Scaling_Vector[1];
+      x[2]*=Scaling_Vector[2];
+
+      m_Grid->GetPoints()->SetPoint(id_node, x.data());
+    }
   }
   m_Grid->Modified();// to force a drawing update
 };
