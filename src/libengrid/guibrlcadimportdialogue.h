@@ -43,7 +43,8 @@ public:
   void    prepare(QString file_name);
   bool    hasSelectedObject();
   QString selectedObject();
-  
+  double  scanMemory();
+
 private:
 
   Ui::GuiBrlCadImportDialogue *ui;

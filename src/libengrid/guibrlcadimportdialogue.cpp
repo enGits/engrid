@@ -72,5 +72,13 @@ QString GuiBrlCadImportDialogue::selectedObject()
   }
 }
 
+double GuiBrlCadImportDialogue::scanMemory()
+{
+  double mem = 1024.0;
+  mem *= mem*mem;
+  mem *= ui->doubleSpinBoxMemory->value();
+  return mem;
+}
+
 
 

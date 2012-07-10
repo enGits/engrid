@@ -27,6 +27,7 @@
 
 #include "brlcad/vmath.h"
 #include "brlcad/raytrace.h"
+#include "brlcad/common.h"
 
 class CreateBrlCadTesselation : public CreateCadTesselation
 {
@@ -37,9 +38,19 @@ private: // attributes
   struct rt_i        *m_Rtip;
   char                m_IdBuf[132];
 
+  static vec3_t m_XIn;
+  static vec3_t m_XOut;
+  static vec3_t m_InNormal;
+  static vec3_t m_OutNormal;
+  static bool   m_Hit;
+
+
 protected: // methods
 
-  virtual void shootRay(vec3_t x, vec3_t v);
+  static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
+  static int miss(register struct application *ap);
+
+  virtual bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out);
 
 public:
 

@@ -30,17 +30,37 @@ class CreateCadTesselation : public Operation
 
 protected: // attributes
 
-  vec3_t m_X;
-  vec3_t m_Normal;
+  vec3_t m_X1;
+  vec3_t m_X2;
+  vec3_t m_XScan1;
+  vec3_t m_XScan2;
+  int    m_Ni;
+  int    m_Nj;
+  int    m_Nk;
+  double m_Dx;
+  double m_Dy;
+  double m_Dz;
+  double m_ScanMemory;
+  bool   m_GeometryFound;
 
 protected: // methods
 
-  virtual void shootRay(vec3_t x, vec3_t v) = 0;
+  virtual bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out) = 0;  
   virtual void operate();
+
+  void scan();
+
+  double getx(int i) { return m_X1[0] + i*m_Dx; }
+  double gety(int j) { return m_X1[1] + j*m_Dy; }
+  double getz(int k) { return m_X1[2] + k*m_Dz; }
+  vec3_t getX(int i, int j, int k) { return vec3_t(getx(i), gety(j), getz(k)); }
+  int    getIdx(int i, int j, int k) { return i + j*m_Ni + k*m_Ni*m_Nj; }
 
 public: // methods
 
   CreateCadTesselation();
+
+  void setScanMemory(double mem) { m_ScanMemory = mem; }
 
 };
 

@@ -285,6 +285,8 @@ void BrlcadReader::operate()
       dlg.prepare(getFileName());
       if (dlg.exec() && dlg.hasSelectedObject()) {
         CreateBrlCadTesselation brlcad_tess(getFileName(), dlg.selectedObject());
+        brlcad_tess.setScanMemory(dlg.scanMemory());
+        brlcad_tess();
       }
     }
   } catch (Error err) {
