@@ -247,6 +247,13 @@ void Octree::markToRefine(int cell)
   }
 }
 
+void Octree::markAllToRefine()
+{
+  for (int cell = 0; cell < m_Cells.size(); ++cell) {
+    markToRefine(cell);
+  }
+}
+
 void Octree::mergeNodes_identifyDuplicates()
 {
   m_SameNodes.resize(m_Nodes.size());

@@ -187,6 +187,7 @@ public: // methods
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
   void markToRefine(int cell);
+  void markAllToRefine();
   bool markedForRefine(int cell) { return m_ToRefine[cell]; }
   int  refineAll();
   void resetRefineMarks();
