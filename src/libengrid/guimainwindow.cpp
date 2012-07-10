@@ -131,6 +131,13 @@ void GuiMainWindow::setupGuiMainWindow()
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
 
+  m_StatusInfoLabel = new QLabel(this);
+  statusBar()->addWidget(m_StatusInfoLabel);
+  m_StatusInfoLabel->setText("");
+
+  m_StatusProgressBar = new QProgressBar(this);
+  statusBar()->addWidget(m_StatusProgressBar);
+
   m_StatusLabel = new QLabel(this);
   statusBar()->addWidget(m_StatusLabel);
 
@@ -2375,4 +2382,20 @@ void GuiMainWindow::onEsc()
   m_CellPicker->Pick(-1e99,-1e99,0,m_Renderer);
   updateActors(true);
   updateStatusBar();
+}
+
+void GuiMainWindow::resetProgress(QString info_text, int p_max)
+{
+  m_StatusInfoLabel->setText(info_text);
+  m_StatusProgressBar->setMaximum(p_max);
+  m_StatusProgressBar->setValue(0);
+  QApplication::processEvents();
+}
+
+void GuiMainWindow::setProgress(int p)
+{
+  m_StatusProgressBar->setValue(p);
+  for (int i = 0; i < 3; ++i) {
+    QApplication::processEvents();
+  }
 }

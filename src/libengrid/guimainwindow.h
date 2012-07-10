@@ -46,6 +46,7 @@
 #include <QTimer>
 #include <QDockWidget>
 #include <QDomDocument>
+#include <QProgressBar>
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkActor.h>
@@ -164,20 +165,22 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkPointPicker*           m_PointPicker;  ///< VTK PointPicker to pick points for various user interactions
     int                       m_PickedObject; ///< 0=none, 1=node, 2=cell
 
-    QString      m_CurrentFilename;      ///< The current file name of the grid.
-    int          m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
-    bool         m_undo_redo_enabled;    ///< if true, undo/redo operations will be usable.
-    int          m_LastOperation;        ///< The last operation number. (used for undo/redo)
-    QString      m_LogDir;               ///< the log directory
-    QLabel*      m_StatusLabel;          ///< Label for the information in the status bar
-    QSet<int>    m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
-    QSet<int>    m_AllBoundaryCodes;     ///< A QList with all boundary codes.
-    bool         m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
-    QString      m_LogFileName;          ///< log file to collect program output for display in the output window
-    long int     m_N_chars;              ///< number of lines that have been read from the log file
+    QString       m_CurrentFilename;      ///< The current file name of the grid.
+    int           m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
+    bool          m_undo_redo_enabled;    ///< if true, undo/redo operations will be usable.
+    int           m_LastOperation;        ///< The last operation number. (used for undo/redo)
+    QString       m_LogDir;               ///< the log directory
+    QLabel*       m_StatusLabel;          ///< Label for the information in the status bar
+    QLabel*       m_StatusInfoLabel;
+    QProgressBar* m_StatusProgressBar;
+    QSet<int>     m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
+    QSet<int>     m_AllBoundaryCodes;     ///< A QList with all boundary codes.
+    bool          m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
+    QString       m_LogFileName;          ///< log file to collect program output for display in the output window
+    long int      m_N_chars;              ///< number of lines that have been read from the log file
 #if defined( __linux__ ) //for Linux
-    int          m_SystemStdout;
-    int          m_LogFileStdout;
+    int           m_SystemStdout;
+    int           m_LogFileStdout;
     fpos_t m_SystemStdout_pos;
     fpos_t m_LogFileStdout_pos;
 #elif defined( _WIN32 ) //for Windows
@@ -397,6 +400,9 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void setSystemOutput();
     void setLogFileOutput();
+
+    void resetProgress(QString info_text, int p_max);
+    void setProgress(int p);
 
   public slots:
 
