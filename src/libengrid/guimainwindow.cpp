@@ -38,6 +38,7 @@
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
+#include "trisurfaceprojection.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -1942,7 +1943,7 @@ void GuiMainWindow::configure()
     try {
       GridSmoother tmp01;
       GuiCreateBoundaryLayer tmp02;
-      SurfaceProjection tmp03;
+      TriSurfaceProjection tmp03;
       SurfaceMesher tmp04;
       UpdateDesiredMeshDensity tmp05;
       InsertPoints tmp06;
@@ -2113,7 +2114,7 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   try {
     resetSurfaceProjection();
     foreach (int bc, m_AllBoundaryCodes) {
-      SurfaceProjection *proj = new SurfaceProjection();
+      TriSurfaceProjection *proj = new TriSurfaceProjection();
       m_SurfProj[bc] = proj;
       QSet<int> bcs;
       bcs.insert(bc);
@@ -2141,7 +2142,7 @@ void GuiMainWindow::resetSurfaceProjection()
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       pindex->SetValue(id_node, -1);
     }
-    SurfaceProjection::resetPindex();
+    TriSurfaceProjection::resetPindex();
   } catch (Error) {
   }
 }

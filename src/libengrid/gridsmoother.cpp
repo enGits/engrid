@@ -25,6 +25,7 @@
 #include "elements.h"
 #include "optimisenormalvector.h"
 #include "pointfinder.h"
+#include "trisurfaceprojection.h"
 
 #include <QTime>
 

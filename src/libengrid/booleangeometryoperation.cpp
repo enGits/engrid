@@ -465,8 +465,6 @@ double BooleanGeometryOperation::smoothJunction_mesher()
   swap();
   int deleted_nodes = SurfaceAlgorithm::deleteNodes();
   for (int i = 0; i < 2; ++i) {
-    SurfaceProjection::Nfull = 0;
-    SurfaceProjection::Nhalf = 0;
     smooth(1, true);
     swap();
   }

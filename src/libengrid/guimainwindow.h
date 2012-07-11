@@ -70,7 +70,9 @@
 #include "volumedefinition.h"
 #include "physicalboundarycondition.h"
 #include "checksurfaceintegrity.h"
+
 #include "surfaceprojection.h"
+
 #include "openfoamcase.h"
 #include "guitransform.h"
 #include "openfoamtools.h"

@@ -1,5 +1,6 @@
 #include "orthogonalityoptimiser.h"
 #include "surfaceprojection.h"
+#include "guimainwindow.h"
 
 OrthogonalityOptimiser::OrthogonalityOptimiser()
 {

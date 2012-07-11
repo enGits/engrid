@@ -73,8 +73,6 @@ void SurfaceMesher::operate()
     cout << "  deleted nodes : " << num_deleted << endl;
     //computeMeshDensity(); // !!
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
-      SurfaceProjection::Nfull = 0;
-      SurfaceProjection::Nhalf = 0;
       smooth(1, m_CorrectCurvature);
       swap();
     }

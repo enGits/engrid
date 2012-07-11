@@ -239,8 +239,6 @@ void LaplaceSmoother::operate()
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
     m_Success = true;
     computeNormals();
-    SurfaceProjection::Nfull = 0;
-    SurfaceProjection::Nhalf = 0;
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (!m_Fixed[id_node] && !blocked[i_nodes]) {
