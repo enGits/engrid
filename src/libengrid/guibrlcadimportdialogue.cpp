@@ -24,6 +24,7 @@
 #include "ui_guibrlcadimportdialogue.h"
 
 #include <QProcess>
+#include <QFileInfo>
 
 GuiBrlCadImportDialogue::GuiBrlCadImportDialogue(QWidget *parent) :
   QDialog(parent),
@@ -50,6 +51,10 @@ void GuiBrlCadImportDialogue::prepare(QString file_name)
   ui->listWidget->clear();
   foreach (QString obj, objects) {
     ui->listWidget->addItem(obj);
+  }
+  m_StlFileName = file_name + ".stl";
+  if (QFileInfo(m_StlFileName).exists()) {
+    ui->checkBoxSTL->setEnabled(true);
   }
 }
 
@@ -80,5 +85,31 @@ double GuiBrlCadImportDialogue::scanMemory()
   return mem;
 }
 
+int GuiBrlCadImportDialogue::smoothingIterations()
+{
+  return ui->spinBoxSmoothing->value();
+}
+
+int GuiBrlCadImportDialogue::preservationType()
+{
+  if (ui->radioButtonNoPreservation->isChecked()) return 0;
+  if (ui->radioButtonSolidPreservation->isChecked()) return 1;
+  return 2;
+}
+
+double GuiBrlCadImportDialogue::smallestFeatureSize()
+{
+  return ui->lineEditSmallestFeature->text().toDouble();
+}
+
+bool GuiBrlCadImportDialogue::useStlFile()
+{
+  return ui->checkBoxSTL->isChecked();
+}
+
+QString GuiBrlCadImportDialogue::stlFileName()
+{
+  return m_StlFileName;
+}
 
 

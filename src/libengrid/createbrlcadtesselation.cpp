@@ -37,6 +37,7 @@ CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString obje
   if (rt_gettree(m_Rtip, qPrintable(object_name)) < 0) {
     EG_ERR_RETURN("unable to access selected object");
   }
+  /*
   cerr << "db title:" << m_IdBuf << endl;
   application ap = {0};
   m_Ap = ap;
@@ -47,6 +48,12 @@ CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString obje
   m_Ap.a_onehit   = 1; // all hits
   m_Ap.a_resource = 0;
   m_Ap.a_uptr     = 0;
+  */
+
+  application ap = {0};
+  m_Ap = ap;
+  m_Ap.a_rt_i   = m_Rtip;
+  m_Ap.a_onehit = 1; // X-ray functionality
 
   rt_prep_parallel(m_Rtip, 1);
 }
@@ -114,21 +121,66 @@ int CreateBrlCadTesselation::miss(application *ap)
   m_Hit = false;
 }
 
-bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
+bool CreateBrlCadTesselation::shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
 {
+  if (!checkVector(x)) {
+    EG_BUG;
+  }
+  if (!checkVector(v)) {
+    EG_BUG;
+  }
+  bool first = true;
   VSET(m_Ap.a_ray.r_pt,  x[0], x[1], x[2]);
   VSET(m_Ap.a_ray.r_dir, v[0], v[1], v[2]);
   m_Hit = false;
   m_Ap.a_hit  = CreateBrlCadTesselation::hit;
   m_Ap.a_miss = CreateBrlCadTesselation::miss;
-  try {
-    rt_shootray(&m_Ap);
-  } catch (...) {
-    EG_ERR_RETURN("An error occured in the BRL-CAD rt_shootray routine!");
-  }
+  rt_shootray(&m_Ap);
   x_in = m_XIn;
   n_in = m_InNormal;
   x_out = m_XOut;
   n_out = m_OutNormal;
+  x = x_out;
+  if (!checkVector(x_in)) {
+    EG_BUG;
+  }
+  if (!checkVector(x_out)) {
+    EG_BUG;
+  }
+  if (!checkVector(n_in)) {
+    EG_BUG;
+  }
+  if (!checkVector(n_out)) {
+    EG_BUG;
+  }
   return m_Hit;
+}
+
+bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
+{
+  v.normalise();
+  double epsilon = min(1e-2*m_SmallestFeatureSize, 1e-5*(m_X1 - m_X2).abs());
+  vec3_t x1, x2, n1, n2;
+  if (shootOneRay(x, v, x1, x2, n1, n2)) {
+    x_in = x1;
+    n_in = n1;
+    x_out = x2;
+    n_out = n2;
+    bool finished = false;
+    while (!finished) {
+      if (!shootOneRay(x2 + epsilon*v, v, x1, x2, n1, n2)) {
+        finished = true;
+      } else {
+        if ((x1-x_out).abs() > epsilon) {
+          finished = true;
+        } else {
+          x_out = x2;
+          n_out = n2;
+        }
+      }
+    }
+    return true;
+  } else {
+    return false;
+  }
 }

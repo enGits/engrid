@@ -44,10 +44,17 @@ public:
   bool    hasSelectedObject();
   QString selectedObject();
   double  scanMemory();
+  double  smallestFeatureSize();
+  int     smoothingIterations();
+  int     preservationType();
+  QString stlFileName();
+  bool    useStlFile();
 
 private:
 
   Ui::GuiBrlCadImportDialogue *ui;
+
+  QString m_StlFileName;
 
 };
 

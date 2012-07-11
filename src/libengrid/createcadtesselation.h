@@ -42,13 +42,16 @@ protected: // attributes
   double m_Dz;
   double m_ScanMemory;
   bool   m_GeometryFound;
+  int    m_NumIterations;
+  int    m_PreservationType;
+  double m_SmallestFeatureSize;
 
 protected: // methods
 
   virtual bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out) = 0;  
   virtual void operate();
 
-  void scan();
+  void scan(bool create_grid, int interlaces = 0);
 
   double getx(int i) { return m_X1[0] + i*m_Dx; }
   double gety(int j) { return m_X1[1] + j*m_Dy; }
@@ -61,6 +64,14 @@ public: // methods
   CreateCadTesselation();
 
   void setScanMemory(double mem) { m_ScanMemory = mem; }
+  void setPreservationOff() { m_PreservationType = 0; }
+  void setSolidPreservation() { m_PreservationType = 1; }
+  void setFluidPreservation() { m_PreservationType = 2; }
+  void setPreservationType(int t) { m_PreservationType = t; }
+  void setSmoothingIterations(int n) { m_NumIterations = n; }
+  bool preserveSolid() { return m_PreservationType == 1; }
+  bool preserveFluid() { return m_PreservationType == 2; }
+  void setSmallestFeatureSize(double sfs) { m_SmallestFeatureSize = sfs; }
 
 };
 

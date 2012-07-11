@@ -45,6 +45,11 @@ private: // attributes
   static bool   m_Hit;
 
 
+private: // methods
+
+  bool shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out);
+
+
 protected: // methods
 
   static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
