@@ -196,11 +196,12 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QTimer       m_GarbageTimer;
     QTimer       m_LogTimer;
 
-    QMap<int, BoundaryCondition>    m_bcmap;     ///< mapping between numerical and symbolic boundary codes
-    QMap<QString, VolumeDefinition> m_VolMap;    ///< all volume definitions
+    QMap<int, BoundaryCondition>    m_bcmap;       ///< mapping between numerical and symbolic boundary codes
+    QMap<QString, VolumeDefinition> m_VolMap;      ///< all volume definitions
     QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;    ///< all physical boundary conditions definitions
 
-    QMap<int, SurfaceProjection*>   m_SurfProj;  ///< all surface projectors for surface meshing
+    QMap<int, SurfaceProjection*>   m_SurfProj;    ///< all surface projectors for surface meshing
+    SurfaceProjection              *m_UniSurfProj; ///< universal surface projection for all boundary conditions
 
     QMap<QAction*, Operation*> m_PluginOperations;
     QAction* m_EscAction;
@@ -398,6 +399,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     SurfaceProjection* getSurfProj(int bc);
     void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
+    void setUniversalSurfProj(SurfaceProjection *surf_proj) { m_UniSurfProj = surf_proj; }
     bool checkSurfProj();
 
     void setSystemOutput();

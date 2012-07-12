@@ -37,18 +37,6 @@ CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString obje
   if (rt_gettree(m_Rtip, qPrintable(object_name)) < 0) {
     EG_ERR_RETURN("unable to access selected object");
   }
-  /*
-  cerr << "db title:" << m_IdBuf << endl;
-  application ap = {0};
-  m_Ap = ap;
-  m_Ap.a_miss     = 0;
-  m_Ap.a_overlap  = 0;
-  m_Ap.a_rt_i     = m_Rtip;
-  m_Ap.a_level    = 0;
-  m_Ap.a_onehit   = 1; // all hits
-  m_Ap.a_resource = 0;
-  m_Ap.a_uptr     = 0;
-  */
 
   application ap = {0};
   m_Ap = ap;

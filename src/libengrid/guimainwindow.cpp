@@ -267,6 +267,7 @@ void GuiMainWindow::setupGuiMainWindow()
   m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
   connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
 
+  m_UniSurfProj = NULL;
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -2133,6 +2134,8 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
 
 void GuiMainWindow::resetSurfaceProjection()
 {
+  delete m_UniSurfProj;
+  m_UniSurfProj = NULL;
   foreach (SurfaceProjection* proj, m_SurfProj) {
     delete proj;
   }
@@ -2155,6 +2158,9 @@ SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
     bc = 0;
   }
   if (!m_SurfProj.contains(bc)) {
+    if (m_UniSurfProj) {
+      return m_UniSurfProj;
+    }
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
   return m_SurfProj[bc];

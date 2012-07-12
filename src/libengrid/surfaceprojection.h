@@ -31,6 +31,7 @@ class SurfaceProjection : public SurfaceAlgorithm
 protected: // attributes
 
   vtkUnstructuredGrid* m_FGrid; ///< the foreground grid to project
+  MeshPartition        m_FPart; ///< MeshPartition for the foreground grid
 
 
 public: // methods

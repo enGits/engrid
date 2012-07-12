@@ -29,6 +29,7 @@
 #include "guibrlcadimportdialogue.h"
 #include "createbrlcadtesselation.h"
 #include "stlreader.h"
+#include "brlcadprojection.h"
 
 #include <vtkSTLReader.h>
 
@@ -296,6 +297,8 @@ void BrlcadReader::operate()
           brlcad_tess.setSmallestFeatureSize(dlg.smallestFeatureSize());
           brlcad_tess();
         }
+        BrlCadProjection *brl_proj = new BrlCadProjection(getFileName(), dlg.selectedObject());
+        GuiMainWindow::pointer()->setUniversalSurfProj(brl_proj);
       }
     }
   } catch (Error err) {

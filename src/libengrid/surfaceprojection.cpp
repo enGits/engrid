@@ -29,5 +29,6 @@ SurfaceProjection::SurfaceProjection()
 void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
 {
   m_FGrid = grid;
+  m_FPart.trackGrid(m_FGrid);
 }
 
