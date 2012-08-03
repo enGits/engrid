@@ -355,6 +355,7 @@ vtkIdType MeshPartition::getVolumeCell(vtkIdType id_face)
 vec3_t MeshPartition::globalNormal(vtkIdType id_node)
 {
   vec3_t normal(0,0,0);
+  int murks = id_node;
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
@@ -384,6 +385,7 @@ vec3_t MeshPartition::globalNormal(vtkIdType id_node)
       normal += alpha*n;
     }
   }
+  normal.normalise();
   return normal;
 }
 

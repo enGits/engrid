@@ -63,16 +63,15 @@ protected: // attributes
   QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
   QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
-  bool                      m_RestrictToTriangle;
   double                    m_CritDistance;
   QMap<vtkIdType,vtkIdType> m_Pindex;
   FaceFinder                m_FaceFinder;
+  bool                      m_RestrictToTriangle;
   vtkIdType                 m_LastProjTriangle;
 
 protected: // static attributes
 
   static vtkIdType m_LastPindex;
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
 
 protected: // methods
 
@@ -90,12 +89,12 @@ public: // methods
   
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
-  virtual vec3_t    projectRestricted(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
-  virtual vec3_t    projectFree(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
+  virtual vec3_t    project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0));
   virtual double    getRadius(vtkIdType id_node);
   virtual vec3_t    correctCurvature(vtkIdType proj_triangle, vec3_t x);
   virtual vec3_t    lastProjNormal() { return GeometryTools::cellNormal(m_BGrid, m_LastProjTriangle); }
   virtual vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
+
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
 

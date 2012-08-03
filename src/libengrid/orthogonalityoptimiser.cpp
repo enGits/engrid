@@ -268,7 +268,7 @@ void OrthogonalityOptimiser::operate()
       vec3_t x_new = newPosition(id_node);
       if (checkVector(x_new)) {
         if (m_Projection[id_node]) {
-          x_new = m_Projection[id_node]->projectRestricted(x_new, id_node);
+          x_new = m_Projection[id_node]->project(x_new, id_node);
         }
         if (checkVector(x_new)) {
           vec3_t Dx = x_new - x_old;

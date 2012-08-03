@@ -42,7 +42,7 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   getSet("surface meshing", "threshold for surface errors", 10.0, m_SurfErrorThreshold);
 }
 
-bool SwapTriangles::testSwap(stencil_t S)
+bool SwapTriangles::testOrientation(stencil_t S)
 {
   // old triangles
   vec3_t n1_old = triNormal(m_Grid, S.id_node[0], S.p1, S.p2);
@@ -118,19 +118,15 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
   if (!proj) {
     return;
   }
-  vec3_t n11 = triNormal(x[0], x[1], x[3]);
-  vec3_t n12 = triNormal(x[1], x[2], x[3]);
-  vec3_t n21 = triNormal(x[0], x[1], x[2]);
-  vec3_t n22 = triNormal(x[0], x[2], x[3]);
-  vec3_t n   = n11 + n12 + n21 + n22;
+
+  vec3_t n = triNormal(x[0], x[1], x[3]) + triNormal(x[1], x[2], x[3]);
   n.normalise();
-  vec3_t err_vec = 0.5*(x[0] + x[2] - x[1] - x[3]);
-  double appr_err = fabs(n*err_vec);
-  /*
-  if (angle(n11, n12) <= m_FeatureAngle && angle(n21, n22) <= m_FeatureAngle) {
-    return;
-  }
-  */
+
+  vec3_t xe1 = 0.5*(x[1] + x[3]);
+  vec3_t xe2 = 0.5*(x[0] + x[2]);
+
+  vec3_t xe1_proj = proj->project(xe1, -1, true, n);
+  vec3_t xe2_proj = proj->project(xe2, -1, true, n);
 
   double L = 0;
   L = max(L, (x[0] - x[1]).abs());
@@ -140,19 +136,8 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
   L = max(L, (x[1] - x[3]).abs());
   L = max(L, (x[2] - x[3]).abs());
 
-  if (appr_err > m_SurfErrorThreshold*L) {
-    static const double f13 = 1.0/3.0;
-    vec3_t x012 = f13*(x[0] + x[1] + x[2]);
-    vec3_t x013 = f13*(x[0] + x[1] + x[3]);
-    vec3_t x023 = f13*(x[0] + x[2] + x[3]);
-    vec3_t x123 = f13*(x[1] + x[2] + x[3]);
-    vec3_t xp012 = proj->projectRestricted(x012);
-    vec3_t xp013 = proj->projectRestricted(x013);
-    vec3_t xp023 = proj->projectRestricted(x023);
-    vec3_t xp123 = proj->projectRestricted(x123);
-    err1 = max((x013 - xp013).abs(), (x123 - xp123).abs())/L;
-    err2 = max((x012 - xp012).abs(), (x023 - xp023).abs())/L;
-  }
+  err1 = (xe1 - xe1_proj).abs()/L;
+  err2 = (xe2 - xe2_proj).abs()/L;
 }
 
 int SwapTriangles::swap()
@@ -210,6 +195,8 @@ int SwapTriangles::swap()
                         }
                       }
                     }
+
+                    // Delaunay
                     if (!swap && !surf_block) {
                       vec3_t n = n1 + n2;
                       n.normalise();
@@ -253,7 +240,7 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            if (testSwap(S)) {
+            if (testOrientation(S)) {
               marked[S.id_cell[0]] = true;
               marked[S.id_cell[1]] = true;
               for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {

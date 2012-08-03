@@ -227,7 +227,7 @@ void TriSurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_tri
 }
 
 
-vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature)
+vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature, vec3_t)
 {
   if (!checkVector(xp)) {
     qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;
@@ -290,18 +290,6 @@ vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct
   }
   m_LastProjTriangle = proj_triangle;
   return x_proj;
-}
-
-vec3_t TriSurfaceProjection::projectFree(vec3_t x, vtkIdType id_node, bool correct_curvature)
-{
-  m_RestrictToTriangle = false;
-  return project(x, id_node, correct_curvature);
-}
-
-vec3_t TriSurfaceProjection::projectRestricted(vec3_t x, vtkIdType id_node, bool correct_curvature)
-{
-  m_RestrictToTriangle = true;
-  return project(x, id_node, correct_curvature);
 }
 
 vec3_t TriSurfaceProjection::correctCurvature(vtkIdType proj_triangle, vec3_t x)
@@ -388,7 +376,7 @@ double TriSurfaceProjection::getRadius(vtkIdType id_node)
 {
   vec3_t x;
   m_FGrid->GetPoint(id_node, x.data());
-  projectRestricted(x, id_node);
+  project(x, id_node);
   vtkIdType id_tri = getProjTriangle(id_node);
   if (id_tri == -1) {
     EG_BUG;

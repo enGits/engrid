@@ -187,7 +187,8 @@ HEADERS = boundarycondition.h \
     dolfynwriter.h \
     guibrlcadimportdialogue.h \
     createcadtesselation.h \
-    createbrlcadtesselation.h
+    createbrlcadtesselation.h \
+    brlcadinterface.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -301,7 +302,8 @@ SOURCES = boundarycondition.cpp \
     dolfynwriter.cpp \
     guibrlcadimportdialogue.cpp \
     createcadtesselation.cpp \
-    createbrlcadtesselation.cpp
+    createbrlcadtesselation.cpp \
+    brlcadinterface.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

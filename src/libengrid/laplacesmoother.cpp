@@ -38,7 +38,6 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   m_NoCheck = false;
   m_ProjectionIterations = 50;
-  m_FreeProjectionForEdges = false;
   m_AllowedCellTypes.clear();
   m_AllowedCellTypes.insert(VTK_TRIANGLE);
 }
@@ -148,15 +147,11 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node, m_CorrectCurvature);
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
-            if (m_FreeProjectionForEdges) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectFree(x_new, id_node, m_CorrectCurvature);
-            } else {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, id_node, m_CorrectCurvature);
-            }
+            x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
           }
         }
 

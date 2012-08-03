@@ -55,6 +55,7 @@ void GuiBrlCadImportDialogue::prepare(QString file_name)
   m_StlFileName = file_name + ".stl";
   if (QFileInfo(m_StlFileName).exists()) {
     ui->checkBoxSTL->setEnabled(true);
+    ui->checkBoxSTL->setChecked(true);
   }
 }
 

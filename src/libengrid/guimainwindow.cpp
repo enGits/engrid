@@ -2132,6 +2132,12 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   }
 }
 
+void GuiMainWindow::setUniversalSurfProj(SurfaceProjection *surf_proj)
+{
+  m_UniSurfProj = surf_proj;
+  surf_proj->setForegroundGrid(m_Grid);
+}
+
 void GuiMainWindow::resetSurfaceProjection()
 {
   delete m_UniSurfProj;
@@ -2169,10 +2175,12 @@ SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 bool GuiMainWindow::checkSurfProj()
 {
   bool ok = true;
-  foreach (int bc, m_AllBoundaryCodes) {
-    if (!m_SurfProj.contains(bc)) {
-      ok = false;
-      break;
+  if (!m_UniSurfProj) {
+    foreach (int bc, m_AllBoundaryCodes) {
+      if (!m_SurfProj.contains(bc)) {
+        ok = false;
+        break;
+      }
     }
   }
   return ok;

@@ -399,7 +399,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     SurfaceProjection* getSurfProj(int bc);
     void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
-    void setUniversalSurfProj(SurfaceProjection *surf_proj) { m_UniSurfProj = surf_proj; }
+    void setUniversalSurfProj(SurfaceProjection *surf_proj);
     bool checkSurfProj();
 
     void setSystemOutput();

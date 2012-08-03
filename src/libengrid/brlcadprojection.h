@@ -27,37 +27,21 @@
 class BrlCadProjection;
 
 #include "surfaceprojection.h"
+#include "brlcadinterface.h"
 
-//#include "common.h"
-//#include "machine.h"
-#include "engrid.h"
-#include "brlcad/vmath.h"
-#include "brlcad/raytrace.h"
-
-class BrlCadProjection : public SurfaceProjection
+class BrlCadProjection : public SurfaceProjection, public BrlCadInterface
 {
 
-  struct rt_i        *m_Rtip;
-  struct application  m_Ap;
-  char                m_IdBuf[132];
-
   vec3_t m_LastNormal;
-
-protected: // methods
-
-  static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
-  static int miss(register struct application *ap);
-
-  vec3_t project(vec3_t x, vtkIdType id_node);
+  double m_LastRadius;
 
 public:
 
   BrlCadProjection(QString file_name, QString object_name);
   ~BrlCadProjection();
 
-  virtual vec3_t projectRestricted(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
-  virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
-  virtual double getRadius(vtkIdType id_node) { return 1e10; }
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0));
+  virtual double getRadius(vtkIdType id_node);
   virtual vec3_t lastProjNormal() { return m_LastNormal; }
 
 };

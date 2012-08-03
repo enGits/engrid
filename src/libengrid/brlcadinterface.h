@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,56 +19,61 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef swaptriangles_H
-#define swaptriangles_H
+//
 
-class SwapTriangles;
+#ifndef BRLCADINTERFACE_H
+#define BRLCADINTERFACE_H
 
-#include "surfaceoperation.h"
+#include "brlcad/vmath.h"
+#include "brlcad/raytrace.h"
+#include "brlcad/common.h"
 
-/**
-  * \todo This class desperately needs a clean-up and optimisation!
-  */
-class SwapTriangles : public SurfaceOperation
+#include "engrid.h"
+#include "utilities.h"
+
+class BrlCadInterface
 {
-  
+
+public: // data types
+
+  enum HitType { Miss, HitIn, HitOut };
+
 private: // attributes
-  
-  QVector<bool> m_Swapped;
-  bool          m_RespectBC;
-  bool          m_FeatureSwap;
-  bool          m_SmallAreaSwap;
-  bool          m_Verbose;
-  int           m_MaxNumLoops;
-  double        m_SmallAreaRatio;
-  double        m_SurfErrorThreshold;
+
+  struct application  m_Ap;
+  struct rt_i        *m_Rtip;
+  char                m_IdBuf[132];
+
+  static vec3_t m_XIn;
+  static vec3_t m_XOut;
+  static vec3_t m_InNormal;
+  static vec3_t m_OutNormal;
+  static double m_InRadius;
+  static double m_OutRadius;
+  static bool   m_Hit;
+
+  double m_Epsilon;
+
 
 private: // methods
-  
-  ///returns true if performing a swap on the stencil does not change the orientation of the cells (tetra volume test)
-  bool testOrientation(stencil_t S);
-  
-  ///returns true if id_node1 is linked to id_node2
-  bool isEdge(vtkIdType id_node1, vtkIdType id_node2);
-    
+
+  bool shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out);
+
+
 protected: // methods
-  
-  int swap();
-  void computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2);
-  virtual void operate();
+
+  static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
+  static int miss(register struct application *ap);
+
+  HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
+  void setupBrlCad(QString file_name, QString object_name);
+  bool isInside(vec3_t x);
+
 
 public:
 
-  SwapTriangles();
-
-  void setRespectBC(bool b)      { m_RespectBC   = b; }
-  void setFeatureSwap(bool b)    { m_FeatureSwap = b; }
-  void setMaxNumLoops(int n)     { m_MaxNumLoops = n; }
-  void setSmallAreaSwap(bool b)  { m_SmallAreaSwap = b; }
-  void setVerboseOn() { m_Verbose = true; }
-  void setVerboseOff() { m_Verbose = false; }
+  BrlCadInterface();
 
 };
 
-#endif
+#endif // BRLCADINTERFACE_H

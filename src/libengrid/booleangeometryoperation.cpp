@@ -36,7 +36,7 @@ void BooleanGeometryOperation::deleteNodes()
     vtkIdType id_node = m_Part1.globalNode(i);
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
-    vec3_t x_proj = m_Proj2.projectRestricted(x, -1, false);
+    vec3_t x_proj = m_Proj2.project(x, -1, false);
     vec3_t n = m_Proj2.lastProjNormal();
     n.normalise();
     double L = 0;
@@ -53,7 +53,7 @@ void BooleanGeometryOperation::deleteNodes()
     vtkIdType id_node = m_Part2.globalNode(i);
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
-    vec3_t x_proj = m_Proj1.projectRestricted(x, -1, false);
+    vec3_t x_proj = m_Proj1.project(x, -1, false);
     vec3_t n = m_Proj1.lastProjNormal();
     n.normalise();
     double L = 0;
@@ -434,7 +434,7 @@ void BooleanGeometryOperation::smoothJunction_updateBCs()
         for (int i = 0; i < num_pts; ++i) {
           vec3_t x_node;
           m_Grid->GetPoint(pts[i], x_node.data());
-          vec3_t x_proj = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_node);
+          vec3_t x_proj = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_node);
           L_max = max(L_max, (x_node - x_proj).abs());
         }
         if (L_max < L_min) {

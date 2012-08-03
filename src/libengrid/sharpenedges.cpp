@@ -202,7 +202,7 @@ void SharpenEdges::operate()
       m_Grid->GetPoint(id_node, x.data());
       for (int i_proj_iter = 0; i_proj_iter < 20; ++i_proj_iter) {
         foreach (int bc, n2bc[id_node]) {
-          x = GuiMainWindow::pointer()->getSurfProj(bc)->projectFree(x, id_node);
+          x = GuiMainWindow::pointer()->getSurfProj(bc)->project(x, id_node);
         }
       }
       m_Grid->GetPoints()->SetPoint(id_node, x.data());

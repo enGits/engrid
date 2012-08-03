@@ -40,8 +40,7 @@ public: // methods
 
   void    setForegroundGrid(vtkUnstructuredGrid* grid);
 
-  virtual vec3_t projectRestricted(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false) = 0;
-  virtual vec3_t projectFree(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false) = 0;
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0)) = 0;
   virtual double getRadius(vtkIdType id_node) = 0;
   virtual vec3_t lastProjNormal() = 0;
   virtual vec3_t correctCurvature(vtkIdType, vec3_t x) { return x; }
