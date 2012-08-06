@@ -108,6 +108,7 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
 
 void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2)
 {
+  static int counter = 0;
   using namespace GeometryTools;
   err1 = 0;
   err2 = 0;
@@ -138,6 +139,7 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
 
   err1 = (xe1 - xe1_proj).abs()/L;
   err2 = (xe2 - xe2_proj).abs()/L;
+  ++counter;
 }
 
 int SwapTriangles::swap()
@@ -147,19 +149,22 @@ int SwapTriangles::swap()
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
-    //m_Timer << "  cell " << i+1 << "/" << m_Part.getNumberOfCells() << Timer::endl;
     vtkIdType id_cell = m_Part.globalCell(i);
     if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
           stencil_t S = getStencil(id_cell, j);
+          if (S.id_cell.size() == 2) {
+            if ((S.id_cell[1] == 2171 && S.id_cell[0] == 2110) || (S.id_cell[0] == 2171 && S.id_cell[1] == 2110)) {
+              cout << "break" << endl;
+            }
+          }
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
                 if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
                   QVector<vec3_t> x3(4);
-                  vec3_t x3_0(0,0,0);
                   vec2_t x[4];
 
                   m_Grid->GetPoint(S.id_node[0], x3[0].data());

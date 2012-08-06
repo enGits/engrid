@@ -34,6 +34,7 @@ class BrlCadProjection : public SurfaceProjection, public BrlCadInterface
 
   vec3_t m_LastNormal;
   double m_LastRadius;
+  bool   m_ForceRay;
 
 public:
 

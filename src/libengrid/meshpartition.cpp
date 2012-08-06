@@ -340,7 +340,7 @@ bool MeshPartition::hasBC(vtkIdType id_node, int bc)
   bool found = false;
   for (int j = 0; j < n2bcGSize(id_node); ++j) {
     if (n2bcG(id_node, j) == bc) {
-      found == true;
+      found = true;
       break;
     }
   }
@@ -355,7 +355,6 @@ vtkIdType MeshPartition::getVolumeCell(vtkIdType id_face)
 vec3_t MeshPartition::globalNormal(vtkIdType id_node)
 {
   vec3_t normal(0,0,0);
-  int murks = id_node;
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
@@ -382,10 +381,15 @@ vec3_t MeshPartition::globalNormal(vtkIdType id_node)
       double alpha = GeometryTools::angle(u, v);
       vec3_t n = u.cross(v);
       n.normalise();
-      normal += alpha*n;
+      if (checkVector(n)) {
+        normal -= alpha*n;
+      }
     }
   }
   normal.normalise();
+  if (!checkVector(normal)) {
+    EG_BUG;
+  }
   return normal;
 }
 

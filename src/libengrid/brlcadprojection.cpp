@@ -26,6 +26,7 @@
 BrlCadProjection::BrlCadProjection(QString file_name, QString object_name)
 {
   setupBrlCad(file_name, object_name);
+  m_ForceRay = false;
 }
 
 BrlCadProjection::~BrlCadProjection()
@@ -36,9 +37,6 @@ BrlCadProjection::~BrlCadProjection()
 vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
 {  
   vec3_t n = v;
-  if (id_node == 0) {
-    cout << "break"<< endl;
-  }
   if (n.abs() < 1e-3) {
     if (id_node == -1) {
       EG_BUG;
@@ -49,6 +47,8 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
     EG_BUG;
   }
   if (!checkVector(n)) {
+    cout << "vector defect (id_node=" << id_node << endl;
+    //return x;
     EG_BUG;
   }
 
@@ -57,7 +57,11 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   vec3_t x_hit, n_hit;
   double r_hit;
 
-  if (isInside(x)) {
+  PositionType pos_type = position(x, n);
+  if (pos_type == Surface && !m_ForceRay) {
+    return x;
+  }
+  if (pos_type == Outside) {
     n *= -1;
   }
 
@@ -74,6 +78,8 @@ double BrlCadProjection::getRadius(vtkIdType id_node)
 {
   vec3_t x;
   m_FGrid->GetPoint(id_node, x.data());
+  m_ForceRay = true;
   project(x, id_node);
+  m_ForceRay = false;
   return m_LastRadius;
 }

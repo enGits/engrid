@@ -91,9 +91,6 @@ void RemovePoints::fixNodes(const QVector<bool> &fixnodes)
 
 void RemovePoints::operate()
 {
-  return;
-
-
   if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
     m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
   }

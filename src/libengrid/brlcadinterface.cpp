@@ -75,7 +75,7 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
 
     RT_HIT_NORMAL(inormal, hitp, stp, &(ap->a_ray), pp->pt_inflip);
     RT_CURVATURE(&cur, hitp, pp->pt_inflip, stp);
-    curv = max(cur.crv_c1, cur.crv_c2);
+    curv = max(fabs(cur.crv_c1), fabs(cur.crv_c2));
     m_InRadius = 1.0/max(1e-10, curv);
 
     m_XIn[0] = pt[0];
@@ -90,7 +90,7 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
     VJOIN1(pt, ap->a_ray.r_pt, hitp->hit_dist, ap->a_ray.r_dir);
     RT_HIT_NORMAL( onormal, hitp, stp, &(ap->a_ray), pp->pt_outflip );
     RT_CURVATURE(&cur, hitp, pp->pt_inflip, stp);
-    curv = max(cur.crv_c1, cur.crv_c2);
+    curv = max(fabs(cur.crv_c1), fabs(cur.crv_c2));
     m_OutRadius = 1.0/max(1e-10, curv);
 
     m_XOut[0] = pt[0];
@@ -171,12 +171,16 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
   return hit_type;
 }
 
-bool BrlCadInterface::isInside(vec3_t x)
+BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 {
   vec3_t x_hit, n_hit;
   double r_hit;
-  if (shootRay(x, vec3_t(1,0,0), x_hit, n_hit, r_hit) == HitOut) {
-    return true;
+  HitType hit_type = shootRay(x, vec3_t(1,0,0), x_hit, n_hit, r_hit);
+  if (hit_type == HitOut) {
+    return Inside;
   }
-  return false;
+  if (hit_type == HitIn) {
+    return Outside;
+  }
+  return Surface;
 }

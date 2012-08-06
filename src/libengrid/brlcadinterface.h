@@ -37,6 +37,7 @@ class BrlCadInterface
 public: // data types
 
   enum HitType { Miss, HitIn, HitOut };
+  enum PositionType { Inside, Outside, Surface };
 
 private: // attributes
 
@@ -67,7 +68,7 @@ protected: // methods
 
   HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
   void setupBrlCad(QString file_name, QString object_name);
-  bool isInside(vec3_t x);
+  PositionType position(vec3_t x, vec3_t n);
 
 
 public:

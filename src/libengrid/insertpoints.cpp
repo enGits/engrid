@@ -36,7 +36,6 @@ InsertPoints::InsertPoints() : SurfaceOperation()
 
 void InsertPoints::operate()
 {
-  return;
   int N1 = m_Grid->GetNumberOfPoints();
   insertPoints();
   int N2 = m_Grid->GetNumberOfPoints();
