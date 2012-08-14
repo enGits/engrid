@@ -175,12 +175,23 @@ BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 {
   vec3_t x_hit, n_hit;
   double r_hit;
-  HitType hit_type = shootRay(x, vec3_t(1,0,0), x_hit, n_hit, r_hit);
+  HitType hit_type = shootRay(x, n, x_hit, n_hit, r_hit);
   if (hit_type == HitOut) {
     return Inside;
   }
   if (hit_type == HitIn) {
     return Outside;
   }
+
+  // try to shoot in the opposite direction
+  n *= -1;
+  hit_type = shootRay(x, n, x_hit, n_hit, r_hit);
+  if (hit_type == HitOut) {
+    return Inside;
+  }
+  if (hit_type == HitIn) {
+    return Outside;
+  }
+
   return Surface;
 }
