@@ -133,6 +133,43 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   return move;
 }
 
+void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* proj, vec3_t &x_new)
+{
+  if (m_FeatureMagic > 0) {
+    EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+    int num_faces = m_Part.n2cGSize(id_node);
+    QVector<vec3_t> normals(num_faces);
+    for (int i = 0; i < num_faces; ++i) {
+      vtkIdType id_face = m_Part.n2cGG(id_node, i);
+      normals[i] = cellNormal(m_Grid, id_face);
+      normals[i].normalise();
+    }
+    double minimal_product = 1.0;
+    for (int i = 0; i < num_faces - 1; ++i) {
+      for (int j = i; j < num_faces; ++j) {
+        minimal_product = min(normals[i]*normals[j], minimal_product);
+      }
+    }
+    if (minimal_product < 0.9) {
+      vec3_t x0 = x_new;
+      vec3_t x1 = proj->project(x_new, id_node, m_CorrectCurvature);
+      vec3_t n = proj->lastProjNormal();
+      double L1 = 0;
+      double L2 = 5*cl->GetValue(id_node);
+      for (int i = 0; i < 20; ++i) {
+        x_new = x1 - 0.5*(L1 + L2)*m_NodeNormal[id_node];
+        x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
+        double scal = (x_new - x1)*n;
+        if (fabs((x_new - x1)*n) > 1e-2*cl->GetValue(id_node)) {
+          L2 = 0.5*(L1 + L2);
+        } else {
+          L1 = 0.5*(L1 + L2);
+        }
+      }
+    }
+  }
+}
+
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 {
   if (!checkVector(Dx)) {
@@ -147,6 +184,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
+        featureCorrection(id_node, GuiMainWindow::pointer()->getSurfProj(bc), x_new);
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
@@ -262,13 +300,18 @@ void LaplaceSmoother::operate()
 
               if (m_UseNormalCorrection) {
                 vec3_t dx = x_new[i_nodes] - x_old;
-                double scal = dx*n;
-                x_new[i_nodes] += scal*n;
+                double scal = dx*m_NodeNormal[id_node];
+                x_new[i_nodes] += scal*m_NodeNormal[id_node];
               }
-
               vec3_t Dx = x_new[i_nodes] - x_old;
               Dx *= m_UnderRelaxation;
-              Dx -= m_FeatureMagic*L_min*m_NodeNormal[id_node];
+              /*
+              if (m_FeatureMagic > 1e-3) {
+                double scal = Dx*m_NodeNormal[id_node];
+                Dx -= scal*m_NodeNormal[id_node];
+                Dx -= m_FeatureMagic*L_min*m_NodeNormal[id_node];
+              }
+              */
               if (moveNode(id_node, Dx)) {
                 x_new[i_nodes] = x_old + Dx;
               } else {

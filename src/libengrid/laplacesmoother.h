@@ -52,6 +52,7 @@ private: // methods
 
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
   bool moveNode(vtkIdType id_node, vec3_t &Dx);
+  void featureCorrection(vtkIdType id_node, SurfaceProjection *proj, vec3_t &x_new);
 
 
 public:
