@@ -107,7 +107,7 @@ int InsertPoints::insertPoints()
         E.L2 = characteristic_length_desired->GetValue(S.p2);
         E.L12 = distance(m_Grid, S.p1, S.p2);
         edges.push_back(E);
-      }`
+      }
     }
   }
 
