@@ -387,9 +387,6 @@ vec3_t MeshPartition::globalNormal(vtkIdType id_node)
     }
   }
   normal.normalise();
-  if (!checkVector(normal)) {
-    EG_BUG;
-  }
   return normal;
 }
 
