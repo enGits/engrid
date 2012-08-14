@@ -48,7 +48,7 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   }
   if (!checkVector(n)) {
     cout << "vector defect (id_node=" << id_node << endl;
-    //return x;
+    return x;
     EG_BUG;
   }
 
@@ -59,16 +59,38 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
 
   PositionType pos_type = position(x, n);
   if (pos_type == Surface && !m_ForceRay) {
-    return x;
+    //return x;
   }
   if (pos_type == Outside) {
     n *= -1;
   }
 
+  // first shot along the provided (or computed) mesh normal
   if (shootRay(x, n, x_hit, n_hit, r_hit) != BrlCadInterface::Miss) {
     x_proj = x_hit;
     m_LastNormal = n_hit;
     m_LastRadius = r_hit;
+
+    /*
+    // iterate into corners
+    int iteration_count = 0;
+    double L_max = (x - x_proj).abs();
+    n = n_hit;
+    vec3_t x0 = x;
+    do {
+      if (shootRay(x0, n, x_hit, n_hit, r_hit) != BrlCadInterface::Miss) {
+        double L = (x_hit - x).abs();
+        if (L < L_max) {
+          x_proj = x_hit;
+          m_LastNormal = n_hit;
+          m_LastRadius = r_hit;
+          break;
+        }
+      }
+      x0 = 0.5*(x0 + x_proj);
+      ++iteration_count;
+    } while (iteration_count < 10);
+    */
   }
 
   return x_proj;
