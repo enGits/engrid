@@ -184,7 +184,7 @@ double deviation(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTyp
 double angle(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdType p3);
 
 /** return the cosine of the angle between the normals of cell1 and cell2 */
-double CosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2);
+double cosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2);
 
 /** Returns the center of mass of cellId + passes the minimal and maximal center to corner distances by reference */
 vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, double& Rmax);

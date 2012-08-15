@@ -370,49 +370,44 @@ int SurfaceOperation::getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QSet
 
 char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fix_unselected)
 {
-  double CosFeatureAngle = cos(this->m_FeatureAngle);
+  double cos_feature_angle = cos(this->m_FeatureAngle);
   bool feature_edges_disabled = m_FeatureAngle >= M_PI;
 
-  //compute number of cells around edge [a_node,p2] and put them into neighbour_cells
+  // compute number of cells around edge [a_node,p2] and put them into neighbour_cells
   QVector <vtkIdType> neighbour_cells;
   int numNei = getEdgeCells(a_node1, a_node2, neighbour_cells) - 1;
 
-  //set default value
+  // set default value
   char edge = VTK_SIMPLE_VERTEX;
 
-  if ( numNei == 0 ) {
+  if (numNei == 0) {
     edge = VTK_BOUNDARY_EDGE_VERTEX;
-  }
-  else if ( numNei >= 2 ) {
-    //qWarning() << "FATAL ERROR: edge belongs to more than 2 cells! This is not supported yet.";
-    //EG_BUG;
-    //edge = VTK_FEATURE_EDGE_VERTEX;
+  } else if (numNei >= 2) {
     edge = VTK_BOUNDARY_EDGE_VERTEX;
-  }
-  else if ( numNei == 1 ) {
-    //check angle between cell1 and cell2 against FeatureAngle
-    if (CosAngle(m_Grid, neighbour_cells[0], neighbour_cells[1] ) <= CosFeatureAngle && !feature_edges_disabled) {
+  } else if (numNei == 1) {
+
+    // check angle between cell1 and cell2 against FeatureAngle
+    if (cosAngle(m_Grid, neighbour_cells[0], neighbour_cells[1] ) <= cos_feature_angle && !feature_edges_disabled) {
       edge = VTK_FEATURE_EDGE_VERTEX;
     }
-    //check the boundary codes
+
+    // check the boundary codes
     EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
     int cell_code_0 = cell_code->GetValue( neighbour_cells[0] );
     int cell_code_1 = cell_code->GetValue( neighbour_cells[1] );
-    if ( cell_code_0 !=  cell_code_1 ) {
+    if (cell_code_0 !=  cell_code_1) {
       edge = VTK_BOUNDARY_EDGE_VERTEX;
     }
-//     qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
-    if(m_BoundaryCodes.isEmpty()) {
-      //EG_ERR_RETURN("no boundary codes specified");
-    }
-    if(fix_unselected) {
-      if( !m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1) ) {
-        edge = VTK_FIXED_VERTEX;// does not make sense, but should make the points of the edge fixed
+
+    if (fix_unselected) {
+      if (!m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1)) {
+        // does not make sense, but should make the points of the edge fixed
+        edge = VTK_FIXED_VERTEX;
       }
     }
   }
 
-  return( edge );
+  return edge;
 }
 
 VertexMeshDensity SurfaceOperation::getVMD( vtkIdType id_node )
