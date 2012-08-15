@@ -29,7 +29,6 @@ CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString obje
 
 bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
 {
-  EG_BUG;
   v.normalise();
   double r_hit;
   vec3_t x_hit, n_hit;
@@ -39,6 +38,7 @@ bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t 
   }
   x_in = x_hit;
   n_in = n_hit;
+  x = x_in;
   do {
     x += 1e-10*v;
     hit_type = BrlCadInterface::shootRay(x, v, x_hit, n_hit, r_hit);
@@ -46,5 +46,7 @@ bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t 
       x_out = x_hit;
       n_out = n_hit;
     }
+    x = x_out;
   } while (hit_type != BrlCadInterface::Miss);
+  return true;
 }
