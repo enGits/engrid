@@ -34,7 +34,7 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
   getSet("surface meshing", "use normal correction for smoothing",  false, m_UseNormalCorrectionForSmoothing);
   getSet("surface meshing", "allow feature edge swapping",          false, m_AllowFeatureEdgeSwapping);
   getSet("surface meshing", "correct curvature",                    false, m_CorrectCurvature);
-  m_EdgeAngle = m_FeatureAngle;
+  //m_EdgeAngle = m_FeatureAngle;
 }
 
 void SurfaceMesher::operate()
@@ -72,6 +72,7 @@ void SurfaceMesher::operate()
     num_deleted = deleteNodes();
     cout << "  deleted nodes : " << num_deleted << endl;
     //computeMeshDensity(); // !!
+    updateNodeInfo(true);
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1, m_CorrectCurvature);
       swap();
@@ -94,7 +95,7 @@ void SurfaceMesher::operate()
     cout << "  fluctuation ratio : " << fluctuation_ratio << "%" << endl;
   }
   createIndices(m_Grid);
-  updateNodeInfo(false);
+  updateNodeInfo(true);
   //computeMeshDensity(); //!!
   {
     QVector<int> bcs;
