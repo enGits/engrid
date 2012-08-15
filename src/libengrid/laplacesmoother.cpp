@@ -137,34 +137,46 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
 {
   if (m_FeatureMagic > 0) {
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-    int num_faces = m_Part.n2cGSize(id_node);
-    QVector<vec3_t> normals(num_faces);
-    for (int i = 0; i < num_faces; ++i) {
-      vtkIdType id_face = m_Part.n2cGG(id_node, i);
-      normals[i] = cellNormal(m_Grid, id_face);
-      normals[i].normalise();
-    }
-    double minimal_product = 1.0;
-    for (int i = 0; i < num_faces - 1; ++i) {
-      for (int j = i; j < num_faces; ++j) {
-        minimal_product = min(normals[i]*normals[j], minimal_product);
-      }
-    }
-    if (minimal_product < 0.9) {
+    EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+    if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
+
+      // "magic" vector to displace node for re-projection
+      vec3_t magic_vector = m_NodeNormal[id_node];
+
       vec3_t x0 = x_new;
       vec3_t x1 = proj->project(x_new, id_node, m_CorrectCurvature);
       vec3_t n = proj->lastProjNormal();
-      double L1 = 0;
-      double L2 = 5*cl->GetValue(id_node);
-      for (int i = 0; i < 20; ++i) {
-        x_new = x1 - 0.5*(L1 + L2)*m_NodeNormal[id_node];
-        x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
-        double scal = (x_new - x1)*n;
-        if (fabs((x_new - x1)*n) > 1e-2*cl->GetValue(id_node)) {
-          L2 = 0.5*(L1 + L2);
-        } else {
-          L1 = 0.5*(L1 + L2);
+
+      // check if mesh normal and projection normal are aligned
+      // .. try to displace node slightly in order to get a proper projection normal
+      //
+      if (fabs(n*magic_vector) > 0.99) {
+        x_new += 0.1*cl->GetValue(id_node)*magic_vector;
+        x1 = proj->project(x_new, id_node, m_CorrectCurvature);
+        n = proj->lastProjNormal();
+      }
+
+      // If they are still aligned it is an awkward situation.
+      // .. The node might be in a corner already
+      // .. skip iteration in this case
+      //
+      if (fabs(n*magic_vector) <= 0.99) {
+        double L1 = 0;
+        double L2 = 5*cl->GetValue(id_node);
+        for (int i = 0; i < 20; ++i) {
+          x_new = x1 - 0.5*(L1 + L2)*magic_vector;
+          x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
+          double displacement = fabs((x_new - x1)*n);
+          if (displacement > m_FeatureMagic*cl->GetValue(id_node)) {
+            L2 = 0.5*(L1 + L2);
+          } else {
+            L1 = 0.5*(L1 + L2);
+          }
         }
+        x_new = x1 - L1*magic_vector;
+        x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
+      } else {
+        x_new = x0;
       }
     }
   }
@@ -275,6 +287,7 @@ void LaplaceSmoother::operate()
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (!m_Fixed[id_node] && !blocked[i_nodes]) {
+        int nt = node_type->GetValue(id_node);
         if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
@@ -306,10 +319,12 @@ void LaplaceSmoother::operate()
               vec3_t Dx = x_new[i_nodes] - x_old;
               Dx *= m_UnderRelaxation;
               /*
-              if (m_FeatureMagic > 1e-3) {
-                double scal = Dx*m_NodeNormal[id_node];
-                Dx -= scal*m_NodeNormal[id_node];
-                Dx -= m_FeatureMagic*L_min*m_NodeNormal[id_node];
+              if (m_FeatureMagic > 1e-6) {
+                if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
+                  double scal = Dx*m_NodeNormal[id_node];
+                  Dx -= scal*m_NodeNormal[id_node];
+                  Dx -= m_FeatureMagic*cl->GetValue(id_node)*m_NodeNormal[id_node];
+                }
               }
               */
               if (moveNode(id_node, Dx)) {
