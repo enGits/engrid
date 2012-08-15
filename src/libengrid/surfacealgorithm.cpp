@@ -149,21 +149,18 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
   setAllCells();
   l2g_t nodes = getPartNodes();
   foreach (vtkIdType id_node, nodes) {
-    if(update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
+    if (update_type) {
+      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
       node_type->SetValue(id_node, getNodeType(id_node, true));
     }
-    //EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");//what we have
-    //node_meshdensity_current->SetValue(id_node, currentVertexAvgDist(id_node));
 
-    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");//density index from table
+    //density index from table
+    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
+
     VertexMeshDensity nodeVMD = getVMD(id_node);
-//     int idx = m_VMDvector.indexOf(nodeVMD);
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
-//     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
-//   writeGrid(m_Grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
