@@ -53,6 +53,8 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   }
 
   vec3_t x_proj = x;
+  m_LastNormal = n;
+  m_LastRadius = 1e10;
 
   vec3_t x_hit, n_hit;
   double r_hit;
@@ -70,27 +72,6 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
     x_proj = x_hit;
     m_LastNormal = n_hit;
     m_LastRadius = r_hit;
-
-    /*
-    // iterate into corners
-    int iteration_count = 0;
-    double L_max = (x - x_proj).abs();
-    n = n_hit;
-    vec3_t x0 = x;
-    do {
-      if (shootRay(x0, n, x_hit, n_hit, r_hit) != BrlCadInterface::Miss) {
-        double L = (x_hit - x).abs();
-        if (L < L_max) {
-          x_proj = x_hit;
-          m_LastNormal = n_hit;
-          m_LastRadius = r_hit;
-          break;
-        }
-      }
-      x0 = 0.5*(x0 + x_proj);
-      ++iteration_count;
-    } while (iteration_count < 10);
-    */
   }
 
   return x_proj;
