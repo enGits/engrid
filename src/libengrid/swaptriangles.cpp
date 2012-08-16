@@ -26,6 +26,7 @@
 #include <vtkCellArray.h>
 
 #include "checksurfaceintegrity.h"
+#include "statistics.h"
 
 using namespace GeometryTools;
 
@@ -39,7 +40,8 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_SmallAreaRatio = 1e-3;
   m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
-  getSet("surface meshing", "threshold for surface errors", 10.0, m_SurfErrorThreshold);
+  getSet("surface meshing", "threshold for surface errors", 0.05, m_SurfErrorThreshold);
+  getSet("surface meshing", "minimal ratio for surface errors", 20.0, m_SurfErrorRatio);
 }
 
 bool SwapTriangles::testOrientation(stencil_t S)
@@ -108,13 +110,9 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
 
 void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2)
 {
-  static int counter = 0;
   using namespace GeometryTools;
   err1 = 0;
   err2 = 0;
-  if (m_SurfErrorThreshold <= 0) {
-    return;
-  }
   SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
   if (!proj) {
     return;
@@ -129,23 +127,15 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
   vec3_t xe1_proj = proj->project(xe1, -1, true, n);
   vec3_t xe2_proj = proj->project(xe2, -1, true, n);
 
-  double L = 0;
-  L = max(L, (x[0] - x[1]).abs());
-  L = max(L, (x[0] - x[2]).abs());
-  L = max(L, (x[0] - x[3]).abs());
-  L = max(L, (x[1] - x[2]).abs());
-  L = max(L, (x[1] - x[3]).abs());
-  L = max(L, (x[2] - x[3]).abs());
-
-  err1 = (xe1 - xe1_proj).abs()/L;
-  err2 = (xe2 - xe2_proj).abs()/L;
-  ++counter;
+  err1 = (xe1 - xe1_proj).abs()/(x[1] - x[3]).abs();
+  err2 = (xe2 - xe2_proj).abs()/(x[0] - x[2]).abs();
 }
 
 int SwapTriangles::swap()
 {
   int N_swaps = 0;
   setAllSurfaceCells();
+  computeAverageSurfaceError();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
@@ -155,11 +145,6 @@ int SwapTriangles::swap()
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
           stencil_t S = getStencil(id_cell, j);
-          if (S.id_cell.size() == 2) {
-            if ((S.id_cell[1] == 2171 && S.id_cell[0] == 2110) || (S.id_cell[0] == 2171 && S.id_cell[1] == 2110)) {
-              cout << "break" << endl;
-            }
-          }
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
@@ -190,12 +175,12 @@ int SwapTriangles::swap()
                     // surface errors
                     double se1, se2;
                     bool surf_block = false;
-                    if (m_SurfErrorThreshold > 0) {
+                    if (m_SurfErrorThreshold > 0 && m_AverageSurfaceError < 0.1) {
                       computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                      if (se2 > se1 && se2 > m_SurfErrorThreshold) {
+                      if (se2 > se1 && se2 > m_SurfErrorThreshold && se2/se1 > m_SurfErrorRatio) {
                         surf_block = true;
                       } else {
-                        if (se2 < se1 && se1 > m_SurfErrorThreshold) {
+                        if (se2 < se1 && se1 > m_SurfErrorThreshold && se1/se2 > m_SurfErrorRatio) {
                           swap = true;
                         }
                       }
@@ -291,6 +276,45 @@ int SwapTriangles::swap()
     } //end of if selected triangle
   } //end of loop through cells
   return N_swaps;
+}
+
+void SwapTriangles::computeAverageSurfaceError()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QList<double> errors;
+  EG_FORALL_NODES(id_node1, m_Grid) {
+    vec3_t n1 = m_Part.globalNormal(id_node1);
+    vec3_t x1;
+    m_Grid->GetPoint(id_node1, x1.data());
+    for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+      vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+      if (id_node1 < id_node2) {
+        QVector<vtkIdType> faces;
+        getEdgeCells(id_node1, id_node2, faces);
+        if (faces.size() == 2) {
+          int bc1 = cell_code->GetValue(faces[0]);
+          int bc2 = cell_code->GetValue(faces[1]);
+          if (bc1 == bc2) {
+            SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc1);
+            if (proj) {
+              vec3_t n2 = m_Part.globalNormal(id_node2);
+              vec3_t n = 0.5*(n1 + n2);
+              vec3_t x2;
+              m_Grid->GetPoint(id_node2, x2.data());
+              vec3_t x = 0.5*(x1 + x2);
+              vec3_t xp = proj->project(x, -1, true, n);
+              double err = (x - xp).abs()/(x1 - x2).abs();
+              errors.append(err);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  m_AverageSurfaceError = Statistics::meanValue(errors);
+  m_SurfaceErrorDeviation = Statistics::standardDeviation(errors, m_AverageSurfaceError);
+  cout << "mean: " << m_AverageSurfaceError << "  sigma: " << m_SurfaceErrorDeviation << endl;
 }
 
 void SwapTriangles::operate()

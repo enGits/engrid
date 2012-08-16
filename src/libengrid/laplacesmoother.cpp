@@ -219,7 +219,8 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     }
 
     // compute the minimal length of any edge adjacent to this node
-    // .. This will be used to limit the node movement to avoid jammed topologies
+    // .. This will be used to limit the node movement.
+    // .. Hopefully jammed topologies can be avoided this way.
     //
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
     vec3_t x_old;
@@ -234,9 +235,10 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 
     // limit node displacement
     vec3_t dx = x_new - x_old;
-    if (dx.abs() > 0.1*L_min) {
-      dx *= m_Limit*L_min/dx.abs();
-      x_new = x_old + dx;
+    if (dx.abs() > m_Limit*L_min) {
+      x_new -= dx;
+      dx.normalise();
+      x_new += m_Limit*L_min*dx;
     }
 
     if (setNewPosition(id_node, x_new)) {

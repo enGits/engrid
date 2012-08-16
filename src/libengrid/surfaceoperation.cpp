@@ -328,7 +328,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       l1 = x2 - x1;
       l2 = x3 - x2;
       if (l1.abs() >= 0.0 && l2.abs() >= 0.0 && l1*l2 < cos_edge_angle) {
-        type = VTK_FIXED_VERTEX;
+        //type = VTK_FIXED_VERTEX;
       }
     } // if along edge
   } // if edge vertex

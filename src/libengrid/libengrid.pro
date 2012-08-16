@@ -188,7 +188,8 @@ HEADERS = boundarycondition.h \
     guibrlcadimportdialogue.h \
     createcadtesselation.h \
     createbrlcadtesselation.h \
-    brlcadinterface.h
+    brlcadinterface.h \
+    statistics.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
