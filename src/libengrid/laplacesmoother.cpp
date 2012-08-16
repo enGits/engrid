@@ -36,6 +36,8 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
+  getSet("surface meshing", "smoothing limiter", 1.0, m_Limit);
+  m_Limit = min(1.0, max(0.0, m_Limit));
   m_NoCheck = false;
   m_ProjectionIterations = 50;
   m_AllowedCellTypes.clear();
@@ -215,6 +217,28 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 
       }
     }
+
+    // compute the minimal length of any edge adjacent to this node
+    // .. This will be used to limit the node movement to avoid jammed topologies
+    //
+    EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+    vec3_t x_old;
+    m_Grid->GetPoint(id_node, x_old.data());
+    double L_min = cl->GetValue(id_node);
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+      vec3_t x_neigh;
+      m_Grid->GetPoint(id_neigh, x_neigh.data());
+      L_min = min(L_min, (x_old - x_neigh).abs());
+    }
+
+    // limit node displacement
+    vec3_t dx = x_new - x_old;
+    if (dx.abs() > 0.1*L_min) {
+      dx *= m_Limit*L_min/dx.abs();
+      x_new = x_old + dx;
+    }
+
     if (setNewPosition(id_node, x_new)) {
       moved = true;
       Dx = x_new - x_old;

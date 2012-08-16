@@ -39,6 +39,7 @@ private:
   bool      m_Success;
   int       m_ProjectionIterations;
   double    m_FeatureMagic;
+  double    m_Limit;
 
   QVector<QVector<int> > m_NodeToBc;
 
