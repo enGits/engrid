@@ -36,6 +36,7 @@ CreateCadTesselation::CreateCadTesselation()
   m_NumIterations = 0;
   m_PreservationType = 0;
   m_SmallestFeatureSize = 1e99;
+  m_SmallestResolution = 0;
 }
 
 void CreateCadTesselation::scan(bool create_grid, int interlaces)
@@ -328,7 +329,7 @@ void CreateCadTesselation::operate()
   double Ly = m_X2[1] - m_X1[1];
   double Lz = m_X2[2] - m_X1[2];
   double max_size = m_ScanMemory/sizeof(float);
-  double delta = pow(Lx*Ly*Lz/max_size, 1.0/3.0);
+  double delta = max(m_SmallestResolution, pow(Lx*Ly*Lz/max_size, 1.0/3.0));
   int interlaces = 0;
   if (preserveFluid() || preserveSolid()) {
     interlaces = int(2*delta/m_SmallestFeatureSize);

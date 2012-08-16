@@ -295,6 +295,7 @@ void BrlcadReader::operate()
           brlcad_tess.setPreservationType(dlg.preservationType());
           brlcad_tess.setSmoothingIterations(dlg.smoothingIterations());
           brlcad_tess.setSmallestFeatureSize(dlg.smallestFeatureSize());
+          brlcad_tess.setSmallestResolution(dlg.smallestResolution());
           brlcad_tess();
         }
         BrlCadProjection *brl_proj = new BrlCadProjection(getFileName(), dlg.selectedObject());

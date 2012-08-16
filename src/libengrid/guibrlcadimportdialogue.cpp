@@ -103,6 +103,11 @@ double GuiBrlCadImportDialogue::smallestFeatureSize()
   return ui->lineEditSmallestFeature->text().toDouble();
 }
 
+double GuiBrlCadImportDialogue::smallestResolution()
+{
+  return ui->lineEditMinResolution->text().toDouble();
+}
+
 bool GuiBrlCadImportDialogue::useStlFile()
 {
   return ui->checkBoxSTL->isChecked();
