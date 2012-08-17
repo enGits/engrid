@@ -55,14 +55,22 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   bool move = true;
   if(m_NoCheck) return move;
   
-  vec3_t n(0,0,0);
+  // compute the extrusion vector to compute the tetrahedrons for volume checking
+  // start with an average of all adjacent cell normals and count the number of
+  // adjacent boundary codes (for one boundary code an alternative vector can be
+  // computed with the help of a SurfaceProjection
+  //
+  vec3_t n(0,0,0);  
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
-  double A_max = 0;//area of the biggest neighbour cell of id_node
+  QSet<int> bcs;
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  double A_max = 0; //area of the biggest neighbour cell of id_node
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     A_max = max(A, A_max);
     cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
     cell_normals[i].normalise();
+    bcs.insert(cell_code->GetValue(m_Part.n2cGG(id_node, i)));
   }
   int N = 0;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -70,6 +78,14 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     if (A > 0.01*A_max) {
       n += cell_normals[i];
       ++N;
+    }
+  }
+  SurfaceProjection* proj = NULL;
+  if (bcs.size() == 1) {
+    proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin());
+    if (proj) {
+      proj->project(x_new, id_node, false, n);
+      n = proj->lastProjNormal();
     }
   }
   if (N == 0) {
@@ -313,7 +329,6 @@ void LaplaceSmoother::operate()
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (!m_Fixed[id_node] && !blocked[i_nodes]) {
-        int nt = node_type->GetValue(id_node);
         if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
