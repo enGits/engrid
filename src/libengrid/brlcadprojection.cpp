@@ -27,6 +27,7 @@ BrlCadProjection::BrlCadProjection(QString file_name, QString object_name)
 {
   setupBrlCad(file_name, object_name);
   m_ForceRay = false;
+  m_Failed = false;
 }
 
 BrlCadProjection::~BrlCadProjection()
@@ -36,6 +37,11 @@ BrlCadProjection::~BrlCadProjection()
 
 vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
 {  
+  EG_VTKDCN(vtkDoubleArray, cl, m_FGrid, "node_meshdensity_desired");
+  m_Failed = true;
+  if (id_node != -1) {
+    setEpsilon(0.1*cl->GetValue(id_node));
+  }
   vec3_t n = v;
   if (n.abs() < 1e-3) {
     if (id_node == -1) {
@@ -59,21 +65,35 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   vec3_t x_hit, n_hit;
   double r_hit;
 
-  PositionType pos_type = position(x, n);
+  PositionType pos_type = position(x - 0.001*n, n);
   if (pos_type == Surface && !m_ForceRay) {
     //return x;
+    if (id_node != -1) {
+      x -= 0.01*cl->GetValue(id_node)*n;
+    }
   }
   if (pos_type == Outside) {
     n *= -1;
   }
 
   // first shot along the provided (or computed) mesh normal
-  if (shootRay(x, n, x_hit, n_hit, r_hit) != BrlCadInterface::Miss) {
+  HitType hit_type = shootRay(x - 0.01*n, n, x_hit, n_hit, r_hit);
+  if (hit_type != BrlCadInterface::Miss) {
     x_proj = x_hit;
     m_LastNormal = n_hit;
     m_LastRadius = r_hit;
+    m_Failed = false;
   }
 
+  /*
+  if (x_proj.abs() > 0.99) {
+    if (fabs(x_proj.abs() - 1) > 1e-4) {
+      cout << x_proj.abs() << " " << x.abs() << " " << pos_type << "," << hit_type << endl;
+    }
+  }
+  */
+
+  setEpsilon(0);
   return x_proj;
 }
 

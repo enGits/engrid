@@ -33,7 +33,7 @@ double BrlCadInterface::m_OutRadius;
 
 BrlCadInterface::BrlCadInterface()
 {
-  m_Epsilon = 1e-10;
+  m_Epsilon = 0;
 }
 
 void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
@@ -45,13 +45,11 @@ void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
   if (rt_gettree(m_Rtip, qPrintable(object_name)) < 0) {
     EG_ERR_RETURN("unable to access selected object");
   }
-
+  rt_prep_parallel(m_Rtip, 1);
   application ap = {0};
   m_Ap = ap;
   m_Ap.a_rt_i   = m_Rtip;
-  m_Ap.a_onehit = 1; // X-ray functionality
-
-  rt_prep_parallel(m_Rtip, 1);
+  m_Ap.a_onehit = 1;
 }
 
 int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs)
@@ -65,7 +63,9 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
   vect_t		onormal;
   double curv;
   int N = 0;
-  for (pp=PartHeadp->pt_forw; pp != PartHeadp; pp = pp->pt_forw) {
+  //for (pp=PartHeadp->pt_forw; pp != PartHeadp; pp = pp->pt_forw) {
+  pp = PartHeadp->pt_forw;
+  {
     ++N;
 
     hitp = pp->pt_inhit;
@@ -99,6 +99,7 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
     m_OutNormal[0] = onormal[0];
     m_OutNormal[1] = onormal[1];
     m_OutNormal[2] = onormal[2];
+
   }
   m_Hit = true;
 }
@@ -116,6 +117,7 @@ bool BrlCadInterface::shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_ou
   if (!checkVector(v)) {
     EG_BUG;
   }
+
   VSET(m_Ap.a_ray.r_pt,  x[0], x[1], x[2]);
   VSET(m_Ap.a_ray.r_dir, v[0], v[1], v[2]);
   m_Hit = false;

@@ -45,6 +45,7 @@ public: // methods
   virtual vec3_t lastProjNormal() = 0;
   virtual vec3_t correctCurvature(vtkIdType, vec3_t x) { return x; }
   virtual vtkIdType lastProjTriangle() { return -1; }
+  virtual bool lastProjFailed() = 0;
 
 };
 

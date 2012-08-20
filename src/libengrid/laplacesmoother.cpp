@@ -205,6 +205,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   if (!checkVector(Dx)) {
     return false;
   }
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
@@ -214,7 +215,9 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1) {
         int bc = m_NodeToBc[i_nodes][0];
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
         featureCorrection(id_node, GuiMainWindow::pointer()->getSurfProj(bc), x_new);
+        //x_new += m_FeatureMagic*cl->GetValue(id_node)*m_Part.globalNormal(id_node);
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {

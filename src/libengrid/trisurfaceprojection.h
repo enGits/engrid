@@ -94,6 +94,7 @@ public: // methods
   virtual vec3_t    correctCurvature(vtkIdType proj_triangle, vec3_t x);
   virtual vec3_t    lastProjNormal() { return GeometryTools::cellNormal(m_BGrid, m_LastProjTriangle); }
   virtual vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
+  virtual bool      lastProjFailed() { return false; }
 
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }

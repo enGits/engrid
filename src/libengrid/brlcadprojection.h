@@ -35,6 +35,7 @@ class BrlCadProjection : public SurfaceProjection, public BrlCadInterface
   vec3_t m_LastNormal;
   double m_LastRadius;
   bool   m_ForceRay;
+  bool   m_Failed;
 
 public:
 
@@ -44,6 +45,7 @@ public:
   virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0));
   virtual double getRadius(vtkIdType id_node);
   virtual vec3_t lastProjNormal() { return m_LastNormal; }
+  virtual bool   lastProjFailed() { return m_Failed; }
 
 };
 

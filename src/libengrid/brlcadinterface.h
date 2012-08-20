@@ -69,6 +69,7 @@ protected: // methods
   HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
   void setupBrlCad(QString file_name, QString object_name);
   PositionType position(vec3_t x, vec3_t n);
+  void setEpsilon(double eps) { m_Epsilon = eps; }
 
 
 public:
