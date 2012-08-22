@@ -48,6 +48,8 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_GrowthFactor = 1.5;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
+  setDeleteNodesOn();
+  setInsertNodesOn();
 }
 
 void SurfaceAlgorithm::readVMD()
@@ -204,31 +206,37 @@ void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
 
 int SurfaceAlgorithm::insertNodes()
 {
-  InsertPoints insert_points;
-  insert_points.setGrid(m_Grid);
-  insert_points.setBoundaryCodes(m_BoundaryCodes);
-  insert_points();
-  return insert_points.getNumInserted();
+  if (m_InsertNodes) {
+    InsertPoints insert_points;
+    insert_points.setGrid(m_Grid);
+    insert_points.setBoundaryCodes(m_BoundaryCodes);
+    insert_points();
+    return insert_points.getNumInserted();
+  }
+  return 0;
 }
 
 int SurfaceAlgorithm::deleteNodes()
 {
-  RemovePoints remove_points;
-  remove_points.setGrid(m_Grid);
-  remove_points.setBoundaryCodes(m_BoundaryCodes);
-  remove_points.setStretchingFactor(m_StretchingFactor);
-  remove_points.setFeatureAngle(m_FeatureAngle);
-  if (m_RespectFeatureEdgesForDeleteNodes) {
-    remove_points.setProtectFeatureEdgesOn();
-  } else {
-    remove_points.setProtectFeatureEdgesOff();
+  if (m_DeleteNodes) {
+    RemovePoints remove_points;
+    remove_points.setGrid(m_Grid);
+    remove_points.setBoundaryCodes(m_BoundaryCodes);
+    remove_points.setStretchingFactor(m_StretchingFactor);
+    remove_points.setFeatureAngle(m_FeatureAngle);
+    if (m_RespectFeatureEdgesForDeleteNodes) {
+      remove_points.setProtectFeatureEdgesOn();
+    } else {
+      remove_points.setProtectFeatureEdgesOff();
+    }
+    //remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
+    if (m_PerformGeometricTests) {
+      remove_points.setPerformGeometricChecksOn();
+    } else {
+      remove_points.setPerformGeometricChecksOff();
+    }
+    remove_points();
+    return remove_points.getNumRemoved();
   }
-  //remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
-  if (m_PerformGeometricTests) {
-    remove_points.setPerformGeometricChecksOn();
-  } else {
-    remove_points.setPerformGeometricChecksOff();
-  }
-  remove_points();
-  return remove_points.getNumRemoved();
+  return 0;
 }

@@ -36,5 +36,7 @@ void GuiSurfaceMesher::operate()
   setNumDelaunaySweeps(m_Ui.m_SpinBoxDelaunaySweeps->value());
   setNumSmoothSteps(m_Ui.m_SpinBoxSmoothSteps->value());
   setCorrectCurvature(m_Ui.m_CheckBoxSmooth->isChecked());
+  setDeleteNodes(m_Ui.m_CheckBoxDelete->isChecked());
+  setInsertNodes(m_Ui.m_CheckBoxInsert->isChecked());
   SurfaceMesher::operate();
 }

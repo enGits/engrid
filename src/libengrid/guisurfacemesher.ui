@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>153</height>
+    <width>329</width>
+    <height>195</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="5" column="1">
       <widget class="QCheckBox" name="m_CheckBoxSmooth">
        <property name="text">
         <string/>
@@ -71,10 +71,44 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>correct curvature (smooth surfaces)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="m_CheckBoxInsert">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>insert nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>delete nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="m_CheckBoxDelete">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -105,6 +139,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>m_SpinBoxIterations</tabstop>
+  <tabstop>m_SpinBoxSmoothSteps</tabstop>
+  <tabstop>m_SpinBoxDelaunaySweeps</tabstop>
+  <tabstop>m_CheckBoxInsert</tabstop>
+  <tabstop>m_CheckBoxDelete</tabstop>
+  <tabstop>m_CheckBoxSmooth</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
