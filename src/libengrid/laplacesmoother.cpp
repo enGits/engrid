@@ -24,7 +24,9 @@
 #include <vtkCellLocator.h>
 #include <vtkCharArray.h>
 #include <vtkGenericCell.h>
+
 #include "guimainwindow.h"
+#include "globalnodegraphinterface.h"
 
 using namespace GeometryTools;
 
@@ -80,6 +82,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       ++N;
     }
   }
+  /*
   SurfaceProjection* proj = NULL;
   if (bcs.size() == 1) {
     proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin());
@@ -88,6 +91,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       n = proj->lastProjNormal();
     }
   }
+  */
   if (N == 0) {
     //EG_BUG;
     move = false;
@@ -129,6 +133,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       }
     }
   }
+  /*
   if (move) {
     for (int i = 0; i < cell_normals.size(); ++i) {
       for (int j = 0; j < cell_normals.size(); ++j) {
@@ -144,7 +149,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       }
     }
   }
-
+  */
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
@@ -217,8 +222,6 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
         int bc = m_NodeToBc[i_nodes][0];
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
         featureCorrection(id_node, GuiMainWindow::pointer()->getSurfProj(bc), x_new);
-        //x_new += m_FeatureMagic*cl->GetValue(id_node)*m_Part.globalNormal(id_node);
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
@@ -261,6 +264,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     }
 
     if (setNewPosition(id_node, x_new)) {
+      //if (m_NodeMovementCheck.moveNode(id_node, x_new)) {
       moved = true;
       Dx = x_new - x_old;
       break;
@@ -362,15 +366,6 @@ void LaplaceSmoother::operate()
               }
               vec3_t Dx = x_new[i_nodes] - x_old;
               Dx *= m_UnderRelaxation;
-              /*
-              if (m_FeatureMagic > 1e-6) {
-                if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
-                  double scal = Dx*m_NodeNormal[id_node];
-                  Dx -= scal*m_NodeNormal[id_node];
-                  Dx -= m_FeatureMagic*cl->GetValue(id_node)*m_NodeNormal[id_node];
-                }
-              }
-              */
               if (moveNode(id_node, Dx)) {
                 x_new[i_nodes] = x_old + Dx;
               } else {
@@ -381,9 +376,7 @@ void LaplaceSmoother::operate()
           }
         }
       }
-      //m_Timer << "    " << i_nodes+1 << " of " << nodes.size() << " nodes done." << Timer::endl;
     }
-    //cout << "    " << nodes.size() << " of " << nodes.size() << " nodes done." << endl;
     if (m_Success) {
       break;
     }

@@ -25,6 +25,7 @@
 
 #include "surfaceoperation.h"
 #include "surfaceprojection.h"
+#include "surfacenodemovementcheck.h"
 
 class LaplaceSmoother : public SurfaceOperation
 {
@@ -48,6 +49,7 @@ private:
 
   QSet<vtkIdType> m_AllowedCellTypes;
   QVector<bool> m_Fixed;
+
   
 private: // methods
 

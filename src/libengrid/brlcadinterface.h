@@ -53,12 +53,10 @@ private: // attributes
   static double m_OutRadius;
   static bool   m_Hit;
 
-  double m_Epsilon;
-
 
 private: // methods
 
-  bool shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out);
+  bool brlCadShootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out);
 
 
 protected: // methods
@@ -69,7 +67,6 @@ protected: // methods
   HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
   void setupBrlCad(QString file_name, QString object_name);
   PositionType position(vec3_t x, vec3_t n);
-  void setEpsilon(double eps) { m_Epsilon = eps; }
 
 
 public:

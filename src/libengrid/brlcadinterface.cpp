@@ -33,7 +33,6 @@ double BrlCadInterface::m_OutRadius;
 
 BrlCadInterface::BrlCadInterface()
 {
-  m_Epsilon = 0;
 }
 
 void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
@@ -109,7 +108,7 @@ int BrlCadInterface::miss(application *ap)
   m_Hit = false;
 }
 
-bool BrlCadInterface::shootOneRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out)
+bool BrlCadInterface::brlCadShootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out)
 {
   if (!checkVector(x)) {
     EG_BUG;
@@ -152,11 +151,11 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
   v.normalise();
   vec3_t x_in, x_out, n_in, n_out;
   double r_in, r_out;
-  if (shootOneRay(x, v, x_in, x_out, n_in, n_out, r_in, r_out)) {
+  if (brlCadShootRay(x, v, x_in, x_out, n_in, n_out, r_in, r_out)) {
     double d_in = (x_in - x)*v;
     if (d_in > 0) {
       x_hit = x_in;
-      n_hit = n_in;
+      n_hit = (-1)*n_in;
       r = r_in;
       hit_type = HitIn;
     }
@@ -164,7 +163,7 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
     if (d_out > 0) {
       if (hit_type == Miss || d_out < d_in) {
         x_hit = x_out;
-        n_hit = n_out;
+        n_hit = (-1)*n_out;
         hit_type = HitOut;
         r = r_out;
       }
