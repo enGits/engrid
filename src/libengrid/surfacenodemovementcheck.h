@@ -30,10 +30,10 @@
 class SurfaceNodeMovementCheck : public EgVtkObject
 {
 
-  vtkUnstructuredGrid* m_SurfaceGrid;
-  vtkUnstructuredGrid* m_VolumeGrid;
-  MeshPartition        m_SurfacePart;
-  MeshPartition        m_VolumePart;
+  vtkUnstructuredGrid*     m_SurfaceGrid;
+  vtkUnstructuredGrid*     m_VolumeGrid;
+  MeshPartition            m_SurfacePart;
+  MeshPartition            m_VolumePart;
 
 
 public:
@@ -41,8 +41,10 @@ public:
   SurfaceNodeMovementCheck();
 
   void setSurfaceGrid(vtkUnstructuredGrid* surface_grid);
-  void update();
   ~SurfaceNodeMovementCheck();
+
+  void update();
+  bool moveNode(vtkIdType id_node, vec3_t x_new);
 
 };
 
