@@ -190,7 +190,9 @@ HEADERS = boundarycondition.h \
     createbrlcadtesselation.h \
     brlcadinterface.h \
     statistics.h \
-    surfacenodemovementcheck.h
+    surfacenodemovementcheck.h \
+    globalnodegraphinterface.h \
+    checkerboardgraphiterator.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
