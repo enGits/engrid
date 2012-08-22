@@ -189,7 +189,8 @@ HEADERS = boundarycondition.h \
     createcadtesselation.h \
     createbrlcadtesselation.h \
     brlcadinterface.h \
-    statistics.h
+    statistics.h \
+    surfacenodemovementcheck.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -304,7 +305,8 @@ SOURCES = boundarycondition.cpp \
     guibrlcadimportdialogue.cpp \
     createcadtesselation.cpp \
     createbrlcadtesselation.cpp \
-    brlcadinterface.cpp
+    brlcadinterface.cpp \
+    surfacenodemovementcheck.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
