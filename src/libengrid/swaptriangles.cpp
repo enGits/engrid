@@ -40,8 +40,8 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_SmallAreaRatio = 1e-3;
   m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
-  getSet("surface meshing", "threshold for surface errors", 0.05, m_SurfErrorThreshold);
-  getSet("surface meshing", "minimal ratio for surface errors", 20.0, m_SurfErrorRatio);
+  getSet("surface meshing", "surface error threshold (lower)", 0.05, m_SurfErrorLowerThreshold);
+  getSet("surface meshing", "surface error threshold (higher)", 0.25, m_SurfErrorHigherThreshold);
 }
 
 bool SwapTriangles::testOrientation(stencil_t S)
@@ -135,7 +135,7 @@ int SwapTriangles::swap()
 {
   int N_swaps = 0;
   setAllSurfaceCells();
-  computeAverageSurfaceError();
+  //computeAverageSurfaceError();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
@@ -175,14 +175,12 @@ int SwapTriangles::swap()
                     // surface errors
                     double se1, se2;
                     bool surf_block = false;
-                    if (m_SurfErrorThreshold > 0 && m_AverageSurfaceError < 0.1) {
-                      computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                      if (se2 > se1 && se2 > m_SurfErrorThreshold && se2/se1 > m_SurfErrorRatio) {
-                        surf_block = true;
-                      } else {
-                        if (se2 < se1 && se1 > m_SurfErrorThreshold && se1/se2 > m_SurfErrorRatio) {
-                          swap = true;
-                        }
+                    computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
+                    if (se2 > se1 && se2 > m_SurfErrorHigherThreshold && se1 < m_SurfErrorLowerThreshold) {
+                      surf_block = true;
+                    } else {
+                      if (se2 < se1 && se1 > m_SurfErrorHigherThreshold && se2 < m_SurfErrorLowerThreshold) {
+                        swap = true;
                       }
                     }
 

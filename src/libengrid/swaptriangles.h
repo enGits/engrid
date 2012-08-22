@@ -42,7 +42,8 @@ private: // attributes
   bool          m_Verbose;
   int           m_MaxNumLoops;
   double        m_SmallAreaRatio;
-  double        m_SurfErrorThreshold;
+  double        m_SurfErrorLowerThreshold;
+  double        m_SurfErrorHigherThreshold;
   double        m_SurfErrorRatio;
   double        m_AverageSurfaceError;
   double        m_SurfaceErrorDeviation;
