@@ -256,7 +256,7 @@ void UpdateDesiredMeshDensity::operate()
       int bc = cell_code->GetValue(id_cell);
       for (int i = 0; i < N_pts; ++i) {
         int i_nodes = m_Part.localNode(pts[i]);
-        R[i_nodes] = min(R[i_nodes], GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i]));
+        R[i_nodes] = min(R[i_nodes], fabs(GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i])));
       }
     }
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
