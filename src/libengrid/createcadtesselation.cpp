@@ -37,6 +37,7 @@ CreateCadTesselation::CreateCadTesselation()
   m_PreservationType = 0;
   m_SmallestFeatureSize = 1e99;
   m_SmallestResolution = 0;
+  m_TargetReduction = 0;
 }
 
 void CreateCadTesselation::scan(bool create_grid, int interlaces)
@@ -267,7 +268,7 @@ void CreateCadTesselation::scan(bool create_grid, int interlaces)
     tri->SetInput(contour->GetOutput());
     EG_VTKSP(vtkDecimatePro, decimate);
     decimate->PreserveTopologyOn();
-    decimate->SetTargetReduction(1.0);
+    decimate->SetTargetReduction(m_TargetReduction);
     decimate->SetFeatureAngle(GeometryTools::deg2rad(45));
     decimate->SetInput(tri->GetOutput());
     decimate->Update();

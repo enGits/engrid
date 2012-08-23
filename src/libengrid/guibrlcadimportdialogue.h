@@ -46,6 +46,7 @@ public:
   double  scanMemory();
   double  smallestFeatureSize();
   double  smallestResolution();
+  double  reduction();
   int     smoothingIterations();
   int     preservationType();
   QString stlFileName();

@@ -118,4 +118,7 @@ QString GuiBrlCadImportDialogue::stlFileName()
   return m_StlFileName;
 }
 
-
+double GuiBrlCadImportDialogue::reduction()
+{
+  return 0.01*double(ui->horizontalSliderReduction->value());
+}
