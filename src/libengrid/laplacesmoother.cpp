@@ -39,6 +39,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   getSet("surface meshing", "smoothing limiter", 1.0, m_Limit);
+  getSet("surface meshing", "use uniform smoothing", false, m_UniformSnapPoints);
   m_Limit = min(1.0, max(0.0, m_Limit));
   m_NoCheck = false;
   m_ProjectionIterations = 50;
@@ -161,8 +162,8 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
   if (m_FeatureMagic > 0) {
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
     EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
-
+    //if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
+    {
       // "magic" vector to displace node for re-projection
       vec3_t magic_vector = m_NodeNormal[id_node];
 
@@ -179,27 +180,42 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         n = proj->lastProjNormal();
       }
 
-      // If they are still aligned it is an awkward situation.
-      // .. The node might be in a corner already
-      // .. skip iteration in this case
-      //
       if (fabs(n*magic_vector) <= 0.99) {
+
+        // start the procedure if the vectors are not aligned
+        //
         double L1 = 0;
-        double L2 = 5*cl->GetValue(id_node);
-        for (int i = 0; i < 20; ++i) {
+        double L2 = m_FeatureMagic*cl->GetValue(id_node);
+        for (int i = 0; i < 30; ++i) {
           x_new = x1 - 0.5*(L1 + L2)*magic_vector;
           x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
           double displacement = fabs((x_new - x1)*n);
-          if (displacement > m_FeatureMagic*cl->GetValue(id_node)) {
+          if (displacement > 0.01*cl->GetValue(id_node)) {
             L2 = 0.5*(L1 + L2);
           } else {
+
+            // if there is no significant displacement after the first iteration
+            // the node is probably in a smooth region of the surface
+            // ==> stop here
+            //
+            if (i == 0) {
+              x_new = x0;
+              break;
+            }
+
             L1 = 0.5*(L1 + L2);
           }
         }
         x_new = x1 - L1*magic_vector;
         x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
       } else {
+
+        // If they are still aligned it is an awkward situation.
+        // .. The node might be in a corner already
+        // .. skip iteration in this case
+        //
         x_new = x0;
+
       }
     }
   }
@@ -218,7 +234,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);
-      if (m_NodeToBc[i_nodes].size() == 1) {
+      if (m_NodeToBc[i_nodes].size() == 1 || m_UniformSnapPoints) {
         int bc = m_NodeToBc[i_nodes][0];
         x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, id_node, m_CorrectCurvature);
         featureCorrection(id_node, GuiMainWindow::pointer()->getSurfProj(bc), x_new);

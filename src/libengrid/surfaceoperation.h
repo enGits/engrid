@@ -56,6 +56,7 @@ protected: // attributes
   double m_FeatureAngle;
   double m_EdgeAngle;
   int    m_BoundarySmoothing;
+  bool   m_UniformSnapPoints;
 
   QVector<vec3_t> m_NodeNormal; ///< node normal vectors
   double m_StretchingFactor;

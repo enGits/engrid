@@ -42,6 +42,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   setEdgeAngle(m_EdgeAngle);
   m_BoundarySmoothing = 1;
   m_StretchingFactor = 0;
+  m_UniformSnapPoints = false;
 }
 
 void SurfaceOperation::operate()
@@ -148,6 +149,16 @@ int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool fix
   l2g_t cells  = getPartCells();
 
   m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
+
+  if (m_UniformSnapPoints) {
+    m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
+    EG_FORALL_NODES(id_node, m_Grid) {
+      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+        m_PotentialSnapPoints[id_node].append(m_Part.n2nGG(id_node, i));
+      }
+    }
+    return 0;
+  }
 
   //initialize default values
   EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
