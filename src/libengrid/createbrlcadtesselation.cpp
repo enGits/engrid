@@ -46,7 +46,7 @@ bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t 
       x_out = x_hit;
       n_out = n_hit;
     }
-    x = x_out;
-  } while (hit_type != BrlCadInterface::Miss);
+    x = x_hit;
+  } while (hit_type == BrlCadInterface::HitIn);
   return true;
 }
