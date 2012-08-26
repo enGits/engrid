@@ -49,6 +49,13 @@
   File "${QTBINDIR}\..\plugins\sqldrivers\qsqlite4.dll"
   SetOutPath "$INSTDIR"
 
+;BRLCAD libs
+  File "${BRLCADBINDIR}\brlcad.dll"
+  File "${BRLCADBINDIR}\openNURBS.dll"
+;BRLCAD legal docs
+  File /oname=COPYING.BRLCAD "${BRLCADDIR}\COPYING"
+  File /oname=readme.BRLCAD.txt "${BRLCADDIR}\readme.txt"
+
 ;MinGW runtime
 !ifdef USE_mingw32
   File "${MINGWBINDIR}\MINGWM10.DLL"

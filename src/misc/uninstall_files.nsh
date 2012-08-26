@@ -18,3 +18,21 @@
   RMDir "$INSTDIR\tutorials\03_TwoCubes"
 
   RMDir "$INSTDIR\tutorials"
+
+;Blender scripts
+  Delete "$INSTDIR\blender_scripts\2.4\add_mesh_cylinderintersection.py"
+  Delete "$INSTDIR\blender_scripts\2.4\engrid_export.py"
+  Delete "$INSTDIR\blender_scripts\2.4\engrid_import.py"
+  Delete "$INSTDIR\blender_scripts\2.4\gmsh2_export.py"
+  Delete "$INSTDIR\blender_scripts\2.4\gmsh2_import.py"
+  RMDir "$INSTDIR\blender_scripts\2.4"
+
+  Delete "$INSTDIR\blender_scripts\2.59\io_export_engrid.py"
+  Delete "$INSTDIR\blender_scripts\2.59\io_import_engrid.py"
+  RMDir "$INSTDIR\blender_scripts\2.59"
+
+  Delete "$INSTDIR\blender_scripts\2.63a\io_export_engrid.py"
+  Delete "$INSTDIR\blender_scripts\2.63a\io_import_engrid.py"
+  RMDir "$INSTDIR\blender_scripts\2.63a"
+
+  RMDir "$INSTDIR\blender_scripts"

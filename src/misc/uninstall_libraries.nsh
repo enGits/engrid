@@ -48,6 +48,13 @@
   RMDir "$INSTDIR\plugins\sqldrivers"
   RMDir "$INSTDIR\plugins"
 
+;BRLCAD libs
+  Delete "$INSTDIR\brlcad.dll"
+  Delete "$INSTDIR\openNURBS.dll"
+;BRLCAD legal docs
+  Delete "$INSTDIR\COPYING.BRLCAD"
+  Delete "$INSTDIR\readme.BRLCAD.txt"
+
 ;MinGW runtime
 !ifdef USE_mingw32
   Delete "$INSTDIR\MINGWM10.DLL"
