@@ -120,10 +120,11 @@ cd BRLCAD
 IF NOT EXIST bin mkdir bin
 IF NOT EXIST lib mkdir lib
 IF NOT EXIST include mkdir include
+IF NOT EXIST include\brlcad mkdir include\brlcad
 
-xcopy /s "%BRLCAD_DIR%\bin32\*.*" bin\ > NUL:
-xcopy /s "%BRLCAD_DIR%\lib32\*.*" lib\ > NUL:
-xcopy /s "%BRLCAD_DIR%\include\*.*" include\ > NUL:
+xcopy /s "%BRLCAD_DIR%\bin64\*.*" bin\ > NUL:
+xcopy /s "%BRLCAD_DIR%\lib64\*.*" lib\ > NUL:
+xcopy /s "%BRLCAD_DIR%\include\*.*" include\brlcad\ > NUL:
 xcopy /s "%BRLCAD_DIR%\COPYING" . > NUL:
 xcopy /s "%BRLCAD_DIR%\readme.txt" . > NUL:
 xcopy /s "%BRLCAD_DIR%\doc" . > NUL:
