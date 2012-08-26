@@ -101,11 +101,15 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
 
   }
   m_Hit = true;
+
+  return 1; //http://brlcad.org/xref/source/src/rt/viewedge.c#L669
 }
 
 int BrlCadInterface::miss(application *ap)
 {
   m_Hit = false;
+  
+  return 0; //http://brlcad.org/xref/source/src/rt/viewedge.c#L682
 }
 
 bool BrlCadInterface::brlCadShootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out)
