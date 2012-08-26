@@ -13,6 +13,9 @@ set QTbatchfile=Q:\4.6.3_x64\qtvars.bat
 rem NSIS: path to where NSIS is installed
 set NSIS_DIR=P:\NSIS
 
+rem BRLCAD: path to where BRLCAD-devel is installed
+set BRLCAD_DIR=P:\BRLCADDEV\brlcad-7.22.0_dll_devel
+
 rem ============= End Developer configuration area =============
 
 
@@ -106,6 +109,23 @@ echo set PATH=%CD%;^%%PATH^%% >> nsisvars.bat
 echo. >> nsisvars.bat
 
 rem going back to the third_party64 folder
+cd ..
+
+
+rem Copy BRLCAD Devel files
+echo Copying BRLCAD Development files, please wait...
+IF NOT EXIST BRLCAD mkdir BRLCAD
+cd BRLCAD
+
+IF NOT EXIST bin mkdir bin
+IF NOT EXIST lib mkdir lib
+IF NOT EXIST include mkdir include
+
+xcopy /s "%BRLCAD_DIR%\bin64\*.*" bin\ > NUL:
+xcopy /s "%BRLCAD_DIR%\lib64\*.*" lib\ > NUL:
+xcopy /s "%BRLCAD_DIR%\include\*.*" include\ > NUL:
+
+rem going back to the third_party folder
 cd ..
 
 
