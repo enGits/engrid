@@ -124,6 +124,9 @@ IF NOT EXIST include mkdir include
 xcopy /s "%BRLCAD_DIR%\bin64\*.*" bin\ > NUL:
 xcopy /s "%BRLCAD_DIR%\lib64\*.*" lib\ > NUL:
 xcopy /s "%BRLCAD_DIR%\include\*.*" include\ > NUL:
+xcopy /s "%BRLCAD_DIR%\COPYING" . > NUL:
+xcopy /s "%BRLCAD_DIR%\readme.txt" . > NUL:
+xcopy /s "%BRLCAD_DIR%\doc" . > NUL:
 
 rem going back to the third_party folder
 cd ..
