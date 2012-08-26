@@ -24,6 +24,11 @@
 #ifndef BRLCADINTERFACE_H
 #define BRLCADINTERFACE_H
 
+#if defined(WIN32) || defined(WIN64)
+#  include <windows.h>
+#  undef IGNORE
+#endif
+
 #include "brlcad/vmath.h"
 #include "brlcad/raytrace.h"
 #include "brlcad/common.h"
