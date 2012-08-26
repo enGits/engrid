@@ -27,9 +27,10 @@
 #include "facefinder.h"
 #include "guimainwindow.h"
 #include "guibrlcadimportdialogue.h"
-#include "createbrlcadtesselation.h"
+#include "createcadtesselation.h"
 #include "stlreader.h"
-#include "brlcadprojection.h"
+#include "surfaceprojection.h"
+#include "brlcadinterface.h"
 
 #include <vtkSTLReader.h>
 
@@ -285,22 +286,23 @@ void BrlcadReader::operate()
       GuiBrlCadImportDialogue dlg;
       dlg.prepare(getFileName());
       if (dlg.exec()) {
+        BrlCadInterface* brlcad_interface = new BrlCadInterface(getFileName(), dlg.selectedObject());
         if (dlg.useStlFile()) {
           StlReader stl;
           stl.setFileName(dlg.stlFileName());
           stl();
         } else if (dlg.hasSelectedObject()) {
-          CreateBrlCadTesselation brlcad_tess(getFileName(), dlg.selectedObject());
-          brlcad_tess.setScanMemory(dlg.scanMemory());
-          brlcad_tess.setPreservationType(dlg.preservationType());
-          brlcad_tess.setSmoothingIterations(dlg.smoothingIterations());
-          brlcad_tess.setSmallestFeatureSize(dlg.smallestFeatureSize());
-          brlcad_tess.setSmallestResolution(dlg.smallestResolution());
-          brlcad_tess.setTargetReduction(dlg.reduction());
-          brlcad_tess();
+          CreateCadTesselation tess(brlcad_interface);
+          tess.setScanMemory(dlg.scanMemory());
+          tess.setPreservationType(dlg.preservationType());
+          tess.setSmoothingIterations(dlg.smoothingIterations());
+          tess.setSmallestFeatureSize(dlg.smallestFeatureSize());
+          tess.setSmallestResolution(dlg.smallestResolution());
+          tess.setTargetReduction(dlg.reduction());
+          tess();
         }
-        BrlCadProjection *brl_proj = new BrlCadProjection(getFileName(), dlg.selectedObject());
-        GuiMainWindow::pointer()->setUniversalSurfProj(brl_proj);
+        SurfaceProjection* proj = new SurfaceProjection(brlcad_interface);
+        GuiMainWindow::pointer()->setUniversalSurfProj(proj);
       }
     }
   } catch (Error err) {

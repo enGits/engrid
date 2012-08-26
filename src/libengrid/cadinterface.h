@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,38 +20,25 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifndef CADINTERFACE_H
+#define CADINTERFACE_H
 
-#ifndef BRLCADPROJECTION_H
-#define BRLCADPROJECTION_H
+#include "engrid.h"
 
-class BrlCadProjection;
-
-#include "surfaceprojection.h"
-#include "brlcadinterface.h"
-
-class BrlCadProjection : public SurfaceProjection, public BrlCadInterface
+class CadInterface
 {
 
-  vec3_t m_LastNormal;
-  double m_LastRadius;
-  bool   m_ForceRay;
-  bool   m_Failed;
+public: // data types
 
-protected: // attributes
+  enum HitType { Miss, HitIn, HitOut };
+  enum PositionType { Inside, Outside, Surface };
+
 
 public:
 
-  BrlCadProjection(QString file_name, QString object_name);
-  ~BrlCadProjection();
-
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0),
-                         bool strict_direction = false, bool allow_search = true);
-  virtual vec3_t findClosest(vec3_t x, vtkIdType id_node, vec3_t dir = vec3_t(0,0,0));
-  virtual double getRadius(vtkIdType id_node);
-  virtual vec3_t lastProjNormal() { return m_LastNormal; }
-  virtual double lastProjRadius() { return m_LastRadius; }
-  virtual bool   lastProjFailed() { return m_Failed; }
+  virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) = 0;
+  virtual PositionType position(vec3_t x, vec3_t n) = 0;
 
 };
 
-#endif // BRLCADPROJECTION_H
+#endif // CADINTERFACE_H

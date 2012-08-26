@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -24,31 +24,37 @@
 #define SURFACEPROJECTION_H
 
 #include "surfacealgorithm.h"
+#include "cadinterface.h"
 
 class SurfaceProjection : public SurfaceAlgorithm
 {
 
-protected: // attributes
+private: // attributes
 
-  vtkUnstructuredGrid* m_FGrid; ///< the foreground grid to project
-  MeshPartition        m_FPart; ///< MeshPartition for the foreground grid
+  vtkUnstructuredGrid* m_FGrid;        ///< the foreground grid to project
+  MeshPartition        m_FPart;        ///< MeshPartition for the foreground grid
+  CadInterface*        m_CadInterface; ///< the CAD interface providing the geometry description
 
+  vec3_t m_LastNormal;
+  double m_LastRadius;
+  bool   m_ForceRay;
+  bool   m_Failed;
 
 public: // methods
 
-  SurfaceProjection();
+  SurfaceProjection(CadInterface* cad_interface);
 
   void    setForegroundGrid(vtkUnstructuredGrid* grid);
 
   virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0),
-                         bool strict_direction = false, bool allow_search = true) = 0;
-  virtual vec3_t findClosest(vec3_t x, vtkIdType id_node, vec3_t v = vec3_t(0,0,0)) = 0;
-  virtual double getRadius(vtkIdType id_node) = 0;
-  virtual vec3_t lastProjNormal() = 0;
-  virtual double lastProjRadius() = 0;
-  virtual vec3_t correctCurvature(vtkIdType, vec3_t x) { return x; }
-  virtual vtkIdType lastProjTriangle() { return -1; }
-  virtual bool lastProjFailed() = 0;
+                         bool strict_direction = false, bool allow_search = true);
+
+  double    getRadius(vtkIdType id_node);
+  vec3_t    lastProjNormal() { return m_LastNormal; }
+  double    lastProjRadius() { return m_LastRadius; }
+  vec3_t    correctCurvature(vtkIdType, vec3_t x) { return x; }
+  vtkIdType lastProjTriangle() { return -1; }
+  bool      lastProjFailed() { return m_Failed; }
 
 };
 

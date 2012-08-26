@@ -24,11 +24,12 @@
 #define CREATECADTESSELATION_H
 
 #include "operation.h"
+#include "cadinterface.h"
 
 class CreateCadTesselation : public Operation
 {
 
-protected: // attributes
+private: // attributes
 
   vec3_t m_X1;
   vec3_t m_X2;
@@ -48,11 +49,13 @@ protected: // attributes
   double m_SmallestResolution;
   double m_TargetReduction;
 
+  CadInterface* m_CadInterface;
+
 protected: // methods
 
-  virtual bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out) = 0;  
   virtual void operate();
 
+  bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out);
   void scan(bool create_grid, int interlaces = 0);
 
   double getx(int i) { return m_X1[0] + i*m_Dx; }
@@ -61,9 +64,10 @@ protected: // methods
   vec3_t getX(int i, int j, int k) { return vec3_t(getx(i), gety(j), getz(k)); }
   int    getIdx(int i, int j, int k) { return i + j*m_Ni + k*m_Ni*m_Nj; }
 
+
 public: // methods
 
-  CreateCadTesselation();
+  CreateCadTesselation(CadInterface* cad_interface);
 
   void setScanMemory(double mem) { m_ScanMemory = mem; }
   void setPreservationOff() { m_PreservationType = 0; }

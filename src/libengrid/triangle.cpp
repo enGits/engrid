@@ -160,7 +160,7 @@ vec2_t Triangle::global3DToLocal2D(vec3_t x)
   return vec2_t(r[0], r[1]);
 }
 
-bool Triangle::projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle)
+bool Triangle::snapOntoTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle)
 {
   side = -1;
   double scal = (xp - this->m_Xa) * this->m_G3;

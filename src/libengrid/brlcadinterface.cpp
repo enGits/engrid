@@ -31,11 +31,7 @@ bool   BrlCadInterface::m_Hit;
 double BrlCadInterface::m_InRadius;
 double BrlCadInterface::m_OutRadius;
 
-BrlCadInterface::BrlCadInterface()
-{
-}
-
-void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
+BrlCadInterface::BrlCadInterface(QString file_name, QString object_name)
 {
   m_Rtip = rt_dirbuild(qPrintable(file_name), m_IdBuf, sizeof(m_IdBuf));
   if (m_Rtip == RTI_NULL) {

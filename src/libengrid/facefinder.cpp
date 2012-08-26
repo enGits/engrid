@@ -191,7 +191,7 @@ vtkIdType FaceFinder::getClosestFace(vec3_t x, double &L_min)
     vec3_t xi, ri;
     int side;
     double L;
-    m_Triangles[id_face].projectOnTriangle(x, xi, ri, L, side, true);
+    m_Triangles[id_face].snapOntoTriangle(x, xi, ri, L, side, true);
     if (L < L_min) {
       L_min = L;
       id_close = id_face;

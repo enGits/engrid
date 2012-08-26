@@ -38,7 +38,7 @@
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
-#include "trisurfaceprojection.h"
+#include "triangularcadinterface.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -1948,7 +1948,7 @@ void GuiMainWindow::configure()
     try {
       GridSmoother tmp01;
       GuiCreateBoundaryLayer tmp02;
-      TriSurfaceProjection tmp03;
+      //TriSurfaceProjection tmp03;
       SurfaceMesher tmp04;
       UpdateDesiredMeshDensity tmp05;
       InsertPoints tmp06;
@@ -2119,14 +2119,15 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   try {
     resetSurfaceProjection();
     foreach (int bc, m_AllBoundaryCodes) {
-      TriSurfaceProjection *proj = new TriSurfaceProjection();
-      m_SurfProj[bc] = proj;
+      TriangularCadInterface* tricad_interface = new TriangularCadInterface();
       QSet<int> bcs;
       bcs.insert(bc);
       QVector<vtkIdType> cls;
       getSurfaceCells(bcs, cls, m_Grid);
+      tricad_interface->setBackgroundGrid(m_Grid, cls);
+      SurfaceProjection* proj = new SurfaceProjection(tricad_interface);
+      m_SurfProj[bc] = proj;
       proj->setForegroundGrid(m_Grid);
-      proj->setBackgroundGrid(m_Grid, cls);
     }
     if (!nosave) {
       save();
@@ -2151,14 +2152,6 @@ void GuiMainWindow::resetSurfaceProjection()
     delete proj;
   }
   m_SurfProj.clear();
-  try {
-    EG_VTKDCN(vtkLongArray_t, pindex, m_Grid, "node_pindex");
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      pindex->SetValue(id_node, -1);
-    }
-    TriSurfaceProjection::resetPindex();
-  } catch (Error) {
-  }
 }
 
 SurfaceProjection* GuiMainWindow::getSurfProj(int bc, bool allow_null)

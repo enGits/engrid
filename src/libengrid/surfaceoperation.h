@@ -52,7 +52,6 @@ private:
    *  all neighbour points in case of simple points and the points belonging to edges in case of fixed points */
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
 
-  void updatePotentialSnapPoints();
 
 protected: // attributes
 
@@ -77,6 +76,7 @@ protected: // methods
   double normalIrregularity(vtkIdType id_node);
   void   readVMD();
   void   updateNodeInfo();
+  void   updatePotentialSnapPoints();
 
 
 public:

@@ -518,7 +518,6 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     void callOrthogonalityOptimiser() { EG_STDSLOT(OrthogonalityOptimiser); }
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
-    void callBooleanOperation() { EG_STDSLOT( GuiBooleanGeometryOperation ); }
 
     void callFixSTL();
 

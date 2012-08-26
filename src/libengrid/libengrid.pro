@@ -149,7 +149,6 @@ HEADERS = boundarycondition.h \
     checksurfaceintegrity.h \
     surfaceoperation.h \
     surfaceprojection.h \
-    trisurfaceprojection.h \
     octree.h \
     filetemplate.h \
     openfoamcase.h \
@@ -178,22 +177,20 @@ HEADERS = boundarycondition.h \
     orthogonalityoptimiser.h \
     optimisenormalvector.h \
     brlcadreader.h \
-    brlcadprojection.h \
     eghashset.h \
     polymolecule.h \
     su2writer.h \
-    booleangeometryoperation.h \
-    guibooleangeometryoperation.h \
     dolfynwriter.h \
     guibrlcadimportdialogue.h \
     createcadtesselation.h \
-    createbrlcadtesselation.h \
     brlcadinterface.h \
     statistics.h \
     surfacenodemovementcheck.h \
     globalnodegraphinterface.h \
     checkerboardgraphiterator.h \
-    localnodegraphinterface.h
+    localnodegraphinterface.h \
+    cadinterface.h \
+    triangularcadinterface.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -275,7 +272,6 @@ SOURCES = boundarycondition.cpp \
     checksurfaceintegrity.cpp \
     surfaceoperation.cpp \
     surfaceprojection.cpp \
-    trisurfaceprojection.cpp \
     octree.cpp \
     filetemplate.cpp \
     openfoamcase.cpp \
@@ -299,17 +295,14 @@ SOURCES = boundarycondition.cpp \
     orthogonalityoptimiser.cpp \
     optimisenormalvector.cpp \
     brlcadreader.cpp \
-    brlcadprojection.cpp \
     polymolecule.cpp \
     su2writer.cpp \
-    booleangeometryoperation.cpp \
-    guibooleangeometryoperation.cpp \
     dolfynwriter.cpp \
     guibrlcadimportdialogue.cpp \
     createcadtesselation.cpp \
-    createbrlcadtesselation.cpp \
     brlcadinterface.cpp \
-    surfacenodemovementcheck.cpp
+    surfacenodemovementcheck.cpp \
+    triangularcadinterface.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

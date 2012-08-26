@@ -30,14 +30,39 @@
 #include <vtkContourFilter.h>
 #include <vtkDecimatePro.h>
 
-CreateCadTesselation::CreateCadTesselation()
+CreateCadTesselation::CreateCadTesselation(CadInterface *cad_interface)
 {
+  m_CadInterface = cad_interface;
   m_ScanMemory = 0.5;
   m_NumIterations = 0;
   m_PreservationType = 0;
   m_SmallestFeatureSize = 1e99;
   m_SmallestResolution = 0;
   m_TargetReduction = 0;
+}
+
+bool CreateCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
+{
+  v.normalise();
+  double r_hit;
+  vec3_t x_hit, n_hit;
+  CadInterface::HitType hit_type = m_CadInterface->shootRay(x, v, x_hit, n_hit, r_hit);
+  if (hit_type == CadInterface::Miss || hit_type == CadInterface::HitOut) {
+    return false;
+  }
+  x_in = x_hit;
+  n_in = n_hit;
+  x = x_in;
+  do {
+    x += 1e-10*v;
+    hit_type = m_CadInterface->shootRay(x, v, x_hit, n_hit, r_hit);
+    if (hit_type == CadInterface::HitOut) {
+      x_out = x_hit;
+      n_out = n_hit;
+    }
+    x = x_hit;
+  } while (hit_type == CadInterface::HitIn);
+  return true;
 }
 
 void CreateCadTesselation::scan(bool create_grid, int interlaces)
