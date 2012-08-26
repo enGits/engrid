@@ -53,11 +53,15 @@ private: // attributes
   int m_N2BCStamp;   ///< "time"-stamp
   int m_C2CStamp;    ///< "time"-stamp
 
+  bool m_TrackGrid;              ///< flag to determine if grid should be tracked (make sure that all cells are always included)
+  unsigned long int m_GridMTime; ///< VTK's modification time of the underlying grid
+
 private: // methods
 
   void createNodeToBC();
 
   void resetTimeStamps();
+  void checkCells();
   void checkNodes();
   void checkLCells();
   void checkLNodes();
@@ -89,6 +93,12 @@ public: // methods
    * @param a pointer to the grid
    */
   void setGrid(vtkUnstructuredGrid *grid) { m_Grid = grid; }
+
+  /**
+   * Set the grid and make sure all cells are always included (automatic tracking).
+   * @param a pointer to the grid
+   */
+  void trackGrid(vtkUnstructuredGrid *grid);
 
   /**
    * Access to the grid.
@@ -222,6 +232,13 @@ public: // methods
   bool hasNeighNode(vtkIdType id_node, vtkIdType id_neigh);
   bool hasBC(vtkIdType id_node, int bc);
 
+  /**
+   * Compute the normal vector of a node.
+   * @param id_node the global ID of the node
+   * @return the normalised normal vector
+   */
+  vec3_t globalNormal(vtkIdType id_node);
+
 };
 
 
@@ -274,14 +291,26 @@ inline void MeshPartition::setBCs(const C& bcs)
   setCells(cls);
 }
 
-inline void MeshPartition::setAllCells() {
+inline void MeshPartition::setAllCells()
+{
   QVector <vtkIdType> all_cells;
   getAllCells(all_cells, m_Grid);
   this->setCells(all_cells);
 }
 
+inline void MeshPartition::checkCells()
+{
+  if (m_Grid->GetMTime() > m_GridMTime) {
+    setAllCells();
+    m_GridMTime = m_Grid->GetMTime();
+  }
+}
+
 inline void MeshPartition::checkNodes()
 {
+  if (m_TrackGrid) {
+    checkCells();
+  }
   if (m_CellsStamp > m_NodesStamp) {
     getNodesFromCells(m_Cells, m_Nodes, m_Grid);
     m_NodesStamp = m_CellsStamp;

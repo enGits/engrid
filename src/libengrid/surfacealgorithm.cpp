@@ -48,6 +48,8 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   m_GrowthFactor = 1.5;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
+  setDeleteNodesOn();
+  setInsertNodesOn();
 }
 
 void SurfaceAlgorithm::readVMD()
@@ -149,21 +151,18 @@ void SurfaceAlgorithm::updateNodeInfo(bool update_type)
   setAllCells();
   l2g_t nodes = getPartNodes();
   foreach (vtkIdType id_node, nodes) {
-    if(update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
+    if (update_type) {
+      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
       node_type->SetValue(id_node, getNodeType(id_node, true));
     }
-    //EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");//what we have
-    //node_meshdensity_current->SetValue(id_node, currentVertexAvgDist(id_node));
 
-    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");//density index from table
+    //density index from table
+    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
+
     VertexMeshDensity nodeVMD = getVMD(id_node);
-//     int idx = m_VMDvector.indexOf(nodeVMD);
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
-//     qWarning()<<"idx="<<idx;
     node_specified_density->SetValue(id_node, idx);
   }
-//   writeGrid(m_Grid, "info");
 }
 
 void SurfaceAlgorithm::swap()
@@ -207,31 +206,37 @@ void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
 
 int SurfaceAlgorithm::insertNodes()
 {
-  InsertPoints insert_points;
-  insert_points.setGrid(m_Grid);
-  insert_points.setBoundaryCodes(m_BoundaryCodes);
-  insert_points();
-  return insert_points.getNumInserted();
+  if (m_InsertNodes) {
+    InsertPoints insert_points;
+    insert_points.setGrid(m_Grid);
+    insert_points.setBoundaryCodes(m_BoundaryCodes);
+    insert_points();
+    return insert_points.getNumInserted();
+  }
+  return 0;
 }
 
 int SurfaceAlgorithm::deleteNodes()
 {
-  RemovePoints remove_points;
-  remove_points.setGrid(m_Grid);
-  remove_points.setBoundaryCodes(m_BoundaryCodes);
-  remove_points.setStretchingFactor(m_StretchingFactor);
-  remove_points.setFeatureAngle(m_FeatureAngle);
-  if (m_RespectFeatureEdgesForDeleteNodes) {
-    remove_points.setProtectFeatureEdgesOn();
-  } else {
-    remove_points.setProtectFeatureEdgesOff();
+  if (m_DeleteNodes) {
+    RemovePoints remove_points;
+    remove_points.setGrid(m_Grid);
+    remove_points.setBoundaryCodes(m_BoundaryCodes);
+    remove_points.setStretchingFactor(m_StretchingFactor);
+    remove_points.setFeatureAngle(m_FeatureAngle);
+    if (m_RespectFeatureEdgesForDeleteNodes) {
+      remove_points.setProtectFeatureEdgesOn();
+    } else {
+      remove_points.setProtectFeatureEdgesOff();
+    }
+    //remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
+    if (m_PerformGeometricTests) {
+      remove_points.setPerformGeometricChecksOn();
+    } else {
+      remove_points.setPerformGeometricChecksOff();
+    }
+    remove_points();
+    return remove_points.getNumRemoved();
   }
-  //remove_points.setFeatureAngle(m_FeatureAngleForDeleteNodes);
-  if (m_PerformGeometricTests) {
-    remove_points.setPerformGeometricChecksOn();
-  } else {
-    remove_points.setPerformGeometricChecksOff();
-  }
-  remove_points();
-  return remove_points.getNumRemoved();
+  return 0;
 }

@@ -31,6 +31,7 @@ IOOperation::IOOperation()
   setResetOperationCounter(true);
   setQuickSave(true);
   m_FileName = "";
+  m_FileNameSet = false;
 }
 
 void IOOperation::setFormat(QString format)
@@ -45,6 +46,10 @@ void IOOperation::setExtension(QString extension)
 
 void IOOperation::readInputFileName(QString default_filename, bool reset)
 {
+  if (m_FileNameSet) {
+    return;
+  }
+
   QApplication::restoreOverrideCursor();
   
   QFileDialog dialog(NULL, "read file", GuiMainWindow::getCwd(), m_FormatTxt);
@@ -138,4 +143,13 @@ const char* IOOperation::getCFileName()
 QString IOOperation::getFileName()
 {
   return m_FileName;
+}
+
+void IOOperation::setFileName(QString file_name)
+{
+  if (QFileInfo(file_name).exists()) {
+    m_FileName = file_name;
+    m_FileNameSet = true;
+    m_Valid = true;
+  }
 }

@@ -28,6 +28,8 @@
 #include "guimainwindow.h"
 #include "guibrlcadimportdialogue.h"
 #include "createbrlcadtesselation.h"
+#include "stlreader.h"
+#include "brlcadprojection.h"
 
 #include <vtkSTLReader.h>
 
@@ -36,7 +38,6 @@ BrlcadReader::BrlcadReader()
   EG_TYPENAME;
   setFormat("BRL-CAD database files(*.g)");
   setExtension(".g");
-
 }
 
 void BrlcadReader::processStlFile(QString file_name, bool append_to_list)
@@ -283,8 +284,22 @@ void BrlcadReader::operate()
     if (isValid()) {
       GuiBrlCadImportDialogue dlg;
       dlg.prepare(getFileName());
-      if (dlg.exec() && dlg.hasSelectedObject()) {
-        CreateBrlCadTesselation brlcad_tess(getFileName(), dlg.selectedObject());
+      if (dlg.exec()) {
+        if (dlg.useStlFile()) {
+          StlReader stl;
+          stl.setFileName(dlg.stlFileName());
+          stl();
+        } else if (dlg.hasSelectedObject()) {
+          CreateBrlCadTesselation brlcad_tess(getFileName(), dlg.selectedObject());
+          brlcad_tess.setScanMemory(dlg.scanMemory());
+          brlcad_tess.setPreservationType(dlg.preservationType());
+          brlcad_tess.setSmoothingIterations(dlg.smoothingIterations());
+          brlcad_tess.setSmallestFeatureSize(dlg.smallestFeatureSize());
+          brlcad_tess.setSmallestResolution(dlg.smallestResolution());
+          brlcad_tess();
+        }
+        BrlCadProjection *brl_proj = new BrlCadProjection(getFileName(), dlg.selectedObject());
+        GuiMainWindow::pointer()->setUniversalSurfProj(brl_proj);
       }
     }
   } catch (Error err) {

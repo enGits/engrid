@@ -26,7 +26,7 @@
 class BooleanGeometryOperation;
 
 #include "surfacealgorithm.h"
-#include "surfaceprojection.h"
+#include "trisurfaceprojection.h"
 
 class BooleanGeometryOperation : public SurfaceAlgorithm
 {
@@ -61,8 +61,8 @@ protected: // attributes
 
   vtkUnstructuredGrid *m_ShapeGrid1;
   vtkUnstructuredGrid *m_ShapeGrid2;
-  SurfaceProjection    m_Proj1;
-  SurfaceProjection    m_Proj2;
+  TriSurfaceProjection    m_Proj1;
+  TriSurfaceProjection    m_Proj2;
   MeshPartition        m_Part1;
   MeshPartition        m_Part2;
   int                  m_Side1;

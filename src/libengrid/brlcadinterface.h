@@ -21,77 +21,58 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "brlcadprojection.h"
+#ifndef BRLCADINTERFACE_H
+#define BRLCADINTERFACE_H
 
-BrlCadProjection::BrlCadProjection(QString file_name, QString object_name)
+#include "brlcad/vmath.h"
+#include "brlcad/raytrace.h"
+#include "brlcad/common.h"
+
+#include "engrid.h"
+#include "utilities.h"
+
+class BrlCadInterface
 {
-  setupBrlCad(file_name, object_name);
-  m_ForceRay = false;
-  m_Failed = false;
-}
 
-BrlCadProjection::~BrlCadProjection()
-{
+public: // data types
 
-}
+  enum HitType { Miss, HitIn, HitOut };
+  enum PositionType { Inside, Outside, Surface };
 
-vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
-{  
-  vec3_t n = v;
-  if (n.abs() < 1e-3) {
-    if (id_node == -1) {
-      EG_BUG;
-    }
-    n = m_FPart.globalNormal(id_node);
-  }
-  if (!checkVector(x)) {
-    EG_BUG;
-  }
-  if (!checkVector(n)) {
-    cout << "vector defect (id_node=" << id_node << endl;
-    return x;
-    EG_BUG;
-  }
+private: // attributes
 
-  vec3_t x_proj = x;
-  m_LastNormal = n;
-  m_LastRadius = 1e10;
+  struct application  m_Ap;
+  struct rt_i        *m_Rtip;
+  char                m_IdBuf[132];
 
-  vec3_t x_hit1, n_hit1, x_hit2, n_hit2;
-  double r_hit1, r_hit2;
-  HitType hit_type1, hit_type2;
+  static vec3_t m_XIn;
+  static vec3_t m_XOut;
+  static vec3_t m_InNormal;
+  static vec3_t m_OutNormal;
+  static double m_InRadius;
+  static double m_OutRadius;
+  static bool   m_Hit;
 
-  hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  if (hit_type1 == Miss) {
-    n *= -1;
-    hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  }
-  if (hit_type1 == Miss) {
-    m_Failed = true;
-    return x;
-  }
-  m_Failed = false;
-  n *= -1;
-  hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
-  x_proj = x_hit1;
-  m_LastNormal = n_hit1;
-  m_LastRadius = r_hit1;
-  if (hit_type2 != Miss) {
-    if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
-      x_proj = x_hit2;
-      m_LastNormal = n_hit2;
-      m_LastRadius = r_hit2;
-    }
-  }
-  return x_proj;
-}
 
-double BrlCadProjection::getRadius(vtkIdType id_node)
-{
-  vec3_t x;
-  m_FGrid->GetPoint(id_node, x.data());
-  m_ForceRay = true;
-  project(x, id_node);
-  m_ForceRay = false;
-  return m_LastRadius;
-}
+private: // methods
+
+  bool brlCadShootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out);
+
+
+protected: // methods
+
+  static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
+  static int miss(register struct application *ap);
+
+  HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
+  void setupBrlCad(QString file_name, QString object_name);
+  PositionType position(vec3_t x, vec3_t n);
+
+
+public:
+
+  BrlCadInterface();
+
+};
+
+#endif // BRLCADINTERFACE_H

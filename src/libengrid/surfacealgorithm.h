@@ -63,6 +63,8 @@ protected: // attributes
   bool   m_SmoothSuccess;
   int    m_NumDelaunaySweeps;
   bool   m_AllowSmallAreaSwapping;
+  bool   m_InsertNodes;
+  bool   m_DeleteNodes;
 
 
 protected: // methods
@@ -94,6 +96,12 @@ public:
   void setMaxNumIterations(int N)         { m_NumMaxIter = N; }
   void setNumSmoothSteps(int N)           { m_NumSmoothSteps = N; }
   void setNumDelaunaySweeps(int N)        { m_NumDelaunaySweeps = N; }
+  void setDeleteNodesOn()                 { m_DeleteNodes = true; }
+  void setDeleteNodesOff()                { m_DeleteNodes = false; }
+  void setInsertNodesOn()                 { m_InsertNodes = true; }
+  void setInsertNodesOff()                { m_InsertNodes = false; }
+  void setDeleteNodes(bool s)             { m_DeleteNodes = s; }
+  void setInsertNodes(bool s)             { m_InsertNodes = s; }
 
 };
 

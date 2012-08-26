@@ -24,26 +24,16 @@
 #define CREATEBRLCADTESSELATION_H
 
 #include "createcadtesselation.h"
+#include "brlcadinterface.h"
 
-#include "brlcad/vmath.h"
-#include "brlcad/raytrace.h"
-
-class CreateBrlCadTesselation : public CreateCadTesselation
+class CreateBrlCadTesselation : public CreateCadTesselation, public BrlCadInterface
 {
-
-private: // attributes
-
-  struct application  m_Ap;
-  struct rt_i        *m_Rtip;
-  char                m_IdBuf[132];
-
-protected: // methods
-
-  virtual void shootRay(vec3_t x, vec3_t v);
 
 public:
 
   CreateBrlCadTesselation(QString file_name, QString object_name);
+
+  virtual bool shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out);
 
 };
 

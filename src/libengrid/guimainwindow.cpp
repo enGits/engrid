@@ -38,6 +38,7 @@
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
+#include "trisurfaceprojection.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -134,6 +135,13 @@ void GuiMainWindow::setupGuiMainWindow()
   m_CurrentFilename = "untitled.egc";
   setWindowTitle(m_CurrentFilename + " - enGrid - " + QString("%1").arg(m_CurrentOperation) );
   setUnsaved(true);
+
+  m_StatusInfoLabel = new QLabel(this);
+  statusBar()->addWidget(m_StatusInfoLabel);
+  m_StatusInfoLabel->setText("");
+
+  m_StatusProgressBar = new QProgressBar(this);
+  statusBar()->addWidget(m_StatusProgressBar);
 
   m_StatusLabel = new QLabel(this);
   statusBar()->addWidget(m_StatusLabel);
@@ -263,6 +271,7 @@ void GuiMainWindow::setupGuiMainWindow()
   m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
   connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
 
+  m_UniSurfProj = NULL;
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -1939,7 +1948,7 @@ void GuiMainWindow::configure()
     try {
       GridSmoother tmp01;
       GuiCreateBoundaryLayer tmp02;
-      SurfaceProjection tmp03;
+      TriSurfaceProjection tmp03;
       SurfaceMesher tmp04;
       UpdateDesiredMeshDensity tmp05;
       InsertPoints tmp06;
@@ -2110,7 +2119,7 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   try {
     resetSurfaceProjection();
     foreach (int bc, m_AllBoundaryCodes) {
-      SurfaceProjection *proj = new SurfaceProjection();
+      TriSurfaceProjection *proj = new TriSurfaceProjection();
       m_SurfProj[bc] = proj;
       QSet<int> bcs;
       bcs.insert(bc);
@@ -2127,8 +2136,16 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   }
 }
 
+void GuiMainWindow::setUniversalSurfProj(SurfaceProjection *surf_proj)
+{
+  m_UniSurfProj = surf_proj;
+  surf_proj->setForegroundGrid(m_Grid);
+}
+
 void GuiMainWindow::resetSurfaceProjection()
 {
+  delete m_UniSurfProj;
+  m_UniSurfProj = NULL;
   foreach (SurfaceProjection* proj, m_SurfProj) {
     delete proj;
   }
@@ -2138,7 +2155,7 @@ void GuiMainWindow::resetSurfaceProjection()
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       pindex->SetValue(id_node, -1);
     }
-    SurfaceProjection::resetPindex();
+    TriSurfaceProjection::resetPindex();
   } catch (Error) {
   }
 }
@@ -2151,6 +2168,9 @@ SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
     bc = 0;
   }
   if (!m_SurfProj.contains(bc)) {
+    if (m_UniSurfProj) {
+      return m_UniSurfProj;
+    }
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
   return m_SurfProj[bc];
@@ -2159,10 +2179,12 @@ SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
 bool GuiMainWindow::checkSurfProj()
 {
   bool ok = true;
-  foreach (int bc, m_AllBoundaryCodes) {
-    if (!m_SurfProj.contains(bc)) {
-      ok = false;
-      break;
+  if (!m_UniSurfProj) {
+    foreach (int bc, m_AllBoundaryCodes) {
+      if (!m_SurfProj.contains(bc)) {
+        ok = false;
+        break;
+      }
     }
   }
   return ok;
@@ -2379,4 +2401,20 @@ void GuiMainWindow::onEsc()
   m_CellPicker->Pick(-1e99,-1e99,0,m_Renderer);
   updateActors(true);
   updateStatusBar();
+}
+
+void GuiMainWindow::resetProgress(QString info_text, int p_max)
+{
+  m_StatusInfoLabel->setText(info_text);
+  m_StatusProgressBar->setMaximum(p_max);
+  m_StatusProgressBar->setValue(0);
+  QApplication::processEvents();
+}
+
+void GuiMainWindow::setProgress(int p)
+{
+  m_StatusProgressBar->setValue(p);
+  for (int i = 0; i < 3; ++i) {
+    QApplication::processEvents();
+  }
 }

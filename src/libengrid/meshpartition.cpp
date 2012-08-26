@@ -30,11 +30,13 @@
 MeshPartition::MeshPartition()
 {
   m_Grid = NULL;
+  m_TrackGrid = false;
   resetTimeStamps();
 }
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
+  m_TrackGrid = false;
   resetTimeStamps();
   m_Grid = grid;
   if (use_all_cells) {
@@ -48,6 +50,7 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 
 MeshPartition::MeshPartition(QString volume_name)
 {
+  m_TrackGrid = false;
   resetTimeStamps();
   setVolume(volume_name);
 }
@@ -62,6 +65,14 @@ void MeshPartition::resetTimeStamps()
   m_N2CStamp = 0;
   m_N2BCStamp = 0;
   m_C2CStamp = 0;
+}
+
+void MeshPartition::trackGrid(vtkUnstructuredGrid *grid)
+{
+  setGrid(grid);
+  setAllCells();
+  m_GridMTime = m_Grid->GetMTime();
+  m_TrackGrid = true;
 }
 
 void MeshPartition::setVolume(QString volume_name)
@@ -329,7 +340,7 @@ bool MeshPartition::hasBC(vtkIdType id_node, int bc)
   bool found = false;
   for (int j = 0; j < n2bcGSize(id_node); ++j) {
     if (n2bcG(id_node, j) == bc) {
-      found == true;
+      found = true;
       break;
     }
   }
@@ -341,29 +352,43 @@ vtkIdType MeshPartition::getVolumeCell(vtkIdType id_face)
   return findVolumeCell(m_Grid, id_face, m_LNodes, m_Cells, m_LCells, m_N2C);
 }
 
-double MeshPartition::getAverageSurfaceEdgeLength(vtkIdType id_node)
+vec3_t MeshPartition::globalNormal(vtkIdType id_node)
 {
-  QSet<vtkIdType> surface_neighbours;
+  vec3_t normal(0,0,0);
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
-      EG_GET_CELL(id_cell, m_Grid);
-      for (int j = 0; j < num_pts; ++j) {
-        if (pts[j] != id_node) {
-          surface_neighbours.insert(pts[j]);
+      vtkIdType N_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      vec3_t a, b, c;
+      for (int j = 0; j < N_pts; ++j) {
+        if (pts[j] == id_node) {
+          m_Grid->GetPoint(pts[j], a.data());
+          if (j > 0) {
+            m_Grid->GetPoint(pts[j-1], b.data());
+          } else {
+            m_Grid->GetPoint(pts[N_pts-1], b.data());
+          }
+          if (j < N_pts - 1) {
+            m_Grid->GetPoint(pts[j+1], c.data());
+          } else {
+            m_Grid->GetPoint(pts[0], c.data());
+          }
         }
+      }
+      vec3_t u = b - a;
+      vec3_t v = c - a;
+      double alpha = GeometryTools::angle(u, v);
+      vec3_t n = u.cross(v);
+      n.normalise();
+      if (checkVector(n)) {
+        normal -= alpha*n;
       }
     }
   }
-  double L = 0;
-  if (surface_neighbours.size() > 0) {
-    vec3_t x, xn;
-    m_Grid->GetPoint(id_node, x.data());
-    foreach (vtkIdType id_neigh, surface_neighbours) {
-      m_Grid->GetPoint(id_neigh, xn.data());
-      L += (x - xn).abs();
-    }
-    L /= surface_neighbours.size();
-  }
-  return L;
+  normal.normalise();
+  return normal;
 }
+
+
+

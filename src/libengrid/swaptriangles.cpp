@@ -26,6 +26,7 @@
 #include <vtkCellArray.h>
 
 #include "checksurfaceintegrity.h"
+#include "statistics.h"
 
 using namespace GeometryTools;
 
@@ -39,10 +40,11 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_SmallAreaRatio = 1e-3;
   m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
-  getSet("surface meshing", "threshold for surface errors", 10.0, m_SurfErrorThreshold);
+  getSet("surface meshing", "surface error threshold (lower)", 0.05, m_SurfErrorLowerThreshold);
+  getSet("surface meshing", "surface error threshold (higher)", 0.25, m_SurfErrorHigherThreshold);
 }
 
-bool SwapTriangles::testSwap(stencil_t S)
+bool SwapTriangles::testOrientation(stencil_t S)
 {
   // old triangles
   vec3_t n1_old = triNormal(m_Grid, S.id_node[0], S.p1, S.p2);
@@ -111,58 +113,32 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
   using namespace GeometryTools;
   err1 = 0;
   err2 = 0;
-  if (m_SurfErrorThreshold <= 0) {
-    return;
-  }
   SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
   if (!proj) {
     return;
   }
-  vec3_t n11 = triNormal(x[0], x[1], x[3]);
-  vec3_t n12 = triNormal(x[1], x[2], x[3]);
-  vec3_t n21 = triNormal(x[0], x[1], x[2]);
-  vec3_t n22 = triNormal(x[0], x[2], x[3]);
-  vec3_t n   = n11 + n12 + n21 + n22;
+
+  vec3_t n = triNormal(x[0], x[1], x[3]) + triNormal(x[1], x[2], x[3]);
   n.normalise();
-  vec3_t err_vec = 0.5*(x[0] + x[2] - x[1] - x[3]);
-  double appr_err = fabs(n*err_vec);
-  /*
-  if (angle(n11, n12) <= m_FeatureAngle && angle(n21, n22) <= m_FeatureAngle) {
-    return;
-  }
-  */
 
-  double L = 0;
-  L = max(L, (x[0] - x[1]).abs());
-  L = max(L, (x[0] - x[2]).abs());
-  L = max(L, (x[0] - x[3]).abs());
-  L = max(L, (x[1] - x[2]).abs());
-  L = max(L, (x[1] - x[3]).abs());
-  L = max(L, (x[2] - x[3]).abs());
+  vec3_t xe1 = 0.5*(x[1] + x[3]);
+  vec3_t xe2 = 0.5*(x[0] + x[2]);
 
-  if (appr_err > m_SurfErrorThreshold*L) {
-    static const double f13 = 1.0/3.0;
-    vec3_t x012 = f13*(x[0] + x[1] + x[2]);
-    vec3_t x013 = f13*(x[0] + x[1] + x[3]);
-    vec3_t x023 = f13*(x[0] + x[2] + x[3]);
-    vec3_t x123 = f13*(x[1] + x[2] + x[3]);
-    vec3_t xp012 = proj->projectRestricted(x012);
-    vec3_t xp013 = proj->projectRestricted(x013);
-    vec3_t xp023 = proj->projectRestricted(x023);
-    vec3_t xp123 = proj->projectRestricted(x123);
-    err1 = max((x013 - xp013).abs(), (x123 - xp123).abs())/L;
-    err2 = max((x012 - xp012).abs(), (x023 - xp023).abs())/L;
-  }
+  vec3_t xe1_proj = proj->project(xe1, -1, true, n);
+  vec3_t xe2_proj = proj->project(xe2, -1, true, n);
+
+  err1 = (xe1 - xe1_proj).abs()/(x[1] - x[3]).abs();
+  err2 = (xe2 - xe2_proj).abs()/(x[0] - x[2]).abs();
 }
 
 int SwapTriangles::swap()
 {
   int N_swaps = 0;
   setAllSurfaceCells();
+  //computeAverageSurfaceError();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
-    //m_Timer << "  cell " << i+1 << "/" << m_Part.getNumberOfCells() << Timer::endl;
     vtkIdType id_cell = m_Part.globalCell(i);
     if (!m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
@@ -174,7 +150,6 @@ int SwapTriangles::swap()
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
                 if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
                   QVector<vec3_t> x3(4);
-                  vec3_t x3_0(0,0,0);
                   vec2_t x[4];
 
                   m_Grid->GetPoint(S.id_node[0], x3[0].data());
@@ -200,16 +175,16 @@ int SwapTriangles::swap()
                     // surface errors
                     double se1, se2;
                     bool surf_block = false;
-                    if (m_SurfErrorThreshold > 0) {
-                      computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                      if (se2 > se1 && se2 > m_SurfErrorThreshold) {
-                        surf_block = true;
-                      } else {
-                        if (se2 < se1 && se1 > m_SurfErrorThreshold) {
-                          swap = true;
-                        }
+                    computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
+                    if (se2 > se1 && se2 > m_SurfErrorHigherThreshold && se1 < m_SurfErrorLowerThreshold) {
+                      surf_block = true;
+                    } else {
+                      if (se2 < se1 && se1 > m_SurfErrorHigherThreshold && se2 < m_SurfErrorLowerThreshold) {
+                        swap = true;
                       }
                     }
+
+                    // Delaunay
                     if (!swap && !surf_block) {
                       vec3_t n = n1 + n2;
                       n.normalise();
@@ -253,7 +228,7 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            if (testSwap(S)) {
+            if (testOrientation(S)) {
               marked[S.id_cell[0]] = true;
               marked[S.id_cell[1]] = true;
               for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {
@@ -299,6 +274,45 @@ int SwapTriangles::swap()
     } //end of if selected triangle
   } //end of loop through cells
   return N_swaps;
+}
+
+void SwapTriangles::computeAverageSurfaceError()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QList<double> errors;
+  EG_FORALL_NODES(id_node1, m_Grid) {
+    vec3_t n1 = m_Part.globalNormal(id_node1);
+    vec3_t x1;
+    m_Grid->GetPoint(id_node1, x1.data());
+    for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+      vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+      if (id_node1 < id_node2) {
+        QVector<vtkIdType> faces;
+        getEdgeCells(id_node1, id_node2, faces);
+        if (faces.size() == 2) {
+          int bc1 = cell_code->GetValue(faces[0]);
+          int bc2 = cell_code->GetValue(faces[1]);
+          if (bc1 == bc2) {
+            SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc1);
+            if (proj) {
+              vec3_t n2 = m_Part.globalNormal(id_node2);
+              vec3_t n = 0.5*(n1 + n2);
+              vec3_t x2;
+              m_Grid->GetPoint(id_node2, x2.data());
+              vec3_t x = 0.5*(x1 + x2);
+              vec3_t xp = proj->project(x, -1, true, n);
+              double err = (x - xp).abs()/(x1 - x2).abs();
+              errors.append(err);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  m_AverageSurfaceError = Statistics::meanValue(errors);
+  m_SurfaceErrorDeviation = Statistics::standardDeviation(errors, m_AverageSurfaceError);
+  cout << "mean: " << m_AverageSurfaceError << "  sigma: " << m_SurfaceErrorDeviation << endl;
 }
 
 void SwapTriangles::operate()

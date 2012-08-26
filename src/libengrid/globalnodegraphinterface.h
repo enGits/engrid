@@ -21,77 +21,28 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "brlcadprojection.h"
+#ifndef GLOBALNODEGRAPHINTERFACE_H
+#define GLOBALNODEGRAPHINTERFACE_H
 
-BrlCadProjection::BrlCadProjection(QString file_name, QString object_name)
+#include "meshpartition.h"
+
+/**
+ * @brief An interface to run generic algorithms on the node graph of a grid.
+ */
+class GlobalNodeGraphInterface
 {
-  setupBrlCad(file_name, object_name);
-  m_ForceRay = false;
-  m_Failed = false;
-}
 
-BrlCadProjection::~BrlCadProjection()
-{
+  MeshPartition* m_Part;
 
-}
+public:
 
-vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
-{  
-  vec3_t n = v;
-  if (n.abs() < 1e-3) {
-    if (id_node == -1) {
-      EG_BUG;
-    }
-    n = m_FPart.globalNormal(id_node);
-  }
-  if (!checkVector(x)) {
-    EG_BUG;
-  }
-  if (!checkVector(n)) {
-    cout << "vector defect (id_node=" << id_node << endl;
-    return x;
-    EG_BUG;
-  }
+  typedef vtkIdType index_type;
 
-  vec3_t x_proj = x;
-  m_LastNormal = n;
-  m_LastRadius = 1e10;
+  void   setMeshPartition(MeshPartition* part) { m_Part = part; }
+  size_t size() { return m_Part->getGrid()->GetNumberOfPoints(); }
+  size_t getNumLinks(size_t i) { return m_Part->n2nGSize(i); }
+  size_t getLink(size_t i, size_t j) { return m_Part->n2nGG(i,j); }
 
-  vec3_t x_hit1, n_hit1, x_hit2, n_hit2;
-  double r_hit1, r_hit2;
-  HitType hit_type1, hit_type2;
+};
 
-  hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  if (hit_type1 == Miss) {
-    n *= -1;
-    hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  }
-  if (hit_type1 == Miss) {
-    m_Failed = true;
-    return x;
-  }
-  m_Failed = false;
-  n *= -1;
-  hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
-  x_proj = x_hit1;
-  m_LastNormal = n_hit1;
-  m_LastRadius = r_hit1;
-  if (hit_type2 != Miss) {
-    if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
-      x_proj = x_hit2;
-      m_LastNormal = n_hit2;
-      m_LastRadius = r_hit2;
-    }
-  }
-  return x_proj;
-}
-
-double BrlCadProjection::getRadius(vtkIdType id_node)
-{
-  vec3_t x;
-  m_FGrid->GetPoint(id_node, x.data());
-  m_ForceRay = true;
-  project(x, id_node);
-  m_ForceRay = false;
-  return m_LastRadius;
-}
+#endif // GLOBALNODEGRAPHINTERFACE_H

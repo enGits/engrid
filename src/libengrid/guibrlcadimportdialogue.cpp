@@ -24,6 +24,7 @@
 #include "ui_guibrlcadimportdialogue.h"
 
 #include <QProcess>
+#include <QFileInfo>
 
 GuiBrlCadImportDialogue::GuiBrlCadImportDialogue(QWidget *parent) :
   QDialog(parent),
@@ -51,6 +52,11 @@ void GuiBrlCadImportDialogue::prepare(QString file_name)
   foreach (QString obj, objects) {
     ui->listWidget->addItem(obj);
   }
+  m_StlFileName = file_name + ".stl";
+  if (QFileInfo(m_StlFileName).exists()) {
+    ui->checkBoxSTL->setEnabled(true);
+    ui->checkBoxSTL->setChecked(true);
+  }
 }
 
 bool GuiBrlCadImportDialogue::hasSelectedObject()
@@ -72,5 +78,44 @@ QString GuiBrlCadImportDialogue::selectedObject()
   }
 }
 
+double GuiBrlCadImportDialogue::scanMemory()
+{
+  double mem = 1024.0;
+  mem *= mem*mem;
+  mem *= ui->doubleSpinBoxMemory->value();
+  return mem;
+}
+
+int GuiBrlCadImportDialogue::smoothingIterations()
+{
+  return ui->spinBoxSmoothing->value();
+}
+
+int GuiBrlCadImportDialogue::preservationType()
+{
+  if (ui->radioButtonNoPreservation->isChecked()) return 0;
+  if (ui->radioButtonSolidPreservation->isChecked()) return 1;
+  return 2;
+}
+
+double GuiBrlCadImportDialogue::smallestFeatureSize()
+{
+  return ui->lineEditSmallestFeature->text().toDouble();
+}
+
+double GuiBrlCadImportDialogue::smallestResolution()
+{
+  return ui->lineEditMinResolution->text().toDouble();
+}
+
+bool GuiBrlCadImportDialogue::useStlFile()
+{
+  return ui->checkBoxSTL->isChecked();
+}
+
+QString GuiBrlCadImportDialogue::stlFileName()
+{
+  return m_StlFileName;
+}
 
 

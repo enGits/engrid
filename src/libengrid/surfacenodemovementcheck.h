@@ -21,77 +21,31 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 
-#include "brlcadprojection.h"
+#ifndef SURFACENODEMOVEMENTCHECK_H
+#define SURFACENODEMOVEMENTCHECK_H
 
-BrlCadProjection::BrlCadProjection(QString file_name, QString object_name)
-{
-  setupBrlCad(file_name, object_name);
-  m_ForceRay = false;
-  m_Failed = false;
-}
+#include "egvtkobject.h"
+#include "meshpartition.h"
 
-BrlCadProjection::~BrlCadProjection()
+class SurfaceNodeMovementCheck : public EgVtkObject
 {
 
-}
+  vtkUnstructuredGrid*     m_SurfaceGrid;
+  vtkUnstructuredGrid*     m_VolumeGrid;
+  MeshPartition            m_SurfacePart;
+  MeshPartition            m_VolumePart;
 
-vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
-{  
-  vec3_t n = v;
-  if (n.abs() < 1e-3) {
-    if (id_node == -1) {
-      EG_BUG;
-    }
-    n = m_FPart.globalNormal(id_node);
-  }
-  if (!checkVector(x)) {
-    EG_BUG;
-  }
-  if (!checkVector(n)) {
-    cout << "vector defect (id_node=" << id_node << endl;
-    return x;
-    EG_BUG;
-  }
 
-  vec3_t x_proj = x;
-  m_LastNormal = n;
-  m_LastRadius = 1e10;
+public:
 
-  vec3_t x_hit1, n_hit1, x_hit2, n_hit2;
-  double r_hit1, r_hit2;
-  HitType hit_type1, hit_type2;
+  SurfaceNodeMovementCheck();
 
-  hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  if (hit_type1 == Miss) {
-    n *= -1;
-    hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  }
-  if (hit_type1 == Miss) {
-    m_Failed = true;
-    return x;
-  }
-  m_Failed = false;
-  n *= -1;
-  hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
-  x_proj = x_hit1;
-  m_LastNormal = n_hit1;
-  m_LastRadius = r_hit1;
-  if (hit_type2 != Miss) {
-    if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
-      x_proj = x_hit2;
-      m_LastNormal = n_hit2;
-      m_LastRadius = r_hit2;
-    }
-  }
-  return x_proj;
-}
+  void setSurfaceGrid(vtkUnstructuredGrid* surface_grid);
+  ~SurfaceNodeMovementCheck();
 
-double BrlCadProjection::getRadius(vtkIdType id_node)
-{
-  vec3_t x;
-  m_FGrid->GetPoint(id_node, x.data());
-  m_ForceRay = true;
-  project(x, id_node);
-  m_ForceRay = false;
-  return m_LastRadius;
-}
+  void update();
+  bool moveNode(vtkIdType id_node, vec3_t x_new);
+
+};
+
+#endif // SURFACENODEMOVEMENTCHECK_H

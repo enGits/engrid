@@ -25,6 +25,7 @@
 
 #include "surfaceoperation.h"
 #include "surfaceprojection.h"
+#include "surfacenodemovementcheck.h"
 
 class LaplaceSmoother : public SurfaceOperation
 {
@@ -38,8 +39,8 @@ private:
   double    m_UnderRelaxation;
   bool      m_Success;
   int       m_ProjectionIterations;
-  bool      m_FreeProjectionForEdges;
   double    m_FeatureMagic;
+  double    m_Limit;
 
   QVector<QVector<int> > m_NodeToBc;
 
@@ -48,11 +49,13 @@ private:
 
   QSet<vtkIdType> m_AllowedCellTypes;
   QVector<bool> m_Fixed;
+
   
 private: // methods
 
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
   bool moveNode(vtkIdType id_node, vec3_t &Dx);
+  void featureCorrection(vtkIdType id_node, SurfaceProjection *proj, vec3_t &x_new);
 
 
 public:
@@ -74,8 +77,6 @@ public:
   void setNoCheck(bool b) { m_NoCheck = b; }
   bool getNoCheck() { return m_NoCheck; }
   void setProjectionIterations(int n) { m_ProjectionIterations = n; }
-  void setFreeProjectionForEdgesOn() { m_FreeProjectionForEdges = true; }
-  void setFreeProjectionForEdgesOff() { m_FreeProjectionForEdges = false; }
 
 };
 

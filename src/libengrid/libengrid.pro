@@ -149,6 +149,7 @@ HEADERS = boundarycondition.h \
     checksurfaceintegrity.h \
     surfaceoperation.h \
     surfaceprojection.h \
+    trisurfaceprojection.h \
     octree.h \
     filetemplate.h \
     openfoamcase.h \
@@ -186,7 +187,12 @@ HEADERS = boundarycondition.h \
     dolfynwriter.h \
     guibrlcadimportdialogue.h \
     createcadtesselation.h \
-    createbrlcadtesselation.h
+    createbrlcadtesselation.h \
+    brlcadinterface.h \
+    statistics.h \
+    surfacenodemovementcheck.h \
+    globalnodegraphinterface.h \
+    checkerboardgraphiterator.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -268,6 +274,7 @@ SOURCES = boundarycondition.cpp \
     checksurfaceintegrity.cpp \
     surfaceoperation.cpp \
     surfaceprojection.cpp \
+    trisurfaceprojection.cpp \
     octree.cpp \
     filetemplate.cpp \
     openfoamcase.cpp \
@@ -299,7 +306,9 @@ SOURCES = boundarycondition.cpp \
     dolfynwriter.cpp \
     guibrlcadimportdialogue.cpp \
     createcadtesselation.cpp \
-    createbrlcadtesselation.cpp
+    createbrlcadtesselation.cpp \
+    brlcadinterface.cpp \
+    surfacenodemovementcheck.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

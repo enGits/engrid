@@ -25,6 +25,7 @@
 #include "elements.h"
 #include "optimisenormalvector.h"
 #include "pointfinder.h"
+#include "trisurfaceprojection.h"
 
 #include <QTime>
 
@@ -208,7 +209,7 @@ void GridSmoother::correctDx(int i_nodes, vec3_t &Dx)
       if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
         vec3_t x_new = x_old + Dx;
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->projectRestricted(x_new, nodes[i_nodes]);
+        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->project(x_new, nodes[i_nodes]);
         Dx = x_new - x_old;
       } else {
         if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {

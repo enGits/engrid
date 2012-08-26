@@ -46,11 +46,12 @@ class IOOperation : public Operation
   
 private: // attributes
   
-  bool    m_Valid;        ///< flag to determine if a valid file has been selected
-  QString m_FileName;     ///< file name to read -- normally set by inputReadFileName()
+  bool    m_Valid;          ///< flag to determine if a valid file has been selected
+  QString m_FileName;       ///< file name to read -- normally set by inputReadFileName()
   char m_FileName_cc[1024]; ///< "const char *" copy version of file name to read -- only used by getCFileName()
-  QString m_FormatTxt;    ///< file format string (e.g. *.stl, *.vtu, ...)
-  QString m_ExtensionTxt; ///< file extension for write operations
+  QString m_FormatTxt;      ///< file format string (e.g. *.stl, *.vtu, ...)
+  QString m_ExtensionTxt;   ///< file extension for write operations
+  bool    m_FileNameSet;    ///< has the file name been set already (batch operation)?
 
 protected: // methods
   
@@ -93,6 +94,7 @@ public: // methods
   void readOutputFileName(QString default_filename);                     ///< Open a QFileDialog and make the user input a file name for saving or exporting.
   void readOutputDirectory();                                            ///< Open a QFileDialog and make the user input a directory name for exporting.
   void readInputDirectory(QString title_txt = "select input directory"); ///< Open a QFileDialog and make the user input a directory name for importing.
+  void setFileName(QString file_name);                                   ///< set the file name for batch operation
   
 };
 

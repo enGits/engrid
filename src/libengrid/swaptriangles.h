@@ -42,20 +42,25 @@ private: // attributes
   bool          m_Verbose;
   int           m_MaxNumLoops;
   double        m_SmallAreaRatio;
-  double        m_SurfErrorThreshold;
+  double        m_SurfErrorLowerThreshold;
+  double        m_SurfErrorHigherThreshold;
+  double        m_SurfErrorRatio;
+  double        m_AverageSurfaceError;
+  double        m_SurfaceErrorDeviation;
 
 private: // methods
   
   ///returns true if performing a swap on the stencil does not change the orientation of the cells (tetra volume test)
-  bool testSwap(stencil_t S);
+  bool testOrientation(stencil_t S);
   
   ///returns true if id_node1 is linked to id_node2
   bool isEdge(vtkIdType id_node1, vtkIdType id_node2);
-    
+
 protected: // methods
   
   int swap();
   void computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2);
+  void computeAverageSurfaceError();
   virtual void operate();
 
 public:

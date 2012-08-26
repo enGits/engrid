@@ -43,10 +43,19 @@ public:
   void    prepare(QString file_name);
   bool    hasSelectedObject();
   QString selectedObject();
-  
+  double  scanMemory();
+  double  smallestFeatureSize();
+  double  smallestResolution();
+  int     smoothingIterations();
+  int     preservationType();
+  QString stlFileName();
+  bool    useStlFile();
+
 private:
 
   Ui::GuiBrlCadImportDialogue *ui;
+
+  QString m_StlFileName;
 
 };
 

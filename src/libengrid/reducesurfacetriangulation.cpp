@@ -22,7 +22,7 @@
 // 
 
 #include "reducesurfacetriangulation.h"
-#include "surfaceprojection.h"
+#include "trisurfaceprojection.h"
 
 ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
@@ -55,11 +55,7 @@ void ReduceSurfaceTriangulation::pass1()
     cout << "deleted nodes  : " << num_deleted << endl;
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       cout << "  smoothing    : " << i+1 << "/" << m_NumSmoothSteps << endl;
-      SurfaceProjection::Nfull = 0;
-      SurfaceProjection::Nhalf = 0;
       smooth(1);
-      cout << "    " << SurfaceProjection::Nfull << " full searches" << endl;
-      cout << "    " << SurfaceProjection::Nhalf << " half searches" << endl;
       swap();
     }
     done = num_deleted <= max(num_initial_nodes/100, num_del_max/100);
