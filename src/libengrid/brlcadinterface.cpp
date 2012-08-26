@@ -44,7 +44,11 @@ void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
   if (rt_gettree(m_Rtip, qPrintable(object_name)) < 0) {
     EG_ERR_RETURN("unable to access selected object");
   }
+#if defined(WIN32) || defined(WIN64)
+  rt_prep(m_Rtip);
+#else
   rt_prep_parallel(m_Rtip, 1);
+#endif
   application ap = {0};
   m_Ap = ap;
   m_Ap.a_rt_i   = m_Rtip;
