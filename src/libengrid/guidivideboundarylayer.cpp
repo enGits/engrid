@@ -221,8 +221,12 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     m_Grid->GetPoint(P.first, x1.data());
     m_Grid->GetPoint(P.second, x2.data());
     vec3_t n = x2-x1;
-    double alpha = GeometryTools::rad2deg(m_MaxConvexAngle[P.first]);
-    double h_rel = m_RelativeHeight*cl->GetValue(P.first)/n.abs();
+    double alpha  = GeometryTools::rad2deg(m_MaxConvexAngle[P.first]);
+    double cl_loc = cl->GetValue(P.first);
+    if (cl_loc < 1e-99) {
+      cl_loc = m_Part.getAverageSurfaceEdgeLength(P.first);
+    }
+    double h_rel = m_RelativeHeight*cl_loc/n.abs();
     {
       m_Y.resize(m_NumLayers + 1);
       m_Y[0] = 0;
@@ -231,11 +235,11 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     }
     if (alpha > m_CritAngle1) {
       double blend = min(1.0, (alpha - m_CritAngle1)/(m_CritAngle2 - m_CritAngle1));
-      double far_ratio = blend*m_FarRatio + (1-blend)*(1.0 - m_Y[m_NumLayers - 1])*n.abs()/cl->GetValue(P.first);
+      double far_ratio = blend*m_FarRatio + (1-blend)*(1.0 - m_Y[m_NumLayers - 1])*n.abs()/cl_loc;
       m_Y.resize(m_NumLayers + 1);
       m_Y[0] = 0;
       m_Y[1] = m_Blending*m_AbsoluteHeight/n.abs() + (1-m_Blending)*h_rel;
-      m_Y[m_NumLayers - 1] = 1.0 - far_ratio*cl->GetValue(P.first)/n.abs();
+      m_Y[m_NumLayers - 1] = 1.0 - far_ratio*cl_loc/n.abs();
       m_Y[m_NumLayers] = 1.0;
       computeY2();
     }

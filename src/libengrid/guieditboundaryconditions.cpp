@@ -329,9 +329,9 @@ void GuiEditBoundaryConditions::setupSolvers()
     }
 
     m_SolverBinary.push_back(binary);
-    MultiPageWidgetPage* page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
-    m_page_vector.push_back(page);
-    m_multipagewidget_Solver->addPage((QWidget*)page);
+    MultiPageWidgetPage* page2 = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
+    m_page_vector.push_back(page2);
+    m_multipagewidget_Solver->addPage((QWidget*)page2);
     m_multipagewidget_Solver->setPageTitle(title, idx);
 
     idx++;
