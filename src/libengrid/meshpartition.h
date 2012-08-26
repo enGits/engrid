@@ -181,6 +181,13 @@ public: // methods
    */
   int getNumberOfCells();
 
+  /**
+   * Get the average length of all surface edges connected to this node.
+   * @param id_node the node ID of the node in question
+   * @return the average length of all connected surface edges
+   */
+  double getAverageSurfaceEdgeLength(vtkIdType id_node);
+
   vtkIdType getVolumeCell(vtkIdType id_face);
 
   int       localNode(vtkIdType id_node);
