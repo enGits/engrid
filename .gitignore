@@ -34,10 +34,12 @@ engrid
 engrid_debug
 release
 debug
+# and build folder(s) that MSVC uses
 Release
 Debug
-Release-static
-Debug-static
+Release (Static)
+Debug (Static)
+x64
 
 # generated Makefiles
 Makefile
