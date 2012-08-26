@@ -97,7 +97,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib brlcad.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;..\..\..\third_party\VTK\lib;..\..\..\third_party\Qt\lib;..\..\..\third_party\BRLCAD\lib"
 				GenerateDebugInformation="true"
@@ -190,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib brlcad.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;..\..\..\third_party64\VTK\lib;..\..\..\third_party64\Qt\lib;..\..\..\third_party64\BRLCAD\lib"
 				GenerateDebugInformation="true"
@@ -282,7 +282,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib brlcad.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;..\..\..\third_party\VTK\lib;..\..\..\third_party\Qt\lib;..\..\..\third_party\BRLCAD\lib"
 				GenerateDebugInformation="false"
@@ -377,7 +377,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib"
+				AdditionalDependencies="nglib.lib qtmain.lib QtGui4.lib QtCore4.lib QtXml4.lib vtkCommon.lib vtkDICOMParser.lib vtkFiltering.lib vtkGenericFiltering.lib vtkGraphics.lib vtkHybrid.lib vtkIO.lib vtkImaging.lib vtkNetCDF.lib vtkRendering.lib vtkVolumeRendering.lib vtkWidgets.lib vtkexoIIc.lib vtkexpat.lib vtkfreetype.lib vtkftgl.lib vtkjpeg.lib vtksys.lib vtktiff.lib opengl32.lib glu32.lib QVTK.lib brlcad.lib"
 				OutputFile="$(OutDir)\libengrid.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;..\..\..\third_party64\VTK\lib;..\..\..\third_party64\Qt\lib;..\..\..\third_party64\BRLCAD\lib"
 				GenerateDebugInformation="false"
@@ -1297,6 +1297,10 @@
 				</File>
 				<File
 					RelativePath=".\$(IntDir)\moc_guibooleangeometryoperation.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\$(IntDir)\moc_guibrlcadimportdialogue.cpp"
 					>
 				</File>
 				<File
