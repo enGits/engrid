@@ -390,5 +390,30 @@ vec3_t MeshPartition::globalNormal(vtkIdType id_node)
   return normal;
 }
 
-
+double MeshPartition::getAverageSurfaceEdgeLength(vtkIdType id_node)
+{
+  QSet<vtkIdType> surface_neighbours;
+  for (int i = 0; i < n2cGSize(id_node); ++i) {
+    vtkIdType id_cell = n2cGG(id_node, i);
+    if (isSurface(id_cell, m_Grid)) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int j = 0; j < num_pts; ++j) {
+        if (pts[j] != id_node) {
+          surface_neighbours.insert(pts[j]);
+        }
+      }
+    }
+  }
+  double L = 0;
+  if (surface_neighbours.size() > 0) {
+    vec3_t x, xn;
+    m_Grid->GetPoint(id_node, x.data());
+    foreach (vtkIdType id_neigh, surface_neighbours) {
+      m_Grid->GetPoint(id_neigh, xn.data());
+      L += (x - xn).abs();
+    }
+    L /= surface_neighbours.size();
+  }
+  return L;
+}
 
