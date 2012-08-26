@@ -129,6 +129,12 @@ xcopy /s "%BRLCAD_DIR%\COPYING" . > NUL:
 xcopy /s "%BRLCAD_DIR%\readme.txt" . > NUL:
 xcopy /s "%BRLCAD_DIR%\doc" . > NUL:
 
+echo WARNING: Please edit the file "%CD%\include\brlcad\opennurbs_zlib.h"
+echo And change the line that says
+echo   #include <zlib.h>
+echo change to
+echo   #include "zlib.h"
+
 rem going back to the third_party folder
 cd ..
 
