@@ -414,7 +414,7 @@ protected: // methods
    * @param src a pointer to the source grid
    * @param dst a pointer to the destination grid
    */
-  void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst);
+  void makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, bool copy_data = true);
 
   /**
    * Copy a part of "src" grid to "dst" grid. Allocate "dst" so that it fits the data to be copied.
