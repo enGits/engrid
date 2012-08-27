@@ -48,7 +48,7 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
     EG_BUG;
   }
   if (!checkVector(n)) {
-    cout << "vector defect (id_node=" << id_node << endl;
+    cout << "vector defect (id_node=" << id_node << ")" << endl;
     return x;
     EG_BUG;
   }
