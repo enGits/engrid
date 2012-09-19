@@ -328,8 +328,8 @@ bool MeshPartition::hasBC(vtkIdType id_node, int bc)
 {
   bool found = false;
   for (int j = 0; j < n2bcGSize(id_node); ++j) {
-    if (n2bcG(id_node, j) = bc) {
-      found == true;
+    if (n2bcG(id_node, j) == bc) {
+      found = true;
       break;
     }
   }
