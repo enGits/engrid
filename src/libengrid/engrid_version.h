@@ -22,9 +22,9 @@
 // 
 #ifndef ENGRID_VERSION
 #if defined(WIN64) || defined(__MAC64) || defined(__LINUX64)
-  #define ENGRID_VERSION "dev_x64"
+  #define ENGRID_VERSION "1.4.0_beta_x64"
 #else
-  #define ENGRID_VERSION "dev"
+  #define ENGRID_VERSION "1.4.0_beta"
 #endif
 #define ENGRID_VERSION_FULLVER 1,4,0,0
 #define ENGRID_COMPANY_NAME "enGits GmbH"
