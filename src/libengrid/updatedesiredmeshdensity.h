@@ -55,7 +55,6 @@ private: //attributes
   double                      m_FeatureResolution3D;
   double                      m_FeatureThresholdAngle;
   QVector<double>             m_FeatureSize;
-  int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;

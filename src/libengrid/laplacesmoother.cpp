@@ -35,7 +35,6 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_UseProjection = true;
 //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
-  getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   m_NoCheck = false;
   m_ProjectionIterations = 50;
   m_FreeProjectionForEdges = false;
@@ -275,7 +274,6 @@ void LaplaceSmoother::operate()
 
               vec3_t Dx = x_new[i_nodes] - x_old;
               Dx *= m_UnderRelaxation;
-              Dx -= m_FeatureMagic*L_min*m_NodeNormal[id_node];
               if (moveNode(id_node, Dx)) {
                 x_new[i_nodes] = x_old + Dx;
               } else {
