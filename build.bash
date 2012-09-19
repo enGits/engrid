@@ -33,6 +33,7 @@ help ()
   echo "                ubuntu-10.10"
   echo "                ubuntu-11.04"
   echo "                ubuntu-11.10"
+  echo "                ubuntu-12.04"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
@@ -41,6 +42,8 @@ help ()
   echo "                opensuse-11.4-64"
   echo "                opensuse-12.1-32"
   echo "                opensuse-12.1-64"
+  echo "                opensuse-12.2-32"
+  echo "                opensuse-12.2-64"
 }
 
 # Check if all parameters are present
@@ -72,6 +75,9 @@ else
     elif [ $1 = 'ubuntu-11.10' ]
     then
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
+    elif [ $1 = 'ubuntu-12.04' ]
+    then
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
     elif [ $1 = 'opensuse-11.2-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
@@ -89,7 +95,12 @@ else
       config_name="opensuse32"
     elif [ $1 = 'opensuse-12.1-32' ]
     then
-      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse32-12"
+    elif [ $1 = 'opensuse-12.2-32' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.2/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse32-12"
     elif [ $1 = 'opensuse-11.2-64' ]
@@ -109,9 +120,46 @@ else
       config_name="opensuse64"
     elif [ $1 = 'opensuse-12.1-64' ]
     then
-      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
       config_name="opensuse64-12"
+    elif [ $1 = 'opensuse-12.2-64' ]
+    then
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.2/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      config_name="opensuse64-12"
+    elif [ $1 = 'fedora-17-32' ]
+    then
+      sudo yum -y install git
+      sudo yum -y install subversion
+      sudo yum -y install wget
+      sudo yum -y install gcc-c++
+      sudo yum -y install vtk-qt
+      config_name="fedora32"
+    elif [ $1 = 'fedora-17-64' ]
+    then
+      sudo yum -y install git
+      sudo yum -y install subversion
+      sudo yum -y install wget
+      sudo yum -y install gcc-c++
+      sudo yum -y install vtk-qt
+      config_name="fedora64"
+    elif [ $1 = 'fedora-16-32' ]
+    then
+      sudo yum -y install git
+      sudo yum -y install subversion
+      sudo yum -y install wget
+      sudo yum -y install gcc-c++
+      sudo yum -y install vtk-qt
+      config_name="fedora32"
+    elif [ $1 = 'fedora-16-64' ]
+    then
+      sudo yum -y install git
+      sudo yum -y install subversion
+      sudo yum -y install wget
+      sudo yum -y install gcc-c++
+      sudo yum -y install vtk-qt
+      config_name="fedora64"
     elif [ $1 = 'fedora-15-32' ]
     then
       sudo yum -y install git
@@ -128,6 +176,14 @@ else
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
       config_name="fedora64"
+    elif [ $1 = 'fedora-14-32' ]
+    then
+      sudo yum -y install git
+      sudo yum -y install subversion
+      sudo yum -y install wget
+      sudo yum -y install gcc-c++
+      sudo yum -y install vtk-qt
+      config_name="fedora32"
     elif [ $1 = 'fedora-14-64' ]
     then
       sudo yum -y install git
@@ -139,11 +195,10 @@ else
     else
       help
     fi
-    #git clone git://engrid.git.sourceforge.net/gitroot/engrid/engrid
-    git clone http://repo.or.cz/r/engrid.git
+    git clone git://github.com/enGits/engrid.git
     echo $config_name > engrid/config.txt
     cd engrid
-    git checkout -b release-1.3 remotes/origin/release-1.3
+    git checkout -b release-1.4 remotes/origin/release-1.4
     cd src
     source scripts/setup_pathes.bash $config_name
     source scripts/build-nglib.sh
