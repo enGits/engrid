@@ -74,12 +74,12 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   n *= -1;
   hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
   x_proj = x_hit1;
-  m_LastNormal = n_hit1;
+  m_LastNormal = (-1)*n_hit1;
   m_LastRadius = r_hit1;
   if (hit_type2 != Miss) {
     if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
       x_proj = x_hit2;
-      m_LastNormal = n_hit2;
+      m_LastNormal = (-1)*n_hit2;
       m_LastRadius = r_hit2;
     }
   }
