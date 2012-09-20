@@ -278,8 +278,15 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     }
   }
 
+  // experimental ...
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  char type = node_type->GetValue(id_node);
+  if (type != EG_SIMPLE_VERTEX) {
+    return type;
+  }
+
   // initialize default value
-  char type = EG_SIMPLE_VERTEX;
+  //char type = EG_SIMPLE_VERTEX;
 
   // loop through edges around id_node
 
