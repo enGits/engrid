@@ -25,26 +25,27 @@
 #define SURFACENODEMOVEMENTCHECK_H
 
 #include "egvtkobject.h"
-#include "meshpartition.h"
+
+#include <QList>
 
 class SurfaceNodeMovementCheck : public EgVtkObject
 {
 
-  vtkUnstructuredGrid*     m_SurfaceGrid;
-  vtkUnstructuredGrid*     m_VolumeGrid;
-  MeshPartition            m_SurfacePart;
-  MeshPartition            m_VolumePart;
+  vtkUnstructuredGrid* m_AuxGrid;
+  QVector<vec3_t>      m_Nodes;
+  vec3_t               m_OldCentre;
+  bool                 m_UpdateRequired;
 
 
 public:
 
-  SurfaceNodeMovementCheck();
-
-  void setSurfaceGrid(vtkUnstructuredGrid* surface_grid);
+  SurfaceNodeMovementCheck(vec3_t x);
   ~SurfaceNodeMovementCheck();
 
+  void addNode(vec3_t x);
   void update();
-  bool moveNode(vtkIdType id_node, vec3_t x_new);
+  bool operator()(vec3_t x);
+  void write(QString file_name);
 
 };
 

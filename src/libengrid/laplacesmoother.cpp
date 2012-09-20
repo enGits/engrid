@@ -27,6 +27,7 @@
 
 #include "guimainwindow.h"
 #include "globalnodegraphinterface.h"
+#include "surfacenodemovementcheck.h"
 
 using namespace GeometryTools;
 
@@ -162,7 +163,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
   if (m_FeatureMagic > 0) {
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
     EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    //if (node_type->GetValue(id_node) == VTK_FEATURE_EDGE_VERTEX) {
+    //if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
     {
       // "magic" vector to displace node for re-projection
       vec3_t magic_vector = m_NodeNormal[id_node];
@@ -230,6 +231,22 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
+
+  // TESTING BEGIN
+  /*
+  double L_max = 0;
+  SurfaceNodeMovementCheck movement_check(x_old);
+  for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+    vec3_t x;
+    m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x.data());
+    movement_check.addNode(x);
+    L_max = max(L_max, (x - x_old).abs());
+  }
+  movement_check.addNode(x_old + L_max*m_NodeNormal[id_node]);
+  movement_check.addNode(x_old - L_max*m_NodeNormal[id_node]);
+  */
+  // TESTING END
+
   for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
@@ -280,7 +297,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     }
 
     if (setNewPosition(id_node, x_new)) {
-      //if (m_NodeMovementCheck.moveNode(id_node, x_new)) {
+      m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
       moved = true;
       Dx = x_new - x_old;
       break;
@@ -352,8 +369,8 @@ void LaplaceSmoother::operate()
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
       if (!m_Fixed[id_node] && !blocked[i_nodes]) {
-        if (smooth_node[id_node] && node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
-          if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+        if (smooth_node[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
+          if (node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
             vec3_t n(0,0,0);
             if (snap_points.size() > 0) {

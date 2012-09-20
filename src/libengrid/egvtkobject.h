@@ -44,10 +44,11 @@ class BezierTriangle;
 #include <QSet>
 #include <QVector>
 
-#define VTK_SIMPLE_VERTEX 0
-#define VTK_FIXED_VERTEX 1
-#define VTK_FEATURE_EDGE_VERTEX 2
-#define VTK_BOUNDARY_EDGE_VERTEX 3
+#define EG_SIMPLE_VERTEX         0
+#define EG_FIXED_VERTEX          1
+#define EG_FEATURE_EDGE_VERTEX   2
+#define EG_BOUNDARY_EDGE_VERTEX  3
+#define EG_DETECTED_EDGE_VERTEX  4
 
 class EgVtkObject
 {
@@ -391,6 +392,15 @@ protected: // methods
    * @return the centre of the cell
    */
   vec3_t cellCentre(vtkUnstructuredGrid *grid, vtkIdType id_cell);
+
+  /**
+   * Compute the angle between two faces.
+   * @param grid the grid to use
+   * @param id_face1 index of the first face
+   * @param id_face2 index of the second face
+   * @return the angle between the faces (M_PI for a flat surface)
+   */
+  double faceAngle(vtkUnstructuredGrid* grid, vtkIdType id_face1, vtkIdType id_face2);
   
   /**
    * Get the cells of a grid that are not part of a given set of cells.
@@ -537,6 +547,18 @@ protected: // methods
    * @return true if id_cell contains id_node
    */
   bool cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell, vtkIdType id_node);
+
+  /**
+   * Get all node indices which are shared by two cells.
+   * These cells can be surface or volume cells; also a combination
+   * of a volume and a surface cell is possible.
+   * @param grid the grid to use
+   * @param id_cell1 index of the first cell
+   * @param id_cell2 index of the second cell
+   * @param cont a generic Qt container which will hold the shared node indices on return
+   */
+  template <typename C>
+  void sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cell1, vtkIdType id_cell2, C& cont);
 
   template <class C> void createPolyData(const C &x, vtkPolyData *poly_data, bool closed_loop = false);
   void createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c);
@@ -733,6 +755,18 @@ double EgVtkObject::convexRatio(const C &x, vec3_t n_plane, bool closed_loop)
     }
   }
   return L_min/L_max;
+}
+
+template <typename C>
+void EgVtkObject::sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cell1, vtkIdType id_cell2, C& cont)
+{
+  cont.clear();
+  EG_GET_CELL(id_cell1, grid);
+  for (int i = 0; i < num_pts; ++i) {
+    if (cellContainsNode(grid, id_cell2, pts[i])) {
+      cont << pts[i];
+    }
+  }
 }
 
 

@@ -163,7 +163,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool fix
   //initialize default values
   EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
   foreach( vtkIdType id_node, nodes ) {
-    if ( update_node_types ) node_type->SetValue( id_node, VTK_SIMPLE_VERTEX );
+    if ( update_node_types ) node_type->SetValue( id_node, EG_SIMPLE_VERTEX );
     m_PotentialSnapPoints[id_node].clear();
   }
 
@@ -196,33 +196,33 @@ int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool fix
       char edge = getEdgeType( id_node2, id_node1, fix_unselected );
 
       // determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
-      if (edge && node_type->GetValue(id_node1) == VTK_SIMPLE_VERTEX)
+      if (edge && node_type->GetValue(id_node1) == EG_SIMPLE_VERTEX)
       {
         m_PotentialSnapPoints[id_node1].clear();
         m_PotentialSnapPoints[id_node1].push_back( id_node2 );
         if ( update_node_types ) node_type->SetValue( id_node1, edge );
 
-      } else if (( edge && node_type->GetValue(id_node1) == VTK_BOUNDARY_EDGE_VERTEX) ||
-                 ( edge && node_type->GetValue(id_node1) == VTK_FEATURE_EDGE_VERTEX)  ||
-                 (!edge && node_type->GetValue(id_node1) == VTK_SIMPLE_VERTEX))
+      } else if (( edge && node_type->GetValue(id_node1) == EG_BOUNDARY_EDGE_VERTEX) ||
+                 ( edge && node_type->GetValue(id_node1) == EG_FEATURE_EDGE_VERTEX)  ||
+                 (!edge && node_type->GetValue(id_node1) == EG_SIMPLE_VERTEX))
       {
         m_PotentialSnapPoints[id_node1].push_back( id_node2 );
-        if ( node_type->GetValue( id_node1 ) && edge == VTK_BOUNDARY_EDGE_VERTEX ) {
-          if ( update_node_types ) node_type->SetValue( id_node1, VTK_BOUNDARY_EDGE_VERTEX );//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+        if ( node_type->GetValue( id_node1 ) && edge == EG_BOUNDARY_EDGE_VERTEX ) {
+          if ( update_node_types ) node_type->SetValue( id_node1, EG_BOUNDARY_EDGE_VERTEX );//EG_BOUNDARY_EDGE_VERTEX has priority over EG_FEATURE_EDGE_VERTEX
         }
       }
 
-      if ( edge && node_type->GetValue( id_node2 ) == VTK_SIMPLE_VERTEX ) {
+      if ( edge && node_type->GetValue( id_node2 ) == EG_SIMPLE_VERTEX ) {
         m_PotentialSnapPoints[id_node2].clear();
         m_PotentialSnapPoints[id_node2].push_back( id_node1 );
         if ( update_node_types ) node_type->SetValue( id_node2, edge );
       }
-      else if (( edge && node_type->GetValue( id_node2 ) == VTK_BOUNDARY_EDGE_VERTEX ) ||
-               ( edge && node_type->GetValue( id_node2 ) == VTK_FEATURE_EDGE_VERTEX ) ||
-               ( !edge && node_type->GetValue( id_node2 ) == VTK_SIMPLE_VERTEX ) ) {
+      else if (( edge && node_type->GetValue( id_node2 ) == EG_BOUNDARY_EDGE_VERTEX ) ||
+               ( edge && node_type->GetValue( id_node2 ) == EG_FEATURE_EDGE_VERTEX ) ||
+               ( !edge && node_type->GetValue( id_node2 ) == EG_SIMPLE_VERTEX ) ) {
         m_PotentialSnapPoints[id_node2].push_back( id_node1 );
-        if ( node_type->GetValue( id_node2 ) && edge == VTK_BOUNDARY_EDGE_VERTEX ) {
-          if ( update_node_types ) node_type->SetValue( id_node2, VTK_BOUNDARY_EDGE_VERTEX );//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
+        if ( node_type->GetValue( id_node2 ) && edge == EG_BOUNDARY_EDGE_VERTEX ) {
+          if ( update_node_types ) node_type->SetValue( id_node2, EG_BOUNDARY_EDGE_VERTEX );//EG_BOUNDARY_EDGE_VERTEX has priority over EG_FEATURE_EDGE_VERTEX
         }
       }
     }
@@ -236,12 +236,12 @@ int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool fix
   //cout<<"===post-processing==="<<endl;
   //This time, we loop through nodes
   foreach( vtkIdType id_node, nodes ) {
-    if ( node_type->GetValue( id_node ) == VTK_FEATURE_EDGE_VERTEX || node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
+    if ( node_type->GetValue( id_node ) == EG_FEATURE_EDGE_VERTEX || node_type->GetValue( id_node ) == EG_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
 
-      if ( !this->m_BoundarySmoothing && node_type->GetValue( id_node ) == VTK_BOUNDARY_EDGE_VERTEX ) {
-        if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
+      if ( !this->m_BoundarySmoothing && node_type->GetValue( id_node ) == EG_BOUNDARY_EDGE_VERTEX ) {
+        if ( update_node_types ) node_type->SetValue( id_node, EG_FIXED_VERTEX );
       } else if ( m_PotentialSnapPoints[id_node].size() != 2 ) {
-        if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
+        if ( update_node_types ) node_type->SetValue( id_node, EG_FIXED_VERTEX );
       }
       else { //check angle between edges
         double x1[3], x2[3], x3[3], l1[3], l2[3];
@@ -255,7 +255,7 @@ int SurfaceOperation::UpdatePotentialSnapPoints(bool update_node_types, bool fix
         if ( vtkMath::Normalize( l1 ) >= 0.0 &&
              vtkMath::Normalize( l2 ) >= 0.0 &&
              vtkMath::Dot( l1, l2 ) < CosEdgeAngle ) {
-          if ( update_node_types ) node_type->SetValue( id_node, VTK_FIXED_VERTEX );
+          if ( update_node_types ) node_type->SetValue( id_node, EG_FIXED_VERTEX );
         }
       }//if along edge
     }//if edge vertex
@@ -274,12 +274,12 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
   // fix all vertices that are part of a volume element or a quad
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     if (m_Grid->GetCellType(m_Part.n2cGG(id_node, i)) != VTK_TRIANGLE) {
-      return VTK_FIXED_VERTEX;
+      return EG_FIXED_VERTEX;
     }
   }
 
   // initialize default value
-  char type = VTK_SIMPLE_VERTEX;
+  char type = EG_SIMPLE_VERTEX;
 
   // loop through edges around id_node
 
@@ -302,33 +302,33 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     // count number of complex edges if the node is complex,
     // otherwise, just count the number of edges
     //
-    if (edge != VTK_SIMPLE_VERTEX && type == VTK_SIMPLE_VERTEX) {
+    if (edge != EG_SIMPLE_VERTEX && type == EG_SIMPLE_VERTEX) {
 
       edges.clear();
       edges.push_back(id_node2);
       type = edge;
 
-    } else if ((edge != VTK_SIMPLE_VERTEX && type == VTK_BOUNDARY_EDGE_VERTEX) ||
-               (edge != VTK_SIMPLE_VERTEX && type == VTK_FEATURE_EDGE_VERTEX)  ||
-               (edge == VTK_SIMPLE_VERTEX && type == VTK_SIMPLE_VERTEX))
+    } else if ((edge != EG_SIMPLE_VERTEX && type == EG_BOUNDARY_EDGE_VERTEX) ||
+               (edge != EG_SIMPLE_VERTEX && type == EG_FEATURE_EDGE_VERTEX)  ||
+               (edge == EG_SIMPLE_VERTEX && type == EG_SIMPLE_VERTEX))
     {
       edges.push_back(id_node2);
-      if (type != VTK_SIMPLE_VERTEX && edge == VTK_BOUNDARY_EDGE_VERTEX) {
-        // VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
-        type = VTK_BOUNDARY_EDGE_VERTEX;
+      if (type != EG_SIMPLE_VERTEX && edge == EG_BOUNDARY_EDGE_VERTEX) {
+        // EG_BOUNDARY_EDGE_VERTEX has priority over EG_FEATURE_EDGE_VERTEX
+        type = EG_BOUNDARY_EDGE_VERTEX;
       }      
     }
   }
 
   // determine node type post-processing
-  if (type == VTK_FEATURE_EDGE_VERTEX || type == VTK_BOUNDARY_EDGE_VERTEX) {
+  if (type == EG_FEATURE_EDGE_VERTEX || type == EG_BOUNDARY_EDGE_VERTEX) {
 
     // check how how many edges; if two, what is the angle?
 
-    if (!this->m_BoundarySmoothing && type == VTK_BOUNDARY_EDGE_VERTEX) {
-      type = VTK_FIXED_VERTEX;
+    if (!this->m_BoundarySmoothing && type == EG_BOUNDARY_EDGE_VERTEX) {
+      type = EG_FIXED_VERTEX;
     } else if (edges.size() != 2) {
-      //type = VTK_FIXED_VERTEX;
+      //type = EG_FIXED_VERTEX;
     } else {
 
       // check angle between edges
@@ -339,7 +339,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       l1 = x2 - x1;
       l2 = x3 - x2;
       if (l1.abs() >= 0.0 && l2.abs() >= 0.0 && l1*l2 < cos_edge_angle) {
-        //type = VTK_FIXED_VERTEX;
+        //type = EG_FIXED_VERTEX;
       }
     } // if along edge
   } // if edge vertex
@@ -398,17 +398,17 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
   int numNei = getEdgeCells(a_node1, a_node2, neighbour_cells) - 1;
 
   // set default value
-  char edge = VTK_SIMPLE_VERTEX;
+  char edge = EG_SIMPLE_VERTEX;
 
   if (numNei == 0) {
-    edge = VTK_BOUNDARY_EDGE_VERTEX;
+    edge = EG_BOUNDARY_EDGE_VERTEX;
   } else if (numNei >= 2) {
-    edge = VTK_BOUNDARY_EDGE_VERTEX;
+    edge = EG_BOUNDARY_EDGE_VERTEX;
   } else if (numNei == 1) {
 
     // check angle between cell1 and cell2 against FeatureAngle
     if (cosAngle(m_Grid, neighbour_cells[0], neighbour_cells[1] ) <= cos_feature_angle && !feature_edges_disabled) {
-      edge = VTK_FEATURE_EDGE_VERTEX;
+      edge = EG_FEATURE_EDGE_VERTEX;
     }
 
     // check the boundary codes
@@ -416,13 +416,13 @@ char SurfaceOperation::getEdgeType(vtkIdType a_node1, vtkIdType a_node2, bool fi
     int cell_code_0 = cell_code->GetValue( neighbour_cells[0] );
     int cell_code_1 = cell_code->GetValue( neighbour_cells[1] );
     if (cell_code_0 !=  cell_code_1) {
-      edge = VTK_BOUNDARY_EDGE_VERTEX;
+      edge = EG_BOUNDARY_EDGE_VERTEX;
     }
 
     if (fix_unselected) {
       if (!m_BoundaryCodes.contains(cell_code_0) || !m_BoundaryCodes.contains(cell_code_1)) {
         // does not make sense, but should make the points of the edge fixed
-        edge = VTK_FIXED_VERTEX;
+        edge = EG_FIXED_VERTEX;
       }
     }
   }

@@ -40,8 +40,8 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_SmallAreaRatio = 1e-3;
   m_Verbose = false;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
-  getSet("surface meshing", "surface error threshold (lower)", 0.05, m_SurfErrorLowerThreshold);
-  getSet("surface meshing", "surface error threshold (higher)", 0.25, m_SurfErrorHigherThreshold);
+  getSet("surface meshing", "surface error threshold", 0.05, m_SurfErrorThreshold);
+  m_SurfErrorThreshold = deg2rad(m_SurfErrorThreshold);
 }
 
 bool SwapTriangles::testOrientation(stencil_t S)
@@ -108,27 +108,216 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
   return(ret);
 }
 
+double SwapTriangles::computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, SurfaceProjection* proj)
+{
+  static const double f13 = 1.0/3.0;
+  vec3_t x = f13*(x1 + x2 + x3);
+  vec3_t n = triNormal(x1, x2, x3);
+  n.normalise();
+  if (!checkVector(n)) {
+    return 0;
+  }
+  vec3_t xp = proj->project(x, -1, true, n);
+  n = proj->lastProjNormal();
+  xp = proj->project(x, -1, true, n);
+  return (x - xp).abs();
+}
+
+double SwapTriangles::edgeAngle(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4)
+{
+  static const double f13 = 1.0/3.0;
+  vec3_t xf1 = f13*(x1 + x2 + x4);
+  vec3_t xf2 = f13*(x2 + x3 + x4);
+  vec3_t xe  = 0.5*(x2 + x4);
+  vec3_t xfe = 0.5*(xf1 + xf2);
+  vec3_t n1  = triNormal(x1, x2, x4);
+  vec3_t n2  = triNormal(x2, x3, x4);
+  vec3_t ve  = xe - xfe;
+  double alpha = angle(n1, n2);
+  if ((n1 + n2)*ve < 0) {
+    return -alpha;
+  }
+  return alpha;
+}
+
+vtkIdType SwapTriangles::neighbourNode(vtkIdType id_node0, vtkIdType id_node1, vtkIdType id_node2)
+{
+  for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+    vtkIdType id_neigh = m_Part.n2nGG(id_node1, i);
+    if (id_neigh != id_node0) {
+      if (m_Part.hasNeighNode(id_node2, id_neigh)) {
+        return id_neigh;
+      }
+    }
+  }
+  EG_BUG;
+  return -1;
+}
+
+bool SwapTriangles::swapDueToSurfaceNoise(stencil_t S)
+{
+  vtkIdType p1  = S.id_node[0];
+  vtkIdType p2  = S.p1;
+  vtkIdType p3  = S.id_node[1];
+  vtkIdType p4  = S.p2;
+  vtkIdType p12 = neighbourNode(p4, p1, p2);
+  vtkIdType p23 = neighbourNode(p4, p2, p3);
+  vtkIdType p34 = neighbourNode(p2, p3, p4);
+  vtkIdType p41 = neighbourNode(p2, p4, p1);
+  vec3_t x1, x2, x3, x4, x12, x23, x34, x41;
+  m_Grid->GetPoint(p1, x1.data());
+  m_Grid->GetPoint(p2, x2.data());
+  m_Grid->GetPoint(p3, x3.data());
+  m_Grid->GetPoint(p4, x4.data());
+  m_Grid->GetPoint(p12, x12.data());
+  m_Grid->GetPoint(p23, x23.data());
+  m_Grid->GetPoint(p34, x34.data());
+  m_Grid->GetPoint(p41, x41.data());
+
+  double noise1, noise2;
+  {
+    double alpha_min =  M_PI;
+    double alpha_max = -M_PI;
+    double alpha;
+
+    alpha = edgeAngle(x4, x1, x12, x2);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x4, x2, x23, x3);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x2, x3, x34, x4);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x2, x4, x41, x1);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x1, x2, x3, x4);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    noise1 = alpha_max - alpha_min;
+  }
+  {
+    double alpha_min =  M_PI;
+    double alpha_max = -M_PI;
+    double alpha;
+
+    alpha = edgeAngle(x3, x1, x12, x2);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x1, x2, x23, x3);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x1, x3, x34, x4);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x3, x4, x41, x1);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    alpha = edgeAngle(x2, x3, x4, x1);
+    alpha_max = max(alpha, alpha_max);
+    alpha_min = min(alpha, alpha_min);
+
+    noise2 = alpha_max - alpha_min;
+  }
+
+  if (noise1 > m_SurfErrorThreshold && noise1 > noise2) {
+    return true;
+  }
+
+  return false;
+}
+
 void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2)
 {
   using namespace GeometryTools;
   err1 = 0;
-  err2 = 0;
+  err2 = 1e10;
   SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
   if (!proj) {
     return;
   }
 
-  vec3_t n = triNormal(x[0], x[1], x[3]) + triNormal(x[1], x[2], x[3]);
-  n.normalise();
+  double d013 = computeSurfaceDistance(x[0], x[1], x[3], proj);
+  double d123 = computeSurfaceDistance(x[1], x[2], x[3], proj);
+  double d012 = computeSurfaceDistance(x[0], x[1], x[2], proj);
+  double d023 = computeSurfaceDistance(x[0], x[2], x[3], proj);
 
-  vec3_t xe1 = 0.5*(x[1] + x[3]);
-  vec3_t xe2 = 0.5*(x[0] + x[2]);
+  double L = max((x[1] - x[3]).abs(), (x[0] - x[2]).abs());
+  err1 = max(d013, d123)/L;
+  err2 = max(d012, d023)/L;
+  if (err1 < m_SurfErrorThreshold) {
+    err1 = 0;
+  }
+  if (err2 < m_SurfErrorThreshold) {
+    err2 = 0;
+  }
 
-  vec3_t xe1_proj = proj->project(xe1, -1, true, n);
-  vec3_t xe2_proj = proj->project(xe2, -1, true, n);
+  /*
+  // new version based on surface normals
+  vec3_t n013 = triNormal(x[0], x[1], x[3]);
+  vec3_t n123 = triNormal(x[1], x[2], x[3]);
+  vec3_t n012 = triNormal(x[0], x[1], x[2]);
+  vec3_t n023 = triNormal(x[0], x[2], x[3]);
+  n013.normalise();
+  n123.normalise();
+  n012.normalise();
+  n023.normalise();
+  if (!checkVector(n013)) {
+    return;
+  }
+  if (!checkVector(n123)) {
+    return;
+  }
+  if (!checkVector(n012)) {
+    return;
+  }
+  if (!checkVector(n023)) {
+    return;
+  }
 
-  err1 = (xe1 - xe1_proj).abs()/(x[1] - x[3]).abs();
-  err2 = (xe2 - xe2_proj).abs()/(x[0] - x[2]).abs();
+  vec3_t xe13 = 0.5*(x[1] + x[3]);
+  vec3_t xe02 = 0.5*(x[0] + x[2]);
+
+  vec3_t n;
+
+  vec3_t xe13_p013 = proj->project(xe13, -1, true, n013);
+  n = proj->lastProjNormal();
+  double d13_013 = fabs((xe13_p013 - xe13)*n);
+
+  vec3_t xe13_p123 = proj->project(xe13, -1, true, n123);
+  n = proj->lastProjNormal();
+  double d13_123 = fabs((xe13_p123 - xe13)*n);
+
+  vec3_t xe02_p012 = proj->project(xe02, -1, true, n012);
+  n = proj->lastProjNormal();
+  double d02_012 = fabs((xe02_p012 - xe02)*n);
+
+  vec3_t xe02_p023 = proj->project(xe02, -1, true, n023);
+  n = proj->lastProjNormal();
+  double d02_023 = fabs((xe02_p023 - xe02)*n);
+
+  double L = max((x[1] - x[3]).abs(), (x[0] - x[2]).abs());
+
+  err1 = min(d13_013, d13_123)/L;
+  err2 = min(d02_012, d02_023)/L;
+
+  if (err1 < m_SurfErrorThreshold) {
+    err1 = 0;
+  }
+  if (err2 < m_SurfErrorThreshold) {
+    err2 = 0;
+  }
+  */
 }
 
 int SwapTriangles::swap()
@@ -144,6 +333,7 @@ int SwapTriangles::swap()
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
+          bool surface_error_swap = false;
           stencil_t S = getStencil(id_cell, j);
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
@@ -176,11 +366,12 @@ int SwapTriangles::swap()
                     double se1, se2;
                     bool surf_block = false;
                     computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                    if (se2 > se1 && se2 > m_SurfErrorHigherThreshold && se1 < m_SurfErrorLowerThreshold) {
+                    if (se2 > se1) { // && se2 > m_SurfErrorHigherThreshold && se1 < m_SurfErrorLowerThreshold) {
                       surf_block = true;
                     } else {
-                      if (se2 < se1 && se1 > m_SurfErrorHigherThreshold && se2 < m_SurfErrorLowerThreshold) {
+                      if (se2 < se1) { // && se1 > m_SurfErrorHigherThreshold && se2 < m_SurfErrorLowerThreshold) {
                         swap = true;
+                        surface_error_swap = true;
                       }
                     }
 
@@ -228,7 +419,7 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            if (testOrientation(S)) {
+            if (testOrientation(S) || surface_error_swap) {
               marked[S.id_cell[0]] = true;
               marked[S.id_cell[1]] = true;
               for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {

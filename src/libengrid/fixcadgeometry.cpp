@@ -103,7 +103,7 @@ void FixCadGeometry::customUpdateNodeInfo()
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   l2g_t cells = getPartCells();
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    node_type->SetValue(id_node, VTK_FIXED_VERTEX);
+    node_type->SetValue(id_node, EG_FIXED_VERTEX);
   }
   foreach (vtkIdType id_cell, cells) {
     if (isSurface(id_cell, m_Grid)) {
@@ -137,7 +137,7 @@ void FixCadGeometry::customUpdateNodeInfo()
         }
         for (int i = 0; i < N_pts; ++i) {
           if (num_bad_edges[i] >= 2) {
-            node_type->SetValue(pts[i], VTK_SIMPLE_VERTEX);
+            node_type->SetValue(pts[i], EG_SIMPLE_VERTEX);
           }
         }
       }

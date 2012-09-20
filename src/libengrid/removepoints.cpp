@@ -142,7 +142,7 @@ void RemovePoints::operate()
     vtkIdType id_node = selected_nodes[i_selected_nodes];
 
     int i_node = _nodes[id_node];
-    if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX && !m_Fixed[id_node]) {
+    if(node_type->GetValue(id_node) != EG_FIXED_VERTEX && !m_Fixed[id_node]) {
       if (!marked_nodes[i_node]) {
 
         // preparations
@@ -556,7 +556,7 @@ vtkIdType RemovePoints::findSnapPoint(vtkIdType DeadNode,
   l2g_t cells = getPartCells();// all SURFACE cells
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  if(node_type->GetValue(DeadNode) == VTK_FIXED_VERTEX) {
+  if(node_type->GetValue(DeadNode) == EG_FIXED_VERTEX) {
     cout << "ERROR: unable to remove fixed vertex." << endl;
     EG_BUG;
     return(-1);

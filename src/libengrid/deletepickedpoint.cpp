@@ -110,7 +110,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   QVector <vtkIdType> deadnode_vector;
   QVector <vtkIdType> snappoint_vector;
   
-  if (node_type->GetValue(id_node) != VTK_FIXED_VERTEX) {
+  if (node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
       // local values
       QVector <vtkIdType> dead_cells;
       QVector <vtkIdType> mutated_cells;

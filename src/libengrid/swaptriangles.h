@@ -25,6 +25,7 @@
 
 class SwapTriangles;
 
+#include "surfaceprojection.h"
 #include "surfaceoperation.h"
 
 /**
@@ -42,8 +43,7 @@ private: // attributes
   bool          m_Verbose;
   int           m_MaxNumLoops;
   double        m_SmallAreaRatio;
-  double        m_SurfErrorLowerThreshold;
-  double        m_SurfErrorHigherThreshold;
+  double        m_SurfErrorThreshold;
   double        m_SurfErrorRatio;
   double        m_AverageSurfaceError;
   double        m_SurfaceErrorDeviation;
@@ -59,6 +59,10 @@ private: // methods
 protected: // methods
   
   int swap();
+  double computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, SurfaceProjection *proj);
+  double edgeAngle(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
+  vtkIdType neighbourNode(vtkIdType id_node0, vtkIdType id_node1, vtkIdType id_node2);
+  bool swapDueToSurfaceNoise(stencil_t S);
   void computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2);
   void computeAverageSurfaceError();
   virtual void operate();
