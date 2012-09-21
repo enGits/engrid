@@ -195,10 +195,10 @@ else
     else
       help
     fi
-    git clone git://github.com/enGits/engrid.git
+    git clone git://github.com/wyldckat/engrid.git
     echo $config_name > engrid/config.txt
     cd engrid
-    git checkout -b release-1.4 remotes/origin/release-1.4
+    git checkout -b sandbox-1.4 remotes/origin/sandbox-1.4
     cd src
     source scripts/setup_pathes.bash $config_name
     source scripts/build-nglib.sh
