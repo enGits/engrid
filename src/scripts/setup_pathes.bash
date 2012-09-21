@@ -32,10 +32,8 @@ help ()
   echo "                ubuntu-10.10"
   echo "                opensuse32"
   echo "                opensuse64"
-  echo "                opensuse32-12.1"
-  echo "                opensuse64-12.1"
-  echo "                opensuse32-12.2"
-  echo "                opensuse64-12.2"
+  echo "                opensuse32-12"
+  echo "                opensuse64-12"
   echo "                fedora32"
   echo "                fedora64"
 }
@@ -70,21 +68,13 @@ else
   then
     export VTKINCDIR=/usr/include/vtk-5.8
     export VTKLIBDIR=/usr/lib64
-  elif [ $1 = 'opensuse32-12.1' ]
+  elif [ $1 = 'opensuse32-12' ]
   then
     export VTKINCDIR=/usr/include/vtk-5.8
     export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'opensuse64-12.1' ]
+  elif [ $1 = 'opensuse64-12' ]
   then
     export VTKINCDIR=/usr/include/vtk-5.8
-    export VTKLIBDIR=/usr/lib64
-  elif [ $1 = 'opensuse32-12.2' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.10
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'opensuse64-12.2' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.10
     export VTKLIBDIR=/usr/lib64
   elif [ $1 = 'fedora32' ]
   then
