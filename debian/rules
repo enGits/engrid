@@ -10,11 +10,11 @@
 #export DH_VERBOSE=1
 
 # Add here any variable or target overrides you need.
-QMAKE=qmake-qt4
+QMAKE=qmake-qt4 -recursive
 CFLAGS=-O3
 CXXFLAGS=-O3
 DEB_BUILDDIR=src
-DEB_QMAKE_CONFIG_VAL=debian CGNS
+DEB_QMAKE_CONFIG_VAL=debian
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/qmake.mk
