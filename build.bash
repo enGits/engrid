@@ -72,65 +72,65 @@ else
     config_name=$1
     if [ $1 = 'ubuntu-10.10' ]
     then
-      sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+      sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'ubuntu-11.04' ]
     then
-      sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools
+      sudo apt-get install git-core subversion libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'ubuntu-11.10' ]
     then
-      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'ubuntu-12.04' ]
     then
-      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'opensuse-11.2-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse32"
     elif [ $1 = 'opensuse-11.3-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse32"
     elif [ $1 = 'opensuse-11.4-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse32-12"
     elif [ $1 = 'opensuse-12.1-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse32-12"
     elif [ $1 = 'opensuse-12.2-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse32-12"
     elif [ $1 = 'opensuse-11.2-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse64"
     elif [ $1 = 'opensuse-11.3-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse64"
     elif [ $1 = 'opensuse-11.4-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse64-12"
     elif [ $1 = 'opensuse-12.1-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse64-12"
     elif [ $1 = 'opensuse-12.2-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
       config_name="opensuse64-12"
     elif [ $1 = 'fedora-17-32' ]
     then
