@@ -5,4 +5,4 @@ Icon=/usr/share/pixmaps/engrid.xpm
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=Development;
+Categories=Education;Science;
