@@ -140,6 +140,7 @@ else
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
       sudo yum -y install vtk-devel
+      sudo yum -y install patch
       config_name="fedora32-17"
     elif [ $1 = 'fedora-17-64' ]
     then
@@ -149,6 +150,7 @@ else
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
       sudo yum -y install vtk-devel
+      sudo yum -y install patch
       config_name="fedora64-17"
     elif [ $1 = 'fedora-16-32' ]
     then
@@ -157,6 +159,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install vtk-devel
+      sudo yum -y install patch
       config_name="fedora32"
     elif [ $1 = 'fedora-16-64' ]
     then
@@ -165,6 +169,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install vtk-devel
+      sudo yum -y install patch
       config_name="fedora64"
     elif [ $1 = 'fedora-15-32' ]
     then
@@ -173,6 +179,7 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install patch
       config_name="fedora32"
     elif [ $1 = 'fedora-15-64' ]
     then
@@ -181,6 +188,7 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install patch
       config_name="fedora64"
     elif [ $1 = 'fedora-14-32' ]
     then
@@ -189,6 +197,7 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install patch
       config_name="fedora32"
     elif [ $1 = 'fedora-14-64' ]
     then
@@ -197,6 +206,7 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install patch
       config_name="fedora64"
     else
       help
