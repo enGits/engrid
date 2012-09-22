@@ -88,6 +88,18 @@ else
     export VTKLIBDIR=/usr/lib64
     chmod +x scripts/qmake
     export PATH=$PATH:`pwd`/scripts
+  elif [ $1 = 'fedora32-17' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
+    export VTKLIBDIR=/usr/lib/vtk
+    chmod +x scripts/qmake
+    export PATH=$PATH:`pwd`/scripts
+  elif [ $1 = 'fedora64-17' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
+    export VTKLIBDIR=/usr/lib64/vtk
+    chmod +x scripts/qmake
+    export PATH=$PATH:`pwd`/scripts
   else
     help
   fi

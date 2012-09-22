@@ -139,7 +139,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
-      config_name="fedora32"
+      sudo yum -y install vtk-devel
+      config_name="fedora32-17"
     elif [ $1 = 'fedora-17-64' ]
     then
       sudo yum -y install git
@@ -147,7 +148,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
-      config_name="fedora64"
+      sudo yum -y install vtk-devel
+      config_name="fedora64-17"
     elif [ $1 = 'fedora-16-32' ]
     then
       sudo yum -y install git
