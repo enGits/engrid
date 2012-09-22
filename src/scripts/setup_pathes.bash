@@ -70,11 +70,11 @@ else
     export VTKLIBDIR=/usr/lib64
   elif [ $1 = 'opensuse32-12' ]
   then
-    export VTKINCDIR=/usr/include/vtk-5.8
+    export VTKINCDIR=/usr/include/vtk-5.10
     export VTKLIBDIR=/usr/lib
   elif [ $1 = 'opensuse64-12' ]
   then
-    export VTKINCDIR=/usr/include/vtk-5.8
+    export VTKINCDIR=/usr/include/vtk-5.10
     export VTKLIBDIR=/usr/lib64
   elif [ $1 = 'fedora32' ]
   then
@@ -86,6 +86,18 @@ else
   then
     export VTKINCDIR=/usr/include/vtk
     export VTKLIBDIR=/usr/lib64
+    chmod +x scripts/qmake
+    export PATH=$PATH:`pwd`/scripts
+  elif [ $1 = 'fedora32-17' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
+    export VTKLIBDIR=/usr/lib/vtk
+    chmod +x scripts/qmake
+    export PATH=$PATH:`pwd`/scripts
+  elif [ $1 = 'fedora64-17' ]
+  then
+    export VTKINCDIR=/usr/include/vtk
+    export VTKLIBDIR=/usr/lib64/vtk
     chmod +x scripts/qmake
     export PATH=$PATH:`pwd`/scripts
   else

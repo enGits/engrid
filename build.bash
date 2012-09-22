@@ -26,7 +26,11 @@ help ()
 {
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
-  echo "CONFIGURATION = fedora-15-32"
+  echo "CONFIGURATION = fedora-17-32"
+  echo "                fedora-17-64"
+  echo "                fedora-16-32"
+  echo "                fedora-16-64"
+  echo "                fedora-15-32"
   echo "                fedora-15-64"
   echo "                fedora-14-32"
   echo "                fedora-14-64"
@@ -92,7 +96,7 @@ else
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-      config_name="opensuse32"
+      config_name="opensuse32-12"
     elif [ $1 = 'opensuse-12.1-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
@@ -117,7 +121,7 @@ else
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
-      config_name="opensuse64"
+      config_name="opensuse64-12"
     elif [ $1 = 'opensuse-12.1-64' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
@@ -135,7 +139,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
-      config_name="fedora32"
+      sudo yum -y install vtk-devel
+      config_name="fedora32-17"
     elif [ $1 = 'fedora-17-64' ]
     then
       sudo yum -y install git
@@ -143,7 +148,8 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
-      config_name="fedora64"
+      sudo yum -y install vtk-devel
+      config_name="fedora64-17"
     elif [ $1 = 'fedora-16-32' ]
     then
       sudo yum -y install git
