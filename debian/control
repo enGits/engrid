@@ -28,7 +28,7 @@ Section: doc
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: engrid
-Description: Documentation for enGrid
+Description: Documentation and Tutorials for enGrid
  ENGRID is an open-source mesh generation software with CFD applications in
  mind. ENGRID uses the NETGEN library for tetrahedral grid generation and an
  in-house development for prismatic boundary layer grids. Internally, ENGRID
@@ -41,7 +41,7 @@ Description: Documentation for enGrid
  quite robust and it does not require much user interaction.
  The development of ENGRID has been funded by the European Space Agency
  .
- This package contains the documentation.
+ This package contains the documentation and tutorials.
 
 Package: engrid-blenderscripts
 Architecture: all
