@@ -26,7 +26,11 @@ help ()
 {
   echo "usage :"
   echo "`basename $0` CONFIGURATION"
-  echo "CONFIGURATION = fedora-15-32"
+  echo "CONFIGURATION = fedora-17-32"
+  echo "                fedora-17-64"
+  echo "                fedora-16-32"
+  echo "                fedora-16-64"
+  echo "                fedora-15-32"
   echo "                fedora-15-64"
   echo "                fedora-14-32"
   echo "                fedora-14-64"
