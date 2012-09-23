@@ -1,3 +1,9 @@
+engrid (1.4.0-ubuntu2) oneiric; urgency=low
+
+  * Cleaned up the packaging.
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Wed, 22 Sep 2012 12:00:00 +0100
+
 engrid (1.4.0-ubuntu1) oneiric; urgency=low
 
   * Script upgrade
