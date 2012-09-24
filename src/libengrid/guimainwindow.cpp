@@ -2156,7 +2156,7 @@ void GuiMainWindow::resetSurfaceProjection()
   }
 }
 
-SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
+SurfaceProjection* GuiMainWindow::getSurfProj(int bc, bool allow_null)
 {
   QString bc_txt;
   bc_txt.setNum(bc);
@@ -2166,6 +2166,9 @@ SurfaceProjection* GuiMainWindow::getSurfProj(int bc)
   if (!m_SurfProj.contains(bc)) {
     if (m_UniSurfProj) {
       return m_UniSurfProj;
+    }
+    if (allow_null) {
+      return NULL;
     }
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
