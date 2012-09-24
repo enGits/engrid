@@ -42,9 +42,10 @@ public:
   BrlCadProjection(QString file_name, QString object_name);
   ~BrlCadProjection();
 
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0));
+  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0), bool strict_direction = false);
   virtual double getRadius(vtkIdType id_node);
   virtual vec3_t lastProjNormal() { return m_LastNormal; }
+  virtual double lastProjRadius() { return m_LastRadius; }
   virtual bool   lastProjFailed() { return m_Failed; }
 
 };

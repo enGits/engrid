@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2012 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,32 +19,30 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 
-#include "smoothandswapsurface.h"
+#ifndef LOCALNODEGRAPHINTERFACE_H
+#define LOCALNODEGRAPHINTERFACE_H
 
-SmoothAndSwapSurface::SmoothAndSwapSurface()
+#include "meshpartition.h"
+
+/**
+ * @brief An interface to run generic algorithms on the node graph of a grid.
+ */
+class LocalNodeGraphInterface
 {
-  EG_TYPENAME;
-  m_PerformGeometricTests = false;
-  m_UseProjectionForSmoothing = false;
-  m_UseNormalCorrectionForSmoothing = false;
-  m_AllowFeatureEdgeSwapping = true;
-}
 
-void SmoothAndSwapSurface::operate()
-{
-  prepare();
-  cout << "1st Delaunay swap" << endl;
-  swap();
-  cout << "smoothing" << endl;
-  for (int i = 0; i < 1; ++i) {
-    smooth(1);
-  }
-  cout << "2nd Delaunay swap" << endl;
-  swap();
-  createIndices(m_Grid);
-  updateNodeInfo();
-  computeMeshDensity();
-}
+  MeshPartition* m_Part;
 
+public:
+
+  typedef vtkIdType index_type;
+
+  void   setMeshPartition(MeshPartition* part) { m_Part = part; }
+  size_t size() { return m_Part->getNumberOfNodes(); }
+  size_t getNumLinks(size_t i) { return m_Part->n2nLSize(i); }
+  size_t getLink(size_t i, size_t j) { return m_Part->n2nLL(i,j); }
+
+};
+
+#endif // LOCALNODEGRAPHINTERFACE_H

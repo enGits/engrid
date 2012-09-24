@@ -52,7 +52,7 @@ void SurfaceMesher::operate()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
-  updateNodeInfo(true);
+  updateNodeInfo();
   int num_inserted = 0;
   int num_deleted = 0;
   int iter = 0;
@@ -66,14 +66,14 @@ void SurfaceMesher::operate()
     //return;
     num_inserted = insertNodes();
     cout << "  inserted nodes : " << num_inserted << endl;
-    updateNodeInfo(true);
+    updateNodeInfo();
     swap();
     //computeMeshDensity(); //!!
-    updateNodeInfo(true);
+    updateNodeInfo();
     num_deleted = deleteNodes();
     cout << "  deleted nodes : " << num_deleted << endl;
     //computeMeshDensity(); // !!
-    updateNodeInfo(true);
+    updateNodeInfo();
     for (int i = 0; i < m_NumSmoothSteps; ++i) {
       smooth(1, m_CorrectCurvature);
       swap();
@@ -96,13 +96,6 @@ void SurfaceMesher::operate()
     cout << "  fluctuation ratio : " << fluctuation_ratio << "%" << endl;
   }
   createIndices(m_Grid);
-  updateNodeInfo(true);
+  updateNodeInfo();
   //computeMeshDensity(); //!!
-  {
-    QVector<int> bcs;
-    GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
-    foreach (int bc, bcs) {
-      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
-    }
-  }
 }

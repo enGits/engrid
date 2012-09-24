@@ -35,7 +35,7 @@ BrlCadProjection::~BrlCadProjection()
 
 }
 
-vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
+vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v, bool strict_direction)
 {  
   vec3_t n = v;
   if (n.abs() < 1e-3) {
@@ -48,7 +48,7 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
     EG_BUG;
   }
   if (!checkVector(n)) {
-    cout << "vector defect (id_node=" << id_node << endl;
+    cout << "vector defect (id_node=" << id_node << ")" << endl;
     return x;
     EG_BUG;
   }
@@ -62,7 +62,7 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   HitType hit_type1, hit_type2;
 
   hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
-  if (hit_type1 == Miss) {
+  if (hit_type1 == Miss && !strict_direction) {
     n *= -1;
     hit_type1 = shootRay(x, n, x_hit1, n_hit1, r_hit1);
   }
@@ -72,15 +72,17 @@ vec3_t BrlCadProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v)
   }
   m_Failed = false;
   n *= -1;
-  hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
   x_proj = x_hit1;
   m_LastNormal = n_hit1;
   m_LastRadius = r_hit1;
-  if (hit_type2 != Miss) {
-    if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
-      x_proj = x_hit2;
-      m_LastNormal = n_hit2;
-      m_LastRadius = r_hit2;
+  if (!strict_direction) {
+    hit_type2 = shootRay(x_hit1, n, x_hit2, n_hit2, r_hit2);
+    if (hit_type2 != Miss) {
+      if ((x - x_hit2).abs() < (x - x_hit1).abs()) {
+        x_proj = x_hit2;
+        m_LastNormal = n_hit2;
+        m_LastRadius = r_hit2;
+      }
     }
   }
   return x_proj;

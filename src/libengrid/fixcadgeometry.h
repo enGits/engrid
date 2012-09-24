@@ -30,7 +30,8 @@ class FixCadGeometry: public SurfaceAlgorithm
 
 private: // attributes
 
-  int m_NumNonManifold;
+  int    m_NumNonManifold;
+  double m_OriginalFeatureAngle;
   
 protected: // methods
   

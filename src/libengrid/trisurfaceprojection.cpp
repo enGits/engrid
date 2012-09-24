@@ -137,7 +137,7 @@ void TriSurfaceProjection::updateBackgroundGridInfo()
   setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
   setAllCells();
   readVMD();
-  UpdatePotentialSnapPoints(true, false);
+  updateNodeInfo();
   l2l_t  c2c   = getPartC2C();
   g2l_t _cells = getPartLocalCells();
   QVector<int> m_LNodes(m_Nodes.size());
@@ -227,7 +227,7 @@ void TriSurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_tri
 }
 
 
-vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature, vec3_t)
+vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature, vec3_t, bool)
 {
   if (!checkVector(xp)) {
     qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;

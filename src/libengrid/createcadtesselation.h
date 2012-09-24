@@ -46,6 +46,7 @@ protected: // attributes
   int    m_PreservationType;
   double m_SmallestFeatureSize;
   double m_SmallestResolution;
+  double m_TargetReduction;
 
 protected: // methods
 
@@ -74,6 +75,7 @@ public: // methods
   bool preserveFluid() { return m_PreservationType == 2; }
   void setSmallestFeatureSize(double sfs) { m_SmallestFeatureSize = sfs; }
   void setSmallestResolution(double h) { m_SmallestResolution = h; }
+  void setTargetReduction(double tr) { m_TargetReduction = tr; }
 
 };
 

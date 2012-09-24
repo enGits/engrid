@@ -39,15 +39,17 @@ class CheckerBoardGraphIterator
   index_t      m_DoneCount;
   vector<bool> m_Available;
   vector<bool> m_Done;
+  bool         m_UpdateRequired;
 
 public:
 
   CheckerBoardGraphIterator() { m_Graph = NULL; }
   CheckerBoardGraphIterator(TGraph* graph) { m_Graph = graph; }
   void setGraph(TGraph* graph) { m_Graph = graph; }
-  virtual void update() = 0;
+  bool updateRequired();
   void operator=(index_t i);
   bool operator==(index_t i) { return m_CurrentIndex == i; }
+  bool operator<(index_t i) { return m_CurrentIndex < i; }
   index_t operator++();
   index_t operator*() { return m_CurrentIndex; }
 
@@ -60,7 +62,15 @@ void CheckerBoardGraphIterator<TGraph>::operator=(index_t i)
   m_Available.resize(m_Graph->size(), true);
   m_Done.resize(m_Graph->size(), false);
   m_DoneCount = 0;
-  update();
+  m_UpdateRequired = false;
+}
+
+template <typename TGraph>
+bool CheckerBoardGraphIterator<TGraph>::updateRequired()
+{
+  bool update_required = m_UpdateRequired;
+  m_UpdateRequired = false;
+  return update_required;
 }
 
 template <typename TGraph>
@@ -82,7 +92,7 @@ typename CheckerBoardGraphIterator<TGraph>::index_t CheckerBoardGraphIterator<TG
           m_Available[i] = !m_Done[i];
         }
         m_CurrentIndex = 0;
-        update();
+        m_UpdateRequired = true;
       }
     } while (!m_Available[m_CurrentIndex]);
   }

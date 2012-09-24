@@ -103,7 +103,7 @@ void ShowInfo::operate()
       cout<<"currentVertexAvgDist("<<PickedPoint<<")="<<currentVertexAvgDist(PickedPoint)<<endl;
 
       setBoundaryCodes(GuiMainWindow::pointer()->getAllBoundaryCodes());
-      UpdatePotentialSnapPoints(true, true);
+      updateNodeInfo();
       QVector <vtkIdType> PSP_vector = getPotentialSnapPoints( PickedPoint );
       qDebug()<<"PSP_vector="<<PSP_vector;
 

@@ -397,7 +397,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
 
-    SurfaceProjection* getSurfProj(int bc);
+    SurfaceProjection* getSurfProj(int bc, bool allow_null = false);
     void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
     void setUniversalSurfProj(SurfaceProjection *surf_proj);
     bool checkSurfProj();

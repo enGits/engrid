@@ -811,6 +811,30 @@ vec3_t EgVtkObject::cellCentre(vtkUnstructuredGrid *grid, vtkIdType id_cell)
   return xc;
 }
 
+double EgVtkObject::faceAngle(vtkUnstructuredGrid *grid, vtkIdType id_face1, vtkIdType id_face2)
+{
+  QList<vtkIdType> edge_nodes;
+  sharedNodesOfCells(grid, id_face1, id_face2, edge_nodes);
+  if (edge_nodes.size() != 2) {
+    EG_BUG;
+  }
+  vec3_t x1, x2;
+  grid->GetPoint(edge_nodes[0], x1.data());
+  grid->GetPoint(edge_nodes[1], x2.data());
+  vec3_t xf1 = cellCentre(grid, id_face1);
+  vec3_t xf2 = cellCentre(grid, id_face2);
+  vec3_t xe  = 0.5*(x1 + x2);
+  vec3_t xfe = 0.5*(xf1 + xf2);
+  vec3_t n1  = cellNormal(grid, id_face1);
+  vec3_t n2  = cellNormal(grid, id_face2);
+  vec3_t ve  = xe - xfe;
+  double alpha = angle(n1, n2);
+  if ((n1 + n2)*ve < 0) {
+    return -alpha;
+  }
+  return alpha;
+}
+
 void EgVtkObject::getRestCells(vtkUnstructuredGrid      *grid, 
                                const QVector<vtkIdType> &cells,
                                QVector<vtkIdType>       &rest_cells)
@@ -829,21 +853,25 @@ void EgVtkObject::getRestCells(vtkUnstructuredGrid      *grid,
   }
 }
 
-void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst)
+void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, bool copy_data)
 {
-  allocateGrid(dst, src->GetNumberOfCells(), src->GetNumberOfPoints());
+  allocateGrid(dst, src->GetNumberOfCells(), src->GetNumberOfPoints(), copy_data);
   for (vtkIdType id_node = 0; id_node < src->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     src->GetPoints()->GetPoint(id_node, x.data());
     dst->GetPoints()->SetPoint(id_node, x.data());
-    copyNodeData(src, id_node, dst, id_node);
+    if (copy_data) {
+      copyNodeData(src, id_node, dst, id_node);
+    }
   }
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = src->GetCellType(id_cell);
     src->GetCellPoints(id_cell, N_pts, pts);
     vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
-    copyCellData(src, id_cell, dst, id_new_cell);
+    if (copy_data) {
+      copyCellData(src, id_cell, dst, id_new_cell);
+    }
   }
 }
 

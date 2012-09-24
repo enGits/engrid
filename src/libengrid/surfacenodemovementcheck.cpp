@@ -22,71 +22,102 @@
 //
 
 #include "surfacenodemovementcheck.h"
+#include "geometrytools.h"
 
 #include "vtkDelaunay3D.h"
-#include "geometrytools.h"
+#include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkKdTreePointLocator.h"
 
 SurfaceNodeMovementCheck::SurfaceNodeMovementCheck()
 {
-  m_VolumeGrid = NULL;
-}
-
-void SurfaceNodeMovementCheck::setSurfaceGrid(vtkUnstructuredGrid *surface_grid)
-{
-  m_SurfaceGrid = surface_grid;
-  m_VolumeGrid = vtkUnstructuredGrid::New();
-  m_SurfacePart.setGrid(m_SurfaceGrid);
-  update();
-}
-
-void SurfaceNodeMovementCheck::update()
-{
-  EG_VTKSP(vtkDelaunay3D, triangulator);
-  triangulator->SetInput(m_SurfaceGrid);
-  triangulator->Update();
-  makeCopy(triangulator->GetOutput(), m_VolumeGrid);
-  m_VolumePart.setGrid(m_VolumeGrid);
-  m_VolumePart.setAllCells();
-  m_SurfacePart.setGrid(m_SurfaceGrid);
-  m_SurfacePart.setAllCells();
-  int N1 = m_VolumeGrid->GetNumberOfPoints();
-  int N2 = m_SurfaceGrid->GetNumberOfPoints();
-  if (m_VolumeGrid->GetNumberOfPoints() < m_SurfaceGrid->GetNumberOfPoints()) {
-    EG_BUG;
-  }
+  m_AuxGrid = vtkUnstructuredGrid::New();
+  m_Grid = NULL;
 }
 
 SurfaceNodeMovementCheck::~SurfaceNodeMovementCheck()
 {
-  m_VolumeGrid->Delete();
+  m_AuxGrid->Delete();
 }
 
-bool SurfaceNodeMovementCheck::moveNode(vtkIdType id_node, vec3_t x_new)
+void SurfaceNodeMovementCheck::setGrid(vtkUnstructuredGrid *grid)
 {
-  // reject any node which could not be triangulated (orphan)
-  if (m_VolumePart.localNode(id_node) < 0) {
-    return false;
-  }
-
-  // reject any nodes which are neighbours of orphans
-  for (int i = 0; i < m_SurfacePart.n2nGSize(id_node); ++i) {
-    if (m_VolumePart.localNode(m_SurfacePart.n2nGG(id_node,i)) < 0) {
-      return false;
+  m_Grid = grid;
+  EG_VTKSP(vtkUnstructuredGrid, tmp_grid);
+  allocateGrid(tmp_grid, 1, m_Grid->GetNumberOfPoints(), false);
+  {
+    vec3_t x;
+    EG_FORALL_NODES(id_node, m_Grid) {
+      m_Grid->GetPoint(id_node, x.data());
+      tmp_grid->GetPoints()->SetPoint(id_node, x.data());
     }
   }
-
-  // check all adjacent volumes for new node position
-  vec3_t x_old;
-  m_VolumeGrid->GetPoint(id_node, x_old.data());
-  m_VolumeGrid->GetPoints()->SetPoint(id_node, x_new.data());
-  for (int i = 0; i < m_VolumePart.n2cGSize(id_node); ++i) {
-    vtkIdType id_cell = m_VolumePart.n2cGG(id_node, i);
-    double V = GeometryTools::cellVA(m_VolumeGrid, id_cell, true);
-    if (V <= 0) {
-      m_VolumeGrid->GetPoints()->SetPoint(id_node, x_old.data());
-      return false;
+  EG_VTKSP(vtkDelaunay3D, delaunay);
+  delaunay->SetInput(tmp_grid);
+  delaunay->Update();
+  makeCopy(delaunay->GetOutput(), m_AuxGrid, false);
+  int N1 = m_Grid->GetNumberOfPoints();
+  int N2 = m_AuxGrid->GetNumberOfPoints();
+  if (N1 != N2) {
+    EG_BUG;
+  }
+  EG_VTKSP(vtkKdTreePointLocator, loc);
+  loc->SetDataSet(m_AuxGrid);
+  loc->BuildLocator();
+  m_IdMap.resize(m_Grid->GetNumberOfPoints());
+  EG_FORALL_NODES(id_node, m_Grid) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    vtkIdType id_aux_node = id_node;//loc->FindClosestPoint(x.data());
+    if (id_aux_node < 0) {
+      EG_BUG;
+    }
+    m_IdMap[id_node] = id_aux_node;
+  }
+  m_AuxPart.setGrid(m_AuxGrid);
+  m_AuxPart.setAllCells();
+  /*
+  QVector<vtkIdType> nodes(m_AuxGrid->GetNumberOfPoints());
+  EG_FORALL_NODES(id_aux_node, m_AuxGrid) {
+    nodes[id_aux_node] = id_aux_node;
+  }
+  m_AuxPart.setNodes(nodes);
+  */
+  int N3 = 0;
+  EG_FORALL_NODES(id_aux_node, m_AuxGrid) {
+    if (m_AuxPart.localNode(id_aux_node) == -1) {
+      ++N3;
     }
   }
-  m_SurfaceGrid->GetPoints()->SetPoint(id_node, x_new.data());
-  return true;
+  cout << N3 << endl;
 }
+
+bool SurfaceNodeMovementCheck::checkNode(vtkIdType id_node, vec3_t x)
+{
+  bool good = true;
+  vec3_t x_old = x;
+  vtkIdType id_aux_node = m_IdMap[id_node];
+  if (m_AuxPart.localNode(id_aux_node) == -1) {
+    good = false;
+  } else {
+    m_AuxGrid->GetPoints()->SetPoint(id_aux_node, x.data());
+    for (int i = 0; i < m_AuxPart.n2cGSize(id_aux_node); ++i) {
+      vtkIdType id_aux_cell = m_AuxPart.n2cGG(id_aux_node, i);
+      double V = GeometryTools::cellVA(m_AuxGrid, id_aux_cell);
+      if (V < 0) {
+        good = false;
+        break;
+      }
+    }
+  }
+  m_AuxGrid->GetPoints()->SetPoint(id_aux_node, x_old.data());
+  return good;
+}
+
+void SurfaceNodeMovementCheck::write(QString file_name)
+{
+  EG_VTKSP(vtkXMLUnstructuredGridWriter, vtu);
+  vtu->SetFileName(qPrintable(file_name + ".vtu"));
+  vtu->SetInput(m_AuxGrid);
+  vtu->Write();
+}
+

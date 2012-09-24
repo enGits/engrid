@@ -52,44 +52,6 @@ SurfaceAlgorithm::SurfaceAlgorithm()
   setInsertNodesOn();
 }
 
-void SurfaceAlgorithm::readVMD()
-{
-  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/table").replace("\n", " ");
-  int row_count = 0;
-  int column_count = 0;
-  m_VMDvector.clear();
-  
-  if(!buffer.isEmpty()) {
-    QTextStream in(&buffer, QIODevice::ReadOnly);
-    in >> row_count >> column_count;
-    QVector<int> tmp_bcs;
-    GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
-    if (column_count == tmp_bcs.size() + 3) {
-      m_VMDvector.fill(VertexMeshDensity(), row_count);
-      for (int i = 0; i < row_count; ++i) {
-        int row, column;
-        QString formula;
-        foreach (int bc, tmp_bcs) {
-          in >> row >> column >> formula;
-          m_VMDvector[row].BCmap[bc] = formula.toInt();
-        }
-        in >> row >> column >> formula;
-        m_VMDvector[row].type = Str2VertexType(formula);
-        in >> row >> column >> formula;
-        if (formula == "{{{empty}}}") {
-          formula = "";
-        }
-        m_VMDvector[i].setNodes(formula);
-        in >> row >> column >> formula;
-        m_VMDvector[i].density = formula.toDouble();
-//         cout << m_VMDvector[i] << endl;
-      }
-    } else {
-      EG_ERR_RETURN(QObject::tr("Mismatch of number of boundary codes!"));
-    }
-  }
-}
-
 void SurfaceAlgorithm::readSettings()
 {
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
@@ -122,11 +84,10 @@ void SurfaceAlgorithm::prepare()
 {
   setAllCells();
   readSettings();
-  readVMD();
   
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
   
-  updateNodeInfo(true);
+  updateNodeInfo();
 
 }
 
@@ -144,25 +105,6 @@ void SurfaceAlgorithm::computeMeshDensity()
   update_desired_mesh_density.setFeatureResolution2D(m_FeatureResolution2D);
   update_desired_mesh_density.setFeatureResolution3D(m_FeatureResolution3D);
   update_desired_mesh_density();
-}
-
-void SurfaceAlgorithm::updateNodeInfo(bool update_type)
-{
-  setAllCells();
-  l2g_t nodes = getPartNodes();
-  foreach (vtkIdType id_node, nodes) {
-    if (update_type) {
-      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-      node_type->SetValue(id_node, getNodeType(id_node, true));
-    }
-
-    //density index from table
-    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
-
-    VertexMeshDensity nodeVMD = getVMD(id_node);
-    int idx = nodeVMD.findSmallestVMD(m_VMDvector);
-    node_specified_density->SetValue(id_node, idx);
-  }
 }
 
 void SurfaceAlgorithm::swap()

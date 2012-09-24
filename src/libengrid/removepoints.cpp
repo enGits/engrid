@@ -142,7 +142,7 @@ void RemovePoints::operate()
     vtkIdType id_node = selected_nodes[i_selected_nodes];
 
     int i_node = _nodes[id_node];
-    if(node_type->GetValue(id_node) != VTK_FIXED_VERTEX && !m_Fixed[id_node]) {
+    if(node_type->GetValue(id_node) != EG_FIXED_VERTEX && !m_Fixed[id_node]) {
       if (!marked_nodes[i_node]) {
 
         // preparations
@@ -195,7 +195,7 @@ void RemovePoints::operate()
           QVector <vtkIdType> mutated_cells;
           int l_num_newpoints = 0;
           int l_num_newcells = 0;
-          vtkIdType snap_point = FindSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
+          vtkIdType snap_point = findSnapPoint(id_node, dead_cells, mutated_cells, l_num_newpoints, l_num_newcells, marked_nodes);
           if(snap_point >= 0) {
             // add deadnode/snappoint pair
             deadnode_vector.push_back(id_node);
@@ -223,7 +223,7 @@ void RemovePoints::operate()
   //delete
   if(num_newpoints != -deadnode_vector.size()) EG_BUG;
   if(num_newcells != -all_deadcells.size()) EG_BUG;
-  DeleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells);
+  deleteSetOfPoints(deadnode_vector, snappoint_vector, all_deadcells, all_mutatedcells);
 
   int N2 = m_Grid->GetNumberOfPoints();
   m_NumRemoved = N1 - N2;
@@ -339,7 +339,7 @@ bool RemovePoints::checkForDestroyedVolumes(vtkIdType id_node1, vtkIdType id_nod
   return false;
 }
 
-int RemovePoints::NumberOfCommonPoints(vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra) {
+int RemovePoints::numberOfCommonPoints(vtkIdType id_node1, vtkIdType id_node2, bool& IsTetra) {
   l2l_t  n2n   = getPartN2N();
   l2l_t  n2c   = getPartN2C();
   g2l_t _nodes = getPartLocalNodes();
@@ -544,7 +544,7 @@ bool RemovePoints::flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cel
 
  \todo Clean up this function
  */
-vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
+vtkIdType RemovePoints::findSnapPoint(vtkIdType DeadNode,
                                       QVector<vtkIdType>& DeadCells,
                                       QVector<vtkIdType>& MutatedCells,
                                       int& num_newpoints,
@@ -556,7 +556,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
   l2g_t cells = getPartCells();// all SURFACE cells
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  if(node_type->GetValue(DeadNode) == VTK_FIXED_VERTEX) {
+  if(node_type->GetValue(DeadNode) == EG_FIXED_VERTEX) {
     cout << "ERROR: unable to remove fixed vertex." << endl;
     EG_BUG;
     return(-1);
@@ -698,7 +698,7 @@ vtkIdType RemovePoints::FindSnapPoint(vtkIdType DeadNode,
 }
 //End of FindSnapPoint
 
-bool RemovePoints::DeleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
+bool RemovePoints::deleteSetOfPoints(const QVector<vtkIdType>& deadnode_vector,
                                      const QVector<vtkIdType>& snappoint_vector,
                                      const QVector<vtkIdType>& all_deadcells,
                                      const QVector<vtkIdType>& all_mutatedcells) {

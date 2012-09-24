@@ -30,9 +30,11 @@ class SurfaceMesher : public SurfaceAlgorithm
 
 protected: // attributes
 
+
 protected: // methods
 
   virtual void operate();
+
 
 public:
 
