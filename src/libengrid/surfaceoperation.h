@@ -47,9 +47,12 @@ class SurfaceOperation : public Operation
 
 private:
 
-  ///Vector used to store the "Potential Snap Points" of each point, i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points, all neighbour points in case of simple points and the points belonging to edges in case of fixed points
+  /** Vector used to store the "Potential Snap Points" of each point,
+   *  i.e. the neighbour points belonging to the same edge (boundary or feature) in case of edge points,
+   *  all neighbour points in case of simple points and the points belonging to edges in case of fixed points */
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
 
+  void updatePotentialSnapPoints();
 
 protected: // attributes
 
@@ -59,13 +62,20 @@ protected: // attributes
   bool   m_UniformSnapPoints;
 
   QVector<vec3_t> m_NodeNormal; ///< node normal vectors
+  QVector <VertexMeshDensity> m_VMDvector;
+
   double m_StretchingFactor;
 
 
 protected: // methods
 
-  void computeNormals();
+  void   computeNormals();
+  bool   isConvexNode(vtkIdType id_node);
+  char   geometricNodeType(vtkIdType id_node);
   double normalIrregularity(vtkIdType id_node);
+  void   readVMD();
+  void   updateNodeInfo();
+
 
 public:
 
@@ -76,13 +86,10 @@ public:
 
   int UpdateCurrentMeshDensity();
 
-  /// Updates the m_PotentialSnapPoints structure + updates node types if desired (faster than loop through nodes with getNodeType)
-  int UpdatePotentialSnapPoints(bool update_node_types, bool fix_unselected = true);
 
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
   void setBoundarySmoothing(int BS) { m_BoundarySmoothing = BS; }
-
 
   double currentVertexAvgDist(vtkIdType id_node);                 ///< Returns the average distance of id_node to its neighbours
   double CurrentMeshDensity( vtkIdType id_node );                 ///< Returns 1/CurrentVertexAvgDist(id_node)

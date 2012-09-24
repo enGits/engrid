@@ -307,18 +307,20 @@ pair<vtkIdType, vtkIdType> OrderedPair(vtkIdType a, vtkIdType b) {
 }
 
 const char* VertexType2Str(char T) {
-  if (T == EG_SIMPLE_VERTEX) return("EG_SIMPLE_VERTEX");
-  if (T == EG_FIXED_VERTEX) return("EG_FIXED_VERTEX");
-  if (T == EG_FEATURE_EDGE_VERTEX) return("EG_FEATURE_EDGE_VERTEX");
-  if (T == EG_BOUNDARY_EDGE_VERTEX) return("EG_BOUNDARY_EDGE_VERTEX");
+  if (T == EG_SIMPLE_VERTEX)         return("EG_SIMPLE_VERTEX");
+  if (T == EG_FIXED_VERTEX)          return("EG_FIXED_VERTEX");
+  if (T == EG_FEATURE_EDGE_VERTEX)   return("EG_FEATURE_EDGE_VERTEX");
+  if (T == EG_FEATURE_CORNER_VERTEX) return("EG_FEATURE_CORNER_VERTEX");
+  if (T == EG_BOUNDARY_EDGE_VERTEX)  return("EG_BOUNDARY_EDGE_VERTEX");
   else return("Unknown vertex type");
 }
 
 char Str2VertexType(QString S) {
-  if (S == "EG_SIMPLE_VERTEX") return(EG_SIMPLE_VERTEX);
-  if (S == "EG_FIXED_VERTEX") return(EG_FIXED_VERTEX);
-  if (S == "EG_FEATURE_EDGE_VERTEX") return(EG_FEATURE_EDGE_VERTEX);
-  if (S == "EG_BOUNDARY_EDGE_VERTEX") return(EG_BOUNDARY_EDGE_VERTEX);
+  if (S == "EG_SIMPLE_VERTEX")         return(EG_SIMPLE_VERTEX);
+  if (S == "EG_FIXED_VERTEX")          return(EG_FIXED_VERTEX);
+  if (S == "EG_FEATURE_EDGE_VERTEX")   return(EG_FEATURE_EDGE_VERTEX);
+  if (S == "EG_FEATURE_CORNER_VERTEX") return(EG_FEATURE_CORNER_VERTEX);
+  if (S == "EG_BOUNDARY_EDGE_VERTEX")  return(EG_BOUNDARY_EDGE_VERTEX);
   else return((char) - 1);
 }
 

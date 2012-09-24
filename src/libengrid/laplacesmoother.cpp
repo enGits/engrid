@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -26,8 +26,8 @@
 #include <vtkGenericCell.h>
 
 #include "guimainwindow.h"
-#include "globalnodegraphinterface.h"
-#include "surfacenodemovementcheck.h"
+#include "localnodegraphinterface.h"
+#include "checkerboardgraphiterator.h"
 
 using namespace GeometryTools;
 
@@ -55,16 +55,24 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   
   bool move = true;
-  if(m_NoCheck) return move;
+  //if(m_NoCheck || node_type->GetValue(id_node) != EG_SIMPLE_VERTEX) {
+  if(m_NoCheck) {
+    return move;
+  }
+
+  //move = m_Check.checkNode(id_node, x_new);
   
+
   // compute the extrusion vector to compute the tetrahedrons for volume checking
   // start with an average of all adjacent cell normals and count the number of
   // adjacent boundary codes (for one boundary code an alternative vector can be
   // computed with the help of a SurfaceProjection
   //
-  vec3_t n(0,0,0);  
+  vec3_t n1(0,0,0);
   QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
   QSet<int> bcs;
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -80,25 +88,23 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
     if (A > 0.01*A_max) {
-      n += cell_normals[i];
+      n1 += cell_normals[i];
       ++N;
     }
   }
-  /*
-  SurfaceProjection* proj = NULL;
-  if (bcs.size() == 1) {
-    proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin());
-    if (proj) {
-      proj->project(x_new, id_node, false, n);
-      n = proj->lastProjNormal();
-    }
-  }
-  */
-  if (N == 0) {
-    //EG_BUG;
+  n1.normalise();
+  if (!checkVector(n1)) {
     move = false;
   } else {
-    n.normalise();
+    vec3_t n2 = n1;
+    SurfaceProjection* proj = NULL;
+    if (bcs.size() == 1) {
+      proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin());
+      if (proj) {
+        proj->project(x_new, id_node, false, n1);
+        n2 = proj->lastProjNormal();
+      }
+    }
     double L_max = 0;// distance to the furthest neighbour node of id_node
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       vec3_t xn;
@@ -107,15 +113,10 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       L_max = max(L, L_max);
     }
     
-    vec3_t x_summit;
-    if(m_CorrectCurvature) {
-      // better for mesher with interpolation
-      x_summit = x_new + L_max*n;
-    }
-    else {
-    // better for mesher without interpolation
-      x_summit = x_old + L_max*n;
-    }
+    vec3_t x_summit_old1 = x_old + L_max*n1;
+    vec3_t x_summit_new1 = x_new + L_max*n1;
+    vec3_t x_summit_old2 = x_old + L_max*n2;
+    vec3_t x_summit_new2 = x_new + L_max*n2;
 
     for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
       vec3_t x[3];
@@ -129,33 +130,28 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       for (int j = 0; j < N_pts; ++j) {
         m_Grid->GetPoint(pts[j], x[j].data());
       }
-      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit, false) <= 0) {
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_old1, false) <= 0) {
         move = false;
+      }
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_new1, false) <= 0) {
+        move = false;
+      }
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_old2, false) <= 0) {
+        //move = false;
+      }
+      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_new2, false) <= 0) {
+        //move = false;
+      }
+      if (!move) {
         break;
       }
     }
   }
-  /*
-  if (move) {
-    for (int i = 0; i < cell_normals.size(); ++i) {
-      for (int j = 0; j < cell_normals.size(); ++j) {
-        if (cell_normals[i]*cell_normals[j] < -100.0) {//Why -100.0?
-          saveGrid(m_Grid, "after_move2");
-          qWarning()<<"Cannot move point "<<id_node<<" because opposite cell_normals.";
-          move = false;
-          m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
-          saveGrid(m_Grid, "before_move2");
-          EG_BUG;
-          break;
-        }
-      }
-    }
-  }
-  */
+
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
-  return move;
+  return move;  
 }
 
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* proj, vec3_t &x_new)
@@ -188,7 +184,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         double L1 = 0;
         double L2 = m_FeatureMagic*cl->GetValue(id_node);
         for (int i = 0; i < 30; ++i) {
-          x_new = x1 - 0.5*(L1 + L2)*magic_vector;
+          x_new = x1 + 0.5*(L1 + L2)*magic_vector;
           x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
           double displacement = fabs((x_new - x1)*n);
           if (displacement > 0.01*cl->GetValue(id_node)) {
@@ -207,7 +203,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
             L1 = 0.5*(L1 + L2);
           }
         }
-        x_new = x1 - L1*magic_vector;
+        x_new = x1 + L1*magic_vector;
         x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
       } else {
 
@@ -247,7 +243,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   */
   // TESTING END
 
-  for (int i_relaxation = 0; i_relaxation < 1; ++i_relaxation) {
+  for (int i_relaxation = 0; i_relaxation < 10; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);
@@ -327,7 +323,7 @@ void LaplaceSmoother::operate()
       GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
     }
   }
-  UpdatePotentialSnapPoints(false, false);
+  updateNodeInfo();
   EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code");
   EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type" );
   EG_VTKDCN(vtkDoubleArray, cl,        m_Grid, "node_meshdensity_desired");
@@ -366,45 +362,58 @@ void LaplaceSmoother::operate()
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
     m_Success = true;
     computeNormals();
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      vtkIdType id_node = nodes[i_nodes];
-      if (!m_Fixed[id_node] && !blocked[i_nodes]) {
+    //m_Check.setGrid(m_Grid);
+    LocalNodeGraphInterface graph;
+    graph.setMeshPartition(&m_Part);
+    CheckerBoardGraphIterator<LocalNodeGraphInterface> iter;
+    iter.setGraph(&graph);
+
+    //for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    for (iter = 0; iter < nodes.size(); ++iter) {
+      if (iter.updateRequired()) {
+        //m_Check.setGrid(m_Grid);
+      }
+      vtkIdType id_node = nodes[*iter];
+      if (!m_Fixed[id_node] && !blocked[*iter]) {
         if (smooth_node[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
             vec3_t n(0,0,0);
+            vec3_t x_old;
+            m_Grid->GetPoint(id_node, x_old.data());
+
             if (snap_points.size() > 0) {
-              vec3_t x_old;
               vec3_t x;
-              x_new[i_nodes] = vec3_t(0,0,0);
-              m_Grid->GetPoint(id_node, x_old.data());
+              x_new[*iter] = vec3_t(0,0,0);
               double w_tot = 0;
               double L_min = 1e99;
               foreach (vtkIdType id_snap_node, snap_points) {
                 m_Grid->GetPoint(id_snap_node, x.data());
                 double w = 1.0;
                 w_tot += w;
-                x_new[i_nodes] += w*x;
+                x_new[*iter] += w*x;
                 n += m_NodeNormal[id_snap_node];
                 double L = (x - x_old).abs();
                 L_min = min(L, L_min);
               }
               n.normalise();
-              x_new[i_nodes] *= 1.0/w_tot;
+              x_new[*iter] *= 1.0/w_tot;
+            } else {
+              x_new[*iter] = x_old;
+            }
 
-              if (m_UseNormalCorrection) {
-                vec3_t dx = x_new[i_nodes] - x_old;
-                double scal = dx*m_NodeNormal[id_node];
-                x_new[i_nodes] += scal*m_NodeNormal[id_node];
-              }
-              vec3_t Dx = x_new[i_nodes] - x_old;
-              Dx *= m_UnderRelaxation;
-              if (moveNode(id_node, Dx)) {
-                x_new[i_nodes] = x_old + Dx;
-              } else {
-                x_new[i_nodes] = x_old;
-                m_Success = false;
-              }
+            if (m_UseNormalCorrection) {
+              vec3_t dx = x_new[*iter] - x_old;
+              double scal = dx*m_NodeNormal[id_node];
+              x_new[*iter] += scal*m_NodeNormal[id_node];
+            }
+            vec3_t Dx = x_new[*iter] - x_old;
+            Dx *= m_UnderRelaxation;
+            if (moveNode(id_node, Dx)) {
+              x_new[*iter] = x_old + Dx;
+            } else {
+              x_new[*iter] = x_old;
+              m_Success = false;
             }
           }
         }

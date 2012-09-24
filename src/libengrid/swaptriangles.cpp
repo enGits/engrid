@@ -326,6 +326,7 @@ int SwapTriangles::swap()
   setAllSurfaceCells();
   //computeAverageSurfaceError();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
     vtkIdType id_cell = m_Part.globalCell(i);
@@ -333,7 +334,7 @@ int SwapTriangles::swap()
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
-          bool surface_error_swap = false;
+          bool feature_improvement_swap = false;
           stencil_t S = getStencil(id_cell, j);
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
@@ -360,23 +361,14 @@ int SwapTriangles::swap()
                       force_swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
+                  if (node_type->GetValue(S.p1) != EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.p2) != EG_FEATURE_EDGE_VERTEX) {
 
-                    // surface errors
-                    double se1, se2;
-                    bool surf_block = false;
-                    computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                    if (se2 > se1) { // && se2 > m_SurfErrorHigherThreshold && se1 < m_SurfErrorLowerThreshold) {
-                      surf_block = true;
-                    } else {
-                      if (se2 < se1) { // && se1 > m_SurfErrorHigherThreshold && se2 < m_SurfErrorLowerThreshold) {
-                        swap = true;
-                        surface_error_swap = true;
-                      }
+                    if (node_type->GetValue(S.id_node[0]) == EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.id_node[1]) == EG_FEATURE_EDGE_VERTEX) {
+                      //swap = true;
                     }
 
                     // Delaunay
-                    if (!swap && !surf_block) {
+                    if (!swap) {
                       vec3_t n = n1 + n2;
                       n.normalise();
                       vec3_t ex = orthogonalVector(n);
@@ -411,7 +403,6 @@ int SwapTriangles::swap()
                         }
                       }
                     }
-                  //}// end of testswap
                   } //end of if feature angle
                 } //end of if l_marked
               } //end of if TestSwap
@@ -419,7 +410,7 @@ int SwapTriangles::swap()
           } //end of S valid
 
           if (swap) {
-            if (testOrientation(S) || surface_error_swap) {
+            if (testOrientation(S)) {
               marked[S.id_cell[0]] = true;
               marked[S.id_cell[1]] = true;
               for (int k = 0; k < m_Part.n2cGSize(S.id_node[0]); ++k) {

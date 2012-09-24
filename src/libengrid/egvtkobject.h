@@ -45,10 +45,10 @@ class BezierTriangle;
 #include <QVector>
 
 #define EG_SIMPLE_VERTEX         0
-#define EG_FIXED_VERTEX          1
-#define EG_FEATURE_EDGE_VERTEX   2
-#define EG_BOUNDARY_EDGE_VERTEX  3
-#define EG_DETECTED_EDGE_VERTEX  4
+#define EG_FEATURE_EDGE_VERTEX   1
+#define EG_BOUNDARY_EDGE_VERTEX  2
+#define EG_FEATURE_CORNER_VERTEX 3
+#define EG_FIXED_VERTEX          4
 
 class EgVtkObject
 {
