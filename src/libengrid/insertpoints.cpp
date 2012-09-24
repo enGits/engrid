@@ -49,7 +49,7 @@ int InsertPoints::insertPoints()
   l2g_t  cells = getPartCells();
   g2l_t _cells = getPartLocalCells();
 
-  UpdatePotentialSnapPoints(true);
+  updateNodeInfo();
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");

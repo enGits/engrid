@@ -44,7 +44,7 @@ void SmoothAndSwapSurface::operate()
   cout << "2nd Delaunay swap" << endl;
   swap();
   createIndices(m_Grid);
-  updateNodeInfo(false);
+  updateNodeInfo();
   computeMeshDensity();
 }
 

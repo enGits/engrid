@@ -45,7 +45,6 @@ class SurfaceAlgorithm : public SurfaceOperation
 
 protected: // attributes
 
-  QVector <VertexMeshDensity> m_VMDvector;
   int    m_NumMaxIter;
   int    m_NumSmoothSteps;
   double m_MaxEdgeLength;
@@ -70,7 +69,6 @@ protected: // attributes
 protected: // methods
 
   void readSettings();
-  void readVMD();
 
 
 protected: // methods
@@ -82,9 +80,6 @@ protected: // methods
   int  deleteNodes();
   void computeMeshDensity();
   
-  /** Updates node_type (if update_type = true), node_meshdensity_current, node_specified_density for all nodes. */
-  void updateNodeInfo(bool update_type = false);
-
 public:
 
   SurfaceAlgorithm();

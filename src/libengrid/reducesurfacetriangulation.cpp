@@ -77,11 +77,11 @@ void ReduceSurfaceTriangulation::operate()
   setStretchingFactor(1.0);
   prepare();
   //writeGrid(m_Grid, "take1");
-  updateNodeInfo(true);
+  updateNodeInfo();
   //writeGrid(m_Grid, "take2");
   pass1();
   //pass2();
   createIndices(m_Grid);
-  updateNodeInfo(false);
+  updateNodeInfo();
   computeMeshDensity();
 }

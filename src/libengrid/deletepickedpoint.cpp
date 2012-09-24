@@ -51,7 +51,7 @@ void DeletePickedPoint::operate()
   this->m_BoundaryCodes = GuiMainWindow::pointer()->getAllBoundaryCodes();
   qWarning()<<"m_BoundaryCodes="<<m_BoundaryCodes;
   
-  UpdatePotentialSnapPoints(true);
+  updateNodeInfo();
   
   QMessageBox msgBox;
   msgBox.setText("Delete point?");
@@ -93,7 +93,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   g2l_t _nodes = getPartLocalNodes();
   l2g_t  nodes = getPartNodes();
   
-  UpdatePotentialSnapPoints(false);
+  updateNodeInfo();
   
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type" );
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code" );

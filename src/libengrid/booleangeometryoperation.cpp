@@ -457,7 +457,7 @@ double BooleanGeometryOperation::smoothJunction_mesher()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     characteristic_length_desired->SetValue(id_node, 1e-6);
   }
-  updateNodeInfo(true);
+  updateNodeInfo();
   computeMeshDensity();
   int inserted_nodes = insertNodes();
   int num_nodes = m_Grid->GetNumberOfPoints();
@@ -469,7 +469,7 @@ double BooleanGeometryOperation::smoothJunction_mesher()
     swap();
   }
   createIndices(m_Grid);
-  updateNodeInfo(false);
+  updateNodeInfo();
   return double(inserted_nodes - deleted_nodes)/double(num_nodes);
 }
 
