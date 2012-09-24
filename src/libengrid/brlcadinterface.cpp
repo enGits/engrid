@@ -155,7 +155,7 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
     double d_in = (x_in - x)*v;
     if (d_in > 0) {
       x_hit = x_in;
-      n_hit = (-1)*n_in;
+      n_hit = n_in;
       r = r_in;
       hit_type = HitIn;
     }
@@ -163,7 +163,7 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
     if (d_out > 0) {
       if (hit_type == Miss || d_out < d_in) {
         x_hit = x_out;
-        n_hit = (-1)*n_out;
+        n_hit = n_out;
         hit_type = HitOut;
         r = r_out;
       }
