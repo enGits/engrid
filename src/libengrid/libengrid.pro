@@ -192,7 +192,8 @@ HEADERS = boundarycondition.h \
     statistics.h \
     surfacenodemovementcheck.h \
     globalnodegraphinterface.h \
-    checkerboardgraphiterator.h
+    checkerboardgraphiterator.h \
+    localnodegraphinterface.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
