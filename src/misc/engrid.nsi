@@ -86,6 +86,7 @@ RequestExecutionLevel user
 ; PRODUCT_VERSION defined on the header part of this file
 !define PRODUCT_PUBLISHER "enGits GmbH"
 !define PRODUCT_WEB_SITE "http://www.engits.eu"
+!define WIKI_WEB_SITE "https://github.com/enGits/engrid/wiki"
 !define PRODUCT_DIR_REGKEY "Software\enGits\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -297,7 +298,7 @@ Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\enGits Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
 
-  WriteIniStr "$INSTDIR\${PRODUCT_NAME}_wiki.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}/wiki"
+  WriteIniStr "$INSTDIR\${PRODUCT_NAME}_wiki.url" "InternetShortcut" "URL" "${WIKI_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\enGrid Wiki.lnk" "$INSTDIR\${PRODUCT_NAME}_wiki.url"
 
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Browse Tutorials.lnk" "$INSTDIR\tutorials"
