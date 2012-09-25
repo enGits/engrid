@@ -77,10 +77,13 @@ void DeletePickedPoint::operate()
     break;
   }
   
-};
+}
 
 bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
 {
+  EG_BUG;
+
+  /*
   int N1 = m_Grid->GetNumberOfPoints();
   
   QVector<vtkIdType> selected_cells;
@@ -149,4 +152,6 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   createIndices(m_Grid);
 
   return( m_NumRemoved == 1 );
+  */
+  return false;
 }
