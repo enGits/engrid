@@ -54,100 +54,25 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
-  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
-
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  
   bool move = true;
-  //if(m_NoCheck || node_type->GetValue(id_node) != EG_SIMPLE_VERTEX) {
   if(m_NoCheck) {
     return move;
   }
-
-  //move = m_Check.checkNode(id_node, x_new);
-  
-
-  // compute the extrusion vector to compute the tetrahedrons for volume checking
-  // start with an average of all adjacent cell normals and count the number of
-  // adjacent boundary codes (for one boundary code an alternative vector can be
-  // computed with the help of a SurfaceProjection
-  //
-  vec3_t n1(0,0,0);
-  QVector<vec3_t> cell_normals(m_Part.n2cGSize(id_node));
-  QSet<int> bcs;
+  QVector<vec3_t> old_cell_normals(m_Part.n2cGSize(id_node));
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  double A_max = 0; //area of the biggest neighbour cell of id_node
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
-    A_max = max(A, A_max);
-    cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
-    cell_normals[i].normalise();
-    bcs.insert(cell_code->GetValue(m_Part.n2cGG(id_node, i)));
-  }
-  int N = 0;
+    old_cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+  }  
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-    double A = fabs(GeometryTools::cellVA(m_Grid, m_Part.n2cGG(id_node, i)));
-    if (A > 0.01*A_max) {
-      n1 += cell_normals[i];
-      ++N;
+    vec3_t n = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+    if (n*old_cell_normals[i] < 0.2*old_cell_normals[i].abs2()) {
+      move = false;
+      break;
     }
   }
-  n1.normalise();
-  if (!checkVector(n1)) {
-    move = false;
-  } else {
-    vec3_t n2 = n1;
-    SurfaceProjection* proj = NULL;
-    if (bcs.size() == 1) {
-      proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin());
-      if (proj) {
-        proj->project(x_new, id_node, false, n1);
-        n2 = proj->lastProjNormal();
-      }
-    }
-    double L_max = 0;// distance to the furthest neighbour node of id_node
-    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-      vec3_t xn;
-      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
-      double L = (xn - x_old).abs();
-      L_max = max(L, L_max);
-    }
-    
-    vec3_t x_summit_old1 = x_old + L_max*n1;
-    vec3_t x_summit_new1 = x_new + L_max*n1;
-    vec3_t x_summit_old2 = x_old + L_max*n2;
-    vec3_t x_summit_new2 = x_new + L_max*n2;
-
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      vec3_t x[3];
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(m_Part.n2cGG(id_node, i), N_pts, pts);
-      if (N_pts != 3) {
-        //EG_BUG;
-        move = false;
-        break;
-      }
-      for (int j = 0; j < N_pts; ++j) {
-        m_Grid->GetPoint(pts[j], x[j].data());
-      }
-      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_old1, false) <= 0) {
-        move = false;
-      }
-      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_new1, false) <= 0) {
-        move = false;
-      }
-      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_old2, false) <= 0) {
-        //move = false;
-      }
-      if (GeometryTools::tetraVol(x[0], x[1], x[2], x_summit_new2, false) <= 0) {
-        //move = false;
-      }
-      if (!move) {
-        break;
-      }
-    }
-  }
-
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
@@ -227,21 +152,6 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
   bool moved = false;
-
-  // TESTING BEGIN
-  /*
-  double L_max = 0;
-  SurfaceNodeMovementCheck movement_check(x_old);
-  for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-    vec3_t x;
-    m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x.data());
-    movement_check.addNode(x);
-    L_max = max(L_max, (x - x_old).abs());
-  }
-  movement_check.addNode(x_old + L_max*m_NodeNormal[id_node]);
-  movement_check.addNode(x_old - L_max*m_NodeNormal[id_node]);
-  */
-  // TESTING END
 
   for (int i_relaxation = 0; i_relaxation < 10; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
