@@ -75,11 +75,10 @@ protected:
                          const QVector<vtkIdType>& all_mutatedcells);
   
   /// returns a valid potential snappoint (checks for flipped cells, etc). If none is found, returns -1.
-  vtkIdType findSnapPoint(vtkIdType DeadNode,
-                          QVector<vtkIdType>& DeadCells,
-                          QVector<vtkIdType>& MutatedCells,
-                          int& N_newpoints, int & N_newcells,
-                          const QVector<bool>& marked_nodes);
+  bool isSnapPoint(vtkIdType id_node1, vtkIdType id_node2,
+                   QVector<vtkIdType>& dead_cells, QVector<vtkIdType>& mutated_cells,
+                   int& num_newpoints, int& num_newcells,
+                   const QVector<bool>& marked_nodes);
   
   /// returns true if moving id_node to position P leads to flipped cells
   bool flippedCell(vtkIdType id_node, vec3_t x_new, vtkIdType id_cell);
