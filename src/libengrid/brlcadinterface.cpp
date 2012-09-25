@@ -48,7 +48,7 @@ void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
   application ap = {0};
   m_Ap = ap;
   m_Ap.a_rt_i   = m_Rtip;
-  m_Ap.a_onehit = 1;
+  //m_Ap.a_onehit = 1;
 }
 
 int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs)
