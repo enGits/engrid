@@ -535,8 +535,18 @@ bool RemovePoints::isSnapPoint(vtkIdType id_node1, vtkIdType id_node2,
     return false;
   }
 
-  // TEST 2: TOPOLOGICAL: id_node1, id_node2 and any common point must belong to a cell.
-  // ... ???
+  // TEST 2: TOPOLOGICAL: do not cut off feature corners
+  {
+    QSet<vtkIdType> common_nodes, n2n2;
+    m_Part.getGlobalN2N(id_node1, common_nodes);
+    m_Part.getGlobalN2N(id_node2, n2n2);
+    common_nodes.intersect(n2n2);
+    foreach (vtkIdType id_neigh, common_nodes) {
+      if (node_type->GetValue(id_neigh) == EG_FEATURE_CORNER_VERTEX) {
+        return false;
+      }
+    }
+  }
 
   // TEST 3: TOPOLOGICAL: Moving id_node1 to id_node2 must not lay any cell on another cell.
   int num_common_points = 0;
