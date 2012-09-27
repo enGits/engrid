@@ -186,7 +186,15 @@ void SurfaceOperation::updateNodeInfo()
   computeNormals();
   foreach (vtkIdType id_node, nodes) {
     EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    node_type->SetValue(id_node, getNodeType(id_node, true));
+
+    char old_type = node_type->GetValue(id_node);
+
+    if (old_type != EG_FEATURE_CORNER_VERTEX) {
+      char new_type = getNodeType(id_node, true);
+      if (old_type != EG_FEATURE_EDGE_VERTEX || new_type == EG_FEATURE_CORNER_VERTEX) {
+        node_type->SetValue(id_node, new_type);
+      }
+    }
 
     //density index from table
     EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
@@ -284,11 +292,10 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     bool convex = isConvexNode(id_node);
 
     x0 = proj->project(x0, id_node, true, m_NodeNormal[id_node]);
-    double radius = proj->lastProjRadius();
     if (convex) {
-      x = x0 + L*m_NodeNormal[id_node];
-    } else {
       x = x0 - L*m_NodeNormal[id_node];
+    } else {
+      x = x0 + L*m_NodeNormal[id_node];
     }
     vec3_t n = proj->lastProjNormal();
     if (GeometryTools::angle(n, m_NodeNormal[id_node]) > 0.5*m_FeatureAngle && !proj->lastProjFailed()) {
@@ -316,9 +323,9 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       }
 
       if (convex) {
-        x = x0 + L*n;
-      } else {
         x = x0 - L*n;
+      } else {
+        x = x0 + L*n;
       }
       v = GeometryTools::orthogonalVector(n);
       int num_hit = 0;
@@ -644,7 +651,7 @@ bool SurfaceOperation::isConvexNode(vtkIdType id_node)
     x2 += x;
   }
   x2 *= 1.0/N;
-  if ((x1 - x2)*m_NodeNormal[id_node] < 0) {
+  if ((x1 - x2)*m_NodeNormal[id_node] > 0) {
     return true;
   }
   return false;

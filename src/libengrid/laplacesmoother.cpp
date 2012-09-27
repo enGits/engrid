@@ -84,11 +84,54 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
   if (m_FeatureMagic > 0) {
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
     EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    //if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
-    {
+    if (node_type->GetValue(id_node) == EG_FEATURE_CORNER_VERTEX) {
+
+      vec3_t x;
+      double L = 0.1*cl->GetValue(id_node);
+      bool convex = isConvexNode(id_node);
+
+      vec3_t x0 = proj->project(x_new, id_node, true, m_NodeNormal[id_node]);
+      if (convex) {
+        x = x0 - L*m_NodeNormal[id_node];
+      } else {
+        x = x0 + L*m_NodeNormal[id_node];
+      }
+      vec3_t n = proj->lastProjNormal();
+      if (!proj->lastProjFailed()) {
+        double d = 2*L/tan(0.5*m_FeatureAngle);
+        static const int num_steps = 36;
+        double D_alpha = 2*M_PI/num_steps;
+        vec3_t v;
+
+        v = GeometryTools::orthogonalVector(m_NodeNormal[id_node]);
+        int num_miss = 0;
+        int num_hit = 0;
+        vec3_t x_corner(0,0,0);
+        for (int i = 0; i < num_steps; ++i) {
+          v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
+          vec3_t xp = proj->project(x, id_node, true, v, true);
+          if (proj->lastProjFailed()) {
+            ++num_miss;
+          } else {
+            double l = (x - xp).abs();
+            if (l < d) {
+              ++num_hit;
+              x_corner += xp;
+            } else {
+              ++num_miss;
+            }
+          }
+        }
+        if (num_miss == 0 && num_hit > 0) {
+          x_corner *= 1.0/num_hit;
+          x_new = proj->project(x_corner, id_node, true, m_NodeNormal[id_node]);
+        }
+      }
+
+    } else {
+
       // "magic" vector to displace node for re-projection
       vec3_t magic_vector = m_NodeNormal[id_node];
-
       vec3_t x0 = x_new;
       vec3_t x1 = proj->project(x_new, id_node, m_CorrectCurvature);
       vec3_t n = proj->lastProjNormal();
@@ -108,7 +151,10 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         //
         double L1 = 0;
         double L2 = m_FeatureMagic*cl->GetValue(id_node);
-        for (int i = 0; i < 30; ++i) {
+        bool inverted = false;
+        bool done = false;
+        int iteration = 1;
+        while (!done) {
           x_new = x1 + 0.5*(L1 + L2)*magic_vector;
           x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
           double displacement = fabs((x_new - x1)*n);
@@ -117,15 +163,23 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
           } else {
 
             // if there is no significant displacement after the first iteration
-            // the node is probably in a smooth region of the surface
-            // ==> stop here
+            // the node is either in a smooth region of the surface
+            // or the "magic" vector needs to be inverted
             //
-            if (i == 0) {
+            if (iteration == 1) {
+              magic_vector *= -1;
+              inverted = true;
+            } else if (iteration == 2 && inverted) {
               x_new = x0;
-              break;
+              done = true;
+            } else {
+              L1 = 0.5*(L1 + L2);
             }
 
-            L1 = 0.5*(L1 + L2);
+          }
+          ++iteration;
+          if (iteration > 30) {
+            done = true;
           }
         }
         x_new = x1 + L1*magic_vector;
@@ -318,9 +372,9 @@ void LaplaceSmoother::operate()
               x_new[*iter] += scal*m_NodeNormal[id_node];
             }
             vec3_t Dx = x_new[*iter] - x_old;
-            Dx *= m_UnderRelaxation;
+            //Dx *= m_UnderRelaxation;
             if (moveNode(id_node, Dx)) {
-              x_new[*iter] = x_old + Dx;
+              x_new[*iter] = x_old + m_UnderRelaxation*Dx;
             } else {
               x_new[*iter] = x_old;
               m_Success = false;
