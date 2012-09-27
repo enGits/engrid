@@ -232,6 +232,9 @@ public: // methods
    */
   vec3_t globalNormal(vtkIdType id_node);
 
+  template <typename C>
+  void getGlobalN2N(vtkIdType id_node, C& cont);
+
 };
 
 
@@ -580,5 +583,15 @@ inline int MeshPartition::n2bcG(vtkIdType id_node, int j)
   checkN2BC();
   return m_N2BC[m_LNodes[id_node]][j];
 }
+
+template <typename C>
+void MeshPartition::getGlobalN2N(vtkIdType id_node, C& cont)
+{
+  cont.clear();
+  for (int i = 0; i < n2nGSize(id_node); ++i) {
+    cont << n2nGG(id_node, i);
+  }
+}
+
 
 #endif // MESHPARTITION_H
