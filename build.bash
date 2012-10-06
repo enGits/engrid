@@ -82,6 +82,9 @@ else
     elif [ $1 = 'ubuntu-12.04' ]
     then
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
+    elif [ $1 = 'ubuntu-12.10' ]
+    then
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'opensuse-11.2-32' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science

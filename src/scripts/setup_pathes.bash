@@ -26,7 +26,8 @@ help ()
 {
   echo "usage :"
   echo "source setup_pathes.bash CONFIGURATION"
-  echo "CONFIGURATION = ubuntu-12.04"
+  echo "CONFIGURATION = ubuntu-12.10"
+  echo "                ubuntu-12.04"
   echo "                ubuntu-11.10"
   echo "                ubuntu-11.04"
   echo "                ubuntu-10.10"
@@ -57,6 +58,10 @@ else
     export VTKINCDIR=/usr/include/vtk-5.6/
     export VTKLIBDIR=/usr/lib
   elif [ $1 = 'ubuntu-12.04' ]
+  then
+    export VTKINCDIR=/usr/include/vtk-5.8/
+    export VTKLIBDIR=/usr/lib
+  elif [ $1 = 'ubuntu-12.10' ]
   then
     export VTKINCDIR=/usr/include/vtk-5.8/
     export VTKLIBDIR=/usr/lib
