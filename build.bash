@@ -38,6 +38,7 @@ help ()
   echo "                ubuntu-11.04"
   echo "                ubuntu-11.10"
   echo "                ubuntu-12.04"
+  echo "                ubuntu-12.10"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
@@ -80,6 +81,9 @@ else
     then
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'ubuntu-12.04' ]
+    then
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
+    elif [ $1 = 'ubuntu-12.10' ]
     then
       sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'opensuse-11.2-32' ]
