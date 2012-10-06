@@ -38,6 +38,7 @@ help ()
   echo "                ubuntu-11.04"
   echo "                ubuntu-11.10"
   echo "                ubuntu-12.04"
+  echo "                ubuntu-12.10"
   echo "                opensuse-11.2-32"
   echo "                opensuse-11.2-64"
   echo "                opensuse-11.3-32"
