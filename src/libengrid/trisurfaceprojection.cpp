@@ -227,7 +227,7 @@ void TriSurfaceProjection::setProjTriangle(vtkIdType id_node, vtkIdType proj_tri
 }
 
 
-vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature, vec3_t, bool)
+vec3_t TriSurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_curvature, vec3_t, bool, bool)
 {
   if (!checkVector(xp)) {
     qWarning() << "No projection found for point, id_node=" << id_node << ", xp=" << xp[0] << xp[1] << xp[2] << endl;

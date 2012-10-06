@@ -36,7 +36,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   DebugLevel = 0;
   setQuickSave(true);
   m_UseProjection = true;
-  //   m_UseNormalCorrection = false;
+//   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
   getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
   getSet("surface meshing", "smoothing limiter", 1.0, m_Limit);
@@ -46,7 +46,6 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_ProjectionIterations = 50;
   m_AllowedCellTypes.clear();
   m_AllowedCellTypes.insert(VTK_TRIANGLE);
-  //m_StrictFeatureSnap = false;
 }
 
 bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
@@ -60,12 +59,11 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   if(m_NoCheck) {
     return move;
   }
-  /*
   QVector<vec3_t> old_cell_normals(m_Part.n2cGSize(id_node));
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     old_cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
-  }
+  }  
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
 
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -75,89 +73,82 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       break;
     }
   }
-  */
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
-  return move;
+  return move;  
 }
 
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* proj, vec3_t &x_new)
 {
-  if (m_FeatureMagic > 0) {
 
+  /*
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  proj->project(x_new, id_node, m_CorrectCurvature);
+  vec3_t n  = proj->lastProjNormal();
+  double angle = GeometryTools::angle(n, m_NodeNormal[id_node]);
+  double weight =pow(min(1.0, 2*angle/M_PI), 0.5);
+  QList<vec3_t> x_hit, n_hit;
+  int num_miss = 0;
+  double L = 0;
+  scanFeatures(id_node, proj, true, 0.1, 2, x_hit, n_hit, num_miss, L);
+  if (x_hit.size() > 0) {
+    vec3_t xf(0,0,0);
+    foreach (vec3_t x, x_hit) {
+      xf += x;
+    }
+    xf *= 1.0/x_hit.size();
+    double l = (x_new - xf).abs();
+    l /= L;
+    scanFeatures(id_node, proj, true, 0.1*l, 2, x_hit, n_hit, num_miss, L);
+    if (x_hit.size() > 0) {
+      xf = vec3_t(0,0,0);
+      foreach (vec3_t x, x_hit) {
+        xf += x;
+      }
+      xf *= 1.0/x_hit.size();
+    }
+    x_new = weight*xf + (1 - weight)*x_new;
+  }
+  */
+
+
+
+
+  if (m_FeatureMagic > 0) {
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
     EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    bool convex = isConvexNode(id_node);
-    if (node_type->GetValue(id_node) == EG_FEATURE_CORNER_VERTEX) {
-
-      vec3_t x;
-      double L = 0.1*cl->GetValue(id_node);
-
-      vec3_t x0 = proj->project(x_new, id_node, true, m_NodeNormal[id_node]);
-      if (convex) {
-        x = x0 - L*m_NodeNormal[id_node];
-      } else {
-        x = x0 + L*m_NodeNormal[id_node];
-      }
-      vec3_t n = proj->lastProjNormal();
-      if (!proj->lastProjFailed()) {
-        double d = 2*L/tan(0.5*m_FeatureAngle);
-        static const int num_steps = 36;
-        double D_alpha = 2*M_PI/num_steps;
-        vec3_t v;
-
-        v = GeometryTools::orthogonalVector(m_NodeNormal[id_node]);
-        int num_miss = 0;
-        int num_hit = 0;
-        vec3_t x_corner(0,0,0);
-        for (int i = 0; i < num_steps; ++i) {
-          v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-          vec3_t xp = proj->project(x, id_node, true, v, true);
-          if (proj->lastProjFailed()) {
-            ++num_miss;
-          } else {
-            double l = (x - xp).abs();
-            if (l < d) {
-              ++num_hit;
-              x_corner += xp;
-            } else {
-              ++num_miss;
-            }
-          }
-        }
-        if (num_miss == 0 && num_hit > 0) {
-          x_corner *= 1.0/num_hit;
-          x_new = proj->project(x_corner, id_node, true, m_NodeNormal[id_node]);
-        }
-      }
-
-    } else {
-
+    //if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
+    {
       // "magic" vector to displace node for re-projection
-      vec3_t x0  = x_new;
-      vec3_t x1  = proj->project(x_new, id_node, m_CorrectCurvature);
-      vec3_t n   = proj->lastProjNormal();
-      double l   = cl->GetValue(id_node);
-      double eps = 0.01*l;
-      vec3_t mv  = l*m_NodeNormal[id_node];
-      mv -= (n*mv)*n;
+      vec3_t magic_vector = m_NodeNormal[id_node];
 
-      if (checkVector(mv)) {
+      vec3_t x0 = x_new;
+      vec3_t x1 = proj->project(x_new, id_node, m_CorrectCurvature);
+      vec3_t n = proj->lastProjNormal();
+
+      // check if mesh normal and projection normal are aligned
+      // .. try to displace node slightly in order to get a proper projection normal
+      //
+      if (fabs(n*magic_vector) > 0.99) {
+        x_new += 0.1*cl->GetValue(id_node)*magic_vector;
+        x1 = proj->project(x_new, id_node, m_CorrectCurvature);
+        n = proj->lastProjNormal();
+      }
+
+      if (fabs(n*magic_vector) <= 0.99) {
+
+        // start the procedure if the vectors are not aligned
+        //
         double L1 = 0;
-        double L2 = 1;//m_FeatureMagic*cl->GetValue(id_node);
-        bool flipped = false;
-        double amp = 0.1;
-        int i = 0;
-        int hits = 0;
-        while (i < 30 && amp < 10) {
-          x_new = x1 + 0.5*amp*(L1 + L2)*mv;// + 2*eps*n;
-          //x_new = proj->findClosest(x_new, id_node, n);
+        double L2 = m_FeatureMagic*cl->GetValue(id_node);
+        for (int i = 0; i < 30; ++i) {
+          x_new = x1 + 0.5*(L1 + L2)*magic_vector;
           x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
           double displacement = fabs((x_new - x1)*n);
-          if (displacement > eps || proj->lastProjFailed()) {
+          if (displacement > 0.01*cl->GetValue(id_node)) {
             L2 = 0.5*(L1 + L2);
-            ++i;
           } else {
 
             // if there is no significant displacement after the first iteration
@@ -165,33 +156,27 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
             // ==> stop here
             //
             if (i == 0) {
-              if (!flipped) {
-                mv *= -1;
-                flipped = true;
-              } else {
-                amp *= 1.5;
-                mv *= -1;
-                flipped = false;
-              }
-            } else {
-              L1 = 0.5*(L1 + L2);
-              ++hits;
-              ++i;
+              x_new = x0;
+              break;
             }
+
+            L1 = 0.5*(L1 + L2);
           }
         }
-        if (hits > 0) {
-          x_new = x1 + L1*m_FeatureMagic*amp*mv;
-          x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
-          if (proj->lastProjFailed()) {
-            cout << "bad!" << endl;
-          }
-        } else {
-          x_new = x0;
-        }
+        x_new = x1 + L1*magic_vector;
+        x_new = proj->project(x_new, id_node, m_CorrectCurvature, n);
+      } else {
+
+        // If they are still aligned it is an awkward situation.
+        // .. The node might be in a corner already
+        // .. skip iteration in this case
+        //
+        x_new = x0;
+
       }
     }
   }
+
 }
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
@@ -323,10 +308,19 @@ void LaplaceSmoother::operate()
   for (int i_iter = 0; i_iter < m_NumberOfIterations; ++i_iter) {
     m_Success = true;
     computeNormals();
+    //m_Check.setGrid(m_Grid);
+    LocalNodeGraphInterface graph;
+    graph.setMeshPartition(&m_Part);
+    CheckerBoardGraphIterator<LocalNodeGraphInterface> iter;
+    iter.setGraph(&graph);
 
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      vtkIdType id_node = nodes[i_nodes];
-      if (!m_Fixed[id_node] && !blocked[i_nodes]) {
+    //for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+    for (iter = 0; iter < nodes.size(); ++iter) {
+      if (iter.updateRequired()) {
+        //m_Check.setGrid(m_Grid);
+      }
+      vtkIdType id_node = nodes[*iter];
+      if (!m_Fixed[id_node] && !blocked[*iter]) {
         if (smooth_node[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
@@ -336,47 +330,41 @@ void LaplaceSmoother::operate()
 
             if (snap_points.size() > 0) {
               vec3_t x;
-              x_new[i_nodes] = vec3_t(0,0,0);
+              x_new[*iter] = vec3_t(0,0,0);
               double w_tot = 0;
               double L_min = 1e99;
               foreach (vtkIdType id_snap_node, snap_points) {
                 m_Grid->GetPoint(id_snap_node, x.data());
                 double w = 1.0;
                 w_tot += w;
-                x_new[i_nodes] += w*x;
+                x_new[*iter] += w*x;
                 n += m_NodeNormal[id_snap_node];
                 double L = (x - x_old).abs();
                 L_min = min(L, L_min);
               }
               n.normalise();
-              x_new[i_nodes] *= 1.0/w_tot;
+              x_new[*iter] *= 1.0/w_tot;
             } else {
-              x_new[i_nodes] = x_old;
+              x_new[*iter] = x_old;
             }
 
             if (m_UseNormalCorrection) {
-              vec3_t dx = x_new[i_nodes] - x_old;
+              vec3_t dx = x_new[*iter] - x_old;
               double scal = dx*m_NodeNormal[id_node];
-              x_new[i_nodes] += scal*m_NodeNormal[id_node];
+              x_new[*iter] += scal*m_NodeNormal[id_node];
             }
-            vec3_t Dx = x_new[i_nodes] - x_old;
-            //Dx *= m_UnderRelaxation;
+            vec3_t Dx = x_new[*iter] - x_old;
+            Dx *= m_UnderRelaxation;
             if (moveNode(id_node, Dx)) {
-              x_new[i_nodes] = x_old + m_UnderRelaxation*Dx;
+              x_new[*iter] = x_old + Dx;
             } else {
-              x_new[i_nodes] = x_old;
-              //m_Success = false;
+              x_new[*iter] = x_old;
+              m_Success = false;
             }
-            m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
           }
         }
       }
     }
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      vtkIdType id_node = nodes[i_nodes];
-      m_Grid->GetPoints()->SetPoint(id_node, x_new[id_node].data());
-    }
-
     if (m_Success) {
       break;
     }

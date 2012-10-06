@@ -361,9 +361,9 @@ int SwapTriangles::swap()
                       force_swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  if (node_type->GetValue(S.p1) != EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.p2) != EG_FEATURE_EDGE_VERTEX) {
+                  if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
 
-                    if (node_type->GetValue(S.id_node[0]) == EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.id_node[1]) == EG_FEATURE_EDGE_VERTEX) {
+                    if (isFeatureNode(S.id_node[0]) && isFeatureNode(S.id_node[1])) {
                       //swap = true;
                     }
 

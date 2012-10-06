@@ -25,6 +25,8 @@
 
 #include "operation.h"
 
+class SurfaceProjection;
+
 //==============================================
 
 /// Special structure for working on two (or more) linked cells
@@ -60,8 +62,6 @@ protected: // attributes
   double m_EdgeAngle;
   int    m_BoundarySmoothing;
   bool   m_UniformSnapPoints;
-  bool   m_StrictFeatureSnap;
-
 
   QVector<vec3_t> m_NodeNormal; ///< node normal vectors
   QVector <VertexMeshDensity> m_VMDvector;
@@ -73,10 +73,12 @@ protected: // methods
 
   void   computeNormals();
   bool   isConvexNode(vtkIdType id_node);
-  char   geometricNodeType(vtkIdType id_node);
   double normalIrregularity(vtkIdType id_node);
   void   readVMD();
   void   updateNodeInfo();
+
+  void scanFeatures(vtkIdType id_node, SurfaceProjection* proj, bool use_proj_normal, double rel_depth, double rel_dist,
+                    QList<vec3_t>& x_hit, QList<vec3_t>& n_hit, int& num_miss, double &L);
 
 
 public:
@@ -127,10 +129,6 @@ public:
   bool isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3);
 
   void setStretchingFactor(double sf) { m_StretchingFactor = sf; }
-
-  double getSurfaceDeviation(vtkIdType id_node);
-
-  bool isFeatureNode(vtkIdType id_node);
 
 };
 

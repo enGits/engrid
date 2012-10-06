@@ -89,14 +89,15 @@ public: // methods
   
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 
-  virtual vec3_t    project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0), bool strict_direction = false);
+  virtual vec3_t    project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0),
+                            bool strict_direction = false, bool allow_search = true);
   virtual double    getRadius(vtkIdType id_node);
   virtual vec3_t    correctCurvature(vtkIdType proj_triangle, vec3_t x);
   virtual vec3_t    lastProjNormal() { return GeometryTools::cellNormal(m_BGrid, m_LastProjTriangle); }
   virtual double    lastProjRadius() { EG_BUG; return 0; }
   virtual vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
   virtual bool      lastProjFailed() { return false; }
-
+  virtual vec3_t    findClosest(vec3_t x, vtkIdType id_node, vec3_t dir = vec3_t(0,0,0)) { EG_BUG; return vec3_t(0,0,0); }
 
   vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
 
