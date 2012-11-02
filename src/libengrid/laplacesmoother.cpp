@@ -48,6 +48,37 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  bool move = true;
+  if(m_NoCheck) {
+    return move;
+  }
+
+  QVector<vec3_t> old_cell_normals(m_Part.n2cGSize(id_node));
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    old_cell_normals[i] = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+  }
+  m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    vec3_t n = GeometryTools::cellNormal(m_Grid, m_Part.n2cGG(id_node, i));
+    if (n*old_cell_normals[i] < 0.2*old_cell_normals[i].abs2()) {
+      move = false;
+      break;
+    }
+  }
+
+  if (!move) {
+    m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
+  }
+  return move;
+
+/*
+  using namespace GeometryTools;
+
+  vec3_t x_old;
+  m_Grid->GetPoint(id_node, x_old.data());
   m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
   
   bool move = true;
@@ -131,6 +162,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
   return move;
+  */
 }
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
