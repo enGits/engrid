@@ -92,7 +92,7 @@ else
     cd engrid
     git checkout -b release-1.4 remotes/origin/release-1.4
     cd src
-    source scripts/setup_pathes_auto.bash
+    source scripts/setup_pathes.bash
     source scripts/build-nglib.sh
     cd libengrid
     qmake
