@@ -180,7 +180,8 @@ HEADERS = boundarycondition.h \
     su2writer.h \
     booleangeometryoperation.h \
     guibooleangeometryoperation.h \
-    dolfynwriter.h
+    dolfynwriter.h \
+    guiedgelengthsourcepipe.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -289,7 +290,8 @@ SOURCES = boundarycondition.cpp \
     su2writer.cpp \
     booleangeometryoperation.cpp \
     guibooleangeometryoperation.cpp \
-    dolfynwriter.cpp
+    dolfynwriter.cpp \
+    guiedgelengthsourcepipe.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -306,7 +308,8 @@ FORMS = guicreateboundarylayer.ui \
     guicreatevolumemesh.ui \
     guisurfacemesher.ui \
     guicreatehexcore.ui \
-    guibooleangeometryoperation.ui
+    guibooleangeometryoperation.ui \
+    guiedgelengthsourcepipe.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp
