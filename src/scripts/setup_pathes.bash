@@ -4,7 +4,7 @@
 # +                                                                      +
 # + This file is part of enGrid.                                         +
 # +                                                                      +
-# + Copyright 2008-2012 enGits GmbH                                     +
+# + Copyright 2008-2012 enGits GmbH                                      +
 # +                                                                      +
 # + enGrid is free software: you can redistribute it and/or modify       +
 # + it under the terms of the GNU General Public License as published by +
@@ -24,91 +24,41 @@
 
 help ()
 {
-  echo "usage :"
-  echo "source setup_pathes.bash CONFIGURATION"
-  echo "CONFIGURATION = ubuntu-12.10"
-  echo "                ubuntu-12.04"
-  echo "                ubuntu-11.10"
-  echo "                ubuntu-11.04"
-  echo "                ubuntu-10.10"
-  echo "                opensuse32"
-  echo "                opensuse64"
-  echo "                opensuse32-12"
-  echo "                opensuse64-12"
-  echo "                fedora32"
-  echo "                fedora64"
+  echo "The script is unable to detect the location of your VTK installation."
+  echo "Please set the following variables manually"
+  echo " - VTKINCDIR"
+  echo " - VTKLIBDIR"
 }
 
-# Check if all parameters are present
-# If no, exit
-if [ $# -ne 1 ]
+if [ -d /usr/include/vtk-5.10 ]
 then
-  help
+  export VTKINCDIR=/usr/include/vtk-5.10
+elif [ -d /usr/include/vtk-5.8 ]
+then
+  export VTKINCDIR=/usr/include/vtk-5.8
+elif [ -d /usr/include/vtk-5.6 ]
+then
+  export VTKINCDIR=/usr/include/vtk-5.6
+elif [ -d /usr/include/vtk-5.4 ]
+then
+  export VTKINCDIR=/usr/include/vtk-5.4
+elif [ -d /usr/include/vtk ]
+then
+  export VTKINCDIR=/usr/include/vtk
 else
-  if [ $1 = 'ubuntu-10.10' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.4/
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'ubuntu-11.04' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.4/
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'ubuntu-11.10' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.6/
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'ubuntu-12.04' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.8/
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'ubuntu-12.10' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.8/
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'opensuse32' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.8
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'opensuse64' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.8
-    export VTKLIBDIR=/usr/lib64
-  elif [ $1 = 'opensuse32-12' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.10
-    export VTKLIBDIR=/usr/lib
-  elif [ $1 = 'opensuse64-12' ]
-  then
-    export VTKINCDIR=/usr/include/vtk-5.10
-    export VTKLIBDIR=/usr/lib64
-  elif [ $1 = 'fedora32' ]
-  then
-    export VTKINCDIR=/usr/include/vtk
-    export VTKLIBDIR=/usr/lib
-    chmod +x scripts/qmake
-    export PATH=$PATH:`pwd`/scripts
-  elif [ $1 = 'fedora64' ]
-  then
-    export VTKINCDIR=/usr/include/vtk
-    export VTKLIBDIR=/usr/lib64
-    chmod +x scripts/qmake
-    export PATH=$PATH:`pwd`/scripts
-  elif [ $1 = 'fedora32-17' ]
-  then
-    export VTKINCDIR=/usr/include/vtk
-    export VTKLIBDIR=/usr/lib/vtk
-    chmod +x scripts/qmake
-    export PATH=$PATH:`pwd`/scripts
-  elif [ $1 = 'fedora64-17' ]
-  then
-    export VTKINCDIR=/usr/include/vtk
-    export VTKLIBDIR=/usr/lib64/vtk
-    chmod +x scripts/qmake
-    export PATH=$PATH:`pwd`/scripts
-  else
-    help
-  fi
-  export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
+  help  
 fi
 
+if [ -f /usr/lib/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib
+elif [ -f /usr/lib64/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib64
+else
+  help
+fi
+
+
+export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH

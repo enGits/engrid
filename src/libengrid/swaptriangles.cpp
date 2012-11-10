@@ -106,55 +106,6 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
   return(ret);
 }
 
-void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, double &err1, double &err2)
-{
-  using namespace GeometryTools;
-  err1 = 0;
-  err2 = 0;
-  if (m_SurfErrorThreshold <= 0) {
-    return;
-  }
-  SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
-  if (!proj) {
-    return;
-  }
-  vec3_t n11 = triNormal(x[0], x[1], x[3]);
-  vec3_t n12 = triNormal(x[1], x[2], x[3]);
-  vec3_t n21 = triNormal(x[0], x[1], x[2]);
-  vec3_t n22 = triNormal(x[0], x[2], x[3]);
-  vec3_t n   = n11 + n12 + n21 + n22;
-  n.normalise();
-  vec3_t err_vec = 0.5*(x[0] + x[2] - x[1] - x[3]);
-  double appr_err = fabs(n*err_vec);
-  /*
-  if (angle(n11, n12) <= m_FeatureAngle && angle(n21, n22) <= m_FeatureAngle) {
-    return;
-  }
-  */
-
-  double L = 0;
-  L = max(L, (x[0] - x[1]).abs());
-  L = max(L, (x[0] - x[2]).abs());
-  L = max(L, (x[0] - x[3]).abs());
-  L = max(L, (x[1] - x[2]).abs());
-  L = max(L, (x[1] - x[3]).abs());
-  L = max(L, (x[2] - x[3]).abs());
-
-  if (appr_err > m_SurfErrorThreshold*L) {
-    static const double f13 = 1.0/3.0;
-    vec3_t x012 = f13*(x[0] + x[1] + x[2]);
-    vec3_t x013 = f13*(x[0] + x[1] + x[3]);
-    vec3_t x023 = f13*(x[0] + x[2] + x[3]);
-    vec3_t x123 = f13*(x[1] + x[2] + x[3]);
-    vec3_t xp012 = proj->projectRestricted(x012);
-    vec3_t xp013 = proj->projectRestricted(x013);
-    vec3_t xp023 = proj->projectRestricted(x023);
-    vec3_t xp123 = proj->projectRestricted(x123);
-    err1 = max((x013 - xp013).abs(), (x123 - xp123).abs())/L;
-    err2 = max((x012 - xp012).abs(), (x023 - xp023).abs())/L;
-  }
-}
-
 int SwapTriangles::swap()
 {
   int N_swaps = 0;
@@ -197,20 +148,7 @@ int SwapTriangles::swap()
                   }
                   if (m_FeatureSwap || GeometryTools::angle(n1, n2) < m_FeatureAngle || force_swap) {
 
-                    // surface errors
-                    double se1, se2;
-                    bool surf_block = false;
-                    if (m_SurfErrorThreshold > 0) {
-                      computeSurfaceErrors(x3, cell_code->GetValue(id_cell), se1, se2);
-                      if (se2 > se1 && se2 > m_SurfErrorThreshold) {
-                        surf_block = true;
-                      } else {
-                        if (se2 < se1 && se1 > m_SurfErrorThreshold) {
-                          swap = true;
-                        }
-                      }
-                    }
-                    if (!swap && !surf_block) {
+                    if (!swap) {
                       vec3_t n = n1 + n2;
                       n.normalise();
                       vec3_t ex = orthogonalVector(n);
