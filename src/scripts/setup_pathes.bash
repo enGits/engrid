@@ -55,6 +55,12 @@ then
 elif [ -f /usr/lib64/libvtkCommon.so ]
 then
   export VTKLIBDIR=/usr/lib64
+elif [ -f /usr/lib/vtk/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib/vtk
+elif [ -f /usr/lib64/vtk/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib64/vtk
 else
   help
 fi
