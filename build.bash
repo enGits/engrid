@@ -90,7 +90,19 @@ else
     else
       help
     fi
-    git clone https://github.com/enGits/engrid.git
+
+    for url_address in git://github.com/enGits/engrid.git \
+        https://github.com/enGits/engrid.git \
+        git://repo.or.cz/engrid-github.git \
+        http://repo.or.cz/r/engrid-github.git; do
+
+      if git clone $url_address engrid ; then
+        break;
+      else
+        echo "Repository $url_address failed. Trying the next one..."
+      fi
+    done
+
     cd engrid
     git checkout -b release-1.4 remotes/origin/release-1.4
     cd src
