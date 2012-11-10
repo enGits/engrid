@@ -72,7 +72,7 @@ else
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-12.1' ]
     then
-      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
       sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-12.2' ]
     then
