@@ -59,6 +59,9 @@ else
   help
 fi
 
+if [ -n "$(which qmake-qt4)" ]; then
+  [ ! -x "scripts/qmake" ] && chmod +x scripts/qmake
+  export PATH=$PATH:`pwd`/scripts
+fi
 
-export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
