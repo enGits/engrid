@@ -1,7 +1,9 @@
 This package was debianized by Mike Taverne <mtaverne@engits.com> on
 Tue, 30 Dec 2008 18:21:00 +0100.
+Further updates to this package have been documented here:
+    https://github.com/enGits/engrid/wiki/Debian-package-development
 
-It was cloned from git://engits.eu/git/engrid.git
+It was cloned from git@github.com:enGits/engrid.git
 
 Upstream Authors:
 

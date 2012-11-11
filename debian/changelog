@@ -1,3 +1,9 @@
+engrid (1.4.0-ubuntu3) oneiric; urgency=low
+
+  * Sync up with the git repository, branch 'release-1.4'.
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 11 Nov 2012 12:00:00 +0100
+
 engrid (1.4.0-ubuntu2) oneiric; urgency=low
 
   * Cleaned up the packaging.
