@@ -21,6 +21,8 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 #include "foamwriter.h"
+#include "volumedefinition.h"
+#include "guimainwindow.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -34,7 +36,7 @@ FoamWriter::FoamWriter()
 
 void FoamWriter::writePoints(const PolyMesh &poly)
 {
-  QString filename = path + "points";
+  QString filename = m_Path + "points";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -66,7 +68,7 @@ void FoamWriter::writePoints(const PolyMesh &poly)
 
 void FoamWriter::writeFaces(const PolyMesh &poly)
 {
-  QString filename = path + "faces";
+  QString filename = m_Path + "faces";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -104,7 +106,7 @@ void FoamWriter::writeFaces(const PolyMesh &poly)
 
 void FoamWriter::writeOwner(const PolyMesh &poly)
 {
-  QString filename = path + "owner";
+  QString filename = m_Path + "owner";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -134,7 +136,7 @@ void FoamWriter::writeOwner(const PolyMesh &poly)
 
 void FoamWriter::writeNeighbour(const PolyMesh &poly)
 {
-  QString filename = path + "neighbour";
+  QString filename = m_Path + "neighbour";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -169,7 +171,7 @@ void FoamWriter::writeNeighbour(const PolyMesh &poly)
 
 void FoamWriter::writeBoundary(const PolyMesh &poly)
 {
-  QString filename = path + "boundary";
+  QString filename = m_Path + "boundary";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -226,7 +228,7 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
   f << "// ************************************************************************* //\n\n\n";
 }
 
-void FoamWriter::operate()
+void FoamWriter::writeSingleVolume()
 {
   try {
     readOutputDirectory();
@@ -249,8 +251,8 @@ void FoamWriter::operate()
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
       };
-      path = getFileName() + "/constant/polyMesh/";
-      if (!QDir(path).exists()) {
+      m_Path = getFileName() + "/constant/polyMesh/";
+      if (!QDir(m_Path).exists()) {
         EG_BUG;
       };
       PolyMesh poly(m_Grid);
@@ -262,5 +264,67 @@ void FoamWriter::operate()
     }
   } catch (Error err) {
     err.display();
+  }
+}
+
+void FoamWriter::writeMultipleVolumes()
+{
+  try {
+    readOutputDirectory();
+    if (isValid()) {
+      QList<VolumeDefinition> vols = mainWindow()->getAllVols();
+      QString p1 = getFileName();
+      QString p2 = p1 + "/constant";
+      QDir d1(p1);
+      QDir d2(p2);
+      if (!d1.exists()) {
+        EG_BUG;
+      }
+      if (!d2.exists()) {
+        d1.mkdir("constant");
+        d2 = QDir(p2);
+      }
+
+      foreach (VolumeDefinition vol, vols) {
+
+        QString p3 = p2 + "/" + vol.getName();
+        QDir d3(p3);
+        if (!d3.exists()) {
+          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d3 = QDir(p3);
+        }
+        QString p4 = p3 + "/polyMesh";
+        QDir d4(p4);
+        if (!d4.exists()) {
+          d3.mkdir("polyMesh");
+        }
+        m_Path = getFileName() + "/constant/" + vol.getName() + "/polyMesh/";
+        if (!QDir(m_Path).exists()) {
+          EG_BUG;
+        }
+        EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+        MeshPartition volume(vol.getName());
+        volume.setVolumeOrientation();
+        volume.extractToVtkGrid(vol_grid);
+        PolyMesh poly(vol_grid);
+        writePoints(poly);
+        writeFaces(poly);
+        writeOwner(poly);
+        writeNeighbour(poly);
+        writeBoundary(poly);
+      }
+    }
+
+  } catch (Error err) {
+    err.display();
+  }
+}
+
+void FoamWriter::operate()
+{
+  if (mainWindow()->getAllVols().size() <= 1) {
+    writeSingleVolume();
+  } else {
+    writeMultipleVolumes();
   }
 }

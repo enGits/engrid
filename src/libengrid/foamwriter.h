@@ -36,7 +36,7 @@ class FoamWriter : public IOOperation
 
 protected: // attributes
   
-  QString path;
+  QString m_Path;
 
 protected: // methods
   
@@ -45,6 +45,10 @@ protected: // methods
   void writeOwner(const PolyMesh &poly);
   void writeNeighbour(const PolyMesh &poly);
   void writeBoundary(const PolyMesh &poly);
+
+  void writeSingleVolume();
+  void writeMultipleVolumes();
+
   virtual void operate();
   
 public: // methods
