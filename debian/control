@@ -1,8 +1,8 @@
 Source: engrid
 Section: science
 Priority: extra
-Maintainer: Mike Taverne <mtaverne@engits.com>
-Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libqt4-opengl-dev, libvtk5-dev (>=5.4.2), libvtk5-qt4-dev (>=5.4.2), libnglib-dev, libcgns-dev, libhdf5-serial-dev
+Maintainer: Bruno Santos <bruno.santos@bluecape.com.pt>
+Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libqt4-opengl-dev, libvtk5-dev (>=5.4.2), libvtk5-qt4-dev (>=5.4.2), libnglib-dev
 Standards-Version: 3.8.4
 Homepage: http://engits.eu
 
@@ -28,7 +28,7 @@ Section: doc
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: engrid
-Description: Documentation for enGrid
+Description: Documentation and Tutorials for enGrid
  ENGRID is an open-source mesh generation software with CFD applications in
  mind. ENGRID uses the NETGEN library for tetrahedral grid generation and an
  in-house development for prismatic boundary layer grids. Internally, ENGRID
@@ -41,7 +41,7 @@ Description: Documentation for enGrid
  quite robust and it does not require much user interaction.
  The development of ENGRID has been funded by the European Space Agency
  .
- This package contains the documentation.
+ This package contains the documentation and tutorials.
 
 Package: engrid-blenderscripts
 Architecture: all

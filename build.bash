@@ -57,27 +57,27 @@ else
     config_name=$1
     if [ $1 = 'ubuntu' ]
     then
-      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools
+      sudo apt-get install git-core subversion g++ libvtk5-qt4-dev qt4-dev-tools patch
     elif [ $1 = 'opensuse-11.2' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-11.3' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.3/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-11.4' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-12.1' ]
     then
-      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_11.4/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.1/ science
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'opensuse-12.2' ]
     then
       sudo zypper addrepo http://download.opensuse.org/repositories/science/openSUSE_12.2/ science
-      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel
+      sudo zypper install git-core subversion libqt4-devel make vtk-qt vtk-devel patch
     elif [ $1 = 'fedora' ]
     then
       sudo yum -y install git
@@ -85,10 +85,24 @@ else
       sudo yum -y install wget
       sudo yum -y install gcc-c++
       sudo yum -y install vtk-qt
+      sudo yum -y install vtk-devel
+      sudo yum -y install patch
     else
       help
     fi
-    git clone https://github.com/enGits/engrid.git
+
+    for url_address in git://github.com/enGits/engrid.git \
+        https://github.com/enGits/engrid.git \
+        git://repo.or.cz/engrid-github.git \
+        http://repo.or.cz/r/engrid-github.git; do
+
+      if git clone $url_address engrid ; then
+        break;
+      else
+        echo "Repository $url_address failed. Trying the next one..."
+      fi
+    done
+
     cd engrid
     git checkout -b release-1.4 remotes/origin/release-1.4
     cd src

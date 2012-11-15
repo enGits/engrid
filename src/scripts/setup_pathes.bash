@@ -55,10 +55,19 @@ then
 elif [ -f /usr/lib64/libvtkCommon.so ]
 then
   export VTKLIBDIR=/usr/lib64
+elif [ -f /usr/lib/vtk/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib/vtk
+elif [ -f /usr/lib64/vtk/libvtkCommon.so ]
+then
+  export VTKLIBDIR=/usr/lib64/vtk
 else
   help
 fi
 
+if [ -n "$(which qmake-qt4)" ]; then
+  [ ! -x "scripts/qmake" ] && chmod +x scripts/qmake
+  export PATH=$PATH:`pwd`/scripts
+fi
 
-export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$VTKLIBDIR:$LD_LIBRARY_PATH
