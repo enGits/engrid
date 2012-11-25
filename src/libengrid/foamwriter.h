@@ -37,6 +37,8 @@ class FoamWriter : public IOOperation
 protected: // attributes
   
   QString m_Path;
+  QMap<int, QList<QString> > m_Bc2Vol;
+  QString m_CurrentVolume;
 
 protected: // methods
   
@@ -45,6 +47,9 @@ protected: // methods
   void writeOwner(const PolyMesh &poly);
   void writeNeighbour(const PolyMesh &poly);
   void writeBoundary(const PolyMesh &poly);
+
+  bool    hasNeighbour(int bc);
+  QString getNeighbourName(int bc);
 
   void writeSingleVolume();
   void writeMultipleVolumes();

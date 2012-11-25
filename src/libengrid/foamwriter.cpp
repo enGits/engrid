@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -217,11 +217,24 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       bc_name.setNum(bc);
       bc_name = "BC_" + bc_name.rightJustified(4, '0');
     }
+    QString bc_type = BC.getType();
+    if (hasNeighbour(bc)) {
+      bc_type == "mappedWall";
+    }
+
     f << "    " << bc_name << "\n";
     f << "    {\n";
-    f << "        type        " << BC.getType() << ";\n";
-    f << "        nFaces      " << nFaces << ";\n";
-    f << "        startFace   " << startFace << ";\n";
+    f << "        type                 " << bc_type << ";\n";
+    f << "        nFaces               " << nFaces << ";\n";
+    f << "        startFace            " << startFace << ";\n";
+    if (bc_type == "mappedWall") {
+      f << "        startFace            " << startFace << ";\n";
+      f << "        sampleMode           nearestPatchFace;\n";
+      f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
+      f << "        samplePatch          " << bc_name << ";\n";
+      f << "        offsetMode           uniform;\n";
+      f << "        offset               ( 0 0 0 );\n";
+    }
   f << "    }\n";
   };
   f << ")\n\n";
@@ -267,6 +280,24 @@ void FoamWriter::writeSingleVolume()
   }
 }
 
+bool FoamWriter::hasNeighbour(int bc)
+{
+  if (m_Bc2Vol[bc].size() == 2) {
+    return true;
+  }
+  return false;
+}
+
+QString FoamWriter::getNeighbourName(int bc)
+{
+  foreach (QString name, m_Bc2Vol[bc]) {
+    if (name != m_CurrentVolume) {
+      return name;
+    }
+  }
+  return "unknown";
+}
+
 void FoamWriter::writeMultipleVolumes()
 {
   try {
@@ -285,7 +316,21 @@ void FoamWriter::writeMultipleVolumes()
         d2 = QDir(p2);
       }
 
+      m_Bc2Vol.clear();
+      QSet<int> bcs = mainWindow()->getAllBoundaryCodes();
+      foreach (int bc, bcs) {
+        foreach (VolumeDefinition vol, vols) {
+          if (vol.getSign(bc) != 0) {
+            m_Bc2Vol[bc].append(vol.getName());
+            if (m_Bc2Vol[bc].size() > 2) {
+              EG_ERR_RETURN("Boundary condition with more than two volumes found!");
+            }
+          }
+        }
+      }
+
       foreach (VolumeDefinition vol, vols) {
+        m_CurrentVolume = vol.getName();
 
         QString p3 = p2 + "/" + vol.getName();
         QDir d3(p3);
