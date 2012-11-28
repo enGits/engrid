@@ -104,7 +104,8 @@ else
     done
 
     cd engrid
-    git checkout -b release-1.4 remotes/origin/release-1.4
+    #git checkout -b release-1.4 remotes/origin/release-1.4
+    git checkout 1.4.0
     cd src
     source scripts/setup_pathes.bash
     source scripts/build-nglib.sh
