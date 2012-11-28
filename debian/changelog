@@ -1,3 +1,9 @@
+engrid (1.4.0-ubuntu6) quantal; urgency=low
+
+  * Bump stable to Quantal (12.10).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
 engrid (1.4.0-ubuntu5) precise; urgency=low
 
   * Bump stable to Precise (12.04).
