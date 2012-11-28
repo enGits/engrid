@@ -219,7 +219,13 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
     }
     QString bc_type = BC.getType();
     if (hasNeighbour(bc)) {
-      bc_type == "mappedWall";
+      bc_type = "mappedWall";
+    }
+
+    QString neigh_name = bc_name;
+
+    if (bc_type == "mappedWall") {
+      bc_name += "_" + m_CurrentVolume;
     }
 
     f << "    " << bc_name << "\n";
@@ -231,7 +237,7 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       f << "        startFace            " << startFace << ";\n";
       f << "        sampleMode           nearestPatchFace;\n";
       f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
-      f << "        samplePatch          " << bc_name << ";\n";
+      f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(bc) << ";\n";
       f << "        offsetMode           uniform;\n";
       f << "        offset               ( 0 0 0 );\n";
     }
