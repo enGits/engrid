@@ -199,10 +199,6 @@ void CreateVolumeMesh::writeDebugInfo()
       pts[2] = old2tri[T[2]];
       tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
     }
-    writeGrid(tri_grid, "triangles");
-  }
-  {
-    writeGrid(m_Grid, "last_grid");
   }
 }
 

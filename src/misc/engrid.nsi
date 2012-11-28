@@ -300,6 +300,8 @@ Section -AdditionalIcons
 
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Browse Tutorials.lnk" "$INSTDIR\tutorials"
 
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Browse Scripts for Blender.lnk" "$INSTDIR\blender_scripts"
+
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
   ${RefreshShellIcons}
 SectionEnd

@@ -338,6 +338,9 @@ bool MeshPartition::hasBC(vtkIdType id_node, int bc)
 
 vtkIdType MeshPartition::getVolumeCell(vtkIdType id_face)
 {
+  checkLNodes();
+  checkLCells();
+  checkN2C();
   return findVolumeCell(m_Grid, id_face, m_LNodes, m_Cells, m_LCells, m_N2C);
 }
 
