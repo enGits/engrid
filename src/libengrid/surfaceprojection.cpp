@@ -287,9 +287,9 @@ vec3_t SurfaceProjection::project(vec3_t xp, vtkIdType id_node,  bool correct_cu
   r_proj = ri;
   on_triangle = intersects;
   if (!checkVector(x_proj)) {
-    EG_BUG;
-  }
-  if (correct_curvature) {
+    //EG_BUG;
+    x_proj = xp;
+  } else if (correct_curvature) {
     vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
     if (checkVector(x_corr)) {
       x_proj = x_corr;
