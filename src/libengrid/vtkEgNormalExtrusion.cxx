@@ -24,6 +24,15 @@
 
 vtkStandardNewMacro(vtkEgNormalExtrusion)
 
+vtkEgNormalExtrusion::vtkEgNormalExtrusion()
+{
+  mode = normal;
+  m_ScaleX = 1;
+  m_ScaleY = 1;
+  m_ScaleZ = 1;
+  m_RemoveInternalFaces = true;
+}
+
 void vtkEgNormalExtrusion::ExecuteEg()
 {
   QVector<vtkIdType> cells, nodes, n1, n2;
@@ -102,8 +111,6 @@ void vtkEgNormalExtrusion::ExecuteEg()
   QVector<bool> is_boundary;
   is_boundary.fill(false, cells.size());
   {
-    int Nvol  = 0;
-    int Nsurf = 0;
     QVector<int> nvol;
     nvol.fill(0, nodes.size());
     for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
@@ -126,14 +133,10 @@ void vtkEgNormalExtrusion::ExecuteEg()
           is_boundary[i_cell] = true;
         }
       }
-      if (is_boundary[i_cell]) {
+      if (is_boundary[i_cell] || !m_RemoveInternalFaces) {
         ++NnewCells;
-        ++Nsurf;
-      } else {
-        ++Nvol;
       }
     }
-    qDebug() << Nvol << Nsurf;
   }
 
   // allocate memory for the new grid
@@ -317,7 +320,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
   
   // copy all original cells that were not part of the extrusion
   for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
-    if (_cells[id_cell] == -1) {
+    if (_cells[id_cell] == -1 || !m_RemoveInternalFaces) {
       vtkIdType *pts;
       vtkIdType  Npts;
       m_Input->GetCellPoints(id_cell, Npts, pts);

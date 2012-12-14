@@ -41,28 +41,31 @@ protected: // attributes
   double m_ScaleX;
   double m_ScaleY;
   double m_ScaleZ;
+  bool   m_RemoveInternalFaces;
 
 public: // methods
   
   static vtkEgNormalExtrusion* New();
   void SetLayers(const QVector<double> &y);
-  void SetOrigin(vec3_t x) { origin = x; };
-  void SetAxis(vec3_t x) { axis = x; };
-  void SetNormal(vec3_t x) { fixed_normal = x; };
-  void SetMinDist(double d) { min_dist = d; };
-  void SetCylindrical() { mode = cylinder; };
-  void SetFixed() { mode = fixed; };
-  void SetPlanar() { mode = planar; };
-  void SetRotation() { mode = rotation; };
+  void SetOrigin(vec3_t x) { origin = x; }
+  void SetAxis(vec3_t x) { axis = x; }
+  void SetNormal(vec3_t x) { fixed_normal = x; }
+  void SetMinDist(double d) { min_dist = d; }
+  void SetCylindrical() { mode = cylinder; }
+  void SetFixed() { mode = fixed; }
+  void SetPlanar() { mode = planar; }
+  void SetRotation() { mode = rotation; }
   void SetRestrictNone() { m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 1; }
   void SetRestrictXY() { m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 0; }
   void SetRestrictXZ() { m_ScaleX = 1; m_ScaleY = 0; m_ScaleZ = 1; }
   void SetRestrictYZ() { m_ScaleX = 0; m_ScaleY = 1; m_ScaleZ = 1; }
+  void SetRemoveInternalFacesOn()  { m_RemoveInternalFaces = true; }
+  void SetRemoveInternalFacesOff() { m_RemoveInternalFaces = false; }
 
 protected: // methods
   
-  vtkEgNormalExtrusion() { mode = normal; m_ScaleX = 1; m_ScaleY = 1; m_ScaleZ = 1; };
-  ~vtkEgNormalExtrusion() {};
+  vtkEgNormalExtrusion();
+  ~vtkEgNormalExtrusion() {}
   virtual void ExecuteEg();
   
 private: // methods
