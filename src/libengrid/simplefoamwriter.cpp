@@ -463,7 +463,80 @@ void SimpleFoamWriter::operateOnGivenFileName()
   }
 }
 
-void SimpleFoamWriter::operate()
+void SimpleFoamWriter::writeMultipleVolumes()
+{
+  try {
+    readOutputDirectory();
+    if (isValid()) {
+      QList<VolumeDefinition> vols = mainWindow()->getAllVols();
+      QString p1 = getFileName();
+      QString p2 = p1 + "/constant";
+      QDir d1(p1);
+      QDir d2(p2);
+      if (!d1.exists()) {
+        EG_BUG;
+      }
+      if (!d2.exists()) {
+        d1.mkdir("constant");
+        d2 = QDir(p2);
+      }
+
+      m_Bc2Vol.clear();
+      QSet<int> bcs = mainWindow()->getAllBoundaryCodes();
+      foreach (int bc, bcs) {
+        foreach (VolumeDefinition vol, vols) {
+          if (vol.getSign(bc) != 0) {
+            m_Bc2Vol[bc].append(vol.getName());
+            if (m_Bc2Vol[bc].size() > 2) {
+              EG_ERR_RETURN("Boundary condition with more than two volumes found!");
+            }
+          }
+        }
+      }
+
+      foreach (VolumeDefinition vol, vols) {
+        m_CurrentVolume = vol.getName();
+
+        QString p3 = p2 + "/" + vol.getName();
+        QDir d3(p3);
+        if (!d3.exists()) {
+          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d3 = QDir(p3);
+        }
+        QString p4 = p3 + "/polyMesh";
+        QDir d4(p4);
+        if (!d4.exists()) {
+          d3.mkdir("polyMesh");
+        }
+        m_Path = getFileName() + "/constant/" + vol.getName() + "/polyMesh/";
+        if (!QDir(m_Path).exists()) {
+          EG_BUG;
+        }
+        EG_VTKSP(vtkUnstructuredGrid, volume_grid);
+        EG_VTKSP(vtkUnstructuredGrid, original_grid);
+        MeshPartition volume(vol.getName());
+        volume.setVolumeOrientation();
+        volume.extractToVtkGrid(volume_grid);
+        makeCopy(m_Grid, original_grid);
+        makeCopy(volume_grid, m_Grid);
+        setAllCells();
+        createFaces();
+        writePoints();
+        writeFaces();
+        writeOwner();
+        writeNeighbour();
+        writeBoundary();
+        makeCopy(original_grid, m_Grid);
+        setAllCells();
+      }
+    }
+
+  } catch (Error err) {
+    err.display();
+  }
+}
+
+void SimpleFoamWriter::writeSingleVolume()
 {
   try {
     readOutputDirectory();
@@ -499,5 +572,14 @@ void SimpleFoamWriter::operate()
     }
   } catch (Error err) {
     err.display();
+  }
+}
+
+void SimpleFoamWriter::operate()
+{
+  if (mainWindow()->getAllVols().size() <= 1) {
+    writeSingleVolume();
+  } else {
+    writeMultipleVolumes();
   }
 }

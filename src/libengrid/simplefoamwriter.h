@@ -59,7 +59,10 @@ protected: // attributes
   vtkIntArray*    m_BC;
   int             m_NumCells;
   QVector<int>    m_Eg2Of;
-  
+
+  QMap<int, QList<QString> > m_Bc2Vol;
+  QString m_CurrentVolume;
+
 protected: // methods
   
   vtkIdType getNeigh(int i_cells, int i_neigh);
@@ -71,6 +74,9 @@ protected: // methods
   void writeNeighbour();
   void writeBoundary(int faces_offset = 0);
   
+  void writeSingleVolume();
+  void writeMultipleVolumes();
+
   void operateOnGivenFileName();
   virtual void operate();
   
