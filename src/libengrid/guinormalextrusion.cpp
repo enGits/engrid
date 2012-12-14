@@ -134,6 +134,22 @@ void GuiNormalExtrusion::operate()
     extr->SetRemoveInternalFacesOff();
   }
 
+  QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
+  int vc = 1;
+  foreach (VolumeDefinition vol, vols) {
+    vc = max(vc, vol.getVC());
+  }
+  if (m_Ui.checkBoxNewVolume->isChecked()) {
+    EG_FORALL_CELLS(id_cell, m_Grid) {
+      if (isVolume(id_cell, m_Grid)) {
+        if (cell_code->GetValue(id_cell) == 0) {
+          cell_code->SetValue(id_cell, vc);
+        }
+      }
+    }
+  }
+
+
   QSet<int> old_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   extr->SetBoundaryCodes(bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
@@ -144,11 +160,6 @@ void GuiNormalExtrusion::operate()
   QSet<int> new_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
 
   if (m_Ui.checkBoxNewVolume->isChecked()) {
-    QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
-    int vc = 1;
-    foreach (VolumeDefinition vol, vols) {
-      vc = max(vc, vol.getVC());
-    }
     ++vc;
     VolumeDefinition new_vol(m_Ui.lineEditVolumeName->text(), vc);
     foreach (int bc, new_bcs) {
