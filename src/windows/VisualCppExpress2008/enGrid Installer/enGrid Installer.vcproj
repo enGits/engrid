@@ -90,9 +90,9 @@
 				Name="Build NSIS script"
 				OptionalDefine="USE_VisualCppExpress2008"
 				BuildName="&quot;win32_MSVC2008&quot;"
-				BuildVersion="1.4.0"
+				BuildVersion="1.4.x"
 				OutputFolder="$(SolutionDir)\.."
-				BUILDVERSIONx4="1.4.0.0"
+				BUILDVERSIONx4="1.4.-1.0"
 				FileDependencies="$(OutDir)\engrid.exe;$(OutDir)\libengrid.dll;$(OutDir)\nglib.dll"
 			/>
 			<Tool
@@ -121,9 +121,9 @@
 				Name="Build NSIS script"
 				OptionalDefine="USE_VisualCppExpress2008_x64"
 				BuildName="&quot;win64_MSVC2008&quot;"
-				BuildVersion="1.4.0"
+				BuildVersion="1.4.x"
 				OutputFolder="$(SolutionDir)\.."
-				BUILDVERSIONx4="1.4.0.0"
+				BUILDVERSIONx4="1.4.-1.0"
 				FileDependencies="$(OutDir)\engrid.exe;$(OutDir)\libengrid.dll;$(OutDir)\nglib.dll"
 			/>
 			<Tool
@@ -292,20 +292,6 @@
 				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="Build NSIS script"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release (Static)|Win32"
-					>
-					<Tool
-						Name="Build NSIS script"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release (Static)|x64"
 					>
 					<Tool
 						Name="Build NSIS script"
