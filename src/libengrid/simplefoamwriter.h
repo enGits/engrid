@@ -74,6 +74,9 @@ protected: // methods
   void writeNeighbour();
   void writeBoundary(int faces_offset = 0);
   
+  bool    hasNeighbour(int bc);
+  QString getNeighbourName(int bc);
+
   void writeSingleVolume();
   void writeMultipleVolumes();
 
