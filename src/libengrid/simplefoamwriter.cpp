@@ -535,7 +535,7 @@ void SimpleFoamWriter::writeMultipleVolumes()
         QString p3 = p2 + "/" + vol.getName();
         QDir d3(p3);
         if (!d3.exists()) {
-          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d2.mkdir(vol.getName());
           d3 = QDir(p3);
         }
         QString p4 = p3 + "/polyMesh";
