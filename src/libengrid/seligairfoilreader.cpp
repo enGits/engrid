@@ -28,7 +28,7 @@
 
 SeligAirfoilReader::SeligAirfoilReader()
 {
-  setFormat("Selig airfoil data file (*.dat *.DAT)");
+  setFormat("Selig airfoil data file (*.dat *.DAT *.txt *.TXT)");
 }
 
 void SeligAirfoilReader::operate()
@@ -50,12 +50,18 @@ void SeligAirfoilReader::operate()
       int num_nodes = num_lower + num_upper - 1;
       QVector<vec3_t> coord(num_nodes, vec3_t(0,0,0));
       for (int i = 0; i < num_upper; ++i) {
+        if (i >= coord.size()) {
+          EG_ERR_RETURN("The formatting of the airfoil file appears to be wrong.");
+        }
         f >> coord[i][0] >> coord[i][1];
       }
       double dummy;
       f >> dummy;
       f >> dummy;
       for (int i = num_nodes - 1; i >= num_upper; --i) {
+        if (i >= coord.size()) {
+          EG_ERR_RETURN("The formatting of the airfoil file appears to be wrong.");
+        }
         f >> coord[i][0] >> coord[i][1];
       }
       EG_VTKSP(vtkPoints, points);
