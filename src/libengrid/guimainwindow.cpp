@@ -61,6 +61,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if !defined( _WIN32 ) //required for "dup" and "dup2" on POSIX systems
+#include <unistd.h>
+#endif
+
 #include "geometrytools.h"
 #include "engrid_version.h"
 
