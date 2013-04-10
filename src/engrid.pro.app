@@ -75,7 +75,10 @@ win32-msvc* {
     LIBS        += -lvtksys
     LIBS        += -lvtkVolumeRendering
     LIBS        += -lvtkWidgets
-    LIBS        += /usr/brlcad/lib/librt.so
+    LIBS        += -L/nopt/brlcad/lib
+    LIBS        += /nopt/brlcad/lib/librt.so
+    #LIBS        += /nopt/brlcad/lib/libbn.so.20
+    #LIBS        += /nopt/brlcad/lib/libbu.so.20
 }
 
 OTHER_FILES += checkcomments.py todo.txt

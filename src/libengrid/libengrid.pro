@@ -40,8 +40,8 @@ INCLUDEPATH += ..
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-INCLUDEPATH += /usr/brlcad/include
-INCLUDEPATH += /usr/brlcad/include/openNURBS
+INCLUDEPATH += /nopt/brlcad/include
+INCLUDEPATH += /nopt/brlcad/include/openNURBS
 
 #INCLUDEPATH for VTK depends on the compiler
 win32-msvc* {
