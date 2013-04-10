@@ -37,10 +37,10 @@ SurfaceOperation::SurfaceOperation() : Operation()
   //default values for determining node types and for smoothing operations
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
   getSet("surface meshing", "feature angle", 180, m_FeatureAngle);
+  getSet("surface meshing", "boundary codes define features", true, m_BCodeFeatureDefinition);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
   setEdgeAngle(m_EdgeAngle);
-  m_BoundarySmoothing = 1;
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
   m_StrictFeatureSnap = true;

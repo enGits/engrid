@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>329</width>
-    <height>195</height>
+    <width>322</width>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -112,6 +112,23 @@
        </property>
       </widget>
      </item>
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="m_CheckBoxBCodesFeatures">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>feature edges defined by boundary codes</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -146,6 +163,7 @@
   <tabstop>m_CheckBoxInsert</tabstop>
   <tabstop>m_CheckBoxDelete</tabstop>
   <tabstop>m_CheckBoxSmooth</tabstop>
+  <tabstop>m_CheckBoxBCodesFeatures</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

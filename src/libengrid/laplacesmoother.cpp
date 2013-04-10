@@ -60,7 +60,6 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   if(m_NoCheck) {
     return move;
   }
-  /*
   QVector<vec3_t> old_cell_normals(m_Part.n2cGSize(id_node));
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -75,7 +74,6 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
       break;
     }
   }
-  */
   if (!move) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
   }
@@ -274,6 +272,12 @@ void LaplaceSmoother::fixNodes(const QVector<bool> &fixnodes)
 
 void LaplaceSmoother::operate()
 {
+  if (m_BCodeFeatureDefinition) {
+    m_FeatureMagic = 0.0;
+    m_NoCheck = false;
+  } else {
+    m_NoCheck = true;
+  }
   if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
     m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
   }

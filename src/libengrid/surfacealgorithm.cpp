@@ -116,6 +116,7 @@ void SurfaceAlgorithm::swap()
   swap.setFeatureAngle(m_FeatureAngle);
   swap.setMaxNumLoops(m_NumDelaunaySweeps);
   swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
+  swap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
   QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   rest_bcs -= m_BoundaryCodes;
   swap.setBoundaryCodes(rest_bcs);
@@ -132,6 +133,7 @@ void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
   lap.setNumberOfIterations(N_iter);
   lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
   lap.setCorrectCurvature(correct_curveture);
+  lap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
   if (m_UseProjectionForSmoothing) {
     lap.setProjectionOn();
   } else {
