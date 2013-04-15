@@ -24,8 +24,8 @@ bl_info = {
     "location": "File > Import > enGrid (.begc)",
     "description": "Import objects from enGrid's Blender exchange format (*.begc)",
     "warning": "",
-    "wiki_url": "http://engits.eu/wiki",
-    "tracker_url": "http://sourceforge.net/apps/mantisbt/engrid",
+    "wiki_url": "https://github.com/enGits/engrid/wiki",
+    "tracker_url": "https://github.com/enGits/engrid/issues",
     "category": "Import-Export"}
 
 import bpy
