@@ -2125,6 +2125,7 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
       bcs.insert(bc);
       QVector<vtkIdType> cls;
       getSurfaceCells(bcs, cls, m_Grid);
+      proj->setForegroundGrid(m_Grid);
       proj->setBackgroundGrid(m_Grid, cls);
     }
     if (!nosave) {
