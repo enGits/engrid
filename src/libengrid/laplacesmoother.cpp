@@ -92,7 +92,11 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
       vec3_t x;
       double L = 0.1*cl->GetValue(id_node);
 
-      vec3_t x0 = proj->project(x_new, id_node, true, m_NodeNormal[id_node]);
+      // do not use curvature correction here
+      // .. a proper CAD model does not need it
+      // .. a discrete model (e.g. triangulation) will create bulges on features
+      vec3_t x0 = proj->project(x_new, id_node, false, m_NodeNormal[id_node]);
+
       if (convex) {
         x = x0 - L*m_NodeNormal[id_node];
       } else {
