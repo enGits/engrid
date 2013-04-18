@@ -92,7 +92,7 @@ public:
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
 
-  void setBCodesFeatureDefinition(bool flag) { m_BCodeFeatureDefinition = flag; }
+  void setBCodesFeatureDefinition(bool flag);
 
   double currentVertexAvgDist(vtkIdType id_node);                 ///< Returns the average distance of id_node to its neighbours
   double CurrentMeshDensity( vtkIdType id_node );                 ///< Returns 1/CurrentVertexAvgDist(id_node)

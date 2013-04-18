@@ -117,6 +117,14 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   return S;
 }
 
+void SurfaceOperation::setBCodesFeatureDefinition(bool flag)
+{
+  m_BCodeFeatureDefinition = flag;
+  if (m_BCodeFeatureDefinition) {
+    m_FeatureAngle = deg2rad(180);
+  }
+}
+
 int SurfaceOperation::UpdateCurrentMeshDensity()
 {
   if ( DebugLevel > 0 ) {
@@ -348,7 +356,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     L *= 0.1;
     bool convex = isConvexNode(id_node);
 
-    x0 = proj->project(x0, id_node, true, m_NodeNormal[id_node], false, false);
+    x0 = proj->project(x0, id_node, false, m_NodeNormal[id_node], false, false);
     if (convex) {
       x = x0 - L*m_NodeNormal[id_node];
     } else {
@@ -365,7 +373,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       int num_miss = 0;
       for (int i = 0; i < num_steps; ++i) {
         v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-        vec3_t xp = proj->project(x, id_node, true, v, true, false);
+        vec3_t xp = proj->project(x, id_node, false, v, true, false);
         if (proj->lastProjFailed()) {
           ++num_miss;
         } else {
