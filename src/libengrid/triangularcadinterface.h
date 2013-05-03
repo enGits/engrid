@@ -58,7 +58,7 @@ public:
   TriangularCadInterface();
 
   virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
-  virtual PositionType position(vec3_t x, vec3_t n);
+  //virtual PositionType position(vec3_t x, vec3_t n);
 
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 

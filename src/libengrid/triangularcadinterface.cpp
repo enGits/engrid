@@ -36,11 +36,13 @@ CadInterface::HitType TriangularCadInterface::shootRay(vec3_t x, vec3_t v, vec3_
   return Miss;
 }
 
+/*
 CadInterface::PositionType TriangularCadInterface::position(vec3_t x, vec3_t n)
 {
   EG_BUG;
   return Outside;
 }
+*/
 
 void TriangularCadInterface::computeSurfaceCurvature()
 {

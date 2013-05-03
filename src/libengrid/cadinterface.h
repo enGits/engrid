@@ -31,13 +31,13 @@ class CadInterface
 public: // data types
 
   enum HitType { Miss, HitIn, HitOut };
-  enum PositionType { Inside, Outside, Surface };
+  //enum PositionType { Inside, Outside, Surface };
 
 
 public:
 
   virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) = 0;
-  virtual PositionType position(vec3_t x, vec3_t n) = 0;
+  //virtual PositionType position(vec3_t x, vec3_t n) = 0;
 
 };
 

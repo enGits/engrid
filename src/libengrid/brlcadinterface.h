@@ -60,7 +60,7 @@ protected: // methods
   static int miss(register struct application *ap);
 
   virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
-  virtual PositionType position(vec3_t x, vec3_t n);
+  //virtual PositionType position(vec3_t x, vec3_t n);
 
 
 public:

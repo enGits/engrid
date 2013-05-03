@@ -168,6 +168,7 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
   return hit_type;
 }
 
+/*
 BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 {
   vec3_t x_hit, n_hit;
@@ -192,3 +193,4 @@ BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 
   return Surface;
 }
+*/
