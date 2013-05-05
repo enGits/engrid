@@ -234,15 +234,14 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
     f << "        nFaces               " << nFaces << ";\n";
     f << "        startFace            " << startFace << ";\n";
     if (bc_type == "mappedWall") {
-      f << "        startFace            " << startFace << ";\n";
       f << "        sampleMode           nearestPatchFace;\n";
       f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
       f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(bc) << ";\n";
       f << "        offsetMode           uniform;\n";
       f << "        offset               ( 0 0 0 );\n";
     }
-  f << "    }\n";
-  };
+    f << "    }\n";
+  }
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
 }
@@ -341,7 +340,7 @@ void FoamWriter::writeMultipleVolumes()
         QString p3 = p2 + "/" + vol.getName();
         QDir d3(p3);
         if (!d3.exists()) {
-          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d2.mkdir(vol.getName());
           d3 = QDir(p3);
         }
         QString p4 = p3 + "/polyMesh";

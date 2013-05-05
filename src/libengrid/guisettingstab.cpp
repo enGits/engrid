@@ -62,7 +62,7 @@ GuiSettingsTab::GuiSettingsTab(QString org, QString app, QString group, QWidget 
   foreach(QString key, settings.childKeys()) {
     double D = settings.value(key).toDouble();
     QString s;
-    s.sprintf("%.2f", D);
+    s.sprintf("%.5f", D);
     double_lineedit.append(new QLineEdit);
     double_lineedit_name.append(key);
     double_lineedit.back()->setText(s);

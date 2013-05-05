@@ -409,20 +409,37 @@ void SimpleFoamWriter::writeBoundary(int faces_offset)
     BoundaryCondition BC = getBC(P.bc);
     QString num;
     num.setNum(P.bc);
-    QString name = BC.getName();
-    QString type = BC.getType();
-    if (GuiMainWindow::pointer()->physicalTypeDefined(type)) {
-      PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(type);
-      type = PBC.getFoamType();
+    QString bc_name = BC.getName();
+    QString bc_type = BC.getType();
+    if (GuiMainWindow::pointer()->physicalTypeDefined(bc_type)) {
+      PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(bc_type);
+      bc_type = PBC.getFoamType();
     }
-    if (name == "unknown") {
-      name = "BC_" + num;
+    if (bc_name == "unknown") {
+      bc_name = "BC_" + num;
     }
-    f << "    " << name << "\n";
+    if (hasNeighbour(P.bc)) {
+      bc_type = "mappedWall";
+    }
+
+    QString neigh_name = bc_name;
+
+    if (bc_type == "mappedWall") {
+      bc_name += "_" + m_CurrentVolume;
+    }
+
+    f << "    " << bc_name << "\n";
     f << "    {\n";
-    f << "        type        " << type << ";\n";
+    f << "        type        " << bc_type << ";\n";
     f << "        nFaces      " << P.nFaces << ";\n";
     f << "        startFace   " << P.startFace + faces_offset << ";\n";
+    if (bc_type == "mappedWall") {
+      f << "        sampleMode           nearestPatchFace;\n";
+      f << "        sampleRegion         " << getNeighbourName(P.bc) << ";\n";
+      f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(P.bc) << ";\n";
+      f << "        offsetMode           uniform;\n";
+      f << "        offset               ( 0 0 0 );\n";
+    }
     f << "    }\n";
   }
   f << ")\n\n";
@@ -463,6 +480,24 @@ void SimpleFoamWriter::operateOnGivenFileName()
   }
 }
 
+bool SimpleFoamWriter::hasNeighbour(int bc)
+{
+  if (m_Bc2Vol[bc].size() == 2) {
+    return true;
+  }
+  return false;
+}
+
+QString SimpleFoamWriter::getNeighbourName(int bc)
+{
+  foreach (QString name, m_Bc2Vol[bc]) {
+    if (name != m_CurrentVolume) {
+      return name;
+    }
+  }
+  return "unknown";
+}
+
 void SimpleFoamWriter::writeMultipleVolumes()
 {
   try {
@@ -500,7 +535,7 @@ void SimpleFoamWriter::writeMultipleVolumes()
         QString p3 = p2 + "/" + vol.getName();
         QDir d3(p3);
         if (!d3.exists()) {
-          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d2.mkdir(vol.getName());
           d3 = QDir(p3);
         }
         QString p4 = p3 + "/polyMesh";

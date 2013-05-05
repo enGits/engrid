@@ -243,6 +243,31 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
       m_Y[m_NumLayers] = 1.0;
       computeY2();
     }
+
+    // check for deteriorated point distributions
+    {
+      bool equi_spacing = false;
+      int n = m_Y.size();
+      if (m_Y[n-1] > 1.0 || (m_Y[1] - m_Y[0])/(m_Y[n-1] - m_Y[n-2]) > 1.0 || n < 3) {
+        equi_spacing = true;
+      } else {
+        foreach (double y, m_Y) {
+          if (y < 0) {
+            EG_BUG;
+          }
+          if (y > 1) {
+            equi_spacing = true;
+          }
+        }
+      }
+      if (equi_spacing) {
+        double dy = 1.0/(n-1);
+        for (int i = 0; i < n; ++i) {
+          m_Y[i] = i*dy;
+        }
+      }
+    }
+
     ymin = min(ymin, m_Y[1]*n.abs());
     ymax = max(ymax, m_Y[1]*n.abs());
     for (int i = 1; i < m_NumLayers; ++i) {

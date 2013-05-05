@@ -19,13 +19,13 @@
 bl_info = {
     "name": "Export to enGrid (.begc)",
     "author": "Oliver Gloth (enGits GmbH)",
-    "version": (1, 0),
+    "version": (1, 1),
     "blender": (2, 6, 3),
     "location": "File > Export > enGrid (.begc)",
     "description": "Export objects as boundaries to enGrid's Blender exchange format (*.begc)",
     "warning": "",
-    "wiki_url": "http://engits.eu/wiki",
-    "tracker_url": "http://sourceforge.net/apps/mantisbt/engrid",
+    "wiki_url": "https://github.com/enGits/engrid/wiki",
+    "tracker_url": "https://github.com/enGits/engrid/issues",
     "category": "Import-Export"}
 
 '''
@@ -40,7 +40,7 @@ import time
 from bpy_extras.io_utils import ExportHelper
 
 
-def do_export(context, props, filepath):
+def do_export(context, props, filepath, split_quads):
     out = open(filepath, "w")
     N = 0
     for obj in bpy.context.selected_objects:
@@ -64,16 +64,34 @@ def do_export(context, props, filepath):
             faces = mesh.tessfaces
             nodes = mesh.vertices
             out.write('%d' % len(nodes))
-            out.write(' %d\n' % len(faces))
+            if split_quads:
+               N = len(faces)
+               for f in faces:
+                   if len(f.vertices) == 4:
+                       N = N + 1
+               out.write(' %d\n' % N)
+            else:
+                out.write(' %d\n' % len(faces))
             for n in nodes:
                 out.write("%e " % n.co[0])
                 out.write("%e " % n.co[1])
                 out.write("%e\n" % n.co[2])
             for f in faces:
-                out.write("%d" % len(f.vertices))
-                for v in f.vertices:
-                    out.write(' %d' % (v + node_offset))
-                out.write('\n')
+                N = len(f.vertices)
+                if split_quads:
+                    if N != 4:
+                        out.write("%d" % len(f.vertices))
+                        for v in f.vertices:
+                            out.write(' %d' % (v + node_offset))
+                        out.write('\n')
+                    else:
+                        out.write('3 %d %d %d\n' % (f.vertices[0] + node_offset, f.vertices[1] + node_offset, f.vertices[2] + node_offset))
+                        out.write('3 %d %d %d\n' % (f.vertices[2] + node_offset, f.vertices[3] + node_offset, f.vertices[0] + node_offset))
+                else:
+                    out.write("%d" % len(f.vertices))
+                    for v in f.vertices:
+                        out.write(' %d' % (v + node_offset))
+                    out.write('\n')
             node_offset = node_offset + len(nodes)
             M.invert()
             mesh.transform(M)
@@ -89,7 +107,7 @@ class Export_engrid(bpy.types.Operator, ExportHelper):
     bl_label = "Export enGrid (.begc)"
     filename_ext = ".begc"
     
-
+    split_quads = BoolProperty(name="split-quads", description="Split quads before exporting?", default=True)
     
     @classmethod
     def poll(cls, context):
@@ -102,7 +120,7 @@ class Export_engrid(bpy.types.Operator, ExportHelper):
         filepath = self.filepath
         filepath = bpy.path.ensure_ext(filepath, self.filename_ext)
 
-        exported = do_export(context, props, filepath)
+        exported = do_export(context, props, filepath, self.split_quads)
         
         if exported:
             print('finished export in %s seconds' %((time.time() - start_time)))

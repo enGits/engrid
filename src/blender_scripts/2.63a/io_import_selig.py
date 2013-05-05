@@ -17,12 +17,12 @@
 # ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
-    "name": "Import from enGrid (.begc)",
+    "name": "Import Selig airfoil (.dat)",
     "author": "Oliver Gloth (enGits GmbH)",
     "version": (1, 0),
     "blender": (2, 6, 3),
-    "location": "File > Import > enGrid (.begc)",
-    "description": "Import objects from enGrid's Blender exchange format (*.begc)",
+    "location": "File > Import > Selig airfoil (.dat)",
+    "description": "Import edges from a Selig airfoil file (*.dat)",
     "warning": "",
     "wiki_url": "https://github.com/enGits/engrid/wiki",
     "tracker_url": "https://github.com/enGits/engrid/issues",
@@ -37,69 +37,97 @@ from bpy_extras.io_utils import *
 
 
 
-def do_import(context, props, filepath):
+def do_import1(context, props, filepath):
     in_file = open(filepath, "r")
-    line = in_file.readline()
-    Nobjects = int(line)
-    object_names = []
-    for i in range(0, Nobjects):
-        line = in_file.readline()
-        object_names.append(line.strip())
-    
-    global_verts = []
-    offset = 0
-    for i_object in range(0, Nobjects):
-        line = in_file.readline()
-        words = line.split()
-        Nverts = int(words[0])
-        Nfaces = int(words[1])
-        
-        local_verts = []
-        for i_vert in range(0, Nverts):
-            line = in_file.readline()
-            words = line.split()
-            x = float(words[0])
-            y = float(words[1])
-            z = float(words[2])
-            local_verts.append( Vector((x,y,z)) )
-            global_verts.append( Vector((x,y,z)) )
-        
-        faces = []
-        print ("Nfaces=", Nfaces)
-        for i_face in range(0, Nfaces):
-            line = in_file.readline()
-            words = line.split()
-            if len(words) < 3:
-                return
-            Nverts_in_face = int(words[0])
-            if len(words) != 1 + Nverts_in_face:
-                return
-            face_verts = []
-            for i_face_vert in range(0, Nverts_in_face):
-                idx = int(words[i_face_vert + 1]) - offset
-                face_verts.append(idx)
-            faces.append(face_verts)
-        
-        mesh = bpy.data.meshes.new(object_names[i_object])
-        mesh.from_pydata(local_verts, [], faces)
-        mesh.update()
-        from bpy_extras import object_utils
-        object_utils.object_data_add(context, mesh, operator=None)
-        #BPyAddMesh.add_mesh_simple(object_names[i_object], local_verts, [], faces)
+    object_name = in_file.readline()
 
-        offset += Nverts
+    line = in_file.readline()
+    x = []
+    y = []
+    z = []
+    while line:
+        words = line.split()
+        x.append(float(words[0]))
+        y.append(float(words[1]))
+        z.append(float(0))
+        line = in_file.readline()        
+
+    verts = []
+    for i in range(0, len(x)):
+        verts.append(Vector((x[i],y[i],z[i])))
+    verts.append(Vector((x[0],y[0],z[0])))
+    
+    edges = []
+
+    for i in range(0, len(verts) - 1):
+        edge_verts = []
+        edge_verts.append(i)
+        edge_verts.append(i + 1)
+        edges.append(edge_verts)
+    
+    mesh = bpy.data.meshes.new(object_name)
+    mesh.from_pydata(verts, edges, [])
+    mesh.update()
+    from bpy_extras import object_utils
+    object_utils.object_data_add(context, mesh, operator=None)
+
+    in_file.close()
+    return True
+    
+def save_read(in_file):
+    line = in_file.readline()
+    while len(line) < 2:
+        line = in_file.readline()
+    return line
+
+def do_import2(context, props, filepath):
+    in_file = open(filepath, "r")
+    object_name = save_read(in_file)
+
+    line = save_read(in_file)
+    words = line.split()
+    N = []
+    N.append(int(float(words[0])))
+    N.append(int(float(words[1])))
+        
+    x = []
+    y = []
+    z = []
+    
+    verts = []
+    for i in range(2):
+        for j in range(N[i]):
+            line = save_read(in_file)
+            words = line.split()
+            verts.append(Vector((float(words[0]), float(words[1]), float(0))))
+            
+    edges = []
+    for i in range(2):
+        for j in range(N[i] - 1):
+            edge_verts = []
+            edge_verts.append(i*N[0] + j)
+            edge_verts.append(i*N[0] + j + 1)
+            edges.append(edge_verts)
+        
+    mesh = bpy.data.meshes.new(object_name)
+    mesh.from_pydata(verts, edges, [])
+    mesh.update()
+    from bpy_extras import object_utils
+    object_utils.object_data_add(context, mesh, operator=None)
 
     in_file.close()
     return True
 
-    
+   
     
 ###### IMPORT OPERATOR #######
-class Import_engrid(bpy.types.Operator, ImportHelper):
-    bl_idname = "import_shape.engrid"
-    bl_label = "Import enGrid (.begc)"
-    filename_ext = ".begc"
-     
+class Import_selig(bpy.types.Operator, ImportHelper):
+    bl_idname = "import_shape.selig"
+    bl_label = "Import Selig airfoil (.dat)"
+    filename_ext = ".dat"
+
+    loop = BoolProperty(name="node-loop", description="Are all nodes in a loop?", default=True)
+
     @classmethod
     def poll(cls, context):
         return context.active_object.type in {'MESH', 'CURVE', 'SURFACE', 'FONT'}
@@ -110,7 +138,10 @@ class Import_engrid(bpy.types.Operator, ImportHelper):
         props = self.properties
         filepath = self.filepath
         filepath = bpy.path.ensure_ext(filepath, self.filename_ext)
-        do_import(context, props, filepath)
+        if self.loop:
+            do_import1(context, props, filepath)
+        else:
+            do_import2(context, props, filepath)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -134,7 +165,7 @@ class Import_engrid(bpy.types.Operator, ImportHelper):
 ### REGISTER ###
 
 def menu_func(self, context):
-    self.layout.operator(Import_engrid.bl_idname, text="enGrid (.begc)")
+    self.layout.operator(Import_selig.bl_idname, text="Selig airfoil (.dat)")
 
 
 def register():

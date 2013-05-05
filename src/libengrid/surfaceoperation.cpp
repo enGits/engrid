@@ -39,6 +39,11 @@ SurfaceOperation::SurfaceOperation() : Operation()
   getSet("surface meshing", "feature angle", 180, m_FeatureAngle);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
+
+  // to avoid conflicts while using 1.4.x and newer versions on the same machine:
+  m_FeatureAngle = deg2rad(180);
+  m_EdgeAngle = deg2rad(180);
+
   setEdgeAngle(m_EdgeAngle);
   m_BoundarySmoothing = 1;
   m_StretchingFactor = 0;
