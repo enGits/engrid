@@ -223,6 +223,23 @@ vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u);
 
 vec3_t projectPointOnPlane(const vec3_t& M, const vec3_t& A, const vec3_t& N);
 
+void cart2spherical(vec3_t x, double &alpha, double& beta, double& r);
+
+inline void cart2spherical(vec3_t x, const vec3_t& x0, double &alpha, double& beta, double& r)
+{
+  return cart2spherical(x - x0, alpha, beta, r);
+}
+
+inline vec3_t spherical2cart(double alpha, double beta, double r)
+{
+  return r*vec3_t(cos(alpha)*cos(beta), sin(alpha)*cos(beta), sin(beta));
+}
+
+inline vec3_t spherical2cart(vec3_t x0, double alpha, double beta, double r)
+{
+  return x0 + spherical2cart(alpha, beta, r);
+}
+
 template <class C>
 void planeFit(const C &pts, vec3_t &x0, vec3_t &n, bool closed_loop = false)
 {
