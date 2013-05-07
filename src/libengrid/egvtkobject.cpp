@@ -784,6 +784,7 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
   //EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite); //what we have
   EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray,   overwrite); //node type
+  EGVTKOBJECT_CREATENODEFIELD("node_type_counter",         vtkIntArray,    overwrite); // counter field to delay node type demotion
   EGVTKOBJECT_CREATENODEFIELD("node_pindex",               vtkLongArray_t, overwrite);
 }
 
