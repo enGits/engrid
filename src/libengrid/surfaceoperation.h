@@ -60,6 +60,7 @@ protected: // attributes
   bool   m_UniformSnapPoints;
   bool   m_StrictFeatureSnap;
   bool   m_BCodeFeatureDefinition;
+  int    m_TypeProtectionCount;
 
 
   QVector<vec3_t> m_NodeNormal; ///< node normal vectors
