@@ -40,7 +40,7 @@ GuiBrlCadImportDialogue::~GuiBrlCadImportDialogue()
 
 void GuiBrlCadImportDialogue::prepare(QString file_name)
 {
-  QString program = "/usr/brlcad/bin/mged";
+  QString program = "mged";
   QStringList arguments;
   QProcess proc(this);
   arguments << "-c" << file_name<< "ls";
