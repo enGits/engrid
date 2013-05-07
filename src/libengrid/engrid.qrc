@@ -82,5 +82,6 @@
         <file>resources/solvers/openfoam-1.6.x/rhoSimpleFoam/standard/system/controlDict</file>
         <file>resources/solvers/openfoam-1.6.x/rhoSimpleFoam/standard/system/fvSchemes</file>
         <file>resources/solvers/openfoam-1.6.x/rhoSimpleFoam/standard/system/fvSolution</file>
+        <file>resources/misc/raysphere.dat</file>
     </qresource>
 </RCC>

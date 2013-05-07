@@ -159,7 +159,6 @@ HEADERS = boundarycondition.h \
     multipagewidgetpage.h \
     xmlhandler.h \
     openfoamtools.h \
-    sharpenedges.h \
     checkforoverlap.h \
     timer.h \
     facefinder.h \
@@ -174,7 +173,6 @@ HEADERS = boundarycondition.h \
     guisurfacemesher.h \
     guicreatehexcore.h \
     createhexcore.h \
-    orthogonalityoptimiser.h \
     optimisenormalvector.h \
     brlcadreader.h \
     eghashset.h \
@@ -283,7 +281,6 @@ SOURCES = boundarycondition.cpp \
     xmlhandler.cpp \
     reducedpolydatareader.cpp \
     openfoamtools.cpp \
-    sharpenedges.cpp \
     checkforoverlap.cpp \
     timer.cpp \
     facefinder.cpp \
@@ -292,7 +289,6 @@ SOURCES = boundarycondition.cpp \
     guisurfacemesher.cpp \
     guicreatehexcore.cpp \
     createhexcore.cpp \
-    orthogonalityoptimiser.cpp \
     optimisenormalvector.cpp \
     brlcadreader.cpp \
     polymolecule.cpp \
@@ -302,7 +298,8 @@ SOURCES = boundarycondition.cpp \
     createcadtesselation.cpp \
     brlcadinterface.cpp \
     surfacenodemovementcheck.cpp \
-    triangularcadinterface.cpp
+    triangularcadinterface.cpp \
+    cadinterface.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
