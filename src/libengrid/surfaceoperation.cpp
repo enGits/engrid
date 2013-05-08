@@ -30,6 +30,8 @@
 #include <vtkPolygon.h>
 
 #include "geometrytools.h"
+#include "meshqualityfaceorientation.h"
+
 using namespace GeometryTools;
 
 SurfaceOperation::SurfaceOperation() : Operation()
@@ -39,6 +41,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   getSet("surface meshing", "feature angle", 180, m_FeatureAngle);
   getSet("surface meshing", "boundary codes define features", true, m_BCodeFeatureDefinition);
   getSet("surface meshing", "number of steps to protect node types", 2, m_TypeProtectionCount);
+  getSet("surface meshing", "threshold for face orientation quality", 0.1, m_FaceOrientationThreshold);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
   setEdgeAngle(m_EdgeAngle);
@@ -196,6 +199,7 @@ void SurfaceOperation::updateNodeInfo()
   computeNormals();
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   foreach (vtkIdType id_node, nodes) {
 
     char old_type = node_type->GetValue(id_node);
@@ -241,6 +245,39 @@ void SurfaceOperation::updateNodeInfo()
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
     node_specified_density->SetValue(id_node, idx);
   }
+
+  // mesh quality
+  MeshQualityFaceOrientation mesh_quality;
+  mesh_quality();
+  EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
+  EG_FORALL_NODES(id_node, m_Grid) {
+    if (node_mesh_quality->GetValue(id_node) < m_FaceOrientationThreshold) {
+      node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
+    }
+  }
+
+  /*
+  // look for feature edge triple stars
+  QList<vtkIdType> new_corners;
+  EG_FORALL_NODES(id_node1, m_Grid) {
+    if (node_type->GetValue(id_node1) == EG_FEATURE_EDGE_VERTEX) {
+      int N = 0;
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2cGG(id_node1, i);
+        if (node_type->GetValue(id_node2) == EG_FEATURE_EDGE_VERTEX) {
+          ++N;
+        }
+      }
+      if (N == 3) {
+        new_corners.append(id_node1);
+      }
+    }
+  }
+  foreach (vtkIdType id_node, new_corners) {
+    node_type->SetValue(id_node, EG_FEATURE_CORNER_VERTEX);
+  }
+  */
+
   updatePotentialSnapPoints();
 }
 
@@ -283,6 +320,7 @@ void SurfaceOperation::updatePotentialSnapPoints()
       if (m_StrictFeatureSnap) {
         if (   (type1 == EG_SIMPLE_VERTEX)
                || (type1 == EG_FEATURE_EDGE_VERTEX && (type2 == EG_FEATURE_EDGE_VERTEX || type2 == EG_FEATURE_CORNER_VERTEX))
+               || (type1 == EG_FEATURE_CORNER_VERTEX && type2 == EG_FEATURE_CORNER_VERTEX)
                || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
         {
           if (!exclude_nodes.contains(id_node2)) {
@@ -300,11 +338,13 @@ void SurfaceOperation::updatePotentialSnapPoints()
     }
 
     // make sure feature edge vertices have at least two snap points ...
+    /*
     if (type1 == EG_FEATURE_EDGE_VERTEX) {
       if (m_PotentialSnapPoints[id_node1].size() < 2) {
         m_PotentialSnapPoints[id_node1].clear();
       }
     }
+    */
   }
 }
 

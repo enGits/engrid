@@ -188,7 +188,9 @@ HEADERS = boundarycondition.h \
     checkerboardgraphiterator.h \
     localnodegraphinterface.h \
     cadinterface.h \
-    triangularcadinterface.h
+    triangularcadinterface.h \
+    meshqualityfaceorientation.h \
+    meshquality.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -299,7 +301,9 @@ SOURCES = boundarycondition.cpp \
     brlcadinterface.cpp \
     surfacenodemovementcheck.cpp \
     triangularcadinterface.cpp \
-    cadinterface.cpp
+    cadinterface.cpp \
+    meshqualityfaceorientation.cpp \
+    meshquality.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \

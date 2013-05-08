@@ -766,13 +766,13 @@ void EgVtkObject::createBasicFields(vtkUnstructuredGrid *grid, vtkIdType Ncells,
 
 void EgVtkObject::createBasicCellFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, bool overwrite)
 {
-  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,   vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_code",   vtkIntArray, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_index",  vtkLongArray_t, overwrite);
-  EGVTKOBJECT_CREATECELLFIELD("cell_orgdir", vtkIntArray, overwrite); // original orientation
-  EGVTKOBJECT_CREATECELLFIELD("cell_curdir", vtkIntArray, overwrite); // current orientation
-  EGVTKOBJECT_CREATECELLFIELD("cell_voldir", vtkIntArray, overwrite); // volume orientation -- only valid for a single (i.e. the current) volume
-  //EGVTKOBJECT_CREATECELLFIELD("cell_VA",     vtkDoubleArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("vtk_type" ,         vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_code",         vtkIntArray, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_index",        vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATECELLFIELD("cell_orgdir",       vtkIntArray, overwrite); // original orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_curdir",       vtkIntArray, overwrite); // current orientation
+  EGVTKOBJECT_CREATECELLFIELD("cell_voldir",       vtkIntArray, overwrite); // volume orientation -- only valid for a single (i.e. the current) volume
+  EGVTKOBJECT_CREATECELLFIELD("cell_mesh_quality", vtkDoubleArray, overwrite); // generic field to store different quality measures
 }
 
 void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nnodes, bool overwrite)
@@ -782,10 +782,10 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
   EGVTKOBJECT_CREATENODEFIELD("node_index",                vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_specified_density",    vtkIntArray,    overwrite); //density index from table
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
-  //EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_current",  vtkDoubleArray, overwrite); //what we have
   EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray,   overwrite); //node type
   EGVTKOBJECT_CREATENODEFIELD("node_type_counter",         vtkIntArray,    overwrite); // counter field to delay node type demotion
   EGVTKOBJECT_CREATENODEFIELD("node_pindex",               vtkLongArray_t, overwrite);
+  EGVTKOBJECT_CREATENODEFIELD("node_mesh_quality",         vtkDoubleArray, overwrite); // generic field to store different quality measures
 }
 
 void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)

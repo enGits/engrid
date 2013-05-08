@@ -36,10 +36,15 @@ void MeshQualityFaceOrientation::operate()
       n_face.normalise();
       SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(cell_code->GetValue(id_cell), true);
       if (proj) {
-        proj->snapNode(x_face, -1);
-        vec3_t n_surf = proj->lastProjNormal();
-        double mq = 0.5*(n_surf*n_face + 1);
-        cell_mesh_quality->SetValue(id_cell, mq);
+        //proj->snapNode(x_face, -1);
+        proj->projectNode(x_face, -1, false, n_face);
+        if (proj->lastProjFailed()) {
+          cell_mesh_quality->SetValue(id_cell, 0.0);
+        } else {
+          vec3_t n_surf = proj->lastProjNormal();
+          double mq = 0.5*(n_surf*n_face + 1);
+          cell_mesh_quality->SetValue(id_cell, mq);
+        }
       } else {
         cell_mesh_quality->SetValue(id_cell, 1.0);
       }

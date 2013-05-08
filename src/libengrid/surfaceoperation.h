@@ -57,6 +57,7 @@ protected: // attributes
 
   double m_FeatureAngle;
   double m_EdgeAngle;
+  double m_FaceOrientationThreshold;
   bool   m_UniformSnapPoints;
   bool   m_StrictFeatureSnap;
   bool   m_BCodeFeatureDefinition;
