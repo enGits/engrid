@@ -246,6 +246,9 @@ char InsertPoints::getNewNodeType(stencil_t S)
         if (cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1])) {
           return EG_BOUNDARY_EDGE_VERTEX;
         } else {
+
+          // "cutting corners" might lead to wrong feature edge vertices
+          //return EG_SIMPLE_VERTEX;
           return EG_FEATURE_EDGE_VERTEX;
         }
       }
