@@ -33,7 +33,7 @@ void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
   m_FPart.trackGrid(m_FGrid);
 }
 
-vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v, bool strict_direction, bool allow_search)
+vec3_t SurfaceProjection::projectNode(vec3_t x, vtkIdType id_node, bool, vec3_t v, bool strict_direction, bool allow_search)
 {
   vec3_t n = v;
   if (n.abs() < 1e-3) {
@@ -93,7 +93,7 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v, b
       double w = 0.1;
       vec3_t x_corr = w*x_proj + (1-w)*x_old;
       m_FGrid->GetPoints()->SetPoint(id_node, x_corr.data());
-      x_corr = project(x_corr, id_node, true, m_FPart.globalNormal(id_node), false, false);
+      x_corr = projectNode(x_corr, id_node, true, m_FPart.globalNormal(id_node), false, false);
       m_FGrid->GetPoints()->SetPoint(id_node, x_old.data());
       if ((x_corr - x_proj).abs() > L) {
         m_Failed = true;
@@ -130,12 +130,21 @@ vec3_t SurfaceProjection::project(vec3_t x, vtkIdType id_node, bool, vec3_t v, b
   return x_proj;
 }
 
+vec3_t SurfaceProjection::snapNode(vec3_t x, vtkIdType, bool)
+{
+  vec3_t x_snap = m_CadInterface->snap(x);
+  m_LastNormal = m_CadInterface->getLastNormal();
+  m_LastRadius = m_CadInterface->getLastRadius();
+  return x_snap;
+}
+
+
 double SurfaceProjection::getRadius(vtkIdType id_node)
 {
   vec3_t x;
   m_FGrid->GetPoint(id_node, x.data());
   m_ForceRay = true;
-  project(x, id_node);
+  snapNode(x, id_node, false);
   m_ForceRay = false;
   return m_LastRadius;
 }

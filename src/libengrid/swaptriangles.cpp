@@ -117,9 +117,7 @@ double SwapTriangles::computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, Su
   if (!checkVector(n)) {
     return 0;
   }
-  vec3_t xp = proj->project(x, -1, true, n);
-  n = proj->lastProjNormal();
-  xp = proj->project(x, -1, true, n);
+  vec3_t xp = proj->snapNode(x, -1, false);
   return (x - xp).abs();
 }
 
@@ -482,7 +480,7 @@ void SwapTriangles::computeAverageSurfaceError()
               vec3_t x2;
               m_Grid->GetPoint(id_node2, x2.data());
               vec3_t x = 0.5*(x1 + x2);
-              vec3_t xp = proj->project(x, -1, true, n);
+              vec3_t xp = proj->snapNode(x, -1, false);
               double err = (x - xp).abs()/(x1 - x2).abs();
               errors.append(err);
             }

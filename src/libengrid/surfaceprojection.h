@@ -46,8 +46,9 @@ public: // methods
 
   void    setForegroundGrid(vtkUnstructuredGrid* grid);
 
-  virtual vec3_t project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0),
-                         bool strict_direction = false, bool allow_search = true);
+  virtual vec3_t projectNode(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0),
+                             bool strict_direction = false, bool allow_search = true);
+  virtual vec3_t snapNode(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false);
 
   double    getRadius(vtkIdType id_node);
   vec3_t    lastProjNormal() { return m_LastNormal; }

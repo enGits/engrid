@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -25,18 +25,39 @@
 
 #include "engrid.h"
 
+#include <QVector>
+
 class CadInterface
 {
+
+private: // attributes
+
+  vec3_t m_LastNormal;
+  double m_LastRadius;
+
+protected: // attributes
+
+  QVector<vec3_t> m_RayPoints;
+
 
 public: // data types
 
   enum HitType { Miss, HitIn, HitOut };
+
+
   //enum PositionType { Inside, Outside, Surface };
 
 
 public:
 
-  virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) = 0;
+  CadInterface();
+
+  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) = 0;
+  virtual vec3_t  snap(vec3_t x);
+
+  vec3_t getLastNormal() { return m_LastNormal; }
+  double getLastRadius() { return m_LastRadius; }
+
   //virtual PositionType position(vec3_t x, vec3_t n) = 0;
 
 };

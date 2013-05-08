@@ -154,6 +154,7 @@ int SurfaceAlgorithm::insertNodes()
     InsertPoints insert_points;
     insert_points.setGrid(m_Grid);
     insert_points.setBoundaryCodes(m_BoundaryCodes);
+    insert_points.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
     insert_points();
     return insert_points.getNumInserted();
   }
@@ -168,6 +169,7 @@ int SurfaceAlgorithm::deleteNodes()
     remove_points.setBoundaryCodes(m_BoundaryCodes);
     remove_points.setStretchingFactor(m_StretchingFactor);
     remove_points.setFeatureAngle(m_FeatureAngle);
+    remove_points.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
     if (m_RespectFeatureEdgesForDeleteNodes) {
       remove_points.setProtectFeatureEdgesOn();
     } else {
