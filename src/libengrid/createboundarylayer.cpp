@@ -43,8 +43,8 @@ CreateBoundaryLayer::CreateBoundaryLayer()
 
 void CreateBoundaryLayer::operate()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
+  if (!GuiMainWindow::pointer()->checkCadInterfaces()) {
+    GuiMainWindow::pointer()->storeCadInterfaces();
   }
   ///////////////////////////////////////////////////////////////
   // set m_Grid to selected volume

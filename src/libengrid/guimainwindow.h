@@ -71,7 +71,7 @@
 #include "physicalboundarycondition.h"
 #include "checksurfaceintegrity.h"
 
-#include "surfaceprojection.h"
+#include "cadinterface.h"
 
 #include "openfoamcase.h"
 #include "guitransform.h"
@@ -200,8 +200,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QMap<QString, VolumeDefinition> m_VolMap;      ///< all volume definitions
     QMap<QString, PhysicalBoundaryCondition> m_PhysicalBoundaryConditionsMap;    ///< all physical boundary conditions definitions
 
-    QMap<int, SurfaceProjection*>   m_SurfProj;    ///< all surface projectors for surface meshing
-    SurfaceProjection              *m_UniSurfProj; ///< universal surface projection for all boundary conditions
+    QMap<int, CadInterface*>   m_CadInterfaces;    ///< all CAD interfaces
+    CadInterface*              m_UniCadInterface;  ///< universal CAD interface for all boundary conditions
 
     QMap<QAction*, Operation*> m_PluginOperations;
     QAction* m_EscAction;
@@ -397,10 +397,10 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
 
-    SurfaceProjection* getSurfProj(int bc, bool allow_null = false);
-    void setSurfProj(SurfaceProjection *surf_proj, int bc) { m_SurfProj[bc] = surf_proj; }
-    void setUniversalSurfProj(SurfaceProjection *surf_proj);
-    bool checkSurfProj();
+    CadInterface* getCadInterface(int bc, bool allow_null = false);
+    void setCadInterface(CadInterface* cad_interface, int bc) { m_CadInterfaces[bc] = cad_interface; }
+    void setUniversalCadInterface(CadInterface* cad_interface);
+    bool checkCadInterfaces();
 
     void setSystemOutput();
     void setLogFileOutput();
@@ -477,8 +477,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void updateOutput();
     void periodicUpdate();
 
-    void storeSurfaceProjection(bool nosave = false);
-    void resetSurfaceProjection();    
+    void storeCadInterfaces(bool nosave = false);
+    void resetCadInterfaces();
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:

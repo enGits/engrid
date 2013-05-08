@@ -39,8 +39,8 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 
 void SurfaceMesher::operate()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
+  if (!GuiMainWindow::pointer()->checkCadInterfaces()) {
+    GuiMainWindow::pointer()->storeCadInterfaces();
   }
   prepare();
   //computeMeshDensity(); //!!

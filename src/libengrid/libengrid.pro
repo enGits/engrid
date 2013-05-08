@@ -148,7 +148,6 @@ HEADERS = boundarycondition.h \
     boxselect.h \
     checksurfaceintegrity.h \
     surfaceoperation.h \
-    surfaceprojection.h \
     octree.h \
     filetemplate.h \
     openfoamcase.h \
@@ -271,7 +270,6 @@ SOURCES = boundarycondition.cpp \
     boxselect.cpp \
     checksurfaceintegrity.cpp \
     surfaceoperation.cpp \
-    surfaceprojection.cpp \
     octree.cpp \
     filetemplate.cpp \
     openfoamcase.cpp \

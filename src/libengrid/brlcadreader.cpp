@@ -29,7 +29,6 @@
 #include "guibrlcadimportdialogue.h"
 #include "createcadtesselation.h"
 #include "stlreader.h"
-#include "surfaceprojection.h"
 #include "brlcadinterface.h"
 
 #include <vtkSTLReader.h>
@@ -254,7 +253,7 @@ void BrlcadReader::createBackgroundGeometry()
   }
 
   // store background grid for surface projection
-  GuiMainWindow::pointer()->storeSurfaceProjection();
+  GuiMainWindow::pointer()->storeCadInterfaces();
 
   // restore the initial grid from the backup copy
   makeCopy(backup_grid, m_Grid);
@@ -301,8 +300,7 @@ void BrlcadReader::operate()
           tess.setTargetReduction(dlg.reduction());
           tess();
         }
-        SurfaceProjection* proj = new SurfaceProjection(brlcad_interface);
-        GuiMainWindow::pointer()->setUniversalSurfProj(proj);
+        GuiMainWindow::pointer()->setUniversalCadInterface(brlcad_interface);
       }
     }
   } catch (Error err) {

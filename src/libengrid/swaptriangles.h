@@ -25,8 +25,8 @@
 
 class SwapTriangles;
 
-#include "surfaceprojection.h"
 #include "surfaceoperation.h"
+#include "cadinterface.h"
 
 /**
   * \todo This class desperately needs a clean-up and optimisation!
@@ -59,7 +59,7 @@ private: // methods
 protected: // methods
   
   int swap();
-  double computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, SurfaceProjection *proj);
+  double computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, CadInterface* cad_interface);
   double edgeAngle(vec3_t x1, vec3_t x2, vec3_t x3, vec3_t x4);
   vtkIdType neighbourNode(vtkIdType id_node0, vtkIdType id_node1, vtkIdType id_node2);
   bool swapDueToSurfaceNoise(stencil_t S);

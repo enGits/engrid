@@ -240,8 +240,8 @@ void GuiCreateBoundaryLayer::smoothSurface()
 
 void GuiCreateBoundaryLayer::operate()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
+  if (!GuiMainWindow::pointer()->checkCadInterfaces()) {
+    GuiMainWindow::pointer()->storeCadInterfaces();
   }
   ///////////////////////////////////////////////////////////////
   // set m_Grid to selected volume

@@ -383,8 +383,8 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     return EG_BOUNDARY_EDGE_VERTEX;
   }
 
-  SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin(), true);
-  if (proj) {
+  CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(*bcs.begin(), true);
+  if (cad_interface) {
 
     vec3_t x, x0;
     m_Grid->GetPoint(id_node, x0.data());
@@ -400,14 +400,14 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     L *= 0.1;
     bool convex = isConvexNode(id_node);
 
-    x0 = proj->projectNode(x0, id_node, false, m_NodeNormal[id_node], false, false);
+    x0 = cad_interface->projectNode(id_node, x0, m_NodeNormal[id_node]);
     if (convex) {
       x = x0 - L*m_NodeNormal[id_node];
     } else {
       x = x0 + L*m_NodeNormal[id_node];
     }
-    vec3_t n = proj->lastProjNormal();
-    if (GeometryTools::angle(n, m_NodeNormal[id_node]) > 0.5*m_FeatureAngle && !proj->lastProjFailed()) {
+    vec3_t n = cad_interface->getLastNormal();
+    if (GeometryTools::angle(n, m_NodeNormal[id_node]) > 0.5*m_FeatureAngle && !cad_interface->failed()) {
       double d = L/tan(0.5*m_FeatureAngle);
       static const int num_steps = 36;
       double D_alpha = 2*M_PI/num_steps;
@@ -417,8 +417,8 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       int num_miss = 0;
       for (int i = 0; i < num_steps; ++i) {
         v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-        vec3_t xp = proj->projectNode(x, id_node, false, v, true, false);
-        if (proj->lastProjFailed()) {
+        vec3_t xp = cad_interface->projectNode(id_node, x, v, true);
+        if (cad_interface->failed()) {
           ++num_miss;
         } else {
           double l = (x - xp).abs();
@@ -443,8 +443,8 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       int num_hit = 0;
       for (int i = 0; i < num_steps; ++i) {
         v = GeometryTools::rotate(v, n, D_alpha);
-        vec3_t xp = proj->projectNode(x, id_node, true, v, true, false);
-        if (!proj->lastProjFailed()) {
+        vec3_t xp = cad_interface->projectNode(id_node, x, v, true);
+        if (!cad_interface->failed()) {
           double l = (x - xp).abs();
           if (l < d) {
             ++num_hit;

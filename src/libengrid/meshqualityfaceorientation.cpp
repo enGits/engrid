@@ -34,14 +34,14 @@ void MeshQualityFaceOrientation::operate()
       vec3_t x_face = cellCentre(m_Grid, id_cell);
       vec3_t n_face = cellNormal(m_Grid, id_cell);
       n_face.normalise();
-      SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(cell_code->GetValue(id_cell), true);
-      if (proj) {
+      CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell), true);
+      if (cad_interface) {
         //proj->snapNode(x_face, -1);
-        proj->projectNode(x_face, -1, false, n_face);
-        if (proj->lastProjFailed()) {
+        cad_interface->project(x_face, n_face);
+        if (cad_interface->failed()) {
           cell_mesh_quality->SetValue(id_cell, 0.0);
         } else {
-          vec3_t n_surf = proj->lastProjNormal();
+          vec3_t n_surf = cad_interface->getLastNormal();
           double mq = 0.5*(n_surf*n_face + 1);
           cell_mesh_quality->SetValue(id_cell, mq);
         }

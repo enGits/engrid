@@ -80,7 +80,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   return move;
 }
 
-void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* proj, vec3_t &x_new)
+void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_interface, vec3_t &x_new)
 {
   EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
   if (m_FeatureMagic > 0 && node_mesh_quality->GetValue(id_node) > m_FaceOrientationThreshold) {
@@ -96,15 +96,15 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
       // do not use curvature correction here
       // .. a proper CAD model does not need it
       // .. a discrete model (e.g. triangulation) will create bulges on features
-      vec3_t x0 = proj->projectNode(x_new, id_node, false, m_NodeNormal[id_node]);
+      vec3_t x0 = cad_interface->projectNode(id_node, x_new, false);
 
       if (convex) {
         x = x0 - L*m_NodeNormal[id_node];
       } else {
         x = x0 + L*m_NodeNormal[id_node];
       }
-      vec3_t n = proj->lastProjNormal();
-      if (!proj->lastProjFailed()) {
+      vec3_t n = cad_interface->getLastNormal();
+      if (!cad_interface->failed()) {
         double d = 2*L/tan(0.5*m_FeatureAngle);
         static const int num_steps = 36;
         double D_alpha = 2*M_PI/num_steps;
@@ -116,8 +116,8 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         vec3_t x_corner(0,0,0);
         for (int i = 0; i < num_steps; ++i) {
           v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-          vec3_t xp = proj->projectNode(x, id_node, true, v, true);
-          if (proj->lastProjFailed()) {
+          vec3_t xp = cad_interface->projectNode(id_node, x, v, true, true);
+          if (cad_interface->failed()) {
             ++num_miss;
           } else {
             double l = (x - xp).abs();
@@ -131,7 +131,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         }
         if (num_miss == 0 && num_hit > 0) {
           x_corner *= 1.0/num_hit;
-          x_new = proj->projectNode(x_corner, id_node, true, m_NodeNormal[id_node]);
+          x_new = cad_interface->projectNode(id_node, x_corner, m_NodeNormal[id_node]);
         }
       }
 
@@ -143,8 +143,8 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
       // do not use curvature correction here
       // .. a proper CAD model does not need it
       // .. a discrete model (e.g. triangulation) will create bulges on features
-      vec3_t x1  = proj->projectNode(x_new, id_node, false);
-      vec3_t n   = proj->lastProjNormal();
+      vec3_t x1  = cad_interface->projectNode(id_node, x_new);
+      vec3_t n   = cad_interface->getLastNormal();
       double l   = cl->GetValue(id_node);
       double eps = 0.01*l;
       vec3_t mv  = l*m_NodeNormal[id_node];
@@ -160,9 +160,9 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         while (i < 30 && amp < 10) {
           x_new = x1 + 0.5*amp*(L1 + L2)*mv;// + 2*eps*n;
           //x_new = proj->findClosest(x_new, id_node, n);
-          x_new = proj->projectNode(x_new, id_node, m_CorrectCurvature, n);
+          x_new = cad_interface->projectNode(id_node, x_new, n, false, m_CorrectCurvature);
           double displacement = fabs((x_new - x1)*n);
-          if (displacement > eps || proj->lastProjFailed()) {
+          if (displacement > eps || cad_interface->failed()) {
             L2 = 0.5*(L1 + L2);
             ++i;
           } else {
@@ -189,8 +189,8 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, SurfaceProjection* pr
         }
         if (hits > 0) {
           x_new = x1 + L1*m_FeatureMagic*amp*mv;
-          x_new = proj->projectNode(x_new, id_node, m_CorrectCurvature, n);
-          if (proj->lastProjFailed()) {
+          x_new = cad_interface->projectNode(id_node, x_new, n, false, m_CorrectCurvature);
+          if (cad_interface->failed()) {
             cout << "bad!" << endl;
           }
         } else {
@@ -217,19 +217,19 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       int i_nodes = m_Part.localNode(id_node);
       if (m_NodeToBc[i_nodes].size() == 1 || m_UniformSnapPoints) {
         int bc = m_NodeToBc[i_nodes][0];
-        x_new = GuiMainWindow::pointer()->getSurfProj(bc)->snapNode(x_new, id_node, m_CorrectCurvature);
-        featureCorrection(id_node, GuiMainWindow::pointer()->getSurfProj(bc), x_new);
+        x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
+        featureCorrection(id_node, GuiMainWindow::pointer()->getCadInterface(bc), x_new);
       } else {
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           foreach (int bc, m_NodeToBc[i_nodes]) {
-            x_new = GuiMainWindow::pointer()->getSurfProj(bc)->snapNode(x_new, id_node, m_CorrectCurvature);
+            x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
           }
         }
 
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           if (m_CorrectCurvature) {
             foreach (int bc, m_NodeToBc[i_nodes]) {
-              x_new = GuiMainWindow::pointer()->getSurfProj(bc)->correctCurvature(GuiMainWindow::pointer()->getSurfProj(bc)->lastProjTriangle(), x_new);
+              x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(GuiMainWindow::pointer()->getCadInterface(bc)->lastProjTriangle(), x_new);
             }
           }
         }
@@ -295,7 +295,7 @@ void LaplaceSmoother::operate()
   GuiMainWindow::pointer()->getAllBoundaryCodes(bcs);
   if (m_UseProjection) {
     foreach (int bc, bcs) {
-      GuiMainWindow::pointer()->getSurfProj(bc)->setForegroundGrid(m_Grid);
+      GuiMainWindow::pointer()->getCadInterface(bc)->setForegroundGrid(m_Grid);
     }
   }
   updateNodeInfo();

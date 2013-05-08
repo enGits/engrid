@@ -29,5 +29,5 @@ UpdateSurfProj::UpdateSurfProj()
 
 void UpdateSurfProj::operate()
 {
-  GuiMainWindow::pointer()->storeSurfaceProjection();
+  GuiMainWindow::pointer()->storeCadInterfaces();
 }
