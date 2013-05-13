@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -48,7 +48,7 @@ void appendLicense(int argc, char ** argv)
   if (year-first_year > 1) {
     year_text = first_year_text + "-" + year_text;
   };
-  QString year_end_text = "                                     +\n";
+  QString year_end_text = "                                      +\n";
   if (year == first_year) {
     year_end_text = "     " + year_end_text;
   };
