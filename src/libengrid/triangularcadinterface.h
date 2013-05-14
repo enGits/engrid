@@ -53,12 +53,18 @@ protected: // attributes
   FaceFinder                m_FaceFinder;
 
 
+protected: // methods
+
+  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
+  virtual vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
+
+
 public:
 
   TriangularCadInterface();
 
-  virtual HitType      shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
-  //virtual PositionType position(vec3_t x, vec3_t n);
+  virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t correctCurvature(vec3_t x);
 
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
 

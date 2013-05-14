@@ -44,6 +44,9 @@ BrlCadInterface::BrlCadInterface(QString file_name, QString object_name)
   application ap = {0};
   m_Ap = ap;
   m_Ap.a_rt_i   = m_Rtip;
+
+  setName("BRL-CAD interface");
+
   //m_Ap.a_onehit = 1;
 }
 

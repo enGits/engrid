@@ -33,6 +33,9 @@ class CadInterface
 
 private: // attributes
 
+  QString m_Name; ///< The name of the CAD interface
+
+
 protected: // attributes
 
   vtkUnstructuredGrid* m_FGrid;        ///< the foreground grid to project
@@ -42,7 +45,25 @@ protected: // attributes
   double               m_LastRadius;   ///< last surface radius which was encountered
   bool                 m_Failed;       ///< did the last operation fail
 
-  //bool   m_ForceRay; ???
+
+protected: // methods
+
+  /**
+   * @brief issue an error message about not implemented functionality
+   * Not all functionality will be implemented in every derived class of CadInterface.
+   * Certain meshing processes might still work. For this reason an error message will be displayed,
+   * rather than preventing instantiation by using abstract methods (=0).
+   */
+  void notImplemented();
+
+  /**
+   * @brief set the name
+   * The CAD interface should be given a name. This will be used to display messages.
+   * A name could, for example, be "triangulated geometry CAD interface".
+   * @param name the name to set
+   */
+  void setName(QString name) { m_Name = name; }
+
 
 public: // data types
 
@@ -58,6 +79,8 @@ public:
 
   void setForegroundGrid(vtkUnstructuredGrid* grid);
 
+  QString name() { return m_Name; }
+
   /**
    * @brief vital interface method to the geometry
    * This method is a major part of interfacing geometries. The idea is to provide something like
@@ -70,7 +93,7 @@ public:
    * @param r if the ray hits this contains the surface radius at the intersection point
    * @return the result (Miss, HitIn, HitOut)
    */
-  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) = 0;
+  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) { notImplemented(); }
 
   /**
    * @brief snap a point to the geometry
@@ -150,11 +173,11 @@ public:
    */
   virtual vec3_t projectNode(vtkIdType id_node, vec3_t x, vec3_t v, bool strict_direction = false, bool correct_curvature = false);
 
-  virtual vec3_t correctCurvature(vec3_t x)            { return x; }
-  virtual vec3_t correctCurvature(vtkIdType, vec3_t x) { return x; }
+  virtual vec3_t correctCurvature(vec3_t x) { return x; }
+
   virtual double getRadius(vtkIdType id_node);
 
-  vtkIdType lastProjTriangle() { return -1; } /// delete this ???
+  //vtkIdType lastProjTriangle() { return -1; } /// delete this ???
 
   bool      failed()           { return m_Failed; }
   vec3_t    getLastNormal()    { return m_LastNormal; }

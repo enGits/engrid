@@ -205,6 +205,10 @@ void SurfaceOperation::updateNodeInfo()
     char old_type = node_type->GetValue(id_node);
     char new_type = getNodeType(id_node, true);
 
+    if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
+      EG_BUG;
+    }
+
     if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
       node_type->SetValue(id_node, new_type);
     } else {
@@ -247,12 +251,14 @@ void SurfaceOperation::updateNodeInfo()
   }
 
   // mesh quality
-  MeshQualityFaceOrientation mesh_quality;
-  mesh_quality();
-  EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
-  EG_FORALL_NODES(id_node, m_Grid) {
-    if (node_mesh_quality->GetValue(id_node) < m_FaceOrientationThreshold) {
-      node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
+  if (!m_BCodeFeatureDefinition) {
+    MeshQualityFaceOrientation mesh_quality;
+    mesh_quality();
+    EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
+    EG_FORALL_NODES(id_node, m_Grid) {
+      if (node_mesh_quality->GetValue(id_node) < m_FaceOrientationThreshold) {
+        node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
+      }
     }
   }
 
@@ -302,11 +308,11 @@ void SurfaceOperation::updatePotentialSnapPoints()
     m_PotentialSnapPoints[id_node1].clear();
     char type1 = node_type->GetValue(id_node1);
     QSet<vtkIdType> exclude_nodes;
-    if (type1 == EG_FEATURE_EDGE_VERTEX) {
+    if (type1 == EG_FEATURE_EDGE_VERTEX || type1 == EG_BOUNDARY_EDGE_VERTEX) {
       for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
         vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
         char type2 = node_type->GetValue(id_node2);
-        if (type2 == EG_FEATURE_CORNER_VERTEX) {
+        if (type2 == EG_FEATURE_CORNER_VERTEX || type2 == EG_FIXED_VERTEX) {
           for (int j = 0; j < m_Part.n2nGSize(id_node2); ++j) {
             vtkIdType id_node3 = m_Part.n2nGG(id_node2, j);
             exclude_nodes.insert(id_node3);
@@ -384,7 +390,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
   }
 
   CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(*bcs.begin(), true);
-  if (cad_interface) {
+  if (cad_interface && !m_BCodeFeatureDefinition) {
 
     vec3_t x, x0;
     m_Grid->GetPoint(id_node, x0.data());
@@ -430,14 +436,6 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       if (num_miss == 0) {
         return EG_FEATURE_CORNER_VERTEX;
       }
-
-      /*
-      if (convex) {
-        x = x0 - L*n;
-      } else {
-        x = x0 + L*n;
-      }
-      */
 
       v = GeometryTools::orthogonalVector(n);
       int num_hit = 0;

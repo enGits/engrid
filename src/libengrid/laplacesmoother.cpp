@@ -229,7 +229,8 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
         for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
           if (m_CorrectCurvature) {
             foreach (int bc, m_NodeToBc[i_nodes]) {
-              x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(GuiMainWindow::pointer()->getCadInterface(bc)->lastProjTriangle(), x_new);
+              //x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(GuiMainWindow::pointer()->getCadInterface(bc)->lastProjTriangle(), x_new);
+              x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(x_new);
             }
           }
         }
@@ -340,13 +341,13 @@ void LaplaceSmoother::operate()
 
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       vtkIdType id_node = nodes[i_nodes];
+      m_Grid->GetPoint(id_node, x_new[i_nodes].data());
       if (!m_Fixed[id_node] && !blocked[i_nodes]) {
         if (smooth_node[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
           if (node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
             vec3_t n(0,0,0);
-            vec3_t x_old;
-            m_Grid->GetPoint(id_node, x_old.data());
+            vec3_t x_old = x_new[i_nodes];
 
             if (snap_points.size() > 0) {
               vec3_t x;

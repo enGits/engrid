@@ -41,6 +41,7 @@ CadInterface::CadInterface()
   }
   m_LastRadius = 1e99;
   m_LastNormal = vec3_t(0,0,0);
+  setName("generic CAD interface");
 }
 
 void CadInterface::setForegroundGrid(vtkUnstructuredGrid *grid)
@@ -141,6 +142,13 @@ vec3_t CadInterface::snapNode(vtkIdType, vec3_t x, bool correct_curvature)
   return snap(x, correct_curvature);
 }
 
+void CadInterface::notImplemented()
+{
+  QString msg;
+  msg += "The functionality you are trying cannot be provided by the current CAD interface.\n";
+  msg += "You are using a \"" + name() + "\"";
+  EG_ERR_RETURN(msg);
+}
 
 
 vec3_t CadInterface::project(vec3_t x, vec3_t v, bool strict_direction, bool correct_curvature)
