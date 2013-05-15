@@ -57,12 +57,11 @@ win32-msvc* {
     LIBS += -ltcl8.5
     LIBS += -L./libengrid -lengrid
 
-debian {
-    LIBS += -lnglib
-}
-else {
-    LIBS += -L./netgen_svn -lng
-}
+    debian {
+        LIBS += -lnglib
+    } else {
+        LIBS += -L./netgen_svn -lng
+    }
 
     LIBS        += -L$(VTKLIBDIR)
     LIBS        += -lQVTK
@@ -81,10 +80,8 @@ else {
     LIBS        += -lvtksys
     LIBS        += -lvtkVolumeRendering
     LIBS        += -lvtkWidgets
-    LIBS        += -L/nopt/brlcad/lib
-    LIBS        += /nopt/brlcad/lib/librt.so
-    #LIBS        += /nopt/brlcad/lib/libbn.so.20
-    #LIBS        += /nopt/brlcad/lib/libbu.so.20
+    LIBS        += -L$(BRLCADLIBDIR)
+    LIBS        += $(BRLCADLIBDIR)/librt.so
 }
 
 OTHER_FILES += checkcomments.py todo.txt
@@ -92,4 +89,4 @@ RESOURCES   += libengrid/engrid.qrc
 
 SOURCES = main.cpp
 
- 
+
