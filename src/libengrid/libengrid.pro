@@ -199,6 +199,7 @@ HEADERS = \
     surfacenodemovementcheck.h \
     surfaceoperation.h \
     swaptriangles.h \
+    tauwriter.h \
     text3d.h \
     timer.h \
     triangle.h \
@@ -335,6 +336,7 @@ SOURCES = \
     surfacenodemovementcheck.cpp \
     surfaceoperation.cpp \
     swaptriangles.cpp \
+    tauwriter.cpp \
     text3d.cpp \
     timer.cpp \
     triangle.cpp \

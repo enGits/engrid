@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -178,6 +178,7 @@
     <addaction name="menuOpenFOAM"/>
     <addaction name="actionExportDolfyn"/>
     <addaction name="actionExportSu2"/>
+    <addaction name="actionExportTau"/>
     <addaction name="actionExportCGNS"/>
     <addaction name="actionExportBlenderFile"/>
    </widget>
@@ -311,7 +312,7 @@
           <x>0</x>
           <y>0</y>
           <width>221</width>
-          <height>510</height>
+          <height>499</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -702,8 +703,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>231</width>
-          <height>514</height>
+          <width>221</width>
+          <height>494</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1712,6 +1713,14 @@
    </property>
    <property name="toolTip">
     <string>export to Dolfyn</string>
+   </property>
+  </action>
+  <action name="actionExportTau">
+   <property name="text">
+    <string>Tau</string>
+   </property>
+   <property name="toolTip">
+    <string>export to Tau</string>
    </property>
   </action>
  </widget>
