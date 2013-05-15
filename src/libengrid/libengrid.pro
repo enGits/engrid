@@ -194,7 +194,8 @@ HEADERS = boundarycondition.h \
     triangularcadinterface.h \
     meshqualityfaceorientation.h \
     meshquality.h \
-    guiedgelengthsourcepipe.h
+    guiedgelengthsourcepipe.h \
+    engrid_version.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
