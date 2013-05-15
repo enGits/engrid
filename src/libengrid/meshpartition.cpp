@@ -320,7 +320,7 @@ void MeshPartition::createNodeToBC()
 {
   EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
   m_N2BC.resize(m_Nodes.size());
-  foreach (int i_node, m_Nodes) {
+  for (int i_node = 0; i_node < m_Nodes.size(); ++i_node) {
     QSet<int> bcs;
     for (int j = 0; j < n2cLSize(i_node); ++j) {
       vtkIdType id_cell = n2cLG(i_node, j);
