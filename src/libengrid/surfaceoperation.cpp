@@ -287,14 +287,31 @@ void SurfaceOperation::updateNodeInfo()
   updatePotentialSnapPoints();
 }
 
+bool SurfaceOperation::checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2)
+{
+  QSet<int> bcs1, bcs2;
+  for (int i = 0; i < m_Part.n2bcGSize(id_node1); ++i) {
+    bcs1.insert(m_Part.n2bcG(id_node1, i));
+  }
+  for (int i = 0; i < m_Part.n2bcGSize(id_node2); ++i) {
+    bcs2.insert(m_Part.n2bcG(id_node2, i));
+  }
+  if (bcs1 == bcs2) {
+    return true;
+  }
+  return false;
+}
+
 void SurfaceOperation::updatePotentialSnapPoints()
 {
-  setAllSurfaceCells();
+  setAllSurfaceCells();  
+  l2g_t nodes  = getPartNodes();
+
   m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
 
   if (m_UniformSnapPoints) {
     m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
-    EG_FORALL_NODES(id_node, m_Grid) {
+    foreach( vtkIdType id_node, nodes ) {
       for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
         m_PotentialSnapPoints[id_node].append(m_Part.n2nGG(id_node, i));
       }
@@ -304,53 +321,59 @@ void SurfaceOperation::updatePotentialSnapPoints()
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
 
-  EG_FORALL_NODES(id_node1, m_Grid) {
+  foreach( vtkIdType id_node1, nodes ) {
     m_PotentialSnapPoints[id_node1].clear();
-    char type1 = node_type->GetValue(id_node1);
-    QSet<vtkIdType> exclude_nodes;
-    if (type1 == EG_FEATURE_EDGE_VERTEX || type1 == EG_BOUNDARY_EDGE_VERTEX) {
+    char type1 = node_type->GetValue(id_node1);    
+    if (type1 != EG_FIXED_VERTEX) { // fixed vertices do not have any snap-points
+      QSet<vtkIdType> exclude_nodes;
+      if (type1 == EG_FEATURE_EDGE_VERTEX || type1 == EG_BOUNDARY_EDGE_VERTEX) {
+        for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+          vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+          char type2 = node_type->GetValue(id_node2);
+          if (type2 == EG_FEATURE_CORNER_VERTEX || type2 == EG_FIXED_VERTEX) {
+            for (int j = 0; j < m_Part.n2nGSize(id_node2); ++j) {
+              vtkIdType id_node3 = m_Part.n2nGG(id_node2, j);
+              exclude_nodes.insert(id_node3);
+            }
+          }
+        }
+      }
       for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
         vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
         char type2 = node_type->GetValue(id_node2);
-        if (type2 == EG_FEATURE_CORNER_VERTEX || type2 == EG_FIXED_VERTEX) {
-          for (int j = 0; j < m_Part.n2nGSize(id_node2); ++j) {
-            vtkIdType id_node3 = m_Part.n2nGG(id_node2, j);
-            exclude_nodes.insert(id_node3);
+        if (m_StrictFeatureSnap) {
+          if (   (type1 == EG_SIMPLE_VERTEX)
+                 || (type1 == EG_FEATURE_EDGE_VERTEX && (type2 == EG_FEATURE_EDGE_VERTEX || type2 == EG_FEATURE_CORNER_VERTEX))
+                 || (type1 == EG_FEATURE_CORNER_VERTEX && type2 == EG_FEATURE_CORNER_VERTEX)
+                 || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
+          {
+            if (!exclude_nodes.contains(id_node2)) {
+              if (checkSnapPointPairForBcMatch(id_node1, id_node2)) {
+                m_PotentialSnapPoints[id_node1].append(id_node2);
+              }
+            }
+          }
+        } else {
+          if (   (type1 == EG_SIMPLE_VERTEX)
+                 || (type1 == EG_FEATURE_EDGE_VERTEX)
+                 || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
+          {
+            if (checkSnapPointPairForBcMatch(id_node1, id_node2)) {
+              m_PotentialSnapPoints[id_node1].append(id_node2);
+            }
           }
         }
       }
-    }
-    for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-      vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
-      char type2 = node_type->GetValue(id_node2);
-      if (m_StrictFeatureSnap) {
-        if (   (type1 == EG_SIMPLE_VERTEX)
-               || (type1 == EG_FEATURE_EDGE_VERTEX && (type2 == EG_FEATURE_EDGE_VERTEX || type2 == EG_FEATURE_CORNER_VERTEX))
-               || (type1 == EG_FEATURE_CORNER_VERTEX && type2 == EG_FEATURE_CORNER_VERTEX)
-               || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
-        {
-          if (!exclude_nodes.contains(id_node2)) {
-            m_PotentialSnapPoints[id_node1].append(id_node2);
-          }
-        }
-      } else {
-        if (   (type1 == EG_SIMPLE_VERTEX)
-               || (type1 == EG_FEATURE_EDGE_VERTEX)
-               || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
-        {
-          m_PotentialSnapPoints[id_node1].append(id_node2);
-        }
-      }
-    }
 
-    // make sure feature edge vertices have at least two snap points ...
-    /*
+      // make sure feature edge vertices have at least two snap points ...
+      /*
     if (type1 == EG_FEATURE_EDGE_VERTEX) {
       if (m_PotentialSnapPoints[id_node1].size() < 2) {
         m_PotentialSnapPoints[id_node1].clear();
       }
     }
     */
+    }
   }
 }
 

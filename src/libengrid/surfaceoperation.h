@@ -78,6 +78,7 @@ protected: // methods
   double normalIrregularity(vtkIdType id_node);
   void   readVMD();
   void   updateNodeInfo();
+  bool   checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2);
   void   updatePotentialSnapPoints();
 
 
