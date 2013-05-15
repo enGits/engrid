@@ -35,12 +35,9 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   
   m_GrowthFactor = 0.0;
   m_MinEdgeLength = 0.0;
-  m_MinMumCellsAcross = 0;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
   m_FeatureThresholdAngle = deg2rad(45.0);
-
-  getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
 }
 
 double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)

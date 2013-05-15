@@ -42,6 +42,10 @@ INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 INCLUDEPATH += /nopt/brlcad/include
 INCLUDEPATH += /nopt/brlcad/include/openNURBS
+!debian {
+    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
+    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
+}
 
 #INCLUDEPATH for VTK depends on the compiler
 win32-msvc* {
@@ -189,7 +193,8 @@ HEADERS = boundarycondition.h \
     cadinterface.h \
     triangularcadinterface.h \
     meshqualityfaceorientation.h \
-    meshquality.h
+    meshquality.h \
+    guiedgelengthsourcepipe.h
 
 SOURCES = boundarycondition.cpp \
     celllayeriterator.cpp \
@@ -301,7 +306,8 @@ SOURCES = boundarycondition.cpp \
     triangularcadinterface.cpp \
     cadinterface.cpp \
     meshqualityfaceorientation.cpp \
-    meshquality.cpp
+    meshquality.cpp \
+    guiedgelengthsourcepipe.cpp
 
 FORMS = guicreateboundarylayer.ui \
     guideletebadaspecttris.ui \
@@ -319,7 +325,8 @@ FORMS = guicreateboundarylayer.ui \
     guisurfacemesher.ui \
     guicreatehexcore.ui \
     guibooleangeometryoperation.ui \
-    guibrlcadimportdialogue.ui
+    guibrlcadimportdialogue.ui \
+    guiedgelengthsourcepipe.ui
     
 HEADERS += surfacealgorithm.h
 SOURCES += surfacealgorithm.cpp

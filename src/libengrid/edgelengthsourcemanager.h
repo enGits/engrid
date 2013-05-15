@@ -61,6 +61,7 @@ public:
   void addSphere();
   void addCone();
   void addBox();
+  void addPipe();
 
 };
 

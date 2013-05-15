@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -21,6 +21,8 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 #include "foamwriter.h"
+#include "volumedefinition.h"
+#include "guimainwindow.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -34,7 +36,7 @@ FoamWriter::FoamWriter()
 
 void FoamWriter::writePoints(const PolyMesh &poly)
 {
-  QString filename = path + "points";
+  QString filename = m_Path + "points";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -66,7 +68,7 @@ void FoamWriter::writePoints(const PolyMesh &poly)
 
 void FoamWriter::writeFaces(const PolyMesh &poly)
 {
-  QString filename = path + "faces";
+  QString filename = m_Path + "faces";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -104,7 +106,7 @@ void FoamWriter::writeFaces(const PolyMesh &poly)
 
 void FoamWriter::writeOwner(const PolyMesh &poly)
 {
-  QString filename = path + "owner";
+  QString filename = m_Path + "owner";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -134,7 +136,7 @@ void FoamWriter::writeOwner(const PolyMesh &poly)
 
 void FoamWriter::writeNeighbour(const PolyMesh &poly)
 {
-  QString filename = path + "neighbour";
+  QString filename = m_Path + "neighbour";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -169,7 +171,7 @@ void FoamWriter::writeNeighbour(const PolyMesh &poly)
 
 void FoamWriter::writeBoundary(const PolyMesh &poly)
 {
-  QString filename = path + "boundary";
+  QString filename = m_Path + "boundary";
   QFile file(filename);
   file.open(QIODevice::WriteOnly);
   QTextStream f(&file);
@@ -215,18 +217,37 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       bc_name.setNum(bc);
       bc_name = "BC_" + bc_name.rightJustified(4, '0');
     }
+    QString bc_type = BC.getType();
+    if (hasNeighbour(bc)) {
+      bc_type = "mappedWall";
+    }
+
+    QString neigh_name = bc_name;
+
+    if (bc_type == "mappedWall") {
+      bc_name += "_" + m_CurrentVolume;
+    }
+
     f << "    " << bc_name << "\n";
     f << "    {\n";
-    f << "        type        " << BC.getType() << ";\n";
-    f << "        nFaces      " << nFaces << ";\n";
-    f << "        startFace   " << startFace << ";\n";
+    f << "        type                 " << bc_type << ";\n";
+    f << "        nFaces               " << nFaces << ";\n";
+    f << "        startFace            " << startFace << ";\n";
+    if (bc_type == "mappedWall") {
+      f << "        startFace            " << startFace << ";\n";
+      f << "        sampleMode           nearestPatchFace;\n";
+      f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
+      f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(bc) << ";\n";
+      f << "        offsetMode           uniform;\n";
+      f << "        offset               ( 0 0 0 );\n";
+    }
   f << "    }\n";
   };
   f << ")\n\n";
   f << "// ************************************************************************* //\n\n\n";
 }
 
-void FoamWriter::operate()
+void FoamWriter::writeSingleVolume()
 {
   try {
     readOutputDirectory();
@@ -249,8 +270,8 @@ void FoamWriter::operate()
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
       };
-      path = getFileName() + "/constant/polyMesh/";
-      if (!QDir(path).exists()) {
+      m_Path = getFileName() + "/constant/polyMesh/";
+      if (!QDir(m_Path).exists()) {
         EG_BUG;
       };
       PolyMesh poly(m_Grid);
@@ -262,5 +283,99 @@ void FoamWriter::operate()
     }
   } catch (Error err) {
     err.display();
+  }
+}
+
+bool FoamWriter::hasNeighbour(int bc)
+{
+  if (m_Bc2Vol[bc].size() == 2) {
+    return true;
+  }
+  return false;
+}
+
+QString FoamWriter::getNeighbourName(int bc)
+{
+  foreach (QString name, m_Bc2Vol[bc]) {
+    if (name != m_CurrentVolume) {
+      return name;
+    }
+  }
+  return "unknown";
+}
+
+void FoamWriter::writeMultipleVolumes()
+{
+  try {
+    readOutputDirectory();
+    if (isValid()) {
+      QList<VolumeDefinition> vols = mainWindow()->getAllVols();
+      QString p1 = getFileName();
+      QString p2 = p1 + "/constant";
+      QDir d1(p1);
+      QDir d2(p2);
+      if (!d1.exists()) {
+        EG_BUG;
+      }
+      if (!d2.exists()) {
+        d1.mkdir("constant");
+        d2 = QDir(p2);
+      }
+
+      m_Bc2Vol.clear();
+      QSet<int> bcs = mainWindow()->getAllBoundaryCodes();
+      foreach (int bc, bcs) {
+        foreach (VolumeDefinition vol, vols) {
+          if (vol.getSign(bc) != 0) {
+            m_Bc2Vol[bc].append(vol.getName());
+            if (m_Bc2Vol[bc].size() > 2) {
+              EG_ERR_RETURN("Boundary condition with more than two volumes found!");
+            }
+          }
+        }
+      }
+
+      foreach (VolumeDefinition vol, vols) {
+        m_CurrentVolume = vol.getName();
+
+        QString p3 = p2 + "/" + vol.getName();
+        QDir d3(p3);
+        if (!d3.exists()) {
+          d2.mkdir(QString("constant") + "/" + vol.getName());
+          d3 = QDir(p3);
+        }
+        QString p4 = p3 + "/polyMesh";
+        QDir d4(p4);
+        if (!d4.exists()) {
+          d3.mkdir("polyMesh");
+        }
+        m_Path = getFileName() + "/constant/" + vol.getName() + "/polyMesh/";
+        if (!QDir(m_Path).exists()) {
+          EG_BUG;
+        }
+        EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+        MeshPartition volume(vol.getName());
+        volume.setVolumeOrientation();
+        volume.extractToVtkGrid(vol_grid);
+        PolyMesh poly(vol_grid);
+        writePoints(poly);
+        writeFaces(poly);
+        writeOwner(poly);
+        writeNeighbour(poly);
+        writeBoundary(poly);
+      }
+    }
+
+  } catch (Error err) {
+    err.display();
+  }
+}
+
+void FoamWriter::operate()
+{
+  if (mainWindow()->getAllVols().size() <= 1) {
+    writeSingleVolume();
+  } else {
+    writeMultipleVolumes();
   }
 }

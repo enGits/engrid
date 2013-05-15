@@ -76,6 +76,7 @@ void Su2Writer::writeNodes()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
+    f.setRealNumberPrecision(16);
     f << x[0] << " " << x[1] << " " << x[2] << " " << id_node << "\n";
   }
 }

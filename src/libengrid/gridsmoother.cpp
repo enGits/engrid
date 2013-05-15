@@ -259,6 +259,7 @@ bool GridSmoother::moveNode(int i_nodes, vec3_t &Dx)
       break;
     }
     Dx *= 0.5;
+    correctDx(i_nodes, Dx);
   }
   return moved;
 }

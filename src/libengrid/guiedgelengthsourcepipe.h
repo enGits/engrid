@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2012 enGits GmbH                                     +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,46 +20,36 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-#ifndef foamwriter_H
-#define foamwriter_H
 
-class FoamWriter;
+#ifndef GUIEDGELENGTHSOURCEPIPE_H
+#define GUIEDGELENGTHSOURCEPIPE_H
 
-#include "iooperation.h"
-#include "polymesh.h"
+#include "edgelengthsource.h"
+#include "ui_guiedgelengthsourcepipe.h"
 
-/**
- * Writer for OpenFOAM poly-cell grids
- */
-class FoamWriter : public IOOperation
+
+class GuiEdgeLengthSourcePipe : public GuiEdgeLengthSource<Ui::GuiEdgeLengthSourcePipe>
 {
-
 protected: // attributes
-  
-  QString m_Path;
-  QMap<int, QList<QString> > m_Bc2Vol;
-  QString m_CurrentVolume;
 
-protected: // methods
-  
-  void writePoints(const PolyMesh &poly);
-  void writeFaces(const PolyMesh &poly);
-  void writeOwner(const PolyMesh &poly);
-  void writeNeighbour(const PolyMesh &poly);
-  void writeBoundary(const PolyMesh &poly);
+  vec3_t m_X1;
+  vec3_t m_X2;
+  double m_R1;
+  double m_R2;
+  double m_Length1;
+  double m_Length2;
 
-  bool    hasNeighbour(int bc);
-  QString getNeighbourName(int bc);
 
-  void writeSingleVolume();
-  void writeMultipleVolumes();
-
-  virtual void operate();
-  
 public: // methods
-  
-  FoamWriter();
-  
+
+  GuiEdgeLengthSourcePipe();
+
+  virtual bool    read(QString txt);
+  virtual QString write();
+  virtual void    setDlgFields();
+  virtual void    readDlgFields();
+  virtual double  edgeLength(vec3_t x);
+
 };
 
-#endif
+#endif // GUIEDGELENGTHSOURCECONE_H

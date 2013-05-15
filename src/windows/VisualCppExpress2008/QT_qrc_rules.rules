@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="QTResBuilder"
 			DisplayName="QT Resource Builder"
-			CommandLine="$(SolutionDir)\qtvars.bat $(PlatformName) rcc.exe -name $(InputName) &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(IntDir)\qrc_$(InputName).cpp&quot;"
+			CommandLine="$(SolutionDir)qtvars.bat $(PlatformName) rcc.exe -name $(InputName) &quot;$(InputDir)$(InputFileName)&quot; -o &quot;$(IntDir)\qrc_$(InputName).cpp&quot;"
 			Outputs="&quot;$(IntDir)\qrc_$(InputName).cpp&quot;"
 			FileExtensions="*.qrc"
 			>

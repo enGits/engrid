@@ -72,6 +72,7 @@ public slots:
   void addSphere() { m_ELSManager.addSphere(); }
   void addCone()   { m_ELSManager.addCone(); }
   void addBox()    { m_ELSManager.addBox(); }
+  void addPipe()   { m_ELSManager.addPipe(); }
 
 };
 
