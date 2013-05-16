@@ -16,6 +16,8 @@ QT     += xml \
           network \
           opengl
 
+QMAKE_CXXFLAGS += -fopenmp
+
 win32-msvc* {
     QMAKE_CXXFLAGS += -W3
     DEFINES += LIBENGRID_EXPORTS

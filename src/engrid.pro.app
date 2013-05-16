@@ -28,6 +28,11 @@ win32-msvc* {
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
 
+# OpenMP
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp
+
+
 INCLUDEPATH += ./libengrid
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../engrid-build
