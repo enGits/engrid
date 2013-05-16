@@ -43,5 +43,10 @@ export VTKINCDIR=/usr/include/vtk-5.8/
 export VTKLIBDIR=/usr/lib
 endif
 
+ifeq "$(DISTRIB_RELEASE)" "13.04"
+export VTKINCDIR=/usr/include/vtk-5.8/
+export VTKLIBDIR=/usr/lib
+endif
+
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/qmake.mk
