@@ -27,7 +27,9 @@
 
 CadInterface::CadInterface()
 {
-  QFile file(":/resources/misc/raysphere.dat");
+  QFile file(":/resources/misc/raysphere_fine.dat");
+  //QFile file(":/resources/misc/raysphere.dat");
+  //QFile file(":/resources/misc/raysphere_coarse.dat");
   file.open(QIODevice::ReadOnly);
   QTextStream s(&file);
   int N;
@@ -42,6 +44,8 @@ CadInterface::CadInterface()
   m_LastRadius = 1e99;
   m_LastNormal = vec3_t(0,0,0);
   setName("generic CAD interface");
+  m_ShootRayImplemented = false;
+  getSet("surface meshing", "critical length for node snapping", 0.1, m_CriticalSnapLength);
 }
 
 void CadInterface::setForegroundGrid(vtkUnstructuredGrid *grid)
@@ -134,11 +138,17 @@ vec3_t CadInterface::snapNode(vtkIdType id_node, bool correct_curvature)
 {
   vec3_t x;
   m_FGrid->GetPoint(id_node, x.data());
-  return snap(x, correct_curvature);
+  return snapNode(id_node, x, correct_curvature);
 }
 
-vec3_t CadInterface::snapNode(vtkIdType, vec3_t x, bool correct_curvature)
+vec3_t CadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature)
 {
+  vec3_t n = m_FPart.globalNormal(id_node);
+  vec3_t x_proj = projectNode(id_node, x, n, false, correct_curvature);
+  double L_crit = m_CriticalSnapLength*m_FPart.getMinSurfaceStencilEdgeLength(id_node);
+  if ((x - x_proj).abs() < L_crit) {
+    return x_proj;
+  }
   return snap(x, correct_curvature);
 }
 
@@ -153,6 +163,9 @@ void CadInterface::notImplemented()
 
 vec3_t CadInterface::project(vec3_t x, vec3_t v, bool strict_direction, bool correct_curvature)
 {
+  if (!checkVector(v)) {
+    return x;
+  }
   vec3_t x_proj = x;
   m_LastNormal = v;
   m_LastRadius = 1e10;

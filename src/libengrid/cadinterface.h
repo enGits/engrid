@@ -25,10 +25,11 @@
 
 #include "engrid.h"
 #include "meshpartition.h"
+#include "surfacealgorithm.h"
 
 #include <QVector>
 
-class CadInterface
+class CadInterface : public SurfaceAlgorithm
 {
 
 private: // attributes
@@ -38,12 +39,14 @@ private: // attributes
 
 protected: // attributes
 
-  vtkUnstructuredGrid* m_FGrid;        ///< the foreground grid to project
-  MeshPartition        m_FPart;        ///< MeshPartition for the foreground grid
-  QVector<vec3_t>      m_RayPoints;    ///< template for ray cloud to snap points
-  vec3_t               m_LastNormal;   ///< last surface normal which was encountered
-  double               m_LastRadius;   ///< last surface radius which was encountered
-  bool                 m_Failed;       ///< did the last operation fail
+  vtkUnstructuredGrid* m_FGrid;               ///< the foreground grid to project
+  MeshPartition        m_FPart;               ///< MeshPartition for the foreground grid
+  QVector<vec3_t>      m_RayPoints;           ///< template for ray cloud to snap points
+  vec3_t               m_LastNormal;          ///< last surface normal which was encountered
+  double               m_LastRadius;          ///< last surface radius which was encountered
+  bool                 m_Failed;              ///< did the last operation fail
+  bool                 m_ShootRayImplemented; ///< flag to determine if shootRay has been implemented
+  double               m_CriticalSnapLength;  ///< relative distance to decide between project or real snap
 
 
 protected: // methods
@@ -94,6 +97,12 @@ public:
    * @return the result (Miss, HitIn, HitOut)
    */
   virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) { notImplemented(); }
+
+  /**
+   * @brief check if shootRay is available (implemented)
+   * @return true id shootRay is available
+   */
+  bool shootRayAvailable() { return m_ShootRayImplemented; }
 
   /**
    * @brief snap a point to the geometry
