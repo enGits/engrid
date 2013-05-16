@@ -206,7 +206,7 @@ void SurfaceOperation::updateNodeInfo()
     char new_type = getNodeType(id_node, true);
 
     if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
-      EG_BUG;
+      //EG_BUG;
     }
 
     if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
