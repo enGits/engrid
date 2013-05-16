@@ -247,7 +247,10 @@ void UpdateDesiredMeshDensity::operate()
 
   if (m_NodesPerQuarterCircle > 1e-3) {
     QVector<double> R(nodes.size(), 1e99);
-    foreach (vtkIdType id_cell, cells) {
+
+//#pragma omp parallel for
+    for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
+      vtkIdType id_cell = cells[i_cell];
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       int bc = cell_code->GetValue(id_cell);
@@ -256,6 +259,7 @@ void UpdateDesiredMeshDensity::operate()
         R[i_nodes] = min(R[i_nodes], fabs(GuiMainWindow::pointer()->getCadInterface(bc)->getRadius(pts[i])));
       }
     }
+
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (cl_pre[i_nodes] == 0) {
         EG_BUG;
