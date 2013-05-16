@@ -419,3 +419,39 @@ double MeshPartition::getAverageSurfaceEdgeLength(vtkIdType id_node)
   }
   return L;
 }
+
+void MeshPartition::computeMinAndMaxSurfaceStencilEdgeLengths(vtkIdType id_node, double &l_min, double &l_max)
+{
+  l_min = 1e99;
+  l_max = 0;
+  for (int i = 0; i < n2cGSize(id_node); ++i) {
+    vtkIdType id_cell = n2cGG(id_node, i);
+    if (isSurface(id_cell, m_Grid)) {
+      vtkIdType *pts, num_pts;
+      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      vec3_t x1, x2;
+      m_Grid->GetPoint(pts[num_pts - 1], x1.data());
+      for (int j = 0; j < num_pts; ++j) {
+        m_Grid->GetPoint(pts[j], x2.data());
+        double L = (x1 - x2).abs();
+        l_min = min(L, l_min);
+        l_max = max(L, l_max);
+        x1 = x2;
+      }
+    }
+  }
+}
+
+double MeshPartition::getMinSurfaceStencilEdgeLength(vtkIdType id_node)
+{
+  double l_min, l_max;
+  computeMinAndMaxSurfaceStencilEdgeLengths(id_node, l_min, l_max);
+  return l_min;
+}
+
+double MeshPartition::getMaxSurfaceStencilEdgeLength(vtkIdType id_node)
+{
+  double l_min, l_max;
+  computeMinAndMaxSurfaceStencilEdgeLengths(id_node, l_min, l_max);
+  return l_max;
+}

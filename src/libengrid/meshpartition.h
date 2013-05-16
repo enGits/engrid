@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -197,6 +197,31 @@ public: // methods
    * @return the average length of all connected surface edges
    */
   double getAverageSurfaceEdgeLength(vtkIdType id_node);
+
+  /**
+   * @brief compute the minimal and maximal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @param l_min on return this will hold the minimal edge length
+   * @param l_max on return this will hold the maximal edge length
+   */
+  void computeMinAndMaxSurfaceStencilEdgeLengths(vtkIdType id_node, double &l_min, double &l_max);
+
+  /**
+   * @brief get the minimal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @return the minimal edge length
+   */
+  double getMinSurfaceStencilEdgeLength(vtkIdType id_node);
+
+  /**
+   * @brief get the maximal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @return the maximal edge length
+   */
+  double getMaxSurfaceStencilEdgeLength(vtkIdType id_node);
 
   vtkIdType getVolumeCell(vtkIdType id_face);
 
