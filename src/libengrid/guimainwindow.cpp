@@ -77,7 +77,7 @@ using namespace GeometryTools;
 #include "engrid_version.h"
 
 QString GuiMainWindow::m_cwd = ".";
-QSettings GuiMainWindow::m_qset("enGits","enGrid");
+QSettings GuiMainWindow::m_qset("enGits", QString("enGrid-") + ENGRID_VERSION_STRING);
 GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
 bool GuiMainWindow::m_UnSaved = true;
