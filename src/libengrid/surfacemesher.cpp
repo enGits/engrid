@@ -23,6 +23,7 @@
 
 #include "surfacemesher.h"
 #include "guimainwindow.h"
+#include "meshqualityfaceorientation.h"
 
 #include "laplacesmoother.h"
 
@@ -94,6 +95,9 @@ void SurfaceMesher::operate()
     }
     cout << "  change ratio : " << change_ratio << "%" << endl;
     cout << "  fluctuation ratio : " << fluctuation_ratio << "%" << endl;
+    MeshQualityFaceOrientation quality1;
+    quality1();
+    quality1.printCellInfo(2);
   }
   createIndices(m_Grid);
   updateNodeInfo();
