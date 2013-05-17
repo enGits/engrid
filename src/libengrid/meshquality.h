@@ -28,6 +28,11 @@
 class MeshQuality : public Operation
 {
 
+protected: // attributes
+
+  QString m_Name;
+
+
 protected: // methods
 
   void computeNodesFromCells();
@@ -36,6 +41,8 @@ protected: // methods
 public: // methods
 
   MeshQuality();
+  void printCellInfo(int indent = 0);
+  QString name() { return m_Name; }
 
 };
 

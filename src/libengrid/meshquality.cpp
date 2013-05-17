@@ -24,6 +24,7 @@
 
 MeshQuality::MeshQuality()
 {
+  m_Name = "unknown mesh quality";
 }
 
 void MeshQuality::computeNodesFromCells()
@@ -38,4 +39,25 @@ void MeshQuality::computeNodesFromCells()
     }
     node_mesh_quality->SetValue(id_node, mq);
   }
+}
+
+void MeshQuality::printCellInfo(int indent)
+{
+  double min_quality = 1e99;
+  double max_quality = 0;
+  double mean_quality = 0;
+  EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, m_Grid, "cell_mesh_quality");
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    double q = cell_mesh_quality->GetValue(id_cell);
+    min_quality = min(q, min_quality);
+    max_quality = max(q, max_quality);
+    mean_quality += q;
+  }
+  mean_quality /= m_Grid->GetNumberOfCells();
+  QString indent_str;
+  indent_str.fill(' ', indent);
+  cout << qPrintable(indent_str) << qPrintable(name()) << endl;
+  cout << qPrintable(indent_str) << "min  : " << min_quality << endl;
+  cout << qPrintable(indent_str) << "mean : " << mean_quality << endl;
+  cout << qPrintable(indent_str) << "max  : " << max_quality << endl;
 }
