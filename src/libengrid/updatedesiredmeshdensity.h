@@ -41,6 +41,7 @@ private: // data types
     vec3_t n;
     double L;
     QList<int> idx;
+    vtkIdType id_face;
   };
 
 private: //attributes

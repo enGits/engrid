@@ -37,7 +37,10 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   m_MinEdgeLength = 0.0;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
-  m_FeatureThresholdAngle = deg2rad(45.0);
+
+  getSet("surface meshing", "threshold angle for feature resolution", 20, m_FeatureThresholdAngle);
+  m_FeatureThresholdAngle = deg2rad(m_FeatureThresholdAngle);
+
 }
 
 double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)
@@ -199,6 +202,19 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       P.n = cellNormal(m_Grid, id_face);
       P.n.normalise();
       P.n *= -1;
+      P.id_face = id_face;
+      CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_face));
+      vec3_t x0 = P.x;
+      double r;
+      //if (cad->shootRay(P.x, P.n, xp, np, r) != CadInterface::Miss) {
+      P.x = cad->project(x0, P.n);
+      if (!cad->failed()) {
+        P.n = -1*cad->getLastNormal();
+        P.x = cad->project(x0, P.n);
+        if (!cad->failed()) {
+          P.n = -1*cad->getLastNormal();
+        }
+      }
       for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         P.idx.append(m_Part.localNode(pts[i_pts]));
       }
