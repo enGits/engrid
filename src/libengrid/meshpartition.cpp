@@ -455,3 +455,16 @@ double MeshPartition::getMaxSurfaceStencilEdgeLength(vtkIdType id_node)
   computeMinAndMaxSurfaceStencilEdgeLengths(id_node, l_min, l_max);
   return l_max;
 }
+
+int MeshPartition::getNumberOfFeatureNeighbours(vtkIdType id_node)
+{
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  int N = 0;
+  for (int i = 0; i < n2nGSize(id_node); ++i) {
+    char type = node_type->GetValue(n2nGG(id_node, i));
+    if (type == EG_FEATURE_EDGE_VERTEX || type == EG_FEATURE_CORNER_VERTEX) {
+      ++N;
+    }
+  }
+  return N;
+}

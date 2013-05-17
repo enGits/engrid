@@ -267,6 +267,8 @@ public: // methods
   template <typename C>
   void getGlobalN2N(vtkIdType id_node, C& cont);
 
+  int getNumberOfFeatureNeighbours(vtkIdType id_node);
+
 };
 
 
