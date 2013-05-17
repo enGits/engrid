@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -247,9 +247,14 @@ char InsertPoints::getNewNodeType(stencil_t S)
           return EG_BOUNDARY_EDGE_VERTEX;
         } else {
 
+          // count feature (edge and corner) vertices for node 1
           // "cutting corners" might lead to wrong feature edge vertices
-          //return EG_SIMPLE_VERTEX;
-          return EG_FEATURE_EDGE_VERTEX;
+          //return EG_FEATURE_EDGE_VERTEX;
+
+          if (m_Part.getNumberOfFeatureNeighbours(id_node1) == 2 && m_Part.getNumberOfFeatureNeighbours(id_node2) == 2) {
+            return EG_FEATURE_EDGE_VERTEX;
+          }
+          return EG_SIMPLE_VERTEX;
         }
       }
     } else {
