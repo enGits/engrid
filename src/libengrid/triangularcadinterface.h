@@ -28,7 +28,7 @@
 #include "facefinder.h"
 #include "surfacealgorithm.h"
 
-class TriangularCadInterface : public CadInterface, public SurfaceAlgorithm
+class TriangularCadInterface : public CadInterface
 {
 
 private: // methods
