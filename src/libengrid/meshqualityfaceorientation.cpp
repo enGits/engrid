@@ -39,7 +39,7 @@ void MeshQualityFaceOrientation::operate()
         //proj->snapNode(x_face, -1);
         cad_interface->project(x_face, n_face);
         if (cad_interface->failed()) {
-          cell_mesh_quality->SetValue(id_cell, 0.0);
+          cell_mesh_quality->SetValue(id_cell, 1.0);
         } else {
           vec3_t n_surf = cad_interface->getLastNormal();
           double mq = 0.5*(n_surf*n_face + 1);
