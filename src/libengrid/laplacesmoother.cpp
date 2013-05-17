@@ -38,7 +38,7 @@ LaplaceSmoother::LaplaceSmoother() : SurfaceOperation()
   m_UseProjection = true;
   //   m_UseNormalCorrection = false;
   getSet("surface meshing", "under relaxation for smoothing", 0.5, m_UnderRelaxation);
-  getSet("surface meshing", "feature magic", 0.0, m_FeatureMagic);
+  getSet("surface meshing", "feature magic", 1.0, m_FeatureMagic);
   getSet("surface meshing", "smoothing limiter", 1.0, m_Limit);
   getSet("surface meshing", "use uniform smoothing", false, m_UniformSnapPoints);
   m_Limit = min(1.0, max(0.0, m_Limit));
