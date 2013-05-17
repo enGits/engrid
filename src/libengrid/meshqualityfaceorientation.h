@@ -32,6 +32,11 @@ protected: // methods
 
   virtual void operate();
 
+
+public: // methods
+
+  MeshQualityFaceOrientation() { m_Name = "face orientation quality"; }
+
 };
 
 #endif // MESHQUALITYFACEORIENTATION_H
