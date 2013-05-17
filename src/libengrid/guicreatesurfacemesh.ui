@@ -424,6 +424,32 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditMaximalEdgeLength</tabstop>
+  <tabstop>lineEditMinimalEdgeLength</tabstop>
+  <tabstop>lineEditGrowthFactor</tabstop>
+  <tabstop>doubleSpinBoxCurvature</tabstop>
+  <tabstop>doubleSpinBox2DFeature</tabstop>
+  <tabstop>doubleSpinBox3DFeature</tabstop>
+  <tabstop>listWidget</tabstop>
+  <tabstop>textEdit</tabstop>
+  <tabstop>pushButton_SelectAll_BC</tabstop>
+  <tabstop>pushButton_ClearAll_BC</tabstop>
+  <tabstop>listWidgetSources</tabstop>
+  <tabstop>pushButtonAddSphere</tabstop>
+  <tabstop>pushButtonAddCone</tabstop>
+  <tabstop>pushButtonAddBox</tabstop>
+  <tabstop>pushButtonAddPipe</tabstop>
+  <tabstop>pushButtonEditSource</tabstop>
+  <tabstop>pushButtonDeleteSource</tabstop>
+  <tabstop>listWidgetPrismaticLayers</tabstop>
+  <tabstop>textEditPrismaticLayers</tabstop>
+  <tabstop>pushButton_SelectAll_BC_2</tabstop>
+  <tabstop>pushButton_ClearAll_BC_2</tabstop>
+  <tabstop>pushButtonHelp</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+ </tabstops>
  <resources>
   <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>
