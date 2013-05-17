@@ -147,7 +147,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_int
       vec3_t n   = cad_interface->getLastNormal();
       double l   = cl->GetValue(id_node);
       double eps = 0.01*l;
-      vec3_t mv  = l*m_NodeNormal[id_node];
+      vec3_t mv  = m_FeatureMagic*l*m_NodeNormal[id_node];
       mv -= (n*mv)*n;
 
       if (checkVector(mv)) {
@@ -188,7 +188,7 @@ void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_int
           }
         }
         if (hits > 0) {
-          x_new = x1 + L1*m_FeatureMagic*amp*mv;
+          x_new = x1 + L1*amp*mv;
           x_new = cad_interface->projectNode(id_node, x_new, n, false, m_CorrectCurvature);
           if (cad_interface->failed()) {
             cout << "bad!" << endl;
