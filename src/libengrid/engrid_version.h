@@ -27,7 +27,10 @@
   #define ENGRID_VERSION "dev-1.5"
 #endif
 #define ENGRID_VERSION_STRING "dev-1.5"
-//#define ENGRID_VERSION_FULLVER 1,4,0,0
+
+//Needed at least on Windows
+#define ENGRID_VERSION_FULLVER 1,5,0,0
+
 #define ENGRID_COMPANY_NAME "enGits GmbH"
 #define ENGRID_DESCRIPTION "enGrid is an open-source mesh generation software with CFD applications in mind."
 #define ENGRID_COPYRIGHT "GNU Public License (GPL). Developed by enGits GmbH - http://engits.eu"
