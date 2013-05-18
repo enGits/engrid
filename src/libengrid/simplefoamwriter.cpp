@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -79,7 +79,7 @@ vtkIdType SimpleFoamWriter::getNeigh(int i_cells, int i_neigh)
   l2l_t c2c   = getPartC2C();
   int n = c2c[i_cells][i_neigh]; 
   if (n >= 0) return cells[n]; 
-  EG_BUG;
+  EG_ERR_RETURN("The grid is not suitable for OpenFOAM export (e.g. missing volume mesh).");
   return -1;
 }
 

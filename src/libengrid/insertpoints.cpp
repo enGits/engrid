@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -246,7 +246,15 @@ char InsertPoints::getNewNodeType(stencil_t S)
         if (cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1])) {
           return EG_BOUNDARY_EDGE_VERTEX;
         } else {
-          return EG_FEATURE_EDGE_VERTEX;
+
+          // count feature (edge and corner) vertices for node 1
+          // "cutting corners" might lead to wrong feature edge vertices
+          //return EG_FEATURE_EDGE_VERTEX;
+
+          if (m_Part.getNumberOfFeatureNeighbours(id_node1) == 2 && m_Part.getNumberOfFeatureNeighbours(id_node2) == 2) {
+            return EG_FEATURE_EDGE_VERTEX;
+          }
+          return EG_SIMPLE_VERTEX;
         }
       }
     } else {

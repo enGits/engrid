@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -23,6 +23,7 @@
 
 #include "surfacemesher.h"
 #include "guimainwindow.h"
+#include "meshqualityfaceorientation.h"
 
 #include "laplacesmoother.h"
 
@@ -39,8 +40,8 @@ SurfaceMesher::SurfaceMesher() : SurfaceAlgorithm()
 
 void SurfaceMesher::operate()
 {
-  if (!GuiMainWindow::pointer()->checkSurfProj()) {
-    GuiMainWindow::pointer()->storeSurfaceProjection();
+  if (!GuiMainWindow::pointer()->checkCadInterfaces()) {
+    GuiMainWindow::pointer()->storeCadInterfaces();
   }
   prepare();
   //computeMeshDensity(); //!!
@@ -94,6 +95,9 @@ void SurfaceMesher::operate()
     }
     cout << "  change ratio : " << change_ratio << "%" << endl;
     cout << "  fluctuation ratio : " << fluctuation_ratio << "%" << endl;
+    MeshQualityFaceOrientation quality1;
+    quality1();
+    quality1.printCellInfo(2);
   }
   createIndices(m_Grid);
   updateNodeInfo();

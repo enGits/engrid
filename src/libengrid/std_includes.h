@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -60,13 +60,11 @@
 #include "seligairfoilreader.h"
 #include "blenderreader.h"
 #include "blenderwriter.h"
-#include "sharpenedges.h"
 #include "checkforoverlap.h"
 #include "guisurfacemesher.h"
-#include "orthogonalityoptimiser.h"
 #include "brlcadreader.h"
 #include "su2writer.h"
-#include "guibooleangeometryoperation.h"
 #include "dolfynwriter.h"
+#include "tauwriter.h"
 
 // -------------------------------------------

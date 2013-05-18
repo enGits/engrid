@@ -21,28 +21,35 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 
-#ifndef SHARPENEDGES_H
-#define SHARPENEDGES_H
+#ifndef GUIEDGELENGTHSOURCEPIPE_H
+#define GUIEDGELENGTHSOURCEPIPE_H
 
-#include "surfacealgorithm.h"
+#include "edgelengthsource.h"
+#include "ui_guiedgelengthsourcepipe.h"
 
-class SharpenEdges : public SurfaceAlgorithm
+
+class GuiEdgeLengthSourcePipe : public GuiEdgeLengthSource<Ui::GuiEdgeLengthSourcePipe>
 {
+protected: // attributes
 
-private: // methods
-
-  void assignBCs();
-
-
-protected: // methods
-
-  virtual void operate();
+  vec3_t m_X1;
+  vec3_t m_X2;
+  double m_R1;
+  double m_R2;
+  double m_Length1;
+  double m_Length2;
 
 
 public: // methods
 
-  SharpenEdges();
+  GuiEdgeLengthSourcePipe();
+
+  virtual bool    read(QString txt);
+  virtual QString write();
+  virtual void    setDlgFields();
+  virtual void    readDlgFields();
+  virtual double  edgeLength(vec3_t x);
 
 };
 
-#endif // SHARPENEDGES_H
+#endif // GUIEDGELENGTHSOURCECONE_H

@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,112 +20,58 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-#ifndef TRISURFACEPROJECTION_H
-#define TRISURFACEPROJECTION_H
+#ifndef TRIANGULARCADINTERFACE_H
+#define TRIANGULARCADINTERFACE_H
 
-class TriSurfaceProjection;
-
-#include "egvtkobject.h"
-#include "guimainwindow.h"
-#include "geometrytools.h"
-#include "vtkCharArray.h"
-#include "surfaceoperation.h"
-#include "surfaceprojection.h"
+#include "cadinterface.h"
 #include "triangle.h"
 #include "facefinder.h"
+#include "surfacealgorithm.h"
 
-class TriSurfaceProjection : public SurfaceProjection
+class TriangularCadInterface : public CadInterface
 {
-
-private: // data-types
-
-  struct Edge
-  {
-    vec3_t a, b;
-    vec3_t v;
-    vec3_t na, nb;
-    double La, Lb;
-  };
 
 private: // methods
 
   template <class C>
   void setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells); ///< copy the cells from grid to m_BGrid
 
+  void updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
+  void computeSurfaceCurvature();
+
 protected: // attributes
 
-  vtkUnstructuredGrid*      m_BGrid; ///< the background grid defining the geometry
+  vtkUnstructuredGrid*      m_BGrid;       ///< the background grid defining the geometry
   MeshPartition             m_BPart;
-  QVector<double>           m_EdgeLength;
   QVector<vtkIdType>        m_Cells;
   QVector<vtkIdType>        m_Nodes;
   QVector<vec3_t>           m_NodeNormals; ///< The surface normal at each node of m_BGrid
-  QVector<Triangle>         m_Triangles; ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
-  QVector<double>           m_Radius; ///< Surface radius for mesh resolution.
+  QVector<Triangle>         m_Triangles;   ///< All triangles of m_BGrid. One for each triangle cell of m_BGrid.
+  QVector<double>           m_Radius;      ///< Surface radius for mesh resolution.
   QVector<QVector<int> >    m_N2N;
   double                    m_CritDistance;
-  QMap<vtkIdType,vtkIdType> m_Pindex;
   FaceFinder                m_FaceFinder;
-  bool                      m_RestrictToTriangle;
-  vtkIdType                 m_LastProjTriangle;
 
-protected: // static attributes
-
-  static vtkIdType m_LastPindex;
 
 protected: // methods
 
-  virtual void   updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
+  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
+  virtual vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
 
-  void      searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
-  vtkIdType getProjTriangle(vtkIdType id_node);
-  void      setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
-  void      computeSurfaceCurvature();
 
-public: // methods
+public:
 
-  TriSurfaceProjection();
-  ~TriSurfaceProjection();
-  
+  TriangularCadInterface();
+
+  virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t correctCurvature(vec3_t x);
+
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
-
-  virtual vec3_t    project(vec3_t x, vtkIdType id_node = -1, bool correct_curvature = false, vec3_t v = vec3_t(0,0,0), bool strict_direction = false);
-  virtual double    getRadius(vtkIdType id_node);
-  virtual vec3_t    correctCurvature(vtkIdType proj_triangle, vec3_t x);
-  virtual vec3_t    lastProjNormal() { return GeometryTools::cellNormal(m_BGrid, m_LastProjTriangle); }
-  virtual double    lastProjRadius() { EG_BUG; return 0; }
-  virtual vtkIdType lastProjTriangle() { return m_LastProjTriangle; }
-  virtual bool      lastProjFailed() { return false; }
-
-
-  vtkUnstructuredGrid* getBGrid() { return m_BGrid; }
-
-public: // static methods
-
-  static void resetPindex() { m_LastPindex = 0; }
 
 };
 
-
 template <class C>
-void TriSurfaceProjection::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
-{
-  setBackgroundGrid_setupGrid(grid, cells);
-  updateBackgroundGridInfo();
-  setForegroundGrid(grid);
-  for (vtkIdType id_cell = 0; id_cell < m_BGrid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_BGrid->GetCellPoints(id_cell, N_pts, pts);
-    for (int i = 0; i < N_pts; ++i) {
-      setProjTriangle(pts[i], id_cell);
-    }
-  }
-  m_FaceFinder.setMaxNumFaces(10);
-  m_FaceFinder.setGrid(m_BGrid);
-}
-
-template <class C>
-void TriSurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid, const C& cells)
+void TriangularCadInterface::setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells)
 {
   QVector<vtkIdType> nodes;
   getNodesFromCells(cells, nodes, grid);
@@ -137,7 +83,7 @@ void TriSurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid
     }
   }
   allocateGrid(m_BGrid, num_new_cells, nodes.size());
-  
+
   QVector<vtkIdType> _nodes(grid->GetNumberOfPoints());
   vtkIdType id_new_node = 0;
   foreach (vtkIdType id_node, nodes) {
@@ -174,6 +120,9 @@ void TriSurfaceProjection::setBackgroundGrid_setupGrid(vtkUnstructuredGrid* grid
       EG_BUG;
     }
   }
+  updateBackgroundGridInfo();
+  m_FaceFinder.setMaxNumFaces(10);
+  m_FaceFinder.setGrid(m_BGrid);
 }
 
-#endif // TRISURFACEPROJECTION_H
+#endif // TRIANGULARCADINTERFACE_H

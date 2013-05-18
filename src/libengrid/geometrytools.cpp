@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -664,6 +664,27 @@ vec3_t projectPointOnEdge(const vec3_t& M,const vec3_t& A, const vec3_t& u)
   if(u.abs2()==0) EG_BUG;
   double k = ((M-A)*u)/u.abs2();
   return A + k*u;
+}
+
+void cart2spherical(vec3_t x, double &alpha, double &beta, double &r)
+{
+  r = x.abs();
+  static const vec3_t ex(1,0,0);
+  vec3_t xy(x[0],x[1],0);
+  if (x[1] >= 0) {
+    alpha = angle(ex, xy);
+  } else {
+    alpha = 2*M_PI - angle(xy, ex);
+  }
+  if (xy.abs2() > 0) {
+    if (x[2] >= 0) {
+      beta = angle(xy, x);
+    } else {
+      beta = -angle(xy, x);
+    }
+  } else {
+    beta = 0.5*M_PI;
+  }
 }
 
 } // namespace

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #include "su2writer.h"
 #include "guimainwindow.h"
@@ -76,6 +76,7 @@ void Su2Writer::writeNodes()
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
+    f.setRealNumberPrecision(16);
     f << x[0] << " " << x[1] << " " << x[2] << " " << id_node << "\n";
   }
 }

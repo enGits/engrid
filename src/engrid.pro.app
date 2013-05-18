@@ -28,6 +28,11 @@ win32-msvc* {
     QMAKE_CXXFLAGS += -Wno-deprecated
 }
 
+# OpenMP
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -lgomp
+
+
 INCLUDEPATH += ./libengrid
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../engrid-build
@@ -56,7 +61,12 @@ win32-msvc* {
     LIBS += -lm
     LIBS += -ltcl8.5
     LIBS += -L./libengrid -lengrid
-    LIBS += -L./netgen_svn -lng
+
+    debian {
+        LIBS += -lnglib
+    } else {
+        LIBS += -L./netgen_svn -lng
+    }
 
     LIBS        += -L$(VTKLIBDIR)
     LIBS        += -lQVTK
@@ -75,7 +85,8 @@ win32-msvc* {
     LIBS        += -lvtksys
     LIBS        += -lvtkVolumeRendering
     LIBS        += -lvtkWidgets
-    LIBS        += /usr/brlcad/lib/librt.so
+    LIBS        += -L$(BRLCADLIBDIR)
+    LIBS        += $(BRLCADLIBDIR)/librt.so
 }
 
 OTHER_FILES += checkcomments.py todo.txt
@@ -83,4 +94,4 @@ RESOURCES   += libengrid/engrid.qrc
 
 SOURCES = main.cpp
 
- 
+

@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -28,6 +28,7 @@ void GuiSurfaceMesher::before()
   m_Ui.m_SpinBoxDelaunaySweeps->setValue(m_NumDelaunaySweeps);
   m_Ui.m_SpinBoxSmoothSteps->setValue(m_NumSmoothSteps);
   m_Ui.m_CheckBoxSmooth->setChecked(m_CorrectCurvature);
+  m_Ui.m_CheckBoxBCodesFeatures->setChecked(m_BCodeFeatureDefinition);
 }
 
 void GuiSurfaceMesher::operate()
@@ -38,5 +39,6 @@ void GuiSurfaceMesher::operate()
   setCorrectCurvature(m_Ui.m_CheckBoxSmooth->isChecked());
   setDeleteNodes(m_Ui.m_CheckBoxDelete->isChecked());
   setInsertNodes(m_Ui.m_CheckBoxInsert->isChecked());
+  setBCodesFeatureDefinition(m_Ui.m_CheckBoxBCodesFeatures->isChecked());
   SurfaceMesher::operate();
 }

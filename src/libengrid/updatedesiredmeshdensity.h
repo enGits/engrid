@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -41,6 +41,7 @@ private: // data types
     vec3_t n;
     double L;
     QList<int> idx;
+    vtkIdType id_face;
   };
 
 private: //attributes
@@ -55,7 +56,6 @@ private: //attributes
   double                      m_FeatureResolution3D;
   double                      m_FeatureThresholdAngle;
   QVector<double>             m_FeatureSize;
-  int                         m_MinMumCellsAcross;
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;

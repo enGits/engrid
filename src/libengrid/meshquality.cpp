@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,29 +19,45 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-#ifndef GUIBOOLEANGEOMETRYOPERATION_H
-#define GUIBOOLEANGEOMETRYOPERATION_H
+// 
+#include "meshquality.h"
 
-class GuiBooleanGeometryOperation;
-
-#include "dialogoperation.h"
-#include "ui_guibooleangeometryoperation.h"
-
-class GuiBooleanGeometryOperation : public DialogOperation<Ui::GuiBooleanGeometryOperation, Operation>
+MeshQuality::MeshQuality()
 {
+  m_Name = "unknown mesh quality";
+}
 
-  Q_OBJECT
+void MeshQuality::computeNodesFromCells()
+{
+  EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
+  EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, m_Grid, "cell_mesh_quality");
+  EG_FORALL_NODES(id_node, m_Grid) {
+    double mq = 1;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      mq = min(cell_mesh_quality->GetValue(id_cell), mq);
+    }
+    node_mesh_quality->SetValue(id_node, mq);
+  }
+}
 
-protected: // methods
-
-  virtual void before();
-  virtual void operate();
-
-public:
-
-  GuiBooleanGeometryOperation();
-
-};
-
-#endif // GUIBOOLEANGEOMETRYOPERATION_H
+void MeshQuality::printCellInfo(int indent)
+{
+  double min_quality = 1e99;
+  double max_quality = 0;
+  double mean_quality = 0;
+  EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, m_Grid, "cell_mesh_quality");
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    double q = cell_mesh_quality->GetValue(id_cell);
+    min_quality = min(q, min_quality);
+    max_quality = max(q, max_quality);
+    mean_quality += q;
+  }
+  mean_quality /= m_Grid->GetNumberOfCells();
+  QString indent_str;
+  indent_str.fill(' ', indent);
+  cout << qPrintable(indent_str) << qPrintable(name()) << endl;
+  cout << qPrintable(indent_str) << "min  : " << min_quality << endl;
+  cout << qPrintable(indent_str) << "mean : " << mean_quality << endl;
+  cout << qPrintable(indent_str) << "max  : " << max_quality << endl;
+}

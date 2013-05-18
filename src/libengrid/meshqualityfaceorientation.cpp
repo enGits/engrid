@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,34 +19,38 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-#include "createbrlcadtesselation.h"
+// 
+#include "meshqualityfaceorientation.h"
+#include "geometrytools.h"
+#include "guimainwindow.h"
 
-CreateBrlCadTesselation::CreateBrlCadTesselation(QString file_name, QString object_name)
+void MeshQualityFaceOrientation::operate()
 {
-  setupBrlCad(file_name, object_name);
-}
-
-bool CreateBrlCadTesselation::shootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out)
-{
-  v.normalise();
-  double r_hit;
-  vec3_t x_hit, n_hit;
-  BrlCadInterface::HitType hit_type = BrlCadInterface::shootRay(x, v, x_hit, n_hit, r_hit);
-  if (hit_type == BrlCadInterface::Miss || hit_type == BrlCadInterface::HitOut) {
-    return false;
-  }
-  x_in = x_hit;
-  n_in = n_hit;
-  x = x_in;
-  do {
-    x += 1e-10*v;
-    hit_type = BrlCadInterface::shootRay(x, v, x_hit, n_hit, r_hit);
-    if (hit_type == BrlCadInterface::HitOut) {
-      x_out = x_hit;
-      n_out = n_hit;
+  using namespace GeometryTools;
+  EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, m_Grid, "cell_mesh_quality");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    if (isSurface(id_cell, m_Grid)) {
+      vec3_t x_face = cellCentre(m_Grid, id_cell);
+      vec3_t n_face = cellNormal(m_Grid, id_cell);
+      n_face.normalise();
+      CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell), true);
+      if (cad_interface) {
+        //proj->snapNode(x_face, -1);
+        cad_interface->project(x_face, n_face);
+        if (cad_interface->failed()) {
+          cell_mesh_quality->SetValue(id_cell, 1.0);
+        } else {
+          vec3_t n_surf = cad_interface->getLastNormal();
+          double mq = 0.5*(n_surf*n_face + 1);
+          cell_mesh_quality->SetValue(id_cell, mq);
+        }
+      } else {
+        cell_mesh_quality->SetValue(id_cell, 1.0);
+      }
+    } else {
+      cell_mesh_quality->SetValue(id_cell, 1.0);
     }
-    x = x_hit;
-  } while (hit_type == BrlCadInterface::HitIn);
-  return true;
+  }
+  computeNodesFromCells();
 }

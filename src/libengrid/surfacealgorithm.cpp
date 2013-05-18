@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -116,6 +116,7 @@ void SurfaceAlgorithm::swap()
   swap.setFeatureAngle(m_FeatureAngle);
   swap.setMaxNumLoops(m_NumDelaunaySweeps);
   swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
+  swap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
   QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   rest_bcs -= m_BoundaryCodes;
   swap.setBoundaryCodes(rest_bcs);
@@ -132,6 +133,7 @@ void SurfaceAlgorithm::smooth(int N_iter, bool correct_curveture)
   lap.setNumberOfIterations(N_iter);
   lap.setBoundaryCodes(m_BoundaryCodes);//IMPORTANT: so that unselected nodes become fixed when node types are updated!
   lap.setCorrectCurvature(correct_curveture);
+  lap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
   if (m_UseProjectionForSmoothing) {
     lap.setProjectionOn();
   } else {
@@ -152,6 +154,7 @@ int SurfaceAlgorithm::insertNodes()
     InsertPoints insert_points;
     insert_points.setGrid(m_Grid);
     insert_points.setBoundaryCodes(m_BoundaryCodes);
+    insert_points.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
     insert_points();
     return insert_points.getNumInserted();
   }
@@ -166,6 +169,7 @@ int SurfaceAlgorithm::deleteNodes()
     remove_points.setBoundaryCodes(m_BoundaryCodes);
     remove_points.setStretchingFactor(m_StretchingFactor);
     remove_points.setFeatureAngle(m_FeatureAngle);
+    remove_points.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
     if (m_RespectFeatureEdgesForDeleteNodes) {
       remove_points.setProtectFeatureEdgesOn();
     } else {

@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -38,7 +38,7 @@
 #include "guieditboundaryconditions.h"
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
-#include "trisurfaceprojection.h"
+#include "triangularcadinterface.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -77,7 +77,7 @@ using namespace GeometryTools;
 #include "engrid_version.h"
 
 QString GuiMainWindow::m_cwd = ".";
-QSettings GuiMainWindow::m_qset("enGits","enGrid");
+QSettings GuiMainWindow::m_qset("enGits", QString("enGrid-") + ENGRID_VERSION_STRING);
 GuiMainWindow* GuiMainWindow::THIS = NULL;
 QMutex GuiMainWindow::m_Mutex;
 bool GuiMainWindow::m_UnSaved = true;
@@ -271,7 +271,7 @@ void GuiMainWindow::setupGuiMainWindow()
   m_EscAction->setShortcut(QKeySequence(Qt::Key_Escape));
   connect(m_EscAction, SIGNAL(triggered()), this, SLOT(onEsc()));
 
-  m_UniSurfProj = NULL;
+  m_UniCadInterface = NULL;
 }
 //end of GuiMainWindow::GuiMainWindow() : QMainWindow(NULL)
 
@@ -1255,12 +1255,12 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   if(update_current_filename) {
     GuiMainWindow::setCwd(QFileInfo(file_name).absolutePath());
   }
-  resetSurfaceProjection();
+  resetCadInterfaces();
   {
     QFile geo_file(file_name + ".geo.vtu");
     if (geo_file.exists()) {
       openGrid(file_name + ".geo");
-      storeSurfaceProjection(true);
+      storeCadInterfaces(true);
     }
   }
   openGrid(grid_file_name);
@@ -1948,7 +1948,7 @@ void GuiMainWindow::configure()
     try {
       GridSmoother tmp01;
       GuiCreateBoundaryLayer tmp02;
-      TriSurfaceProjection tmp03;
+      //TriSurfaceProjection tmp03;
       SurfaceMesher tmp04;
       UpdateDesiredMeshDensity tmp05;
       InsertPoints tmp06;
@@ -2114,18 +2114,19 @@ void GuiMainWindow::markOutputLine()
   cout << "\n****************************************\n" << endl;
 }
 
-void GuiMainWindow::storeSurfaceProjection(bool nosave)
+void GuiMainWindow::storeCadInterfaces(bool nosave)
 {
   try {
-    resetSurfaceProjection();
+    resetCadInterfaces();
     foreach (int bc, m_AllBoundaryCodes) {
-      TriSurfaceProjection *proj = new TriSurfaceProjection();
-      m_SurfProj[bc] = proj;
+      TriangularCadInterface* tricad_interface = new TriangularCadInterface();
       QSet<int> bcs;
       bcs.insert(bc);
       QVector<vtkIdType> cls;
       getSurfaceCells(bcs, cls, m_Grid);
-      proj->setBackgroundGrid(m_Grid, cls);
+      tricad_interface->setBackgroundGrid(m_Grid, cls);
+      m_CadInterfaces[bc] = tricad_interface;
+      tricad_interface->setForegroundGrid(m_Grid);
     }
     if (!nosave) {
       save();
@@ -2136,55 +2137,47 @@ void GuiMainWindow::storeSurfaceProjection(bool nosave)
   }
 }
 
-void GuiMainWindow::setUniversalSurfProj(SurfaceProjection *surf_proj)
+void GuiMainWindow::setUniversalCadInterface(CadInterface *cad_interface)
 {
-  m_UniSurfProj = surf_proj;
-  surf_proj->setForegroundGrid(m_Grid);
+  m_UniCadInterface = cad_interface;
+  cad_interface->setForegroundGrid(m_Grid);
 }
 
-void GuiMainWindow::resetSurfaceProjection()
+void GuiMainWindow::resetCadInterfaces()
 {
-  delete m_UniSurfProj;
-  m_UniSurfProj = NULL;
-  foreach (SurfaceProjection* proj, m_SurfProj) {
-    delete proj;
+  delete m_UniCadInterface;
+  m_UniCadInterface = NULL;
+  foreach (CadInterface* cad_interface, m_CadInterfaces) {
+    delete cad_interface;
   }
-  m_SurfProj.clear();
-  try {
-    EG_VTKDCN(vtkLongArray_t, pindex, m_Grid, "node_pindex");
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      pindex->SetValue(id_node, -1);
-    }
-    TriSurfaceProjection::resetPindex();
-  } catch (Error) {
-  }
+  m_CadInterfaces.clear();
 }
 
-SurfaceProjection* GuiMainWindow::getSurfProj(int bc, bool allow_null)
+CadInterface *GuiMainWindow::getCadInterface(int bc, bool allow_null)
 {
   QString bc_txt;
   bc_txt.setNum(bc);
-  if (!m_SurfProj.contains(bc)) {
+  if (!m_CadInterfaces.contains(bc)) {
     bc = 0;
   }
-  if (!m_SurfProj.contains(bc)) {
-    if (m_UniSurfProj) {
-      return m_UniSurfProj;
+  if (!m_CadInterfaces.contains(bc)) {
+    if (m_UniCadInterface) {
+      return m_UniCadInterface;
     }
     if (allow_null) {
       return NULL;
     }
     EG_ERR_RETURN("No surface projection found for boundary code " + bc_txt);
   }
-  return m_SurfProj[bc];
+  return m_CadInterfaces[bc];
 }
 
-bool GuiMainWindow::checkSurfProj()
+bool GuiMainWindow::checkCadInterfaces()
 {
   bool ok = true;
-  if (!m_UniSurfProj) {
+  if (!m_UniCadInterface) {
     foreach (int bc, m_AllBoundaryCodes) {
-      if (!m_SurfProj.contains(bc)) {
+      if (!m_CadInterfaces.contains(bc)) {
         ok = false;
         break;
       }

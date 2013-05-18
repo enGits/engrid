@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                      +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -320,7 +320,7 @@ void MeshPartition::createNodeToBC()
 {
   EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
   m_N2BC.resize(m_Nodes.size());
-  foreach (int i_node, m_Nodes) {
+  for (int i_node = 0; i_node < m_Nodes.size(); ++i_node) {
     QSet<int> bcs;
     for (int j = 0; j < n2cLSize(i_node); ++j) {
       vtkIdType id_cell = n2cLG(i_node, j);
@@ -349,6 +349,9 @@ bool MeshPartition::hasBC(vtkIdType id_node, int bc)
 
 vtkIdType MeshPartition::getVolumeCell(vtkIdType id_face)
 {
+  checkLNodes();
+  checkLCells();
+  checkN2C();
   return findVolumeCell(m_Grid, id_face, m_LNodes, m_Cells, m_LCells, m_N2C);
 }
 
@@ -417,3 +420,51 @@ double MeshPartition::getAverageSurfaceEdgeLength(vtkIdType id_node)
   return L;
 }
 
+void MeshPartition::computeMinAndMaxSurfaceStencilEdgeLengths(vtkIdType id_node, double &l_min, double &l_max)
+{
+  l_min = 1e99;
+  l_max = 0;
+  for (int i = 0; i < n2cGSize(id_node); ++i) {
+    vtkIdType id_cell = n2cGG(id_node, i);
+    if (isSurface(id_cell, m_Grid)) {
+      vtkIdType *pts, num_pts;
+      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      vec3_t x1, x2;
+      m_Grid->GetPoint(pts[num_pts - 1], x1.data());
+      for (int j = 0; j < num_pts; ++j) {
+        m_Grid->GetPoint(pts[j], x2.data());
+        double L = (x1 - x2).abs();
+        l_min = min(L, l_min);
+        l_max = max(L, l_max);
+        x1 = x2;
+      }
+    }
+  }
+}
+
+double MeshPartition::getMinSurfaceStencilEdgeLength(vtkIdType id_node)
+{
+  double l_min, l_max;
+  computeMinAndMaxSurfaceStencilEdgeLengths(id_node, l_min, l_max);
+  return l_min;
+}
+
+double MeshPartition::getMaxSurfaceStencilEdgeLength(vtkIdType id_node)
+{
+  double l_min, l_max;
+  computeMinAndMaxSurfaceStencilEdgeLengths(id_node, l_min, l_max);
+  return l_max;
+}
+
+int MeshPartition::getNumberOfFeatureNeighbours(vtkIdType id_node)
+{
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  int N = 0;
+  for (int i = 0; i < n2nGSize(id_node); ++i) {
+    char type = node_type->GetValue(n2nGG(id_node, i));
+    if (type == EG_FEATURE_EDGE_VERTEX || type == EG_FEATURE_CORNER_VERTEX) {
+      ++N;
+    }
+  }
+  return N;
+}

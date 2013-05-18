@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -24,8 +24,8 @@
 #define LAPLACESMOOTHER_H
 
 #include "surfaceoperation.h"
-#include "surfaceprojection.h"
 #include "surfacenodemovementcheck.h"
+#include "cadinterface.h"
 
 class LaplaceSmoother : public SurfaceOperation
 {
@@ -57,7 +57,7 @@ private: // methods
 
   bool setNewPosition(vtkIdType id_node, vec3_t x_new);
   bool moveNode(vtkIdType id_node, vec3_t &Dx);
-  void featureCorrection(vtkIdType id_node, SurfaceProjection *proj, vec3_t &x_new);
+  void featureCorrection(vtkIdType id_node, CadInterface* cad_interface, vec3_t &x_new);
 
 
 public:

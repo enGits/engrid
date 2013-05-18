@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -72,6 +72,7 @@ public slots:
   void addSphere() { m_ELSManager.addSphere(); }
   void addCone()   { m_ELSManager.addCone(); }
   void addBox()    { m_ELSManager.addBox(); }
+  void addPipe()   { m_ELSManager.addPipe(); }
 
 };
 

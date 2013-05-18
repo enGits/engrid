@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -111,6 +111,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   connect(m_Ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
   connect(m_Ui.pushButtonAddCone,      SIGNAL(clicked()), this, SLOT(addCone()));
   connect(m_Ui.pushButtonAddBox,       SIGNAL(clicked()), this, SLOT(addBox()));
+  connect(m_Ui.pushButtonAddPipe,      SIGNAL(clicked()), this, SLOT(addPipe()));
   connect(m_Ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
   connect(m_Ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
 

@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -52,14 +52,17 @@ private:
    *  all neighbour points in case of simple points and the points belonging to edges in case of fixed points */
   QVector < QVector <vtkIdType> > m_PotentialSnapPoints;
 
-  void updatePotentialSnapPoints();
 
 protected: // attributes
 
   double m_FeatureAngle;
   double m_EdgeAngle;
-  int    m_BoundarySmoothing;
+  double m_FaceOrientationThreshold;
   bool   m_UniformSnapPoints;
+  bool   m_StrictFeatureSnap;
+  bool   m_BCodeFeatureDefinition;
+  int    m_TypeProtectionCount;
+
 
   QVector<vec3_t> m_NodeNormal; ///< node normal vectors
   QVector <VertexMeshDensity> m_VMDvector;
@@ -75,6 +78,8 @@ protected: // methods
   double normalIrregularity(vtkIdType id_node);
   void   readVMD();
   void   updateNodeInfo();
+  bool   checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2);
+  void   updatePotentialSnapPoints();
 
 
 public:
@@ -89,7 +94,8 @@ public:
 
   void setFeatureAngle(double FA)   { m_FeatureAngle = FA; }
   void setEdgeAngle(double EA)      { m_EdgeAngle = EA; }
-  void setBoundarySmoothing(int BS) { m_BoundarySmoothing = BS; }
+
+  void setBCodesFeatureDefinition(bool flag);
 
   double currentVertexAvgDist(vtkIdType id_node);                 ///< Returns the average distance of id_node to its neighbours
   double CurrentMeshDensity( vtkIdType id_node );                 ///< Returns 1/CurrentVertexAvgDist(id_node)
@@ -125,6 +131,10 @@ public:
   bool isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType id_node3);
 
   void setStretchingFactor(double sf) { m_StretchingFactor = sf; }
+
+  double getSurfaceDeviation(vtkIdType id_node);
+
+  bool isFeatureNode(vtkIdType id_node);
 
 };
 

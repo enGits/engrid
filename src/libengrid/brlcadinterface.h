@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #ifndef BRLCADINTERFACE_H
 #define BRLCADINTERFACE_H
@@ -33,16 +33,11 @@
 #include "brlcad/raytrace.h"
 #include "brlcad/common.h"
 
-#include "engrid.h"
 #include "utilities.h"
+#include "cadinterface.h"
 
-class BrlCadInterface
+class BrlCadInterface : public CadInterface
 {
-
-public: // data types
-
-  enum HitType { Miss, HitIn, HitOut };
-  enum PositionType { Inside, Outside, Surface };
 
 private: // attributes
 
@@ -69,14 +64,12 @@ protected: // methods
   static int hit(struct application *ap, struct partition *PartHeadp, struct seg *segs);
   static int miss(register struct application *ap);
 
-  HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
-  void setupBrlCad(QString file_name, QString object_name);
-  PositionType position(vec3_t x, vec3_t n);
-
 
 public:
 
-  BrlCadInterface();
+  BrlCadInterface(QString file_name, QString object_name);
+
+  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
 
 };
 

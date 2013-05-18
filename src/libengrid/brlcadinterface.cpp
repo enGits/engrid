@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +19,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
+// 
 
 #include "brlcadinterface.h"
 
@@ -31,11 +31,7 @@ bool   BrlCadInterface::m_Hit;
 double BrlCadInterface::m_InRadius;
 double BrlCadInterface::m_OutRadius;
 
-BrlCadInterface::BrlCadInterface()
-{
-}
-
-void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
+BrlCadInterface::BrlCadInterface(QString file_name, QString object_name)
 {
   m_Rtip = rt_dirbuild(qPrintable(file_name), m_IdBuf, sizeof(m_IdBuf));
   if (m_Rtip == RTI_NULL) {
@@ -52,7 +48,11 @@ void BrlCadInterface::setupBrlCad(QString file_name, QString object_name)
   application ap = {0};
   m_Ap = ap;
   m_Ap.a_rt_i   = m_Rtip;
-  m_Ap.a_onehit = 1;
+
+  setName("BRL-CAD interface");
+  m_ShootRayImplemented = true;
+
+  //m_Ap.a_onehit = 1;
 }
 
 int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs)
@@ -180,6 +180,7 @@ BrlCadInterface::HitType BrlCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x
   return hit_type;
 }
 
+/*
 BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 {
   vec3_t x_hit, n_hit;
@@ -204,3 +205,4 @@ BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
 
   return Surface;
 }
+*/

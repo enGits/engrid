@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -48,7 +48,7 @@ void appendLicense(int argc, char ** argv)
   if (year-first_year > 1) {
     year_text = first_year_text + "-" + year_text;
   };
-  QString year_end_text = "                                     +\n";
+  QString year_end_text = "                                      +\n";
   if (year == first_year) {
     year_end_text = "     " + year_end_text;
   };
@@ -192,28 +192,25 @@ double getNumber(QString text)
 int main( int argc, char ** argv )
 {
   /*
-  double a,b,c;
-  double x[3];
-  int N;
-
-  // x^3 + a x^2 + b x + c = 0
-  a = getNumber("a=");
-  b = getNumber("b=");
-  c = getNumber("c=");
-  N = poly_solve_cubic( a, b, c, &(x[0]), &(x[1]), &(x[2]));
-  qDebug()<<"x^3 + "<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
-  for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
-
-  // a x^2 + b x + c = 0
-  a = getNumber("a=");
-  b = getNumber("b=");
-  c = getNumber("c=");
-  N = poly_solve_quadratic( a, b, c, &(x[0]), &(x[1]));
-  qDebug()<<a<<" *x^2 + "<<b<<" *x + "<<c<<" = 0";
-  for(int i=0;i<N;i++) qDebug()<<"x["<<i<<"]="<<x[i];
+  double x, y, z, a, b, r;
+  cout << "x = "; cin >> x;
+  cout << "y = "; cin >> y;
+  cout << "z = "; cin >> z;
+  GeometryTools::cart2spherical(vec3_t(x,y,z), a, b, r);
+  cout << endl;
+  cout << "r     = " << r << endl;
+  cout << "alpha = " << GeometryTools::rad2deg(a) << endl;
+  cout << "beta  = " << GeometryTools::rad2deg(b) << endl;
+  vec3_t X = spherical2cart(a, b, r);
+  cout << "\nX[0]  = " << X[0] << endl;
+  cout << "X[1]  = " << X[1] << endl;
+  cout << "X[2]  = " << X[2] << endl;
   exit(0);
   */
 
+#ifdef QT_DEBUG
+  //omp_set_num_threads(1);
+#endif
   qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   int app_result=0;

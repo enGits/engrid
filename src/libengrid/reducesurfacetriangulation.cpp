@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,9 +20,8 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-
 #include "reducesurfacetriangulation.h"
-#include "trisurfaceprojection.h"
+#include "geometrytools.h"
 
 ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
 {
@@ -32,7 +31,7 @@ ReduceSurfaceTriangulation::ReduceSurfaceTriangulation()
   m_UseNormalCorrectionForSmoothing   = true;
   m_AllowFeatureEdgeSwapping          = true;
   m_RespectFeatureEdgesForDeleteNodes = true;
-  m_FeatureAngleForDeleteNodes        = deg2rad(20);
+  m_FeatureAngleForDeleteNodes        = GeometryTools::deg2rad(20);
 
   m_NumDelaunaySweeps = 10;
   m_NumSmoothSteps = 1;

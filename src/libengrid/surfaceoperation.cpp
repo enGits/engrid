@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -30,19 +30,24 @@
 #include <vtkPolygon.h>
 
 #include "geometrytools.h"
+#include "meshqualityfaceorientation.h"
+
 using namespace GeometryTools;
 
 SurfaceOperation::SurfaceOperation() : Operation()
 {
   //default values for determining node types and for smoothing operations
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
-  getSet("surface meshing", "feature angle", 180, m_FeatureAngle);
+  getSet("surface meshing", "feature angle", 20, m_FeatureAngle);
+  getSet("surface meshing", "boundary codes define features", true, m_BCodeFeatureDefinition);
+  getSet("surface meshing", "number of steps to protect node types", 2, m_TypeProtectionCount);
+  getSet("surface meshing", "threshold for face orientation quality", 0.1, m_FaceOrientationThreshold);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
   m_EdgeAngle = GeometryTools::deg2rad(m_EdgeAngle);
   setEdgeAngle(m_EdgeAngle);
-  m_BoundarySmoothing = 1;
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
+  m_StrictFeatureSnap = true;
 }
 
 void SurfaceOperation::operate()
@@ -116,6 +121,14 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   return S;
 }
 
+void SurfaceOperation::setBCodesFeatureDefinition(bool flag)
+{
+  m_BCodeFeatureDefinition = flag;
+  if (m_BCodeFeatureDefinition) {
+    m_FeatureAngle = deg2rad(180);
+  }
+}
+
 int SurfaceOperation::UpdateCurrentMeshDensity()
 {
   if ( DebugLevel > 0 ) {
@@ -184,9 +197,50 @@ void SurfaceOperation::updateNodeInfo()
   readVMD();
   l2g_t nodes = getPartNodes();
   computeNormals();
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   foreach (vtkIdType id_node, nodes) {
-    EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    node_type->SetValue(id_node, getNodeType(id_node, true));
+
+    char old_type = node_type->GetValue(id_node);
+    char new_type = getNodeType(id_node, true);
+
+    if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
+      //EG_BUG;
+    }
+
+    if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
+      node_type->SetValue(id_node, new_type);
+    } else {
+
+      bool done = false;
+
+      // EG_FEATURE_CORNER_VERTEX -> any other type
+      if (old_type == EG_FEATURE_CORNER_VERTEX && new_type != EG_FEATURE_CORNER_VERTEX) {
+        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
+          node_type->SetValue(id_node, new_type);
+        } else {
+          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
+        }
+        done = true;
+      }
+
+      // EG_FEATURE_EDGE_VERTEX -> EG_SIMPLE_VERTEX
+      if (old_type == EG_FEATURE_EDGE_VERTEX && new_type == EG_SIMPLE_VERTEX) {
+        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
+          node_type->SetValue(id_node, new_type);
+        } else {
+          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
+        }
+        done = true;
+      }
+
+      if (!done) {
+        node_type->SetValue(id_node, new_type);
+        node_type_counter->SetValue(id_node, 0);
+      }
+
+    }
 
     //density index from table
     EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
@@ -195,17 +249,69 @@ void SurfaceOperation::updateNodeInfo()
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
     node_specified_density->SetValue(id_node, idx);
   }
+
+  // mesh quality
+  if (!m_BCodeFeatureDefinition) {
+    MeshQualityFaceOrientation mesh_quality;
+    mesh_quality();
+    EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
+    EG_FORALL_NODES(id_node, m_Grid) {
+      if (node_mesh_quality->GetValue(id_node) < m_FaceOrientationThreshold) {
+        node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
+      }
+    }
+  }
+
+  /*
+  // look for feature edge triple stars
+  QList<vtkIdType> new_corners;
+  EG_FORALL_NODES(id_node1, m_Grid) {
+    if (node_type->GetValue(id_node1) == EG_FEATURE_EDGE_VERTEX) {
+      int N = 0;
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2cGG(id_node1, i);
+        if (node_type->GetValue(id_node2) == EG_FEATURE_EDGE_VERTEX) {
+          ++N;
+        }
+      }
+      if (N == 3) {
+        new_corners.append(id_node1);
+      }
+    }
+  }
+  foreach (vtkIdType id_node, new_corners) {
+    node_type->SetValue(id_node, EG_FEATURE_CORNER_VERTEX);
+  }
+  */
+
   updatePotentialSnapPoints();
+}
+
+bool SurfaceOperation::checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2)
+{
+  QSet<int> bcs1, bcs2;
+  for (int i = 0; i < m_Part.n2bcGSize(id_node1); ++i) {
+    bcs1.insert(m_Part.n2bcG(id_node1, i));
+  }
+  for (int i = 0; i < m_Part.n2bcGSize(id_node2); ++i) {
+    bcs2.insert(m_Part.n2bcG(id_node2, i));
+  }
+  if (bcs1 == bcs2) {
+    return true;
+  }
+  return false;
 }
 
 void SurfaceOperation::updatePotentialSnapPoints()
 {
-  setAllSurfaceCells();
+  setAllSurfaceCells();  
+  l2g_t nodes  = getPartNodes();
+
   m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
 
   if (m_UniformSnapPoints) {
     m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
-    EG_FORALL_NODES(id_node, m_Grid) {
+    foreach( vtkIdType id_node, nodes ) {
       for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
         m_PotentialSnapPoints[id_node].append(m_Part.n2nGG(id_node, i));
       }
@@ -214,21 +320,61 @@ void SurfaceOperation::updatePotentialSnapPoints()
   }
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  EG_FORALL_NODES(id_node1, m_Grid) {
+
+  foreach( vtkIdType id_node1, nodes ) {
     m_PotentialSnapPoints[id_node1].clear();
-    char type1 = node_type->GetValue(id_node1);
-    for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-      vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
-      char type2 = node_type->GetValue(id_node2);
-      if (   (type1 == EG_SIMPLE_VERTEX)
-          || (type1 == EG_FEATURE_EDGE_VERTEX && (type2 == EG_FEATURE_EDGE_VERTEX || type2 == EG_FEATURE_CORNER_VERTEX))
-          || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
-      {
-        m_PotentialSnapPoints[id_node1].append(id_node2);
+    char type1 = node_type->GetValue(id_node1);    
+    if (type1 != EG_FIXED_VERTEX) { // fixed vertices do not have any snap-points
+      QSet<vtkIdType> exclude_nodes;
+      if (type1 == EG_FEATURE_EDGE_VERTEX || type1 == EG_BOUNDARY_EDGE_VERTEX) {
+        for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+          vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+          char type2 = node_type->GetValue(id_node2);
+          if (type2 == EG_FEATURE_CORNER_VERTEX || type2 == EG_FIXED_VERTEX) {
+            for (int j = 0; j < m_Part.n2nGSize(id_node2); ++j) {
+              vtkIdType id_node3 = m_Part.n2nGG(id_node2, j);
+              exclude_nodes.insert(id_node3);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+        char type2 = node_type->GetValue(id_node2);
+        if (m_StrictFeatureSnap) {
+          if (   (type1 == EG_SIMPLE_VERTEX)
+                 || (type1 == EG_FEATURE_EDGE_VERTEX && (type2 == EG_FEATURE_EDGE_VERTEX || type2 == EG_FEATURE_CORNER_VERTEX))
+                 || (type1 == EG_FEATURE_CORNER_VERTEX && type2 == EG_FEATURE_CORNER_VERTEX)
+                 || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
+          {
+            if (!exclude_nodes.contains(id_node2)) {
+              if (checkSnapPointPairForBcMatch(id_node1, id_node2)) {
+                m_PotentialSnapPoints[id_node1].append(id_node2);
+              }
+            }
+          }
+        } else {
+          if (   (type1 == EG_SIMPLE_VERTEX)
+                 || (type1 == EG_FEATURE_EDGE_VERTEX)
+                 || (type1 == EG_BOUNDARY_EDGE_VERTEX && (type2 == EG_BOUNDARY_EDGE_VERTEX || type2 == EG_FIXED_VERTEX)))
+          {
+            if (checkSnapPointPairForBcMatch(id_node1, id_node2)) {
+              m_PotentialSnapPoints[id_node1].append(id_node2);
+            }
+          }
+        }
+      }
+
+      // make sure feature edge vertices have at least two snap points ...
+      /*
+    if (type1 == EG_FEATURE_EDGE_VERTEX) {
+      if (m_PotentialSnapPoints[id_node1].size() < 2) {
+        m_PotentialSnapPoints[id_node1].clear();
       }
     }
+    */
+    }
   }
-
 }
 
 char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
@@ -266,8 +412,8 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     return EG_BOUNDARY_EDGE_VERTEX;
   }
 
-  SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(*bcs.begin(), true);
-  if (proj) {
+  CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(*bcs.begin(), true);
+  if (cad_interface && !m_BCodeFeatureDefinition) {
 
     vec3_t x, x0;
     m_Grid->GetPoint(id_node, x0.data());
@@ -283,15 +429,14 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     L *= 0.1;
     bool convex = isConvexNode(id_node);
 
-    x0 = proj->project(x0, id_node, true, m_NodeNormal[id_node]);
-    double radius = proj->lastProjRadius();
+    x0 = cad_interface->projectNode(id_node, x0, m_NodeNormal[id_node]);
     if (convex) {
-      x = x0 + L*m_NodeNormal[id_node];
-    } else {
       x = x0 - L*m_NodeNormal[id_node];
+    } else {
+      x = x0 + L*m_NodeNormal[id_node];
     }
-    vec3_t n = proj->lastProjNormal();
-    if (GeometryTools::angle(n, m_NodeNormal[id_node]) > 0.5*m_FeatureAngle && !proj->lastProjFailed()) {
+    vec3_t n = cad_interface->getLastNormal();
+    if (GeometryTools::angle(n, m_NodeNormal[id_node]) > 0.5*m_FeatureAngle && !cad_interface->failed()) {
       double d = L/tan(0.5*m_FeatureAngle);
       static const int num_steps = 36;
       double D_alpha = 2*M_PI/num_steps;
@@ -301,8 +446,8 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       int num_miss = 0;
       for (int i = 0; i < num_steps; ++i) {
         v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-        vec3_t xp = proj->project(x, id_node, true, v, true);
-        if (proj->lastProjFailed()) {
+        vec3_t xp = cad_interface->projectNode(id_node, x, v, true);
+        if (cad_interface->failed()) {
           ++num_miss;
         } else {
           double l = (x - xp).abs();
@@ -315,17 +460,12 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
         return EG_FEATURE_CORNER_VERTEX;
       }
 
-      if (convex) {
-        x = x0 + L*n;
-      } else {
-        x = x0 - L*n;
-      }
       v = GeometryTools::orthogonalVector(n);
       int num_hit = 0;
       for (int i = 0; i < num_steps; ++i) {
         v = GeometryTools::rotate(v, n, D_alpha);
-        vec3_t xp = proj->project(x, id_node, true, v, true);
-        if (!proj->lastProjFailed()) {
+        vec3_t xp = cad_interface->projectNode(id_node, x, v, true);
+        if (!cad_interface->failed()) {
           double l = (x - xp).abs();
           if (l < d) {
             ++num_hit;
@@ -644,10 +784,34 @@ bool SurfaceOperation::isConvexNode(vtkIdType id_node)
     x2 += x;
   }
   x2 *= 1.0/N;
-  if ((x1 - x2)*m_NodeNormal[id_node] < 0) {
+  if ((x1 - x2)*m_NodeNormal[id_node] > 0) {
     return true;
   }
   return false;
 }
 
+double SurfaceOperation::getSurfaceDeviation(vtkIdType id_node)
+{
+  vec3_t x;
+  m_Grid->GetPoint(id_node, x.data());
+  double d = 0;
+  for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+    vec3_t xe;
+    m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xe.data());
+    d += (x - xe)*m_NodeNormal[id_node];
+  }
+  if (m_Part.n2nGSize(id_node) > 0) {
+    d *= 1.0/m_Part.n2nGSize(id_node);
+  }
+  return d;
+}
 
+bool SurfaceOperation::isFeatureNode(vtkIdType id_node)
+{
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  char type = node_type->GetValue(id_node);
+  if (type == EG_FEATURE_CORNER_VERTEX || type == EG_FEATURE_EDGE_VERTEX) {
+    return true;
+  }
+  return false;
+}

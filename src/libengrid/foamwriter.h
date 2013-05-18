@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -36,7 +36,9 @@ class FoamWriter : public IOOperation
 
 protected: // attributes
   
-  QString path;
+  QString m_Path;
+  QMap<int, QList<QString> > m_Bc2Vol;
+  QString m_CurrentVolume;
 
 protected: // methods
   
@@ -45,6 +47,13 @@ protected: // methods
   void writeOwner(const PolyMesh &poly);
   void writeNeighbour(const PolyMesh &poly);
   void writeBoundary(const PolyMesh &poly);
+
+  bool    hasNeighbour(int bc);
+  QString getNeighbourName(int bc);
+
+  void writeSingleVolume();
+  void writeMultipleVolumes();
+
   virtual void operate();
   
 public: // methods

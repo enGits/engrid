@@ -4,7 +4,13 @@ CONFIG   += ordered recursive
 
 CONFIG += debug_and_release
 
-SUBDIRS   = netgen
+debian {
+    SUBDIRS   = 
+}
+else {
+    SUBDIRS   = netgen
+}
+
 SUBDIRS  += libengrid
 SUBDIRS  += engrid
 

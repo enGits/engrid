@@ -1,3 +1,64 @@
+engrid (1.4.0-ubuntu9) quantal; urgency=low
+
+  * Bump stable to Quantal (12.10).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu8) precise; urgency=low
+
+  * Bump stable to Precise (12.04).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu7) oneiric; urgency=low
+
+  * Sync up with the git repository, branch 'release-1.4', finally stable release!
+  * Redoing the package builds, because of a forgotten 'git pull'...
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu6) quantal; urgency=low
+
+  * Bump stable to Quantal (12.10).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu5) precise; urgency=low
+
+  * Bump stable to Precise (12.04).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu4) oneiric; urgency=low
+
+  * Sync up with the git repository, branch 'release-1.4', finally stable release!
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 28 Nov 2012 22:00:00 +0100
+
+engrid (1.4.0-ubuntu3) oneiric; urgency=low
+
+  * Sync up with the git repository, branch 'release-1.4'.
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 11 Nov 2012 12:00:00 +0100
+
+engrid (1.4.0-ubuntu2) oneiric; urgency=low
+
+  * Cleaned up the packaging.
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Wed, 22 Sep 2012 12:00:00 +0100
+
+engrid (1.4.0-ubuntu1) oneiric; urgency=low
+
+  * Script upgrade
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Wed, 22 Sep 2012 12:00:00 +0100
+
+engrid (1.3.0-ubuntu1) oneiric; urgency=low
+
+  * Script upgrade
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Wed, 11 Jul 2012 22:00:00 +0000
+
 engrid (1.2rc1-ubuntu7) lucid; urgency=low
 
   * Description update

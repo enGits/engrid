@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -329,9 +329,9 @@ void GuiEditBoundaryConditions::setupSolvers()
     }
 
     m_SolverBinary.push_back(binary);
-    MultiPageWidgetPage* page2 = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
-    m_page_vector.push_back(page2);
-    m_multipagewidget_Solver->addPage((QWidget*)page2);
+    MultiPageWidgetPage* widget_page = new MultiPageWidgetPage(files, section, m_multipagewidget_Solver);
+    m_page_vector.push_back(widget_page);
+    m_multipagewidget_Solver->addPage((QWidget*) widget_page);
     m_multipagewidget_Solver->setPageTitle(title, idx);
 
     idx++;

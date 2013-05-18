@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -191,7 +191,7 @@ vtkIdType FaceFinder::getClosestFace(vec3_t x, double &L_min)
     vec3_t xi, ri;
     int side;
     double L;
-    m_Triangles[id_face].projectOnTriangle(x, xi, ri, L, side, true);
+    m_Triangles[id_face].snapOntoTriangle(x, xi, ri, L, side, true);
     if (L < L_min) {
       L_min = L;
       id_close = id_face;

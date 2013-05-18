@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -108,7 +108,7 @@ bool SwapTriangles::isEdge(vtkIdType id_node1, vtkIdType id_node2)
   return(ret);
 }
 
-double SwapTriangles::computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, SurfaceProjection* proj)
+double SwapTriangles::computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, CadInterface *cad_interface)
 {
   static const double f13 = 1.0/3.0;
   vec3_t x = f13*(x1 + x2 + x3);
@@ -117,9 +117,7 @@ double SwapTriangles::computeSurfaceDistance(vec3_t x1, vec3_t x2, vec3_t x3, Su
   if (!checkVector(n)) {
     return 0;
   }
-  vec3_t xp = proj->project(x, -1, true, n);
-  n = proj->lastProjNormal();
-  xp = proj->project(x, -1, true, n);
+  vec3_t xp = cad_interface->snap(x, false);
   return (x - xp).abs();
 }
 
@@ -242,15 +240,15 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
   using namespace GeometryTools;
   err1 = 0;
   err2 = 1e10;
-  SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc);
-  if (!proj) {
+  CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(bc);
+  if (!cad_interface) {
     return;
   }
 
-  double d013 = computeSurfaceDistance(x[0], x[1], x[3], proj);
-  double d123 = computeSurfaceDistance(x[1], x[2], x[3], proj);
-  double d012 = computeSurfaceDistance(x[0], x[1], x[2], proj);
-  double d023 = computeSurfaceDistance(x[0], x[2], x[3], proj);
+  double d013 = computeSurfaceDistance(x[0], x[1], x[3], cad_interface);
+  double d123 = computeSurfaceDistance(x[1], x[2], x[3], cad_interface);
+  double d012 = computeSurfaceDistance(x[0], x[1], x[2], cad_interface);
+  double d023 = computeSurfaceDistance(x[0], x[2], x[3], cad_interface);
 
   double L = max((x[1] - x[3]).abs(), (x[0] - x[2]).abs());
   err1 = max(d013, d123)/L;
@@ -262,62 +260,6 @@ void SwapTriangles::computeSurfaceErrors(const QVector<vec3_t> &x, int bc, doubl
     err2 = 0;
   }
 
-  /*
-  // new version based on surface normals
-  vec3_t n013 = triNormal(x[0], x[1], x[3]);
-  vec3_t n123 = triNormal(x[1], x[2], x[3]);
-  vec3_t n012 = triNormal(x[0], x[1], x[2]);
-  vec3_t n023 = triNormal(x[0], x[2], x[3]);
-  n013.normalise();
-  n123.normalise();
-  n012.normalise();
-  n023.normalise();
-  if (!checkVector(n013)) {
-    return;
-  }
-  if (!checkVector(n123)) {
-    return;
-  }
-  if (!checkVector(n012)) {
-    return;
-  }
-  if (!checkVector(n023)) {
-    return;
-  }
-
-  vec3_t xe13 = 0.5*(x[1] + x[3]);
-  vec3_t xe02 = 0.5*(x[0] + x[2]);
-
-  vec3_t n;
-
-  vec3_t xe13_p013 = proj->project(xe13, -1, true, n013);
-  n = proj->lastProjNormal();
-  double d13_013 = fabs((xe13_p013 - xe13)*n);
-
-  vec3_t xe13_p123 = proj->project(xe13, -1, true, n123);
-  n = proj->lastProjNormal();
-  double d13_123 = fabs((xe13_p123 - xe13)*n);
-
-  vec3_t xe02_p012 = proj->project(xe02, -1, true, n012);
-  n = proj->lastProjNormal();
-  double d02_012 = fabs((xe02_p012 - xe02)*n);
-
-  vec3_t xe02_p023 = proj->project(xe02, -1, true, n023);
-  n = proj->lastProjNormal();
-  double d02_023 = fabs((xe02_p023 - xe02)*n);
-
-  double L = max((x[1] - x[3]).abs(), (x[0] - x[2]).abs());
-
-  err1 = min(d13_013, d13_123)/L;
-  err2 = min(d02_012, d02_023)/L;
-
-  if (err1 < m_SurfErrorThreshold) {
-    err1 = 0;
-  }
-  if (err2 < m_SurfErrorThreshold) {
-    err2 = 0;
-  }
-  */
 }
 
 int SwapTriangles::swap()
@@ -361,9 +303,9 @@ int SwapTriangles::swap()
                       force_swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  if (node_type->GetValue(S.p1) != EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.p2) != EG_FEATURE_EDGE_VERTEX) {
+                  if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
 
-                    if (node_type->GetValue(S.id_node[0]) == EG_FEATURE_EDGE_VERTEX && node_type->GetValue(S.id_node[1]) == EG_FEATURE_EDGE_VERTEX) {
+                    if (isFeatureNode(S.id_node[0]) && isFeatureNode(S.id_node[1])) {
                       //swap = true;
                     }
 
@@ -475,14 +417,14 @@ void SwapTriangles::computeAverageSurfaceError()
           int bc1 = cell_code->GetValue(faces[0]);
           int bc2 = cell_code->GetValue(faces[1]);
           if (bc1 == bc2) {
-            SurfaceProjection* proj = GuiMainWindow::pointer()->getSurfProj(bc1);
-            if (proj) {
+            CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(bc1);
+            if (cad_interface) {
               vec3_t n2 = m_Part.globalNormal(id_node2);
               vec3_t n = 0.5*(n1 + n2);
               vec3_t x2;
               m_Grid->GetPoint(id_node2, x2.data());
               vec3_t x = 0.5*(x1 + x2);
-              vec3_t xp = proj->project(x, -1, true, n);
+              vec3_t xp = cad_interface->snap(x);
               double err = (x - xp).abs()/(x1 - x2).abs();
               errors.append(err);
             }

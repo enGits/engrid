@@ -1,9 +1,9 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -198,6 +198,31 @@ public: // methods
    */
   double getAverageSurfaceEdgeLength(vtkIdType id_node);
 
+  /**
+   * @brief compute the minimal and maximal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @param l_min on return this will hold the minimal edge length
+   * @param l_max on return this will hold the maximal edge length
+   */
+  void computeMinAndMaxSurfaceStencilEdgeLengths(vtkIdType id_node, double &l_min, double &l_max);
+
+  /**
+   * @brief get the minimal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @return the minimal edge length
+   */
+  double getMinSurfaceStencilEdgeLength(vtkIdType id_node);
+
+  /**
+   * @brief get the maximal edge length of a surface stencil
+   * A surface stencil consists of all surface elements which have a single node in common.
+   * @param id_node the node in common
+   * @return the maximal edge length
+   */
+  double getMaxSurfaceStencilEdgeLength(vtkIdType id_node);
+
   vtkIdType getVolumeCell(vtkIdType id_face);
 
   int       localNode(vtkIdType id_node);
@@ -238,6 +263,11 @@ public: // methods
    * @return the normalised normal vector
    */
   vec3_t globalNormal(vtkIdType id_node);
+
+  template <typename C>
+  void getGlobalN2N(vtkIdType id_node, C& cont);
+
+  int getNumberOfFeatureNeighbours(vtkIdType id_node);
 
 };
 
@@ -587,5 +617,15 @@ inline int MeshPartition::n2bcG(vtkIdType id_node, int j)
   checkN2BC();
   return m_N2BC[m_LNodes[id_node]][j];
 }
+
+template <typename C>
+void MeshPartition::getGlobalN2N(vtkIdType id_node, C& cont)
+{
+  cont.clear();
+  for (int i = 0; i < n2nGSize(id_node); ++i) {
+    cont << n2nGG(id_node, i);
+  }
+}
+
 
 #endif // MESHPARTITION_H

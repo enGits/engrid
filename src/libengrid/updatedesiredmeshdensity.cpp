@@ -1,9 +1,9 @@
-//
+// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                      +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -35,12 +35,12 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
   
   m_GrowthFactor = 0.0;
   m_MinEdgeLength = 0.0;
-  m_MinMumCellsAcross = 0;
   m_FeatureResolution2D = 0;
   m_FeatureResolution3D = 0;
-  m_FeatureThresholdAngle = deg2rad(45.0);
 
-  getSet("surface meshing", "minimal number of cells across", 0, m_MinMumCellsAcross);
+  getSet("surface meshing", "threshold angle for feature resolution", 20, m_FeatureThresholdAngle);
+  m_FeatureThresholdAngle = deg2rad(m_FeatureThresholdAngle);
+
 }
 
 double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)
@@ -202,6 +202,19 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       P.n = cellNormal(m_Grid, id_face);
       P.n.normalise();
       P.n *= -1;
+      P.id_face = id_face;
+      CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_face));
+      vec3_t x0 = P.x;
+      double r;
+      //if (cad->shootRay(P.x, P.n, xp, np, r) != CadInterface::Miss) {
+      P.x = cad->project(x0, P.n);
+      if (!cad->failed()) {
+        P.n = -1*cad->getLastNormal();
+        P.x = cad->project(x0, P.n);
+        if (!cad->failed()) {
+          P.n = -1*cad->getLastNormal();
+        }
+      }
       for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         P.idx.append(m_Part.localNode(pts[i_pts]));
       }
@@ -250,15 +263,19 @@ void UpdateDesiredMeshDensity::operate()
 
   if (m_NodesPerQuarterCircle > 1e-3) {
     QVector<double> R(nodes.size(), 1e99);
-    foreach (vtkIdType id_cell, cells) {
+
+//#pragma omp parallel for
+    for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
+      vtkIdType id_cell = cells[i_cell];
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       int bc = cell_code->GetValue(id_cell);
       for (int i = 0; i < N_pts; ++i) {
         int i_nodes = m_Part.localNode(pts[i]);
-        R[i_nodes] = min(R[i_nodes], fabs(GuiMainWindow::pointer()->getSurfProj(bc)->getRadius(pts[i])));
+        R[i_nodes] = min(R[i_nodes], fabs(GuiMainWindow::pointer()->getCadInterface(bc)->getRadius(pts[i])));
       }
     }
+
     for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
       if (cl_pre[i_nodes] == 0) {
         EG_BUG;

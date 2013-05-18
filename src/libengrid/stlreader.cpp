@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -37,14 +37,14 @@
 StlReader::StlReader()
 {
   setFormat("STL files(*.stl *.STL)");
-};
+}
 
 void StlReader::operate()
 {
   QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
   readInputFileName(file_info.completeBaseName() + ".stl");
   if (isValid()) {
-    vtkSTLReader *stl = vtkSTLReader::New();
+    EG_VTKSP(vtkSTLReader, stl);
     stl->MergingOn();
     stl->SetFileName(getCFileName());
     stl->Update();
@@ -62,10 +62,10 @@ void StlReader::operate()
           poly->GetPoints()->GetPoint(pts[0], x2.data());
         } else {
           poly->GetPoints()->GetPoint(pts[i+1], x2.data());
-        };
+        }
         L = min(L, (x1-x2).abs());
-      };
-    };
+      }
+    }
     double tol = 1e-10;//0.01*L;
     tol = QInputDialog::getText(NULL, "enter STL tolerance", "tolerance", QLineEdit::Normal, "1e-10").toDouble();
     cout << "cleaning STL geometry:" << endl;
@@ -105,13 +105,13 @@ void StlReader::operate()
       vec3_t x;
       poly2ugrid->GetOutput()->GetPoints()->GetPoint(id_node, x.data());
       m_Grid->GetPoints()->SetPoint(id_node, x.data());
-    };
+    }
     for (vtkIdType id_cell = 0; id_cell < poly2ugrid->GetOutput()->GetNumberOfCells(); ++id_cell) {
       vtkIdType N_pts, *pts;
       vtkIdType type_cell = poly2ugrid->GetOutput()->GetCellType(id_cell);
       poly2ugrid->GetOutput()->GetCellPoints(id_cell, N_pts, pts);
       m_Grid->InsertNextCell(type_cell, N_pts, pts);
-    };
+    }
     
     EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
     EG_VTKDCC(vtkIntArray, orgdir, m_Grid, "cell_orgdir");
@@ -122,7 +122,7 @@ void StlReader::operate()
       orgdir->SetValue(id_cell, 0);
       voldir->SetValue(id_cell, 0);
       curdir->SetValue(id_cell, 0);
-    };
+    }
     if (check_passed) {
       CorrectSurfaceOrientation corr_surf;
       corr_surf.setGrid(m_Grid);
@@ -130,10 +130,6 @@ void StlReader::operate()
       FixCadGeometry cad_fix;
       cad_fix.setGrid(m_Grid);
       cad_fix();
-    }
-    
-  };
-  
-  
-  
-};
+    }    
+  }
+}

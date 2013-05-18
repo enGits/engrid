@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -20,15 +20,29 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
-#include "surfaceprojection.h"
+#ifndef TAUWRITER_H
+#define TAUWRITER_H
 
-SurfaceProjection::SurfaceProjection()
+class TauWriter;
+
+#include "iooperation.h"
+#include <QtGui>
+
+class TauWriter : public QObject, public IOOperation
 {
-}
 
-void SurfaceProjection::setForegroundGrid(vtkUnstructuredGrid *grid)
-{
-  m_FGrid = grid;
-  m_FPart.trackGrid(m_FGrid);
-}
+  Q_OBJECT
+  Q_INTERFACES(Operation)
 
+protected: // methods
+
+  //virtual void before();
+  virtual void operate();
+
+public: // methods
+
+  TauWriter();
+
+};
+
+#endif // TAUWRITER_H

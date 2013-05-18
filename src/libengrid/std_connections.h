@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -35,6 +35,7 @@ connect(ui.actionExportAsciiPly,         SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(exportBinaryPly()));
 connect(ui.actionExportSu2,              SIGNAL(triggered()),       this, SLOT(callExportSu2()));
 connect(ui.actionExportDolfyn,           SIGNAL(triggered()),       this, SLOT(callExportDolfyn()));
+connect(ui.actionExportTau,              SIGNAL(triggered()),       this, SLOT(callExportTau()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
 connect(ui.actionZoomOnPickedObject,     SIGNAL(triggered()),       this, SLOT(zoomOnPickedObject()));

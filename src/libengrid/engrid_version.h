@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -22,13 +22,14 @@
 // 
 #ifndef ENGRID_VERSION
 #if defined(WIN64) || defined(__MAC64) || defined(__LINUX64)
-  #define ENGRID_VERSION "dev_x64"
+  #define ENGRID_VERSION "dev-1.5_x64"
 #else
-  #define ENGRID_VERSION "dev"
+  #define ENGRID_VERSION "dev-1.5"
 #endif
-#define ENGRID_VERSION_FULLVER 1,4,0,0
+#define ENGRID_VERSION_STRING "dev-1.5"
+//#define ENGRID_VERSION_FULLVER 1,4,0,0
 #define ENGRID_COMPANY_NAME "enGits GmbH"
 #define ENGRID_DESCRIPTION "enGrid is an open-source mesh generation software with CFD applications in mind."
-#define ENGRID_COPYRIGHT "GNU Public License (GPL). Developed by enGits GmbH - http://www.engits.eu"
+#define ENGRID_COPYRIGHT "GNU Public License (GPL). Developed by enGits GmbH - http://engits.eu"
 #define ENGRID_NAME "enGrid"
 #endif

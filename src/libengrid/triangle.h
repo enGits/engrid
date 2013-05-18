@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -68,7 +68,7 @@ public:
      * @param d Distance of xp to (xi,ri)
      * @return True if (xi,ri) is the result of a direct projection on the triangle, else false.
     */
-  bool projectOnTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle);
+  bool snapOntoTriangle(vec3_t xp, vec3_t &xi, vec3_t &ri, double &d, int& side, bool restrict_to_triangle);
 
   vec3_t local3DToGlobal3D(vec3_t l_M);
   vec3_t global3DToLocal3D(vec3_t g_M);

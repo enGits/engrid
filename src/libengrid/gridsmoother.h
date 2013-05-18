@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -57,7 +57,8 @@ protected: // attributes
   int m_NumBoundaryCorrections;
   int m_NumSearch;
   int m_NumNormalRelaxations;
-  int m_NumHeightRelaxations;
+  int m_NumHeightRelaxations;  
+  int m_NumLayers;
 
   double m_Blending;
   double m_AbsoluteHeight;
@@ -67,7 +68,9 @@ protected: // attributes
   double m_MaxHeightInGaps;
   double m_DesiredStretching;
   double m_FarRatio;
-  int    m_NumLayers;
+  double m_FaceSizeLowerLimit;
+  double m_FaceSizeUpperLimit;
+  double m_FaceAngleLimit;
 
   bool m_StrictPrismChecking;
   bool m_CollisionDetected;
@@ -94,6 +97,7 @@ protected: // methods
   void computeFeet();
   void simpleNodeMovement(int i_nodes);
   void getRules();
+  bool faceFine(vtkIdType id_face, double scale);
 
   void writeDebugFile(QString file_name);
 

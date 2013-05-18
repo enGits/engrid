@@ -3,7 +3,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2012 enGits GmbH                                     +
+// + Copyright 2008-2013 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -31,6 +31,21 @@ void GuiNormalExtrusion::before()
 
 void GuiNormalExtrusion::operate()
 {
+  QSet<int> bcs;
+  getSelectedItems(m_Ui.listWidget, bcs);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QSet<int> volume_codes;
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    if (isSurface(id_cell, m_Grid)) {
+      if (bcs.contains(cell_code->GetValue(id_cell))) {
+        vtkIdType id_volume_cell = m_Part.getVolumeCell(id_cell);
+        if (id_volume_cell != -1) {
+          volume_codes.insert(cell_code->GetValue(id_volume_cell));
+        }
+      }
+    }
+  }
+
   EG_VTKSP(vtkEgNormalExtrusion, extr);
   QVector<double> y;
   
@@ -114,12 +129,20 @@ void GuiNormalExtrusion::operate()
     extr->SetRestrictYZ();
   }
 
-  QSet<int> bcs;
-  getSelectedItems(m_Ui.listWidget, bcs);
   extr->SetBoundaryCodes(bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
   makeCopy(m_Grid, ug);
   extr->SetInput(ug);
   extr->Update();
   makeCopy(extr->GetOutput(), m_Grid);
+
+  if (volume_codes.size() == 1) {
+    EG_FORALL_CELLS(id_cell, m_Grid) {
+      if (isVolume(id_cell, m_Grid)) {
+        if (cell_code->GetValue(id_cell) == 0) {
+          cell_code->SetValue(id_cell, *(volume_codes.begin()));
+        }
+      }
+    }
+  }
 }
