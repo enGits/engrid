@@ -24,6 +24,9 @@
 #include "guimainwindow.h"
 #include <netcdfcpp.h>
 
+//NOTE: on Windows, using "netcdfcpp.h" requires that we retrieve "ncvalues.h"
+//directly from ParaView's source code, from the folder "VTK/Utilities/vtknetcdf"
+
 
 TauWriter::TauWriter()
 {
