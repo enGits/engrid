@@ -144,7 +144,12 @@ vec3_t CadInterface::snapNode(vtkIdType id_node, bool correct_curvature)
 vec3_t CadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature)
 {
   vec3_t n = m_FPart.globalNormal(id_node);
-  vec3_t x_proj = projectNode(id_node, x, n, false, correct_curvature);
+  vec3_t x_proj;
+  if (shootRayAvailable()) {
+    projectNode(id_node, x, n, false, correct_curvature);
+  } else {
+    snap(x, correct_curvature);
+  }
   double L_crit = m_CriticalSnapLength*m_FPart.getMinSurfaceStencilEdgeLength(id_node);
   if ((x - x_proj).abs() < L_crit) {
     return x_proj;
