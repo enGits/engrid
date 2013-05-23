@@ -38,6 +38,9 @@ private: // methods
 
   void updateBackgroundGridInfo();      ///< Set up the background grid (triangles, bezier triangles, etc)
   void computeSurfaceCurvature();
+  vtkIdType getProjTriangle(vtkIdType id_node);
+  void setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle);
+
 
 protected: // attributes
 
@@ -51,6 +54,9 @@ protected: // attributes
   QVector<QVector<int> >    m_N2N;
   double                    m_CritDistance;
   FaceFinder                m_FaceFinder;
+  QMap<vtkIdType,vtkIdType> m_Pindex;
+
+  static vtkIdType m_LastPindex;
 
 
 protected: // methods
@@ -64,6 +70,7 @@ public:
   TriangularCadInterface();
 
   virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature = false);
   virtual vec3_t correctCurvature(vec3_t x);
 
   template <class C> void setBackgroundGrid(vtkUnstructuredGrid* grid, const C& cells); ///< Set the background grid to use + set it up
@@ -121,7 +128,7 @@ void TriangularCadInterface::setBackgroundGrid(vtkUnstructuredGrid* grid, const 
     }
   }
   updateBackgroundGridInfo();
-  m_FaceFinder.setMaxNumFaces(10);
+  //m_FaceFinder.setMaxNumFaces(10);
   m_FaceFinder.setGrid(m_BGrid);
 }
 
