@@ -33,21 +33,26 @@
 class FaceFinder : public EgVtkObject
 {
 
-  Octree m_Octree;
-  vtkUnstructuredGrid *m_Grid;
+  Octree                     m_Octree;
+  vtkUnstructuredGrid*       m_Grid;
   QVector<QList<vtkIdType> > m_Faces;
-  double m_MinSize;
-  int    m_MaxFaces;
-  QVector<Triangle> m_Triangles;
-  QVector<vec3_t>   m_Centres;
-  QVector<double>   m_CritLength;
-  Timer m_Timer;
+  double                     m_MinSize;
+  int                        m_MaxFaces;
+  QVector<Triangle>          m_Triangles;
+  QVector<vec3_t>            m_Centres;
+  QVector<double>            m_CritLength;
+  Timer                      m_Timer;
+  QVector<vec3_t>            m_CollectedPoints;
+  int                        m_NumCollectedPoints;
+  int                        m_CollectedPointsIncrement;
+  bool                       m_UseImprovedFaceSearch;
 
 
 private: // methods
 
+  void   getPointsOfFace(vtkIdType id_face);
   double calcCritLength(vtkIdType id_cell);
-  int refine();
+  int    refine();
 
 
 public: // methods
