@@ -36,8 +36,13 @@ void MeshQualityFaceOrientation::operate()
       n_face.normalise();
       CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell), true);
       if (cad_interface) {
-        //proj->snapNode(x_face, -1);
-        cad_interface->project(x_face, n_face);
+        if (cad_interface->shootRayAvailable()) {
+          cad_interface->project(x_face, n_face);
+        } else {
+          vtkIdType num_pts, *pts;
+          m_Grid->GetCellPoints(id_cell, num_pts, pts);
+          cad_interface->snapNode(pts[0], x_face);
+        }
         if (cad_interface->failed()) {
           cell_mesh_quality->SetValue(id_cell, 1.0);
         } else {
