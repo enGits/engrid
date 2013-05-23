@@ -1247,3 +1247,30 @@ bool Octree::isInsideBounds(vec3_t x)
   }
   return inside;
 }
+
+bool Octree::isInsideCell(int cell, vec3_t x, double overlap)
+{
+  vec3_t x0_1 = getNodePosition(cell, 0);
+  vec3_t x0_2 = getNodePosition(cell, 7);
+  vec3_t dx   = x0_2 - x0_1;
+  vec3_t x1   = x0_1 - overlap*dx;
+  vec3_t x2   = x0_2 + overlap*dx;
+
+  for (int i = 0; i < 3; ++i) {
+    if (x0_1[i] >= x0_2[i]) {
+      EG_BUG;
+    }
+    if (x1[i] >= x2[i]) {
+      EG_BUG;
+    }
+  }
+
+  bool inside = true;
+  for (int i = 0; i < 3; ++i) {
+    if ((x[i] < x1[i]) || (x[i] > x2[i])) {
+      inside = false;
+      break;
+    }
+  }
+  return inside;
+}
