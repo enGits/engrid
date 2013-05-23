@@ -130,6 +130,10 @@ void Triangle::setupTriangle()
   m_SmallestLength = min(m_SmallestLength, (m_Xc - m_Xb).abs());
   m_SmallestLength = min(m_SmallestLength, (m_Xa - m_Xc).abs());
 
+  m_LongestLength = (m_Xb - m_Xa).abs();
+  m_LongestLength = max(m_LongestLength, (m_Xc - m_Xb).abs());
+  m_LongestLength = max(m_LongestLength, (m_Xa - m_Xc).abs());
+
   // compute minimal height
   double ha = (GeometryTools::projectPointOnEdge(m_Xa, m_Xb, (m_Xc - m_Xb)) - m_Xa).abs();
   double hb = (GeometryTools::projectPointOnEdge(m_Xb, m_Xa, (m_Xc - m_Xa)) - m_Xb).abs();
