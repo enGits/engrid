@@ -135,6 +135,11 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
       }
     }
     foreach (int i_points, points[i].idx) {
+      /*
+      vtkIdType id_node = m_Part.globalNode(points[i].idx);
+      double L = m_Part.getAverageSurfaceEdgeLength(id_node);
+      if ()
+      */
       cl_pre[i_points] = min(h, cl_pre[i_points]);
     }
   }
@@ -205,21 +210,27 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       P.id_face = id_face;
       CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_face));
       vec3_t x0 = P.x;
-      double r;
-      //if (cad->shootRay(P.x, P.n, xp, np, r) != CadInterface::Miss) {
-      P.x = cad->project(x0, P.n);
+      if (cad->shootRayAvailable()) {
+        P.x = cad->project(x0, P.n);
+      } else {
+        P.x = cad->snapNode(pts[0], x0);
+      }
       if (!cad->failed()) {
         P.n = -1*cad->getLastNormal();
-        P.x = cad->project(x0, P.n);
+        if (cad->shootRayAvailable()) {
+          P.x = cad->project(x0, P.n);
+        } else {
+          P.x = cad->snapNode(pts[0], x0);
+        }
         if (!cad->failed()) {
           P.n = -1*cad->getLastNormal();
         }
+        for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+          P.idx.append(m_Part.localNode(pts[i_pts]));
+        }
+        P.L = computeSearchDistance(id_face);
+        points.append(P);
       }
-      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
-        P.idx.append(m_Part.localNode(pts[i_pts]));
-      }
-      P.L = computeSearchDistance(id_face);
-      points.append(P);
     }
   }
   computeFeature(points, cl_pre, m_FeatureResolution3D);
