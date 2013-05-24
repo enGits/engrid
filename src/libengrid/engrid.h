@@ -266,6 +266,8 @@ connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
   vtkIdType type_cell = GRID->GetCellType(ID_CELL); \
   GRID->GetCellPoints(ID_CELL, num_pts, pts);
 
+#define EG_LARGE_REAL 1e99
+
 inline double sqr(double x) { return x*x; }
 
 template <class T>
