@@ -40,7 +40,8 @@ class FaceFinder : public EgVtkObject
   int                        m_MaxFaces;
   QVector<Triangle>          m_Triangles;
   QVector<vec3_t>            m_Centres;
-  QVector<double>            m_CritLength;
+  QVector<double>            m_CritLengthOctreeCell;
+  QVector<double>            m_CritLengthNode;
   Timer                      m_Timer;
   QVector<vec3_t>            m_CollectedPoints;
   int                        m_NumCollectedPoints;
@@ -52,6 +53,7 @@ private: // methods
 
   void   getPointsOfFace(vtkIdType id_face);
   double calcCritLength(vtkIdType id_cell);
+  void   calcCritLengthForAllNodes();
   int    refine();
 
 

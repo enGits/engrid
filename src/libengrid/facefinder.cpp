@@ -68,15 +68,19 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
     }
   }
   m_Faces.resize(1);
-  m_CritLength.fill(1e99, 1);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     m_Faces[0].append(id_cell);
   }  
-  foreach (vtkIdType id_cell, m_Faces[0]) {
-    if (m_UseImprovedFaceSearch) {
-      m_CritLength[0] = min(m_CritLength[0], calcCritLength(id_cell));
-    } else {
-      m_CritLength[0] = max(m_CritLength[0], calcCritLength(id_cell));
+  if (m_UseImprovedFaceSearch) {
+    m_CritLengthOctreeCell.fill(EG_LARGE_REAL, 1);
+    foreach (vtkIdType id_cell, m_Faces[0]) {
+      m_CritLengthOctreeCell[0] = min(m_CritLengthOctreeCell[0], calcCritLength(id_cell));
+    }
+    calcCritLengthForAllNodes();
+  } else {
+    m_CritLengthOctreeCell.fill(0, 1);
+    foreach (vtkIdType id_cell, m_Faces[0]) {
+      m_CritLengthOctreeCell[0] = max(m_CritLengthOctreeCell[0], calcCritLength(id_cell));
     }
   }
 
@@ -135,6 +139,19 @@ double FaceFinder::calcCritLength(vtkIdType id_cell)
   return L;
 }
 
+void FaceFinder::calcCritLengthForAllNodes()
+{
+  m_CritLengthNode.fill(EG_LARGE_REAL, m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+    double l_crit = calcCritLength(id_face);
+    vtkIdType num_pts, *pts;
+    m_Grid->GetCellPoints(id_face, num_pts, pts);
+    for (int i = 0; i < num_pts; ++i) {
+      m_CritLengthNode[pts[i]] = min(m_CritLengthNode[pts[i]], l_crit);
+    }
+  }
+}
+
 void FaceFinder::getPointsOfFace(vtkIdType id_face)
 {
   m_NumCollectedPoints = 3;
@@ -142,16 +159,21 @@ void FaceFinder::getPointsOfFace(vtkIdType id_face)
   m_CollectedPoints[0] = T.a();
   m_CollectedPoints[1] = T.b();
   m_CollectedPoints[2] = T.c();
-  double h = calcCritLength(id_face);
   QVector<vec3_t> x_tri(4);
+  QVector<vtkIdType> id_tri(4);
   x_tri[0] = T.a();
   x_tri[1] = T.b();
   x_tri[2] = T.c();
   x_tri[3] = T.a();
+  id_tri[0] = T.idA();
+  id_tri[1] = T.idB();
+  id_tri[2] = T.idC();
+  id_tri[3] = T.idA();
   for (int i = 0; i < 3; ++i) {
     vec3_t x1 = x_tri[i];
     vec3_t x2 = x_tri[i+1];
     double l  = (x2 - x1).abs();
+    double h = 0.5*(m_CritLengthNode[id_tri[i]] + m_CritLengthNode[id_tri[i+1]]);
     int N = int(l/h) + 1;
     vec3_t dx = (1.0/N)*(x2 - x1);
     vec3_t x = x1 + dx;
@@ -174,7 +196,7 @@ int FaceFinder::refine()
   m_Octree.resetRefineMarks();
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     double dx = m_Octree.getDx(cell);
-    if (!m_Octree.hasChildren(cell)  && m_Faces[cell].size() > m_MaxFaces  && dx > 2*m_MinSize && dx > m_CritLength[cell]) {
+    if (!m_Octree.hasChildren(cell)  && m_Faces[cell].size() > m_MaxFaces  && dx > 2*m_MinSize && dx > 2*m_CritLengthOctreeCell[cell]) {
       m_Octree.markToRefine(cell);
       ++N_new;
     }
@@ -192,9 +214,9 @@ int FaceFinder::refine()
   }
   m_Faces.insert(N, N_new, QList<vtkIdType>());
   if (m_UseImprovedFaceSearch) {
-    m_CritLength.insert(N, N_new, 1e99);
+    m_CritLengthOctreeCell.insert(N, N_new, 1e99);
   } else {
-    m_CritLength.insert(N, N_new, 0);
+    m_CritLengthOctreeCell.insert(N, N_new, 0);
   }
   int N_min = m_Grid->GetNumberOfCells();
   int N_max = 0;
@@ -212,9 +234,9 @@ int FaceFinder::refine()
       if (m_UseImprovedFaceSearch) {
         getPointsOfFace(id_cell);
         for (int i = 0; i < m_NumCollectedPoints; ++i) {
-          if (m_Octree.isInsideCell(cell, m_CollectedPoints[i], 1.0)) {
+          if (m_Octree.isInsideCell(cell, m_CollectedPoints[i], 2.0)) {
             m_Faces[cell].append(id_cell);
-            m_CritLength[cell] = min(m_CritLength[cell], calcCritLength(id_cell));
+            m_CritLengthOctreeCell[cell] = min(m_CritLengthOctreeCell[cell], calcCritLength(id_cell));
             break;
           }
         }
@@ -225,7 +247,7 @@ int FaceFinder::refine()
           d = (x - m_Centres[id_cell]).abs();
           if (d < m_Octree.getDx(cell)) {
             m_Faces[cell].append(id_cell);
-            m_CritLength[cell] = max(m_CritLength[cell], calcCritLength(id_cell));
+            m_CritLengthOctreeCell[cell] = max(m_CritLengthOctreeCell[cell], calcCritLength(id_cell));
             break;
           }
         }
