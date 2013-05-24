@@ -37,12 +37,19 @@ protected: // attributes
   vec3_t m_G2;
   double m_Tol;
 
+  QVector<vtkIdType> m_NodeMap;
+
 
 protected: // methods
 
-  void createEdgesOnPlane(vtkUnstructuredGrid *edge_grid);
+  void   createEdgesOnPlane(vtkUnstructuredGrid *edge_grid);
+  void   closeLoops(vtkUnstructuredGrid *edge_grid);
   vec3_t toPlane(vec3_t x);
   vec3_t fromPlane(vec3_t x);
+  bool   isWithinTolerance(vec3_t x);
+  void   gridToPlane(vtkUnstructuredGrid *edge_grid);
+  void   gridFromPlane(vtkUnstructuredGrid *edge_grid);
+  void   triangulate(vtkUnstructuredGrid *edge_grid, vtkUnstructuredGrid *tri_grid);
 
   virtual void operate();
 

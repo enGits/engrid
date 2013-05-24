@@ -66,5 +66,6 @@
 #include "su2writer.h"
 #include "dolfynwriter.h"
 #include "tauwriter.h"
+#include "guifillplane.h"
 
 // -------------------------------------------

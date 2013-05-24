@@ -134,6 +134,7 @@
     <addaction name="actionDeletePickedPoint"/>
     <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
+    <addaction name="actionFillPlane"/>
     <addaction name="actionTransform"/>
     <addaction name="actionBooleanOperation"/>
     <addaction name="actionNormalExtrusion"/>
@@ -1721,6 +1722,14 @@
    </property>
    <property name="toolTip">
     <string>export to Tau</string>
+   </property>
+  </action>
+  <action name="actionFillPlane">
+   <property name="text">
+    <string>fill plane</string>
+   </property>
+   <property name="toolTip">
+    <string>fill plance with triangles</string>
    </property>
   </action>
  </widget>
