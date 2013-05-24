@@ -224,6 +224,8 @@ HEADERS = \
     vtkImplicitPolyData.h \
     vtkreader.h \
     xmlhandler.h \
+    guifillplane.h \
+    fillplane.h
 
 
 SOURCES = \
@@ -359,6 +361,8 @@ SOURCES = \
     vtkImplicitPolyData.cpp \
     vtkreader.cpp \
     xmlhandler.cpp \
+    guifillplane.cpp \
+    fillplane.cpp
 
 
 FORMS = \
@@ -385,4 +389,5 @@ FORMS = \
     guisetboundarycode.ui \
     guisurfacemesher.ui \
     guitransform.ui \
+    guifillplane.ui
 
