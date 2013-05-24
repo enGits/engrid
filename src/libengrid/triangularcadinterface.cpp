@@ -295,7 +295,7 @@ vec3_t TriangularCadInterface::snap(vec3_t x, bool correct_curvature)
        R = Ra + r[0]*(Rb - Ra) + r[1]*(Rc - Ra);
     }
     m_LastRadius = R;
-    m_LastNormal = -1*T.g3();
+    m_LastNormal = T.g3();
     if (correct_curvature) {
       vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
       if (checkVector(x_corr)) {
@@ -377,7 +377,7 @@ vec3_t TriangularCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correc
   if (!intersects || (d > m_CritDistance*T.smallestLength())) {
     searchNewTriangle(x, proj_triangle, x_proj, r_proj, true, on_triangle);
     T.snapOntoTriangle(x, xi, ri, d, side, true);
-    if (!on_triangle || (d > m_CritDistance*T.smallestLength())) {
+    if (!on_triangle) {
       searchNewTriangle(x, proj_triangle, x_proj, r_proj, false, on_triangle);
     }
     T = m_Triangles[proj_triangle];
@@ -407,7 +407,7 @@ vec3_t TriangularCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correc
        R = Ra + r[0]*(Rb - Ra) + r[1]*(Rc - Ra);
     }
     m_LastRadius = R;
-    m_LastNormal = -1*T.g3();
+    m_LastNormal = T.g3();
     if (correct_curvature) {
       vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
       if (checkVector(x_corr)) {
