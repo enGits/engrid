@@ -36,6 +36,8 @@ protected: // attributes
   vec3_t m_G1;
   vec3_t m_G2;
   double m_Tol;
+  bool   m_InverseDirection;
+  int    m_BC;
 
   QVector<vtkIdType> m_NodeMap;
 
@@ -49,15 +51,22 @@ protected: // methods
   bool   isWithinTolerance(vec3_t x);
   void   gridToPlane(vtkUnstructuredGrid *edge_grid);
   void   gridFromPlane(vtkUnstructuredGrid *edge_grid);
-  void   triangulate(vtkUnstructuredGrid *edge_grid, vtkUnstructuredGrid *tri_grid);
+  void   triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_grid);
+  void   order(vtkUnstructuredGrid *edge_grid, vtkPolyData *edge_pdata);
+  void   orderGeometrically(vtkUnstructuredGrid *edge_grid, QList<vtkIdType> &poly_nodes);
 
   virtual void operate();
 
 public:
 
+  FillPlane();
+
   void setOrigin(vec3_t x) { m_X0 = x; }
   void setNormal(vec3_t n) { m_N = n; }
   void setTolerance(double t) { m_Tol = t; }
+  void setInverseDirectionOn() { m_InverseDirection = true; }
+  void setInverseDirectionOff() { m_InverseDirection = false; }
+  int  getBC() { return m_BC; }
 
 };
 

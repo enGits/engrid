@@ -23,21 +23,53 @@
 
 #include "guifillplane.h"
 #include "fillplane.h"
+#include "boundarycondition.h"
+#include "guimainwindow.h"
 
-void GuiFillPlane::operate()
+void GuiFillPlane::fillPlane(vec3_t x, vec3_t n, bool inverse, QString name)
 {
-  vec3_t x, n;
-  x[0] = m_Ui.m_LineEditX->text().toDouble();
-  x[1] = m_Ui.m_LineEditY->text().toDouble();
-  x[2] = m_Ui.m_LineEditZ->text().toDouble();
-  n[0] = m_Ui.m_LineEditNx->text().toDouble();
-  n[1] = m_Ui.m_LineEditNy->text().toDouble();
-  n[2] = m_Ui.m_LineEditNz->text().toDouble();
   double tol = m_Ui.m_LineEditPrec->text().toDouble();
   n.normalise();
   FillPlane fill;
   fill.setOrigin(x);
   fill.setNormal(n);
   fill.setTolerance(tol);
+  if (inverse) {
+    fill.setInverseDirectionOn();
+  } else {
+    fill.setInverseDirectionOff();
+  }
   fill();
+  BoundaryCondition bc(name, "patch");
+  GuiMainWindow::pointer()->addBC(fill.getBC(), bc);
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
+}
+
+void GuiFillPlane::operate()
+{
+  if (m_Ui.m_CheckBoxCustom->isChecked()) {
+    vec3_t x, n;
+    x[0] = m_Ui.m_LineEditX->text().toDouble();
+    x[1] = m_Ui.m_LineEditY->text().toDouble();
+    x[2] = m_Ui.m_LineEditZ->text().toDouble();
+    n[0] = m_Ui.m_LineEditNx->text().toDouble();
+    n[1] = m_Ui.m_LineEditNy->text().toDouble();
+    n[2] = m_Ui.m_LineEditNz->text().toDouble();
+    fillPlane(x, n, false, "filled_plane");
+  }
+  if (m_Ui.m_CheckBoxXY->isChecked()) {
+    vec3_t x(0, 0, 0);
+    vec3_t n(0, 0, 1);
+    fillPlane(x, n, m_Ui.m_CheckBoxXYInv->isChecked(), "XY_plane");
+  }
+  if (m_Ui.m_CheckBoxYZ->isChecked()) {
+    vec3_t x(0, 0, 0);
+    vec3_t n(1, 0, 0);
+    fillPlane(x, n, m_Ui.m_CheckBoxYZInv->isChecked(), "YZ_plane");
+  }
+  if (m_Ui.m_CheckBoxZX->isChecked()) {
+    vec3_t x(0, 0, 0);
+    vec3_t n(0, 1, 0);
+    fillPlane(x, n, m_Ui.m_CheckBoxZXInv->isChecked(), "ZX_plane");
+  }
 }
