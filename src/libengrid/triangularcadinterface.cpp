@@ -23,6 +23,8 @@
 #include "triangularcadinterface.h"
 #include "guimainwindow.h"
 
+vtkIdType TriangularCadInterface::m_LastPindex = 0;
+
 TriangularCadInterface::TriangularCadInterface()
 {
   m_BGrid = vtkUnstructuredGrid::New();
@@ -216,34 +218,8 @@ void TriangularCadInterface::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec
       on_triangle = intersects;
     }
   }
-  if (!x_proj_set) { // should never happen
+  if (!x_proj_set) {
     EG_BUG;
-    for (vtkIdType id_triangle = 0; id_triangle < m_BGrid->GetNumberOfCells(); ++id_triangle) {
-      Triangle T = m_Triangles[id_triangle];
-      double d;
-      int side;
-      bool intersects = T.snapOntoTriangle(xp, xi, ri, d, side, true);
-      if (d >= 1e99) {
-        EG_BUG;
-      }
-      if (d < 0) {
-        EG_BUG;
-      }
-      if (d < d_min) {
-        x_proj = xi;
-        x_proj_set = true;
-        r_proj = ri;
-        d_min = d;
-        id_tri = id_triangle;
-        on_triangle = intersects;
-      }
-    }
-    if (!x_proj_set) { // should never happen
-      checkVector(xp);
-      qWarning() << "No projection found for point xp=" << xp[0] << xp[1] << xp[2] << endl;
-      writeGrid(GuiMainWindow::pointer()->getGrid(), "griddump");
-      EG_BUG;
-    }
   }
 }
 
@@ -307,6 +283,7 @@ vec3_t TriangularCadInterface::snap(vec3_t x, bool correct_curvature)
   r_proj = ri;
   if (!checkVector(x_proj)) {
     x_proj = x;
+    m_Failed = true;
   } else {
     vec2_t r = T.global3DToLocal2D(x_proj);
     double Ra   = m_Radius[T.idA()];
@@ -318,14 +295,127 @@ vec3_t TriangularCadInterface::snap(vec3_t x, bool correct_curvature)
        R = Ra + r[0]*(Rb - Ra) + r[1]*(Rc - Ra);
     }
     m_LastRadius = R;
+    m_LastNormal = T.g3();
     if (correct_curvature) {
       vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
       if (checkVector(x_corr)) {
         x_proj = x_corr;
       }
     }
+    m_Failed = false;
   }
   return x_proj;
 }
 
+vtkIdType TriangularCadInterface::getProjTriangle(vtkIdType id_node)
+{
+  EG_VTKDCN(vtkLongArray_t, pi, m_FGrid, "node_pindex");
+  vtkIdType pindex = pi->GetValue(id_node);
+  vtkIdType proj_triangle = -1;
+  if (pindex < 0) {
+    pindex = m_LastPindex;
+    pi->SetValue(id_node, pindex);
+    ++m_LastPindex;
+    m_Pindex[pindex] = -1;
+  } else {
+    proj_triangle = m_Pindex[pindex];
+  }
+  return proj_triangle;
+}
+
+void TriangularCadInterface::setProjTriangle(vtkIdType id_node, vtkIdType proj_triangle)
+{
+  EG_VTKDCN(vtkLongArray_t, pi, m_FGrid, "node_pindex");
+  vtkIdType pindex = pi->GetValue(id_node);
+  if (pindex < 0) {
+    pindex = m_LastPindex;
+    pi->SetValue(id_node, pindex);
+    ++m_LastPindex;
+  }
+  m_Pindex[pindex] = proj_triangle;
+}
+
+vec3_t TriangularCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature)
+{
+  //return snap(x, correct_curvature);
+
+  if (!checkVector(x)) {
+    EG_BUG;
+  }
+
+  if (id_node < 0) {
+    EG_BUG;
+  }
+  if (id_node >= m_FGrid->GetNumberOfPoints()) {
+    EG_BUG;
+  }
+  vec3_t x_proj(1e99, 1e99, 1e99);
+  vec3_t r_proj(0, 0, 0);
+  bool x_proj_set = false;
+
+  bool on_triangle = false;
+
+  vtkIdType proj_triangle = -1;
+  if (id_node != -1) {
+    proj_triangle = getProjTriangle(id_node);
+  }
+
+  if (proj_triangle == -1) {
+    searchNewTriangle(x, proj_triangle, x_proj, r_proj, false, on_triangle);
+    if (id_node != -1) {
+      setProjTriangle(id_node, proj_triangle);
+    }
+  }
+  if (proj_triangle >= m_Triangles.size()) {
+    EG_BUG;
+  }
+  Triangle T = m_Triangles[proj_triangle];
+  vec3_t xi, ri;
+  double d;
+  int side;
+  bool intersects = T.snapOntoTriangle(x, xi, ri, d, side, true);
+  if (!intersects || (d > m_CritDistance*T.smallestLength())) {
+    searchNewTriangle(x, proj_triangle, x_proj, r_proj, true, on_triangle);
+    T.snapOntoTriangle(x, xi, ri, d, side, true);
+    if (!on_triangle) {
+      searchNewTriangle(x, proj_triangle, x_proj, r_proj, false, on_triangle);
+    }
+    T = m_Triangles[proj_triangle];
+    T.snapOntoTriangle(x, xi, ri, d, side, true);
+    if (id_node != -1) {
+      setProjTriangle(id_node, proj_triangle);
+    }
+  }
+  x_proj = xi;
+  x_proj_set = true;
+  if (x_proj[0] > 1e98) { // should never happen
+    EG_BUG;
+  }
+  r_proj = ri;
+  on_triangle = intersects;
+  if (!checkVector(x_proj)) {
+    x_proj = x;
+    m_Failed = true;
+  } else {
+    vec2_t r = T.global3DToLocal2D(x_proj);
+    double Ra   = m_Radius[T.idA()];
+    double Rb   = m_Radius[T.idB()];
+    double Rc   = m_Radius[T.idC()];
+    double R    = min(Ra, min(Rb, Rc));
+    double Rmax = max(Ra, max(Rb, Rc));
+    if (Rmax < 1e90) {
+       R = Ra + r[0]*(Rb - Ra) + r[1]*(Rc - Ra);
+    }
+    m_LastRadius = R;
+    m_LastNormal = T.g3();
+    if (correct_curvature) {
+      vec3_t x_corr = correctCurvature(proj_triangle, x_proj);
+      if (checkVector(x_corr)) {
+        x_proj = x_corr;
+      }
+    }
+    m_Failed = false;
+  }
+  return x_proj;
+}
 

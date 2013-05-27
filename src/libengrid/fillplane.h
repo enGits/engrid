@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,43 +19,46 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#include "meshqualityfaceorientation.h"
-#include "geometrytools.h"
-#include "guimainwindow.h"
+//
 
-void MeshQualityFaceOrientation::operate()
+#ifndef FILLPLANE_H
+#define FILLPLANE_H
+
+#include "surfaceoperation.h"
+
+class FillPlane : public SurfaceOperation
 {
-  using namespace GeometryTools;
-  EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, m_Grid, "cell_mesh_quality");
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_FORALL_CELLS(id_cell, m_Grid) {
-    if (isSurface(id_cell, m_Grid)) {
-      vec3_t x_face = cellCentre(m_Grid, id_cell);
-      vec3_t n_face = cellNormal(m_Grid, id_cell);
-      n_face.normalise();
-      CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell), true);
-      if (cad_interface) {
-        if (cad_interface->shootRayAvailable()) {
-          cad_interface->project(x_face, n_face);
-        } else {
-          vtkIdType num_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, num_pts, pts);
-          cad_interface->snapNode(pts[0], x_face);
-        }
-        if (cad_interface->failed()) {
-          cell_mesh_quality->SetValue(id_cell, 1.0);
-        } else {
-          vec3_t n_surf = cad_interface->getLastNormal();
-          double mq = 0.5*(n_surf*n_face + 1);
-          cell_mesh_quality->SetValue(id_cell, mq);
-        }
-      } else {
-        cell_mesh_quality->SetValue(id_cell, 1.0);
-      }
-    } else {
-      cell_mesh_quality->SetValue(id_cell, 1.0);
-    }
-  }
-  computeNodesFromCells();
-}
+
+protected: // attributes
+
+  vec3_t m_X0;
+  vec3_t m_N;
+  vec3_t m_G1;
+  vec3_t m_G2;
+  double m_Tol;
+
+  QVector<vtkIdType> m_NodeMap;
+
+
+protected: // methods
+
+  void   createEdgesOnPlane(vtkUnstructuredGrid *edge_grid);
+  void   closeLoops(vtkUnstructuredGrid *edge_grid);
+  vec3_t toPlane(vec3_t x);
+  vec3_t fromPlane(vec3_t x);
+  bool   isWithinTolerance(vec3_t x);
+  void   gridToPlane(vtkUnstructuredGrid *edge_grid);
+  void   gridFromPlane(vtkUnstructuredGrid *edge_grid);
+  void   triangulate(vtkUnstructuredGrid *edge_grid, vtkUnstructuredGrid *tri_grid);
+
+  virtual void operate();
+
+public:
+
+  void setOrigin(vec3_t x) { m_X0 = x; }
+  void setNormal(vec3_t n) { m_N = n; }
+  void setTolerance(double t) { m_Tol = t; }
+
+};
+
+#endif // FILLPLANE_H

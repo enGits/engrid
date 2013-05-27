@@ -517,6 +517,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
+    void callFillPlane() { EG_STDSLOT( GuiFillPlane ); }
 
     void callFixSTL();
 

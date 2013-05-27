@@ -45,6 +45,7 @@ protected:
   mat3_t m_G, m_GI;
   double m_A;
   double m_SmallestLength;
+  double m_LongestLength;
   double m_SmallestHeight;
   bool   m_Valid;
   vec3_t m_NormalA, m_NormalB, m_NormalC;
@@ -96,6 +97,7 @@ public:
   vec3_t rNb() { return m_RNormalB; }
   vec3_t rNc() { return m_RNormalC; }
   double smallestLength() { return m_SmallestLength; }
+  double longestLength() { return m_LongestLength; }
   double smallestHeight() { return m_SmallestHeight; }
   void setNormals(vec3_t na, vec3_t nb, vec3_t nc);
 

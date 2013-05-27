@@ -296,7 +296,7 @@ bool SurfaceOperation::checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdTyp
   for (int i = 0; i < m_Part.n2bcGSize(id_node2); ++i) {
     bcs2.insert(m_Part.n2bcG(id_node2, i));
   }
-  if (bcs1 == bcs2) {
+  if (bcs2.contains(bcs1)) {
     return true;
   }
   return false;
@@ -430,6 +430,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     bool convex = isConvexNode(id_node);
 
     x0 = cad_interface->projectNode(id_node, x0, m_NodeNormal[id_node]);
+    //x0 = cad_interface->snapNode(id_node, x0);
     if (convex) {
       x = x0 - L*m_NodeNormal[id_node];
     } else {

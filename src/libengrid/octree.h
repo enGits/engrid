@@ -215,6 +215,7 @@ public: // methods
   bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
   bool   isInsideBounds(vec3_t x);
+  bool   isInsideCell(int cell, vec3_t x, double overlap = 0);
 
   void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true, bool create_fields = false);
 
