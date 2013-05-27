@@ -402,6 +402,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\$ICONS_GROUP\enGrid.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\enGrid Wiki.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Browse Tutorials.lnk"
+  Delete "$SMPROGRAMS\$ICONS_GROUP\Browse Scripts for Blender.lnk"
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
 
   ; Take care of the parent folder here as well
