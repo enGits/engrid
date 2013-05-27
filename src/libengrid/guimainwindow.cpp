@@ -1734,10 +1734,6 @@ void GuiMainWindow::changeSurfaceOrientation()
 void GuiMainWindow::checkSurfaceOrientation()
 {
   CorrectSurfaceOrientation corr_surf;
-  vtkIdType picked_cell = getPickedCell();
-  if (picked_cell >= 0) {
-    corr_surf.setStart(picked_cell);
-  }
   corr_surf();
   updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
