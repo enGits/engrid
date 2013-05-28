@@ -28,12 +28,13 @@
 
 void GuiFillPlane::fillPlane(vec3_t x, vec3_t n, bool inverse, QString name)
 {
-  double tol = m_Ui.m_LineEditPrec->text().toDouble();
+  double tol = m_Ui.m_LineEditDistTol->text().toDouble();
   n.normalise();
   FillPlane fill;
   fill.setOrigin(x);
   fill.setNormal(n);
-  fill.setTolerance(tol);
+  fill.setDistanceTolerance(m_Ui.m_LineEditDistTol->text().toDouble());
+  fill.setAngularTolerance(GeometryTools::deg2rad(m_Ui.m_LineEditAngTol->text().toDouble()));
   if (inverse) {
     fill.setInverseDirectionOn();
   } else {

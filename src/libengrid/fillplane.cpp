@@ -33,6 +33,8 @@
 FillPlane::FillPlane()
 {
   m_InverseDirection = false;
+  m_DistTol = 0;
+  m_AngleTol = deg2rad(10);
   m_BC = 0;
 }
 
@@ -50,7 +52,7 @@ vec3_t FillPlane::fromPlane(vec3_t x)
 
 bool FillPlane::isWithinTolerance(vec3_t x)
 {
-  if (fabs((x - m_X0)*m_N) < m_Tol) {
+  if (fabs((x - m_X0)*m_N) < m_DistTol) {
     return true;
   }
   return false;
@@ -60,19 +62,38 @@ void FillPlane::createEdgesOnPlane(vtkUnstructuredGrid *edge_grid)
 {
   vtkIdType num_edges = 0;
   vtkIdType num_nodes = 0;
-  QVector<vtkIdType> node_map(m_Grid->GetNumberOfPoints(), -1);
-  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
-    vec3_t x;
-    m_Grid->GetPoint(id_node1, x.data());
-    if (isWithinTolerance(x)) {
-      node_map[id_node1] = num_nodes;
-      ++num_nodes;
-      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
-        if (node_map[id_node2] != -1) {
-          ++num_edges;
+
+  QVector<bool> is_edge_node(m_Grid->GetNumberOfPoints(), false);
+  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+    vtkIdType num_pts, *pts;
+    if (isSurface(id_face, m_Grid)) {
+      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      for (int i = 0; i < num_pts; ++i) {
+        if (m_Part.c2cGG(id_face, i) == -1) {
+          vtkIdType id_node1 = pts[i];
+          vtkIdType id_node2 = pts[0];
+          if (i < num_pts - 1) {
+            id_node2 = pts[i + 1];
+          }
+          vec3_t x1, x2;
+          m_Grid->GetPoint(id_node1, x1.data());
+          m_Grid->GetPoint(id_node2, x2.data());
+          if (isWithinTolerance(x1) && isWithinTolerance(x2)) {
+            is_edge_node[id_node1] = true;
+            is_edge_node[id_node2] = true;
+            ++num_edges;
+          }
         }
       }
+    }
+  }
+
+
+  QVector<vtkIdType> node_map(m_Grid->GetNumberOfPoints(), -1);
+  for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
+    if (is_edge_node[id_node1]) {
+      node_map[id_node1] = num_nodes;
+      ++num_nodes;
     }
   }
   m_NodeMap.resize(num_nodes);
@@ -83,13 +104,27 @@ void FillPlane::createEdgesOnPlane(vtkUnstructuredGrid *edge_grid)
       vec3_t x;
       m_Grid->GetPoint(id_node1, x.data());
       edge_grid->GetPoints()->SetPoint(node_map[id_node1], x.data());
-      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
-        if (node_map[id_node2] != -1 && id_node2 > id_node1) {
-          vtkIdType pts[2];
-          pts[0] = node_map[id_node1];
-          pts[1] = node_map[id_node2];
-          edge_grid->InsertNextCell(VTK_LINE, 2, pts);
+    }
+  }
+
+
+  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
+    vtkIdType num_pts, *pts;
+    if (isSurface(id_face, m_Grid)) {
+      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      for (int i = 0; i < num_pts; ++i) {
+        if (m_Part.c2cGG(id_face, i) == -1) {
+          vtkIdType id_node1 = pts[i];
+          vtkIdType id_node2 = pts[0];
+          if (i < num_pts - 1) {
+            id_node2 = pts[i + 1];
+          }
+          if (is_edge_node[id_node1] && is_edge_node[id_node2]) {
+            vtkIdType pts[2];
+            pts[0] = node_map[id_node1];
+            pts[1] = node_map[id_node2];
+            edge_grid->InsertNextCell(VTK_LINE, 2, pts);
+          }
         }
       }
     }
@@ -136,12 +171,17 @@ void FillPlane::closeLoops(vtkUnstructuredGrid *edge_grid)
             vec3_t n2 = m_Part.globalNormal(m_NodeMap[id_node2]);
             vec3_t x2;
             edge_grid->GetPoint(id_node2, x2.data());
-            if (n1*n2 < -0.5) {
-              double dist = (x1 - x2).abs();
-              if (dist < dist_min) {
-                dist_min = dist;
-                id_fill1 = id_node1;
-                id_fill2 = id_node2;
+            double angle = GeometryTools::angle(n1, -1*n2);
+            if (angle < m_AngleTol) {
+              vec3_t d = x2 - x1;
+              double dist = d.abs();
+              d.normalise();
+              if (d*n2 > 0.5 && d*n1 < -0.5) {
+                if (dist < dist_min) {
+                  dist_min = dist;
+                  id_fill1 = id_node1;
+                  id_fill2 = id_node2;
+                }
               }
             }
           }
@@ -319,14 +359,15 @@ void FillPlane::operate()
   EG_VTKSP(vtkUnstructuredGrid, tri_grid);
   EG_VTKSP(vtkPolyData, edge_pdata);
   createEdgesOnPlane(edge_grid);
-  gridToPlane(edge_grid);
+  writeGrid(edge_grid, "filltest1");
   closeLoops(edge_grid);
+  writeGrid(edge_grid, "filltest2");
+  gridToPlane(edge_grid);
   order(edge_grid, edge_pdata);
   triangulate(edge_pdata, tri_grid);
   gridFromPlane(tri_grid);
-  writeGrid(tri_grid, "filltest");
   MeshPartition tri_part(tri_grid, true);
-  m_Part.addPartition(tri_part, m_Tol);
+  m_Part.addPartition(tri_part, m_DistTol);
   m_Grid->Modified();
   CorrectSurfaceOrientation corr_surf;
   corr_surf();

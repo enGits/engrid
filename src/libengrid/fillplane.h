@@ -35,7 +35,8 @@ protected: // attributes
   vec3_t m_N;
   vec3_t m_G1;
   vec3_t m_G2;
-  double m_Tol;
+  double m_DistTol;
+  double m_AngleTol;
   bool   m_InverseDirection;
   int    m_BC;
 
@@ -63,7 +64,8 @@ public:
 
   void setOrigin(vec3_t x) { m_X0 = x; }
   void setNormal(vec3_t n) { m_N = n; }
-  void setTolerance(double t) { m_Tol = t; }
+  void setDistanceTolerance(double t) { m_DistTol = t; }
+  void setAngularTolerance(double a) { m_AngleTol = a; }
   void setInverseDirectionOn() { m_InverseDirection = true; }
   void setInverseDirectionOff() { m_InverseDirection = false; }
   int  getBC() { return m_BC; }
