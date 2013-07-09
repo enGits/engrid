@@ -535,6 +535,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callExportSu2()                  { EG_STDREADERSLOT( Su2Writer ); }
     void callExportDolfyn()               { EG_STDREADERSLOT( DolfynWriter ); }
     void callExportTau()                  { EG_STDREADERSLOT( TauWriter ); }
+    void callExportDrNum()                { EG_STDREADERSLOT( DrNumWriter ); }
 
     void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }

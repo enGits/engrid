@@ -177,6 +177,7 @@
     <addaction name="actionExportAsciiPly"/>
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
+    <addaction name="actionExportDrNum"/>
     <addaction name="actionExportDolfyn"/>
     <addaction name="actionExportSu2"/>
     <addaction name="actionExportTau"/>
@@ -1730,6 +1731,14 @@
    </property>
    <property name="toolTip">
     <string>fill plance with triangles</string>
+   </property>
+  </action>
+  <action name="actionExportDrNum">
+   <property name="text">
+    <string>DrNUM</string>
+   </property>
+   <property name="toolTip">
+    <string>export as DrNUM case</string>
    </property>
   </action>
  </widget>

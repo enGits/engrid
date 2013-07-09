@@ -307,12 +307,7 @@ void UpdateDesiredMeshDensity::operate()
     double cl = m_MaxEdgeLength;
     if (m_BoundaryCodes.size() > 0) {
       int idx = characteristic_length_specified->GetValue(id_node);
-      if (idx != -1) {
-        if (idx >= m_VMDvector.size()) {
-          qWarning()<<"idx="<<idx;
-          qWarning()<<"m_VMDvector.size()="<<m_VMDvector.size();
-          EG_BUG;
-        }
+      if ((idx >= 0) && (idx < m_VMDvector.size())) {
         cl = m_VMDvector[idx].density;
       }
     }

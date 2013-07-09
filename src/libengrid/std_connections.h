@@ -36,6 +36,7 @@ connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportSu2,              SIGNAL(triggered()),       this, SLOT(callExportSu2()));
 connect(ui.actionExportDolfyn,           SIGNAL(triggered()),       this, SLOT(callExportDolfyn()));
 connect(ui.actionExportTau,              SIGNAL(triggered()),       this, SLOT(callExportTau()));
+connect(ui.actionExportDrNum,            SIGNAL(triggered()),       this, SLOT(callExportDrNum()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
 connect(ui.actionZoomOnPickedObject,     SIGNAL(triggered()),       this, SLOT(zoomOnPickedObject()));

@@ -225,7 +225,9 @@ HEADERS = \
     vtkreader.h \
     xmlhandler.h \
     guifillplane.h \
-    fillplane.h
+    fillplane.h \
+    drnumwriter.h \
+    computemeshdensity.h
 
 
 SOURCES = \
@@ -362,7 +364,9 @@ SOURCES = \
     vtkreader.cpp \
     xmlhandler.cpp \
     guifillplane.cpp \
-    fillplane.cpp
+    fillplane.cpp \
+    drnumwriter.cpp \
+    computemeshdensity.cpp
 
 
 FORMS = \

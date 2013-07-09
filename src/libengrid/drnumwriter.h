@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,54 +19,65 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
-#include "guicreatehexcore.h"
+#ifndef DRNUMWRITER_H
+#define DRNUMWRITER_H
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
-#include "checkforoverlap.h"
-#include "guisurfacemesher.h"
-#include "brlcadreader.h"
-#include "su2writer.h"
-#include "dolfynwriter.h"
-#include "tauwriter.h"
-#include "guifillplane.h"
-#include "drnumwriter.h"
+#include "iooperation.h"
+#include "edgelengthsourcemanager.h"
 
-// -------------------------------------------
+#include <QFile>
+#include <QTextStream>
+
+/**
+ * @brief A very experimental export function for DrNUM grids.
+ */
+class DrNumWriter : public IOOperation
+{
+
+protected: // data types
+
+  struct cart_patch_t
+  {
+    vec3_t    x0, gi, gj;
+    int       Ni, Nj, Nk, sl_i1, sl_i2, sl_j1, sl_j2, sl_k1, sl_k2;
+    double    Li, Lj, Lk;
+    QString   fx, fy, fz, bx, bX, by, bY, bz, bZ, s;
+    vtkIdType id_cell;
+  };
+
+
+protected: // attributes
+
+  QString m_PatchFile;   ///< the name of the DrNUM patches file
+  QString m_ComplexPath; ///< the path to the DrNUM directory for complex patches
+
+  QVector<cart_patch_t>   m_CartPatches;
+  QVector<int>            m_CellToCartPatch;
+  int                     m_OverlapLayers;
+  QVector<double>         m_H;
+  double                  m_MaxEdgeLength;
+  double                  m_MinEdgeLength;
+  double                  m_GrowthFactor;
+  EdgeLengthSourceManager m_ELSManager;
+
+
+
+protected: // methods
+
+  void computeMeshDensity();
+  void createAllCartPatches();
+  void writeCartPatches(QTextStream &s);
+  QString boundaryCode(vtkIdType id_cell, int i);
+
+  virtual void operate();
+
+
+public: // methods
+
+  DrNumWriter();
+
+};
+
+#endif // DRNUMWRITER_H
