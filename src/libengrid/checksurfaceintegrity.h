@@ -31,8 +31,9 @@ class CheckSurfaceIntegrity : public SurfaceOperation
 private:
 
   bool m_IsWaterTight;
-  int  m_Nmin;
-  int  m_Nmax;
+  int  m_NumMin;
+  int  m_NumMax;
+  int  m_NumEmptyCells;
   QSet <vtkIdType> m_BadCells;
   QVector<int> m_NumCells;
   
@@ -41,8 +42,9 @@ public:
 
   CheckSurfaceIntegrity();
   bool isWaterTight();
-  int getNmin() { return(m_Nmin); }
-  int getNmax() { return(m_Nmax); }
+  int getNumMin() { return(m_NumMin); }
+  int getNumMax() { return(m_NumMax); }
+  int getNumEmpty() { return m_NumEmptyCells; }
   QSet <vtkIdType> getBadCells() { return(m_BadCells); }
   
 
