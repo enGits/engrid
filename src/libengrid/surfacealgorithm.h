@@ -74,7 +74,7 @@ protected: // methods
 protected: // methods
 
   void prepare();
-  void swap();
+  void swap(double delaunay_threshold = 1.0, bool verbose = false);
   void smooth(int N_iter, bool correct_curvature = false);
   int  insertNodes();
   int  deleteNodes();
