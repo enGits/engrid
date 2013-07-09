@@ -32,6 +32,7 @@ FoamWriter::FoamWriter()
   EG_TYPENAME;
   setFormat("Foam boundary files(boundary)");
   setExtension("");
+  m_CreateCellZones = true;
 }
 
 void FoamWriter::writePoints(const PolyMesh &poly)
@@ -247,6 +248,72 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
   f << "// ************************************************************************* //\n\n\n";
 }
 
+void FoamWriter::writeCellZones()
+{
+  QString filename = m_Path + "cellZones";
+  QFile file(filename);
+  file.open(QIODevice::WriteOnly);
+  QTextStream f(&file);
+  f << "/*--------------------------------*- C++ -*----------------------------------*\\\n";
+  f << "| =========                 |                                                 |\n";
+  f << "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n";
+  f << "|  \\    /   O peration     | Version:  1.5                                   |\n";
+  f << "|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |\n";
+  f << "|    \\/     M anipulation  |                                                 |\n";
+  f << "\\*---------------------------------------------------------------------------*/\n\n";
+  f << "FoamFile\n";
+  f << "{\n";
+  f << "    version     2.0;\n";
+  f << "    format      ascii;\n";
+  f << "    class       regIOobject;\n";
+  f << "    location    \"constant/polyMesh\";\n";
+  f << "    object      cellZones;\n";
+  f << "}\n\n";
+  f << "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\n";
+  f << m_CellZoneLimits.size() - 1 << "\n";
+  f << "(\n";
+  for (int i = 0; i < m_CellZoneNames.size(); ++i) {
+    f << m_CellZoneNames[i] << "\n";
+    f << "{\n";
+    f << "type cellZone;\n";
+    f << "cellLabels List<label>\n";
+    f << m_CellZoneLimits[i+1] - m_CellZoneLimits[i] << "\n";
+    f << "(\n";
+    for (int j = m_CellZoneLimits[i]; j < m_CellZoneLimits[i+1]; ++j) {
+      f << j << "\n";
+    }
+    f << ");\n";
+    f << "}\n";
+  }
+  f << ")\n\n";
+  f << "// ************************************************************************* //\n\n\n";
+}
+
+PolyMesh* FoamWriter::createSinglePolyMesh()
+{
+  m_CellZoneLimits.clear();
+  m_CellZoneNames.clear();
+  QList<VolumeDefinition> vols = mainWindow()->getAllVols();
+  PolyMesh* poly = NULL;
+  m_CellZoneLimits.append(0);
+  for (int i = 0; i < vols.size(); ++i) {
+    m_CellZoneNames.append(vols[i].getName());
+    EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+    MeshPartition volume(vols[i].getName());
+    volume.setVolumeOrientation();
+    volume.extractToVtkGrid(vol_grid);
+    if (i == 0) {
+      poly = new PolyMesh(vol_grid);
+    } else {
+      PolyMesh vol_poly(vol_grid);
+      poly->merge(&vol_poly);
+    }
+    m_CellZoneLimits.append(poly->numPolyCells());
+  }
+  return poly;
+}
+
+
 void FoamWriter::writeSingleVolume()
 {
   try {
@@ -258,28 +325,32 @@ void FoamWriter::writeSingleVolume()
       QDir d2(p2);
       if (!d1.exists()) {
         EG_BUG;
-      };
+      }
       if (!d2.exists()) {
         d1.mkdir("constant");
         d2 = QDir(p2);
-      };
+      }
       d1 = d2;
       p1 = p2;
       p2 = p1 + "/polyMesh";
       d2 = QDir(p2);
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
-      };
+      }
       m_Path = getFileName() + "/constant/polyMesh/";
       if (!QDir(m_Path).exists()) {
         EG_BUG;
-      };
-      PolyMesh poly(m_Grid);
-      writePoints(poly);
-      writeFaces(poly);
-      writeOwner(poly);
-      writeNeighbour(poly);
-      writeBoundary(poly);
+      }
+      PolyMesh* poly = createSinglePolyMesh();
+      writePoints(*poly);
+      writeFaces(*poly);
+      writeOwner(*poly);
+      writeNeighbour(*poly);
+      writeBoundary(*poly);
+      if (m_CellZoneLimits.size() > 2) {
+        writeCellZones();
+      }
+      delete poly;
     }
   } catch (Error err) {
     err.display();
@@ -373,7 +444,7 @@ void FoamWriter::writeMultipleVolumes()
 
 void FoamWriter::operate()
 {
-  if (mainWindow()->getAllVols().size() <= 1) {
+  if (mainWindow()->getAllVols().size() <= 1 || m_CreateCellZones) {
     writeSingleVolume();
   } else {
     writeMultipleVolumes();

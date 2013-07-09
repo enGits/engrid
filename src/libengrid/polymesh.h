@@ -126,6 +126,7 @@ protected: // methods
   void buildPCell2Face();
   void triangulateBadFaces();
   void splitConcaveCells();
+  void collectBoundaryConditions();
 
   vec3_t faceNormal(int i);
    
@@ -147,6 +148,9 @@ public: // methods
   int    numCells() const              { return m_NumPolyCells; }
   int    numFacesOfPCell(int i)        { return m_PCell2Face[i].size(); }
   int    pcell2Face(int i, int j)      { return m_PCell2Face[i][j]; }
+  int    numPolyCells()                { return m_NumPolyCells; }
+
+  void merge(PolyMesh* poly);
 
 };
 

@@ -180,6 +180,22 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
   qSort(m_Faces);
 }
 
+void PolyMesh::merge(PolyMesh *poly)
+{
+  foreach (face_t face, poly->m_Faces) {
+    for (int i = 0; i < face.node.size(); ++i) {
+      face.node[i] += m_Points.size();
+    }
+    face.owner += m_NumPolyCells;
+    face.neighbour += m_NumPolyCells;
+    m_Faces.append(face);
+  }
+  m_Points += poly->m_Points;
+  m_NumPolyCells += poly->m_NumPolyCells;
+  qSort(m_Faces);
+  collectBoundaryConditions();
+}
+
 void PolyMesh::triangulateBadFaces()
 {
   m_IsBadCell.fill(false, numCells());
@@ -1190,6 +1206,18 @@ void PolyMesh::splitConcaveFaces()
   buildPCell2Face();
 }
 
+void PolyMesh::collectBoundaryConditions()
+{
+  QSet<int> bcs;
+  foreach (face_t face, m_Faces) {
+    if (face.bc != 0) {
+      bcs.insert(face.bc);
+    }
+  }
+  m_BCs.resize(bcs.size());
+  qCopy(bcs.begin(), bcs.end(), m_BCs.begin());
+}
+
 void PolyMesh::createNodesAndFaces()
 {
   m_Nodes.resize(m_Grid->GetNumberOfPoints());
@@ -1251,16 +1279,7 @@ void PolyMesh::createNodesAndFaces()
 
   //splitConcaveFaces();
   qSort(m_Faces);
-
-  QSet<int> bcs;
-  foreach (face_t face, m_Faces) {
-    if (face.bc != 0) {
-      bcs.insert(face.bc);
-    }
-  }
-  m_BCs.resize(bcs.size());
-  qCopy(bcs.begin(), bcs.end(), m_BCs.begin());
-
+  collectBoundaryConditions();
 }
 
 vec3_t PolyMesh::faceNormal(int i)
