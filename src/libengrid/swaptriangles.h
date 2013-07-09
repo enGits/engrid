@@ -47,6 +47,8 @@ private: // attributes
   double        m_SurfErrorRatio;
   double        m_AverageSurfaceError;
   double        m_SurfaceErrorDeviation;
+  double        m_DelaunayThreshold;
+  int           m_NumSwaps;
 
 private: // methods
   
@@ -77,6 +79,8 @@ public:
   void setSmallAreaSwap(bool b)  { m_SmallAreaSwap = b; }
   void setVerboseOn() { m_Verbose = true; }
   void setVerboseOff() { m_Verbose = false; }
+  void setDelaunayThreshold(double t) { m_DelaunayThreshold = t; }
+  int  getNumSwaps() { return m_NumSwaps; }
 
 };
 
