@@ -162,17 +162,29 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
     int num_bad = 0;
     int i_improve = 0;
     for (int i = 0; i < numCells(); ++i) {
-      PolyMolecule pm(this, i);
-      if (!pm.allPositive()) {
-        ++i_improve;
-        pm.fix();
-        if (pm.minPyramidVolume() < 0) {
-          ++num_bad;
+
+      // check if any of the faces is a boundary face
+      bool no_boundary = true;
+      for (int j = 0; j < numFacesOfPCell(i); ++j) {
+        int bc = boundaryCode(pcell2Face(i, j));
+        if (bc != 0) {
+          no_boundary = false;
+          break;
+        }
+      }
+
+      if (no_boundary) {
+        PolyMolecule pm(this, i);
+        if (!pm.allPositive()) {
+          ++i_improve;
+          pm.fix();
+          if (pm.minPyramidVolume() < 0) {
+            ++num_bad;
+          }
         }
       }
     }
     cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
-    //cout << num_bad << " cells out of " << numCells() << " are still concave!" << endl;
     if (num_bad == 0) {
       break;
     }
@@ -387,39 +399,7 @@ void PolyMesh::splitConcaveCells()
           }
         }
       }
-      /*
-      EG_FORALL_NODES(id_node, poly) {
-        div->SetValue(id_node, 0);
-        if (div_node[id_node]) {
-          div->SetValue(id_node, 1);
-        }
-      }
-      div->SetValue(id_ref, 2);
-      */
       poly->GetPointData()->AddArray(div);
-
-
-
-
-      //EG_VTKSP(vtkDoubleArray, dist);
-      //dist->SetNumberOfComponents(1);
-      //dist->SetNumberOfTuples(poly->GetNumberOfCells());
-      //dist->SetName("dist");
-      /*
-      EG_FORALL_CELLS(id_face, poly) {
-        vec3_t xf(0,0,0);
-        EG_GET_CELL(id_face, poly);
-        for (int i = 0; i < num_pts; ++i) {
-          vec3_t x;
-          poly->GetPoint(pts[i], x.data());
-          xf += x;
-        }
-        xf *= 1.0/num_pts;
-        dist->SetValue(id_face, (xf - x_ref)*n_ref);
-      }
-      poly->GetCellData()->AddArray(dist);
-      */
-
       EG_VTKSP(vtkXMLPolyDataWriter, vtp);
       vtp->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/triangulated_cell.vtp"));
       vtp->SetInput(poly);
