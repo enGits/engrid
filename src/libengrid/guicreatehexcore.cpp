@@ -45,14 +45,22 @@ void GuiCreateHexCore::before()
   m_X2 = vec3_t(xmax, xmax, xmax);
   QString num;
   vec3_t xi = 0.5*(x1 + x2);
-  num.setNum(xi[0]); m_Ui.lineEditCiX->setText(num);
-  num.setNum(xi[1]); m_Ui.lineEditCiY->setText(num);
-  num.setNum(xi[2]); m_Ui.lineEditCiZ->setText(num);
+  num.setNum(xi[0]);   m_Ui.lineEditCiX->setText(num);
+  num.setNum(xi[1]);   m_Ui.lineEditCiY->setText(num);
+  num.setNum(xi[2]);   m_Ui.lineEditCiZ->setText(num);
+  num.setNum(m_X1[0]); m_Ui.lineEditX1->setText(num);
+  num.setNum(m_X1[1]); m_Ui.lineEditY1->setText(num);
+  num.setNum(m_X1[2]); m_Ui.lineEditZ1->setText(num);
+  num.setNum(m_X2[0]); m_Ui.lineEditX2->setText(num);
+  num.setNum(m_X2[1]); m_Ui.lineEditY2->setText(num);
+  num.setNum(m_X2[2]); m_Ui.lineEditZ2->setText(num);
 }
 
 void GuiCreateHexCore::operate()
 {
   vec3_t xi(m_Ui.lineEditCiX->text().toDouble(), m_Ui.lineEditCiY->text().toDouble(), m_Ui.lineEditCiZ->text().toDouble());
+  m_X1 = vec3_t(m_Ui.lineEditX1->text().toDouble(), m_Ui.lineEditY1->text().toDouble(), m_Ui.lineEditZ1->text().toDouble());
+  m_X2 = vec3_t(m_Ui.lineEditX2->text().toDouble(), m_Ui.lineEditY2->text().toDouble(), m_Ui.lineEditZ2->text().toDouble());
   CreateHexCore create_hex_core(m_X1, m_X2, xi);
   create_hex_core();
 }
