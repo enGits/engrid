@@ -560,6 +560,17 @@ protected: // methods
   template <typename C>
   void sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cell1, vtkIdType id_cell2, C& cont);
 
+  /**
+   * @brief Get all nodes of a cell from a vtkUnstructuredGrid
+   * This methods collects all nodes of a cell in a generic Qt container.
+   * It can be used uniformly for VTK_POLYHEDRON cells and standard cells.
+   * @param grid the grid to use
+   * @param id_cell the cell index
+   * @param cont a generic Qt container which will hold node indices on return
+   */
+  template <typename C>
+  void getPointsOfCell(vtkUnstructuredGrid* grid, vtkIdType id_cell, C& cont);
+
   template <class C> void createPolyData(const C &x, vtkPolyData *poly_data, bool closed_loop = false);
   void createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c);
   void createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2c);
@@ -769,6 +780,28 @@ void EgVtkObject::sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cel
   }
 }
 
-
+template <typename C>
+void EgVtkObject::getPointsOfCell(vtkUnstructuredGrid* grid, vtkIdType id_cell, C& cont)
+{
+  cont.clear();
+  vtkIdType num, *stream;
+  vtkIdType type_cell = grid->GetCellType(id_cell);
+  if (type_cell == VTK_POLYHEDRON) {
+    grid->GetFaceStream(id_cell, num, stream);
+    vtkIdType id = 0;
+    for (int i = 0; i < num; ++i) {
+      int num_pts = stream[id++];
+      for (int j = 0; j < num_pts; ++j) {
+        cont << stream[id++];
+      }
+    }
+  } else {
+    vtkIdType *stream;
+    grid->GetCellPoints(id_cell, num, stream);
+    for (vtkIdType i = 0; i < num; ++i) {
+      cont << stream[i];
+    }
+  }
+}
 
 #endif

@@ -156,4 +156,4 @@ void GuiTransform::operate()
     }
   }
   m_Grid->Modified();// to force a drawing update
-};
+}

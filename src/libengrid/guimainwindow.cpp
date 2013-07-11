@@ -146,8 +146,8 @@ void GuiMainWindow::setupGuiMainWindow()
   m_StatusLabel = new QLabel(this);
   statusBar()->addWidget(m_StatusLabel);
 
-  QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms), ";
-  txt += "0 surface cells (0 triangles, 0 quads), 0 nodes";
+  QString txt = "0 volume cells (0 tetras, 0 hexas, 0 pyramids, 0 prisms, 0 polys), ";
+  txt += "0 surface cells (0 triangles, 0 quads, 0 polys), 0 nodes";
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
@@ -354,6 +354,10 @@ void GuiMainWindow::setupVtk()
   getSet("Colours", " hexes (2-green)",    0.7, m_ColHexG);
   getSet("Colours", " hexes (3-blue)",     1.0, m_ColHexB);
 
+  getSet("Colours", " polys (1-red)",      0.7, m_ColPolyR);
+  getSet("Colours", " polys (2-green)",    1.0, m_ColPolyG);
+  getSet("Colours", " polys (3-blue)",     1.0, m_ColPolyB);
+
   m_Grid = vtkUnstructuredGrid::New();
   m_Renderer = vtkRenderer::New();
   getRenderWindow()->AddRenderer(m_Renderer);
@@ -367,7 +371,7 @@ void GuiMainWindow::setupVtk()
 
   // surface pipelines
   m_BackfaceProperty  = vtkProperty::New();
-  m_SurfaceFilter     = vtkGeometryFilter::New();
+  m_SurfaceFilter     = vtkDataSetSurfaceFilter::New();
   m_SurfaceMapper     = vtkPolyDataMapper::New();
   m_SurfaceWireMapper = vtkPolyDataMapper::New();
   m_BCodesFilter      = vtkEgBoundaryCodesFilter::New();
@@ -401,7 +405,7 @@ void GuiMainWindow::setupVtk()
   // tetra pipline
   m_ExtrTetras   = vtkEgExtractVolumeCells::New();
   m_TetraActor   = vtkActor::New();
-  m_TetraGeometry = vtkGeometryFilter::New();
+  m_TetraGeometry = vtkDataSetSurfaceFilter::New();
   m_TetraMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrTetras->SetInput(m_Grid);
@@ -417,7 +421,7 @@ void GuiMainWindow::setupVtk()
   // pyramid pipeline
   m_PyramidActor   = vtkActor::New();
   m_ExtrPyramids   = vtkEgExtractVolumeCells::New();
-  m_PyramidGeometry = vtkGeometryFilter::New();
+  m_PyramidGeometry = vtkDataSetSurfaceFilter::New();
   m_PyramidMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrPyramids->SetInput(m_Grid);
@@ -433,7 +437,7 @@ void GuiMainWindow::setupVtk()
   // wedge pipeline
   m_WedgeActor   = vtkActor::New();
   m_ExtrWedges   = vtkEgExtractVolumeCells::New();
-  m_WedgeGeometry = vtkGeometryFilter::New();
+  m_WedgeGeometry = vtkDataSetSurfaceFilter::New();
   m_WedgeMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrWedges->SetInput(m_Grid);
@@ -449,7 +453,7 @@ void GuiMainWindow::setupVtk()
   // hexa pipeline
   m_HexaActor   = vtkActor::New();
   m_ExtrHexes   = vtkEgExtractVolumeCells::New();
-  m_HexaGeometry = vtkGeometryFilter::New();
+  m_HexaGeometry = vtkDataSetSurfaceFilter::New();
   m_HexaMapper  = vtkPolyDataMapper::New();
   //
   m_ExtrHexes->SetInput(m_Grid);
@@ -465,7 +469,7 @@ void GuiMainWindow::setupVtk()
   // polyhedra pipeline
   m_PolyhedraActor    = vtkActor::New();
   m_ExtrPolyhedra     = vtkEgExtractVolumeCells::New();
-  m_PolyhedraGeometry = vtkGeometryFilter::New();
+  m_PolyhedraGeometry = vtkDataSetSurfaceFilter::New();
   m_PolyhedraMapper   = vtkPolyDataMapper::New();
   //
   m_ExtrPolyhedra->SetInput(m_Grid);
@@ -474,14 +478,14 @@ void GuiMainWindow::setupVtk()
   m_PolyhedraGeometry->SetInput(m_ExtrPolyhedra->GetOutput());
   m_PolyhedraMapper->SetInput(m_PolyhedraGeometry->GetOutput());
   m_PolyhedraActor->SetMapper(m_PolyhedraMapper);
-  m_PolyhedraActor->GetProperty()->SetColor(1,0.5,0);
+  m_PolyhedraActor->GetProperty()->SetColor(m_ColPolyR, m_ColPolyG, m_ColPolyB);
   getRenderer()->AddActor(m_PolyhedraActor);
   m_PolyhedraActor->SetVisibility(0);
 
   // volume wire pipeline
   m_VolumeWireActor  = vtkActor::New();
   m_ExtrVol          = vtkEgExtractVolumeCells::New();
-  m_VolumeGeometry   = vtkGeometryFilter::New();
+  m_VolumeGeometry   = vtkDataSetSurfaceFilter::New();
   m_VolumeWireMapper = vtkPolyDataMapper::New();
   //
   m_ExtrVol->SetInput(m_Grid);
@@ -517,7 +521,6 @@ void GuiMainWindow::setupVtk()
   m_PickedObject = 0;
 
   viewFront();
-//   cbc->Delete();
 }
 
 void GuiMainWindow::updateOutput()
@@ -813,6 +816,8 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       if (forced) {
         m_PolyhedraGeometry->Update();
       }
+      cout << "m_ExtrPolyhedra->GetOutput()->GetNumberOfCells() = " << m_ExtrPolyhedra->GetOutput()->GetNumberOfCells() << endl;
+      cout << "m_PolyhedraGeometry->GetOutput()->GetNumberOfCells() = " << m_PolyhedraGeometry->GetOutput()->GetNumberOfCells() << endl;
       m_PolyhedraActor->SetVisibility(1);
     } else {
       m_ExtrVol->SetPolysOff();
@@ -1382,27 +1387,33 @@ void GuiMainWindow::updateStatusBar()
   vtkIdType Nnodes = m_Grid->GetNumberOfPoints();
   vtkIdType Ntris  = 0;
   vtkIdType Nquads = 0;
+  vtkIdType Nplgs  = 0;
   vtkIdType Ntets  = 0;
   vtkIdType Npyras = 0;
   vtkIdType Nprism = 0;
   vtkIdType Nhexas = 0;
+  vtkIdType Npolys = 0;
   for (vtkIdType i = 0; i < Ncells; ++i) {
     int ct = m_Grid->GetCellType(i);
     if      (ct == VTK_TRIANGLE)   ++Ntris;
     else if (ct == VTK_QUAD)       ++Nquads;
+    else if (ct == VTK_POLYGON)    ++Nplgs;
     else if (ct == VTK_TETRA)      ++Ntets;
     else if (ct == VTK_WEDGE)      ++Nprism;
     else if (ct == VTK_PYRAMID)    ++Npyras;
     else if (ct == VTK_HEXAHEDRON) ++Nhexas;
+    else if (ct == VTK_POLYHEDRON) ++Npolys;
   }
   num.setNum(Ntets + Npyras + Nprism + Nhexas); txt += num + " volume cells(";
   num.setNum(Ntets);  txt += num + " tetras, ";
   num.setNum(Npyras); txt += num + " pyramids, ";
   num.setNum(Nprism); txt += num + " prisms, ";
-  num.setNum(Nhexas); txt += num + " hexas), ";
+  num.setNum(Nhexas); txt += num + " hexas, ";
+  num.setNum(Npolys); txt += num + " polys), ";
   num.setNum(Ntris + Nquads); txt += num + " surface cells(";
   num.setNum(Ntris);  txt += num + " triangles, ";
-  num.setNum(Nquads); txt += num + " quads), ";
+  num.setNum(Nquads); txt += num + " quads, ";
+  num.setNum(Nplgs);  txt += num + " polys), ";
   num.setNum(Nnodes); txt += num + " nodes";
 
   if(ui.radioButton_CellPicker->isChecked())
@@ -1415,10 +1426,12 @@ void GuiMainWindow::updateStatusBar()
       vtkIdType type_cell = m_Grid->GetCellType(id_cell);
       if      (type_cell == VTK_TRIANGLE)   pick_txt += "tri";
       else if (type_cell == VTK_QUAD)       pick_txt += "qua";
+      else if (type_cell == VTK_POLYGON)    pick_txt += "plg";
       else if (type_cell == VTK_TETRA)      pick_txt += "tet";
       else if (type_cell == VTK_PYRAMID)    pick_txt += "pyr";
       else if (type_cell == VTK_WEDGE)      pick_txt += "pri";
       else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hex";
+      else if (type_cell == VTK_POLYHEDRON) pick_txt += "pol";
       vtkIdType N_pts, *pts;
       m_Grid->GetCellPoints(id_cell, N_pts, pts);
       pick_txt += " [";
@@ -1447,27 +1460,10 @@ void GuiMainWindow::updateStatusBar()
     if (id_node < 0) {
       pick_txt += "no node picked";
     } else {
-      /*
-      vec3_t x;
-      m_Grid->GetPoints()->GetPoint(id_node,x.data());
-      pick_txt += " [";
-      for (int i = 0; i < 3; i++) {
-        QString num;
-        num.setNum(x[i]);
-        pick_txt += num;
-        if (i < 2) {
-          pick_txt += ",";
-        }
-      }
-      pick_txt += "]";
-      */
       QString tmp;
       EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
       tmp.setNum(characteristic_length_desired->GetValue(id_node));
       pick_txt += " wanted density=" + tmp;
-      //EG_VTKDCN(vtkDoubleArray, node_meshdensity_current, m_Grid, "node_meshdensity_current");
-      //tmp.setNum(node_meshdensity_current->GetValue(id_node));
-      //pick_txt += " current density=" + tmp;
       EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
       tmp.setNum(node_specified_density->GetValue(id_node));
       pick_txt += " node_specified_density=" + tmp;

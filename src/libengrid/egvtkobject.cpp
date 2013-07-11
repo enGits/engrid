@@ -573,6 +573,7 @@ bool EgVtkObject::isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid)
   else if (grid->GetCellType(id_cell) == VTK_PYRAMID)    isVol = true;
   else if (grid->GetCellType(id_cell) == VTK_WEDGE)      isVol = true;
   else if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) isVol = true;
+  else if (grid->GetCellType(id_cell) == VTK_POLYHEDRON) isVol = true;
   return isVol;
 }
 
@@ -581,6 +582,7 @@ bool EgVtkObject::isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid)
   bool isSurf = false;
   if      (grid->GetCellType(id_cell) == VTK_TRIANGLE) isSurf = true;
   else if (grid->GetCellType(id_cell) == VTK_QUAD)     isSurf = true;
+  else if (grid->GetCellType(id_cell) == VTK_POLYGON)  isSurf = true;
   return isSurf;
 }
 
@@ -866,10 +868,14 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, b
     }
   }
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
+    vtkIdType num, *stream;
     vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    if (type_cell == VTK_POLYHEDRON) {
+      src->GetFaceStream(id_cell, num, stream);
+    } else {
+      src->GetCellPoints(id_cell, num, stream);
+    }
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, num, stream);
     if (copy_data) {
       copyCellData(src, id_cell, dst, id_new_cell);
     }
@@ -885,10 +891,14 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
     copyNodeData(src, id_node, dst, id_node);
   }
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
+    vtkIdType num, *stream;
     vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    if (type_cell == VTK_POLYHEDRON) {
+      src->GetFaceStream(id_cell, num, stream);
+    } else {
+      src->GetCellPoints(id_cell, num, stream);
+    }
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, num, stream);
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }

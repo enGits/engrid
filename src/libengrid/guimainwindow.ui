@@ -141,6 +141,7 @@
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
+    <addaction name="actionConvertToPolyMesh"/>
     <addaction name="actionCreateHexCore"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
@@ -1739,6 +1740,14 @@
    </property>
    <property name="toolTip">
     <string>export as DrNUM case</string>
+   </property>
+  </action>
+  <action name="actionConvertToPolyMesh">
+   <property name="text">
+    <string>convert to poly mesh</string>
+   </property>
+   <property name="toolTip">
+    <string>convert to poly mesh</string>
    </property>
   </action>
  </widget>

@@ -22,6 +22,8 @@
 //
 #include "vtkEgExtractVolumeCells.h"
 
+#include <vtkIdList.h>
+
 vtkStandardNewMacro(vtkEgExtractVolumeCells)
 
 vtkEgExtractVolumeCells::vtkEgExtractVolumeCells()
@@ -34,6 +36,7 @@ vtkEgExtractVolumeCells::vtkEgExtractVolumeCells()
   m_ExtrPyramids = true;
   m_ExtrWedges   = true;
   m_ExtrHexes    = true;
+  m_ExtrPolys    = true;
 }
 
 void vtkEgExtractVolumeCells::SetX(vec3_t x)
@@ -71,6 +74,7 @@ void vtkEgExtractVolumeCells::SetAllOn()
   SetPyramidsOn();
   SetWedgesOn();
   SetHexesOn();
+  SetPolysOn();
 }
 
 void vtkEgExtractVolumeCells::SetAllOff()
@@ -79,6 +83,7 @@ void vtkEgExtractVolumeCells::SetAllOff()
   SetPyramidsOff();
   SetWedgesOff();
   SetHexesOff();
+  SetPolysOff();
 }
 
 void vtkEgExtractVolumeCells::SetTetrasOn()
@@ -217,19 +222,15 @@ void vtkEgExtractVolumeCells::ExecuteEg()
       if (!m_ExtrHexes && type_cell == VTK_HEXAHEDRON) {
         select = false;
       }
-//    Polyhedron wasn't available before VTK 5.8.
-#if ! ( VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION < 8 )
       if (!m_ExtrPolys && type_cell == VTK_POLYHEDRON) {
         select = false;
       }
-#endif
       if (m_Clip && select) {
-        vtkIdType *pts;
-        vtkIdType  N_pts;
-        m_Input->GetCellPoints(id_cell, N_pts, pts);
-        for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+        QList<vtkIdType> pts;
+        getPointsOfCell(m_Input, id_cell, pts);
+        foreach (vtkIdType id_node, pts) {
           vec3_t x;
-          m_Input->GetPoints()->GetPoint(pts[i_pts],x.data());
+          m_Input->GetPoints()->GetPoint(id_node, x.data());
           if ((x - m_X)*m_N < 0) {
             select = false;
             break;
@@ -254,16 +255,43 @@ void vtkEgExtractVolumeCells::ExecuteEg()
     m_Output->GetPoints()->SetPoint(_nodes[id_node], x.data());
   }
   foreach(vtkIdType id_cell, cells) {
-    vtkIdType  Npts;
-    vtkIdType *pts;
-    m_Input->GetCellPoints(id_cell, Npts, pts);
-    vtkIdType *new_pts = new vtkIdType[Npts];
-    for (int i = 0; i < Npts; ++i) {
-      new_pts[i] = _nodes[pts[i]];
+    vtkIdType num, *stream, *new_stream;
+    vtkIdType type_cell = m_Input->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      m_Input->GetFaceStream(id_cell, num, stream);
+      int stream_length = 0;
+      {
+        vtkIdType id = 0;
+        for (int i = 0; i < num; ++i) {
+          stream_length += stream[id] + 1;
+          id += stream[id] + 1;
+        }
+      }
+      new_stream = new vtkIdType [stream_length];
+      {
+        vtkIdType id = 0;
+        for (int i = 0; i < num; ++i) {
+          vtkIdType num_pts = stream[id];
+          new_stream[id] = stream[id];
+          ++id;
+          for (int j = 0; j < num_pts; ++j) {
+            new_stream[id] = _nodes[stream[id]];
+            ++id;
+          }
+        }
+      }
+    } else {
+      vtkIdType *stream;
+      m_Input->GetCellPoints(id_cell, num, stream);
+      new_stream = new vtkIdType [num];
+      for (vtkIdType i = 0; i < num; ++i) {
+        new_stream[i] = _nodes[stream[i]];
+      }
     }
-    vtkIdType id_new_cell = m_Output->InsertNextCell(m_Input->GetCellType(id_cell), Npts, new_pts);
+
+    vtkIdType id_new_cell = m_Output->InsertNextCell(type_cell, num, new_stream);
     copyCellData(m_Input, id_cell, m_Output, id_new_cell);
-    delete [] new_pts;
+    delete [] new_stream;
   }
 }
 

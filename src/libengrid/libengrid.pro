@@ -227,7 +227,8 @@ HEADERS = \
     guifillplane.h \
     fillplane.h \
     drnumwriter.h \
-    computemeshdensity.h
+    computemeshdensity.h \
+    converttopolymesh.h
 
 
 SOURCES = \
@@ -366,7 +367,8 @@ SOURCES = \
     guifillplane.cpp \
     fillplane.cpp \
     drnumwriter.cpp \
-    computemeshdensity.cpp
+    computemeshdensity.cpp \
+    converttopolymesh.cpp
 
 
 FORMS = \

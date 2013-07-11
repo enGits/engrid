@@ -125,6 +125,7 @@ connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader(
 connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
 connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOperation()));
 connect(ui.actionFillPlane, SIGNAL(triggered()), this, SLOT(callFillPlane()));
+connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertToPolyMesh()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()
