@@ -1404,13 +1404,13 @@ void GuiMainWindow::updateStatusBar()
     else if (ct == VTK_HEXAHEDRON) ++Nhexas;
     else if (ct == VTK_POLYHEDRON) ++Npolys;
   }
-  num.setNum(Ntets + Npyras + Nprism + Nhexas); txt += num + " volume cells(";
+  num.setNum(Ntets + Npyras + Nprism + Nhexas + Npolys); txt += num + " volume cells(";
   num.setNum(Ntets);  txt += num + " tetras, ";
   num.setNum(Npyras); txt += num + " pyramids, ";
   num.setNum(Nprism); txt += num + " prisms, ";
   num.setNum(Nhexas); txt += num + " hexas, ";
   num.setNum(Npolys); txt += num + " polys), ";
-  num.setNum(Ntris + Nquads); txt += num + " surface cells(";
+  num.setNum(Ntris + Nquads + Nplgs); txt += num + " surface cells(";
   num.setNum(Ntris);  txt += num + " triangles, ";
   num.setNum(Nquads); txt += num + " quads, ";
   num.setNum(Nplgs);  txt += num + " polys), ";

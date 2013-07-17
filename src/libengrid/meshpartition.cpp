@@ -219,22 +219,12 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
     }
     QList<vtkIdType> new_cells;
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      vtkIdType N_pts, *pts;
-      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+      vtkIdType id_new_cell = copyCell(m_Grid, id_cell, new_grid);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
       new_cells.append(id_new_cell);
     }
     foreach (vtkIdType id_pcell, part.m_Cells) {
-      vtkIdType N_pts, *pts;
-      vtkIdType type_cell = part.m_Grid->GetCellType(id_pcell);
-      part.m_Grid->GetCellPoints(id_pcell, N_pts, pts);
-      QVector<vtkIdType> new_pts(N_pts);
-      for (int i = 0; i < N_pts; ++i) {
-        new_pts[i] = pnode2node[pts[i]];
-      }
-      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+      vtkIdType id_new_cell = copyCell(part.m_Grid, id_pcell, new_grid, pnode2node);
       copyCellData(part.m_Grid, id_pcell, new_grid, id_new_cell);
       new_cells.append(id_new_cell);
     }
