@@ -420,7 +420,7 @@ void Octree::buildNode2Cell()
     }
     if (m_Node2Cell[i_node].size() > max_level*8) {
       EG_VTKSP(vtkUnstructuredGrid, grid);
-      toVtkGrid(grid, true, true);
+      toVtkGridHangingNodes(grid, true);
       saveGrid(grid, GuiMainWindow::pointer()->getCwd() + "/ot_debug");
       EG_BUG;
     }
@@ -803,7 +803,7 @@ int Octree::refineAll()
   return Nrefine;
 }
 
-void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields)
+void Octree::toVtkGridHangingNodes(vtkUnstructuredGrid *grid, bool)
 {
   int N = 0;
   for (int i = 0; i < m_Cells.size(); ++i) {
@@ -853,7 +853,102 @@ int Octree::opposingFace(int i)
   return -1;
 }
 
-void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
+void Octree::toVtkGridPolyhedral(vtkUnstructuredGrid *grid, bool create_fields)
+{
+  if (!m_SmoothTransition) {
+    EG_BUG;
+  }
+  buildNode2Cell();
+  vtkIdType num_new_cells = 0;
+  for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
+    OctreeCell cell = m_Cells[i_cell];
+    if (!cell.hasChildren()) { // only use cells which do not have children
+      ++num_new_cells;
+    }
+  }
+  allocateGrid(grid, num_new_cells, m_Nodes.size(), create_fields);
+  for (vtkIdType id_node = 0; id_node < m_Nodes.size(); ++id_node) {
+    grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].getPosition().data());
+  }
+
+  for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
+    OctreeCell cell = m_Cells[i_cell];
+    if (!cell.hasChildren()) { // only use cells which do not have children
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        bool use_neighbour_faces = false;
+        if (cell.getNeighbour(i) != -1) {
+          OctreeCell neigh = m_Cells[cell.getNeighbour(i)];
+          if (neigh.m_Level == cell.m_Level) {
+            if (neigh.hasChildren()) {
+              use_neighbour_faces = true;
+            }
+          }
+        }
+        if (use_neighbour_faces) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+        } else {
+          cell.getFaceNodes(i, this, faces, true);
+        }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      if (all_faces.size() < 6) {
+        EG_BUG;
+      }
+      bool simple_hex_cell = true;
+      if (all_faces.size() > 6) {
+        simple_hex_cell = false;
+      }
+
+      foreach (QVector<int> face, all_faces) {
+        if (face.size() > 4) {
+          simple_hex_cell = false;
+          break;
+        }
+      }
+
+      if (simple_hex_cell) {
+        vtkIdType Npts = 8;
+        vtkIdType pts[8];
+        pts[0] = cell.m_Node[0];
+        pts[1] = cell.m_Node[1];
+        pts[2] = cell.m_Node[3];
+        pts[3] = cell.m_Node[2];
+        pts[4] = cell.m_Node[4];
+        pts[5] = cell.m_Node[5];
+        pts[6] = cell.m_Node[7];
+        pts[7] = cell.m_Node[6];
+        for (int i = 0; i < 8; ++i) {
+          if (pts[i] < 0 || pts[i] >= m_Nodes.size()) {
+            EG_BUG;
+          }
+        }
+        vtkIdType id_cell = grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
+      } else {
+        vtkIdType num_ids = 1;
+        foreach (QVector<int> face, all_faces) {
+          num_ids += 1 + face.size();
+        }
+        EG_VTKSP(vtkIdList, ptids);
+        ptids->SetNumberOfIds(num_ids);
+        vtkIdType i_id = 0;
+        ptids->SetId(i_id++, all_faces.size());
+        foreach (QVector<int> face, all_faces) {
+          ptids->SetId(i_id++, face.size());
+          foreach (int i, face) {
+            ptids->SetId(i_id++, i);
+          }
+        }
+        grid->InsertNextCell(VTK_POLYHEDRON, ptids);
+      }
+    }
+  }
+}
+
+void Octree::toVtkGridConforming(vtkUnstructuredGrid* grid, bool create_fields)
 {
   if (!m_SmoothTransition) {
     EG_BUG;
@@ -866,7 +961,6 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
   for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
     OctreeCell cell = m_Cells[i_cell];
     if (!cell.hasChildren()) { // only use cells which do not have children
-      vec3_t x = getCellCentre(i_cell);
       QList<QVector<int> > all_faces;
       QVector<QVector<int> > faces;
       for (int i = 0; i < 6; ++i) {
@@ -1057,15 +1151,6 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
   del_stray.setAllCells();
   del_stray();
 
-}
-
-void Octree::toVtkGrid(vtkUnstructuredGrid* grid, bool hanging_nodes, bool create_fields)
-{
-  if (hanging_nodes) {
-    toVtkGrid_HangingNodes(grid, create_fields);
-  } else {
-    toVtkGrid_Conforming(grid, create_fields);
-  }
 }
 
 vec3_t Octree::getCellCentre(int cell)

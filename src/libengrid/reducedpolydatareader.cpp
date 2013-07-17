@@ -259,7 +259,7 @@ void ReducedPolyDataReader::operate()
       } while (N > 0);
 
       EG_VTKSP(vtkUnstructuredGrid, oct_grid);
-      octree.toVtkGrid(oct_grid, true, false);
+      octree.toVtkGridHangingNodes(oct_grid);
 
       computeLevelSet(oct_grid, smooth2->GetOutput());
 
