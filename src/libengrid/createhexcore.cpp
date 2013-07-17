@@ -37,17 +37,7 @@ CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi)
 void CreateHexCore::refineOctree()
 {
   m_Octree.resetRefineMarks();
-
-  // begin DEBUG
-  /*
-  m_Octree.markToRefine(0);
-  m_Octree.refineAll();
-  m_Octree.markToRefine(3);
-  m_Octree.markToRefine(8);
-  m_Octree.refineAll();
-  return;
-  */
-  // end DEBUG
+  m_Octree.setSmoothTransitionOn();
 
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
   do {
@@ -113,7 +103,8 @@ void CreateHexCore::transferOctreeGrid()
     }
   }
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
-  m_Octree.toVtkGrid(otgrid, false, true);
+  m_Octree.toVtkGridPolyhedral(otgrid, true);
+  writeGrid(otgrid, "debug_01");
   MeshPartition add_part(otgrid);
   QList<vtkIdType> add_cells;
   for (vtkIdType id_cell = 0; id_cell < otgrid->GetNumberOfCells(); ++id_cell) {
@@ -126,13 +117,17 @@ void CreateHexCore::transferOctreeGrid()
   add_part.setCells(add_cells);
   m_Part.addPartition(add_part);  
   m_Part.setAllCells();
+  writeGrid(m_Grid, "debug_02");
+  //makeCopy(otgrid, m_Grid); // DEBUG
   deleteOutside(m_Grid);
+  writeGrid(m_Grid, "debug_03");
 }
 
 void CreateHexCore::deleteOutside(vtkUnstructuredGrid *grid)
 {
   MeshPartition part(grid, true);
   QVector<bool> is_inside(grid->GetNumberOfCells(), false);
+  is_inside.fill(true); // DEBUG
   vtkIdType id_start = -1;
   double dmin = 1e99;
   for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
@@ -184,8 +179,85 @@ void CreateHexCore::deleteOutside(vtkUnstructuredGrid *grid)
     }
   }
   EG_VTKSP(vtkUnstructuredGrid, return_grid);
+//  {
+//    vtkIdType id_cell = 2995;
+//    vtkUnstructuredGrid *G = grid;
+//    EG_VTKSP(vtkIdList, stream);
+//    vtkIdType type_cell = G->GetCellType(id_cell);
+//    if (type_cell == VTK_POLYHEDRON) {
+//      G->GetFaceStream(id_cell, stream);
+//    } else {
+//      G->GetCellPoints(id_cell, stream);
+//    }
+//    QList<int> ids;
+//    vtkIdList2QContainer(stream, ids);
+//    vtkIdType *pointer = stream->GetPointer(0);
+//    cerr << "break" << endl;
+//  }
   makeCopy(grid, return_grid, cls);
+  /*
+  {
+    vtkIdType id_cell = 2995;
+    vtkUnstructuredGrid *G = return_grid;
+    EG_VTKSP(vtkIdList, stream);
+    vtkIdType type_cell = G->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      G->GetFaceStream(id_cell, stream);
+    } else {
+      G->GetCellPoints(id_cell, stream);
+    }
+    QList<int> ids;
+    vtkIdList2QContainer(stream, ids);
+    vtkIdType *pointer = stream->GetPointer(18);
+    cerr << "break" << endl;
+  }
+  */
+  checkGridConsitency(return_grid);
+  writeGrid(return_grid, "return_grid");
+
+  //QVector<vtkIdType> all_cells;
+  //getAllCells(all_cells, return_grid);
   makeCopy(return_grid, grid);
+  //makeCopy(return_grid, grid, all_cells);
+  /*
+  {
+    vtkIdType id_cell = 2995;
+    vtkUnstructuredGrid *G = grid;
+    EG_VTKSP(vtkIdList, stream);
+    vtkIdType type_cell = G->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      G->GetFaceStream(id_cell, stream);
+    } else {
+      G->GetCellPoints(id_cell, stream);
+    }
+    QList<int> ids;
+    vtkIdList2QContainer(stream, ids);
+    vtkIdType *pointer = stream->GetPointer(18);
+    cerr << "break" << endl;
+  }
+  */
+  EG_VTKSP(vtkUnstructuredGrid, test_grid);
+  makeCopy(return_grid, test_grid);
+  /*
+  {
+    vtkIdType id_cell = 2995;
+    vtkUnstructuredGrid *G = test_grid;
+    EG_VTKSP(vtkIdList, stream);
+    vtkIdType type_cell = G->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      G->GetFaceStream(id_cell, stream);
+    } else {
+      G->GetCellPoints(id_cell, stream);
+    }
+    QList<int> ids;
+    vtkIdList2QContainer(stream, ids);
+    vtkIdType *pointer = stream->GetPointer(18);
+    cerr << "break" << endl;
+  }
+  */
+
+  checkGridConsitency(grid);
+  writeGrid(grid, "grid");
 }
 
 void CreateHexCore::operate()
@@ -194,6 +266,10 @@ void CreateHexCore::operate()
   refineOctree();
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
   transferOctreeGrid();
+  QList<vtkIdType> pts;
+  getPointsOfCell(m_Grid, 3109, pts);
+  cout << "break" << endl;
+
   /*
   int N1 = m_Octree.getNumCells();
   int N2 = 0;
