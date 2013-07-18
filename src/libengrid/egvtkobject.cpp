@@ -1222,8 +1222,14 @@ void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
 {
   vtkIdType type_cell = grid->GetCellType(id_cell);
   ids.clear();
-  vtkIdType *pts, N_pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
+  EG_VTKSP(vtkIdList, stream);
+  QVector<vtkIdType> pts;
+  if (type_cell == VTK_POLYHEDRON) {
+    grid->GetFaceStream(id_cell, stream);
+  } else {
+    grid->GetCellPoints(id_cell, stream);
+  }
+  vtkIdList2QContainer(stream, pts);
 
   if (type_cell == VTK_TETRA) {
     if      (i_face == 0) { ids.resize(3);  ids[0] = pts[2];  ids[1] = pts[1];  ids[2] = pts[0]; }
@@ -1252,6 +1258,20 @@ void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
     else if (i_face == 3) { ids.resize(4);  ids[0] = pts[3];  ids[1] = pts[7];  ids[2] = pts[6];  ids[3] = pts[2]; }
     else if (i_face == 4) { ids.resize(4);  ids[0] = pts[0];  ids[1] = pts[4];  ids[2] = pts[7];  ids[3] = pts[3]; }
     else if (i_face == 5) { ids.resize(4);  ids[0] = pts[1];  ids[1] = pts[2];  ids[2] = pts[6];  ids[3] = pts[5]; }
+
+  } else if (type_cell == VTK_POLYHEDRON) {
+    vtkIdType num_faces = pts[0];
+    if (i_face >= num_faces) {
+      EG_BUG;
+    }
+    int id = 1;
+    for (int i = 0; i < i_face; ++i) {
+      id += pts[id] + 1;
+    }
+    ids.resize(pts[id]);
+    for (int i = 0; i < ids.size(); ++i) {
+      ids[i] = pts[id + 1 + i];
+    }
 
   } else {
     EG_BUG; // not implemented

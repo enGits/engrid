@@ -614,6 +614,9 @@ public: // methods
   void vtkIdList2QContainer(vtkIdList *id_list, C &cont);
 
   void checkGridConsitency(vtkUnstructuredGrid *grid);
+
+  template <typename C1, typename C2>
+  void triangulatePolygon(vtkUnstructuredGrid *grid, const C1 &polygon, C2 &triangles);
   
 private:
 
@@ -724,122 +727,16 @@ inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_ce
       int num_pts = stream->GetId(id);
       ++id;
       for (int j = 0; j < num_pts; ++j) {
-        /*
-        if (stream->GetId(id) >= dst->GetNumberOfPoints()) {
-          EG_BUG;
-        */
         ++id;
       }
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);
-//    vtkIdType num_faces = stream->GetId(0);
-//    vtkIdType *pts = new vtkIdType[stream->GetNumberOfIds() - 1];
-//    for (int i = 1; i < stream->GetNumberOfIds(); ++i) {
-//      pts[i-1] = stream->GetId(i);
-//    }
-//    id_new_cell = dst->InsertNextCell(type_cell, num_faces, pts);
-//    delete [] pts;
-    /*
-    if (id_cell == 2955) {
-      vtkUnstructuredGrid *G = src;
-      EG_VTKSP(vtkIdList, pids);
-      vtkIdType type_cell = G->GetCellType(id_cell);
-      if (type_cell == VTK_POLYHEDRON) {
-        G->GetFaceStream(id_cell, pids);
-      } else {
-        G->GetCellPoints(id_cell, pids);
-      }
-      QList<int> ids;
-      vtkIdList2QContainer(pids, ids);
-      vtkIdType *pointer = pids->GetPointer(18);
-      cerr << "break" << endl;
-    }
-    if (id_cell == 2995) {
-      vtkUnstructuredGrid *G = dst;
-      EG_VTKSP(vtkIdList, pids);
-      vtkIdType type_cell = G->GetCellType(id_new_cell);
-      if (type_cell == VTK_POLYHEDRON) {
-        G->GetFaceStream(id_new_cell, pids);
-      } else {
-        G->GetCellPoints(id_new_cell, pids);
-      }
-      QList<int> ids;
-      vtkIdList2QContainer(pids, ids);
-      vtkIdType *pointer = pids->GetPointer(18);
-      cerr << "break" << endl;
-    }
-    */
   } else {
     src->GetCellPoints(id_cell, stream);
     for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
-      /*
-      if (stream->GetId(i) >= dst->GetNumberOfPoints()) {
-        EG_BUG;
-      }
-      */
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);
-    /*
-    if (id_cell == 0) {
-      vtkUnstructuredGrid *G = src;
-      EG_VTKSP(vtkIdList, pids);
-      vtkIdType type_cell = G->GetCellType(id_cell);
-      if (type_cell == VTK_POLYHEDRON) {
-        G->GetFaceStream(id_cell, pids);
-      } else {
-        G->GetCellPoints(id_cell, pids);
-      }
-      QList<int> ids;
-      vtkIdList2QContainer(pids, ids);
-      vtkIdType *pointer = pids->GetPointer(18);
-      cerr << "break" << endl;
-    }
-    if (id_cell == 0) {
-      vtkUnstructuredGrid *G = dst;
-      EG_VTKSP(vtkIdList, pids);
-      vtkIdType type_cell = G->GetCellType(id_new_cell);
-      if (type_cell == VTK_POLYHEDRON) {
-        G->GetFaceStream(id_new_cell, pids);
-      } else {
-        G->GetCellPoints(id_new_cell, pids);
-      }
-      QList<int> ids;
-      vtkIdList2QContainer(pids, ids);
-      vtkIdType *pointer = pids->GetPointer(18);
-      cerr << "break" << endl;
-    }
-    */
   }
-  /*
-  if (id_cell == 2995) {
-    vtkUnstructuredGrid *G = src;
-    EG_VTKSP(vtkIdList, stream);
-    vtkIdType type_cell = G->GetCellType(id_cell);
-    if (type_cell == VTK_POLYHEDRON) {
-      G->GetFaceStream(id_cell, stream);
-    } else {
-      G->GetCellPoints(id_cell, stream);
-    }
-    QList<int> ids;
-    vtkIdList2QContainer(stream, ids);
-    vtkIdType *pointer = stream->GetPointer(18);
-    cerr << "break" << endl;
-  }
-  if (id_cell == 2995) {
-    vtkUnstructuredGrid *G = dst;
-    EG_VTKSP(vtkIdList, stream);
-    vtkIdType type_cell = G->GetCellType(id_cell);
-    if (type_cell == VTK_POLYHEDRON) {
-      G->GetFaceStream(id_cell, stream);
-    } else {
-      G->GetCellPoints(id_cell, stream);
-    }
-    QList<int> ids;
-    vtkIdList2QContainer(stream, ids);
-    vtkIdType *pointer = stream->GetPointer(18);
-    cerr << "break" << endl;
-  }
-  */
   return id_new_cell;
 }
 
@@ -982,6 +879,64 @@ void EgVtkObject::vtkIdList2QContainer(vtkIdList *id_list, C &cont)
   cont.clear();
   for (int i = 0; i < id_list->GetNumberOfIds(); ++i) {
     cont << id_list->GetId(i);
+  }
+}
+
+template <typename C1, typename C2>
+void EgVtkObject::triangulatePolygon(vtkUnstructuredGrid *grid, const C1 &polygon, C2 &triangles)
+{
+  int N = polygon.size();
+  if (N < 3) {
+    EG_BUG;
+  }
+  QVector<vtkIdType> poly(N+4);
+  for (int i = 2; i <= N+1; ++i) {
+    poly[i] = polygon[i-2];
+  }
+  poly[0]   = poly[N];
+  poly[1]   = poly[N+1];
+  poly[N+2] = poly[2];
+  poly[N+3] = poly[3];
+
+  int    i_best     = 0;
+  double best_angle = M_PI;
+
+  for (int i = 2; i <= N+1; ++i) {
+    double angle = 0;
+    vec3_t a, b, c;
+    grid->GetPoint(poly[i], a.data());
+    for (int j = 0; j <= N+1; ++j) {
+      if (j < i-1 || j > i) {
+        grid->GetPoint(poly[j],   b.data());
+        grid->GetPoint(poly[j+1], c.data());
+        angle = max(angle, GeometryTools::angle(b-a, c-a));
+        angle = max(angle, GeometryTools::angle(a-b, c-b));
+        angle = max(angle, GeometryTools::angle(a-c, b-c));
+      }
+    }
+    if (angle < best_angle) {
+      i_best = i;
+      best_angle = angle;
+    }
+  }
+  triangles.resize(N-2);
+  int i1 = 0;
+  int i2 = 1;
+  if (i1 == i_best || i1 == i_best - N) {
+    ++i1;
+    ++i2;
+  }
+  for (int i = 0; i < triangles.size(); ++i) {
+    triangles[i].resize(3);
+    if (i2 == i_best || i2 == i_best - N) {
+      i1 += 2;
+      i2 += 2;
+    }
+    triangles[i][0] = poly[i1];
+    triangles[i][1] = poly[i2];
+    triangles[i][2] = poly[i_best];
+    ++i1;
+    ++i2;
   }
 }
 

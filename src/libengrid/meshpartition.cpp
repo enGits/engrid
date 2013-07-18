@@ -156,6 +156,7 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
     for (int i = 0; i < N_pts; ++i) {
       new_pts[i] = m_LNodes[pts[i]];
     }
+    // update for polyhedral cells here
     vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }

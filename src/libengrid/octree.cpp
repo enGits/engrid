@@ -418,14 +418,6 @@ void Octree::buildNode2Cell()
     foreach (int i_cell, m_Node2Cell[i_node]) {
       max_level = max(max_level, m_Cells[i_cell].m_Level);
     }
-    /*
-    if (m_Node2Cell[i_node].size() > max_level*8) {
-      EG_VTKSP(vtkUnstructuredGrid, grid);
-      toVtkGridHangingNodes(grid, true);
-      saveGrid(grid, GuiMainWindow::pointer()->getCwd() + "/ot_debug");
-      EG_BUG;
-    }
-    */
   }
 }
 
@@ -915,9 +907,9 @@ void Octree::toVtkGridPolyhedral(vtkUnstructuredGrid *grid, bool create_fields)
           }
         }
         if (use_neighbour_faces) {
-          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces);
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces, true);
         } else {
-          cell.getFaceNodes(i, this, faces, true);
+          cell.getFaceNodes(i, this, faces, false);
         }
         foreach (QVector<int> face, faces) {
           all_faces.push_back(face);

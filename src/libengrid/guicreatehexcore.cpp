@@ -79,10 +79,8 @@ void GuiCreateHexCore::operate()
   m_Xi = vec3_t(m_Ui.lineEditCiX->text().toDouble(), m_Ui.lineEditCiY->text().toDouble(), m_Ui.lineEditCiZ->text().toDouble());
   m_X1 = vec3_t(m_Ui.lineEditX1->text().toDouble(), m_Ui.lineEditY1->text().toDouble(), m_Ui.lineEditZ1->text().toDouble());
   m_X2 = vec3_t(m_Ui.lineEditX2->text().toDouble(), m_Ui.lineEditY2->text().toDouble(), m_Ui.lineEditZ2->text().toDouble());
-  int num_i = m_Ui.spinBoxNumI->value();
-  int num_j = m_Ui.spinBoxNumJ->value();
-  int num_k = m_Ui.spinBoxNumK->value();
-  CreateHexCore create_hex_core(m_X1, m_X2, m_Xi, num_i, num_j, num_k);
+  int num_levels = m_Ui.spinBoxNumInitialRefinement->value();
+  CreateHexCore create_hex_core(m_X1, m_X2, m_Xi, num_levels);
   create_hex_core();
 }
 

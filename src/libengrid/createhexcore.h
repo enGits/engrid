@@ -38,9 +38,7 @@ protected: // attributes
   vec3_t m_X2;
   vec3_t m_Xi;
   Octree m_Octree;
-  int    m_NumI;
-  int    m_NumJ;
-  int    m_NumK;
+  int    m_NumInitialRefinementLevels;
 
 protected: // methods
 
@@ -49,10 +47,11 @@ protected: // methods
   void refineOctree();
   void transferOctreeGrid();
   void deleteOutside(vtkUnstructuredGrid *grid);
+  void createBoundaryFaces();
 
 public:
 
-  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_i, int num_j, int num_k);
+  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_inital_refinement_levels);
 
 };
 

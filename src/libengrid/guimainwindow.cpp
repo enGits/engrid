@@ -816,8 +816,6 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       if (forced) {
         m_PolyhedraGeometry->Update();
       }
-      cout << "m_ExtrPolyhedra->GetOutput()->GetNumberOfCells() = " << m_ExtrPolyhedra->GetOutput()->GetNumberOfCells() << endl;
-      cout << "m_PolyhedraGeometry->GetOutput()->GetNumberOfCells() = " << m_PolyhedraGeometry->GetOutput()->GetNumberOfCells() << endl;
       m_PolyhedraActor->SetVisibility(1);
     } else {
       m_ExtrVol->SetPolysOff();

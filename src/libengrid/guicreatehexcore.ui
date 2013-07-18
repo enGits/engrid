@@ -157,10 +157,13 @@
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>initial number of cells in X direction</string>
+        <string>number of initial refinement levels</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -168,61 +171,18 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QSpinBox" name="spinBoxNumI">
+      <widget class="QSpinBox" name="spinBoxNumInitialRefinement">
        <property name="minimum">
-        <number>5</number>
+        <number>0</number>
        </property>
        <property name="maximum">
-        <number>200</number>
+        <number>8</number>
        </property>
        <property name="singleStep">
-        <number>5</number>
+        <number>1</number>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>initial number of cells in Y direction</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>initial number of cells in Z direction</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="spinBoxNumJ">
-       <property name="minimum">
-        <number>5</number>
-       </property>
-       <property name="maximum">
-        <number>200</number>
-       </property>
-       <property name="singleStep">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="spinBoxNumK">
-       <property name="minimum">
-        <number>5</number>
-       </property>
-       <property name="maximum">
-        <number>200</number>
-       </property>
-       <property name="singleStep">
-        <number>5</number>
+       <property name="value">
+        <number>4</number>
        </property>
       </widget>
      </item>
@@ -270,9 +230,7 @@
   <tabstop>lineEditCiX</tabstop>
   <tabstop>lineEditCiY</tabstop>
   <tabstop>lineEditCiZ</tabstop>
-  <tabstop>spinBoxNumI</tabstop>
-  <tabstop>spinBoxNumJ</tabstop>
-  <tabstop>spinBoxNumK</tabstop>
+  <tabstop>spinBoxNumInitialRefinement</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
