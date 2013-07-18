@@ -167,7 +167,7 @@ public: // methods
 
   void setOrigin(vec3_t x0);
   void setBase(vec3_t g1, vec3_t g2, vec3_t g3);
-  void setBounds(vec3_t corner1, vec3_t corner2);
+  void setBounds(vec3_t corner1, vec3_t corner2, int num_i = 1, int num_j = 1, int num_k = 1);
 
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
