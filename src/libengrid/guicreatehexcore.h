@@ -35,7 +35,12 @@ class GuiCreateHexCore : public DialogOperation<Ui::GuiCreateHexCore, Operation>
 
 protected: // attributes
 
-  vec3_t m_X1, m_X2;
+  vec3_t m_X1;
+  vec3_t m_X2;
+  vec3_t m_X10;
+  vec3_t m_X20;
+  vec3_t m_Xi;
+  vec3_t m_Xi0;
 
 protected: // methods
 
@@ -45,6 +50,10 @@ protected: // methods
 public:
 
   GuiCreateHexCore();
+
+public slots:
+
+  void toggleExternalMesh(bool external_mesh);
 
 };
 

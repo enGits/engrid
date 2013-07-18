@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -25,6 +25,7 @@
 
 GuiCreateHexCore::GuiCreateHexCore()
 {
+  connect(m_Ui.checkBoxExternalMesh, SIGNAL(toggled(bool)), this, SLOT(toggleExternalMesh(bool)));
 }
 
 void GuiCreateHexCore::before()
@@ -43,25 +44,45 @@ void GuiCreateHexCore::before()
   double xmax = max(x2[0], max(x2[1], x2[2]));
   m_X1 = vec3_t(xmin, xmin, xmin);
   m_X2 = vec3_t(xmax, xmax, xmax);
-  QString num;
-  vec3_t xi = 0.5*(x1 + x2);
-  num.setNum(xi[0]);   m_Ui.lineEditCiX->setText(num);
-  num.setNum(xi[1]);   m_Ui.lineEditCiY->setText(num);
-  num.setNum(xi[2]);   m_Ui.lineEditCiZ->setText(num);
-  num.setNum(m_X1[0]); m_Ui.lineEditX1->setText(num);
-  num.setNum(m_X1[1]); m_Ui.lineEditY1->setText(num);
-  num.setNum(m_X1[2]); m_Ui.lineEditZ1->setText(num);
-  num.setNum(m_X2[0]); m_Ui.lineEditX2->setText(num);
-  num.setNum(m_X2[1]); m_Ui.lineEditY2->setText(num);
-  num.setNum(m_X2[2]); m_Ui.lineEditZ2->setText(num);
+  m_X10 = m_X1;
+  m_X20 = m_X2;
+  m_Xi = 0.5*(x1 + x2);
+  m_Xi0 = m_Xi;
+  toggleExternalMesh(false);
+}
+
+void GuiCreateHexCore::toggleExternalMesh(bool external_mesh)
+{
+  vec3_t xc = 0.5*(m_X10 + m_X20);
+  if (external_mesh) {
+    m_X1 = xc + 10*(m_X10 - xc);
+    m_X2 = xc + 10*(m_X20 - xc);
+    m_Xi = 0.9*m_X1 + 0.1*m_Xi0;
+  } else {
+    m_X1 = m_X10;
+    m_X2 = m_X20;
+    m_Xi = m_Xi0;
+  }
+  setDouble(m_Xi[0], m_Ui.lineEditCiX);
+  setDouble(m_Xi[1], m_Ui.lineEditCiY);
+  setDouble(m_Xi[2], m_Ui.lineEditCiZ);
+  setDouble(m_X1[0], m_Ui.lineEditX1);
+  setDouble(m_X1[1], m_Ui.lineEditY1);
+  setDouble(m_X1[2], m_Ui.lineEditZ1);
+  setDouble(m_X2[0], m_Ui.lineEditX2);
+  setDouble(m_X2[1], m_Ui.lineEditY2);
+  setDouble(m_X2[2], m_Ui.lineEditZ2);
 }
 
 void GuiCreateHexCore::operate()
 {
-  vec3_t xi(m_Ui.lineEditCiX->text().toDouble(), m_Ui.lineEditCiY->text().toDouble(), m_Ui.lineEditCiZ->text().toDouble());
+  m_Xi = vec3_t(m_Ui.lineEditCiX->text().toDouble(), m_Ui.lineEditCiY->text().toDouble(), m_Ui.lineEditCiZ->text().toDouble());
   m_X1 = vec3_t(m_Ui.lineEditX1->text().toDouble(), m_Ui.lineEditY1->text().toDouble(), m_Ui.lineEditZ1->text().toDouble());
   m_X2 = vec3_t(m_Ui.lineEditX2->text().toDouble(), m_Ui.lineEditY2->text().toDouble(), m_Ui.lineEditZ2->text().toDouble());
-  CreateHexCore create_hex_core(m_X1, m_X2, xi);
+  int num_i = m_Ui.spinBoxNumI->value();
+  int num_j = m_Ui.spinBoxNumJ->value();
+  int num_k = m_Ui.spinBoxNumK->value();
+  CreateHexCore create_hex_core(m_X1, m_X2, m_Xi, num_i, num_j, num_k);
   create_hex_core();
 }
 

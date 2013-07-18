@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>224</width>
-    <height>394</height>
+    <width>260</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -156,18 +156,73 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>initial refinement level</string>
+        <string>initial number of cells in X direction</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QSpinBox" name="spinBoxRefinemet">
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="spinBoxNumI">
+       <property name="minimum">
+        <number>5</number>
+       </property>
        <property name="maximum">
-        <number>8</number>
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>initial number of cells in Y direction</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>initial number of cells in Z direction</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="spinBoxNumJ">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="spinBoxNumK">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
        </property>
       </widget>
      </item>
@@ -198,13 +253,11 @@
    </item>
   </layout>
   <zorder>label</zorder>
-  <zorder>buttonBox</zorder>
   <zorder>checkBoxExternalMesh</zorder>
-  <zorder>horizontalLayoutWidget</zorder>
   <zorder></zorder>
-  <zorder>horizontalLayoutWidget_2</zorder>
-  <zorder>horizontalLayoutWidget_3</zorder>
   <zorder>label_5</zorder>
+  <zorder>formLayoutWidget</zorder>
+  <zorder>buttonBox</zorder>
  </widget>
  <tabstops>
   <tabstop>checkBoxExternalMesh</tabstop>
@@ -217,7 +270,9 @@
   <tabstop>lineEditCiX</tabstop>
   <tabstop>lineEditCiY</tabstop>
   <tabstop>lineEditCiZ</tabstop>
-  <tabstop>spinBoxRefinemet</tabstop>
+  <tabstop>spinBoxNumI</tabstop>
+  <tabstop>spinBoxNumJ</tabstop>
+  <tabstop>spinBoxNumK</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

@@ -38,6 +38,9 @@ protected: // attributes
   vec3_t m_X2;
   vec3_t m_Xi;
   Octree m_Octree;
+  int    m_NumI;
+  int    m_NumJ;
+  int    m_NumK;
 
 protected: // methods
 
@@ -49,7 +52,7 @@ protected: // methods
 
 public:
 
-  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi);
+  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_i, int num_j, int num_k);
 
 };
 
