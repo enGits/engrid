@@ -32,6 +32,15 @@ class CreateHexCore;
 class CreateHexCore : public Operation
 {
 
+private: // data types
+
+  struct face_replacement_t
+  {
+    vtkIdType id_cell;
+    QList<int> faces_to_keep;
+    QList<QVector<vtkIdType> > new_faces;
+  };
+
 protected: // attributes
 
   vec3_t m_X1;

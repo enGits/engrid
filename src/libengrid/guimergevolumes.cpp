@@ -80,8 +80,8 @@ void GuiMergeVolumes::operate()
   }
   vtkIdType id_new_cell;
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    //vtkIdType N_pts, *pts;
+    //m_Grid->GetCellPoints(id_cell, N_pts, pts);
     bool insert_cell = true;
     if (isSurface(id_cell, m_Grid)) {
       if (del_bcs.contains(cell_code->GetValue(id_cell))) {
@@ -89,7 +89,8 @@ void GuiMergeVolumes::operate()
       }
     }
     if (insert_cell) {
-      id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+      id_new_cell = copyCell(m_Grid, id_cell, new_grid);
+      //new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
   }

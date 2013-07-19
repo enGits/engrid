@@ -180,8 +180,12 @@ void CreateHexCore::deleteOutside(vtkUnstructuredGrid *grid)
 
 void CreateHexCore::createBoundaryFaces()
 {
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+
+  // find all polygons which need to be triangulated and collect the new triangles
   m_Part.setAllCells();
   QList<QVector<vtkIdType> > new_triangles;
+  QVector<bool> adapt_cell(m_Grid->GetNumberOfCells(), false);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (isVolume(id_cell, m_Grid)) {
       for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
@@ -193,21 +197,64 @@ void CreateHexCore::createBoundaryFaces()
           foreach (QVector<vtkIdType> triangle, triangles) {
             new_triangles.append(triangle);
           }
+          if (face.size() > 3) {
+            adapt_cell[id_cell] = true;
+          }
         }
       }
     }
   }
-  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+
+  // allocate memory for the new grid
   allocateGrid(new_grid, m_Grid->GetNumberOfCells() + new_triangles.size(), m_Grid->GetNumberOfPoints());
+
+  // copy nodes
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     m_Grid->GetPoint(id_node, x.data());
     new_grid->GetPoints()->SetPoint(id_node, x.data());
   }
+
+  // copy existing cells and update if required
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType id_new_cell = copyCell(m_Grid, id_cell, new_grid);
+    vtkIdType id_new_cell;
+    if (!adapt_cell[id_cell]) {
+      id_new_cell = copyCell(m_Grid, id_cell, new_grid);
+    } else {
+      QList<QVector<vtkIdType> > faces_of_cell;
+      for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
+        QVector<vtkIdType> face;
+        getFaceOfCell(m_Grid, id_cell, i, face);
+        if (m_Part.c2cGG(id_cell, i) == -1) {
+          QVector<QVector<vtkIdType> > triangles;
+          triangulatePolygon(m_Grid, face, triangles);
+          foreach (QVector<vtkIdType> triangle, triangles) {
+            faces_of_cell.append(triangle);
+          }
+        } else {
+          faces_of_cell.append(face);
+        }
+      }
+      EG_VTKSP(vtkIdList, stream);
+      int stream_size = 1;
+      foreach (QVector<vtkIdType> face, faces_of_cell) {
+        stream_size += face.size() + 1;
+      }
+      stream->SetNumberOfIds(stream_size);
+      int id = 0;
+      stream->SetId(id++, faces_of_cell.size());
+      foreach (QVector<vtkIdType> face, faces_of_cell) {
+        stream->SetId(id++, face.size());
+        foreach (vtkIdType id_node, face) {
+          stream->SetId(id++, id_node);
+        }
+      }
+      id_new_cell = new_grid->InsertNextCell(VTK_POLYHEDRON, stream);
+    }
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
+
+  // determine new boundary code
   EG_VTKDCC(vtkIntArray, cell_code, new_grid, "cell_code");
   QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   int bc_new = 1;
@@ -215,6 +262,8 @@ void CreateHexCore::createBoundaryFaces()
     bc_new = max(bc, bc_new);
   }
   ++bc_new;
+
+  // create triangular boundary faces
   GuiMainWindow::pointer()->addBC(bc_new, BoundaryCondition("HexCore", "unknown"));
   foreach (QVector<vtkIdType> face, new_triangles) {
     vtkIdType id_new_face;
@@ -227,6 +276,7 @@ void CreateHexCore::createBoundaryFaces()
     }
     cell_code->SetValue(id_new_face, bc_new);
   }
+
   makeCopy(new_grid, m_Grid);
 }
 

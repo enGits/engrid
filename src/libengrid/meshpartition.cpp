@@ -149,6 +149,7 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
     copyNodeData(m_Grid, m_Nodes[i_nodes], new_grid, i_nodes);
   }
   foreach (vtkIdType id_cell, m_Cells) {
+    /*
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     m_Grid->GetCellPoints(id_cell, N_pts, pts);
@@ -158,6 +159,8 @@ void MeshPartition::extractToVtkGrid(vtkUnstructuredGrid *new_grid)
     }
     // update for polyhedral cells here
     vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+    */
+    vtkIdType id_new_cell = copyCell(m_Grid, id_cell, new_grid, m_LNodes);
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
 }
