@@ -31,6 +31,7 @@ CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_inital_ref
   m_X2 = x2;
   m_Xi = xi;
   m_NumInitialRefinementLevels = num_inital_refinement_levels;
+  m_NumBreakOutLayers = 1;
 }
 
 void CreateHexCore::refineOctree()
@@ -93,12 +94,22 @@ void CreateHexCore::transferOctreeGrid()
       delete_node[m_Octree.getNode(i_cell, i)] = true;
     }
   }
-  for (int i = 0; i < m_Octree.getNumCells(); ++i) {
-    if (!m_Octree.hasChildren(i)) {
-      for (int j = 0; j < 8; ++j) {
-        if (delete_node[m_Octree.getNode(i,j)]) {
-          delete_cell[i] = true;
-          break;
+
+  for (int layer = 0; layer < m_NumBreakOutLayers; ++layer) {
+    for (int i = 0; i < m_Octree.getNumCells(); ++i) {
+      if (delete_cell[i] && !m_Octree.hasChildren(i)) {
+        for (int j = 0; j < 8; ++j) {
+          delete_node[m_Octree.getNode(i,j)] = true;
+        }
+      }
+    }
+    for (int i = 0; i < m_Octree.getNumCells(); ++i) {
+      if (!m_Octree.hasChildren(i)) {
+        for (int j = 0; j < 8; ++j) {
+          if (delete_node[m_Octree.getNode(i,j)]) {
+            delete_cell[i] = true;
+            break;
+          }
         }
       }
     }

@@ -81,6 +81,7 @@ void GuiCreateHexCore::operate()
   m_X2 = vec3_t(m_Ui.lineEditX2->text().toDouble(), m_Ui.lineEditY2->text().toDouble(), m_Ui.lineEditZ2->text().toDouble());
   int num_levels = m_Ui.spinBoxNumInitialRefinement->value();
   CreateHexCore create_hex_core(m_X1, m_X2, m_Xi, num_levels);
+  create_hex_core.setNumBreakOutLayers(m_Ui.spinBoxNumBreakOutLayers->value());
   create_hex_core();
 }
 

@@ -48,6 +48,7 @@ protected: // attributes
   vec3_t m_Xi;
   Octree m_Octree;
   int    m_NumInitialRefinementLevels;
+  int    m_NumBreakOutLayers;
 
 protected: // methods
 
@@ -61,6 +62,7 @@ protected: // methods
 public:
 
   CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_inital_refinement_levels);
+  void setNumBreakOutLayers(int n) { m_NumBreakOutLayers = n; }
 
 };
 

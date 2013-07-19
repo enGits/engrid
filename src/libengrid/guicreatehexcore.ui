@@ -186,6 +186,23 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="spinBoxNumBreakOutLayers">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>number of broken layers</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -215,8 +232,6 @@
   <zorder>label</zorder>
   <zorder>checkBoxExternalMesh</zorder>
   <zorder></zorder>
-  <zorder>label_5</zorder>
-  <zorder>formLayoutWidget</zorder>
   <zorder>buttonBox</zorder>
  </widget>
  <tabstops>
@@ -231,6 +246,7 @@
   <tabstop>lineEditCiY</tabstop>
   <tabstop>lineEditCiZ</tabstop>
   <tabstop>spinBoxNumInitialRefinement</tabstop>
+  <tabstop>spinBoxNumBreakOutLayers</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
