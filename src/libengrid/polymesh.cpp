@@ -141,13 +141,19 @@ bool PolyMesh::node_t::operator==(const PolyMesh::node_t &N) const
 //   PolyMesh
 // ============
 
-PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
+PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, double pull_in, bool optimise)
 {
-  if (!dual_mesh) {
-    EG_BUG;
+  m_CreateDualMesh = false;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, grid) && grid->GetCellType(id_cell) != VTK_POLYHEDRON) {
+      m_CreateDualMesh = true;
+      break;
+    }
   }
+
   m_AttractorWeight = 0.0;
-  m_PullInFactor = 0.0;
+  m_PullInFactor = pull_in;
+  m_OptimiseConvexity = optimise && m_CreateDualMesh;
   m_Grid = grid;
   m_Part.setGrid(m_Grid);
   m_Part.setAllCells();
@@ -156,37 +162,38 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh)
   checkFaceOrientation();
   buildPoint2Face();
   buildPCell2Face();
-  m_PullInFactor = 0.5;
   computePoints();
-  for (int iter = 0; iter < 5; ++iter) {
-    int num_bad = 0;
-    int i_improve = 0;
-    for (int i = 0; i < numCells(); ++i) {
+  if (m_OptimiseConvexity) {
+    for (int iter = 0; iter < 5; ++iter) {
+      int num_bad = 0;
+      int i_improve = 0;
+      for (int i = 0; i < numCells(); ++i) {
 
-      // check if any of the faces is a boundary face
-      bool no_boundary = true;
-      for (int j = 0; j < numFacesOfPCell(i); ++j) {
-        int bc = boundaryCode(pcell2Face(i, j));
-        if (bc != 0) {
-          no_boundary = false;
-          break;
+        // check if any of the faces is a boundary face
+        bool no_boundary = true;
+        for (int j = 0; j < numFacesOfPCell(i); ++j) {
+          int bc = boundaryCode(pcell2Face(i, j));
+          if (bc != 0) {
+            no_boundary = false;
+            break;
+          }
         }
-      }
 
-      if (no_boundary) {
-        PolyMolecule pm(this, i);
-        if (!pm.allPositive()) {
-          ++i_improve;
-          pm.fix();
-          if (pm.minPyramidVolume() < 0) {
-            ++num_bad;
+        if (no_boundary) {
+          PolyMolecule pm(this, i);
+          if (!pm.allPositive()) {
+            ++i_improve;
+            pm.fix();
+            if (pm.minPyramidVolume() < 0) {
+              ++num_bad;
+            }
           }
         }
       }
-    }
-    cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
-    if (num_bad == 0) {
-      break;
+      cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
+      if (num_bad == 0) {
+        break;
+      }
     }
   }
   qSort(m_Faces);
@@ -475,13 +482,10 @@ void PolyMesh::getSortedEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QList<
     vtkIdType id_cell = m_Part.n2cGG(id_node1, i);
     if (isVolume(id_cell, m_Grid)) {
       if (m_Cell2PCell[id_cell] == -1) {
-        vtkIdType num_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, num_pts, pts);
-        for (int j = 0; j < num_pts; ++j) {
-          if (pts[j] == id_node2) {
-            id_start = id_cell;
-            break;
-          }
+        QVector<vtkIdType> pts;
+        getPointsOfCell(m_Grid, id_cell, pts);
+        if (pts.contains(id_node2)) {
+          id_start = id_cell;
         }
       }
     }
@@ -500,6 +504,8 @@ void PolyMesh::getSortedEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QList<
       getFacesOfEdgeInsideCell(id_cell_new, id_node1, id_node2, f1, f2);
       vtkIdType id_neigh1 = m_Part.c2cGG(id_cell_new, f1);
       vtkIdType id_neigh2 = m_Part.c2cGG(id_cell_new, f2);
+      if (id_neigh1 == -1) EG_BUG;
+      if (id_neigh2 == -1) EG_BUG;
       if (id_neigh1 == id_cell_old) {
         id_cell_old = id_cell_new;
         id_cell_new = id_neigh2;
@@ -523,7 +529,7 @@ void PolyMesh::getSortedEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QList<
   }
 
   // remove last cell for loops
-  if (cells.size() > 1 && cells.first() == cells.last()) {
+  if (cells.size() > 1 && cells.first() == cells.last() && m_Cell2PCell[cells.first()] == -1) {
     cells.pop_back();
     is_loop = true;
   } else {
@@ -630,7 +636,7 @@ void PolyMesh::findPolyCells()
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    if (type_cell == VTK_WEDGE || type_cell == VTK_HEXAHEDRON) {
+    if (type_cell == VTK_WEDGE || type_cell == VTK_HEXAHEDRON || type_cell == VTK_POLYHEDRON) {
       m_Cell2PCell[id_cell] = m_NumPolyCells;
       ++m_NumPolyCells;
     }
@@ -707,7 +713,7 @@ void PolyMesh::createCornerFace(vtkIdType id_cell, int i_face, vtkIdType id_node
 
 void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
 {
-  // check id additional edge node needs to be created
+  // check if additional edge node needs to be created
   // (transition from boundary layer to far-field)
   // try to find a boundary layer cell which contains both nodes
   bool add_edge_node = false;
@@ -750,8 +756,8 @@ void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
   QList<node_t> nodes;
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
     node_t node;
-    vtkIdType num_pts1, *pts1;
-    m_Grid->GetCellPoints(cells[i_cells], num_pts1, pts1);
+    QVector<vtkIdType> pts1;
+    getPointsOfCell(m_Grid, cells[i_cells], pts1);
     if (m_Cell2PCell[cells[i_cells]] != -1) {
       int i_cells2 = 0;
       if (i_cells == 0) {
@@ -761,13 +767,13 @@ void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
       } else {
         EG_BUG;
       }
-      vtkIdType num_pts2, *pts2;
-      m_Grid->GetCellPoints(cells[i_cells2], num_pts2, pts2);
+      QVector<vtkIdType> pts2;
+      getPointsOfCell(m_Grid, cells[i_cells2], pts2);
       QSet<vtkIdType> p1, p2;
-      for (int i_pts1 = 0; i_pts1 < num_pts1; ++i_pts1) {
+      for (int i_pts1 = 0; i_pts1 < pts1.size(); ++i_pts1) {
         p1.insert(pts1[i_pts1]);
       }
-      for (int i_pts2 = 0; i_pts2 < num_pts2; ++i_pts2) {
+      for (int i_pts2 = 0; i_pts2 < pts2.size(); ++i_pts2) {
         p2.insert(pts2[i_pts2]);
       }
       QSet<vtkIdType> face_nodes = p1.intersect(p2);
@@ -778,8 +784,8 @@ void PolyMesh::createEdgeFace(vtkIdType id_node1, vtkIdType id_node2)
         ++i;
       }
     } else {
-      node.id.resize(num_pts1);
-      for (int i_pts1 = 0; i_pts1 < num_pts1; ++i_pts1) {
+      node.id.resize(pts1.size());
+      for (int i_pts1 = 0; i_pts1 < pts1.size(); ++i_pts1) {
         node.id[i_pts1] = pts1[i_pts1];
       }
     }
@@ -1035,14 +1041,16 @@ void PolyMesh::computePoints()
         EG_BUG;
       }
       vtkIdType id_node2 = -1;
-      bool pull_in = true;
+      bool pull_in = false;
       for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node1); ++i_neigh) {
         vtkIdType id_neigh = m_Part.n2nGG(id_node1, i_neigh);
         if (m_Node2PCell[id_neigh] == -1 && !is_transition_node[id_neigh]) {
-          if (id_node2 != -1) {
+          if (id_node2 == -1) {
+            pull_in = true;
+            id_node2 = id_neigh;
+          } else {
             pull_in = false;
           }
-          id_node2 = id_neigh;
         }
       }
       if (pull_in) {
@@ -1203,7 +1211,19 @@ void PolyMesh::createNodesAndFaces()
   m_Nodes.resize(m_Grid->GetNumberOfPoints());
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
-  // create all prismatic elements (hexes and prisms)
+  int num_pcells = 0;
+  int num_dcells = 0;
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (m_Cell2PCell[id_cell] != -1) {
+      ++num_pcells;
+    }
+  }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_Node2PCell[id_node] != -1) {
+      ++num_dcells;
+    }
+  }
+  // create all remaining elements (prisms, hexes, and polyhedra)
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (m_Cell2PCell[id_cell] != -1) {
       for (int i_face = 0; i_face < m_Part.c2cGSize(id_cell); ++i_face) {
@@ -1235,11 +1255,30 @@ void PolyMesh::createNodesAndFaces()
 
   // create all dual cells
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    QSet<vtkIdType> c1;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (m_Cell2PCell[id_cell] == -1) {
+        c1.insert(id_cell);
+      }
+    }
     if (m_Node2PCell[id_node] != -1) {
       for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node); ++i_neigh) {
         vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
         if (m_Node2PCell[id_neigh] != -1 && id_neigh > id_node) {
-          createEdgeFace(id_node, id_neigh);
+
+          // check if any of the adjacent cells (id_node <-> id_neigh) need to be "dualised"
+          QSet<vtkIdType> c2;
+          for (int i = 0; i < m_Part.n2cGSize(id_neigh); ++i) {
+            vtkIdType id_cell = m_Part.n2cGG(id_neigh, i);
+            if (m_Cell2PCell[id_cell] == -1) {
+              c2.insert(id_cell);
+            }
+          }
+          c2.intersect(c1);
+          if (c2.size() > 0) {
+            createEdgeFace(id_node, id_neigh);
+          }
         }
       }
       QSet<int> bcs;
