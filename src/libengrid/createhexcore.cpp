@@ -198,6 +198,7 @@ void CreateHexCore::createBoundaryFaces()
   QList<QVector<vtkIdType> > new_triangles;
   QVector<bool> adapt_cell(m_Grid->GetNumberOfCells(), false);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vec3_t xc = cellCentre(m_Grid, id_cell);
     if (isVolume(id_cell, m_Grid)) {
       for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
         if (m_Part.c2cGG(id_cell, i) == -1) {
@@ -206,6 +207,15 @@ void CreateHexCore::createBoundaryFaces()
           QVector<QVector<vtkIdType> > triangles;
           triangulatePolygon(m_Grid, face, triangles);
           foreach (QVector<vtkIdType> triangle, triangles) {
+            vec3_t x1, x2, x3;
+            m_Grid->GetPoint(triangle[0], x1.data());
+            m_Grid->GetPoint(triangle[1], x2.data());
+            m_Grid->GetPoint(triangle[2], x3.data());
+            vec3_t xt = (1.0/3.0)*(x1 + x2 + x3);
+            vec3_t nt = GeometryTools::triNormal(x1, x2, x3);
+            if (nt*(xt - xc) < 0) {
+              swap(triangle[0], triangle[1]);
+            }
             new_triangles.append(triangle);
           }
           if (face.size() > 3) {
@@ -275,6 +285,9 @@ void CreateHexCore::createBoundaryFaces()
   ++bc_new;
 
   // create triangular boundary faces
+  EG_VTKDCC(vtkIntArray, cell_orgdir, new_grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, new_grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, new_grid, "cell_voldir");
   GuiMainWindow::pointer()->addBC(bc_new, BoundaryCondition("HexCore", "unknown"));
   foreach (QVector<vtkIdType> face, new_triangles) {
     vtkIdType id_new_face;
@@ -286,6 +299,9 @@ void CreateHexCore::createBoundaryFaces()
       id_new_face = new_grid->InsertNextCell(VTK_POLYGON, face.size(), face.data());
     }
     cell_code->SetValue(id_new_face, bc_new);
+    cell_orgdir->SetValue(id_new_face, 0);
+    cell_curdir->SetValue(id_new_face, 0);
+    cell_voldir->SetValue(id_new_face, 0);
   }
 
   makeCopy(new_grid, m_Grid);
