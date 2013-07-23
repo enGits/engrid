@@ -59,8 +59,8 @@ void GuiCreateHexCore::toggleExternalMesh(bool external_mesh)
     m_X2 = xc + 10*(m_X20 - xc);
     m_Xi = 0.9*m_X1 + 0.1*m_Xi0;
   } else {
-    m_X1 = m_X10;
-    m_X2 = m_X20;
+    m_X1 = xc + 1.2*(m_X10 - xc);
+    m_X2 = xc + 1.2*(m_X20 - xc);
     m_Xi = m_Xi0;
   }
   setDouble(m_Xi[0], m_Ui.lineEditCiX);
