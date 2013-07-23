@@ -302,6 +302,7 @@ PolyMesh* FoamWriter::createSinglePolyMesh()
     MeshPartition volume(vols[i].getName());
     volume.setVolumeOrientation();
     volume.extractToVtkGrid(vol_grid);
+    volume.setOriginalOrientation();
     if (i == 0) {
       poly = new PolyMesh(vol_grid);
     } else {

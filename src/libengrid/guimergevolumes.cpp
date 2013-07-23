@@ -48,7 +48,7 @@ void GuiMergeVolumes::operate()
     int sign2 = V2.getSign(bc);
     if (sign1 != 0 && sign2 != 0) {
       if (sign1*sign2 > 0) {
-        EG_ERR_RETURN("volume definition not consistent (green/yellow)");
+        EG_ERR_RETURN("volume definition not consistent (A<</>>B)");
       }
       del_bcs.insert(bc);
     }
@@ -79,9 +79,8 @@ void GuiMergeVolumes::operate()
     ++id_new_node;
   }
   vtkIdType id_new_cell;
+  EG_VTKDCC(vtkIntArray, new_cell_code, new_grid, "cell_code");
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    //vtkIdType N_pts, *pts;
-    //m_Grid->GetCellPoints(id_cell, N_pts, pts);
     bool insert_cell = true;
     if (isSurface(id_cell, m_Grid)) {
       if (del_bcs.contains(cell_code->GetValue(id_cell))) {
@@ -90,8 +89,10 @@ void GuiMergeVolumes::operate()
     }
     if (insert_cell) {
       id_new_cell = copyCell(m_Grid, id_cell, new_grid);
-      //new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+      if (isVolume(id_new_cell, new_grid)) {
+        new_cell_code->SetValue(id_new_cell, V1.getVC());
+      }
     }
   }
 

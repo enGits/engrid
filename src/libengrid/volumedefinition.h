@@ -29,19 +29,21 @@
 class VolumeDefinition
 {
 private:
-  QString name; ///< name of the volume (unique identifier)
-  int vc; ///< volume code
+  QString name;      ///< name of the volume (unique identifier)
+  int vc;            ///< volume code
   QMap<int,int> bcs; ///< maps each BC of the volume to a sign (+1 if the outside is green /-1 if the outside is yellow)
 
 public: // methods
 
-  VolumeDefinition(); ///< Default constructor
-  VolumeDefinition(QString name, int vc); ///< Constructor
+  VolumeDefinition();
+  VolumeDefinition(QString name, int vc);
+
+  void setVC(int v) { vc = v; }
 
   QString getName() { return name; } ///< get name
-  int getVC() { return vc; } ///< get volume code
-  void addBC(int bc, int sign); ///< bcs[bc] = sign;
-  int getSign(int bc); ///< returns bcs[bc] if it exists, otherwise returns 0
+  int getVC() { return vc; }         ///< get volume code
+  void addBC(int bc, int sign);      ///< bcs[bc] = sign;
+  int getSign(int bc);               ///< returns bcs[bc] if it exists, otherwise returns 0
 };
 
 #endif // VOLUMEDEFINITION_H
