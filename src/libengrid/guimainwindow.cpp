@@ -1498,7 +1498,7 @@ void GuiMainWindow::updateBoundaryCodes(bool all_on)
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     for (vtkIdType i = 0; i < m_Grid->GetNumberOfCells(); ++i) {
       int ct = m_Grid->GetCellType(i);
-      if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD)) {
+      if ((ct == VTK_TRIANGLE) || (ct == VTK_QUAD) || (ct == VTK_POLYGON)) {
         m_AllBoundaryCodes.insert(cell_code->GetValue(i));
       }
     }
