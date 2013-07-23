@@ -26,10 +26,14 @@
 
 void ConvertToPolyMesh::operate()
 {
-  if (mainWindow()->getAllVols().size() > 1) {
+  QList<VolumeDefinition> vols = mainWindow()->getAllVols();
+  if (vols.size() > 1) {
     EG_ERR_RETURN("can only handle grids with a single volume at the moment");
   }
-  PolyMesh pmesh(m_Grid);
+  vols.first().setVC(0);
+  mainWindow()->setAllVols(vols);
+
+  PolyMesh pmesh(m_Grid, 0.0, false);
 
   // count the number of boundary faces in the polygonal mesh
   int num_boundary_faces = 0;
