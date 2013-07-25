@@ -62,7 +62,7 @@ private: //attributes
 
 protected: // methods
 
-  void   computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res);
+  void   computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res, int restriction_type);
   void   computeFeature2D(QVector<double> &cl_pre);
   void   computeFeature3D(QVector<double> &cl_pre);
   double computeSearchDistance(vtkIdType id_face);
