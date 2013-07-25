@@ -33,7 +33,8 @@ void ConvertToPolyMesh::operate()
   vols.first().setVC(0);
   mainWindow()->setAllVols(vols);
 
-  PolyMesh pmesh(m_Grid, 0.0, false);
+  //PolyMesh pmesh(m_Grid, 0.0, false);
+  PolyMesh pmesh(m_Grid, 0.0, true);
 
   // count the number of boundary faces in the polygonal mesh
   int num_boundary_faces = 0;
@@ -87,6 +88,21 @@ void ConvertToPolyMesh::operate()
       }
       vtkIdType id_cell = grid->InsertNextCell(VTK_POLYGON, ptids);
       cell_code->SetValue(id_cell, pmesh.boundaryCode(i));
+    }
+  }
+
+  // compute surface integrals to detect open cells
+  {
+    MeshPartition part(grid, true);
+    EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, grid, "cell_mesh_quality");
+    vec3_t surf_int(0,0,0);
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (isVolume(id_cell, grid)) {
+        for (int i_face = 0; i_face < part.c2cGSize(id_cell); ++i_face) {
+          surf_int += getNormalOfCell(grid, id_cell, i_face);
+        }
+      }
+      cell_mesh_quality->SetValue(id_cell, surf_int.abs());
     }
   }
 

@@ -116,6 +116,7 @@ void CreateHexCore::transferOctreeGrid()
   }
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
   m_Octree.toVtkGridPolyhedral(otgrid, true);
+  //m_Octree.toVtkGridConforming(otgrid, true);
   MeshPartition add_part(otgrid);
   QList<vtkIdType> add_cells;
   for (vtkIdType id_cell = 0; id_cell < otgrid->GetNumberOfCells(); ++id_cell) {
