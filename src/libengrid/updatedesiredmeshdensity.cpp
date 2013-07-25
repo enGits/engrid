@@ -135,11 +135,6 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
       }
     }
     foreach (int i_points, points[i].idx) {
-      /*
-      vtkIdType id_node = m_Part.globalNode(points[i].idx);
-      double L = m_Part.getAverageSurfaceEdgeLength(id_node);
-      if ()
-      */
       cl_pre[i_points] = min(h, cl_pre[i_points]);
     }
   }
@@ -161,10 +156,13 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
           vtkIdType num_pts, *pts;
           m_Grid->GetCellPoints(id_face, num_pts, pts);
           QVector<vec3_t> xn(num_pts + 1);
+          QVector<vtkIdType> idx(num_pts + 1);
           for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
             m_Grid->GetPoint(pts[i_pts], xn[i_pts].data());
+            idx[i_pts] = pts[i_pts];
           }
           xn[num_pts] = xn[0];
+          idx[num_pts] = idx[0];
           for (int i_neigh = 0; i_neigh < m_Part.c2cGSize(id_face); ++i_neigh) {
             vtkIdType id_neigh = m_Part.c2cGG(id_face, i_neigh);
             if (id_neigh != -1) {
@@ -176,9 +174,8 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
                 v.normalise();
                 P.n -= (P.n*v)*v;
                 P.n.normalise();
-                for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
-                  P.idx.append(m_Part.localNode(pts[i_pts]));
-                }
+                P.idx.append(idx[i_neigh]);
+                P.idx.append(idx[i_neigh+1]);
                 P.L = computeSearchDistance(id_face);
                 points.append(P);
               }
