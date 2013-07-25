@@ -218,7 +218,7 @@ ostream &operator<<(ostream &out, QVector < pair<T1, T2> > & vector)
 ////////////////////////////////////////////////////
 
 template <class T>
-QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
+QVector <T> set2Vector(QSet <T> a_set, bool a_sort)
 {
   QVector <T> l_vector(a_set.size());
   qCopy(a_set.begin(),a_set.end(),l_vector.begin());
@@ -227,7 +227,7 @@ QVector <T> Set2Vector(QSet <T> a_set, bool a_sort)
 }
 
 template <class T>
-QSet <T> Vector2Set(QVector <T> a_vector, bool a_sort)
+QSet <T> vector2Set(QVector <T> a_vector, bool a_sort)
 {
   QSet <T> l_set;
   foreach(T element, a_vector) l_set.insert(element);
