@@ -499,7 +499,7 @@ int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QVect
   }
 
   S2.intersect(S1);
-  EdgeCells = Set2Vector(S2, false);
+  EdgeCells = set2Vector(S2, false);
   return EdgeCells.size();
 }
 
