@@ -462,3 +462,46 @@ int MeshPartition::getNumberOfFeatureNeighbours(vtkIdType id_node)
   }
   return N;
 }
+
+int MeshPartition::getEdgeType(vtkIdType id_node1, vtkIdType id_node2)
+{
+  QList <vtkIdType> edge_faces;
+  getEdgeFaces(id_node1, id_node2, edge_faces);
+  int edge = 0;
+  if (edge_faces.size() == 1) {
+    edge = 2;
+  } else if (edge_faces.size() >= 2) {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    QSet<int> bcs;
+    foreach (vtkIdType id_face, edge_faces) {
+      bcs.insert(cell_code->GetValue(id_face));
+    }
+    if (bcs.size() > 1) {
+      edge = 2;
+    } else {
+      edge = 1;
+    }
+  }
+  return edge;
+}
+
+int MeshPartition::computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, int max_dist, int restriction_type)
+{
+  int dist = 0;
+  QSet<vtkIdType> candidates;
+  candidates.insert(id_node1);
+  while (dist < max_dist && !candidates.contains(id_node2)) {
+    foreach (vtkIdType id_node, candidates) {
+      for (int i = 0; i < n2nGSize(id_node); ++i) {
+        vtkIdType id_neigh = n2nGG(id_node,i);
+        if (!candidates.contains(id_neigh)) {
+          if (getEdgeType(id_node, id_neigh) >= restriction_type) {
+            candidates.insert(id_neigh);
+          }
+        }
+      }
+    }
+    ++dist;
+  }
+  return max_dist;
+}

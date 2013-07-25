@@ -269,6 +269,21 @@ public: // methods
 
   int getNumberOfFeatureNeighbours(vtkIdType id_node);
 
+  template <typename C>
+  void getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge_faces);
+
+  int getEdgeType(vtkIdType id_node1, vtkIdType id_node2);
+
+  /**
+   * @brief compute topological distance between two nodes
+   * @param id_node1 index of the first node
+   * @param id_node2 index of the second node
+   * @param max_dist maximal search distance
+   * @param restriction_type (0: no restriction, 1: only surface nodes, 2: only edge nodes)
+   * @return the number of edges for the shortest connection between the two nodes
+   */
+  int computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, int max_dist, int restriction_type);
+
 };
 
 
@@ -627,5 +642,23 @@ void MeshPartition::getGlobalN2N(vtkIdType id_node, C& cont)
   }
 }
 
+template <typename C>
+void MeshPartition::getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge_faces)
+{
+  edge_faces.clear();
+  for (int i = 0; i < n2cGSize(id_node1); ++i) {
+    vtkIdType id_cell = n2cGG(id_node1, i);
+    if (isSurface(id_cell, m_Grid)) {
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      for (int j = 0; j < num_pts; ++j) {
+        if (pts[j] == id_node2) {
+          edge_faces << id_cell;
+          break;
+        }
+      }
+    }
+  }
+}
 
 #endif // MESHPARTITION_H
