@@ -521,6 +521,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
     void callFillPlane() { EG_STDSLOT( GuiFillPlane ); }
     void callConvertToPolyMesh() { EG_STDSLOT(ConvertToPolyMesh); }
+    void callCreateHexShellMesh() { EG_STDSLOT(GuiCreateHexShell); }
 
     void callFixSTL();
 

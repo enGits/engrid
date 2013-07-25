@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,56 +19,64 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
-#include "guicreatehexcore.h"
+#ifndef GUICREATEHEXSHELL_H
+#define GUICREATEHEXSHELL_H
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
-#include "checkforoverlap.h"
-#include "guisurfacemesher.h"
-#include "brlcadreader.h"
-#include "su2writer.h"
-#include "dolfynwriter.h"
-#include "tauwriter.h"
-#include "guifillplane.h"
-#include "drnumwriter.h"
-#include "converttopolymesh.h"
-#include "guicreatehexshell.h"
+#include "ui_guicreatehexshell.h"
+#include "dialogoperation.h"
 
-// -------------------------------------------
+#include <QVector>
+
+class GuiCreateHexShell : public DialogOperation<Ui::GuiCreateHexShell, Operation>
+{
+
+  Q_OBJECT
+
+private: // attributes
+
+  int m_NumICells;
+  int m_NumJCells;
+  int m_NumKCells;
+  int m_NumINodes;
+  int m_NumJNodes;
+  int m_NumKNodes;
+  int m_TotalNumberOfCells;
+
+  double m_Dx, m_Dy, m_Dz;
+  double m_X0, m_Y0, m_Z0;
+  double m_H;
+  QVector<vtkIdType> m_NodeIDs;
+  QVector<vtkIdType> m_CellIDs;
+
+
+protected: // methods
+
+  virtual void before();
+  virtual void operate();
+
+  int indexCell(int i, int j, int k) { return i*m_NumJCells*m_NumKCells + j*m_NumKCells + k; }
+  int indexNode(int i, int j, int k) { return i*m_NumJNodes*m_NumKNodes + j*m_NumKNodes + k; }
+  void ijkCell(int idx, int& i, int& j, int& k);
+  void ijkNode(int idx, int& i, int& j, int& k);
+  void createGridWithNodes(vtkUnstructuredGrid *grid);
+  void createCells(vtkUnstructuredGrid *grid);
+  double x(int i) { return m_X0 + i*m_Dx; }
+  double y(int j) { return m_Y0 + j*m_Dy; }
+  double z(int k) { return m_Z0 + k*m_Dz; }
+
+
+
+public: // methods
+
+  GuiCreateHexShell();
+
+
+public slots:
+
+  void updateNumberOfCells(int = 0);
+
+};
+
+#endif // GUICREATEHEXSHELL_H

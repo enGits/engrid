@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -143,6 +143,7 @@
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionConvertToPolyMesh"/>
     <addaction name="actionCreateHexCore"/>
+    <addaction name="actionCreateHexShellMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
@@ -314,8 +315,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>499</height>
+          <width>213</width>
+          <height>492</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -706,8 +707,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>494</height>
+          <width>213</width>
+          <height>492</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1748,6 +1749,14 @@
    </property>
    <property name="toolTip">
     <string>convert to poly mesh</string>
+   </property>
+  </action>
+  <action name="actionCreateHexShellMesh">
+   <property name="text">
+    <string>create hex shell mesh</string>
+   </property>
+   <property name="toolTip">
+    <string>create hex shell mesh</string>
    </property>
   </action>
  </widget>
