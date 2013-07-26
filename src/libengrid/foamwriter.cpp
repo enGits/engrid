@@ -348,7 +348,7 @@ void FoamWriter::writeSingleVolume()
       writeOwner(*poly);
       writeNeighbour(*poly);
       writeBoundary(*poly);
-      if (m_CellZoneLimits.size() > 2) {
+      if (m_CellZoneLimits.size() >= 2) {
         writeCellZones();
       }
       delete poly;
