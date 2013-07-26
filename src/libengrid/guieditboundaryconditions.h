@@ -91,6 +91,9 @@ protected slots:
 
   void addVol();
   void delVol();
+  void allA();
+  void allB();
+  void allOff();
 
 
   // Boundary types tab
