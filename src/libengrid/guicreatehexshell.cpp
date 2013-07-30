@@ -22,6 +22,7 @@
 //
 
 #include "guicreatehexshell.h"
+#include "guimainwindow.h"
 
 GuiCreateHexShell::GuiCreateHexShell()
 {
@@ -155,7 +156,7 @@ void GuiCreateHexShell::createGridWithNodes(vtkUnstructuredGrid *grid)
   }
 }
 
-void GuiCreateHexShell::createCells(vtkUnstructuredGrid *grid)
+void GuiCreateHexShell::createHexCells(vtkUnstructuredGrid *grid)
 {
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   m_CellIDs.fill(-1, m_NumICells*m_NumJCells*m_NumKCells);
@@ -196,6 +197,250 @@ void GuiCreateHexShell::createCells(vtkUnstructuredGrid *grid)
   }
 }
 
+void GuiCreateHexShell::defineBoundaryCodes()
+{
+  QSet<int> bcs = mainWindow()->getAllBoundaryCodes();
+  m_InnerBC = 1;
+  foreach (int bc, bcs) {
+    m_InnerBC = max(bc, m_InnerBC);
+  }
+  ++m_InnerBC;
+  m_OuterBC = m_InnerBC + 1;
+  mainWindow()->addBC(m_InnerBC, BoundaryCondition("HexShellInside", "patch"));
+  mainWindow()->addBC(m_OuterBC, BoundaryCondition("HexShellOutside", "patch"));
+}
+
+void GuiCreateHexShell::createOuterBoundary(vtkUnstructuredGrid *grid)
+{
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  allocateGrid(new_grid, grid->GetNumberOfCells() + 2*(m_NumICells*m_NumJCells + m_NumICells*m_NumKCells + m_NumJCells*m_NumKCells), grid->GetNumberOfPoints());
+  makeCopyNoAlloc(grid, new_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, new_grid, "cell_code");
+
+  // left boundary
+  {
+    int i = 0;
+    for (int j = 0; j < m_NumJCells; ++j) {
+      for (int k = 0; k < m_NumKCells; ++k) {
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 4, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  // right boundary
+  {
+    int i = m_NumICells - 1;
+    for (int j = 0; j < m_NumJCells; ++j) {
+      for (int k = 0; k < m_NumKCells; ++k) {
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 5, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  // front boundary
+  {
+    for (int i = 0; i < m_NumICells; ++i) {
+      int j = 0;
+      for (int k = 0; k < m_NumKCells; ++k) {
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 2, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  // back boundary
+  {
+    for (int i = 0; i < m_NumICells; ++i) {
+      int j = m_NumJCells - 1;
+      for (int k = 0; k < m_NumKCells; ++k) {
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 3, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  // bottom boundary
+  {
+    for (int i = 0; i < m_NumICells; ++i) {
+      for (int j = 0; j < m_NumJCells; ++j) {
+        int k = 0;
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 0, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  // top boundary
+  {
+    for (int i = 0; i < m_NumICells; ++i) {
+      for (int j = 0; j < m_NumJCells; ++j) {
+        int k = m_NumKCells - 1;
+        vtkIdType id_cell = m_CellIDs[indexCell(i,j,k)];
+        if (id_cell == -1) {
+          EG_BUG;
+        }
+        QVector<vtkIdType> pts;
+        getFaceOfCell(new_grid, id_cell, 1, pts);
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts.data());
+        cell_code->SetValue(id_new_cell, m_OuterBC);
+      }
+    }
+  }
+
+  makeCopy(new_grid, grid);
+}
+
+void GuiCreateHexShell::createInnerBoundary(vtkUnstructuredGrid *grid)
+{
+  int num_new_nodes = 0;
+  int num_new_faces = 0;
+  MeshPartition part(grid, true);
+  QVector<bool> copy_cell(grid->GetNumberOfCells(), true);
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, grid)) {
+      bool face_found = false;
+      for (int i = 0; i < part.c2cGSize(id_cell); ++i) {
+        vtkIdType id_neigh = part.c2cGG(id_cell, i);
+        if (id_neigh == -1) {
+          if (face_found) {
+            EG_BUG;
+          } else {
+            num_new_faces += 4;
+            num_new_nodes += 1;
+            face_found = true;
+            copy_cell[id_cell] = false;
+          }
+        }
+      }
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  allocateGrid(new_grid, grid->GetNumberOfCells() + num_new_faces, grid->GetNumberOfPoints() + num_new_nodes);
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    grid->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (copy_cell[id_cell]) {
+      vtkIdType id_new_cell = copyCell(grid, id_cell, new_grid);
+      copyCellData(grid, id_cell, new_grid, id_new_cell);
+    }
+  }
+  EG_VTKDCC(vtkIntArray, cell_code, new_grid, "cell_code");
+  vtkIdType id_new_node = grid->GetNumberOfPoints();
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, grid)) {
+      int i_replace_face = -1;
+      QVector<QVector<vtkIdType> > triangles;
+      for (int i = 0; i < part.c2cGSize(id_cell); ++i) {
+        vtkIdType id_neigh = part.c2cGG(id_cell, i);
+        if (id_neigh == -1) {
+          i_replace_face = i;
+          QVector<vtkIdType> pts;
+          getFaceOfCell(grid, id_cell, i, pts);
+          if (pts.size() != 4) {
+            EG_BUG;
+          }
+          vec3_t xc(0,0,0);
+          foreach (vtkIdType id_node, pts) {
+            vec3_t x;
+            grid->GetPoint(id_node, x.data());
+            xc += x;
+          }
+          xc *= 0.25;
+          new_grid->GetPoints()->SetPoint(id_new_node, xc.data());
+          pts.append(pts.first());
+          for (int j = 0; j < 4; ++j) {
+            QVector<vtkIdType> triangle(3);
+            triangle[0] = pts[j];
+            triangle[1] = pts[j+1];
+            triangle[2] = id_new_node;
+            vtkIdType id_new_face = new_grid->InsertNextCell(VTK_TRIANGLE, 3, triangle.data());
+            cell_code->SetValue(id_new_face, m_InnerBC);
+            triangles.push_back(triangle);
+          }
+          ++id_new_node;
+        }
+      }
+      if (i_replace_face != -1) {
+        EG_VTKSP(vtkIdList, stream);
+        stream->SetNumberOfIds(42);
+        vtkIdType id = 0;
+        stream->SetId(id++, 9);
+        for (int i = 0; i < 6; ++i) {
+          if (i != i_replace_face) {
+            stream->SetId(id++, 4);
+            QVector<vtkIdType> pts;
+            getFaceOfCell(grid, id_cell, i, pts);
+            if (pts.size() != 4) {
+              EG_BUG;
+            }
+            foreach (vtkIdType id_node, pts) {
+              stream->SetId(id++, id_node);
+            }
+          }
+        }
+        foreach (QVector<vtkIdType> triangle, triangles) {
+          stream->SetId(id++, 3);
+          foreach (vtkIdType id_node, triangle) {
+            stream->SetId(id++, id_node);
+          }
+        }
+        vtkIdType id_new_cell = new_grid->InsertNextCell(VTK_POLYHEDRON, stream);
+        copyCellData(grid, id_cell, new_grid, id_new_cell);
+      }
+    }
+  }
+  makeCopy(new_grid, grid);
+}
+
+void GuiCreateHexShell::createSourceBox()
+{
+  QString xml_text = mainWindow()->getXmlSection("engrid/sources");
+  {
+    QTextStream s(&xml_text);
+    s << "box: HexShell; " << m_X0 << "; " << m_Y0 << "; " << m_Z0 << "; ";
+    s << m_X0 + m_NumICells*m_Dx << "; ";
+    s << m_Y0 + m_NumJCells*m_Dy << "; ";
+    s << m_Z0 + m_NumKCells*m_Dz << "; ";
+    s << 1.5*min(m_Dx, min(m_Dy, m_Dz)) << ";\n";
+  }
+  mainWindow()->setXmlSection("engrid/sources", xml_text);
+}
+
 void GuiCreateHexShell::operate()
 {
   m_NumICells =  m_Ui.spinBoxNx->value() + m_Ui.spinBoxLx1->value() + m_Ui.spinBoxLx2->value();
@@ -218,7 +463,12 @@ void GuiCreateHexShell::operate()
   m_Z0 = z1 - m_Ui.spinBoxLz1->value()*m_Dz;
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
   createGridWithNodes(shell_grid);
-  createCells(shell_grid);
+  createHexCells(shell_grid);
+  defineBoundaryCodes();
+  createOuterBoundary(shell_grid);
+  createInnerBoundary(shell_grid);
   MeshPartition shell_part(shell_grid, true);
   m_Part.addPartition(shell_part);
+  createSourceBox();
+  mainWindow()->updateBoundaryCodes(true);
 }

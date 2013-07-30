@@ -43,6 +43,8 @@ private: // attributes
   int m_NumJNodes;
   int m_NumKNodes;
   int m_TotalNumberOfCells;
+  int m_InnerBC;
+  int m_OuterBC;
 
   double m_Dx, m_Dy, m_Dz;
   double m_X0, m_Y0, m_Z0;
@@ -60,8 +62,12 @@ protected: // methods
   int indexNode(int i, int j, int k) { return i*m_NumJNodes*m_NumKNodes + j*m_NumKNodes + k; }
   void ijkCell(int idx, int& i, int& j, int& k);
   void ijkNode(int idx, int& i, int& j, int& k);
+  void defineBoundaryCodes();
   void createGridWithNodes(vtkUnstructuredGrid *grid);
-  void createCells(vtkUnstructuredGrid *grid);
+  void createHexCells(vtkUnstructuredGrid *grid);
+  void createOuterBoundary(vtkUnstructuredGrid *grid);
+  void createInnerBoundary(vtkUnstructuredGrid *grid);
+  void createSourceBox();
   double x(int i) { return m_X0 + i*m_Dx; }
   double y(int j) { return m_Y0 + j*m_Dy; }
   double z(int k) { return m_Z0 + k*m_Dz; }
