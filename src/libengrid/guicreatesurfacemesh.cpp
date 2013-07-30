@@ -80,7 +80,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
       m_NumCols = Nbc + 3;
     }
     if(m_NumCols != Nbc + 3) {
-      EG_BUG;
+      //m_NumCols = Nbc + 3;
     }
 
     int row, column;
@@ -252,6 +252,7 @@ void GuiCreateSurfaceMesh::getTableFromText()
   for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
     bc_map[m_Ui.listWidget->item(i)->text().split(":")[1].trimmed()] = i;
   }
+  m_NumCols = bc_map.size() + 3;
   QStringList rules = m_Ui.textEdit->toPlainText().split(";", QString::SkipEmptyParts);
   m_Table.clear();
   foreach (QString rule, rules) {
