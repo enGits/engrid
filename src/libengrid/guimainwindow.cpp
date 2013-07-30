@@ -1152,7 +1152,7 @@ void GuiMainWindow::openBC()
     int i;
     f >> i >> name >> type;
     if(name!="" && type!="") {
-      if (i >= 0) {
+      if (i > 0) {
         m_bcmap[i] = BoundaryCondition(name,type);
       } else {
         VolumeDefinition V(name, -i);
