@@ -304,9 +304,9 @@ PolyMesh* FoamWriter::createSinglePolyMesh()
     volume.extractToVtkGrid(vol_grid);
     volume.setOriginalOrientation();
     if (i == 0) {
-      poly = new PolyMesh(vol_grid);
+      poly = new PolyMesh(vol_grid, false, 0.0, false);
     } else {
-      PolyMesh vol_poly(vol_grid);
+      PolyMesh vol_poly(vol_grid, false, 0.0, false);
       poly->merge(&vol_poly);
     }
     m_CellZoneLimits.append(poly->numPolyCells());
@@ -429,7 +429,7 @@ void FoamWriter::writeMultipleVolumes()
         MeshPartition volume(vol.getName());
         volume.setVolumeOrientation();
         volume.extractToVtkGrid(vol_grid);
-        PolyMesh poly(vol_grid);
+        PolyMesh poly(vol_grid, false, 0.0, false);
         writePoints(poly);
         writeFaces(poly);
         writeOwner(poly);

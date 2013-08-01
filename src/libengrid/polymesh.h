@@ -31,6 +31,9 @@ class PolyMesh;
 
 class PolyMesh : public EgVtkObject
 {
+
+  friend class PolyMolecule;
+
   
 protected: // data types
 
@@ -127,14 +130,15 @@ protected: // methods
   void buildPoint2Face();
   void buildPCell2Face();
   void triangulateBadFaces();
-  void splitConcaveCells();
+  //void splitConcaveFaces();
   void collectBoundaryConditions();
+  void invertFace(int i);
 
   vec3_t faceNormal(int i);
    
 public: // methods
   
-  PolyMesh(vtkUnstructuredGrid *grid, double pull_in = 0.5, bool optimise = true);
+  PolyMesh(vtkUnstructuredGrid *grid, bool dualise = true, double pull_in = 0.5, bool optimise = true);
 
   void   setNodeVector(int i, vec3_t x) { m_Points[i] = x; }
 

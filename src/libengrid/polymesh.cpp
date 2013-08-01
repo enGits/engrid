@@ -141,13 +141,15 @@ bool PolyMesh::node_t::operator==(const PolyMesh::node_t &N) const
 //   PolyMesh
 // ============
 
-PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, double pull_in, bool optimise)
+PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool optimise)
 {
   m_CreateDualMesh = false;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isVolume(id_cell, grid) && grid->GetCellType(id_cell) != VTK_POLYHEDRON) {
-      m_CreateDualMesh = true;
-      break;
+  if (dualise) {
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (isVolume(id_cell, grid) && grid->GetCellType(id_cell) != VTK_POLYHEDRON) {
+        m_CreateDualMesh = true;
+        break;
+      }
     }
   }
 
@@ -163,6 +165,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, double pull_in, bool optimise)
   buildPoint2Face();
   buildPCell2Face();
   computePoints();
+  /*
   if (m_OptimiseConvexity) {
     for (int iter = 0; iter < 5; ++iter) {
       int num_bad = 0;
@@ -196,7 +199,40 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, double pull_in, bool optimise)
       }
     }
   }
+  */
+  if (m_OptimiseConvexity) {
+    splitConcaveFaces();
+    for (int iter = 0; iter < 1; ++iter) {
+      int num_improved = 0;
+      int num_cells = numCells();
+      for (int i = 0; i < num_cells; ++i) {
+        PolyMolecule pm(this, i);
+        if (!pm.allPositive()) {
+          ++num_improved;
+          pm.fix();
+          cout << "improved cell " << i << endl;
+          break;
+        }
+      }
+      buildPoint2Face();
+      buildPCell2Face();
+      for (int i = 0; i < m_PCell2Face[1].size(); ++i) {
+        cout << i << ", " << m_PCell2Face[1][i] << endl;
+        for (int j = 0; j < m_Faces[m_PCell2Face[1][i]].node.size(); ++j) {
+          cout << " " << m_Faces[m_PCell2Face[1][i]].node[j];
+        }
+        cout << endl;
+      }
+      cout << num_improved << " cells out of " << num_cells << " were split." << endl;
+      if (num_improved == 0) {
+        break;
+      }
+    }
+  }
   qSort(m_Faces);
+  buildPoint2Face();
+  buildPCell2Face();
+  cout << "break" << endl;
 }
 
 void PolyMesh::merge(PolyMesh *poly)
@@ -273,8 +309,8 @@ void PolyMesh::triangulateBadFaces()
   cout << bad_faces.size() << " faces have been triangulated" << endl;
 }
 
-
-void PolyMesh::splitConcaveCells()
+/*
+void PolyMesh::splitConcaveFaces()
 {
   for (int i_cell = 0; i_cell < numCells(); ++i_cell) {
     if (m_IsBadCell[i_cell]) {
@@ -416,6 +452,7 @@ void PolyMesh::splitConcaveCells()
     }
   }
 }
+*/
 
 void PolyMesh::getFacesOfEdgeInsideCell(vtkIdType id_cell, vtkIdType id_node1, vtkIdType id_node2, int &face1, int &face2)
 {
@@ -618,27 +655,31 @@ void PolyMesh::findPolyCells()
   m_Cell2PCell.fill(-1, m_Grid->GetNumberOfCells());
   m_Node2PCell.fill(-1, m_Grid->GetNumberOfPoints());
   m_NumPolyCells = 0;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (!isHexCoreNode(id_node)) {
-      bool tetra_or_pyramid = false;
-      for (int j = 0; j < m_Part.n2cGSize(id_node); ++j) {
-        vtkIdType id_cell = m_Part.n2cGG(id_node, j);
-        vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-        if (type_cell == VTK_TETRA || type_cell == VTK_PYRAMID) {
-          tetra_or_pyramid = true;
+  if (m_CreateDualMesh) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!isHexCoreNode(id_node)) {
+        bool tetra_or_pyramid = false;
+        for (int j = 0; j < m_Part.n2cGSize(id_node); ++j) {
+          vtkIdType id_cell = m_Part.n2cGG(id_node, j);
+          vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+          if (type_cell == VTK_TETRA || type_cell == VTK_PYRAMID) {
+            tetra_or_pyramid = true;
+          }
         }
-      }
-      if (tetra_or_pyramid) {
-        m_Node2PCell[id_node] = m_NumPolyCells;
-        ++m_NumPolyCells;
+        if (tetra_or_pyramid) {
+          m_Node2PCell[id_node] = m_NumPolyCells;
+          ++m_NumPolyCells;
+        }
       }
     }
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    if (type_cell == VTK_WEDGE || type_cell == VTK_HEXAHEDRON || type_cell == VTK_POLYHEDRON) {
-      m_Cell2PCell[id_cell] = m_NumPolyCells;
-      ++m_NumPolyCells;
+    if (isVolume(id_cell, m_Grid)) {
+      if (type_cell == VTK_WEDGE || type_cell == VTK_HEXAHEDRON || type_cell == VTK_POLYHEDRON || !m_CreateDualMesh) {
+        m_Cell2PCell[id_cell] = m_NumPolyCells;
+        ++m_NumPolyCells;
+      }
     }
   }
   m_CellCentre.resize(m_NumPolyCells);
@@ -1064,132 +1105,96 @@ void PolyMesh::computePoints()
 
 void PolyMesh::splitConcaveFaces()
 {
-  QList<face_t> new_faces;
-  for (int i_face = 0; i_face < m_Faces.size(); ++i_face) {
-    face_t face = m_Faces[i_face];
-    int num_nodes = face.node.size();
-    if (num_nodes > 4) {
-      QVector<vec3_t> x(num_nodes);
-      for (int i = 0; i < num_nodes; ++i) {
-        x[i] = nodeVector(face.node[i]);
-      }
-      vec3_t xc, n;
-      GeometryTools::planeFit(x, xc, n);
-      QVector<vec3_t> x_proj = x;
-      for (int i = 0; i < num_nodes; ++i) {
-        x_proj[i] -= ((x_proj[i] - xc)*n)*n;
-      }
-      if (convexRatio(x_proj, n) <= -1e-3) {
-        double max_ratio = -1e99;
-        bool debug_dump = false;
-        QList<int> poly1_best, poly2_best;
-        for (int i_split1 = 0; i_split1 < x_proj.size() - 3; ++i_split1) {
-          for (int i_split2 = i_split1 + 2; i_split2 < x_proj.size(); ++i_split2) {
-            QList<int> poly1, poly2;
-            QList<vec3_t> x1, x2;
-            for (int i = i_split1; i <= i_split2; ++i) {
-              x1.append(x_proj[i]);
-              poly1.append(i);
-            }
-            for (int i = i_split2; i < x_proj.size(); ++i) {
-              x2.append(x_proj[i]);
-              poly2.append(i);
-            }
-            for (int i = 0; i <= i_split1; ++i) {
-              x2.append(x_proj[i]);
-              poly2.append(i);
-            }
-            vec3_t n1 = polyNormal(x1);
-            vec3_t n2 = polyNormal(x2);
-            if (n1*n2 > 0) {
-              double ratio = min(convexRatio(x1, n), convexRatio(x2, n));
-              if (ratio > max_ratio) {
-                max_ratio = ratio;
-                poly1_best = poly1;
-                poly2_best = poly2;
+  QList<int> delete_faces;
+  do {
+    delete_faces.clear();
+    QList<face_t> new_faces;
+    for (int i_face = 0; i_face < m_Faces.size(); ++i_face) {
+      face_t face = m_Faces[i_face];
+      int num_nodes = face.node.size();
+      if (num_nodes >= 4) {
+        QVector<vec3_t> x_face(num_nodes);
+        for (int i = 0; i < num_nodes; ++i) {
+          x_face[i] = nodeVector(face.node[i]);
+        }
+        vec3_t xc, n;
+        GeometryTools::planeFit(x_face, xc, n);
+        QVector<vec3_t> x(num_nodes + 2);
+        for (int i = 0; i < num_nodes; ++i) {
+          x[i+1] = x_face[i];
+        }
+        x.first() = x_face.last();
+        x.last() = x_face.first();
+        double L_max = 0.01;
+        int i1 = -1;
+        vec3_t v;
+        for (int i = 1; i <= num_nodes; ++i) {
+          vec3_t x_neigh = 0.5*(x[i-1] + x[i+1]);
+          double Lnorm = (x[i-1] - x[i+1]).abs();
+          double L = ((x_neigh - xc).abs() - (x[i] - xc).abs())/Lnorm;
+          if (L > L_max) {
+            i1 = i;
+            L_max = L;
+            v = x[i] - x_neigh;
+          }
+        }
+        if (i1 != -1) {
+          int i2 = -1;
+          double alpha_min = 1e99;
+          for (int i = 1; i <= num_nodes; ++i) {
+            if ((i < i1 - 1 || i > i1 + 1) && (i < i1 + num_nodes -1 || i > i1 + num_nodes + 1)) {
+              double alpha = GeometryTools::angle(x[i] - x[i1], v);
+              if (alpha < alpha_min) {
+                i2 = i;
+                alpha_min = alpha;
               }
             }
           }
-        }
-
-        if (poly1_best.size() < 3) {
-          debug_dump = true;//EG_BUG;
-        }
-        if (poly2_best.size() < 3) {
-          debug_dump = true;//EG_BUG;
-        }
-        if (poly1_best.size() + poly2_best.size() != x.size() + 2) {
-          debug_dump = true;//EG_BUG;
-        }
-
-        // begin TESTING
-        //
-        //EG_VTKSP(vtkXMLPolyDataWriter, vtp);
-        //vtp->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/test_cell.vtp"));
-        //vtp->SetInput(triangulate->GetOutput());
-        //vtp->Write();
-
-        if (debug_dump) {
-          EG_VTKSP(vtkPolyData, pdata1);
-          createPolyData(x, pdata1);
-          EG_VTKSP(vtkXMLPolyDataWriter, vtp1);
-          vtp1->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/test_cell1.vtp"));
-          vtp1->SetInput(pdata1);
-          vtp1->Write();
-
-          EG_VTKSP(vtkPolyData, pdata2);
-          createPolyData(x_proj, pdata2);
-          EG_VTKSP(vtkXMLPolyDataWriter, vtp2);
-          vtp2->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/test_cell2.vtp"));
-          vtp2->SetInput(pdata2);
-          vtp2->Write();
-
-          QList<vec3_t> xp1;
-          foreach (int i, poly1_best) xp1.append(x_proj[i]);
-          EG_VTKSP(vtkPolyData, pdata3);
-          createPolyData(xp1, pdata3);
-          EG_VTKSP(vtkXMLPolyDataWriter, vtp3);
-          vtp3->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/test_cell3.vtp"));
-          vtp3->SetInput(pdata3);
-          vtp3->Write();
-
-          QList<vec3_t> xp2;
-          foreach (int i, poly2_best) xp2.append(x_proj[i]);
-          EG_VTKSP(vtkPolyData, pdata4);
-          createPolyData(xp2, pdata4);
-          EG_VTKSP(vtkXMLPolyDataWriter, vtp4);
-          vtp4->SetFileName(qPrintable(GuiMainWindow::pointer()->getCwd() + "/test_cell4.vtp"));
-          vtp4->SetInput(pdata4);
-          vtp4->Write();
-        }
-
-        if (debug_dump) {
-          EG_BUG;
-        }
-
-        if (poly1_best.size() >= 3 && poly2_best.size() >= 3) {
-          QVector<int> old_node = face.node;
-          face.node.resize(poly1_best.size());
-          for (int i = 0; i < poly1_best.size(); ++i) {
-            face.node[i] = old_node[poly1_best[i]];
+          if (i2 != -1) {
+            --i1;
+            --i2;
+            if (i1 > i2) {
+              swap(i1, i2);
+            }
+            delete_faces.append(i_face);
+            QVector<int> nodes1;
+            {
+              int i = 0;
+              while (i < num_nodes) {
+                nodes1.append(face.node[i]);
+                if (i == i1) {
+                  i = i2;
+                } else {
+                  ++i;
+                }
+              }
+            }
+            QVector<int> nodes2;
+            for (int i = i1; i <= i2; ++i) {
+              nodes2.append(face.node[i]);
+            }
+            face_t face1(nodes1.size(), face.owner, face.neighbour, face.ref_vec, face.bc);
+            face_t face2(nodes2.size(), face.owner, face.neighbour, face.ref_vec, face.bc);
+            face1.node = nodes1;
+            face2.node = nodes2;
+            new_faces.append(face1);
+            new_faces.append(face2);
           }
-          m_Faces[i_face] = face;
-          face.node.resize(poly2_best.size());
-          for (int i = 0; i < poly2_best.size(); ++i) {
-            face.node[i] = old_node[poly2_best[i]];
-          }
-          new_faces.append(face);
         }
-
-        //EG_BUG;
-        //
-        // end TESTING
-
       }
     }
-  }
-  m_Faces.append(new_faces);
-  //qSort(m_Faces);
+    {
+      int offset = 0;
+      foreach (int i_face, delete_faces) {
+        m_Faces.removeAt(i_face - offset);
+        ++offset;
+      }
+    }
+    m_Faces.append(new_faces);
+    cout << delete_faces.size() << " concave faces have been split." << endl;
+    delete_faces.clear();
+  } while (delete_faces.size() > 0);
+  qSort(m_Faces);
   buildPoint2Face();
   buildPCell2Face();
 }
@@ -1254,42 +1259,44 @@ void PolyMesh::createNodesAndFaces()
   }
 
   // create all dual cells
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    QSet<vtkIdType> c1;
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-      if (m_Cell2PCell[id_cell] == -1) {
-        c1.insert(id_cell);
+  if (m_CreateDualMesh) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      QSet<vtkIdType> c1;
+      for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+        if (m_Cell2PCell[id_cell] == -1) {
+          c1.insert(id_cell);
+        }
       }
-    }
-    if (m_Node2PCell[id_node] != -1) {
-      for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node); ++i_neigh) {
-        vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
-        if (m_Node2PCell[id_neigh] != -1 && id_neigh > id_node) {
+      if (m_Node2PCell[id_node] != -1) {
+        for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node); ++i_neigh) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
+          if (m_Node2PCell[id_neigh] != -1 && id_neigh > id_node) {
 
-          // check if any of the adjacent cells (id_node <-> id_neigh) need to be "dualised"
-          QSet<vtkIdType> c2;
-          for (int i = 0; i < m_Part.n2cGSize(id_neigh); ++i) {
-            vtkIdType id_cell = m_Part.n2cGG(id_neigh, i);
-            if (m_Cell2PCell[id_cell] == -1) {
-              c2.insert(id_cell);
+            // check if any of the adjacent cells (id_node <-> id_neigh) need to be "dualised"
+            QSet<vtkIdType> c2;
+            for (int i = 0; i < m_Part.n2cGSize(id_neigh); ++i) {
+              vtkIdType id_cell = m_Part.n2cGG(id_neigh, i);
+              if (m_Cell2PCell[id_cell] == -1) {
+                c2.insert(id_cell);
+              }
+            }
+            c2.intersect(c1);
+            if (c2.size() > 0) {
+              createEdgeFace(id_node, id_neigh);
             }
           }
-          c2.intersect(c1);
-          if (c2.size() > 0) {
-            createEdgeFace(id_node, id_neigh);
+        }
+        QSet<int> bcs;
+        for (int i_cell = 0; i_cell < m_Part.n2cGSize(id_node); ++i_cell) {
+          vtkIdType id_cell = m_Part.n2cGG(id_node, i_cell);
+          if (isSurface(id_cell, m_Grid)) {
+            bcs.insert(cell_code->GetValue(id_cell));
           }
         }
-      }
-      QSet<int> bcs;
-      for (int i_cell = 0; i_cell < m_Part.n2cGSize(id_node); ++i_cell) {
-        vtkIdType id_cell = m_Part.n2cGG(id_node, i_cell);
-        if (isSurface(id_cell, m_Grid)) {
-          bcs.insert(cell_code->GetValue(id_cell));
+        foreach (int bc, bcs) {
+          createPointFace(id_node, bc);
         }
-      }
-      foreach (int bc, bcs) {
-        createPointFace(id_node, bc);
       }
     }
   }
@@ -1365,3 +1372,8 @@ void PolyMesh::buildPCell2Face()
   }
 }
 
+void PolyMesh::invertFace(int i)
+{
+  invertQContainer(m_Faces[i].node);
+  m_Faces[i].ref_vec *= -1;
+}
