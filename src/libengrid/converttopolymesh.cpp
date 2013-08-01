@@ -34,7 +34,7 @@ void ConvertToPolyMesh::operate()
   mainWindow()->setAllVols(vols);
 
   //PolyMesh pmesh(m_Grid, 0.0, false);
-  PolyMesh pmesh(m_Grid, 0.0, true);
+  PolyMesh pmesh(m_Grid, true, 0.0, true);
 
   // count the number of boundary faces in the polygonal mesh
   int num_boundary_faces = 0;
@@ -71,7 +71,11 @@ void ConvertToPolyMesh::operate()
       int i_face = pmesh.pcell2Face(i, j);
       ptids->SetId(i_id++, pmesh.numNodes(i_face));
       for (int k = 0; k < pmesh.numNodes(i_face); ++k) {
-        ptids->SetId(i_id++, pmesh.nodeIndex(i_face, k));
+        if (pmesh.owner(i_face) == i) {
+          ptids->SetId(i_id++, pmesh.nodeIndex(i_face, k));
+        } else {
+          ptids->SetId(i_id++, pmesh.nodeIndex(i_face, pmesh.numNodes(i_face) - 1 - k));
+        }
       }
     }
     vtkIdType id_cell = grid->InsertNextCell(VTK_POLYHEDRON, ptids);
@@ -95,15 +99,36 @@ void ConvertToPolyMesh::operate()
   {
     MeshPartition part(grid, true);
     EG_VTKDCC(vtkDoubleArray, cell_mesh_quality, grid, "cell_mesh_quality");
-    vec3_t surf_int(0,0,0);
+    double max_err = 0;
+    double min_dist =  1e99;
+    double max_dist = -1e99;
+    double average_dist = 0;
+    int N = 0;
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
       if (isVolume(id_cell, grid)) {
+        vec3_t surf_int(0,0,0);
+        double A = 0;
+        vec3_t x = cellCentre(grid, id_cell);
         for (int i_face = 0; i_face < part.c2cGSize(id_cell); ++i_face) {
-          surf_int += getNormalOfCell(grid, id_cell, i_face);
+          vec3_t n = getNormalOfCell(grid, id_cell, i_face);
+          surf_int += n;
+          A += n.abs();
+          vec3_t xf = getCentreOfCellFace(grid, id_cell, i_face);
+          n.normalise();
+          double dist = (xf - x)*n;
+          max_dist = max(max_dist, dist);
+          min_dist = min(min_dist, dist);
+          average_dist += dist;
+          ++N;
         }
+        max_err = max(max_err, surf_int.abs()/A);
       }
-      cell_mesh_quality->SetValue(id_cell, surf_int.abs());
     }
+    average_dist /= N;
+    cout << "maximal cell error: " << max_err << endl;
+    cout << "maximal face distance: " << max_dist << endl;
+    cout << "minimal face distance: " << min_dist << endl;
+    cout << "average face distance: " << average_dist << endl;
   }
 
   // replace the original mesh

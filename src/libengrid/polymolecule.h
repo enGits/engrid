@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -41,14 +41,17 @@ private: // data types
     int face2;
   };
 
+
 private: // attributes
 
   PolyMesh*             m_PolyMesh;
+  QList<int>            m_FacesInPMesh;
   QList<int>            m_Nodes;
   QVector<QList<int> >  m_Faces;
   QVector<vec3_t>       m_FaceNormals;
   QVector<vec3_t>       m_NodeNormals;
   QVector<QSet<int> >   m_N2N;
+  QVector<QSet<int> >   m_F2F;
   QVector<QSet<int> >   m_N2BadFaces;
   PolyMolecule*         m_SplitCell1;
   PolyMolecule*         m_SplitCell2;
@@ -63,14 +66,19 @@ private: // methods
 
   void computeCentreOfGravity();
   void buildNode2Node();
+  void buildFace2Face();
   void computeNormals();
   void smooth(bool delaunay = true, bool write = false);
-  //void fillGaps();
   void split(bool write = false);
+  void updateFace(int face, int new_cell_index);
+  void centreSplit();
 
 
   template <class C> void init(PolyMesh *poly_mesh, const C &faces);
   template <class C> void setSubMolecules(const C &face_indices1);
+
+  edge_t getEdge(int node1, int node2);
+  QList<edge_t> findConcaveEdges();
 
 public:
 
@@ -85,6 +93,7 @@ public:
   double maxPyramidVolume() { return m_MaxPyramidVolume; }
   void   fix(bool write = false);
   bool   allPositive() { return m_AllPositive; }
+  void   updatePMesh();
 
 };
 

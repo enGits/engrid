@@ -545,6 +545,15 @@ protected: // methods
   vec3_t getNormalOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face);
 
   /**
+   * Get the centre of a face of a volume cell.
+   * @param grid the unstructured grid
+   * @param id_cell the index of the cell
+   * @param i_face the index of the face within the cell
+   * @return the centre
+   */
+  vec3_t getCentreOfCellFace(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face);
+
+  /**
    * Get an edge of a face/cell
    * @param grid the unstructured grid
    * @param id_cell the index of the cell
@@ -597,6 +606,9 @@ protected: // methods
   void createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2c);
   void createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2n);
   template <class C> double convexRatio(const C &x, vec3_t n_plane, bool closed_loop = false);
+
+  template <class C> void invertQContainer(C &cont);
+
 
 public: // methods
   
@@ -937,6 +949,20 @@ void EgVtkObject::triangulatePolygon(vtkUnstructuredGrid *grid, const C1 &polygo
     triangles[i][2] = poly[i_best];
     ++i1;
     ++i2;
+  }
+}
+
+template <typename C>
+void EgVtkObject::invertQContainer(C &cont)
+{
+  QList<typename C::value_type> original;
+  foreach (typename C::value_type item, cont) {
+    original << item;
+  }
+  cont.clear();
+  while (original.size() > 0) {
+    cont << original.last();
+    original.pop_back();
   }
 }
 

@@ -1352,6 +1352,22 @@ vec3_t EgVtkObject::getNormalOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell
   return n;
 }
 
+vec3_t EgVtkObject::getCentreOfCellFace(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face)
+{
+  QVector<vtkIdType> ids;
+  getFaceOfCell(grid, id_cell, i_face, ids);
+  if (ids.size() == 0) {
+    EG_BUG;
+  }
+  vec3_t xc(0,0,0), x;
+  for (int i = 0; i < ids.size(); ++i) {
+    grid->GetPoint(ids[i], x.data());
+    xc += x;
+  }
+  xc *= 1.0/ids.size();
+  return xc;
+}
+
 void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids)
 {
   vtkIdType type_cell = grid->GetCellType(id_cell);
