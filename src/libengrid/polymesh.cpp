@@ -202,7 +202,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
   */
   if (m_OptimiseConvexity) {
     splitConcaveFaces();
-    for (int iter = 0; iter < 1; ++iter) {
+    for (int iter = 0; iter < 0; ++iter) {
       int num_improved = 0;
       int num_cells = numCells();
       for (int i = 0; i < num_cells; ++i) {
@@ -210,18 +210,20 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
         if (!pm.allPositive()) {
           ++num_improved;
           pm.fix();
-          cout << "improved cell " << i << endl;
-          break;
+          //cout << "improved cell " << i << endl;
+          //break;
         }
       }
       buildPoint2Face();
       buildPCell2Face();
       for (int i = 0; i < m_PCell2Face[1].size(); ++i) {
+        /*
         cout << i << ", " << m_PCell2Face[1][i] << endl;
         for (int j = 0; j < m_Faces[m_PCell2Face[1][i]].node.size(); ++j) {
           cout << " " << m_Faces[m_PCell2Face[1][i]].node[j];
         }
         cout << endl;
+        */
       }
       cout << num_improved << " cells out of " << num_cells << " were split." << endl;
       if (num_improved == 0) {

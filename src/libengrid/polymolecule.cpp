@@ -455,11 +455,16 @@ PolyMolecule::edge_t PolyMolecule::getEdge(int node1, int node2)
 
 QList<PolyMolecule::edge_t> PolyMolecule::findConcaveEdges()
 {
+  if (m_PCell == 32) {
+    cout << "break" << endl;
+  }
   QList<edge_t> concave_edges;
   for (int node1 = 0; node1 < m_Nodes.size(); ++node1) {
     foreach (int node2, m_N2N[node1]) {
       if (node2 > node1) {
         edge_t e = getEdge(node1, node2);
+        vec3_t x1 = getXNode(node1);
+        vec3_t x2 = getXNode(node2);
         vec3_t xe  = 0.5*(getXNode(node1) + getXNode(node2));
         vec3_t xf1 = getXFace(e.face1);
         vec3_t xf2 = getXFace(e.face2);
@@ -760,26 +765,30 @@ void PolyMolecule::centreSplit()
       int node2 = nodes[i_node + 1];
       edge_t e = getEdge(node1, node2);
       PolyMesh::face_t f;
-      f.bc = 0;
-      f.node.append(m_Nodes[node1]);
-      f.node.append(m_Nodes[node2]);
-      f.node.append(new_node);
-      f.owner = cell_index[face];
       if (e.face1 == face) {
         f.neighbour = cell_index[e.face2];
       } else {
         f.neighbour = cell_index[e.face1];
       }
-      vec3_t x1 = m_PolyMesh->m_Points[f.node[0]];
-      vec3_t x2 = m_PolyMesh->m_Points[f.node[1]];
-      vec3_t x3 = m_PolyMesh->m_Points[f.node[2]];
-      f.ref_vec = GeometryTools::triNormal(x1, x2, x3);
-      if (f.owner > f.neighbour) {
-        swap(f.owner, f.neighbour);
-        f.ref_vec *= -1;
-        invertQContainer(f.node);
+      if (f.owner < f.neighbour) {
+        f.bc = 0;
+        f.node.append(m_Nodes[node2]);
+        f.node.append(m_Nodes[node1]);
+        f.node.append(new_node);
+        f.owner = cell_index[face];
+        vec3_t x1 = m_PolyMesh->m_Points[f.node[0]];
+        vec3_t x2 = m_PolyMesh->m_Points[f.node[1]];
+        vec3_t x3 = m_PolyMesh->m_Points[f.node[2]];
+        f.ref_vec = GeometryTools::triNormal(x1, x2, x3);
+        /*
+        if (f.owner > f.neighbour) {
+          swap(f.owner, f.neighbour);
+          f.ref_vec *= -1;
+          invertQContainer(f.node);
+        }
+        */
+        m_PolyMesh->m_Faces.append(f);
       }
-      m_PolyMesh->m_Faces.append(f);
     }
   }
 }
