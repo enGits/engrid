@@ -323,8 +323,9 @@ void MeshPartition::createNodeToBC()
       }
     }
     m_N2BC[i_node].resize(bcs.size());
+    int i = 0;
     foreach (int bc, bcs) {
-      m_N2BC[i_node].append(bc);
+      m_N2BC[i_node][i++] = bc;
     }
   }
 }
