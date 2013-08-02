@@ -305,6 +305,61 @@ void vtkEgNormalExtrusion::ExecuteEg()
           voldir->SetValue(id_new_cell, 0);
         }
       }
+      if (Npts > 4) {
+        {
+          EG_VTKSP(vtkIdList, stream);
+          stream->SetNumberOfIds(1 + 2*(Npts + 1) + Npts*5);
+          vtkIdType id = 0;
+          stream->SetId(id++, 2 + Npts);
+
+          // bottom face
+          stream->SetId(id++, Npts);
+          for (int i = Npts - 1; i >= 0; --i) {
+            stream->SetId(id++, n1[surf_pts[i]]);
+          }
+
+          // top face
+          stream->SetId(id++, Npts);
+          for (int i = 0; i < Npts; ++i) {
+            stream->SetId(id++, n2[surf_pts[i]]);
+          }
+
+          // side faces
+          for (int i = 0; i < Npts; ++i) {
+            stream->SetId(id++, 4);
+            vtkIdType p1 = n1[surf_pts[i]];
+            vtkIdType p2 = n1[surf_pts[0]];
+            vtkIdType p3 = n2[surf_pts[0]];
+            vtkIdType p4 = n2[surf_pts[i]];
+            if (i < Npts - 1) {
+              p2 = n1[surf_pts[i+1]];
+              p3 = n2[surf_pts[i+1]];
+            }
+            stream->SetId(id++, p1);
+            stream->SetId(id++, p2);
+            stream->SetId(id++, p3);
+            stream->SetId(id++, p4);
+          }
+
+          vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_POLYHEDRON, stream);
+          cell_code2->SetValue(id_new_cell, 0);
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
+        }
+        if (i_layer == layer_y.size() - 2) {
+          EG_VTKSP(vtkIdList, poly_pts);
+          poly_pts->SetNumberOfIds(Npts);
+          for (vtkIdType id = 0; id < Npts; ++id) {
+            poly_pts->SetId(id, n2[surf_pts[id]]);
+          }
+          vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_POLYGON, poly_pts);
+          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          orgdir->SetValue(id_new_cell, 0);
+          curdir->SetValue(id_new_cell, 0);
+          voldir->SetValue(id_new_cell, 0);
+        }
+      }
     }
   }
   
@@ -318,10 +373,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
   // copy all original cells that were not part of the extrusion
   for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
     if (_cells[id_cell] == -1) {
-      vtkIdType *pts;
-      vtkIdType  Npts;
-      m_Input->GetCellPoints(id_cell, Npts, pts);
-      vtkIdType id_new_cell = m_Output->InsertNextCell(m_Input->GetCellType(id_cell), Npts, pts);
+      vtkIdType id_new_cell = copyCell(m_Input, id_cell, m_Output);
       copyCellData(m_Input, id_cell, m_Output, id_new_cell);
     }
   }
