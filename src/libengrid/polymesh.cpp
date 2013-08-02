@@ -968,7 +968,9 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
         id_face = -1;
       }
     }
-    nodes.prepend(node_t(id_node));
+    if (m_Part.n2bcGSize(id_node) > 2) {
+      nodes.prepend(node_t(id_node));
+    }
   }
   int owner     = m_Node2PCell[id_node];
   int neighbour = -1;
@@ -1127,7 +1129,7 @@ void PolyMesh::splitConcaveFaces()
         }
         x.first() = x_face.last();
         x.last() = x_face.first();
-        double L_max = 0.01;
+        double L_max = 0.02;
         int i1 = -1;
         vec3_t v;
         for (int i = 1; i <= num_nodes; ++i) {
@@ -1275,7 +1277,7 @@ void PolyMesh::createNodesAndFaces()
           vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
           if (m_Node2PCell[id_neigh] != -1 && id_neigh > id_node) {
 
-            // check if any of the adjacent cells (id_node <-> id_neigh) need to be "dualised"
+            // check if any of the adjacent cells (id_node <-> id_neigh) needs to be "dualised"
             QSet<vtkIdType> c2;
             for (int i = 0; i < m_Part.n2cGSize(id_neigh); ++i) {
               vtkIdType id_cell = m_Part.n2cGG(id_neigh, i);
