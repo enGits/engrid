@@ -23,6 +23,8 @@
 
 #include "brlcadinterface.h"
 
+#ifdef BRLCAD_SUPPORT
+
 vec3_t BrlCadInterface::m_XIn;
 vec3_t BrlCadInterface::m_XOut;
 vec3_t BrlCadInterface::m_InNormal;
@@ -198,3 +200,5 @@ BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
   return Surface;
 }
 */
+
+#endif // BRLCAD_SUPPORT

@@ -24,6 +24,8 @@
 #ifndef BRLCADINTERFACE_H
 #define BRLCADINTERFACE_H
 
+#ifdef BRLCAD_SUPPORT
+
 #include "brlcad/vmath.h"
 #include "brlcad/raytrace.h"
 #include "brlcad/common.h"
@@ -67,5 +69,7 @@ public:
   virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
 
 };
+
+#endif // BRLCAD_SUPPORT
 
 #endif // BRLCADINTERFACE_H
