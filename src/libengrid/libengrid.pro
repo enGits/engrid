@@ -5,7 +5,6 @@ TARGET   = engrid
 # Enable this if the VTK from the ParaView sources and 
 # installation want to be used
 # Note: Currently only for Windows Compiles with MSVC
-Use_VTK_Win_ParaView = yes
 
 
 CONFIG += qt \
@@ -16,57 +15,44 @@ QT     += xml \
           network \
           opengl
 
-QMAKE_CXXFLAGS += -fopenmp
-
-win32-msvc* {
-    QMAKE_CXXFLAGS += -W3
-    DEFINES += LIBENGRID_EXPORTS
-    DEFINES += DLL_EXPORT
-} win32-g++* {
-    CONFIG += console
-    DEFINES += LIBENGRID_EXPORTS
-    DEFINES += DLL_EXPORT
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    QMAKE_CXXFLAGS += -Wl,--no-undefined
-    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
-} else {
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    QMAKE_CXXFLAGS += -fno-omit-frame-pointer
-    QMAKE_CXXFLAGS += -g
-}
-
+QMAKE_CXXFLAGS += -W3
+DEFINES += LIBENGRID_EXPORTS
+DEFINES += DLL_EXPORT
+DEFINES += _USE_MATH_DEFINES
 
 INCLUDEPATH += ..
-INCLUDEPATH += ./libengrid-build
+INCLUDEPATH += ./libengrid
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
 #BRL-CAD
-INCLUDEPATH += $(BRLCADINCDIR)
-INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
-DEFINES     += BRLCAD_SUPPORT
+#INCLUDEPATH += $(BRLCADINCDIR)
+#INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
+#DEFINES     += BRLCAD_SUPPORT
 
-!debian {
-    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
-    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-}
+INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
+INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
-#INCLUDEPATH for VTK depends on the compiler
-win32-msvc* {
-    DEFINES += _USE_MATH_DEFINES
+# VTK
+INCLUDEPATH += ../../../VTK/include/vtk-5.10
+LIBS += -L../../../VTK/lib/vtk-5.10
+LIBS += -lQVTK
+LIBS += -lvtkCommon
+LIBS += -lvtkDICOMParser
+LIBS += -lvtkexoIIc
+LIBS += -lvtkFiltering
+LIBS += -lvtkftgl
+LIBS += -lvtkGenericFiltering
+LIBS += -lvtkGraphics
+LIBS += -lvtkHybrid
+LIBS += -lvtkImaging
+LIBS += -lvtkIO
+LIBS += -lvtkRendering
+LIBS += -lvtksys
+LIBS += -lvtkVolumeRendering
+LIBS += -lvtkWidgets
 
-    !isEmpty(Use_VTK_Win_ParaView) {
-        include(../misc/engrid-vtk-win_paraview.pri)
-    } else {
-        INCLUDEPATH += $(VTKINCDIR)
-    }
-} win32-g++* {
-    INCLUDEPATH += $(VTKINCDIR)
-} else {
-    INCLUDEPATH += $(VTKINCDIR)
-}
+LIBS += -L../../build-engrid-Desktop-Release/netgen_svn/release -lnglib
 
 RESOURCES += engrid.qrc
 
