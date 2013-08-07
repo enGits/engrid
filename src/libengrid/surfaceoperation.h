@@ -108,7 +108,7 @@ public:
    * @param fix_unselected fix all edges which belong to unselected boundary codes
    * @return the type of the edge
    */
-  char getEdgeType(vtkIdType id_node1, vtkIdType od_node2, bool fix_unselected);
+  char getEdgeType(vtkIdType id_node1, vtkIdType od_node2, bool fix_unselected = false);
 
   /// passes a vector containing the cells surrounding edge [id_node1,id_node2] by reference and returns its size
   int getEdgeCells( vtkIdType id_node1, vtkIdType id_node2, QVector <vtkIdType> &EdgeCells );
