@@ -23,6 +23,8 @@
 #ifndef BRLCADREADER_H
 #define BRLCADREADER_H
 
+#ifdef BRLCAD_SUPPORT
+
 class BrlcadReader;
 
 #include "iooperation.h"
@@ -54,5 +56,7 @@ public: // methods
   BrlcadReader();
 
 };
+
+#endif // BRLCAD_SUPPORT
 
 #endif // BRLCADREADER_H
