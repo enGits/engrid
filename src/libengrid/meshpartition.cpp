@@ -319,7 +319,10 @@ void MeshPartition::createNodeToBC()
     for (int j = 0; j < n2cLSize(i_node); ++j) {
       vtkIdType id_cell = n2cLG(i_node, j);
       if (isSurface(id_cell, m_Grid)) {
-        bcs.insert(cell_code->GetValue(n2cLG(i_node, j)));
+        int bc = cell_code->GetValue(n2cLG(i_node, j));
+        if (bc != 0) {
+          bcs.insert(cell_code->GetValue(n2cLG(i_node, j)));
+        }
       }
     }
     m_N2BC[i_node].resize(bcs.size());
