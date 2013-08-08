@@ -241,3 +241,8 @@ double CadInterface::getRadius(vtkIdType id_node)
   return m_LastRadius;
 }
 
+CadInterface::HitType CadInterface::shootRay(vec3_t, vec3_t, vec3_t&, vec3_t&, double&)
+{
+  notImplemented();
+  return Miss;
+}
