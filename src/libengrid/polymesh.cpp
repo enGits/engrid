@@ -1129,7 +1129,7 @@ void PolyMesh::splitConcaveFaces()
         }
         x.first() = x_face.last();
         x.last() = x_face.first();
-        double L_max = 0.02;
+        double L_max = 1e99;//0.1;
         int i1 = -1;
         vec3_t v;
         for (int i = 1; i <= num_nodes; ++i) {
