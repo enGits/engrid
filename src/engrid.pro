@@ -1,3 +1,5 @@
+include(engrid.pri)
+
 TEMPLATE  = subdirs
 LANGUAGE  = C++
 CONFIG   += ordered recursive
@@ -5,10 +7,10 @@ CONFIG   += ordered recursive
 CONFIG += debug_and_release
 
 debian {
-    SUBDIRS   = 
+  SUBDIRS   =
 }
 else {
-    SUBDIRS   = netgen
+  SUBDIRS   = netgen
 }
 
 SUBDIRS  += libengrid
