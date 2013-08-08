@@ -40,7 +40,7 @@ win32-msvc* {
 } else {
   INCLUDEPATH     += $(VTKINCDIR)
   LIBS            += -L./netgen_svn -lng
-  LIBS            += -L./libengrid/release -lengrid
+  LIBS            += -L./libengrid -lengrid
   brlcad {
     INCLUDEPATH += $(BRLCADINCDIR)
     INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
