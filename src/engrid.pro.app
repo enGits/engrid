@@ -2,7 +2,7 @@ include (engrid.pri)
 
 TEMPLATE = app
 LANGUAGE = C++
-#TARGET   = engrid
+TARGET   = engrid
 
 # Enable this if the VTK from the ParaView sources and 
 # installation want to be used
@@ -19,13 +19,11 @@ QT     += xml \
 
 win32-msvc* {
   QMAKE_CXXFLAGS  += -W3
-  DEFINES         += LIBENGRID_EXPORTS
-  DEFINES         += DLL_EXPORT
   DEFINES         += _USE_MATH_DEFINES
   INCLUDEPATH     += ../../VTK/include/vtk-5.10
   LIBS            += -L../../VTK/lib/vtk-5.10
-  LIBS            += -L../build-engrid-Desktop-Release/netgen_svn/release -lnglib
-  LIBS            += ../build-engrid-Desktop-Release/libengrid/release/engrid.lib
+  LIBS            += ./netgen_svn/release/nglib.lib
+  LIBS            += ./libengrid/release/engrid.lib
   brlcad {
     INCLUDEPATH += ../../BRL-CAD/include
     INCLUDEPATH += ../../BRL-CAD/include/openNURBS
@@ -42,7 +40,7 @@ win32-msvc* {
 } else {
   INCLUDEPATH     += $(VTKINCDIR)
   LIBS            += -L./netgen_svn -lng
-  LIBS            += -L./libengrid -lengrid
+  LIBS            += -L./libengrid/release -lengrid
   brlcad {
     INCLUDEPATH += $(BRLCADINCDIR)
     INCLUDEPATH += $(BRLCADINCDIR)/openNURBS

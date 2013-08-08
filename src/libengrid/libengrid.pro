@@ -29,7 +29,7 @@ win32-msvc* {
   LIBS            += -lvtksys
   LIBS            += -lvtkVolumeRendering
   LIBS            += -lvtkWidgets
-  LIBS            += -L../../build-engrid-Desktop-Release/netgen_svn/release -lnglib
+  LIBS            += ../netgen_svn/release/nglib.lib
   brlcad {
     INCLUDEPATH += ../../../BRL-CAD/include
     INCLUDEPATH += ../../../BRL-CAD/include/openNURBS
