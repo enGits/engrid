@@ -25,13 +25,19 @@ win32-msvc* {
   INCLUDEPATH     += ../../VTK/include/vtk-5.10
   LIBS            += -L../../VTK/lib/vtk-5.10
   LIBS            += -L../build-engrid-Desktop-Release/netgen_svn/release -lnglib
-  LIBS            += -L../build-engrid-Desktop-Release/libengrid/release -lengrid
+  LIBS            += ../build-engrid-Desktop-Release/libengrid/release/engrid.lib
   brlcad {
     INCLUDEPATH += ../../BRL-CAD/include
     INCLUDEPATH += ../../BRL-CAD/include/openNURBS
     LIBS        += ../../BRL-CAD/lib/librt.lib
     LIBS        += ../../BRL-CAD/lib/libbu.lib
     DEFINES     += BRLCAD_SUPPORT
+  }
+  netcdf {
+    DEFINES     += TAU_SUPPORT
+    INCLUDEPATH += ../../netCDF/include
+    LIBS        += ../../netCDF/lib/netcdf.lib
+    LIBS        += ../../netCDF/lib/netcdfcxx.lib
   }
 } else {
   INCLUDEPATH     += $(VTKINCDIR)

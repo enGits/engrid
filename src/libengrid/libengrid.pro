@@ -36,9 +36,13 @@ win32-msvc* {
     LIBS        += ../../../BRL-CAD/lib/librt.lib
     LIBS        += ../../../BRL-CAD/lib/libbu.lib
     DEFINES     += BRLCAD_SUPPORT
+    INCLUDEPATH += ../../../BRL-CAD/include/openNURBS
   }
   netcdf {
     DEFINES     += TAU_SUPPORT
+    INCLUDEPATH += ../../../netCDF/include
+    LIBS        += ../../../netCDF/lib/netcdf.lib
+    LIBS        += ../../../netCDF/lib/netcdfcxx.lib
   }
 } else {
   INCLUDEPATH     += $(VTKINCDIR)
