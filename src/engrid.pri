@@ -1,0 +1,2 @@
+CONFIG += brlcad
+CONFIG += netcdf
