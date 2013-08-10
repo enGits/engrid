@@ -966,7 +966,19 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
         id_face = -1;
       }
     }
-    if (m_Part.n2bcGSize(id_node) > 2) {
+
+    // check if this is a transition node (boundary layer -> far-field)
+    bool dual_cell_found = false;
+    bool cell_cell_found = false;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      if (m_Cell2PCell[m_Part.n2cGG(id_node,i)] == -1) {
+        cell_cell_found = true;
+      } else {
+        dual_cell_found = true;
+      }
+    }
+
+    if (m_Part.n2bcGSize(id_node) > 2 || (dual_cell_found && cell_cell_found)) {
       nodes.prepend(node_t(id_node));
     }
   }
