@@ -641,7 +641,7 @@ void PolyMolecule::updatePMesh()
   }
 }
 
-void PolyMolecule::fix(bool write)
+void PolyMolecule::optimise(bool write)
 {
   centreSplit();
   /*

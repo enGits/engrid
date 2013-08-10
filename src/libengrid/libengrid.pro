@@ -226,7 +226,8 @@ HEADERS = \
     drnumwriter.h \
     computemeshdensity.h \
     converttopolymesh.h \
-    guicreatehexshell.h
+    guicreatehexshell.h \
+    guiconverttopolymesh.h
 
 
 SOURCES = \
@@ -367,7 +368,8 @@ SOURCES = \
     drnumwriter.cpp \
     computemeshdensity.cpp \
     converttopolymesh.cpp \
-    guicreatehexshell.cpp
+    guicreatehexshell.cpp \
+    guiconverttopolymesh.cpp
 
 
 FORMS = \
@@ -395,5 +397,6 @@ FORMS = \
     guisurfacemesher.ui \
     guitransform.ui \
     guifillplane.ui \
-    guicreatehexshell.ui
+    guicreatehexshell.ui \
+    guiconverttopolymesh.ui
 
