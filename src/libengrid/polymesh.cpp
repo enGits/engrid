@@ -219,7 +219,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
         PolyMolecule pm(this, i);
         if (!pm.allPositive()) {
           ++num_improved;
-          pm.split();
+          pm.centreSplit();
         }
       }
       buildPoint2Face();

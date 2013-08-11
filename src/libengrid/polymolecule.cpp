@@ -643,13 +643,10 @@ void PolyMolecule::updatePMesh()
 
 void PolyMolecule::optimise(bool write)
 {
-  centreSplit();
-  /*
   smooth(true, write);
   if (m_MinPyramidVolume <= 0) {
     smooth(false, write);
   }
-  */
 }
 
 void PolyMolecule::updateFace(int face, int new_cell_index)
