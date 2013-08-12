@@ -53,7 +53,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="Update and Release Language files"
@@ -79,7 +79,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\VTK\include\vtknetcdf;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns;..\..\..\third_party\BRLCAD\include"
-				PreprocessorDefinitions="NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -145,7 +145,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="Update and Release Language files"
@@ -172,7 +172,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\VTK\include\vtknetcdf;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns;..\..\..\third_party64\BRLCAD\include"
-				PreprocessorDefinitions="NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;DLL_EXPORT;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -238,7 +238,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="Update and Release Language files"
@@ -265,7 +265,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\VTK\include\vtknetcdf;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns;..\..\..\third_party\BRLCAD\include"
-				PreprocessorDefinitions="DLL_EXPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;DLL_EXPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -332,7 +332,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="Update and Release Language files"
@@ -360,7 +360,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\VTK\include\vtknetcdf;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns;..\..\..\third_party64\BRLCAD\include"
-				PreprocessorDefinitions="DLL_EXPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;DLL_EXPORT;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;LIBENGRID_EXPORTS;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -421,7 +421,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -454,7 +454,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\VTK\include\vtknetcdf;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns;..\..\..\third_party\BRLCAD\include"
-				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -503,7 +503,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -537,7 +537,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\VTK\include\vtknetcdf;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns;..\..\..\third_party64\BRLCAD\include"
-				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_NO_DEBUG;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -586,7 +586,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -619,7 +619,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party\VTK\include;..\..\..\third_party\VTK\include\vtknetcdf;..\..\..\third_party\Qt\include;..\..\..\third_party\Qt\include\Qt;..\..\..\third_party\Qt\include\QtCore;..\..\..\third_party\Qt\include\QtGui;..\..\..\third_party\Qt\include\QtHelp;..\..\..\third_party\Qt\include\QtNetwork;..\..\..\third_party\Qt\include\QtOpenGL;..\..\..\third_party\Qt\include\QtScript;..\..\..\third_party\Qt\include\QtSql;..\..\..\third_party\Qt\include\QtSvg;..\..\..\third_party\Qt\include\QtTest;..\..\..\third_party\Qt\include\QtUiTools;..\..\..\third_party\Qt\include\QtWebKit;..\..\..\third_party\Qt\include\QtXml;..\..\..\third_party\Qt\include\QtXmlPatterns;..\..\..\third_party\BRLCAD\include"
-				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -668,7 +668,7 @@
 			/>
 			<Tool
 				Name="QT MOC Builder"
-				DebugDefine="NDEBUG"
+				DebugDefine="&quot;NDEBUG -DTAU_SUPPORT -DBRLCAD_SUPPORT&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -702,7 +702,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\libengrid;..\..\..\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\nglib&quot;;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\general&quot;;..\..\..\netgen_svn\;&quot;..\..\..\netgen_svn\netgen-mesher\netgen\libsrc\include&quot;;..\..\..\third_party64\VTK\include;..\..\..\third_party64\VTK\include\vtknetcdf;..\..\..\third_party64\Qt\include;..\..\..\third_party64\Qt\include\Qt;..\..\..\third_party64\Qt\include\QtCore;..\..\..\third_party64\Qt\include\QtGui;..\..\..\third_party64\Qt\include\QtHelp;..\..\..\third_party64\Qt\include\QtNetwork;..\..\..\third_party64\Qt\include\QtOpenGL;..\..\..\third_party64\Qt\include\QtScript;..\..\..\third_party64\Qt\include\QtSql;..\..\..\third_party64\Qt\include\QtSvg;..\..\..\third_party64\Qt\include\QtTest;..\..\..\third_party64\Qt\include\QtUiTools;..\..\..\third_party64\Qt\include\QtWebKit;..\..\..\third_party64\Qt\include\QtXml;..\..\..\third_party64\Qt\include\QtXmlPatterns;..\..\..\third_party64\BRLCAD\include"
-				PreprocessorDefinitions="LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="TAU_SUPPORT;BRLCAD_SUPPORT;LIBENGRID_STATIC;NO_PARALLEL_THREADS;_USRDLL;_WIN32_WINNT=0x0502;_USE_MATH_DEFINES;WIN32;WIN64;NDEBUG;_WINDOWS;QT_LARGEFILE_SUPPORT;QT_DLL;QT_GUI_LIB;QT_CORE_LIB;QT_THREAD_SUPPORT;QT_XML_LIB;QT_OPENGL_LIB;QT_NETWORK_LIB;QT_NO_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -797,6 +797,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\converttopolymesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\correctsurfaceorientation.cpp"
 				>
 			</File>
@@ -846,6 +850,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\dolfynwriter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\drnumwriter.cpp"
 				>
 			</File>
 			<File
@@ -929,11 +937,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guiconverttopolymesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexshell.cpp"
 				>
 			</File>
 			<File
@@ -1300,11 +1316,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\$(IntDir)\moc_guiconverttopolymesh.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\$(IntDir)\moc_guicreateboundarylayer.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\$(IntDir)\moc_guicreatehexcore.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\$(IntDir)\moc_guicreatehexshell.cpp"
 					>
 				</File>
 				<File
@@ -2375,6 +2399,74 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\converttopolymesh.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\correctsurfaceorientation.h"
 				>
 				<FileConfiguration
@@ -3264,6 +3356,74 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\dolfynwriter.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\drnumwriter.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -4971,11 +5131,83 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guiconverttopolymesh.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexshell.h"
 				>
 			</File>
 			<File
@@ -9926,6 +10158,74 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\..\..\libengrid\ui_guiconverttopolymesh.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\..\libengrid\ui_guicreateboundarylayer.h"
 					>
 					<FileConfiguration
@@ -9995,6 +10295,74 @@
 				</File>
 				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatehexcore.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\libengrid\ui_guicreatehexshell.h"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -11513,11 +11881,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\guiconverttopolymesh.ui"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\guicreateboundarylayer.ui"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexshell.ui"
 				>
 			</File>
 			<File
