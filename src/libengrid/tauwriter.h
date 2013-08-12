@@ -23,6 +23,8 @@
 #ifndef TAUWRITER_H
 #define TAUWRITER_H
 
+#ifdef TAU_SUPPORT
+
 class TauWriter;
 
 #include "iooperation.h"
@@ -44,5 +46,7 @@ public: // methods
   TauWriter();
 
 };
+
+#endif // TAU_SUPPORT
 
 #endif // TAUWRITER_H

@@ -33,19 +33,17 @@ CheckSurfaceIntegrity::CheckSurfaceIntegrity() : SurfaceOperation()
 void CheckSurfaceIntegrity::operate()
 {
   bool ok = isWaterTight();
+  cout << endl;
   if (ok) {
     cout << "The mesh is OK!" << endl;
   } else {
-    cout << "The mesh is not water-tight" << endl;
+    cout << "The mesh has defects!" << endl;
     for (int i = 0; i < m_NumCells.size(); ++i) {
       if (m_NumCells[i] > 0) {
         cout << "  " << m_NumCells[i] << " edges with " << i << " faces" << endl;
       }
     }
-    cout << "bad cells:" << endl;
-    foreach (vtkIdType id_cell, m_BadCells) {
-      cout << id_cell << " ";
-    }
+    cout << "  " << m_NumEmptyCells << " faces are degenerated" << endl;
     cout << endl;
   }
 }
@@ -74,11 +72,11 @@ bool CheckSurfaceIntegrity::isWaterTight()
       int N = getEdgeCells(id_node1, id_node2, edge_cells);
       if(first) {
         first = false;
-        m_Nmin = N;
-        m_Nmax = N;
+        m_NumMin = N;
+        m_NumMax = N;
       } else {
-        m_Nmin = min(m_Nmin, N);
-        m_Nmax = max(m_Nmax, N);
+        m_NumMin = min(m_NumMin, N);
+        m_NumMax = max(m_NumMax, N);
       }
       if (N >= 1000) {
         EG_BUG;
@@ -90,13 +88,14 @@ bool CheckSurfaceIntegrity::isWaterTight()
     }
   }
   
+  m_NumEmptyCells = 0;
   foreach(vtkIdType id_cell, cells) {
-    if(cellVA(m_Grid, id_cell)<=0) {
-      qDebug()<<"cell "<<id_cell<<" is empty.";
+    if (cellVA(m_Grid, id_cell) <= 0) {
+      ++m_NumEmptyCells;
     }
   }
   
-  if (m_Nmin == 2 && m_Nmax == 2) {
+  if (m_NumMin == 2 && m_NumMax == 2 && m_NumEmptyCells == 0) {
     return(true);
   } else {
     return(false);

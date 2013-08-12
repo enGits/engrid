@@ -31,6 +31,9 @@ class PolyMesh;
 
 class PolyMesh : public EgVtkObject
 {
+
+  friend class PolyMolecule;
+
   
 protected: // data types
 
@@ -81,6 +84,10 @@ protected: // attributes
 
   double               m_AttractorWeight;
   double               m_PullInFactor;
+  bool                 m_OptimiseConvexity;
+  bool                 m_SplitFaces;
+  bool                 m_SplitCells;
+  bool                 m_CreateDualMesh;
 
 
 protected: // methods
@@ -125,13 +132,20 @@ protected: // methods
   void buildPoint2Face();
   void buildPCell2Face();
   void triangulateBadFaces();
-  void splitConcaveCells();
+  //void splitConcaveFaces();
+  void collectBoundaryConditions();
+  void invertFace(int i);
 
   vec3_t faceNormal(int i);
    
 public: // methods
   
-  PolyMesh(vtkUnstructuredGrid *grid, bool dual_mesh = true);
+  PolyMesh(vtkUnstructuredGrid *grid,
+           bool                 dualise     = false,
+           double               pull_in     = 0.0,
+           bool                 optimise    = false,
+           bool                 split_faces = false,
+           bool                 split_cells = false);
 
   void   setNodeVector(int i, vec3_t x) { m_Points[i] = x; }
 
@@ -147,6 +161,9 @@ public: // methods
   int    numCells() const              { return m_NumPolyCells; }
   int    numFacesOfPCell(int i)        { return m_PCell2Face[i].size(); }
   int    pcell2Face(int i, int j)      { return m_PCell2Face[i][j]; }
+  int    numPolyCells()                { return m_NumPolyCells; }
+
+  void merge(PolyMesh* poly);
 
 };
 

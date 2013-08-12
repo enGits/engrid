@@ -39,6 +39,7 @@ SwapTriangles::SwapTriangles() : SurfaceOperation()
   m_SmallAreaSwap = false;
   m_SmallAreaRatio = 1e-3;
   m_Verbose = false;
+  m_DelaunayThreshold = 1.0;
   getSet("surface meshing", "small area ratio for edge-swapping", 1e-3, m_SmallAreaRatio);
   getSet("surface meshing", "surface error threshold", 0.05, m_SurfErrorThreshold);
   m_SurfErrorThreshold = deg2rad(m_SurfErrorThreshold);
@@ -298,9 +299,9 @@ int SwapTriangles::swap()
                     double A1 = n1.abs();
                     double A2 = n2.abs();
                     if (isnan(A1) || isnan(A2)) {
-                      force_swap = true;
+                      swap = true;
                     } else {
-                      force_swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
+                      swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
                   if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
@@ -337,10 +338,10 @@ int SwapTriangles::swap()
                         swap = true;
                       }
                       if (ok) {
-                        if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()) {
+                        if ((xm1 - x[2]).abs() < (xm1 - x[0]).abs()/m_DelaunayThreshold) {
                           swap = true;
                         }
-                        if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()) {
+                        if ((xm2 - x[0]).abs() < (xm2 - x[2]).abs()/m_DelaunayThreshold) {
                           swap = true;
                         }
                       }
@@ -445,6 +446,7 @@ void SwapTriangles::operate()
   long int N_swaps      = 100000000;
   long int N_last_swaps = 100000001;
   int loop = 1;
+  m_NumSwaps = 0;
   while ((N_swaps > 0) && (loop <= m_MaxNumLoops) && (N_swaps < N_last_swaps)) {
     N_last_swaps = N_swaps;
     if (m_Verbose) cout << "  loop " << loop << "/" << m_MaxNumLoops << endl;
@@ -455,6 +457,7 @@ void SwapTriangles::operate()
     do {
       ++sub_loop;
       N = swap();
+      m_NumSwaps = max(N, m_NumSwaps);
       if (m_Verbose) cout << "    sub-loop " << sub_loop << ": " << N << " swaps" << endl;
       N_swaps += N;
     } while (N > 0);

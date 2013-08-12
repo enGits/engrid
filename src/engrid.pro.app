@@ -1,6 +1,8 @@
+include (engrid.pri)
+
 TEMPLATE = app
 LANGUAGE = C++
-#TARGET   = engrid
+TARGET   = engrid
 
 # Enable this if the VTK from the ParaView sources and 
 # installation want to be used
@@ -16,78 +18,58 @@ QT     += xml \
           opengl
 
 win32-msvc* {
-    QMAKE_CXXFLAGS += -W3
-} win32-g++* {
-    CONFIG += console
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    QMAKE_CXXFLAGS += -Wl,--no-undefined
-    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
+  QMAKE_CXXFLAGS  += -W3
+  DEFINES         += _USE_MATH_DEFINES
+  INCLUDEPATH     += ../../VTK/include/vtk-5.10
+  LIBS            += -L../../VTK/lib/vtk-5.10
+  LIBS            += ./netgen_svn/release/nglib.lib
+  LIBS            += ./libengrid/release/engrid.lib
+  brlcad {
+    INCLUDEPATH += ../../BRL-CAD/include
+    INCLUDEPATH += ../../BRL-CAD/include/openNURBS
+    LIBS        += ../../BRL-CAD/lib/librt.lib
+    LIBS        += ../../BRL-CAD/lib/libbu.lib
+    DEFINES     += BRLCAD_SUPPORT
+  }
+  netcdf {
+    DEFINES     += TAU_SUPPORT
+    INCLUDEPATH += ../../netCDF/include
+    LIBS        += ../../netCDF/lib/netcdf.lib
+    LIBS        += ../../netCDF/lib/netcdfcxx.lib
+  }
 } else {
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
+  INCLUDEPATH     += $(VTKINCDIR)
+  LIBS            += -L./netgen_svn -lng
+  LIBS            += -L./libengrid -lengrid
+  brlcad {
+    INCLUDEPATH += $(BRLCADINCDIR)
+    INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
+    LIBS        += $(BRLCADLIBDIR)/librt.so
+    DEFINES     += BRLCAD_SUPPORT
+  }
 }
 
-# OpenMP
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -lgomp
-
+LIBS += -lQVTK
+LIBS += -lvtkCommon
+LIBS += -lvtkDICOMParser
+LIBS += -lvtkexoIIc
+LIBS += -lvtkFiltering
+LIBS += -lvtkftgl
+LIBS += -lvtkGenericFiltering
+LIBS += -lvtkGraphics
+LIBS += -lvtkHybrid
+LIBS += -lvtkImaging
+LIBS += -lvtkIO
+LIBS += -lvtkRendering
+LIBS += -lvtksys
+LIBS += -lvtkVolumeRendering
+LIBS += -lvtkWidgets
 
 INCLUDEPATH += ./libengrid
 INCLUDEPATH += ./libengrid-build
 INCLUDEPATH += ../engrid-build
 INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ./netgen_svn/netgen-mesher/netgen/libsrc/general
-
-win32-msvc* {
-    DEFINES += _USE_MATH_DEFINES
-        
-    !isEmpty(Use_VTK_Win_ParaView) {
-        include(misc/engrid-vtk-win_paraview.pri)
-    } else {
-        INCLUDEPATH += $(VTKINCDIR)
-    }
-} win32-g++* {
-    INCLUDEPATH += $(VTKINCDIR)
-} else {
-    INCLUDEPATH += $(VTKINCDIR)
-}
-
-win32-msvc* {
-    LIBS += -L./libengrid/release -lengrid
-} win32-g++* {
-    LIBS += -L./libengrid/release -lengrid
-} else {
-    LIBS += -lm
-    LIBS += -ltcl8.5
-    LIBS += -L./libengrid -lengrid
-
-    debian {
-        LIBS += -lnglib
-    } else {
-        LIBS += -L./netgen_svn -lng
-    }
-
-    LIBS        += -L$(VTKLIBDIR)
-    LIBS        += -lQVTK
-    LIBS        += -lvtkCommon
-    LIBS        += -lvtkDICOMParser
-    LIBS        += -lvtkexoIIc
-    LIBS        += -lvtkFiltering
-    LIBS        += -lvtkftgl
-    LIBS        += -lvtkGenericFiltering
-    LIBS        += -lvtkGraphics
-    LIBS        += -lvtkHybrid
-    LIBS        += -lvtkImaging
-    LIBS        += -lvtkIO
-    #LIBS        += -lvtkNetCDF
-    LIBS        += -lvtkRendering
-    LIBS        += -lvtksys
-    LIBS        += -lvtkVolumeRendering
-    LIBS        += -lvtkWidgets
-    LIBS        += -L$(BRLCADLIBDIR)
-    LIBS        += $(BRLCADLIBDIR)/librt.so
-}
 
 OTHER_FILES += checkcomments.py todo.txt
 RESOURCES   += libengrid/engrid.qrc

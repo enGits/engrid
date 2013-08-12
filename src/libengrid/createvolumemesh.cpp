@@ -52,6 +52,7 @@ void CreateVolumeMesh::prepare()
   del.setGrid(m_Grid);
   del.setAllCells();
   del();
+  writeGrid(m_Grid, "tringles");
   QVector<vtkIdType> cells, nodes;
   QVector<int>       _cells, _nodes;
   QVector<QVector< int > > c2c;

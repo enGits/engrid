@@ -160,21 +160,6 @@ private: // methods
 
   int  opposingFace(int i);
 
-  /**
-    * Convert the octree into a vtkUnstructuredGrid with hanging nodes.
-    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
-    * @param create_fields if this is set to true, the basic enGrid fields will be created
-    */
-  void toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields);
-
-  /**
-    * Convert the octree into a vtkUnstructuredGrid without hanging nodes.
-    * This method does currently not work for cells on the border of the octree domain.
-    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
-    * @param create_fields if this is set to true, the basic enGrid fields will be created
-    */
-  void toVtkGrid_Conforming(vtkUnstructuredGrid *grid, bool create_fields);
-
 
 public: // methods
 
@@ -182,7 +167,7 @@ public: // methods
 
   void setOrigin(vec3_t x0);
   void setBase(vec3_t g1, vec3_t g2, vec3_t g3);
-  void setBounds(vec3_t corner1, vec3_t corner2);
+  void setBounds(vec3_t corner1, vec3_t corner2, int num_i = 1, int num_j = 1, int num_k = 1);
 
   //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
 
@@ -217,7 +202,28 @@ public: // methods
   bool   isInsideBounds(vec3_t x);
   bool   isInsideCell(int cell, vec3_t x, double overlap = 0);
 
-  void toVtkGrid(vtkUnstructuredGrid *grid, bool hanging_nodes = true, bool create_fields = false);
+  /**
+    * Convert the octree into a vtkUnstructuredGrid with hanging nodes.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
+  void toVtkGridHangingNodes(vtkUnstructuredGrid *grid, bool create_fields = false);
+
+  /**
+    * Convert the octree into a vtkUnstructuredGrid without hanging nodes.
+    * This method does currently not work for cells on the border of the octree domain.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
+  void toVtkGridConforming(vtkUnstructuredGrid *grid, bool create_fields = false);
+
+  /**
+    * Convert the octree into a vtkUnstructuredGrid with polyhedral cells.
+    * This method does currently not work for cells on the border of the octree domain.
+    * @param grid the resulting vtkUnstructuredGrid (object needs to be allocated before, but no space for cells and nodes)
+    * @param create_fields if this is set to true, the basic enGrid fields will be created
+    */
+  void toVtkGridPolyhedral(vtkUnstructuredGrid *grid, bool create_fields = false);
 
 };
 

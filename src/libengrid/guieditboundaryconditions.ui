@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>674</width>
-    <height>592</height>
+    <width>844</width>
+    <height>573</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,6 +52,34 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="8">
+          <widget class="QPushButton" name="pushButtonAllOff">
+           <property name="text">
+            <string>all off</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <widget class="QPushButton" name="pushButtonAllB">
+           <property name="text">
+            <string>all &quot;B&quot;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="pushButtonDelete">
+           <property name="text">
+            <string>delete</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6">
+          <widget class="QPushButton" name="pushButtonAllA">
+           <property name="text">
+            <string>all &quot;A&quot;</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
@@ -69,12 +97,18 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="pushButtonDelete">
-           <property name="text">
-            <string>delete</string>
+         <item row="0" column="5">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -285,7 +319,31 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>T</tabstop>
+  <tabstop>lineEditVolume</tabstop>
+  <tabstop>pushButtonAdd</tabstop>
+  <tabstop>pushButtonDelete</tabstop>
+  <tabstop>pushButtonAllA</tabstop>
+  <tabstop>pushButtonAllB</tabstop>
+  <tabstop>pushButtonAllOff</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>lineEditBoundaryType</tabstop>
+  <tabstop>comboBoxBoundaryType</tabstop>
+  <tabstop>pushButtonAddBoundaryType</tabstop>
+  <tabstop>listWidgetBoundaryType</tabstop>
+  <tabstop>pushButtonDeleteBoundaryType</tabstop>
+  <tabstop>tableWidgetPBC</tabstop>
+  <tabstop>tableWidget_Processes</tabstop>
+  <tabstop>pushButton_AddProcess</tabstop>
+  <tabstop>pushButton_RemoveProcess</tabstop>
+  <tabstop>pushButton_ImportHostFile</tabstop>
+  <tabstop>pushButton_ExportHostFile</tabstop>
+ </tabstops>
  <resources>
+  <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>
  </resources>
  <connections>

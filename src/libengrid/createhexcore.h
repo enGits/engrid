@@ -32,12 +32,23 @@ class CreateHexCore;
 class CreateHexCore : public Operation
 {
 
+private: // data types
+
+  struct face_replacement_t
+  {
+    vtkIdType id_cell;
+    QList<int> faces_to_keep;
+    QList<QVector<vtkIdType> > new_faces;
+  };
+
 protected: // attributes
 
   vec3_t m_X1;
   vec3_t m_X2;
   vec3_t m_Xi;
   Octree m_Octree;
+  int    m_NumInitialRefinementLevels;
+  int    m_NumBreakOutLayers;
 
 protected: // methods
 
@@ -46,10 +57,12 @@ protected: // methods
   void refineOctree();
   void transferOctreeGrid();
   void deleteOutside(vtkUnstructuredGrid *grid);
+  void createBoundaryFaces();
 
 public:
 
-  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi);
+  CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_inital_refinement_levels);
+  void setNumBreakOutLayers(int n) { m_NumBreakOutLayers = n; }
 
 };
 

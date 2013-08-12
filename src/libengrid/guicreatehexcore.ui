@@ -6,14 +6,95 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>262</width>
-    <height>165</height>
+    <width>260</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QCheckBox" name="checkBoxExternalMesh">
+     <property name="text">
+      <string>external mesh</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutX1">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>X1</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLineEdit" name="lineEditX1"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditY1"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditZ1"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>X2</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="lineEditX2"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditY2"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditZ2"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -75,6 +156,56 @@
     </layout>
    </item>
    <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>number of initial refinement levels</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="spinBoxNumInitialRefinement">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>8</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>4</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="spinBoxNumBreakOutLayers">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>number of broken layers</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -98,11 +229,24 @@
     </widget>
    </item>
   </layout>
+  <zorder>label</zorder>
+  <zorder>checkBoxExternalMesh</zorder>
+  <zorder></zorder>
+  <zorder>buttonBox</zorder>
  </widget>
  <tabstops>
+  <tabstop>checkBoxExternalMesh</tabstop>
+  <tabstop>lineEditX1</tabstop>
+  <tabstop>lineEditY1</tabstop>
+  <tabstop>lineEditZ1</tabstop>
+  <tabstop>lineEditX2</tabstop>
+  <tabstop>lineEditY2</tabstop>
+  <tabstop>lineEditZ2</tabstop>
   <tabstop>lineEditCiX</tabstop>
   <tabstop>lineEditCiY</tabstop>
   <tabstop>lineEditCiZ</tabstop>
+  <tabstop>spinBoxNumInitialRefinement</tabstop>
+  <tabstop>spinBoxNumBreakOutLayers</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

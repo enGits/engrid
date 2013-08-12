@@ -315,12 +315,21 @@ vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
   vtkIdType npts;
   vec3_t n(0,0,0);
   grid->GetCellPoints(i, npts, pts);
-  if (npts == 3) {
+  if (npts < 3) {
+    EG_BUG;
+  } else if (npts == 3) {
     return triNormal(grid,pts[0],pts[1],pts[2]);
   } else if (npts == 4) {
     return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
   } else {
-    EG_BUG;
+    QList<vec3_t> x;
+    for (int i = 0; i < npts; ++i) {
+      vec3_t xp;
+      grid->GetPoint(pts[i], xp.data());
+      x << xp;
+    }
+    x.append(x.first());
+    return polyNormal(x, true);
   }
   return n;
 }

@@ -21,6 +21,8 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 
+#ifdef BRLCAD_SUPPORT
+
 #include "brlcadreader.h"
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include "setboundarycode.h"
@@ -308,3 +310,4 @@ void BrlcadReader::operate()
   }
 }
 
+#endif // BRLCAD_SUPPORT

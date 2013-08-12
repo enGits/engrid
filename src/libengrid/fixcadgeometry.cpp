@@ -26,6 +26,7 @@
 #include "guimainwindow.h"
 #include "deletestraynodes.h"
 #include "correctsurfaceorientation.h"
+#include "swaptriangles.h"
 
 #include <vtkMath.h>
 
@@ -46,7 +47,7 @@ FixCadGeometry::FixCadGeometry()
   m_FeatureAngle = GeometryTools::deg2rad(0.5);
   m_AllowFeatureEdgeSwapping = false;
   m_AllowSmallAreaSwapping = true;
-  m_NumDelaunaySweeps = 100;
+  m_NumDelaunaySweeps = 1;
 }
 
 void FixCadGeometry::callMesher()
@@ -62,7 +63,29 @@ void FixCadGeometry::callMesher()
   int num_deleted = 0;
   int iter = 0;
   bool done = false;
-  swap();
+  int count = 0;
+  while (!done) {
+    SwapTriangles swap;
+    swap.setGrid(m_Grid);
+    swap.setRespectBC(true);
+    swap.setFeatureSwap(m_AllowFeatureEdgeSwapping);
+    swap.setFeatureAngle(m_FeatureAngle);
+    swap.setMaxNumLoops(1);
+    swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
+    swap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
+    swap.setDelaunayThreshold(1e6);
+    swap.setVerboseOn();
+    QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+    rest_bcs -= m_BoundaryCodes;
+    swap.setBoundaryCodes(rest_bcs);
+    swap();
+    count = 0;
+    if (swap.getNumSwaps() == 0 || count >= 100) {
+      done = true;
+    }
+  }
+
+  /*
   while (!done) {
     ++iter;
     cout << "CAD fix iteration " << iter << ":" << endl;
@@ -77,6 +100,7 @@ void FixCadGeometry::callMesher()
     cout << "  total nodes    : " << m_Grid->GetNumberOfPoints() << endl;
     cout << "  total cells    : " << m_Grid->GetNumberOfCells() << endl;
   }
+  */
   createIndices(m_Grid);
   customUpdateNodeInfo();
   setDesiredLength();
@@ -352,9 +376,9 @@ void FixCadGeometry::operate()
     setVertexMeshDensityVector(m_VMDvector);
     setDesiredLength();
 
-    /*
     callMesher();
 
+    /*
     // correct surface orientation
     CorrectSurfaceOrientation correct;
     correct.setGrid(m_Grid);

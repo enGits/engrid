@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# +                                                                      +
+# + This file is part of enGrid.                                         +
+# +                                                                      +
+# + Copyright 2008-2013 enGits GmbH                                      +
+# +                                                                      +
+# + enGrid is free software: you can redistribute it and/or modify       +
+# + it under the terms of the GNU General Public License as published by +
+# + the Free Software Foundation, either version 3 of the License, or    +
+# + (at your option) any later version.                                  +
+# +                                                                      +
+# + enGrid is distributed in the hope that it will be useful,            +
+# + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+# + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+# + GNU General Public License for more details.                         +
+# +                                                                      +
+# + You should have received a copy of the GNU General Public License    +
+# + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+# +                                                                      +
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 
+
+# DESCRIPTION:
+
+cd netgen_svn
+wget http://engits.eu/files/netgen-5.1-RC.zip
+unzip netgen-5.1-RC.zip
+rm -f netgen-5.1.RC.zip
+[ -e netgen-mesher ] && rm -rf netgen-mesher
+mkdir netgen-mesher
+mv netgen-5.1 netgen-mesher/netgen
+cd netgen-mesher
+#patch -p0 < ../nglib_engrid_mods.diff
+cd ..
+qmake
+make clean
+make -j4
+cd ..
+
+# ----------------------------------------------------------------- end-of-file

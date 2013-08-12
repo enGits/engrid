@@ -57,6 +57,7 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
       if (m_BoundaryCodes.contains(cell_code->GetValue(cellId))) {
         if (m_Input->GetCellType(cellId) == VTK_TRIANGLE) add = true;
         if (m_Input->GetCellType(cellId) == VTK_QUAD)     add = true;
+        if (m_Input->GetCellType(cellId) == VTK_POLYGON)  add = true;
       }
     }
     

@@ -167,6 +167,6 @@ void PointFinder::getClosePoints(vec3_t x, QVector<int> &points, double dist)
 void PointFinder::writeOctreeMesh(QString file_name)
 {
   EG_VTKSP(vtkUnstructuredGrid, otg);
-  m_Octree.toVtkGrid(otg);
+  m_Octree.toVtkGridHangingNodes(otg);
   writeGrid(otg, file_name);
 }

@@ -44,7 +44,10 @@ GuiEditBoundaryConditions::GuiEditBoundaryConditions()
   connect(m_Ui.pushButton_RemoveProcess, SIGNAL(clicked()), this, SLOT(deleteProcess()));
   connect(m_Ui.pushButton_ImportHostFile, SIGNAL(clicked()), this, SLOT(importHostFile()));
   connect(m_Ui.pushButton_ExportHostFile, SIGNAL(clicked()), this, SLOT(exportHostFile()));
-  
+  connect(m_Ui.pushButtonAllA, SIGNAL(clicked()), this, SLOT(allA()));
+  connect(m_Ui.pushButtonAllB, SIGNAL(clicked()), this, SLOT(allB()));
+  connect(m_Ui.pushButtonAllOff, SIGNAL(clicked()), this, SLOT(allOff()));
+
   setupSolvers();
   loadMpiParameters();
 
@@ -108,7 +111,7 @@ void GuiEditBoundaryConditions::operate()
       VolumeDefinition V = vols[j];
       if      (m_Ui.T->item(i, j)->text() == "A <<") V.addBC(bc,  1);
       else if (m_Ui.T->item(i, j)->text() == ">> B") V.addBC(bc, -1);
-      else                                            V.addBC(bc,  0);
+      else                                           V.addBC(bc,  0);
       vols[j] = V;
     }
   }
@@ -178,9 +181,47 @@ void GuiEditBoundaryConditions::delVol()
     cout << "name=" << qPrintable(name) << endl;
     m_VolMap.remove(name);
     m_Ui.T->removeColumn(col);
-  }
-  else {
+  } else {
     cout << "Nothing to delete." << endl;
+  }
+}
+
+void GuiEditBoundaryConditions::allA()
+{
+  int col = m_Ui.T->currentColumn();
+  if (col > 2) {
+    for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+      QTableWidgetItem *item = m_Ui.T->item(i, col);
+      if (item) {
+        item->setText("A <<");
+      }
+    }
+  }
+}
+
+void GuiEditBoundaryConditions::allB()
+{
+  int col = m_Ui.T->currentColumn();
+  if (col > 2) {
+    for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+      QTableWidgetItem *item = m_Ui.T->item(i, col);
+      if (item) {
+        item->setText(">> B");
+      }
+    }
+  }
+}
+
+void GuiEditBoundaryConditions::allOff()
+{
+  int col = m_Ui.T->currentColumn();
+  if (col > 2) {
+    for (int i = 0; i < m_Ui.T->rowCount(); ++i) {
+      QTableWidgetItem *item = m_Ui.T->item(i, col);
+      if (item) {
+        item->setText(" ");
+      }
+    }
   }
 }
 

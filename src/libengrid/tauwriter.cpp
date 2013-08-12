@@ -20,6 +20,8 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
+#ifdef TAU_SUPPORT
+
 #include "tauwriter.h"
 #include "guimainwindow.h"
 #include <netcdfcpp.h>
@@ -244,3 +246,4 @@ void TauWriter::operate()
   }
 }
 
+#endif // TAU_SUPPORT

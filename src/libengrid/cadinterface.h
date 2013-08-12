@@ -96,8 +96,7 @@ public:
    * @param r if the ray hits this contains the surface radius at the intersection point
    * @return the result (Miss, HitIn, HitOut)
    */
-  //Note: must return a value, at least on Windows MSVC
-  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r) { notImplemented(); return Miss; }
+  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
 
   /**
    * @brief check if shootRay is available (implemented)

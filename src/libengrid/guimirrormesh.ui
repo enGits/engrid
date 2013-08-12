@@ -124,6 +124,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxKeepOriginal">
+     <property name="text">
+      <string>keep original</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -166,8 +176,12 @@
   <tabstop>lineEditNX</tabstop>
   <tabstop>lineEditNY</tabstop>
   <tabstop>lineEditNZ</tabstop>
-  <tabstop>pushButtonHelp</tabstop>
+  <tabstop>radioButtonRelative</tabstop>
+  <tabstop>radioButtonAbsolute</tabstop>
+  <tabstop>lineEditTolerance</tabstop>
+  <tabstop>checkBoxKeepOriginal</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>pushButtonHelp</tabstop>
  </tabstops>
  <resources>
   <include location="engrid.qrc"/>

@@ -95,12 +95,14 @@ int vtkEgPolyDataToUnstructuredGridFilter::RequestData
         output->InsertNextCell(VTK_TRIANGLE,3,pts);
       } else if (npts == 4) {
         output->InsertNextCell(VTK_QUAD,4,pts);
-      };
-    };
+      } else if (npts > 4) {
+        output->InsertNextCell(VTK_POLYGON, npts, pts);
+      }
+    }
   
   } catch (Error err) {
     err.display();
-  };
+  }
   
   return 1;
   

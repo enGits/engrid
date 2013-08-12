@@ -36,6 +36,7 @@ connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportSu2,              SIGNAL(triggered()),       this, SLOT(callExportSu2()));
 connect(ui.actionExportDolfyn,           SIGNAL(triggered()),       this, SLOT(callExportDolfyn()));
 connect(ui.actionExportTau,              SIGNAL(triggered()),       this, SLOT(callExportTau()));
+connect(ui.actionExportDrNum,            SIGNAL(triggered()),       this, SLOT(callExportDrNum()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
 connect(ui.actionZoomOnPickedObject,     SIGNAL(triggered()),       this, SLOT(zoomOnPickedObject()));
@@ -124,6 +125,8 @@ connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader(
 connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
 connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOperation()));
 connect(ui.actionFillPlane, SIGNAL(triggered()), this, SLOT(callFillPlane()));
+connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertToPolyMesh()));
+connect(ui.actionCreateHexShellMesh, SIGNAL(triggered()), this, SLOT(callCreateHexShellMesh()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

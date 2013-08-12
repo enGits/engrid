@@ -418,12 +418,6 @@ void Octree::buildNode2Cell()
     foreach (int i_cell, m_Node2Cell[i_node]) {
       max_level = max(max_level, m_Cells[i_cell].m_Level);
     }
-    if (m_Node2Cell[i_node].size() > max_level*8) {
-      EG_VTKSP(vtkUnstructuredGrid, grid);
-      toVtkGrid(grid, true, true);
-      saveGrid(grid, GuiMainWindow::pointer()->getCwd() + "/ot_debug");
-      EG_BUG;
-    }
   }
 }
 
@@ -447,26 +441,52 @@ void Octree::setBase(vec3_t g1, vec3_t g2, vec3_t g3)
   m_InvBase = m_Base.inverse();
 }
 
-void Octree::setBounds(vec3_t corner1, vec3_t corner2)
+void Octree::setBounds(vec3_t corner1, vec3_t corner2, int num_i, int num_j, int num_k)
 {
-  if (m_Cells.size() != 1) {
-    EG_BUG;
-  }
+  vec3_t g1(m_Base[0][0], m_Base[1][0], m_Base[2][0]);
+  vec3_t g2(m_Base[0][1], m_Base[1][1], m_Base[2][1]);
+  vec3_t g3(m_Base[0][2], m_Base[1][2], m_Base[2][2]);
+
+  int num_cells = num_i*num_j*num_k;
+  int num_nodes = (num_i + 1)*(num_j + 1)*(num_k + 1);
+  m_Cells.resize(num_cells);
+  m_Nodes.resize(num_nodes);
   m_Corner1 = corner1;
   m_Corner2 = corner2;
-  m_Dx = fabs(corner1[0] - corner2[0]);
-  m_Dy = fabs(corner1[1] - corner2[1]);
-  m_Dz = fabs(corner1[2] - corner2[2]);
-  m_Nodes[0].m_Position = vec3_t(corner1[0], corner1[1], corner1[2]);
-  m_Nodes[1].m_Position = vec3_t(corner2[0], corner1[1], corner1[2]);
-  m_Nodes[2].m_Position = vec3_t(corner1[0], corner2[1], corner1[2]);
-  m_Nodes[3].m_Position = vec3_t(corner2[0], corner2[1], corner1[2]);
-  m_Nodes[4].m_Position = vec3_t(corner1[0], corner1[1], corner2[2]);
-  m_Nodes[5].m_Position = vec3_t(corner2[0], corner1[1], corner2[2]);
-  m_Nodes[6].m_Position = vec3_t(corner1[0], corner2[1], corner2[2]);
-  m_Nodes[7].m_Position = vec3_t(corner2[0], corner2[1], corner2[2]);
-  for (int i = 0; i < 8; ++i) {
-    m_Cells[0].m_Node[i] = i;
+  m_Dx = fabs(corner1[0] - corner2[0])/num_i;
+  m_Dy = fabs(corner1[1] - corner2[1])/num_j;
+  m_Dz = fabs(corner1[2] - corner2[2])/num_k;
+
+  for (int i = 0; i < num_i + 1; ++i) {
+    for (int j = 0; j < num_j + 1; ++j) {
+      for (int k = 0; k < num_k + 1; ++k) {
+        int idx_node = i*(num_j + 1)*(num_k + 1) + j*(num_k + 1) + k;
+        m_Nodes[idx_node].setPosition(m_Corner1 + i*m_Dx*g1 + j*m_Dy*g2 + k*m_Dz*g3);
+      }
+    }
+  }
+  for (int i = 0; i < num_i; ++i) {
+    for (int j = 0; j < num_j; ++j) {
+      for (int k = 0; k < num_k; ++k) {
+        int idx_cell  = i*num_j*num_k + j*num_k + k;
+        int idx_node0 = (i + 0)*(num_j + 1)*(num_k + 1) + (j + 0)*(num_k + 1) + (k + 0);
+        int idx_node1 = (i + 1)*(num_j + 1)*(num_k + 1) + (j + 0)*(num_k + 1) + (k + 0);
+        int idx_node2 = (i + 0)*(num_j + 1)*(num_k + 1) + (j + 1)*(num_k + 1) + (k + 0);
+        int idx_node3 = (i + 1)*(num_j + 1)*(num_k + 1) + (j + 1)*(num_k + 1) + (k + 0);
+        int idx_node4 = (i + 0)*(num_j + 1)*(num_k + 1) + (j + 0)*(num_k + 1) + (k + 1);
+        int idx_node5 = (i + 1)*(num_j + 1)*(num_k + 1) + (j + 0)*(num_k + 1) + (k + 1);
+        int idx_node6 = (i + 0)*(num_j + 1)*(num_k + 1) + (j + 1)*(num_k + 1) + (k + 1);
+        int idx_node7 = (i + 1)*(num_j + 1)*(num_k + 1) + (j + 1)*(num_k + 1) + (k + 1);
+        m_Cells[idx_cell].m_Node[0] = idx_node0;
+        m_Cells[idx_cell].m_Node[1] = idx_node1;
+        m_Cells[idx_cell].m_Node[2] = idx_node2;
+        m_Cells[idx_cell].m_Node[3] = idx_node3;
+        m_Cells[idx_cell].m_Node[4] = idx_node4;
+        m_Cells[idx_cell].m_Node[5] = idx_node5;
+        m_Cells[idx_cell].m_Node[6] = idx_node6;
+        m_Cells[idx_cell].m_Node[7] = idx_node7;
+      }
+    }
   }
 }
 
@@ -803,7 +823,7 @@ int Octree::refineAll()
   return Nrefine;
 }
 
-void Octree::toVtkGrid_HangingNodes(vtkUnstructuredGrid *grid, bool create_fields)
+void Octree::toVtkGridHangingNodes(vtkUnstructuredGrid *grid, bool)
 {
   int N = 0;
   for (int i = 0; i < m_Cells.size(); ++i) {
@@ -853,7 +873,102 @@ int Octree::opposingFace(int i)
   return -1;
 }
 
-void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
+void Octree::toVtkGridPolyhedral(vtkUnstructuredGrid *grid, bool create_fields)
+{
+  if (!m_SmoothTransition) {
+    EG_BUG;
+  }
+  buildNode2Cell();
+  vtkIdType num_new_cells = 0;
+  for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
+    OctreeCell cell = m_Cells[i_cell];
+    if (!cell.hasChildren()) { // only use cells which do not have children
+      ++num_new_cells;
+    }
+  }
+  allocateGrid(grid, num_new_cells, m_Nodes.size(), create_fields);
+  for (vtkIdType id_node = 0; id_node < m_Nodes.size(); ++id_node) {
+    grid->GetPoints()->SetPoint(id_node, m_Nodes[id_node].getPosition().data());
+  }
+
+  for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
+    OctreeCell cell = m_Cells[i_cell];
+    if (!cell.hasChildren()) { // only use cells which do not have children
+      QList<QVector<int> > all_faces;
+      QVector<QVector<int> > faces;
+      for (int i = 0; i < 6; ++i) {
+        bool use_neighbour_faces = false;
+        if (cell.getNeighbour(i) != -1) {
+          OctreeCell neigh = m_Cells[cell.getNeighbour(i)];
+          if (neigh.m_Level == cell.m_Level) {
+            if (neigh.hasChildren()) {
+              use_neighbour_faces = true;
+            }
+          }
+        }
+        if (use_neighbour_faces) {
+          m_Cells[cell.getNeighbour(i)].getFaceNodes(opposingFace(i), this, faces, true);
+        } else {
+          cell.getFaceNodes(i, this, faces, false);
+        }
+        foreach (QVector<int> face, faces) {
+          all_faces.push_back(face);
+        }
+      }
+      if (all_faces.size() < 6) {
+        EG_BUG;
+      }
+      bool simple_hex_cell = true;
+      if (all_faces.size() > 6) {
+        simple_hex_cell = false;
+      }
+
+      foreach (QVector<int> face, all_faces) {
+        if (face.size() > 4) {
+          simple_hex_cell = false;
+          break;
+        }
+      }
+
+      if (simple_hex_cell) {
+        vtkIdType Npts = 8;
+        vtkIdType pts[8];
+        pts[0] = cell.m_Node[0];
+        pts[1] = cell.m_Node[1];
+        pts[2] = cell.m_Node[3];
+        pts[3] = cell.m_Node[2];
+        pts[4] = cell.m_Node[4];
+        pts[5] = cell.m_Node[5];
+        pts[6] = cell.m_Node[7];
+        pts[7] = cell.m_Node[6];
+        for (int i = 0; i < 8; ++i) {
+          if (pts[i] < 0 || pts[i] >= m_Nodes.size()) {
+            EG_BUG;
+          }
+        }
+        vtkIdType id_cell = grid->InsertNextCell(VTK_HEXAHEDRON, Npts, pts);
+      } else {
+        vtkIdType num_ids = 1;
+        foreach (QVector<int> face, all_faces) {
+          num_ids += 1 + face.size();
+        }
+        EG_VTKSP(vtkIdList, ptids);
+        ptids->SetNumberOfIds(num_ids);
+        vtkIdType i_id = 0;
+        ptids->SetId(i_id++, all_faces.size());
+        foreach (QVector<int> face, all_faces) {
+          ptids->SetId(i_id++, face.size());
+          foreach (int i, face) {
+            ptids->SetId(i_id++, i);
+          }
+        }
+        grid->InsertNextCell(VTK_POLYHEDRON, ptids);
+      }
+    }
+  }
+}
+
+void Octree::toVtkGridConforming(vtkUnstructuredGrid* grid, bool create_fields)
 {
   if (!m_SmoothTransition) {
     EG_BUG;
@@ -866,7 +981,6 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
   for (int i_cell = 0; i_cell < getNumCells(); ++i_cell) {
     OctreeCell cell = m_Cells[i_cell];
     if (!cell.hasChildren()) { // only use cells which do not have children
-      vec3_t x = getCellCentre(i_cell);
       QList<QVector<int> > all_faces;
       QVector<QVector<int> > faces;
       for (int i = 0; i < 6; ++i) {
@@ -1059,15 +1173,6 @@ void Octree::toVtkGrid_Conforming(vtkUnstructuredGrid* grid, bool create_fields)
 
 }
 
-void Octree::toVtkGrid(vtkUnstructuredGrid* grid, bool hanging_nodes, bool create_fields)
-{
-  if (hanging_nodes) {
-    toVtkGrid_HangingNodes(grid, create_fields);
-  } else {
-    toVtkGrid_Conforming(grid, create_fields);
-  }
-}
-
 vec3_t Octree::getCellCentre(int cell)
 {
   vec3_t x(0,0,0);
@@ -1119,13 +1224,23 @@ vec3_t Octree::getFaceCentre(int i_cells, int i_faces)
 
 int Octree::findCell(vec3_t x)
 {
-  //cout << x << ',' << m_Corner1 << ',' << m_Corner2 << endl;
   for (int i = 0; i < 3; ++i) {
     if ((x[i] < m_Corner1[i]) || (x[i] > m_Corner2[i])) {
       EG_ERR_RETURN("node outside of octree mesh");
     }
   }
   int i_cells = 0;
+  while (getLevel(i_cells) == 0) {
+    vec3_t x1 = m_Nodes[m_Cells[i_cells].m_Node[0]].getPosition();
+    vec3_t x2 = m_Nodes[m_Cells[i_cells].m_Node[7]].getPosition();
+    if (x[0] >= x1[0] && x[1] >= x1[1] && x[2] >= x1[2]  &&  x[0] <= x2[0] && x[1] <= x2[1] && x[2] <= x2[2]) {
+      break;
+    }
+    ++i_cells;
+  }
+  if (getLevel(i_cells) > 0) {
+    EG_BUG;
+  }
   while (hasChildren(i_cells)) {
     vec3_t xc = getCellCentre(i_cells);
     if (x[0] > xc[0]) {

@@ -107,7 +107,7 @@ void SurfaceAlgorithm::computeMeshDensity()
   update_desired_mesh_density();
 }
 
-void SurfaceAlgorithm::swap()
+void SurfaceAlgorithm::swap(double delaunay_threshold, bool verbose)
 {
   SwapTriangles swap;
   swap.setGrid(m_Grid);
@@ -117,6 +117,10 @@ void SurfaceAlgorithm::swap()
   swap.setMaxNumLoops(m_NumDelaunaySweeps);
   swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
   swap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
+  swap.setDelaunayThreshold(delaunay_threshold);
+  if (verbose) {
+    swap.setVerboseOn();
+  }
   QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   rest_bcs -= m_BoundaryCodes;
   swap.setBoundaryCodes(rest_bcs);

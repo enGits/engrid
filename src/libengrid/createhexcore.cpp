@@ -25,31 +25,25 @@
 #include "guimainwindow.h"
 #include "pointfinder.h"
 
-CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi)
+CreateHexCore::CreateHexCore(vec3_t x1, vec3_t x2, vec3_t xi, int num_inital_refinement_levels)
 {
-  vec3_t xm = 0.5*(x1 + x2);
-  vec3_t Dx = x2 - x1;
-  m_X1 = xm - 0.75*Dx;
-  m_X2 = xm + 0.75*Dx;
+  m_X1 = x1;
+  m_X2 = x2;
   m_Xi = xi;
+  m_NumInitialRefinementLevels = num_inital_refinement_levels;
+  m_NumBreakOutLayers = 1;
 }
 
 void CreateHexCore::refineOctree()
 {
   m_Octree.resetRefineMarks();
-
-  // begin DEBUG
-  /*
-  m_Octree.markToRefine(0);
-  m_Octree.refineAll();
-  m_Octree.markToRefine(3);
-  m_Octree.markToRefine(8);
-  m_Octree.refineAll();
-  return;
-  */
-  // end DEBUG
+  m_Octree.setSmoothTransitionOn();
 
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+  for (int i = 0; i < m_NumInitialRefinementLevels; ++i) {
+    m_Octree.markAllToRefine();
+    m_Octree.refineAll();
+  }
   do {
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       vtkIdType id_surf = -1;
@@ -86,7 +80,6 @@ void CreateHexCore::refineOctree()
 
 void CreateHexCore::transferOctreeGrid()
 {
-  cout << m_Grid->GetNumberOfPoints() << endl;
   QVector<bool> delete_node(m_Octree.getNumNodes(), false);
   QVector<bool> delete_cell(m_Octree.getNumCells(), false);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -101,19 +94,29 @@ void CreateHexCore::transferOctreeGrid()
       delete_node[m_Octree.getNode(i_cell, i)] = true;
     }
   }
-  //QVector<bool> delete_cell(m_Octree.getNumCells(), false);
-  for (int i = 0; i < m_Octree.getNumCells(); ++i) {
-    if (!m_Octree.hasChildren(i)) {
-      for (int j = 0; j < 8; ++j) {
-        if (delete_node[m_Octree.getNode(i,j)]) {
-          delete_cell[i] = true;
-          break;
+
+  for (int layer = 0; layer < m_NumBreakOutLayers; ++layer) {
+    for (int i = 0; i < m_Octree.getNumCells(); ++i) {
+      if (delete_cell[i] && !m_Octree.hasChildren(i)) {
+        for (int j = 0; j < 8; ++j) {
+          delete_node[m_Octree.getNode(i,j)] = true;
+        }
+      }
+    }
+    for (int i = 0; i < m_Octree.getNumCells(); ++i) {
+      if (!m_Octree.hasChildren(i)) {
+        for (int j = 0; j < 8; ++j) {
+          if (delete_node[m_Octree.getNode(i,j)]) {
+            delete_cell[i] = true;
+            break;
+          }
         }
       }
     }
   }
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
-  m_Octree.toVtkGrid(otgrid, false, true);
+  m_Octree.toVtkGridPolyhedral(otgrid, true);
+  //m_Octree.toVtkGridConforming(otgrid, true);
   MeshPartition add_part(otgrid);
   QList<vtkIdType> add_cells;
   for (vtkIdType id_cell = 0; id_cell < otgrid->GetNumberOfCells(); ++id_cell) {
@@ -121,7 +124,6 @@ void CreateHexCore::transferOctreeGrid()
     if (!delete_cell[i_cell]) {
       add_cells.append(id_cell);
     }
-    //add_cells.append(id_cell);
   }
   add_part.setCells(add_cells);
   m_Part.addPartition(add_part);  
@@ -188,19 +190,131 @@ void CreateHexCore::deleteOutside(vtkUnstructuredGrid *grid)
   makeCopy(return_grid, grid);
 }
 
+void CreateHexCore::createBoundaryFaces()
+{
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+
+  // find all polygons which need to be triangulated and collect the new triangles
+  m_Part.setAllCells();
+  QList<QVector<vtkIdType> > new_triangles;
+  QVector<bool> adapt_cell(m_Grid->GetNumberOfCells(), false);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vec3_t xc = cellCentre(m_Grid, id_cell);
+    if (isVolume(id_cell, m_Grid)) {
+      for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
+        if (m_Part.c2cGG(id_cell, i) == -1) {
+          QVector<vtkIdType> face;
+          getFaceOfCell(m_Grid, id_cell, i, face);
+          QVector<QVector<vtkIdType> > triangles;
+          triangulatePolygon(m_Grid, face, triangles);
+          foreach (QVector<vtkIdType> triangle, triangles) {
+            vec3_t x1, x2, x3;
+            m_Grid->GetPoint(triangle[0], x1.data());
+            m_Grid->GetPoint(triangle[1], x2.data());
+            m_Grid->GetPoint(triangle[2], x3.data());
+            vec3_t xt = (1.0/3.0)*(x1 + x2 + x3);
+            vec3_t nt = GeometryTools::triNormal(x1, x2, x3);
+            if (nt*(xt - xc) < 0) {
+              swap(triangle[0], triangle[1]);
+            }
+            new_triangles.append(triangle);
+          }
+          if (face.size() > 3) {
+            adapt_cell[id_cell] = true;
+          }
+        }
+      }
+    }
+  }
+
+  // allocate memory for the new grid
+  allocateGrid(new_grid, m_Grid->GetNumberOfCells() + new_triangles.size(), m_Grid->GetNumberOfPoints());
+
+  // copy nodes
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    new_grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+
+  // copy existing cells and update if required
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    vtkIdType id_new_cell;
+    if (!adapt_cell[id_cell]) {
+      id_new_cell = copyCell(m_Grid, id_cell, new_grid);
+    } else {
+      QList<QVector<vtkIdType> > faces_of_cell;
+      for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
+        QVector<vtkIdType> face;
+        getFaceOfCell(m_Grid, id_cell, i, face);
+        if (m_Part.c2cGG(id_cell, i) == -1) {
+          QVector<QVector<vtkIdType> > triangles;
+          triangulatePolygon(m_Grid, face, triangles);
+          foreach (QVector<vtkIdType> triangle, triangles) {
+            faces_of_cell.append(triangle);
+          }
+        } else {
+          faces_of_cell.append(face);
+        }
+      }
+      EG_VTKSP(vtkIdList, stream);
+      int stream_size = 1;
+      foreach (QVector<vtkIdType> face, faces_of_cell) {
+        stream_size += face.size() + 1;
+      }
+      stream->SetNumberOfIds(stream_size);
+      int id = 0;
+      stream->SetId(id++, faces_of_cell.size());
+      foreach (QVector<vtkIdType> face, faces_of_cell) {
+        stream->SetId(id++, face.size());
+        foreach (vtkIdType id_node, face) {
+          stream->SetId(id++, id_node);
+        }
+      }
+      id_new_cell = new_grid->InsertNextCell(VTK_POLYHEDRON, stream);
+    }
+    copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+  }
+
+  // determine new boundary code
+  EG_VTKDCC(vtkIntArray, cell_code, new_grid, "cell_code");
+  QSet<int> bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+  int bc_new = 1;
+  foreach (int bc, bcs) {
+    bc_new = max(bc, bc_new);
+  }
+  ++bc_new;
+
+  // create triangular boundary faces
+  EG_VTKDCC(vtkIntArray, cell_orgdir, new_grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, new_grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, new_grid, "cell_voldir");
+  GuiMainWindow::pointer()->addBC(bc_new, BoundaryCondition("HexCore", "unknown"));
+  foreach (QVector<vtkIdType> face, new_triangles) {
+    vtkIdType id_new_face;
+    if (face.size() == 3) {
+      id_new_face = new_grid->InsertNextCell(VTK_TRIANGLE, 3, face.data());
+    } else if (face.size() == 4) {
+      id_new_face = new_grid->InsertNextCell(VTK_QUAD, 4, face.data());
+    } else {
+      id_new_face = new_grid->InsertNextCell(VTK_POLYGON, face.size(), face.data());
+    }
+    cell_code->SetValue(id_new_face, bc_new);
+    cell_orgdir->SetValue(id_new_face, 0);
+    cell_curdir->SetValue(id_new_face, 0);
+    cell_voldir->SetValue(id_new_face, 0);
+  }
+
+  makeCopy(new_grid, m_Grid);
+}
+
 void CreateHexCore::operate()
 {
-  m_Octree.setBounds(m_X1, m_X2);
+  m_Octree.setBounds(m_X1, m_X2, 1, 1, 1);
   refineOctree();
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
   transferOctreeGrid();
-  /*
-  int N1 = m_Octree.getNumCells();
-  int N2 = 0;
-  for (int i = 0; i < N1; ++i) {
-    if (!m_Octree.hasChildren(i)) ++N2;
-  }
-  m_Octree.toVtkGrid(otgrid, true, true);
-  saveGrid(otgrid, GuiMainWindow::pointer()->getCwd() + "/ot");
-  */
+  createBoundaryFaces();
+  UpdateCellIndex(m_Grid);
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }

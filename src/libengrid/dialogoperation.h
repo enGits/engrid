@@ -32,6 +32,7 @@ class DialogOperation;
 #include <QDialog>
 #include <QListWidget>
 #include <QTextStream>
+#include <QLineEdit>
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkIntArray.h>
@@ -100,6 +101,13 @@ public: // methods
    * @param sel On return, this will hold all items.
    */
   void getSelectedItems(QListWidget *lw, QSet<QString> &sel);
+
+  /**
+   * @brief set a line edit to a double value
+   * @param value the value to set
+   * @param line_edit the QLineEdit to use
+   */
+  void setDouble(double value, QLineEdit *line_edit);
   
   virtual void before() {}
   virtual void operator()();
@@ -112,7 +120,7 @@ template <class UI, class OP>
 DialogOperation<UI,OP>::DialogOperation()
 {
   m_Ui.setupUi(this);
-};
+}
 
 template <class UI, class OP>
 template <class T>
@@ -126,7 +134,7 @@ void DialogOperation<UI,OP>::addListItem(QListWidget *lw, T item, bool checked)
   ts << item;
   lwi->setText(text);
   lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-};
+}
 
 template <class UI, class OP>
 template <class T>
@@ -211,6 +219,14 @@ void DialogOperation<UI,OP>::operator()()
       err.display();
     }
   }
+}
+
+template <class UI, class OP>
+void DialogOperation<UI,OP>::setDouble(double value, QLineEdit *line_edit)
+{
+  QString num;
+  num.setNum(value);
+  line_edit->setText(num);
 }
 
 #endif

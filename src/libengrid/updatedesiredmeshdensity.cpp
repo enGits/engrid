@@ -102,7 +102,7 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   }
 }
 
-void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res)
+void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVector<double> &cl_pre, double res, int restriction_type)
 {
   int N = 0;
   QVector<vec3_t> pts(points.size());
@@ -113,7 +113,13 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
   pfind.setMaxNumPoints(5000);
   pfind.setPoints(pts);
   for (int i = 0; i < points.size(); ++i) {
-    double h = 1e99;
+    double h = -1;
+    foreach (int i_points, points[i].idx) {
+      h = max(h, cl_pre[i_points]);
+    }
+    if (h < 0) {
+      h = 1e99;
+    }
     QVector<int> close_points;
     pfind.getClosePoints(points[i].x, close_points, res*points[i].L);
     foreach (int j, close_points) {
@@ -128,18 +134,33 @@ void UpdateDesiredMeshDensity::computeFeature(const QList<point_t> points, QVect
           if (n1*v > 0) {
             if (fabs(GeometryTools::angle(n1, (-1)*n2)) <= m_FeatureThresholdAngle) {
               double l = v.abs()/fabs(n1*n2);
-              h = min(l/res, h);
+              if (l/res < h) {
+                // check topological distance
+                int search_dist = int(ceil(res));
+                bool topo_dist_ok = true;
+                foreach (int k, points[i].idx) {
+                  vtkIdType id_node1 = m_Part.globalNode(k);
+                  foreach (int l, points[j].idx) {
+                    vtkIdType id_node2 = m_Part.globalNode(l);
+                    if (m_Part.computeTopoDistance(id_node1, id_node2, search_dist, restriction_type) < search_dist) {
+                      topo_dist_ok = false;
+                      break;
+                    }
+                    if (!topo_dist_ok) {
+                      break;
+                    }
+                  }
+                }
+                if (topo_dist_ok) {
+                  h = l/res;
+                }
+              }
             }
           }
         }
       }
     }
     foreach (int i_points, points[i].idx) {
-      /*
-      vtkIdType id_node = m_Part.globalNode(points[i].idx);
-      double L = m_Part.getAverageSurfaceEdgeLength(id_node);
-      if ()
-      */
       cl_pre[i_points] = min(h, cl_pre[i_points]);
     }
   }
@@ -161,10 +182,13 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
           vtkIdType num_pts, *pts;
           m_Grid->GetCellPoints(id_face, num_pts, pts);
           QVector<vec3_t> xn(num_pts + 1);
+          QVector<vtkIdType> idx(num_pts + 1);
           for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
             m_Grid->GetPoint(pts[i_pts], xn[i_pts].data());
+            idx[i_pts] = m_Part.localNode(pts[i_pts]);
           }
           xn[num_pts] = xn[0];
+          idx[num_pts] = idx[0];
           for (int i_neigh = 0; i_neigh < m_Part.c2cGSize(id_face); ++i_neigh) {
             vtkIdType id_neigh = m_Part.c2cGG(id_face, i_neigh);
             if (id_neigh != -1) {
@@ -176,9 +200,8 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
                 v.normalise();
                 P.n -= (P.n*v)*v;
                 P.n.normalise();
-                for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
-                  P.idx.append(m_Part.localNode(pts[i_pts]));
-                }
+                P.idx.append(idx[i_neigh]);
+                P.idx.append(idx[i_neigh+1]);
                 P.L = computeSearchDistance(id_face);
                 points.append(P);
               }
@@ -187,7 +210,7 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
         }
       }
     }
-    computeFeature(points, cl_pre, m_FeatureResolution2D);
+    computeFeature(points, cl_pre, m_FeatureResolution2D, 2);
   }
 }
 
@@ -233,7 +256,7 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       }
     }
   }
-  computeFeature(points, cl_pre, m_FeatureResolution3D);
+  computeFeature(points, cl_pre, m_FeatureResolution3D, 1);
 }
 
 
@@ -307,12 +330,7 @@ void UpdateDesiredMeshDensity::operate()
     double cl = m_MaxEdgeLength;
     if (m_BoundaryCodes.size() > 0) {
       int idx = characteristic_length_specified->GetValue(id_node);
-      if (idx != -1) {
-        if (idx >= m_VMDvector.size()) {
-          qWarning()<<"idx="<<idx;
-          qWarning()<<"m_VMDvector.size()="<<m_VMDvector.size();
-          EG_BUG;
-        }
+      if ((idx >= 0) && (idx < m_VMDvector.size())) {
         cl = m_VMDvector[idx].density;
       }
     }

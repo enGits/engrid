@@ -31,6 +31,7 @@
 #include "guimergevolumes.h"
 #include "guimirrormesh.h"
 #include "guicreatehexcore.h"
+#include "guiconverttopolymesh.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"
@@ -67,5 +68,8 @@
 #include "dolfynwriter.h"
 #include "tauwriter.h"
 #include "guifillplane.h"
+#include "drnumwriter.h"
+#include "converttopolymesh.h"
+#include "guicreatehexshell.h"
 
 // -------------------------------------------

@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -61,6 +61,7 @@
 #include <vtkFollower.h>
 #include <vtkScalarBarActor.h>
 #include <vtkLookupTable.h>
+#include <vtkDataSetSurfaceFilter.h>
 
 #include "ui_guimainwindow.h"
 #include "vtkEgBoundaryCodesFilter.h"
@@ -123,6 +124,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     double m_ColPyraR,  m_ColPyraG,  m_ColPyraB;
     double m_ColPrismR, m_ColPrismG, m_ColPrismB;
     double m_ColHexR,   m_ColHexG,   m_ColHexB;
+    double m_ColPolyR,  m_ColPolyG,  m_ColPolyB;
     double m_ColAR,     m_ColAG,     m_ColAB;
     double m_ColBR,     m_ColBG,     m_ColBB;
 
@@ -133,12 +135,12 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkEgExtractVolumeCells *m_ExtrHexes;
     vtkEgExtractVolumeCells *m_ExtrPolyhedra;
 
-    vtkGeometryFilter *m_VolumeGeometry;
-    vtkGeometryFilter *m_TetraGeometry;
-    vtkGeometryFilter *m_PyramidGeometry;
-    vtkGeometryFilter *m_WedgeGeometry;
-    vtkGeometryFilter *m_HexaGeometry;
-    vtkGeometryFilter *m_PolyhedraGeometry;
+    vtkDataSetSurfaceFilter *m_VolumeGeometry;
+    vtkDataSetSurfaceFilter *m_TetraGeometry;
+    vtkDataSetSurfaceFilter *m_PyramidGeometry;
+    vtkDataSetSurfaceFilter *m_WedgeGeometry;
+    vtkDataSetSurfaceFilter *m_HexaGeometry;
+    vtkDataSetSurfaceFilter *m_PolyhedraGeometry;
 
     vtkIdType m_PickedPoint;      ///< Picked point
     vtkIdType m_PickedCell;       ///< Picked cell
@@ -146,8 +148,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     static QMutex    m_Mutex;
 
-    vtkGeometryFilter* m_SurfaceFilter; ///< VTK filter to extract the surface of the current grid.
-    double             m_ReferenceSize; ///< Size to use for picker objects and annotations
+    vtkDataSetSurfaceFilter* m_SurfaceFilter; ///< VTK filter to extract the surface of the current grid.
+    double                   m_ReferenceSize; ///< Size to use for picker objects and annotations
 
     vector <vtkTextActor*>      m_NodeText;               ///< 2D Text actor to display node IDs
     vector <vtkTextActor*>      m_CellText;               ///< 2D Text actor to display cell IDs
@@ -518,6 +520,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
     void callFillPlane() { EG_STDSLOT( GuiFillPlane ); }
+    void callConvertToPolyMesh() { EG_STDSLOT(GuiConvertToPolyMesh); }
+    void callCreateHexShellMesh() { EG_STDSLOT(GuiCreateHexShell); }
 
     void callFixSTL();
 
@@ -531,10 +535,19 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
+
+#ifdef BRLCAD_SUPPORT
     void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }
+#endif
+
     void callExportSu2()                  { EG_STDREADERSLOT( Su2Writer ); }
     void callExportDolfyn()               { EG_STDREADERSLOT( DolfynWriter ); }
+
+#ifdef TAU_SUPPORT
     void callExportTau()                  { EG_STDREADERSLOT( TauWriter ); }
+#endif
+
+    void callExportDrNum()                { EG_STDREADERSLOT( DrNumWriter ); }
 
     void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }
     void callReduceSurfaceTriangulation() { EG_STDSLOT(ReduceSurfaceTriangulation); }

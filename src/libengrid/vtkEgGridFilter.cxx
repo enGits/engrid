@@ -123,7 +123,7 @@ void vtkEgGridFilter::ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdT
   QSet<vtkIdType> ex_nodes, ex_cells;
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   for (vtkIdType i = 0; i < grid->GetNumberOfCells(); ++i) {
-    if ((grid->GetCellType(i) == VTK_TRIANGLE) || (grid->GetCellType(i) == VTK_QUAD)){
+    if (isSurface(i, grid)) {
       if (bc.contains(cell_code->GetValue(i))) {
         ex_cells.insert(i);
         vtkIdType *pts;

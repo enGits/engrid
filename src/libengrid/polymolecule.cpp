@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -45,6 +45,7 @@ PolyMolecule::PolyMolecule(PolyMesh *poly_mesh, int i_pcell)
   QVector<QList<int> > faces(poly_mesh->numFacesOfPCell(i_pcell));
   for (int i = 0; i < poly_mesh->numFacesOfPCell(i_pcell); ++i) {
     int i_face = poly_mesh->pcell2Face(i_pcell, i);
+    m_FacesInPMesh.append(i_face);
     int num_nodes = poly_mesh->numNodes(i_face);
     for (int j = 0; j < num_nodes; ++j) {
       int node = poly_mesh->nodeIndex(i_face, j);
@@ -186,6 +187,27 @@ void PolyMolecule::buildNode2Node()
   }
 }
 
+void PolyMolecule::buildFace2Face()
+{
+  m_F2F.clear();
+  m_F2F.resize(m_Faces.size());
+  for (int face = 0; face < m_Faces.size(); ++face) {
+    for (int i = 0; i < m_Faces[face].size(); ++i) {
+      int j = i + 1;
+      if (j >= m_Faces[face].size()) {
+        j = 0;
+      }
+      edge_t e = getEdge(m_Faces[face][i], m_Faces[face][j]);
+      if (e.face1 != face) {
+        m_F2F[face].insert(e.face1);
+      }
+      if (e.face2 != face) {
+        m_F2F[face].insert(e.face2);
+      }
+    }
+  }
+}
+
 void PolyMolecule::computeNormals()
 {
   m_FaceNormals.fill(vec3_t(0,0,0), m_Faces.size());
@@ -229,7 +251,9 @@ vec3_t PolyMolecule::getXFace(int face)
 void PolyMolecule::smooth(bool delaunay, bool write)
 {
   computeNormals();
-  if (write) writeVtkFile("bad_cell");
+  if (write) {
+    writeVtkFile("bad_cell");
+  }
 
   // collect all "healthy" cells in the neighbourhood
   // they will be checked for volume inversion caused by the smoothing of this cell
@@ -401,26 +425,369 @@ void PolyMolecule::smooth(bool delaunay, bool write)
   if (write) writeVtkFile("improved_cell");
 }
 
-void PolyMolecule::split(bool write)
+PolyMolecule::edge_t PolyMolecule::getEdge(int node1, int node2)
 {
-  if (write) writeVtkFile("concave_cell");
-}
-
-void PolyMolecule::fix(bool write)
-{
-  /*
-  if (m_MinPyramidVolume/m_MaxPyramidVolume < -0.1) {
-    split(true);
+  edge_t e;
+  e.node1 = node1;
+  e.node2 = node2;
+  e.face1 = -1;
+  e.face2 = -1;
+  for (int i = 0; i < m_Faces.size(); ++i) {
+    for (int j = 0; j < m_Faces[i].size(); ++j) {
+      int n1 = m_Faces[i][j];
+      int n2 = m_Faces[i][0];
+      if (j < m_Faces[i].size() - 1) {
+        n2 = m_Faces[i][j+1];
+      }
+      if (n1 == node1 && n2 == node2) {
+        e.face1 = i;
+      }
+      if (n1 == node2 && n2 == node1) {
+        e.face2 = i;
+      }
+    }
+  }
+  if (e.face1 == -1 || e.face2 == -1) {
     EG_BUG;
   }
-  */
+  return e;
+}
 
+QList<PolyMolecule::edge_t> PolyMolecule::findConcaveEdges()
+{
+  if (m_PCell == 32) {
+    cout << "break" << endl;
+  }
+  QList<edge_t> concave_edges;
+  for (int node1 = 0; node1 < m_Nodes.size(); ++node1) {
+    foreach (int node2, m_N2N[node1]) {
+      if (node2 > node1) {
+        edge_t e = getEdge(node1, node2);
+        vec3_t x1 = getXNode(node1);
+        vec3_t x2 = getXNode(node2);
+        vec3_t xe  = 0.5*(getXNode(node1) + getXNode(node2));
+        vec3_t xf1 = getXFace(e.face1);
+        vec3_t xf2 = getXFace(e.face2);
+        vec3_t xc  = m_CentreOfGravity;
+        vec3_t xn  = 0.5*(xf1 + xf2);
+        double Lnorm = (xf2 - xf1).abs();
+        double L = ((xn - xc).abs() - (xe - xc).abs())/Lnorm;
+        if (L > 0.01) {
+          concave_edges.append(e);
+        }
+      }
+    }
+  }
+  return concave_edges;
+}
+
+void PolyMolecule::split(bool write)
+{
+  if (write) {
+    writeVtkFile("concave_cell");
+  }
+  buildNode2Node();
+  buildFace2Face();
+  QList<edge_t> concave_edges = findConcaveEdges();
+  if (concave_edges.size() == 0) {
+    return;
+  }
+  QList<int> seed_faces;
+  foreach (edge_t e, concave_edges) {
+    if (!seed_faces.contains(e.face1)) {
+      seed_faces.append(e.face1);
+    }
+    if (!seed_faces.contains(e.face2)) {
+      seed_faces.append(e.face2);
+    }
+  }
+  if (seed_faces.size() != concave_edges.size() + 1) {
+    //EG_BUG;
+  }
+  QVector<int> old2new(m_Faces.size());
+  int num_faces = m_Faces.size();
+  for (int face = 0; face < m_Faces.size(); ++face) {
+    old2new[face] = seed_faces.indexOf(face);
+    if (old2new[face] != -1) {
+      --num_faces;
+    }
+  }
+  while (num_faces > 0) {
+    for (int face1 = 0; face1 < m_Faces.size(); ++face1) {
+      if (old2new[face1] != -1) {
+        foreach (int face2, m_F2F[face1]) {
+          if (old2new[face2] == -1) {
+            old2new[face2] = old2new[face1];
+            --num_faces;
+          }
+        }
+      }
+    }
+  }
+  QVector<int> new_pcell_index(seed_faces.size());
+  new_pcell_index[0] = m_PCell;
+  for (int i = 1; i < seed_faces.size(); ++i) {
+    new_pcell_index[i] = m_PolyMesh->numCells() + i - 1;
+  }
+  QVector<PolyMesh::face_t> new_faces(concave_edges.size());
+  QVector<vec3_t> new_cell_centre(seed_faces.size(), vec3_t(0,0,0));
+  {
+    QVector<int> count(seed_faces.size(), 0);
+    for (int face = 0; face < m_Faces.size(); ++face) {
+      new_cell_centre[old2new[face]] += getXFace(face);
+      ++count[old2new[face]];
+    }
+    for (int i = 0; i < new_cell_centre.size(); ++i) {
+      if (count[i] == 0) {
+        EG_BUG;
+      }
+      new_cell_centre[i] *= 1.0/count[i];
+    }
+  }
+  for (int i = 0; i < concave_edges.size(); ++i) {
+    edge_t e = concave_edges[i];
+    int start = e.node1;
+    int first = e.node2;
+    new_faces[i].node.append(m_Nodes[e.node1]);
+    int o2n1 = old2new[e.face1];
+    int o2n2 = old2new[e.face2];
+    new_faces[i].ref_vec = new_cell_centre[o2n2] - new_cell_centre[o2n1];
+    new_faces[i].owner = new_pcell_index[o2n1];
+    new_faces[i].neighbour = new_pcell_index[o2n2];
+    new_faces[i].bc = 0;
+    bool reversed = false;
+    while (e.node2 != start) {
+      if (reversed) {
+        new_faces[i].node.prepend(m_Nodes[e.node2]);
+      } else {
+        new_faces[i].node.append(m_Nodes[e.node2]);
+      }
+      bool found = false;
+      foreach (int n, m_N2N[e.node2]) {
+        if (n != e.node1) {
+          edge_t ne = getEdge(e.node2, n);
+          if (old2new[ne.face1] == o2n1 && old2new[ne.face2] == o2n2) {
+            e = ne;
+            found = true;
+            break;
+          }
+        }
+      }
+
+      // reached a dead-end here ...
+      if (!found && !reversed) {
+        reversed = true;
+        swap(o2n1, o2n2);
+        swap(start, first);
+        foreach (int n, m_N2N[first]) {
+          if (n != start) {
+            edge_t ne = getEdge(first, n);
+            if (old2new[ne.face1] == o2n1 && old2new[ne.face2] == o2n2) {
+              e = ne;
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+      if (!found) {
+        break;
+      }
+    }
+    if (new_faces[i].owner > new_faces[i].neighbour && new_faces[i].neighbour != -1) {
+      swap(new_faces[i].owner, new_faces[i].neighbour);
+      new_faces[i].ref_vec *= -1;
+      invertQContainer(new_faces[i].node);
+    }
+  }
+  for (int face = 0; face < m_Faces.size(); ++face) {
+    int pface = m_FacesInPMesh[face];
+    //m_PolyMesh->m_Faces[pface].bc = 1;
+    if (m_PolyMesh->m_Faces[pface].owner == m_PCell) {
+      m_PolyMesh->m_Faces[pface].owner = new_pcell_index[old2new[face]];
+    }
+    if (m_PolyMesh->m_Faces[pface].neighbour == m_PCell) {
+      m_PolyMesh->m_Faces[pface].neighbour = new_pcell_index[old2new[face]];
+    }
+    if (m_PolyMesh->m_Faces[pface].owner > m_PolyMesh->m_Faces[pface].neighbour && m_PolyMesh->m_Faces[pface].neighbour != -1) {
+      swap(m_PolyMesh->m_Faces[pface].owner, m_PolyMesh->m_Faces[pface].neighbour);
+      m_PolyMesh->m_Faces[pface].ref_vec *= -1;
+      invertQContainer(m_PolyMesh->m_Faces[pface].node);
+    }
+  }
+  foreach (PolyMesh::face_t f, new_faces) {
+    if (f.owner == -1) {
+      EG_BUG;
+    }
+    if (f.neighbour == -1) {
+      EG_BUG;
+    }
+    if (f.owner > f.neighbour) {
+      swap(f.owner, f.neighbour);
+      invertQContainer(f.node);
+    }
+    //f.bc = 2;
+    m_PolyMesh->m_Faces.append(f);
+  }
+  m_PolyMesh->m_NumPolyCells += seed_faces.size() - 1;
+}
+
+void PolyMolecule::updatePMesh()
+{
+  int offset = 0;
+  foreach (int face, m_FacesInPMesh) {
+    m_PolyMesh->m_Faces.removeAt(face - offset);
+    ++offset;
+  }
+}
+
+void PolyMolecule::optimise(bool write)
+{
   smooth(true, write);
   if (m_MinPyramidVolume <= 0) {
     smooth(false, write);
   }
-  //EG_BUG;
 }
 
+void PolyMolecule::updateFace(int face, int new_cell_index)
+{
+  PolyMesh::face_t f = m_PolyMesh->m_Faces[m_FacesInPMesh[face]];
+  if (f.owner == m_PCell) {
+    f.owner = new_cell_index;
+  }
+  if (f.neighbour == m_PCell) {
+    f.neighbour = new_cell_index;
+  }
+  if (f.owner > f.neighbour && f.neighbour != -1) {
+    swap(f.owner, f.neighbour);
+    invertQContainer(f.node);
+    f.ref_vec *= -1;
+  }
+  m_PolyMesh->m_Faces[m_FacesInPMesh[face]] = f;
+}
+
+void PolyMolecule::centreSplit()
+{
+  buildNode2Node();
+  buildFace2Face();
+  QList<edge_t> concave_edges = findConcaveEdges();
+  if (concave_edges.size() == 0) {
+    return;
+  }
+
+  // find common nodes in all edges and return if none exists
+  QSet<int> common_nodes;
+  common_nodes.insert(concave_edges.first().node1);
+  common_nodes.insert(concave_edges.first().node2);
+  foreach (edge_t e, concave_edges) {
+    QSet<int> edge_nodes;
+    edge_nodes.insert(e.node1);
+    edge_nodes.insert(e.node2);
+    common_nodes.intersect(edge_nodes);
+  }
+  if (common_nodes.size() == 0) {
+    return;
+  }
+
+  // start point of straight for divide point computation
+  vec3_t x1;
+  {
+    int count = 0;
+    foreach(int node, common_nodes) {
+      x1 += getXNode(node);
+      ++count;
+    }
+    x1 *= 1.0/count;
+  }
+
+  // end point of straight for divide point computation
+  computeNormals();
+  vec3_t x2;
+  {
+    vec3_t n(0,0,0);
+    QList<int> adjacent_faces;
+    foreach (edge_t e, concave_edges) {
+      if (!adjacent_faces.contains(e.face1)) {
+        adjacent_faces.append(e.face1);
+      }
+      if (!adjacent_faces.contains(e.face2)) {
+        adjacent_faces.append(e.face2);
+      }
+    }
+    foreach (int face, adjacent_faces) {
+      n += m_FaceNormals[face];
+    }
+    n.normalise();
+    bool x2_set = false;
+    double max_dist = 0;
+    for (int node = 0; node < m_Nodes.size(); ++node) {
+      vec3_t x = getXNode(node);
+      double dist = (x1 - x)*n;
+      if (dist > max_dist) {
+        x2 = x1 - dist*n;
+        max_dist = dist;
+        x2_set = true;
+      }
+    }
+    if (!x2_set) {
+      EG_BUG;
+    }
+  }
+
+  // tip point for all polygonial pyramids
+  vec3_t x_tip = 0.5*(x1 + x2);
+
+  // vector with new cell indices
+  QVector<int> cell_index(m_Faces.size());
+  cell_index[0] = m_PCell;
+  for (int i = 1; i < cell_index.size(); ++i) {
+    cell_index[i] = m_PolyMesh->m_NumPolyCells++;
+  }
+
+  // new node index
+  int new_node = m_PolyMesh->m_Points.size();
+  m_PolyMesh->m_Points.append(x_tip);
+
+  // re-map existing faces
+  for (int face = 0; face < m_FacesInPMesh.size(); ++face) {
+    updateFace(face, cell_index[face]);
+  }
+
+  // create new faces
+  for (int face = 0; face < m_Faces.size(); ++face) {
+    QList<int> nodes = m_Faces[face];
+    nodes.append(nodes.first());
+    for (int i_node = 0; i_node < nodes.size() - 1; ++i_node) {
+      int node1 = nodes[i_node];
+      int node2 = nodes[i_node + 1];
+      edge_t e = getEdge(node1, node2);
+      PolyMesh::face_t f;
+      if (e.face1 == face) {
+        f.neighbour = cell_index[e.face2];
+      } else {
+        f.neighbour = cell_index[e.face1];
+      }
+      if (f.owner < f.neighbour) {
+        f.bc = 0;
+        f.node.append(m_Nodes[node2]);
+        f.node.append(m_Nodes[node1]);
+        f.node.append(new_node);
+        f.owner = cell_index[face];
+        vec3_t x1 = m_PolyMesh->m_Points[f.node[0]];
+        vec3_t x2 = m_PolyMesh->m_Points[f.node[1]];
+        vec3_t x3 = m_PolyMesh->m_Points[f.node[2]];
+        f.ref_vec = GeometryTools::triNormal(x1, x2, x3);
+        /*
+        if (f.owner > f.neighbour) {
+          swap(f.owner, f.neighbour);
+          f.ref_vec *= -1;
+          invertQContainer(f.node);
+        }
+        */
+        m_PolyMesh->m_Faces.append(f);
+      }
+    }
+  }
+}
 
 

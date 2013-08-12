@@ -30,6 +30,7 @@
 #include <vtkIdList.h>
 #include <vtkCell.h>
 #include <vtkCharArray.h>
+#include <vtkCellArray.h>
 
 int EgVtkObject::DebugLevel;
 
@@ -128,11 +129,10 @@ void EgVtkObject::createNodeToCell
 {
   n2c.fill(QSet<int>(), nodes.size());
   for (vtkIdType i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    grid->GetCellPoints(cells[i_cells], Npts, pts);
-    for (int i_pts = 0; i_pts < Npts; ++i_pts) {
-      n2c[_nodes[pts[i_pts]]].insert(i_cells);
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, cells[i_cells], pts);
+    foreach (vtkIdType id_node, pts) {
+      n2c[_nodes[id_node]].insert(i_cells);
     }
   }
 }
@@ -149,11 +149,10 @@ void EgVtkObject::createNodeToCell
   n2c.fill(QVector<int>(), nodes.size());
   QVector<int> count(nodes.size(),0);
   for (vtkIdType i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    grid->GetCellPoints(cells[i_cells], Npts, pts);
-    for (int i_pts = 0; i_pts < Npts; ++i_pts) {
-      ++count[_nodes[pts[i_pts]]];
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, cells[i_cells], pts);
+    foreach (vtkIdType id_node, pts) {
+      ++count[_nodes[id_node]];
     }
   }
   for (int i = 0; i < nodes.size(); ++i) {
@@ -161,11 +160,10 @@ void EgVtkObject::createNodeToCell
     count[i] = 0;
   }
   for (vtkIdType i_cells = 0; i_cells < cells.size(); ++i_cells) {
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    grid->GetCellPoints(cells[i_cells], Npts, pts);
-    for (int i_pts = 0; i_pts < Npts; ++i_pts) {
-      int i_nodes = _nodes[pts[i_pts]];
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, cells[i_cells], pts);
+    foreach (vtkIdType id_node, pts) {
+      int i_nodes = _nodes[id_node];
       n2c[i_nodes][count[i_nodes]] = i_cells;
       ++count[i_nodes];
     }
@@ -182,6 +180,51 @@ void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType>
 {
   n2n.fill(QSet<int>(), nodes.size());
   foreach (vtkIdType id_cell, cells) {
+    if (isSurface(id_cell, grid)) {
+      vtkIdType num_pts, *pts;
+      grid->GetCellPoints(id_cell, num_pts, pts);
+      QVector<int> n(num_pts);
+      for (int i = 0; i < num_pts; ++i) {
+        n[i] = _nodes[pts[i]];
+      }
+      for (int i = 0; i < num_pts - 1; ++i) {
+        addToN2N(n2n, n[i], n[i+1]);
+      }
+      addToN2N(n2n, n.last(), n.first());
+    } else {
+      vtkIdType num_faces = 0;
+      vtkIdType type_cell = grid->GetCellType(id_cell);
+
+      if        (type_cell == VTK_TETRA) {
+        num_faces = 4;
+      } else if (type_cell == VTK_WEDGE) {
+        num_faces = 5;
+      } else if (type_cell == VTK_PYRAMID) {
+        num_faces = 5;
+      } else if (type_cell == VTK_HEXAHEDRON) {
+        num_faces = 6;
+      } else if (type_cell == VTK_POLYHEDRON) {
+        vtkIdType *pts;
+        grid->GetFaceStream(id_cell, num_faces, pts);
+      }
+
+      for (int i = 0; i < num_faces; ++i) {
+        QVector<vtkIdType> face;
+        getFaceOfCell(grid, id_cell, i, face);
+        QVector<int> n(face.size());
+        for (int j = 0; j < face.size(); ++j) {
+          n[j] = _nodes[face[j]];
+        }
+        for (int j = 0; j < face.size() - 1; ++j) {
+          addToN2N(n2n, n[j], n[j+1]);
+        }
+        addToN2N(n2n, n.last(), n.first());
+      }
+    }
+
+
+
+    /*
     vtkIdType *pts;
     vtkIdType  Npts;
     grid->GetCellPoints(id_cell, Npts, pts);
@@ -189,24 +232,26 @@ void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType>
     for (int i = 0; i < Npts; ++i) {
       n[i] = _nodes[pts[i]];
     }
-    vtkIdType cellType = grid->GetCellType(id_cell);
-    if (cellType == VTK_TRIANGLE) {
+    vtkIdType type_cell = grid->GetCellType(id_cell);
+    if (type_cell == VTK_TRIANGLE) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[1], n[2]);
       addToN2N(n2n, n[2], n[0]);
-    } else if (cellType == VTK_QUAD) {
+    } else if (type_cell == VTK_QUAD) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[1], n[2]);
       addToN2N(n2n, n[2], n[3]);
       addToN2N(n2n, n[3], n[0]);
-    } else if (cellType == VTK_TETRA) {
+    } else if (type_cell == VTK_POLYGON) {
+      EG_BUG;
+    } else if (type_cell == VTK_TETRA) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[0], n[2]);
       addToN2N(n2n, n[0], n[3]);
       addToN2N(n2n, n[1], n[2]);
       addToN2N(n2n, n[1], n[3]);
       addToN2N(n2n, n[2], n[3]);
-    } else if (cellType == VTK_PYRAMID) {
+    } else if (type_cell == VTK_PYRAMID) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[0], n[3]);
       addToN2N(n2n, n[0], n[4]);
@@ -215,7 +260,7 @@ void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType>
       addToN2N(n2n, n[2], n[3]);
       addToN2N(n2n, n[2], n[4]);
       addToN2N(n2n, n[3], n[4]);
-    } else if (cellType == VTK_WEDGE) {
+    } else if (type_cell == VTK_WEDGE) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[0], n[2]);
       addToN2N(n2n, n[0], n[3]);
@@ -225,7 +270,7 @@ void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType>
       addToN2N(n2n, n[3], n[4]);
       addToN2N(n2n, n[3], n[5]);
       addToN2N(n2n, n[4], n[5]);
-    } else if (cellType == VTK_HEXAHEDRON) {
+    } else if (type_cell == VTK_HEXAHEDRON) {
       addToN2N(n2n, n[0], n[1]);
       addToN2N(n2n, n[0], n[3]);
       addToN2N(n2n, n[0], n[4]);
@@ -238,7 +283,10 @@ void EgVtkObject::createNodeToNode(QVector<vtkIdType> &cells, QVector<vtkIdType>
       addToN2N(n2n, n[4], n[7]);
       addToN2N(n2n, n[5], n[6]);
       addToN2N(n2n, n[6], n[7]);
+    } else if (type_cell == VTK_POLYHEDRON) {
+      EG_BUG;
     }
+    */
   }
 }
 
@@ -409,9 +457,11 @@ void EgVtkObject::createCellToCell(QVector<vtkIdType> &cells, QVector<QVector<in
   EG_VTKSP(vtkIdList, cls);
   for (int i = 0; i < cells.size(); ++i) {
     vtkIdType id_cell = cells[i];
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    grid->GetCellPoints(id_cell, Npts, pts);
+    //vtkIdType *pts;
+    //vtkIdType  Npts;
+    //grid->GetCellPoints(id_cell, Npts, pts);
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, id_cell, pts);
     if (grid->GetCellType(id_cell) == VTK_TRIANGLE) {
       c2c[i].resize(3);
       nds->Reset();
@@ -444,6 +494,15 @@ void EgVtkObject::createCellToCell(QVector<vtkIdType> &cells, QVector<QVector<in
       nds->InsertNextId(pts[3]);
       nds->InsertNextId(pts[0]);
       addToC2C(id_cell, _cells, c2c, 3, nds, cls, grid);
+    } else if (grid->GetCellType(id_cell) == VTK_POLYGON) {
+      c2c[i].resize(pts.size());
+      pts.append(pts[0]);
+      for (int i = 0; i < pts.size() - 1; ++i) {
+        nds->Reset();
+        nds->InsertNextId(pts[i]);
+        nds->InsertNextId(pts[i+1]);
+        addToC2C(id_cell, _cells, c2c, i, nds, cls, grid);
+      }
     } else if (grid->GetCellType(id_cell) == VTK_TETRA) {
       c2c[i].resize(4);
       nds->Reset();
@@ -562,6 +621,20 @@ void EgVtkObject::createCellToCell(QVector<vtkIdType> &cells, QVector<QVector<in
       nds->InsertNextId(pts[6]);
       nds->InsertNextId(pts[5]);
       addToC2C(id_cell, _cells, c2c, 5, nds, cls, grid);
+    } else if (grid->GetCellType(id_cell) == VTK_POLYHEDRON) {
+      EG_VTKSP(vtkIdList, stream);
+      grid->GetFaceStream(id_cell, stream);
+      int num_faces = stream->GetId(0);
+      c2c[i].resize(num_faces);
+      int id = 1;
+      for (int i_face = 0; i_face < num_faces; ++i_face) {
+        nds->Reset();
+        int num_pts = stream->GetId(id++);
+        for (int i_pt = 0; i_pt < num_pts; ++i_pt) {
+          nds->InsertNextId(stream->GetId(id++));
+        }
+        addToC2C(id_cell, _cells, c2c, i_face, nds, cls, grid);
+      }
     }
   }
 }
@@ -573,6 +646,7 @@ bool EgVtkObject::isVolume(vtkIdType id_cell, vtkUnstructuredGrid *grid)
   else if (grid->GetCellType(id_cell) == VTK_PYRAMID)    isVol = true;
   else if (grid->GetCellType(id_cell) == VTK_WEDGE)      isVol = true;
   else if (grid->GetCellType(id_cell) == VTK_HEXAHEDRON) isVol = true;
+  else if (grid->GetCellType(id_cell) == VTK_POLYHEDRON) isVol = true;
   return isVol;
 }
 
@@ -581,6 +655,7 @@ bool EgVtkObject::isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid)
   bool isSurf = false;
   if      (grid->GetCellType(id_cell) == VTK_TRIANGLE) isSurf = true;
   else if (grid->GetCellType(id_cell) == VTK_QUAD)     isSurf = true;
+  else if (grid->GetCellType(id_cell) == VTK_POLYGON)  isSurf = true;
   return isSurf;
 }
 
@@ -790,9 +865,12 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
 
 void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)
 {
-  EG_VTKSP(vtkPoints,points);
+  EG_VTKSP(vtkPoints, points);
   points->SetNumberOfPoints(Nnodes);
   grid->SetPoints(points);
+  grid->Allocate(0, 0);
+  grid->Squeeze();
+  grid->Reset();
   grid->Allocate(Ncells,max(vtkIdType(1),Ncells/10));
   if (create_fields) {
     createBasicFields(grid, Ncells, Nnodes, true);
@@ -866,14 +944,61 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, b
     }
   }
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    vtkIdType id_new_cell = copyCell(src, id_cell, dst);
+    /*
+    if (id_cell == 2995) {
+      vtkUnstructuredGrid *G = dst;
+      EG_VTKSP(vtkIdList, stream);
+      vtkIdType type_cell = G->GetCellType(id_cell);
+      if (type_cell == VTK_POLYHEDRON) {
+        G->GetFaceStream(id_cell, stream);
+      } else {
+        G->GetCellPoints(id_cell, stream);
+      }
+      QList<int> ids;
+      vtkIdList2QContainer(stream, ids);
+      vtkIdType *pointer = stream->GetPointer(18);
+      cerr << "break" << endl;
+    }
+    */
     if (copy_data) {
       copyCellData(src, id_cell, dst, id_new_cell);
     }
   }
+  /*
+  if (!dbg) return;
+
+  {
+    vtkIdType id_cell = 2995;
+    vtkUnstructuredGrid *G = src;
+    EG_VTKSP(vtkIdList, stream);
+    vtkIdType type_cell = G->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      G->GetFaceStream(id_cell, stream);
+    } else {
+      G->GetCellPoints(id_cell, stream);
+    }
+    QList<int> ids;
+    vtkIdList2QContainer(stream, ids);
+    vtkIdType *pointer = stream->GetPointer(18);
+    cerr << "break" << endl;
+  }
+  {
+    vtkIdType id_cell = 2995;
+    vtkUnstructuredGrid *G = dst;
+    EG_VTKSP(vtkIdList, stream);
+    vtkIdType type_cell = G->GetCellType(id_cell);
+    if (type_cell == VTK_POLYHEDRON) {
+      G->GetFaceStream(id_cell, stream);
+    } else {
+      G->GetCellPoints(id_cell, stream);
+    }
+    QList<int> ids;
+    vtkIdList2QContainer(stream, ids);
+    vtkIdType *pointer = stream->GetPointer(18);
+    cerr << "break" << endl;
+  }
+  */
 }
 
 void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst)
@@ -885,10 +1010,14 @@ void EgVtkObject::makeCopyNoAlloc(vtkUnstructuredGrid *src, vtkUnstructuredGrid 
     copyNodeData(src, id_node, dst, id_node);
   }
   for (vtkIdType id_cell = 0; id_cell < src->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
+    vtkIdType num, *stream;
     vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, pts);
+    if (type_cell == VTK_POLYHEDRON) {
+      src->GetFaceStream(id_cell, num, stream);
+    } else {
+      src->GetCellPoints(id_cell, num, stream);
+    }
+    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, num, stream);
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }
@@ -1093,7 +1222,6 @@ void EgVtkObject::writeGrid(vtkUnstructuredGrid *grid, QString name)
   getAllCells(cells, grid);
   name = GuiMainWindow::pointer()->getCwd() + "/" + name + ".vtu";
   writeCells(grid, cells, name);
-//   qDebug()<<"Saved grid as "<<name;
 }
 
 void EgVtkObject::getAllNodeDataNames(QVector<QString> &field_names, vtkUnstructuredGrid *grid)
@@ -1144,8 +1272,14 @@ void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
 {
   vtkIdType type_cell = grid->GetCellType(id_cell);
   ids.clear();
-  vtkIdType *pts, N_pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
+  EG_VTKSP(vtkIdList, stream);
+  QVector<vtkIdType> pts;
+  if (type_cell == VTK_POLYHEDRON) {
+    grid->GetFaceStream(id_cell, stream);
+  } else {
+    grid->GetCellPoints(id_cell, stream);
+  }
+  vtkIdList2QContainer(stream, pts);
 
   if (type_cell == VTK_TETRA) {
     if      (i_face == 0) { ids.resize(3);  ids[0] = pts[2];  ids[1] = pts[1];  ids[2] = pts[0]; }
@@ -1175,6 +1309,20 @@ void EgVtkObject::getFaceOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, in
     else if (i_face == 4) { ids.resize(4);  ids[0] = pts[0];  ids[1] = pts[4];  ids[2] = pts[7];  ids[3] = pts[3]; }
     else if (i_face == 5) { ids.resize(4);  ids[0] = pts[1];  ids[1] = pts[2];  ids[2] = pts[6];  ids[3] = pts[5]; }
 
+  } else if (type_cell == VTK_POLYHEDRON) {
+    vtkIdType num_faces = pts[0];
+    if (i_face >= num_faces) {
+      EG_BUG;
+    }
+    int id = 1;
+    for (int i = 0; i < i_face; ++i) {
+      id += pts[id] + 1;
+    }
+    ids.resize(pts[id]);
+    for (int i = 0; i < ids.size(); ++i) {
+      ids[i] = pts[id + 1 + i];
+    }
+
   } else {
     EG_BUG; // not implemented
   }
@@ -1202,6 +1350,22 @@ vec3_t EgVtkObject::getNormalOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell
     n += 0.5*u.cross(v);
   }
   return n;
+}
+
+vec3_t EgVtkObject::getCentreOfCellFace(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face)
+{
+  QVector<vtkIdType> ids;
+  getFaceOfCell(grid, id_cell, i_face, ids);
+  if (ids.size() == 0) {
+    EG_BUG;
+  }
+  vec3_t xc(0,0,0), x;
+  for (int i = 0; i < ids.size(); ++i) {
+    grid->GetPoint(ids[i], x.data());
+    xc += x;
+  }
+  xc *= 1.0/ids.size();
+  return xc;
 }
 
 void EgVtkObject::getEdgeOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_edge, QVector<vtkIdType> &ids)
@@ -1288,6 +1452,7 @@ QSet<int> EgVtkObject::getAllBoundaryCodes(vtkUnstructuredGrid *grid)
 
 bool EgVtkObject::cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell, vtkIdType id_node)
 {
+  /*
   vtkIdType num_pts, *pts;
   grid->GetCellPoints(id_cell, num_pts, pts);
   for (int i = 0; i < num_pts; ++i) {
@@ -1296,6 +1461,15 @@ bool EgVtkObject::cellContainsNode(vtkUnstructuredGrid *grid, vtkIdType id_cell,
     }
   }
   return false;
+  */
+
+  QVector<vtkIdType> pts;
+  getPointsOfCell(grid, id_cell, pts);
+  if (pts.contains(id_node)) {
+    return true;
+  }
+  return false;
+
 }
 
 void EgVtkObject::createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c)
@@ -1365,7 +1539,20 @@ void EgVtkObject::createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdTy
   }
 }
 
-
+void EgVtkObject::checkGridConsitency(vtkUnstructuredGrid *grid)
+{
+  vtkIdType num_cells = grid->GetNumberOfCells();
+  vtkIdType num_nodes = grid->GetNumberOfPoints();
+  for (vtkIdType id_cell = 0; id_cell < num_cells; ++id_cell) {
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, id_cell, pts);
+    foreach (vtkIdType id_node, pts) {
+      if (id_node >= num_nodes) {
+        EG_BUG;
+      }
+    }
+  }
+}
 
 
 

@@ -31,6 +31,8 @@ class GuiFillPlane : public DialogOperation<Ui::GuiFillPlane, Operation>
 
 protected: // methods
 
+  void fillPlane(vec3_t x, vec3_t n, bool inverse, QString name);
+
   virtual void operate();
 
 };

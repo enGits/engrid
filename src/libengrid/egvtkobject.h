@@ -39,6 +39,7 @@ class BezierTriangle;
 #include <vtkDoubleArray.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <vtkCellLocator.h>
+#include <vtkIdList.h>
 
 #include <QSettings>
 #include <QSet>
@@ -420,6 +421,26 @@ protected: // methods
   vtkIdType findVolumeCell(vtkUnstructuredGrid *grid, vtkIdType id_surf, g2l_t _nodes, l2g_t cells, g2l_t _cells, l2l_t n2c);
 
   /**
+   * @brief Copy a cell from one grid to another.
+   * @param src the source grid
+   * @param id_cell the cell index within the source grid
+   * @param dst the destination grid
+   * @return the index of the cell in the destination grid
+   */
+  vtkIdType copyCell(vtkUnstructuredGrid* src, vtkIdType id_cell, vtkUnstructuredGrid* dst);
+
+  /**
+   * @brief Copy a cell from one grid to another and translate node indices.
+   * @param src the source grid
+   * @param id_cell the cell index within the source grid
+   * @param dst the destination grid
+   * @param src2dst a generic container containing the mapping from src to destination index
+   * @return the index of the cell in the destination grid
+   */
+  template <typename C>
+  vtkIdType copyCell(vtkUnstructuredGrid* src, vtkIdType id_cell, vtkUnstructuredGrid* dst, const C& src2dst);
+
+  /**
    * Copy "src" grid to "dst" grid. Allocate "dst" so that it fits the data of "src".
    * @param src a pointer to the source grid
    * @param dst a pointer to the destination grid
@@ -524,6 +545,15 @@ protected: // methods
   vec3_t getNormalOfCell(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face);
 
   /**
+   * Get the centre of a face of a volume cell.
+   * @param grid the unstructured grid
+   * @param id_cell the index of the cell
+   * @param i_face the index of the face within the cell
+   * @return the centre
+   */
+  vec3_t getCentreOfCellFace(vtkUnstructuredGrid *grid, vtkIdType id_cell, int i_face);
+
+  /**
    * Get an edge of a face/cell
    * @param grid the unstructured grid
    * @param id_cell the index of the cell
@@ -560,11 +590,25 @@ protected: // methods
   template <typename C>
   void sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cell1, vtkIdType id_cell2, C& cont);
 
+  /**
+   * @brief Get all nodes of a cell from a vtkUnstructuredGrid
+   * This methods collects all nodes of a cell in a generic Qt container.
+   * It can be used uniformly for VTK_POLYHEDRON cells and standard cells.
+   * @param grid the grid to use
+   * @param id_cell the cell index
+   * @param cont a generic Qt container which will hold node indices on return
+   */
+  template <typename C>
+  void getPointsOfCell(vtkUnstructuredGrid* grid, vtkIdType id_cell, C& cont);
+
   template <class C> void createPolyData(const C &x, vtkPolyData *poly_data, bool closed_loop = false);
   void createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkIdType> > &c2c);
   void createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2c);
   void createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdType> > &n2n);
   template <class C> double convexRatio(const C &x, vec3_t n_plane, bool closed_loop = false);
+
+  template <class C> void invertQContainer(C &cont);
+
 
 public: // methods
   
@@ -577,9 +621,19 @@ public: // methods
   bool saveGrid( vtkUnstructuredGrid* a_grid, QString file_name );
 
   vtkIdType addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGrid *grid_to_add, vtkIdType offset);
+
+  template <typename C>
+  void vtkIdList2QContainer(vtkIdList *id_list, C &cont);
+
+  void checkGridConsitency(vtkUnstructuredGrid *grid);
+
+  template <typename C1, typename C2>
+  void triangulatePolygon(vtkUnstructuredGrid *grid, const C1 &polygon, C2 &triangles);
   
 private:
+
   void addVtkTypeInfo(vtkUnstructuredGrid* a_grid); ///< Add VTK type information to the grid (useful for visualisation with ParaView).
+
 };
 
 //End of class EgVtkObject
@@ -607,7 +661,7 @@ void EgVtkObject::qcontIntersection(const C1& c1, const C2& c2, QVector<typename
 }
 
 template <class C>
-void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *SubGrid)
+void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstructuredGrid *sub_grid)
 {
   createIndices(grid);
   QVector<vtkIdType> cells;
@@ -615,27 +669,20 @@ void EgVtkObject::getSubGrid(vtkUnstructuredGrid *grid, const C &cls, vtkUnstruc
   cells.resize(cls.size());
   qCopy(cls.begin(), cls.end(), cells.begin());
   getNodesFromCells(cells, nodes, grid);
-  allocateGrid(SubGrid, cells.size(), nodes.size());
+  allocateGrid(sub_grid, cells.size(), nodes.size());
   vtkIdType id_new_node = 0;
   QVector<vtkIdType> old2new(grid->GetNumberOfPoints(), -1);
   foreach (vtkIdType id_node, nodes) {
     vec3_t x;
     grid->GetPoint(id_node, x.data());
-    SubGrid->GetPoints()->SetPoint(id_new_node, x.data());
+    sub_grid->GetPoints()->SetPoint(id_new_node, x.data());
     old2new[id_node] = id_new_node;
-    copyNodeData(grid, id_node, SubGrid, id_new_node);
+    copyNodeData(grid, id_node, sub_grid, id_new_node);
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
-    vtkIdType N_pts, *pts;
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vtkIdType> new_pts(N_pts);
-    for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
-      new_pts[i_pts] = old2new[pts[i_pts]];
-    };
-    vtkIdType id_new_cell = SubGrid->InsertNextCell(type_cell, N_pts, new_pts.data());
-    copyCellData(grid, id_cell, SubGrid, id_new_cell);
+    vtkIdType id_new_cell = copyCell(grid, id_cell, sub_grid, old2new);
+    copyCellData(grid, id_cell, sub_grid, id_new_cell);
   }
 }
 
@@ -660,11 +707,13 @@ void EgVtkObject::getNodesFromCells(const C& cells, QVector<vtkIdType>  &nodes, 
   QSet<vtkIdType> ex_nodes;
   vtkIdType id_cell;
   foreach(id_cell, cells) {
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    grid->GetCellPoints(id_cell, Npts, pts);
-    for (int i = 0; i < Npts; ++i) {
-      ex_nodes.insert(pts[i]);
+    QList<vtkIdType> pts;
+    getPointsOfCell(grid, id_cell, pts);
+    foreach (vtkIdType id_node, pts) {
+      if (id_node >= grid->GetNumberOfPoints()) {
+        EG_BUG;
+      }
+      ex_nodes.insert(id_node);
     }
   }
   nodes.resize(ex_nodes.size());
@@ -676,6 +725,59 @@ void EgVtkObject::getNodesFromCells(const C& cells, QVector<vtkIdType>  &nodes, 
       ++j;
     }
   }
+}
+
+inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtkUnstructuredGrid *dst)
+{
+  EG_VTKSP(vtkIdList, stream);
+  vtkIdType type_cell = src->GetCellType(id_cell);
+  vtkIdType id_new_cell = -1;
+  if (type_cell == VTK_POLYHEDRON) {
+    src->GetFaceStream(id_cell, stream);
+    int id = 1;
+    for (int i = 0; i < stream->GetId(0); ++i) {
+      int num_pts = stream->GetId(id);
+      ++id;
+      for (int j = 0; j < num_pts; ++j) {
+        ++id;
+      }
+    }
+    id_new_cell = dst->InsertNextCell(type_cell, stream);
+  } else {
+    src->GetCellPoints(id_cell, stream);
+    for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
+    }
+    id_new_cell = dst->InsertNextCell(type_cell, stream);
+  }
+  return id_new_cell;
+}
+
+template <typename C>
+vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtkUnstructuredGrid *dst, const C& src2dst)
+{
+  EG_VTKSP(vtkIdList, stream);
+  vtkIdType type_cell = src->GetCellType(id_cell);
+  vtkIdType id_new_cell = -1;
+  if (type_cell == VTK_POLYHEDRON) {
+    src->GetFaceStream(id_cell, stream);
+    int id = 1;
+    for (int i = 0; i < stream->GetId(0); ++i) {
+      int num_pts = stream->GetId(id);
+      ++id;
+      for (int j = 0; j < num_pts; ++j) {
+        stream->SetId(id, src2dst[stream->GetId(id)]);
+        ++id;
+      }
+    }
+    id_new_cell = dst->InsertNextCell(type_cell, stream);
+  } else {
+    src->GetCellPoints(id_cell, stream);
+    for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
+      stream->SetId(i, src2dst[stream->GetId(i)]);
+    }
+    id_new_cell = dst->InsertNextCell(type_cell, stream);
+  }
+  return id_new_cell;
 }
 
 template <class C>
@@ -695,17 +797,7 @@ void EgVtkObject::makeCopy(vtkUnstructuredGrid *src, vtkUnstructuredGrid *dst, c
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
-    vtkIdType N_pts, *pts;
-    vtkIdType type_cell = src->GetCellType(id_cell);
-    src->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vtkIdType> new_pts(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
-      if (old2new[pts[i]] == -1) {
-        EG_BUG;
-      }
-      new_pts[i] = old2new[pts[i]];
-    }
-    vtkIdType id_new_cell = dst->InsertNextCell(type_cell, N_pts, new_pts.data());
+    vtkIdType id_new_cell = copyCell(src, id_cell, dst, old2new);
     copyCellData(src, id_cell, dst, id_new_cell);
   }
 }
@@ -769,6 +861,109 @@ void EgVtkObject::sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cel
   }
 }
 
+template <typename C>
+void EgVtkObject::getPointsOfCell(vtkUnstructuredGrid* grid, vtkIdType id_cell, C& cont)
+{
+  cont.clear();
+  EG_VTKSP(vtkIdList, stream);
+  vtkIdType type_cell = grid->GetCellType(id_cell);
+  if (type_cell == VTK_POLYHEDRON) {
+    grid->GetFaceStream(id_cell, stream);
+    vtkIdType id = 1;
+    for (int i = 0; i < stream->GetId(0); ++i) {
+      int num_pts = stream->GetId(id++);
+      for (int j = 0; j < num_pts; ++j) {
+        cont << stream->GetId(id);
+        ++id;
+      }
+    }
+  } else {
+    grid->GetCellPoints(id_cell, stream);
+    for (vtkIdType i = 0; i < stream->GetNumberOfIds(); ++i) {
+      cont << stream->GetId(i);
+    }
+  }
+}
 
+template <typename C>
+void EgVtkObject::vtkIdList2QContainer(vtkIdList *id_list, C &cont)
+{
+  cont.clear();
+  for (int i = 0; i < id_list->GetNumberOfIds(); ++i) {
+    cont << id_list->GetId(i);
+  }
+}
+
+template <typename C1, typename C2>
+void EgVtkObject::triangulatePolygon(vtkUnstructuredGrid *grid, const C1 &polygon, C2 &triangles)
+{
+  int N = polygon.size();
+  if (N < 3) {
+    EG_BUG;
+  }
+  QVector<vtkIdType> poly(N+4);
+  for (int i = 2; i <= N+1; ++i) {
+    poly[i] = polygon[i-2];
+  }
+  poly[0]   = poly[N];
+  poly[1]   = poly[N+1];
+  poly[N+2] = poly[2];
+  poly[N+3] = poly[3];
+
+  int    i_best     = 0;
+  double best_angle = M_PI;
+
+  for (int i = 2; i <= N+1; ++i) {
+    double angle = 0;
+    vec3_t a, b, c;
+    grid->GetPoint(poly[i], a.data());
+    for (int j = 0; j <= N+1; ++j) {
+      if (j < i-1 || j > i) {
+        grid->GetPoint(poly[j],   b.data());
+        grid->GetPoint(poly[j+1], c.data());
+        angle = max(angle, GeometryTools::angle(b-a, c-a));
+        angle = max(angle, GeometryTools::angle(a-b, c-b));
+        angle = max(angle, GeometryTools::angle(a-c, b-c));
+      }
+    }
+    if (angle < best_angle) {
+      i_best = i;
+      best_angle = angle;
+    }
+  }
+  triangles.resize(N-2);
+  int i1 = 0;
+  int i2 = 1;
+  if (i1 == i_best || i1 == i_best - N) {
+    ++i1;
+    ++i2;
+  }
+  for (int i = 0; i < triangles.size(); ++i) {
+    triangles[i].resize(3);
+    if (i2 == i_best || i2 == i_best - N) {
+      i1 += 2;
+      i2 += 2;
+    }
+    triangles[i][0] = poly[i1];
+    triangles[i][1] = poly[i2];
+    triangles[i][2] = poly[i_best];
+    ++i1;
+    ++i2;
+  }
+}
+
+template <typename C>
+void EgVtkObject::invertQContainer(C &cont)
+{
+  QList<typename C::value_type> original;
+  foreach (typename C::value_type item, cont) {
+    original << item;
+  }
+  cont.clear();
+  while (original.size() > 0) {
+    cont << original.last();
+    original.pop_back();
+  }
+}
 
 #endif

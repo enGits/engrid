@@ -23,6 +23,8 @@
 
 #include "brlcadinterface.h"
 
+#ifdef BRLCAD_SUPPORT
+
 vec3_t BrlCadInterface::m_XIn;
 vec3_t BrlCadInterface::m_XOut;
 vec3_t BrlCadInterface::m_InNormal;
@@ -105,15 +107,13 @@ int BrlCadInterface::hit(application *ap, struct partition *PartHeadp, seg *segs
 
   }
   m_Hit = true;
-
-  return 1; //http://brlcad.org/xref/source/src/rt/viewedge.c#L669
+  return(0);
 }
 
 int BrlCadInterface::miss(application *ap)
 {
   m_Hit = false;
-  
-  return 0; //http://brlcad.org/xref/source/src/rt/viewedge.c#L682
+  return(0);
 }
 
 bool BrlCadInterface::brlCadShootRay(vec3_t x, vec3_t v, vec3_t &x_in, vec3_t &x_out, vec3_t &n_in, vec3_t &n_out, double &r_in, double &r_out)
@@ -206,3 +206,5 @@ BrlCadInterface::PositionType BrlCadInterface::position(vec3_t x, vec3_t n)
   return Surface;
 }
 */
+
+#endif // BRLCAD_SUPPORT

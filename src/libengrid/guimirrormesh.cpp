@@ -54,6 +54,7 @@ void GuiMirrorMesh::operate()
       new_pts[1] = pts[1];
       new_pts[2] = pts[3];
       new_pts[3] = pts[2];
+      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     } else if (cell_type == VTK_WEDGE) {
       new_pts[0] = pts[3];
       new_pts[1] = pts[4];
@@ -61,6 +62,7 @@ void GuiMirrorMesh::operate()
       new_pts[3] = pts[0];
       new_pts[4] = pts[1];
       new_pts[5] = pts[2];
+      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     } else if (cell_type == VTK_HEXAHEDRON) {
       new_pts[0] = pts[4];
       new_pts[1] = pts[5];
@@ -70,25 +72,49 @@ void GuiMirrorMesh::operate()
       new_pts[5] = pts[1];
       new_pts[6] = pts[2];
       new_pts[7] = pts[3];
+      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     } else if (cell_type == VTK_PYRAMID) {
       EG_BUG;
+    } else if (cell_type == VTK_POLYHEDRON) {
+      QVector<QVector<vtkIdType> > faces(m_Part.c2cGSize(id_cell));
+      int stream_length = 1;
+      for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
+        getFaceOfCell(m_Grid, id_cell, i, faces[i]);
+        stream_length += faces[i].size() + 1;
+      }
+      EG_VTKSP(vtkIdList, stream);
+      stream->SetNumberOfIds(stream_length);
+      vtkIdType id = 0;
+      stream->SetId(id++, faces.size());
+      foreach (QVector<vtkIdType> face, faces) {
+        stream->SetId(id++, face.size());
+        QVectorIterator<vtkIdType> j(face);
+        j.toBack();
+        while (j.hasPrevious()) {
+          stream->SetId(id++, j.previous());
+        }
+      }
+      id_new_cell = mirror_grid->InsertNextCell(VTK_POLYHEDRON, stream);
     } else {
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = pts[N_pts - i - 1];
       }
+      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     }
-    id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, mirror_grid, id_new_cell);
   }
-  MeshPartition part1(m_Grid, true);
-  MeshPartition part2(mirror_grid, true);
-  double tol = m_Ui.lineEditTolerance->text().toDouble();
-  if (m_Ui.radioButtonRelative->isChecked()) {
-    tol = -tol;
+  if (m_Ui.checkBoxKeepOriginal->isChecked()) {
+    MeshPartition mirror_part(mirror_grid, true);
+    MeshPartition part(m_Grid, true);
+    double tol = m_Ui.lineEditTolerance->text().toDouble();
+    if (m_Ui.radioButtonRelative->isChecked()) {
+      tol = -tol;
+    }
+    part.addPartition(mirror_part, tol);
+    m_Part.setAllCells();
+    eliminateDuplicateCells();
+    GuiMainWindow::pointer()->updateBoundaryCodes(false);
   }
-  part1.addPartition(part2, tol);
-  m_Part.setAllCells();
-  eliminateDuplicateCells();
-  GuiMainWindow::pointer()->updateBoundaryCodes(false);
+  makeCopy(mirror_grid, m_Grid);
 }
 

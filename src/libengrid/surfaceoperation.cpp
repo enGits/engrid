@@ -386,11 +386,10 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
   //char type = EG_SIMPLE_VERTEX;
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
-  QSet<int> bcs;
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     vtkIdType id_cell = m_Part.n2cGG(id_node, i);
 
-    // fix all vertices that are part of a volume element or a quad
+    // fix all vertices that are part of a volume element, quad, or polygon
     if (m_Grid->GetCellType(id_cell) != VTK_TRIANGLE) {
       return EG_FIXED_VERTEX;
     }
@@ -402,17 +401,31 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
       return EG_FIXED_VERTEX;
     }
 
-    bcs.insert(bc);
   }
 
-  if (bcs.size() >= 3 || bcs.size() == 0) {
+  int num_bcs = m_Part.n2bcGSize(id_node);
+  if (num_bcs >= 3 || num_bcs == 0) {
     return EG_FIXED_VERTEX;
   }
-  if (bcs.size() == 2) {
+  if (num_bcs == 2) {
+    if (m_BCodeFeatureDefinition) {
+      QList<vtkIdType> neigh;
+      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+        vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+        if (getEdgeType(id_node, id_neigh) == EG_BOUNDARY_EDGE_VERTEX) {
+          neigh << id_neigh;
+        }
+      }
+      if (neigh.size() == 2) {
+        if (M_PI - GeometryTools::angle(m_Grid, neigh[0], id_node, neigh[1]) >= m_EdgeAngle) {
+          return EG_FIXED_VERTEX;
+        }
+      }
+    }
     return EG_BOUNDARY_EDGE_VERTEX;
   }
 
-  CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(*bcs.begin(), true);
+  CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(m_Part.n2bcG(id_node,0), true);
   if (cad_interface && !m_BCodeFeatureDefinition) {
 
     vec3_t x, x0;
@@ -499,7 +512,7 @@ int SurfaceOperation::getEdgeCells(vtkIdType id_node1, vtkIdType id_node2, QVect
   }
 
   S2.intersect(S1);
-  EdgeCells = Set2Vector(S2, false);
+  EdgeCells = set2Vector(S2, false);
   return EdgeCells.size();
 }
 
