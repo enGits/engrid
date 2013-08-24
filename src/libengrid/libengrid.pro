@@ -45,7 +45,7 @@ win32-msvc* {
     LIBS        += ../../../netCDF/lib/netcdfcxx.lib
   }
 } else {
-  QMAKE_CXXFLAGS  += -Wno-deprecated
+  QMAKE_CXXFLAGS  += -Wno-deprecated -g
   INCLUDEPATH     += $(VTKINCDIR)
   brlcad {
     INCLUDEPATH += $(BRLCADINCDIR)

@@ -38,6 +38,7 @@ win32-msvc* {
     LIBS        += ../../netCDF/lib/netcdfcxx.lib
   }
 } else {
+  QMAKE_CXXFLAGS += -Wno-deprecated -g
   INCLUDEPATH     += $(VTKINCDIR)
   LIBS            += -L./netgen_svn -lng
   LIBS            += -L./libengrid -lengrid

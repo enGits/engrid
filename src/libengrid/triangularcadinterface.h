@@ -61,7 +61,7 @@ protected: // attributes
 
 protected: // methods
 
-  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool neigh_mode, bool &on_triangle);
+  void searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec3_t &x_proj, vec3_t &r_proj, bool &on_triangle);
   virtual vec3_t correctCurvature(vtkIdType proj_triangle, vec3_t x);
 
 
