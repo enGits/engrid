@@ -194,6 +194,7 @@ void TriangularCadInterface::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec
   } else {
     m_FaceFinder.getCloseFaces(xp, candidate_faces);
   }
+  candidate_faces.clear();
   if (candidate_faces.size() == 0) {
     // backup method -- really inefficient!
     candidate_faces.resize(m_Triangles.size());
