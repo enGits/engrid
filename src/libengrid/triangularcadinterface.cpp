@@ -167,6 +167,7 @@ void TriangularCadInterface::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec
   on_triangle = false;
   QVector<vtkIdType> candidate_faces;
   m_FaceFinder.getCloseFaces(xp, candidate_faces);
+  //candidate_faces.clear();
   if (candidate_faces.size() == 0) {
     // backup method -- really inefficient!
     candidate_faces.resize(m_Triangles.size());
@@ -182,7 +183,7 @@ void TriangularCadInterface::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec
     if (d >= 1e99) {
       EG_BUG;
     }
-    if (d < d_min) {
+    if (d < d_min && (intersects || !on_triangle)) {
       x_proj = xi;
       x_proj_set = true;
       r_proj = ri;
@@ -330,7 +331,7 @@ vec3_t TriangularCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correc
 
   vtkIdType proj_triangle = -1;
   if (id_node != -1) {
-    proj_triangle = getProjTriangle(id_node);
+    //proj_triangle = getProjTriangle(id_node);
   }
 
   if (proj_triangle == -1) {
