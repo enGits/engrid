@@ -114,7 +114,8 @@ void GuiMirrorMesh::operate()
     m_Part.setAllCells();
     eliminateDuplicateCells();
     GuiMainWindow::pointer()->updateBoundaryCodes(false);
+  } else {
+    makeCopy(mirror_grid, m_Grid);
   }
-  makeCopy(mirror_grid, m_Grid);
 }
 
