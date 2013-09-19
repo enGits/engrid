@@ -36,3 +36,9 @@
   RMDir "$INSTDIR\blender_scripts\2.63a"
 
   RMDir "$INSTDIR\blender_scripts"
+
+;Python module scripts
+  Delete  "$INSTDIR\pymodules\EngitsPyOcc.py"
+  Delete  "$INSTDIR\pymodules\pymged.py"
+
+  RMDir "$INSTDIR\pymodules"

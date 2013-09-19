@@ -41,3 +41,13 @@
   SetOutPath "$INSTDIR\blender_scripts\2.63a"
   File "${SRC_ROOT}\blender_scripts\2.63a\io_export_engrid.py"
   File "${SRC_ROOT}\blender_scripts\2.63a\io_import_engrid.py"
+
+;Python module scripts
+  CreateDirectory "$INSTDIR\pymodules"
+  SetOutPath "$INSTDIR\pymodules"
+  SetOverwrite try
+
+  CreateDirectory "$INSTDIR\pymodules"
+  SetOutPath "$INSTDIR\pymodules"
+  File "${SRC_ROOT}\pymodules\EngitsPyOcc.py"
+  File "${SRC_ROOT}\pymodules\pymged.py"
