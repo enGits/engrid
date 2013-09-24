@@ -47,7 +47,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   setEdgeAngle(m_EdgeAngle);
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
-  m_StrictFeatureSnap = true;
+  m_StrictFeatureSnap = !m_BCodeFeatureDefinition;
 }
 
 void SurfaceOperation::operate()
