@@ -5,15 +5,16 @@ LANGUAGE = C++
 TARGET   = engrid
 
 CONFIG += qt debug_and_release thread
-QT     += xml network opengl
+QT     += xml network opengl`
 
 win32-msvc* {
+  CONFIG += staticlib
   QMAKE_CXXFLAGS  += -W3
   DEFINES         += LIBENGRID_EXPORTS
-  DEFINES         += DLL_EXPORT
+  #DEFINES         += DLL_EXPORT
   DEFINES         += _USE_MATH_DEFINES
-  INCLUDEPATH     += ../../../VTK/include/vtk-5.10
-  LIBS            += -L../../../VTK/lib/vtk-5.10
+  INCLUDEPATH     += $(VTKINCDIR)
+  LIBS            += -L$(VTKLIBDIR)
   LIBS            += -lQVTK
   LIBS            += -lvtkCommon
   LIBS            += -lvtkDICOMParser
