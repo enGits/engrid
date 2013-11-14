@@ -57,9 +57,9 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent) {
   m_MainHost = "";
 
   QSettings *settings = GuiMainWindow::pointer()->settings();
-  m_OpenFoamPath = getenv("HOME");
-  m_OpenFoamPath += "/OpenFOAM/OpenFOAM-1.5";
-  getSet("General", "OpenFOAM path", m_OpenFoamPath, m_OpenFoamPath, 2);
+  m_SolverBinPath = getenv("HOME");
+  m_SolverBinPath += "/OpenFOAM/OpenFOAM-1.5";
+  getSet("General", "OpenFOAM path", m_SolverBinPath, m_SolverBinPath, 2);
   m_OpenFoamArch = "linux64GccDPOpt";
   getSet("General", "OpenFOAM architecture", m_OpenFoamArch, m_OpenFoamArch);
 
@@ -79,7 +79,8 @@ OpenFOAMTools::~OpenFOAMTools() {
   this->stopSolverProcess();
 }
 
-int OpenFOAMTools::getArguments() {
+int OpenFOAMTools::getArguments()
+{
   qDebug() << "int OpenFOAMTools::getArguments() called.";
 
   // resest command-line
@@ -126,7 +127,7 @@ int OpenFOAMTools::getArguments() {
     }
   }
 
-  m_SolverBinary = m_OpenFoamPath + "/applications/bin/" + m_OpenFoamArch + "/" + binary;
+  m_SolverBinary = m_SolverBinPath + "/applications/bin/" + m_OpenFoamArch + "/" + binary;
   m_StrippedSolverBinary = binary;
 
   m_WorkingDirectory = GuiMainWindow::pointer()->getXmlSection("openfoam/CaseDir");
@@ -213,7 +214,7 @@ void OpenFOAMTools::runTool(QString path, QString name, QStringList args)
   if (m_ToolsProcess->state() == QProcess::NotRunning) {
     args << "-case" << m_WorkingDirectory;
     m_Arguments_Tools = args;
-    m_Program_Tools = m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name;
+    m_Program_Tools = m_SolverBinPath + "/" + path + "/" + m_OpenFoamArch + "/" + name;
 
     m_ToolsProcess->start(m_Program_Tools, m_Arguments_Tools);
     if (m_ToolsProcess->waitForStarted()) {
@@ -235,7 +236,7 @@ void OpenFOAMTools::runDecomposePar()
     return;
   }
   this->stopSolverProcess();
-  m_Program_Solver = getBinary("applications/bin", "decomposePar");
+  m_Program_Solver = getBinary("decomposePar");
   m_Arguments_Solver << "-force";
   m_SolverProcess->start(m_Program_Solver, m_Arguments_Solver);
   if (m_SolverProcess->waitForStarted()) {
