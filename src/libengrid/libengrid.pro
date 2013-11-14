@@ -227,7 +227,9 @@ HEADERS = \
     computemeshdensity.h \
     converttopolymesh.h \
     guicreatehexshell.h \
-    guiconverttopolymesh.h
+    guiconverttopolymesh.h \
+    createhexibmesh.h \
+    guicreatehexibmesh.h
 
 
 SOURCES = \
@@ -369,7 +371,9 @@ SOURCES = \
     computemeshdensity.cpp \
     converttopolymesh.cpp \
     guicreatehexshell.cpp \
-    guiconverttopolymesh.cpp
+    guiconverttopolymesh.cpp \
+    createhexibmesh.cpp \
+    guicreatehexibmesh.cpp
 
 
 FORMS = \
@@ -398,5 +402,6 @@ FORMS = \
     guitransform.ui \
     guifillplane.ui \
     guicreatehexshell.ui \
-    guiconverttopolymesh.ui
+    guiconverttopolymesh.ui \
+    guicreatehexibmesh.ui
 

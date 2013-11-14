@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,58 +19,9 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-
-#include "guicreatesurfacemesh.h"
-#include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
-#include "guidivideboundarylayer.h"
-#include "guisetboundarycode.h"
-#include "guideletebadaspecttris.h"
-#include "guipick.h"
-#include "guimergevolumes.h"
-#include "guimirrormesh.h"
-#include "guicreatehexcore.h"
-#include "guiconverttopolymesh.h"
+//
 #include "guicreatehexibmesh.h"
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
-#include "gridsmoother.h"
-#include "foamreader.h"
-#include "vtkreader.h"
-#include "polydatareader.h"
-#include "foamwriter.h"
-#include "simplefoamwriter.h"
-#include "deletepickedcell.h"
-#include "deletepickedpoint.h"
-#include "mergenodes.h"
-#include "boxselect.h"
-#include "fixstl.h"
-#include "cgnswriter.h"
-#include "updatesurfproj.h"
-#include "surfacemesher.h"
-#include "updatedesiredmeshdensity.h"
-#include "reducedpolydatareader.h"
-#include "surfacemesher.h"
-#include "reducesurfacetriangulation.h"
-#include "eliminatesmallbranches.h"
-#include "smoothandswapsurface.h"
-#include "removepoints.h"
-#include "insertpoints.h"
-#include "seligairfoilreader.h"
-#include "blenderreader.h"
-#include "blenderwriter.h"
-#include "checkforoverlap.h"
-#include "guisurfacemesher.h"
-#include "brlcadreader.h"
-#include "su2writer.h"
-#include "dolfynwriter.h"
-#include "tauwriter.h"
-#include "guifillplane.h"
-#include "drnumwriter.h"
-#include "converttopolymesh.h"
-#include "guicreatehexshell.h"
-
-// -------------------------------------------
+GuiCreateHexIbMesh::GuiCreateHexIbMesh()
+{
+}
