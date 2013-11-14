@@ -57,11 +57,9 @@ class OpenFOAMTools : public QObject, public EgVtkObject, public FoamObject {
 
   private: // methods
 
-    void    writeMpiParameters();
     int     getArguments();
     void    runTool(QString path, QString name, QStringList args = QStringList());
-    QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; };
-    void    runFOO(QString path, QString name, QStringList args = QStringList());
+    QString getBinary(QString path, QString name) { return m_OpenFoamPath + "/" + path + "/" + m_OpenFoamArch + "/" + name; }
 
   public:
 

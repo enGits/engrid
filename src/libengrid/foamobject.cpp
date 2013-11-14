@@ -30,6 +30,7 @@ FoamObject::FoamObject()
 {
   m_CaseDir = "";
   m_BufferedFileName = "";
+  m_FoamVersion = "1.5";
 }
 
 int FoamObject::deleteBetween(int i, QString str1, QString str2)

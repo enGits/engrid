@@ -59,3 +59,22 @@ files :
   constant/RASProperties,
   system/fvSchemes,
   system/fvSolution;
+=
+title : standard simpleFoam 2.1;
+section : openfoam-2.1/simpleFoam/standard;
+binary: simpleFoam;
+files :
+  system/controlDict,
+  0/U,
+  0/p,
+  0/k,
+  0/epsilon,
+  0/omega,
+  constant/transportProperties,
+  constant/RASProperties,
+  constant/turbulenceProperties,
+  system/fvSchemes,
+  system/fvSolution,
+  system/decomposeParDict,
+  machines;
+

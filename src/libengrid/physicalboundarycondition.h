@@ -57,12 +57,13 @@ public: // methods
   QString getVarName(int i)  { return m_VarNames[i]; }
   int     getNumVars()       { return m_VarValues.size(); }
 
-  QString getFoamP();
-  QString getFoamU(vec3_t n);
-  QString getFoamK();
-  QString getFoamEpsilon();
-  QString getFoamOmega();
-  QString getFoamT();
+  QString getFoamP(QString version);
+  QString getFoamU(QString version, vec3_t n);
+  QString getFoamK(QString version);
+  QString getFoamEpsilon(QString version);
+  QString getFoamOmega(QString version);
+  QString getFoamT(QString version);
+  QString getFoamNut(QString version);
 
   QString getFoamType();
 

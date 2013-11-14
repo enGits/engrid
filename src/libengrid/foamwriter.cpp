@@ -33,6 +33,7 @@ FoamWriter::FoamWriter()
   setFormat("Foam boundary files(boundary)");
   setExtension("");
   m_CreateCellZones = false;//true;
+  m_NoDialog = true;
 }
 
 void FoamWriter::writePoints(const PolyMesh &poly)
@@ -317,10 +318,22 @@ PolyMesh* FoamWriter::createSinglePolyMesh()
 
 void FoamWriter::writeSingleVolume()
 {
-  try {
+  bool is_valid = false;
+  QString file_name;
+  if (!m_NoDialog) {
     readOutputDirectory();
     if (isValid()) {
-      QString p1 = getFileName();
+      is_valid = true;
+      file_name = getFileName();
+    }
+  } else {
+    is_valid = true;
+    file_name = m_FixedFileName;
+  }
+
+  if (is_valid) {
+    try {
+      QString p1 = file_name;
       QString p2 = p1 + "/constant";
       QDir d1(p1);
       QDir d2(p2);
@@ -338,7 +351,7 @@ void FoamWriter::writeSingleVolume()
       if (!d2.exists()) {
         d1.mkdir("polyMesh");
       }
-      m_Path = getFileName() + "/constant/polyMesh/";
+      m_Path = file_name + "/constant/polyMesh/";
       if (!QDir(m_Path).exists()) {
         EG_BUG;
       }
@@ -352,9 +365,9 @@ void FoamWriter::writeSingleVolume()
         writeCellZones();
       }
       delete poly;
+    } catch (Error err) {
+      err.display();
     }
-  } catch (Error err) {
-    err.display();
   }
 }
 
@@ -378,11 +391,23 @@ QString FoamWriter::getNeighbourName(int bc)
 
 void FoamWriter::writeMultipleVolumes()
 {
-  try {
+  bool is_valid = false;
+  QString file_name;
+  if (!m_NoDialog) {
     readOutputDirectory();
     if (isValid()) {
+      is_valid = true;
+      file_name = getFileName();
+    }
+  } else {
+    is_valid = true;
+    file_name = m_FixedFileName;
+  }
+
+  if (is_valid) {
+    try {
       QList<VolumeDefinition> vols = mainWindow()->getAllVols();
-      QString p1 = getFileName();
+      QString p1 = file_name;
       QString p2 = p1 + "/constant";
       QDir d1(p1);
       QDir d2(p2);
@@ -421,7 +446,7 @@ void FoamWriter::writeMultipleVolumes()
         if (!d4.exists()) {
           d3.mkdir("polyMesh");
         }
-        m_Path = getFileName() + "/constant/" + vol.getName() + "/polyMesh/";
+        m_Path = file_name + "/constant/" + vol.getName() + "/polyMesh/";
         if (!QDir(m_Path).exists()) {
           EG_BUG;
         }
@@ -436,10 +461,9 @@ void FoamWriter::writeMultipleVolumes()
         writeNeighbour(poly);
         writeBoundary(poly);
       }
+    } catch (Error err) {
+      err.display();
     }
-
-  } catch (Error err) {
-    err.display();
   }
 }
 
@@ -450,4 +474,10 @@ void FoamWriter::operate()
   } else {
     writeMultipleVolumes();
   }
+}
+
+void FoamWriter::setFixedFileName(QString file_name)
+{
+  m_NoDialog = true;
+  m_FixedFileName = file_name;
 }
