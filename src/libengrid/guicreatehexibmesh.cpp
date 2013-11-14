@@ -25,3 +25,13 @@
 GuiCreateHexIbMesh::GuiCreateHexIbMesh()
 {
 }
+
+void GuiCreateHexIbMesh::before()
+{
+
+}
+
+void GuiCreateHexIbMesh::operate()
+{
+
+}
