@@ -173,30 +173,19 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     int           m_CurrentOperation;     ///< The current operation number. (used for undo/redo)
     bool          m_undo_redo_enabled;    ///< if true, undo/redo operations will be usable.
     int           m_LastOperation;        ///< The last operation number. (used for undo/redo)
-    QString       m_LogDir;               ///< the log directory
     QLabel*       m_StatusLabel;          ///< Label for the information in the status bar
     QLabel*       m_StatusInfoLabel;
     QProgressBar* m_StatusProgressBar;
     QSet<int>     m_DisplayBoundaryCodes; ///< A QList with all active boundary codes.
     QSet<int>     m_AllBoundaryCodes;     ///< A QList with all boundary codes.
     bool          m_Busy;                 ///< flag to indicate that enGrid is busy with an operation
-    QString       m_LogFileName;          ///< log file to collect program output for display in the output window
-    long int      m_N_chars;              ///< number of lines that have been read from the log file
-#if defined( __linux__ ) //for Linux
-    int           m_SystemStdout;
-    int           m_LogFileStdout;
-    fpos_t m_SystemStdout_pos;
-    fpos_t m_LogFileStdout_pos;
-#elif defined( _WIN32 ) //for Windows
-    //Windows always uses CON
-    FILE*        m_SystemStdout;
-    FILE*        m_LogFileStdout;
-#else
-  #error "Please define the proper way to save/recover the stdout."
-#endif
 
-    QTimer       m_GarbageTimer;
-    QTimer       m_LogTimer;
+    stringbuf     m_CoutBuffer;
+    streambuf    *m_OriginalCoutBuffer;
+
+    QTimer        m_GarbageTimer;
+    QTimer        m_LogTimer;
+    bool          m_Log;
 
     QMap<int, BoundaryCondition>    m_bcmap;       ///< mapping between numerical and symbolic boundary codes
     QMap<QString, VolumeDefinition> m_VolMap;      ///< all volume definitions
@@ -320,9 +309,6 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setBusy() { m_Busy = true; updateStatusBar(); }
     void setIdle() { m_Busy = false; updateStatusBar(); }
 
-    /// Returns log directory
-    QString getLogDir() { return m_LogDir; }
-
     /// Returns the path to the currently loaded file
     QString getFilePath();
 
@@ -404,9 +390,6 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setUniversalCadInterface(CadInterface* cad_interface);
     bool checkCadInterfaces();
 
-    void setSystemOutput();
-    void setLogFileOutput();
-
     void resetProgress(QString info_text, int p_max);
     void setProgress(int p);
 
@@ -481,6 +464,9 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void storeCadInterfaces(bool nosave = false);
     void resetCadInterfaces();
+
+    void logOn() { m_CoutBuffer.str(""); m_Log = true; }
+    void logOff() { m_Log = false; }
 
     // SLOTS for all standard operations should be defined below;
     // entries should look like this:

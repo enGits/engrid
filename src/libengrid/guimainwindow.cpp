@@ -152,50 +152,9 @@ void GuiMainWindow::setupGuiMainWindow()
   m_StatusLabel->setText(txt);
   ui.label_node_cell_info->setText(txt);
 
-#ifdef WIN32
-  QString user = QString(getenv("USERNAME"));
-#else
-  QString user = QString(getenv("USER"));
-#endif // WIN32
-  QString basename="enGrid_output.txt";
-
-  // define temporary path
-  QDir dir("/");
-  if (m_qset.contains("tmp_directory")) {
-    m_LogDir = m_qset.value("tmp_directory").toString();
-  } else {
-    m_LogDir = dir.tempPath();
-  }
-  QDateTime now = QDateTime::currentDateTime();
-  m_LogDir = m_LogDir + "/" + "enGrid_" + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz") + "/";
-  dir.mkpath(m_LogDir);
-
-  m_LogFileName = m_LogDir + basename;
-  cout << "m_LogFileName = " << qPrintable(m_LogFileName) << endl;
-
-#if defined( __linux__ ) //for Linux
-  //Sources for POSIX redirection:
-  //   http://c-faq.com/stdio/undofreopen.html
-  //   http://stackoverflow.com/questions/4832603/how-could-i-temporary-redirect-stdout-to-a-file-in-a-c-program
-
-  fflush(stdout);
-  fgetpos(stdout, &m_SystemStdout_pos);
-  m_SystemStdout = dup(fileno(stdout)); //backup a duplicate of the stdout
-  if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
-    EG_BUG;
-  }
-  m_LogFileStdout = dup(fileno(stdout)); //backup a duplicate of the log_out
-
-#elif defined( _WIN32 ) //for Windows
-  m_SystemStdout = stdout;
-  if (freopen (qPrintable(m_LogFileName), "w", stdout)==NULL) {
-    EG_BUG;
-  }
-  m_LogFileStdout = stdout;
-
-#else
-  #error "Please define the proper way to save the stdout."
-#endif
+  m_OriginalCoutBuffer = cout.rdbuf();
+  cout.rdbuf(&m_CoutBuffer);
+  m_Log = true;
 
   m_Busy = false;
 
@@ -210,8 +169,6 @@ void GuiMainWindow::setupGuiMainWindow()
 
   connect(&m_LogTimer, SIGNAL(timeout()), this, SLOT(updateOutput()));
   m_LogTimer.start(1000);
-
-  m_N_chars = 0;
 
   bool exp_features=false;
   getSet("General","enable experimental features",false,exp_features);
@@ -297,35 +254,9 @@ GuiMainWindow::~GuiMainWindow()
   m_qset.setValue("GuiMainWindow", this->geometry());
   m_qset.setValue("dockWidget_states", this->saveState());
 
-#ifndef QT_DEBUG
-  setSystemOutput(); //close the output to the log file 
-  QDirIterator it(m_LogDir);
-  while (it.hasNext()) {
-    QString str = it.next();
-    QFileInfo fileinfo(str);
-    if(fileinfo.isFile()) {
-      QFile file(str);
-      if(!file.remove()) {
-        setLogFileOutput(); //reinstate the connection to the log file 
-        qDebug() << "Failed to remove " << file.fileName();
-      }
-    }
-  }
-  QDir dir(m_LogDir);
-  dir.rmdir(m_LogDir);
-#endif
+  cout.rdbuf(m_OriginalCoutBuffer);
 
   delete m_XmlHandler;
-
-#if defined( __linux__ ) //for Linux
-  ::close(m_SystemStdout); //close this duplicate
-  ::close(m_LogFileStdout); //close this duplicate
-
-#elif defined( _WIN32 ) //for Windows
-  //Nothing to do so far
-#else
-  #error "Please define the proper way to close the saved stdouts."
-#endif
 }
 
 void GuiMainWindow::setupVtk()
@@ -334,7 +265,7 @@ void GuiMainWindow::setupVtk()
 // avoid VTK pop-up window on Windows
 #ifdef WIN32
   vtkFileOutputWindow *w = vtkFileOutputWindow::New();
-  QString vtk_log_file = m_LogDir + "/enGrid-vtk-errors.txt";
+  QString vtk_log_file = m_qset.value("tmp_directory").toString() + "/enGrid-vtk-errors.txt";
   w->SetFileName(qPrintable(vtk_log_file));
   vtkOutputWindow::SetInstance(w);
   w->Delete();
@@ -536,17 +467,15 @@ void GuiMainWindow::setupVtk()
 
 void GuiMainWindow::updateOutput()
 {
-  QFile log_file(m_LogFileName);
-  log_file.open(QIODevice::ReadOnly);
-  QByteArray buffer = log_file.readAll();
-  if (buffer.size() > m_N_chars) {
-    QByteArray newchars = buffer.right(buffer.size() - m_N_chars);
-    m_N_chars = buffer.size();
-    QString txt(newchars);
+  if (m_Log) {
+    QString txt = m_CoutBuffer.str().c_str();
+    m_CoutBuffer.str("");
     if (txt.right(1) == "\n") {
       txt = txt.left(txt.size()-1);
     }
-    ui.textEditOutput->append(txt);
+    if (txt.size() > 0) {
+      ui.textEditOutput->append(txt);
+    }
   }
 }
 
@@ -1042,7 +971,7 @@ int GuiMainWindow::quickSave()
     {
       m_CurrentOperation++;
       QFileInfo fileinfo(m_CurrentFilename);
-      QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(m_CurrentOperation);
+      QString l_filename = m_qset.value("tmp_directory").toString() + fileinfo.completeBaseName() + "_" + QString("%1").arg(m_CurrentOperation);
       m_LastOperation=m_CurrentOperation;
       cout<<"Operation "<<m_CurrentOperation<<endl;
       saveAs(l_filename, false);
@@ -1060,7 +989,7 @@ void GuiMainWindow::quickLoad(int a_operation)
   ///\todo add RAM support
   if(m_undo_redo_enabled) {
     QFileInfo fileinfo(m_CurrentFilename);
-    QString l_filename = m_LogDir + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".egc";
+    QString l_filename = m_qset.value("tmp_directory").toString() + fileinfo.completeBaseName() + "_" + QString("%1").arg(a_operation) + ".egc";
     open(l_filename, false);
   }
 }
@@ -1236,15 +1165,9 @@ void GuiMainWindow::openGrid(QString file_name)
 ///\todo I think this should also be a done by a subclass of IOOperation just like for import operations
 void GuiMainWindow::open()
 {
-  QFileDialog dialog(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
-  QFileInfo file_info(m_CurrentFilename);
-  dialog.selectFile(file_info.completeBaseName() + ".egc");
-  if (dialog.exec()) {
-    QStringList selected_files = dialog.selectedFiles();
-    QString file_name = selected_files[0];
-    if (!file_name.isNull()) {
-      this->open(file_name);
-    }
+  QString file_name = QFileDialog::getOpenFileName(NULL, "open grid from file", getCwd(), "enGrid case files (*.egc *.EGC);; legacy grid files(*.vtu *.VTU)");
+  if (!file_name.isNull()) {
+    this->open(file_name);
   }
 }
 
@@ -2186,51 +2109,6 @@ bool GuiMainWindow::checkCadInterfaces()
   }
   return ok;
 }
-
-void GuiMainWindow::setSystemOutput()
-{
-#if defined( __linux__ ) //for Linux
-
-  if(m_SystemStdout != fileno(stdout))
-  {
-    fflush(stdout);
-    fgetpos(stdout, &m_LogFileStdout_pos); //store current position
-    dup2(m_SystemStdout, fileno(stdout)); //reassign the original stdout to stdout
-    clearerr(stdout);
-    fsetpos(stdout, &m_SystemStdout_pos);        /* for C9X */
-  }
-
-#elif defined( _WIN32 ) //for Windows
-
-  freopen("CON","a",m_SystemStdout);
-
-#else
-  #error "Please define the proper way to recover the stdout."
-#endif
-}
-
-void GuiMainWindow::setLogFileOutput()
-{
-#if defined( __linux__ ) //for Linux
-
-  if(m_SystemStdout != fileno(stdout))
-  {
-    fflush(stdout);
-    fgetpos(stdout, &m_SystemStdout_pos); //store current position
-    dup2(m_LogFileStdout, fileno(stdout)); //reassign the log_out to stdout
-    clearerr(stdout);
-    fsetpos(stdout, &m_LogFileStdout_pos);        /* for C9X */
-  }
-
-#elif defined( _WIN32 ) //for Windows
-
-  freopen(qPrintable(m_LogFileName),"a",m_LogFileStdout);
-
-#else
-  #error "Please define the proper way to recover the stdout."
-#endif
-}
-
 
 void GuiMainWindow::openRecent(QAction *action)
 {
