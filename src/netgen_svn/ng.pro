@@ -23,6 +23,7 @@ win32 {
 
 win32-msvc* {
     DEFINES += MSVC_EXPRESS
+    CONFIG += staticlib
 }
 
 win32-g++* {
