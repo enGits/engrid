@@ -220,6 +220,10 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
       bc_name = "BC_" + bc_name.rightJustified(4, '0');
     }
     QString bc_type = BC.getType();
+    if (GuiMainWindow::pointer()->physicalTypeDefined(bc_type)) {
+      PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(bc_type);
+      bc_type = PBC.getFoamType();
+    }
     if (hasNeighbour(bc)) {
       bc_type = "mappedWall";
     }
