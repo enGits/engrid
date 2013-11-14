@@ -208,6 +208,9 @@ void OpenFOAMcase::operate()
       }
       setFixedFileName(getFileName());
       FoamWriter::operate();
+      QFileInfo file_info(getFileName());
+      QFile file(getFileName() + "/" + file_info.baseName() + ".foam");
+      file.open(QIODevice::WriteOnly);
       writeBoundaryConditions();
     }
   }
