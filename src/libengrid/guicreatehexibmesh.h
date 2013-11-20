@@ -25,11 +25,14 @@
 
 #include "dialogoperation.h"
 #include "ui_guicreatehexibmesh.h"
+#include "createhexibmesh.h"
 
 class GuiCreateHexIbMesh : public DialogOperation<Ui::GuiCreateHexIbMesh, Operation>
 {
 
   Q_OBJECT
+
+  CreateHexIbMesh m_CreateMesh;
 
 protected: // methods
 

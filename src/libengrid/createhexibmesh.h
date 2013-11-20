@@ -26,18 +26,44 @@
 class CreateHexIbMesh;
 
 #include "operation.h"
+#include "octree.h"
+#include "edgelengthsourcemanager.h"
 
-class CreateHexIbMesh
+class CreateHexIbMesh : public Operation
 {
+
+  int                        m_MinDim;
+  double                     m_MinSize;
+  Octree                     m_Octree;
+  QVector<QList<vtkIdType> > m_Faces;
+  QVector<double>            m_MeshSize;
+  int                        m_MinNumLayersWithRequiredResolution;
+  vec3_t                     m_InsidePosition;
+  EdgeLengthSourceManager    m_ELSManager;
+  double                     m_GrowthFactor;
+  double                     m_MinEdgeLength;
+  double                     m_MaxEdgeLength;
+
 
 protected: // methods
 
+  int    refine();
+  void   updateMeshSize();
+  double meshSize(vtkIdType id_face);
+  double meshSize(const QList<vtkIdType> &faces);
+  void   findInsideCells(MeshPartition &part, QList<vtkIdType> &inside_cells);
+
   virtual void operate();
+
+  QString bigIntText(long long N);
 
 
 public:
 
   CreateHexIbMesh();
+  void setMinNumLayersWithRequiredResolution(int N) { m_MinNumLayersWithRequiredResolution = N; }
+  void setMinDim(int N) { m_MinDim = N; }
+  void setInsidePosition(vec3_t x) { m_InsidePosition = x; }
 
 };
 

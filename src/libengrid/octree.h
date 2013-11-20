@@ -169,7 +169,8 @@ public: // methods
   void setBase(vec3_t g1, vec3_t g2, vec3_t g3);
   void setBounds(vec3_t corner1, vec3_t corner2, int num_i = 1, int num_j = 1, int num_k = 1);
 
-  //int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
+  int  getNeighbour(int cell, int neigh) { return m_Cells[cell].m_Neighbour[neigh]; }
+  void getFinestChildren(int cell, QList<int> &finest_children);
 
   void markToRefine(int cell);
   void markAllToRefine();
@@ -197,7 +198,7 @@ public: // methods
   bool   hasChildren(int i_cells) { return m_Cells[i_cells].m_Child[0] != -1; }
   int    getParent(int cell) { return m_Cells[cell].m_Parent; }
   int    findCell(vec3_t x);
-  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol = 1e-4);
+  bool   intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double scale, double &k, double tol = 1e-4);
   void   setMaxCells(int n) { m_MaxCells = n; }
   bool   isInsideBounds(vec3_t x);
   bool   isInsideCell(int cell, vec3_t x, double overlap = 0);
@@ -224,6 +225,14 @@ public: // methods
     * @param create_fields if this is set to true, the basic enGrid fields will be created
     */
   void toVtkGridPolyhedral(vtkUnstructuredGrid *grid, bool create_fields = false);
+
+  /**
+   * @brief Check if a triangle intersects a cell.
+   * @param cell the index of the octree cell
+   * @param tri the nodes of the triangle
+   * @return true if the triangle intersects the cell
+   */
+  bool triangleIntersectsCell(int cell, QVector<vec3_t> tri, double scale);
 
 };
 

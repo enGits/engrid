@@ -427,7 +427,7 @@ protected: // methods
    * @param dst the destination grid
    * @return the index of the cell in the destination grid
    */
-  vtkIdType copyCell(vtkUnstructuredGrid* src, vtkIdType id_cell, vtkUnstructuredGrid* dst);
+  vtkIdType copyCell(vtkUnstructuredGrid* src, vtkIdType id_cell, vtkUnstructuredGrid* dst, vtkIdType offset = 0);
 
   /**
    * @brief Copy a cell from one grid to another and translate node indices.
@@ -727,7 +727,7 @@ void EgVtkObject::getNodesFromCells(const C& cells, QVector<vtkIdType>  &nodes, 
   }
 }
 
-inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtkUnstructuredGrid *dst)
+inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtkUnstructuredGrid *dst, vtkIdType offset)
 {
   EG_VTKSP(vtkIdList, stream);
   vtkIdType type_cell = src->GetCellType(id_cell);
@@ -739,6 +739,7 @@ inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_ce
       int num_pts = stream->GetId(id);
       ++id;
       for (int j = 0; j < num_pts; ++j) {
+        stream->SetId(id, stream->GetId(id) + offset);
         ++id;
       }
     }
@@ -746,6 +747,7 @@ inline vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_ce
   } else {
     src->GetCellPoints(id_cell, stream);
     for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
+      stream->SetId(i, stream->GetId(i) + offset);
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);
   }

@@ -259,6 +259,34 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
   computeFeature(points, cl_pre, m_FeatureResolution3D, 1);
 }
 
+void UpdateDesiredMeshDensity::readSettings()
+{
+  readVMD();
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
+  QTextStream in(&buffer, QIODevice::ReadOnly);
+  in >> m_MaxEdgeLength;
+  in >> m_MinEdgeLength;
+  in >> m_GrowthFactor;
+  in >> m_NodesPerQuarterCircle;
+  int num_bcs;
+  in >> num_bcs;
+  QVector<int> tmp_bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
+  m_BoundaryCodes.clear();
+  if (num_bcs == tmp_bcs.size()) {
+    foreach (int bc, tmp_bcs) {
+      int check_state;
+      in >> check_state;
+      if (check_state == 1) {
+        m_BoundaryCodes.insert(bc);
+      }
+    }
+  }
+  if (!in.atEnd()) {
+    in >> m_FeatureResolution2D;
+    in >> m_FeatureResolution3D;
+  }
+}
 
 void UpdateDesiredMeshDensity::operate()
 {

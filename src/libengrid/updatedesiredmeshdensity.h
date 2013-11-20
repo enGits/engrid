@@ -48,7 +48,6 @@ private: //attributes
 
   QSet<int>                   m_BCs;
   double                      m_GrowthFactor;
-  QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
   double                      m_MaxEdgeLength;
   double                      m_MinEdgeLength;
   double                      m_NodesPerQuarterCircle;
@@ -73,6 +72,8 @@ public: //methods
 
   UpdateDesiredMeshDensity();
   virtual void operate();
+
+  void readSettings();
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
   void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
   void setMinEdgeLength(double l) { m_MinEdgeLength = l; }

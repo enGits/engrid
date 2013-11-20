@@ -33,5 +33,7 @@ void GuiCreateHexIbMesh::before()
 
 void GuiCreateHexIbMesh::operate()
 {
-
+  m_CreateMesh.setMinNumLayersWithRequiredResolution(m_Ui.m_SpinBoxMinNumLayers->value());
+  m_CreateMesh.setMinDim(m_Ui.m_SpinBoxMinDim->value());
+  m_CreateMesh();
 }
