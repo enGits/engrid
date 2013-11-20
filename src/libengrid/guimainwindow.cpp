@@ -2293,3 +2293,18 @@ void GuiMainWindow::setProgress(int p)
     QApplication::processEvents();
   }
 }
+
+void GuiMainWindow::lock()
+{
+  m_Mutex.lock();
+}
+
+void GuiMainWindow::unlock()
+{
+  m_Mutex.unlock();
+}
+
+bool GuiMainWindow::tryLock()
+{
+  return m_Mutex.tryLock();
+}

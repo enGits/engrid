@@ -367,13 +367,13 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QList<PhysicalBoundaryCondition> getAllPhysicalBoundaryConditions();
     void setAllPhysicalBoundaryConditions (QList<PhysicalBoundaryCondition> physical_boundary_conditions);
     void setAllPhysicalBoundaryConditions (QMap<QString, PhysicalBoundaryCondition> physical_boundary_conditions);
-    bool physicalTypeDefined(QString name) { return m_PhysicalBoundaryConditionsMap.contains(name); };
+    bool physicalTypeDefined(QString name) { return m_PhysicalBoundaryConditionsMap.contains(name); }
     PhysicalBoundaryCondition getPhysicalBoundaryCondition(QString name) { return m_PhysicalBoundaryConditionsMap[name]; }
 
     static GuiMainWindow* pointer() { return THIS; }
-    static void lock() { m_Mutex.lock(); }
-    static void unlock() { m_Mutex.unlock(); }
-    static bool tryLock() { return m_Mutex.tryLock(); }
+    static void lock();
+    static void unlock();
+    static bool tryLock();
     void getAllBoundaryCodes(QVector<int> &bcs);
     QSet<int> getAllBoundaryCodes();
     void getDisplayBoundaryCodes(QSet<int> &bcs);
