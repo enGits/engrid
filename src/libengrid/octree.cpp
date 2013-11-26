@@ -820,6 +820,7 @@ int Octree::refineAll()
 
   m_ToRefine.fill(false, m_Cells.size());
   mergeNodes();
+  buildNode2Cell();
   return Nrefine;
 }
 
@@ -1402,7 +1403,7 @@ bool Octree::triangleIntersectsCell(int cell, QVector<vec3_t> tri, double scale)
 
   // any node inside cell?
   foreach (vec3_t x, tri) {
-    if (isInsideCell(cell, x)) {
+    if (isInsideCell(cell, x, (scale - 1))) {
       return true;
     }
   }
@@ -1447,5 +1448,22 @@ void Octree::getFinestChildren(int cell, QList<int> &finest_children)
     }
   } else {
     finest_children << cell;
+  }
+}
+
+void Octree::getNeighbourRegion(int cell, QList<int> &neighbour_cells)
+{
+  QSet<int> cells;
+  for (int i = 0; i < 8; ++i) {
+    int node = getNode(cell, i);
+    for (int j = 0; j < m_Node2Cell[node].size(); ++j) {
+      int cell = m_Node2Cell[node][j];
+      if (!hasChildren(cell)) {
+        cells.insert(cell);
+      }
+    }
+  }
+  foreach (int cell, cells) {
+    neighbour_cells.append(cell);
   }
 }

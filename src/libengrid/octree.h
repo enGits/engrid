@@ -234,6 +234,13 @@ public: // methods
    */
   bool triangleIntersectsCell(int cell, QVector<vec3_t> tri, double scale);
 
+  /**
+   * @brief get all cells which share at least one node with the current cell (and have no children)
+   * @param cell the index of the octree cell
+   * @param neighbour_cells a list which the neighbour cells will be added to
+   */
+  void getNeighbourRegion(int cell, QList<int> &neighbour_cells);
+
 };
 
 

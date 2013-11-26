@@ -38,9 +38,8 @@ double CreateHexIbMesh::meshSize(vtkIdType id_face)
   m_Grid->GetCellPoints(id_face, num_pts, pts);
   double h = 0;
   for (int i = 0; i < 3; ++i) {
-    h += cl->GetValue(pts[i]);
+    h = max(h,cl->GetValue(pts[i]));
   }
-  h /= 3.0;
   return h;
 }
 
@@ -61,7 +60,7 @@ QString CreateHexIbMesh::bigIntText(long long int N)
 
 double CreateHexIbMesh::meshSize(const QList<vtkIdType> &faces)
 {
-  double mesh_size = 1e99;
+  double mesh_size = m_MaxEdgeLength;
   foreach (vtkIdType id_face, faces) {
     mesh_size = min(meshSize(id_face), mesh_size);
   }
@@ -84,7 +83,7 @@ int CreateHexIbMesh::refine()
   }
   m_Octree.refineAll();
   m_Faces.insert(old_num_cells, m_Octree.getNumCells() - old_num_cells, QList<vtkIdType>());
-  m_MeshSize.insert(old_num_cells, m_Octree.getNumCells() - old_num_cells, 1e99);
+  m_MeshSize.insert(old_num_cells, m_Octree.getNumCells() - old_num_cells, m_MaxEdgeLength);
   for (int cell = old_num_cells; cell < m_Octree.getNumCells(); ++cell) {
     foreach (vtkIdType id_face, m_Faces[m_Octree.getParent(cell)]) {
       vtkIdType *pts, num_pts;
@@ -99,16 +98,17 @@ int CreateHexIbMesh::refine()
 
       // compute scale factor to make sure that we have the required minimal number of layers
       double H = max(m_Octree.getDx(cell), max(m_Octree.getDy(cell), m_Octree.getDz(cell)));
-      double h = m_MinNumLayersWithRequiredResolution*meshSize(id_face);
-      double scale = 1.0 + h/H;
-
+      double h = meshSize(id_face)*m_MinNumLayersWithRequiredResolution;
+      double scale = 1.0;
+      if (h < H) {
+        scale += h/H;
+      }
       if (m_Octree.triangleIntersectsCell(cell, tri, scale)) {
         m_Faces[cell].append(id_face);
       }
     }
-    m_MeshSize[cell] = meshSize(m_Faces[cell]);
+    m_MeshSize[cell] = min(meshSize(m_Faces[cell]), m_ELSManager.minEdgeLength(m_Octree.getCellCentre(cell)));
   }
-  updateMeshSize();
   int num_supercells = 0;
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     if (!m_Octree.hasChildren(cell)) {
@@ -121,44 +121,20 @@ int CreateHexIbMesh::refine()
 
 void CreateHexIbMesh::updateMeshSize()
 {
-  QList<int> layer_cells;
-  double h_min = 1e99;
+  // find smallest cell size (on highest level)
+  double H = 1e99;
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     if (!m_Octree.hasChildren(cell)) {
-      h_min = min(h_min, m_MeshSize[cell]);
+      double l = m_Octree.getLevel(cell);
+      H = min(H, m_MeshSize[cell]*pow(2.0, l));
     }
   }
+
+  // set discrete cell size according to highest level
   for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
     if (!m_Octree.hasChildren(cell)) {
-      if (m_MeshSize[cell] < 1.001*h_min) {
-        layer_cells << cell;
-      }
-    }
-  }
-  while (layer_cells.size() > 0) {
-    QList<int> new_layer_cells;
-    foreach (int cell, layer_cells) {
-      double h = m_GrowthFactor*m_MeshSize[cell];
-      QList<int> neighbour_cells;
-      for (int i = 0; i < 6; ++i) {
-        int neighbour_cell = m_Octree.getNeighbour(cell, i);
-        if (neighbour_cell >= 0) {
-          m_Octree.getFinestChildren(neighbour_cell, neighbour_cells);
-        }
-      }
-      foreach (int neighbour_cell, neighbour_cells) {
-        if (m_MeshSize[neighbour_cell] > 1.001*h) {
-          new_layer_cells << neighbour_cell;
-          m_MeshSize[neighbour_cell] = h;
-        }
-      }
-    }
-    layer_cells = new_layer_cells;
-  }
-  double h_max = 0;
-  for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
-    if (!m_Octree.hasChildren(cell)) {
-      h_max = max(h_max, m_MeshSize[cell]);
+      double l = m_Octree.getLevel(cell);
+      m_MeshSize[cell] = H/pow(2.0, l);
     }
   }
 }
@@ -167,6 +143,24 @@ void CreateHexIbMesh::findInsideCells(MeshPartition &part, QList<vtkIdType> &ins
 {
   vtkUnstructuredGrid *grid = part.getGrid();
   QVector<bool> is_inside(grid->GetNumberOfCells(), false);
+
+  // recompute faces for cells with no children with a minimal scale factor
+  for (int cell = 0; cell < m_Octree.getNumCells(); ++cell) {
+    if (m_Octree.getLevel(cell) > 0 && !m_Octree.hasChildren(cell)) {
+      m_Faces[cell].clear();
+      foreach (vtkIdType id_face, m_Faces[m_Octree.getParent(cell)]) {
+        vtkIdType *pts, num_pts;
+        m_Grid->GetCellPoints(id_face, num_pts, pts);
+        QVector<vec3_t> tri(3);
+        for (int i = 0; i < 3; ++i) {
+          m_Grid->GetPoint(pts[i], tri[i].data());
+        }
+        if (m_Octree.triangleIntersectsCell(cell, tri, 1.01)) {
+          m_Faces[cell].append(id_face);
+        }
+      }
+    }
+  }
 
   // find closest cell to m_InsidePosition and mark boundary cells
   vtkIdType id_start = -1;
@@ -196,9 +190,11 @@ void CreateHexIbMesh::findInsideCells(MeshPartition &part, QList<vtkIdType> &ins
     foreach (vtkIdType id_cell, front_cells) {
       for (int i = 0; i < part.c2cGSize(id_cell); ++i) {
         vtkIdType id_neigh = part.c2cGG(id_cell, i);
-        if (!is_inside[id_neigh]) {
-          is_inside[id_neigh] = true;
-          new_front_cells << id_neigh;
+        if (id_neigh >= 0) {
+          if (!is_inside[id_neigh]) {
+            is_inside[id_neigh] = true;
+            new_front_cells << id_neigh;
+          }
         }
       }
     }
@@ -217,9 +213,11 @@ void CreateHexIbMesh::operate()
   DeleteVolumeGrid del_vol;
   del_vol();
   m_Part.setAllCells();
- cout << "refining grid" << endl;
+  cout << "refining grid" << endl;
+  updateNodeInfo();
   UpdateDesiredMeshDensity update_mesh_density;
   update_mesh_density.readSettings();
+  update_mesh_density.setRelaxationOff();
   update_mesh_density();
 
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
@@ -253,7 +251,7 @@ void CreateHexIbMesh::operate()
     x1 = xc - 2*Dx;
     x2 = xc + 2*Dx;
     m_Octree.setBounds(x1, x2);
-    m_MinSize = 0;//0.02*(x1-x2).abs();
+    m_MinSize = 0;
   }
   m_Faces.resize(1);
   m_MeshSize.resize(1);
@@ -266,6 +264,7 @@ void CreateHexIbMesh::operate()
   do {
     N = refine();
   } while (N > 0);
+  updateMeshSize();
 
   cout << "deleting outside super cells" << endl;
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
@@ -277,6 +276,8 @@ void CreateHexIbMesh::operate()
   otpart.setCells(add_cells);
   EG_VTKDCC(vtkDoubleArray, cl, otgrid, "cell_subres");
   double fvcells = 0;
+  int N_min = 1000000;
+  int N_max = 0;
   foreach (vtkIdType id_cell, add_cells) {
     vec3_t x = cellCentre(otgrid, id_cell);
     int cell = m_Octree.findCell(x);
@@ -286,6 +287,8 @@ void CreateHexIbMesh::operate()
     double Nj = m_Octree.getDy(cell)/h;
     double Nk = m_Octree.getDx(cell)/h;
     fvcells += Ni*Nj*Nk;
+    N_min = min(N_min, min(int(Ni), min(int(Nj), int(Nk))));
+    N_max = max(N_max, max(int(Ni), max(int(Nj), int(Nk))));
   }
   cout << add_cells.size() << " super cells" << endl;
   if (fvcells > 1e12) {
@@ -294,6 +297,8 @@ void CreateHexIbMesh::operate()
     long long int fvcells_li = fvcells;
     cout << qPrintable(bigIntText(fvcells_li)) << " finite volume cells" << endl;
   }
+  cout << "smallest dimension: " << N_min << endl;
+  cout << "largest dimension: " << N_max << endl;
   m_Part.addPartition(otpart);
   m_Part.setAllCells();
 }

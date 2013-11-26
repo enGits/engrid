@@ -21,6 +21,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 #include "guicreatehexibmesh.h"
+#include "geometrytools.h"
 
 GuiCreateHexIbMesh::GuiCreateHexIbMesh()
 {
@@ -28,12 +29,24 @@ GuiCreateHexIbMesh::GuiCreateHexIbMesh()
 
 void GuiCreateHexIbMesh::before()
 {
-
+  vec3_t x_centre(0,0,0);
+  double A = 0;
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
+      double A_cell = GeometryTools::cellVA(m_Grid, id_cell);
+      x_centre += A_cell*cellCentre(m_Grid, id_cell);
+      A += A_cell;
+    }
+  }
+  x_centre *= 1.0/A;
+  setVector(x_centre, m_Ui.m_LineEditCentre);
 }
 
 void GuiCreateHexIbMesh::operate()
 {
   m_CreateMesh.setMinNumLayersWithRequiredResolution(m_Ui.m_SpinBoxMinNumLayers->value());
   m_CreateMesh.setMinDim(m_Ui.m_SpinBoxMinDim->value());
+  vec3_t x_centre = getVector(m_Ui.m_LineEditCentre);
+  m_CreateMesh.setInsidePosition(x_centre);
   m_CreateMesh();
 }

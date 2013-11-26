@@ -58,6 +58,7 @@ private: //attributes
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;
+  bool                        m_Relaxation;
 
 protected: // methods
 
@@ -84,6 +85,8 @@ public: //methods
   void setFeatureResolution2D(double n) { m_FeatureResolution2D = n; }
   void setFeatureResolution3D(double n) { m_FeatureResolution3D = n; }
   void setFeatureThresholdAngle(double a) { m_FeatureThresholdAngle = a; }
+  void setRelaxationOff() { m_Relaxation = false; }
+  void setRelaxationOn() { m_Relaxation = true; }
 
 };
 

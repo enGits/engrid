@@ -25,11 +25,11 @@
 
 class CreateHexIbMesh;
 
-#include "operation.h"
+#include "surfaceoperation.h"
 #include "octree.h"
 #include "edgelengthsourcemanager.h"
 
-class CreateHexIbMesh : public Operation
+class CreateHexIbMesh : public SurfaceOperation
 {
 
   int                        m_MinDim;
