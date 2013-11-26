@@ -29,6 +29,11 @@
 class BlenderReader : public IOOperation
 {
 
+private: // attributes
+
+  bool m_Append;
+
+
 protected: // methods
 
   virtual void operate();
@@ -42,6 +47,9 @@ protected: // attributes
 public: // methods
 
   BlenderReader();
+
+  void setAppendOn() { m_Append = true; }
+  void setAppendOff() { m_Append = false; }
 
 };
 
