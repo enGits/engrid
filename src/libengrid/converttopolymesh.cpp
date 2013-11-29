@@ -24,6 +24,14 @@
 #include "polymesh.h"
 #include "guimainwindow.h"
 
+ConvertToPolyMesh::ConvertToPolyMesh()
+{
+  m_Optimise = false;
+  m_SplitCells = false;
+  m_SplitFaces = false;
+  m_PullInFactor = 0.0;
+}
+
 void ConvertToPolyMesh::operate()
 {
   QList<VolumeDefinition> vols = mainWindow()->getAllVols();
@@ -33,8 +41,7 @@ void ConvertToPolyMesh::operate()
   vols.first().setVC(0);
   mainWindow()->setAllVols(vols);
 
-  //PolyMesh pmesh(m_Grid, 0.0, false);
-  PolyMesh pmesh(m_Grid, true, 0.0, true);
+  PolyMesh pmesh(m_Grid, true, m_PullInFactor, m_Optimise, m_SplitFaces, m_SplitCells);
 
   // count the number of boundary faces in the polygonal mesh
   int num_boundary_faces = 0;

@@ -28,9 +28,32 @@
 class ConvertToPolyMesh : public Operation
 {
 
+protected: // attributes
+
+  bool   m_Optimise;
+  bool   m_SplitFaces;
+  bool   m_SplitCells;
+  double m_PullInFactor;
+
+
 protected: // methods
 
   virtual void operate();
+
+
+public: // methods;
+
+  ConvertToPolyMesh();
+
+  void setOptimiseOn()    { m_Optimise   = true; }
+  void setOptimiseOff()   { m_Optimise   = false; }
+  void setSplitFacesOn()  { m_SplitFaces = true; }
+  void setSplitFacesOff() { m_SplitFaces = false; }
+  void setSplitCellsOn()  { m_SplitCells = true; }
+  void setSplitCellsOff() { m_SplitCells = false; }
+
+  void setPullInFactor(double f) { m_PullInFactor = f; }
+
 
 };
 

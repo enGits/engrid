@@ -53,6 +53,7 @@
 #include <vtkFollower.h>
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
+#include <vtkFileOutputWindow.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
@@ -329,6 +330,16 @@ GuiMainWindow::~GuiMainWindow()
 
 void GuiMainWindow::setupVtk()
 {
+
+// avoid VTK pop-up window on Windows
+#ifdef WIN32
+  vtkFileOutputWindow *w = vtkFileOutputWindow::New();
+  QString vtk_log_file = m_LogDir + "/enGrid-vtk-errors.txt";
+  w->SetFileName(qPrintable(vtk_log_file));
+  vtkOutputWindow::SetInstance(w);
+  w->Delete();
+#endif
+
   // colour settings
   getSet("Colours", "'A' faces (1-red)",   0.5, m_ColAR);
   getSet("Colours", "'A' faces (2-green)", 1.0, m_ColAG);

@@ -238,6 +238,8 @@ zoomAll();
 #define EG_STDCONNECT(OPER) \
 connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
 
+#define DUMMY_VAR(X) X = X
+
 /**
   * Perform a loop over all cells of a grid.
   * @param ID_CELL the cell index iteration variable

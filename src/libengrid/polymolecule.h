@@ -69,9 +69,7 @@ private: // methods
   void buildFace2Face();
   void computeNormals();
   void smooth(bool delaunay = true, bool write = false);
-  void split(bool write = false);
   void updateFace(int face, int new_cell_index);
-  void centreSplit();
 
 
   template <class C> void init(PolyMesh *poly_mesh, const C &faces);
@@ -91,7 +89,9 @@ public:
   void   createPolyData(vtkPolyData *poly_data);
   double minPyramidVolume() { return m_MinPyramidVolume; }
   double maxPyramidVolume() { return m_MaxPyramidVolume; }
-  void   fix(bool write = false);
+  void   optimise(bool write = false);
+  void   centreSplit();
+  void   split(bool write = false);
   bool   allPositive() { return m_AllPositive; }
   void   updatePMesh();
 

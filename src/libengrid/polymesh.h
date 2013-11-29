@@ -85,6 +85,8 @@ protected: // attributes
   double               m_AttractorWeight;
   double               m_PullInFactor;
   bool                 m_OptimiseConvexity;
+  bool                 m_SplitFaces;
+  bool                 m_SplitCells;
   bool                 m_CreateDualMesh;
 
 
@@ -138,7 +140,12 @@ protected: // methods
    
 public: // methods
   
-  PolyMesh(vtkUnstructuredGrid *grid, bool dualise = true, double pull_in = 0.5, bool optimise = true);
+  PolyMesh(vtkUnstructuredGrid *grid,
+           bool                 dualise     = false,
+           double               pull_in     = 0.0,
+           bool                 optimise    = false,
+           bool                 split_faces = false,
+           bool                 split_cells = false);
 
   void   setNodeVector(int i, vec3_t x) { m_Points[i] = x; }
 

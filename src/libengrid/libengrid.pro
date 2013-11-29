@@ -1,72 +1,69 @@
+include(../engrid.pri)
+
 TEMPLATE = lib
 LANGUAGE = C++
 TARGET   = engrid
 
-# Enable this if the VTK from the ParaView sources and 
-# installation want to be used
-# Note: Currently only for Windows Compiles with MSVC
-Use_VTK_Win_ParaView = yes
-
-
-CONFIG += qt \
-          debug_and_release \
-          thread
-
-QT     += xml \
-          network \
-          opengl
-
-QMAKE_CXXFLAGS += -fopenmp
+CONFIG += qt debug_and_release thread
+QT     += xml network opengl
 
 win32-msvc* {
-    QMAKE_CXXFLAGS += -W3
-    DEFINES += LIBENGRID_EXPORTS
-    DEFINES += DLL_EXPORT
-} win32-g++* {
-    CONFIG += console
-    DEFINES += LIBENGRID_EXPORTS
-    DEFINES += DLL_EXPORT
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    QMAKE_CXXFLAGS += -Wl,--no-undefined
-    QMAKE_CXXFLAGS += -Wl,--enable-runtime-pseudo-reloc
+  QMAKE_CXXFLAGS  += -W3
+  DEFINES         += LIBENGRID_EXPORTS
+  DEFINES         += DLL_EXPORT
+  DEFINES         += _USE_MATH_DEFINES
+  INCLUDEPATH     += ../../../VTK/include/vtk-5.10
+  LIBS            += -L../../../VTK/lib/vtk-5.10
+  LIBS            += -lQVTK
+  LIBS            += -lvtkCommon
+  LIBS            += -lvtkDICOMParser
+  LIBS            += -lvtkexoIIc
+  LIBS            += -lvtkFiltering
+  LIBS            += -lvtkftgl
+  LIBS            += -lvtkGenericFiltering
+  LIBS            += -lvtkGraphics
+  LIBS            += -lvtkHybrid
+  LIBS            += -lvtkImaging
+  LIBS            += -lvtkIO
+  LIBS            += -lvtkRendering
+  LIBS            += -lvtksys
+  LIBS            += -lvtkVolumeRendering
+  LIBS            += -lvtkWidgets
+  LIBS            += ../netgen_svn/release/nglib.lib
+  brlcad {
+    INCLUDEPATH += ../../../BRL-CAD/include
+    INCLUDEPATH += ../../../BRL-CAD/include/openNURBS
+    LIBS        += ../../../BRL-CAD/lib/librt.lib
+    LIBS        += ../../../BRL-CAD/lib/libbu.lib
+    DEFINES     += BRLCAD_SUPPORT
+    INCLUDEPATH += ../../../BRL-CAD/include/openNURBS
+  }
+  netcdf {
+    DEFINES     += TAU_SUPPORT
+    INCLUDEPATH += ../../../netCDF/include
+    LIBS        += ../../../netCDF/lib/netcdf.lib
+    LIBS        += ../../../netCDF/lib/netcdfcxx.lib
+  }
 } else {
-    QMAKE_CXXFLAGS += -Wall
-    QMAKE_CXXFLAGS += -Wno-deprecated
-    QMAKE_CXXFLAGS += -fno-omit-frame-pointer
-    QMAKE_CXXFLAGS += -g
+  QMAKE_CXXFLAGS  += -Wno-deprecated -g
+  INCLUDEPATH     += $(VTKINCDIR)
+  brlcad {
+    INCLUDEPATH += $(BRLCADINCDIR)
+    INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
+    DEFINES     += BRLCAD_SUPPORT
+  }
+  netcdf {
+    DEFINES     += TAU_SUPPORT
+  }
 }
 
 
 INCLUDEPATH += ..
-INCLUDEPATH += ./libengrid-build
+INCLUDEPATH += ./libengrid
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
 INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
 
-#BRL-CAD
-INCLUDEPATH += $(BRLCADINCDIR)
-INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
-DEFINES     += BRLCAD_SUPPORT
-
-!debian {
-    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/nglib
-    INCLUDEPATH += ../netgen_svn/netgen-mesher/netgen/libsrc/general
-}
-
-#INCLUDEPATH for VTK depends on the compiler
-win32-msvc* {
-    DEFINES += _USE_MATH_DEFINES
-
-    !isEmpty(Use_VTK_Win_ParaView) {
-        include(../misc/engrid-vtk-win_paraview.pri)
-    } else {
-        INCLUDEPATH += $(VTKINCDIR)
-    }
-} win32-g++* {
-    INCLUDEPATH += $(VTKINCDIR)
-} else {
-    INCLUDEPATH += $(VTKINCDIR)
-}
+# VTK
 
 RESOURCES += engrid.qrc
 
@@ -229,7 +226,8 @@ HEADERS = \
     drnumwriter.h \
     computemeshdensity.h \
     converttopolymesh.h \
-    guicreatehexshell.h
+    guicreatehexshell.h \
+    guiconverttopolymesh.h
 
 
 SOURCES = \
@@ -370,7 +368,8 @@ SOURCES = \
     drnumwriter.cpp \
     computemeshdensity.cpp \
     converttopolymesh.cpp \
-    guicreatehexshell.cpp
+    guicreatehexshell.cpp \
+    guiconverttopolymesh.cpp
 
 
 FORMS = \
@@ -398,5 +397,6 @@ FORMS = \
     guisurfacemesher.ui \
     guitransform.ui \
     guifillplane.ui \
-    guicreatehexshell.ui
+    guicreatehexshell.ui \
+    guiconverttopolymesh.ui
 

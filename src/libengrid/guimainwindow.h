@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -520,7 +520,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
     void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
     void callFillPlane() { EG_STDSLOT( GuiFillPlane ); }
-    void callConvertToPolyMesh() { EG_STDSLOT(ConvertToPolyMesh); }
+    void callConvertToPolyMesh() { EG_STDSLOT(GuiConvertToPolyMesh); }
     void callCreateHexShellMesh() { EG_STDSLOT(GuiCreateHexShell); }
 
     void callFixSTL();
@@ -535,10 +535,18 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
+
+#ifdef BRLCAD_SUPPORT
     void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }
+#endif
+
     void callExportSu2()                  { EG_STDREADERSLOT( Su2Writer ); }
     void callExportDolfyn()               { EG_STDREADERSLOT( DolfynWriter ); }
+
+#ifdef TAU_SUPPORT
     void callExportTau()                  { EG_STDREADERSLOT( TauWriter ); }
+#endif
+
     void callExportDrNum()                { EG_STDREADERSLOT( DrNumWriter ); }
 
     void callSurfaceMesher()              { EG_STDSLOT(GuiSurfaceMesher); }

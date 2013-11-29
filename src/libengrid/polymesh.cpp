@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -141,15 +141,22 @@ bool PolyMesh::node_t::operator==(const PolyMesh::node_t &N) const
 //   PolyMesh
 // ============
 
-PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool optimise)
+PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool optimise, bool split_faces, bool split_cells)
 {
   m_CreateDualMesh = false;
+  m_OptimiseConvexity = false;
+  m_SplitCells = false;
+  m_SplitFaces = false;
   if (dualise) {
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
       if (isVolume(id_cell, grid) && grid->GetCellType(id_cell) != VTK_POLYHEDRON) {
         m_CreateDualMesh = true;
         break;
       }
+    }
+    if (m_CreateDualMesh) {
+      m_OptimiseConvexity = optimise;
+
     }
   }
 
@@ -165,9 +172,9 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
   buildPoint2Face();
   buildPCell2Face();
   computePoints();
-  /*
+
   if (m_OptimiseConvexity) {
-    for (int iter = 0; iter < 5; ++iter) {
+    for (int iter = 0; iter < 2; ++iter) {
       int num_bad = 0;
       int i_improve = 0;
       for (int i = 0; i < numCells(); ++i) {
@@ -186,22 +193,25 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
           PolyMolecule pm(this, i);
           if (!pm.allPositive()) {
             ++i_improve;
-            pm.fix();
+            pm.optimise();
             if (pm.minPyramidVolume() < 0) {
               ++num_bad;
             }
           }
         }
       }
-      cout << i_improve << " cells out of " << numCells() << " were smoothed." << endl;
+      cout << i_improve << " cells out of " << numCells() << " were optimised." << endl;
       if (num_bad == 0) {
         break;
       }
     }
   }
-  */
-  if (m_OptimiseConvexity) {
+
+  if (m_SplitFaces) {
     splitConcaveFaces();
+  }
+
+  if (m_SplitCells) {
     for (int iter = 0; iter < 0; ++iter) {
       int num_improved = 0;
       int num_cells = numCells();
@@ -209,22 +219,11 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
         PolyMolecule pm(this, i);
         if (!pm.allPositive()) {
           ++num_improved;
-          pm.fix();
-          //cout << "improved cell " << i << endl;
-          //break;
+          pm.centreSplit();
         }
       }
       buildPoint2Face();
       buildPCell2Face();
-      for (int i = 0; i < m_PCell2Face[1].size(); ++i) {
-        /*
-        cout << i << ", " << m_PCell2Face[1][i] << endl;
-        for (int j = 0; j < m_Faces[m_PCell2Face[1][i]].node.size(); ++j) {
-          cout << " " << m_Faces[m_PCell2Face[1][i]].node[j];
-        }
-        cout << endl;
-        */
-      }
       cout << num_improved << " cells out of " << num_cells << " were split." << endl;
       if (num_improved == 0) {
         break;
@@ -234,7 +233,6 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
   qSort(m_Faces);
   buildPoint2Face();
   buildPCell2Face();
-  cout << "break" << endl;
 }
 
 void PolyMesh::merge(PolyMesh *poly)
@@ -968,7 +966,19 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
         id_face = -1;
       }
     }
-    if (m_Part.n2bcGSize(id_node) > 2) {
+
+    // check if this is a transition node (boundary layer -> far-field)
+    bool dual_cell_found = false;
+    bool cell_cell_found = false;
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      if (m_Cell2PCell[m_Part.n2cGG(id_node,i)] == -1) {
+        cell_cell_found = true;
+      } else {
+        dual_cell_found = true;
+      }
+    }
+
+    if (m_Part.n2bcGSize(id_node) > 2 || (dual_cell_found && cell_cell_found)) {
       nodes.prepend(node_t(id_node));
     }
   }
@@ -1129,7 +1139,7 @@ void PolyMesh::splitConcaveFaces()
         }
         x.first() = x_face.last();
         x.last() = x_face.first();
-        double L_max = 0.02;
+        double L_max = 1e99;//0.1;
         int i1 = -1;
         vec3_t v;
         for (int i = 1; i <= num_nodes; ++i) {

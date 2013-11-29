@@ -23,6 +23,7 @@
 #include "guinormalextrusion.h"
 #include "vtkEgNormalExtrusion.h"
 #include "containertricks.h"
+#include "guimainwindow.h"
 
 void GuiNormalExtrusion::before()
 {
@@ -129,18 +130,61 @@ void GuiNormalExtrusion::operate()
     extr->SetRestrictYZ();
   }
 
+  if (m_Ui.checkBoxNewVolume->isChecked()) {
+    extr->SetRemoveInternalFacesOff();
+  }
+
+  QList<VolumeDefinition> vols = GuiMainWindow::pointer()->getAllVols();
+  int vc = 1;
+  foreach (VolumeDefinition vol, vols) {
+    vc = max(vc, vol.getVC());
+  }
+  if (m_Ui.checkBoxNewVolume->isChecked()) {
+    EG_FORALL_CELLS(id_cell, m_Grid) {
+      if (isVolume(id_cell, m_Grid)) {
+        if (cell_code->GetValue(id_cell) == 0) {
+          cell_code->SetValue(id_cell, vc);
+        }
+      }
+    }
+  }
+
+
+  QSet<int> old_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
   extr->SetBoundaryCodes(bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
   makeCopy(m_Grid, ug);
   extr->SetInput(ug);
   extr->Update();
   makeCopy(extr->GetOutput(), m_Grid);
+  QSet<int> new_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
 
-  if (volume_codes.size() == 1) {
+  if (m_Ui.checkBoxNewVolume->isChecked()) {
+    ++vc;
+    VolumeDefinition new_vol(m_Ui.lineEditVolumeName->text(), vc);
+    foreach (int bc, new_bcs) {
+      if (bcs.contains(bc)) {
+        new_vol.addBC(bc, -1);
+      } else if (!old_bcs.contains(bc)) {
+        new_vol.addBC(bc, 1);
+      }
+    }
+    vols.append(new_vol);
+    GuiMainWindow::pointer()->setAllVols(vols);
     EG_FORALL_CELLS(id_cell, m_Grid) {
       if (isVolume(id_cell, m_Grid)) {
         if (cell_code->GetValue(id_cell) == 0) {
-          cell_code->SetValue(id_cell, *(volume_codes.begin()));
+          cell_code->SetValue(id_cell, vc);
+        }
+      }
+    }
+  } else {
+    if (volume_codes.size() == 1) {
+      EG_FORALL_CELLS(id_cell, m_Grid) {
+        if (isVolume(id_cell, m_Grid)) {
+          if (cell_code->GetValue(id_cell) == 0) {
+            cell_code->SetValue(id_cell, *(volume_codes.begin()));
+          }
         }
       }
     }
