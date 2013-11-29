@@ -40,6 +40,7 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 
   getSet("surface meshing", "threshold angle for feature resolution", 20, m_FeatureThresholdAngle);
   m_FeatureThresholdAngle = deg2rad(m_FeatureThresholdAngle);
+  m_Relaxation = true;
 
 }
 
@@ -259,6 +260,34 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
   computeFeature(points, cl_pre, m_FeatureResolution3D, 1);
 }
 
+void UpdateDesiredMeshDensity::readSettings()
+{
+  readVMD();
+  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
+  QTextStream in(&buffer, QIODevice::ReadOnly);
+  in >> m_MaxEdgeLength;
+  in >> m_MinEdgeLength;
+  in >> m_GrowthFactor;
+  in >> m_NodesPerQuarterCircle;
+  int num_bcs;
+  in >> num_bcs;
+  QVector<int> tmp_bcs;
+  GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
+  m_BoundaryCodes.clear();
+  if (num_bcs == tmp_bcs.size()) {
+    foreach (int bc, tmp_bcs) {
+      int check_state;
+      in >> check_state;
+      if (check_state == 1) {
+        m_BoundaryCodes.insert(bc);
+      }
+    }
+  }
+  if (!in.atEnd()) {
+    in >> m_FeatureResolution2D;
+    in >> m_FeatureResolution3D;
+  }
+}
 
 void UpdateDesiredMeshDensity::operate()
 {
@@ -366,43 +395,46 @@ void UpdateDesiredMeshDensity::operate()
     EG_ERR_RETURN("There are no edges that need improving.")
   }
 
-  // start from smallest characteristic length and loop as long as nodes are updated
-  int num_updated = 0;
 
-  do {
-    num_updated = 0;
-    for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-      double cli = characteristic_length_desired->GetValue(nodes[i_nodes]);
-      if (cli <= cl_min) {
-        vec3_t xi;
-        m_Grid->GetPoint(nodes[i_nodes], xi.data());
-        for (int j = 0; j < n2n[i_nodes].size(); ++j) {
-          int j_nodes = n2n[i_nodes][j];
-          double clj = characteristic_length_desired->GetValue(nodes[j_nodes]);
-          if (clj > cli && clj > cl_min) {
-            vec3_t xj;
-            m_Grid->GetPoint(nodes[j_nodes], xj.data());
-            ++num_updated;
-            double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
-            if (!m_Fixed[nodes[j_nodes]]) {
-              
-              double cl_min = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
-              if(cl_min==0) {
-                qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
-                qWarning()<<"cli="<<cli;
-                qWarning()<<"m_GrowthFactor="<<m_GrowthFactor;
-                qWarning()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
-                qWarning()<<"L_new="<<L_new;
-                EG_BUG;
+  if (m_Relaxation) {
+
+    // start from smallest characteristic length and loop as long as nodes are updated
+    int num_updated = 0;
+
+    do {
+      num_updated = 0;
+      for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
+        double cli = characteristic_length_desired->GetValue(nodes[i_nodes]);
+        if (cli <= cl_min) {
+          vec3_t xi;
+          m_Grid->GetPoint(nodes[i_nodes], xi.data());
+          for (int j = 0; j < n2n[i_nodes].size(); ++j) {
+            int j_nodes = n2n[i_nodes][j];
+            double clj = characteristic_length_desired->GetValue(nodes[j_nodes]);
+            if (clj > cli && clj > cl_min) {
+              vec3_t xj;
+              m_Grid->GetPoint(nodes[j_nodes], xj.data());
+              ++num_updated;
+              double L_new = min(m_MaxEdgeLength, cli * m_GrowthFactor);
+              if (!m_Fixed[nodes[j_nodes]]) {
+
+                double cl_min = min(characteristic_length_desired->GetValue(nodes[j_nodes]), L_new);
+                if(cl_min==0) {
+                  qWarning()<<"m_MaxEdgeLength="<<m_MaxEdgeLength;
+                  qWarning()<<"cli="<<cli;
+                  qWarning()<<"m_GrowthFactor="<<m_GrowthFactor;
+                  qWarning()<<"characteristic_length_desired->GetValue(nodes[j_nodes])="<<characteristic_length_desired->GetValue(nodes[j_nodes]);
+                  qWarning()<<"L_new="<<L_new;
+                  EG_BUG;
+                }
+                characteristic_length_desired->SetValue(nodes[j_nodes], cl_min);
+
               }
-              characteristic_length_desired->SetValue(nodes[j_nodes], cl_min);
-              
             }
           }
         }
       }
-    }
-    cl_min *= m_GrowthFactor;
-  } while (num_updated > 0);
-
+      cl_min *= m_GrowthFactor;
+    } while (num_updated > 0);
+  }
 }

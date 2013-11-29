@@ -820,6 +820,7 @@ int Octree::refineAll()
 
   m_ToRefine.fill(false, m_Cells.size());
   mergeNodes();
+  buildNode2Cell();
   return Nrefine;
 }
 
@@ -1276,9 +1277,10 @@ int Octree::findCell(vec3_t x)
   return i_cells;
 }
 
-bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k, double tol)
+bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double scale, double &k, double tol)
 {
   vec3_t a, b, c;
+  vec3_t x_centre = getCellCentre(cell);
   if (face == 0) {
     a = m_Nodes[m_Cells[cell].m_Node[0]].m_Position;
     b = m_Nodes[m_Cells[cell].m_Node[2]].m_Position;
@@ -1304,6 +1306,9 @@ bool Octree::intersectsFace(int cell, int face, vec3_t x1, vec3_t x2, double &k,
     b = m_Nodes[m_Cells[cell].m_Node[5]].m_Position;
     c = m_Nodes[m_Cells[cell].m_Node[6]].m_Position;
   }
+  a = x_centre + scale*(a - x_centre);
+  b = x_centre + scale*(b - x_centre);
+  c = x_centre + scale*(c - x_centre);
   vec3_t g1 = b-a;
   vec3_t g2 = c-a;
   double g1abs = g1.abs();
@@ -1388,4 +1393,77 @@ bool Octree::isInsideCell(int cell, vec3_t x, double overlap)
     }
   }
   return inside;
+}
+
+bool Octree::triangleIntersectsCell(int cell, QVector<vec3_t> tri, double scale)
+{
+  if (tri.size() != 3) {
+    EG_BUG;
+  }
+
+  // any node inside cell?
+  foreach (vec3_t x, tri) {
+    if (isInsideCell(cell, x, (scale - 1))) {
+      return true;
+    }
+  }
+
+  // any edge of cell intersects triangle?
+  QVector<SortedPair<int> > edges;
+  getEdges(cell, edges);
+  foreach (SortedPair<int> edge, edges) {
+    vec3_t x1 = getNodePosition(edge.v1);
+    vec3_t x2 = getNodePosition(edge.v2);
+    vec3_t xi, ri;
+    vec3_t x_centre = getCellCentre(cell);
+    x1 = x_centre + scale*(x1 - x_centre);
+    x2 = x_centre + scale*(x2 - x_centre);
+    if (GeometryTools::intersectEdgeAndTriangle(tri[0], tri[1], tri[2], x1, x2, xi, ri)) {
+      return true;
+    }
+  }
+
+  // any edge of triangle intersects any face of cell?
+  for (int face = 0; face < 6; ++face) {
+    double k;
+    if (intersectsFace(cell, face, tri[0], tri[1], scale, k)) {
+      return true;
+    }
+    if (intersectsFace(cell, face, tri[1], tri[2], scale, k)) {
+      return true;
+    }
+    if (intersectsFace(cell, face, tri[2], tri[0], scale, k)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void Octree::getFinestChildren(int cell, QList<int> &finest_children)
+{
+  if (hasChildren(cell)) {
+    for (int i = 0; i < 8; ++i) {
+      getFinestChildren(m_Cells[cell].m_Child[i], finest_children);
+    }
+  } else {
+    finest_children << cell;
+  }
+}
+
+void Octree::getNeighbourRegion(int cell, QList<int> &neighbour_cells)
+{
+  QSet<int> cells;
+  for (int i = 0; i < 8; ++i) {
+    int node = getNode(cell, i);
+    for (int j = 0; j < m_Node2Cell[node].size(); ++j) {
+      int cell = m_Node2Cell[node][j];
+      if (!hasChildren(cell)) {
+        cells.insert(cell);
+      }
+    }
+  }
+  foreach (int cell, cells) {
+    neighbour_cells.append(cell);
+  }
 }

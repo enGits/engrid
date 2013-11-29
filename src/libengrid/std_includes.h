@@ -32,6 +32,7 @@
 #include "guimirrormesh.h"
 #include "guicreatehexcore.h"
 #include "guiconverttopolymesh.h"
+#include "guicreatehexibmesh.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"

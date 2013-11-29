@@ -127,6 +127,7 @@ connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOp
 connect(ui.actionFillPlane, SIGNAL(triggered()), this, SLOT(callFillPlane()));
 connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertToPolyMesh()));
 connect(ui.actionCreateHexShellMesh, SIGNAL(triggered()), this, SLOT(callCreateHexShellMesh()));
+connect(ui.actionCreateHexIbMesh, SIGNAL(triggered()), this, SLOT(callCreateHexIbMesh()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

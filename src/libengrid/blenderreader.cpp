@@ -30,6 +30,7 @@ BlenderReader::BlenderReader()
   setFormat("Blender/Engrid files(*.begc *.BEGC)");
   getSet("General", "tolerance for importing geometries (% of smallest edge length)", 0.1, m_RelativeTolerance);
   m_RelativeTolerance *= 1e-2;
+  m_Append = false;
 }
 
 void BlenderReader::operate()
@@ -123,14 +124,16 @@ void BlenderReader::operate()
         }
       }
 
-      allocateGrid(m_Grid, faces.size(), non_dup.size());
-      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-      EG_VTKDCC(vtkIntArray, orgdir, m_Grid, "cell_orgdir");
-      EG_VTKDCC(vtkIntArray, voldir, m_Grid, "cell_voldir");
-      EG_VTKDCC(vtkIntArray, curdir, m_Grid, "cell_curdir");
+      EG_VTKSP(vtkUnstructuredGrid, new_grid);
+
+      allocateGrid(new_grid, faces.size(), non_dup.size());
+      EG_VTKDCC(vtkIntArray, cell_code, new_grid, "cell_code");
+      EG_VTKDCC(vtkIntArray, orgdir, new_grid, "cell_orgdir");
+      EG_VTKDCC(vtkIntArray, voldir, new_grid, "cell_voldir");
+      EG_VTKDCC(vtkIntArray, curdir, new_grid, "cell_curdir");
       vtkIdType id_node = 0;
       foreach (vec3_t x, non_dup) {
-        m_Grid->GetPoints()->SetPoint(id_node, x.data());
+        new_grid->GetPoints()->SetPoint(id_node, x.data());
         ++id_node;
       }
 
@@ -140,7 +143,7 @@ void BlenderReader::operate()
           pts[0] = o2n[face[1]];
           pts[1] = o2n[face[2]];
           pts[2] = o2n[face[3]];
-          vtkIdType id_cell = m_Grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+          vtkIdType id_cell = new_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
           cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
@@ -152,13 +155,23 @@ void BlenderReader::operate()
           pts[1] = o2n[face[2]];
           pts[2] = o2n[face[3]];
           pts[3] = o2n[face[4]];
-          vtkIdType id_cell = m_Grid->InsertNextCell(VTK_QUAD, 4, pts);
+          vtkIdType id_cell = new_grid->InsertNextCell(VTK_QUAD, 4, pts);
           cell_code->SetValue(id_cell, part_bc[face[0]]);
           orgdir->SetValue(id_cell, 0);
           voldir->SetValue(id_cell, 0);
           curdir->SetValue(id_cell, 0);
         }
       }
+
+      if (m_Append) {
+        EG_BUG;
+        MeshPartition new_part(new_grid);
+        new_part.setAllCells();
+        m_Part.addPartition(new_part);
+      } else {
+        makeCopy(new_grid, m_Grid);
+      }
+
       UpdateNodeIndex(m_Grid);
       UpdateCellIndex(m_Grid);
 

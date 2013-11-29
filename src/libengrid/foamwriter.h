@@ -42,6 +42,8 @@ protected: // attributes
   bool                       m_CreateCellZones;
   QList<int>                 m_CellZoneLimits;
   QList<QString>             m_CellZoneNames;
+  QString                    m_FixedFileName;
+  bool                       m_NoDialog;
 
 protected: // methods
   
@@ -59,6 +61,8 @@ protected: // methods
 
   void writeSingleVolume();
   void writeMultipleVolumes();
+
+  void setFixedFileName(QString file_name);
 
   virtual void operate();
   

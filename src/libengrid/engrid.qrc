@@ -86,5 +86,18 @@
         <file>resources/misc/raysphere_coarse.dat</file>
         <file>resources/misc/raysphere_veryfine.dat</file>
         <file>resources/misc/raysphere_fine.dat</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/0/epsilon</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/0/k</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/0/omega</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/0/p</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/0/U</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/system/fvSolution</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/system/fvSchemes</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/system/controlDict</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/constant/turbulenceProperties</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/constant/transportProperties</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/constant/RASProperties</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/system/decomposeParDict</file>
+        <file>resources/solvers/openfoam-2.1/simpleFoam/standard/machines</file>
     </qresource>
 </RCC>

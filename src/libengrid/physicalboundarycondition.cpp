@@ -59,7 +59,7 @@ void PhysicalBoundaryCondition::setType(QString type)
   }
 }
 
-QString PhysicalBoundaryCondition::getFoamEpsilon()
+QString PhysicalBoundaryCondition::getFoamEpsilon(QString version)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);
@@ -67,7 +67,16 @@ QString PhysicalBoundaryCondition::getFoamEpsilon()
     s << "        type symmetryPlane;\n";
   }
   if (m_Type == "wall") {
-    s << "        type zeroGradient;\n";
+    if (version >= "2.1") {
+      s << "        type    omegaWallFunction;\n";
+      s << "        Cmu     0.09;\n";
+      s << "        kappa   0.41;\n";
+      s << "        E       9.8;\n";
+      s << "        beta1   0.075;\n";
+      s << "        value   uniform 0;\n";
+    } else {
+      s << "        type zeroGradient;\n";
+    }
   }
   if (m_Type == "slip") {
     s << "        type zeroGradient;\n";
@@ -84,7 +93,7 @@ QString PhysicalBoundaryCondition::getFoamEpsilon()
   return str;
 }
 
-QString PhysicalBoundaryCondition::getFoamK()
+QString PhysicalBoundaryCondition::getFoamK(QString version)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);
@@ -92,7 +101,12 @@ QString PhysicalBoundaryCondition::getFoamK()
     s << "        type symmetryPlane;\n";
   }
   if (m_Type == "wall") {
-    s << "        type zeroGradient;\n";
+    if (version >= "2.1") {
+      s << "        type    kqRWallFunction;\n";
+      s << "        value   uniform 0;\n";
+    } else {
+      s << "        type zeroGradient;\n";
+    }
   }
   if (m_Type == "slip") {
     s << "        type zeroGradient;\n";
@@ -109,7 +123,7 @@ QString PhysicalBoundaryCondition::getFoamK()
   return str;
 }
 
-QString PhysicalBoundaryCondition::getFoamOmega()
+QString PhysicalBoundaryCondition::getFoamOmega(QString version)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);
@@ -117,7 +131,16 @@ QString PhysicalBoundaryCondition::getFoamOmega()
     s << "        type symmetryPlane;\n";
   }
   if (m_Type == "wall") {
-    s << "        type zeroGradient;\n";
+    if (version >= "2.1") {
+      s << "        type    omegaWallFunction;\n";
+      s << "        Cmu     0.09;\n";
+      s << "        kappa   0.41;\n";
+      s << "        E       9.8;\n";
+      s << "        beta1   0.075;\n";
+      s << "        value   uniform 0;\n";
+    } else {
+      s << "        type zeroGradient;\n";
+    }
   }
   if (m_Type == "slip") {
     s << "        type zeroGradient;\n";
@@ -135,7 +158,41 @@ QString PhysicalBoundaryCondition::getFoamOmega()
   return str;
 }
 
-QString PhysicalBoundaryCondition::getFoamP()
+QString PhysicalBoundaryCondition::getFoamNut(QString version)
+{
+  QString str;
+  QTextStream s(&str, QIODevice::WriteOnly);
+  if (m_Type == "symmetry") {
+    s << "        type symmetryPlane;\n";
+  }
+  if (m_Type == "wall") {
+    if (version >= "2.1") {
+      s << "        type    nutkWallFunction;\n";
+      s << "        Cmu     0.09;\n";
+      s << "        kappa   0.41;\n";
+      s << "        E       9.8;\n";
+      s << "        value   uniform 0;\n";
+    } else {
+      EG_BUG;
+    }
+  }
+  if (m_Type == "slip") {
+    s << "        type zeroGradient;\n";
+  }
+  if (m_Type == "inlet") {
+    double k       = 1.5*sqr(getVarValue(0)*getVarValue(1));
+    double epsilon = (pow(0.09, 0.75)*pow(k, 1.5))/getVarValue(2);
+    double omega   = epsilon/(0.09*k);
+    s << "        type  calculated;\n";
+    s << "        value uniform 0;\n";
+  }
+  if (m_Type == "outlet") {
+    s << "        type zeroGradient;\n";
+  }
+  return str;
+}
+
+QString PhysicalBoundaryCondition::getFoamP(QString)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);
@@ -158,7 +215,7 @@ QString PhysicalBoundaryCondition::getFoamP()
   return str;
 }
 
-QString PhysicalBoundaryCondition::getFoamU(vec3_t n)
+QString PhysicalBoundaryCondition::getFoamU(QString, vec3_t n)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);
@@ -182,7 +239,7 @@ QString PhysicalBoundaryCondition::getFoamU(vec3_t n)
   return str;
 }
 
-QString PhysicalBoundaryCondition::getFoamT()
+QString PhysicalBoundaryCondition::getFoamT(QString version)
 {
   QString str;
   QTextStream s(&str, QIODevice::WriteOnly);

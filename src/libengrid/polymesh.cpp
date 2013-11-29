@@ -230,7 +230,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
       }
     }
   }
-  qSort(m_Faces);
+  sortFaces();
   buildPoint2Face();
   buildPCell2Face();
 }
@@ -247,7 +247,7 @@ void PolyMesh::merge(PolyMesh *poly)
   }
   m_Points += poly->m_Points;
   m_NumPolyCells += poly->m_NumPolyCells;
-  qSort(m_Faces);
+  sortFaces();
   collectBoundaryConditions();
 }
 
@@ -301,7 +301,7 @@ void PolyMesh::triangulateBadFaces()
     }
   }
 
-  qSort(m_Faces);
+  sortFaces();
   buildPoint2Face();
   buildPCell2Face();
 
@@ -1208,7 +1208,7 @@ void PolyMesh::splitConcaveFaces()
     cout << delete_faces.size() << " concave faces have been split." << endl;
     delete_faces.clear();
   } while (delete_faces.size() > 0);
-  qSort(m_Faces);
+  sortFaces();
   buildPoint2Face();
   buildPCell2Face();
 }
@@ -1318,7 +1318,7 @@ void PolyMesh::createNodesAndFaces()
   computePoints();
 
   //splitConcaveFaces();
-  qSort(m_Faces);
+  sortFaces();
   collectBoundaryConditions();
 }
 
@@ -1390,4 +1390,27 @@ void PolyMesh::invertFace(int i)
 {
   invertQContainer(m_Faces[i].node);
   m_Faces[i].ref_vec *= -1;
+}
+
+void PolyMesh::sortFaces()
+{
+  // compute hashes
+  int max_bc = -1;
+  foreach (face_t face, m_Faces) {
+    max_bc = max(max_bc, face.bc);
+  }
+  int hash_stride = -1;
+  foreach (face_t face, m_Faces) {
+    hash_stride = max(hash_stride, face.owner);
+  }
+  QVector<QList<face_t> > sort_lists(hash_stride*(max_bc + 1));
+  foreach (face_t face, m_Faces) {
+    int i = face.bc*hash_stride + face.owner;
+    sort_lists[i].append(face);
+  }
+  m_Faces.clear();
+  for (int i = 0; i < sort_lists.size(); ++i) {
+    qSort(sort_lists[i]);
+    m_Faces += sort_lists[i];
+  }
 }

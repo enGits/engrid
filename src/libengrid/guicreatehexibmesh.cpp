@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,54 +19,34 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef PHYSICALBOUNDARYCONDITION_H
-#define PHYSICALBOUNDARYCONDITION_H
+//
+#include "guicreatehexibmesh.h"
+#include "geometrytools.h"
 
-#include <QString>
-#include <QVector>
-
-#include "engrid.h"
-
-class PhysicalBoundaryCondition
+GuiCreateHexIbMesh::GuiCreateHexIbMesh()
 {
+}
 
-private: // attributes
+void GuiCreateHexIbMesh::before()
+{
+  vec3_t x_centre(0,0,0);
+  double A = 0;
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
+      double A_cell = GeometryTools::cellVA(m_Grid, id_cell);
+      x_centre += A_cell*cellCentre(m_Grid, id_cell);
+      A += A_cell;
+    }
+  }
+  x_centre *= 1.0/A;
+  setVector(x_centre, m_Ui.m_LineEditCentre);
+}
 
-  QString          m_Name;
-  QString          m_Type;
-  int              m_Index;
-  QVector<QString> m_VarNames;
-  QVector<double>  m_VarValues;
-
-protected: // methods
-
-public: // methods
-
-  PhysicalBoundaryCondition();
-
-  void setName(QString name) { m_Name = name; }
-  void setIndex(int index) { m_Index = index; }
-  void setValue(int i, double v) { m_VarValues[i] = v; }
-  void setType(QString type);
-
-  QString getName()  { return m_Name; }
-  QString getType()  { return m_Type; }
-  int     getIndex() { return m_Index; }
-  double  getVarValue(int i) { return m_VarValues[i]; }
-  QString getVarName(int i)  { return m_VarNames[i]; }
-  int     getNumVars()       { return m_VarValues.size(); }
-
-  QString getFoamP(QString version);
-  QString getFoamU(QString version, vec3_t n);
-  QString getFoamK(QString version);
-  QString getFoamEpsilon(QString version);
-  QString getFoamOmega(QString version);
-  QString getFoamT(QString version);
-  QString getFoamNut(QString version);
-
-  QString getFoamType();
-
-};
-
-#endif
+void GuiCreateHexIbMesh::operate()
+{
+  m_CreateMesh.setMinNumLayersWithRequiredResolution(m_Ui.m_SpinBoxMinNumLayers->value());
+  m_CreateMesh.setMinDim(m_Ui.m_SpinBoxMinDim->value());
+  vec3_t x_centre = getVector(m_Ui.m_LineEditCentre);
+  m_CreateMesh.setInsidePosition(x_centre);
+  m_CreateMesh();
+}

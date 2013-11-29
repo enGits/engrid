@@ -191,22 +191,6 @@ double getNumber(QString text)
 
 int main( int argc, char ** argv )
 {
-  /*
-  double x, y, z, a, b, r;
-  cout << "x = "; cin >> x;
-  cout << "y = "; cin >> y;
-  cout << "z = "; cin >> z;
-  GeometryTools::cart2spherical(vec3_t(x,y,z), a, b, r);
-  cout << endl;
-  cout << "r     = " << r << endl;
-  cout << "alpha = " << GeometryTools::rad2deg(a) << endl;
-  cout << "beta  = " << GeometryTools::rad2deg(b) << endl;
-  vec3_t X = spherical2cart(a, b, r);
-  cout << "\nX[0]  = " << X[0] << endl;
-  cout << "X[1]  = " << X[1] << endl;
-  cout << "X[2]  = " << X[2] << endl;
-  exit(0);
-  */
 
 #ifdef QT_DEBUG
   //omp_set_num_threads(1);
@@ -226,13 +210,13 @@ int main( int argc, char ** argv )
       cout<<qPrintable(file_info.fileName())<<" -appendlic FILE1 FILE2 ...: Append license to files"<<endl;
       cout<<qPrintable(file_info.fileName())<<" -distbin : Create binary distribution"<<endl;
       exit(0);
-    };
+    }
     if (QString(argv[1]) == QString("-appendlic")) {
       appendLicense(argc, argv);
-    };
+    }
     if (QString(argv[1]) == QString("-distbin")) {
       makeDistribution();
-    };
+    }
     if (QString(argv[1]) == QString("-f") && argc == 3) {
       QApplication a( argc, argv );
       QString filename = QString(argv[2]);
@@ -247,7 +231,7 @@ int main( int argc, char ** argv )
     w.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     app_result = a.exec();
-  };
+  }
 
   return app_result;
 }

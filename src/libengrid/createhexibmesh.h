@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,54 +19,52 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef PHYSICALBOUNDARYCONDITION_H
-#define PHYSICALBOUNDARYCONDITION_H
+//
+#ifndef CREATEHEXIBMESH_H
+#define CREATEHEXIBMESH_H
 
-#include <QString>
-#include <QVector>
+class CreateHexIbMesh;
 
-#include "engrid.h"
+#include "surfaceoperation.h"
+#include "octree.h"
+#include "edgelengthsourcemanager.h"
 
-class PhysicalBoundaryCondition
+class CreateHexIbMesh : public SurfaceOperation
 {
 
-private: // attributes
+  int                        m_MinDim;
+  double                     m_MinSize;
+  Octree                     m_Octree;
+  QVector<QList<vtkIdType> > m_Faces;
+  QVector<double>            m_MeshSize;
+  int                        m_MinNumLayersWithRequiredResolution;
+  vec3_t                     m_InsidePosition;
+  EdgeLengthSourceManager    m_ELSManager;
+  double                     m_GrowthFactor;
+  double                     m_MinEdgeLength;
+  double                     m_MaxEdgeLength;
 
-  QString          m_Name;
-  QString          m_Type;
-  int              m_Index;
-  QVector<QString> m_VarNames;
-  QVector<double>  m_VarValues;
 
 protected: // methods
 
-public: // methods
+  int    refine();
+  void   updateMeshSize();
+  double meshSize(vtkIdType id_face);
+  double meshSize(const QList<vtkIdType> &faces);
+  void   findInsideCells(MeshPartition &part, QList<vtkIdType> &inside_cells);
 
-  PhysicalBoundaryCondition();
+  virtual void operate();
 
-  void setName(QString name) { m_Name = name; }
-  void setIndex(int index) { m_Index = index; }
-  void setValue(int i, double v) { m_VarValues[i] = v; }
-  void setType(QString type);
+  QString bigIntText(long long N);
 
-  QString getName()  { return m_Name; }
-  QString getType()  { return m_Type; }
-  int     getIndex() { return m_Index; }
-  double  getVarValue(int i) { return m_VarValues[i]; }
-  QString getVarName(int i)  { return m_VarNames[i]; }
-  int     getNumVars()       { return m_VarValues.size(); }
 
-  QString getFoamP(QString version);
-  QString getFoamU(QString version, vec3_t n);
-  QString getFoamK(QString version);
-  QString getFoamEpsilon(QString version);
-  QString getFoamOmega(QString version);
-  QString getFoamT(QString version);
-  QString getFoamNut(QString version);
+public:
 
-  QString getFoamType();
+  CreateHexIbMesh();
+  void setMinNumLayersWithRequiredResolution(int N) { m_MinNumLayersWithRequiredResolution = N; }
+  void setMinDim(int N) { m_MinDim = N; }
+  void setInsidePosition(vec3_t x) { m_InsidePosition = x; }
 
 };
 
-#endif
+#endif // CREATEHEXIBMESH_H

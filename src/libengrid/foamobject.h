@@ -43,6 +43,7 @@ private: // attributes
   int          m_FirstBoundaryFace;
   QByteArray   m_Buffer;
   QString      m_BufferedFileName;
+  QString      m_FoamVersion;
 
 
 private: // methods
@@ -68,6 +69,8 @@ public:
   FoamObject();
 
   void setCaseDir (QString case_dir);
+  void setFoamVersion(QString version) { m_FoamVersion = version; }
+  QString getFoamVersion() { return m_FoamVersion; }
 
 };
 

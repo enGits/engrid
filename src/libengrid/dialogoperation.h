@@ -23,7 +23,7 @@
 #ifndef dialogoperation_H
 #define dialogoperation_H
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 class DialogOperation;
 
 #include "operation.h"
@@ -38,7 +38,7 @@ class DialogOperation;
 #include <vtkIntArray.h>
 #include <vtkCellData.h>
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 class DialogOperation : public QDialog, 
                         public OP
 {
@@ -108,6 +108,20 @@ public: // methods
    * @param line_edit the QLineEdit to use
    */
   void setDouble(double value, QLineEdit *line_edit);
+
+  /**
+   * @brief set the text of a QLineEdit widget to represent a vector in the form "x, y, z"
+   * @param value the vector to set
+   * @param line_edit the QLineEdit to use
+   */
+  void setVector(vec3_t value, QLineEdit *line_edit);
+
+  /**
+   * @brief get a vector from a QLineEdit widget which represents it in the form "x, y, z"
+   * @param line_edit the QLineEdit to use
+   * @return the vector
+   */
+  vec3_t getVector(QLineEdit *line_edit);
   
   virtual void before() {}
   virtual void operator()();
@@ -116,13 +130,13 @@ public: // methods
 };
 
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 DialogOperation<UI,OP>::DialogOperation()
 {
   m_Ui.setupUi(this);
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 template <class T>
 void DialogOperation<UI,OP>::addListItem(QListWidget *lw, T item, bool checked)
 {
@@ -136,7 +150,7 @@ void DialogOperation<UI,OP>::addListItem(QListWidget *lw, T item, bool checked)
   lwi->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 template <class T>
 bool DialogOperation<UI,OP>::checkListItem(QListWidget *lw, T item)
 {
@@ -151,7 +165,7 @@ bool DialogOperation<UI,OP>::checkListItem(QListWidget *lw, T item)
   return false;
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 QString DialogOperation<UI,OP>::getSelectedVolume(QListWidget *lw)
 {
   QString volume_name;
@@ -163,7 +177,7 @@ QString DialogOperation<UI,OP>::getSelectedVolume(QListWidget *lw)
   return volume_name;
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<QString> &sel)
 {
   sel.clear();
@@ -175,7 +189,7 @@ void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<QString> &se
   }
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
 {
   sel.clear();
@@ -189,7 +203,7 @@ void DialogOperation<UI,OP>::getSelectedItems(QListWidget *lw, QSet<int> &sel)
   }
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 void DialogOperation<UI,OP>::operator()()
 {
   bool ok = true;
@@ -221,12 +235,35 @@ void DialogOperation<UI,OP>::operator()()
   }
 }
 
-template <class UI, class OP>
+template <typename UI, typename OP>
 void DialogOperation<UI,OP>::setDouble(double value, QLineEdit *line_edit)
 {
   QString num;
   num.setNum(value);
   line_edit->setText(num);
+}
+
+template <typename UI, typename OP>
+void DialogOperation<UI,OP>::setVector(vec3_t value, QLineEdit *line_edit)
+{
+  QString x, y, z;
+  x.setNum(value[0]);
+  y.setNum(value[1]);
+  z.setNum(value[2]);
+  line_edit->setText(x + ", " + y + ", " + z);
+}
+
+template <typename UI, typename OP>
+vec3_t DialogOperation<UI,OP>::getVector(QLineEdit *line_edit)
+{
+  QStringList items = line_edit->text().split(",");
+  vec3_t value(0,0,0);
+  if (items.size() == 3) {
+    for (int i = 0; i < 3; ++i) {
+      value[i] = items[i].toDouble();
+    }
+  }
+  return value;
 }
 
 #endif
