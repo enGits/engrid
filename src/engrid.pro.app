@@ -41,9 +41,9 @@ win32-msvc* {
   LIBS            += -L./libengrid -lengrid
 
   debian {
-    LIBS            += -L./netgen_svn -lng
-  } else {
     LIBS            += -lnglib
+  } else {
+    LIBS            += -L./netgen_svn -lng
   }
 }
 
