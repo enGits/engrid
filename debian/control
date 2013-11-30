@@ -2,7 +2,7 @@ Source: engrid
 Section: science
 Priority: extra
 Maintainer: Bruno Santos <bruno.santos@bluecape.com.pt>
-Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libqt4-opengl-dev, libvtk5-dev (>=5.4.2), libvtk5-qt4-dev (>=5.4.2), libnglib-dev
+Build-Depends: debhelper (>= 7), cdbs, libqt4-dev, libqt4-opengl-dev, libvtk5-dev (>=5.8.0), libvtk5-qt4-dev (>=5.8.0), libnglib-dev
 Standards-Version: 3.8.4
 Homepage: http://engits.eu
 
