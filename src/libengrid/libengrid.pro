@@ -47,8 +47,11 @@ win32-msvc* {
   }
 } else {
   mydebug {
-    QMAKE_CXXFLAGS  += -Wno-deprecated -g
+    QMAKE_CXXFLAGS  += -g
   }
+  
+  #hide deprecated code issues, because these are mostly related to VTK
+  QMAKE_CXXFLAGS  += -Wno-deprecated
   
   INCLUDEPATH     += $(VTKINCDIR)
   
