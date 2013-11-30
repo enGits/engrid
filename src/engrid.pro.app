@@ -39,7 +39,12 @@ win32-msvc* {
   INCLUDEPATH     += $(VTKINCDIR)
   
   LIBS            += -L./libengrid -lengrid
-  LIBS            += -L./netgen_svn -lng
+
+  debian {
+    LIBS            += -L./netgen_svn -lng
+  } else {
+    LIBS            += -lnglib
+  }
 }
 
 #second: the VTK libraries
