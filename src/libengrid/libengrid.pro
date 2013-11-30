@@ -5,7 +5,7 @@ LANGUAGE = C++
 TARGET   = engrid
 
 CONFIG += qt debug_and_release thread
-QT     += xml network opengl`
+QT     += xml network opengl
 
 win32-msvc* {
   CONFIG += staticlib
@@ -55,6 +55,10 @@ win32-msvc* {
   }
   netcdf {
     DEFINES     += TAU_SUPPORT
+  }
+  cgns {
+    DEFINES     += CGNS_SUPPORT
+    LIBS        += -lcgns
   }
 }
 
