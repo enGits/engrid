@@ -59,7 +59,7 @@ void CgnsWriter::writeGrid()
   size[0] = nodes.size();
   size[1] = Nvcells;
   size[2] = 0;
-  if (cg_zone_write(fn,B,"main_grid",size,Unstructured,&Z)) {
+  if (cg_zone_write(fn,B,"main_grid",size,CGNS_ENUMV(Unstructured),&Z)) {
     EG_ERR_RETURN("error creating volume zone");
   }
 
@@ -82,7 +82,7 @@ void CgnsWriter::writeGrid()
         m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[0];
       }
-      if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateX", coord_array, &C)) {
+      if (cg_coord_write(fn, B, Z, CGNS_ENUMV(RealDouble), "CoordinateX", coord_array, &C)) {
         EG_ERR_RETURN("error writing x-coordinates");
       }
     }
@@ -91,7 +91,7 @@ void CgnsWriter::writeGrid()
         m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[1];
       }
-      if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateY", coord_array, &C)) {
+      if (cg_coord_write(fn, B, Z, CGNS_ENUMV(RealDouble), "CoordinateY", coord_array, &C)) {
         EG_ERR_RETURN("error writing y-coordinates");
       }
     }
@@ -100,7 +100,7 @@ void CgnsWriter::writeGrid()
         m_Grid->GetPoint(nodes[i], x.data());
         coord_array[i] = x[2];
       }
-      if (cg_coord_write(fn, B, Z, RealDouble, "CoordinateZ", coord_array, &C)) {
+      if (cg_coord_write(fn, B, Z, CGNS_ENUMV(RealDouble), "CoordinateZ", coord_array, &C)) {
         EG_ERR_RETURN("error writing z-coordinates");
       }
     }
@@ -144,7 +144,7 @@ void CgnsWriter::writeGrid()
     }
     start = 1;
     end   = start+ntet-1;
-    if (cg_section_write(fn, B, Z, "Tetras", TETRA_4, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Tetras", CGNS_ENUMV(TETRA_4), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing tetras");
     }
   }
@@ -169,7 +169,7 @@ void CgnsWriter::writeGrid()
     }
     start = end+1;
     end   = start+npyr-1;
-    if (cg_section_write(fn, B, Z, "Pyramids", PYRA_5, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Pyramids", CGNS_ENUMV(PYRA_5), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing pyramids");
     }
   }
@@ -195,7 +195,7 @@ void CgnsWriter::writeGrid()
     }
     start = end+1;
     end   = start+npri-1;
-    if (cg_section_write(fn, B, Z, "Prisms", PENTA_6, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Prisms", CGNS_ENUMV(PENTA_6), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing prisms");
     }
   }
@@ -223,7 +223,7 @@ void CgnsWriter::writeGrid()
     }
     start = end+1;
     end   = start+nhex-1;
-    if (cg_section_write(fn, B, Z, "Hexes", HEXA_8, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Hexes", CGNS_ENUMV(HEXA_8), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing hexes");
     }
   }
@@ -246,7 +246,7 @@ void CgnsWriter::writeGrid()
     }
     start = end+1;
     end   = start+ntri-1;
-    if (cg_section_write(fn, B, Z, "Triangles", TRI_3, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Triangles", CGNS_ENUMV(TRI_3), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing triangles");
     }
   }
@@ -270,7 +270,7 @@ void CgnsWriter::writeGrid()
     }
     start = end+1;
     end   = start+nqua-1;
-    if (cg_section_write(fn, B, Z, "Quads", QUAD_4, start, end, 0, elements, &S)) {
+    if (cg_section_write(fn, B, Z, "Quads", CGNS_ENUMV(QUAD_4), start, end, 0, elements, &S)) {
       EG_ERR_RETURN("error writing quads");
     }
   }
@@ -300,7 +300,7 @@ void CgnsWriter::writeBcs()
     for (int i = 0; i < bc_faces.size(); ++i) {
       data[i] = eg2cgns[bc_faces[i]]+1;
     };
-    if (cg_boco_write(fn, B, Z, qPrintable(getBC(bc).getName()), BCTypeNull, ElementList, bc_faces.size(), data, &BC_cgns)) {
+    if (cg_boco_write(fn, B, Z, qPrintable(getBC(bc).getName()), CGNS_ENUMV(BCTypeNull), CGNS_ENUMV(ElementList), bc_faces.size(), data, &BC_cgns)) {
       cout << cg_get_error() << endl;
       EG_ERR_RETURN("error writing boundary condition");
     }
@@ -317,7 +317,7 @@ void CgnsWriter::operate()
     readOutputFileName(file_info.completeBaseName() + ".cgns");
     if (isValid()) {
       QString file_name = getFileName();
-      if (cg_open(qPrintable(file_name), MODE_WRITE, &fn)) {
+      if (cg_open(qPrintable(file_name), CGNS_ENUMV(MODE_WRITE), &fn)) {
         EG_ERR_RETURN("error while opening CGNS file for writing");
       }
       writeGrid();

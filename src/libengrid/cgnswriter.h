@@ -28,7 +28,17 @@ class CgnsWriter;
 #include "iooperation.h"
 
 #ifdef CGNS_SUPPORT
+#ifndef CG_BUILD_SCOPE
+  #define CG_BUILD_SCOPE
+#endif
 #include "cgnslib.h"
+
+#if CGNS_VERSION < 3000
+  #define CGNS_ENUMV( e ) e
+  #define CGNS_ENUMT( e ) e
+  #define CGNS_ENUMD( e ) e
+  #define CGNS_ENUMF( e ) e
+#endif
 #endif
 
 /**
