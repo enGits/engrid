@@ -20,10 +20,16 @@ QT     += xml \
 win32-msvc* {
   QMAKE_CXXFLAGS  += -W3
   DEFINES         += _USE_MATH_DEFINES
-  INCLUDEPATH     += ../../VTK/include/vtk-5.10
-  LIBS            += ./libengrid/release/engrid.lib
-  LIBS            += -L../../VTK/lib/vtk-5.10
+  INCLUDEPATH     += $(VTKINCDIR)
+  LIBS            += -L$(VTKLIBDIR)
   LIBS            += ./netgen_svn/release/nglib.lib
+  LIBS            += ./libengrid/release/engrid.lib
+  LIBS            += -lvtkzlib
+  LIBS            += -lvtkexpat
+  LIBS            += -lvtkfreetype
+  LIBS            += -lvtkjpeg
+  LIBS            += -lvtkpng
+  LIBS            += -lvtktiff
   brlcad {
     INCLUDEPATH += ../../BRL-CAD/include
     INCLUDEPATH += ../../BRL-CAD/include/openNURBS
@@ -40,8 +46,8 @@ win32-msvc* {
 } else {
   QMAKE_CXXFLAGS += -Wno-deprecated -g
   INCLUDEPATH     += $(VTKINCDIR)
-  LIBS            += -L./libengrid -lengrid
   LIBS            += -L./netgen_svn -lng
+  LIBS            += -L./libengrid -lengrid
   brlcad {
     INCLUDEPATH += $(BRLCADINCDIR)
     INCLUDEPATH += $(BRLCADINCDIR)/openNURBS

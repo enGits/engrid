@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+    grad(p)         Gauss linear;
+    grad(U)         Gauss linear;
+}
+
+divSchemes
+{
+    default          none;
+    div(phi,U)       Gauss {{{ComboBox: U convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinearV 1): linearUpwind Gauss}}};
+    div(phi,k)       Gauss {{{ComboBox: k convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind}}};
+    div(phi,epsilon) Gauss {{{ComboBox: epsilon convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind}}};
+    div(phi,omega)   Gauss {{{ComboBox: omega convection scheme: (1st order upwind, upwind), (2nd order upwind, linearUpwind Gauss), (central, limitedLinear 1): upwind}}};
+    div((nuEff*dev(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         			none;
+    laplacian(nuEff,U) 			Gauss linear corrected;
+    
+    laplacian((1|A(U)),p)		Gauss linear corrected;
+    laplacian(DkEff,k) 			Gauss linear corrected;
+    laplacian(DomegaEff,omega) 		Gauss linear corrected;
+    laplacian(DepsilonEff,epsilon)      Gauss linear corrected;
+    laplacian(1,p)                      Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+    interpolate(U)  linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+}
+
+// ************************************************************************* //

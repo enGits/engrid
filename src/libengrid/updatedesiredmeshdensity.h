@@ -48,7 +48,6 @@ private: //attributes
 
   QSet<int>                   m_BCs;
   double                      m_GrowthFactor;
-  QVector <VertexMeshDensity> m_VMDvector; ///< the mesh density rules
   double                      m_MaxEdgeLength;
   double                      m_MinEdgeLength;
   double                      m_NodesPerQuarterCircle;
@@ -59,6 +58,7 @@ private: //attributes
   QVector<bool>               m_Fixed;
   EdgeLengthSourceManager     m_ELSManager;
   bool                        m_OnlySurfaceCells;
+  bool                        m_Relaxation;
 
 protected: // methods
 
@@ -73,6 +73,8 @@ public: //methods
 
   UpdateDesiredMeshDensity();
   virtual void operate();
+
+  void readSettings();
   void setVertexMeshDensityVector(QVector <VertexMeshDensity> const & vmd) { m_VMDvector = vmd; }
   void setMaxEdgeLength(double l) { m_MaxEdgeLength = l; }
   void setMinEdgeLength(double l) { m_MinEdgeLength = l; }
@@ -83,6 +85,8 @@ public: //methods
   void setFeatureResolution2D(double n) { m_FeatureResolution2D = n; }
   void setFeatureResolution3D(double n) { m_FeatureResolution3D = n; }
   void setFeatureThresholdAngle(double a) { m_FeatureThresholdAngle = a; }
+  void setRelaxationOff() { m_Relaxation = false; }
+  void setRelaxationOn() { m_Relaxation = true; }
 
 };
 

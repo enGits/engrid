@@ -23,10 +23,10 @@
 #ifndef OPENFOAMCASE_H
 #define OPENFOAMCASE_H
 
-#include "simplefoamwriter.h"
+#include "foamwriter.h"
 #include "foamobject.h"
 
-class OpenFOAMcase : public SimpleFoamWriter, public FoamObject
+class OpenFOAMcase : public FoamWriter, public FoamObject
 {
 
   private: // attributes
@@ -37,8 +37,6 @@ class OpenFOAMcase : public SimpleFoamWriter, public FoamObject
     void writeSolverParameters();
     void upateVarFile(QString file_name, QString bc_txt);
     void writeBoundaryConditions();
-    void createBoundaryFaces();
-    void rewriteBoundaryFaces();
 
   public:
 

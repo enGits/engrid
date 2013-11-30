@@ -1,4 +1,4 @@
-// 
+//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
@@ -19,54 +19,31 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
-#ifndef PHYSICALBOUNDARYCONDITION_H
-#define PHYSICALBOUNDARYCONDITION_H
+//
+#ifndef GUICREATEHEXIBMESH_H
+#define GUICREATEHEXIBMESH_H
 
-#include <QString>
-#include <QVector>
+#include "dialogoperation.h"
+#include "ui_guicreatehexibmesh.h"
+#include "createhexibmesh.h"
 
-#include "engrid.h"
-
-class PhysicalBoundaryCondition
+class GuiCreateHexIbMesh : public DialogOperation<Ui::GuiCreateHexIbMesh, Operation>
 {
 
-private: // attributes
+  Q_OBJECT
 
-  QString          m_Name;
-  QString          m_Type;
-  int              m_Index;
-  QVector<QString> m_VarNames;
-  QVector<double>  m_VarValues;
+  CreateHexIbMesh m_CreateMesh;
 
 protected: // methods
 
-public: // methods
+  virtual void before();
+  virtual void operate();
 
-  PhysicalBoundaryCondition();
 
-  void setName(QString name) { m_Name = name; }
-  void setIndex(int index) { m_Index = index; }
-  void setValue(int i, double v) { m_VarValues[i] = v; }
-  void setType(QString type);
+public:
 
-  QString getName()  { return m_Name; }
-  QString getType()  { return m_Type; }
-  int     getIndex() { return m_Index; }
-  double  getVarValue(int i) { return m_VarValues[i]; }
-  QString getVarName(int i)  { return m_VarNames[i]; }
-  int     getNumVars()       { return m_VarValues.size(); }
-
-  QString getFoamP(QString version);
-  QString getFoamU(QString version, vec3_t n);
-  QString getFoamK(QString version);
-  QString getFoamEpsilon(QString version);
-  QString getFoamOmega(QString version);
-  QString getFoamT(QString version);
-  QString getFoamNut(QString version);
-
-  QString getFoamType();
+  GuiCreateHexIbMesh();
 
 };
 
-#endif
+#endif // GUICREATEHEXIBMESH_H

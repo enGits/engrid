@@ -47,7 +47,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   setEdgeAngle(m_EdgeAngle);
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
-  m_StrictFeatureSnap = true;
+  m_StrictFeatureSnap = !m_BCodeFeatureDefinition;
 }
 
 void SurfaceOperation::operate()
@@ -166,13 +166,18 @@ void SurfaceOperation::readVMD()
     in >> row_count >> column_count;
     QVector<int> tmp_bcs;
     GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
-    if (column_count == tmp_bcs.size() + 3) {
+    {
       m_VMDvector.fill(VertexMeshDensity(), row_count);
       for (int i = 0; i < row_count; ++i) {
         int row, column;
         QString formula;
-        foreach (int bc, tmp_bcs) {
-          in >> row >> column >> formula;
+        for (int j = 0; j < tmp_bcs.size(); ++j) {
+          int bc = tmp_bcs[j];
+          if (j < column_count - 3) {
+            in >> row >> column >> formula;
+          } else {
+            formula = "1";
+          }
           m_VMDvector[row].BCmap[bc] = formula.toInt();
         }
         in >> row >> column >> formula;
@@ -185,8 +190,6 @@ void SurfaceOperation::readVMD()
         in >> row >> column >> formula;
         m_VMDvector[i].density = formula.toDouble();
       }
-    } else {
-      EG_ERR_RETURN(QObject::tr("Mismatch of number of boundary codes!"));
     }
   }
 }

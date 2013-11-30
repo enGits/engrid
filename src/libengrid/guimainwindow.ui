@@ -144,6 +144,7 @@
     <addaction name="actionConvertToPolyMesh"/>
     <addaction name="actionCreateHexCore"/>
     <addaction name="actionCreateHexShellMesh"/>
+    <addaction name="actionCreateHexIbMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="actionDivideBoundaryLayer"/>
@@ -1757,6 +1758,11 @@
    </property>
    <property name="toolTip">
     <string>create hex shell mesh</string>
+   </property>
+  </action>
+  <action name="actionCreateHexIbMesh">
+   <property name="text">
+    <string>create hex mesh for immersed boundaries</string>
    </property>
   </action>
  </widget>

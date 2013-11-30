@@ -51,13 +51,8 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
     vec3_t x2(bounds[1], bounds[3], bounds[5]);
     vec3_t xc = 0.5*(x1 + x2);
     vec3_t Dx = x2 - xc;
-    if (fabs(Dx[0]) >= fabs(Dx[1]) && fabs(Dx[0]) >= fabs(Dx[2])) {
-      Dx = vec3_t(Dx[0], Dx[0], Dx[0]);
-    } else if (fabs(Dx[1]) >= fabs(Dx[0]) && fabs(Dx[1]) >=  fabs(Dx[2])) {
-      Dx = vec3_t(Dx[1], Dx[1], Dx[1]);
-    } else {
-      Dx = vec3_t(Dx[2], Dx[2], Dx[2]);
-    }
+    double dx_max = max(Dx[0], max(Dx[1], Dx[2]));
+    Dx = vec3_t(dx_max, dx_max, dx_max);
     x1 = xc - 2*Dx;
     x2 = xc + 2*Dx;
     m_Octree.setBounds(x1, x2);

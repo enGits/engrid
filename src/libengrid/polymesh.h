@@ -47,7 +47,6 @@ protected: // data types
     bool operator==(const face_t &F) const;
     face_t() {}
     face_t(int N, int o, int n, vec3_t rv, int b = 0);
-    int hash() const { return node.first(); }
   };
 
   struct node_t {
@@ -135,6 +134,7 @@ protected: // methods
   //void splitConcaveFaces();
   void collectBoundaryConditions();
   void invertFace(int i);
+  void sortFaces();
 
   vec3_t faceNormal(int i);
    

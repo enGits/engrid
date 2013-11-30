@@ -15,6 +15,7 @@ temp
 *.so
 *.so.*
 *.jar
+*.pyc
 
 # Qt generated files
 moc_*

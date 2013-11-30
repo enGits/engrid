@@ -52,7 +52,6 @@ void CreateVolumeMesh::prepare()
   del.setGrid(m_Grid);
   del.setAllCells();
   del();
-  writeGrid(m_Grid, "tringles");
   QVector<vtkIdType> cells, nodes;
   QVector<int>       _cells, _nodes;
   QVector<QVector< int > > c2c;
@@ -177,30 +176,29 @@ void CreateVolumeMesh::prepare()
       ++m_NumTriangles;
     }
   }
-  //writeDebugInfo();
+  writeDebugInfo();
 }
 
 void CreateVolumeMesh::writeDebugInfo()
 {
-  {
-    EG_VTKSP(vtkUnstructuredGrid,tri_grid);
-    allocateGrid(tri_grid, tri.size(), m_NumTriangles);
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (add_to_ng[id_node]) {
-        vec3_t x;
-        m_Grid->GetPoint(id_node, x.data());
-        tri_grid->GetPoints()->SetPoint(old2tri[id_node], x.data());
-        copyNodeData(m_Grid, id_node, tri_grid, old2tri[id_node]);
-      }
-    }
-    foreach (QVector<vtkIdType> T, tri) {
-      vtkIdType pts[3];
-      pts[0] = old2tri[T[0]];
-      pts[1] = old2tri[T[1]];
-      pts[2] = old2tri[T[2]];
-      tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+  EG_VTKSP(vtkUnstructuredGrid,tri_grid);
+  allocateGrid(tri_grid, tri.size(), m_NumTriangles);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (add_to_ng[id_node]) {
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+      tri_grid->GetPoints()->SetPoint(old2tri[id_node], x.data());
+      copyNodeData(m_Grid, id_node, tri_grid, old2tri[id_node]);
     }
   }
+  foreach (QVector<vtkIdType> T, tri) {
+    vtkIdType pts[3];
+    pts[0] = old2tri[T[0]];
+    pts[1] = old2tri[T[1]];
+    pts[2] = old2tri[T[2]];
+    tri_grid->InsertNextCell(VTK_TRIANGLE, 3, pts);
+  }
+  writeGrid(tri_grid, "tringles");
 }
 
 void CreateVolumeMesh::computeMeshDensity()
@@ -385,12 +383,12 @@ void CreateVolumeMesh::operate()
       Ng_RestrictMeshSizeBox(mesh, B.x1.data(), B.x2.data(), B.h);
       ++box_counter;
     }
-    GuiMainWindow::pointer()->setSystemOutput();
     writeDebugInfo();
+    GuiMainWindow::pointer()->logOff();
     res = Ng_GenerateVolumeMesh (mesh, &mp);
-    GuiMainWindow::pointer()->setLogFileOutput();
+    GuiMainWindow::pointer()->logOn();
   } catch (netgen::NgException ng_err) {
-    GuiMainWindow::pointer()->setLogFileOutput();
+    GuiMainWindow::pointer()->logOn();
     writeDebugInfo();
     Error err;
     QString msg = "Netgen stopped with the following error:\n";

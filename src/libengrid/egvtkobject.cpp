@@ -770,6 +770,7 @@ void EgVtkObject::copyCellData
   EGVTKOBJECT_COPYCELLDATA("cell_curdir", vtkIntArray);
   EGVTKOBJECT_COPYCELLDATA("cell_voldir", vtkIntArray);
   EGVTKOBJECT_COPYCELLDATA("cell_index",  vtkLongArray_t);
+  EGVTKOBJECT_COPYCELLDATA("cell_subres", vtkDoubleArray);
 }
 
 #define EGVTKOBJECT_COPYNODEDATA(FIELD,TYPE) \
@@ -848,6 +849,7 @@ void EgVtkObject::createBasicCellFields(vtkUnstructuredGrid *grid, vtkIdType Nce
   EGVTKOBJECT_CREATECELLFIELD("cell_curdir",       vtkIntArray, overwrite); // current orientation
   EGVTKOBJECT_CREATECELLFIELD("cell_voldir",       vtkIntArray, overwrite); // volume orientation -- only valid for a single (i.e. the current) volume
   EGVTKOBJECT_CREATECELLFIELD("cell_mesh_quality", vtkDoubleArray, overwrite); // generic field to store different quality measures
+  EGVTKOBJECT_CREATECELLFIELD("cell_subres",       vtkDoubleArray, overwrite); // mesh size for sub-cell resolution (DrNUM)
 }
 
 void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nnodes, bool overwrite)
@@ -1420,6 +1422,10 @@ void EgVtkObject::addVtkTypeInfo(vtkUnstructuredGrid* a_grid)
 
 vtkIdType EgVtkObject::addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGrid *grid_to_add, vtkIdType offset)
 {
+  EG_VTKSP(vtkUnstructuredGrid, main_copy);
+  makeCopy(main_grid, main_copy);
+  allocateGrid(main_grid, main_copy->GetNumberOfCells() + grid_to_add->GetNumberOfCells(), main_copy->GetNumberOfPoints() + grid_to_add->GetNumberOfPoints());
+  makeCopyNoAlloc(main_copy, main_grid);
   for (vtkIdType id_node = 0; id_node < grid_to_add->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     grid_to_add->GetPoints()->GetPoint(id_node, x.data());
@@ -1427,12 +1433,14 @@ vtkIdType EgVtkObject::addGrid(vtkUnstructuredGrid *main_grid, vtkUnstructuredGr
     copyNodeData(grid_to_add, id_node, main_grid, offset + id_node);
   }
   for (vtkIdType id_cell = 0; id_cell < grid_to_add->GetNumberOfCells(); ++id_cell) {
+    /*
     vtkIdType N_pts, *pts;
     vtkIdType type_cell = grid_to_add->GetCellType(id_cell);
     grid_to_add->GetCellPoints(id_cell, N_pts, pts);
     QVector <vtkIdType> new_pts(N_pts);
     for(int i=0;i<N_pts;i++) new_pts[i] = offset + pts[i];
-    vtkIdType id_new_cell = main_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+    */
+    vtkIdType id_new_cell = copyCell(grid_to_add, id_cell, main_grid, offset);
     copyCellData(grid_to_add, id_cell, main_grid, id_new_cell);
   }
   return( offset + grid_to_add->GetNumberOfPoints() );

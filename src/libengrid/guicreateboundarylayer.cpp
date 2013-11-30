@@ -333,7 +333,9 @@ void GuiCreateBoundaryLayer::operate()
   vol.setGrid(m_Grid);
   SwapTriangles swap;
   swap.setGrid(m_Grid);
-  swap.setBoundaryCodes(m_BoundaryCodes);
+  QSet<int> swap_codes = getAllBoundaryCodes(m_Grid);
+  swap_codes -= m_LayerAdjacentBoundaryCodes;
+  swap.setBoundaryCodes(swap_codes);
   swap.setVerboseOff();
 
   DeleteTetras del;
