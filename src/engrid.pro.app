@@ -46,13 +46,16 @@ win32-msvc* {
 } else {
   QMAKE_CXXFLAGS += -Wno-deprecated -g
   INCLUDEPATH     += $(VTKINCDIR)
-  LIBS            += -L./netgen_svn -lng
   LIBS            += -L./libengrid -lengrid
+  LIBS            += -L./netgen_svn -lng
   brlcad {
     INCLUDEPATH += $(BRLCADINCDIR)
     INCLUDEPATH += $(BRLCADINCDIR)/openNURBS
     LIBS        += $(BRLCADLIBDIR)/librt.so
     DEFINES     += BRLCAD_SUPPORT
+  }
+  cgns {
+    LIBS        += -lcgns
   }
 }
 
