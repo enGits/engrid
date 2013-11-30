@@ -1,3 +1,21 @@
+engrid (1.5-dev~saucy1) saucy; urgency=low
+
+  * Bump dev to Saucy (13.10).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 30 Nov 2013 20:00:00 +0100
+
+engrid (1.5-dev~raring1) raring; urgency=low
+
+  * Bump dev to Raring (13.04).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 30 Nov 2013 20:00:00 +0100
+
+engrid (1.5-dev~quantal1) quantal; urgency=low
+
+  * Bump dev to Quantal (12.10).
+
+ -- Bruno Santos <bruno.santos@bluecape.com.pt>  Sun, 30 Nov 2013 20:00:00 +0100
+
 engrid (1.5-dev-ubuntu1) precise; urgency=low
 
   * Added CGNS and NETCDF to the build options.
