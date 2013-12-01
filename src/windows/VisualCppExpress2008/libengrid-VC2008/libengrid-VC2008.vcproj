@@ -817,6 +817,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\libengrid\createhexibmesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\libengrid\createvolumemesh.cpp"
 				>
 			</File>
@@ -946,6 +950,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexibmesh.cpp"
 				>
 			</File>
 			<File
@@ -1325,6 +1333,10 @@
 				</File>
 				<File
 					RelativePath=".\$(IntDir)\moc_guicreatehexcore.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\$(IntDir)\moc_guicreatehexibmesh.cpp"
 					>
 				</File>
 				<File
@@ -2672,6 +2684,74 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\createhexcore.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug (Static)|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="QT MOC Builder"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\createhexibmesh.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -5204,6 +5284,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexibmesh.h"
 				>
 			</File>
 			<File
@@ -10362,6 +10446,74 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\..\..\libengrid\ui_guicreatehexibmesh.h"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug (Static)|x64"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="QT MOC Builder"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\..\libengrid\ui_guicreatehexshell.h"
 					>
 					<FileConfiguration
@@ -11890,6 +12042,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\libengrid\guicreatehexcore.ui"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libengrid\guicreatehexibmesh.ui"
 				>
 			</File>
 			<File
