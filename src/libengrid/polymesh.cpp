@@ -282,7 +282,7 @@ void PolyMesh::triangulateBadFaces()
     EG_VTKSP(vtkPolyData, poly);
     createPolyData(x, poly);
     EG_VTKSP(vtkTriangleFilter, tri);
-    tri->SetInput(poly);
+    tri->SetInputData(poly);
     tri->Update();
     if (tri->GetOutput()->GetNumberOfPoints() > face.node.size()) {
       EG_BUG;

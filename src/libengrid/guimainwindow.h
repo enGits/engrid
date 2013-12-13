@@ -23,6 +23,8 @@
 #ifndef mainwindow_H
 #define mainwindow_H
 
+#define VTK_USE_RENDERING
+
 #ifdef DLL_EXPORT
    #if defined(LIBENGRID_EXPORTS) || defined(libengrid_EXPORTS)
       #define LIBENGRID_DLL   __declspec(dllexport)

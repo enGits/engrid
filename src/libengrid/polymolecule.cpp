@@ -97,7 +97,7 @@ void PolyMolecule::writeVtkFile(QString file_name)
   file_name = GuiMainWindow::pointer()->getCwd() + "/" + file_name + ".vtu";
   vtu->SetFileName(qPrintable(file_name));
   vtu->SetDataModeToBinary();
-  vtu->SetInput(grid);
+  vtu->SetInputData(grid);
   vtu->Write();
 }
 
@@ -301,15 +301,15 @@ void PolyMolecule::smooth(bool delaunay, bool write)
     if (delaunay) {
       EG_VTKSP(vtkDelaunay3D, delaunay);
       delaunay->SetOffset(100);
-      delaunay->SetInput(poly_data);
-      surface->SetInput(delaunay->GetOutput());
+      delaunay->SetInputData(poly_data);
+      surface->SetInputConnection(delaunay->GetOutputPort());
     } else {
       EG_VTKSP(vtkHull, hull);
-      hull->SetInput(poly_data);
+      hull->SetInputData(poly_data);
       hull->AddRecursiveSpherePlanes(5);
       EG_VTKSP(vtkTriangleFilter, tri);
-      tri->SetInput(hull->GetOutput());
-      surface->SetInput(tri->GetOutput());
+      tri->SetInputConnection(hull->GetOutputPort());
+      surface->SetInputConnection(tri->GetOutputPort());
     }
     surface->Update();
     if (surface->GetOutput()->GetNumberOfCells() < 4) {
@@ -320,7 +320,7 @@ void PolyMolecule::smooth(bool delaunay, bool write)
       QString file_name = GuiMainWindow::pointer()->getCwd() + "/" + "convex_hull.vtp";
       vtp->SetFileName(qPrintable(file_name));
       vtp->SetDataModeToAscii();
-      vtp->SetInput(surface->GetOutput());
+      vtp->SetInputConnection(surface->GetOutputPort());
       vtp->Write();
     }
     convex_hull.fill(QVector<vec3_t>(3), surface->GetOutput()->GetNumberOfCells());

@@ -38,7 +38,7 @@ void GuiImproveAspectRatio::operate()
   EG_VTKSP(vtkUnstructuredGrid,ug);
   do {
     ug->DeepCopy(m_Grid);
-    elem->SetInput(ug);
+    elem->SetInputData(ug);
     elem->Update();
     m_Grid->DeepCopy(elem->GetOutput());
     N_elim += elem->getNumEliminated();

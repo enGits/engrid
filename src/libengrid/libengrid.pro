@@ -219,7 +219,6 @@ HEADERS = \
     vtkEgGridFilter.h \
     vtkEgNormalExtrusion.h \
     vtkEgPolyDataToUnstructuredGridFilter.h \
-    vtkImplicitPolyData.h \
     vtkreader.h \
     xmlhandler.h \
     guifillplane.h \
@@ -363,7 +362,6 @@ SOURCES = \
     vtkEgGridFilter.cxx \
     vtkEgNormalExtrusion.cxx \
     vtkEgPolyDataToUnstructuredGridFilter.cxx \
-    vtkImplicitPolyData.cpp \
     vtkreader.cpp \
     xmlhandler.cpp \
     guifillplane.cpp \

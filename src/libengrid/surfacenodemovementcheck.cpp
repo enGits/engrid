@@ -52,7 +52,7 @@ void SurfaceNodeMovementCheck::setGrid(vtkUnstructuredGrid *grid)
     }
   }
   EG_VTKSP(vtkDelaunay3D, delaunay);
-  delaunay->SetInput(tmp_grid);
+  delaunay->SetInputData(tmp_grid);
   delaunay->Update();
   makeCopy(delaunay->GetOutput(), m_AuxGrid, false);
   int N1 = m_Grid->GetNumberOfPoints();
@@ -117,7 +117,7 @@ void SurfaceNodeMovementCheck::write(QString file_name)
 {
   EG_VTKSP(vtkXMLUnstructuredGridWriter, vtu);
   vtu->SetFileName(qPrintable(file_name + ".vtu"));
-  vtu->SetInput(m_AuxGrid);
+  vtu->SetInputData(m_AuxGrid);
   vtu->Write();
 }
 

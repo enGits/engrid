@@ -274,12 +274,12 @@ void CreateCadTesselation::scan(bool create_grid, int interlaces)
     QString file_name = GuiMainWindow::pointer()->getCwd() + "/g.vti";
     vti->SetFileName(qPrintable(file_name));
     vti->SetDataModeToBinary();
-    vti->SetInput(gdata);
+    vti->SetInputData(gdata);
     vti->Write();
 
     gdata->GetPointData()->SetActiveScalars("g");
     EG_VTKSP(vtkContourFilter, contour);
-    contour->SetInput(gdata);
+    contour->SetInputData(gdata);
     contour->SetNumberOfContours(1);
     double g_level = 0.5;
     if (m_PreservationType == 1) {
@@ -290,12 +290,12 @@ void CreateCadTesselation::scan(bool create_grid, int interlaces)
     }
     contour->SetValue(0, g_level);
     EG_VTKSP(vtkTriangleFilter, tri);
-    tri->SetInput(contour->GetOutput());
+    tri->SetInputConnection(contour->GetOutputPort());
     EG_VTKSP(vtkDecimatePro, decimate);
     decimate->PreserveTopologyOn();
     decimate->SetTargetReduction(m_TargetReduction);
     decimate->SetFeatureAngle(GeometryTools::deg2rad(45));
-    decimate->SetInput(tri->GetOutput());
+    decimate->SetInputConnection(tri->GetOutputPort());
     decimate->Update();
 
     allocateGrid(m_Grid, decimate->GetOutput()->GetNumberOfPolys(), decimate->GetOutput()->GetNumberOfPoints());

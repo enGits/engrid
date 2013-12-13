@@ -154,7 +154,7 @@ void GuiNormalExtrusion::operate()
   extr->SetBoundaryCodes(bcs);
   EG_VTKSP(vtkUnstructuredGrid,ug);
   makeCopy(m_Grid, ug);
-  extr->SetInput(ug);
+  extr->SetInputData(ug);
   extr->Update();
   makeCopy(extr->GetOutput(), m_Grid);
   QSet<int> new_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();

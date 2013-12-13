@@ -90,7 +90,7 @@ void FixSTL::operate()
     copyNodeData(m_Grid, id_node, pts_grid, id_node);
   };
   EG_VTKSP(vtkDelaunay3D, delaunay);
-  delaunay->SetInput(pts_grid);
+  delaunay->SetInputData(pts_grid);
   delaunay->Update();
   EG_VTKSP(vtkUnstructuredGrid, tetra_grid);
   makeCopy(delaunay->GetOutput(), tetra_grid);

@@ -323,10 +323,10 @@ void GuiMainWindow::setupVtk()
   m_LegendActor       = vtkScalarBarActor::New();
   //
   m_BCodesFilter->SetBoundaryCodes(m_DisplayBoundaryCodes);
-  m_BCodesFilter->SetInput(m_Grid);
-  m_SurfaceFilter->SetInput(m_BCodesFilter->GetOutput());
-  m_SurfaceMapper->SetInput(m_SurfaceFilter->GetOutput());
-  m_SurfaceWireMapper->SetInput(m_SurfaceFilter->GetOutput());
+  m_BCodesFilter->SetInputData(m_Grid);
+  m_SurfaceFilter->SetInputConnection(m_BCodesFilter->GetOutputPort());
+  m_SurfaceMapper->SetInputConnection(m_SurfaceFilter->GetOutputPort());
+  m_SurfaceWireMapper->SetInputConnection(m_SurfaceFilter->GetOutputPort());
   m_SurfaceMapper->SetLookupTable(m_LookupTable);
   m_SurfaceActor->GetProperty()->SetRepresentationToSurface();
   m_SurfaceActor->GetProperty()->SetColor(m_ColAR, m_ColAG, m_ColAB);
@@ -350,11 +350,11 @@ void GuiMainWindow::setupVtk()
   m_TetraGeometry = vtkDataSetSurfaceFilter::New();
   m_TetraMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrTetras->SetInput(m_Grid);
+  m_ExtrTetras->SetInputData(m_Grid);
   m_ExtrTetras->SetAllOff();
   m_ExtrTetras->SetTetrasOn();;
-  m_TetraGeometry->SetInput(m_ExtrTetras->GetOutput());
-  m_TetraMapper->SetInput(m_TetraGeometry->GetOutput());
+  m_TetraGeometry->SetInputConnection(m_ExtrTetras->GetOutputPort());
+  m_TetraMapper->SetInputConnection(m_TetraGeometry->GetOutputPort());
   m_TetraActor->SetMapper(m_TetraMapper);
   m_TetraActor->GetProperty()->SetColor(m_ColTetraR, m_ColTetraG, m_ColTetraB);
   getRenderer()->AddActor(m_TetraActor);
@@ -366,11 +366,11 @@ void GuiMainWindow::setupVtk()
   m_PyramidGeometry = vtkDataSetSurfaceFilter::New();
   m_PyramidMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrPyramids->SetInput(m_Grid);
+  m_ExtrPyramids->SetInputData(m_Grid);
   m_ExtrPyramids->SetAllOff();
   m_ExtrPyramids->SetPyramidsOn();
-  m_PyramidGeometry->SetInput(m_ExtrPyramids->GetOutput());
-  m_PyramidMapper->SetInput(m_PyramidGeometry->GetOutput());
+  m_PyramidGeometry->SetInputConnection(m_ExtrPyramids->GetOutputPort());
+  m_PyramidMapper->SetInputConnection(m_PyramidGeometry->GetOutputPort());
   m_PyramidActor->SetMapper(m_PyramidMapper);
   m_PyramidActor->GetProperty()->SetColor(m_ColPyraR, m_ColPyraG, m_ColPyraB);
   getRenderer()->AddActor(m_PyramidActor);
@@ -382,11 +382,11 @@ void GuiMainWindow::setupVtk()
   m_WedgeGeometry = vtkDataSetSurfaceFilter::New();
   m_WedgeMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrWedges->SetInput(m_Grid);
+  m_ExtrWedges->SetInputData(m_Grid);
   m_ExtrWedges->SetAllOff();
   m_ExtrWedges->SetWedgesOn();
-  m_WedgeGeometry->SetInput(m_ExtrWedges->GetOutput());
-  m_WedgeMapper->SetInput(m_WedgeGeometry->GetOutput());
+  m_WedgeGeometry->SetInputConnection(m_ExtrWedges->GetOutputPort());
+  m_WedgeMapper->SetInputConnection(m_WedgeGeometry->GetOutputPort());
   m_WedgeActor->SetMapper(m_WedgeMapper);
   m_WedgeActor->GetProperty()->SetColor(m_ColPrismR, m_ColPrismG, m_ColPrismB);
   getRenderer()->AddActor(m_WedgeActor);
@@ -398,11 +398,11 @@ void GuiMainWindow::setupVtk()
   m_HexaGeometry = vtkDataSetSurfaceFilter::New();
   m_HexaMapper  = vtkPolyDataMapper::New();
   //
-  m_ExtrHexes->SetInput(m_Grid);
+  m_ExtrHexes->SetInputData(m_Grid);
   m_ExtrHexes->SetAllOff();
   m_ExtrHexes->SetHexesOn();
-  m_HexaGeometry->SetInput(m_ExtrHexes->GetOutput());
-  m_HexaMapper->SetInput(m_HexaGeometry->GetOutput());
+  m_HexaGeometry->SetInputConnection(m_ExtrHexes->GetOutputPort());
+  m_HexaMapper->SetInputConnection(m_HexaGeometry->GetOutputPort());
   m_HexaActor->SetMapper(m_HexaMapper);
   m_HexaActor->GetProperty()->SetColor(m_ColHexR, m_ColHexG, m_ColHexB);
   getRenderer()->AddActor(m_HexaActor);
@@ -414,11 +414,11 @@ void GuiMainWindow::setupVtk()
   m_PolyhedraGeometry = vtkDataSetSurfaceFilter::New();
   m_PolyhedraMapper   = vtkPolyDataMapper::New();
   //
-  m_ExtrPolyhedra->SetInput(m_Grid);
+  m_ExtrPolyhedra->SetInputData(m_Grid);
   m_ExtrPolyhedra->SetAllOff();
   m_ExtrPolyhedra->SetPolysOn();
-  m_PolyhedraGeometry->SetInput(m_ExtrPolyhedra->GetOutput());
-  m_PolyhedraMapper->SetInput(m_PolyhedraGeometry->GetOutput());
+  m_PolyhedraGeometry->SetInputConnection(m_ExtrPolyhedra->GetOutputPort());
+  m_PolyhedraMapper->SetInputConnection(m_PolyhedraGeometry->GetOutputPort());
   m_PolyhedraActor->SetMapper(m_PolyhedraMapper);
   m_PolyhedraActor->GetProperty()->SetColor(m_ColPolyR, m_ColPolyG, m_ColPolyB);
   getRenderer()->AddActor(m_PolyhedraActor);
@@ -430,10 +430,10 @@ void GuiMainWindow::setupVtk()
   m_VolumeGeometry   = vtkDataSetSurfaceFilter::New();
   m_VolumeWireMapper = vtkPolyDataMapper::New();
   //
-  m_ExtrVol->SetInput(m_Grid);
+  m_ExtrVol->SetInputData(m_Grid);
   m_ExtrVol->SetAllOn();
-  m_VolumeGeometry->SetInput(m_ExtrVol->GetOutput());
-  m_VolumeWireMapper->SetInput(m_VolumeGeometry->GetOutput());
+  m_VolumeGeometry->SetInputConnection(m_ExtrVol->GetOutputPort());
+  m_VolumeWireMapper->SetInputConnection(m_VolumeGeometry->GetOutputPort());
   m_VolumeWireActor->SetMapper(m_VolumeWireMapper);
   m_VolumeWireActor->GetProperty()->SetRepresentationToWireframe();
   m_VolumeWireActor->GetProperty()->SetColor(0,0,1);
@@ -448,7 +448,7 @@ void GuiMainWindow::setupVtk()
   m_PointPicker = vtkPointPicker::New();
 
   m_PickSphere->SetRadius(0.25); //in case the user starts picking points instead of cells
-  m_PickMapper->SetInput(m_PickSphere->GetOutput());
+  m_PickMapper->SetInputConnection(m_PickSphere->GetOutputPort());
   m_PickActor->SetMapper(m_PickMapper);
   m_PickActor->GetProperty()->SetRepresentationToSurface();
   m_PickActor->GetProperty()->SetColor(0,0,1);
@@ -789,7 +789,7 @@ void GuiMainWindow::updateActors(bool forced)
 
   //if (!tryLock()) return;
   try {
-    m_Axes->SetInput(m_Grid);
+    m_Axes->SetInputData(m_Grid);
     updateSurfaceActors(forced);
     updateVolumeActors(forced);
     updateStatusBar();

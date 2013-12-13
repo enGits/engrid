@@ -42,12 +42,12 @@ void PlyWriter::operate()
     readOutputFileName(file_info.completeBaseName() + ".ply");
     if (isValid()) {
       EG_VTKSP(vtkGeometryFilter, geometry);
-      geometry->SetInput(m_Grid);
+      geometry->SetInputData(m_Grid);
       EG_VTKSP(vtkTriangleFilter, triangle);
-      triangle->SetInput(geometry->GetOutput());
+      triangle->SetInputConnection(geometry->GetOutputPort());
       
       EG_VTKSP(vtkPLYWriter, write_ply);
-      write_ply->SetInput(triangle->GetOutput());
+      write_ply->SetInputConnection(triangle->GetOutputPort());
       write_ply->SetFileName(qPrintable(getFileName()));
       if(m_AsciiFileType) {
         write_ply->SetFileTypeToASCII();

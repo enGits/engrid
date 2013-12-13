@@ -9,6 +9,8 @@ TARGET   = engrid
 # Note: Currently only for Windows Compiles with MSVC
 Use_VTK_Win_ParaView = yes
 
+VTK_MAJOR_VERSION = 6
+
 CONFIG += qt \
           debug_and_release \
           thread
@@ -46,6 +48,7 @@ win32-msvc* {
 } else {
   QMAKE_CXXFLAGS += -Wno-deprecated -g
   INCLUDEPATH     += $(VTKINCDIR)
+  LIBS            += -L$(VTKLIBDIR)
   LIBS            += -L./netgen_svn -lng
   LIBS            += -L./libengrid -lengrid
   brlcad {
@@ -56,21 +59,41 @@ win32-msvc* {
   }
 }
 
-LIBS += -lQVTK
-LIBS += -lvtkCommon
-LIBS += -lvtkDICOMParser
-LIBS += -lvtkexoIIc
-LIBS += -lvtkFiltering
-LIBS += -lvtkftgl
-LIBS += -lvtkGenericFiltering
-LIBS += -lvtkGraphics
-LIBS += -lvtkHybrid
-LIBS += -lvtkImaging
-LIBS += -lvtkIO
-LIBS += -lvtkRendering
-LIBS += -lvtksys
-LIBS += -lvtkVolumeRendering
-LIBS += -lvtkWidgets
+greaterThan(VTK_MAJOR_VERSION, 5) {
+  LIBS += -lvtkCommonCore
+  LIBS += -lvtkCommonDataModel
+  LIBS += -lvtkCommonExecutionModel
+  LIBS += -lvtkRenderingCore
+  LIBS += -lvtkRenderingOpenGL
+  LIBS += -lvtkRenderingAnnotation
+  LIBS += -lvtkRenderingFreeType
+  LIBS += -lvtkRenderingVolumeOpenGL
+  LIBS += -lvtkRenderingFreeTypeOpenGL
+  LIBS += -lvtkInteractionStyle
+  LIBS += -lvtkInteractionWidgets
+  LIBS += -lvtkIOPLY
+  LIBS += -lvtkIOGeometry
+  LIBS += -lvtkIOXML
+  LIBS += -lvtkIOLegacy
+  LIBS += -lvtkGUISupportQt
+  LIBS += -lvtkGUISupportQtOpenGL
+} else {
+  LIBS += -lQVTK
+  LIBS += -lvtkCommon
+  LIBS += -lvtkDICOMParser
+  LIBS += -lvtkexoIIc
+  LIBS += -lvtkFiltering
+  LIBS += -lvtkftgl
+  LIBS += -lvtkGenericFiltering
+  LIBS += -lvtkGraphics
+  LIBS += -lvtkHybrid
+  LIBS += -lvtkImaging
+  LIBS += -lvtkIO
+  LIBS += -lvtkRendering
+  LIBS += -lvtksys
+  LIBS += -lvtkVolumeRendering
+  LIBS += -lvtkWidgets
+}
 
 INCLUDEPATH += ./libengrid
 INCLUDEPATH += ./libengrid-build

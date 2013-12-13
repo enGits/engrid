@@ -1397,7 +1397,7 @@ bool EgVtkObject::saveGrid(vtkUnstructuredGrid* a_grid, QString file_name)
   EG_VTKSP(vtkXMLUnstructuredGridWriter,vtu);
   vtu->SetFileName(qPrintable(file_name));
   vtu->SetDataModeToBinary();
-  vtu->SetInput(a_grid);
+  vtu->SetInputData(a_grid);
   vtu->Write();
   if(vtu->GetErrorCode()) {
     return false;

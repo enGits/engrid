@@ -42,7 +42,7 @@ void PolyDataReader::operate()
       EG_VTKSP(vtkXMLPolyDataReader,vtp);
       EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter,pd2ug);
       vtp->SetFileName(qPrintable(getFileName()));
-      pd2ug->SetInput(vtp->GetOutput());
+      pd2ug->SetInputConnection(vtp->GetOutputPort());
       pd2ug->Update();
       m_Grid->DeepCopy(pd2ug->GetOutput());
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());

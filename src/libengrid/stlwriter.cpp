@@ -42,11 +42,11 @@ void StlWriter::operate()
     readOutputFileName(file_info.completeBaseName() + ".stl");
     if (isValid()) {
       EG_VTKSP(vtkGeometryFilter, geometry);
-      geometry->SetInput(m_Grid);
+      geometry->SetInputData(m_Grid);
       EG_VTKSP(vtkTriangleFilter, triangle);
-      triangle->SetInput(geometry->GetOutput());
+      triangle->SetInputConnection(geometry->GetOutputPort());
       EG_VTKSP(vtkSTLWriter, write_stl);
-      write_stl->SetInput(triangle->GetOutput());
+      write_stl->SetInputConnection(  triangle->GetOutputPort());
       write_stl->SetFileName(qPrintable(getFileName()));
       if(m_AsciiFileType) {
         write_stl->SetFileTypeToASCII();

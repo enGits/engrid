@@ -23,6 +23,8 @@
 #ifndef engrid_H
 #define engrid_H
 
+#define vtkRenderingCore_AUTOINIT 4(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingFreeTypeOpenGL,vtkRenderingOpenGL)
+
 #include <QMessageBox>
 #include <QtDebug>
 #include <QString>

@@ -76,8 +76,8 @@ void StlReader::operate()
     poly_clean->ToleranceIsAbsoluteOn();
     poly_clean->ConvertLinesToPointsOn();
     poly_clean->ConvertPolysToLinesOn();
-    poly_clean->SetInput(poly);
-    topo_check->SetInput(poly_clean->GetOutput());
+    poly_clean->SetInputData(poly);
+    topo_check->SetInputConnection(poly_clean->GetOutputPort());
     topo_check->BoundaryEdgesOn();
     topo_check->ManifoldEdgesOff();
     topo_check->FeatureEdgesOff();
@@ -97,7 +97,7 @@ void StlReader::operate()
     }
     // with a tolerance of " << 0.5*L << endl;
     EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, poly2ugrid);
-    poly2ugrid->SetInput(poly_clean->GetOutput());
+    poly2ugrid->SetInputConnection(poly_clean->GetOutputPort());
     poly2ugrid->Update();
     
     allocateGrid(m_Grid, poly2ugrid->GetOutput()->GetNumberOfCells(), poly2ugrid->GetOutput()->GetNumberOfPoints());

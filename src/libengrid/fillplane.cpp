@@ -224,10 +224,10 @@ void FillPlane::triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_gr
 {
   EG_VTKSP(vtkDelaunay2D, delaunay);
   EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata2grid);
-  delaunay->SetInput(edge_pdata);
-  delaunay->SetSource(edge_pdata);
+  delaunay->SetInputData(edge_pdata);
+  delaunay->SetSourceData(edge_pdata);
   delaunay->Update();
-  pdata2grid->SetInput(delaunay->GetOutput());
+  pdata2grid->SetInputConnection(delaunay->GetOutputPort());
   pdata2grid->Update();
   makeCopy(pdata2grid->GetOutput(), tri_grid);
   createBasicFields(tri_grid, tri_grid->GetNumberOfCells(), tri_grid->GetNumberOfPoints());

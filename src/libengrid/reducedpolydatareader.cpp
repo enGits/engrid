@@ -205,7 +205,7 @@ void ReducedPolyDataReader::operate()
       octree.setSmoothTransitionOn();
 
       EG_VTKSP(vtkSmoothPolyDataFilter, smooth1);
-      smooth1->SetInput(vtk->GetOutput());
+      smooth1->SetInputConnection(vtk->GetOutputPort());
       smooth1->FeatureEdgeSmoothingOn();
       smooth1->BoundarySmoothingOn();
       smooth1->SetNumberOfIterations(200);
@@ -236,10 +236,10 @@ void ReducedPolyDataReader::operate()
       EG_VTKSP(vtkDecimatePro, decimate);
       decimate->SetFeatureAngle(20.0);
       decimate->PreserveTopologyOn();
-      decimate->SetInput(smooth1->GetOutput());
+      decimate->SetInputConnection(smooth1->GetOutputPort());
       decimate->SetTargetReduction(0.9);
       EG_VTKSP(vtkSmoothPolyDataFilter, smooth2);
-      smooth2->SetInput(decimate->GetOutput());
+      smooth2->SetInputConnection(decimate->GetOutputPort());
       smooth2->FeatureEdgeSmoothingOn();
       smooth2->BoundarySmoothingOn();
       smooth2->SetNumberOfIterations(200);
@@ -264,12 +264,12 @@ void ReducedPolyDataReader::operate()
       computeLevelSet(oct_grid, smooth2->GetOutput());
 
       EG_VTKSP(vtkDelaunay3D, delaunay);
-      delaunay->SetInput(oct_grid);
+      delaunay->SetInputData(oct_grid);
 
       EG_VTKSP(vtkContourFilter, contour);
-      contour->SetInput(delaunay->GetOutput());
+      contour->SetInputConnection(delaunay->GetOutputPort());
       contour->GenerateValues(1, 0, 0);
-      contour->SetInput(oct_grid);
+      contour->SetInputData(oct_grid);
       contour->Update();
 
       {
@@ -277,7 +277,7 @@ void ReducedPolyDataReader::operate()
         QString file_name = GuiMainWindow::pointer()->getCwd() + "/oct_grid.vtu";
         vtu->SetFileName(qPrintable(file_name));
         vtu->SetDataModeToBinary();
-        vtu->SetInput(oct_grid);
+        vtu->SetInputData(oct_grid);
         vtu->Write();
       }
       if (contour->GetOutput()->GetNumberOfPolys() == 0) {
@@ -285,7 +285,7 @@ void ReducedPolyDataReader::operate()
       }
 
       EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, poly2ug);
-      poly2ug->SetInput(contour->GetOutput());
+      poly2ug->SetInputConnection(contour->GetOutputPort());
       poly2ug->Update();
 
       makeCopy(poly2ug->GetOutput(), m_Grid);
