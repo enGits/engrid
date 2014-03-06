@@ -33,7 +33,7 @@ FoamWriter::FoamWriter()
   setFormat("Foam boundary files(boundary)");
   setExtension("");
   m_CreateCellZones = false;//true;
-  m_NoDialog = true;
+  m_NoDialog = false;
 }
 
 void FoamWriter::writePoints(const PolyMesh &poly)
@@ -301,20 +301,24 @@ PolyMesh* FoamWriter::createSinglePolyMesh()
   QList<VolumeDefinition> vols = mainWindow()->getAllVols();
   PolyMesh* poly = NULL;
   m_CellZoneLimits.append(0);
-  for (int i = 0; i < vols.size(); ++i) {
-    m_CellZoneNames.append(vols[i].getName());
-    EG_VTKSP(vtkUnstructuredGrid, vol_grid);
-    MeshPartition volume(vols[i].getName());
-    volume.setVolumeOrientation();
-    volume.extractToVtkGrid(vol_grid);
-    volume.setOriginalOrientation();
-    if (i == 0) {
-      poly = new PolyMesh(vol_grid, false, 0.0, false);
-    } else {
-      PolyMesh vol_poly(vol_grid, false, 0.0, false);
-      poly->merge(&vol_poly);
+  if (vols.size() > 1) {
+    for (int i = 0; i < vols.size(); ++i) {
+      m_CellZoneNames.append(vols[i].getName());
+      EG_VTKSP(vtkUnstructuredGrid, vol_grid);
+      MeshPartition volume(vols[i].getName());
+      volume.setVolumeOrientation();
+      volume.extractToVtkGrid(vol_grid);
+      volume.setOriginalOrientation();
+      if (i == 0) {
+        poly = new PolyMesh(vol_grid, false, 0.0, false);
+      } else {
+        PolyMesh vol_poly(vol_grid, false, 0.0, false);
+        poly->merge(&vol_poly);
+      }
+      m_CellZoneLimits.append(poly->numPolyCells());
     }
-    m_CellZoneLimits.append(poly->numPolyCells());
+  } else {
+    poly = new PolyMesh(m_Grid, false, 0.0, false);
   }
   return poly;
 }

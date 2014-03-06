@@ -86,7 +86,7 @@ void ConvertToPolyMesh::operate()
       }
     }
     vtkIdType id_cell = grid->InsertNextCell(VTK_POLYHEDRON, ptids);
-    cell_code->SetValue(id_cell, 0);
+    cell_code->SetValue(id_cell, 1);
   }
 
   // copy all boundary faces to the new grid

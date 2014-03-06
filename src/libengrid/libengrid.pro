@@ -229,7 +229,8 @@ HEADERS = \
     guicreatehexshell.h \
     guiconverttopolymesh.h \
     createhexibmesh.h \
-    guicreatehexibmesh.h
+    guicreatehexibmesh.h \
+    restricttoavailablevolumecells.h
 
 
 SOURCES = \
@@ -372,7 +373,8 @@ SOURCES = \
     guicreatehexshell.cpp \
     guiconverttopolymesh.cpp \
     createhexibmesh.cpp \
-    guicreatehexibmesh.cpp
+    guicreatehexibmesh.cpp \
+    restricttoavailablevolumecells.cpp
 
 
 FORMS = \

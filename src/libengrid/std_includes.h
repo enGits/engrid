@@ -72,5 +72,6 @@
 #include "drnumwriter.h"
 #include "converttopolymesh.h"
 #include "guicreatehexshell.h"
+#include "restricttoavailablevolumecells.h"
 
 // -------------------------------------------

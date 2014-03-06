@@ -167,7 +167,7 @@ void TriangularCadInterface::searchNewTriangle(vec3_t xp, vtkIdType &id_tri, vec
   on_triangle = false;
   QVector<vtkIdType> candidate_faces;
   m_FaceFinder.getCloseFaces(xp, candidate_faces);
-  //candidate_faces.clear();
+  candidate_faces.clear();
   if (candidate_faces.size() == 0) {
     // backup method -- really inefficient!
     candidate_faces.resize(m_Triangles.size());

@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -150,6 +150,7 @@
     <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="actionMergeVolumes"/>
     <addaction name="actionOptimiseOrthogonalty"/>
+    <addaction name="actionRestrictToAvailableVolumeCells"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
@@ -316,8 +317,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>213</width>
-          <height>492</height>
+          <width>221</width>
+          <height>495</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -708,8 +709,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>213</width>
-          <height>492</height>
+          <width>221</width>
+          <height>484</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1763,6 +1764,11 @@
   <action name="actionCreateHexIbMesh">
    <property name="text">
     <string>create hex mesh for immersed boundaries</string>
+   </property>
+  </action>
+  <action name="actionRestrictToAvailableVolumeCells">
+   <property name="text">
+    <string>restrict mesh to available volume cells</string>
    </property>
   </action>
  </widget>

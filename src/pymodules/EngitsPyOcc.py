@@ -26,6 +26,8 @@ from OCC.Utils import Common, Construct
 from OCC.StlAPI import *
 from OCC.DataExchange.STEP import *
 from OCC.DataExchange.IGES import *
+from OCC.BRepPrimAPI import *
+from OCC.BRepBuilderAPI import *
 
 import sys
 import math
@@ -181,6 +183,53 @@ def nose(x1, y1, z1, x2, y2, z2, R, r):
 
 def scale(shape, x, y, z, factor):
   return Construct.scale(shape, Common.gp_Pnt(x,y,z), factor)
+
+
+
+#The prototype for the BRepBuilderAPI_MakeSolid method is (just type help(BRepBuilderAPI_MakeSolid)):
+#__init__(self, TopoDS_CompSolid S) -> BRepBuilderAPI_MakeSolid
+#__init__(self, TopoDS_Shell S) -> BRepBuilderAPI_MakeSolid
+#__init__(self, TopoDS_Shell S1, TopoDS_Shell S2) -> BRepBuilderAPI_MakeSolid
+#__init__(self, TopoDS_Shell S1, TopoDS_Shell S2, TopoDS_Shell S3) -> BRepBuilderAPI_MakeSolid
+#__init__(self, TopoDS_Solid So) -> BRepBuilderAPI_MakeSolid
+#__init__(self, TopoDS_Solid So, TopoDS_Shell S) -> BRepBuilderAPI_MakeSolid
+
+#That is to say, you first have to convert the sewed shape to a Shell.
+
+#Here is your code corrected:
+
+#sewing = BRepBuilderAPI_Sewing()
+
+#for i in range(14):
+#sewing.Add(faces[i])
+
+#sewing.Perform()
+#sewed_shape = sewing.SewedShape() 
+## It works fine until here, and I can display the shell
+
+#from OCC.TopoDS import *
+#tds = TopoDS()
+
+#solid = BRepBuilderAPI_MakeSolid(tds.Shell(sewed_shape))
+
+def solid(faces):
+  sewing = BRepBuilderAPI_Sewing()
+  for face in faces:
+    pts = []
+    for node in face:
+      pts.append(Common.gp_Pnt(node[0], node[1], node[2]))
+    try:
+      sewing.Add(Construct.make_face(Construct.make_closed_polygon(pts)))
+    except AssertionError:
+      print pts
+      exit(1)
+  sewing.Perform()
+  sewed_shape = sewing.SewedShape() 
+  return sewed_shape
+  #tds = Construct.TopoDS()
+  #return BRepBuilderAPI_MakeSolid(tds.Shell(sewed_shape))
+    
+      
 
 
 def write_stl(shape, file_name, precision):
