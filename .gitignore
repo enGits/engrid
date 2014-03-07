@@ -30,15 +30,7 @@ core
 callgrind*
 
 # build folder(s) and executables
-/platforms/
-engrid
-engrid_debug
-release
-debug
-Release
-Debug
-Release-static
-Debug-static
+build
 
 # generated Makefiles
 Makefile
