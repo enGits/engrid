@@ -26,11 +26,6 @@ class CreateVolumeMesh;
 #include "operation.h"
 #include "edgelengthsourcemanager.h"
 
-namespace nglib {
-  #include <nglib.h>
-}
-
-#include <ngexception.hpp>
 
 class CreateVolumeMesh : public Operation
 {
@@ -42,34 +37,18 @@ private: // attributes
   double m_GrowthFactor;
   double m_MinEdgeLength;
   double m_MaxEdgeLength;
-  QVector<QVector<vtkIdType> > tri;
-  QVector<bool> add_to_ng;
-  int num_nodes_to_add;
-  int num_old_nodes;
-  QVector<vtkIdType> trace_cells;
-  QVector<vtkIdType> old2tri;
-  int m_NumTriangles;
+  //QVector<QVector<vtkIdType> > tri;
+  //QVector<bool>           add_to_ng;
+  //int                     num_nodes_to_add;
+  //int                     num_old_nodes;
+  QVector<vtkIdType>      m_TraceCells;
+  //QVector<vtkIdType>      old2tri;
+  int                     m_NumTriangles;
   EdgeLengthSourceManager m_ELSManager;
 
-
-
-  struct box_t {
-    vec3_t x1, x2;
-    double h;
-  };
-  
-  struct point_t {
-    vec3_t x;
-    double h;
-  };
-  
-  QList<box_t> boxes;
-  
 private: // methods
   
   void computeMeshDensity();
-  void prepare();
-  void writeDebugInfo();
   
 protected: // methods
   
@@ -78,7 +57,6 @@ protected: // methods
 public: // methods
   
   CreateVolumeMesh();
-  void setMaxH(double h) { maxh = h; }
   void setTraceCells(const QVector<vtkIdType> &cells);
   void getTraceCells(QVector<vtkIdType> &cells);
   
