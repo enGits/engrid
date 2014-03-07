@@ -1,22 +1,23 @@
-# ----------------------------------------------------
-# File: engrid-vtk-win_paraview.pri
-# Date: 29 January 2011
-# Author: Philippose Rajan
-#
-# This file contains the configuration required to 
-# compile Engrid using the VTK version which is part 
-# of ParaView compiled from sources on the Windows 
-# platform using Microsoft Visual C++ (Express Edition).
-#
-# Note #1: This requires the option "INSTALL_DEVELOPMENT"
-# to be enabled in the ParaView CMake configuration. 
-#
-# NOTE #2: The location of the ParaView binary installation 
-# and the Paraview version need to be  specified as environment 
-# variables:
-# PV_INSTDIR
-# PV_VER (Ex. 3.9)
-# -----------------------------------------------------
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# +                                                                      +
+# + This file is part of enGrid.                                         +
+# +                                                                      +
+# + Copyright 2008-2014 enGits GmbH                                      +
+# +                                                                      +
+# + enGrid is free software: you can redistribute it and/or modify       +
+# + it under the terms of the GNU General Public License as published by +
+# + the Free Software Foundation, either version 3 of the License, or    +
+# + (at your option) any later version.                                  +
+# +                                                                      +
+# + enGrid is distributed in the hope that it will be useful,            +
+# + but WITHOUT ANY WARRANTY; without even the implied warranty of       +
+# + MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        +
+# + GNU General Public License for more details.                         +
+# +                                                                      +
+# + You should have received a copy of the GNU General Public License    +
+# + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
+# +                                                                      +
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Default values for the above variables
 DEF_PV_INSTDIR = "I:/ParaView_Git/ParaView-bin"
