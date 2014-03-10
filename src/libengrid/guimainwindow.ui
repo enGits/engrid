@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>17</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -317,8 +317,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>495</height>
+          <width>213</width>
+          <height>492</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -709,8 +709,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>484</height>
+          <width>213</width>
+          <height>492</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -977,7 +977,7 @@
      <normaloff>:/icons/resources/kde_icons/filesave.png</normaloff>:/icons/resources/kde_icons/filesave.png</iconset>
    </property>
    <property name="text">
-    <string>Save Grid</string>
+    <string>Save grid</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -989,7 +989,7 @@
      <normaloff>:/icons/resources/kde_icons/filesaveas.png</normaloff>:/icons/resources/kde_icons/filesaveas.png</iconset>
    </property>
    <property name="text">
-    <string>Save Grid As</string>
+    <string>Save grid as...</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -1011,7 +1011,7 @@
   </action>
   <action name="actionBoundaryCodes">
    <property name="text">
-    <string>boundary codes</string>
+    <string>Boundary codes</string>
    </property>
    <property name="shortcut">
     <string>V</string>
@@ -1023,7 +1023,7 @@
      <normaloff>:/icons/resources/icons/extrusion.png</normaloff>:/icons/resources/icons/extrusion.png</iconset>
    </property>
    <property name="text">
-    <string>extrusion</string>
+    <string>Extrusion</string>
    </property>
   </action>
   <action name="actionViewAxes">
@@ -1031,7 +1031,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>coordinate axes</string>
+    <string>Coordinate axes</string>
    </property>
   </action>
   <action name="actionExportGmsh1Ascii">
@@ -1061,7 +1061,7 @@
      <normaloff>:/icons/resources/icons/setbc.png</normaloff>:/icons/resources/icons/setbc.png</iconset>
    </property>
    <property name="text">
-    <string>set boundary code</string>
+    <string>Set boundary code</string>
    </property>
    <property name="shortcut">
     <string>S</string>
@@ -1073,7 +1073,7 @@
      <normaloff>:/icons/resources/icons/reorder.png</normaloff>:/icons/resources/icons/reorder.png</iconset>
    </property>
    <property name="text">
-    <string>change surface orientation</string>
+    <string>Change surface orientation</string>
    </property>
   </action>
   <action name="actionCheckOrientation">
@@ -1082,7 +1082,7 @@
      <normaloff>:/icons/resources/icons/checkorder.png</normaloff>:/icons/resources/icons/checkorder.png</iconset>
    </property>
    <property name="text">
-    <string>correct surface orientation</string>
+    <string>Correct surface orientation</string>
    </property>
   </action>
   <action name="actionImproveAspectRatio">
@@ -1091,7 +1091,7 @@
      <normaloff>:/icons/resources/icons/aspectratio.png</normaloff>:/icons/resources/icons/aspectratio.png</iconset>
    </property>
    <property name="text">
-    <string>delete bad aspect ratio cells</string>
+    <string>Delete bad aspect ratio cells</string>
    </property>
   </action>
   <action name="actionCreateVolumeMesh">
@@ -1100,7 +1100,7 @@
      <normaloff>:/icons/resources/icons/createvol.png</normaloff>:/icons/resources/icons/createvol.png</iconset>
    </property>
    <property name="text">
-    <string>create/improve volume mesh (NETGEN)</string>
+    <string>Create/improve volume mesh (NETGEN)</string>
    </property>
   </action>
   <action name="actionCreateSurfaceMesh">
@@ -1109,7 +1109,7 @@
      <normaloff>:/icons/resources/icons/editsurfaceparameters.png</normaloff>:/icons/resources/icons/editsurfaceparameters.png</iconset>
    </property>
    <property name="text">
-    <string>edit surface parameters</string>
+    <string>Edit surface parameters</string>
    </property>
    <property name="toolTip">
     <string>edit surface parameters</string>
@@ -1126,7 +1126,7 @@
      <normaloff>:/icons/resources/kde_icons/reload.png</normaloff>:/icons/resources/kde_icons/reload.png</iconset>
    </property>
    <property name="text">
-    <string>redraw</string>
+    <string>Redraw</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -1138,7 +1138,7 @@
      <normaloff>:/icons/resources/icons/createblayer.png</normaloff>:/icons/resources/icons/createblayer.png</iconset>
    </property>
    <property name="text">
-    <string>create prismatic boundary layer</string>
+    <string>Create prismatic boundary layer</string>
    </property>
   </action>
   <action name="actionExportAsciiStl">
@@ -1157,7 +1157,7 @@
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
    </property>
    <property name="text">
-    <string>delete tetras</string>
+    <string>Delete tetras</string>
    </property>
    <property name="toolTip">
     <string>delete tetras</string>
@@ -1169,7 +1169,7 @@
      <normaloff>:/icons/resources/icons/divideblayer.png</normaloff>:/icons/resources/icons/divideblayer.png</iconset>
    </property>
    <property name="text">
-    <string>divide prismatic boundary layer</string>
+    <string>Divide prismatic boundary layer</string>
    </property>
   </action>
   <action name="actionConfigure">
@@ -1183,12 +1183,12 @@
      <normaloff>:/icons/resources/icons/smoothvol.png</normaloff>:/icons/resources/icons/smoothvol.png</iconset>
    </property>
    <property name="text">
-    <string>smooth volume grid</string>
+    <string>Smooth volume grid</string>
    </property>
   </action>
   <action name="actionClearOutputWindow">
    <property name="text">
-    <string>clear output window</string>
+    <string>Clear output window</string>
    </property>
   </action>
   <action name="actionViewFront">
@@ -1197,7 +1197,7 @@
      <normaloff>:/icons/resources/icons/viewzplus.png</normaloff>:/icons/resources/icons/viewzplus.png</iconset>
    </property>
    <property name="text">
-    <string>view from positive z direction</string>
+    <string>View from positive z direction</string>
    </property>
   </action>
   <action name="actionViewBack">
@@ -1206,7 +1206,7 @@
      <normaloff>:/icons/resources/icons/viewzminus.png</normaloff>:/icons/resources/icons/viewzminus.png</iconset>
    </property>
    <property name="text">
-    <string>view from negative z direction</string>
+    <string>View from negative z direction</string>
    </property>
   </action>
   <action name="actionViewRight">
@@ -1215,7 +1215,7 @@
      <normaloff>:/icons/resources/icons/viewxplus.png</normaloff>:/icons/resources/icons/viewxplus.png</iconset>
    </property>
    <property name="text">
-    <string>view from positive x direction</string>
+    <string>View from positive x direction</string>
    </property>
   </action>
   <action name="actionViewTop">
@@ -1224,7 +1224,7 @@
      <normaloff>:/icons/resources/icons/viewyplus.png</normaloff>:/icons/resources/icons/viewyplus.png</iconset>
    </property>
    <property name="text">
-    <string>view from positive y direction</string>
+    <string>View from positive y direction</string>
    </property>
   </action>
   <action name="actionViewLeft">
@@ -1233,7 +1233,7 @@
      <normaloff>:/icons/resources/icons/viewxminus.png</normaloff>:/icons/resources/icons/viewxminus.png</iconset>
    </property>
    <property name="text">
-    <string>view from negative x direction</string>
+    <string>View from negative x direction</string>
    </property>
   </action>
   <action name="actionViewBottom">
@@ -1242,12 +1242,12 @@
      <normaloff>:/icons/resources/icons/viewyminus.png</normaloff>:/icons/resources/icons/viewyminus.png</iconset>
    </property>
    <property name="text">
-    <string>view from negative y direction</string>
+    <string>View from negative y direction</string>
    </property>
   </action>
   <action name="actionVtkReader">
    <property name="text">
-    <string>legacy unstructured grid files</string>
+    <string>Legacy unstructured grid files</string>
    </property>
   </action>
   <action name="actionFoamWriter">
@@ -1260,12 +1260,15 @@
   </action>
   <action name="actionPolyDataReader">
    <property name="text">
-    <string>vtkPolyData</string>
+    <string>VTK poly data</string>
+   </property>
+   <property name="toolTip">
+    <string>VTK poly data</string>
    </property>
   </action>
   <action name="actionDeleteBadAspectTris">
    <property name="text">
-    <string>remove bad triangles</string>
+    <string>Remove bad triangles</string>
    </property>
   </action>
   <action name="actionDeletePickedCell">
@@ -1275,7 +1278,7 @@
   </action>
   <action name="actionFixSTL">
    <property name="text">
-    <string>fix surface triangulation</string>
+    <string>Fix surface triangulation</string>
    </property>
   </action>
   <action name="actionEditBoundaryConditions">
@@ -1350,7 +1353,7 @@
   </action>
   <action name="actionUseVTKInteractor">
    <property name="text">
-    <string>UseVTKInteractor</string>
+    <string>Use VTK interactor</string>
    </property>
   </action>
   <action name="actionScaleToData">
@@ -1411,22 +1414,34 @@
   </action>
   <action name="actionZoomOnPickedObject">
    <property name="text">
-    <string>ZoomOnPickedObject</string>
+    <string>Zoom on picked object</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom on picked object</string>
    </property>
   </action>
   <action name="actionDeselectAll">
    <property name="text">
-    <string>DeselectAll</string>
+    <string>Deselect all</string>
+   </property>
+   <property name="toolTip">
+    <string>Deselect all</string>
    </property>
   </action>
   <action name="actionPrintGrid">
    <property name="text">
-    <string>PrintGrid</string>
+    <string>Print grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Print grid</string>
    </property>
   </action>
   <action name="actionShowInfo">
    <property name="text">
-    <string>ShowInfo</string>
+    <string>Show info</string>
+   </property>
+   <property name="toolTip">
+    <string>Show info</string>
    </property>
    <property name="shortcut">
     <string>I</string>
@@ -1458,7 +1473,7 @@
   </action>
   <action name="actionForcedRedraw">
    <property name="text">
-    <string>forced redraw</string>
+    <string>Forced redraw</string>
    </property>
   </action>
   <action name="actionShow_debugging_utilities">
@@ -1471,7 +1486,7 @@
   </action>
   <action name="actionStoreGeometry">
    <property name="text">
-    <string>store geometry for surface meshing</string>
+    <string>Store geometry for surface meshing</string>
    </property>
   </action>
   <action name="actionImportOpenFoamCase">
@@ -1568,7 +1583,7 @@
      <normaloff>:/icons/resources/icons/createsurfacemesh.png</normaloff>:/icons/resources/icons/createsurfacemesh.png</iconset>
    </property>
    <property name="text">
-    <string>create/improve surface mesh</string>
+    <string>Create/improve surface mesh</string>
    </property>
    <property name="toolTip">
     <string>create/improve surface mesh</string>
@@ -1576,7 +1591,7 @@
   </action>
   <action name="actionReduceSurfaceTriangulation">
    <property name="text">
-    <string>reduce surface triangulation</string>
+    <string>Reduce surface triangulation</string>
    </property>
    <property name="toolTip">
     <string>reduce surface triangulation</string>
@@ -1584,12 +1599,12 @@
   </action>
   <action name="actionEliminateSmallBranches">
    <property name="text">
-    <string>eliminate small branches</string>
+    <string>Eliminate small branches</string>
    </property>
   </action>
   <action name="actionSmoothAndSwapSurface">
    <property name="text">
-    <string>smooth surface grid</string>
+    <string>Smooth surface grid</string>
    </property>
   </action>
   <action name="actionImportSeligAirfoil">
@@ -1599,12 +1614,15 @@
   </action>
   <action name="actionFixCADgeometry">
    <property name="text">
-    <string>fix CAD geometry</string>
+    <string>Fix CAD geometry</string>
    </property>
   </action>
   <action name="actionProjection_test">
    <property name="text">
-    <string>projection test</string>
+    <string>Projection test</string>
+   </property>
+   <property name="toolTip">
+    <string>Projection test</string>
    </property>
   </action>
   <action name="actionImportBlenderFile">
@@ -1649,7 +1667,7 @@
   </action>
   <action name="actionMergeVolumes">
    <property name="text">
-    <string>merge volumes</string>
+    <string>Merge volumes</string>
    </property>
   </action>
   <action name="actionMirrorMesh">
@@ -1657,12 +1675,12 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>mirror</string>
+    <string>Mirror</string>
    </property>
   </action>
   <action name="actionSharpenEdges">
    <property name="text">
-    <string>sharpen edges</string>
+    <string>Sharpen edges</string>
    </property>
    <property name="toolTip">
     <string>sharpen edges (e.g. after import from snappyHexMesh)</string>
@@ -1670,7 +1688,7 @@
   </action>
   <action name="actionCheckForOverlap">
    <property name="text">
-    <string>check for overlapping faces</string>
+    <string>Check for overlapping faces</string>
    </property>
    <property name="toolTip">
     <string>check for overlapping faces</string>
@@ -1678,7 +1696,7 @@
   </action>
   <action name="actionAbout_enGrid_plugins">
    <property name="text">
-    <string>about enGrid plugins</string>
+    <string>About enGrid plugins</string>
    </property>
   </action>
   <action name="actionImportBrlcad">
@@ -1695,12 +1713,12 @@
   </action>
   <action name="actionOptimiseOrthogonalty">
    <property name="text">
-    <string>optimise orthogonalty</string>
+    <string>Optimise orthogonalty</string>
    </property>
   </action>
   <action name="actionCreateHexCore">
    <property name="text">
-    <string>create hex core mesh</string>
+    <string>Create hex core mesh</string>
    </property>
   </action>
   <action name="actionExportSu2">
@@ -1710,7 +1728,7 @@
   </action>
   <action name="actionBooleanOperation">
    <property name="text">
-    <string>boolean operation</string>
+    <string>Boolean operation</string>
    </property>
   </action>
   <action name="actionExportDolfyn">
@@ -1731,7 +1749,7 @@
   </action>
   <action name="actionFillPlane">
    <property name="text">
-    <string>fill plane</string>
+    <string>Fill plane</string>
    </property>
    <property name="toolTip">
     <string>fill plance with triangles</string>
@@ -1747,7 +1765,7 @@
   </action>
   <action name="actionConvertToPolyMesh">
    <property name="text">
-    <string>convert to poly mesh</string>
+    <string>Convert to poly mesh</string>
    </property>
    <property name="toolTip">
     <string>convert to poly mesh</string>
@@ -1755,7 +1773,7 @@
   </action>
   <action name="actionCreateHexShellMesh">
    <property name="text">
-    <string>create hex shell mesh</string>
+    <string>Create hex shell mesh</string>
    </property>
    <property name="toolTip">
     <string>create hex shell mesh</string>
@@ -1763,12 +1781,12 @@
   </action>
   <action name="actionCreateHexIbMesh">
    <property name="text">
-    <string>create hex mesh for immersed boundaries</string>
+    <string>Create hex mesh for immersed boundaries</string>
    </property>
   </action>
   <action name="actionRestrictToAvailableVolumeCells">
    <property name="text">
-    <string>restrict mesh to available volume cells</string>
+    <string>Restrict mesh to available volume cells</string>
    </property>
   </action>
  </widget>
