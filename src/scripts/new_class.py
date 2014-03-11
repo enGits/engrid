@@ -30,7 +30,7 @@ def get_path(command):
   return path
 
 def get_lic():
-  file_name = get_path(sys.argv[0]) + "licence_header.txt"
+  file_name = get_path(sys.argv[0]) + "../licence_header.txt"
   read_buf = open(file_name, "r").read()
   lines = read_buf.split("\n")
   lic = ""
@@ -44,21 +44,14 @@ def write_h(class_name):
   f.write("#ifndef " + class_name.upper() + "_H\n")
   f.write("#define " + class_name.upper() + "_H\n")
   f.write("\n")
-  f.write("#include \"engitscloudlib.h\"\n")
+  f.write("#include \"operation.h\"\n")
   f.write("\n")
-  f.write("namespace ECL_NAMESPACE\n")
-  f.write("{\n")
   f.write("class " + class_name + ";\n")
-  f.write("}\n")
   f.write("\n")
-  f.write("namespace ECL_NAMESPACE\n")
-  f.write("{\n")
   f.write("\n")
   f.write("class " + class_name + "\n")
   f.write("{\n")
   f.write("};\n")
-  f.write("\n")
-  f.write("}\n // namespace")
   f.write("\n")
   f.write("#endif // " + class_name.upper() + "_H\n")
   
@@ -66,11 +59,6 @@ def write_cpp(class_name):
   f = open(class_name.lower() + ".cpp", "w")
   f.write(get_lic())
   f.write("#include \"" + class_name.lower() + ".h\"\n")
-  f.write("\n")
-  f.write("namespace ECL_NAMESPACE\n")
-  f.write("{\n")
-  f.write("\n")
-  f.write("} // namespace\n")
   f.write("\n")
   
 
