@@ -26,6 +26,7 @@
 #include <QMessageBox>
 #include <QtDebug>
 #include <QString>
+#include <QDate>
 
 #include <vtkSmartPointer.h>
 #include <vtkLongArray.h>
@@ -269,6 +270,12 @@ connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
   GRID->GetCellPoints(ID_CELL, num_pts, pts);
 
 #define EG_LARGE_REAL 1e99
+
+#define EG_STOPDATE(STOP_DATE) \
+  QDate stop_date = QDate::fromString(STOP_DATE, "yyyy-MM-dd"); \
+  if (stop_date <= QDate::currentDate()) { \
+    EG_ERR_RETURN(QString("This feature is not supported after ") + STOP_DATE); \
+  } \
 
 inline double sqr(double x) { return x*x; }
 
