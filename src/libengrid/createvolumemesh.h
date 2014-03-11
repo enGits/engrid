@@ -23,19 +23,19 @@
 
 class CreateVolumeMesh;
 
-#include "operation.h"
+#include "tetgenoperation.h"
 #include "edgelengthsourcemanager.h"
 
 
-class CreateVolumeMesh : public Operation
+class CreateVolumeMesh : public TetGenOperation
 {
   
 private: // attributes
   
-  double m_GrowthFactor;
-  double m_MinEdgeLength;
-  double m_MaxEdgeLength;
-  int    m_NumTriangles;
+//  double m_GrowthFactor;
+//  double m_MinEdgeLength;
+//  double m_MaxEdgeLength;
+//  int    m_NumTriangles;
 
   QVector<vtkIdType>      m_TraceCells;
   EdgeLengthSourceManager m_ELSManager;

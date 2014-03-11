@@ -44,6 +44,7 @@ void CreateVolumeMesh::getTraceCells(QVector<vtkIdType> &cells)
 
 void CreateVolumeMesh::computeMeshDensity()
 {
+  /*
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
   if (!buffer.isEmpty()) {
     QTextStream in(&buffer, QIODevice::ReadOnly);
@@ -168,10 +169,19 @@ void CreateVolumeMesh::computeMeshDensity()
     EG_BUG;
 
   }
+  */
 }
 
 
 void CreateVolumeMesh::operate()
 {
+  readSettings();
+  double a = m_MaximalEdgeLength;
+  double V = a*a*a/(6*sqrt(2.0));
+  QString flags;
+  flags.setNum(V);
+  flags = QString("pq1.4a") + flags;
+  cout << qPrintable(flags) << endl;
+  tetgen(flags);
 }
 

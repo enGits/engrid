@@ -180,6 +180,7 @@ int GuiCreateSurfaceMesh::writeSettings()
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
   m_ELSManager.write();
+  GuiMainWindow::pointer()->setXmlSection("engrid/surface/rules", m_Ui.textEdit->toPlainText());
   return(0);
 }
 
@@ -201,6 +202,10 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
 
 void GuiCreateSurfaceMesh::setTextFromTable()
 {
+  EG_STOPDATE("2014-04-01");
+  m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules"));
+  return;
+
   QString text = "";
   QSet<QString> values;
   for (int i = 0; i < m_NumRows; ++i) {
