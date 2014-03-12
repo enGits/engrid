@@ -74,7 +74,7 @@ template <class UI>
 GuiEdgeLengthSourceDlg<UI>::GuiEdgeLengthSourceDlg()
 {
   m_UI.setupUi(this);
-};
+}
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -90,7 +90,7 @@ protected: // attributes
 
 protected: // methods
 
-  UI& ui() { return m_Dlg->m_UI; };
+  UI& ui() { return m_Dlg->m_UI; }
 
 
 public:
@@ -110,7 +110,7 @@ template <class UI>
 GuiEdgeLengthSource<UI>::GuiEdgeLengthSource()
 {
   m_Name = "unnamed";
-};
+}
 
 template <class UI>
 void GuiEdgeLengthSource<UI>::config()
