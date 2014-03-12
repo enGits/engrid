@@ -60,9 +60,6 @@ void EdgeLengthSourceManager::populateListWidget()
 
 void EdgeLengthSourceManager::read()
 {
-  foreach (EdgeLengthSource* source, m_Sources) {
-    //delete source;
-  }
   m_Sources.clear();
   QString xml_text = GuiMainWindow::pointer()->getXmlSection("engrid/sources");
   QStringList lines = xml_text.split("\n");
