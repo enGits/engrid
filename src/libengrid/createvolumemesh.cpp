@@ -30,158 +30,45 @@ CreateVolumeMesh::CreateVolumeMesh()
   EG_TYPENAME;
 }
 
-void CreateVolumeMesh::setTraceCells(const QVector<vtkIdType> &cells)
+int CreateVolumeMesh::numVolumeCells()
 {
-  m_TraceCells.resize(cells.size());
-  qCopy(cells.begin(), cells.end(), m_TraceCells.begin());
+  int N = 0;
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isVolume(id_cell, m_Grid)) {
+      ++N;
+    }
+  }
+  return N;
 }
-
-void CreateVolumeMesh::getTraceCells(QVector<vtkIdType> &cells)
-{
-  cells.resize(m_TraceCells.size());
-  qCopy(m_TraceCells.begin(), m_TraceCells.end(), cells.begin());
-}
-
-void CreateVolumeMesh::computeMeshDensity()
-{
-  /*
-  QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
-  if (!buffer.isEmpty()) {
-    QTextStream in(&buffer, QIODevice::ReadOnly);
-    in >> m_MaxEdgeLength;
-    in >> m_MinEdgeLength;
-    in >> m_GrowthFactor;
-  } else {
-    m_MaxEdgeLength = 1000.0;
-    m_MinEdgeLength = 0.0;
-    m_GrowthFactor = 1.5;
-  }
-  m_ELSManager.read();
-  QVector<double> H(m_Grid->GetNumberOfPoints(), m_MaxEdgeLength);
-
-  QVector<bool> fixed(m_Grid->GetNumberOfPoints(), false);
-  double H_min = 1e99;
-  vtkIdType id_min = -1;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    bool volume_only = true;
-    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-      if (isSurface(m_Part.n2cGG(id_node, i), m_Grid)) {
-        volume_only = false;
-      }
-      if (!volume_only) {
-        fixed[id_node] = true;
-        H[id_node] = 0;
-        int N = 0;
-        vec3_t xi;
-        m_Grid->GetPoint(id_node, xi.data());
-        for (int j = 0; j < m_Part.n2nGSize(id_node); ++j) {
-          if (m_Part.n2nGG(id_node, j)) {
-            vec3_t xj;
-            m_Grid->GetPoint(m_Part.n2nGG(id_node, j), xj.data());
-            H[id_node] += (xi-xj).abs();
-            ++N;
-          }
-        }
-        if (N < 2) {
-          EG_BUG;
-        }
-        H[id_node] /= N;
-		if (H[id_node] < 0) {
-	      EG_BUG;
-		}
-        if (H[id_node] < H_min) {
-          id_min = id_node;
-          H_min = H[id_node];
-        }
-      }
-    }
-  }
-  if (id_min < 0) {
-    EG_BUG;
-  }
-
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x;
-    m_Grid->GetPoint(id_node, x.data());
-    double cl_src = m_ELSManager.minEdgeLength(x);
-    if (cl_src > 0) {
-      if (cl_src < H[id_node]) {
-        H[id_node] = cl_src;
-      }
-    }
-  }
-
-  QVector<bool> marked(m_Grid->GetNumberOfPoints(), false);
-  marked[id_min] = true;
-  bool done = false;
-  while (!done) {
-    done = true;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (marked[id_node] && H[id_node] <= H_min) {
-        vec3_t x1;
-        m_Grid->GetPoint(id_node, x1.data());
-        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node,i);
-          if (!marked[id_neigh]) {
-            vec3_t x2;
-            m_Grid->GetPoint(id_neigh, x2.data());
-            double dist = (x1 - x2).abs();
-            double h = H[id_node] + (m_GrowthFactor - 1)*dist;
-            if (h < 0) {
-              EG_BUG;
-            }
-            H[id_neigh] = min(H[id_neigh], h);
-            marked[id_neigh] = true;
-            //H[id_neigh] += 1.0*H[id_node];
-            done = false;
-          }
-        }
-      }
-    }
-    H_min *= m_GrowthFactor;
-  }
-
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x;
-    m_Grid->GetPoint(id_node, x.data());
-    double cl_src = m_ELSManager.minEdgeLength(x);
-    if (cl_src > 0) {
-      if (cl_src < H[id_node]) {
-        H[id_node] = cl_src;
-      }
-    }
-  }
-
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x1, x2;
-    m_Grid->GetPoint(id_node, x1.data());
-    x2 = x1;
-    for (int j = 0; j < m_Part.n2nGSize(id_node); ++j) {
-      vec3_t xj;
-      m_Grid->GetPoint(m_Part.n2nGG(id_node, j), xj.data());
-      for (int k = 0; k < 3; ++k) {
-        x1[k] = min(xj[k], x1[k]);
-        x2[k] = max(xj[k], x2[k]);
-      }
-    }
-
-    // Do something here!!
-    EG_BUG;
-
-  }
-  */
-}
-
 
 void CreateVolumeMesh::operate()
 {
   readSettings();
   double a = m_MaximalEdgeLength;
   double V = a*a*a/(6*sqrt(2.0));
-  QString flags;
-  flags.setNum(V);
-  flags = QString("pq1.4a") + flags;
-  cout << qPrintable(flags) << endl;
-  tetgen(flags);
+  int N1 = 0;
+  int N2 = numVolumeCells();
+  int pass = 1;
+  QString q_txt = "1.4";
+  QString V_txt;
+  V_txt.setNum(V);
+  bool done = false;
+  while (!done) {
+    N1 = N2;
+    QString flags;
+    flags = QString("pq") + q_txt + "a" + V_txt;
+    if (N2 > 0) {
+      flags += "m";
+    }
+    cout << "TetGen pass " << pass << "  flags=" << qPrintable(flags) << endl;
+    tetgen(flags);
+    N2 = numVolumeCells();
+    cout << N2 << endl;
+    //if (pass > 1) N2 = N1;
+    ++pass;
+    if (fabs(double(N2-N1)/N1) < 0.05) {
+      done = true;
+    }
+  }
 }
 

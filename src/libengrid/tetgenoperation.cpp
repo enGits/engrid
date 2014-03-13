@@ -22,7 +22,24 @@
 #include "tetgenoperation.h"
 #include "guimainwindow.h"
 
-void TetGenOperation::copyToTetGen(tetgenio &tgio)
+#include <QDir>
+
+TetGenOperation::TetGenOperation()
+{
+  // The following code will be used once the option to start TetGen in a
+  // separate process has been implemented
+
+  /*
+  QDir cwd(GuiMainWindow::pointer()->getCwd());
+  m_TetGenPath = GuiMainWindow::pointer()->getCwd() + "tetgen";
+  QDir tetgen_dir(m_TetGenPath);
+  if (!tetgen_dir.exists()) {
+    cwd.mkdir("tetgen");
+  }
+  */
+}
+
+void TetGenOperation::copyToTetGen(tetgenio &tgio, bool set_edge_lengths)
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
@@ -49,8 +66,6 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
   tgio.numberoffacets = triangles.size();
   tgio.facetmarkerlist = new int [triangles.size()];
   tgio.facetlist = new tetgenio::facet [triangles.size()];
-  tgio.numberoftetrahedra = tetrahedra.size();
-  tgio.tetrahedronlist = new int [tetrahedra.size()*4];
   {
     int i = 0;
     foreach (vtkIdType id_cell, triangles) {
@@ -73,7 +88,9 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
       ++i;
     }
   }
-  {
+  if (set_edge_lengths) {
+    tgio.numberoftetrahedra = tetrahedra.size();
+    tgio.tetrahedronlist = new int [tetrahedra.size()*4];
     int i = 0;
     foreach (vtkIdType id_cell, tetrahedra) {
       vtkIdType num_pts, *pts;
@@ -82,6 +99,14 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
         tgio.tetrahedronlist[i*num_pts + j] = pts[j];
       }
       ++i;
+    }
+    tgio.numberofpointmtrs = 1;
+    tgio.pointmtrlist = new REAL [tgio.numberofpoints];
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+      double l = min(m_MaximalEdgeLength, m_ELSManager.minEdgeLength(x));
+      tgio.pointmtrlist[id_node] = l;
     }
   }
 }
@@ -121,9 +146,7 @@ void TetGenOperation::copyFromTetGen(tetgenio &tgio)
     cell_voldir->SetValue(id_cell, m_VolDir);
   }
   makeCopy(new_grid, m_Grid);
-  //correctSurfaceOrientation();
 }
-
 
 void TetGenOperation::readSettings()
 {
@@ -146,38 +169,46 @@ void TetGenOperation::readSettings()
     }
   }
   m_ELSManager.read();
-}
-
-void TetGenOperation::correctSurfaceOrientation()
-{
-  m_Part.setGrid(m_Grid);
-  m_Part.setAllCells();
-  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    if (isVolume(id_cell, m_Grid)) {
-      for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
-        vtkIdType id_face = m_Part.c2cGG(id_cell, i);
-        if (isSurface(id_face, m_Grid)) {
-          vec3_t n = cellNormal(m_Grid, id_face);
-          vec3_t v = cellCentre(m_Grid, id_cell) - cellCentre(m_Grid, id_face);
-          if (n*v < 0) {
-            vtkIdType num_pts, *pts;
-            m_Grid->GetCellPoints(id_face, num_pts, pts);
-            swap(pts[0], pts[1]);
-          }
-        }
-      }
-    }
-  }
+  m_ELSManager.readRules(m_Grid);
 }
 
 void TetGenOperation::tetgen(QString flags)
 {
-  tetgenio in, out;
-  copyToTetGen(in);
-  char *char_flags = new char [flags.size() + 1];
-  strcpy(char_flags, qPrintable(flags));
-  tetrahedralize(char_flags, &in, &out);
-  copyFromTetGen(out);
-  delete [] char_flags;
+  try {
+    tetgenio in, out, background;
+    readSettings();
+    copyToTetGen(in);
+    copyToTetGen(background, true);
+    char *char_flags = new char [flags.size() + 1];
+    strcpy(char_flags, qPrintable(flags));
+    tetrahedralize(char_flags, &in, &out, NULL, &background);
+    copyFromTetGen(out);
+    delete [] char_flags;
+  } catch (int x) {
+    switch (x) {
+    case 1: // Out of memory.
+      EG_ERR_RETURN("TetGen error:  Out of memory");
+      break;
+    case 2: // Encounter an internal error.
+      EG_ERR_RETURN("TetGen error:  internal error");
+      break;
+    case 3:
+      EG_ERR_RETURN("TetGen error:  A self-intersection was detected.");
+      break;
+    case 4:
+      EG_ERR_RETURN("TetGen error:  A very small input feature size was detected.");
+      break;
+    case 5:
+      EG_ERR_RETURN("TetGen error:  Two very close input facets were detected.");
+      break;
+    case 10:
+      EG_ERR_RETURN("TetGen error:  An input error was detected.");
+      EG_BUG;
+      break;
+    default:
+      EG_ERR_RETURN("TetGen error:  unknown error");
+      break;
+    }
+  }
 }
 

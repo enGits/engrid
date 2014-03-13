@@ -45,19 +45,24 @@ protected: // attributes
 
   EdgeLengthSourceManager m_ELSManager;
 
+  QString m_TetGenPath;
+
 
 protected: // methods
 
-  void copyToTetGen(tetgenio &tgio);
+  void copyToTetGen(tetgenio &tgio, bool set_edge_lengths = false);
   void copyFromTetGen(tetgenio &tgio);
+
+  //void copyToTetGen();
+  //void copyFromTetGen();
+
   void tetgen(QString flags);
   void readSettings();
-  void correctSurfaceOrientation();
 
 
 public:
 
-
+  TetGenOperation();
 
 };
 

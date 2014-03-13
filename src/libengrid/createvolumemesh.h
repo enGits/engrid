@@ -32,18 +32,10 @@ class CreateVolumeMesh : public TetGenOperation
   
 private: // attributes
   
-//  double m_GrowthFactor;
-//  double m_MinEdgeLength;
-//  double m_MaxEdgeLength;
-//  int    m_NumTriangles;
-
-  QVector<vtkIdType>      m_TraceCells;
-  EdgeLengthSourceManager m_ELSManager;
-
 
 private: // methods
   
-  void computeMeshDensity();
+  int  numVolumeCells();
   
 
 protected: // methods
@@ -54,8 +46,6 @@ protected: // methods
 public: // methods
   
   CreateVolumeMesh();
-  void setTraceCells(const QVector<vtkIdType> &cells);
-  void getTraceCells(QVector<vtkIdType> &cells);
   
 };
 
