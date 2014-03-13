@@ -168,9 +168,9 @@ void CreateBoundaryLayer::operate()
     }
 
     swap();
-    vol.setTraceCells(layer_cells);
+    //vol.setTraceCells(layer_cells);
     vol();
-    vol.getTraceCells(layer_cells);
+    //vol.getTraceCells(layer_cells);
   }
 
   {
