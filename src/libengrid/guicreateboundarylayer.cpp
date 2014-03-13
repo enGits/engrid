@@ -399,11 +399,11 @@ void GuiCreateBoundaryLayer::operate()
     swap();
     smoothSurface();
     swap();
-    vol.setTraceCells(layer_cells);
+    //vol.setTraceCells(layer_cells);
     if (m_Ui.checkBoxSafeMode->isChecked()) {
       vol();
     }
-    vol.getTraceCells(layer_cells);
+    //vol.getTraceCells(layer_cells);
   }
 
   {
