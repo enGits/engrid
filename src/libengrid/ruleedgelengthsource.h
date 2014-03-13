@@ -18,50 +18,39 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 
+#ifndef RULEEDGELENGTHSOURCE_H
+#define RULEEDGELENGTHSOURCE_H
 
-#ifndef EDGELENGTHSOURCEMANAGER_H
-#define EDGELENGTHSOURCEMANAGER_H
+class RuleEdgeLengthSource;
 
-#include <QListWidget>
-#include <QDateTime>
-
-#include "egvtkobject.h"
 #include "edgelengthsource.h"
+#include "pointfinder.h"
 
-class EdgeLengthSourceManager : public EgVtkObject
+#include <QList>
+
+class RuleEdgeLengthSource : public EdgeLengthSource
 {
 
 private: // attributes
 
-  QList<EdgeLengthSource*> m_Sources;
-  QList<EdgeLengthSource*> m_Samples;
-  QListWidget*             m_ListWidget;
+  QList<vec3_t> m_Points;
+  double        m_GrowthFactor;
+  double        m_EdgeLength;
+  PointFinder   m_PointFinder;
 
 
 private: // methods
 
-  QString timeStamp() { return QDateTime::currentDateTime().toString("_yyyyMMddhhmmss"); }
+  void readGrowthFactor();
 
 
 public:
 
-  EdgeLengthSourceManager();
-  virtual ~EdgeLengthSourceManager();
+  RuleEdgeLengthSource(QString rule, vtkUnstructuredGrid *grid);
 
-  void   setListWidget(QListWidget *list_widget) { m_ListWidget = list_widget; }
-  double minEdgeLength(vec3_t x);
-  void   populateListWidget();
-
-  void read();
-  void readRules(vtkUnstructuredGrid *grid);
-  void write();
-  void edit();
-  void remove();
-  void addSphere();
-  void addCone();
-  void addBox();
-  void addPipe();
+  virtual double edgeLength(vec3_t x);
 
 };
 
-#endif // EDGELENGTHSOURCEMANAGER_H
+#endif // RULEEDGELENGTHSOURCE_H

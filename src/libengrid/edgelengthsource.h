@@ -39,12 +39,12 @@ protected: // attributes
 
 public:
 
-  virtual bool    read(QString txt) = 0;
-  virtual QString write() = 0;
-  virtual void    config() = 0;
+  virtual bool    read(QString) { return false; }
+  virtual QString write() {}
+  virtual void    config() {}
   virtual double  edgeLength(vec3_t x) = 0;
 
-  virtual void setName(QString name) = 0;
+  void setName(QString name) { m_Name = name; }
   QString name() { return m_Name; }
 
 };
@@ -97,7 +97,6 @@ public:
 
   GuiEdgeLengthSource();
   virtual void config();
-  virtual void setName(QString name);
   virtual void setDlgFields() = 0;
   virtual void readDlgFields() = 0;
 
@@ -121,12 +120,6 @@ void GuiEdgeLengthSource<UI>::config()
     readDlgFields();
   }
   delete m_Dlg;
-}
-
-template <class UI>
-void GuiEdgeLengthSource<UI>::setName(QString name)
-{
-  m_Name = name;
 }
 
 

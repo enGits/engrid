@@ -26,6 +26,7 @@
 #include "guiedgelengthsourcebox.h"
 #include "guiedgelengthsourcepipe.h"
 #include "guimainwindow.h"
+#include "ruleedgelengthsource.h"
 
 EdgeLengthSourceManager::EdgeLengthSourceManager()
 {
@@ -184,5 +185,14 @@ void EdgeLengthSourceManager::addBox()
   populateListWidget();
 }
 
-
-
+void EdgeLengthSourceManager::readRules(vtkUnstructuredGrid *grid)
+{
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules");
+  rules_txt = rules_txt.replace("\n", " ");
+  rules_txt = rules_txt.trimmed();
+  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
+    m_Sources.append(S);
+  }
+}
