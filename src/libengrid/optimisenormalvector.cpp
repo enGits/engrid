@@ -32,7 +32,8 @@ void OptimiseNormalVector::addFace(vec3_t n)
 
 double OptimiseNormalVector::func(vec3_t n)
 {
-  double hf = 1;
+  double hf_min =  1;
+  double hf_max = -1;
   double hc = 0;
   vec3_t n0 = n;
   n0.normalise();
@@ -44,9 +45,10 @@ double OptimiseNormalVector::func(vec3_t n)
   foreach (vec3_t nf, m_Faces) {
     nf.normalise();
     double h = nf*n0;
-    hf = min(h, hf);
+    hf_min = min(h, hf_min);
+    hf_max = max(h, hf_max);
   }
-  return sqr(hc) + sqr(1 - hf);
+  return sqr(hc) + sqr(1 - hf_min) + sqr(1 - hf_max);
 }
 
 vec3_t OptimiseNormalVector::optimise(vec3_t n)
@@ -54,8 +56,8 @@ vec3_t OptimiseNormalVector::optimise(vec3_t n)
   int count = 0;
   computeDerivatives(n);
   n.normalise();
-  double scale = 1;
-  while (count < 100 && scale > 2e-4) {
+  double scale = 0.1;
+  while (count < 100 && scale > 1e-4) {
     double ag = grad_f.abs();
     double err1 = func(n);
     vec3_t dn = -1.0*grad_f;
@@ -65,11 +67,13 @@ vec3_t OptimiseNormalVector::optimise(vec3_t n)
     }
     double relax = min(scale, scale*grad_f.abs());
     dn *= relax;
+    vec3_t n_old = n;
     n += dn;
     n.normalise();
     double err2 = func(n);
     if (err2 > err1) {
       scale *= 0.1;
+      n = n_old;
     }
     ++count;
     computeDerivatives(n);
