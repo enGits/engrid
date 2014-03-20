@@ -21,6 +21,7 @@
 // 
 #include "tetgenoperation.h"
 #include "guimainwindow.h"
+#include "optimisenormalvector.h"
 
 #include <QDir>
 
@@ -39,7 +40,7 @@ TetGenOperation::TetGenOperation()
   */
 }
 
-void TetGenOperation::copyToTetGen(tetgenio &tgio, bool set_edge_lengths)
+void TetGenOperation::copyToTetGen(tetgenio &tgio)
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
@@ -88,7 +89,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, bool set_edge_lengths)
       ++i;
     }
   }
-  if (set_edge_lengths) {
+  {
     tgio.numberoftetrahedra = tetrahedra.size();
     tgio.tetrahedronlist = new int [tetrahedra.size()*4];
     int i = 0;
@@ -163,13 +164,30 @@ void TetGenOperation::readSettings()
     for (int i = 0; i < num_bcs; ++i) {
       in >> check_state;
     }
-    if (!in.atEnd()) {
-      in >> m_2dFeatureResolution;
-      in >> m_3dFeatureResolution;
-    }
+    in >> m_2dFeatureResolution;
+    in >> m_3dFeatureResolution;
   }
+
   m_ELSManager.read();
   m_ELSManager.readRules(m_Grid);
+}
+
+QString TetGenOperation::qualityText()
+{
+  using namespace GeometryTools;
+  vec3_t x1(1.0/sqrt(3.0), 0, 0);
+  vec3_t x2 = rotate(x1, vec3_t(0, 0, 1), deg2rad(60.0));
+  vec3_t x3 = rotate(x2, vec3_t(0, 0, 1), deg2rad(60.0));
+  vec3_t x4(0, 0, 1.0);
+  vec3_t n1 = triNormal(x1, x2, x3);
+  vec3_t n2 = triNormal(x1, x4, x2);
+  vec3_t n3 = triNormal(x2, x4, x3);
+  double alpha = angle(n1, n2);
+  alpha = min(alpha, angle(n1, n3));
+  alpha = min(alpha, angle(n2, n3));
+  QString alpha_txt;
+  alpha_txt.setNum(rad2deg(alpha));
+  return QString("1.4") + "/" + alpha_txt;
 }
 
 void TetGenOperation::tetgen(QString flags)
@@ -178,7 +196,7 @@ void TetGenOperation::tetgen(QString flags)
     tetgenio in, out, background;
     readSettings();
     copyToTetGen(in);
-    copyToTetGen(background, true);
+    copyToTetGen(background);
     char *char_flags = new char [flags.size() + 1];
     strcpy(char_flags, qPrintable(flags));
     tetrahedralize(char_flags, &in, &out, NULL, &background);

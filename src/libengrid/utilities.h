@@ -333,4 +333,9 @@ int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, dou
 // a x^2 + b x + c = 0
 int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1);
 
+inline double logarithm(double a, double b)
+{
+  return log(b)/log(a);
+}
+
 #endif

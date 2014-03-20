@@ -41,12 +41,12 @@ EdgeLengthSourceManager::EdgeLengthSourceManager()
 
 EdgeLengthSourceManager::~EdgeLengthSourceManager()
 {
-  foreach (EdgeLengthSource* source, m_Sources) {
-    //delete source;
-  }
+  clear();
+  /*
   foreach (EdgeLengthSource* sample, m_Samples) {
     //delete sample;
   }
+  */
 }
 
 void EdgeLengthSourceManager::populateListWidget()
@@ -195,4 +195,24 @@ void EdgeLengthSourceManager::readRules(vtkUnstructuredGrid *grid)
     RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
     m_Sources.append(S);
   }
+}
+
+void EdgeLengthSourceManager::readBoundaryLayerRules(vtkUnstructuredGrid *grid)
+{
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
+  rules_txt = rules_txt.replace("\n", " ");
+  rules_txt = rules_txt.trimmed();
+  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
+    m_Sources.append(S);
+  }
+}
+
+void EdgeLengthSourceManager::clear()
+{
+  foreach (EdgeLengthSource* source, m_Sources) {
+    delete source;
+  }
+  m_Sources.clear();
 }

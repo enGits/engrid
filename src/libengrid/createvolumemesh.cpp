@@ -23,6 +23,8 @@
 #include "deletetetras.h"
 #include "guimainwindow.h"
 #include "updatedesiredmeshdensity.h"
+#include "createboundarylayer.h"
+
 #include <vtkXMLUnstructuredGridWriter.h>
 
 CreateVolumeMesh::CreateVolumeMesh()
@@ -44,18 +46,22 @@ int CreateVolumeMesh::numVolumeCells()
 void CreateVolumeMesh::operate()
 {
   readSettings();
+  m_Part.trackGrid(m_Grid);
   double a = m_MaximalEdgeLength;
   double V = a*a*a/(6*sqrt(2.0));
   int N1 = 0;
   int N2 = numVolumeCells();
   int pass = 1;
-  QString q_txt = "1.4";
   QString V_txt;
   V_txt.setNum(V);
   bool done = false;
   while (!done) {
     N1 = N2;
     QString flags;
+    QString q_txt = "10/0";
+    if (pass > 1) {
+      q_txt = "1.2/0";
+    }
     flags = QString("pq") + q_txt + "a" + V_txt;
     if (N2 > 0) {
       flags += "m";
@@ -66,9 +72,13 @@ void CreateVolumeMesh::operate()
     cout << N2 << endl;
     //if (pass > 1) N2 = N1;
     ++pass;
-    if (fabs(double(N2-N1)/N1) < 0.05) {
+    if (fabs(double(N2-N1)/N1) < 0.05 || pass > 1) {
       done = true;
     }
   }
+  CreateBoundaryLayer blayer;
+  blayer.setGrid(m_Grid);
+  blayer.setAllCells();
+  blayer();
 }
 

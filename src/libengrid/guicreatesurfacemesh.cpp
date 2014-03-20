@@ -46,9 +46,7 @@
 #include <fstream>
 #include <cmath>
 
-#include <stdio.h>
-
-//////////////////////////////////////////////
+#include <cstdio>
 
 GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 {
@@ -57,6 +55,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   setQuickSave(true);
 
   populateBoundaryCodes(m_Ui.listWidget);
+  populateBoundaryCodes(m_Ui.m_ListWidgetPrismaticLayers);
   m_Ui.lineEditMaximalEdgeLength->setText("1000");
 
   //Load settings
@@ -98,7 +97,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     }
   }
   setTextFromTable();
-  m_Ui.textEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
+  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   
   connect(m_Ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(m_Ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
@@ -145,15 +144,47 @@ int GuiCreateSurfaceMesh::readSettings()
         }
       }
     }
-    if (!in.atEnd()) {
-      double v;
-      in >> v;
-      m_Ui.doubleSpinBox2DFeature->setValue(v);
-      in >> v;
-      m_Ui.doubleSpinBox3DFeature->setValue(v);
-    }
+    double v;
+    in >> v;
+    m_Ui.doubleSpinBox2DFeature->setValue(v);
+    in >> v;
+    m_Ui.m_DoubleSpinBox3DFeature->setValue(v);
   }
+
   m_ELSManager.read();
+
+  buffer = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/settings");
+  if(!buffer.isEmpty()) {
+    QTextStream in(&buffer, QIODevice::ReadOnly);
+    int num_bcs;
+    in >> num_bcs;
+    if (num_bcs == m_Ui.m_ListWidgetPrismaticLayers->count()) {
+      int check_state;
+      for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
+        in >> check_state;
+        if (check_state == 1) {
+          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Checked);
+        } else {
+          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Unchecked);
+        }
+      }
+    }
+    double dv;
+    int iv;
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFeatureAngle->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->setValue(dv);
+    in >> iv; m_Ui.m_SpinBoxNormalRelaxationIterations->setValue(iv);
+    in >> iv; m_Ui.m_SpinBoxHeightRelaxationIterations->setValue(iv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerGapHeight->setValue(dv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerRadarAngle->setValue(dv);
+    in >> iv; m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->setChecked(iv);
+    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->setValue(dv);
+  }
+
   return(0);
 }
 
@@ -176,11 +207,43 @@ int GuiCreateSurfaceMesh::writeSettings()
       }
     }
     out << m_Ui.doubleSpinBox2DFeature->value() << "\n";
-    out << m_Ui.doubleSpinBox3DFeature->value() << "\n";
+    out << m_Ui.m_DoubleSpinBox3DFeature->value() << "\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
+
+  buffer = "";
+  {
+    QTextStream out(&buffer, QIODevice::WriteOnly);
+    out << "\n";
+    out << m_Ui.m_ListWidgetPrismaticLayers->count() << "\n";
+    for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
+      if (m_Ui.m_ListWidgetPrismaticLayers->item(i)->checkState() == Qt::Checked) {
+        out << "1 \n";
+      } else {
+        out << "0 \n";
+      }
+    }
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerFeatureAngle->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->value() << "\n";
+    out << m_Ui.m_SpinBoxNormalRelaxationIterations->value() << "\n";
+    out << m_Ui.m_SpinBoxHeightRelaxationIterations->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerGapHeight->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerRadarAngle->value() << "\n";
+    if (m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->checkState() == Qt::Checked) out << "1\n";
+    else                                                                               out << "0\n";
+    out << m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->value() << "\n";
+  }
+  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/settings", buffer);
+
   m_ELSManager.write();
+
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/rules", m_Ui.textEdit->toPlainText());
+  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.m_TextEditPrismaticLayers->toPlainText());
+
   return(0);
 }
 
@@ -204,6 +267,7 @@ void GuiCreateSurfaceMesh::setTextFromTable()
 {
   EG_STOPDATE("2014-04-01");
   m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules"));
+  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   return;
 
   QString text = "";
@@ -303,5 +367,5 @@ void GuiCreateSurfaceMesh::operate()
     }
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
-  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.textEditPrismaticLayers->toPlainText());
+  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.m_TextEditPrismaticLayers->toPlainText());
 }

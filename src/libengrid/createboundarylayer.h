@@ -21,9 +21,10 @@
 #ifndef CREATEBOUNDARYLAYER_H
 #define CREATEBOUNDARYLAYER_H
 
-#include "operation.h"
+#include "boundarylayeroperation.h"
+#include "guimainwindow.h"
 
-class CreateBoundaryLayer : public Operation
+class CreateBoundaryLayer : public BoundaryLayerOperation
 {
 private: // attributes
 
@@ -36,13 +37,18 @@ private: // attributes
   double  m_Blending;
   QString m_VolumeName;
 
+  VolumeDefinition                     m_VolDef;
+  vtkSmartPointer<vtkUnstructuredGrid> m_RestGrid;
+
+
   /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
   QSet<int> m_LayerAdjacentBoundaryCodes;
 
 private: // methods
 
-  void deleteTouchingPrisms(int layer, double L);
-  void dump(vtkUnstructuredGrid *grid, QString name);
+  void prepare();
+  void finalise();
+
 
 protected: // methods
 

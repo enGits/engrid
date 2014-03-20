@@ -54,6 +54,7 @@ public:
 
   void read();
   void readRules(vtkUnstructuredGrid *grid);
+  void readBoundaryLayerRules(vtkUnstructuredGrid *grid);
   void write();
   void edit();
   void remove();
@@ -61,6 +62,8 @@ public:
   void addCone();
   void addBox();
   void addPipe();
+
+  void clear();
 
 };
 

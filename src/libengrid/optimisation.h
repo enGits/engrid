@@ -77,7 +77,7 @@ protected: // attributes
 protected: // methods
   
   virtual double func(vec3_t x) = 0;
-  virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
+  virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); }
   virtual void computeDerivatives(vec3_t x);
 
   void getErrSet(QString group, QString key, double err0, double xs, ErrorFunction* err_func);

@@ -19,60 +19,66 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
-#ifndef TETGENOPERATION_H
-#define TETGENOPERATION_H
+#ifndef BOUNDARYLAYEROPERATION_H
+#define BOUNDARYLAYEROPERATION_H
 
 #include "operation.h"
-#include "tetgen.h"
 #include "edgelengthsourcemanager.h"
 
-class TetGenOperation;
+class BoundaryLayerOperation;
 
-class TetGenOperation : public Operation
+
+class BoundaryLayerOperation : public Operation
 {
 
 protected: // data types
 
-  struct segment_t
-  {
-    int node1, node2;
-  };
-
+  enum nodetype_t { NormalNode, EdgeNode, CornerNode };
 
 
 protected: // attributes
 
-  double m_MinimalEdgeLength;
-  double m_MaximalEdgeLength;
-  double m_GrowthFactor;
-  double m_NodesPerQuarterCircle;
-  double m_2dFeatureResolution;
-  double m_3dFeatureResolution;
-  double m_FeatureAngle;
-  int    m_OrgDir;
-  int    m_CurDir;
-  int    m_VolDir;
-
-  EdgeLengthSourceManager m_ELSManager;
-
-  QString m_TetGenPath;
+  QVector<vec3_t>           m_BoundaryLayerVectors;
+  QVector<int>              m_BoundaryLayerCodes;
+  QVector<bool>             m_BoundaryLayerNode;
+  QVector<nodetype_t>       m_NodeTypes;
+  QVector<QSet<vtkIdType> > m_SnapPoints;
+  QVector<double>           m_Height;
+  QSet<int>                 m_LayerAdjacentBoundaryCodes;
+  double                    m_FeatureAngle;
+  double                    m_StretchingRatio;
+  double                    m_FarfieldRatio;
+  double                    m_RadarAngle;
+  double                    m_MaxHeightInGaps;
+  double                    m_FaceSizeLowerLimit;
+  double                    m_FaceSizeUpperLimit;
+  double                    m_FaceAngleLimit;
+  bool                      m_UseGrouping;
+  double                    m_GroupingAngle;
+  int                       m_NumBoundaryLayerVectorRelaxations;
+  int                       m_NumBoundaryLayerHeightRelaxations;
+  EdgeLengthSourceManager   m_ELSManagerBLayer;
+  EdgeLengthSourceManager   m_ELSManagerSurface;
 
 
 protected: // methods
 
-  void copyToTetGen(tetgenio &tgio);
-  void copyFromTetGen(tetgenio &tgio);
-
-  void tetgen(QString flags);
   void readSettings();
+  void correctBoundaryLayerVectors();
+  void computeBoundaryLayerVectors();
+  void addToSnapPoints(vtkIdType id_node, vtkIdType id_snap);
+  void computeNodeTypes();
+  void relaxBoundaryLayerVectors();
+  void writeBoundaryLayerVectors(QString file_name);
+  void computeDesiredHeights();
+  bool faceFine(vtkIdType id_face, double scale);
+  void computeHeights();
 
-  QString qualityText();
+
+public: // methods
 
 
-public:
-
-  TetGenOperation();
 
 };
 
-#endif // TETGENOPERATION_H
+#endif // BOUNDARYLAYEROPERATION_H

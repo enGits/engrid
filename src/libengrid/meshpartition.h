@@ -282,6 +282,9 @@ public: // methods
    */
   int computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, int max_dist, int restriction_type);
 
+  template <typename C>
+  void getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes);
+
 };
 
 
@@ -657,6 +660,25 @@ void MeshPartition::getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge
       }
     }
   }
+}
+
+template <typename C>
+void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes)
+{
+  common_nodes.clear();
+  QSet<vtkIdType> nodes1, nodes2;
+  vtkIdType num_pts, *pts;
+  m_Grid->GetCellPoints(id_cell1, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes1.insert(pts[i]);
+  }
+  m_Grid->GetCellPoints(id_cell2, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes2.insert(pts[i]);
+  }
+  nodes1.intersect(nodes2);
+  common_nodes.resize(nodes1.size());
+  qCopy(nodes1.begin(), nodes1.end(), common_nodes.begin());
 }
 
 #endif // MESHPARTITION_H
