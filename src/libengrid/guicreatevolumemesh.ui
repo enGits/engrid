@@ -25,16 +25,6 @@
     <widget class="QListWidget" name="m_ListWidgetVolumes"/>
    </item>
    <item>
-    <widget class="QCheckBox" name="m_CheckBoxSurface">
-     <property name="text">
-      <string>surface mesh</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QCheckBox" name="m_CheckBoxBoundaryLayer">
      <property name="text">
       <string>boundary layer mesh</string>
@@ -98,7 +88,6 @@
  </widget>
  <tabstops>
   <tabstop>m_ListWidgetVolumes</tabstop>
-  <tabstop>m_CheckBoxSurface</tabstop>
   <tabstop>m_CheckBoxBoundaryLayer</tabstop>
   <tabstop>m_CheckBoxVolume</tabstop>
   <tabstop>buttonBox</tabstop>

@@ -31,6 +31,24 @@ void GuiCreateVolumeMesh::before()
 {
   GuiMainWindow::pointer()->createDefaultVol();
   populateVolumes(m_Ui.m_ListWidgetVolumes);
+  //connect(m_Ui.m_CheckBoxBoundaryLayer, SIGNAL(toggled(bool)), this, SLOT(toggleBoundaryLayer(bool)));
+  //connect(m_Ui.m_CheckBoxVolume, SIGNAL(toggled(bool)), this, SLOT(toggleVolume(bool)));
+}
+
+void GuiCreateVolumeMesh::toggleBoundaryLayer(bool state)
+{
+  m_Ui.m_CheckBoxBoundaryLayer->setChecked(state);
+  if (state) {
+    m_Ui.m_CheckBoxVolume->setChecked(true);
+  }
+}
+
+void GuiCreateVolumeMesh::toggleVolume(bool state)
+{
+  m_Ui.m_CheckBoxVolume->setChecked(state);
+  if (!state) {
+    m_Ui.m_CheckBoxBoundaryLayer->setChecked(false);
+  }
 }
 
 void GuiCreateVolumeMesh::operate()
@@ -50,6 +68,8 @@ void GuiCreateVolumeMesh::operate()
     rest.extractToVtkGrid(rest_grid);
   }
   mesh_volume.setGrid(part_grid);
+  if (m_Ui.m_CheckBoxVolume->isChecked()) mesh_volume.setVolumeMeshOn();
+  if (m_Ui.m_CheckBoxBoundaryLayer->isChecked()) mesh_volume.setBoundaryLayerOn();
   mesh_volume();
   EG_VTKDCC(vtkIntArray, cell_code, part_grid, "cell_code");
   for (vtkIdType id_cell = 0; id_cell < part_grid->GetNumberOfCells(); ++id_cell) {

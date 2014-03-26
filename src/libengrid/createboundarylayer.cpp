@@ -26,86 +26,133 @@
 #include "deletetetras.h"
 #include "deletecells.h"
 #include "meshpartition.h"
+#include "deletevolumegrid.h"
 
 CreateBoundaryLayer::CreateBoundaryLayer()
 {
   m_RestGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  m_OriginalGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
 }
 
 void CreateBoundaryLayer::prepare()
 {
-  /*
-  // set m_Grid to selected volume
-  m_VolDef = GuiMainWindow::pointer()->getVol(m_VolumeName);
-  foreach (int bc, m_BoundaryCodes) {
-    if (m_VolDef.getSign(bc) == 0) {
-      QString msg;
-      msg.setNum(bc);
-      msg = "Boundary code " + msg + " is not part of the volume '" + m_VolumeName +"'.";
-      EG_ERR_RETURN(msg);
-    }
-  }
-
-  EG_VTKSP(vtkUnstructuredGrid, rest_grid);
-  {
-    EG_VTKSP(vtkUnstructuredGrid, vol_grid);
-    MeshPartition volume(m_VolumeName);
-    MeshPartition rest(m_Grid);
-    rest.setRemainder(volume);
-    volume.setVolumeOrientation();
-    volume.extractToVtkGrid(vol_grid);
-    rest.extractToVtkGrid(m_RestGrid);
-    makeCopy(vol_grid, m_Grid);
-  }
-  */
-
   readSettings();
-
   setAllCells();
-
-  getSurfaceCells(m_BoundaryCodes, layer_cells, m_Grid);
+  getSurfaceCells(m_BoundaryLayerCodes, layer_cells, m_Grid);
 
   // fill m_LayerAdjacentBoundaryCodes
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   foreach (vtkIdType id_cell, layer_cells) {
     for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
       vtkIdType id_neigh = m_Part.c2cGG(id_cell, i);
-      m_LayerAdjacentBoundaryCodes.insert(cell_code->GetValue(id_neigh));
-    }
-  }
-  m_LayerAdjacentBoundaryCodes = m_LayerAdjacentBoundaryCodes - m_BoundaryCodes;
-
-  computeBoundaryLayerVectors();
-}
-
-void CreateBoundaryLayer::finalise()
-{
-  /*
-  // set all volume codes
-  {
-    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (isVolume(id_cell, m_Grid)) {
-        cell_code->SetValue(id_cell, m_VolDef.getVC());
+      int bc = cell_code->GetValue(id_neigh);
+      if (!m_BoundaryLayerCodes.contains(bc)) {
+        m_LayerAdjacentBoundaryCodes.insert(bc);
       }
     }
   }
 
-  // set m_Grid to modified selected volume + unselected volumes
-  {
-    MeshPartition volume(m_Grid, true);
-    MeshPartition rest(m_RestGrid, true);
-    volume.addPartition(rest);
+  // compute normals and origins of adjacent planes
+  m_LayerAdjacentNormals.clear();
+  m_LayerAdjacentOrigins.clear();
+  foreach (int bc, m_LayerAdjacentBoundaryCodes) {
+    double L = EG_LARGE_REAL;
+    vec3_t n0(0, 0, 0);
+    vec3_t x0(0, 0, 0);
+    double total_area = 0;
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, m_Grid) && cell_code->GetValue(id_cell) == bc) {
+        vec3_t n = cellNormal(m_Grid, id_cell);
+        double A = n.abs();
+        total_area += A;
+        n0 += n;
+        x0 += A*cellCentre(m_Grid, id_cell);
+        L = min(L, sqrt(4*A/sqrt(3.0)));
+      }
+    }
+    n0.normalise();
+    x0 *= 1.0/total_area;
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, m_Grid) && cell_code->GetValue(id_cell) == bc) {
+        vec3_t x = cellCentre(m_Grid, id_cell);
+        double l = fabs((x - x0)*n0);
+        if (l > 0.1*L) {
+          BoundaryCondition boundary_condition = GuiMainWindow::pointer()->getBC(bc);
+          QString err_msg = "The boundary \"" + boundary_condition.getName() + "\" is not planar.";
+          EG_ERR_RETURN(err_msg);
+        }
+      }
+    }
+    m_LayerAdjacentNormals[bc] = n0;
+    m_LayerAdjacentOrigins[bc] = x0;
   }
-  resetOrientation(m_Grid);
-  createIndices(m_Grid);
-  */
+
+  computeBoundaryLayerVectors();
+  makeCopy(m_Grid, m_OriginalGrid);
+  m_Part.trackGrid(m_Grid);
+}
+
+void CreateBoundaryLayer::correctAdjacentBC(int bc)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  vec3_t n0 = m_LayerAdjacentNormals[bc];
+  vec3_t x0 = m_LayerAdjacentOrigins[bc];
+  double scal_min = -1;
+  int count = 0;
+  while (scal_min < 0.5 && count < 20) {
+    scal_min = 1;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_Part.n2bcGSize(id_node) == 1) {
+        if (m_Part.n2bcG(id_node, 0) == bc) {
+          vec3_t x(0,0,0);
+          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+            vec3_t xn;
+            m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+            x += xn;
+          }
+          x *= 1.0/m_Part.n2nGSize(id_node);
+          x -= ((x - x0)*n0)*n0;
+          m_Grid->GetPoints()->SetPoint(id_node, x.data());
+          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+            if (isSurface(id_cell, m_Grid)) {
+              if (cell_code->GetValue(id_cell) == bc) {
+                vec3_t n = cellNormal(m_Grid, id_cell);
+                n.normalise();
+                scal_min = min(scal_min, n*n0);
+              }
+            }
+          }
+        }
+      }
+    }
+    ++count;
+  }
+}
+
+void CreateBoundaryLayer::finalise()
+{
 }
 
 void CreateBoundaryLayer::operate()
 {
   prepare();
   writeBoundaryLayerVectors("blayer");
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+      x += m_BoundaryLayerVectors[id_node];
+      m_Grid->GetPoints()->SetPoint(id_node, x.data());
+    }
+  }
+  DeleteVolumeGrid delete_volume;
+  delete_volume.setGrid(m_Grid);
+  delete_volume.setAllCells();
+  delete_volume();
+  foreach (int bc, m_LayerAdjacentBoundaryCodes) {
+    correctAdjacentBC(bc);
+  }
 
   // ...
 

@@ -39,13 +39,19 @@ private: // attributes
 
   VolumeDefinition                     m_VolDef;
   vtkSmartPointer<vtkUnstructuredGrid> m_RestGrid;
+  vtkSmartPointer<vtkUnstructuredGrid> m_OriginalGrid;
 
 
   /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
   QSet<int> m_LayerAdjacentBoundaryCodes;
 
+  QMap<int, vec3_t> m_LayerAdjacentOrigins;
+  QMap<int, vec3_t> m_LayerAdjacentNormals;
+
+
 private: // methods
 
+  void correctAdjacentBC(int bc);
   void prepare();
   void finalise();
 

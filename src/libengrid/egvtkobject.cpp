@@ -388,34 +388,6 @@ void EgVtkObject::getAllSurfaceCells
   }
 }
 
-void EgVtkObject::getSurfaceCells
-(
-  QSet<int>           &bcs,
-  QVector<vtkIdType>  &cells,
-  vtkUnstructuredGrid *grid
-)
-{
-  int N = 0;
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
-      if (bcs.contains(cell_code->GetValue(id_cell))) {
-        ++N;
-      }
-    }
-  }
-  cells.resize(N);
-  N = 0;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
-      if (bcs.contains(cell_code->GetValue(id_cell))) {
-        cells[N] = id_cell;
-        ++N;
-      }
-    }
-  }
-}
-
 void EgVtkObject::addToC2C(vtkIdType id_cell, QVector<int> &_cells, QVector<QVector<int> > &c2c, int j, vtkIdList *nds, vtkIdList *cls, vtkUnstructuredGrid *grid)
 {
   c2c[_cells[id_cell]][j] = -1;

@@ -478,7 +478,6 @@ void BoundaryLayerOperation::computeHeights()
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
 
   computeDesiredHeights();
-  return;
 
   // gaps
   {
@@ -516,6 +515,7 @@ void BoundaryLayerOperation::computeHeights()
       if (m_BoundaryLayerNode[id_node1]) {
         vec3_t x1;
         m_Grid->GetPoint(id_node1, x1.data());
+        const vec3_t& n1 = m_BoundaryLayerVectors[id_node1];
         QVector<int> close_points;
         pfind.getClosePoints(x1, close_points, 20*m_Height[id_node1]/m_MaxHeightInGaps);
         foreach (int i, close_points) {
@@ -524,13 +524,13 @@ void BoundaryLayerOperation::computeHeights()
 
           vtkIdType id_node2 = search_nodes[i];
           if (id_node1 != id_node2) {
-            const vec3_t& n1 = m_BoundaryLayerVectors[id_node1];
+            const vec3_t& n2 = m_BoundaryLayerVectors[id_node2];
             vec3_t x1, x2;
             m_Grid->GetPoint(id_node1, x1.data());
             m_Grid->GetPoint(id_node2, x2.data());
             vec3_t Dx = x2 - x1;
             double a = Dx*n1;
-            if (a > 0) {
+            if (a > 0 && n1*n2 < 0) {
               double b = Dx.abs();
               double alpha = 180.0/M_PI*acos(a/b); /// @todo This is very slow; look at alternatives!
               if (alpha < m_RadarAngle) {
@@ -582,39 +582,26 @@ void BoundaryLayerOperation::computeHeights()
   }
 
   // smoothing
-  QVector<int> num_bcs(m_Grid->GetNumberOfPoints(),0);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
-        int bc = m_Part.n2bcG(id_node, i);
-        if (m_BoundaryCodes.contains(bc)) {
-          ++num_bcs[id_node];
-        }
-      }
-    }
-  }
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
         if (m_SnapPoints[id_node].size() > 0) {
           h_new[id_node] = 0;
-          if (m_SnapPoints.size() == 2) {
+          if (m_SnapPoints[id_node].size() == 2) {
             h_new[id_node] += m_Height[id_node];
           }
           foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
             h_new[id_node] += m_Height[id_snap];
           }
-          if (m_SnapPoints.size() == 2) {
+          if (m_SnapPoints[id_node].size() == 2) {
             h_new[id_node] /= 3;
           } else {
-            h_new[id_node] /= m_SnapPoints.size();
+            h_new[id_node] /= m_SnapPoints[id_node].size();
           }
-          //h_new[id_node] = min(h_new[id_node], m_Height[id_node]);
         } else {
           h_new[id_node] = m_Height[id_node];
         }
-        //h_new[id_node] = min(h_new[id_node], height_limit[id_node]);
       }
     }
     m_Height = h_new;

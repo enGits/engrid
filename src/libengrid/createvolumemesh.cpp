@@ -30,6 +30,8 @@
 CreateVolumeMesh::CreateVolumeMesh()
 {
   EG_TYPENAME;
+  m_CreateBoundaryLayer = false;
+  m_CreateVolumeMesh = false;
 }
 
 int CreateVolumeMesh::numVolumeCells()
@@ -43,10 +45,13 @@ int CreateVolumeMesh::numVolumeCells()
   return N;
 }
 
-void CreateVolumeMesh::operate()
+void CreateVolumeMesh::createTetMesh(int max_num_passes, bool only_surface)
 {
-  readSettings();
-  m_Part.trackGrid(m_Grid);
+  if (only_surface) {
+    m_OnlyResolveSurface = true;
+  } else {
+    m_OnlyResolveSurface = false;
+  }
   double a = m_MaximalEdgeLength;
   double V = a*a*a/(6*sqrt(2.0));
   int N1 = 0;
@@ -58,7 +63,7 @@ void CreateVolumeMesh::operate()
   while (!done) {
     N1 = N2;
     QString flags;
-    QString q_txt = "10/0";
+    QString q_txt = "1.2/0";
     if (pass > 1) {
       q_txt = "1.2/0";
     }
@@ -70,15 +75,44 @@ void CreateVolumeMesh::operate()
     tetgen(flags);
     N2 = numVolumeCells();
     cout << N2 << endl;
-    //if (pass > 1) N2 = N1;
     ++pass;
-    if (fabs(double(N2-N1)/N1) < 0.05 || pass > 1) {
+    if (fabs(double(N2-N1)/N1) < 0.05 || pass > max_num_passes) {
       done = true;
     }
   }
-  CreateBoundaryLayer blayer;
-  blayer.setGrid(m_Grid);
-  blayer.setAllCells();
-  blayer();
+}
+
+void CreateVolumeMesh::setBoundaryLayerOn()
+{
+  m_CreateBoundaryLayer = true;
+}
+
+void CreateVolumeMesh::setVolumeMeshOn()
+{
+  m_CreateVolumeMesh = true;
+}
+
+void CreateVolumeMesh::operate()
+{
+  readSettings();
+  m_Part.trackGrid(m_Grid);
+
+  if (m_CreateVolumeMesh || m_CreateBoundaryLayer) {
+    if (m_CreateBoundaryLayer) {
+      cout << "A" << endl;
+      createTetMesh(1, true);
+      CreateBoundaryLayer blayer;
+      blayer.setGrid(m_Grid);
+      blayer.setAllCells();
+      blayer();
+    }
+    if (m_CreateVolumeMesh) {
+      cout << "B" << endl;
+      createTetMesh(1, false);
+    }
+  } else {
+    cout << "C" << endl;
+    createTetMesh(2, true);
+  }
 }
 

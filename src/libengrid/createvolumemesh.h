@@ -31,6 +31,9 @@ class CreateVolumeMesh : public TetGenOperation
 {
   
 private: // attributes
+
+  bool m_CreateBoundaryLayer;
+  bool m_CreateVolumeMesh;
   
 
 private: // methods
@@ -40,13 +43,17 @@ private: // methods
 
 protected: // methods
   
+  void createTetMesh(int max_num_passes, bool only_surface);
+
   virtual void operate();
   
 
 public: // methods
   
   CreateVolumeMesh();
-  
+  void setBoundaryLayerOn();
+  void setVolumeMeshOn();
+
 };
 
 #endif

@@ -27,6 +27,8 @@
 
 TetGenOperation::TetGenOperation()
 {
+  m_OnlyResolveSurface = false;
+
   // The following code will be used once the option to start TetGen in a
   // separate process has been implemented
 
@@ -101,13 +103,38 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
       }
       ++i;
     }
+
+    QVector<bool> provide_mesh_resolution(m_Grid->GetNumberOfPoints(), true);
+    if (m_OnlyResolveSurface) {
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        provide_mesh_resolution[id_node] = false;
+      }
+      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+        if (isSurface(id_cell, m_Grid)) {
+          vtkIdType num_pts, *pts;
+          m_Grid->GetCellPoints(id_cell, num_pts, pts);
+          for (int i = 0; i < num_pts; ++i) {
+            provide_mesh_resolution[pts[i]] = true;
+          }
+        }
+      }
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          provide_mesh_resolution[m_Part.n2nGG(id_node,i)] = true;
+        }
+      }
+    }
+
     tgio.numberofpointmtrs = 1;
     tgio.pointmtrlist = new REAL [tgio.numberofpoints];
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      double l = min(m_MaximalEdgeLength, m_ELSManager.minEdgeLength(x));
-      tgio.pointmtrlist[id_node] = l;
+      tgio.pointmtrlist[id_node] = 0;
+      if (provide_mesh_resolution[id_node]) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        double l = min(m_MaximalEdgeLength, m_ELSManager.minEdgeLength(x));
+        tgio.pointmtrlist[id_node] = l;
+      }
     }
   }
 }

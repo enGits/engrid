@@ -52,6 +52,7 @@ protected: // attributes
   int    m_OrgDir;
   int    m_CurDir;
   int    m_VolDir;
+  bool   m_OnlyResolveSurface;
 
   EdgeLengthSourceManager m_ELSManager;
 
