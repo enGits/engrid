@@ -52,7 +52,6 @@ protected: // attributes
   int    m_OrgDir;
   int    m_CurDir;
   int    m_VolDir;
-  bool   m_OnlyResolveSurface;
 
   EdgeLengthSourceManager m_ELSManager;
 
@@ -61,10 +60,10 @@ protected: // attributes
 
 protected: // methods
 
-  void copyToTetGen(tetgenio &tgio);
+  void copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid = NULL);
   void copyFromTetGen(tetgenio &tgio);
 
-  void tetgen(QString flags);
+  void tetgen(QString flags, vtkUnstructuredGrid *background_grid = NULL);
   void readSettings();
 
   QString qualityText();

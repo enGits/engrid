@@ -34,6 +34,9 @@ private: // attributes
 
   bool m_CreateBoundaryLayer;
   bool m_CreateVolumeMesh;
+  bool m_FirstCall;
+
+  vtkSmartPointer<vtkUnstructuredGrid> m_BackgroundGrid;
   
 
 private: // methods
@@ -43,7 +46,7 @@ private: // methods
 
 protected: // methods
   
-  void createTetMesh(int max_num_passes, bool only_surface);
+  void createTetMesh(int max_num_passes, bool preserve_surface);
 
   virtual void operate();
   

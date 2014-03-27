@@ -23,7 +23,7 @@
 #include "deletetetras.h"
 #include "guimainwindow.h"
 #include "updatedesiredmeshdensity.h"
-#include "createboundarylayer.h"
+#include "createboundarylayershell.h"
 
 #include <vtkXMLUnstructuredGridWriter.h>
 
@@ -32,6 +32,8 @@ CreateVolumeMesh::CreateVolumeMesh()
   EG_TYPENAME;
   m_CreateBoundaryLayer = false;
   m_CreateVolumeMesh = false;
+  m_BackgroundGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  m_FirstCall = true;
 }
 
 int CreateVolumeMesh::numVolumeCells()
@@ -45,13 +47,8 @@ int CreateVolumeMesh::numVolumeCells()
   return N;
 }
 
-void CreateVolumeMesh::createTetMesh(int max_num_passes, bool only_surface)
+void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
 {
-  if (only_surface) {
-    m_OnlyResolveSurface = true;
-  } else {
-    m_OnlyResolveSurface = false;
-  }
   double a = m_MaximalEdgeLength;
   double V = a*a*a/(6*sqrt(2.0));
   int N1 = 0;
@@ -71,8 +68,23 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool only_surface)
     if (N2 > 0) {
       flags += "m";
     }
+    if (preserve_surface) {
+      flags += "Y";
+    }
     cout << "TetGen pass " << pass << "  flags=" << qPrintable(flags) << endl;
-    tetgen(flags);
+    if (m_FirstCall) {
+      tetgen(flags);
+      m_FirstCall = false;
+      makeCopy(m_Grid, m_BackgroundGrid);
+      cout << "background mesh:\n";
+      cout << "  nodes: " << m_Grid->GetNumberOfPoints() << endl;
+      int N1 = m_Grid->GetNumberOfCells();
+      int N2 = numVolumeCells();
+      cout << "  faces: " << N1 - N2 << endl;
+      cout << "  cells: " << N2 << endl;
+    } else {
+      tetgen(flags, m_BackgroundGrid);
+    }
     N2 = numVolumeCells();
     cout << N2 << endl;
     ++pass;
@@ -100,15 +112,15 @@ void CreateVolumeMesh::operate()
   if (m_CreateVolumeMesh || m_CreateBoundaryLayer) {
     if (m_CreateBoundaryLayer) {
       cout << "A" << endl;
-      createTetMesh(1, true);
-      CreateBoundaryLayer blayer;
+      createTetMesh(2, false);
+      CreateBoundaryLayerShell blayer;
       blayer.setGrid(m_Grid);
       blayer.setAllCells();
       blayer();
     }
     if (m_CreateVolumeMesh) {
       cout << "B" << endl;
-      createTetMesh(1, false);
+      createTetMesh(2, true);
     }
   } else {
     cout << "C" << endl;

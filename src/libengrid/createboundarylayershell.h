@@ -24,7 +24,7 @@
 #include "boundarylayeroperation.h"
 #include "guimainwindow.h"
 
-class CreateBoundaryLayer : public BoundaryLayerOperation
+class CreateBoundaryLayerShell : public BoundaryLayerOperation
 {
 private: // attributes
 
@@ -62,7 +62,7 @@ protected: // methods
 
 public: // methods
 
-  CreateBoundaryLayer();
+  CreateBoundaryLayerShell();
 
   void setVolumeName(QString name) { m_VolumeName = name; }
 

@@ -19,7 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "createboundarylayer.h"
+#include "createboundarylayershell.h"
 
 #include "createvolumemesh.h"
 #include "swaptriangles.h"
@@ -28,14 +28,21 @@
 #include "meshpartition.h"
 #include "deletevolumegrid.h"
 
-CreateBoundaryLayer::CreateBoundaryLayer()
+CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 {
   m_RestGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   m_OriginalGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
 }
 
-void CreateBoundaryLayer::prepare()
+void CreateBoundaryLayerShell::prepare()
 {
+  m_Part.trackGrid(m_Grid);
+
+  DeleteVolumeGrid delete_volume;
+  delete_volume.setGrid(m_Grid);
+  delete_volume.setAllCells();
+  delete_volume();
+
   readSettings();
   setAllCells();
   getSurfaceCells(m_BoundaryLayerCodes, layer_cells, m_Grid);
@@ -89,10 +96,9 @@ void CreateBoundaryLayer::prepare()
 
   computeBoundaryLayerVectors();
   makeCopy(m_Grid, m_OriginalGrid);
-  m_Part.trackGrid(m_Grid);
 }
 
-void CreateBoundaryLayer::correctAdjacentBC(int bc)
+void CreateBoundaryLayerShell::correctAdjacentBC(int bc)
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   vec3_t n0 = m_LayerAdjacentNormals[bc];
@@ -130,11 +136,11 @@ void CreateBoundaryLayer::correctAdjacentBC(int bc)
   }
 }
 
-void CreateBoundaryLayer::finalise()
+void CreateBoundaryLayerShell::finalise()
 {
 }
 
-void CreateBoundaryLayer::operate()
+void CreateBoundaryLayerShell::operate()
 {
   prepare();
   writeBoundaryLayerVectors("blayer");
@@ -146,10 +152,6 @@ void CreateBoundaryLayer::operate()
       m_Grid->GetPoints()->SetPoint(id_node, x.data());
     }
   }
-  DeleteVolumeGrid delete_volume;
-  delete_volume.setGrid(m_Grid);
-  delete_volume.setAllCells();
-  delete_volume();
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     correctAdjacentBC(bc);
   }

@@ -73,6 +73,7 @@ void BoundaryLayerOperation::readSettings()
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
+    m_FaceAngleLimit = deg2rad(m_FaceAngleLimit);
     in >> m_MaxHeightInGaps;
     in >> m_RadarAngle;
     int use_grouping;
@@ -571,9 +572,20 @@ void BoundaryLayerOperation::computeHeights()
                   scale2 = 0.5*(scale1 + scale2);
                 }
               }
+
+              double scale = 0.5*(scale1 + scale2);
               for (vtkIdType i = 0; i < num_pts; ++i) {
-                m_Height[pts[i]] *= 0.5*(scale1 + scale2);
+                m_Height[pts[i]] *= scale;
               }
+
+              /*
+              if (scale < 0.99) {
+                for (vtkIdType i = 0; i < num_pts; ++i) {
+                  m_Height[pts[i]] *= scale;
+                }
+                m_SnapPoints[pts[i]].clear(); // ???
+              }
+              */
             }
           }
         }

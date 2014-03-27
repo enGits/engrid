@@ -365,6 +365,9 @@ inline void MeshPartition::checkNodes()
 
 inline void MeshPartition::checkLCells()
 {
+  if (m_TrackGrid) {
+    checkCells();
+  }
   if (m_CellsStamp > m_LCellsStamp) {
     createCellMapping(m_Cells, m_LCells, m_Grid);
     m_LCellsStamp = m_CellsStamp;
@@ -409,6 +412,7 @@ inline void MeshPartition::checkN2BC()
 
 inline void MeshPartition::checkC2C()
 {
+  checkLCells();
   if (m_CellsStamp > m_C2CStamp) {
     createCellToCell(m_Cells, m_C2C, m_Grid);
     m_C2CStamp = m_CellsStamp;

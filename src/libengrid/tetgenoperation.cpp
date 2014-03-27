@@ -27,8 +27,6 @@
 
 TetGenOperation::TetGenOperation()
 {
-  m_OnlyResolveSurface = false;
-
   // The following code will be used once the option to start TetGen in a
   // separate process has been implemented
 
@@ -42,26 +40,30 @@ TetGenOperation::TetGenOperation()
   */
 }
 
-void TetGenOperation::copyToTetGen(tetgenio &tgio)
+void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid)
 {
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
-  EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
-  EG_VTKDCC(vtkIntArray, cell_voldir, m_Grid, "cell_voldir");
+  vtkUnstructuredGrid *grid = alt_grid;
+  if (!grid) {
+    grid = m_Grid;
+  }
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, grid, "cell_voldir");
   tgio.initialize();
-  tgio.numberofpoints = m_Grid->GetNumberOfPoints();
+  tgio.numberofpoints = grid->GetNumberOfPoints();
   tgio.pointlist = new REAL [3*tgio.numberofpoints];
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+  for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
-    m_Grid->GetPoint(id_node, x.data());
+    grid->GetPoint(id_node, x.data());
     for (int i = 0; i < 3; ++i) {
       tgio.pointlist[3*id_node + i] = x[i];
     }
   }
   QList<vtkIdType> triangles, tetrahedra;
-  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    if      (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) triangles.append(id_cell);
-    else if (m_Grid->GetCellType(id_cell) == VTK_TETRA)    tetrahedra.append(id_cell);
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if      (grid->GetCellType(id_cell) == VTK_TRIANGLE) triangles.append(id_cell);
+    else if (grid->GetCellType(id_cell) == VTK_TETRA)    tetrahedra.append(id_cell);
     else {
       EG_BUG;
     }
@@ -76,7 +78,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
       m_CurDir = cell_curdir->GetValue(id_cell);
       m_VolDir = cell_voldir->GetValue(id_cell);
       vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      grid->GetCellPoints(id_cell, num_pts, pts);
       tgio.facetlist[i].numberofpolygons = 1;
       tgio.facetlist[i].polygonlist = new tetgenio::polygon[1];
       tgio.facetlist[i].numberofholes = 0;
@@ -97,41 +99,39 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio)
     int i = 0;
     foreach (vtkIdType id_cell, tetrahedra) {
       vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      grid->GetCellPoints(id_cell, num_pts, pts);
       for (int j = 0; j < num_pts; ++j) {
         tgio.tetrahedronlist[i*num_pts + j] = pts[j];
       }
       ++i;
     }
 
-    QVector<bool> provide_mesh_resolution(m_Grid->GetNumberOfPoints(), true);
-    if (m_OnlyResolveSurface) {
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        provide_mesh_resolution[id_node] = false;
-      }
-      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-        if (isSurface(id_cell, m_Grid)) {
-          vtkIdType num_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, num_pts, pts);
-          for (int i = 0; i < num_pts; ++i) {
-            provide_mesh_resolution[pts[i]] = true;
-          }
+    QVector<bool> provide_mesh_resolution(grid->GetNumberOfPoints(), true);
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      provide_mesh_resolution[id_node] = false;
+    }
+    for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+      if (isSurface(id_cell, grid)) {
+        vtkIdType num_pts, *pts;
+        grid->GetCellPoints(id_cell, num_pts, pts);
+        for (int i = 0; i < num_pts; ++i) {
+          provide_mesh_resolution[pts[i]] = true;
         }
       }
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          provide_mesh_resolution[m_Part.n2nGG(id_node,i)] = true;
-        }
+    }
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+        provide_mesh_resolution[m_Part.n2nGG(id_node,i)] = true;
       }
     }
 
     tgio.numberofpointmtrs = 1;
     tgio.pointmtrlist = new REAL [tgio.numberofpoints];
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
       tgio.pointmtrlist[id_node] = 0;
       if (provide_mesh_resolution[id_node]) {
         vec3_t x;
-        m_Grid->GetPoint(id_node, x.data());
+        grid->GetPoint(id_node, x.data());
         double l = min(m_MaximalEdgeLength, m_ELSManager.minEdgeLength(x));
         tgio.pointmtrlist[id_node] = l;
       }
@@ -217,13 +217,13 @@ QString TetGenOperation::qualityText()
   return QString("1.4") + "/" + alpha_txt;
 }
 
-void TetGenOperation::tetgen(QString flags)
+void TetGenOperation::tetgen(QString flags, vtkUnstructuredGrid *background_grid)
 {
   try {
     tetgenio in, out, background;
     readSettings();
     copyToTetGen(in);
-    copyToTetGen(background);
+    copyToTetGen(background, background_grid);
     char *char_flags = new char [flags.size() + 1];
     strcpy(char_flags, qPrintable(flags));
     tetrahedralize(char_flags, &in, &out, NULL, &background);
