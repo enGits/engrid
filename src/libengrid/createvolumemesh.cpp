@@ -120,11 +120,11 @@ void CreateVolumeMesh::operate()
     }
     if (m_CreateVolumeMesh) {
       cout << "B" << endl;
-      createTetMesh(2, true);
+      createTetMesh(1, true);
     }
   } else {
     cout << "C" << endl;
-    createTetMesh(2, true);
+    createTetMesh(2, false);
   }
 }
 

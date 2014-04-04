@@ -46,6 +46,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
   if (!grid) {
     grid = m_Grid;
   }
+  MeshPartition part(grid, true);
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_orgdir, grid, "cell_orgdir");
   EG_VTKDCC(vtkIntArray, cell_curdir, grid, "cell_curdir");
@@ -120,8 +121,8 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
       }
     }
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
-      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-        provide_mesh_resolution[m_Part.n2nGG(id_node,i)] = true;
+      for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+        provide_mesh_resolution[part.n2nGG(id_node,i)] = true;
       }
     }
 
