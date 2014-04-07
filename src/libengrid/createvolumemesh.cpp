@@ -21,6 +21,7 @@
 
 #include "createvolumemesh.h"
 #include "deletetetras.h"
+#include "deletecells.h"
 #include "guimainwindow.h"
 #include "updatedesiredmeshdensity.h"
 #include "createboundarylayershell.h"
@@ -65,7 +66,7 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
       q_txt = "1.2/0";
     }
     flags = QString("pq") + q_txt + "a" + V_txt;
-    if (N2 > 0) {
+    if (!m_FirstCall) {
       flags += "m";
     }
     if (preserve_surface) {
@@ -109,20 +110,27 @@ void CreateVolumeMesh::operate()
   readSettings();
   m_Part.trackGrid(m_Grid);
 
-  if (m_CreateVolumeMesh || m_CreateBoundaryLayer) {
-    if (m_CreateBoundaryLayer) {
-      cout << "A" << endl;
-      createTetMesh(2, false);
-      CreateBoundaryLayerShell blayer;
-      blayer.setGrid(m_Grid);
-      blayer.setAllCells();
-      blayer();
-    }
+  if (m_CreateBoundaryLayer) {
+    cout << "A" << endl;
+    createTetMesh(2, false);
+    CreateBoundaryLayerShell blayer;
+    blayer.setGrid(m_Grid);
+    blayer.setAllCells();
+    blayer();
     if (m_CreateVolumeMesh) {
       cout << "B" << endl;
       createTetMesh(1, true);
     }
-  } else {
+    vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
+    MeshPartition prismatic_part(prismatic_grid, true);
+    QVector<vtkIdType> shell_cells;
+    getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
+    DeleteCells delete_cells;
+    delete_cells.setGrid(m_Grid);
+    delete_cells.setCellsToDelete(shell_cells);
+    delete_cells();
+    m_Part.addPartition(prismatic_part);
+  } else if (m_CreateVolumeMesh) {
     cout << "C" << endl;
     createTetMesh(2, false);
   }

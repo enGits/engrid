@@ -30,8 +30,8 @@ class DeleteCells : public Operation
   
 private: // attributes
   
-  QVector<vtkIdType> del_cells;
-  QVector<vtkIdType> trace_cells;
+  QVector<vtkIdType> m_DelCells;
+  QVector<vtkIdType> m_TraceCells;
   
 protected: // methods
   
@@ -50,9 +50,9 @@ public: // methods
 template <class T>
 void DeleteCells::setCellsToDelete(const T &cls)
 {
-  del_cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), del_cells.begin());
-};
+  m_DelCells.resize(cls.size());
+  qCopy(cls.begin(), cls.end(), m_DelCells.begin());
+}
 
 
 #endif

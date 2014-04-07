@@ -22,14 +22,14 @@
 
 void DeleteCells::setTraceCells(const QVector<vtkIdType> &cells)
 {
-  trace_cells.resize(cells.size()); 
-  qCopy(cells.begin(), cells.end(), trace_cells.begin()); 
+  m_TraceCells.resize(cells.size());
+  qCopy(cells.begin(), cells.end(), m_TraceCells.begin());
 }
 
 void DeleteCells::getTraceCells(QVector<vtkIdType> &cells)
 {
-  cells.resize(trace_cells.size()); 
-  qCopy(trace_cells.begin(), trace_cells.end(), cells.begin()); 
+  cells.resize(m_TraceCells.size());
+  qCopy(m_TraceCells.begin(), m_TraceCells.end(), cells.begin());
 }
 
 void DeleteCells::operate()
@@ -37,7 +37,7 @@ void DeleteCells::operate()
   EG_VTKSP(vtkUnstructuredGrid, new_grid);
   QVector<vtkIdType> new_cells;
   QVector<vtkIdType> new_nodes;
-  getRestCells(m_Grid, del_cells, new_cells);
+  getRestCells(m_Grid, m_DelCells, new_cells);
   getNodesFromCells(new_cells, new_nodes, m_Grid);
   allocateGrid(new_grid, new_cells.size(), new_nodes.size());
   QVector<vtkIdType> old2new_nodes(m_Grid->GetNumberOfPoints(), -1);
@@ -61,19 +61,18 @@ void DeleteCells::operate()
       for (int i = 0; i < N_pts; ++i) {
         new_pts[i] = old2new_nodes[pts[i]];
       }
-      vtkIdType cellType = m_Grid->GetCellType(id_cell);
-      vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
+      vtkIdType id_new = copyCell(m_Grid, id_cell, new_grid);
       copyCellData(m_Grid, id_cell, new_grid, id_new);
       old2new_cells[id_cell] = id_new;
     }
     QList<vtkIdType> new_trace_cells;
-    foreach (vtkIdType id_cell, trace_cells) {
+    foreach (vtkIdType id_cell, m_TraceCells) {
       if (old2new_cells[id_cell] != -1) {
         new_trace_cells.append(old2new_cells[id_cell]);
       }
     }
-    trace_cells.resize(new_trace_cells.size());
-    qCopy(new_trace_cells.begin(), new_trace_cells.end(), trace_cells.begin());
+    m_TraceCells.resize(new_trace_cells.size());
+    qCopy(new_trace_cells.begin(), new_trace_cells.end(), m_TraceCells.begin());
   }
   makeCopy(new_grid, m_Grid);
 }

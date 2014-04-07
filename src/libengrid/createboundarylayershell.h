@@ -40,6 +40,7 @@ private: // attributes
   VolumeDefinition                     m_VolDef;
   vtkSmartPointer<vtkUnstructuredGrid> m_RestGrid;
   vtkSmartPointer<vtkUnstructuredGrid> m_OriginalGrid;
+  vtkSmartPointer<vtkUnstructuredGrid> m_PrismaticGrid;
 
 
   /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
@@ -53,6 +54,7 @@ private: // methods
 
   void correctAdjacentBC(int bc);
   void prepare();
+  void createPrismaticGrid();
   void finalise();
 
 
@@ -65,6 +67,8 @@ public: // methods
   CreateBoundaryLayerShell();
 
   void setVolumeName(QString name) { m_VolumeName = name; }
+  vtkUnstructuredGrid* getPrismaticGrid() { return m_PrismaticGrid; }
+  QVector<int> getBoundaryLayerCodes() { return m_BoundaryLayerCodes; }
 
 };
 
