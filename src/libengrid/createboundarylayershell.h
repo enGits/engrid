@@ -55,7 +55,7 @@ private: // attributes
 
 private: // methods
 
-  void correctAdjacentBC(int bc);
+  void correctAdjacentBC(int bc, vtkUnstructuredGrid *grid);
   void prepare();
   void createLayerNodes(vtkIdType id_node);
   void createPrismaticGrid();

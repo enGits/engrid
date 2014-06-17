@@ -105,6 +105,48 @@ void CreateVolumeMesh::setVolumeMeshOn()
   m_CreateVolumeMesh = true;
 }
 
+void CreateVolumeMesh::reduceSurface(QSet<int> boundary_codes)
+{
+  RemovePoints remove_points;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  remove_points.setMeshPartition(part);
+  remove_points.setBoundaryCodes(boundary_codes);
+  remove_points.setUpdatePSPOn();
+  remove_points.setThreshold(3);
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = false;
+      }
+    }
+  }
+  for (int layer = 0; layer < 3; ++layer) {
+    QVector<bool> tmp = fix;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!tmp[id_node]) {
+        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+          fix[part.n2nGG(id_node, i)] = false;
+        }
+      }
+    }
+  }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = true;
+      }
+    }
+  }
+
+  remove_points.fixNodes(fix);
+  remove_points();
+}
+
+
 void CreateVolumeMesh::operate()
 {
   readSettings();
@@ -120,17 +162,16 @@ void CreateVolumeMesh::operate()
     if (m_CreateVolumeMesh) {
       cout << "B" << endl;
       createTetMesh(1, true);
+      vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
+      MeshPartition prismatic_part(prismatic_grid, true);
+      QVector<vtkIdType> shell_cells;
+      getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
+      DeleteCells delete_cells;
+      delete_cells.setGrid(m_Grid);
+      delete_cells.setCellsToDelete(shell_cells);
+      delete_cells();
+      m_Part.addPartition(prismatic_part);
     }
-    vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
-
-    MeshPartition prismatic_part(prismatic_grid, true);
-    QVector<vtkIdType> shell_cells;
-    getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
-    DeleteCells delete_cells;
-    delete_cells.setGrid(m_Grid);
-    delete_cells.setCellsToDelete(shell_cells);
-    delete_cells();
-    m_Part.addPartition(prismatic_part);
   } else if (m_CreateVolumeMesh) {
     cout << "C" << endl;
     createTetMesh(2, false);

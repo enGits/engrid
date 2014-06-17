@@ -185,6 +185,7 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
     if (tol < 0) {
       tol *= -min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
     }
+    tol = max(tol, 1e-30);
     cout << "  tol=" << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);

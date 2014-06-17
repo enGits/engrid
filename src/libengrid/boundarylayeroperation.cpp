@@ -429,7 +429,7 @@ void BoundaryLayerOperation:: computeDesiredHeights()
     }
   }
 
-  m_NumLayers = k - 1;
+  m_NumLayers = k;
 
   // correct with angle between face normal and propagation direction (node normals)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -565,7 +565,7 @@ void BoundaryLayerOperation::computeHeights()
           if (check_face) {
             if (!faceFine(id_cell, 1)) {
               done = false;
-              double scale1 = 0;
+              double scale1 = 0.8;
               double scale2 = 1;
               while (scale2 - scale1 > 1e-3) {
                 if (faceFine(id_cell, 0.5*(scale1 + scale2))) {

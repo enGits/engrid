@@ -78,6 +78,8 @@ protected: // methods
 
 public: // methods
 
+  QSet<int> getLayerAdjacentBoundaryCodes();
+
 
 
 };

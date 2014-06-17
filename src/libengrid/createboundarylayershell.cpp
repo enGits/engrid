@@ -99,32 +99,33 @@ void CreateBoundaryLayerShell::prepare()
   makeCopy(m_Grid, m_OriginalGrid);
 }
 
-void CreateBoundaryLayerShell::correctAdjacentBC(int bc)
+void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *grid)
 {
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  MeshPartition part(grid, true);
   vec3_t n0 = m_LayerAdjacentNormals[bc];
   vec3_t x0 = m_LayerAdjacentOrigins[bc];
   double scal_min = -1;
   int count = 0;
   while (scal_min < 0.5 && count < 20) {
     scal_min = 1;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_Part.n2bcGSize(id_node) == 1) {
-        if (m_Part.n2bcG(id_node, 0) == bc) {
+    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      if (part.n2bcGSize(id_node) == 1) {
+        if (part.n2bcG(id_node, 0) == bc) {
           vec3_t x(0,0,0);
-          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          for (int i = 0; i < part.n2nGSize(id_node); ++i) {
             vec3_t xn;
-            m_Grid->GetPoint(m_Part.n2nGG(id_node, i), xn.data());
+            grid->GetPoint(part.n2nGG(id_node, i), xn.data());
             x += xn;
           }
-          x *= 1.0/m_Part.n2nGSize(id_node);
+          x *= 1.0/part.n2nGSize(id_node);
           x -= ((x - x0)*n0)*n0;
-          m_Grid->GetPoints()->SetPoint(id_node, x.data());
-          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-            if (isSurface(id_cell, m_Grid)) {
+          grid->GetPoints()->SetPoint(id_node, x.data());
+          for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+            vtkIdType id_cell = part.n2cGG(id_node, i);
+            if (isSurface(id_cell, grid)) {
               if (cell_code->GetValue(id_cell) == bc) {
-                vec3_t n = cellNormal(m_Grid, id_cell);
+                vec3_t n = cellNormal(grid, id_cell);
                 n.normalise();
                 scal_min = min(scal_min, n*n0);
               }
@@ -143,12 +144,21 @@ void CreateBoundaryLayerShell::createLayerNodes(vtkIdType id_node)
   m_Grid->GetPoint(id_node, x1.data());
   m_PrismaticGrid->GetPoints()->SetPoint(m_ShellNodeMap[id_node], x1.data());
   vec3_t x2 = x1 + m_BoundaryLayerVectors[id_node];
-  vec3_t dx = (1.0/m_NumLayers)*(x2 - x1); // temp solution -> CHANGE!!
-  vec3_t x = x1;
-  for (int i = 0; i <= m_NumLayers; ++i) {
-    m_PrismaticGrid->GetPoints()->SetPoint(i*m_ShellPart.getNumberOfNodes() + m_ShellNodeMap[id_node], x.data());
-    x += dx; // temp solution -> CHANGE!!
+
+  double H  = m_BoundaryLayerVectors[id_node].abs();
+  double h  = H*(1.0 - m_StretchingRatio)/(1.0 - pow(m_StretchingRatio, m_NumLayers));
+  if (h < 1e-7) {
+    cout << "break" << endl;
   }
+  vec3_t dx = (1.0/H)*m_BoundaryLayerVectors[id_node];
+  vec3_t x  = x1;
+  m_PrismaticGrid->GetPoints()->SetPoint(m_ShellNodeMap[id_node], x1.data());
+  for (int i = 1; i < m_NumLayers; ++i) {
+    x += h*dx;
+    h *= m_StretchingRatio;
+    m_PrismaticGrid->GetPoints()->SetPoint(i*m_ShellPart.getNumberOfNodes() + m_ShellNodeMap[id_node], x.data());
+  }
+  m_PrismaticGrid->GetPoints()->SetPoint(m_NumLayers*m_ShellPart.getNumberOfNodes() + m_ShellNodeMap[id_node], x2.data());
   m_Grid->GetPoints()->SetPoint(id_node, x2.data());
 }
 
@@ -248,9 +258,11 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
+  writeBoundaryLayerVectors("blayer");
   createPrismaticGrid();
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
-    correctAdjacentBC(bc);
+    correctAdjacentBC(bc, m_Grid);
+    //correctAdjacentBC(bc, m_PrismaticGrid);
   }
 }
 

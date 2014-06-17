@@ -47,6 +47,7 @@ private: // methods
 protected: // methods
   
   void createTetMesh(int max_num_passes, bool preserve_surface);
+  void reduceSurface(QSet<int> boundary_codes);
 
   virtual void operate();
   
