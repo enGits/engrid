@@ -87,3 +87,9 @@ docs
 *.suo
 *.ncb
 *.vcproj.*
+
+# CMake
+*CMakeFiles*
+*.cmake
+
+
