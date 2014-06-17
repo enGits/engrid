@@ -429,6 +429,8 @@ void BoundaryLayerOperation:: computeDesiredHeights()
     }
   }
 
+  m_NumLayers = k - 1;
+
   // correct with angle between face normal and propagation direction (node normals)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {

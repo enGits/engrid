@@ -57,6 +57,7 @@ protected: // attributes
   double                    m_GroupingAngle;
   int                       m_NumBoundaryLayerVectorRelaxations;
   int                       m_NumBoundaryLayerHeightRelaxations;
+  int                       m_NumLayers;
   EdgeLengthSourceManager   m_ELSManagerBLayer;
   EdgeLengthSourceManager   m_ELSManagerSurface;
 
