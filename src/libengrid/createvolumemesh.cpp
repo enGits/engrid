@@ -122,6 +122,7 @@ void CreateVolumeMesh::operate()
       createTetMesh(1, true);
     }
     vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
+
     MeshPartition prismatic_part(prismatic_grid, true);
     QVector<vtkIdType> shell_cells;
     getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);

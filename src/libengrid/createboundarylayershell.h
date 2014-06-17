@@ -59,7 +59,6 @@ private: // methods
   void prepare();
   void createLayerNodes(vtkIdType id_node);
   void createPrismaticGrid();
-  void finalise();
 
 
 protected: // methods

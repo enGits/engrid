@@ -170,20 +170,17 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     m_ShellNodeMap[m_ShellPart.globalNode(i)] = i;
   }
 
-  QVector<QList<int> > n2bc(m_PrismaticGrid->GetNumberOfPoints());
+  QVector<QSet<int> > n2bc(m_PrismaticGrid->GetNumberOfPoints());
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_ShellNodeMap[id_node] != -1) {
       createLayerNodes(id_node);
       for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
-        n2bc[m_ShellNodeMap[id_node]].append(m_Part.n2bcG(id_node, i));
-        n2bc[m_ShellNodeMap[id_node] + m_ShellPart.getNumberOfNodes()].append(m_Part.n2bcG(id_node, i));
+        n2bc[m_ShellNodeMap[id_node]].insert(m_Part.n2bcG(id_node, i));
+        n2bc[m_ShellNodeMap[id_node] + m_ShellPart.getNumberOfNodes()].insert(m_Part.n2bcG(id_node, i));
       }
     }
   }
-
-  EG_VTKDCC(vtkIntArray, cell_code_src, m_Grid, "cell_code");
-  EG_VTKDCC(vtkIntArray, cell_code_dst, m_PrismaticGrid, "cell_code");
 
   QList<QVector<vtkIdType> > adjacent_edges;
 
@@ -200,16 +197,17 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       if (m_ShellNodeMap[pts[i_pts]] >= m_ShellPart.getNumberOfNodes()) {
         EG_BUG;
       }
-      QVector<vtkIdType> edge(2);
-      edge[0] = m_ShellNodeMap[pts[i_pts]];
-      edge[1] = m_ShellNodeMap[pts[0]];
+      QVector<vtkIdType> edge(3);
+      edge[1] = m_ShellNodeMap[pts[i_pts]];
+      edge[2] = m_ShellNodeMap[pts[0]];
       if (i_pts < 2) {
-        edge[1] = m_ShellNodeMap[pts[i_pts+1]];
+        edge[2] = m_ShellNodeMap[pts[i_pts+1]];
       }
       QSet<int> edge_codes = m_LayerAdjacentBoundaryCodes;
-      qcontIntersection(edge_codes, n2bc[edge[0]], edge_codes);
-      qcontIntersection(edge_codes, n2bc[edge[1]], edge_codes);
+      edge_codes.intersect(n2bc[edge[1]]);
+      edge_codes.intersect(n2bc[edge[2]]);
       if (edge_codes.size() == 1) {
+        edge[0] = *edge_codes.begin();
         adjacent_edges.append(edge);
       }
       tri_pts[i_pts] = m_ShellNodeMap[pts[i_pts]];
@@ -225,35 +223,34 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     }
   }
 
-  /*
+  // create quads on adjacent boundary faces
+  //
   EG_VTKSP(vtkUnstructuredGrid, noquad_grid);
   makeCopy(m_PrismaticGrid, noquad_grid);
   allocateGrid(m_PrismaticGrid, m_PrismaticGrid->GetNumberOfCells() + m_NumLayers*adjacent_edges.size(), m_PrismaticGrid->GetNumberOfPoints());
-  */
+  makeCopyNoAlloc(noquad_grid, m_PrismaticGrid);
 
-  /*
-  MeshPartition first_prism_part(m_PrimaticGrid, true);
-  m_Part.addPartition(first_prism_part);
-  */
-}
+  EG_VTKDCC(vtkIntArray, cell_code, m_PrismaticGrid, "cell_code");
 
-void CreateBoundaryLayerShell::finalise()
-{
+  foreach (QVector<vtkIdType> edge, adjacent_edges) {
+    vtkIdType qua_pts[4];
+    for (int i_layer = 0; i_layer < m_NumLayers; ++i_layer) {
+      qua_pts[0] = edge[2] + i_layer*m_ShellPart.getNumberOfNodes();
+      qua_pts[1] = edge[1] + i_layer*m_ShellPart.getNumberOfNodes();
+      qua_pts[2] = edge[1] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
+      qua_pts[3] = edge[2] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
+      vtkIdType id_qua = m_PrismaticGrid->InsertNextCell(VTK_QUAD, 4, qua_pts);
+      cell_code->SetValue(id_qua, edge[0]);
+    }
+  }
 }
 
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
-  //writeBoundaryLayerVectors("blayer");
   createPrismaticGrid();
-
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     correctAdjacentBC(bc);
   }
-
-
-  // ...
-
-  //finalise();
 }
 
