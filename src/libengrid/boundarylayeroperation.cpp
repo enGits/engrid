@@ -469,11 +469,43 @@ bool BoundaryLayerOperation::faceFine(vtkIdType id_face, double scale)
   double A1 = n1.abs();
   double A2 = n2.abs();
   if (A2/A1 >= m_FaceSizeLowerLimit && A2/A1 <= m_FaceSizeUpperLimit){
+    return true;
+    /*
     if (angle(n1, n2) < m_FaceAngleLimit) {
       return true;
     }
+    */
   }
   return false;
+}
+
+bool BoundaryLayerOperation::nodeFine(vtkIdType id_node, double scale)
+{
+  for (int i_face = 0; i_face < m_Part.n2cGSize(id_node); ++i_face) {
+    vtkIdType id_face = m_Part.n2cGG(id_node, i_face);
+    EG_GET_CELL(id_face, m_Grid);
+    if (type_cell != VTK_TRIANGLE) {
+      EG_BUG;
+    }
+    QVector<vec3_t> x1(num_pts);
+    for (vtkIdType i = 0; i < num_pts; ++i) {
+      m_Grid->GetPoint(pts[i], x1[i].data());
+    }
+    vec3_t n1 = triNormal(x1[0], x1[1], x1[2]);
+    QVector<vec3_t> x2(num_pts);
+    for (vtkIdType i = 0; i < num_pts; ++i) {
+      if (pts[i] == id_node) {
+        x2[i] = x1[i] + scale*m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
+      } else {
+        x2[i] = x1[i] + m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
+      }
+    }
+    vec3_t n2 = triNormal(x2[0], x2[1], x2[2]);
+    if (angle(n1, n2) > m_FaceAngleLimit) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void BoundaryLayerOperation::computeHeights()
@@ -546,11 +578,14 @@ void BoundaryLayerOperation::computeHeights()
     }
   }
 
-  // limit face size difference (neighbour collisions)
+  // limit face size and angle difference (neighbour collisions)
   {
     bool done;
     do {
       done = true;
+      QVector<double> h_new = m_Height;
+
+      // face areas
       for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         if (isSurface(id_cell, m_Grid)) {
           vtkIdType num_pts, *pts;
@@ -577,21 +612,36 @@ void BoundaryLayerOperation::computeHeights()
 
               double scale = 0.5*(scale1 + scale2);
               for (vtkIdType i = 0; i < num_pts; ++i) {
-                m_Height[pts[i]] *= scale;
+                h_new[pts[i]] = min(h_new[pts[i]], scale*m_Height[pts[i]]);
               }
-
-              /*
-              if (scale < 0.99) {
-                for (vtkIdType i = 0; i < num_pts; ++i) {
-                  m_Height[pts[i]] *= scale;
-                }
-                m_SnapPoints[pts[i]].clear(); // ???
-              }
-              */
             }
           }
         }
       }
+
+      // face angles
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          if (!nodeFine(id_node, 1)) {
+            done = false;
+            double scale1 = 0.8;
+            double scale2 = 1;
+            while (scale2 - scale1 > 1e-3) {
+              if (nodeFine(id_node, 0.5*(scale1 + scale2))) {
+                scale1 = 0.5*(scale1 + scale2);
+              } else {
+                scale2 = 0.5*(scale1 + scale2);
+              }
+            }
+
+            double scale = 0.5*(scale1 + scale2);
+            h_new[id_node] = min(h_new[id_node], scale*m_Height[id_node]);
+          }
+        }
+      }
+
+      m_Height = h_new;
+
     } while (!done);
   }
 

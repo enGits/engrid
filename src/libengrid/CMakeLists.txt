@@ -32,6 +32,7 @@ SET(libengrid_HEADERS
   cadinterface.h
   celllayeriterator.h
   cellneighbouriterator.h
+  cgaltricadinterface.h
   cgnswriter.h
   checkerboardgraphiterator.h
   checkforoverlap.h
@@ -236,6 +237,7 @@ SET(libengrid_SOURCES
   cadinterface.cpp
   celllayeriterator.cpp
   cellneighbouriterator.cpp
+  cgaltricadinterface.cpp
   cgnswriter.cpp
   checkforoverlap.cpp
   checksurfaceintegrity.cpp

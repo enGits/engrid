@@ -310,7 +310,7 @@ inline int N_Permutations(int N,int k)
   return(factorial_rec(N)/(factorial_rec(N-k)));
 }
 
-#define LINE "=================" << endl;
+#define LINE_STR "=================" << endl;
 
 #define USE(X) X=X
 

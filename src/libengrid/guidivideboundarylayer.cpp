@@ -252,11 +252,11 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     }
     ++N;
   }
-  cout << LINE;
+  cout << LINE_STR;
   cout << "maximal increment : " << max_step << endl;
   cout << "min(y) : " << ymin << endl;
   cout << "max(y) : " << ymax << endl;
-  cout << LINE;
+  cout << LINE_STR;
 }
 
 void GuiDivideBoundaryLayer::computeMaxConvexAngles()

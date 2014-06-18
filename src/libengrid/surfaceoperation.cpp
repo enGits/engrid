@@ -37,7 +37,8 @@ SurfaceOperation::SurfaceOperation() : Operation()
   //default values for determining node types and for smoothing operations
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
   getSet("surface meshing", "feature angle", 20, m_FeatureAngle);
-  getSet("surface meshing", "boundary codes define features", true, m_BCodeFeatureDefinition);
+  getSet("surface meshing", "boundary codes define features", false, m_BCodeFeatureDefinition);
+  getSet("surface meshing", "angles define features", false, m_AngleFeatureDefinition);
   getSet("surface meshing", "number of steps to protect node types", 2, m_TypeProtectionCount);
   getSet("surface meshing", "threshold for face orientation quality", 0.1, m_FaceOrientationThreshold);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
@@ -201,46 +202,60 @@ void SurfaceOperation::updateNodeInfo()
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  bool num_non_simple = 0;
+  foreach (vtkIdType id_node, nodes) {
+    if (node_type->GetValue(id_node) != EG_SIMPLE_VERTEX) {
+      ++num_non_simple;
+    }
+  }
+
   foreach (vtkIdType id_node, nodes) {
 
     char old_type = node_type->GetValue(id_node);
-    char new_type = getNodeType(id_node, true);
 
-    if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
-      //EG_BUG;
-    }
-
-    if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
-      node_type->SetValue(id_node, new_type);
-    } else {
-
-      bool done = false;
-
-      // EG_FEATURE_CORNER_VERTEX -> any other type
-      if (old_type == EG_FEATURE_CORNER_VERTEX && new_type != EG_FEATURE_CORNER_VERTEX) {
-        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
-          node_type->SetValue(id_node, new_type);
-        } else {
-          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
-        }
-        done = true;
+    if (!m_AngleFeatureDefinition) {
+      char new_type = getNodeType(id_node, true);
+      if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
+        //EG_BUG;
       }
 
-      // EG_FEATURE_EDGE_VERTEX -> EG_SIMPLE_VERTEX
-      if (old_type == EG_FEATURE_EDGE_VERTEX && new_type == EG_SIMPLE_VERTEX) {
-        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
-          node_type->SetValue(id_node, new_type);
-        } else {
-          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
-        }
-        done = true;
-      }
-
-      if (!done) {
+      if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
         node_type->SetValue(id_node, new_type);
-        node_type_counter->SetValue(id_node, 0);
-      }
+      } else {
 
+        bool done = false;
+
+        // EG_FEATURE_CORNER_VERTEX -> any other type
+        if (old_type == EG_FEATURE_CORNER_VERTEX && new_type != EG_FEATURE_CORNER_VERTEX) {
+          if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
+            node_type->SetValue(id_node, new_type);
+          } else {
+            node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
+          }
+          done = true;
+        }
+
+        // EG_FEATURE_EDGE_VERTEX -> EG_SIMPLE_VERTEX
+        if (old_type == EG_FEATURE_EDGE_VERTEX && new_type == EG_SIMPLE_VERTEX) {
+          if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
+            node_type->SetValue(id_node, new_type);
+          } else {
+            node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
+          }
+          done = true;
+        }
+
+        if (!done) {
+          node_type->SetValue(id_node, new_type);
+          node_type_counter->SetValue(id_node, 0);
+        }
+
+      }
+    } else {
+      if (old_type == EG_SIMPLE_VERTEX && num_non_simple == 0) {
+        node_type->SetValue(id_node, getNodeType(id_node));
+      }
     }
 
     //density index from table
@@ -262,28 +277,6 @@ void SurfaceOperation::updateNodeInfo()
       }
     }
   }
-
-  /*
-  // look for feature edge triple stars
-  QList<vtkIdType> new_corners;
-  EG_FORALL_NODES(id_node1, m_Grid) {
-    if (node_type->GetValue(id_node1) == EG_FEATURE_EDGE_VERTEX) {
-      int N = 0;
-      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-        vtkIdType id_node2 = m_Part.n2cGG(id_node1, i);
-        if (node_type->GetValue(id_node2) == EG_FEATURE_EDGE_VERTEX) {
-          ++N;
-        }
-      }
-      if (N == 3) {
-        new_corners.append(id_node1);
-      }
-    }
-  }
-  foreach (vtkIdType id_node, new_corners) {
-    node_type->SetValue(id_node, EG_FEATURE_CORNER_VERTEX);
-  }
-  */
 
   updatePotentialSnapPoints();
 }
@@ -408,7 +401,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
   if (num_bcs >= 3 || num_bcs == 0) {
     return EG_FIXED_VERTEX;
   }
-  if (num_bcs == 2) {
+  if (num_bcs == 2 && !m_AngleFeatureDefinition) {
     if (m_BCodeFeatureDefinition) {
       QList<vtkIdType> neigh;
       for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
@@ -427,7 +420,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
   }
 
   CadInterface* cad_interface = GuiMainWindow::pointer()->getCadInterface(m_Part.n2bcG(id_node,0), true);
-  if (cad_interface && !m_BCodeFeatureDefinition) {
+  if (cad_interface && !m_BCodeFeatureDefinition && !m_AngleFeatureDefinition) {
 
     vec3_t x, x0;
     m_Grid->GetPoint(id_node, x0.data());
@@ -491,6 +484,31 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
         return EG_FEATURE_EDGE_VERTEX;
       }
     }
+  } else if (m_AngleFeatureDefinition) {
+
+    // features are defined via angles
+    int num_feature_edges = 0;
+    for (int i_neigh = 0; i_neigh < m_Part.n2nGSize(id_node); ++i_neigh) {
+      vtkIdType id_neigh = m_Part.n2nGG(id_node, i_neigh);
+      QVector<vtkIdType> id_face;
+      m_Part.getEdgeFaces(id_node, id_neigh, id_face);
+      if (id_face.size() == 2) {
+        vec3_t n1    = cellNormal(m_Grid, id_face[0]);
+        vec3_t n2    = cellNormal(m_Grid, id_face[1]);
+        double alpha = GeometryTools::angle(n1, n2);
+        if (alpha >= m_FeatureAngle) {
+          ++num_feature_edges;
+        }
+      }
+    }
+    if (num_feature_edges == 0) {
+      return EG_SIMPLE_VERTEX;
+    } else if (num_feature_edges == 2) {
+      return EG_FEATURE_EDGE_VERTEX;
+    } else {
+      return EG_FEATURE_CORNER_VERTEX;
+    }
+
   }
 
   return EG_SIMPLE_VERTEX;

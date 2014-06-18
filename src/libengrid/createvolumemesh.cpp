@@ -67,7 +67,7 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
     }
     flags = QString("pq") + q_txt + "a" + V_txt;
     if (!m_FirstCall) {
-      flags += "m";
+      flags += "mR";
     }
     if (preserve_surface) {
       flags += "Y";
@@ -174,7 +174,7 @@ void CreateVolumeMesh::operate()
     }
   } else if (m_CreateVolumeMesh) {
     cout << "C" << endl;
-    createTetMesh(2, false);
+    createTetMesh(3, false);
   }
 }
 

@@ -37,6 +37,7 @@
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
 #include "triangularcadinterface.h"
+#include "cgaltricadinterface.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -2046,6 +2047,9 @@ void GuiMainWindow::storeCadInterfaces(bool nosave)
 {
   try {
     resetCadInterfaces();
+    CgalTriCadInterface *cad = new CgalTriCadInterface(m_Grid);
+    setUniversalCadInterface(cad);
+    /*
     foreach (int bc, m_AllBoundaryCodes) {
       TriangularCadInterface* tricad_interface = new TriangularCadInterface();
       QSet<int> bcs;
@@ -2060,6 +2064,7 @@ void GuiMainWindow::storeCadInterfaces(bool nosave)
       save();
       saveGrid(m_Grid, m_CurrentFilename + ".geo");
     }
+    */
   } catch (Error E) {
     E.display();
   }

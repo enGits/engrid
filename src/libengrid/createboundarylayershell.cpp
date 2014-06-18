@@ -86,7 +86,10 @@ void CreateBoundaryLayerShell::prepare()
         double l = fabs((x - x0)*n0);
         if (l > 0.1*L) {
           BoundaryCondition boundary_condition = GuiMainWindow::pointer()->getBC(bc);
-          QString err_msg = "The boundary \"" + boundary_condition.getName() + "\" is not planar.";
+          QString err_msg = "The boundary \"" + boundary_condition.getName() + "\" is not planar.\n";
+          QString L_txt;
+          L_txt.setNum(L);
+          err_msg += "L = " + L_txt;
           EG_ERR_RETURN(err_msg);
         }
       }

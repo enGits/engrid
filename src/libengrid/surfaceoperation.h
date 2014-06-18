@@ -59,6 +59,7 @@ protected: // attributes
   bool   m_UniformSnapPoints;
   bool   m_StrictFeatureSnap;
   bool   m_BCodeFeatureDefinition;
+  bool   m_AngleFeatureDefinition;
   int    m_TypeProtectionCount;
 
 
