@@ -147,9 +147,6 @@ void CreateBoundaryLayerShell::createLayerNodes(vtkIdType id_node)
 
   double H  = m_BoundaryLayerVectors[id_node].abs();
   double h  = H*(1.0 - m_StretchingRatio)/(1.0 - pow(m_StretchingRatio, m_NumLayers));
-  if (h < 1e-7) {
-    cout << "break" << endl;
-  }
   vec3_t dx = (1.0/H)*m_BoundaryLayerVectors[id_node];
   vec3_t x  = x1;
   m_PrismaticGrid->GetPoints()->SetPoint(m_ShellNodeMap[id_node], x1.data());
@@ -207,7 +204,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       if (m_ShellNodeMap[pts[i_pts]] >= m_ShellPart.getNumberOfNodes()) {
         EG_BUG;
       }
-      QVector<vtkIdType> edge(3);
+      QVector<vtkIdType> edge(4);
       edge[1] = m_ShellNodeMap[pts[i_pts]];
       edge[2] = m_ShellNodeMap[pts[0]];
       if (i_pts < 2) {
@@ -218,6 +215,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       edge_codes.intersect(n2bc[edge[2]]);
       if (edge_codes.size() == 1) {
         edge[0] = *edge_codes.begin();
+        edge[3] = id_cell;
         adjacent_edges.append(edge);
       }
       tri_pts[i_pts] = m_ShellNodeMap[pts[i_pts]];
@@ -250,6 +248,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       qua_pts[2] = edge[1] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
       qua_pts[3] = edge[2] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
       vtkIdType id_qua = m_PrismaticGrid->InsertNextCell(VTK_QUAD, 4, qua_pts);
+      copyCellData(m_Grid, edge[3], m_PrismaticGrid, id_qua);
       cell_code->SetValue(id_qua, edge[0]);
     }
   }
