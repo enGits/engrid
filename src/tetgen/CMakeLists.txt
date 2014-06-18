@@ -15,8 +15,6 @@ if(CGAL_INCLUDE_PATH)
                NAMES libgmp.so
                PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
   target_link_libraries(tetgen ${GMP_LIBRARY})
-else()
-  message("building without CGAL predicates -- this might be unstable")
 endif()
 
 #Add a library to the project using the specified source files. 

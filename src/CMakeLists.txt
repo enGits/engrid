@@ -71,8 +71,6 @@ if(CGAL_INCLUDE_PATH)
                NAMES libgmp.so
                PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
   target_link_libraries(engrid ${GMP_LIBRARY})
-else()
-  message("building without CGAL predicates -- this might be unstable")
 endif()
 
 target_link_libraries(engrid libengrid)
