@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -242,16 +242,6 @@
    <addaction name="actionSaveAs"/>
    <addaction name="actionExit"/>
    <addaction name="separator"/>
-   <addaction name="actionFoamCaseWriter"/>
-   <addaction name="actionPreparePostProcessing"/>
-   <addaction name="actionStartParaView"/>
-   <addaction name="separator"/>
-   <addaction name="actionRunSolver"/>
-   <addaction name="actionStopProcesses"/>
-   <addaction name="separator"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
-   <addaction name="separator"/>
    <addaction name="actionSetBoundaryCode"/>
    <addaction name="actionEditBoundaryConditions"/>
    <addaction name="actionChangeOrientation"/>
@@ -261,9 +251,6 @@
    <addaction name="separator"/>
    <addaction name="actionNormalExtrusion"/>
    <addaction name="actionCreateVolumeMesh"/>
-   <addaction name="actionDeleteVolumeGrid"/>
-   <addaction name="actionCreateBoundaryLayer"/>
-   <addaction name="actionDivideBoundaryLayer"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
