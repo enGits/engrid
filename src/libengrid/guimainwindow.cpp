@@ -2049,22 +2049,11 @@ void GuiMainWindow::storeCadInterfaces(bool nosave)
     resetCadInterfaces();
     CgalTriCadInterface *cad = new CgalTriCadInterface(m_Grid);
     setUniversalCadInterface(cad);
-    /*
-    foreach (int bc, m_AllBoundaryCodes) {
-      TriangularCadInterface* tricad_interface = new TriangularCadInterface();
-      QSet<int> bcs;
-      bcs.insert(bc);
-      QVector<vtkIdType> cls;
-      getSurfaceCells(bcs, cls, m_Grid);
-      tricad_interface->setBackgroundGrid(m_Grid, cls);
-      m_CadInterfaces[bc] = tricad_interface;
-      tricad_interface->setForegroundGrid(m_Grid);
-    }
     if (!nosave) {
       save();
       saveGrid(m_Grid, m_CurrentFilename + ".geo");
     }
-    */
+
   } catch (Error E) {
     E.display();
   }
