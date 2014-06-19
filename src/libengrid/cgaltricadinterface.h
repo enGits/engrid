@@ -26,6 +26,7 @@
 #include <CGAL/AABB_tree.h>
 #include <CGAL/AABB_traits.h>
 #include <CGAL/AABB_triangle_primitive.h>
+#include <CGAL/AABB_segment_primitive.h>
 
 
 #include "cadinterface.h"
@@ -36,27 +37,40 @@ class CgalTriCadInterface : public CadInterface
 private: // types
 
   typedef CGAL::Simple_cartesian<double> K;
-  typedef K::FT FT;
-  typedef K::Ray_3 Ray;
-  typedef K::Line_3 Line;
-  typedef K::Point_3 Point;
-  typedef K::Triangle_3 Triangle;
-  typedef QVector<Triangle>::iterator Iterator;
-  typedef CGAL::AABB_triangle_primitive<K,Iterator> Primitive;
-  typedef CGAL::AABB_traits<K, Primitive> AABB_triangle_traits;
-  typedef CGAL::AABB_tree<AABB_triangle_traits> Tree;
 
+  typedef K::FT         FT;
+  typedef K::Ray_3      Ray;
+  typedef K::Line_3     Line;
+  typedef K::Point_3    Point;
+  typedef K::Segment_3  Segment;
+  typedef K::Triangle_3 Triangle;
+
+  typedef QVector<Triangle>::iterator                       TriangleIterator;
+  typedef CGAL::AABB_triangle_primitive<K,TriangleIterator> TrianglePrimitive;
+  typedef CGAL::AABB_traits<K, TrianglePrimitive>           TriangleTraits;
+  typedef CGAL::AABB_tree<TriangleTraits>                   TriangleTree;
+
+  typedef QVector<Segment>::iterator                       SegmentIterator;
+  typedef CGAL::AABB_segment_primitive<K, SegmentIterator> SegmentPrimitive;
+  typedef CGAL::AABB_traits<K, SegmentPrimitive>           SegmentTraits;
+  typedef CGAL::AABB_tree<SegmentTraits>                   SegmentTree;
 
 private: // attributes
 
   QVector<Triangle> m_Triangles;
-  Tree              m_Tree;
+  TriangleTree      m_TriangleTree;
+  QVector<Segment>  m_Segments;
+  SegmentTree       m_SegmentTree;
+
 
 public:
 
   CgalTriCadInterface(vtkUnstructuredGrid *grid);
   virtual vec3_t project(vec3_t, vec3_t, bool, bool) { notImplemented(); }
-  virtual vec3_t  snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snapToEdge(vec3_t x);
+  virtual vec3_t snapToCorner(vec3_t x);
+  virtual double getRadius(vtkIdType id_node);
 
 
 };

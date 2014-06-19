@@ -110,7 +110,10 @@ public:
    * @param correct_curvature flag to determine if corveture correction shall be used
    * @return the snapped position
    */
-  virtual vec3_t  snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+
+  virtual vec3_t snapToEdge(vec3_t x) { notImplemented(); }
+  virtual vec3_t snapToCorner(vec3_t x) { notImplemented(); }
 
   /**
    * @brief snap a node of the foreground grid
