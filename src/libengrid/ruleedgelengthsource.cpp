@@ -120,6 +120,7 @@ double RuleEdgeLengthSource::edgeLength(vec3_t x)
     vec3_t xp = m_Points[i];
     d = min(d, (x - xp).abs());
   }
-  return m_EdgeLength*pow(m_GrowthFactor, d/m_EdgeLength);
+  double n = logarithm(m_GrowthFactor, 1.0 - (1.0 - m_GrowthFactor)*d/m_EdgeLength) - 1.0;
+  return m_EdgeLength*pow(m_GrowthFactor, n);
 }
 

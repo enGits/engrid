@@ -302,8 +302,9 @@ int SwapTriangles::swap()
                       swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
+                  //if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
 
+                  if (GeometryTools::angle(n1, n2) < m_FeatureAngle) {
                     if (isFeatureNode(S.id_node[0]) && isFeatureNode(S.id_node[1])) {
                       //swap = true;
                     }

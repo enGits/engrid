@@ -29,13 +29,6 @@ class GuiCreateVolumeMesh : public DialogOperation<Ui::GuiCreateVolumeMesh, Oper
 
   Q_OBJECT
 
-
-private slots:
-
-  void toggleBoundaryLayer(bool state);
-  void toggleVolume(bool state);
-
-
 protected: // methods
 
   virtual void before();

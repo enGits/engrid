@@ -35,16 +35,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="m_CheckBoxVolume">
-     <property name="text">
-      <string>volume mesh</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -89,7 +79,6 @@
  <tabstops>
   <tabstop>m_ListWidgetVolumes</tabstop>
   <tabstop>m_CheckBoxBoundaryLayer</tabstop>
-  <tabstop>m_CheckBoxVolume</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

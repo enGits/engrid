@@ -132,8 +132,9 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
       tgio.pointmtrlist[id_node] = 0;
       if (provide_mesh_resolution[id_node]) {
         vec3_t x;
-        grid->GetPoint(id_node, x.data());
-        double l = min(m_MaximalEdgeLength, m_ELSManager.minEdgeLength(x));
+        grid->GetPoint(id_node, x.data());        
+        /// @todo look into this
+        double l = min(m_MaximalEdgeLength, 0.66*m_ELSManager.minEdgeLength(x)); // apply empirical scaling to match surface resolution
         tgio.pointmtrlist[id_node] = l;
       }
     }

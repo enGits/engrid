@@ -81,22 +81,10 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_interface, vec3_t &x_new)
 {
-  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-  vec3_t v = m_FeatureMagic*cl->GetValue(id_node)*m_Part.globalNormal(id_node);
-  if (!isConvexNode(id_node)) {
-    v *= -1;
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
+    x_new = cad_interface->snapToEdge(x_new);
   }
-  x_new = cad_interface->snap(x_new + v);
-  /*
-  vec3_t x;
-  m_Grid->GetPoint(id_node, x.data());
-
-  for (int iter = 0; iter < 10; ++iter) {
-    vec3_t dx = x_new - x;
-    x += (dx*n)*n;
-    x_new = cad_interface->snap(x);
-  }
-  */
 }
 
 bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)

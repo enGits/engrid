@@ -267,6 +267,7 @@ void SurfaceOperation::updateNodeInfo()
   }
 
   // mesh quality
+  /*
   if (!m_BCodeFeatureDefinition) {
     MeshQualityFaceOrientation mesh_quality;
     mesh_quality();
@@ -277,6 +278,7 @@ void SurfaceOperation::updateNodeInfo()
       }
     }
   }
+  */
 
   updatePotentialSnapPoints();
 }

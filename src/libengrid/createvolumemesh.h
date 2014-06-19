@@ -33,7 +33,6 @@ class CreateVolumeMesh : public TetGenOperation
 private: // attributes
 
   bool m_CreateBoundaryLayer;
-  bool m_CreateVolumeMesh;
   bool m_FirstCall;
 
   vtkSmartPointer<vtkUnstructuredGrid> m_BackgroundGrid;
@@ -47,7 +46,6 @@ private: // methods
 protected: // methods
   
   void createTetMesh(int max_num_passes, bool preserve_surface);
-  void reduceSurface(QSet<int> boundary_codes);
 
   virtual void operate();
   
@@ -56,7 +54,6 @@ public: // methods
   
   CreateVolumeMesh();
   void setBoundaryLayerOn();
-  void setVolumeMeshOn();
 
 };
 

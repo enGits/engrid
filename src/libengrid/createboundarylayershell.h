@@ -65,6 +65,10 @@ protected: // methods
 
   virtual void operate();
 
+  void reduceSurface();
+  void smoothSurface();
+
+
 public: // methods
 
   CreateBoundaryLayerShell();

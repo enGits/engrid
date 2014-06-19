@@ -27,6 +27,7 @@
 #include "deletecells.h"
 #include "meshpartition.h"
 #include "deletevolumegrid.h"
+#include "laplacesmoother.h"
 
 CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 {
@@ -87,9 +88,10 @@ void CreateBoundaryLayerShell::prepare()
         if (l > 0.1*L) {
           BoundaryCondition boundary_condition = GuiMainWindow::pointer()->getBC(bc);
           QString err_msg = "The boundary \"" + boundary_condition.getName() + "\" is not planar.\n";
-          QString L_txt;
+          QString L_txt, l_txt;
           L_txt.setNum(L);
-          err_msg += "L = " + L_txt;
+          l_txt.setNum(l);
+          err_msg += "L = " + L_txt + " ,  l = " + l_txt;
           EG_ERR_RETURN(err_msg);
         }
       }
@@ -110,18 +112,35 @@ void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *gr
   vec3_t x0 = m_LayerAdjacentOrigins[bc];
   double scal_min = -1;
   int count = 0;
-  while (scal_min < 0.5 && count < 20) {
+  while (scal_min < 0.5 && count < 1000) {
     scal_min = 1;
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
       if (part.n2bcGSize(id_node) == 1) {
         if (part.n2bcG(id_node, 0) == bc) {
           vec3_t x(0,0,0);
-          for (int i = 0; i < part.n2nGSize(id_node); ++i) {
-            vec3_t xn;
-            grid->GetPoint(part.n2nGG(id_node, i), xn.data());
-            x += xn;
+          int count = 0;
+          double A_total = 0;
+          for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+            vtkIdType id_cell = part.n2cGG(id_node, i);
+            if (isSurface(id_cell, grid)) {
+              if (cell_code->GetValue(id_cell) == bc) {
+                vec3_t n = cellNormal(grid, id_cell);
+                double A = n.abs();
+                n.normalise();
+                if (n*n0 > 0.5) {
+                  x += A*cellCentre(grid, id_cell);
+                  A_total += A;
+                  ++count;
+                }
+              }
+            }
           }
-          x *= 1.0/part.n2nGSize(id_node);
+          if (count == 0) {
+            grid->GetPoint(id_node, x.data());
+          } else {
+            x *= 1.0/A_total;
+          }
+
           x -= ((x - x0)*n0)*n0;
           grid->GetPoints()->SetPoint(id_node, x.data());
           for (int i = 0; i < part.n2cGSize(id_node); ++i) {
@@ -138,6 +157,9 @@ void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *gr
       }
     }
     ++count;
+    }
+  if (scal_min < 0.5) {
+    EG_ERR_RETURN("failed to correct adjacent surfaces");
   }
 }
 
@@ -257,6 +279,81 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   }
 }
 
+void CreateBoundaryLayerShell::reduceSurface()
+{
+  RemovePoints remove_points;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  remove_points.setMeshPartition(part);
+  remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+  remove_points.setUpdatePSPOn();
+  remove_points.setThreshold(3);
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = false;
+      }
+    }
+  }
+  for (int layer = 0; layer < 3; ++layer) {
+    QVector<bool> tmp = fix;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!tmp[id_node]) {
+        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+          fix[part.n2nGG(id_node, i)] = false;
+        }
+      }
+    }
+  }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = true;
+      }
+    }
+  }
+
+  remove_points.fixNodes(fix);
+  remove_points();
+}
+
+void CreateBoundaryLayerShell::smoothSurface()
+{
+  LaplaceSmoother smooth;
+  MeshPartition part;
+  part.setGrid(m_Grid);
+  part.setAllCells();
+  smooth.setMeshPartition(part);
+  smooth.setNumberOfIterations(2);
+  smooth.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
+
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+        fix[id_node] = false;
+      }
+    }
+  }
+  for (int layer = 0; layer < 3; ++layer) {
+    QVector<bool> tmp = fix;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (!tmp[id_node]) {
+        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
+          fix[part.n2nGG(id_node, i)] = false;
+        }
+      }
+    }
+  }
+
+  smooth.fixNodes(fix);
+  smooth();
+}
+
+
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
@@ -264,7 +361,20 @@ void CreateBoundaryLayerShell::operate()
   createPrismaticGrid();
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     correctAdjacentBC(bc, m_Grid);
-    //correctAdjacentBC(bc, m_PrismaticGrid);
   }
+  SwapTriangles swap;
+  swap.setGrid(m_Grid);
+  QSet<int> swap_codes = getAllBoundaryCodes(m_Grid);
+  swap_codes -= m_LayerAdjacentBoundaryCodes;
+  swap.setBoundaryCodes(swap_codes);
+  swap.setVerboseOff();
+
+  for (int iter = 0; iter < 1; ++iter) {
+    swap();
+    smoothSurface();
+    reduceSurface();
+    swap();
+  }
+
 }
 
