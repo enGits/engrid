@@ -60,6 +60,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
   add_definitions(-DNDEBUG)
+  add_definitions(-DQT_NO_DEBUG)
+  remove_definitions(-DQT_DEBUG)
+else()
+  add_definitions(-DQT_DEBUG)
 endif()
 
 add_subdirectory(tetgen)

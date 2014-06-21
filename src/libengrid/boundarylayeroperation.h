@@ -74,6 +74,7 @@ protected: // methods
   void computeDesiredHeights();
   bool faceFine(vtkIdType id_face, double scale);
   bool nodeFine(vtkIdType id_node, double scale);
+  double averageFaceAngle(vtkIdType id_node);
   void computeHeights();
 
 

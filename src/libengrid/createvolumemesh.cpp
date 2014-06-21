@@ -120,7 +120,7 @@ void CreateVolumeMesh::operate()
     blayer.setGrid(m_Grid);
     blayer.setAllCells();
     blayer();
-    createTetMesh(3, true);
+    createTetMesh(2, true);
     vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
     MeshPartition prismatic_part(prismatic_grid, true);
     QVector<vtkIdType> shell_cells;
@@ -131,7 +131,7 @@ void CreateVolumeMesh::operate()
     delete_cells();
     m_Part.addPartition(prismatic_part);
   } else {
-    createTetMesh(3, true);
+    createTetMesh(2, true);
   }
 }
 

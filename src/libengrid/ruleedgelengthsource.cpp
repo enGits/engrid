@@ -113,7 +113,7 @@ double RuleEdgeLengthSource::edgeLength(vec3_t x)
   QVector<int> close_points;
   m_PointFinder.getClosePoints(x, close_points);
   if (close_points.size() == 0) {
-    EG_BUG;
+    return EG_LARGE_REAL;
   }
   double d = EG_LARGE_REAL;
   foreach (int i, close_points) {

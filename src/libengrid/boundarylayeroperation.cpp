@@ -508,6 +508,43 @@ bool BoundaryLayerOperation::nodeFine(vtkIdType id_node, double scale)
   return true;
 }
 
+double BoundaryLayerOperation::averageFaceAngle(vtkIdType id_node)
+{
+  double alpha = 0.0;
+  int count = 0;
+  for (int i = 0; i < m_Part.n2bcGSize(id_node) - 1; ++i) {
+    vtkIdType id_cell1 = m_Part.n2cGG(id_node, i);
+    EG_GET_CELL(id_cell1, m_Grid);
+    if (type_cell == VTK_TRIANGLE) {
+      QVector<vec3_t> x(3);
+      for (int i_pts = 0; i_pts < 3; ++i_pts) {
+        m_Grid->GetPoint(pts[i_pts], x[i_pts].data());
+        x[i_pts] += m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
+      }
+      vec3_t n1 = GeometryTools::triNormal(x[0], x[1], x[2]);
+      for (int j = i + 1; j < m_Part.n2cGSize(id_node); ++j) {
+        vtkIdType id_cell2 = m_Part.n2cGG(id_node, j);
+        EG_GET_CELL(id_cell2, m_Grid);
+        if (type_cell == VTK_TRIANGLE) {
+          QVector<vec3_t> x(3);
+          for (int i_pts = 0; i_pts < 3; ++i_pts) {
+            m_Grid->GetPoint(pts[i_pts], x[i_pts].data());
+            x[i_pts] += m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
+          }
+          vec3_t n2 = GeometryTools::triNormal(x[0], x[1], x[2]);
+          //alpha = max(GeometryTools::angle(n1, n2), alpha);
+          alpha += angle(n1, n2);
+          ++count;
+        }
+      }
+    }
+  }
+  if (count > 0) {
+    alpha /= count;
+  }
+  return alpha;
+}
+
 void BoundaryLayerOperation::computeHeights()
 {
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
@@ -579,6 +616,7 @@ void BoundaryLayerOperation::computeHeights()
   }
 
   // limit face size and angle difference (neighbour collisions)
+  /*
   {
     bool done;
     do {
@@ -644,6 +682,48 @@ void BoundaryLayerOperation::computeHeights()
 
     } while (!done);
   }
+  */
+
+  // optimise face angles
+  /*
+  {
+    bool done;
+    QVector<double> h_orig = m_Height;
+    int count = 0;
+    do {
+      done = true;
+      QVector<double> h_old = m_Height;
+      double max_change = 0;
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          if (averageFaceAngle(id_node) > m_FaceAngleLimit) {
+            double h1 = 0.1*h_orig[id_node];
+            double h2 = 1.0*h_orig[id_node];
+            while (h2 - h1 > 1e-5*h_orig[id_node]) {
+              double dh = 0.1*(h2 - h1);
+              for (int i = 1; i <= 10; ++i) {
+                m_Height[id_node] = h2 - i*dh;
+                double alpha = GeometryTools::rad2deg(averageFaceAngle(id_node));
+                if (averageFaceAngle(id_node) <= m_FaceAngleLimit) {
+                  h2 -= (i-1)*dh;
+                  break;
+                }
+              }
+              h1 = h2 - dh;
+            }
+            double change = fabs(m_Height[id_node] - h_old[id_node]);
+            max_change = max(change, max_change);
+            if (change > 1e-5*h_orig[id_node]) {
+              done = false;
+            }
+          }
+        }
+      }
+      cout << "  max h change: " << max_change << endl;
+      ++count;
+    } while (!done && count < 100);
+  }
+  */
 
   // smoothing
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
