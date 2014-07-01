@@ -549,6 +549,7 @@ void BoundaryLayerOperation::computeHeights()
   // limit face size difference (neighbour collisions)
   if (true) {
     bool done;
+    int iter = 0;
     do {
       done = true;
       QVector<double> new_scale(m_Grid->GetNumberOfPoints(), 1.0);
@@ -614,6 +615,10 @@ void BoundaryLayerOperation::computeHeights()
         m_Height[id_node] = relax*h_new + (1 - relax)*m_Height[id_node];
       }
       //done = true;
+      ++iter;
+      if (iter >= 10) {
+        done = true;
+      }
     } while (!done);
   }
 
@@ -642,6 +647,8 @@ void BoundaryLayerOperation::computeHeights()
     }
     m_Height = h_new;
   }
+
+  cout << "heights computed" << endl;
 
 }
 
