@@ -407,7 +407,7 @@ void BoundaryLayerOperation:: computeDesiredHeights()
 {
   // first pass (intial height)
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
-  int k = 0;
+  int k = 1;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
       vec3_t x;
@@ -469,80 +469,11 @@ bool BoundaryLayerOperation::faceFine(vtkIdType id_face, double scale)
   double A1 = n1.abs();
   double A2 = n2.abs();
   if (A2/A1 >= m_FaceSizeLowerLimit && A2/A1 <= m_FaceSizeUpperLimit){
-    return true;
-    /*
     if (angle(n1, n2) < m_FaceAngleLimit) {
       return true;
     }
-    */
   }
   return false;
-}
-
-bool BoundaryLayerOperation::nodeFine(vtkIdType id_node, double scale)
-{
-  for (int i_face = 0; i_face < m_Part.n2cGSize(id_node); ++i_face) {
-    vtkIdType id_face = m_Part.n2cGG(id_node, i_face);
-    EG_GET_CELL(id_face, m_Grid);
-    if (type_cell != VTK_TRIANGLE) {
-      EG_BUG;
-    }
-    QVector<vec3_t> x1(num_pts);
-    for (vtkIdType i = 0; i < num_pts; ++i) {
-      m_Grid->GetPoint(pts[i], x1[i].data());
-    }
-    vec3_t n1 = triNormal(x1[0], x1[1], x1[2]);
-    QVector<vec3_t> x2(num_pts);
-    for (vtkIdType i = 0; i < num_pts; ++i) {
-      if (pts[i] == id_node) {
-        x2[i] = x1[i] + scale*m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
-      } else {
-        x2[i] = x1[i] + m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
-      }
-    }
-    vec3_t n2 = triNormal(x2[0], x2[1], x2[2]);
-    if (angle(n1, n2) > m_FaceAngleLimit) {
-      return false;
-    }
-  }
-  return true;
-}
-
-double BoundaryLayerOperation::averageFaceAngle(vtkIdType id_node)
-{
-  double alpha = 0.0;
-  int count = 0;
-  for (int i = 0; i < m_Part.n2bcGSize(id_node) - 1; ++i) {
-    vtkIdType id_cell1 = m_Part.n2cGG(id_node, i);
-    EG_GET_CELL(id_cell1, m_Grid);
-    if (type_cell == VTK_TRIANGLE) {
-      QVector<vec3_t> x(3);
-      for (int i_pts = 0; i_pts < 3; ++i_pts) {
-        m_Grid->GetPoint(pts[i_pts], x[i_pts].data());
-        x[i_pts] += m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
-      }
-      vec3_t n1 = GeometryTools::triNormal(x[0], x[1], x[2]);
-      for (int j = i + 1; j < m_Part.n2cGSize(id_node); ++j) {
-        vtkIdType id_cell2 = m_Part.n2cGG(id_node, j);
-        EG_GET_CELL(id_cell2, m_Grid);
-        if (type_cell == VTK_TRIANGLE) {
-          QVector<vec3_t> x(3);
-          for (int i_pts = 0; i_pts < 3; ++i_pts) {
-            m_Grid->GetPoint(pts[i_pts], x[i_pts].data());
-            x[i_pts] += m_Height[pts[i]]*m_BoundaryLayerVectors[pts[i]];
-          }
-          vec3_t n2 = GeometryTools::triNormal(x[0], x[1], x[2]);
-          //alpha = max(GeometryTools::angle(n1, n2), alpha);
-          alpha += angle(n1, n2);
-          ++count;
-        }
-      }
-    }
-  }
-  if (count > 0) {
-    alpha /= count;
-  }
-  return alpha;
 }
 
 void BoundaryLayerOperation::computeHeights()
@@ -615,15 +546,13 @@ void BoundaryLayerOperation::computeHeights()
     }
   }
 
-  // limit face size and angle difference (neighbour collisions)
-  /*
-  {
+  // limit face size difference (neighbour collisions)
+  if (true) {
     bool done;
     do {
       done = true;
-      QVector<double> h_new = m_Height;
-
-      // face areas
+      QVector<double> new_scale(m_Grid->GetNumberOfPoints(), 1.0);
+      QVector<int> count(m_Grid->GetNumberOfPoints(), 1);
       for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         if (isSurface(id_cell, m_Grid)) {
           vtkIdType num_pts, *pts;
@@ -638,8 +567,10 @@ void BoundaryLayerOperation::computeHeights()
           if (check_face) {
             if (!faceFine(id_cell, 1)) {
               done = false;
-              double scale1 = 0.8;
+              double scale1 = 0.1;
               double scale2 = 1;
+
+              /*
               while (scale2 - scale1 > 1e-3) {
                 if (faceFine(id_cell, 0.5*(scale1 + scale2))) {
                   scale1 = 0.5*(scale1 + scale2);
@@ -647,83 +578,44 @@ void BoundaryLayerOperation::computeHeights()
                   scale2 = 0.5*(scale1 + scale2);
                 }
               }
+              */
+
+              bool found;
+              do {
+                found = false;
+                int num_steps = 10;
+                for (int i = 1; i <= num_steps; ++i) {
+                  double s = scale2 - i*(scale2 - scale1)/num_steps;
+                  if (faceFine(id_cell, s)) {
+                    found = true;
+                    scale1 = s;
+                    scale2 -= (i-1)*(scale2 - scale1)/num_steps;
+                    break;
+                  }
+                }
+                if (!found) {
+                  scale1 = scale2;
+                }
+
+              } while ((scale2 - scale1) > 1e-4 && found);
 
               double scale = 0.5*(scale1 + scale2);
               for (vtkIdType i = 0; i < num_pts; ++i) {
-                h_new[pts[i]] = min(h_new[pts[i]], scale*m_Height[pts[i]]);
+                new_scale[pts[i]] += scale;
+                ++count[pts[i]];
               }
             }
           }
         }
       }
-
-      // face angles
+      double relax = 0.2;
       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        if (m_BoundaryLayerNode[id_node]) {
-          if (!nodeFine(id_node, 1)) {
-            done = false;
-            double scale1 = 0.8;
-            double scale2 = 1;
-            while (scale2 - scale1 > 1e-3) {
-              if (nodeFine(id_node, 0.5*(scale1 + scale2))) {
-                scale1 = 0.5*(scale1 + scale2);
-              } else {
-                scale2 = 0.5*(scale1 + scale2);
-              }
-            }
-
-            double scale = 0.5*(scale1 + scale2);
-            h_new[id_node] = min(h_new[id_node], scale*m_Height[id_node]);
-          }
-        }
+        double h_new = m_Height[id_node]*new_scale[id_node]/count[id_node];
+        m_Height[id_node] = relax*h_new + (1 - relax)*m_Height[id_node];
       }
-
-      m_Height = h_new;
-
+      //done = true;
     } while (!done);
   }
-  */
-
-  // optimise face angles
-  /*
-  {
-    bool done;
-    QVector<double> h_orig = m_Height;
-    int count = 0;
-    do {
-      done = true;
-      QVector<double> h_old = m_Height;
-      double max_change = 0;
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        if (m_BoundaryLayerNode[id_node]) {
-          if (averageFaceAngle(id_node) > m_FaceAngleLimit) {
-            double h1 = 0.1*h_orig[id_node];
-            double h2 = 1.0*h_orig[id_node];
-            while (h2 - h1 > 1e-5*h_orig[id_node]) {
-              double dh = 0.1*(h2 - h1);
-              for (int i = 1; i <= 10; ++i) {
-                m_Height[id_node] = h2 - i*dh;
-                double alpha = GeometryTools::rad2deg(averageFaceAngle(id_node));
-                if (averageFaceAngle(id_node) <= m_FaceAngleLimit) {
-                  h2 -= (i-1)*dh;
-                  break;
-                }
-              }
-              h1 = h2 - dh;
-            }
-            double change = fabs(m_Height[id_node] - h_old[id_node]);
-            max_change = max(change, max_change);
-            if (change > 1e-5*h_orig[id_node]) {
-              done = false;
-            }
-          }
-        }
-      }
-      cout << "  max h change: " << max_change << endl;
-      ++count;
-    } while (!done && count < 100);
-  }
-  */
 
   // smoothing
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {

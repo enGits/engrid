@@ -81,6 +81,7 @@ void CreateBoundaryLayerShell::prepare()
     }
     n0.normalise();
     x0 *= 1.0/total_area;
+    /*
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (isSurface(id_cell, m_Grid) && cell_code->GetValue(id_cell) == bc) {
         vec3_t x = cellCentre(m_Grid, id_cell);
@@ -95,7 +96,7 @@ void CreateBoundaryLayerShell::prepare()
           EG_ERR_RETURN(err_msg);
         }
       }
-    }
+    }*/
     m_LayerAdjacentNormals[bc] = n0;
     m_LayerAdjacentOrigins[bc] = x0;
   }
@@ -157,8 +158,9 @@ void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *gr
       }
     }
     ++count;
-    }
+  }
   if (scal_min < 0.5) {
+    writeGrid(grid, "adjacent_bc_failure");
     EG_ERR_RETURN("failed to correct adjacent surfaces");
   }
 }
@@ -209,7 +211,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       createLayerNodes(id_node);
       for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
         n2bc[m_ShellNodeMap[id_node]].insert(m_Part.n2bcG(id_node, i));
-        n2bc[m_ShellNodeMap[id_node] + m_ShellPart.getNumberOfNodes()].insert(m_Part.n2bcG(id_node, i));
+        //n2bc[m_ShellNodeMap[id_node] + m_ShellPart.getNumberOfNodes()].insert(m_Part.n2bcG(id_node, i));
       }
     }
   }

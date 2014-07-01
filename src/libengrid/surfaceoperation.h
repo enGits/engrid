@@ -79,6 +79,7 @@ protected: // methods
   void   updateNodeInfo();
   bool   checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2);
   void   updatePotentialSnapPoints();
+  double edgeAngle(vtkIdType id_node1, vtkIdType id_node2);
 
 
 public:
