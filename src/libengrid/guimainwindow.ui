@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -131,25 +131,16 @@
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
     <addaction name="actionSurfaceMesher"/>
-    <addaction name="actionDeletePickedPoint"/>
-    <addaction name="actionDeletePickedCell"/>
     <addaction name="separator"/>
     <addaction name="actionFillPlane"/>
     <addaction name="actionTransform"/>
-    <addaction name="actionBooleanOperation"/>
     <addaction name="actionNormalExtrusion"/>
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionConvertToPolyMesh"/>
-    <addaction name="actionCreateHexCore"/>
-    <addaction name="actionCreateHexShellMesh"/>
-    <addaction name="actionCreateHexIbMesh"/>
     <addaction name="actionDeleteVolumeGrid"/>
-    <addaction name="actionCreateBoundaryLayer"/>
-    <addaction name="actionDivideBoundaryLayer"/>
     <addaction name="actionMergeVolumes"/>
-    <addaction name="actionOptimiseOrthogonalty"/>
     <addaction name="actionRestrictToAvailableVolumeCells"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
@@ -304,8 +295,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>213</width>
-          <height>492</height>
+          <width>221</width>
+          <height>495</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -696,8 +687,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>213</width>
-          <height>492</height>
+          <width>221</width>
+          <height>484</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1087,7 +1078,7 @@
      <normaloff>:/icons/resources/icons/createvol.png</normaloff>:/icons/resources/icons/createvol.png</iconset>
    </property>
    <property name="text">
-    <string>Create/improve volume mesh (NETGEN)</string>
+    <string>Create/improve volume mesh</string>
    </property>
   </action>
   <action name="actionCreateSurfaceMesh">
@@ -1659,7 +1650,7 @@
   </action>
   <action name="actionMirrorMesh">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Mirror</string>
@@ -1786,7 +1777,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>
  </resources>
  <connections>
