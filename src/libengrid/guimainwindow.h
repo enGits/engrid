@@ -523,6 +523,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
+    void callMultiSolidAsciiStlReader()   { EG_STDREADERSLOT( MultiSolidAsciiStlReader ); }
 
 #ifdef BRLCAD_SUPPORT
     void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }

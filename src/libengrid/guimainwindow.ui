@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>17</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -81,6 +81,7 @@
      <addaction name="actionReducedPolyDataReader"/>
     </widget>
     <addaction name="actionImportSTL"/>
+    <addaction name="actionMultiSolidAsciiStlReader"/>
     <addaction name="menuGmsh_2"/>
     <addaction name="menuVTK"/>
     <addaction name="actionImportOpenFoamCase"/>
@@ -296,7 +297,7 @@
           <x>0</x>
           <y>0</y>
           <width>221</width>
-          <height>495</height>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -687,8 +688,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>484</height>
+          <width>231</width>
+          <height>501</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1765,6 +1766,11 @@
   <action name="actionRestrictToAvailableVolumeCells">
    <property name="text">
     <string>Restrict mesh to available volume cells</string>
+   </property>
+  </action>
+  <action name="actionMultiSolidAsciiStlReader">
+   <property name="text">
+    <string>STL (multi solid ascii)</string>
    </property>
   </action>
  </widget>

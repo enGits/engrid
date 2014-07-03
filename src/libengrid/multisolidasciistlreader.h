@@ -18,37 +18,24 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#ifndef stlreader_H
-#define stlreader_H
+#ifndef MULTISOLIDASCIISTLREADER_H
+#define MULTISOLIDASCIISTLREADER_H
 
-class StlReader;
+class MultiSolidAsciiStlReader;
 
 #include "iooperation.h"
 
-/**
- * Reader for ASCII and binary STL files
- */
-class StlReader : public IOOperation
+class MultiSolidAsciiStlReader : public IOOperation
 {
 
-private: // attributes
-
-  double  m_Tolerance;
-  bool    m_FileNameSet;
-  QString m_FileName;
-  
 protected: // methods
-  
-  virtual void operate();
-  
-public: // methods
-  
-  /** The constructor sets the file format string. */
-  StlReader();
 
-  void setTolerance(double tol) { m_Tolerance = tol; }
-  void setFileName(QString file_name);
-    
+  virtual void operate();
+
+public:
+
+  MultiSolidAsciiStlReader();
+
 };
 
-#endif
+#endif // MULTISOLIDASCIISTLREADER_H

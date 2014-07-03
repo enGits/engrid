@@ -118,6 +118,7 @@ SET(libengrid_HEADERS
   meshquality.h
   multipagewidget.h
   multipagewidgetpage.h
+  multisolidasciistlreader.h
   neutralwriter.h
   nodelayeriterator.h
   octree.h
@@ -308,6 +309,7 @@ SET(libengrid_SOURCES
   meshqualityfaceorientation.cpp
   multipagewidget.cpp
   multipagewidgetpage.cpp
+  multisolidasciistlreader.cpp
   neutralwriter.cpp
   nodelayeriterator.cpp
   octree.cpp
