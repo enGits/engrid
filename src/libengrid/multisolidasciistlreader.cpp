@@ -41,6 +41,7 @@ void MultiSolidAsciiStlReader::operate()
   if (isValid()) {
     double tol = QInputDialog::getText(NULL, "enter STL tolerance", "tolerance", QLineEdit::Normal, "1e-10").toDouble();
     QList<QString> buffer;
+    QList<QString> bc_name;
     {
       QFile file(getFileName());
       if (!file.open(QFile::ReadOnly)) {
@@ -48,23 +49,27 @@ void MultiSolidAsciiStlReader::operate()
       }
       QTextStream f(&file);
       QString buf = "";
+      QString name = "unknown";
       while (!f.atEnd()) {
         QString line = f.readLine();
-        buf += line; // endline??
+        buf += line + "\n"; // endline??
         if (line.left(8) == "endsolid") {
           buffer.append(buf);
           buf = "";
+          bc_name.append(name);
+        } else if (line.left(5) == "solid") {
+          name = line.right(line.size() - 6);
         }
       }
     }
     bool first = true;
     int last_bc = 1;
     foreach (QString buf, buffer) {
-      QString file_name = "_" + getFileName();
+      QString file_name = getFileName() + ".tmp";
       {
         QFile file(file_name);
         if (!file.open(QFile::WriteOnly)) {
-          EG_ERR_RETURN("unable to open file");
+          EG_ERR_RETURN("unable to open file\"" + file_name + "\" for writing");
         }
         QTextStream f(&file);
         f << buf << endl;
@@ -74,6 +79,7 @@ void MultiSolidAsciiStlReader::operate()
       stl.setFileName(file_name);
       EG_VTKSP(vtkUnstructuredGrid, grid);
       stl.setGrid(grid);
+      stl.setMaximalCleaningIterations(3);
       stl();
 
       // @todo set boundary names
@@ -91,6 +97,14 @@ void MultiSolidAsciiStlReader::operate()
         MeshPartition part2(grid, true);
         part1.addPartition(part2);
       }
+    }
+
+    last_bc = 1;
+    GuiMainWindow::pointer()->resetXmlDoc();
+    GuiMainWindow::pointer()->clearBCs();
+    foreach (QString name, bc_name) {
+      GuiMainWindow::pointer()->addBC(last_bc, BoundaryCondition(name, "patch"));
+      ++last_bc;
     }
   }
 }

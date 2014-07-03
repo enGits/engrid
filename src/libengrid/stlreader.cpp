@@ -37,11 +37,13 @@ StlReader::StlReader()
   setFormat("STL files(*.stl *.STL)");
   m_Tolerance = -1;
   m_FileNameSet = false;
+  m_MaxNumCleanIter = 20;
 }
 
 void StlReader::setFileName(QString file_name)
 {
   m_FileName = file_name;
+  cout << qPrintable(m_FileName) << endl;
   m_FileNameSet = true;
 }
 
@@ -100,13 +102,15 @@ void StlReader::operate()
   topo_check->FeatureEdgesOff();
   topo_check->NonManifoldEdgesOn();
   bool check_passed;
+  int count = 0;
   do {
+    ++count;
     cout << "  tolerance = " << m_Tolerance << endl;
     poly_clean->SetAbsoluteTolerance(m_Tolerance);
     topo_check->Update();
     m_Tolerance *= 1.5;
     check_passed = topo_check->GetOutput()->GetNumberOfPoints() == 0;
-  } while (m_Tolerance < 1 && !check_passed);
+  } while (m_Tolerance < 1 && !check_passed && count < m_MaxNumCleanIter);
   if (check_passed) {
     cout << "The STL geometry seems to be clean." << endl;
   } else {

@@ -36,6 +36,7 @@ private: // attributes
   double  m_Tolerance;
   bool    m_FileNameSet;
   QString m_FileName;
+  int     m_MaxNumCleanIter;
   
 protected: // methods
   
@@ -48,6 +49,7 @@ public: // methods
 
   void setTolerance(double tol) { m_Tolerance = tol; }
   void setFileName(QString file_name);
+  void setMaximalCleaningIterations(int N) { m_MaxNumCleanIter = N; }
     
 };
 
