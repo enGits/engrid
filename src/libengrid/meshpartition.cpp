@@ -34,6 +34,18 @@ MeshPartition::MeshPartition()
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
+  setGrid(grid);
+}
+
+MeshPartition::MeshPartition(QString volume_name)
+{
+  m_TrackGrid = false;
+  resetTimeStamps();
+  setVolume(volume_name);
+}
+
+void MeshPartition::setGrid(vtkUnstructuredGrid *grid, bool use_all_cells)
+{
   m_TrackGrid = false;
   resetTimeStamps();
   m_Grid = grid;
@@ -44,13 +56,6 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
     }
     setCells(cls);
   }
-}
-
-MeshPartition::MeshPartition(QString volume_name)
-{
-  m_TrackGrid = false;
-  resetTimeStamps();
-  setVolume(volume_name);
 }
 
 

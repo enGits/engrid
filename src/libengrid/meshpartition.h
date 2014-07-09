@@ -89,8 +89,9 @@ public: // methods
   /**
    * Set the grid.
    * @param a pointer to the grid
+   * @param use_all_cells if set to true all cells will be selected;
    */
-  void setGrid(vtkUnstructuredGrid *grid) { m_Grid = grid; }
+  void setGrid(vtkUnstructuredGrid *grid, bool use_all_cells = false);
 
   /**
    * Set the grid and make sure all cells are always included (automatic tracking).
