@@ -49,29 +49,42 @@ private: // types
   typedef CGAL::AABB_triangle_primitive<K,TriangleIterator> TrianglePrimitive;
   typedef CGAL::AABB_traits<K, TrianglePrimitive>           TriangleTraits;
   typedef CGAL::AABB_tree<TriangleTraits>                   TriangleTree;
+  typedef TriangleTree::Point_and_primitive_id              TrianglePointAndPrimitiveId;
 
   typedef QVector<Segment>::iterator                       SegmentIterator;
   typedef CGAL::AABB_segment_primitive<K, SegmentIterator> SegmentPrimitive;
   typedef CGAL::AABB_traits<K, SegmentPrimitive>           SegmentTraits;
   typedef CGAL::AABB_tree<SegmentTraits>                   SegmentTree;
 
+  //typedef boost::optional<TriangleTree::Intersection_and_primitive_id<Ray>::Type> Intersection;
+  typedef TriangleTree::Intersection_and_primitive_id<Ray>::Type Intersection;
+
 private: // attributes
 
-  QVector<Triangle> m_Triangles;
-  TriangleTree      m_TriangleTree;
-  QVector<Segment>  m_Segments;
-  SegmentTree       m_SegmentTree;
+  QVector<Triangle>    m_Triangles;
+  TriangleTree         m_TriangleTree;
+  QVector<Segment>     m_Segments;
+  SegmentTree          m_SegmentTree;
+  vtkUnstructuredGrid *m_BGrid;
+  MeshPartition        m_BPart;
+  QVector<vtkIdType>   m_Tri2Grid;
+  QVector<double>      m_Radius;      ///< Surface radius for mesh resolution.
+
+
+private: // methods
+
+  void computeSurfaceCurvature();
+  Ray createRay(vec3_t x1, vec3_t v);
 
 
 public:
 
   CgalTriCadInterface(vtkUnstructuredGrid *grid);
-  virtual vec3_t project(vec3_t, vec3_t, bool, bool) { notImplemented(); }
+  virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
   virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature);
   virtual vec3_t snapToEdge(vec3_t x);
   virtual vec3_t snapToCorner(vec3_t x);
-  virtual double getRadius(vtkIdType id_node);
-
 
 };
 
