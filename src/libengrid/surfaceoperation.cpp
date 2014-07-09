@@ -410,10 +410,10 @@ double SurfaceOperation::edgeAngle(vtkIdType id_node1, vtkIdType id_node2)
 
 char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
 {
-  char type = EG_FIXED_VERTEX;
+  char type = EG_SIMPLE_VERTEX;
 
   if (m_Part.n2nGSize(id_node) == 0) {
-    return type;
+    return EG_FIXED_VERTEX;
   }
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -471,7 +471,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
     }
   }
   if (feature_neigh.size() == 0) {
-    type = max(type, char(EG_FIXED_VERTEX));
+    type = max(type, char(EG_SIMPLE_VERTEX));
   } else if (feature_neigh.size() == 2) {
 
     vec3_t x1, x2, xc;
