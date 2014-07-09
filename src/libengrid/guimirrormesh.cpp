@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "guimirrormesh.h"
 #include "guimainwindow.h"
 
@@ -107,12 +105,16 @@ void GuiMirrorMesh::operate()
     MeshPartition mirror_part(mirror_grid, true);
     MeshPartition part(m_Grid, true);
     double tol = m_Ui.lineEditTolerance->text().toDouble();
-    if (m_Ui.radioButtonRelative->isChecked()) {
-      tol = -tol;
+    if (tol >= 0) {
+      if (m_Ui.radioButtonRelative->isChecked()) {
+        tol = -tol;
+      }
+      part.addPartition(mirror_part, tol);
+      m_Part.setAllCells();
+      eliminateDuplicateCells();
+    } else {
+      addGrid(m_Grid, mirror_grid, m_Grid->GetNumberOfPoints());
     }
-    part.addPartition(mirror_part, tol);
-    m_Part.setAllCells();
-    eliminateDuplicateCells();
     GuiMainWindow::pointer()->updateBoundaryCodes(false);
   } else {
     makeCopy(mirror_grid, m_Grid);

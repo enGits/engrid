@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 #ifndef EDGELENGTHSOURCEMANAGER_H
 #define EDGELENGTHSOURCEMANAGER_H
@@ -55,6 +53,8 @@ public:
   void   populateListWidget();
 
   void read();
+  void readRules(vtkUnstructuredGrid *grid);
+  void readBoundaryLayerRules(vtkUnstructuredGrid *grid);
   void write();
   void edit();
   void remove();
@@ -62,6 +62,8 @@ public:
   void addCone();
   void addBox();
   void addPipe();
+
+  void clear();
 
 };
 

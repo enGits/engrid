@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 #include "edgelengthsourcemanager.h"
 
@@ -28,6 +26,7 @@
 #include "guiedgelengthsourcebox.h"
 #include "guiedgelengthsourcepipe.h"
 #include "guimainwindow.h"
+#include "ruleedgelengthsource.h"
 
 EdgeLengthSourceManager::EdgeLengthSourceManager()
 {
@@ -42,12 +41,12 @@ EdgeLengthSourceManager::EdgeLengthSourceManager()
 
 EdgeLengthSourceManager::~EdgeLengthSourceManager()
 {
-  foreach (EdgeLengthSource* source, m_Sources) {
-    //delete source;
-  }
+  clear();
+  /*
   foreach (EdgeLengthSource* sample, m_Samples) {
     //delete sample;
   }
+  */
 }
 
 void EdgeLengthSourceManager::populateListWidget()
@@ -62,9 +61,6 @@ void EdgeLengthSourceManager::populateListWidget()
 
 void EdgeLengthSourceManager::read()
 {
-  foreach (EdgeLengthSource* source, m_Sources) {
-    //delete source;
-  }
   m_Sources.clear();
   QString xml_text = GuiMainWindow::pointer()->getXmlSection("engrid/sources");
   QStringList lines = xml_text.split("\n");
@@ -189,5 +185,34 @@ void EdgeLengthSourceManager::addBox()
   populateListWidget();
 }
 
+void EdgeLengthSourceManager::readRules(vtkUnstructuredGrid *grid)
+{
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules");
+  rules_txt = rules_txt.replace("\n", " ");
+  rules_txt = rules_txt.trimmed();
+  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
+    m_Sources.append(S);
+  }
+}
 
+void EdgeLengthSourceManager::readBoundaryLayerRules(vtkUnstructuredGrid *grid)
+{
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules");
+  rules_txt = rules_txt.replace("\n", " ");
+  rules_txt = rules_txt.trimmed();
+  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  foreach (QString rule, rules) {
+    RuleEdgeLengthSource *S = new RuleEdgeLengthSource(rule.trimmed(), grid);
+    m_Sources.append(S);
+  }
+}
 
+void EdgeLengthSourceManager::clear()
+{
+  foreach (EdgeLengthSource* source, m_Sources) {
+    delete source;
+  }
+  m_Sources.clear();
+}

@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 //connect(ui.action,SIGNAL(triggered()),this,SLOT(call()));
 
@@ -129,6 +127,7 @@ connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertT
 connect(ui.actionCreateHexShellMesh, SIGNAL(triggered()), this, SLOT(callCreateHexShellMesh()));
 connect(ui.actionCreateHexIbMesh, SIGNAL(triggered()), this, SLOT(callCreateHexIbMesh()));
 connect(ui.actionRestrictToAvailableVolumeCells, SIGNAL(triggered()), this, SLOT(callRestrictToAvailableVolumeCells()));
+connect(ui.actionMultiSolidAsciiStlReader, SIGNAL(triggered()), this, SLOT(callMultiSolidAsciiStlReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
 //FIXME: dead slot callProjection_test()

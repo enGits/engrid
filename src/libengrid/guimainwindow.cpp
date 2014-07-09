@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "guimainwindow.h"
 #include "guiselectboundarycodes.h"
 #include "guiimproveaspectratio.h"
@@ -39,6 +37,7 @@
 #include "laplacesmoother.h"
 #include "swaptriangles.h"
 #include "triangularcadinterface.h"
+#include "cgaltricadinterface.h"
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -1617,7 +1616,10 @@ vtkIdType GuiMainWindow::getPickedCell()
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCC(vtkLongArray_t, cell_index, m_BCodesFilter->GetOutput(), "cell_index");
       if (m_UseVTKInteractor) {
-        picked_cell = cell_index->GetValue(m_CellPicker->GetCellId());
+        picked_cell = m_CellPicker->GetCellId();
+        if (picked_cell >= 0) {
+          picked_cell = cell_index->GetValue(picked_cell);
+        }
       } else {
         picked_cell = m_PickedCell;
       }
@@ -1636,7 +1638,10 @@ vtkIdType GuiMainWindow::getPickedPoint()
     if (m_BCodesFilter->GetOutput()->GetNumberOfCells() > 0) {
       EG_VTKDCN(vtkLongArray_t, node_index, m_BCodesFilter->GetOutput(), "node_index");
       if (m_UseVTKInteractor) {
-        picked_point = node_index->GetValue(m_PointPicker->GetPointId());
+        picked_point = m_PointPicker->GetPointId();
+        if (picked_point >= 0) {
+          picked_point = node_index->GetValue(picked_point);
+        }
       } else {
         picked_point = m_PickedPoint;
       }
@@ -2042,20 +2047,13 @@ void GuiMainWindow::storeCadInterfaces(bool nosave)
 {
   try {
     resetCadInterfaces();
-    foreach (int bc, m_AllBoundaryCodes) {
-      TriangularCadInterface* tricad_interface = new TriangularCadInterface();
-      QSet<int> bcs;
-      bcs.insert(bc);
-      QVector<vtkIdType> cls;
-      getSurfaceCells(bcs, cls, m_Grid);
-      tricad_interface->setBackgroundGrid(m_Grid, cls);
-      m_CadInterfaces[bc] = tricad_interface;
-      tricad_interface->setForegroundGrid(m_Grid);
-    }
+    CgalTriCadInterface *cad = new CgalTriCadInterface(m_Grid);
+    setUniversalCadInterface(cad);
     if (!nosave) {
       save();
       saveGrid(m_Grid, m_CurrentFilename + ".geo");
     }
+
   } catch (Error E) {
     E.display();
   }

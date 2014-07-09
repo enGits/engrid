@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,8 +18,15 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+
 #include "optimisenormalvector.h"
+#include "geometrytools.h"
+
+OptimiseNormalVector::OptimiseNormalVector(bool use_grouping, double grouping_angle)
+{
+  m_UseGrouping = use_grouping;
+  m_GroupingAngle = grouping_angle;
+}
 
 void OptimiseNormalVector::addConstraint(vec3_t n)
 {
@@ -29,15 +35,30 @@ void OptimiseNormalVector::addConstraint(vec3_t n)
 
 void OptimiseNormalVector::addFace(vec3_t n)
 {
-  m_Faces.append(n);
+  if (m_UseGrouping) {
+    bool found = false;
+    foreach (vec3_t nf, m_Faces) {
+      if (GeometryTools::angle(n, nf) < m_GroupingAngle) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      m_Faces.append(n);
+    }
+  } else {
+    m_Faces.append(n);
+  }
 }
 
 double OptimiseNormalVector::func(vec3_t n)
 {
-  double hf = 1;
+  double hf_min =  1;
+  double hf_max = -1;
   double hc = 0;
   vec3_t n0 = n;
   n0.normalise();
+  double err = 0;
   foreach (vec3_t nc, m_Constraints) {
     nc.normalise();
     double h = nc*n0;
@@ -46,9 +67,16 @@ double OptimiseNormalVector::func(vec3_t n)
   foreach (vec3_t nf, m_Faces) {
     nf.normalise();
     double h = nf*n0;
-    hf = min(h, hf);
+    hf_min = min(h, hf_min);
+    hf_max = max(h, hf_max);
+    err += sqr(1 - h);
   }
-  return sqr(hc) + sqr(1 - hf);
+  if (m_UseGrouping) {
+    err += sqr(hc);
+  } else {
+    err = sqr(hc) + sqr(1 - hf_min) + sqr(1 - hf_max);
+  }
+  return err;
 }
 
 vec3_t OptimiseNormalVector::optimise(vec3_t n)
@@ -56,9 +84,8 @@ vec3_t OptimiseNormalVector::optimise(vec3_t n)
   int count = 0;
   computeDerivatives(n);
   n.normalise();
-  double scale = 1;
-  while (count < 100 && scale > 2e-4) {
-    double ag = grad_f.abs();
+  double scale = 0.1;
+  while (count < 100 && scale > 1e-4) {
     double err1 = func(n);
     vec3_t dn = -1.0*grad_f;
     dn -= (n*dn)*n;
@@ -67,11 +94,13 @@ vec3_t OptimiseNormalVector::optimise(vec3_t n)
     }
     double relax = min(scale, scale*grad_f.abs());
     dn *= relax;
+    vec3_t n_old = n;
     n += dn;
     n.normalise();
     double err2 = func(n);
     if (err2 > err1) {
       scale *= 0.1;
+      n = n_old;
     }
     ++count;
     computeDerivatives(n);

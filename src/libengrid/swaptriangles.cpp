@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "swaptriangles.h"
 #include "guimainwindow.h"
 
@@ -304,8 +302,9 @@ int SwapTriangles::swap()
                       swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
+                  //if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
 
+                  if (GeometryTools::angle(n1, n2) < m_FeatureAngle) {
                     if (isFeatureNode(S.id_node[0]) && isFeatureNode(S.id_node[1])) {
                       //swap = true;
                     }

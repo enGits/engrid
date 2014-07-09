@@ -1,9 +1,8 @@
-//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 #ifndef MESHPARTITION_H
 #define MESHPARTITION_H
@@ -91,8 +89,9 @@ public: // methods
   /**
    * Set the grid.
    * @param a pointer to the grid
+   * @param use_all_cells if set to true all cells will be selected;
    */
-  void setGrid(vtkUnstructuredGrid *grid) { m_Grid = grid; }
+  void setGrid(vtkUnstructuredGrid *grid, bool use_all_cells = false);
 
   /**
    * Set the grid and make sure all cells are always included (automatic tracking).
@@ -284,6 +283,9 @@ public: // methods
    */
   int computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, int max_dist, int restriction_type);
 
+  template <typename C>
+  void getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes);
+
 };
 
 
@@ -364,6 +366,9 @@ inline void MeshPartition::checkNodes()
 
 inline void MeshPartition::checkLCells()
 {
+  if (m_TrackGrid) {
+    checkCells();
+  }
   if (m_CellsStamp > m_LCellsStamp) {
     createCellMapping(m_Cells, m_LCells, m_Grid);
     m_LCellsStamp = m_CellsStamp;
@@ -408,6 +413,7 @@ inline void MeshPartition::checkN2BC()
 
 inline void MeshPartition::checkC2C()
 {
+  checkLCells();
   if (m_CellsStamp > m_C2CStamp) {
     createCellToCell(m_Cells, m_C2C, m_Grid);
     m_C2CStamp = m_CellsStamp;
@@ -659,6 +665,25 @@ void MeshPartition::getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge
       }
     }
   }
+}
+
+template <typename C>
+void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes)
+{
+  common_nodes.clear();
+  QSet<vtkIdType> nodes1, nodes2;
+  vtkIdType num_pts, *pts;
+  m_Grid->GetCellPoints(id_cell1, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes1.insert(pts[i]);
+  }
+  m_Grid->GetCellPoints(id_cell2, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes2.insert(pts[i]);
+  }
+  nodes1.intersect(nodes2);
+  common_nodes.resize(nodes1.size());
+  qCopy(nodes1.begin(), nodes1.end(), common_nodes.begin());
 }
 
 #endif // MESHPARTITION_H

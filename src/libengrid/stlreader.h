@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef stlreader_H
 #define stlreader_H
 
@@ -32,6 +30,13 @@ class StlReader;
  */
 class StlReader : public IOOperation
 {
+
+private: // attributes
+
+  double  m_Tolerance;
+  bool    m_FileNameSet;
+  QString m_FileName;
+  int     m_MaxNumCleanIter;
   
 protected: // methods
   
@@ -41,6 +46,10 @@ public: // methods
   
   /** The constructor sets the file format string. */
   StlReader();
+
+  void setTolerance(double tol) { m_Tolerance = tol; }
+  void setFileName(QString file_name);
+  void setMaximalCleaningIterations(int N) { m_MaxNumCleanIter = N; }
     
 };
 

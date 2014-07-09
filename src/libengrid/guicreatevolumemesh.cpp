@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 #include "guicreatevolumemesh.h"
 #include "createvolumemesh.h"
@@ -32,12 +30,12 @@ GuiCreateVolumeMesh::GuiCreateVolumeMesh()
 void GuiCreateVolumeMesh::before()
 {
   GuiMainWindow::pointer()->createDefaultVol();
-  populateVolumes(m_Ui.listWidget);
+  populateVolumes(m_Ui.m_ListWidgetVolumes);
 }
 
 void GuiCreateVolumeMesh::operate()
 {
-  QString volume_name = getSelectedVolume(m_Ui.listWidget);
+  QString volume_name = getSelectedVolume(m_Ui.m_ListWidgetVolumes);
   VolumeDefinition V = mainWindow()->getVol(volume_name);
 
   CreateVolumeMesh mesh_volume;
@@ -52,9 +50,8 @@ void GuiCreateVolumeMesh::operate()
     rest.extractToVtkGrid(rest_grid);
   }
   mesh_volume.setGrid(part_grid);
-  for (int i = 0; i < m_Ui.spinBoxIterations->value(); ++i) {
-    mesh_volume();
-  }
+  if (m_Ui.m_CheckBoxBoundaryLayer->isChecked()) mesh_volume.setBoundaryLayerOn();
+  mesh_volume();
   EG_VTKDCC(vtkIntArray, cell_code, part_grid, "cell_code");
   for (vtkIdType id_cell = 0; id_cell < part_grid->GetNumberOfCells(); ++id_cell) {
     if (isVolume(id_cell, part_grid)) {

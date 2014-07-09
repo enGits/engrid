@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef SURFACEOPERATION_H
 #define SURFACEOPERATION_H
 
@@ -61,6 +59,7 @@ protected: // attributes
   bool   m_UniformSnapPoints;
   bool   m_StrictFeatureSnap;
   bool   m_BCodeFeatureDefinition;
+  bool   m_AngleFeatureDefinition;
   int    m_TypeProtectionCount;
 
 
@@ -80,6 +79,7 @@ protected: // methods
   void   updateNodeInfo();
   bool   checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdType id_node2);
   void   updatePotentialSnapPoints();
+  double edgeAngle(vtkIdType id_node1, vtkIdType id_node2);
 
 
 public:

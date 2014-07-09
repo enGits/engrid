@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef CADINTERFACE_H
 #define CADINTERFACE_H
 
@@ -112,7 +110,10 @@ public:
    * @param correct_curvature flag to determine if corveture correction shall be used
    * @return the snapped position
    */
-  virtual vec3_t  snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+
+  virtual vec3_t snapToEdge(vec3_t x) { notImplemented(); }
+  virtual vec3_t snapToCorner(vec3_t x) { notImplemented(); }
 
   /**
    * @brief snap a node of the foreground grid

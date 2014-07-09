@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 
 #include "meshpartition.h"
 #include "guimainwindow.h"
@@ -36,6 +34,18 @@ MeshPartition::MeshPartition()
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
+  setGrid(grid);
+}
+
+MeshPartition::MeshPartition(QString volume_name)
+{
+  m_TrackGrid = false;
+  resetTimeStamps();
+  setVolume(volume_name);
+}
+
+void MeshPartition::setGrid(vtkUnstructuredGrid *grid, bool use_all_cells)
+{
   m_TrackGrid = false;
   resetTimeStamps();
   m_Grid = grid;
@@ -48,12 +58,6 @@ MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
   }
 }
 
-MeshPartition::MeshPartition(QString volume_name)
-{
-  m_TrackGrid = false;
-  resetTimeStamps();
-  setVolume(volume_name);
-}
 
 void MeshPartition::resetTimeStamps()
 {
@@ -186,6 +190,7 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
     if (tol < 0) {
       tol *= -min(getSmallestEdgeLength(), part.getSmallestEdgeLength());
     }
+    tol = max(tol, 1e-30);
     cout << "  tol=" << tol << endl;
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);

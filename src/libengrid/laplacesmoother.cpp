@@ -1,9 +1,8 @@
-//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
 #include "laplacesmoother.h"
 #include <vtkCellLocator.h>
 #include <vtkCharArray.h>
@@ -57,7 +55,8 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
   m_Grid->GetPoint(id_node, x_old.data());
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   bool move = true;
-  if(m_NoCheck) {
+  if (m_NoCheck) {
+    m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
     return move;
   }
   QVector<vec3_t> old_cell_normals(m_Part.n2cGSize(id_node));
@@ -82,122 +81,9 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_interface, vec3_t &x_new)
 {
-  EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
-  if (m_FeatureMagic > 0 && node_mesh_quality->GetValue(id_node) > m_FaceOrientationThreshold) {
-
-    EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-    EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-    bool convex = isConvexNode(id_node);
-    if (node_type->GetValue(id_node) == EG_FEATURE_CORNER_VERTEX) {
-
-      vec3_t x;
-      double L = 0.1*cl->GetValue(id_node);
-
-      // do not use curvature correction here
-      // .. a proper CAD model does not need it
-      // .. a discrete model (e.g. triangulation) will create bulges on features
-      vec3_t x0 = cad_interface->projectNode(id_node, x_new, false);
-
-      if (convex) {
-        x = x0 - L*m_NodeNormal[id_node];
-      } else {
-        x = x0 + L*m_NodeNormal[id_node];
-      }
-      vec3_t n = cad_interface->getLastNormal();
-      if (!cad_interface->failed()) {
-        double d = 2*L/tan(0.5*m_FeatureAngle);
-        static const int num_steps = 36;
-        double D_alpha = 2*M_PI/num_steps;
-        vec3_t v;
-
-        v = GeometryTools::orthogonalVector(m_NodeNormal[id_node]);
-        int num_miss = 0;
-        int num_hit = 0;
-        vec3_t x_corner(0,0,0);
-        for (int i = 0; i < num_steps; ++i) {
-          v = GeometryTools::rotate(v, m_NodeNormal[id_node], D_alpha);
-          vec3_t xp = cad_interface->projectNode(id_node, x, v, true, true);
-          if (cad_interface->failed()) {
-            ++num_miss;
-          } else {
-            double l = (x - xp).abs();
-            if (l < d) {
-              ++num_hit;
-              x_corner += xp;
-            } else {
-              ++num_miss;
-            }
-          }
-        }
-        if (num_miss == 0 && num_hit > 0) {
-          x_corner *= 1.0/num_hit;
-          x_new = cad_interface->projectNode(id_node, x_corner, m_NodeNormal[id_node]);
-        }
-      }
-
-    } else {
-
-      // "magic" vector to displace node for re-projection
-      vec3_t x0  = x_new;
-
-      // do not use curvature correction here
-      // .. a proper CAD model does not need it
-      // .. a discrete model (e.g. triangulation) will create bulges on features
-      vec3_t x1  = cad_interface->projectNode(id_node, x_new);
-      vec3_t n   = cad_interface->getLastNormal();
-      double l   = cl->GetValue(id_node);
-      double eps = 0.01*l;
-      vec3_t mv  = m_FeatureMagic*l*m_NodeNormal[id_node];
-      mv -= (n*mv)*n;
-
-      if (checkVector(mv)) {
-        double L1 = 0;
-        double L2 = 1;//m_FeatureMagic*cl->GetValue(id_node);
-        bool flipped = false;
-        double amp = 0.1;
-        int i = 0;
-        int hits = 0;
-        while (i < 30 && amp < 10) {
-          x_new = x1 + 0.5*amp*(L1 + L2)*mv;// + 2*eps*n;
-          //x_new = proj->findClosest(x_new, id_node, n);
-          x_new = cad_interface->projectNode(id_node, x_new, n, false, m_CorrectCurvature);
-          double displacement = fabs((x_new - x1)*n);
-          if (displacement > eps || cad_interface->failed()) {
-            L2 = 0.5*(L1 + L2);
-            ++i;
-          } else {
-
-            // if there is no significant displacement after the first iteration
-            // the node is probably in a smooth region of the surface
-            // ==> stop here
-            //
-            if (i == 0) {
-              if (!flipped) {
-                mv *= -1;
-                flipped = true;
-              } else {
-                amp *= 1.5;
-                mv *= -1;
-                flipped = false;
-              }
-            } else {
-              L1 = 0.5*(L1 + L2);
-              ++hits;
-              ++i;
-            }
-          }
-        }
-        if (hits > 0) {
-          x_new = x1 + L1*amp*mv;
-          x_new = cad_interface->projectNode(id_node, x_new, n, false, m_CorrectCurvature);
-          if (cad_interface->failed()) {
-            cout << "bad!" << endl;
-          }
-        } else {
-          x_new = x0;
-        }
-      }
-    }
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
+    x_new = cad_interface->snapToEdge(x_new);
   }
 }
 
@@ -215,7 +101,7 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);
-      if (m_NodeToBc[i_nodes].size() == 1 || m_UniformSnapPoints) {
+      if (m_NodeToBc[i_nodes].size() == 1 || m_UniformSnapPoints || m_AngleFeatureDefinition) {
         int bc = m_NodeToBc[i_nodes][0];
         x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
         featureCorrection(id_node, GuiMainWindow::pointer()->getCadInterface(bc), x_new);
@@ -282,12 +168,11 @@ void LaplaceSmoother::fixNodes(const QVector<bool> &fixnodes)
 
 void LaplaceSmoother::operate()
 {
-  if (m_BCodeFeatureDefinition) {
-    m_FeatureMagic = 0.0;
-    m_NoCheck = false;
+  m_NoCheck = false; // !!!!!!!!!!!!!!
+  if (!m_BCodeFeatureDefinition && !m_AngleFeatureDefinition) {
     m_NoCheck = true;
   } else {
-    m_NoCheck = true;
+    //m_FeatureMagic = 0.0;
   }
   if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
     m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
@@ -326,11 +211,15 @@ void LaplaceSmoother::operate()
 
   QVector<bool> blocked(nodes.size(), false);
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    for (int i = 0; i < m_Part.n2cLSize(i_nodes); ++i) {
-      vtkIdType type = m_Grid->GetCellType(m_Part.n2cLG(i_nodes, i));
-      if (!m_AllowedCellTypes.contains(type)) {
-        blocked[i_nodes] = true;
-        break;
+    if (m_AngleFeatureDefinition && node_type->GetValue(nodes[i_nodes]) == EG_FEATURE_CORNER_VERTEX) {
+      blocked[i_nodes] = true;
+    } else {
+      for (int i = 0; i < m_Part.n2cLSize(i_nodes); ++i) {
+        vtkIdType type = m_Grid->GetCellType(m_Part.n2cLG(i_nodes, i));
+        if (!m_AllowedCellTypes.contains(type)) {
+          blocked[i_nodes] = true;
+          break;
+        }
       }
     }
   }

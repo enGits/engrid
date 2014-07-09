@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "setboundarycode.h"
 #include <vtkIntArray.h>
 #include <vtkCellData.h>
@@ -50,8 +48,9 @@ void SetBoundaryCode::pass1()
       if (ProcessAll) {
         vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
         vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
-        double cosa = (n1*n2)/(n1.abs()*n2.abs());
-        if (fabs(acos(cosa)) > fa) {
+        n1.normalise();
+        n2.normalise();
+        if (GeometryTools::angle(n1, n2) > fa) {
           pair[i].terminate = true;
         } else {
           pair[i].terminate = false;
@@ -60,8 +59,9 @@ void SetBoundaryCode::pass1()
         if (DBC.contains(bc2)) {
           vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
           vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
-          double cosa = (n1*n2)/(n1.abs()*n2.abs());
-          if (fabs(acos(cosa)) > fa) {
+          n1.normalise();
+          n2.normalise();
+          if (GeometryTools::angle(n1, n2) > fa) {
             pair[i].terminate = true;
           } else {
             pair[i].terminate = false;

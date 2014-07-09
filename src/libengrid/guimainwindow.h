@@ -1,9 +1,8 @@
-//
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef mainwindow_H
 #define mainwindow_H
 
@@ -525,6 +523,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callPolyDataReader()             { EG_STDREADERSLOT( PolyDataReader ); }
     void callReducedPolyDataReader()      { EG_STDREADERSLOT( ReducedPolyDataReader ); }
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
+    void callMultiSolidAsciiStlReader()   { EG_STDREADERSLOT( MultiSolidAsciiStlReader ); }
 
 #ifdef BRLCAD_SUPPORT
     void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }

@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "guidivideboundarylayer.h"
 #include "math/linsolve.h"
 
@@ -254,11 +252,11 @@ void GuiDivideBoundaryLayer::createEdges(vtkUnstructuredGrid *new_grid)
     }
     ++N;
   }
-  cout << LINE;
+  cout << LINE_STR;
   cout << "maximal increment : " << max_step << endl;
   cout << "min(y) : " << ymin << endl;
   cout << "max(y) : " << ymax << endl;
-  cout << LINE;
+  cout << LINE_STR;
 }
 
 void GuiDivideBoundaryLayer::computeMaxConvexAngles()

@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef optimisation_H
 #define optimisation_H
 
@@ -79,7 +77,7 @@ protected: // attributes
 protected: // methods
   
   virtual double func(vec3_t x) = 0;
-  virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); };
+  virtual double func(double x, double y, double z) { return func(vec3_t(x,y,z)); }
   virtual void computeDerivatives(vec3_t x);
 
   void getErrSet(QString group, QString key, double err0, double xs, ErrorFunction* err_func);

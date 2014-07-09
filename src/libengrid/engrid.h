@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef engrid_H
 #define engrid_H
 
@@ -28,6 +26,7 @@
 #include <QMessageBox>
 #include <QtDebug>
 #include <QString>
+#include <QDate>
 
 #include <vtkSmartPointer.h>
 #include <vtkLongArray.h>
@@ -272,6 +271,12 @@ connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
 
 #define EG_LARGE_REAL 1e99
 
+#define EG_STOPDATE(STOP_DATE) \
+  QDate stop_date = QDate::fromString(STOP_DATE, "yyyy-MM-dd"); \
+  if (stop_date <= QDate::currentDate()) { \
+    EG_ERR_RETURN(QString("This feature is not supported after ") + STOP_DATE); \
+  } \
+
 inline double sqr(double x) { return x*x; }
 
 template <class T>
@@ -305,7 +310,7 @@ inline int N_Permutations(int N,int k)
   return(factorial_rec(N)/(factorial_rec(N-k)));
 }
 
-#define LINE "=================" << endl;
+#define LINE_STR "=================" << endl;
 
 #define USE(X) X=X
 

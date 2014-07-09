@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef deletecells_H
 #define deletecells_H
 
@@ -32,8 +30,8 @@ class DeleteCells : public Operation
   
 private: // attributes
   
-  QVector<vtkIdType> del_cells;
-  QVector<vtkIdType> trace_cells;
+  QVector<vtkIdType> m_DelCells;
+  QVector<vtkIdType> m_TraceCells;
   
 protected: // methods
   
@@ -52,9 +50,9 @@ public: // methods
 template <class T>
 void DeleteCells::setCellsToDelete(const T &cls)
 {
-  del_cells.resize(cls.size());
-  qCopy(cls.begin(), cls.end(), del_cells.begin());
-};
+  m_DelCells.resize(cls.size());
+  qCopy(cls.begin(), cls.end(), m_DelCells.begin());
+}
 
 
 #endif

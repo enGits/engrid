@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #include "egvtkobject.h"
 #include "guimainwindow.h"
 
@@ -386,34 +384,6 @@ void EgVtkObject::getAllSurfaceCells
     if (isSurface(id_cell, grid)) {
       cells[N] = id_cell;
       ++N;
-    }
-  }
-}
-
-void EgVtkObject::getSurfaceCells
-(
-  QSet<int>           &bcs,
-  QVector<vtkIdType>  &cells,
-  vtkUnstructuredGrid *grid
-)
-{
-  int N = 0;
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
-      if (bcs.contains(cell_code->GetValue(id_cell))) {
-        ++N;
-      }
-    }
-  }
-  cells.resize(N);
-  N = 0;
-  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
-    if (isSurface(id_cell, grid)) {
-      if (bcs.contains(cell_code->GetValue(id_cell))) {
-        cells[N] = id_cell;
-        ++N;
-      }
     }
   }
 }
@@ -1562,11 +1532,7 @@ void EgVtkObject::checkGridConsitency(vtkUnstructuredGrid *grid)
   }
 }
 
-
-
-
-
-
-
-
-
+QString EgVtkObject::getXmlSection(QString name)
+{
+  return GuiMainWindow::pointer()->getXmlSection(name);
+}

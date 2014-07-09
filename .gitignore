@@ -30,15 +30,7 @@ core
 callgrind*
 
 # build folder(s) and executables
-/platforms/
-engrid
-engrid_debug
-release
-debug
-Release
-Debug
-Release-static
-Debug-static
+build
 
 # generated Makefiles
 Makefile
@@ -60,7 +52,7 @@ qtc-gdbmacros
 *.out
 *.vtu
 *.egc
-*.txt
+#*.txt
 *.bcs
 netgen_svn_old
 *.tag
@@ -95,3 +87,9 @@ docs
 *.suo
 *.ncb
 *.vcproj.*
+
+# CMake
+*CMakeFiles*
+*.cmake
+
+

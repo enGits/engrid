@@ -1,9 +1,8 @@
-// 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2013 enGits GmbH                                      +
+// + Copyright 2008-2014 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -19,7 +18,6 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
@@ -334,5 +332,10 @@ dcmplx complex_pow(dcmplx base, double power);
 int poly_solve_cubic(double a, double b, double c, double * x0, double * x1, double * x2);
 // a x^2 + b x + c = 0
 int poly_solve_quadratic(double a, double b, double c, double * x0, double * x1);
+
+inline double logarithm(double a, double b)
+{
+  return log(b)/log(a);
+}
 
 #endif
