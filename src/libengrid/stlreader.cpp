@@ -139,7 +139,7 @@ void StlReader::operate()
   EG_VTKDCC(vtkIntArray, voldir, m_Grid, "cell_voldir");
   EG_VTKDCC(vtkIntArray, curdir, m_Grid, "cell_curdir");
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    bc->SetValue(id_cell, 999);
+    bc->SetValue(id_cell, 1);
     orgdir->SetValue(id_cell, 0);
     voldir->SetValue(id_cell, 0);
     curdir->SetValue(id_cell, 0);
