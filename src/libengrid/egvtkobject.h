@@ -81,6 +81,8 @@ private: // methods
   void createNodeField(vtkUnstructuredGrid *grid, QString field_name, QString type_name, int Nnodes, bool overwrite = false);
   void createCellField(vtkUnstructuredGrid *grid, QString field_name, QString type_name, int Ncells, bool overwrite = false);
 
+  QString getXmlSection(QString name);
+
 protected: // attributes
   
   QSet<int> m_BoundaryCodes;
@@ -117,6 +119,9 @@ protected: // methods
    * Version for string variables.
    */
   QString getSet(QString group, QString key, QString value, QString& variable, int type);
+
+  template <typename T>
+  bool getXmlSetting(QString key, QString xml_section, T& value);
     
   /**
    * Update the cell index array.
@@ -989,6 +994,43 @@ void EgVtkObject::getSurfaceCells(const C &bcs,  QVector<vtkIdType>  &cells,  vt
       }
     }
   }
+}
+
+template <>
+inline bool EgVtkObject::getXmlSetting<QString>(QString key, QString xml_section, QString &value)
+{
+  QString buffer = getXmlSection(xml_section);
+  bool found = false;
+  QStringList items = buffer.split(";", QString::SkipEmptyParts);
+  foreach (QString item, items) {
+    QStringList words = item.split("=", QString::SkipEmptyParts);
+    if (words.size() == 2) {
+      if (words[0] == key) {
+        found = true;
+        value = words[1];
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+template <>
+inline bool EgVtkObject::getXmlSetting<double>(QString key, QString xml_section, double &value)
+{
+  QString value_text;
+  bool found = getXmlSetting(key, xml_section, value_text);
+  value = value_text.toDouble();
+  return found;
+}
+
+template <>
+inline bool EgVtkObject::getXmlSetting<float>(QString key, QString xml_section, float &value)
+{
+  QString value_text;
+  bool found = getXmlSetting(key, xml_section, value_text);
+  value = value_text.toFloat();
+  return found;
 }
 
 #endif

@@ -1532,11 +1532,7 @@ void EgVtkObject::checkGridConsitency(vtkUnstructuredGrid *grid)
   }
 }
 
-
-
-
-
-
-
-
-
+QString EgVtkObject::getXmlSection(QString name)
+{
+  return GuiMainWindow::pointer()->getXmlSection(name);
+}
