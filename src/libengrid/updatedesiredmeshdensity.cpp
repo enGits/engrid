@@ -21,6 +21,7 @@
 #include "updatedesiredmeshdensity.h"
 #include "guimainwindow.h"
 #include "pointfinder.h"
+#include "cgaltricadinterface.h"
 
 #include <vtkCharArray.h>
 
@@ -218,44 +219,42 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
   if (m_FeatureResolution3D < 1e-3) {
     return;
   }
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  QList<point_t> points;
-  for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
-    if (isSurface(id_face, m_Grid)) {
-      vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_face, num_pts, pts);
-      point_t P;
-      P.x = cellCentre(m_Grid, id_face);
-      P.n = cellNormal(m_Grid, id_face);
-      P.n.normalise();
-      P.n *= -1;
-      P.id_face = id_face;
-      CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_face));
-      vec3_t x0 = P.x;
-      if (cad->shootRayAvailable()) {
-        P.x = cad->project(x0, P.n);
-      } else {
-        P.x = cad->snapNode(pts[0], x0);
+  CgalTriCadInterface cad(m_Grid);
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t n0 = m_Part.globalNormal(id_node);
+    vec3_t x0;
+    m_Grid->GetPoint(id_node, x0.data());
+    QVector<QPair<vec3_t, vtkIdType> > intersections;
+    cad.computeIntersections(x0, n0, intersections);
+    vec3_t xi;
+    double d_min = EG_LARGE_REAL;
+    vtkIdType id_tri_min = -1;
+    for (int i = 0; i < intersections.size(); ++i) {
+      vec3_t x = intersections[i].first;
+      vtkIdType id_tri = intersections[i].second;
+      vec3_t n = GeometryTools::cellNormal(m_Grid, id_tri);
+      n.normalise();
+      vec3_t dx = x - x0;
+      if (dx*n0 > 0 && n*n0 < 0) {
+        double d = dx.abs();
+        if (d < d_min) {
+          d_min = d;
+          xi = 0;
+          id_tri_min = id_tri;
+        }
       }
-      if (!cad->failed()) {
-        P.n = -1*cad->getLastNormal();
-        if (cad->shootRayAvailable()) {
-          P.x = cad->project(x0, P.n);
-        } else {
-          P.x = cad->snapNode(pts[0], x0);
+    }
+    if (id_tri_min > -1) {
+      double h = d_min/m_FeatureResolution3D;
+      cl_pre[id_node] = h;
+      EG_GET_CELL(id_tri_min, m_Grid) {
+        for (int i = 0; i < num_pts; ++i) {
+          cl_pre[pts[i]] = h;
         }
-        if (!cad->failed()) {
-          P.n = -1*cad->getLastNormal();
-        }
-        for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
-          P.idx.append(m_Part.localNode(pts[i_pts]));
-        }
-        P.L = computeSearchDistance(id_face);
-        points.append(P);
       }
     }
   }
-  computeFeature(points, cl_pre, m_FeatureResolution3D, 1);
 }
 
 void UpdateDesiredMeshDensity::readSettings()
