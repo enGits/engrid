@@ -36,9 +36,9 @@ SurfaceOperation::SurfaceOperation() : Operation()
 {
   //default values for determining node types and for smoothing operations
   getSet("surface meshing", "edge angle to determine fixed vertices", 180, m_EdgeAngle);
-  getSet("surface meshing", "feature angle", 20, m_FeatureAngle);
+  getSet("surface meshing", "feature angle", 30, m_FeatureAngle);
   getSet("surface meshing", "boundary codes define features", false, m_BCodeFeatureDefinition);
-  getSet("surface meshing", "angles define features", false, m_AngleFeatureDefinition);
+  getSet("surface meshing", "angles define features", true, m_AngleFeatureDefinition);
   getSet("surface meshing", "number of steps to protect node types", 2, m_TypeProtectionCount);
   getSet("surface meshing", "threshold for face orientation quality", 0.1, m_FaceOrientationThreshold);
   m_FeatureAngle = GeometryTools::deg2rad(m_FeatureAngle);
