@@ -82,7 +82,8 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_interface, vec3_t &x_new)
 {
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  if (node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
+  char type = node_type->GetValue(id_node);
+  if (type == EG_FEATURE_EDGE_VERTEX || type == EG_BOUNDARY_EDGE_VERTEX) {
     x_new = cad_interface->snapToEdge(x_new);
   }
 }
