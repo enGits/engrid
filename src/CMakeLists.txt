@@ -34,6 +34,24 @@ set(ENGRID_MINOR_VERSION 0)
 set(ENGRID_PATCH_VERSION 0)
 set(ENGRID_VERSION ${ENGRID_MAJOR_VERSION}.${ENGRID_MINOR_VERSION}.${ENGRID_PATCH_VERSION})
 
+exec_program(
+    "git"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ARGS "describe"
+    OUTPUT_VARIABLE GIT_SHA1)
+string(REGEX MATCH "-g.*$" GIT_SHA1 ${GIT_SHA1})
+string(REGEX REPLACE "[-g]" "" GIT_SHA1 ${GIT_SHA1} )
+message(${GIT_SHA1})
+add_definitions( -DGIT_SHA1="${GIT_SHA1}" )
+
+exec_program(
+    "git"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ARGS "symbolic-ref --short HEAD"
+    OUTPUT_VARIABLE GIT_BRANCH)
+message(${GIT_BRANCH})
+add_definitions( -DGIT_BRANCH="${GIT_BRANCH}" )
+
 FIND_PACKAGE(VTK REQUIRED)
 include(${VTK_USE_FILE})
 include_directories(${VTK_INCLUDE_DIRS})
