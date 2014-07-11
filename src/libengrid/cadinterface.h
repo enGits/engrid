@@ -26,6 +26,7 @@
 #include "surfacealgorithm.h"
 
 #include <QVector>
+#include <QPair>
 
 class CadInterface : public SurfaceAlgorithm
 {
@@ -95,6 +96,14 @@ public:
    * @return the result (Miss, HitIn, HitOut)
    */
   virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
+
+  /**
+   * @brief compute all intersections of a ray and the CAD geometry.
+   * @param x the origin of the ray
+   * @param v the direction of the ray
+   * @param intersections will hold all intersections with the goemtry
+   */
+  virtual void computeIntersections(vec3_t x, vec3_t v, QVector<QPair<vec3_t,vtkIdType> > &intersections) { notImplemented(); }
 
   /**
    * @brief check if shootRay is available (implemented)

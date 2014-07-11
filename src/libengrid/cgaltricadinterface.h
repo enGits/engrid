@@ -85,6 +85,7 @@ public:
   virtual vec3_t snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature);
   virtual vec3_t snapToEdge(vec3_t x);
   virtual vec3_t snapToCorner(vec3_t x);
+  virtual void computeIntersections(vec3_t x, vec3_t v, QVector<QPair<vec3_t, vtkIdType> > &intersections);
 
 };
 

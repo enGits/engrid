@@ -229,5 +229,23 @@ vec3_t CgalTriCadInterface::snapToCorner(vec3_t)
 
 CgalTriCadInterface::HitType CgalTriCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r)
 {
+  notImplemented();
+}
 
+void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair<vec3_t, vtkIdType> > &intersections)
+{
+  Ray ray = createRay(x, v);
+  std::list<Intersection> inters;
+  m_TriangleTree.all_intersections(ray, std::back_inserter(inters));
+  intersections.resize(inters.size());
+  int i_intersections = 0;
+  for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
+    int id = (i->second - m_Triangles.begin());
+    if (i->first.type() == typeid(Point)) {
+      intersections[i_intersections].second = m_Tri2Grid[id];
+      Point p = boost::get<Point>(i->first);
+      vec3_t xs(p[0], p[1], p[2]);
+      intersections[i_intersections].first = xs;
+    }
+  }
 }
