@@ -1920,15 +1920,15 @@ void GuiMainWindow::about()
   QMessageBox box(this);
 
   QString title="ENGRID";
-  QString version = ENGRID_VERSION;
-  version += " built on ";
+  QString version = QString("version=") + ENGRID_VERSION + "<br/>branch=" + GIT_BRANCH + "<br/>commit=" + GIT_SHA1;
+  version += "<br/>built on ";
   version += QString(__DATE__);
   version += " at ";
   version += QString(__TIME__);
 
   QString address = tr("ENGRID is being developed and maintained by:<br/>"
                        "enGits GmbH<br/>"
-                       "Postfach 32<br/>"
+                       "Langenbachstrasse 3<br/>"
                        "79674 Todtnau<br/>"
                        "Germany<br/>");
 
