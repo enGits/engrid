@@ -70,7 +70,6 @@ void FixCadGeometry::callMesher()
     swap.setFeatureAngle(m_FeatureAngle);
     swap.setMaxNumLoops(1);
     swap.setSmallAreaSwap(m_AllowSmallAreaSwapping);
-    swap.setBCodesFeatureDefinition(m_BCodeFeatureDefinition);
     swap.setDelaunayThreshold(1e6);
     swap.setVerboseOn();
     QSet<int> rest_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
