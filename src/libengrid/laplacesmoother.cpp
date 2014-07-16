@@ -113,22 +113,12 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     // .. Hopefully jammed topologies can be avoided this way.
     //
     EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-    vec3_t x_old;
-    m_Grid->GetPoint(id_node, x_old.data());
     double L_min = cl->GetValue(id_node);
     for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
       vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
       vec3_t x_neigh;
       m_Grid->GetPoint(id_neigh, x_neigh.data());
       L_min = min(L_min, (x_old - x_neigh).abs());
-    }
-
-    // limit node displacement
-    vec3_t dx = x_new - x_old;
-    if (dx.abs() > m_Limit*L_min) {
-      x_new -= dx;
-      dx.normalise();
-      x_new += m_Limit*L_min*dx;
     }
 
     if (setNewPosition(id_node, x_new)) {
