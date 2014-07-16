@@ -144,6 +144,7 @@ SET(libengrid_HEADERS
   simplefoamwriter.h
   smoothandswapsurface.h
   smoothingutilities.h
+  snaptofeatures.h
   sortablevector.h
   statistics.h
   std_connections.h
@@ -335,6 +336,7 @@ SET(libengrid_SOURCES
   simplefoamwriter.cpp
   smoothandswapsurface.cpp
   smoothingutilities.cpp
+  snaptofeatures.cpp
   stlreader.cpp
   stlwriter.cpp
   su2writer.cpp
