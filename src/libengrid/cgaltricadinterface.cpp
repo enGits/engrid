@@ -61,6 +61,7 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
   {
     m_Segments.clear();
     QList<Segment> segs;
+    EG_VTKDCC(vtkIntArray, cell_code, m_BGrid, "cell_code");
     EG_FORALL_NODES(id_node1, m_BGrid) {
       for (int i = 0; i < m_BPart.n2nGSize(id_node1); ++i) {
         vtkIdType id_node2 = m_BPart.n2nGG(id_node1, i);
@@ -68,10 +69,18 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
           QVector<vtkIdType> id_face;
           m_BPart.getEdgeFaces(id_node1, id_node2, id_face);
           if (id_face.size() == 2) {
-            vec3_t n1 = GeometryTools::cellNormal(m_BGrid, id_face[0]);
-            vec3_t n2 = GeometryTools::cellNormal(m_BGrid, id_face[1]);
-            double alpha = GeometryTools::angle(n1, n2);
-            if (alpha >= feature_angle) {
+            bool append_edge = false;
+            if (cell_code->GetValue(id_face[0]) != cell_code->GetValue(id_face[1])) {
+              append_edge = true;
+            } else {
+              vec3_t n1 = GeometryTools::cellNormal(m_BGrid, id_face[0]);
+              vec3_t n2 = GeometryTools::cellNormal(m_BGrid, id_face[1]);
+              double alpha = GeometryTools::angle(n1, n2);
+              if (alpha >= feature_angle) {
+                append_edge = true;
+              }
+            }
+            if (append_edge) {
               vec3_t x1, x2;
               m_BGrid->GetPoint(id_node1, x1.data());
               m_BGrid->GetPoint(id_node2, x2.data());
