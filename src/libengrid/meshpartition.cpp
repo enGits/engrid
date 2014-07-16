@@ -514,3 +514,53 @@ int MeshPartition::computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, i
   }
   return max_dist;
 }
+
+void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, QVector<vtkIdType> &common_nodes)
+{
+  common_nodes.clear();
+  QSet<vtkIdType> nodes1, nodes2;
+  vtkIdType num_pts, *pts;
+  m_Grid->GetCellPoints(id_cell1, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes1.insert(pts[i]);
+  }
+  m_Grid->GetCellPoints(id_cell2, num_pts, pts);
+  for (int i = 0; i < num_pts; ++i) {
+    nodes2.insert(pts[i]);
+  }
+  nodes1.intersect(nodes2);
+  common_nodes.resize(nodes1.size());
+  qCopy(nodes1.begin(), nodes1.end(), common_nodes.begin());
+}
+
+bool MeshPartition::isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double feature_angle)
+{
+  bool is_feature_edge = false;
+  QVector<int> bcs;
+  QVector<vtkIdType> nodes(2);
+  nodes[0] = id_node1;
+  nodes[1] = id_node2;
+  getCommonBcs(nodes, bcs);
+  if (bcs.size() == 1) {
+    QList<vtkIdType> faces;
+    getEdgeFaces(id_node1, id_node2, faces);
+    if (faces.size() == 2) {
+      vec3_t n1 = cellNormal(m_Grid, faces[0]);
+      vec3_t n2 = cellNormal(m_Grid, faces[1]);
+      if (GeometryTools::angle(n1, n2) > feature_angle) {
+        EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+        CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(bcs.first());
+        vec3_t x1, x2;
+        m_Grid->GetPoint(id_node1, x1.data());
+        m_Grid->GetPoint(id_node2, x2.data());
+        vec3_t x = 0.5*(x1 + x2);
+        double h = min(cl->GetValue(id_node1), cl->GetValue(id_node2));
+        vec3_t xs = cad->snapToEdge(x);
+        if ((xs - x).abs() < 0.2*h) {
+          is_feature_edge = true;
+        }
+      }
+    }
+  }
+  return is_feature_edge;
+}

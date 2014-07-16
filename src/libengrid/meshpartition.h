@@ -283,8 +283,32 @@ public: // methods
    */
   int computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, int max_dist, int restriction_type);
 
+  /**
+   * @brief get common nodes of two cells
+   * @param id_cell1 id of the first cell
+   * @param id_cell2 id of the second cell
+   * @param common_nodes holds the common node ids on return
+   */
+  void getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, QVector<vtkIdType> &common_nodes);
+
+  /**
+   * @brief get common boundary codes of a set of nodes
+   * @param nodes Qt container holding the nodes to investigate
+   * @param common_bcs holds the common boundary codes on return
+   */
   template <typename C>
-  void getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes);
+  void getCommonBcs(const C &common_nodes, QVector<int> &common_bcs);
+
+  /**
+   * @brief check if an edge is a feature edge
+   * The check is done by trying to snap to the edge geometry of the CAD interface.
+   * Depending on the distance of the snapped locations this will a feature edge or not.
+   * @param id_node1 first node of the edge
+   * @param id_node2 second node of the edge
+   * @param feature_angle the feature angle threshold
+   * @return true if id_node1 -> id_node2 is a feature edge
+   */
+  bool isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double feature_angle);
 
 };
 
@@ -668,22 +692,24 @@ void MeshPartition::getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge
 }
 
 template <typename C>
-void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, C &common_nodes)
+void MeshPartition::getCommonBcs(const C &nodes, QVector<int> &common_bcs)
 {
-  common_nodes.clear();
-  QSet<vtkIdType> nodes1, nodes2;
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints(id_cell1, num_pts, pts);
-  for (int i = 0; i < num_pts; ++i) {
-    nodes1.insert(pts[i]);
+  QSet<int> bcs;
+  bool first = true;
+  foreach (vtkIdType id_node, nodes) {
+    QSet<int> node_bcs;
+    for (int i = 0; i < n2bcGSize(id_node); ++i) {
+      node_bcs.insert(n2bcG(id_node, i));
+    }
+    if (first) {
+      first = false;
+      bcs = node_bcs;
+    } else {
+      bcs.intersect(node_bcs);
+    }
   }
-  m_Grid->GetCellPoints(id_cell2, num_pts, pts);
-  for (int i = 0; i < num_pts; ++i) {
-    nodes2.insert(pts[i]);
-  }
-  nodes1.intersect(nodes2);
-  common_nodes.resize(nodes1.size());
-  qCopy(nodes1.begin(), nodes1.end(), common_nodes.begin());
+  common_bcs.resize(bcs.size());
+  qCopy(bcs.begin(), bcs.end(), common_bcs.begin());
 }
 
 #endif // MESHPARTITION_H
