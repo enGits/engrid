@@ -227,7 +227,6 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
     m_Grid->GetPoint(id_node, x0.data());
     QVector<QPair<vec3_t, vtkIdType> > intersections;
     cad.computeIntersections(x0, n0, intersections);
-    vec3_t xi;
     double d_min = EG_LARGE_REAL;
     vtkIdType id_tri_min = -1;
     for (int i = 0; i < intersections.size(); ++i) {
@@ -240,7 +239,6 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
         double d = dx.abs();
         if (d < d_min) {
           d_min = d;
-          xi = 0;
           id_tri_min = id_tri;
         }
       }
