@@ -26,6 +26,7 @@
 #include "guimainwindow.h"
 #include "localnodegraphinterface.h"
 #include "checkerboardgraphiterator.h"
+#include "snaptofeatures.h"
 
 using namespace GeometryTools;
 
@@ -102,27 +103,9 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
     vec3_t x_new = x_old + Dx;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);
-      if (m_NodeToBc[i_nodes].size() == 1 || m_UniformSnapPoints || m_AngleFeatureDefinition) {
-        int bc = m_NodeToBc[i_nodes][0];
-        x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
-        featureCorrection(id_node, GuiMainWindow::pointer()->getCadInterface(bc), x_new);
-      } else {
-        for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
-          foreach (int bc, m_NodeToBc[i_nodes]) {
-            x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
-          }
-        }
-
-        for (int i_proj_iter = 0; i_proj_iter < m_ProjectionIterations; ++i_proj_iter) {
-          if (m_CorrectCurvature) {
-            foreach (int bc, m_NodeToBc[i_nodes]) {
-              //x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(GuiMainWindow::pointer()->getCadInterface(bc)->lastProjTriangle(), x_new);
-              x_new = GuiMainWindow::pointer()->getCadInterface(bc)->correctCurvature(x_new);
-            }
-          }
-        }
-
-      }
+      int bc = m_NodeToBc[i_nodes][0];
+      x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
+      featureCorrection(id_node, GuiMainWindow::pointer()->getCadInterface(bc), x_new);
     }
 
     // compute the minimal length of any edge adjacent to this node
@@ -170,11 +153,6 @@ void LaplaceSmoother::fixNodes(const QVector<bool> &fixnodes)
 void LaplaceSmoother::operate()
 {
   m_NoCheck = false; // !!!!!!!!!!!!!!
-  if (!m_BCodeFeatureDefinition && !m_AngleFeatureDefinition) {
-    m_NoCheck = true;
-  } else {
-    //m_FeatureMagic = 0.0;
-  }
   if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
     m_Fixed.fill(false, m_Grid->GetNumberOfPoints());
   }
@@ -212,7 +190,7 @@ void LaplaceSmoother::operate()
 
   QVector<bool> blocked(nodes.size(), false);
   for (int i_nodes = 0; i_nodes < nodes.size(); ++i_nodes) {
-    if (m_AngleFeatureDefinition && node_type->GetValue(nodes[i_nodes]) == EG_FEATURE_CORNER_VERTEX) {
+    if (node_type->GetValue(nodes[i_nodes]) == EG_FEATURE_CORNER_VERTEX) {
       blocked[i_nodes] = true;
     } else {
       for (int i = 0; i < m_Part.n2cLSize(i_nodes); ++i) {
@@ -281,6 +259,9 @@ void LaplaceSmoother::operate()
       vtkIdType id_node = nodes[i_nodes];
       m_Grid->GetPoints()->SetPoint(id_node, x_new[i_nodes].data());
     }
+
+    SnapToFeatures snap;
+    snap();
 
     if (m_Success) {
       break;
