@@ -264,8 +264,14 @@ void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair
     Ray ray = createRay(x, v);
     std::list<Intersection> inters;
     m_TriangleTree.all_intersections(ray, std::back_inserter(inters));
-    intersections.resize(inters.size());
     int i_intersections = 0;
+    for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
+      if (i->first.type() == typeid(Point)) {
+        ++i_intersections;
+      }
+    }
+    intersections.resize(i_intersections);
+    i_intersections = 0;
     for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
       int id = (i->second - m_Triangles.begin());
       if (i->first.type() == typeid(Point)) {
@@ -273,6 +279,7 @@ void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair
         Point p = boost::get<Point>(i->first);
         vec3_t xs(p[0], p[1], p[2]);
         intersections[i_intersections].first = xs;
+        ++i_intersections;
       }
     }
   } catch (CGAL::Failure_exception) {
