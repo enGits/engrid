@@ -249,10 +249,10 @@ void LaplaceSmoother::operate()
       vtkIdType id_node = nodes[i_nodes];
       m_Grid->GetPoints()->SetPoint(id_node, x_new[i_nodes].data());
     }
-
+/*
     SnapToFeatures snap;
     snap();
-
+*/
     if (m_Success) {
       break;
     }
