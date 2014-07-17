@@ -292,12 +292,20 @@ void SurfaceOperation::updateNodeInfo()
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  // check if there are non simple vertices
+  bool all_simple = true;
+  foreach (vtkIdType id_node, nodes) {
+    if (node_type->GetValue(id_node) != EG_SIMPLE_VERTEX) {
+      all_simple = false;
+      break;
+    }
+  }
+
   foreach (vtkIdType id_node, nodes) {
 
-    char old_type = node_type->GetValue(id_node);
-    char new_type = getNodeType(id_node, true);
-    if (new_type > old_type) {
-      node_type->SetValue(id_node, new_type);
+    if (all_simple) {
+      node_type->SetValue(id_node, getNodeType(id_node, true));
     }
 
     //density index from table
@@ -307,6 +315,32 @@ void SurfaceOperation::updateNodeInfo()
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
     node_specified_density->SetValue(id_node, idx);
   }
+
+  /*
+  foreach (vtkIdType id_node, nodes) {
+
+    char old_type = node_type->GetValue(id_node);
+    char new_type = getNodeType(id_node, true);
+
+    if (new_type == EG_FIXED_VERTEX) {
+      if (old_type == EG_SIMPLE_VERTEX) {
+        node_type->SetValue(id_node, new_type);
+      }
+    }
+
+    if (new_type > old_type) {
+      node_type->SetValue(id_node, new_type);
+    } else {
+    }
+
+    //density index from table
+    EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
+
+    VertexMeshDensity nodeVMD = getVMD(id_node);
+    int idx = nodeVMD.findSmallestVMD(m_VMDvector);
+    node_specified_density->SetValue(id_node, idx);
+  }
+  */
 
   updatePotentialSnapPoints();
 }
@@ -642,7 +676,14 @@ char SurfaceOperation::getEdgeType(vtkIdType id_node1, vtkIdType id_node2, bool 
     edge = EG_BOUNDARY_EDGE_VERTEX;
   } else if (num_neigh == 1) {
 
+    /*
     if (m_Part.isFeatureEdge(id_node1, id_node2, m_FeatureAngle)) {
+      edge = EG_FEATURE_EDGE_VERTEX;
+    }
+    */
+    vec3_t n1 = cellNormal(m_Grid, neighbour_cells[0]);
+    vec3_t n2 = cellNormal(m_Grid, neighbour_cells[1]);
+    if (GeometryTools::angle(n1, n2) > m_FeatureAngle) {
       edge = EG_FEATURE_EDGE_VERTEX;
     }
 
