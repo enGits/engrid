@@ -225,8 +225,11 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
     vec3_t n0 = m_Part.globalNormal(id_node);
     vec3_t x0;
     m_Grid->GetPoint(id_node, x0.data());
-    QVector<QPair<vec3_t, vtkIdType> > intersections;
-    cad.computeIntersections(x0, n0, intersections);
+    QVector<QPair<vec3_t, vtkIdType> > inters1;
+    cad.computeIntersections(x0, n0, inters1);
+    QVector<QPair<vec3_t, vtkIdType> > inters2;
+    cad.computeIntersections(x0, (-1)*n0, inters2);
+    QVector<QPair<vec3_t, vtkIdType> > intersections = inters1 + inters2;
     double d_min = EG_LARGE_REAL;
     vtkIdType id_tri_min = -1;
     for (int i = 0; i < intersections.size(); ++i) {
@@ -235,7 +238,7 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       vec3_t n = GeometryTools::cellNormal(m_Grid, id_tri);
       n.normalise();
       vec3_t dx = x - x0;
-      if (dx*n0 > 0 && n*n0 < 0) {
+      if (dx*n0 < 0 && n*n0 < 0) {
         double d = dx.abs();
         if (d < d_min) {
           d_min = d;
@@ -245,8 +248,14 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
     }
     if (id_tri_min > -1) {
       double h = d_min/m_FeatureResolution3D;
-      cl_pre[id_node] = h;
-      EG_GET_CELL(id_tri_min, m_Grid) {
+      int max_topo_dist = 2*int(m_FeatureResolution3D);
+      int min_topo_dist = max_topo_dist;
+      EG_GET_CELL(id_tri_min, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
+        min_topo_dist = min(min_topo_dist, m_Part.computeTopoDistance(pts[i], id_node, max_topo_dist, 1));
+      }
+      if (min_topo_dist < max_topo_dist) {
+        cl_pre[id_node] = h;
         for (int i = 0; i < num_pts; ++i) {
           cl_pre[pts[i]] = h;
         }
