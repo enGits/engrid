@@ -30,6 +30,17 @@ class SnapToFeatures;
 class SnapToFeatures : public SurfaceOperation
 {
 
+private: // attributes
+
+  QVector<bool> m_NodeSnapped;
+  int           m_NodesToSnap;
+
+
+private: // methods
+
+  void snapIteration();
+
+
 protected: // methods
 
   virtual void operate();
