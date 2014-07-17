@@ -296,46 +296,9 @@ void SurfaceOperation::updateNodeInfo()
 
     char old_type = node_type->GetValue(id_node);
     char new_type = getNodeType(id_node, true);
-    node_type->SetValue(id_node, new_type);
-
-    /*
-    if (old_type == EG_FIXED_VERTEX && new_type != EG_FIXED_VERTEX) {
-      //EG_BUG;
-    }
-
-    if ((old_type != EG_FEATURE_CORNER_VERTEX && old_type != EG_FEATURE_EDGE_VERTEX) || m_BCodeFeatureDefinition) {
+    if (new_type > old_type) {
       node_type->SetValue(id_node, new_type);
-    } else {
-
-      bool done = false;
-
-      // EG_FEATURE_CORNER_VERTEX -> any other type
-      if (old_type == EG_FEATURE_CORNER_VERTEX && new_type != EG_FEATURE_CORNER_VERTEX) {
-        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
-          node_type->SetValue(id_node, new_type);
-        } else {
-          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
-        }
-        done = true;
-      }
-
-      // EG_FEATURE_EDGE_VERTEX -> EG_SIMPLE_VERTEX
-      if (old_type == EG_FEATURE_EDGE_VERTEX && new_type == EG_SIMPLE_VERTEX) {
-        if (node_type_counter->GetValue(id_node) > m_TypeProtectionCount) {
-          node_type->SetValue(id_node, new_type);
-        } else {
-          node_type_counter->SetValue(id_node, node_type_counter->GetValue(id_node) + 1);
-        }
-        done = true;
-      }
-
-      if (!done) {
-        node_type->SetValue(id_node, new_type);
-        node_type_counter->SetValue(id_node, 0);
-      }
-
     }
-    */
 
     //density index from table
     EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
@@ -344,42 +307,6 @@ void SurfaceOperation::updateNodeInfo()
     int idx = nodeVMD.findSmallestVMD(m_VMDvector);
     node_specified_density->SetValue(id_node, idx);
   }
-
-  // mesh quality
-  /*
-  if (!m_BCodeFeatureDefinition) {
-    MeshQualityFaceOrientation mesh_quality;
-    mesh_quality();
-    EG_VTKDCN(vtkDoubleArray, node_mesh_quality, m_Grid, "node_mesh_quality");
-    EG_FORALL_NODES(id_node, m_Grid) {
-      if (node_mesh_quality->GetValue(id_node) < m_FaceOrientationThreshold) {
-        node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
-      }
-    }
-  }
-  */
-
-  /*
-    // look for feature edge triple stars
-    QList<vtkIdType> new_corners;
-    EG_FORALL_NODES(id_node1, m_Grid) {
-      if (node_type->GetValue(id_node1) == EG_FEATURE_EDGE_VERTEX) {
-        int N = 0;
-        for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
-          vtkIdType id_node2 = m_Part.n2cGG(id_node1, i);
-          if (node_type->GetValue(id_node2) == EG_FEATURE_EDGE_VERTEX) {
-            ++N;
-          }
-        }
-        if (N == 3) {
-          new_corners.append(id_node1);
-        }
-      }
-    }
-    foreach (vtkIdType id_node, new_corners) {
-      node_type->SetValue(id_node, EG_FEATURE_CORNER_VERTEX);
-    }
-    */
 
   updatePotentialSnapPoints();
 }
