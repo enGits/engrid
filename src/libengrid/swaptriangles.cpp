@@ -275,12 +275,12 @@ int SwapTriangles::swap()
       if (!marked[id_cell] && !m_Swapped[id_cell]) {
         for (int j = 0; j < 3; ++j) {
           bool swap = false;
-          bool feature_improvement_swap = false;
           stencil_t S = getStencil(id_cell, j);
           if(S.id_cell.size() == 2 && S.sameBC) {
             if (S.type_cell[1] == VTK_TRIANGLE) {
               if(!isEdge(S.id_node[0], S.id_node[1]) ) {
-                if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]]) {
+                //if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]] && (!isFeatureNode(S.id_node[0]) || !isFeatureNode(S.id_node[1]))) {
+                if (!marked[S.id_cell[1]] && !m_Swapped[S.id_cell[1]] && (!isFeatureNode(S.p1) || !isFeatureNode(S.p2))) {
                   QVector<vec3_t> x3(4);
                   vec2_t x[4];
 
@@ -292,7 +292,6 @@ int SwapTriangles::swap()
                   vec3_t n1 = triNormal(x3[0], x3[1], x3[3]);
                   vec3_t n2 = triNormal(x3[1], x3[2], x3[3]);
 
-                  bool force_swap = false;
                   if (m_SmallAreaSwap) {
                     double A1 = n1.abs();
                     double A2 = n2.abs();
@@ -302,12 +301,8 @@ int SwapTriangles::swap()
                       swap = A1 < m_SmallAreaRatio*A2 || A2 < m_SmallAreaRatio*A1;
                     }
                   }
-                  //if (!isFeatureNode(S.p1) && !isFeatureNode(S.p2)) {
 
                   if (GeometryTools::angle(n1, n2) < m_FeatureAngle) {
-                    if (isFeatureNode(S.id_node[0]) && isFeatureNode(S.id_node[1])) {
-                      //swap = true;
-                    }
 
                     // Delaunay
                     if (!swap) {
