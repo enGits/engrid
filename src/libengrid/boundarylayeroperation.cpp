@@ -23,6 +23,7 @@
 #include "optimisenormalvector.h"
 #include "guimainwindow.h"
 #include "pointfinder.h"
+#include "cgaltricadinterface.h"
 
 void BoundaryLayerOperation::readSettings()
 {
@@ -514,6 +515,7 @@ void BoundaryLayerOperation::computeHeights()
     pfind.setPoints(points);
 
     // check for potential collisions
+    /*
     for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
       if (m_BoundaryLayerNode[id_node1]) {
         vec3_t x1;
@@ -544,6 +546,32 @@ void BoundaryLayerOperation::computeHeights()
         }
       }
     }
+    */
+
+    // check for potential collisions
+    CgalTriCadInterface cad(m_Grid);
+
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        QVector<QPair<vec3_t, vtkIdType> > intersections;
+        cad.computeIntersections(x, m_BoundaryLayerVectors[id_node], intersections);
+        vec3_t n = m_Part.globalNormal(id_node);
+        for (int i = 0; i < intersections.size(); ++i) {
+          vec3_t xi = intersections[i].first;
+          vtkIdType id_tri = intersections[i].second;
+          vec3_t ni = GeometryTools::cellNormal(m_Grid, id_tri);
+          ni.normalise();
+          vec3_t dx = xi - x;
+          if (dx*n < 0 && ni*n < 0) {
+            m_Height[id_node] = min(m_Height[id_node], m_MaxHeightInGaps*dx.abs());
+          }
+        }
+      }
+    }
+
+
   }
 
   // limit face size difference (neighbour collisions)
