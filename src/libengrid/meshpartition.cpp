@@ -34,7 +34,7 @@ MeshPartition::MeshPartition()
 
 MeshPartition::MeshPartition(vtkUnstructuredGrid *grid, bool use_all_cells)
 {
-  setGrid(grid);
+  setGrid(grid, use_all_cells);
 }
 
 MeshPartition::MeshPartition(QString volume_name)
@@ -512,7 +512,7 @@ int MeshPartition::computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, i
     }
     ++dist;
   }
-  return max_dist;
+  return dist;
 }
 
 void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, QVector<vtkIdType> &common_nodes)
