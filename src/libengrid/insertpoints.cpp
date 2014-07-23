@@ -221,19 +221,36 @@ char InsertPoints::getNewNodeType(stencil_t S)
   vtkIdType id_node2 = S.p2;
 
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   char type1 = node_type->GetValue(id_node1);
   char type2 = node_type->GetValue(id_node2);
   if (type1 == EG_SIMPLE_VERTEX || type2 == EG_SIMPLE_VERTEX) {
     return EG_SIMPLE_VERTEX;
   } else {
-    QVector <vtkIdType> PSP = getPotentialSnapPoints(id_node1);
-    if (PSP.contains(id_node2)) {
-      EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    QVector <vtkIdType> PSP1 = getPotentialSnapPoints(id_node1);
+    QVector <vtkIdType> PSP2 = getPotentialSnapPoints(id_node2);
+    bool complex = false;
+    if (PSP1.contains(id_node2) || PSP2.contains(id_node1)) {
+      complex = true;
+    } else if (type1 >= EG_BOUNDARY_EDGE_VERTEX && type2 >= EG_BOUNDARY_EDGE_VERTEX) {
+      if (!PSP1.contains(id_node2) && !PSP2.contains(id_node1) && S.id_cell.size() == 2) {
+        int bc1 = cell_code->GetValue(S.id_cell[0]);
+        int bc2 = cell_code->GetValue(S.id_cell[1]);
+        if (bc1 != bc2) {
+          return EG_BOUNDARY_EDGE_VERTEX;
+        }
+        vec3_t n1 = cellNormal(m_Grid, S.id_cell[0]);
+        vec3_t n2 = cellNormal(m_Grid, S.id_cell[1]);
+        if (GeometryTools::angle(n1, n2) > m_FeatureAngle) {
+          return EG_FEATURE_EDGE_VERTEX;
+        }
+      }
+    }
+    if (complex) {
       if (S.id_cell.size() < 1) {
         return EG_BOUNDARY_EDGE_VERTEX;
       } else if (S.id_cell.size() == 1) {
         EG_ERR_RETURN("Invalid surface mesh. Check this with 'Tools -> Check surface integrity'.");
-        return EG_FEATURE_EDGE_VERTEX; //at best, this would be a feature edge, since it's loose.
       } else {
         if (cell_code->GetValue(S.id_cell[0]) != cell_code->GetValue(S.id_cell[1])) {
           return EG_BOUNDARY_EDGE_VERTEX;

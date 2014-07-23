@@ -415,7 +415,8 @@ void SurfaceOperation::updatePotentialSnapPoints()
           }
         */
         if (isFeatureNode(id_node1)) {
-          if (type1 == EG_FEATURE_EDGE_VERTEX && isFeatureNode(id_node2)) {
+          char type2 = node_type->GetValue(id_node2);
+          if (type1 == EG_FEATURE_EDGE_VERTEX && type2 >= type1) {
             QVector<vtkIdType> edge_faces;
             m_Part.getEdgeFaces(id_node1, id_node2, edge_faces);
             if (edge_faces.size() == 2) {
@@ -572,7 +573,7 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
 
   double CosEdgeAngle = cos(this->m_EdgeAngle);
 
-  foreach( int i_node2, n2n[_nodes[id_node]] ) {
+  foreach (int i_node2, n2n[_nodes[id_node]]) {
     vtkIdType id_node2 = nodes[i_node2];
     //-----------------------
     //determine edge type
@@ -580,23 +581,22 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
 
     //-----------------------
     //determine node type pre-processing (count nb of complex edges if the node is complex, otherwise, just count the nb of edges)
-    if ( edge && type == EG_SIMPLE_VERTEX ) {
+    if (edge && type == EG_SIMPLE_VERTEX) {
       edges.clear();
       edges.push_back( id_node2 );
       type = edge;
-    }
-    else if (( edge && type == EG_BOUNDARY_EDGE_VERTEX ) ||
-             ( edge && type == EG_FEATURE_EDGE_VERTEX ) ||
-             ( !edge && type == EG_SIMPLE_VERTEX ) ) {
-      edges.push_back( id_node2 );
-      if ( type && edge == EG_BOUNDARY_EDGE_VERTEX ) {
+    } else if (( edge && type == EG_BOUNDARY_EDGE_VERTEX) ||
+               ( edge && type == EG_FEATURE_EDGE_VERTEX) ||
+               (!edge && type == EG_SIMPLE_VERTEX)) {
+      edges.push_back(id_node2);
+      if (type && edge == EG_BOUNDARY_EDGE_VERTEX) {
         type = EG_BOUNDARY_EDGE_VERTEX;//VTK_BOUNDARY_EDGE_VERTEX has priority over VTK_FEATURE_EDGE_VERTEX
       }
     }
   }
   //-----------------------
   //determine node type post-processing
-  if ( type == EG_FEATURE_EDGE_VERTEX || type == EG_BOUNDARY_EDGE_VERTEX ) { //see how many edges; if two, what the angle is
+  if (type == EG_FEATURE_EDGE_VERTEX || type == EG_BOUNDARY_EDGE_VERTEX) { //see how many edges; if two, what the angle is
 
     if (edges.size() == 2) { //check angle between edges
       double x1[3], x2[3], x3[3], l1[3], l2[3];
@@ -612,7 +612,11 @@ char SurfaceOperation::getNodeType(vtkIdType id_node, bool fix_unselected)
            vtkMath::Dot( l1, l2 ) < CosEdgeAngle ) {
              type = EG_FIXED_VERTEX;
       }
-    } //if along edge
+    } else {
+      type = EG_FIXED_VERTEX;
+    }
+
+    //if along edge
   } //if edge vertex
 
   return type;
