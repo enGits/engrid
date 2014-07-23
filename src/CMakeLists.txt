@@ -74,10 +74,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+option(PROFILING "add -g for profiling even in RELEASE configuration?" OFF)
+
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
   add_definitions(-DNDEBUG)
   add_definitions(-DQT_NO_DEBUG)
   remove_definitions(-DQT_DEBUG)
+  if (PROFILING)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+  endif()
 else()
   add_definitions(-DQT_DEBUG)
 endif()
@@ -87,25 +92,6 @@ add_subdirectory(libengrid)
 
 add_executable(engrid main.cpp)
 
-# CGAL
-#find_path(CGAL_INCLUDE_PATH CGAL/Exact_predicates_inexact_constructions_kernel.h /usr/include /usr/local/include)
-#add_definitions(-DUSE_CGAL_PREDICATES)
-#include_directories(${CGAL_INCLUDE_PATH})
-#find_path (BOOST_INCLUDE_PATH any.hpp /usr/include/boost /usr/local/include/boost)
-#include_directories(${BOOST_INCLUDE_PATH})
-#find_library(GMP_LIBRARY
-#             NAMES libgmp.so
-#             PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
-#find_library(CGAL_LIBRARY
-#             NAMES libCGAL.so
-#             PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
-#find_library(CGAL_CORE_LIBRARY
-#             NAMES libCGAL_Core.so
-#             PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
-#find_library(BOOST_SYSTEM_LIBRARY
-#             NAMES libboost_system.so
-#             PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64)
-
 target_link_libraries(engrid libengrid)
 target_link_libraries(engrid tet)
 target_link_libraries(engrid ${QT_LIBRARIES})
@@ -113,10 +99,6 @@ target_link_libraries(engrid ${VTK_LIBRARIES})
 target_link_libraries(engrid Qt4::QtCore)
 target_link_libraries(engrid Qt4::QtGui)
 target_link_libraries(engrid Qt4::QtXml)
-#target_link_libraries(engrid ${GMP_LIBRARY})
-#target_link_libraries(engrid ${BOOST_SYSTEM_LIBRARY})
-#target_link_libraries(engrid ${GGAL_CORE_LIBRARY})
-#target_link_libraries(engrid ${GGAL_LIBRARY})
 
 install(TARGETS engrid DESTINATION bin)
 
