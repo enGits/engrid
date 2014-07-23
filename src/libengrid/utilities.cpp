@@ -348,6 +348,17 @@ bool checkVector(vec2_t V)
   return true;
 }
 
+bool checkReal(double v)
+{
+  if (isnan(v)) {
+    return false;
+  }
+  if (isinf(v)) {
+    return false;
+  }
+  return true;
+}
+
 QDebug operator<<(QDebug dbg, const vec3_t &v)
 {
   dbg.nospace() << "(" << v[0] << ", " << v[1] << ", " << v[2] << ")";

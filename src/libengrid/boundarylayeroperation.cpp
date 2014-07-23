@@ -175,6 +175,9 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
       m_BoundaryLayerVectors[id_node] = n_opt[id_node](m_BoundaryLayerVectors[id_node]);
       m_BoundaryLayerVectors[id_node].normalise();
     }
+    if (!checkVector(m_BoundaryLayerVectors[id_node])) {
+      EG_ERR_RETURN("invalid layer vector computed");
+    }
   }
 
   computeNodeTypes();
@@ -198,12 +201,18 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
       if (num_bcs[id_node] > 1) {
         m_BoundaryLayerVectors[id_node] = n_opt[id_node](m_BoundaryLayerVectors[id_node]);
       }
+      if (!checkVector(m_BoundaryLayerVectors[id_node])) {
+        EG_ERR_RETURN("invalid layer vector computed");
+      }
     }
   }
 
   computeHeights();
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     m_BoundaryLayerVectors[id_node] *= m_Height[id_node];
+    if (!checkVector(m_BoundaryLayerVectors[id_node])) {
+      EG_ERR_RETURN("invalid layer vector computed");
+    }
   }
 
 }
@@ -406,6 +415,8 @@ void BoundaryLayerOperation::writeBoundaryLayerVectors(QString file_name)
 
 void BoundaryLayerOperation:: computeDesiredHeights()
 {
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+
   // first pass (intial height)
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
   int k = 1;
@@ -423,9 +434,24 @@ void BoundaryLayerOperation:: computeDesiredHeights()
       vec3_t x;
       m_Grid->GetPoint(id_node, x.data());
       double h0 = m_ELSManagerBLayer.minEdgeLength(x);
-      double h1 = m_ELSManagerSurface.minEdgeLength(x)*m_FarfieldRatio;
+      double h1 = cl->GetValue(id_node);
       double s  = pow(h1/h0, 1.0/k);
       double H  = h0*(1 - pow(s, k))/(1 - s);
+      if (!checkReal(H)) {
+        EG_ERR_RETURN("floating point error while computing heights");
+      }
+      if (H < 0) {
+        EG_ERR_RETURN("negative height computed");
+      }
+      if (H > 1000*h1) {
+        EG_ERR_RETURN("unrealistically large height computed");
+      }
+      if (H < 1e-3*h0) {
+        EG_ERR_RETURN("unrealistically small height computed");
+      }
+      if (h1 < h0) {
+        EG_ERR_RETURN("h1 < h0");
+      }
       m_Height[id_node] = H;
     }
   }
@@ -484,69 +510,7 @@ void BoundaryLayerOperation::computeHeights()
   computeDesiredHeights();
 
   // gaps
-  {
-
-    // prepare search list of potential "crash" partner points
-    QList<vtkIdType> search_nodes;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      bool append_node = m_BoundaryLayerNode[id_node];
-      if (!append_node) {
-        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-          if (isSurface(id_cell, m_Grid)) {
-            if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_cell))) {
-              append_node = true;
-              break;
-            }
-          }
-        }
-      }
-      if (append_node) {
-        search_nodes.append(id_node);
-      }
-    }
-
-    // find close points
-    QVector<vec3_t> points(search_nodes.size());
-    for (int i = 0; i < search_nodes.size(); ++i) {
-      m_Grid->GetPoint(search_nodes[i], points[i].data());
-    }
-    PointFinder pfind;
-    pfind.setPoints(points);
-
-    // check for potential collisions
-    /*
-    for (vtkIdType id_node1 = 0; id_node1 < m_Grid->GetNumberOfPoints(); ++id_node1) {
-      if (m_BoundaryLayerNode[id_node1]) {
-        vec3_t x1;
-        m_Grid->GetPoint(id_node1, x1.data());
-        const vec3_t& n1 = m_BoundaryLayerVectors[id_node1];
-        QVector<int> close_points;
-        pfind.getClosePoints(x1, close_points, 20*m_Height[id_node1]/m_MaxHeightInGaps);
-        foreach (int i, close_points) {
-
-          // maybe check for topological neighbours and exclude them from the search ...
-
-          vtkIdType id_node2 = search_nodes[i];
-          if (id_node1 != id_node2) {
-            const vec3_t& n2 = m_BoundaryLayerVectors[id_node2];
-            vec3_t x1, x2;
-            m_Grid->GetPoint(id_node1, x1.data());
-            m_Grid->GetPoint(id_node2, x2.data());
-            vec3_t Dx = x2 - x1;
-            double a = Dx*n1;
-            if (a > 0 && n1*n2 < 0) {
-              double b = Dx.abs();
-              double alpha = 180.0/M_PI*acos(a/b); /// @todo This is very slow; look at alternatives!
-              if (alpha < m_RadarAngle) {
-                m_Height[id_node1] = min(m_Height[id_node1], m_MaxHeightInGaps*a);
-              }
-            }
-          }
-        }
-      }
-    }
-    */
+  if (true) {
 
     // check for potential collisions
     CgalTriCadInterface cad(m_Grid);
@@ -570,7 +534,6 @@ void BoundaryLayerOperation::computeHeights()
         }
       }
     }
-
 
   }
 

@@ -312,6 +312,7 @@ QDebug operator<<(QDebug dbg, const vec2_t &v);
 
 bool checkVector(vec3_t V);
 bool checkVector(vec2_t V);
+bool checkReal(double v);
 
 /// returns the index of a node in a structured triangle grid
 inline vtkIdType trigrid_idx(vtkIdType N, int i, int j) {
