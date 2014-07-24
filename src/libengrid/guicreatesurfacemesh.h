@@ -72,6 +72,10 @@ public slots:
   void addBox()    { m_ELSManager.addBox(); }
   void addPipe()   { m_ELSManager.addPipe(); }
 
+  void calc1();
+  void calc2();
+  void calc3();
+
 };
 
 #endif

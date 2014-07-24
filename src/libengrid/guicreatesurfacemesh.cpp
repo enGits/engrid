@@ -105,12 +105,17 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   m_ELSManager.setListWidget(m_Ui.listWidgetSources);
   m_ELSManager.read();
   m_ELSManager.populateListWidget();
+
   connect(m_Ui.pushButtonAddSphere,    SIGNAL(clicked()), this, SLOT(addSphere()));
   connect(m_Ui.pushButtonAddCone,      SIGNAL(clicked()), this, SLOT(addCone()));
   connect(m_Ui.pushButtonAddBox,       SIGNAL(clicked()), this, SLOT(addBox()));
   connect(m_Ui.pushButtonAddPipe,      SIGNAL(clicked()), this, SLOT(addPipe()));
   connect(m_Ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
   connect(m_Ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
+
+  connect(m_Ui.m_PushButtonCalc1, SIGNAL(clicked()), this, SLOT(calc1()));
+  connect(m_Ui.m_PushButtonCalc2, SIGNAL(clicked()), this, SLOT(calc2()));
+  connect(m_Ui.m_PushButtonCalc3, SIGNAL(clicked()), this, SLOT(calc3()));
 
 }
 
@@ -368,4 +373,46 @@ void GuiCreateSurfaceMesh::operate()
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
   GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.m_TextEditPrismaticLayers->toPlainText());
+}
+
+void GuiCreateSurfaceMesh::calc1()
+{
+  // from number of layers
+  double h0 = m_Ui.m_LineEditCalcH0->text().toDouble();
+  int    N  = m_Ui.m_SpinBoxCalcNumLayers->value();
+  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
+  double h1 = h0*pow(s, double(N));
+  double H  = h0*(1.0 - pow(s, double(N)))/(1.0 - s);
+  QString num;
+  num.setNum(H);
+  m_Ui.m_LineEditCalcTotalH->setText(num);
+  num.setNum(h1);
+  m_Ui.m_LineEditCalcH1->setText(num);
+}
+
+void GuiCreateSurfaceMesh::calc2()
+{
+  double h0 = m_Ui.m_LineEditCalcH0->text().toDouble();
+  double h1 = m_Ui.m_LineEditCalcH1->text().toDouble();
+  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
+  int    N  = max(1, int(logarithm(s, h1/h0)));
+  double H  = h0*(1.0 - pow(s, double(N)))/(1.0 - s);
+  QString num;
+  num.setNum(H);
+  m_Ui.m_LineEditCalcTotalH->setText(num);
+  m_Ui.m_SpinBoxCalcNumLayers->setValue(N);
+}
+
+void GuiCreateSurfaceMesh::calc3()
+{
+  double H  = m_Ui.m_LineEditCalcTotalH->text().toDouble();
+  int    N  = m_Ui.m_SpinBoxCalcNumLayers->value();
+  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
+  double h0 = H*(1.0 - s)/(1.0 - pow(s, double(N)));
+  double h1 = h0*pow(s, double(N));
+  QString num;
+  num.setNum(h0);
+  m_Ui.m_LineEditCalcH0->setText(num);
+  num.setNum(h1);
+  m_Ui.m_LineEditCalcH1->setText(num);
 }
