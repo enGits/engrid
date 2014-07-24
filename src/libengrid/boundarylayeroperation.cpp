@@ -425,7 +425,7 @@ void BoundaryLayerOperation:: computeDesiredHeights()
       vec3_t x;
       m_Grid->GetPoint(id_node, x.data());
       double h0 = m_ELSManagerBLayer.minEdgeLength(x);
-      double h1 = m_ELSManagerSurface.minEdgeLength(x)*m_FarfieldRatio;
+      double h1 = cl->GetValue(id_node)*m_FarfieldRatio;
       k = max(k, int(logarithm(m_StretchingRatio, h1/h0)));
     }
   }
@@ -434,7 +434,7 @@ void BoundaryLayerOperation:: computeDesiredHeights()
       vec3_t x;
       m_Grid->GetPoint(id_node, x.data());
       double h0 = m_ELSManagerBLayer.minEdgeLength(x);
-      double h1 = cl->GetValue(id_node);
+      double h1 = cl->GetValue(id_node)*m_FarfieldRatio;
       double s  = pow(h1/h0, 1.0/k);
       double H  = h0*(1 - pow(s, k))/(1 - s);
       if (!checkReal(H)) {
@@ -508,9 +508,10 @@ void BoundaryLayerOperation::computeHeights()
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
 
   computeDesiredHeights();
+  cout << "initial boundary layer heights computed" << endl;
 
   // gaps
-  if (true) {
+  {
 
     // check for potential collisions
     CgalTriCadInterface cad(m_Grid);
@@ -538,7 +539,7 @@ void BoundaryLayerOperation::computeHeights()
   }
 
   // limit face size difference (neighbour collisions)
-  if (true) {
+  {
     bool done;
     int iter = 0;
     do {
@@ -561,16 +562,6 @@ void BoundaryLayerOperation::computeHeights()
               done = false;
               double scale1 = 0.1;
               double scale2 = 1;
-
-              /*
-              while (scale2 - scale1 > 1e-3) {
-                if (faceFine(id_cell, 0.5*(scale1 + scale2))) {
-                  scale1 = 0.5*(scale1 + scale2);
-                } else {
-                  scale2 = 0.5*(scale1 + scale2);
-                }
-              }
-              */
 
               bool found;
               do {
@@ -613,6 +604,9 @@ void BoundaryLayerOperation::computeHeights()
     } while (!done);
   }
 
+  limitHeights(1.0);
+  cout << "heights limited (pass 1)" << endl;
+
   // smoothing
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
@@ -638,9 +632,63 @@ void BoundaryLayerOperation::computeHeights()
     }
     m_Height = h_new;
   }
+  cout << "heights smoothed" << endl;
+
+  limitHeights(0.7);
+  cout << "heights limited (pass 2)" << endl;
 
   cout << "heights computed" << endl;
 
 }
 
+void BoundaryLayerOperation::limitHeights(double safety_factor)
+{
+  // save original node positions to x_old
+  QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Grid->GetPoint(id_node, x_old[id_node].data());
+  }
 
+  for (int pass = 1; pass <= 2; ++pass) {
+
+    // move nodes for second pass
+    if (pass == 2) {
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          vec3_t x = x_old[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+          m_Grid->GetPoints()->SetPoint(id_node, x.data());
+        }
+      }
+    }
+
+    CgalTriCadInterface cad(m_Grid);
+
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        QList<vtkIdType> cells_of_node;
+        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+          cells_of_node.append(m_Part.n2cGG(id_node, i));
+        }
+        QVector<QPair<vec3_t, vtkIdType> > intersections;
+        cad.computeIntersections(x_old[id_node], m_BoundaryLayerVectors[id_node], intersections);
+        for (int i = 0; i < intersections.size(); ++i) {
+          QPair<vec3_t,vtkIdType> inters = intersections[i];
+          vec3_t xi = inters.first;
+          vtkIdType id_tri = inters.second;
+          if (!cells_of_node.contains(id_tri)) {
+            vec3_t dx = xi - x_old[id_node];
+            if (dx*m_BoundaryLayerVectors[id_node] > 0) {
+              double h_max = (1.0 - 0.5*safety_factor*m_MaxHeightInGaps)*dx.abs();
+              m_Height[id_node] = min(m_Height[id_node], h_max);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // reset node positions
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Grid->GetPoints()->SetPoint(id_node, x_old[id_node].data());
+  }
+}
