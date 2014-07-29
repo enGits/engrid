@@ -185,7 +185,11 @@ vec3_t Optimisation::optimise(vec3_t x)
 { 
   computeDerivatives(x);
   mat3_t M = J.inverse();
-  return (-1)*(M*grad_f);
+  vec3_t x_new = (-1)*(M*grad_f);
+  if (!checkVector(x_new)) {
+    x_new = x;
+  }
+  return x;
 }
 
 

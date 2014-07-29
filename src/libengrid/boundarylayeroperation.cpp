@@ -604,7 +604,7 @@ void BoundaryLayerOperation::computeHeights()
     } while (!done);
   }
 
-  limitHeights(1.0);
+  limitHeights(1.0, 0);
   cout << "heights limited (pass 1)" << endl;
 
   // smoothing
@@ -634,15 +634,17 @@ void BoundaryLayerOperation::computeHeights()
   }
   cout << "heights smoothed" << endl;
 
-  limitHeights(0.7);
+  limitHeights(0.7, 0);
   cout << "heights limited (pass 2)" << endl;
 
   cout << "heights computed" << endl;
 
 }
 
-void BoundaryLayerOperation::limitHeights(double safety_factor)
+void BoundaryLayerOperation::limitHeights(double safety_factor, double lower_limit)
 {
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+
   // save original node positions to x_old
   QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -675,9 +677,9 @@ void BoundaryLayerOperation::limitHeights(double safety_factor)
           QPair<vec3_t,vtkIdType> inters = intersections[i];
           vec3_t xi = inters.first;
           vtkIdType id_tri = inters.second;
-          if (!cells_of_node.contains(id_tri)) {
+          if (!cells_of_node.contains(id_tri) && !m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
             vec3_t dx = xi - x_old[id_node];
-            if (dx*m_BoundaryLayerVectors[id_node] > 0) {
+            if (dx*m_BoundaryLayerVectors[id_node] > 0 && dx.abs()/m_Height[id_node] > lower_limit) {
               double h_max = (1.0 - 0.5*safety_factor*m_MaxHeightInGaps)*dx.abs();
               m_Height[id_node] = min(m_Height[id_node], h_max);
             }

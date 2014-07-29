@@ -72,22 +72,6 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
       flags += "Y";
     }
     cout << "TetGen pass " << pass << "  flags=" << qPrintable(flags) << endl;
-    /*
-    if (m_FirstCall) {
-      tetgen(flags);
-      m_FirstCall = false;
-      makeCopy(m_Grid, m_BackgroundGrid);
-      cout << "background mesh:\n";
-      cout << "  nodes: " << m_Grid->GetNumberOfPoints() << endl;
-      int N1 = m_Grid->GetNumberOfCells();
-      int N2 = numVolumeCells();
-      cout << "  faces: " << N1 - N2 << endl;
-      cout << "  cells: " << N2 << endl;
-    } else {
-      tetgen(flags, m_BackgroundGrid);
-    }
-    */
-
     if (m_FirstCall) {
       m_FirstCall = false;
       tetgen(flags);
@@ -120,16 +104,20 @@ void CreateVolumeMesh::operate()
     blayer.setGrid(m_Grid);
     blayer.setAllCells();
     blayer();
-    createTetMesh(2, true);
-    vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
-    MeshPartition prismatic_part(prismatic_grid, true);
-    QVector<vtkIdType> shell_cells;
-    getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
-    DeleteCells delete_cells;
-    delete_cells.setGrid(m_Grid);
-    delete_cells.setCellsToDelete(shell_cells);
-    delete_cells();
-    m_Part.addPartition(prismatic_part);
+    if (blayer.success()) {
+      createTetMesh(2, true);
+      vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
+      MeshPartition prismatic_part(prismatic_grid, true);
+      QVector<vtkIdType> shell_cells;
+      getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
+      DeleteCells delete_cells;
+      delete_cells.setGrid(m_Grid);
+      delete_cells.setCellsToDelete(shell_cells);
+      delete_cells();
+      m_Part.addPartition(prismatic_part);
+    } else {
+      cout << "An error ocuured while creating the prismatic layers!" << endl;
+    }
   } else {
     createTetMesh(2, true);
   }

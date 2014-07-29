@@ -18,67 +18,56 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#ifndef CREATEBOUNDARYLAYER_H
-#define CREATEBOUNDARYLAYER_H
+#ifndef SURFACEMESHSMOOTHER_H
+#define SURFACEMESHSMOOTHER_H
 
-#include "boundarylayeroperation.h"
-#include "guimainwindow.h"
+class SurfaceMeshSmoother;
 
-class CreateBoundaryLayerShell : public BoundaryLayerOperation
+#include "optimisation.h"
+#include "operation.h"
+#include "cadinterface.h"
+
+class SurfaceMeshSmoother : public Operation
 {
+
 private: // attributes
 
-  QVector<vtkIdType> layer_cells;
-
-  int     m_NumIterations;
-  bool    m_RemovePoints;
-  double  m_RelativeHeight;
-  double  m_AbsoluteHeight;
-  double  m_Blending;
-  QString m_VolumeName;
-  bool    m_Success;
-
-  VolumeDefinition                     m_VolDef;
-  vtkSmartPointer<vtkUnstructuredGrid> m_RestGrid;
-  vtkSmartPointer<vtkUnstructuredGrid> m_OriginalGrid;
-  vtkSmartPointer<vtkUnstructuredGrid> m_PrismaticGrid;
-
-
-  /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
-  QSet<int> m_LayerAdjacentBoundaryCodes;
-
-  QVector<vtkIdType> m_ShellNodeMap;
-  MeshPartition      m_ShellPart;
-
-  QMap<int, vec3_t> m_LayerAdjacentOrigins;
-  QMap<int, vec3_t> m_LayerAdjacentNormals;
-
-
-private: // methods
-
-  bool correctAdjacentBC(int bc, vtkUnstructuredGrid *grid);
-  void prepare();
-  void createLayerNodes(vtkIdType id_node);
-  void createPrismaticGrid();
+  //vtkIdType                    m_IdNode;
+  bool                         m_UseEstimatedPlane;
+  vec3_t                       m_X0;
+  vec3_t                       m_N0;
+  CadInterface                *m_Cad;
+  QList<QPair<vec2_t,vec2_t> > m_Limit;
+  mat3_t                       m_M32;
+  mat3_t                       m_M23;
+  double                       m_MinLength;
+  double                       m_Prec;
+  int                          m_NumSteps;
+  bool                         m_UseSimpleCentreScheme;
 
 
 protected: // methods
 
+  vec2_t transform32(vec3_t x);
+  vec3_t transform23(vec2_t x);
+
   virtual void operate();
+  virtual double error(vec2_t x);
 
-  void reduceSurface();
-  void smoothSurface();
+  vec2_t gradError(vec2_t x);
+  void computeLimits(vec2_t x, vec2_t v, double &k1, double &k2);
+  vec2_t iteration(vec2_t x);
 
 
-public: // methods
+public:
 
-  CreateBoundaryLayerShell();
+  SurfaceMeshSmoother();
 
-  void setVolumeName(QString name) { m_VolumeName = name; }
-  vtkUnstructuredGrid* getPrismaticGrid() { return m_PrismaticGrid; }
-  QVector<int> getBoundaryLayerCodes() { return m_BoundaryLayerCodes; }
-  bool success() { return m_Success; }
+  void prepareEstimatedPlane();
+  void prepareCadInterface(CadInterface *cad);
+  vec3_t smoothNode(vtkIdType id_node);
+  void useSimpleCentrScheme() { m_UseSimpleCentreScheme = true; }
 
 };
 
-#endif // CREATEBOUNDARYLAYER_H
+#endif // SURFACEMESHSMOOTHER_H

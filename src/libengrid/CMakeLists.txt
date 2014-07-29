@@ -154,6 +154,7 @@ SET(libengrid_HEADERS
   su2writer.h
   surfacealgorithm.h
   surfacemesher.h
+  surfacemeshsmoother.h
   surfacenodemovementcheck.h
   surfaceoperation.h
   swaptriangles.h
@@ -342,6 +343,7 @@ SET(libengrid_SOURCES
   su2writer.cpp
   surfacealgorithm.cpp
   surfacemesher.cpp
+  surfacemeshsmoother.cpp
   surfacenodemovementcheck.cpp
   surfaceoperation.cpp
   swaptriangles.cpp

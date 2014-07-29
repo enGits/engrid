@@ -101,7 +101,12 @@ target_link_libraries(engrid Qt4::QtGui)
 target_link_libraries(engrid Qt4::QtXml)
 
 install(TARGETS engrid DESTINATION bin)
-install(FILES engrid.bash DESTINATION bin)
+
+install(
+  FILES engrid.bash
+  PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE GROUP_EXECUTE GROUP_READ
+  DESTINATION bin
+)
 
 add_dependencies(engrid tetgen libengrid)
 

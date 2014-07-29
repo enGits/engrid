@@ -28,12 +28,14 @@
 #include "meshpartition.h"
 #include "deletevolumegrid.h"
 #include "laplacesmoother.h"
+#include "surfacemeshsmoother.h"
 
 CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 {
   m_RestGrid      = vtkSmartPointer<vtkUnstructuredGrid>::New();
   m_OriginalGrid  = vtkSmartPointer<vtkUnstructuredGrid>::New();
   m_PrismaticGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  m_Success = false;
 }
 
 void CreateBoundaryLayerShell::prepare()
@@ -81,22 +83,6 @@ void CreateBoundaryLayerShell::prepare()
     }
     n0.normalise();
     x0 *= 1.0/total_area;
-    /*
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (isSurface(id_cell, m_Grid) && cell_code->GetValue(id_cell) == bc) {
-        vec3_t x = cellCentre(m_Grid, id_cell);
-        double l = fabs((x - x0)*n0);
-        if (l > 0.1*L) {
-          BoundaryCondition boundary_condition = GuiMainWindow::pointer()->getBC(bc);
-          QString err_msg = "The boundary \"" + boundary_condition.getName() + "\" is not planar.\n";
-          QString L_txt, l_txt;
-          L_txt.setNum(L);
-          l_txt.setNum(l);
-          err_msg += "L = " + L_txt + " ,  l = " + l_txt;
-          EG_ERR_RETURN(err_msg);
-        }
-      }
-    }*/
     m_LayerAdjacentNormals[bc] = n0;
     m_LayerAdjacentOrigins[bc] = x0;
   }
@@ -105,44 +91,48 @@ void CreateBoundaryLayerShell::prepare()
   makeCopy(m_Grid, m_OriginalGrid);
 }
 
-void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *grid)
+bool CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *grid)
 {
+  cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\"" << endl;
+
   EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
   MeshPartition part(grid, true);
-  vec3_t n0 = m_LayerAdjacentNormals[bc];
-  vec3_t x0 = m_LayerAdjacentOrigins[bc];
   double scal_min = -1;
-  int count = 0;
-  while (scal_min < 0.5 && count < 1000) {
+  int    count    = 0;
+
+  SurfaceMeshSmoother smooth;
+  smooth.setGrid(m_Grid);
+  smooth.useSimpleCentrScheme();
+
+  QList<vtkIdType> cells;
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    if (isSurface(id_cell, m_Grid)) {
+      if (cell_code->GetValue(id_cell) == bc) {
+        cells << id_cell;
+      }
+    }
+  }
+  CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(bc);
+  smooth.setCells(cells);
+  smooth.prepareCadInterface(cad);
+
+
+  while (scal_min < 0.5 && count < 100) {
+    cout << "  iteration " << count + 1 << endl;
     scal_min = 1;
+    int bad_nodes = 0;
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+      //if (part.n2bcGSize(id_node) == 1 && id_node == 130) {
       if (part.n2bcGSize(id_node) == 1) {
         if (part.n2bcG(id_node, 0) == bc) {
-          vec3_t x(0,0,0);
-          int count = 0;
-          double A_total = 0;
-          for (int i = 0; i < part.n2cGSize(id_node); ++i) {
-            vtkIdType id_cell = part.n2cGG(id_node, i);
-            if (isSurface(id_cell, grid)) {
-              if (cell_code->GetValue(id_cell) == bc) {
-                vec3_t n = cellNormal(grid, id_cell);
-                double A = n.abs();
-                n.normalise();
-                if (n*n0 > 0.5) {
-                  x += A*cellCentre(grid, id_cell);
-                  A_total += A;
-                  ++count;
-                }
-              }
-            }
-          }
-          if (count == 0) {
-            grid->GetPoint(id_node, x.data());
-          } else {
-            x *= 1.0/A_total;
+          vec3_t x = smooth.smoothNode(id_node);
+          x = cad->snapNode(id_node, x);
+          vec3_t n0 = cad->getLastNormal();
+
+          if (!checkVector(x)) {
+            EG_ERR_RETURN("error while correcting adjacent boundaries");
           }
 
-          x -= ((x - x0)*n0)*n0;
           grid->GetPoints()->SetPoint(id_node, x.data());
           for (int i = 0; i < part.n2cGSize(id_node); ++i) {
             vtkIdType id_cell = part.n2cGG(id_node, i);
@@ -150,19 +140,27 @@ void CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *gr
               if (cell_code->GetValue(id_cell) == bc) {
                 vec3_t n = cellNormal(grid, id_cell);
                 n.normalise();
-                scal_min = min(scal_min, n*n0);
+                double scal = n*n0;
+                if (scal < 0.5) {
+                  ++bad_nodes;
+                }
+                scal_min = min(scal_min, scal);
               }
             }
           }
         }
       }
     }
+    //reduceSurface();
+    cout << "  " << bad_nodes << " node defects" << endl;
     ++count;
   }
   if (scal_min < 0.5) {
     writeGrid(grid, "adjacent_bc_failure");
-    EG_ERR_RETURN("failed to correct adjacent surfaces");
+    return false;
+    //EG_ERR_RETURN("failed to correct adjacent surfaces");
   }
+  return true;
 }
 
 void CreateBoundaryLayerShell::createLayerNodes(vtkIdType id_node)
@@ -291,33 +289,17 @@ void CreateBoundaryLayerShell::reduceSurface()
   remove_points.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   remove_points.setUpdatePSPOn();
   remove_points.setThreshold(3);
-  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
-
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), false);
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    // reset all node types to EG_SIMPLE_VERTEX to trigger a recalculation of the node types
+    node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
     for (int i = 0; i < part.n2cGSize(id_node); ++i) {
-      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
-        fix[id_node] = false;
-      }
-    }
-  }
-  for (int layer = 0; layer < 3; ++layer) {
-    QVector<bool> tmp = fix;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (!tmp[id_node]) {
-        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
-          fix[part.n2nGG(id_node, i)] = false;
-        }
-      }
-    }
-  }
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    for (int i = 0; i < part.n2cGSize(id_node); ++i) {
-      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_QUAD) {
         fix[id_node] = true;
       }
     }
   }
-
   remove_points.fixNodes(fix);
   remove_points();
 }
@@ -331,15 +313,18 @@ void CreateBoundaryLayerShell::smoothSurface()
   smooth.setMeshPartition(part);
   smooth.setNumberOfIterations(2);
   smooth.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
-
-  QVector<bool> fix(m_Grid->GetNumberOfPoints(), true);
+  QVector<bool> fix(m_Grid->GetNumberOfPoints(), false);
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    // reset all node types to EG_SIMPLE_VERTEX to trigger a recalculation of the node types
+    node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
     for (int i = 0; i < part.n2cGSize(id_node); ++i) {
-      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_WEDGE) {
-        fix[id_node] = false;
+      if (m_Grid->GetCellType(part.n2cGG(id_node, i)) == VTK_QUAD) {
+        fix[id_node] = true;
       }
     }
   }
+  /*
   for (int layer = 0; layer < 3; ++layer) {
     QVector<bool> tmp = fix;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -350,7 +335,7 @@ void CreateBoundaryLayerShell::smoothSurface()
       }
     }
   }
-
+  */
   smooth.fixNodes(fix);
   smooth();
 }
@@ -361,8 +346,12 @@ void CreateBoundaryLayerShell::operate()
   prepare();
   writeBoundaryLayerVectors("blayer");
   createPrismaticGrid();
+  m_Success = true;
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
-    correctAdjacentBC(bc, m_Grid);
+    if (!correctAdjacentBC(bc, m_Grid)) {
+      m_Success = false;
+      return;
+    }
   }
   SwapTriangles swap;
   swap.setGrid(m_Grid);
@@ -371,7 +360,8 @@ void CreateBoundaryLayerShell::operate()
   swap.setBoundaryCodes(swap_codes);
   swap.setVerboseOff();
 
-  for (int iter = 0; iter < 1; ++iter) {
+  for (int iter = 0; iter < 5; ++iter) {
+    cout << "correcting adjacent boundaries\n" << "  iteration: " << iter + 1 << endl;
     swap();
     smoothSurface();
     reduceSurface();
