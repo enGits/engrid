@@ -74,7 +74,7 @@ protected: // methods
   void computeDesiredHeights();
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
-  void limitHeights(double safety_factor, double lower_limit);
+  int limitHeights(double safety_factor);
 
 
 public: // methods

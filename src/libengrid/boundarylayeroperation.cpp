@@ -604,47 +604,39 @@ void BoundaryLayerOperation::computeHeights()
     } while (!done);
   }
 
-  limitHeights(1.0, 0);
-  cout << "heights limited (pass 1)" << endl;
+  limitHeights(1.0);
 
   // smoothing
+  QVector<double> h_safe = m_Height;
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
     QVector<double> h_new = m_Height;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
-        if (m_SnapPoints[id_node].size() > 0) {
-          h_new[id_node] = 0;
-          if (m_SnapPoints[id_node].size() == 2) {
-            h_new[id_node] += m_Height[id_node];
+        int count = 0;
+        h_new[id_node] = 0;
+        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+          if (m_BoundaryLayerNode[id_neigh]) {
+            ++count;
+            h_new[id_node] += min(h_safe[id_node], m_Height[id_neigh]);
           }
-          foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
-            h_new[id_node] += m_Height[id_snap];
-          }
-          if (m_SnapPoints[id_node].size() == 2) {
-            h_new[id_node] /= 3;
-          } else {
-            h_new[id_node] /= m_SnapPoints[id_node].size();
-          }
-        } else {
-          h_new[id_node] = m_Height[id_node];
         }
+        if (count == 0) {
+          EG_BUG;
+        }
+        h_new[id_node] /= count;
       }
     }
     m_Height = h_new;
   }
-  cout << "heights smoothed" << endl;
-
-  limitHeights(0.7, 0);
-  cout << "heights limited (pass 2)" << endl;
-
   cout << "heights computed" << endl;
-
 }
 
-void BoundaryLayerOperation::limitHeights(double safety_factor, double lower_limit)
+int BoundaryLayerOperation::limitHeights(double safety_factor)
 {
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
 
+  QVector<bool> limited(m_Grid->GetNumberOfPoints(), false);
   // save original node positions to x_old
   QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -679,9 +671,12 @@ void BoundaryLayerOperation::limitHeights(double safety_factor, double lower_lim
           vtkIdType id_tri = inters.second;
           if (!cells_of_node.contains(id_tri) && !m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
             vec3_t dx = xi - x_old[id_node];
-            if (dx*m_BoundaryLayerVectors[id_node] > 0 && dx.abs()/m_Height[id_node] > lower_limit) {
-              double h_max = (1.0 - 0.5*safety_factor*m_MaxHeightInGaps)*dx.abs();
-              m_Height[id_node] = min(m_Height[id_node], h_max);
+            if (dx*m_BoundaryLayerVectors[id_node] > 0) {
+              double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
+              if (h_max < m_Height[id_node]) {
+                m_Height[id_node] = h_max;
+                limited[id_node] = true;
+              }
             }
           }
         }
@@ -689,8 +684,14 @@ void BoundaryLayerOperation::limitHeights(double safety_factor, double lower_lim
     }
   }
 
-  // reset node positions
+  // reset node positions and count nodes where the height has been limited
+  int num_limited = 0;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old[id_node].data());
+    if (limited[id_node]) {
+      ++num_limited;
+    }
   }
+
+  return num_limited;
 }
