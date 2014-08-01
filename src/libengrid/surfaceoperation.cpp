@@ -44,7 +44,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
 
-  EG_STOPDATE("2014-08-01");
+  EG_STOPDATE("2014-09-01");
   m_StrictFeatureSnap = true;
 }
 

@@ -32,7 +32,7 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
 
   double feature_angle;
 
-  EG_STOPDATE("2014-08-01");
+  EG_STOPDATE("2014-09-01");
   //getXmlSetting("engrid/surface/settings", "feature_angle", feature_angle);
   getSet("surface meshing", "feature angle", 20, feature_angle);
   feature_angle = GeometryTools::deg2rad(feature_angle);
