@@ -66,7 +66,7 @@ public:
   void prepareEstimatedPlane();
   void prepareCadInterface(CadInterface *cad);
   vec3_t smoothNode(vtkIdType id_node);
-  void useSimpleCentrScheme() { m_UseSimpleCentreScheme = true; }
+  void useSimpleCentreScheme() { m_UseSimpleCentreScheme = true; }
 
 };
 

@@ -326,7 +326,7 @@ protected: // methods
    * @param Nnodes the number of output nodes
    * @param overwrite f set to true existing fields will be re-created
    */
-  void createBasicFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool overwrite = false);
+  void createBasicFields(vtkUnstructuredGrid *grid, vtkIdType num_cells = -1, vtkIdType num_nodes = -1, bool overwrite = false);
   
   /**
    * Create the basic cell fields on a given grid.

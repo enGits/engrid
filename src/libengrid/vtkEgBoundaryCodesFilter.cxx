@@ -64,6 +64,12 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
       vtkIdType newCell = m_Output->InsertNextCell(m_Input->GetCellType(cellId),npts,pts);
       copyCellData(m_Input, cellId, m_Output, newCell);
       for(int i = 0; i < npts; i++) {
+        if (pts[i] >= m_Input->GetNumberOfPoints()) {
+          EG_BUG;
+        }
+        if (pts[i] >= m_Output->GetNumberOfPoints()) {
+          EG_BUG;
+        }
         copyNodeData(m_Input, pts[i], m_Output, pts[i]);
       }
     }

@@ -804,10 +804,16 @@ if (!grid->GetPointData()->GetArray(FIELD)) { \
   } \
 }
 
-void EgVtkObject::createBasicFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool overwrite)
+void EgVtkObject::createBasicFields(vtkUnstructuredGrid *grid, vtkIdType num_cells, vtkIdType num_nodes, bool overwrite)
 {
-  createBasicNodeFields(grid, Nnodes, overwrite);
-  createBasicCellFields(grid, Ncells, overwrite);
+  if (num_cells == -1) {
+    num_cells = grid->GetNumberOfCells();
+  }
+  if (num_nodes == -1) {
+    num_nodes = grid->GetNumberOfPoints();
+  }
+  createBasicNodeFields(grid, num_nodes, overwrite);
+  createBasicCellFields(grid, num_cells, overwrite);
 }
 
 void EgVtkObject::createBasicCellFields(vtkUnstructuredGrid *grid, vtkIdType Ncells, bool overwrite)
