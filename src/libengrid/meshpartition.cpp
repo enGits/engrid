@@ -504,7 +504,11 @@ int MeshPartition::computeTopoDistance(vtkIdType id_node1, vtkIdType id_node2, i
       for (int i = 0; i < n2nGSize(id_node); ++i) {
         vtkIdType id_neigh = n2nGG(id_node,i);
         if (!candidates.contains(id_neigh)) {
-          if (getEdgeType(id_node, id_neigh) >= restriction_type) {
+          bool insert = true;
+          if (restriction_type > 0) {
+            insert = getEdgeType(id_node, id_neigh) >= restriction_type;
+          }
+          if (insert) {
             candidates.insert(id_neigh);
           }
         }
