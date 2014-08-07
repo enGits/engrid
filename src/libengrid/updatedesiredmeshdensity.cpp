@@ -216,6 +216,9 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
 
 void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
 {
+  // add mesh density radiation to 3D feature resolution
+  EG_STOPDATE("2014-08-15");
+
   if (m_FeatureResolution3D < 1e-3) {
     return;
   }
@@ -248,7 +251,7 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
     }
     if (id_tri_min > -1) {
       double h = d_min/m_FeatureResolution3D;
-      int max_topo_dist = 2*(int(m_FeatureResolution3D) + 1);
+      int max_topo_dist = int(ceil(m_FeatureResolution3D));
       bool topo_dist_ok = true;
       EG_GET_CELL(id_tri_min, m_Grid);
       for (int i = 0; i < num_pts; ++i) {
@@ -310,15 +313,6 @@ void UpdateDesiredMeshDensity::operate()
   l2g_t  nodes = getPartNodes();
   l2g_t  cells = getPartCells();
   l2l_t  n2n   = getPartN2N();
-
-  /*
-  QMap<int, double> feature_res;
-  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
-  foreach (int bc, bcs) {
-    feature_res[bc] = computeFeature2D(bc);
-    feature_res[bc] = min(feature_res[bc], computeFeature3D(bc));
-  }
-  */
 
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired,   m_Grid, "node_meshdensity_desired");
   EG_VTKDCN(vtkIntArray,    characteristic_length_specified, m_Grid, "node_specified_density");
