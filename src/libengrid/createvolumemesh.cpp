@@ -34,6 +34,7 @@ CreateVolumeMesh::CreateVolumeMesh()
   m_CreateBoundaryLayer = false;
   m_BackgroundGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   m_FirstCall = true;
+  m_Debug = false;
 }
 
 int CreateVolumeMesh::numVolumeCells()
@@ -104,19 +105,21 @@ void CreateVolumeMesh::operate()
     blayer.setGrid(m_Grid);
     blayer.setAllCells();
     blayer();
-    if (blayer.success()) {
-      createTetMesh(2, true);
-      vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
-      MeshPartition prismatic_part(prismatic_grid, true);
-      QVector<vtkIdType> shell_cells;
-      getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
-      DeleteCells delete_cells;
-      delete_cells.setGrid(m_Grid);
-      delete_cells.setCellsToDelete(shell_cells);
-      delete_cells();
-      m_Part.addPartition(prismatic_part);
-    } else {
-      cout << "An error ocuured while creating the prismatic layers!" << endl;
+    if (!m_Debug) {
+      if (blayer.success()) {
+        createTetMesh(2, true);
+        vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
+        MeshPartition prismatic_part(prismatic_grid, true);
+        QVector<vtkIdType> shell_cells;
+        getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
+        DeleteCells delete_cells;
+        delete_cells.setGrid(m_Grid);
+        delete_cells.setCellsToDelete(shell_cells);
+        delete_cells();
+        m_Part.addPartition(prismatic_part);
+      } else {
+        cout << "An error ocuured while creating the prismatic layers!" << endl;
+      }
     }
   } else {
     createTetMesh(2, true);

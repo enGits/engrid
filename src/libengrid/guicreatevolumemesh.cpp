@@ -50,7 +50,12 @@ void GuiCreateVolumeMesh::operate()
     rest.extractToVtkGrid(rest_grid);
   }
   mesh_volume.setGrid(part_grid);
-  if (m_Ui.m_CheckBoxBoundaryLayer->isChecked()) mesh_volume.setBoundaryLayerOn();
+  if (m_Ui.m_CheckBoxBoundaryLayer->isChecked()) {
+    mesh_volume.setBoundaryLayerOn();
+  }
+  if (m_Ui.m_CheckBoxDebug->isChecked()) {
+    mesh_volume.debugOn();
+  }
   mesh_volume();
   EG_VTKDCC(vtkIntArray, cell_code, part_grid, "cell_code");
   for (vtkIdType id_cell = 0; id_cell < part_grid->GetNumberOfCells(); ++id_cell) {

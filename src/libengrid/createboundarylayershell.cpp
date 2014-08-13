@@ -120,7 +120,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
 
   QList<vtkIdType> bad_nodes;
   while (scal_min < 0.5 && count < 10) {
-    cout << "  iteration " << count + 1 << endl;
+    //cout << "  iteration " << count + 1 << endl;
     scal_min = 1;
     bad_nodes.clear();
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
@@ -167,15 +167,17 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
           for (int i = 0; i < part.n2cGSize(id_node); ++i) {
             vtkIdType id_cell = part.n2cGG(id_node, i);
             if (isSurface(id_cell, grid)) {
-              CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell));
-              vec3_t x = cad->snap(cellCentre(grid, id_cell));
-              vec3_t n = cellNormal(grid, id_cell);
-              n.normalise();
-              double scal = n*cad->getLastNormal();
-              scal_min = min(scal_min, scal);
-              if (scal < 0.5 && !node_bad) {
-                bad_nodes << id_node;
-                node_bad = true;
+              if (cell_code->GetValue(id_cell) == bc) {
+                CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell));
+                cad->snap(cellCentre(grid, id_cell));
+                vec3_t n = cellNormal(grid, id_cell);
+                n.normalise();
+                double scal = n*cad->getLastNormal();
+                scal_min = min(scal_min, scal);
+                if (scal < 0.5 && !node_bad) {
+                  bad_nodes << id_node;
+                  node_bad = true;
+                }
               }
             }
           }
@@ -183,7 +185,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
       }
     }
     //reduceSurface();
-    cout << "  " << bad_nodes.size() << " node defects" << endl;
+    //cout << "  " << bad_nodes.size() << " node defects" << endl;
     ++count;
   }
   if (scal_min < 0.5) {
@@ -394,6 +396,11 @@ void CreateBoundaryLayerShell::operate()
         if (is_bad_cell[id_cell]) {
           bad_cells << id_cell;
         }
+      }
+
+      cout << "bad nodes:" << endl;
+      foreach (vtkIdType id_node, bad_nodes) {
+        cout << "  " << id_node << endl;
       }
 
       DeleteCells del;

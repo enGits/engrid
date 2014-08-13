@@ -34,6 +34,7 @@ private: // attributes
 
   bool m_CreateBoundaryLayer;
   bool m_FirstCall;
+  bool m_Debug;
 
   vtkSmartPointer<vtkUnstructuredGrid> m_BackgroundGrid;
   
@@ -54,6 +55,8 @@ public: // methods
   
   CreateVolumeMesh();
   void setBoundaryLayerOn();
+  void debugOn() { m_Debug = true; }
+  void debugOff() { m_Debug = false; }
 
 };
 

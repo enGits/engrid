@@ -35,6 +35,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="m_CheckBoxDebug">
+     <property name="text">
+      <string>stop before TetGen call (debug)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -79,6 +86,7 @@
  <tabstops>
   <tabstop>m_ListWidgetVolumes</tabstop>
   <tabstop>m_CheckBoxBoundaryLayer</tabstop>
+  <tabstop>m_CheckBoxDebug</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
