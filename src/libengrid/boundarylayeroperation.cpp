@@ -413,7 +413,7 @@ void BoundaryLayerOperation::writeBoundaryLayerVectors(QString file_name)
   }
 }
 
-void BoundaryLayerOperation:: computeDesiredHeights()
+void BoundaryLayerOperation::computeDesiredHeights()
 {
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
 
@@ -510,7 +510,10 @@ void BoundaryLayerOperation::computeHeights()
   computeDesiredHeights();
   cout << "initial boundary layer heights computed" << endl;
 
-  // limit face size difference (neighbour collisions)
+  // avoid collisions
+  limitHeights(1.0);
+
+  // limit face size and angle difference
   {
     bool done;
     int iter = 0;
@@ -576,8 +579,6 @@ void BoundaryLayerOperation::computeHeights()
     } while (!done);
   }
 
-  limitHeights(1.0);
-
   // smoothing
   QVector<double> h_safe = m_Height;
   for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
@@ -601,6 +602,7 @@ void BoundaryLayerOperation::computeHeights()
     }
     m_Height = h_new;
   }
+
   cout << "heights computed" << endl;
 }
 
@@ -630,6 +632,9 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
     CgalTriCadInterface cad(m_Grid);
 
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (id_node == 13369) {
+        cout << "bad node :-(" << endl;
+      }
       if (m_BoundaryLayerNode[id_node]) {
         QList<vtkIdType> cells_of_node;
         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
@@ -641,9 +646,17 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
           QPair<vec3_t,vtkIdType> inters = intersections[i];
           vec3_t xi = inters.first;
           vtkIdType id_tri = inters.second;
-          if (!cells_of_node.contains(id_tri) && !m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
+          if (!cells_of_node.contains(id_tri)) {
+
+            double crit_angle = deg2rad(200.0); // consider all intersections
+
+            if (m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
+              crit_angle = deg2rad(85.0); // different angle for adjacent boundaries
+            }
+
             vec3_t dx = xi - x_old[id_node];
-            if (dx*m_BoundaryLayerVectors[id_node] > 0) {
+            double alpha = angle(dx, cellNormal(m_Grid, id_tri));
+            if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
               double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
               if (h_max < m_Height[id_node]) {
                 m_Height[id_node] = h_max;
