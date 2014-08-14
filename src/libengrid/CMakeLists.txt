@@ -149,6 +149,7 @@ SET(libengrid_HEADERS
   statistics.h
   std_connections.h
   std_includes.h
+  stitchholes.h
   stlreader.h
   stlwriter.h
   su2writer.h
@@ -338,6 +339,7 @@ SET(libengrid_SOURCES
   smoothandswapsurface.cpp
   smoothingutilities.cpp
   snaptofeatures.cpp
+  stitchholes.cpp
   stlreader.cpp
   stlwriter.cpp
   su2writer.cpp
