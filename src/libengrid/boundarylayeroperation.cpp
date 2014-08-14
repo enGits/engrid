@@ -632,9 +632,6 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
     CgalTriCadInterface cad(m_Grid);
 
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (id_node == 13369) {
-        cout << "bad node :-(" << endl;
-      }
       if (m_BoundaryLayerNode[id_node]) {
         QList<vtkIdType> cells_of_node;
         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
