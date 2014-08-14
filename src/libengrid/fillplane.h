@@ -43,6 +43,7 @@ protected: // attributes
 
 protected: // methods
 
+  void   setupTransformation();
   void   createEdgesOnPlane(vtkUnstructuredGrid *edge_grid);
   void   closeLoops(vtkUnstructuredGrid *edge_grid);
   vec3_t toPlane(vec3_t x);
@@ -50,7 +51,7 @@ protected: // methods
   bool   isWithinTolerance(vec3_t x);
   void   gridToPlane(vtkUnstructuredGrid *edge_grid);
   void   gridFromPlane(vtkUnstructuredGrid *edge_grid);
-  void   triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_grid);
+  void   triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_grid, int bc = -1);
   void   order(vtkUnstructuredGrid *edge_grid, vtkPolyData *edge_pdata);
   void   orderGeometrically(vtkUnstructuredGrid *edge_grid, QList<vtkIdType> &poly_nodes);
 

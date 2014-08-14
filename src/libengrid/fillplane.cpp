@@ -218,7 +218,7 @@ void FillPlane::gridFromPlane(vtkUnstructuredGrid *edge_grid)
   }
 }
 
-void FillPlane::triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_grid)
+void FillPlane::triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_grid, int bc)
 {
   EG_VTKSP(vtkDelaunay2D, delaunay);
   EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata2grid);
@@ -229,15 +229,18 @@ void FillPlane::triangulate(vtkPolyData *edge_pdata, vtkUnstructuredGrid *tri_gr
   pdata2grid->Update();
   makeCopy(pdata2grid->GetOutput(), tri_grid);
   createBasicFields(tri_grid, tri_grid->GetNumberOfCells(), tri_grid->GetNumberOfPoints());
-  QSet<int> bcs = getAllBoundaryCodes(m_Grid);
-  m_BC = 0;
-  foreach (int bc, bcs) {
-    m_BC = max(m_BC, bc);
+  if (bc < 0) {
+    QSet<int> bcs = getAllBoundaryCodes(m_Grid);
+    m_BC = 0;
+    foreach (int bc, bcs) {
+      m_BC = max(m_BC, bc);
+    }
+    ++m_BC;
+    bc = m_BC;
   }
-  ++m_BC;
   EG_VTKDCC(vtkIntArray, cell_code, tri_grid, "cell_code");
   for (vtkIdType id_face = 0; id_face < tri_grid->GetNumberOfCells(); ++id_face) {
-    cell_code->SetValue(id_face, m_BC);
+    cell_code->SetValue(id_face, bc);
   }
 }
 
@@ -346,13 +349,18 @@ void FillPlane::orderGeometrically(vtkUnstructuredGrid* edge_grid, QList<vtkIdTy
   }
 }
 
-void FillPlane::operate()
+void FillPlane::setupTransformation()
 {
   m_G1 = GeometryTools::orthogonalVector(m_N);
   m_G2 = m_N.cross(m_G1);
   m_N.normalise();
   m_G1.normalise();
   m_G2.normalise();
+}
+
+void FillPlane::operate()
+{
+  setupTransformation();
   EG_VTKSP(vtkUnstructuredGrid, edge_grid);
   EG_VTKSP(vtkUnstructuredGrid, tri_grid);
   EG_VTKSP(vtkPolyData, edge_pdata);
