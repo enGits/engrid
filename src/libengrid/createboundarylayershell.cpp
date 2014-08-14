@@ -30,6 +30,7 @@
 #include "laplacesmoother.h"
 #include "surfacemeshsmoother.h"
 #include "deletecells.h"
+#include "stitchholes.h"
 
 CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 {
@@ -126,13 +127,17 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
     for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
       if (!m_BoundaryLayerNode[id_node]){
         bool node_has_bc = false;
+        bool all_bcs_adjacent = true;
         for (int i = 0; i < part.n2bcGSize(id_node); ++i) {
-          if (part.n2bcG(id_node, i) == bc) {
+          int bcn = part.n2bcG(id_node, i);
+          if (bcn == bc) {
             node_has_bc = true;
-            break;
+          }
+          if (!m_LayerAdjacentBoundaryCodes.contains(bcn)) {
+            all_bcs_adjacent = false;
           }
         }
-        if (node_has_bc) {
+        if (node_has_bc && all_bcs_adjacent) {
           if (part.n2bcGSize(id_node) == 1) {
             vec3_t xs = smooth.smoothNode(id_node);
             xs = cad->snapNode(id_node, xs);
@@ -377,37 +382,43 @@ void CreateBoundaryLayerShell::smoothSurface()
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
-  writeBoundaryLayerVectors("blayer");
   createPrismaticGrid();
   m_Success = true;
+  m_Part.trackGrid(m_Grid);
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     QList<vtkIdType> bad_nodes = correctAdjacentBC(bc, m_Grid);
     if (bad_nodes.size() > 0) {
-      m_Success = false;
+      bool fixable = true;
 
       QVector<bool> is_bad_cell(m_Grid->GetNumberOfCells(), false);
       foreach (vtkIdType id_node, bad_nodes) {
+        if (m_Part.n2bcGSize(id_node) != 1) {
+          fixable = false;
+          break;
+        }
         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
           is_bad_cell[m_Part.n2cGG(id_node, i)] = true;
         }
       }
-      QList<vtkIdType> bad_cells;
-      EG_FORALL_CELLS (id_cell, m_Grid) {
-        if (is_bad_cell[id_cell]) {
-          bad_cells << id_cell;
+      if (fixable) {
+        QList<vtkIdType> bad_cells;
+        EG_FORALL_CELLS (id_cell, m_Grid) {
+          if (is_bad_cell[id_cell]) {
+            bad_cells << id_cell;
+          }
         }
-      }
 
-      cout << "bad nodes:" << endl;
-      foreach (vtkIdType id_node, bad_nodes) {
-        cout << "  " << id_node << endl;
+        DeleteCells del;
+        del.setGrid(m_Grid);
+        del.setCellsToDelete(bad_cells);
+        del();
+        StitchHoles stitch(bc);
+        stitch.setGrid(m_Grid);
+        stitch();
+      } else {
+        m_Success = false;
+        cout << "adjacent patch cannot be corrected!" << endl;
       }
-
-      DeleteCells del;
-      del.setGrid(m_Grid);
-      del.setCellsToDelete(bad_cells);
-      //del();
-      return;
 
     }
   }
