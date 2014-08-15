@@ -67,7 +67,7 @@ QList<vtkIdType> StitchHoles::getNextHole()
   loop_nodes << id_node1;
   vec3_t x0;
   m_Grid->GetPoint(id_node1, x0.data());
-  while (id_node2 != id_start) {
+  while (id_node2 != id_start && loop_nodes.size() < m_Grid->GetNumberOfPoints()) {
     loop_nodes << id_node2;
     vec3_t x;
     m_Grid->GetPoint(id_node2, x.data());
@@ -87,7 +87,8 @@ QList<vtkIdType> StitchHoles::getNextHole()
       }
     }
     if (!found) {
-      EG_BUG;
+      loop_nodes.clear();
+      return loop_nodes;
     }
   }
   x0 *= 1.0/loop_nodes.size();
@@ -174,6 +175,6 @@ void StitchHoles::operate()
       ++count;
       cout << "  " << count << ". hole stiched" << endl;
     }
-  } while (hole_found);
+  } while (hole_found && count < 50);
   cout << "  finished" << endl;
 }
