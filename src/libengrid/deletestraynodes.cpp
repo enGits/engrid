@@ -27,7 +27,9 @@ DeleteStrayNodes::DeleteStrayNodes()
 
 void DeleteStrayNodes::operate()
 {
-  cout << "removing 'stray' nodes" << endl;
+  if (m_Verbose) {
+    cout << "removing 'stray' nodes" << endl;
+  }
   QVector<bool> active(m_Grid->GetNumberOfPoints(), false);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType N_pts, *pts;
@@ -42,10 +44,12 @@ void DeleteStrayNodes::operate()
       ++N;
     }
   }
-  if (N == 1) {
-    cout << "deleting 1 node!" << endl;
-  } else {
-    cout << "deleting " << N << " nodes!" << endl;
+  if (m_Verbose) {
+    if (N == 1) {
+      cout << "deleting 1 node!" << endl;
+    } else {
+      cout << "deleting " << N << " nodes!" << endl;
+    }
   }
   QVector<int> offset(m_Grid->GetNumberOfPoints(), 0);
   for (vtkIdType id_node = 1; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {

@@ -100,6 +100,7 @@ protected: // attributes
   MeshPartition        m_Part;     ///< the partition containing the subset of cells and nodes
   Timer                m_Timer;    ///< Timer object for periodic output
   QString              m_MenuText; ///< The menu entry (mainly for plugins)
+  bool                 m_Verbose;  ///< General flag to trigger more output
 
 protected: // methods
   
@@ -144,6 +145,8 @@ public: // methods
   void disableAutoSet() { autoset = false; }
   void setQuickSave(bool b) { m_quicksave = b; }
   void setResetOperationCounter(bool b) { m_resetoperationcounter=b; }
+  void setVerboseOn() { m_Verbose = true; }
+  void setVerboseOff() { m_Verbose = false; }
   
   /**
    * Fill a QListWidget with all available boundary codes from a grid.

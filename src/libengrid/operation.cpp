@@ -83,6 +83,7 @@ Operation::Operation()
   autoset = true;
   m_TypeName = "undefined";
   m_MenuText = "undefined";
+  m_Verbose = false;
 }
 
 Operation::~Operation()
