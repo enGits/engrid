@@ -93,13 +93,12 @@ void CreateBoundaryLayerShell::prepare()
   makeCopy(m_Grid, m_OriginalGrid);
 }
 
-QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstructuredGrid *grid)
+QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
 {
   cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\"" << endl;
 
-  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, grid, "node_type");
-  MeshPartition part(grid, true);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
   double scal_min = -1;
   int    count    = 0;
 
@@ -120,16 +119,18 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
   smooth.prepareCadInterface(cad);
 
   QList<vtkIdType> bad_nodes;
-  while (scal_min < 0.5 && count < 10) {
-    //cout << "  iteration " << count + 1 << endl;
+  int new_num_bad = m_Grid->GetNumberOfPoints();
+  int old_num_bad = 0;
+  do {
+    old_num_bad = new_num_bad;
     scal_min = 1;
     bad_nodes.clear();
-    for (vtkIdType id_node = 0; id_node < grid->GetNumberOfPoints(); ++id_node) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (!m_BoundaryLayerNode[id_node]){
         bool node_has_bc = false;
         bool all_bcs_adjacent = true;
-        for (int i = 0; i < part.n2bcGSize(id_node); ++i) {
-          int bcn = part.n2bcG(id_node, i);
+        for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+          int bcn = m_Part.n2bcG(id_node, i);
           if (bcn == bc) {
             node_has_bc = true;
           }
@@ -138,44 +139,44 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
           }
         }
         if (node_has_bc && all_bcs_adjacent) {
-          if (part.n2bcGSize(id_node) == 1) {
+          if (m_Part.n2bcGSize(id_node) == 1) {
             vec3_t xs = smooth.smoothNode(id_node);
             xs = cad->snapNode(id_node, xs);
             if (!checkVector(xs)) {
               EG_ERR_RETURN("error while correcting adjacent boundaries");
             }
-            grid->GetPoints()->SetPoint(id_node, xs.data());
-          } else if (part.n2bcGSize(id_node) == 2) {
+            m_Grid->GetPoints()->SetPoint(id_node, xs.data());
+          } else if (m_Part.n2bcGSize(id_node) == 2) {
             int count = 0;
             vec3_t xs(0, 0, 0);
-            for (int i = 0; i < part.n2nGSize(id_node); ++i) {
-              vtkIdType id_neigh = part.n2nGG(id_node, i);
-              if (part.n2bcGSize(id_neigh) > 1) {
+            for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+              vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+              if (m_Part.n2bcGSize(id_neigh) > 1) {
                 vec3_t x;
-                grid->GetPoint(id_neigh, x.data());
+                m_Grid->GetPoint(id_neigh, x.data());
                 xs += x;
                 ++count;
               }
             }
             if (count < 2) {
               vec3_t x;
-              grid->GetPoint(id_node, x.data());
+              m_Grid->GetPoint(id_node, x.data());
               xs += x;
               ++count;
             }
             xs *= 1.0/count;
             xs = cad->snapToEdge(xs);
-            grid->GetPoints()->SetPoint(id_node, xs.data());
+            m_Grid->GetPoints()->SetPoint(id_node, xs.data());
           }
 
           bool node_bad = false;
-          for (int i = 0; i < part.n2cGSize(id_node); ++i) {
-            vtkIdType id_cell = part.n2cGG(id_node, i);
-            if (isSurface(id_cell, grid)) {
+          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+            if (isSurface(id_cell, m_Grid)) {
               if (cell_code->GetValue(id_cell) == bc) {
                 CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell));
-                cad->snap(cellCentre(grid, id_cell));
-                vec3_t n = cellNormal(grid, id_cell);
+                cad->snap(cellCentre(m_Grid, id_cell));
+                vec3_t n = cellNormal(m_Grid, id_cell);
                 n.normalise();
                 double scal = n*cad->getLastNormal();
                 scal_min = min(scal_min, scal);
@@ -189,10 +190,11 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, vtkUnstruct
         }
       }
     }
+    new_num_bad = bad_nodes.size();
     //reduceSurface();
     //cout << "  " << bad_nodes.size() << " node defects" << endl;
     ++count;
-  }
+  } while (scal_min < 0.5 && count < 1000);
   if (scal_min < 0.5) {
     //writeGrid(grid, "adjacent_bc_failure");
     //return false;
@@ -388,7 +390,7 @@ void CreateBoundaryLayerShell::operate()
   m_Success = true;
   m_Part.trackGrid(m_Grid);
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
-    QList<vtkIdType> bad_nodes = correctAdjacentBC(bc, m_Grid);
+    QList<vtkIdType> bad_nodes = correctAdjacentBC(bc);
     if (bad_nodes.size() > 0) {
       bool fixable = true;
 
