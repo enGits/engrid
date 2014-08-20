@@ -382,6 +382,8 @@ void CreateBoundaryLayerShell::smoothSurface()
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
+  //writeBoundaryLayerVectors("blayer");
+  //return;
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);

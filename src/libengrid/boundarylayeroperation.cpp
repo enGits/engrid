@@ -316,6 +316,8 @@ void BoundaryLayerOperation::correctBoundaryLayerVectors()
 
 void BoundaryLayerOperation::relaxBoundaryLayerVectors()
 {
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
   m_BoundaryLayerNode.fill(false, m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
@@ -329,11 +331,55 @@ void BoundaryLayerOperation::relaxBoundaryLayerVectors()
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
         if (m_SnapPoints[id_node].size() > 0) {
-          v_new[id_node] = vec3_t(0,0,0);
-          foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
-            v_new[id_node] += m_BoundaryLayerVectors[id_snap];
+
+          // check for edge between corners
+          bool edge_between_corners = false;
+          if (m_NodeTypes[id_node] == EdgeNode) {
+            edge_between_corners = true;
+            foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
+              if (m_NodeTypes[id_snap] != CornerNode) {
+                edge_between_corners = false;
+                break;
+              }
+            }
           }
-          v_new[id_node].normalise();
+
+          bool smooth_node = !edge_between_corners;
+          if (!smooth_node && m_SnapPoints[id_node].size() > 0) {
+
+            // compute smoothed normal
+            vec3_t n_smooth(0,0,0);
+            foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
+              n_smooth += m_BoundaryLayerVectors[id_snap];
+            }
+            n_smooth.normalise();
+
+            // check if it has not been projected onto the plane of an adjacent face
+            double h_min = 1.0;
+            for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+              vtkIdType id_face = m_Part.n2cGG(id_node, i);
+              if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_face))) {
+                vec3_t n_face = cellNormal(m_Grid, id_face);
+                n_face.normalise();
+                n_face *= -1;
+                h_min = min(h_min, n_face*n_smooth);
+              }
+            }
+            if (h_min > 0.2) {
+              smooth_node = true;
+            }
+
+          }
+
+          if (smooth_node) {
+            v_new[id_node] = vec3_t(0,0,0);
+            foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
+              v_new[id_node] += m_BoundaryLayerVectors[id_snap];
+            }
+            v_new[id_node].normalise();
+          } else {
+            v_new[id_node] = m_BoundaryLayerVectors[id_node];
+          }
         } else {
           v_new[id_node] = m_BoundaryLayerVectors[id_node];
         }
