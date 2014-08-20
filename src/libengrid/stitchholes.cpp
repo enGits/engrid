@@ -21,6 +21,7 @@
 
 #include "stitchholes.h"
 #include "guimainwindow.h"
+#include "deletestraynodes.h"
 
 #include <vtkCellArray.h>
 #include <vtkPolyDataWriter.h>
@@ -159,6 +160,11 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   int N2 = m_Grid->GetNumberOfCells();
   writeGrid(m_Grid, "after");
   */
+
+  DeleteStrayNodes del_stray;
+  del_stray.setGrid(m_Grid);
+  del_stray.setAllCells();
+  del_stray();
 }
 
 void StitchHoles::operate()
