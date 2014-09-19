@@ -193,7 +193,7 @@ int main( int argc, char ** argv )
 #ifdef QT_DEBUG
   //omp_set_num_threads(1);
 #endif
-  qInstallMsgHandler(engridMessageHandler);
+  //qInstallMsgHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   int app_result=0;
 

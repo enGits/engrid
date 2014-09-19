@@ -25,6 +25,8 @@
 #include <QString>
 #include <QtGui>
 #include <QVector>
+#include <QSpinBox>
+#include <QCheckBox>
 
 #include "dialoglineedit.h"
 ///\todo fix problems with more than one boolean + general tab stuff

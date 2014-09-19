@@ -224,9 +224,15 @@ SET(libengrid_FORMS
   guicreatehexibmesh.ui
 )
 
-QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
-QT4_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
-QT4_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
+if (${USE_QT5})
+  QT5_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
+  QT5_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
+  QT5_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
+else()
+  QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
+  QT4_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
+  QT4_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
+endif()
 
 SET(libengrid_SOURCES
   ${libengrid_HEADERS}
@@ -385,9 +391,15 @@ SET(libengrid_SOURCES
 
 ADD_LIBRARY(libengrid SHARED ${libengrid_SOURCES} ${libengrid_HEADERS_MOC} ${libengrid_FORMS_HEADERS} ${libengrid_RESOURCES_RCC})
 
+#target_link_libraries(libengrid ${QT_LIBRARIES})
+target_link_libraries(libengrid Qt5::Widgets)
+target_link_libraries(libengrid Qt5::Xml)
+target_link_libraries(libengrid ${VTK_LIBRARIES})
+target_link_libraries(libengrid tet)
 
 SET_TARGET_PROPERTIES(libengrid PROPERTIES VERSION ${ENGRID_VERSION})
 SET_TARGET_PROPERTIES(libengrid PROPERTIES COMPILE_FLAGS "-Wno-deprecated")
+SET_TARGET_PROPERTIES(libengrid PROPERTIES MACOSX_RPATH 1)
 
 INSTALL(TARGETS libengrid LIBRARY DESTINATION lib)
 INSTALL(FILES ${libengrid_HEADERS} DESTINATION include/engrid)

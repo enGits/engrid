@@ -31,6 +31,12 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPair>
+#include <QFormLayout>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 int fileTemplateTest( int argc, char ** argv );
 int fileTemplateTest();

@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include <QtGui>
+#include <QComboBox>
 
 #include "vertexdelegate.h"
 #include "surfacemesher.h"
@@ -57,7 +58,7 @@ QWidget *VertexDelegate::createEditor(QWidget *parent,
 {
     if (index.column() == Column) {
         QComboBox *ComboEdit = new QComboBox(parent);
-	foreach(QString str,list) ComboEdit->addItem(str);
+        foreach(QString str,list) ComboEdit->addItem(str);
         connect(ComboEdit, SIGNAL(currentIndexChanged ( int )),this, SLOT(commitAndCloseEditor()));
         return ComboEdit;
     } else {

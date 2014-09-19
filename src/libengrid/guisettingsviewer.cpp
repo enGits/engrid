@@ -24,6 +24,8 @@
 #include "guisettingstab.h"
 
 #include <QTextStream>
+#include <QLabel>
+
 #include <stdio.h>
 
 /* Here is how we we get QTextStreams that look like iostreams */

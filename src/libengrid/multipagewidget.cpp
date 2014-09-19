@@ -60,6 +60,9 @@
 ****************************************************************************/
 
 #include <QtGui>
+#include <QComboBox>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 
 #include "multipagewidget.h"
 

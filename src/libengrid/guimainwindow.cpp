@@ -58,6 +58,9 @@
 #include <QFileSystemWatcher>
 #include <QFileInfo>
 #include <QAction>
+#include <QStatusBar>
+#include <QInputDialog>
+
 #include <stdlib.h>
 #include <stdio.h>
 
