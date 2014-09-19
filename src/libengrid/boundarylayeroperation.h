@@ -18,7 +18,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 #ifndef BOUNDARYLAYEROPERATION_H
 #define BOUNDARYLAYEROPERATION_H
 
@@ -74,7 +74,11 @@ protected: // methods
   void computeDesiredHeights();
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
-  int limitHeights(double safety_factor);
+  void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
+  void angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void laplacianSmoother();
+  int  limitHeights(double safety_factor);
 
 
 public: // methods

@@ -18,7 +18,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 
+//
 #include "boundarylayeroperation.h"
 #include "optimisenormalvector.h"
 #include "guimainwindow.h"
@@ -490,6 +490,7 @@ void BoundaryLayerOperation::computeDesiredHeights()
         EG_ERR_RETURN("negative height computed");
       }
       if (H > 1000*h1) {
+        cout << H << ", " << h1 << endl;
         EG_ERR_RETURN("unrealistically large height computed");
       }
       if (H < 1e-3*h0) {
@@ -626,18 +627,332 @@ void BoundaryLayerOperation::computeHeights()
   }
 
   // smoothing
-  QVector<double> h_safe = m_Height;
-  for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
-    QVector<double> h_new = m_Height;
+  {
+    QVector<double> h_safe = m_Height;
+    for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
+      QVector<double> h_new = m_Height;
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          int count = 0;
+          h_new[id_node] = 0;
+          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+            if (m_BoundaryLayerNode[id_neigh]) {
+              ++count;
+              h_new[id_node] += min(h_safe[id_node], m_Height[id_neigh]);
+            }
+          }
+          if (count == 0) {
+            EG_BUG;
+          }
+          h_new[id_node] /= count;
+        }
+      }
+      m_Height = h_new;
+    }
+  }
+
+  // The mesh smoothing methods start here
+  /*
+  // General variables kind of useful for push out, smoothing, etc
+  // Move to somewhere else later?
+  QVector<bool> on_boundary(m_BoundaryLayerNode.size(), false);
+  QVector<bool> is_convex(m_BoundaryLayerNode.size(), false);
+  QVector<vec3_t> grid_pnts(m_Grid->GetNumberOfPoints());
+  {
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      m_Grid->GetPoint(id_node, grid_pnts[id_node].data());
+      if (m_BoundaryLayerNode[id_node]
+          && ( (m_NodeTypes[id_node] == EdgeNode)
+               || (m_NodeTypes[id_node] == CornerNode)))
+      {
+        int n_faces = m_Part.n2cGSize(id_node);
+        for (int i = 0; i < n_faces; ++i) {
+          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+          if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
+            on_boundary[id_node] = true;
+            break;
+          }
+        }
+        if (m_Part.isConvexNode(id_node, m_BoundaryLayerCodes)) {
+          is_convex[id_node] = true;
+        }
+      }
+    }
+  }
+
+  //limitHeights(1.0);
+
+  //pushOut(on_boundary, is_convex);
+  //intersectSmoother(on_boundary, is_convex, grid_pnts);
+  angleSmoother(on_boundary, is_convex, grid_pnts);
+  */
+
+  cout << "heights computed" << endl;
+}
+
+void BoundaryLayerOperation::pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex)
+{
+  QVector<double> h_new = m_Height;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      if (m_NodeTypes[id_node] == NormalNode) {
+        h_new[id_node] *= 1.25;
+      }
+      if (m_NodeTypes[id_node] == EdgeNode) {
+        if (!on_boundary[id_node] && is_convex[id_node]) {
+          h_new[id_node] *= 1.5;
+        }
+        else if(on_boundary[id_node]){
+          h_new[id_node] *= 1.25;
+        }
+      }
+      if (m_NodeTypes[id_node] == CornerNode) {
+        if (!on_boundary[id_node] && is_convex[id_node]) {
+          h_new[id_node] *= 1.5;
+        }
+
+        bool corner_push = true;
+        for (int i = 0; i < m_Part.n2nGSize(id_node); i++) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+          if (m_BoundaryLayerNode[id_neigh]
+              && !on_boundary[id_neigh]
+              && m_NodeTypes[id_neigh] != NormalNode)
+          {
+            corner_push = false;
+            break;
+          }
+        }
+        if(on_boundary[id_node] && corner_push) {
+          h_new[id_node] *= 1.25;
+        }
+      }
+    }
+  }
+  m_Height = h_new;
+}
+
+void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
+{
+  int n_iter = 20;
+  double weight_const = 1.;
+  const double PI = 3.14159265359;
+
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (int iter = 0; iter < n_iter; ++iter) {
+    // Set points to bl_normal*height
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+        m_Grid->GetPoints()->SetPoint(id_node, x.data());
+      }
+    }
+
+    QVector<int> move_count(grid_pnts.size());
+    QVector<vec3_t> grid_smoothed(grid_pnts.size(), vec3_t(0,0,0));
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        for (vtkIdType i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+          if (!m_BoundaryLayerNode[id_neigh]) continue;
+          if (id_neigh < id_node) continue;
+          if (on_boundary[id_node] && on_boundary[id_neigh]) continue;
+
+          QList<vtkIdType> edge_faces;
+          m_Part.getEdgeFaces(id_node, id_neigh, edge_faces);
+          // Test for 2 faces
+          int count = 0;
+          for (int j = 0; j < edge_faces.size(); ++j) {
+            if (m_BoundaryLayerCodes.contains(cell_code->GetValue(edge_faces[j]))) {
+              ++count;
+            }
+          }
+          if (count < 2 ) continue;
+          if (edge_faces.size() > 2) EG_BUG;
+
+          // Prepare cell info
+          vtkIdType id_cell_1 = edge_faces[0];
+          vtkIdType id_cell_2 = edge_faces[1];
+          vtkIdType npts_c1, *pts_c1;
+          vtkIdType npts_c2, *pts_c2;
+          m_Grid->GetCellPoints(id_cell_1, npts_c1, pts_c1);
+          m_Grid->GetCellPoints(id_cell_2, npts_c2, pts_c2);
+          if (npts_c1 != 3 || npts_c2 !=3) EG_BUG;
+
+          vtkIdType id_n3_c1;
+          vtkIdType id_n3_c2;
+          for (int j = 0; j < npts_c1; j++) {
+            if ( pts_c1[j] != id_node && pts_c1[j] != id_neigh) {
+              id_n3_c1 = pts_c1[j];
+            }
+          }
+          for (int j = 0; j < npts_c2; j++) {
+            if ( pts_c2[j] != id_node && pts_c2[j] != id_neigh) {
+              id_n3_c2 = pts_c2[j];
+            }
+          }
+
+          vec3_t normal_c1 = cellNormal(m_Grid, id_cell_1);
+          vec3_t normal_c2 = cellNormal(m_Grid, id_cell_2);
+
+          double angle = GeometryTools::angle(normal_c1, normal_c2);
+          if (rad2deg(angle) < 1) continue;
+
+          double spring_angle = weight_const*angle*angle/(PI*PI);
+
+          vec3_t x_node;
+          vec3_t x_neigh;
+          vec3_t x_n3_c1;
+          vec3_t x_n3_c2;
+          m_Grid->GetPoint(id_node,  x_node.data());
+          m_Grid->GetPoint(id_neigh, x_neigh.data());
+          m_Grid->GetPoint(id_n3_c1, x_n3_c1.data());
+          m_Grid->GetPoint(id_n3_c2, x_n3_c2.data());
+
+          vec3_t axis = x_node.cross(x_neigh);
+          vec3_t v1 = x_n3_c1 - x_node;
+          vec3_t v2 = x_n3_c2 - x_node;
+
+          vec3_t cross_vector = axis.cross(v1);
+          vec3_t v1_rot;
+          vec3_t v2_rot;
+          if (cross_vector*normal_c1 > 0) {
+            v1_rot = GeometryTools::rotate(v1, axis,  spring_angle);
+            v2_rot = GeometryTools::rotate(v2, axis, -spring_angle);
+          }
+          else {
+            v1_rot = GeometryTools::rotate(v1, axis, -spring_angle);
+            v2_rot = GeometryTools::rotate(v2, axis,  spring_angle);
+          }
+
+          grid_smoothed[id_n3_c1] += x_node + v1_rot;
+          move_count[id_n3_c1] += 1;
+          grid_smoothed[id_n3_c2] += x_node + v2_rot;
+          move_count[id_n3_c2] += 1;
+        }
+      }
+    }
+
+    QVector<double> h_new = m_Height;
+    QVector<vec3_t> new_BoundaryLayerVectors = m_BoundaryLayerVectors;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      m_Grid->GetPoints()->SetPoint(id_node, grid_pnts[id_node].data());
+      if (m_BoundaryLayerNode[id_node]) {
+        if (move_count[id_node] > 0) {
+          grid_smoothed[id_node] *= 1.0/move_count[id_node];
+          vec3_t x_new = grid_smoothed[id_node];
+          const vec3_t x_org = grid_pnts[id_node];
+
+          vec3_t new_norm = x_new - x_org;
+          h_new[id_node] = new_norm.abs();
+          new_norm.normalise();
+          new_BoundaryLayerVectors[id_node] = new_norm;
+        }
+      }
+    }
+    double max_diff = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      double diff = m_Height[id_node] - h_new[id_node];
+      diff = std::sqrt(diff*diff);
+      max_diff = std::max(max_diff, diff);
+    }
+    cout << "==========================  max diff->" << max_diff << endl;
+    m_Height = h_new;
+    m_BoundaryLayerVectors = new_BoundaryLayerVectors;
+  }
+}
+
+/*
+void BoundaryLayerOperation::weightedSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
+{
+
+}
+*/
+
+void BoundaryLayerOperation::intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
+{
+  double relaxation = 0.00;
+  double relaxation_edges = 1.;
+  int n_iter = 1;
+  for (int iter = 0; iter < n_iter; ++iter) {
+    // set coordinates to height vector
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        vec3_t x;
+        m_Grid->GetPoint(id_node, x.data());
+        x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+        m_Grid->GetPoints()->SetPoint(id_node, x.data());
+      }
+    }
+
+    QVector<double> h_new = m_Height;
+    // average neighbouring points
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        vec3_t x_old;
+        m_Grid->GetPoint(id_node, x_old.data());
+        const vec3_t x_org = grid_pnts[id_node];
+        vec3_t x_org_norm = m_BoundaryLayerVectors[id_node];
+        vec3_t x_centre(0,0,0);
+        vec3_t x_normal(0,0,0);
+        int N = m_Part.n2cGSize(id_node);
+        for (int i = 0; i < N; ++i) {
+          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+          x_centre += cellCentre(m_Grid, id_cell);
+          x_normal += cellNormal(m_Grid, id_cell);
+        }
+        x_centre *= 1.0/N;
+        x_normal.normalise();
+
+        //double intersect = intersection(x_org, x_org_norm, x_centre, x_normal);
+        double intersect = intersection(x_org, x_org_norm, x_centre, x_org_norm);
+
+        vec3_t x_project = x_org + intersect*x_org_norm;
+
+        vec3_t x_new;
+        if (m_NodeTypes[id_node] == NormalNode)
+        {
+          x_new = relaxation*x_project + (1-relaxation)*x_old;
+        } else if(is_convex[id_node] || !on_boundary[id_node]){
+          if (id_node == 20)
+            cout << "relaxing node 20" << endl;
+          x_new = relaxation_edges*x_project + (1-relaxation_edges)*x_old;
+        }
+        else {
+          x_new = relaxation*x_project + (1-relaxation)*x_old;
+        }
+
+        h_new[id_node] = (x_new - x_org).abs();
+      }
+    }
+    m_Height = h_new;
+
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      m_Grid->GetPoints()->SetPoint(id_node, grid_pnts[id_node].data());
+    }
+  }
+}
+
+void BoundaryLayerOperation::laplacianSmoother()
+{
+  for (int iter = 0; iter < 1; ++iter) {
+    cout << "-------------- Smoothing" << endl;
+    QVector<double> h_new = m_Height;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]
+          && !(m_NodeTypes[id_node] == EdgeNode) )
+          //&& !(m_NodeTypes[id_node] == CornerNode) )
+      {
         int count = 0;
         h_new[id_node] = 0;
         for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
           vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
           if (m_BoundaryLayerNode[id_neigh]) {
             ++count;
-            h_new[id_node] += min(h_safe[id_node], m_Height[id_neigh]);
+            h_new[id_node] += m_Height[id_neigh];
           }
         }
         if (count == 0) {
@@ -648,8 +963,6 @@ void BoundaryLayerOperation::computeHeights()
     }
     m_Height = h_new;
   }
-
-  cout << "heights computed" << endl;
 }
 
 int BoundaryLayerOperation::limitHeights(double safety_factor)
