@@ -22,13 +22,13 @@
 #ifndef BOUNDARYLAYEROPERATION_H
 #define BOUNDARYLAYEROPERATION_H
 
-#include "operation.h"
+#include "surfaceoperation.h"
 #include "edgelengthsourcemanager.h"
 
 class BoundaryLayerOperation;
 
 
-class BoundaryLayerOperation : public Operation
+class BoundaryLayerOperation : public SurfaceOperation
 {
 
 protected: // data types
@@ -76,6 +76,7 @@ protected: // methods
   void computeHeights();
   void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
   void angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void weightedSmoother(const QVector<bool>& on_boundary);
   void intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
   void laplacianSmoother();
   int  limitHeights(double safety_factor);
