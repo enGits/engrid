@@ -74,12 +74,14 @@ protected: // methods
   void computeDesiredHeights();
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
-  void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
-  void angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void laplacianIntersectSmoother(const QVector<bool>& on_boundary);
   void weightedSmoother(const QVector<bool>& on_boundary);
+  void angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
   void intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
   void laplacianSmoother();
+  void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
   int  limitHeights(double safety_factor);
+  void limitSizeAndAngleErrors();
 
 
 public: // methods
