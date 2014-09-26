@@ -181,7 +181,7 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
   }
 
   computeNodeTypes();
-  relaxBoundaryLayerVectors();
+  smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerVectors[id_node].abs() < 0.1) {
@@ -314,7 +314,7 @@ void BoundaryLayerOperation::correctBoundaryLayerVectors()
   }
 }
 
-void BoundaryLayerOperation::relaxBoundaryLayerVectors()
+void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter)
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
@@ -326,7 +326,7 @@ void BoundaryLayerOperation::relaxBoundaryLayerVectors()
       }
     }
   }
-  for (int iter = 0; iter < m_NumBoundaryLayerVectorRelaxations; ++iter) {
+  for (int iter = 0; iter < n_iter; ++iter) {
     QVector<vec3_t> v_new(m_BoundaryLayerVectors.size(), vec3_t(0,0,0));
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
@@ -618,15 +618,226 @@ void BoundaryLayerOperation::computeHeights()
 
   //limitHeights(1.0);
 
-  //pushOut(on_boundary, is_convex);
-  //intersectSmoother(on_boundary, is_convex, grid_pnts);
+  //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
-  //weightedSmoother(on_boundary);
-  laplacianIntersectSmoother(on_boundary);
+  smoothUsingBLVectors(on_boundary);
 
   //limitHeights(1.0);
 
   cout << "heights computed" << endl;
+}
+
+void BoundaryLayerOperation::smoothUsingBLVectors(const QVector<bool>& on_boundary)
+{
+  int n_iter = 4;
+  int n_bl_vec_iter   = 10;
+  int n_bl_vec_smooth = 100;
+
+  // Set grid to normal*height
+  // And set weight factor of edges and corners to 1.
+  QVector<vec3_t> org_grid_pts(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
+  QVector<vec3_t> new_grid_pts(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x(0,0,0);
+    m_Grid->GetPoint(id_node, x.data());
+    org_grid_pts[id_node] = x;
+
+    x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+    m_Grid->GetPoints()->SetPoint(id_node, x.data());
+    new_grid_pts[id_node] =  x;
+  }
+
+  // Laplacian on points
+  for (int iter = 0; iter < n_iter; iter++) {
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+
+        // !!!!!!!   Warning, this might not be robust enough for complex geometries !!!!!!!
+        bool shared_boundary = false;
+        {
+          QVector<int> bc_ids;
+          for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+            int bc = m_Part.n2bcG(id_node, i);
+            if (!m_BoundaryLayerCodes.contains(bc)
+                && !bc_ids.contains(bc) )
+            {
+              bc_ids.append(bc);
+            }
+          }
+
+          if ( bc_ids.size() > 1 ) continue;
+
+          if (bc_ids.size() == 1) {
+            shared_boundary = true;
+          }
+        }
+
+        vec3_t avg_pnt(0,0,0);
+        int count = 0;
+        if (!shared_boundary) {
+          double area = 0;
+          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+            vec3_t cell_ctr = cellCentre(m_Grid, id_cell);
+            double cell_area = cellVA(m_Grid, id_cell);
+            avg_pnt += cell_area*cell_ctr;
+            area += cell_area;
+            ++count;
+          }
+          if (count == 0)
+            continue;
+          avg_pnt *= 1.0/area;
+        }
+        if (shared_boundary) {
+          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+            if (on_boundary[id_neigh]) {
+              vec3_t x(0,0,0);
+              m_Grid->GetPoint(id_neigh, x.data());
+              avg_pnt += x;
+              ++count;
+            }
+          }
+          if (count == 0)
+            continue;
+          avg_pnt *= 1.0/count;
+        }
+
+        if (on_boundary[id_node]) {
+          vec3_t node_pnt(0,0,0);
+          m_Grid->GetPoint(id_node, node_pnt.data());
+          double n = 1./3.;
+          avg_pnt = (1-n)*node_pnt + n*(avg_pnt);
+        }
+        //vec3_t new_vec = avg_pnt - org_grid_pts[id_node];
+        //m_Height[id_node] = new_vec.abs();
+        //new_vec.normalise();
+        //m_BoundaryLayerVectors[id_node] = new_vec;
+        new_grid_pts[id_node] = avg_pnt;
+      }
+    }
+    // Set grid to new points
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        m_Grid->GetPoints()->SetPoint(id_node, new_grid_pts[id_node].data());
+      }
+    }
+  }
+
+  //- Create subgrid from shell
+  EG_VTKSP(vtkUnstructuredGrid, bl_grid);
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  MeshPartition bl_part(m_Grid);
+  QList<vtkIdType> bl_faces;
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, m_Grid)) {
+      if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
+        bl_faces.append(id_cell);
+      }
+    }
+  }
+  bl_part.setCells(bl_faces);
+  bl_part.extractToVtkGrid(bl_grid);
+
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      m_Grid->GetPoints()->SetPoint(id_node, org_grid_pts[id_node].data());
+    }
+  }
+  //- End of shell creation
+
+  newHeightFromShellIntersect(org_grid_pts, bl_grid);
+  // Print out shell
+  {
+      QString it_n;
+      it_n.setNum(0);
+      if (it_n.size() < 2) {
+        it_n = QString("0") + it_n;
+      }
+      QString filename = QString("grid_normals_") + it_n;
+      writeBoundaryLayerVectors(filename);
+  }
+
+  bool mesh_break = false;
+  for (int iter = 0; iter < n_bl_vec_iter; ++iter) {
+    cout << "iteration number =>" << iter << endl;
+    // change to cells?
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        for (int i = 0; i < m_Part.n2cGSize(id_node); i++){
+          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+          if (faceFine(id_cell, 1.0)) {
+            mesh_break = true;
+            break;
+          }
+        }
+        if (mesh_break) {
+          break;
+        }
+      }
+    }
+    if (mesh_break) {
+      cout << "  ++ Smoothing BL vectors ++" << endl;
+      mesh_break = false;
+      smoothBoundaryLayerVectors(n_bl_vec_smooth);
+      newHeightFromShellIntersect(org_grid_pts, bl_grid);
+
+      // output to file
+      QString it_n;
+      it_n.setNum(iter+1);
+      if (it_n.size() < 2) {
+        it_n = QString("0") + it_n;
+      }
+      QString filename = QString("grid_normals_") + it_n;
+      writeBoundaryLayerVectors(filename);
+      continue;
+    }
+    break;
+  }
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      vec3_t x = org_grid_pts[id_node];
+      m_Grid->GetPoints()->SetPoint(id_node, x.data());
+    }
+  }
+}
+
+// Compute intersection points with a shell following m_BoundaryLayerVector
+// Updates m_Height
+void BoundaryLayerOperation::newHeightFromShellIntersect(const QVector<vec3_t>& org_grid_pts, vtkUnstructuredGrid* shell_grid)
+{
+  CgalTriCadInterface cad(shell_grid);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      vec3_t org_pnt = org_grid_pts[id_node];
+      QVector<QPair<vec3_t, vtkIdType> > intersections;
+      cad.computeIntersections(org_pnt, m_BoundaryLayerVectors[id_node], intersections);
+
+      QVector<QPair<double, vec3_t> > intersect_vec;
+      for (int i = 0; i < intersections.size(); ++i) {
+        vec3_t xi = intersections[i].first;
+        vec3_t new_vec = xi - org_pnt;
+        if (new_vec*m_BoundaryLayerVectors[id_node] < 0) {
+          continue;
+        }
+        double length = new_vec.abs();
+        intersect_vec.append(QPair<double, vec3_t>(length, xi));
+      }
+      vec3_t new_pnt(0,0,0);
+      double length = 1e99;
+      for (int i = 0; i < intersect_vec.size(); ++i) {
+        if (intersect_vec[i].first < length) {
+          length = intersect_vec[i].first;
+          new_pnt = intersect_vec[i].second;
+        }
+      }
+      //vec3_t new_vec = new_pnt - org_pnt;
+      //m_Height[id_node] = new_vec.abs();
+      //new_vec.normalise();
+      //m_BoundaryLayerVectors[id_node] = new_vec;
+      m_Height[id_node] = length;
+    }
+  }
 }
 
 void BoundaryLayerOperation::limitSizeAndAngleErrors()
@@ -696,6 +907,207 @@ void BoundaryLayerOperation::limitSizeAndAngleErrors()
 }
 
 
+void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
+{
+  int n_iter = 20;
+  double weight_const = 1.;
+  const double PI = 3.14159265359;
+
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (int iter = 0; iter < n_iter; ++iter) {
+    // Set points to bl_normal*height
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        vec3_t x(0,0,0);
+        m_Grid->GetPoint(id_node, x.data());
+        x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+        m_Grid->GetPoints()->SetPoint(id_node, x.data());
+      }
+    }
+
+    QVector<int> move_count(grid_pnts.size());
+    QVector<vec3_t> grid_smoothed(grid_pnts.size(), vec3_t(0,0,0));
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        for (vtkIdType i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+          if (!m_BoundaryLayerNode[id_neigh]) continue;
+          if (id_neigh < id_node) continue;
+          if (on_boundary[id_node] && on_boundary[id_neigh]) continue;
+
+          QList<vtkIdType> edge_faces;
+          m_Part.getEdgeFaces(id_node, id_neigh, edge_faces);
+          // Test for 2 faces
+          int count = 0;
+          for (int j = 0; j < edge_faces.size(); ++j) {
+            if (m_BoundaryLayerCodes.contains(cell_code->GetValue(edge_faces[j]))) {
+              ++count;
+            }
+          }
+          if (count < 2 ) continue;
+          if (edge_faces.size() > 2) EG_BUG;
+
+          // Prepare cell info
+          vtkIdType id_cell_1 = edge_faces[0];
+          vtkIdType id_cell_2 = edge_faces[1];
+          vtkIdType npts_c1, *pts_c1;
+          vtkIdType npts_c2, *pts_c2;
+          m_Grid->GetCellPoints(id_cell_1, npts_c1, pts_c1);
+          m_Grid->GetCellPoints(id_cell_2, npts_c2, pts_c2);
+          if (npts_c1 != 3 || npts_c2 !=3) EG_BUG;
+
+          vtkIdType id_n3_c1;
+          vtkIdType id_n3_c2;
+          for (int j = 0; j < npts_c1; j++) {
+            if ( pts_c1[j] != id_node && pts_c1[j] != id_neigh) {
+              id_n3_c1 = pts_c1[j];
+            }
+          }
+          for (int j = 0; j < npts_c2; j++) {
+            if ( pts_c2[j] != id_node && pts_c2[j] != id_neigh) {
+              id_n3_c2 = pts_c2[j];
+            }
+          }
+
+          vec3_t normal_c1 = cellNormal(m_Grid, id_cell_1);
+          vec3_t normal_c2 = cellNormal(m_Grid, id_cell_2);
+
+          double angle = GeometryTools::angle(normal_c1, normal_c2);
+          if (rad2deg(angle) < 1) continue;
+
+          double spring_angle = weight_const*angle*angle/(PI*PI);
+
+          vec3_t x_node(0,0,0);
+          vec3_t x_neigh(0,0,0);
+          vec3_t x_n3_c1(0,0,0);
+          vec3_t x_n3_c2(0,0,0);
+          m_Grid->GetPoint(id_node,  x_node.data());
+          m_Grid->GetPoint(id_neigh, x_neigh.data());
+          m_Grid->GetPoint(id_n3_c1, x_n3_c1.data());
+          m_Grid->GetPoint(id_n3_c2, x_n3_c2.data());
+
+          vec3_t axis = x_node.cross(x_neigh);
+          vec3_t v1 = x_n3_c1 - x_node;
+          vec3_t v2 = x_n3_c2 - x_node;
+
+          vec3_t cross_vector = axis.cross(v1);
+          vec3_t v1_rot(0,0,0);
+          vec3_t v2_rot(0,0,0);
+          if (cross_vector*normal_c1 > 0) {
+            v1_rot = GeometryTools::rotate(v1, axis,  spring_angle);
+            v2_rot = GeometryTools::rotate(v2, axis, -spring_angle);
+          }
+          else {
+            v1_rot = GeometryTools::rotate(v1, axis, -spring_angle);
+            v2_rot = GeometryTools::rotate(v2, axis,  spring_angle);
+          }
+
+          grid_smoothed[id_n3_c1] += x_node + v1_rot;
+          move_count[id_n3_c1] += 1;
+          grid_smoothed[id_n3_c2] += x_node + v2_rot;
+          move_count[id_n3_c2] += 1;
+        }
+      }
+    }
+
+    QVector<double> h_new = m_Height;
+    QVector<vec3_t> new_BoundaryLayerVectors = m_BoundaryLayerVectors;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      m_Grid->GetPoints()->SetPoint(id_node, grid_pnts[id_node].data());
+      if (m_BoundaryLayerNode[id_node]) {
+        if (move_count[id_node] > 0) {
+          grid_smoothed[id_node] *= 1.0/move_count[id_node];
+
+          vec3_t new_norm = grid_smoothed[id_node] - grid_pnts[id_node];
+          h_new[id_node] = new_norm.abs();
+          new_norm.normalise();
+          new_BoundaryLayerVectors[id_node] = new_norm;
+        }
+      }
+    }
+    double max_diff = 0;
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      double diff = m_Height[id_node] - h_new[id_node];
+      diff = std::sqrt(diff*diff);
+      max_diff = std::max(max_diff, diff);
+    }
+    cout << "==========================  max diff->" << max_diff << endl;
+    m_Height = h_new;
+    m_BoundaryLayerVectors = new_BoundaryLayerVectors;
+  }
+}
+
+int BoundaryLayerOperation::limitHeights(double safety_factor)
+{
+  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
+
+  QVector<bool> limited(m_Grid->GetNumberOfPoints(), false);
+  // save original node positions to x_old
+  QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Grid->GetPoint(id_node, x_old[id_node].data());
+  }
+
+  for (int pass = 1; pass <= 2; ++pass) {
+
+    // move nodes for second pass
+    if (pass == 2) {
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          vec3_t x = x_old[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+          m_Grid->GetPoints()->SetPoint(id_node, x.data());
+        }
+      }
+    }
+
+    CgalTriCadInterface cad(m_Grid);
+
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_BoundaryLayerNode[id_node]) {
+        QList<vtkIdType> cells_of_node;
+        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+          cells_of_node.append(m_Part.n2cGG(id_node, i));
+        }
+        QVector<QPair<vec3_t, vtkIdType> > intersections;
+        cad.computeIntersections(x_old[id_node], m_BoundaryLayerVectors[id_node], intersections);
+        for (int i = 0; i < intersections.size(); ++i) {
+          QPair<vec3_t,vtkIdType> inters = intersections[i];
+          vec3_t xi = inters.first;
+          vtkIdType id_tri = inters.second;
+          if (!cells_of_node.contains(id_tri)) {
+
+            double crit_angle = deg2rad(200.0); // consider all intersections
+
+            if (m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
+              crit_angle = deg2rad(85.0); // different angle for adjacent boundaries
+            }
+
+            vec3_t dx = xi - x_old[id_node];
+            double alpha = angle(dx, cellNormal(m_Grid, id_tri));
+            if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
+              double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
+              if (h_max < m_Height[id_node]) {
+                m_Height[id_node] = h_max;
+                limited[id_node] = true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // reset node positions and count nodes where the height has been limited
+  int num_limited = 0;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_Grid->GetPoints()->SetPoint(id_node, x_old[id_node].data());
+    if (limited[id_node]) {
+      ++num_limited;
+    }
+  }
+
+  return num_limited;
+}
 
 void BoundaryLayerOperation::laplacianIntersectSmoother(const QVector<bool>& on_boundary)
 {
@@ -907,495 +1319,4 @@ void BoundaryLayerOperation::laplacianIntersectSmoother(const QVector<bool>& on_
       m_Grid->GetPoints()->SetPoint(id_node, x.data());
     }
   }
-}
-
-void BoundaryLayerOperation::weightedSmoother(const QVector<bool>& on_boundary)
-{
-  int n_diff = 15;
-  int n_iter = 6;
-
-  // Set grid to normal*height
-  // And set weight factor of edges and corners to 1.
-  QVector<vec3_t> org_grid(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  QVector<vec3_t> work_grid(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  QVector<double> weight_factor(m_Grid->GetNumberOfPoints(), 0.0);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x(0,0,0);
-    m_Grid->GetPoint(id_node, x.data());
-    org_grid[id_node] = x;
-
-    if (m_BoundaryLayerNode[id_node]) {
-      x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-      m_Grid->GetPoints()->SetPoint(id_node, x.data());
-      work_grid[id_node] =  x;
-
-      if ( (m_NodeTypes[id_node] == EdgeNode || m_NodeTypes[id_node] == CornerNode)) {
-        weight_factor[id_node] = 1.0;
-      }
-    }
-  }
-
-  // Diffuse out
-  for (int iter = 0; iter < n_diff; iter++) {
-    QVector<double> new_w_factor(weight_factor.size(), 0.0);
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        if ( m_NodeTypes[id_node] != EdgeNode
-          && m_NodeTypes[id_node] != CornerNode)
-        {
-          int count = 0;
-          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-            new_w_factor[id_node] += weight_factor[id_neigh];
-            count++;
-          }
-          if (count > 0) {
-            new_w_factor[id_node] /= count;
-          }
-        }
-        else {
-          new_w_factor[id_node] = 1.0;
-        }
-      }
-    }
-    weight_factor = new_w_factor;
-  }
-
-  // Laplacian on points
-  for (int iter = 0; iter < n_iter; iter++){
-    QVector<vec3_t> new_grid = work_grid;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-
-        // !!!!!!!   Warning, this might not be robust enough for complex geometries !!!!!!!
-        bool shared_boundary = false;
-        {
-          QVector<int> bc_ids;
-          for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
-            int bc = m_Part.n2bcG(id_node, i);
-            if (!m_BoundaryLayerCodes.contains(bc)
-                && !bc_ids.contains(bc) )
-            {
-                bc_ids.append(bc);
-            }
-          }
-
-          if ( bc_ids.size() > 1 ) continue;
-
-          if (bc_ids.size() == 1) {
-            shared_boundary = true;
-          }
-        }
-
-        vec3_t avg_pnt(0,0,0);
-        int count = 0;
-        if (!shared_boundary) {
-          double area = 0;
-          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-            vec3_t cell_ctr = cellCentre(m_Grid, id_cell);
-            double cell_area = cellVA(m_Grid, id_cell);
-            avg_pnt += cell_area*cell_ctr;
-            area += cell_area;
-            ++count;
-          }
-          avg_pnt *= 1.0/area;
-        }
-        if (shared_boundary) {
-          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-            if (on_boundary[id_neigh]) {
-              vec3_t x(0,0,0);
-              m_Grid->GetPoint(id_neigh, x.data());
-              avg_pnt += x;
-              ++count;
-            }
-          }
-          avg_pnt *= 1.0/count;
-        }
-
-        if (count > 1) {
-          vec3_t org_pnt = org_grid[id_node];
-          vec3_t node_pnt(0,0,0);
-          m_Grid->GetPoint(id_node, node_pnt.data());
-
-          double n = weight_factor[id_node];
-          if (  m_NodeTypes[id_node] == EdgeNode
-             || m_NodeTypes[id_node] == CornerNode ) {
-            vec3_t avg_vec = (avg_pnt - org_pnt).abs()*vec3_t(avg_pnt - org_pnt).normalise();
-            vec3_t proj_norm = avg_vec.abs()*m_BoundaryLayerVectors[id_node];
-            vec3_t proj_pnt  = ((avg_vec*proj_norm)/proj_norm.abs2())*proj_norm + org_pnt;
-
-            if (on_boundary[id_node]) {
-              n *= 1./3.;
-            }
-            vec3_t new_pnt = (1-n)*node_pnt + n*proj_pnt;
-            m_Height[id_node] = (new_pnt - org_pnt).abs();
-            new_grid[id_node] = new_pnt;
-          }
-          else {
-            vec3_t new_pnt = (1-n)*node_pnt + n*(avg_pnt);
-            vec3_t new_vec = new_pnt - org_pnt;
-
-            m_Height[id_node] = new_vec.abs();
-            new_vec.normalise();
-            m_BoundaryLayerVectors[id_node] = new_vec;
-            new_grid[id_node] = new_pnt;
-          }
-        }
-      }
-    }
-
-    // Set grid to new points
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        vec3_t x = new_grid[id_node];
-        m_Grid->GetPoints()->SetPoint(id_node, x.data());
-      }
-    }
-  }
-
-  // Set grid to original points before return
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      vec3_t x = org_grid[id_node];
-      m_Grid->GetPoints()->SetPoint(id_node, x.data());
-    }
-  }
-}
-
-void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
-{
-  int n_iter = 20;
-  double weight_const = 1.;
-  const double PI = 3.14159265359;
-
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  for (int iter = 0; iter < n_iter; ++iter) {
-    // Set points to bl_normal*height
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        vec3_t x(0,0,0);
-        m_Grid->GetPoint(id_node, x.data());
-        x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-        m_Grid->GetPoints()->SetPoint(id_node, x.data());
-      }
-    }
-
-    QVector<int> move_count(grid_pnts.size());
-    QVector<vec3_t> grid_smoothed(grid_pnts.size(), vec3_t(0,0,0));
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        for (vtkIdType i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-          if (!m_BoundaryLayerNode[id_neigh]) continue;
-          if (id_neigh < id_node) continue;
-          if (on_boundary[id_node] && on_boundary[id_neigh]) continue;
-
-          QList<vtkIdType> edge_faces;
-          m_Part.getEdgeFaces(id_node, id_neigh, edge_faces);
-          // Test for 2 faces
-          int count = 0;
-          for (int j = 0; j < edge_faces.size(); ++j) {
-            if (m_BoundaryLayerCodes.contains(cell_code->GetValue(edge_faces[j]))) {
-              ++count;
-            }
-          }
-          if (count < 2 ) continue;
-          if (edge_faces.size() > 2) EG_BUG;
-
-          // Prepare cell info
-          vtkIdType id_cell_1 = edge_faces[0];
-          vtkIdType id_cell_2 = edge_faces[1];
-          vtkIdType npts_c1, *pts_c1;
-          vtkIdType npts_c2, *pts_c2;
-          m_Grid->GetCellPoints(id_cell_1, npts_c1, pts_c1);
-          m_Grid->GetCellPoints(id_cell_2, npts_c2, pts_c2);
-          if (npts_c1 != 3 || npts_c2 !=3) EG_BUG;
-
-          vtkIdType id_n3_c1;
-          vtkIdType id_n3_c2;
-          for (int j = 0; j < npts_c1; j++) {
-            if ( pts_c1[j] != id_node && pts_c1[j] != id_neigh) {
-              id_n3_c1 = pts_c1[j];
-            }
-          }
-          for (int j = 0; j < npts_c2; j++) {
-            if ( pts_c2[j] != id_node && pts_c2[j] != id_neigh) {
-              id_n3_c2 = pts_c2[j];
-            }
-          }
-
-          vec3_t normal_c1 = cellNormal(m_Grid, id_cell_1);
-          vec3_t normal_c2 = cellNormal(m_Grid, id_cell_2);
-
-          double angle = GeometryTools::angle(normal_c1, normal_c2);
-          if (rad2deg(angle) < 1) continue;
-
-          double spring_angle = weight_const*angle*angle/(PI*PI);
-
-          vec3_t x_node(0,0,0);
-          vec3_t x_neigh(0,0,0);
-          vec3_t x_n3_c1(0,0,0);
-          vec3_t x_n3_c2(0,0,0);
-          m_Grid->GetPoint(id_node,  x_node.data());
-          m_Grid->GetPoint(id_neigh, x_neigh.data());
-          m_Grid->GetPoint(id_n3_c1, x_n3_c1.data());
-          m_Grid->GetPoint(id_n3_c2, x_n3_c2.data());
-
-          vec3_t axis = x_node.cross(x_neigh);
-          vec3_t v1 = x_n3_c1 - x_node;
-          vec3_t v2 = x_n3_c2 - x_node;
-
-          vec3_t cross_vector = axis.cross(v1);
-          vec3_t v1_rot(0,0,0);
-          vec3_t v2_rot(0,0,0);
-          if (cross_vector*normal_c1 > 0) {
-            v1_rot = GeometryTools::rotate(v1, axis,  spring_angle);
-            v2_rot = GeometryTools::rotate(v2, axis, -spring_angle);
-          }
-          else {
-            v1_rot = GeometryTools::rotate(v1, axis, -spring_angle);
-            v2_rot = GeometryTools::rotate(v2, axis,  spring_angle);
-          }
-
-          grid_smoothed[id_n3_c1] += x_node + v1_rot;
-          move_count[id_n3_c1] += 1;
-          grid_smoothed[id_n3_c2] += x_node + v2_rot;
-          move_count[id_n3_c2] += 1;
-        }
-      }
-    }
-
-    QVector<double> h_new = m_Height;
-    QVector<vec3_t> new_BoundaryLayerVectors = m_BoundaryLayerVectors;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      m_Grid->GetPoints()->SetPoint(id_node, grid_pnts[id_node].data());
-      if (m_BoundaryLayerNode[id_node]) {
-        if (move_count[id_node] > 0) {
-          grid_smoothed[id_node] *= 1.0/move_count[id_node];
-
-          vec3_t new_norm = grid_smoothed[id_node] - grid_pnts[id_node];
-          h_new[id_node] = new_norm.abs();
-          new_norm.normalise();
-          new_BoundaryLayerVectors[id_node] = new_norm;
-        }
-      }
-    }
-    double max_diff = 0;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      double diff = m_Height[id_node] - h_new[id_node];
-      diff = std::sqrt(diff*diff);
-      max_diff = std::max(max_diff, diff);
-    }
-    cout << "==========================  max diff->" << max_diff << endl;
-    m_Height = h_new;
-    m_BoundaryLayerVectors = new_BoundaryLayerVectors;
-  }
-}
-
-void BoundaryLayerOperation::intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
-{
-  double relaxation = 0.00;
-  double relaxation_edges = 1.;
-  int n_iter = 1;
-  for (int iter = 0; iter < n_iter; ++iter) {
-    // set coordinates to height vector
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        vec3_t x(0,0,0);
-        m_Grid->GetPoint(id_node, x.data());
-        x += m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-        m_Grid->GetPoints()->SetPoint(id_node, x.data());
-      }
-    }
-
-    QVector<double> h_new = m_Height;
-    // average neighbouring points
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        vec3_t x_old(0,0,0);
-        m_Grid->GetPoint(id_node, x_old.data());
-        vec3_t x_org = grid_pnts[id_node];
-        vec3_t x_org_norm = m_BoundaryLayerVectors[id_node];
-        vec3_t x_centre(0,0,0);
-        vec3_t x_normal(0,0,0);
-        int N = m_Part.n2cGSize(id_node);
-        for (int i = 0; i < N; ++i) {
-          vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-          x_centre += cellCentre(m_Grid, id_cell);
-          x_normal += cellNormal(m_Grid, id_cell);
-        }
-        x_centre *= 1.0/N;
-        x_normal.normalise();
-
-        //double intersect = intersection(x_org, x_org_norm, x_centre, x_normal);
-        double intersect = intersection(x_org, x_org_norm, x_centre, x_org_norm);
-
-        vec3_t x_project = x_org + intersect*x_org_norm;
-
-        vec3_t x_new(0,0,0);
-        if (m_NodeTypes[id_node] == NormalNode)
-        {
-          x_new = relaxation*x_project + (1-relaxation)*x_old;
-        } else if(is_convex[id_node] || !on_boundary[id_node]){
-          if (id_node == 20)
-            cout << "relaxing node 20" << endl;
-          x_new = relaxation_edges*x_project + (1-relaxation_edges)*x_old;
-        }
-        else {
-          x_new = relaxation*x_project + (1-relaxation)*x_old;
-        }
-
-        h_new[id_node] = (x_new - x_org).abs();
-      }
-    }
-    m_Height = h_new;
-
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      m_Grid->GetPoints()->SetPoint(id_node, grid_pnts[id_node].data());
-    }
-  }
-}
-
-void BoundaryLayerOperation::laplacianSmoother()
-{
-  for (int iter = 0; iter < 1; ++iter) {
-    cout << "-------------- Smoothing" << endl;
-    QVector<double> h_new = m_Height;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]
-          && !(m_NodeTypes[id_node] == EdgeNode) )
-          //&& !(m_NodeTypes[id_node] == CornerNode) )
-      {
-        int count = 0;
-        h_new[id_node] = 0;
-        for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-          if (m_BoundaryLayerNode[id_neigh]) {
-            ++count;
-            h_new[id_node] += m_Height[id_neigh];
-          }
-        }
-        if (count == 0) {
-          EG_BUG;
-        }
-        h_new[id_node] /= count;
-      }
-    }
-    m_Height = h_new;
-  }
-}
-
-void BoundaryLayerOperation::pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex)
-{
-  QVector<double> h_new = m_Height;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      if (m_NodeTypes[id_node] == NormalNode) {
-        h_new[id_node] *= 1.25;
-      }
-      if (m_NodeTypes[id_node] == EdgeNode) {
-        if (!on_boundary[id_node] && is_convex[id_node]) {
-          h_new[id_node] *= 1.5;
-        }
-        else if(on_boundary[id_node]){
-          h_new[id_node] *= 1.25;
-        }
-      }
-      if (m_NodeTypes[id_node] == CornerNode) {
-        if (!on_boundary[id_node] && is_convex[id_node]) {
-          h_new[id_node] *= 1.5;
-        }
-
-        bool corner_push = true;
-        for (int i = 0; i < m_Part.n2nGSize(id_node); i++) {
-          vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-          if (m_BoundaryLayerNode[id_neigh]
-              && !on_boundary[id_neigh]
-              && m_NodeTypes[id_neigh] != NormalNode)
-          {
-            corner_push = false;
-            break;
-          }
-        }
-        if(on_boundary[id_node] && corner_push) {
-          h_new[id_node] *= 1.25;
-        }
-      }
-    }
-  }
-  m_Height = h_new;
-}
-
-int BoundaryLayerOperation::limitHeights(double safety_factor)
-{
-  EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
-
-  QVector<bool> limited(m_Grid->GetNumberOfPoints(), false);
-  // save original node positions to x_old
-  QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    m_Grid->GetPoint(id_node, x_old[id_node].data());
-  }
-
-  for (int pass = 1; pass <= 2; ++pass) {
-
-    // move nodes for second pass
-    if (pass == 2) {
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        if (m_BoundaryLayerNode[id_node]) {
-          vec3_t x = x_old[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-          m_Grid->GetPoints()->SetPoint(id_node, x.data());
-        }
-      }
-    }
-
-    CgalTriCadInterface cad(m_Grid);
-
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        QList<vtkIdType> cells_of_node;
-        for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-          cells_of_node.append(m_Part.n2cGG(id_node, i));
-        }
-        QVector<QPair<vec3_t, vtkIdType> > intersections;
-        cad.computeIntersections(x_old[id_node], m_BoundaryLayerVectors[id_node], intersections);
-        for (int i = 0; i < intersections.size(); ++i) {
-          QPair<vec3_t,vtkIdType> inters = intersections[i];
-          vec3_t xi = inters.first;
-          vtkIdType id_tri = inters.second;
-          if (!cells_of_node.contains(id_tri)) {
-
-            double crit_angle = deg2rad(200.0); // consider all intersections
-
-            if (m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_tri))) {
-              crit_angle = deg2rad(85.0); // different angle for adjacent boundaries
-            }
-
-            vec3_t dx = xi - x_old[id_node];
-            double alpha = angle(dx, cellNormal(m_Grid, id_tri));
-            if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
-              double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
-              if (h_max < m_Height[id_node]) {
-                m_Height[id_node] = h_max;
-                limited[id_node] = true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // reset node positions and count nodes where the height has been limited
-  int num_limited = 0;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    m_Grid->GetPoints()->SetPoint(id_node, x_old[id_node].data());
-    if (limited[id_node]) {
-      ++num_limited;
-    }
-  }
-
-  return num_limited;
 }
