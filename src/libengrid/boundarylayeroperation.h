@@ -75,10 +75,10 @@ protected: // methods
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
 
-  void   createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter, const QVector<bool> &on_boundary);
+  void   createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter);
   void   fixBoundaryLayerVectors(const QList<vtkIdType> &bad_cells, int num_smooth_iter);
   double largestAngle(vtkIdType id_node1, vtkIdType id_node2);
-  void   smoothUsingBLVectors(const QVector<bool>& on_boundary);
+  void   smoothUsingBLVectors();
   void   writeWallGrid(QString file_name, int counter = -1);
 
   void laplacianIntersectSmoother(const QVector<bool>& on_boundary);
@@ -88,6 +88,7 @@ protected: // methods
   void laplacianSmoother();
   void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
   int  limitHeights(double safety_factor);
+  void snapCornerVectorsToShell(vtkUnstructuredGrid* shell_grid);
   void newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid);
   void limitSizeAndAngleErrors();
 

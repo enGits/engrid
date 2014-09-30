@@ -33,7 +33,6 @@ class vtkEgGridFilter;
 #include <vtkCellLinks.h>
 #include <vtkObjectFactory.h>
 
-#include <QSet>
 #include <QVector>
 
 #include "engrid.h"
@@ -66,14 +65,41 @@ protected: // methods
    * @param cells On return, this will contain the indexes of the extracted boundary elements.
    * @param modes On return, this will contain the indexes of the extracted boundary nodes.
    * @param grid  The grid to operate on.
-   * @param bc    A set of the boundary conditions to extract.
+   * @param bc_c  A Qt container with the boundary conditions to extract.
    */
-  void ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdType> &nodes, QSet<int> &bc, vtkUnstructuredGrid *grid);
+  void ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdType> &nodes, QSet<int> &bc_c, vtkUnstructuredGrid *grid);
   
 public: // methods
   
-  void SetBoundaryCodes(const QSet<int>& bc);
-  
+  template <typename C>
+  void SetBoundaryCodes(const C& bc);
+  virtual void Update() { vtkAlgorithm::Update(); ExecuteEg(); }
+
 };
+
+template <typename C>
+void vtkEgGridFilter::SetBoundaryCodes(const C &bc_c)
+{
+  bool update = false;
+
+  QSet<int> bc_set;
+  foreach (int bc , bc_c) {
+    bc_set.insert(bc);
+  }
+
+  if (m_BoundaryCodes.size() != bc_set.size()) {
+    update = true;
+  } else {
+    QSet<int> bc_inters = m_BoundaryCodes.intersect(bc_set);
+    if (bc_inters.size() != bc_set.size()) {
+      update = true;
+    }
+  }
+  if (update) {
+    m_BoundaryCodes = bc_set;
+    Modified();
+  }
+}
+
 
 #endif

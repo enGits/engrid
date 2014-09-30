@@ -24,6 +24,13 @@
 #include "guimainwindow.h"
 #include "pointfinder.h"
 #include "cgaltricadinterface.h"
+#include "geometrysmoother.h"
+#include "vtkEgPolyDataToUnstructuredGridFilter.h"
+
+#include <vtkDataSetSurfaceFilter.h>
+#include <vtkLoopSubdivisionFilter.h>
+#include <vtkLinearSubdivisionFilter.h>
+#include <vtkSmoothPolyDataFilter.h>
 
 void BoundaryLayerOperation::readSettings()
 {
@@ -650,17 +657,73 @@ void BoundaryLayerOperation::computeHeights()
 
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
-  smoothUsingBLVectors(on_boundary);
+  smoothUsingBLVectors();
 
   //limitHeights(1.0);
 
   cout << "heights computed" << endl;
 }
 
-void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter, const QVector<bool>& on_boundary)
+void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter)
 {
+  // new version based on VTK technology
+
+  // Set grid to normal*height
+  QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
+  QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x(0,0,0);
+    m_Grid->GetPoint(id_node, x_org[id_node].data());
+    x_new[id_node] = x_org[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+    m_Grid->GetPoints()->SetPoint(id_node, x_new[id_node].data());
+  }
+
+  // extract wall boundaries to a separate grid
+  EG_VTKSP(vtkEgBoundaryCodesFilter, extract_wall);
+  EG_VTKSP(vtkUnstructuredGrid, wall_grid);
+  extract_wall->SetInputData(m_Grid);
+  extract_wall->SetBoundaryCodes(m_BoundaryLayerCodes);
+  extract_wall->Update();
+  writeGrid(extract_wall->GetOutput(), "walls_from_vtk");
+
+  EG_VTKSP(vtkDataSetSurfaceFilter, grid_to_pdata);
+  grid_to_pdata->SetInputConnection(extract_wall->GetOutputPort());
+  EG_VTKSP(vtkLinearSubdivisionFilter, subdiv);
+  subdiv->SetInputConnection(grid_to_pdata->GetOutputPort());
+  subdiv->SetNumberOfSubdivisions(2);
+  /*
+  EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+  smooth->SetInputConnection(subdiv->GetOutputPort());
+  smooth->BoundarySmoothingOff();
+  smooth->FeatureEdgeSmoothingOn();
+  smooth->SetFeatureAngle(180);
+  smooth->SetEdgeAngle(20);
+  smooth->SetNumberOfIterations(num_iter);
+  smooth->Update();
+  cout << "rf = " << smooth->GetRelaxationFactor() << endl;
+  */
+  EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata_to_grid);
+  pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
+  pdata_to_grid->Update();
+  makeCopy(pdata_to_grid->GetOutput(), shell_grid);
+
+  GeometrySmoother smooth;
+  smooth.setGrid(shell_grid);
+  smooth.setNumberOfIterations(num_iter);
+  smooth();
+
+  // reset grid to original points
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
+    }
+  }
+
+
+
   // Set grid to normal*height
   // And set weight factor of edges and corners to 1.
+  /*
   QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
   QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -769,6 +832,7 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
       m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
     }
   }
+  */
 }
 
 double BoundaryLayerOperation::largestAngle(vtkIdType id_node1, vtkIdType id_node2)
@@ -833,15 +897,13 @@ void BoundaryLayerOperation::writeWallGrid(QString file_name, int counter)
   writeGrid(wall_grid, file_name);
 }
 
-void BoundaryLayerOperation::smoothUsingBLVectors(const QVector<bool>& on_boundary)
+void BoundaryLayerOperation::smoothUsingBLVectors()
 {
-  int n_iter = 4;
-  int n_bl_vec_iter   = 10;
-  int n_bl_vec_smooth = 100;
+  int n_iter = 400;
 
   // create shell
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
-  createSmoothShell(shell_grid, n_iter, on_boundary);
+  createSmoothShell(shell_grid, n_iter);
 
   newHeightFromShellIntersect(shell_grid);
   writeGrid(shell_grid, "shell");
@@ -853,16 +915,22 @@ void BoundaryLayerOperation::smoothUsingBLVectors(const QVector<bool>& on_bounda
 
   double w_iso = 1.0;
   double w_dir = 0.0;
-  double dw    = 0.05;
+  double dw    = 0.01;
 
   int iter = 0;
 
   double face_angle_limit      = m_FaceAngleLimit;
   double face_size_lower_limit = m_FaceSizeLowerLimit;
   double face_size_upper_limit = m_FaceSizeUpperLimit;
-  m_FaceAngleLimit = deg2rad(90);
-  m_FaceSizeLowerLimit = 0.05;
-  m_FaceSizeUpperLimit = 20.0;
+  //m_FaceAngleLimit = deg2rad(90);
+  //m_FaceSizeLowerLimit = 0.05;
+  //m_FaceSizeUpperLimit = 20.0;
+  int last_num_bad = m_Grid->GetNumberOfCells();
+  //QVector<vec3_t> last_vectors = m_BoundaryLayerVectors;
+
+  snapCornerVectorsToShell(shell_grid);
+  smoothBoundaryLayerVectors(10, w_iso, w_dir);
+
   do {
     writeBoundaryLayerVectors("wall", iter);
     bad_cells.clear();
@@ -873,20 +941,43 @@ void BoundaryLayerOperation::smoothUsingBLVectors(const QVector<bool>& on_bounda
         }
       }
     }
+    cout << "found " << bad_cells.size() << " distorted faces" << endl;
 
     if (bad_cells.size() > 0) {
-      cout << "found " << bad_cells.size() << " distorted faces" << endl;
-      //fixBoundaryLayerVectors(bad_cells, 10);
-      smoothBoundaryLayerVectors(20, w_iso, w_dir);
-      newHeightFromShellIntersect(shell_grid);
+      if (bad_cells.size() <= last_num_bad) {
+        last_num_bad = bad_cells.size();
+        smoothBoundaryLayerVectors(10, w_iso, w_dir);
+        newHeightFromShellIntersect(shell_grid);
+      } else {
+        cout << "cannot fix completely -- terminating the loop!" << endl;
+        cout << "your grid might still be okay, however ..." << endl;
+        break;
+      }
     }
     w_iso -= dw;
     w_dir += dw;
     ++iter;
-  } while (bad_cells.size() > 0 && w_iso >= 0.6);
+  } while (bad_cells.size() > 0 && w_iso >= 0.0);
   m_FaceAngleLimit     = face_angle_limit;
   m_FaceSizeLowerLimit = face_size_lower_limit;
   m_FaceSizeUpperLimit = face_size_upper_limit;
+}
+
+void BoundaryLayerOperation::snapCornerVectorsToShell(vtkUnstructuredGrid *shell_grid)
+{
+  CgalTriCadInterface cad(shell_grid);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      if (m_NodeTypes[id_node] == CornerNode) {
+        vec3_t x1;
+        m_Grid->GetPoint(id_node, x1.data());
+        vec3_t x2 = cad.snap(x1);
+        m_BoundaryLayerVectors[id_node] = x2 - x1;
+        m_Height[id_node] = m_BoundaryLayerVectors[id_node].abs();
+        m_BoundaryLayerVectors[id_node].normalise();
+      }
+    }
+  }
 }
 
 // Compute intersection points with a shell following m_BoundaryLayerVector

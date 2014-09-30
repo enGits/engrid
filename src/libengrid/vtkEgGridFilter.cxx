@@ -97,6 +97,7 @@ int vtkEgGridFilter::RequestData
   return 1;
 }
 
+/*
 void vtkEgGridFilter::SetBoundaryCodes(const QSet<int> &bc)
 {
   bool update = false;
@@ -113,6 +114,7 @@ void vtkEgGridFilter::SetBoundaryCodes(const QSet<int> &bc)
     Modified();
   }
 }
+*/
 
 void vtkEgGridFilter::ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdType>  &nodes, QSet<int> &bc, vtkUnstructuredGrid *grid)
 {

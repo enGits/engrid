@@ -385,11 +385,9 @@ void CreateBoundaryLayerShell::operate()
 {
   prepare();
   writeBoundaryLayerVectors("blayer");
-  //return;
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
-  return;
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     QList<vtkIdType> bad_nodes = correctAdjacentBC(bc);
     if (bad_nodes.size() > 0) {

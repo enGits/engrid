@@ -69,6 +69,7 @@ SET(libengrid_HEADERS
   foamobject.h
   foamreader.h
   foamwriter.h
+  geometrysmoother.h
   geometrytools.h
   globalnodegraphinterface.h
   gmshiooperation.h
@@ -271,6 +272,7 @@ SET(libengrid_SOURCES
   foamobject.cpp
   foamreader.cpp
   foamwriter.cpp
+  geometrysmoother.cpp
   geometrytools.cpp
   gmshiooperation.cpp
   gmshreader.cpp
