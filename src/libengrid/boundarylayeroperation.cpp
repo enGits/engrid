@@ -78,6 +78,7 @@ void BoundaryLayerOperation::readSettings()
     in >> m_FarfieldRatio;
     in >> m_NumBoundaryLayerVectorRelaxations;
     in >> m_NumBoundaryLayerHeightRelaxations;
+    in >> m_NumShellRelaxations;
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
@@ -899,11 +900,9 @@ void BoundaryLayerOperation::writeWallGrid(QString file_name, int counter)
 
 void BoundaryLayerOperation::smoothUsingBLVectors()
 {
-  int n_iter = 400;
-
   // create shell
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
-  createSmoothShell(shell_grid, n_iter);
+  createSmoothShell(shell_grid, m_NumShellRelaxations);
 
   newHeightFromShellIntersect(shell_grid);
   writeGrid(shell_grid, "shell");
@@ -919,14 +918,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 
   int iter = 0;
 
-  double face_angle_limit      = m_FaceAngleLimit;
-  double face_size_lower_limit = m_FaceSizeLowerLimit;
-  double face_size_upper_limit = m_FaceSizeUpperLimit;
-  //m_FaceAngleLimit = deg2rad(90);
-  //m_FaceSizeLowerLimit = 0.05;
-  //m_FaceSizeUpperLimit = 20.0;
   int last_num_bad = m_Grid->GetNumberOfCells();
-  //QVector<vec3_t> last_vectors = m_BoundaryLayerVectors;
 
   snapCornerVectorsToShell(shell_grid);
   smoothBoundaryLayerVectors(10, w_iso, w_dir);
@@ -958,9 +950,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
     w_dir += dw;
     ++iter;
   } while (bad_cells.size() > 0 && w_iso >= 0.0);
-  m_FaceAngleLimit     = face_angle_limit;
-  m_FaceSizeLowerLimit = face_size_lower_limit;
-  m_FaceSizeUpperLimit = face_size_upper_limit;
+  //swapEdgesToMatchShell(shell_grid, deg2rad(5.0));
 }
 
 void BoundaryLayerOperation::snapCornerVectorsToShell(vtkUnstructuredGrid *shell_grid)
@@ -1485,3 +1475,139 @@ void BoundaryLayerOperation::laplacianIntersectSmoother(const QVector<bool>& on_
     }
   }
 }
+
+bool BoundaryLayerOperation::swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle)
+{
+
+  QVector<vec3_t> x(4);
+  m_Grid->GetPoint(stencil.id_node[0], x[0].data());
+  m_Grid->GetPoint(stencil.p1,         x[1].data());
+  m_Grid->GetPoint(stencil.id_node[1], x[2].data());
+  m_Grid->GetPoint(stencil.p2,         x[3].data());
+
+  // centres of triangles
+  vec3_t xc_tri_11 = 0.333333*(x[0] + x[1] + x[3]);
+  vec3_t xc_tri_12 = 0.333333*(x[1] + x[2] + x[3]);
+  vec3_t xc_tri_21 = 0.333333*(x[0] + x[1] + x[2]);
+  vec3_t xc_tri_22 = 0.333333*(x[2] + x[3] + x[0]);
+
+  cad->snap(xc_tri_11);
+  vec3_t n_snap_11 = cad->getLastNormal();
+  cad->snap(xc_tri_12);
+  vec3_t n_snap_12 = cad->getLastNormal();
+  cad->snap(xc_tri_21);
+  vec3_t n_snap_21 = cad->getLastNormal();
+  cad->snap(xc_tri_22);
+  vec3_t n_snap_22 = cad->getLastNormal();
+
+  vec3_t n_tri_11 = GeometryTools::triNormal(x[0], x[1], x[3]).normalise();
+  vec3_t n_tri_12 = GeometryTools::triNormal(x[1], x[2], x[3]).normalise();
+  vec3_t n_tri_21 = GeometryTools::triNormal(x[0], x[1], x[2]).normalise();
+  vec3_t n_tri_22 = GeometryTools::triNormal(x[2], x[3], x[0]).normalise();
+
+  double alpha_11 = GeometryTools::angle(n_tri_11, n_snap_11);
+  double alpha_12 = GeometryTools::angle(n_tri_12, n_snap_12);
+  double alpha_21 = GeometryTools::angle(n_tri_21, n_snap_21);
+  double alpha_22 = GeometryTools::angle(n_tri_22, n_snap_22);
+
+  if (alpha_11 > threshold_angle || alpha_12 > threshold_angle) {
+    if (alpha_11 > alpha_21 && alpha_12 > alpha_22) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void BoundaryLayerOperation::swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle)
+{
+  // Set grid to normal*height
+  QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      m_Grid->GetPoint(id_node, x_org[id_node].data());
+      vec3_t x = x_org[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+      m_Grid->GetPoints()->SetPoint(id_node, x.data());
+    }
+  }
+
+  CgalTriCadInterface cad(shell_grid);
+  int num_swaps = 0;
+  int count = 0;
+
+  do {
+    num_swaps = 0;
+    m_Part.setAllCells();
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+    QVector<bool> swapped(m_Grid->GetNumberOfCells(), false);
+    QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell)) && m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) { //if it is a selected triangle
+        if (!marked[id_cell] && !swapped[id_cell]) {
+          for (int j = 0; j < 3; ++j) {
+            stencil_t stencil = getStencil(id_cell, j);
+            if (stencil.id_cell.size() == 2 && stencil.sameBC) {
+              if (swapRequired(stencil, &cad, threshold_angle)) {
+                marked[stencil.id_cell[0]] = true;
+                marked[stencil.id_cell[1]] = true;
+                for (int k = 0; k < m_Part.n2cGSize(stencil.id_node[0]); ++k) {
+                  vtkIdType id_neigh = m_Part.n2cGG(stencil.id_node[0], k);
+                  marked[id_neigh] = true;
+                }
+                for (int k = 0; k < m_Part.n2cGSize(stencil.id_node[1]); ++k) {
+                  vtkIdType id_neigh = m_Part.n2cGG(stencil.id_node[1], k);
+                  marked[id_neigh] = true;
+                }
+                for (int k = 0; k < m_Part.n2cGSize(stencil.p1); ++k) {
+                  vtkIdType id_neigh = m_Part.n2cGG(stencil.p1, k);
+                  marked[id_neigh] = true;
+                }
+                for (int k = 0; k < m_Part.n2cGSize(stencil.p2); ++k) {
+                  vtkIdType id_neigh = m_Part.n2cGG(stencil.p2, k);
+                  marked[id_neigh] = true;
+                }
+
+                vtkIdType new_pts1[3], new_pts2[3];
+                new_pts1[0] = stencil.p1;
+                new_pts1[1] = stencil.id_node[1];
+                new_pts1[2] = stencil.id_node[0];
+                new_pts2[0] = stencil.id_node[1];
+                new_pts2[1] = stencil.p2;
+                new_pts2[2] = stencil.id_node[0];
+                /*
+                  vtkIdType old_pts1[3], old_pts2[3];
+                  old_pts1[0] = stencil.id_node[0];
+                  old_pts1[1] = stencil.p1;
+                  old_pts1[2] = stencil.p2;
+                  old_pts2[0] = stencil.id_node[1];
+                  old_pts2[1] = stencil.p2;
+                  old_pts2[2] = stencil.p1;
+                  */
+                m_Grid->ReplaceCell(stencil.id_cell[0], 3, new_pts1);
+                m_Grid->ReplaceCell(stencil.id_cell[1], 3, new_pts2);
+
+                swapped[stencil.id_cell[0]] = true;
+                swapped[stencil.id_cell[1]] = true;
+                ++num_swaps;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    ++count;
+    cout << count << ": " << num_swaps << endl;
+  } while (num_swaps > 0 && count < 3);
+
+
+  // reset grid to original points
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
+    }
+  }
+}
+
+

@@ -395,6 +395,13 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_5">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>stretching ration between layers</string>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_14">
            <property name="text">
@@ -402,7 +409,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerUpperFaceLimit">
            <property name="maximum">
             <double>100.000000000000000</double>
@@ -415,7 +422,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="4">
+         <item row="11" column="4">
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -435,7 +442,7 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="1">
+         <item row="11" column="1">
           <widget class="QCheckBox" name="m_CheckBoxBoundaryLayerNormalVectorGrouping">
            <property name="text">
             <string>activate</string>
@@ -445,7 +452,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_17">
            <property name="text">
             <string>relative face size (upper limit)</string>
@@ -468,21 +475,14 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>stretching ration between layers</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_16">
            <property name="text">
             <string>relative face size (lower limit)</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerLowerFaceLimit">
            <property name="maximum">
             <double>100.000000000000000</double>
@@ -495,7 +495,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="10" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
             <string>gap search angle</string>
@@ -525,14 +525,14 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_18">
            <property name="text">
             <string>angle between top and bottom face</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
+         <item row="11" column="0">
           <widget class="QLabel" name="label_21">
            <property name="text">
             <string>normal vector grouping</string>
@@ -556,14 +556,14 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="2">
+         <item row="11" column="2">
           <widget class="QLabel" name="label_22">
            <property name="text">
             <string>   grouping angle</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="3">
+         <item row="11" column="3">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerGroupingAngle">
            <property name="decimals">
             <number>1</number>
@@ -582,21 +582,14 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="label_19">
            <property name="text">
             <string>maximal layer height in gaps</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>feature angle</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
+         <item row="10" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerRadarAngle">
            <property name="maximum">
             <double>90.000000000000000</double>
@@ -609,7 +602,14 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>feature angle</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerFaceAngle">
            <property name="maximum">
             <double>180.000000000000000</double>
@@ -622,7 +622,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="9" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerGapHeight">
            <property name="decimals">
             <number>3</number>
@@ -654,7 +654,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="4" rowspan="10">
+         <item row="0" column="4" rowspan="11">
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>layer size calculator</string>
@@ -747,6 +747,26 @@
            </layout>
           </widget>
          </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="m_SpinBoxShellRelaxationIterations">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>500</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_27">
+           <property name="text">
+            <string>number of shell relaxation iteration</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -816,6 +836,7 @@
   <tabstop>m_DoubleSpinBoxBoundaryLayerFarfieldRatio</tabstop>
   <tabstop>m_SpinBoxNormalRelaxationIterations</tabstop>
   <tabstop>m_SpinBoxHeightRelaxationIterations</tabstop>
+  <tabstop>m_SpinBoxShellRelaxationIterations</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerLowerFaceLimit</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerUpperFaceLimit</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerFaceAngle</tabstop>
@@ -827,6 +848,9 @@
   <tabstop>m_LineEditCalcH1</tabstop>
   <tabstop>m_SpinBoxCalcNumLayers</tabstop>
   <tabstop>m_LineEditCalcTotalH</tabstop>
+  <tabstop>m_PushButtonCalc1</tabstop>
+  <tabstop>m_PushButtonCalc2</tabstop>
+  <tabstop>m_PushButtonCalc3</tabstop>
   <tabstop>pushButtonHelp</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>

@@ -84,7 +84,7 @@ void GeometrySmoother::operate()
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (snap_points[id_node].size()) {
         double w = m_RelaxationFactor/snap_points[id_node].size();
-        if (snap_points.size() == 2) {
+        if (snap_points[id_node].size() == 2) {
           w *= 0.3333;
         }
         foreach (vtkIdType id_snap, snap_points[id_node]) {

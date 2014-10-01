@@ -24,6 +24,7 @@
 
 #include "surfaceoperation.h"
 #include "edgelengthsourcemanager.h"
+#include "cadinterface.h"
 
 class BoundaryLayerOperation;
 
@@ -57,6 +58,7 @@ protected: // attributes
   double                    m_GroupingAngle;
   int                       m_NumBoundaryLayerVectorRelaxations;
   int                       m_NumBoundaryLayerHeightRelaxations;
+  int                       m_NumShellRelaxations;
   int                       m_NumLayers;
   EdgeLengthSourceManager   m_ELSManagerBLayer;
   EdgeLengthSourceManager   m_ELSManagerSurface;
@@ -91,6 +93,8 @@ protected: // methods
   void snapCornerVectorsToShell(vtkUnstructuredGrid* shell_grid);
   void newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid);
   void limitSizeAndAngleErrors();
+  bool swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle);
+  void swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle);
 
 
 public: // methods
