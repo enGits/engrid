@@ -30,7 +30,9 @@
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkLoopSubdivisionFilter.h>
 #include <vtkLinearSubdivisionFilter.h>
+#include <vtkButterflySubdivisionFilter.h>
 #include <vtkSmoothPolyDataFilter.h>
+#include <vtkWindowedSincPolyDataFilter.h>
 
 void BoundaryLayerOperation::readSettings()
 {
@@ -685,33 +687,45 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   extract_wall->SetInputData(m_Grid);
   extract_wall->SetBoundaryCodes(m_BoundaryLayerCodes);
   extract_wall->Update();
-  writeGrid(extract_wall->GetOutput(), "walls_from_vtk");
+  //writeGrid(extract_wall->GetOutput(), "walls_from_vtk");
 
   EG_VTKSP(vtkDataSetSurfaceFilter, grid_to_pdata);
   grid_to_pdata->SetInputConnection(extract_wall->GetOutputPort());
   EG_VTKSP(vtkLinearSubdivisionFilter, subdiv);
+  //EG_VTKSP(vtkButterflySubdivisionFilter, subdiv);
   subdiv->SetInputConnection(grid_to_pdata->GetOutputPort());
-  subdiv->SetNumberOfSubdivisions(2);
-  /*
-  EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+  subdiv->SetNumberOfSubdivisions(1);
+
+  //EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+  EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
   smooth->BoundarySmoothingOff();
   smooth->FeatureEdgeSmoothingOn();
   smooth->SetFeatureAngle(180);
   smooth->SetEdgeAngle(20);
-  smooth->SetNumberOfIterations(num_iter);
+  //smooth->SetNumberOfIterations(num_iter/100);
+  smooth->SetNumberOfIterations(100);
+  smooth->NormalizeCoordinatesOn();
+  double pb = 1.0/num_iter;
+  cout << "pass-band = " << pb << endl;
+  smooth->SetPassBand(pb);
+  //smooth->SetRelaxationFactor(0.05);
   smooth->Update();
-  cout << "rf = " << smooth->GetRelaxationFactor() << endl;
-  */
+  //cout << "rf = " << smooth->GetRelaxationFactor() << endl;
+
   EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata_to_grid);
-  pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
+  //pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
+  pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
   pdata_to_grid->Update();
   makeCopy(pdata_to_grid->GetOutput(), shell_grid);
 
+  /*
   GeometrySmoother smooth;
   smooth.setGrid(shell_grid);
   smooth.setNumberOfIterations(num_iter);
+  smooth.setConvexRelaxation(0.0);
   smooth();
+  */
 
   // reset grid to original points
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -908,7 +922,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
   writeGrid(shell_grid, "shell");
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  writeWallGrid("walls", 0);
+  //writeWallGrid("walls", 0);
 
   QList<vtkIdType> bad_cells;
 
@@ -920,11 +934,11 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 
   int last_num_bad = m_Grid->GetNumberOfCells();
 
-  snapCornerVectorsToShell(shell_grid);
+  //snapCornerVectorsToShell(shell_grid);
   smoothBoundaryLayerVectors(10, w_iso, w_dir);
 
   do {
-    writeBoundaryLayerVectors("wall", iter);
+    //writeBoundaryLayerVectors("wall", iter);
     bad_cells.clear();
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
@@ -958,7 +972,7 @@ void BoundaryLayerOperation::snapCornerVectorsToShell(vtkUnstructuredGrid *shell
   CgalTriCadInterface cad(shell_grid);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
-      if (m_NodeTypes[id_node] == CornerNode) {
+      if (m_NodeTypes[id_node] == CornerNode || m_NodeTypes[id_node] == EdgeNode) {
         vec3_t x1;
         m_Grid->GetPoint(id_node, x1.data());
         vec3_t x2 = cad.snap(x1);
@@ -982,14 +996,17 @@ void BoundaryLayerOperation::newHeightFromShellIntersect(vtkUnstructuredGrid* sh
       QVector<QPair<vec3_t, vtkIdType> > intersections;
       cad.computeIntersections(x, m_BoundaryLayerVectors[id_node], intersections);
       double h = EG_LARGE_REAL;
+      vec3_t layer_vector = m_BoundaryLayerVectors[id_node];
       for (int i = 0; i < intersections.size(); ++i) {
         vec3_t xi = intersections[i].first;
         vec3_t vi = xi - x;
         if (vi*m_BoundaryLayerVectors[id_node] > 0) {
           h = min(h, vi.abs());
           m_Height[id_node] = h;
+          layer_vector = vi.normalise();
         }
       }
+      m_BoundaryLayerVectors[id_node] = layer_vector;
     }
   }
 }

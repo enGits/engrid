@@ -27,6 +27,7 @@ GeometrySmoother::GeometrySmoother()
   m_CornerAngle      = GeometryTools::deg2rad(20.0);
   m_RelaxationFactor = 0.1;
   m_NumIterations    = 10;
+  m_ConvexRelaxation = 0.0;
 }
 
 void GeometrySmoother::operate()
@@ -83,7 +84,19 @@ void GeometrySmoother::operate()
     QVector<vec3_t> x_new = x;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (snap_points[id_node].size()) {
-        double w = m_RelaxationFactor/snap_points[id_node].size();
+        double cf_corr = 0;
+        if (m_ConvexRelaxation > 1e-6) {
+          vec3_t n = m_Part.globalNormal(id_node);
+          double cf = 0; // convexity factor ...
+          foreach (vtkIdType id_snap, snap_points[id_node]) {
+            vec3_t v = x[id_node] - x[id_snap];
+            v.normalise();
+            cf += v*n;
+          }
+          cf /= snap_points[id_node].size();
+          cf_corr = min(1.0, max(-1.0, m_ConvexRelaxation*cf));
+        }
+        double w = m_RelaxationFactor*(1.0 + cf_corr)/snap_points[id_node].size();
         if (snap_points[id_node].size() == 2) {
           w *= 0.3333;
         }

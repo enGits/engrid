@@ -34,6 +34,7 @@ protected: // attributes
 
   double m_RelaxationFactor;
   double m_CornerAngle;
+  double m_ConvexRelaxation;
   int    m_NumIterations;
 
 
@@ -49,6 +50,7 @@ public: // methods
   void setRelaxationFactor(double relaxation_factor) { m_RelaxationFactor = relaxation_factor; }
   void setCornerAngle(double edge_angle)             { m_CornerAngle = edge_angle; }
   void setNumberOfIterations(int num)                { m_NumIterations = num; }
+  void setConvexRelaxation(double relaxation_factor) { m_ConvexRelaxation = relaxation_factor; }
 
 
 };
