@@ -69,7 +69,6 @@ protected: // attributes
 protected: // methods
 
   void   computeNormals();
-  bool   isConvexNode(vtkIdType id_node);
   char   geometricNodeType(vtkIdType id_node);
   double normalIrregularity(vtkIdType id_node);
   void   readVMD();

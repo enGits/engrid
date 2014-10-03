@@ -130,7 +130,7 @@ public: // methods
    * Define the mesh partition by defining all its cells.
    */
   void setAllCells();
-  
+
   /**
    * Define the mesh partition by giving a symbolic volume name.
    * The grid will be changed to the default (main) grid that is currently loaded into ENGRID.
@@ -309,6 +309,8 @@ public: // methods
    * @return true if id_node1 -> id_node2 is a feature edge
    */
   bool isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double feature_angle);
+  bool isConvexNode(vtkIdType id_node);
+  bool isConvexNode(vtkIdType id_node, QVector<int> bl_codes);
 
 };
 

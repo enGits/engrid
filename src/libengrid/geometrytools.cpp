@@ -65,7 +65,7 @@ void rotate(vec3_t g1, vec3_t g2,vec3_t g3, vec3_t &b, double theta)
 vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 {
   axis.normalise();
-  
+
   // transposed base of rotate system
   mat3_t g_t;
 
@@ -74,10 +74,10 @@ vec3_t rotate(vec3_t v, vec3_t axis, double theta)
 
   // compute first orthogonal vector (first base vector)
   g_t[0] = v-v_axis;
-  
+
   //In case of points on the rotation axis, do nothing
   if(g_t[0].abs()==0) return v;
-  
+
   g_t[0].normalise();
 
   // second base vector is the normalised axis
@@ -404,7 +404,7 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
     cout<<"FATAL ERROR: Npts<=0"<<endl;
     abort();
   }
-  
+
   //calculate center position
   vec3_t xc(0,0,0);
   for (vtkIdType i = 0; i < Npts; ++i) {
@@ -413,7 +413,7 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
     xc += xp;
   }
   xc = 1.0/(double)Npts * xc;
-  
+
   //calculate Rmin+Rmax
   vec3_t xp;
   grid->GetPoints()->GetPoint(pts[0], xp.data());
@@ -424,7 +424,7 @@ vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, doub
     Rmin = min(Rmin, 0.25*(xp-xc).abs());
     Rmax = max(Rmax, 0.25*(xp-xc).abs());
   }
-  
+
   return(xc);
 }
 
@@ -462,7 +462,7 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   G.column(0, g1);
   G.column(1, g2);
   G.column(2, g3);
-  
+
   mat3_t GI = G.inverse();
   ri = xi - a;
   ri = GI*ri;
@@ -480,7 +480,7 @@ bool intersectEdgeAndTriangle(const vec3_t& a, const vec3_t& b, const vec3_t& c,
   if (k > 1 + tol) {
     return false;
   }
-  
+
   // intersection outside of triangle?
   if (!isInsideTriangle(vec2_t(ri[0],ri[1]),tol)) {
     return false;
@@ -543,18 +543,18 @@ vec3_t getBarycentricCoordinates(double x, double y)
     qWarning()<<"y="<<y;
     EG_BUG;
   }
-  
+
   double x_1=0;
   double y_1=0;
   double x_2=1;
   double y_2=0;
   double x_3=0;
   double y_3=1;
-  
+
   mat2_t T;
   T[0][0]=x_1-x_3; T[0][1]=x_2-x_3;
   T[1][0]=y_1-y_3; T[1][1]=y_2-y_3;
-  
+
   if(T.det()==0) {
     qWarning()<<"T.det()="<<T.det();
     qWarning()<<T[0][0]<<T[0][1];
@@ -562,19 +562,19 @@ vec3_t getBarycentricCoordinates(double x, double y)
     qWarning()<<"T[0][0]*T[1][1]-T[1][0]*T[0][1]="<<T[0][0]*T[1][1]-T[1][0]*T[0][1];
     EG_BUG;
   }
-  
+
   double lambda_1 = ((y_2-y_3)*(x-x_3)-(x_2-x_3)*(y-y_3))/(T.det());
   double lambda_2 = (-(y_1-y_3)*(x-x_3)+(x_1-x_3)*(y-y_3))/(T.det());
   double lambda_3 = 1-lambda_1-lambda_2;
-  
+
   vec3_t bary_coords(lambda_1,lambda_2,lambda_3);
   return bary_coords;
-  
+
   // initialize
 /*  double t1=0;
   double t2=0;
   double t3=0;*/
-  
+
 /*  if(x==0) {
     t3=y;
     t1=1-y;
@@ -586,27 +586,27 @@ vec3_t getBarycentricCoordinates(double x, double y)
     t3=0;
   }
   else if((x+y)==1) {
-  
+
   }
   else {
   }
-  
+
   double k1,k2;
   if(!intersection (k1, k2, t_A, t_M-t_A, t_B, t_C-t_B)) EG_BUG;
   vec2_t t_I1 = t_A+k1*(t_M-t_A);
   vec3_t g_nI1 = (1-k2)*g_nB + k2*g_nC;
   vec2_t pm1_M(1.0/k1,0);
-  
+
   // normalize
   double total = t1+t2+t3;
   t1=t1/total;
   t2=t2/total;
   t3=t3/total;*/
-  
+
 /*  t2 = x;
   t3 = y;
   t1 = 1-t2-t3;*/
-  
+
   // return value
 //   vec3_t bary_coords(t1,t2,t3);
 //   return bary_coords;
@@ -618,17 +618,17 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
 //   u.normalise();
   v.normalise();
   v = u.abs()*v;
-  
+
   //cout<<"u="<<u<<" v="<<v<<endl;
-  
+
   vec2_t p_A(0,0);
   vec2_t p_B(1,0);
   vec2_t p_nA = projectVectorOnPlane(nA,u,v);
   vec2_t p_nB = projectVectorOnPlane(nB,u,v);
-  
+
   vec2_t p_tA = turnRight(p_nA);
   vec2_t p_tB = turnRight(p_nB);
-  
+
   double k1, k2;
   vec2_t p_K;
   if(!intersection(k1, k2, p_A, p_tA, p_B, p_tB)) {
@@ -638,7 +638,7 @@ vec3_t intersectionOnPlane(vec3_t v, vec3_t A, vec3_t nA, vec3_t B, vec3_t nB)
   else {
     p_K = p_A + k1*p_tA;
   }
-  
+
   //cout<<"nA="<<nA<<endl;
   //cout<<"p_nA="<<p_nA<<endl;
   //cout<<"p_tA="<<p_tA<<endl;

@@ -32,7 +32,7 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
 
   double feature_angle;
 
-  EG_STOPDATE("2014-09-01");
+  EG_STOPDATE("2015-01-01");
   //getXmlSetting("engrid/surface/settings", "feature_angle", feature_angle);
   getSet("surface meshing", "feature angle", 20, feature_angle);
   feature_angle = GeometryTools::deg2rad(feature_angle);
@@ -205,6 +205,7 @@ vec3_t CgalTriCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_c
     x_snap = snap(x, correct_curvature);
     vec3_t n_node = m_FPart.globalNormal(id_node);
     if (n_node*m_LastNormal < 0) {
+      x_snap = x;
       double dist_min = EG_LARGE_REAL;
       Ray ray = createRay(x, n_node);
       std::list<Intersection> intersections;

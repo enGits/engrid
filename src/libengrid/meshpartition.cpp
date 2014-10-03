@@ -567,3 +567,53 @@ bool MeshPartition::isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double
   }
   return is_feature_edge;
 }
+
+bool MeshPartition::isConvexNode(vtkIdType id_node)
+{
+  int n_faces = n2cGSize(id_node);
+  if (n_faces <= 1) {
+    return false;
+  }
+
+  vec3_t x1, cell_centers(0,0,0), cell_normals(0,0,0);
+  m_Grid->GetPoint(id_node, x1.data());
+  for (int i = 0; i < n_faces; ++i) {
+    vtkIdType id_cell = n2cGG(id_node, i);
+    cell_centers += cellCentre(m_Grid, id_cell);
+    cell_normals += cellNormal(m_Grid, id_cell);
+  }
+  cell_centers *= 1.0/n_faces;
+  if ((x1 - cell_centers)*cell_normals.normalise() > 0) {
+    return true;
+  }
+  return false;
+}
+
+
+bool MeshPartition::isConvexNode(vtkIdType id_node, QVector<int> bl_codes)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  int n_faces = n2cGSize(id_node);
+  if (n_faces <= 1) {
+    return false;
+  }
+
+  vec3_t x1, cell_centers(0,0,0), cell_normals(0,0,0);
+  m_Grid->GetPoint(id_node, x1.data());
+  int n_used = 0;
+  for (int i = 0; i < n_faces; ++i) {
+    vtkIdType id_cell = n2cGG(id_node, i);
+    if (bl_codes.contains(cell_code->GetValue(id_cell))) {
+      cell_centers += cellCentre(m_Grid, id_cell);
+      cell_normals += cellNormal(m_Grid, id_cell);
+      ++n_used;
+    }
+  }
+  if (n_used > 0) {
+    cell_centers *= 1.0/n_used;
+    if ((x1 - cell_centers)*cell_normals.normalise() > 0) {
+      return true;
+    }
+  }
+  return false;
+}

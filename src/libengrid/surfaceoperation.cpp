@@ -44,7 +44,7 @@ SurfaceOperation::SurfaceOperation() : Operation()
   m_StretchingFactor = 0;
   m_UniformSnapPoints = false;
 
-  EG_STOPDATE("2014-09-01");
+  EG_STOPDATE("2015-01-01");
   m_StrictFeatureSnap = true;
 }
 
@@ -363,7 +363,7 @@ bool SurfaceOperation::checkSnapPointPairForBcMatch(vtkIdType id_node1, vtkIdTyp
 
 void SurfaceOperation::updatePotentialSnapPoints()
 {
-  setAllSurfaceCells();  
+  setAllSurfaceCells();
   l2g_t nodes  = getPartNodes();
 
   m_PotentialSnapPoints.resize(m_Grid->GetNumberOfPoints());
@@ -382,7 +382,7 @@ void SurfaceOperation::updatePotentialSnapPoints()
 
   foreach( vtkIdType id_node1, nodes ) {
     m_PotentialSnapPoints[id_node1].clear();
-    char type1 = node_type->GetValue(id_node1);    
+    char type1 = node_type->GetValue(id_node1);
     if (type1 != EG_FIXED_VERTEX) { // fixed vertices do not have any snap-points
       QSet<vtkIdType> exclude_nodes;
       if (type1 == EG_FEATURE_EDGE_VERTEX || type1 == EG_BOUNDARY_EDGE_VERTEX) {
@@ -793,7 +793,7 @@ bool SurfaceOperation::isCell(vtkIdType id_node1, vtkIdType id_node2, vtkIdType 
   QVector <vtkIdType> EdgeCells_12;
   QVector <vtkIdType> EdgeCells_13;
   QVector <vtkIdType> inter;
-  
+
   getEdgeCells( id_node1, id_node2, EdgeCells_12 );
   getEdgeCells( id_node1, id_node3, EdgeCells_13 );
   qcontIntersection( EdgeCells_12, EdgeCells_13, inter );
@@ -913,26 +913,6 @@ double SurfaceOperation::normalIrregularity(vtkIdType id_node)
     }
   }
   return nirr;
-}
-
-bool SurfaceOperation::isConvexNode(vtkIdType id_node)
-{
-  int N = m_Part.n2nGSize(id_node);
-  if (N == 0) {
-    return false;
-  }
-  vec3_t x1, x2(0,0,0);
-  m_Grid->GetPoint(id_node, x1.data());
-  for (int i = 0; i < N; ++i) {
-    vec3_t x;
-    m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x.data());
-    x2 += x;
-  }
-  x2 *= 1.0/N;
-  if ((x1 - x2)*m_NodeNormal[id_node] > 0) {
-    return true;
-  }
-  return false;
 }
 
 double SurfaceOperation::getSurfaceDeviation(vtkIdType id_node)
