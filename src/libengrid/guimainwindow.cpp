@@ -101,6 +101,9 @@ GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
 
 void GuiMainWindow::setupGuiMainWindow()
 {
+  //QMenuBar *menubar = new QMenuBar(0);
+  //menubar->setNativeMenuBar(true);
+  //setMenuBar(menubar);
   ui.setupUi(this);
   THIS = this;
 
