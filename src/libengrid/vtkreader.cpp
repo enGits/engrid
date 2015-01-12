@@ -84,11 +84,12 @@ void VtkReader::operate()
       EG_VTKSP(vtkUnstructuredGridReader,vtk);
       vtk->SetFileName(qPrintable(getFileName()));
       vtk->Update();
-      m_Grid->DeepCopy(vtk->GetOutput());
+      //m_Grid->DeepCopy(vtk->GetOutput());
+      makeCopy(vtk->GetOutput(), m_Grid);
+      createBoundaryFaces();
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
       UpdateNodeIndex(m_Grid);
       UpdateCellIndex(m_Grid);
-      createBoundaryFaces();
     }
   } catch (Error err) {
     err.display();
