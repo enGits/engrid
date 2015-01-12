@@ -73,6 +73,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tetgen)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/libengrid)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 option(PROFILING "add -g for profiling even in RELEASE configuration?" OFF)
 

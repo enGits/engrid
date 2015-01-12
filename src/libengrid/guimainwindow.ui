@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,8 +40,14 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -254,7 +260,7 @@
    <property name="minimumSize">
     <size>
      <width>250</width>
-     <height>132</height>
+     <height>136</height>
     </size>
    </property>
    <property name="floating">
@@ -296,8 +302,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>501</height>
+          <width>246</width>
+          <height>572</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -688,8 +694,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>231</width>
-          <height>501</height>
+          <width>261</width>
+          <height>577</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -911,6 +917,9 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
   </action>
   <action name="actionImportSTL">
    <property name="text">
@@ -949,6 +958,9 @@
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
+   </property>
   </action>
   <action name="actionSave">
    <property name="icon">
@@ -977,6 +989,9 @@
    </property>
    <property name="shortcut">
     <string>F1</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
    </property>
   </action>
   <action name="actionZoomAll">
@@ -1154,6 +1169,9 @@
   <action name="actionConfigure">
    <property name="text">
     <string>Configure enGrid</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
   <action name="actionSmoothVolumeGrid">

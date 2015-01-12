@@ -387,10 +387,23 @@ SET(libengrid_SOURCES
 
 ADD_LIBRARY(libengrid SHARED ${libengrid_SOURCES} ${libengrid_HEADERS_MOC} ${libengrid_FORMS_HEADERS} ${libengrid_RESOURCES_RCC})
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  SET_TARGET_PROPERTIES(libengrid PROPERTIES MACOSX_RPATH 1)
+endif()
 
 SET_TARGET_PROPERTIES(libengrid PROPERTIES VERSION ${ENGRID_VERSION})
 SET_TARGET_PROPERTIES(libengrid PROPERTIES COMPILE_FLAGS "-Wno-deprecated")
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  target_link_libraries(libengrid tet)
+  target_link_libraries(libengrid ${QT_LIBRARIES})
+  target_link_libraries(libengrid ${VTK_LIBRARIES})
+  target_link_libraries(libengrid Qt4::QtCore)
+  target_link_libraries(libengrid Qt4::QtGui)
+  target_link_libraries(libengrid Qt4::QtXml)
+endif()
+
+target_link_libraries(libengrid ${VTK_LIBRARIES})
 INSTALL(TARGETS libengrid LIBRARY DESTINATION lib)
 INSTALL(FILES ${libengrid_HEADERS} DESTINATION include/engrid)
 
