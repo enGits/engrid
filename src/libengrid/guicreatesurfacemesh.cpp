@@ -272,7 +272,7 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
 
 void GuiCreateSurfaceMesh::setTextFromTable()
 {
-  EG_STOPDATE("2014-11-01");
+  EG_STOPDATE("2015-01-01");
   m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules"));
   m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   return;
