@@ -32,7 +32,9 @@ class VtkReader : public IOOperation
 {
   
 protected: // methods
-  
+
+  void createBoundaryFaces();
+
   virtual void operate();
   
 public: // methods

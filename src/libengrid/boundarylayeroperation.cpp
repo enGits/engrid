@@ -80,7 +80,7 @@ void BoundaryLayerOperation::readSettings()
     in >> m_FarfieldRatio;
     in >> m_NumBoundaryLayerVectorRelaxations;
     in >> m_NumBoundaryLayerHeightRelaxations;
-    in >> m_NumShellRelaxations;
+    in >> m_ShellPassBand;
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
@@ -536,7 +536,11 @@ void BoundaryLayerOperation::computeDesiredHeights()
         EG_ERR_RETURN("unrealistically small height computed");
       }
       if (h1 < h0) {
-        EG_ERR_RETURN("h1 < h0");
+        QString h0_txt, h1_txt, id_txt;
+        h0_txt.setNum(h0);
+        h1_txt.setNum(h1);
+        id_txt.setNum(id_node);
+        EG_ERR_RETURN("h1 < h0 (" + h1_txt + " < " + h0_txt + ", for node " + id_txt + ")");
       }
       m_Height[id_node] = H;
     }
@@ -916,7 +920,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 {
   // create shell
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
-  createSmoothShell(shell_grid, m_NumShellRelaxations);
+  createSmoothShell(shell_grid, m_ShellPassBand);
 
   newHeightFromShellIntersect(shell_grid);
   writeGrid(shell_grid, "shell");

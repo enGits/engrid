@@ -31,6 +31,50 @@ VtkReader::VtkReader()
   setExtension(".vtk");
 }
 
+void VtkReader::createBoundaryFaces()
+{
+  QList<QVector<vtkIdType> > all_faces;
+  MeshPartition part(m_Grid, true);
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    for (int i = 0; i < part.c2cGSize(id_cell); ++i) {
+      if (part.c2cGG(id_cell, i) < 0) {
+        QVector<vtkIdType> face;
+        getFaceOfCell(m_Grid, id_cell, i, face);
+        all_faces << face;
+      }
+    }
+  }
+  EG_VTKSP(vtkUnstructuredGrid, grid);
+  allocateGrid(grid, m_Grid->GetNumberOfCells() + all_faces.size(), m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    copyCell(m_Grid, id_cell, grid);
+  }
+  EG_VTKDCC(vtkIntArray, bc, grid, "cell_code");
+  foreach (QVector<vtkIdType> face, all_faces) {
+    EG_VTKSP(vtkIdList, pts);
+    pts->SetNumberOfIds(face.size());
+    for (int i = 0; i < face.size(); ++i) {
+      pts->SetId(i, face[i]);
+    }
+    vtkIdType id_cell;
+    if (face.size() == 3) {
+      id_cell = grid->InsertNextCell(VTK_TRIANGLE, pts);
+    } else if (face.size() == 4) {
+      id_cell = grid->InsertNextCell(VTK_QUAD, pts);
+    } else {
+      id_cell = grid->InsertNextCell(VTK_POLYGON, pts);
+    }
+    bc->SetValue(id_cell, 1);
+  }
+  makeCopy(grid, m_Grid);
+  GuiMainWindow::pointer()->addBC(1, BoundaryCondition("all_faces", "patch"));
+}
+
 void VtkReader::operate()
 {
   try {
@@ -40,7 +84,9 @@ void VtkReader::operate()
       EG_VTKSP(vtkUnstructuredGridReader,vtk);
       vtk->SetFileName(qPrintable(getFileName()));
       vtk->Update();
-      m_Grid->DeepCopy(vtk->GetOutput());
+      //m_Grid->DeepCopy(vtk->GetOutput());
+      makeCopy(vtk->GetOutput(), m_Grid);
+      createBoundaryFaces();
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
       UpdateNodeIndex(m_Grid);
       UpdateCellIndex(m_Grid);

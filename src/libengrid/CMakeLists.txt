@@ -403,6 +403,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   target_link_libraries(libengrid Qt4::QtXml)
 endif()
 
+target_link_libraries(libengrid ${VTK_LIBRARIES})
 INSTALL(TARGETS libengrid LIBRARY DESTINATION lib)
 INSTALL(FILES ${libengrid_HEADERS} DESTINATION include/engrid)
 

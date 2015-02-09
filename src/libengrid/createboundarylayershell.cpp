@@ -121,6 +121,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
   QList<vtkIdType> bad_nodes;
   int new_num_bad = m_Grid->GetNumberOfPoints();
   int old_num_bad = 0;
+  updateNodeInfo();
   do {
     old_num_bad = new_num_bad;
     scal_min = 1;
@@ -146,7 +147,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
               EG_ERR_RETURN("error while correcting adjacent boundaries");
             }
             m_Grid->GetPoints()->SetPoint(id_node, xs.data());
-          } else if (m_Part.n2bcGSize(id_node) == 2) {
+          } else if (m_Part.n2bcGSize(id_node) == 2 && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             int count = 0;
             vec3_t xs(0, 0, 0);
             for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
@@ -397,6 +398,7 @@ void CreateBoundaryLayerShell::operate()
       QVector<bool> is_bad_cell(m_Grid->GetNumberOfCells(), false);
       foreach (vtkIdType id_node, bad_nodes) {
         if (m_Part.n2bcGSize(id_node) != 1) {
+          cout << "node " << id_node << " cannot be fixed." << endl;
           fixable = false;
           break;
         }

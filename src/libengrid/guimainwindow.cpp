@@ -334,6 +334,8 @@ void GuiMainWindow::setupVtk()
   m_SurfaceActor->GetProperty()->SetColor(m_ColAR, m_ColAG, m_ColAB);
   m_SurfaceActor->SetBackfaceProperty(m_BackfaceProperty);
   m_SurfaceActor->GetBackfaceProperty()->SetColor(m_ColBR, m_ColBG, m_ColBB);
+  m_SurfaceActor->GetProperty()->EdgeVisibilityOn();
+  m_SurfaceActor->GetProperty()->SetEdgeColor(0,0,1);
   m_SurfaceActor->SetMapper(m_SurfaceMapper);
   getRenderer()->AddActor(m_SurfaceActor);
   m_SurfaceActor->SetVisibility(1);
@@ -344,7 +346,7 @@ void GuiMainWindow::setupVtk()
   m_SurfaceWireActor->GetProperty()->SetColor(0,0,1);
   m_SurfaceWireActor->SetMapper(m_SurfaceWireMapper);
   getRenderer()->AddActor(m_SurfaceWireActor);
-  m_SurfaceWireActor->SetVisibility(1);
+  m_SurfaceWireActor->SetVisibility(0);
 
   // tetra pipline
   m_ExtrTetras   = vtkEgExtractVolumeCells::New();

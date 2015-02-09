@@ -176,12 +176,13 @@ int GuiCreateSurfaceMesh::readSettings()
     }
     double dv;
     int iv;
+    QString num;
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFeatureAngle->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->setValue(dv);
     in >> iv; m_Ui.m_SpinBoxNormalRelaxationIterations->setValue(iv);
     in >> iv; m_Ui.m_SpinBoxHeightRelaxationIterations->setValue(iv);
-    in >> iv; m_Ui.m_SpinBoxShellRelaxationIterations->setValue(iv);
+    in >> dv; num.setNum(dv); m_Ui.m_LineEditPassBand->setText(num);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->setValue(dv);
@@ -234,7 +235,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->value() << "\n";
     out << m_Ui.m_SpinBoxNormalRelaxationIterations->value() << "\n";
     out << m_Ui.m_SpinBoxHeightRelaxationIterations->value() << "\n";
-    out << m_Ui.m_SpinBoxShellRelaxationIterations->value() << "\n";
+    out << m_Ui.m_LineEditPassBand->text() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->value() << "\n";
@@ -272,7 +273,7 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
 
 void GuiCreateSurfaceMesh::setTextFromTable()
 {
-  EG_STOPDATE("2014-11-01");
+  EG_STOPDATE("2015-06-01");
   m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules"));
   m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
   return;
