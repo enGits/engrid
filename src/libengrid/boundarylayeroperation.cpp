@@ -699,10 +699,10 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   //EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
   EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
-  smooth->BoundarySmoothingOff();
+  smooth->BoundarySmoothingOn();
   smooth->FeatureEdgeSmoothingOn();
   smooth->SetFeatureAngle(180);
-  smooth->SetEdgeAngle(20);
+  smooth->SetEdgeAngle(180);
   //smooth->SetNumberOfIterations(num_iter/100);
   smooth->SetNumberOfIterations(100);
   smooth->NormalizeCoordinatesOn();
