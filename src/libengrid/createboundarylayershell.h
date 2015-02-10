@@ -56,7 +56,7 @@ private: // attributes
 
 private: // methods
 
-  QList<vtkIdType> correctAdjacentBC(int bc);
+  QList<vtkIdType> correctAdjacentBC(int bc, int num_levels = 10);
   void prepare();
   void createLayerNodes(vtkIdType id_node);
   void createPrismaticGrid();

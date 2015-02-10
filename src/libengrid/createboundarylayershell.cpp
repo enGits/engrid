@@ -93,7 +93,7 @@ void CreateBoundaryLayerShell::prepare()
   makeCopy(m_Grid, m_OriginalGrid);
 }
 
-QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
+QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_levels)
 {
   cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\"" << endl;
 
@@ -106,6 +106,29 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
   smooth.setGrid(m_Grid);
   smooth.useSimpleCentreScheme();
 
+  // mark num_levels levels of nodes next to the boundary layer
+  QVector<bool> marked(m_Grid->GetNumberOfPoints(), false);
+  QList<vtkIdType> marked_nodes;
+  EG_FORALL_NODES(id_node, m_Grid) {
+    if (m_BoundaryLayerNode[id_node]) {
+      marked[id_node] = true;
+      marked_nodes << id_node;
+    }
+  }
+  for (int level = 0; level < num_levels; ++level) {
+    QList<vtkIdType> new_marked_nodes;
+    foreach (vtkIdType id_node, marked_nodes) {
+      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+        vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+        if (!marked[id_neigh]) {
+          marked[id_neigh] = true;
+          new_marked_nodes << id_neigh;
+        }
+      }
+    }
+    marked_nodes = new_marked_nodes;
+  }
+
   QList<vtkIdType> cells;
   EG_FORALL_CELLS(id_cell, m_Grid) {
     if (isSurface(id_cell, m_Grid)) {
@@ -114,6 +137,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
       }
     }
   }
+
   CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(bc);
   smooth.setCells(cells);
   smooth.prepareCadInterface(cad);
@@ -139,7 +163,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc)
             all_bcs_adjacent = false;
           }
         }
-        if (node_has_bc && all_bcs_adjacent) {
+        if (node_has_bc && all_bcs_adjacent && marked[id_node]) {
           if (m_Part.n2bcGSize(id_node) == 1) {
             vec3_t xs = smooth.smoothNode(id_node);
             xs = cad->snapNode(id_node, xs);
