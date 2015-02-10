@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>673</width>
-    <height>583</height>
+    <width>905</width>
+    <height>705</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -77,7 +77,7 @@
           <bool>true</bool>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.250000000000000</double>
          </property>
          <property name="value">
           <double>0.000000000000000</double>
@@ -97,7 +97,7 @@
           <bool>true</bool>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.250000000000000</double>
          </property>
          <property name="value">
           <double>0.000000000000000</double>
@@ -110,7 +110,7 @@
           <bool>true</bool>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.250000000000000</double>
          </property>
          <property name="value">
           <double>0.000000000000000</double>
