@@ -22,6 +22,7 @@
 
 #include "guimainwindow.h"
 #include "egvtkobject.h"
+#include "setboundarycode.h"
 
 #include <vtkTriangleFilter.h>
 #include <vtkInformation.h>
@@ -42,6 +43,7 @@
 #include <QTime>
 
 #include "geometrytools.h"
+
 using namespace GeometryTools;
 
 QSet<Operation*> Operation::garbage_operations;
@@ -278,3 +280,66 @@ void Operation::eliminateDuplicateCells(bool surf_only)
   makeCopy(m_Grid, new_grid, new_cells);
   makeCopy(new_grid, m_Grid);
 }
+
+void Operation::createFeatureBcs(double feature_angle)
+{
+  m_New2OldBc.clear();
+  SetBoundaryCode set_bc;
+  set_bc.setGrid(m_Grid);
+  set_bc.setAllSurfaceCells();
+  QSet <int> all_bcs = GuiMainWindow::pointer()->getAllBoundaryCodes();
+  foreach (int bc, all_bcs) {
+    m_New2OldBc[bc] = bc;
+  }
+
+  QMap<int, QList<vtkIdType> > oldbc2cells;
+  int max_bc = 1;
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    int bc = cell_code->GetValue(id_cell);
+    max_bc = max(max_bc, bc + 1);
+    if (all_bcs.contains(bc)) {
+      oldbc2cells[bc] << id_cell;
+    }
+  }
+  bool done = false;
+  int old_max_bc = max_bc;
+  do {
+    vtkIdType id_start = -1;
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (cell_code->GetValue(id_cell) < old_max_bc && isSurface(id_cell, m_Grid)) {
+        id_start = id_cell;
+        break;
+      }
+    }
+    if (id_start == -1) {
+      done = true;
+    } else {
+      set_bc.setFeatureAngle(feature_angle);
+      set_bc.setBC(max_bc);
+      set_bc.setProcessAll(true);
+      set_bc.setSelectAllVisible(false);
+      set_bc.setOnlyPickedCell(false);
+      set_bc.setOnlyPickedCellAndNeighbours(false);
+      set_bc.setStart(id_start);
+      set_bc();
+      ++max_bc;
+    }
+  } while (!done);
+  m_New2OldBc.clear();
+  foreach (int bc, oldbc2cells.keys()) {
+    foreach (vtkIdType id_cell, oldbc2cells[bc]) {
+      m_New2OldBc[cell_code->GetValue(id_cell)] = bc;
+    }
+  }
+}
+
+void Operation::restoreNormalBcs()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    int bc = cell_code->GetValue(id_cell);
+    cell_code->SetValue(id_cell, m_New2OldBc[bc]);
+  }
+}
+

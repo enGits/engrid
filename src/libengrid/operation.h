@@ -86,7 +86,8 @@ private: // attributes
   Error             *err;
   QString            volume_name;
   QString            m_TypeName;              ///< typename retrieved from typeid(this).name()
-  QTime              m_StartTime;             ///< start time for run-time information
+  QTime              m_StartTime;             ///< start time for run-time information  
+  QMap<int, int>     m_New2OldBc;
 
 private: // methods
 
@@ -124,6 +125,9 @@ protected: // methods
   l2l_t getPartN2N()         { return m_Part.getN2N(); }
   l2l_t getPartN2C()         { return m_Part.getN2C(); }
   l2l_t getPartC2C()         { return m_Part.getC2C(); }
+
+  void createFeatureBcs(double feature_angle);
+  void restoreNormalBcs();
 
 public: // methods
   

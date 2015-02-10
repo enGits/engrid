@@ -34,5 +34,7 @@ void GuiConvertToPolyMesh::operate()
     convert.setSplitCellsOn();
   }
   convert.setPullInFactor(m_Ui.horizontalSliderPullIn->value()*0.01);
+  createFeatureBcs(m_Ui.m_DoubleSpinBoxFeatureAngle->value());
   convert();
+  restoreNormalBcs();
 }

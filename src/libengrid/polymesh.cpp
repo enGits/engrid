@@ -144,7 +144,7 @@ PolyMesh::PolyMesh(vtkUnstructuredGrid *grid, bool dualise, double pull_in, bool
   m_CreateDualMesh = false;
   m_OptimiseConvexity = false;
   m_SplitCells = false;
-  m_SplitFaces = false;
+  m_SplitFaces = split_faces;
   if (dualise) {
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
       if (isVolume(id_cell, grid) && grid->GetCellType(id_cell) != VTK_POLYHEDRON) {
@@ -1137,7 +1137,7 @@ void PolyMesh::splitConcaveFaces()
         }
         x.first() = x_face.last();
         x.last() = x_face.first();
-        double L_max = 1e99;//0.1;
+        double L_max = 0.1;
         int i1 = -1;
         vec3_t v;
         for (int i = 1; i <= num_nodes; ++i) {
@@ -1397,7 +1397,7 @@ void PolyMesh::sortFaces()
   foreach (face_t face, m_Faces) {
     max_bc = max(max_bc, face.bc);
   }
-  int hash_stride = -1;
+  int hash_stride = 1;
   foreach (face_t face, m_Faces) {
     hash_stride = max(hash_stride, face.owner);
   }

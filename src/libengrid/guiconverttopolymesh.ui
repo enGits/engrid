@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>241</width>
-    <height>135</height>
+    <width>240</width>
+    <height>208</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
         <number>100</number>
        </property>
        <property name="value">
-        <number>50</number>
+        <number>0</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -81,6 +81,26 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>feature angle</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxFeatureAngle">
+       <property name="maximum">
+        <double>180.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>2.500000000000000</double>
+       </property>
+       <property name="value">
+        <double>20.000000000000000</double>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -113,6 +133,7 @@
   <tabstop>checkBoxOptimise</tabstop>
   <tabstop>checkBoxSplitConcaveFaces</tabstop>
   <tabstop>checkBoxSplitConcaveCells</tabstop>
+  <tabstop>m_DoubleSpinBoxFeatureAngle</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
