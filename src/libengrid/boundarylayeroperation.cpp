@@ -710,7 +710,7 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   //smooth->SetNumberOfIterations(num_iter/100);
   smooth->SetNumberOfIterations(100);
   smooth->NormalizeCoordinatesOn();
-  double pb = 1.0/num_iter;
+  double pb = m_ShellPassBand;
   cout << "pass-band = " << pb << endl;
   smooth->SetPassBand(pb);
   //smooth->SetRelaxationFactor(0.05);
