@@ -660,7 +660,7 @@ void BoundaryLayerOperation::computeHeights()
     }
   }
 
-  //limitHeights(1.0);
+  limitHeights(1.0);
 
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
@@ -1260,7 +1260,8 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
             vec3_t dx = xi - x_old[id_node];
             double alpha = angle(dx, cellNormal(m_Grid, id_tri));
             if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
-              double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
+              //double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
+              double h_max = safety_factor*m_MaxHeightInGaps*dx.abs();
               if (h_max < m_Height[id_node]) {
                 m_Height[id_node] = h_max;
                 limited[id_node] = true;
