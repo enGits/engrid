@@ -703,7 +703,7 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   //EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
   EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
-  smooth->BoundarySmoothingOn();
+  smooth->BoundarySmoothingOff();
   smooth->FeatureEdgeSmoothingOn();
   smooth->SetFeatureAngle(180);
   smooth->SetEdgeAngle(180);
@@ -922,8 +922,8 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
   createSmoothShell(shell_grid, m_ShellPassBand);
 
-  newHeightFromShellIntersect(shell_grid);
-  writeGrid(shell_grid, "shell");
+  newHeightFromShellIntersect(shell_grid, 1.0);
+  //writeGrid(shell_grid, "shell");
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   //writeWallGrid("walls", 0);
@@ -938,11 +938,11 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 
   int last_num_bad = m_Grid->GetNumberOfCells();
 
-  //snapCornerVectorsToShell(shell_grid);
+  //snapAllVectorsToShell(shell_grid);
+  //return;
   smoothBoundaryLayerVectors(10, w_iso, w_dir);
 
   do {
-    //writeBoundaryLayerVectors("wall", iter);
     bad_cells.clear();
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
@@ -957,10 +957,10 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
       if (bad_cells.size() <= last_num_bad) {
         last_num_bad = bad_cells.size();
         smoothBoundaryLayerVectors(10, w_iso, w_dir);
-        newHeightFromShellIntersect(shell_grid);
+        newHeightFromShellIntersect(shell_grid, 1.0);
       } else {
         cout << "cannot fix completely -- terminating the loop!" << endl;
-        cout << "your grid might still be okay, however ..." << endl;
+        //cout << "moving to global under relaxation now ..." << endl;
         break;
       }
     }
@@ -968,29 +968,137 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
     w_dir += dw;
     ++iter;
   } while (bad_cells.size() > 0 && w_iso >= 0.0);
+
+  /*
+  double relax = 0.95;
+
+  do {
+
+    cout << "relaxation factor: " << relax << endl;
+    newHeightFromShellIntersect(shell_grid, relax);
+
+    bad_cells.clear();
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
+        if (!faceFine(id_cell, 1.0)) {
+          bad_cells.append(id_cell);
+        }
+      }
+    }
+    cout << "found " << bad_cells.size() << " distorted faces" << endl;
+    relax -= 0.05;
+  } while (bad_cells.size() > 0 && relax >= 0.25);
+  */
+
   //swapEdgesToMatchShell(shell_grid, deg2rad(5.0));
 }
 
-void BoundaryLayerOperation::snapCornerVectorsToShell(vtkUnstructuredGrid *shell_grid)
+bool BoundaryLayerOperation::checkVectorForNode(vec3_t v, vtkIdType id_node)
 {
-  CgalTriCadInterface cad(shell_grid);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      if (m_NodeTypes[id_node] == CornerNode || m_NodeTypes[id_node] == EdgeNode) {
-        vec3_t x1;
-        m_Grid->GetPoint(id_node, x1.data());
-        vec3_t x2 = cad.snap(x1);
-        m_BoundaryLayerVectors[id_node] = x2 - x1;
-        m_Height[id_node] = m_BoundaryLayerVectors[id_node].abs();
-        m_BoundaryLayerVectors[id_node].normalise();
+  for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+    vtkIdType id_face = m_Part.n2cGG(id_node, i);
+    EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+    if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_face))) {
+      vec3_t n = cellNormal(m_Grid, id_face);
+      if (n*v > 0) {
+        return false;
       }
     }
   }
+  return true;
+}
+
+vec3_t BoundaryLayerOperation::snapToShell(CadInterface* cad, vtkIdType id_node)
+{
+  bool dbg = false;
+
+  if (id_node == 0) {
+    cout << "break" << endl;
+    dbg = true;
+  }
+
+  vec3_t x_node;
+  m_Grid->GetPoint(id_node, x_node.data());
+  vec3_t x_snap = cad->snap(x_node);
+  if (dbg) cout << x_snap << endl;
+  if (checkVectorForNode(x_snap - x_node, id_node)) {
+    return x_snap;
+  }
+
+  // initial guess
+  {
+    x_snap = x_node + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+    QVector<QPair<vec3_t, vtkIdType> > intersections;
+    cad->computeIntersections(x_node, m_BoundaryLayerVectors[id_node], intersections);
+    double h_min = EG_LARGE_REAL;
+    bool found = false;
+    vec3_t shell_vector = m_BoundaryLayerVectors[id_node];
+    for (int i = 0; i < intersections.size(); ++i) {
+      vec3_t xi = intersections[i].first;
+      if (dbg) cout << "xi=" << xi << endl;
+      vec3_t vi = xi - x_node;
+      if (vi*m_BoundaryLayerVectors[id_node] > 0) {
+        double h = vi.abs();
+        if (h < h_min) {
+          if (dbg) cout << "h=" << h << endl;
+          found = true;
+          shell_vector = vi;
+          h_min = h;
+        }
+      }
+    }
+    if (found) {
+      x_snap = x_node + shell_vector;
+    }
+  }
+  if (dbg) cout << x_snap << endl;
+
+
+  double dist_old = 0;
+  double dist_new = m_Height[id_node];
+  while (fabs(dist_new - dist_old) > 1e-3*m_Height[id_node]) {
+    double w = 1.0;
+    vec3_t x_new = x_snap;
+    do {
+      w *= 0.5;
+      if (w < 1e-3) {
+        QString msg;
+        msg.setNum(id_node);
+        msg = "unable to snap node " + msg + " to shell";
+        EG_ERR_RETURN(msg);
+      }
+      x_new = cad->snap(w*x_node + (1-w)*x_snap);
+      if (dbg) cout << "w=" << w << ", x_new=" << x_new << endl;
+    } while (!checkVectorForNode(x_new - x_node, id_node));
+    dist_old = dist_new;
+    dist_new = (x_new - x_snap).abs();
+    x_snap = x_new;
+  }
+
+  return x_snap;
+}
+
+void BoundaryLayerOperation::snapAllVectorsToShell(vtkUnstructuredGrid *shell_grid)
+{
+  writeBoundaryLayerVectors("normals");
+  CgalTriCadInterface cad(shell_grid);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      //if (m_NodeTypes[id_node] == CornerNode || m_NodeTypes[id_node] == EdgeNode) {
+      vec3_t x1;
+      m_Grid->GetPoint(id_node, x1.data());
+      vec3_t x2 = snapToShell(&cad, id_node);
+      m_BoundaryLayerVectors[id_node] = x2 - x1;
+      m_Height[id_node] = m_BoundaryLayerVectors[id_node].abs();
+      m_BoundaryLayerVectors[id_node].normalise();
+    }
+  }
+  correctBoundaryLayerVectors();
 }
 
 // Compute intersection points with a shell following m_BoundaryLayerVector
 // Updates m_Height
-void BoundaryLayerOperation::newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid)
+void BoundaryLayerOperation::newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid, double relax)
 {
   CgalTriCadInterface cad(shell_grid);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -999,18 +1107,25 @@ void BoundaryLayerOperation::newHeightFromShellIntersect(vtkUnstructuredGrid* sh
       m_Grid->GetPoint(id_node, x.data());
       QVector<QPair<vec3_t, vtkIdType> > intersections;
       cad.computeIntersections(x, m_BoundaryLayerVectors[id_node], intersections);
-      double h = EG_LARGE_REAL;
+      double h = 2*m_Height[id_node];
+      bool found = false;
       vec3_t layer_vector = m_BoundaryLayerVectors[id_node];
       for (int i = 0; i < intersections.size(); ++i) {
         vec3_t xi = intersections[i].first;
         vec3_t vi = xi - x;
         if (vi*m_BoundaryLayerVectors[id_node] > 0) {
-          h = min(h, vi.abs());
-          m_Height[id_node] = h;
-          layer_vector = vi.normalise();
+          double hi = vi.abs();
+          if (hi < h) {
+            h = hi;
+            layer_vector = vi.normalise();
+            found = true;
+          }
         }
       }
-      m_BoundaryLayerVectors[id_node] = layer_vector;
+      if (found) {
+        m_Height[id_node] = relax*h;
+        m_BoundaryLayerVectors[id_node] = layer_vector;
+      }
     }
   }
 }

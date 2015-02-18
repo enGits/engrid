@@ -101,15 +101,35 @@ QList<vtkIdType> StitchHoles::getNextHole()
   return loop_nodes;
 }
 
+vec3_t StitchHoles::transformFromPlane(vec3_t x)
+{
+  vec3_t x_best = x;
+  double dist_min = EG_LARGE_REAL;
+  for (int i = 0; i < m_X2.size(); ++i) {
+    double dist = (x - m_X2[i]).abs();
+    if (dist < dist_min) {
+      dist_min = dist;
+      x_best = m_X3[i];
+    }
+  }
+  return x_best;
+}
+
 void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
 {
   EG_VTKSP(vtkPolyData, edge_pdata);
   EG_VTKSP(vtkPoints, points);
   EG_VTKSP(vtkCellArray, polys);
+
+  m_X2.clear();
+  m_X3.clear();
+
   for (int i = 0; i < loop_nodes.size(); ++i) {
     vec3_t x;
     m_Grid->GetPoint(loop_nodes[i], x.data());
+    m_X3 << x;
     x = toPlane(x);
+    m_X2 << x;
     points->InsertNextPoint(x.data());
   }
   EG_VTKSP(vtkIdList, pts);
@@ -132,7 +152,14 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   */
   triangulate(edge_pdata, tri_grid, m_Bc);
   //writeGrid(tri_grid, "tri");
-  gridFromPlane(tri_grid);
+  //gridFromPlane(tri_grid);
+  for (vtkIdType id_node = 0; id_node < tri_grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    tri_grid->GetPoint(id_node, x.data());
+    x = transformFromPlane(x);
+    tri_grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+
 
   EG_FORALL_CELLS(id_cell, tri_grid) {
     if (cellNormal(tri_grid, id_cell)*m_N < 0) {
@@ -152,7 +179,6 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   /*
   int n1 = tri_grid->GetNumberOfPoints();
   int n2 = tri_grid->GetNumberOfCells();
-  writeGrid(m_Grid, "before");
   */
   m_Part.addPartition(tri_part);
   /*
@@ -165,10 +191,19 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   del_stray.setGrid(m_Grid);
   del_stray.setAllCells();
   del_stray();
+
+  ++m_Counter;
+  QString counter_txt;
+  counter_txt.setNum(m_Counter);
+  counter_txt = counter_txt.rightJustified(3, '0');
+  writeGrid(m_Grid, GuiMainWindow::pointer()->getBC(m_Bc).getName() + "_after_" + counter_txt);
+
 }
 
 void StitchHoles::operate()
 {
+  writeGrid(m_Grid, GuiMainWindow::pointer()->getBC(m_Bc).getName() + "_before");
+  m_Counter = 0;
   bool hole_found = false;
   cout << "stitching holes of \"" << qPrintable(GuiMainWindow::pointer()->getBC(m_Bc).getName()) << "\"" << endl;
   int count = 0;

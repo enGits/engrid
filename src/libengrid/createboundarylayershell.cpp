@@ -95,7 +95,7 @@ void CreateBoundaryLayerShell::prepare()
 
 QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_levels)
 {
-  cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\"" << endl;
+  cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\" with " << num_levels << " levels" << endl;
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
@@ -163,14 +163,30 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
             all_bcs_adjacent = false;
           }
         }
-        if (node_has_bc && all_bcs_adjacent && marked[id_node]) {
+        if (node_has_bc && all_bcs_adjacent && marked[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
           if (m_Part.n2bcGSize(id_node) == 1) {
-            vec3_t xs = smooth.smoothNode(id_node);
-            xs = cad->snapNode(id_node, xs);
-            if (!checkVector(xs)) {
-              EG_ERR_RETURN("error while correcting adjacent boundaries");
+            vec3_t xs(0, 0, 0); // = smooth.smoothNode(id_node);
+            int count = 0;
+            for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+              vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+              if (cell_code->GetValue(id_cell) == bc) {
+                vec3_t x = cellCentre(m_Grid, id_cell);
+                xs += x;
+                ++count;
+              }
             }
-            m_Grid->GetPoints()->SetPoint(id_node, xs.data());
+            if (count > 0) {
+              xs *= 1.0/count;
+              if (node_type->GetValue(id_node) == EG_SIMPLE_VERTEX) {
+                xs = cad->snapNode(id_node, xs);
+              } else {
+                xs = cad->snapToEdge(xs);
+              }
+              if (!checkVector(xs)) {
+                EG_ERR_RETURN("error while correcting adjacent boundaries");
+              }
+              m_Grid->GetPoints()->SetPoint(id_node, xs.data());
+            }
           } else if (m_Part.n2bcGSize(id_node) == 2 && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             int count = 0;
             vec3_t xs(0, 0, 0);
@@ -200,6 +216,9 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
             if (isSurface(id_cell, m_Grid)) {
               if (cell_code->GetValue(id_cell) == bc) {
                 CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell));
+
+                // Hier stinkts vielleicht ...
+
                 cad->snap(cellCentre(m_Grid, id_cell));
                 vec3_t n = cellNormal(m_Grid, id_cell);
                 n.normalise();
@@ -219,12 +238,13 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
     //reduceSurface();
     //cout << "  " << bad_nodes.size() << " node defects" << endl;
     ++count;
-  } while (scal_min < 0.5 && count < 1000);
+  } while (scal_min < 0.5 && count < 20);
   if (scal_min < 0.5) {
     //writeGrid(grid, "adjacent_bc_failure");
     //return false;
     //EG_ERR_RETURN("failed to correct adjacent surfaces");
   }
+  cout << "  " << bad_nodes.size() << " node defects" << endl;
   return bad_nodes;
 }
 
@@ -413,9 +433,31 @@ void CreateBoundaryLayerShell::operate()
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
+  //return;
 
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
-    QList<vtkIdType> bad_nodes = correctAdjacentBC(bc);
+
+    QList<vtkIdType> bad_nodes;
+    int levels = 1;
+
+    QVector<vec3_t> x_save(m_Grid->GetNumberOfPoints());
+
+    do {
+      ++levels;
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        m_Grid->GetPoint(id_node, x_save[id_node].data());
+      }
+      QList<vtkIdType> last_bad = bad_nodes;
+      bad_nodes = correctAdjacentBC(bc, levels);
+      if (bad_nodes.size() >= last_bad.size() && last_bad.size() > 0) {
+        bad_nodes = last_bad;
+        for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+          m_Grid->GetPoints()->SetPoint(id_node, x_save[id_node].data());
+        }
+        break;
+      }
+    } while (bad_nodes.size() > 0);
+
     if (bad_nodes.size() > 0) {
       bool fixable = true;
 

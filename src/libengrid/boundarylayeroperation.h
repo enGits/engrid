@@ -83,18 +83,20 @@ protected: // methods
   void   smoothUsingBLVectors();
   void   writeWallGrid(QString file_name, int counter = -1);
 
-  void laplacianIntersectSmoother(const QVector<bool>& on_boundary);
-  void weightedSmoother(const QVector<bool>& on_boundary);
-  void angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
-  void intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
-  void laplacianSmoother();
-  void pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
-  int  limitHeights(double safety_factor);
-  void snapCornerVectorsToShell(vtkUnstructuredGrid* shell_grid);
-  void newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid);
-  void limitSizeAndAngleErrors();
-  bool swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle);
-  void swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle);
+  void   laplacianIntersectSmoother(const QVector<bool>& on_boundary);
+  void   weightedSmoother(const QVector<bool>& on_boundary);
+  void   angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void   intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
+  void   laplacianSmoother();
+  void   pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
+  int    limitHeights(double safety_factor);
+  bool   checkVectorForNode(vec3_t v, vtkIdType id_node);
+  vec3_t snapToShell(CadInterface *cad, vtkIdType id_node);
+  void   snapAllVectorsToShell(vtkUnstructuredGrid* shell_grid);
+  void   newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid, double relax);
+  void   limitSizeAndAngleErrors();
+  bool   swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle);
+  void   swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle);
 
 
 public: // methods

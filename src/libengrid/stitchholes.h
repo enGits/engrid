@@ -33,11 +33,16 @@ private: // attributes
   int           m_Bc;
   CadInterface *m_Cad;
 
+  QList<vec3_t> m_X2;
+  QList<vec3_t> m_X3;
+
+  int m_Counter;
 
 protected: // methods
 
   QList<vtkIdType> getNextHole();
   void stitchHole(QList<vtkIdType> loop_nodes);
+  vec3_t transformFromPlane(vec3_t x);
 
   virtual void operate();
 
