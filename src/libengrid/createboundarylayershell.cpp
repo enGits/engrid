@@ -164,6 +164,9 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
           }
         }
         if (node_has_bc && all_bcs_adjacent && marked[id_node] && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
+
+          // one boundary condition and EG_SIMPLE_VERTEX
+          //
           if (m_Part.n2bcGSize(id_node) == 1) {
             vec3_t xs(0, 0, 0); // = smooth.smoothNode(id_node);
             int count = 0;
@@ -187,7 +190,36 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
               }
               m_Grid->GetPoints()->SetPoint(id_node, xs.data());
             }
-          } else if (m_Part.n2bcGSize(id_node) == 2 && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
+          }
+
+          // one boundary condition and EG_FEATURE_EDGE_VERTEX
+          //
+          else if (m_Part.n2bcGSize(id_node) == 1 && node_type->GetValue(id_node) == EG_FEATURE_EDGE_VERTEX) {
+            int count = 0;
+            vec3_t xs(0, 0, 0);
+            for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+              vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+              if (node_type->GetValue(id_neigh) == EG_FEATURE_EDGE_VERTEX) {
+                vec3_t x;
+                m_Grid->GetPoint(id_neigh, x.data());
+                xs += x;
+                ++count;
+              }
+            }
+            if (count < 2) {
+              vec3_t x;
+              m_Grid->GetPoint(id_node, x.data());
+              xs += x;
+              ++count;
+            }
+            xs *= 1.0/count;
+            xs = cad->snapToEdge(xs);
+            m_Grid->GetPoints()->SetPoint(id_node, xs.data());
+          }
+
+          // two boundary conditions and no EG_FIXED_VERTEX
+          //
+          else if (m_Part.n2bcGSize(id_node) == 2 && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
             int count = 0;
             vec3_t xs(0, 0, 0);
             for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
