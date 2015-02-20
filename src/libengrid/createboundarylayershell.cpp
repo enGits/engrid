@@ -465,7 +465,6 @@ void CreateBoundaryLayerShell::operate()
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
-  //return;
 
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
 

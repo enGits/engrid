@@ -81,6 +81,7 @@ void BoundaryLayerOperation::readSettings()
     in >> m_NumBoundaryLayerVectorRelaxations;
     in >> m_NumBoundaryLayerHeightRelaxations;
     in >> m_ShellPassBand;
+    m_ShellPassBand = 2*pow(10.0, 3*m_ShellPassBand - 3);
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
@@ -599,7 +600,6 @@ void BoundaryLayerOperation::computeHeights()
 
   computeDesiredHeights();
   cout << "initial boundary layer heights computed" << endl;
-
   // avoid collisions
   limitHeights(1.0);
 
@@ -954,7 +954,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
     cout << "found " << bad_cells.size() << " distorted faces" << endl;
 
     if (bad_cells.size() > 0) {
-      if (bad_cells.size() <= last_num_bad) {
+      if (bad_cells.size() < last_num_bad) {
         last_num_bad = bad_cells.size();
         smoothBoundaryLayerVectors(10, w_iso, w_dir);
         newHeightFromShellIntersect(shell_grid, 1.0);
@@ -1327,21 +1327,23 @@ void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, con
   }
 }
 
-int BoundaryLayerOperation::limitHeights(double safety_factor)
+void BoundaryLayerOperation::limitHeights(double safety_factor)
 {
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
 
-  QVector<bool> limited(m_Grid->GetNumberOfPoints(), false);
   // save original node positions to x_old
   QVector<vec3_t> x_old(m_Grid->GetNumberOfPoints());
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     m_Grid->GetPoint(id_node, x_old[id_node].data());
   }
 
-  for (int pass = 1; pass <= 2; ++pass) {
+  double beta = m_MaxHeightInGaps/(1.0 - m_MaxHeightInGaps);
+  QVector<double> h_save = m_Height;
+
+  for (int pass = 1; pass <= 5; ++pass) {
 
     // move nodes for second pass
-    if (pass == 2) {
+    if (pass > 1) {
       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
         if (m_BoundaryLayerNode[id_node]) {
           vec3_t x = x_old[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
@@ -1351,6 +1353,7 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
     }
 
     CgalTriCadInterface cad(m_Grid);
+    m_Height = h_save;
 
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
       if (m_BoundaryLayerNode[id_node]) {
@@ -1359,7 +1362,30 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
           cells_of_node.append(m_Part.n2cGG(id_node, i));
         }
         QVector<QPair<vec3_t, vtkIdType> > intersections;
-        cad.computeIntersections(x_old[id_node], m_BoundaryLayerVectors[id_node], intersections);
+
+        vec3_t x_start = x_old[id_node];
+        foreach (int adj_bc, m_LayerAdjacentBoundaryCodes) {
+          if (m_Part.hasBC(id_node, adj_bc)) {
+            int count = 0;
+            vec3_t xs(0, 0, 0);
+            for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+              vtkIdType id_face = m_Part.n2cGG(id_node, i);
+              if (!m_LayerAdjacentBoundaryCodes.contains(bc->GetValue(id_face))) {
+                vec3_t x = cellCentre(m_Grid, id_face);
+                xs += x;
+                ++count;
+              }
+            }
+            if (count > 0) {
+              double w = 0.1;
+              xs *= 1.0/count;
+              x_start = w*xs + (1-w)*x_start;
+            }
+            break;
+          }
+        }
+
+        cad.computeIntersections(x_start, m_BoundaryLayerVectors[id_node], intersections);
         for (int i = 0; i < intersections.size(); ++i) {
           QPair<vec3_t,vtkIdType> inters = intersections[i];
           vec3_t xi = inters.first;
@@ -1375,11 +1401,9 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
             vec3_t dx = xi - x_old[id_node];
             double alpha = angle(dx, cellNormal(m_Grid, id_tri));
             if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
-              //double h_max = (1.0 - 0.5*safety_factor*(1.0 - m_MaxHeightInGaps))*dx.abs();
-              double h_max = safety_factor*m_MaxHeightInGaps*dx.abs();
+              double h_max = safety_factor*beta*dx.abs();
               if (h_max < m_Height[id_node]) {
                 m_Height[id_node] = h_max;
-                limited[id_node] = true;
               }
             }
           }
@@ -1388,16 +1412,11 @@ int BoundaryLayerOperation::limitHeights(double safety_factor)
     }
   }
 
-  // reset node positions and count nodes where the height has been limited
-  int num_limited = 0;
+  // reset node positions
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     m_Grid->GetPoints()->SetPoint(id_node, x_old[id_node].data());
-    if (limited[id_node]) {
-      ++num_limited;
-    }
   }
 
-  return num_limited;
 }
 
 void BoundaryLayerOperation::laplacianIntersectSmoother(const QVector<bool>& on_boundary)

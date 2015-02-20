@@ -89,7 +89,7 @@ protected: // methods
   void   intersectSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts);
   void   laplacianSmoother();
   void   pushOut(const QVector<bool>& on_boundary, const QVector<bool>& is_convex);
-  int    limitHeights(double safety_factor);
+  void   limitHeights(double safety_factor);
   bool   checkVectorForNode(vec3_t v, vtkIdType id_node);
   vec3_t snapToShell(CadInterface *cad, vtkIdType id_node);
   void   snapAllVectorsToShell(vtkUnstructuredGrid* shell_grid);
