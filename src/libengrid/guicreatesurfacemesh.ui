@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>905</width>
-    <height>705</height>
+    <height>875</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -750,14 +750,20 @@
          <item row="5" column="0">
           <widget class="QLabel" name="label_27">
            <property name="text">
-            <string>shell smoothing pass band (between 0 and 2)</string>
+            <string>shell smoothing</string>
            </property>
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QLineEdit" name="m_LineEditPassBand">
-           <property name="text">
-            <string>2</string>
+          <widget class="QSlider" name="m_PassBandSlider">
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="pageStep">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -830,13 +836,14 @@
   <tabstop>m_DoubleSpinBoxBoundaryLayerFarfieldRatio</tabstop>
   <tabstop>m_SpinBoxNormalRelaxationIterations</tabstop>
   <tabstop>m_SpinBoxHeightRelaxationIterations</tabstop>
-  <tabstop>m_LineEditPassBand</tabstop>
+  <tabstop>m_PassBandSlider</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerLowerFaceLimit</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerUpperFaceLimit</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerFaceAngle</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerGapHeight</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerRadarAngle</tabstop>
   <tabstop>m_CheckBoxBoundaryLayerNormalVectorGrouping</tabstop>
+  <tabstop>m_DoubleSpinBoxBoundaryLayerGroupingAngle</tabstop>
   <tabstop>m_LineEditCalcH0</tabstop>
   <tabstop>m_LineEditCalcH1</tabstop>
   <tabstop>m_SpinBoxCalcNumLayers</tabstop>
@@ -844,10 +851,9 @@
   <tabstop>m_PushButtonCalc1</tabstop>
   <tabstop>m_PushButtonCalc2</tabstop>
   <tabstop>m_PushButtonCalc3</tabstop>
-  <tabstop>m_DoubleSpinBoxBoundaryLayerGroupingAngle</tabstop>
-  <tabstop>pushButtonHelp</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>pushButtonHelp</tabstop>
  </tabstops>
  <resources>
   <include location="engrid.qrc"/>

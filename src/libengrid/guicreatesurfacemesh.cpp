@@ -182,7 +182,9 @@ int GuiCreateSurfaceMesh::readSettings()
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->setValue(dv);
     in >> iv; m_Ui.m_SpinBoxNormalRelaxationIterations->setValue(iv);
     in >> iv; m_Ui.m_SpinBoxHeightRelaxationIterations->setValue(iv);
-    in >> dv; num.setNum(dv); m_Ui.m_LineEditPassBand->setText(num);
+
+    in >> dv; num.setNum(dv); m_Ui.m_PassBandSlider->setValue(int(1000*dv));
+
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->setValue(dv);
@@ -235,7 +237,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->value() << "\n";
     out << m_Ui.m_SpinBoxNormalRelaxationIterations->value() << "\n";
     out << m_Ui.m_SpinBoxHeightRelaxationIterations->value() << "\n";
-    out << m_Ui.m_LineEditPassBand->text() << "\n";
+    out << 1e-3*m_Ui.m_PassBandSlider->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->value() << "\n";
