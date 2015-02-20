@@ -317,18 +317,15 @@ void GuiMainWindow::setupVtk()
   m_BackfaceProperty  = vtkProperty::New();
   m_SurfaceFilter     = vtkDataSetSurfaceFilter::New();
   m_SurfaceMapper     = vtkPolyDataMapper::New();
-  m_SurfaceWireMapper = vtkPolyDataMapper::New();
   m_BCodesFilter      = vtkEgBoundaryCodesFilter::New();
   m_LookupTable       = vtkLookupTable::New();
   m_SurfaceActor      = vtkActor::New();
-  m_SurfaceWireActor  = vtkActor::New();
   m_LegendActor       = vtkScalarBarActor::New();
   //
   m_BCodesFilter->SetBoundaryCodes(m_DisplayBoundaryCodes);
   m_BCodesFilter->SetInputData(m_Grid);
   m_SurfaceFilter->SetInputConnection(m_BCodesFilter->GetOutputPort());
   m_SurfaceMapper->SetInputConnection(m_SurfaceFilter->GetOutputPort());
-  m_SurfaceWireMapper->SetInputConnection(m_SurfaceFilter->GetOutputPort());
   m_SurfaceMapper->SetLookupTable(m_LookupTable);
   m_SurfaceActor->GetProperty()->SetRepresentationToSurface();
   m_SurfaceActor->GetProperty()->SetColor(m_ColAR, m_ColAG, m_ColAB);
@@ -342,11 +339,6 @@ void GuiMainWindow::setupVtk()
   m_LegendActor->SetLookupTable(m_LookupTable);
   getRenderer()->AddActor(m_LegendActor);
   m_LegendActor->SetVisibility(0);
-  m_SurfaceWireActor->GetProperty()->SetRepresentationToWireframe();
-  m_SurfaceWireActor->GetProperty()->SetColor(0,0,1);
-  m_SurfaceWireActor->SetMapper(m_SurfaceWireMapper);
-  getRenderer()->AddActor(m_SurfaceWireActor);
-  m_SurfaceWireActor->SetVisibility(0);
 
   // tetra pipline
   m_ExtrTetras   = vtkEgExtractVolumeCells::New();
@@ -361,6 +353,8 @@ void GuiMainWindow::setupVtk()
   m_TetraMapper->SetInputConnection(m_TetraGeometry->GetOutputPort());
   m_TetraActor->SetMapper(m_TetraMapper);
   m_TetraActor->GetProperty()->SetColor(m_ColTetraR, m_ColTetraG, m_ColTetraB);
+  m_TetraActor->GetProperty()->EdgeVisibilityOn();
+  m_TetraActor->GetProperty()->SetEdgeColor(0,0,1);
   getRenderer()->AddActor(m_TetraActor);
   m_TetraActor->SetVisibility(0);
 
@@ -377,6 +371,8 @@ void GuiMainWindow::setupVtk()
   m_PyramidMapper->SetInputConnection(m_PyramidGeometry->GetOutputPort());
   m_PyramidActor->SetMapper(m_PyramidMapper);
   m_PyramidActor->GetProperty()->SetColor(m_ColPyraR, m_ColPyraG, m_ColPyraB);
+  m_PyramidActor->GetProperty()->EdgeVisibilityOn();
+  m_PyramidActor->GetProperty()->SetEdgeColor(0,0,1);
   getRenderer()->AddActor(m_PyramidActor);
   m_PyramidActor->SetVisibility(0);
 
@@ -393,6 +389,8 @@ void GuiMainWindow::setupVtk()
   m_WedgeMapper->SetInputConnection(m_WedgeGeometry->GetOutputPort());
   m_WedgeActor->SetMapper(m_WedgeMapper);
   m_WedgeActor->GetProperty()->SetColor(m_ColPrismR, m_ColPrismG, m_ColPrismB);
+  m_WedgeActor->GetProperty()->EdgeVisibilityOn();
+  m_WedgeActor->GetProperty()->SetEdgeColor(0,0,1);
   getRenderer()->AddActor(m_WedgeActor);
   m_WedgeActor->SetVisibility(0);
 
@@ -409,6 +407,8 @@ void GuiMainWindow::setupVtk()
   m_HexaMapper->SetInputConnection(m_HexaGeometry->GetOutputPort());
   m_HexaActor->SetMapper(m_HexaMapper);
   m_HexaActor->GetProperty()->SetColor(m_ColHexR, m_ColHexG, m_ColHexB);
+  m_HexaActor->GetProperty()->EdgeVisibilityOn();
+  m_HexaActor->GetProperty()->SetEdgeColor(0,0,1);
   getRenderer()->AddActor(m_HexaActor);
   m_HexaActor->SetVisibility(0);
 
@@ -425,24 +425,10 @@ void GuiMainWindow::setupVtk()
   m_PolyhedraMapper->SetInputConnection(m_PolyhedraGeometry->GetOutputPort());
   m_PolyhedraActor->SetMapper(m_PolyhedraMapper);
   m_PolyhedraActor->GetProperty()->SetColor(m_ColPolyR, m_ColPolyG, m_ColPolyB);
+  m_PolyhedraActor->GetProperty()->EdgeVisibilityOn();
+  m_PolyhedraActor->GetProperty()->SetEdgeColor(0,0,1);
   getRenderer()->AddActor(m_PolyhedraActor);
   m_PolyhedraActor->SetVisibility(0);
-
-  // volume wire pipeline
-  m_VolumeWireActor  = vtkActor::New();
-  m_ExtrVol          = vtkEgExtractVolumeCells::New();
-  m_VolumeGeometry   = vtkDataSetSurfaceFilter::New();
-  m_VolumeWireMapper = vtkPolyDataMapper::New();
-  //
-  m_ExtrVol->SetInputData(m_Grid);
-  m_ExtrVol->SetAllOn();
-  m_VolumeGeometry->SetInputConnection(m_ExtrVol->GetOutputPort());
-  m_VolumeWireMapper->SetInputConnection(m_VolumeGeometry->GetOutputPort());
-  m_VolumeWireActor->SetMapper(m_VolumeWireMapper);
-  m_VolumeWireActor->GetProperty()->SetRepresentationToWireframe();
-  m_VolumeWireActor->GetProperty()->SetColor(0,0,1);
-  getRenderer()->AddActor(m_VolumeWireActor);
-  m_VolumeWireActor->SetVisibility(0);
 
   // picker stuff
   m_PickSphere  = vtkSphereSource::New();
@@ -540,7 +526,6 @@ void GuiMainWindow::scaleToData()
 
 void GuiMainWindow::setClipX(const QString &txt)
 {
-  m_ExtrVol->Setx(txt.toDouble());
   m_ExtrTetras->Setx(txt.toDouble());
   m_ExtrPyramids->Setx(txt.toDouble());
   m_ExtrWedges->Setx(txt.toDouble());
@@ -550,7 +535,6 @@ void GuiMainWindow::setClipX(const QString &txt)
 
 void GuiMainWindow::setClipY(const QString &txt)
 {
-  m_ExtrVol->Sety(txt.toDouble());
   m_ExtrTetras->Sety(txt.toDouble());
   m_ExtrPyramids->Sety(txt.toDouble());
   m_ExtrWedges->Sety(txt.toDouble());
@@ -560,7 +544,6 @@ void GuiMainWindow::setClipY(const QString &txt)
 
 void GuiMainWindow::setClipZ(const QString &txt)
 {
-  m_ExtrVol->Setz(txt.toDouble());
   m_ExtrTetras->Setz(txt.toDouble());
   m_ExtrPyramids->Setz(txt.toDouble());
   m_ExtrWedges->Setz(txt.toDouble());
@@ -570,7 +553,6 @@ void GuiMainWindow::setClipZ(const QString &txt)
 
 void GuiMainWindow::setClipNX(const QString &txt)
 {
-  m_ExtrVol->Setnx(txt.toDouble());
   m_ExtrTetras->Setnx(txt.toDouble());
   m_ExtrPyramids->Setnx(txt.toDouble());
   m_ExtrWedges->Setnx(txt.toDouble());
@@ -580,7 +562,6 @@ void GuiMainWindow::setClipNX(const QString &txt)
 
 void GuiMainWindow::setClipNY(const QString &txt)
 {
-  m_ExtrVol->Setny(txt.toDouble());
   m_ExtrTetras->Setny(txt.toDouble());
   m_ExtrPyramids->Setny(txt.toDouble());
   m_ExtrWedges->Setny(txt.toDouble());
@@ -590,7 +571,6 @@ void GuiMainWindow::setClipNY(const QString &txt)
 
 void GuiMainWindow::setClipNZ(const QString &txt)
 {
-  m_ExtrVol->Setnz(txt.toDouble());
   m_ExtrTetras->Setnz(txt.toDouble());
   m_ExtrPyramids->Setnz(txt.toDouble());
   m_ExtrWedges->Setnz(txt.toDouble());
@@ -680,10 +660,8 @@ void GuiMainWindow::updateSurfaceActors(bool forced)
       }
     }
     m_SurfaceActor->SetVisibility(1);
-    m_SurfaceWireActor->SetVisibility(1);
   } else {
     m_SurfaceActor->SetVisibility(0);
-    m_SurfaceWireActor->SetVisibility(0);
   }
 }
 
@@ -691,7 +669,6 @@ void GuiMainWindow::updateVolumeActors(bool forced)
 {
   if (ui.checkBoxVolume->isChecked()) {
     if (ui.checkBoxTetra->isChecked()) {
-      m_ExtrVol->SetTetrasOn();
       if (ui.checkBoxClip->isChecked()) {
         m_ExtrTetras->SetClippingOn();
       } else {
@@ -702,11 +679,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       }
       m_TetraActor->SetVisibility(1);
     } else {
-      m_ExtrVol->SetTetrasOff();
       m_TetraActor->SetVisibility(0);
     }
     if (ui.checkBoxPyramid->isChecked()) {
-      m_ExtrVol->SetPyramidsOn();
       if (ui.checkBoxClip->isChecked()) {
         m_ExtrPyramids->SetClippingOn();
       } else {
@@ -717,11 +692,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       }
       m_PyramidActor->SetVisibility(1);
     } else {
-      m_ExtrVol->SetPyramidsOff();
       m_PyramidActor->SetVisibility(0);
     }
     if (ui.checkBoxWedge->isChecked()) {
-      m_ExtrVol->SetWedgesOn();
       if (ui.checkBoxClip->isChecked()) {
         m_ExtrWedges->SetClippingOn();
       } else {
@@ -732,11 +705,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       }
       m_WedgeActor->SetVisibility(1);
     } else {
-      m_ExtrVol->SetWedgesOff();
       m_WedgeActor->SetVisibility(0);
     }
     if (ui.checkBoxHexa->isChecked()) {
-      m_ExtrVol->SetHexesOn();
       if (ui.checkBoxClip->isChecked()) {
         m_ExtrHexes->SetClippingOn();
       } else {
@@ -747,11 +718,9 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       }
       m_HexaActor->SetVisibility(1);
     } else {
-      m_ExtrVol->SetHexesOff();
       m_HexaActor->SetVisibility(0);
     }
     if (ui.checkBoxPoly->isChecked()) {
-      m_ExtrVol->SetPolysOn();
       if (ui.checkBoxClip->isChecked()) {
         m_ExtrPolyhedra->SetClippingOn();
       } else {
@@ -762,27 +731,15 @@ void GuiMainWindow::updateVolumeActors(bool forced)
       }
       m_PolyhedraActor->SetVisibility(1);
     } else {
-      m_ExtrVol->SetPolysOff();
       m_PolyhedraActor->SetVisibility(0);
     }
 
-    // wireframe
-    if (ui.checkBoxClip->isChecked()) {
-      m_ExtrVol->SetClippingOn();
-    } else {
-      m_ExtrVol->SetClippingOff();
-    }
-    if (forced) {
-      m_VolumeGeometry->Update();
-    }
-    m_VolumeWireActor->SetVisibility(1);
   } else {
     m_TetraActor->VisibilityOff();
     m_PyramidActor->VisibilityOff();
     m_WedgeActor->VisibilityOff();
     m_HexaActor->VisibilityOff();
     m_PolyhedraActor->VisibilityOff();
-    m_VolumeWireActor->VisibilityOff();
   }
 }
 

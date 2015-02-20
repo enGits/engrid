@@ -99,26 +99,22 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     vtkRenderer *m_Renderer; ///< The VTK renderer object, used for visualising the grid
 
     vtkActor* m_SurfaceActor;
-    vtkActor* m_SurfaceWireActor;
     vtkActor* m_TetraActor;
     vtkActor* m_WedgeActor;
     vtkActor* m_PyramidActor;
     vtkActor* m_HexaActor;
     vtkActor* m_PolyhedraActor;
-    vtkActor* m_VolumeWireActor;
 
     vtkProperty*       m_BackfaceProperty;
     vtkLookupTable*    m_LookupTable;
     vtkScalarBarActor* m_LegendActor;
 
     vtkPolyDataMapper* m_SurfaceMapper;
-    vtkPolyDataMapper* m_SurfaceWireMapper;
     vtkPolyDataMapper* m_TetraMapper;
     vtkPolyDataMapper* m_PyramidMapper;
     vtkPolyDataMapper* m_WedgeMapper;
     vtkPolyDataMapper* m_HexaMapper;
     vtkPolyDataMapper* m_PolyhedraMapper;
-    vtkPolyDataMapper* m_VolumeWireMapper;
 
     double m_ColTetraR, m_ColTetraG, m_ColTetraB;
     double m_ColPyraR,  m_ColPyraG,  m_ColPyraB;
@@ -128,14 +124,12 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     double m_ColAR,     m_ColAG,     m_ColAB;
     double m_ColBR,     m_ColBG,     m_ColBB;
 
-    vtkEgExtractVolumeCells *m_ExtrVol;
     vtkEgExtractVolumeCells *m_ExtrTetras;
     vtkEgExtractVolumeCells *m_ExtrPyramids;
     vtkEgExtractVolumeCells *m_ExtrWedges;
     vtkEgExtractVolumeCells *m_ExtrHexes;
     vtkEgExtractVolumeCells *m_ExtrPolyhedra;
 
-    vtkDataSetSurfaceFilter *m_VolumeGeometry;
     vtkDataSetSurfaceFilter *m_TetraGeometry;
     vtkDataSetSurfaceFilter *m_PyramidGeometry;
     vtkDataSetSurfaceFilter *m_WedgeGeometry;
