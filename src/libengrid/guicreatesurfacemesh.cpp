@@ -117,6 +117,17 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   connect(m_Ui.m_PushButtonCalc2, SIGNAL(clicked()), this, SLOT(calc2()));
   connect(m_Ui.m_PushButtonCalc3, SIGNAL(clicked()), this, SLOT(calc3()));
 
+  connect(m_Ui.m_PassBandSlider, SIGNAL(valueChanged(int)), this, SLOT(displayPb(int)));
+
+}
+
+
+void GuiCreateSurfaceMesh::displayPb(int v)
+{
+  double dv = 1e-3*v;
+  QString num;
+  num.setNum(2*pow(10.0, -3*dv));
+  m_Ui.m_LabelPassBand->setText(num);
 }
 
 ///////////////////////////////////////////
@@ -183,7 +194,9 @@ int GuiCreateSurfaceMesh::readSettings()
     in >> iv; m_Ui.m_SpinBoxNormalRelaxationIterations->setValue(iv);
     in >> iv; m_Ui.m_SpinBoxHeightRelaxationIterations->setValue(iv);
 
-    in >> dv; num.setNum(dv); m_Ui.m_PassBandSlider->setValue(int(1000*dv));
+    in >> dv; m_Ui.m_PassBandSlider->setValue(int(1000*dv));
+    num.setNum(2*pow(10.0, -3*dv));
+    m_Ui.m_LabelPassBand->setText(num);
 
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->setValue(dv);

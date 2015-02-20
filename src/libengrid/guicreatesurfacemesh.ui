@@ -24,7 +24,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -754,7 +754,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="5" column="1" colspan="2">
           <widget class="QSlider" name="m_PassBandSlider">
            <property name="maximum">
             <number>1000</number>
@@ -764,6 +764,25 @@
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
+          <widget class="QLabel" name="m_LabelPassBand">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
            </property>
           </widget>
          </item>

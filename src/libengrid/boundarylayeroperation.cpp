@@ -81,7 +81,7 @@ void BoundaryLayerOperation::readSettings()
     in >> m_NumBoundaryLayerVectorRelaxations;
     in >> m_NumBoundaryLayerHeightRelaxations;
     in >> m_ShellPassBand;
-    m_ShellPassBand = 2*pow(10.0, 3*m_ShellPassBand - 3);
+    m_ShellPassBand = 2*pow(10.0, -3*m_ShellPassBand);
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
@@ -606,31 +606,6 @@ void BoundaryLayerOperation::computeHeights()
   // limit face size and angle difference
   //limitSizeAndAngleErrors();
 
-  // smoothing
-  {
-    QVector<double> h_safe = m_Height;
-    for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
-      QVector<double> h_new = m_Height;
-      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-        if (m_BoundaryLayerNode[id_node]) {
-          int count = 0;
-          h_new[id_node] = 0;
-          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-            if (m_BoundaryLayerNode[id_neigh]) {
-              ++count;
-              h_new[id_node] += min(h_safe[id_node], m_Height[id_neigh]);
-            }
-          }
-          if (count == 0) {
-            EG_BUG;
-          }
-          h_new[id_node] /= count;
-        }
-      }
-      m_Height = h_new;
-    }
-  }
 
   // The mesh smoothing methods start here
   // General variables kind of useful for push out, smoothing, etc
@@ -665,6 +640,32 @@ void BoundaryLayerOperation::computeHeights()
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
   smoothUsingBLVectors();
+
+  // laplacian smoothing
+  {
+    QVector<double> h_safe = m_Height;
+    for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
+      QVector<double> h_new = m_Height;
+      for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+        if (m_BoundaryLayerNode[id_node]) {
+          int count = 0;
+          h_new[id_node] = 0;
+          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+            if (m_BoundaryLayerNode[id_neigh]) {
+              ++count;
+              h_new[id_node] += min(h_safe[id_node], m_Height[id_neigh]);
+            }
+          }
+          if (count == 0) {
+            EG_BUG;
+          }
+          h_new[id_node] /= count;
+        }
+      }
+      m_Height = h_new;
+    }
+  }
 
   //limitHeights(1.0);
 
@@ -703,7 +704,7 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   //EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
   EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
-  smooth->BoundarySmoothingOff();
+  smooth->BoundarySmoothingOn();
   smooth->FeatureEdgeSmoothingOn();
   smooth->SetFeatureAngle(180);
   smooth->SetEdgeAngle(180);
@@ -923,7 +924,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
   createSmoothShell(shell_grid, m_ShellPassBand);
 
   newHeightFromShellIntersect(shell_grid, 1.0);
-  //writeGrid(shell_grid, "shell");
+  writeGrid(shell_grid, "shell");
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   //writeWallGrid("walls", 0);

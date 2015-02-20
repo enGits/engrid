@@ -76,6 +76,8 @@ public slots:
   void calc2();
   void calc3();
 
+  void displayPb(int v);
+
 };
 
 #endif
