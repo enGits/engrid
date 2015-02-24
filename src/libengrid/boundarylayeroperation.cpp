@@ -1341,13 +1341,15 @@ void BoundaryLayerOperation::limitHeights(double safety_factor)
   double beta = m_MaxHeightInGaps/(1.0 - m_MaxHeightInGaps);
   QVector<double> h_save = m_Height;
 
-  for (int pass = 1; pass <= 5; ++pass) {
+  int max_pass = 5;
+  for (int pass = 0; pass <= max_pass; ++pass) {
 
-    // move nodes for second pass
-    if (pass > 1) {
+    // move nodes (small steps per pass)
+    {
+      double w = double(pass)/max_pass;
       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
         if (m_BoundaryLayerNode[id_node]) {
-          vec3_t x = x_old[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
+          vec3_t x = x_old[id_node] + w*m_Height[id_node]*m_BoundaryLayerVectors[id_node];
           m_Grid->GetPoints()->SetPoint(id_node, x.data());
         }
       }
