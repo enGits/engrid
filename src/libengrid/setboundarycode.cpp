@@ -25,17 +25,18 @@
 
 SetBoundaryCode::SetBoundaryCode()
 {
-  feature_angle = 180.0;
-  boundary_code = 1;
+  m_FeatureAngle = 180.0;
+  m_NewBoundaryCode = 1;
+  m_OldBoundaryCode = -1;
   setSurfaceIteration();
   setQuickSave(true);
 }
 
 void SetBoundaryCode::pass1()
 {
-  if(!(SelectAllVisible || OnlyPickedCell || OnlyPickedCellAndNeighbours)) {
+  if(!(m_SelectAllVisible || m_OnlyPickedCell || m_OnlyPickedCellAndNeighbours)) {
     using namespace GeometryTools;
-    double fa = feature_angle*M_PI/180.0;
+    double fa = m_FeatureAngle*M_PI/180.0;
   
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
@@ -43,20 +44,9 @@ void SetBoundaryCode::pass1()
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     
     for (int i = 0; i < pair.size(); ++i) {
-      int bc1 = cell_code->GetValue(pair[i].item1);
       int bc2 = cell_code->GetValue(pair[i].item2);
-      if (ProcessAll) {
-        vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
-        vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
-        n1.normalise();
-        n2.normalise();
-        if (GeometryTools::angle(n1, n2) > fa) {
-          pair[i].terminate = true;
-        } else {
-          pair[i].terminate = false;
-        }
-      } else {
-        if (DBC.contains(bc2)) {
+      if (m_ProcessAll) {
+        if (bc2 == m_OldBoundaryCode || m_OldBoundaryCode < 0) {
           vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
           vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
           n1.normalise();
@@ -65,6 +55,22 @@ void SetBoundaryCode::pass1()
             pair[i].terminate = true;
           } else {
             pair[i].terminate = false;
+          }
+        } else {
+          pair[i].terminate = true;
+        }
+      } else {
+        if (DBC.contains(bc2)) {
+          if (bc2 == m_OldBoundaryCode || m_OldBoundaryCode < 0) {
+            vec3_t n1 = cellNormal(m_Grid, pair[i].item1);
+            vec3_t n2 = cellNormal(m_Grid, pair[i].item2);
+            n1.normalise();
+            n2.normalise();
+            if (GeometryTools::angle(n1, n2) > fa) {
+              pair[i].terminate = true;
+            } else {
+              pair[i].terminate = false;
+            }
           }
         } else {
           pair[i].terminate = true;
@@ -78,27 +84,27 @@ void SetBoundaryCode::pass2()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   vtkIdType cellId;
-  if(SelectAllVisible) {
+  if(m_SelectAllVisible) {
     QSet <int> DBC;
     GuiMainWindow::pointer()->getDisplayBoundaryCodes(DBC);
-    DBC.insert(boundary_code);
+    DBC.insert(m_NewBoundaryCode);
     foreach(cellId, cells) {
       int bc = cell_code->GetValue(cellId);
       if(DBC.contains(bc)){
-        cell_code->SetValue(cellId, boundary_code);
+        cell_code->SetValue(cellId, m_NewBoundaryCode);
       }
     }
-  } else if (OnlyPickedCell) {
+  } else if (m_OnlyPickedCell) {
     cout<<"this->getStart()="<<this->getStart()<<endl;
-    cell_code->SetValue(this->getStart(), boundary_code);
-  } else if (OnlyPickedCellAndNeighbours) {
-    cell_code->SetValue(this->getStart(), boundary_code);
+    cell_code->SetValue(this->getStart(), m_NewBoundaryCode);
+  } else if (m_OnlyPickedCellAndNeighbours) {
+    cell_code->SetValue(this->getStart(), m_NewBoundaryCode);
     foreach (cellId, c2c[this->getStart()]) {
-      cell_code->SetValue(cellId, boundary_code);
+      cell_code->SetValue(cellId, m_NewBoundaryCode);
     }
   } else {
     foreach (cellId, item) {
-      cell_code->SetValue(cellId, boundary_code);
+      cell_code->SetValue(cellId, m_NewBoundaryCode);
     }
   }
   m_Grid->Modified();

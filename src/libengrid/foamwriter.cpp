@@ -234,16 +234,26 @@ void FoamWriter::writeBoundary(const PolyMesh &poly)
 
     f << "    " << bc_name << "\n";
     f << "    {\n";
-    f << "        type                 " << bc_type << ";\n";
-    f << "        nFaces               " << nFaces << ";\n";
-    f << "        startFace            " << startFace << ";\n";
-    if (bc_type == "mappedWall") {
+    if (bc_type == "planar_cyclic") {
+      QString side = bc_name.right(1);
+      QString base = bc_name.left(bc_name.size() - 1);
+      f << "        type                 cyclicAMI;\n";
+      f << "        nFaces               " << nFaces << ";\n";
       f << "        startFace            " << startFace << ";\n";
-      f << "        sampleMode           nearestPatchFace;\n";
-      f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
-      f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(bc) << ";\n";
-      f << "        offsetMode           uniform;\n";
-      f << "        offset               ( 0 0 0 );\n";
+      f << "        transform            noOrdering;\n";
+      if (side == "A") f << "        neighbourPatch       " + base + "B;\n";
+      else             f << "        neighbourPatch       " + base + "A;\n";
+    } else {
+      f << "        type                 " << bc_type << ";\n";
+      f << "        nFaces               " << nFaces << ";\n";
+      f << "        startFace            " << startFace << ";\n";
+      if (bc_type == "mappedWall") {
+        f << "        sampleMode           nearestPatchFace;\n";
+        f << "        sampleRegion         " << getNeighbourName(bc) << ";\n";
+        f << "        samplePatch          " << neigh_name + "_" + getNeighbourName(bc) << ";\n";
+        f << "        offsetMode           uniform;\n";
+        f << "        offset               ( 0 0 0 );\n";
+      }
     }
   f << "    }\n";
   };

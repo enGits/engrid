@@ -300,6 +300,14 @@ public: // methods
   void getCommonBcs(const C &common_nodes, QVector<int> &common_bcs);
 
   /**
+   * @brief get common boundary codes of a set of nodes
+   * @param nodes Qt container holding the nodes to investigate
+   * @return a set with the common boundary codes
+   */
+  template <typename C>
+  QSet<int> getCommonBcs(const C &common_nodes);
+
+  /**
    * @brief check if an edge is a feature edge
    * The check is done by trying to snap to the edge geometry of the CAD interface.
    * Depending on the distance of the snapped locations this will a feature edge or not.
@@ -712,6 +720,26 @@ void MeshPartition::getCommonBcs(const C &nodes, QVector<int> &common_bcs)
   }
   common_bcs.resize(bcs.size());
   qCopy(bcs.begin(), bcs.end(), common_bcs.begin());
+}
+
+template <typename C>
+QSet<int> MeshPartition::getCommonBcs(const C &nodes)
+{
+  QSet<int> common_bcs;
+  bool first = true;
+  foreach (vtkIdType id_node, nodes) {
+    QSet<int> node_bcs;
+    for (int i = 0; i < n2bcGSize(id_node); ++i) {
+      node_bcs.insert(n2bcG(id_node, i));
+    }
+    if (first) {
+      first = false;
+      common_bcs = node_bcs;
+    } else {
+      common_bcs.intersect(node_bcs);
+    }
+  }
+  return common_bcs;
 }
 
 #endif // MESHPARTITION_H

@@ -309,6 +309,7 @@ void Operation::createFeatureBcs(double feature_angle)
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (cell_code->GetValue(id_cell) < old_max_bc && isSurface(id_cell, m_Grid)) {
         id_start = id_cell;
+        set_bc.setOLdBC(cell_code->GetValue(id_cell));
         break;
       }
     }
@@ -316,7 +317,7 @@ void Operation::createFeatureBcs(double feature_angle)
       done = true;
     } else {
       set_bc.setFeatureAngle(feature_angle);
-      set_bc.setBC(max_bc);
+      set_bc.setNewBC(max_bc);
       set_bc.setProcessAll(true);
       set_bc.setSelectAllVisible(false);
       set_bc.setOnlyPickedCell(false);

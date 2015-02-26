@@ -91,7 +91,7 @@ void GuiSetBoundaryCode::operate()
         done = true;
       } else {
         set_bc.setFeatureAngle(m_Ui.doubleSpinBoxFeatureAngle->value());
-        set_bc.setBC(bc);
+        set_bc.setNewBC(bc);
         set_bc.setProcessAll(false);
         set_bc.setSelectAllVisible(false);
         set_bc.setOnlyPickedCell(false);
@@ -111,7 +111,7 @@ void GuiSetBoundaryCode::operate()
   } else {
     if (0 <= mainWindow()->getPickedCell() && mainWindow()->getPickedCell() < GuiMainWindow::pointer()->getGrid()->GetNumberOfCells() ) {
       set_bc.setFeatureAngle(m_Ui.doubleSpinBoxFeatureAngle->value());
-      set_bc.setBC(m_Ui.spinBoxBoundaryCode->value());
+      set_bc.setNewBC(m_Ui.spinBoxBoundaryCode->value());
 
       set_bc.setProcessAll(m_ButtonGroup->button(1)->isChecked());
       set_bc.setSelectAllVisible(m_ButtonGroup->button(2)->isChecked());

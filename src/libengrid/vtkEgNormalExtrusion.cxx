@@ -18,6 +18,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 #include "vtkEgNormalExtrusion.h"
 
 vtkStandardNewMacro(vtkEgNormalExtrusion)
@@ -29,6 +30,19 @@ vtkEgNormalExtrusion::vtkEgNormalExtrusion()
   m_ScaleY = 1;
   m_ScaleZ = 1;
   m_RemoveInternalFaces = true;
+}
+
+int vtkEgNormalExtrusion::getNewBc(MeshPartition *part, vtkIdType id_node1, vtkIdType id_node2)
+{
+  QVector<vtkIdType> nodes(2);
+  nodes[0] = id_node1;
+  nodes[1] = id_node2;
+  QSet<int> common_bcs = part->getCommonBcs(nodes);
+  QSet<int> potential_bcs = common_bcs - m_BoundaryCodes;
+  if (potential_bcs.size() > 0) {
+    return potential_bcs.values().first();
+  }
+  return m_UnknownBc;
 }
 
 void vtkEgNormalExtrusion::ExecuteEg()
@@ -147,14 +161,18 @@ void vtkEgNormalExtrusion::ExecuteEg()
   EG_VTKDCC(vtkIntArray, voldir, m_Output, "cell_voldir");
   EG_VTKDCC(vtkIntArray, curdir, m_Output, "cell_curdir");
 
-  int new_bc = 1;
+  m_UnknownBc = 1;
   for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
     if (isSurface(id_cell, m_Input)) {
-      if (cell_code1->GetValue(id_cell) >= new_bc) {
-        new_bc = cell_code1->GetValue(id_cell) + 1;
+      if (cell_code1->GetValue(id_cell) >= m_UnknownBc) {
+        m_UnknownBc = cell_code1->GetValue(id_cell) + 1;
       }
     }
   }
+
+  QMap<QPair<int,int>,int> new_bcs;
+
+  MeshPartition part(m_Input, true);
   
   for (int i = 0; i < nodes.size(); ++i) {
     n2[i] = nodes[i];
@@ -237,6 +255,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
           if (N == 1) add_bd = true;
         }
         if (add_bd) {
+          int new_bc = new_bcs[QPair<int,int>(p1,p2)];
+          if (new_bc == 0) {
+            new_bc = getNewBc(&part, nodes[p1], nodes[p2]);
+            new_bcs[QPair<int,int>(p1,p2)] = new_bc;
+          }
           vtkIdType quad_pts[4];
           quad_pts[0] = n1[p1];
           quad_pts[1] = n1[p2];

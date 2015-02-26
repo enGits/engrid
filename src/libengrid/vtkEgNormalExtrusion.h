@@ -24,6 +24,8 @@
 class vtkEgNormalExtrusion;
 
 #include "vtkEgGridFilter.h"
+#include "meshpartition.h"
+
 #include <QVector>
 
 class vtkEgNormalExtrusion : public vtkEgGridFilter
@@ -40,6 +42,8 @@ protected: // attributes
   double m_ScaleY;
   double m_ScaleZ;
   bool   m_RemoveInternalFaces;
+  int    m_UnknownBc;
+
 
 public: // methods
   
@@ -65,7 +69,8 @@ protected: // methods
   vtkEgNormalExtrusion();
   ~vtkEgNormalExtrusion() {}
   virtual void ExecuteEg();
-  
+  int getNewBc(MeshPartition *part, vtkIdType id_node1, vtkIdType id_node2);
+
 private: // methods
   
   vtkEgNormalExtrusion (const vtkEgNormalExtrusion&);

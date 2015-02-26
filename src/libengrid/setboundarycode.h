@@ -30,12 +30,13 @@ class SetBoundaryCode : public CellNeighbourIterator
   
 private: // attributes
   
-  double feature_angle;
-  int    boundary_code;
-  bool   ProcessAll;
-  bool   SelectAllVisible;
-  bool   OnlyPickedCell;
-  bool   OnlyPickedCellAndNeighbours;
+  double m_FeatureAngle;
+  int    m_NewBoundaryCode;
+  int    m_OldBoundaryCode;
+  bool   m_ProcessAll;
+  bool   m_SelectAllVisible;
+  bool   m_OnlyPickedCell;
+  bool   m_OnlyPickedCellAndNeighbours;
   
 protected: // methods
   
@@ -45,14 +46,14 @@ protected: // methods
 public: // methods
   
   SetBoundaryCode();
-  void setFeatureAngle(double fa) { feature_angle = fa; }
-  void setBC(int bc) { boundary_code = bc; }
-  void setProcessAll(bool b) { ProcessAll=b; }
-  void setSelectAllVisible(bool b) { SelectAllVisible=b; }
-  void setOnlyPickedCell(bool b) { OnlyPickedCell=b; }
-  void setOnlyPickedCellAndNeighbours(bool b) { OnlyPickedCellAndNeighbours=b; }
-  void set(bool b) { OnlyPickedCell=b; }
-  
+  void setFeatureAngle(double fa) { m_FeatureAngle = fa; }
+  void setNewBC(int bc) { m_NewBoundaryCode = bc; }
+  void setOLdBC(int bc) { m_OldBoundaryCode = bc; }
+  void setProcessAll(bool b) { m_ProcessAll=b; }
+  void setSelectAllVisible(bool b) { m_SelectAllVisible=b; }
+  void setOnlyPickedCell(bool b) { m_OnlyPickedCell=b; }
+  void setOnlyPickedCellAndNeighbours(bool b) { m_OnlyPickedCellAndNeighbours=b; }
+
 };
 
 #endif
