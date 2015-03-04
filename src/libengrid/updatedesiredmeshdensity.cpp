@@ -217,7 +217,7 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
 void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
 {
   // add mesh density radiation to 3D feature resolution
-  EG_STOPDATE("2015-06-01");
+  //EG_STOPDATE("2015-06-01");
 
   if (m_FeatureResolution3D < 1e-3) {
     return;

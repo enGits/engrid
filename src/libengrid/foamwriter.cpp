@@ -30,7 +30,7 @@ FoamWriter::FoamWriter()
   EG_TYPENAME;
   setFormat("Foam boundary files(boundary)");
   setExtension("");
-  m_CreateCellZones = false;//true;
+  m_CreateCellZones = true;
   m_NoDialog = false;
 }
 
