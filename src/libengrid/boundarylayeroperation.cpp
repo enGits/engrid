@@ -34,6 +34,16 @@
 #include <vtkSmoothPolyDataFilter.h>
 #include <vtkWindowedSincPolyDataFilter.h>
 
+BoundaryLayerOperation::BoundaryLayerOperation()
+{
+  m_ShellGrid = vtkUnstructuredGrid::New();
+}
+
+BoundaryLayerOperation::~BoundaryLayerOperation()
+{
+  m_ShellGrid->Delete();
+}
+
 void BoundaryLayerOperation::readSettings()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
@@ -672,10 +682,8 @@ void BoundaryLayerOperation::computeHeights()
   cout << "heights computed" << endl;
 }
 
-void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter)
+void BoundaryLayerOperation::createSmoothShell()
 {
-  // new version based on VTK technology
-
   // Set grid to normal*height
   QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
   QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
@@ -692,45 +700,30 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
   extract_wall->SetInputData(m_Grid);
   extract_wall->SetBoundaryCodes(m_BoundaryLayerCodes);
   extract_wall->Update();
-  //writeGrid(extract_wall->GetOutput(), "walls_from_vtk");
 
   EG_VTKSP(vtkDataSetSurfaceFilter, grid_to_pdata);
   grid_to_pdata->SetInputConnection(extract_wall->GetOutputPort());
   EG_VTKSP(vtkLinearSubdivisionFilter, subdiv);
-  //EG_VTKSP(vtkButterflySubdivisionFilter, subdiv);
   subdiv->SetInputConnection(grid_to_pdata->GetOutputPort());
   subdiv->SetNumberOfSubdivisions(1);
 
-  //EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
   EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
   smooth->BoundarySmoothingOn();
   smooth->FeatureEdgeSmoothingOn();
   smooth->SetFeatureAngle(180);
   smooth->SetEdgeAngle(180);
-  //smooth->SetNumberOfIterations(num_iter/100);
   smooth->SetNumberOfIterations(100);
   smooth->NormalizeCoordinatesOn();
   double pb = m_ShellPassBand;
   cout << "pass-band = " << pb << endl;
   smooth->SetPassBand(pb);
-  //smooth->SetRelaxationFactor(0.05);
   smooth->Update();
-  //cout << "rf = " << smooth->GetRelaxationFactor() << endl;
 
   EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata_to_grid);
-  //pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
   pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
   pdata_to_grid->Update();
-  makeCopy(pdata_to_grid->GetOutput(), shell_grid);
-
-  /*
-  GeometrySmoother smooth;
-  smooth.setGrid(shell_grid);
-  smooth.setNumberOfIterations(num_iter);
-  smooth.setConvexRelaxation(0.0);
-  smooth();
-  */
+  makeCopy(pdata_to_grid->GetOutput(), m_ShellGrid);
 
   // reset grid to original points
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -738,121 +731,6 @@ void BoundaryLayerOperation::createSmoothShell(vtkUnstructuredGrid *shell_grid, 
       m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
     }
   }
-
-
-
-  // Set grid to normal*height
-  // And set weight factor of edges and corners to 1.
-  /*
-  QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x(0,0,0);
-    m_Grid->GetPoint(id_node, x_org[id_node].data());
-    x_new[id_node] = x_org[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-    m_Grid->GetPoints()->SetPoint(id_node, x_new[id_node].data());
-  }
-
-  // Laplacian on points
-  for (int iter = 0; iter < num_iter; iter++) {
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-
-        // !!!!!!!   Warning, this might not be robust enough for complex geometries !!!!!!!
-        bool shared_boundary = false;
-        {
-          QVector<int> bc_ids;
-          for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
-            int bc = m_Part.n2bcG(id_node, i);
-            if (!m_BoundaryLayerCodes.contains(bc)
-                && !bc_ids.contains(bc) )
-            {
-              bc_ids.append(bc);
-            }
-          }
-
-          if ( bc_ids.size() > 1 ) continue;
-
-          if (bc_ids.size() == 1) {
-            shared_boundary = true;
-          }
-        }
-
-        vec3_t avg_pnt(0,0,0);
-        int count = 0;
-        if (!shared_boundary) {
-          double area = 0;
-          for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
-            vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-            vec3_t cell_ctr = cellCentre(m_Grid, id_cell);
-            double cell_area = cellVA(m_Grid, id_cell);
-            avg_pnt += cell_area*cell_ctr;
-            area += cell_area;
-            ++count;
-          }
-          if (count == 0)
-            continue;
-          avg_pnt *= 1.0/area;
-        }
-        if (shared_boundary) {
-          for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
-            vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
-            if (on_boundary[id_neigh]) {
-              vec3_t x(0,0,0);
-              m_Grid->GetPoint(id_neigh, x.data());
-              avg_pnt += x;
-              ++count;
-            }
-          }
-          if (count == 0)
-            continue;
-          avg_pnt *= 1.0/count;
-        }
-
-        if (on_boundary[id_node]) {
-          vec3_t node_pnt(0,0,0);
-          m_Grid->GetPoint(id_node, node_pnt.data());
-          double n = 1./3.;
-          avg_pnt = (1-n)*node_pnt + n*(avg_pnt);
-        }
-        //vec3_t new_vec = avg_pnt - org_grid_pts[id_node];
-        //m_Height[id_node] = new_vec.abs();
-        //new_vec.normalise();
-        //m_BoundaryLayerVectors[id_node] = new_vec;
-        x_new[id_node] = avg_pnt;
-      }
-    }
-    // Set grid to new points
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        m_Grid->GetPoints()->SetPoint(id_node, x_new[id_node].data());
-      }
-    }
-  }
-
-  //- Create subgrid from shell
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  {
-    MeshPartition shell_part(m_Grid);
-    QList<vtkIdType> shell_faces;
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (isSurface(id_cell, m_Grid)) {
-        if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
-          shell_faces.append(id_cell);
-        }
-      }
-    }
-    shell_part.setCells(shell_faces);
-    shell_part.extractToVtkGrid(shell_grid);
-  }
-
-  // reset grid to original points
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
-    }
-  }
-  */
 }
 
 double BoundaryLayerOperation::largestAngle(vtkIdType id_node1, vtkIdType id_node2)
@@ -920,14 +798,11 @@ void BoundaryLayerOperation::writeWallGrid(QString file_name, int counter)
 void BoundaryLayerOperation::smoothUsingBLVectors()
 {
   // create shell
-  EG_VTKSP(vtkUnstructuredGrid, shell_grid);
-  createSmoothShell(shell_grid, m_ShellPassBand);
+  createSmoothShell();
 
-  newHeightFromShellIntersect(shell_grid, 1.0);
-  writeGrid(shell_grid, "shell");
+  newHeightFromShellIntersect(1.0);
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  //writeWallGrid("walls", 0);
 
   QList<vtkIdType> bad_cells;
 
@@ -958,7 +833,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
       if (bad_cells.size() < last_num_bad) {
         last_num_bad = bad_cells.size();
         smoothBoundaryLayerVectors(10, w_iso, w_dir);
-        newHeightFromShellIntersect(shell_grid, 1.0);
+        newHeightFromShellIntersect(1.0);
       } else {
         cout << "cannot fix completely -- terminating the loop!" << endl;
         //cout << "moving to global under relaxation now ..." << endl;
@@ -1081,7 +956,6 @@ vec3_t BoundaryLayerOperation::snapToShell(CadInterface* cad, vtkIdType id_node)
 
 void BoundaryLayerOperation::snapAllVectorsToShell(vtkUnstructuredGrid *shell_grid)
 {
-  writeBoundaryLayerVectors("normals");
   CgalTriCadInterface cad(shell_grid);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
@@ -1099,9 +973,9 @@ void BoundaryLayerOperation::snapAllVectorsToShell(vtkUnstructuredGrid *shell_gr
 
 // Compute intersection points with a shell following m_BoundaryLayerVector
 // Updates m_Height
-void BoundaryLayerOperation::newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid, double relax)
+void BoundaryLayerOperation::newHeightFromShellIntersect(double relax)
 {
-  CgalTriCadInterface cad(shell_grid);
+  CgalTriCadInterface cad(m_ShellGrid);
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
       vec3_t x;

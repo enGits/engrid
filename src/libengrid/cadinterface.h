@@ -121,6 +121,7 @@ public:
    */
   virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
 
+  virtual vec3_t snapWithNormal(vec3_t x, vec3_t, bool correct_curvature = false) { return snap(x, correct_curvature); }
   virtual vec3_t snapToEdge(vec3_t x) { notImplemented(); }
   virtual vec3_t snapToCorner(vec3_t x) { notImplemented(); }
 

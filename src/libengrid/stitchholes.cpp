@@ -141,18 +141,7 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   edge_pdata->SetPoints(points);
   edge_pdata->SetPolys(polys);
   EG_VTKSP(vtkUnstructuredGrid, tri_grid);
-  /*
-  {
-    QString name = GuiMainWindow::pointer()->getCwd() + "/input.vtk";
-    EG_VTKSP(vtkPolyDataWriter, vtk);
-    vtk->SetFileName(qPrintable(name));
-    vtk->SetInputData(edge_pdata);
-    vtk->Write();
-  }
-  */
   triangulate(edge_pdata, tri_grid, m_Bc);
-  //writeGrid(tri_grid, "tri");
-  //gridFromPlane(tri_grid);
   for (vtkIdType id_node = 0; id_node < tri_grid->GetNumberOfPoints(); ++id_node) {
     vec3_t x;
     tri_grid->GetPoint(id_node, x.data());
@@ -176,16 +165,7 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   }
 
   MeshPartition tri_part(tri_grid, true);
-  /*
-  int n1 = tri_grid->GetNumberOfPoints();
-  int n2 = tri_grid->GetNumberOfCells();
-  */
   m_Part.addPartition(tri_part);
-  /*
-  int N1 = m_Grid->GetNumberOfPoints();
-  int N2 = m_Grid->GetNumberOfCells();
-  writeGrid(m_Grid, "after");
-  */
 
   DeleteStrayNodes del_stray;
   del_stray.setGrid(m_Grid);
@@ -196,13 +176,10 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
   QString counter_txt;
   counter_txt.setNum(m_Counter);
   counter_txt = counter_txt.rightJustified(3, '0');
-  writeGrid(m_Grid, GuiMainWindow::pointer()->getBC(m_Bc).getName() + "_after_" + counter_txt);
-
 }
 
 void StitchHoles::operate()
 {
-  writeGrid(m_Grid, GuiMainWindow::pointer()->getBC(m_Bc).getName() + "_before");
   m_Counter = 0;
   bool hole_found = false;
   cout << "stitching holes of \"" << qPrintable(GuiMainWindow::pointer()->getBC(m_Bc).getName()) << "\"" << endl;

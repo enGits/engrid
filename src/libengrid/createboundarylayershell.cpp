@@ -31,6 +31,24 @@
 #include "surfacemeshsmoother.h"
 #include "deletecells.h"
 #include "stitchholes.h"
+#include "cgaltricadinterface.h"
+#include "correctsurfaceorientation.h"
+
+
+CreateBoundaryLayerShell::DeleteBadNodes::DeleteBadNodes(QList<vtkIdType> bad_nodes)
+{
+  m_BadNodes = bad_nodes;
+  m_PerformGeometricChecks = false;
+}
+
+bool CreateBoundaryLayerShell::DeleteBadNodes::checkEdge(vtkIdType id_node1, vtkIdType id_node2)
+{
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  if (m_BadNodes.contains(id_node1) && !m_BadNodes.contains(id_node2)) {
+    return true;
+  }
+  return false;
+}
 
 CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 {
@@ -43,6 +61,11 @@ CreateBoundaryLayerShell::CreateBoundaryLayerShell()
 void CreateBoundaryLayerShell::prepare()
 {
   m_Part.trackGrid(m_Grid);
+
+  m_OriginalNodeNormals.resize(m_Grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    m_OriginalNodeNormals[id_node] = m_Part.globalNormal(id_node);
+  }
 
   DeleteVolumeGrid delete_volume;
   delete_volume.setGrid(m_Grid);
@@ -91,6 +114,38 @@ void CreateBoundaryLayerShell::prepare()
 
   computeBoundaryLayerVectors();
   makeCopy(m_Grid, m_OriginalGrid);
+}
+
+QList<vtkIdType> CreateBoundaryLayerShell::findBadNodes(int bc)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  CgalTriCadInterface cad(m_ShellGrid);
+  QList<vtkIdType> bad_nodes;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (!m_BoundaryLayerNode[id_node]){
+      bool node_has_bc = false;
+      bool all_bcs_adjacent = true;
+      for (int i = 0; i < m_Part.n2bcGSize(id_node); ++i) {
+        int bcn = m_Part.n2bcG(id_node, i);
+        if (bcn == bc) {
+          node_has_bc = true;
+        }
+        if (!m_LayerAdjacentBoundaryCodes.contains(bcn)) {
+          all_bcs_adjacent = false;
+        }
+      }
+      if (node_has_bc && all_bcs_adjacent && node_type->GetValue(id_node) != EG_FIXED_VERTEX) {
+        vec3_t x1;
+        m_Grid->GetPoint(id_node, x1.data());
+        vec3_t x2 = cad.snap(x1);
+        if ((x2-x1)*cad.getLastNormal() <= 0) {
+          bad_nodes << id_node;
+        }
+      }
+    }
+  }
+  return bad_nodes;
 }
 
 QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_levels)
@@ -181,7 +236,11 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
             if (count > 0) {
               xs *= 1.0/count;
               if (node_type->GetValue(id_node) == EG_SIMPLE_VERTEX) {
-                xs = cad->snapNode(id_node, xs);
+                vec3_t n = m_Part.globalNormal(id_node);
+                if (m_OriginalNodeNormals[id_node]*n < 0) {
+                  n = m_OriginalNodeNormals[id_node];
+                }
+                xs = cad->snapWithNormal(xs, m_OriginalNodeNormals[id_node]);
               } else {
                 xs = cad->snapToEdge(xs);
               }
@@ -248,9 +307,6 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
             if (isSurface(id_cell, m_Grid)) {
               if (cell_code->GetValue(id_cell) == bc) {
                 CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(cell_code->GetValue(id_cell));
-
-                // Hier stinkts vielleicht ...
-
                 cad->snap(cellCentre(m_Grid, id_cell));
                 vec3_t n = cellNormal(m_Grid, id_cell);
                 n.normalise();
@@ -267,15 +323,8 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
       }
     }
     new_num_bad = bad_nodes.size();
-    //reduceSurface();
-    //cout << "  " << bad_nodes.size() << " node defects" << endl;
     ++count;
   } while (scal_min < 0.5 && count < 20);
-  if (scal_min < 0.5) {
-    //writeGrid(grid, "adjacent_bc_failure");
-    //return false;
-    //EG_ERR_RETURN("failed to correct adjacent surfaces");
-  }
   cout << "  " << bad_nodes.size() << " node defects" << endl;
   return bad_nodes;
 }
@@ -441,38 +490,21 @@ void CreateBoundaryLayerShell::smoothSurface()
       }
     }
   }
-  /*
-  for (int layer = 0; layer < 3; ++layer) {
-    QVector<bool> tmp = fix;
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (!tmp[id_node]) {
-        for (int i = 0; i < part.n2nGSize(id_node); ++i) {
-          fix[part.n2nGG(id_node, i)] = false;
-        }
-      }
-    }
-  }
-  */
   smooth.fixNodes(fix);
   smooth();
 }
 
-
 void CreateBoundaryLayerShell::operate()
 {
   prepare();
-  writeBoundaryLayerVectors("blayer");
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
 
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
-
     QList<vtkIdType> bad_nodes;
     int levels = 1;
-
     QVector<vec3_t> x_save(m_Grid->GetNumberOfPoints());
-
     do {
       ++levels;
       for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -488,10 +520,13 @@ void CreateBoundaryLayerShell::operate()
         break;
       }
     } while (bad_nodes.size() > 0);
+  }
 
+  QList<vtkIdType> bad_cells;
+  foreach (int bc, m_LayerAdjacentBoundaryCodes) {
+    QList<vtkIdType> bad_nodes = findBadNodes(bc);
     if (bad_nodes.size() > 0) {
       bool fixable = true;
-
       QVector<bool> is_bad_cell(m_Grid->GetNumberOfCells(), false);
       foreach (vtkIdType id_node, bad_nodes) {
         if (m_Part.n2bcGSize(id_node) != 1) {
@@ -504,27 +539,66 @@ void CreateBoundaryLayerShell::operate()
         }
       }
       if (fixable) {
-        QList<vtkIdType> bad_cells;
         EG_FORALL_CELLS (id_cell, m_Grid) {
           if (is_bad_cell[id_cell]) {
             bad_cells << id_cell;
           }
         }
-
-        DeleteCells del;
-        del.setGrid(m_Grid);
-        del.setCellsToDelete(bad_cells);
-        del();
-        StitchHoles stitch(bc);
-        stitch.setGrid(m_Grid);
-        stitch();
       } else {
         m_Success = false;
         cout << "adjacent patch cannot be corrected!" << endl;
+        return;
       }
-
     }
   }
+
+  cout << "deleting "<< bad_cells.size() << "bad cells" << endl;
+  DeleteCells del;
+  del.setGrid(m_Grid);
+  del.setCellsToDelete(bad_cells);
+  del();
+
+  QMap<int,int> orgdir, curdir, voldir;
+  EG_VTKDCC(vtkIntArray, cell_orgdir, m_Grid, "cell_orgdir");
+  EG_VTKDCC(vtkIntArray, cell_curdir, m_Grid, "cell_curdir");
+  EG_VTKDCC(vtkIntArray, cell_voldir, m_Grid, "cell_voldir");
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  foreach (int bc, m_LayerAdjacentBoundaryCodes) {
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (cell_code->GetValue(id_cell) == bc) {
+        orgdir[bc] = cell_orgdir->GetValue(id_cell);
+        curdir[bc] = cell_curdir->GetValue(id_cell);
+        voldir[bc] = cell_voldir->GetValue(id_cell);
+        break;
+      }
+    }
+    StitchHoles stitch(bc);
+    stitch.setGrid(m_Grid);
+    stitch();
+  }
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    int bc = cell_code->GetValue(id_cell);
+    if (m_LayerAdjacentBoundaryCodes.contains(bc)) {
+      cell_orgdir->SetValue(id_cell, orgdir[bc]);
+      cell_curdir->SetValue(id_cell, curdir[bc]);
+      cell_voldir->SetValue(id_cell, voldir[bc]);
+    }
+  }
+
+  // check surface orientation
+  {
+    CorrectSurfaceOrientation surf_check;
+    surf_check.setGrid(m_Grid);
+    surf_check.setStart(0);
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (!m_LayerAdjacentBoundaryCodes.contains(cell_code->GetValue(id_cell))) {
+        surf_check.setStart(id_cell);
+        break;
+      }
+    }
+    surf_check();
+  }
+
   SwapTriangles swap;
   swap.setGrid(m_Grid);
   QSet<int> swap_codes = getAllBoundaryCodes(m_Grid);
@@ -539,6 +613,5 @@ void CreateBoundaryLayerShell::operate()
     reduceSurface();
     swap();
   }
-
 }
 

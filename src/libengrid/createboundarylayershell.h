@@ -26,6 +26,7 @@
 
 class CreateBoundaryLayerShell : public BoundaryLayerOperation
 {
+
 private: // attributes
 
   QVector<vtkIdType> layer_cells;
@@ -53,9 +54,30 @@ private: // attributes
   QMap<int, vec3_t> m_LayerAdjacentOrigins;
   QMap<int, vec3_t> m_LayerAdjacentNormals;
 
+  QVector<vec3_t> m_OriginalNodeNormals;
+
+
+private: // data types
+
+  class DeleteBadNodes : public RemovePoints
+  {
+  protected:
+
+    QList<vtkIdType> m_BadNodes;
+    virtual bool checkEdge(vtkIdType id_node1, vtkIdType id_node2);
+
+  public:
+
+    DeleteBadNodes(QList<vtkIdType> bad_nodes);
+
+  };
+
+  friend class DeleteBadNodes;
+
 
 private: // methods
 
+  QList<vtkIdType> findBadNodes(int bc);
   QList<vtkIdType> correctAdjacentBC(int bc, int num_levels = 10);
   void prepare();
   void createLayerNodes(vtkIdType id_node);

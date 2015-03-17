@@ -87,6 +87,22 @@ void RemovePoints::fixNodes(const QVector<bool> &fixnodes)
   m_Fixed = fixnodes;
 }
 
+bool RemovePoints::checkEdge(vtkIdType id_node1, vtkIdType id_node2)
+{
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
+  double cl1 = cl->GetValue(id_node1);
+  double cl2 = cl->GetValue(id_node2);
+  vec3_t x1, x2;
+  m_Grid->GetPoint(id_node1, x1.data());
+  m_Grid->GetPoint(id_node2, x2.data());
+  double L = (x1 - x2).abs();
+  double cl_crit = max(cl1, cl2) / m_Threshold;
+  if (L < cl_crit) {
+    return true;
+  }
+  return false;
+}
+
 void RemovePoints::operate()
 {
   if (m_Fixed.size() != m_Grid->GetNumberOfPoints()) {
@@ -136,18 +152,9 @@ void RemovePoints::operate()
       }
 
       if (!marked_nodes[id_node] && tri_only) {
-        vec3_t xi;
-        m_Grid->GetPoint(id_node, xi.data());
-        double cl_node = characteristic_length_desired->GetValue(id_node);
-
         for (int j = 0; j < m_Part.n2nGSize(id_node); ++j) {
           vtkIdType id_neigh = m_Part.n2nGG(id_node, j);
-          double cl_neigh = characteristic_length_desired->GetValue(id_neigh);
-          vec3_t xj;
-          m_Grid->GetPoint(id_neigh, xj.data());
-          double L = (xi - xj).abs();
-          double cl_crit = max(cl_node, cl_neigh) / m_Threshold;
-          if (L < cl_crit) {
+          if (checkEdge(id_node, id_neigh)) {
             QVector <vtkIdType> dead_cells;
             QVector <vtkIdType> mutated_cells;
             int l_num_newpoints = 0;

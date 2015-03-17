@@ -64,6 +64,8 @@ public:
 
 protected:
 
+  virtual bool checkEdge(vtkIdType id_node1, vtkIdType id_node2);
+
   void markFeatureEdges();
 
   /// deletes set of points DeadNodes

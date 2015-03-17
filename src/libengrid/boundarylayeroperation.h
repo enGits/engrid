@@ -62,6 +62,7 @@ protected: // attributes
   int                       m_NumLayers;
   EdgeLengthSourceManager   m_ELSManagerBLayer;
   EdgeLengthSourceManager   m_ELSManagerSurface;
+  vtkUnstructuredGrid*      m_ShellGrid;
 
 
 protected: // methods
@@ -77,7 +78,7 @@ protected: // methods
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
 
-  void   createSmoothShell(vtkUnstructuredGrid *shell_grid, int num_iter);
+  void   createSmoothShell();
   void   fixBoundaryLayerVectors(const QList<vtkIdType> &bad_cells, int num_smooth_iter);
   double largestAngle(vtkIdType id_node1, vtkIdType id_node2);
   void   smoothUsingBLVectors();
@@ -93,13 +94,16 @@ protected: // methods
   bool   checkVectorForNode(vec3_t v, vtkIdType id_node);
   vec3_t snapToShell(CadInterface *cad, vtkIdType id_node);
   void   snapAllVectorsToShell(vtkUnstructuredGrid* shell_grid);
-  void   newHeightFromShellIntersect(vtkUnstructuredGrid* shell_grid, double relax);
+  void   newHeightFromShellIntersect(double relax);
   void   limitSizeAndAngleErrors();
   bool   swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle);
   void   swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle);
 
 
 public: // methods
+
+  BoundaryLayerOperation();
+  ~BoundaryLayerOperation();
 
   QSet<int> getLayerAdjacentBoundaryCodes();
 

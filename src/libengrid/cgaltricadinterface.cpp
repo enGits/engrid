@@ -198,6 +198,43 @@ vec3_t CgalTriCadInterface::snap(vec3_t x, bool)
   return x_snap;
 }
 
+vec3_t CgalTriCadInterface::snapWithNormal(vec3_t x, vec3_t n_surf, bool correct_curvature)
+{
+  vec3_t x_snap = x;
+  try {
+    x_snap = snap(x, correct_curvature);
+    if (n_surf*m_LastNormal < 0) {
+      x_snap = x;
+      double dist_min = EG_LARGE_REAL;
+      Ray ray = createRay(x, n_surf);
+      std::list<Intersection> intersections;
+      m_TriangleTree.all_intersections(ray, std::back_inserter(intersections));
+      for (std::list<Intersection>::iterator i = intersections.begin(); i != intersections.end(); ++i) {
+        int id = (i->second - m_Triangles.begin());
+        vtkIdType id_face = m_Tri2Grid[id];
+        vec3_t n = GeometryTools::cellNormal(m_BGrid, id_face);
+        n.normalise();
+        if (n*n_surf > 0) {
+          if (i->first.type() == typeid(Point)) {
+            Point p = boost::get<Point>(i->first);
+            vec3_t xs(p[0], p[1], p[2]);
+            double dist = (x - xs).abs();
+            if (dist < dist_min) {
+              dist_min = dist;
+              x_snap = xs;
+              m_LastNormal = n;
+              m_LastRadius = m_Radius[id_face];
+            }
+          }
+        }
+      }
+    }
+  } catch (CGAL::Failure_exception) {
+    x_snap = x;
+  }
+  return x_snap;
+}
+
 vec3_t CgalTriCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature)
 {
   vec3_t x_snap = x;

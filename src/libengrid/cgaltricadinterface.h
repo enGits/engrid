@@ -82,6 +82,7 @@ public:
   CgalTriCadInterface(vtkUnstructuredGrid *grid);
   virtual HitType shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r);
   virtual vec3_t snap(vec3_t x, bool correct_curvature = false);
+  virtual vec3_t snapWithNormal(vec3_t x, vec3_t n, bool correct_curvature = false);
   virtual vec3_t snapNode(vtkIdType id_node, vec3_t x, bool correct_curvature);
   virtual vec3_t snapToEdge(vec3_t x);
   virtual vec3_t snapToCorner(vec3_t x);
