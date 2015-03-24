@@ -83,7 +83,7 @@ void FaceFinder::setGrid(vtkUnstructuredGrid *grid)
   } while (N > 0);
 
   int max_num_faces = 0;
-  double ave_num_faces;
+  double ave_num_faces = 0;
   int num_buckets = 0;
   for (int i_cell = 0; i_cell < m_Octree.getNumCells(); ++i_cell) {
     if (!m_Octree.hasChildren(i_cell)) {
