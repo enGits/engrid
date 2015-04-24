@@ -40,7 +40,7 @@ protected: // attributes
 public:
 
   virtual bool    read(QString) { return false; }
-  virtual QString write() {}
+  virtual QString write() { return QString(); }
   virtual void    config() {}
   virtual double  edgeLength(vec3_t x) = 0;
 

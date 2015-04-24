@@ -289,11 +289,13 @@ vec3_t CgalTriCadInterface::snapToEdge(vec3_t x)
 vec3_t CgalTriCadInterface::snapToCorner(vec3_t)
 {
   notImplemented();
+  return vec3_t();
 }
 
 CgalTriCadInterface::HitType CgalTriCadInterface::shootRay(vec3_t x, vec3_t v, vec3_t &x_hit, vec3_t &n_hit, double &r)
 {
   notImplemented();
+  return CgalTriCadInterface::HitType();
 }
 
 void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair<vec3_t, vtkIdType> > &intersections)
