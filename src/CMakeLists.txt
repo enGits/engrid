@@ -62,11 +62,13 @@ include(${CGAL_USE_FILE})
 find_package(Qt4 COMPONENTS QtCore REQUIRED)
 find_package(Qt4 COMPONENTS QtGui REQUIRED)
 find_package(Qt4 COMPONENTS QtXml REQUIRED)
+find_package(Qt4 REQUIRED)
 
 #include(${QT_USE_FILE})
 include_directories(${QT_QTCORE_INCLUDE_DIR})
 include_directories(${QT_QTGUI_INCLUDE_DIR})
 include_directories(${QT_QTXML_INCLUDE_DIR})
+include_directories(${QT_INCLUDE_DIR})
 
 # set include directory, add src directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tetgen)
