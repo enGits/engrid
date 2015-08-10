@@ -24,30 +24,22 @@ void DeleteVolumeGrid::operate()
 {
   EG_VTKSP(vtkUnstructuredGrid, sgrid);
   QVector<vtkIdType> scells, snodes;
-  QVector<int>       _snodes;
   getAllSurfaceCells(scells, m_Grid);
   getNodesFromCells(scells, snodes, m_Grid);
-  createNodeMapping(snodes, _snodes, m_Grid);
   allocateGrid(sgrid, scells.size(), snodes.size());
   {
-    vtkIdType newId = 0;
-    foreach (vtkIdType nodeId, snodes) {  
+    vtkIdType id_new = 0;
+    foreach (vtkIdType id_node, snodes) {
       vec3_t x;
-      m_Grid->GetPoint(nodeId, x.data());
-      sgrid ->GetPoints()->SetPoint(newId, x.data());
-      copyNodeData(m_Grid, nodeId, sgrid, newId);
-      ++newId;
+      m_Grid->GetPoint(id_node, x.data());
+      sgrid ->GetPoints()->SetPoint(id_new, x.data());
+      copyNodeData(m_Grid, id_node, sgrid, id_new);
+      ++id_new;
     }
   }
-  foreach (vtkIdType cellId, scells) {
-    vtkIdType *pts, Npts;
-    m_Grid->GetCellPoints(cellId, Npts, pts);
-    for (int i = 0; i < Npts; ++i) {
-      pts[i] = _snodes[pts[i]];
-    }
-    vtkIdType cellType = m_Grid->GetCellType(cellId);
-    vtkIdType newId = sgrid->InsertNextCell(cellType, Npts, pts);
-    copyCellData(m_Grid, cellId, sgrid, newId);
+  foreach (vtkIdType id_cell, scells) {
+    vtkIdType id_new = copyCell(m_Grid, id_cell, sgrid);
+    copyCellData(m_Grid, id_cell, sgrid, id_new);
   }
   makeCopy(sgrid, m_Grid);
 }

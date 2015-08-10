@@ -211,7 +211,10 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
   }
 
   computeNodeTypes();
+  computeLimitPlaneNormals();
+  writeBoundaryLayerVectors("blayer", 1);
   smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations);
+  writeBoundaryLayerVectors("blayer", 2);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerVectors[id_node].abs() < 0.1) {
@@ -246,7 +249,28 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
       }
     }
   }
+  writeBoundaryLayerVectors("blayer", 3);
 
+}
+
+void BoundaryLayerOperation::computeLimitPlaneNormals()
+{
+  m_LimitPlaneNormals.fill(vec3_t(0,0,0), m_BoundaryLayerVectors.size());
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_NodeTypes[id_node] == EdgeNode) {
+      if (m_SnapPoints[id_node].size() == 2) {
+        QList<vec3_t> x;
+        foreach (vtkIdType id_snap, m_SnapPoints[id_node]) {
+          vec3_t x_snap;
+          m_Grid->GetPoint(id_snap, x_snap.data());
+          x << x_snap;
+        }
+        vec3_t v = x[1] - x[0];
+        m_LimitPlaneNormals[id_node] = m_BoundaryLayerVectors[id_node].cross(v);
+        m_LimitPlaneNormals[id_node].normalise();
+      }
+    }
+  }
 }
 
 void BoundaryLayerOperation::addToSnapPoints(vtkIdType id_node, vtkIdType id_snap)
@@ -424,6 +448,16 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
             }
             //v_new[id_node].normalise();
             v_new[id_node] *= 1.0/w_total;
+
+            // apply limit plane if required
+            /*
+            if (m_LimitPlaneNormals[id_node].abs() > 0.5) {
+              vec3_t dn = v_new[id_node] - m_BoundaryLayerVectors[id_node];
+              dn -= (m_LimitPlaneNormals[id_node]*dn)*m_LimitPlaneNormals[id_node];
+              v_new[id_node] = m_BoundaryLayerVectors[id_node] + dn;
+            }
+            */
+
           } else {
             v_new[id_node] = m_BoundaryLayerVectors[id_node];
           }
@@ -650,6 +684,7 @@ void BoundaryLayerOperation::computeHeights()
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
   smoothUsingBLVectors();
+  limitHeights(1.0);
 
   // laplacian smoothing
   {
@@ -724,6 +759,8 @@ void BoundaryLayerOperation::createSmoothShell()
   pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
   pdata_to_grid->Update();
   makeCopy(pdata_to_grid->GetOutput(), m_ShellGrid);
+
+  writeGrid(m_ShellGrid, "shell");
 
   // reset grid to original points
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -814,9 +851,13 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 
   int last_num_bad = m_Grid->GetNumberOfCells();
 
-  //snapAllVectorsToShell(shell_grid);
+  //snapAllVectorsToShell(m_ShellGrid);
   //return;
-  smoothBoundaryLayerVectors(10, w_iso, w_dir);
+
+  smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations, w_iso, w_dir);
+
+  QVector<vec3_t> old_vecs = m_BoundaryLayerVectors;
+  QVector<double> old_height = m_Height;
 
   do {
     bad_cells.clear();
@@ -832,11 +873,15 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
     if (bad_cells.size() > 0) {
       if (bad_cells.size() < last_num_bad) {
         last_num_bad = bad_cells.size();
-        smoothBoundaryLayerVectors(10, w_iso, w_dir);
+        old_vecs = m_BoundaryLayerVectors;
+        old_height = m_Height;
+        smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations, w_iso, w_dir);
         newHeightFromShellIntersect(1.0);
       } else {
         cout << "cannot fix completely -- terminating the loop!" << endl;
         //cout << "moving to global under relaxation now ..." << endl;
+        m_BoundaryLayerVectors = old_vecs;
+        m_Height = old_height;
         break;
       }
     }

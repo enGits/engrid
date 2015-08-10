@@ -82,7 +82,6 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
     }
 
     N2 = numVolumeCells();
-    cout << N2 << endl;
     ++pass;
     if (fabs(double(N2-N1)/N1) < 0.05 || pass > max_num_passes) {
       done = true;

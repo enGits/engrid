@@ -40,6 +40,7 @@ protected: // data types
 protected: // attributes
 
   QVector<vec3_t>           m_BoundaryLayerVectors;
+  QVector<vec3_t>           m_LimitPlaneNormals;
   QVector<int>              m_BoundaryLayerCodes;
   QVector<bool>             m_BoundaryLayerNode;
   QVector<nodetype_t>       m_NodeTypes;
@@ -70,6 +71,7 @@ protected: // methods
   void readSettings();
   void correctBoundaryLayerVectors();
   void computeBoundaryLayerVectors();
+  void computeLimitPlaneNormals();
   void addToSnapPoints(vtkIdType id_node, vtkIdType id_snap);
   void computeNodeTypes();
   void smoothBoundaryLayerVectors(int n_iter, double w_iso = 1.0, double w_dir = 0.0, QVector<bool> *node_fixed = NULL);
