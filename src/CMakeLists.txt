@@ -23,7 +23,17 @@
 cmake_minimum_required(VERSION 2.8)
 
 # limit configuration types (must be done before project() statement)
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
+#set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "\nSetting build type to 'Release' as none was specified.\n")
+  set(CMAKE_BUILD_TYPE Release CACHE INTERNAL "Choosing build type" FORCE)
+  #set(CMAKE_BUILD_TYPE Debug CACHE INTERNAL "Choosing build type" FORCE)
+  set(CMAKE_CONFIGURATION_TYPES "Debug; Release" CACHE STRING "limited config")
+endif()
+# Set the possible values of build type for cmake-gui
+#set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 
 project(ENGRID)
 
@@ -54,6 +64,7 @@ FIND_PACKAGE(VTK REQUIRED)
 if("${VTK_VERSION}" VERSION_LESS 6.0)
   message("The VTK version installed on the current system is too old. EnGrid requires VTK 6.0 or higher.")
 endif()
+
 #if("${VTK_VERSION}" VERSION_LESS 6.1)
 #  add_definitions(-DVTK_VERSION_LESS_THAN_6_1)
 #endif()
@@ -85,6 +96,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 option(PROFILING "add -g for profiling even in RELEASE configuration?" OFF)
 
+#if (CMAKE_BUILD_TYPE MATCHES Release)
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
   add_definitions(-DNDEBUG)
   add_definitions(-DQT_NO_DEBUG)
