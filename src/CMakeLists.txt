@@ -51,6 +51,12 @@ exec_program(
 add_definitions( -DGIT_BRANCH="${GIT_BRANCH}" )
 
 FIND_PACKAGE(VTK REQUIRED)
+if("${VTK_VERSION}" VERSION_LESS 6.0)
+  message("The VTK version installed on the current system is too old. EnGrid requires VTK 6.0 or higher.")
+endif()
+#if("${VTK_VERSION}" VERSION_LESS 6.1)
+#  add_definitions(-DVTK_VERSION_LESS_THAN_6_1)
+#endif()
 include(${VTK_USE_FILE})
 include_directories(${VTK_INCLUDE_DIRS})
 
