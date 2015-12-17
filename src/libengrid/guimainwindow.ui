@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -146,6 +146,7 @@
     <addaction name="actionFixSTL"/>
     <addaction name="actionCreateVolumeMesh"/>
     <addaction name="actionConvertToPolyMesh"/>
+    <addaction name="actionDeleteTetraVolumeGrid"/>
     <addaction name="actionDeleteVolumeGrid"/>
     <addaction name="actionMergeVolumes"/>
     <addaction name="actionRestrictToAvailableVolumeCells"/>
@@ -302,8 +303,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>246</width>
-          <height>572</height>
+          <width>221</width>
+          <height>495</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -694,8 +695,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>261</width>
-          <height>577</height>
+          <width>221</width>
+          <height>484</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1145,7 +1146,7 @@
     <string>STL (binary)</string>
    </property>
   </action>
-  <action name="actionDeleteVolumeGrid">
+  <action name="actionDeleteTetraVolumeGrid">
    <property name="icon">
     <iconset resource="engrid.qrc">
      <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
@@ -1789,6 +1790,18 @@
   <action name="actionMultiSolidAsciiStlReader">
    <property name="text">
     <string>STL (multi solid ascii)</string>
+   </property>
+  </action>
+  <action name="actionDeleteVolumeGrid">
+   <property name="icon">
+    <iconset resource="engrid.qrc">
+     <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Volume Grid</string>
+   </property>
+   <property name="toolTip">
+    <string>delete volume grid</string>
    </property>
   </action>
  </widget>

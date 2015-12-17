@@ -83,7 +83,8 @@ connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine(
 connect(ui.actionCreateSurfaceMesh, SIGNAL(triggered()), this, SLOT(callCreateSurfaceMesh()));
 connect(ui.actionCreateBoundaryLayer, SIGNAL(triggered()), this, SLOT(callCreateBoundaryLayer()));
 connect(ui.actionDivideBoundaryLayer, SIGNAL(triggered()), this, SLOT(callDivideBoundaryLayer()));
-connect(ui.actionDeleteVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteTetras()));
+connect(ui.actionDeleteTetraVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteTetras()));
+connect(ui.actionDeleteVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteVolumeGrid()));
 connect(ui.actionFixSTL, SIGNAL(triggered()), this, SLOT(callFixSTL()));
 connect(ui.actionCreateVolumeMesh, SIGNAL(triggered()), this, SLOT(callCreateVolumeMesh()));
 connect(ui.actionSmoothVolumeGrid, SIGNAL(triggered()), this, SLOT(callSmoothVolumeGrid()));
