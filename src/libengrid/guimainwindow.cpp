@@ -1920,7 +1920,6 @@ void GuiMainWindow::about()
 ///\todo Why not use bcs = m_AllBoundaryCodes; ?
 void GuiMainWindow::getAllBoundaryCodes(QVector<int> &bcs)
 {
-  m_AllBoundaryCodes;
   bcs.resize(m_AllBoundaryCodes.size());
   qCopy(m_AllBoundaryCodes.begin(), m_AllBoundaryCodes.end(), bcs.begin());
   qSort(bcs);

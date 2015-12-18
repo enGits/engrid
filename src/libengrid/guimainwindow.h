@@ -480,7 +480,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCreateSurfaceMesh() { EG_STDINTERSLOT( GuiCreateSurfaceMesh ); }
     void callCreateBoundaryLayer() { EG_STDSLOT( GuiCreateBoundaryLayer ); }
     void callDivideBoundaryLayer() { EG_STDSLOT( GuiDivideBoundaryLayer ); }
-    void callDeleteVolumeGrid() { EG_STDSLOT( DeleteVolumeGrid ); }
+    void callDeleteVolumeGrid() { EG_STDINTERSLOT( DeleteVolumeGrid ); }
     void callDeleteTetras() { EG_STDSLOT( DeleteTetras ); }
     void callCreateVolumeMesh() { EG_STDSLOT( GuiCreateVolumeMesh ); }
     void callSmoothVolumeGrid() { EG_STDSLOT( SmoothVolumeGrid ); }

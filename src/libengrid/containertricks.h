@@ -120,7 +120,7 @@ inline void clinit(C &c, typename C::value_type v, ...)
   va_list vl;
   va_start(vl,v);
   cout << v << ' ';
-  while (v = va_arg(vl,typename C::value_type)) {
+  while ((v = va_arg(vl,typename C::value_type))) {
     if (i == c.end()) {
       cerr << "array bounds exceeded" << endl;
       exit(EXIT_FAILURE);

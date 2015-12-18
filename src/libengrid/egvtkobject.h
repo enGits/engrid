@@ -779,6 +779,12 @@ vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtk
   } else {
     src->GetCellPoints(id_cell, stream);
     for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
+      if (src2dst[stream->GetId(i)] < 0) {
+        EG_BUG;
+      }
+      if (src2dst[stream->GetId(i)] >= dst->GetNumberOfPoints()) {
+        EG_BUG;
+      }
       stream->SetId(i, src2dst[stream->GetId(i)]);
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);

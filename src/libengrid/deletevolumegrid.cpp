@@ -18,7 +18,9 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 #include "deletevolumegrid.h"
+#include "guimainwindow.h"
 
 void DeleteVolumeGrid::operate()
 {
@@ -27,22 +29,9 @@ void DeleteVolumeGrid::operate()
   getAllSurfaceCells(scells, m_Grid);
   getNodesFromCells(scells, snodes, m_Grid);
   allocateGrid(sgrid, scells.size(), snodes.size());
-  QVector<vtkIdType> src2dst(m_Grid->GetNumberOfPoints());
-  {
-    vtkIdType id_new = 0;
-    foreach (vtkIdType id_node, snodes) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      sgrid ->GetPoints()->SetPoint(id_new, x.data());
-      copyNodeData(m_Grid, id_node, sgrid, id_new);
-      src2dst[id_node] = id_new;
-      ++id_new;
-    }
-  }
-  foreach (vtkIdType id_cell, scells) {
-    vtkIdType id_new = copyCell(m_Grid, id_cell, sgrid, src2dst);
-    copyCellData(m_Grid, id_cell, sgrid, id_new);
-  }
+  makeCopy(m_Grid, sgrid, scells);
   makeCopy(sgrid, m_Grid);
+  UpdateCellIndex(m_Grid);
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }
 

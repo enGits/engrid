@@ -66,11 +66,11 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
       for(int i = 0; i < npts; i++) {
         if (pts[i] >= m_Input->GetNumberOfPoints()) {
           EG_BUG;
-        }
-        if (pts[i] >= m_Output->GetNumberOfPoints()) {
+        } else if (pts[i] >= m_Output->GetNumberOfPoints()) {
           EG_BUG;
+        } else {
+          copyNodeData(m_Input, pts[i], m_Output, pts[i]);
         }
-        copyNodeData(m_Input, pts[i], m_Output, pts[i]);
       }
     }
   }
