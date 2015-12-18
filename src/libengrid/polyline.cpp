@@ -18,31 +18,58 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "deletevolumegrid.h"
+// 
+#include "polyline.h"
 
-void DeleteVolumeGrid::operate()
+void PolyLine::getStencil(double l, int &i1, int &i2, double &w1, double &w2)
 {
-  EG_VTKSP(vtkUnstructuredGrid, sgrid);
-  QVector<vtkIdType> scells, snodes;
-  getAllSurfaceCells(scells, m_Grid);
-  getNodesFromCells(scells, snodes, m_Grid);
-  allocateGrid(sgrid, scells.size(), snodes.size());
-  QVector<vtkIdType> src2dst(m_Grid->GetNumberOfPoints());
-  {
-    vtkIdType id_new = 0;
-    foreach (vtkIdType id_node, snodes) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      sgrid ->GetPoints()->SetPoint(id_new, x.data());
-      copyNodeData(m_Grid, id_node, sgrid, id_new);
-      src2dst[id_node] = id_new;
-      ++id_new;
+  l *= m_Length;
+  double L = 0;
+  w2 = 1;
+  i1 = m_Points.size() - 2;
+  i2 = m_Points.size() - 1;
+  for (int i = 1; i < m_Points.size(); ++i) {
+    double dL = (m_Points[i] - m_Points[i-1]).abs();
+    if (l >= L && l <= L + dL) {
+      i1 = i - 1;
+      i2 = i;
+      w2 = (l - L)/dL;
+      break;
     }
+    L += dL;
   }
-  foreach (vtkIdType id_cell, scells) {
-    vtkIdType id_new = copyCell(m_Grid, id_cell, sgrid, src2dst);
-    copyCellData(m_Grid, id_cell, sgrid, id_new);
-  }
-  makeCopy(sgrid, m_Grid);
+  w1 = 1 - w2;
 }
 
+vec3_t PolyLine::position(double l)
+{
+  int i1, i2;
+  double w1, w2;
+  getStencil(l, i1, i2, w1, w2);
+  return w1*m_Points[i1] + w2*m_Points[i2];
+}
+
+vec3_t PolyLine::normal(double l)
+{
+  int i1, i2;
+  double w1, w2;
+  getStencil(l, i1, i2, w1, w2);
+  vec3_t n = m_Points[i2] - m_Points[i1];
+  n.normalise();
+  return n;
+}
+
+vec3_t PolyLine::intersection(vec3_t x, vec3_t n)
+{
+  double min_err = EG_LARGE_REAL;
+  vec3_t x_best = x;
+  for (int i = 1; i < m_Points.size(); ++i) {
+    double k = GeometryTools::intersection(m_Points[i-1], m_Points[i] - m_Points[i-1], x, n);
+    double err = fabs(k - 0.5);
+    if (err < min_err) {
+      min_err = err;
+      x_best = (1-k)*m_Points[i-1] + k*m_Points[i];
+    }
+  }
+  return x_best;
+}

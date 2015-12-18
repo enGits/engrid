@@ -18,31 +18,26 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "deletevolumegrid.h"
+// 
+#ifndef CURVE_H
+#define CURVE_H
 
-void DeleteVolumeGrid::operate()
+class Curve;
+
+#include "engrid.h"
+
+class Curve
 {
-  EG_VTKSP(vtkUnstructuredGrid, sgrid);
-  QVector<vtkIdType> scells, snodes;
-  getAllSurfaceCells(scells, m_Grid);
-  getNodesFromCells(scells, snodes, m_Grid);
-  allocateGrid(sgrid, scells.size(), snodes.size());
-  QVector<vtkIdType> src2dst(m_Grid->GetNumberOfPoints());
-  {
-    vtkIdType id_new = 0;
-    foreach (vtkIdType id_node, snodes) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      sgrid ->GetPoints()->SetPoint(id_new, x.data());
-      copyNodeData(m_Grid, id_node, sgrid, id_new);
-      src2dst[id_node] = id_new;
-      ++id_new;
-    }
-  }
-  foreach (vtkIdType id_cell, scells) {
-    vtkIdType id_new = copyCell(m_Grid, id_cell, sgrid, src2dst);
-    copyCellData(m_Grid, id_cell, sgrid, id_new);
-  }
-  makeCopy(sgrid, m_Grid);
-}
 
+public: // methods
+
+  virtual vec3_t position(double l) = 0;
+  virtual vec3_t normal(double l) = 0;
+  virtual vec3_t intersection(vec3_t x, vec3_t n) = 0;
+
+  virtual mat3_t computeBase     (double l, Curve* curve);
+  virtual mat3_t computeOrthoBase(double l, Curve* curve);
+
+};
+
+#endif // CURVE_H

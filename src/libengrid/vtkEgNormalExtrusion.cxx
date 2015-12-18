@@ -20,16 +20,20 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "vtkEgNormalExtrusion.h"
+#include "geometrytools.h"
 
 vtkStandardNewMacro(vtkEgNormalExtrusion)
 
 vtkEgNormalExtrusion::vtkEgNormalExtrusion()
 {
-  mode = normal;
+  m_Mode = normal;
   m_ScaleX = 1;
   m_ScaleY = 1;
   m_ScaleZ = 1;
   m_RemoveInternalFaces = true;
+  m_Curve1 = NULL;
+  m_Curve2 = NULL;
+  m_OrthoExtrusion = false;
 }
 
 int vtkEgNormalExtrusion::getNewBc(MeshPartition *part, vtkIdType id_node1, vtkIdType id_node2)
@@ -45,14 +49,59 @@ int vtkEgNormalExtrusion::getNewBc(MeshPartition *part, vtkIdType id_node1, vtkI
   return m_UnknownBc;
 }
 
+void vtkEgNormalExtrusion::SetCurves(Curve *curve1, Curve *curve2)
+{
+  m_Curve1 = curve1;
+  m_Curve2 = curve2;
+  if (m_Curve1 && m_Curve2) {
+    m_Mode = curve;
+  } else {
+    m_Mode = normal;
+  }
+}
+
+bool vtkEgNormalExtrusion::PrepareCurveExtrusion(QVector<vtkIdType> nodes)
+{
+  if (!m_Curve1 || !m_Curve2) {
+    return false;
+  }
+  mat3_t A;
+  if (m_OrthoExtrusion) {
+    A = m_Curve1->computeOrthoBase(0, m_Curve2);
+  } else {
+    A = m_Curve2->computeBase(0, m_Curve2);
+  }
+  A = A.inverse();
+  m_InitialBaseCoords.resize(nodes.size());
+  vec3_t x0 = m_Curve1->position(0);
+  for (int i = 0; i < nodes.size(); ++i) {
+    vec3_t x;
+    m_Input->GetPoint(nodes[i], x.data());
+    x -= x0;
+    m_InitialBaseCoords[i] = A*x;
+  }
+  return true;
+}
+
+mat3_t vtkEgNormalExtrusion::ComputeBase(double l)
+{
+  mat3_t A;
+  if (m_OrthoExtrusion) {
+    A = m_Curve1->computeOrthoBase(l, m_Curve2);
+  } else {
+    A = m_Curve2->computeBase(l, m_Curve2);
+  }
+  return A;
+}
+
 void vtkEgNormalExtrusion::ExecuteEg()
 {
   QVector<vtkIdType> cells, nodes, n1, n2;
   QVector<vec3_t> cell_normals, node_normals;
   ExtractBoundary(cells, nodes, m_BoundaryCodes, m_Input);
-  if (mode == normal) {
+  if (m_Mode == normal) {
     computeNormals(cell_normals, node_normals, cells, nodes,m_Input);
-  } else if (mode == cylinder) {
+  } else if (m_Mode == cylinder) {
     axis.normalise();
     node_normals.resize(nodes.size());
     for (int i = 0; i < node_normals.size(); ++i) {
@@ -62,7 +111,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
       node_normals[i] = x0 - origin;
       node_normals[i].normalise();
     }
-  } else if ((mode == fixed) || (mode == planar)) {
+  } else if ((m_Mode == fixed) || (m_Mode == planar)) {
     fixed_normal.normalise();
     node_normals.resize(nodes.size());
     for (int i = 0; i < node_normals.size(); ++i) {
@@ -76,17 +125,22 @@ void vtkEgNormalExtrusion::ExecuteEg()
   }
   n1.resize(nodes.size());
   n2.resize(nodes.size());
-  
+  if (m_Mode == curve) {
+    if (!PrepareCurveExtrusion(nodes)) {
+      return;
+    }
+  }
+
   // mapping
   QVector<int> _cells, _nodes;
   createNodeMapping(nodes, _nodes, m_Input);
   createCellMapping(cells, _cells, m_Input);
   QVector<QSet<int> > n2c;
   createNodeToCell(cells, nodes, _nodes, n2c, m_Input);
-  
+
   vtkIdType NnewNodes = m_Input->GetNumberOfPoints() + (layer_y.size()-1)*nodes.size();
   vtkIdType NnewCells = m_Input->GetNumberOfCells() + (layer_y.size()-1)*cells.size();
-  
+
   // count the number of new surface elements (side walls)
   for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
     vtkIdType *pts;
@@ -118,7 +172,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
       }
     }
   }
-  
+
   // count the number of new surface elements (base)
   QVector<bool> is_boundary;
   is_boundary.fill(false, cells.size());
@@ -153,7 +207,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
 
   // allocate memory for the new grid
   allocateGrid(m_Output, NnewCells, NnewNodes);
-  
+
   // boundary conditions
   EG_VTKDCC(vtkIntArray, cell_code1, m_Input, "cell_code");
   EG_VTKDCC(vtkIntArray, cell_code2, m_Output, "cell_code");
@@ -173,7 +227,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
   QMap<QPair<int,int>,int> new_bcs;
 
   MeshPartition part(m_Input, true);
-  
+
   for (int i = 0; i < nodes.size(); ++i) {
     n2[i] = nodes[i];
     vec3_t x;
@@ -184,7 +238,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
   QVector<double> total_dist(nodes.size());
   double L_max = -1e99;
   int i_max = 0;
-  if (mode == planar) {
+  if (m_Mode == planar) {
     for (int i = 0; i < nodes.size(); ++i) {
       total_dist[i] = total_layers;
       vec3_t x_origin, x_target;
@@ -201,7 +255,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
     x_far += min_dist*fixed_normal;
     for (int i = 0; i < nodes.size(); ++i) {
       total_dist[i] = total_layers;
-      if (mode == planar) {
+      if (m_Mode == planar) {
         vec3_t x_origin;
         m_Input->GetPoint(nodes[i],x_origin.data());
         total_dist[i] = (x_far-x_origin)*fixed_normal;
@@ -209,26 +263,40 @@ void vtkEgNormalExtrusion::ExecuteEg()
     }
   }
   for (int i_layer = 0; i_layer < layer_y.size() - 1; ++i_layer) {
+    mat3_t current_base;
+    vec3_t current_origin;
+    if (m_Mode == curve) {
+      current_origin = m_Curve1->position(layer_y[i_layer + 1]);
+      current_base = ComputeBase(layer_y[i_layer + 1]);
+    }
     for (int i = 0; i < n1.size(); ++i) {
       n1[i] = n2[i];
       n2[i] = i_layer*nodes.size() + i + m_Input->GetNumberOfPoints();
       vec3_t x1, x2;
       m_Output->GetPoint(n1[i],x1.data());
-      if (mode == rotation) {
+      if (m_Mode == rotation) {
+
         x2 = x1 - origin;
         double alpha = (layer_y[i_layer + 1] - layer_y[i_layer])*M_PI/180.0;
         x2 = GeometryTools::rotate(x2,axis,alpha);
         x2 += origin;
+
+      } else if (m_Mode == curve) {
+
+        x2 = current_origin + current_base*m_InitialBaseCoords[i];
+
       } else {
+
         double dist = (layer_y[i_layer + 1] - layer_y[i_layer]);
-        if (mode == planar) {
+        if (m_Mode == planar) {
           dist *= total_dist[i]/total_layers;
         }
         x2 = x1 + dist*node_normals[i];
+
       }
       m_Output->GetPoints()->SetPoint(n2[i],x2.data());
     }
-    
+
     for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
       vtkIdType *pts;
       vtkIdType  Npts;
@@ -386,14 +454,14 @@ void vtkEgNormalExtrusion::ExecuteEg()
       }
     }
   }
-  
-  
+
+
   for (vtkIdType nodeId = 0; nodeId < m_Input->GetNumberOfPoints(); ++nodeId) {
     vec3_t x;
     m_Input->GetPoints()->GetPoint(nodeId, x.data());
     m_Output->GetPoints()->SetPoint(nodeId, x.data());
   }
-  
+
   // copy all original cells that were not part of the extrusion
   for (vtkIdType id_cell = 0; id_cell < m_Input->GetNumberOfCells(); ++id_cell) {
     if (_cells[id_cell] == -1 || !m_RemoveInternalFaces) {
@@ -401,9 +469,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
       copyCellData(m_Input, id_cell, m_Output, id_new_cell);
     }
   }
-  
+
   // close boundary where no volume cells were present in the original grid
-  
+
   for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
     if (is_boundary[i_cell]) {
       vtkIdType id_cell = cells[i_cell];
@@ -418,7 +486,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
       copyCellData(m_Input, id_cell, m_Output, id_new_cell);
     }
   }
-  
+
   UpdateCellIndex(m_Output);
 }
 
@@ -427,5 +495,3 @@ void vtkEgNormalExtrusion::SetLayers(const QVector<double> &y)
   layer_y.resize(y.size());
   qCopy(y.begin(), y.end(), layer_y.begin());
 }
-
-

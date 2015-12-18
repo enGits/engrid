@@ -25,17 +25,35 @@ class GuiNormalExtrusion;
 
 #include "dialogoperation.h"
 #include "ui_guinormalextrusion.h"
+#include "polyline.h"
 
 class GuiNormalExtrusion : public DialogOperation<Ui::GuiNormalExtrusion, Operation>
 {
-  
-  Q_OBJECT;
-  
+
+  Q_OBJECT
+
+
+protected: // attributes
+
+  PolyLine m_Curve1;
+  PolyLine m_Curve2;
+
+
 protected: // methods
-  
+
   virtual void before();
   virtual void operate();
-  
+
+  void    readCurves(QSet<int> bcs);
+  QString selectCurveFile(QString old_file);
+
+
+public slots:
+
+  void selectCurveFile1();
+  void selectCurveFile2();
+
+
 };
 
 #endif

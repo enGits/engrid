@@ -43,6 +43,7 @@ SET(libengrid_HEADERS
   createcadtesselation.h
   createhexcore.h
   createvolumemesh.h
+  curve.h
   deletecells.h
   deletepickedcell.h
   deletepickedpoint.h
@@ -132,6 +133,7 @@ SET(libengrid_HEADERS
   plywriter.h
   pointfinder.h
   polydatareader.h
+  polyline.h
   polymesh.h
   polymolecule.h
   reducedpolydatareader.h
@@ -251,6 +253,7 @@ SET(libengrid_SOURCES
   createcadtesselation.cpp
   createhexcore.cpp
   createvolumemesh.cpp
+  curve.cpp
   deletecells.cpp
   deletepickedcell.cpp
   deletepickedpoint.cpp
@@ -327,6 +330,7 @@ SET(libengrid_SOURCES
   plywriter.cpp
   pointfinder.cpp
   polydatareader.cpp
+  polyline.cpp
   polymesh.cpp
   polymolecule.cpp
   reducedpolydatareader.cpp

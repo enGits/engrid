@@ -23,17 +23,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # limit configuration types (must be done before project() statement)
-#set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
-
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "\nSetting build type to 'Release' as none was specified.\n")
-  set(CMAKE_BUILD_TYPE Release CACHE INTERNAL "Choosing build type" FORCE)
-  #set(CMAKE_BUILD_TYPE Debug CACHE INTERNAL "Choosing build type" FORCE)
-  set(CMAKE_CONFIGURATION_TYPES "Debug; Release" CACHE STRING "limited config")
-endif()
-# Set the possible values of build type for cmake-gui
-#set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo")
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
 
 project(ENGRID)
 
@@ -59,6 +49,11 @@ exec_program(
     ARGS "symbolic-ref --short HEAD"
     OUTPUT_VARIABLE GIT_BRANCH)
 add_definitions( -DGIT_BRANCH="${GIT_BRANCH}" )
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+endif()
 
 FIND_PACKAGE(VTK REQUIRED)
 if("${VTK_VERSION}" VERSION_LESS 6.0)

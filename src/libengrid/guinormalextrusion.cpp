@@ -26,6 +26,66 @@
 void GuiNormalExtrusion::before()
 {
   populateBoundaryCodes(m_Ui.listWidget);
+  connect(m_Ui.m_PushButtonCurveFile1, SIGNAL(clicked()), this, SLOT(selectCurveFile1()));
+  connect(m_Ui.m_PushButtonCurveFile2, SIGNAL(clicked()), this, SLOT(selectCurveFile2()));
+}
+
+QString GuiNormalExtrusion::selectCurveFile(QString old_file)
+{
+  QFileDialog dialog(NULL, "select file for curve points", GuiMainWindow::pointer()->getCwd(), "text files (*.txt)");
+  if (old_file.toLower().right(4) == ".txt") {
+    QFileInfo file_info(old_file);
+    if (file_info.isFile()) {
+      dialog.selectFile(old_file);
+    }
+  }
+  dialog.setAcceptMode(QFileDialog::AcceptOpen);
+  if (dialog.exec()) {
+    QStringList selected_files = dialog.selectedFiles();
+    QString file_name = selected_files[0];
+    if (!file_name.isNull()) {
+      return file_name;
+    }
+  }
+  return "undefined";
+}
+
+void GuiNormalExtrusion::selectCurveFile1()
+{
+  QString old_file = m_Ui.m_LabelCurveFile1->text();
+  if (old_file == "undefined") {
+    old_file = "";
+  }
+  m_Ui.m_LabelCurveFile1->setText(selectCurveFile(old_file));
+}
+
+void GuiNormalExtrusion::selectCurveFile2()
+{
+  QString old_file = m_Ui.m_LabelCurveFile2->text();
+  if (old_file == "undefined") {
+    old_file = "";
+  }
+  m_Ui.m_LabelCurveFile2->setText(selectCurveFile(old_file));
+}
+
+void GuiNormalExtrusion::readCurves(QSet<int> bcs)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  QList<vec3_t> start_points;
+  EG_FORALL_CELLS(id_cell, m_Grid) {
+    if (isSurface(id_cell, m_Grid)) {
+      if (bcs.contains(cell_code->GetValue(id_cell))) {
+        EG_GET_CELL(id_cell, m_Grid);
+        for (int i = 0; i < num_pts; ++i) {
+          vec3_t x;
+          m_Grid->GetPoint(pts[i], x.data());
+          start_points << x;
+        }
+      }
+    }
+  }
+  m_Curve1.fromPointsFile(m_Ui.m_LabelCurveFile1->text(), start_points);
+  m_Curve2.fromPointsFile(m_Ui.m_LabelCurveFile2->text(), start_points);
 }
 
 void GuiNormalExtrusion::operate()
@@ -47,7 +107,7 @@ void GuiNormalExtrusion::operate()
 
   EG_VTKSP(vtkEgNormalExtrusion, extr);
   QVector<double> y;
-  
+
   if (m_Ui.radioButtonSimple->isChecked()) {
     y.resize(m_Ui.lineEditSimpleNumLayers->text().toInt() + 1);
     double h = m_Ui.lineEditSimpleHeight->text().toDouble();
@@ -83,7 +143,7 @@ void GuiNormalExtrusion::operate()
     }
   }
   extr->SetLayers(y);
-  
+
   if (m_Ui.radioButtonFixed->isChecked()) {
     extr->SetNormal(vec3_t(m_Ui.lineEditFixedNX->text().toDouble(),
                            m_Ui.lineEditFixedNY->text().toDouble(),
@@ -113,6 +173,13 @@ void GuiNormalExtrusion::operate()
     extr->SetAxis(vec3_t(m_Ui.lineEditCylinderNX->text().toDouble(),
                          m_Ui.lineEditCylinderNY->text().toDouble(),
                          m_Ui.lineEditCylinderNZ->text().toDouble()));
+  }
+  if (m_Ui.m_RadioButtonCurve->isChecked()) {
+    readCurves(bcs);
+    if (m_Ui.m_CheckBoxOrtho->isChecked()) {
+      extr->OrthoExtrusionOn();
+    }
+    extr->SetCurves(&m_Curve1, &m_Curve2);
   }
 
   if (m_Ui.radioButtonNoRestrict->isChecked()) {

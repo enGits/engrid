@@ -18,31 +18,33 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "deletevolumegrid.h"
+// 
+#include "curve.h"
 
-void DeleteVolumeGrid::operate()
+mat3_t Curve::computeBase(double l, Curve* curve)
 {
-  EG_VTKSP(vtkUnstructuredGrid, sgrid);
-  QVector<vtkIdType> scells, snodes;
-  getAllSurfaceCells(scells, m_Grid);
-  getNodesFromCells(scells, snodes, m_Grid);
-  allocateGrid(sgrid, scells.size(), snodes.size());
-  QVector<vtkIdType> src2dst(m_Grid->GetNumberOfPoints());
-  {
-    vtkIdType id_new = 0;
-    foreach (vtkIdType id_node, snodes) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      sgrid ->GetPoints()->SetPoint(id_new, x.data());
-      copyNodeData(m_Grid, id_node, sgrid, id_new);
-      src2dst[id_node] = id_new;
-      ++id_new;
-    }
-  }
-  foreach (vtkIdType id_cell, scells) {
-    vtkIdType id_new = copyCell(m_Grid, id_cell, sgrid, src2dst);
-    copyCellData(m_Grid, id_cell, sgrid, id_new);
-  }
-  makeCopy(sgrid, m_Grid);
+  vec3_t g3 = normal(l);
+  g3.normalise();
+  vec3_t g1 = curve->position(l) - position(l);
+  g1.normalise();
+  vec3_t g2 = g3.cross(g1);
+  g2.normalise();
+  mat3_t A;
+  clinit(A) = g1, g2, g3;
+  return A.transp();
 }
 
+mat3_t Curve::computeOrthoBase(double l, Curve *curve)
+{
+  vec3_t g3 = normal(l);
+  g3.normalise();
+  vec3_t x = position(l);
+  vec3_t x_curve = curve->intersection(x, g3);
+  vec3_t g1 = x_curve - x;
+  g1.normalise();
+  vec3_t g2 = g3.cross(g1);
+  g2.normalise();
+  mat3_t A;
+  clinit(A) = g1, g2, g3;
+  return A.transp();
+}
