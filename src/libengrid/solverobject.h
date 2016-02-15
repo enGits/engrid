@@ -30,7 +30,7 @@
 #include "engrid.h"
 
 
-class FoamObject
+class SolverObject
 {
 
 private: // attributes
@@ -54,7 +54,7 @@ protected: // methods
 
   void readFile(QString file_name);
   QByteArray* getBuffer() { return &m_Buffer; }
-  void buildMaps();
+  void buildFoamMaps();
   int numVolNodes() { return m_VolToSurfMap.size(); }
   int numSurfNodes() { return m_SurfToVolMap.size(); }
   int surfToVol(int i) { return m_SurfToVolMap[i]; }
@@ -64,7 +64,7 @@ protected: // methods
 
 public:
 
-  FoamObject();
+  SolverObject();
 
   void setCaseDir (QString case_dir);
   void setFoamVersion(QString version) { m_FoamVersion = version; }

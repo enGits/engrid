@@ -101,8 +101,8 @@ void GuiSetBoundaryCode::operate()
         if (bc_name == "unknown") {
           bc_name.setNum(bc);
           bc_name = "wall_" + bc_name.rightJustified(3, '0');
-          BoundaryCondition sym_bc(bc_name, "wall");
-          GuiMainWindow::pointer()->addBC(bc, sym_bc);
+          BoundaryCondition sym_bc(bc_name, "wall", bc);
+          GuiMainWindow::pointer()->setBC(bc, sym_bc);
         }
         set_bc();
         ++bc;

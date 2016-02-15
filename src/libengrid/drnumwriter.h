@@ -23,51 +23,34 @@
 #define DRNUMWRITER_H
 
 #include "iooperation.h"
-#include "edgelengthsourcemanager.h"
+#include "solverobject.h"
 
 #include <QFile>
 #include <QTextStream>
+#include <QMap>
 
 /**
  * @brief A very experimental export function for DrNUM grids.
  */
-class DrNumWriter : public IOOperation
+class DrNumWriter : public IOOperation, public SolverObject
 {
 
 protected: // data types
 
-  struct cart_patch_t
-  {
-    vec3_t    x0, gi, gj;
-    int       Ni, Nj, Nk, sl_i1, sl_i2, sl_j1, sl_j2, sl_k1, sl_k2;
-    double    Li, Lj, Lk;
-    QString   fx, fy, fz, bx, bX, by, bY, bz, bZ, s;
-    vtkIdType id_cell;
-  };
-
 
 protected: // attributes
 
-  QString m_PatchFile;   ///< the name of the DrNUM patches file
-  QString m_ComplexPath; ///< the path to the DrNUM directory for complex patches
-
-  QVector<cart_patch_t>   m_CartPatches;
-  QVector<int>            m_CellToCartPatch;
-  int                     m_OverlapLayers;
-  QVector<double>         m_H;
-  double                  m_MaxEdgeLength;
-  double                  m_MinEdgeLength;
-  double                  m_GrowthFactor;
-  EdgeLengthSourceManager m_ELSManager;
-
+  double             m_MaximalEdgeLength;
+  double             m_MinimalEdgeLength;
+  double             m_GrowthFactor;
 
 
 protected: // methods
 
-  void computeMeshDensity();
-  void createAllCartPatches();
-  void writeCartPatches(QTextStream &s);
-  QString boundaryCode(vtkIdType id_cell, int i);
+  QList<BoundaryCondition> getBcsOfType(QString type);
+  void                     prepareLevelSets(QList<BoundaryCondition> bc, double distance);
+  void                     prepareWallLevelSets(QList<BoundaryCondition> bc);
+  void                     readSettings();
 
   virtual void operate();
 

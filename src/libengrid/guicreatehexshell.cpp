@@ -204,8 +204,8 @@ void GuiCreateHexShell::defineBoundaryCodes()
   }
   ++m_InnerBC;
   m_OuterBC = m_InnerBC + 1;
-  mainWindow()->addBC(m_InnerBC, BoundaryCondition("HexShellInside", "patch"));
-  mainWindow()->addBC(m_OuterBC, BoundaryCondition("HexShellOutside", "patch"));
+  mainWindow()->setBC(m_InnerBC, BoundaryCondition("HexShellInside", "patch", m_InnerBC));
+  mainWindow()->setBC(m_OuterBC, BoundaryCondition("HexShellOutside", "patch", m_OuterBC));
 }
 
 void GuiCreateHexShell::createOuterBoundary(vtkUnstructuredGrid *grid)

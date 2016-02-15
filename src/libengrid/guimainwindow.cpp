@@ -1006,23 +1006,29 @@ void GuiMainWindow::setXmlSection(QString name, QString contents)
 void GuiMainWindow::openPhysicalBoundaryConditions()
 {
   m_PhysicalBoundaryConditionsMap.clear();
-  QString buffer = getXmlSection("engrid/physical");
-  QTextStream f(&buffer, QIODevice::ReadOnly);
-  while (!f.atEnd()) {
-    QString name, type;
-    int index;
-    f >> index >> name >> type;
-    if ((name != "") && (type != "")) {
-      PhysicalBoundaryCondition PBC;
-      PBC.setName(name);
-      PBC.setIndex(index);
-      PBC.setType(type);
-      for (int i = 0; i < PBC.getNumVars(); ++i) {
-        double v;
-        f >> v;
-        PBC.setValue(i, v);
+  QString buffer = getXmlSection("engrid/physical").trimmed();
+  QStringList lines = buffer.split("\n");
+  foreach (QString line, lines) {
+    line = line.trimmed();
+    QStringList parts = line.split(";", QString::SkipEmptyParts);
+    if (parts.size() > 0) {
+      QStringList words = parts[0].split(" ", QString::SkipEmptyParts);
+      int index = words[0].trimmed().toInt();
+      QString name = words[1].trimmed();
+      QString type = words[2].trimmed();
+      if ((name != "") && (type != "")) {
+        PhysicalBoundaryCondition PBC;
+        PBC.setName(name);
+        PBC.setType(type);
+        if (PBC.getNumVars() == parts.size() - 1) {
+          PBC.setIndex(index);
+          for (int i = 0; i < PBC.getNumVars(); ++i) {
+            QStringList words = parts[i+1].split("=");
+            PBC.setValueFromString(i, words[1].trimmed());
+          }
+          m_PhysicalBoundaryConditionsMap[name] = PBC;
+        }
       }
-      m_PhysicalBoundaryConditionsMap[name] = PBC;
     }
   }
 }
@@ -1031,13 +1037,8 @@ void GuiMainWindow::savePhysicalBoundaryConditions()
 {
   QString buffer("");
   QTextStream f(&buffer, QIODevice::WriteOnly);
-  f << "\n";
   foreach (PhysicalBoundaryCondition PBC, m_PhysicalBoundaryConditionsMap) {
-    f << PBC.getIndex() << " " << PBC.getName() << " " << PBC.getType();
-    for (int i = 0; i < PBC.getNumVars(); ++i) {
-      f << " " << PBC.getVarValue(i);
-    }
-    f << "\n";
+    f << PBC.xmlText() << "\n";
   }
   setXmlSection("engrid/physical", buffer);
 }
@@ -1054,7 +1055,7 @@ void GuiMainWindow::openBC()
     f >> i >> name >> type;
     if(name!="" && type!="") {
       if (i > 0) {
-        m_bcmap[i] = BoundaryCondition(name,type);
+        m_bcmap[i] = BoundaryCondition(name,type,i);
       } else {
         VolumeDefinition V(name, -i);
         QString text = type.replace(",", " ").replace(":", " ");
@@ -1846,7 +1847,7 @@ void GuiMainWindow::configure()
       RemovePoints tmp07;
       LaplaceSmoother tmp08;
       SwapTriangles tmp09;
-      OpenFOAMTools tmp10;
+      SolverTools tmp10;
       BlenderReader tmp11;
     } catch (Error err) {
       err.display();
@@ -2266,4 +2267,18 @@ void GuiMainWindow::unlock()
 bool GuiMainWindow::tryLock()
 {
   return m_Mutex.tryLock();
+}
+
+BoundaryCondition GuiMainWindow::getBC(BoundaryCondition BC)
+{
+  int last_code = 0;
+  foreach (BoundaryCondition bc, m_bcmap.values()) {
+    if (bc == BC) {
+      return bc;
+    }
+    last_code = max(last_code, bc.getCode());
+  }
+  BC.setCode(last_code + 1);
+  setBC(BC.getCode(), BC);
+  return BC;
 }

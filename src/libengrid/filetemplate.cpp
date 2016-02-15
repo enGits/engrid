@@ -57,7 +57,7 @@ int fileTemplateTest()
 //=======================================
 QString TemplateLine::getDefaultValue()
 {
-  if ( m_DefaultValueEgc == "" ) return m_DefaultValueOpenFOAM;
+  if ( m_DefaultValueEgc == "" ) return m_DefaultValueOutput;
   else return m_DefaultValueEgc;
 }
 
@@ -67,7 +67,7 @@ void TemplateLine::print()
   qWarning() << "m_Name=" << this->m_Name;
   qWarning() << "m_Options=" << this->m_Options;
   qWarning() << "m_DefaultValueEgc=" << this->m_DefaultValueEgc;
-  qWarning() << "m_DefaultValueOpenFOAM=" << this->m_DefaultValueOpenFOAM;
+  qWarning() << "m_DefaultValueOpenFOAM=" << this->m_DefaultValueOutput;
   qWarning() << "m_Position=" << this->m_Position;
 }
 //=======================================
@@ -170,7 +170,7 @@ int FileTemplate::processTemplate()
     template_line.m_Type = L_elements[0];
     template_line.m_Name = L_elements[1];
     template_line.m_Options = L_elements[2];
-    template_line.m_DefaultValueOpenFOAM = L_elements[3];
+    template_line.m_DefaultValueOutput = L_elements[3];
     template_line.m_Position = i;
     m_Lines.push_back( template_line );
   }

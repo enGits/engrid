@@ -63,15 +63,47 @@ bool XmlHandler::openXml(QString file_name) {
   return(true);
 }
 
-bool XmlHandler::saveXml(QString file_name) {
-  QString buffer = m_XmlDoc.toString(2);
-//   QString buffer = m_XmlDoc.toString(0);
-  QFile xml_file(file_name);
-  xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
-  QTextStream f(&xml_file);
-  f << buffer << endl;
-  xml_file.close();
-  return(true);
+
+QString XmlHandler::nodeToString(QDomNode node, int level)
+{
+  QString indent_txt = "";
+  for (int i = 0; i < level; ++i) {
+    indent_txt += "  ";
+  }
+  QString txt = "";
+  if (node.isElement()) {
+    QDomElement elem = node.toElement();
+    txt += indent_txt + "<" + elem.tagName() + ">\n";
+    QDomNodeList children = node.childNodes();
+    for (int i = 0; i < children.count(); ++i) {
+      txt += nodeToString(children.at(i), level + 1);
+    }
+    txt += indent_txt + "</" + elem.tagName() + ">\n";
+  }
+  if (node.isText()) {
+    QString raw = node.toText().data().trimmed();
+    QStringList lines = raw.split('\n');
+    foreach (QString line, lines) {
+      txt += indent_txt + line.trimmed() + "\n";
+    }
+  }
+  return txt;
+}
+
+bool XmlHandler::saveXml(QString file_name)
+{
+  QDomNodeList cases = m_XmlDoc.elementsByTagName("engridcase");
+  if (cases.count() == 1) {
+    QString buffer = nodeToString(cases.at(0), 0);
+
+    QFile xml_file(file_name);
+    xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream f(&xml_file);
+    f << buffer << endl;
+    xml_file.close();
+    return(true);
+  }
+  return false;
 }
 
 QString XmlHandler::getXmlSection(QString name) {

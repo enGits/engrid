@@ -315,7 +315,7 @@ void FixCadGeometry::markNonManifold()
       }
       nm_face = new_nm_face;
     }
-    GuiMainWindow::pointer()->addBC(new_bc, BoundaryCondition(bc_name, "patch"));
+    GuiMainWindow::pointer()->setBC(new_bc, BoundaryCondition(bc_name, "patch", new_bc));
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (isSurface(id_cell, m_Grid)) {
         if (cell_code->GetValue(id_cell) == bc && nm_face[id_cell]) {

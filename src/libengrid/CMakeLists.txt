@@ -67,7 +67,7 @@ SET(libengrid_HEADERS
   filetemplate.h
   fixcadgeometry.h
   fixstl.h
-  foamobject.h
+  solverobject.h
   foamreader.h
   foamwriter.h
   geometrysmoother.h
@@ -125,7 +125,7 @@ SET(libengrid_HEADERS
   nodelayeriterator.h
   octree.h
   openfoamcase.h
-  openfoamtools.h
+  solvertools.h
   operation.h
   optimisation.h
   optimisenormalvector.h
@@ -272,7 +272,7 @@ SET(libengrid_SOURCES
   filetemplate.cpp
   fixcadgeometry.cpp
   fixstl.cpp
-  foamobject.cpp
+  solverobject.cpp
   foamreader.cpp
   foamwriter.cpp
   geometrysmoother.cpp
@@ -322,7 +322,7 @@ SET(libengrid_SOURCES
   nodelayeriterator.cpp
   octree.cpp
   openfoamcase.cpp
-  openfoamtools.cpp
+  solvertools.cpp
   operation.cpp
   optimisation.cpp
   optimisenormalvector.cpp

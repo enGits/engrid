@@ -25,71 +25,73 @@
 #include <QProcess>
 
 #include "egvtkobject.h"
-#include "foamobject.h"
+#include "solverobject.h"
 
-class OpenFOAMTools : public QObject, public EgVtkObject, public FoamObject {
-    Q_OBJECT;
+class SolverTools : public QObject, public EgVtkObject, public SolverObject
+{
 
-  private: // attributes
+  Q_OBJECT;
 
-    QProcess*   m_SolverProcess;
-    QProcess*   m_ToolsProcess;
-    QString     m_SolverBinary;
-    QString     m_StrippedSolverBinary;
-    QString     m_WorkingDirectory;
-    int         m_NumProcesses;
-    QString     m_HostFile;
-    QString     m_SolverBinPath;
-    QString     m_OpenFoamArch;
-    QString     m_ParaviewPath;
-    QString     m_MainHost;
+private: // attributes
 
-    QString     m_Program_Solver;
-    QStringList m_Arguments_Solver;
+  QProcess*   m_SolverProcess;
+  QProcess*   m_ToolsProcess;
+  QString     m_SolverBinary;
+  QString     m_StrippedSolverBinary;
+  QString     m_WorkingDirectory;
+  int         m_NumProcesses;
+  QString     m_HostFile;
+  QString     m_SolverBinPath;
+  QString     m_OpenFoamArch;
+  QString     m_ParaviewPath;
+  QString     m_MainHost;
 
-    QString     m_Program_Tools;
-    QStringList m_Arguments_Tools;
+  QString     m_Program_Solver;
+  QStringList m_Arguments_Solver;
 
-    QString m_FullCommand_Solver;
-    QString m_FullCommand_Tools;
+  QString     m_Program_Tools;
+  QStringList m_Arguments_Tools;
 
-  private: // methods
+  QString m_FullCommand_Solver;
+  QString m_FullCommand_Tools;
 
-    int     getArguments();
-    void    runTool(QString path, QString name, QStringList args = QStringList());
-    QString getBinary(QString name) { return m_SolverBinPath + "/" + name; }
+private: // methods
 
-  public:
+  int     getArguments();
+  void    runTool(QString path, QString name, QStringList args = QStringList());
+  QString getBinary(QString name) { return m_SolverBinPath + "/" + name; }
 
-    OpenFOAMTools(QObject *parent = 0);
-    ~OpenFOAMTools();
+public:
 
-  public: // methods
+  SolverTools(QObject *parent = 0);
+  ~SolverTools();
+
+public: // methods
 
 
 
-  public slots:
+public slots:
 
-    void runSolver();
-    void runDecomposePar();
-    void runPostProcessingTools();
-    void runImportFluentCase();
-    void runParaview();
-    void setCaseDirectory();
+  void runSolver();
+  void runDecomposePar();
+  void runPostProcessingTools();
+  void runImportFluentCase();
+  void runParaview();
+  void setCaseDirectory();
 
-    void stopSolverProcess();
+  void stopSolverProcess();
 
-    // handlers Solver
-    void finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus);
-    void readFromStderr_Solver();
-    void readFromStdout_Solver();
-    void startedHandler_Solver();
+  // handlers Solver
+  void finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus);
+  void readFromStderr_Solver();
+  void readFromStdout_Solver();
+  void startedHandler_Solver();
 
-    // handlers Tools
-    void finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus);
-    void readFromStderr_Tools();
-    void readFromStdout_Tools();
-    void startedHandler_Tools();
+  // handlers Tools
+  void finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus);
+  void readFromStderr_Tools();
+  void readFromStdout_Tools();
+  void startedHandler_Tools();
 
 };
 

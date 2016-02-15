@@ -76,7 +76,7 @@
 
 #include "openfoamcase.h"
 #include "guitransform.h"
-#include "openfoamtools.h"
+#include "solvertools.h"
 #include "std_includes.h"
 #include "fixcadgeometry.h"
 #include "xmlhandler.h"
@@ -192,7 +192,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QAction* m_EscAction;
 
     int m_SolverIndex;// deprecated
-    OpenFOAMTools m_OpenFoamTools;
+    SolverTools m_OpenFoamTools;
 
   // recent file list support
   private:
@@ -349,10 +349,11 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
      */
     static QSettings* settings() { return &m_qset; }
 
-    BoundaryCondition getBC( int bc ) { return m_bcmap[bc]; }
+    BoundaryCondition getBC(int bc) { return m_bcmap[bc]; }
+    BoundaryCondition getBC(BoundaryCondition BC);
     VolumeDefinition  getVol( QString volname ) { return m_VolMap[volname]; }
     void clearBCs() { m_bcmap.clear(); }
-    void addBC(int bc, BoundaryCondition BC) { m_bcmap[bc] = BC; }
+    void setBC(int bc, BoundaryCondition BC) { BC.setCode(bc); m_bcmap[bc] = BC; }
 
     QList<VolumeDefinition> getAllVols();
     void setAllVols( QList<VolumeDefinition> vols );

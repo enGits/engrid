@@ -30,16 +30,26 @@ class BoundaryCondition
   
 private: // attributes
   
-  QString name;
-  QString type;
+  int     m_Code;
+  QString m_Name;
+  QString m_Type;
   
+
 public: // methods
   
   BoundaryCondition();
-  BoundaryCondition(QString a_name, QString a_type);
+  BoundaryCondition(QString name, QString type, int code = -1);
   
-  QString getName() { return name; }
-  QString getType() { return type; }
+  int     getCode() { return m_Code; }
+  QString getName() { return m_Name; }
+  QString getType() { return m_Type; }
+
+  void setCode(int code) { m_Code = code; }
+  void setName(QString name) { m_Name = name; }
+  void setType(QString type) { m_Type = type; }
+
+  bool operator==(const BoundaryCondition& bc) const { return m_Name == bc.m_Name && m_Type == bc.m_Type; }
+  bool operator<(const BoundaryCondition& bc) const;
   
 };
 

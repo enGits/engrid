@@ -22,12 +22,26 @@
 
 BoundaryCondition::BoundaryCondition()
 {
-  name = "unknown";
-  type = "patch";
+  m_Name = "unknown";
+  m_Type = "patch";
+  m_Code = -1;
 }
 
-BoundaryCondition::BoundaryCondition(QString a_name, QString a_type)
+BoundaryCondition::BoundaryCondition(QString name, QString type, int code)
 {
-  name = a_name;
-  type = a_type;
+  m_Name = name;
+  m_Type = type;
+  m_Code = code;
+}
+
+bool BoundaryCondition::operator<(const BoundaryCondition& bc) const
+{
+  if (m_Type < bc.m_Type) {
+    return true;
+  } else if (m_Type == bc.m_Type) {
+    if (m_Name < bc.m_Name) {
+      return true;
+    }
+  }
+  return false;
 }

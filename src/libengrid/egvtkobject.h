@@ -277,7 +277,15 @@ protected: // methods
    */
   template <typename C>
   void getSurfaceCells(const C &bcs, QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
-  
+
+  /**
+   * Get all surface cells of a grid with a specific boundary condition.
+   * @param bc    The boundary conditions
+   * @param cells On return this will hold the Ids of the surface cells.
+   * @param grid  The grid to operate on.
+   */
+  void getSurfaceCells(int bc, QVector<vtkIdType> &cells, vtkUnstructuredGrid *grid);
+
   /**
    * Create a cell neighbourship list for a subset grid. 
    * This has been implemented using VTK's vtkCellLinks structures.

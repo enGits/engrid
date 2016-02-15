@@ -24,7 +24,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_BoundaryConditions">
       <attribute name="title">
@@ -137,6 +137,11 @@
              <widget class="QTableWidget" name="tableWidgetPBC">
               <column>
                <property name="text">
+                <string>type</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
                 <string>name</string>
                </property>
               </column>
@@ -172,17 +177,37 @@
               </item>
               <item>
                <property name="text">
+                <string>DrNUM turbulent wall</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>inviscid wall</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>inlet</string>
+                <string>inflow</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>outlet</string>
+                <string>turbulent duct inlet</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>laminar duct inlet</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>cyclic</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>outflow</string>
                </property>
               </item>
               <item>
@@ -282,12 +307,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout">
-     <property name="spacing">
-      <number>6</number>
-     </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
      <item>
       <spacer name="spacer">
        <property name="orientation">
@@ -343,7 +362,6 @@
   <tabstop>pushButton_ExportHostFile</tabstop>
  </tabstops>
  <resources>
-  <include location="engrid.qrc"/>
   <include location="engrid.qrc"/>
  </resources>
  <connections>

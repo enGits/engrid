@@ -39,8 +39,8 @@ void GuiFillPlane::fillPlane(vec3_t x, vec3_t n, bool inverse, QString name)
     fill.setInverseDirectionOff();
   }
   fill();
-  BoundaryCondition bc(name, "patch");
-  GuiMainWindow::pointer()->addBC(fill.getBC(), bc);
+  BoundaryCondition bc(name, "patch", fill.getBC());
+  GuiMainWindow::pointer()->setBC(fill.getBC(), bc);
   GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }
 

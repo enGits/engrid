@@ -19,19 +19,19 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "foamobject.h"
+#include "solverobject.h"
 #include <iostream>
 
 #include "guimainwindow.h"
 
-FoamObject::FoamObject()
+SolverObject::SolverObject()
 {
   m_CaseDir = "";
   m_BufferedFileName = "";
   m_FoamVersion = "1.5";
 }
 
-int FoamObject::deleteBetween(int i, QString str1, QString str2)
+int SolverObject::deleteBetween(int i, QString str1, QString str2)
 {
   int i1 = m_Buffer.indexOf(str1, i);
   if (i1 != -1) {
@@ -44,7 +44,7 @@ int FoamObject::deleteBetween(int i, QString str1, QString str2)
   return 0;
 }
 
-void FoamObject::stripBuffer()
+void SolverObject::stripBuffer()
 {
   while (deleteBetween(0, "/*", "*/")) {};
   while (deleteBetween(0, "//", "\n")) {};
@@ -61,7 +61,7 @@ void FoamObject::stripBuffer()
   m_Buffer = m_Buffer.simplified();
 }
 
-void FoamObject::readFile(QString file_name)
+void SolverObject::readFile(QString file_name)
 {
   file_name = m_CaseDir + "/" + file_name;
   if(m_BufferedFileName != m_CaseDir + "/" + file_name) {
@@ -81,7 +81,7 @@ void FoamObject::readFile(QString file_name)
   }
 }
 
-void FoamObject::buildMaps()
+void SolverObject::buildFoamMaps()
 {
   int num_foam_nodes;
   readFile("constant/polyMesh/points");
@@ -145,7 +145,7 @@ void FoamObject::buildMaps()
   }
 }
 
-void FoamObject::setCaseDir(QString case_dir)
+void SolverObject::setCaseDir(QString case_dir)
 {
   m_CaseDir = case_dir;
   GuiMainWindow::pointer()->setXmlSection("openfoam/CaseDir",m_CaseDir);

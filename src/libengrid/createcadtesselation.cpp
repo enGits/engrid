@@ -372,7 +372,7 @@ void CreateCadTesselation::operate()
   UpdateCellIndex(m_Grid);
   GuiMainWindow::pointer()->resetXmlDoc();
   GuiMainWindow::pointer()->clearBCs();
-  GuiMainWindow::pointer()->addBC(1, BoundaryCondition("imported", "patch"));
+  GuiMainWindow::pointer()->setBC(1, BoundaryCondition("imported", "patch", 1));
 
   GuiMainWindow::pointer()->resetProgress(" ", 100);
 }

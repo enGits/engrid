@@ -34,6 +34,9 @@ vtkEgNormalExtrusion::vtkEgNormalExtrusion()
   m_Curve1 = NULL;
   m_Curve2 = NULL;
   m_OrthoExtrusion = false;
+  m_CustomBottomBc = -1;
+  m_CustomSideBc = -1;
+  m_CustomTopBc = -1;
 }
 
 int vtkEgNormalExtrusion::getNewBc(MeshPartition *part, vtkIdType id_node1, vtkIdType id_node2)
@@ -328,6 +331,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
             new_bc = getNewBc(&part, nodes[p1], nodes[p2]);
             new_bcs[QPair<int,int>(p1,p2)] = new_bc;
           }
+          if (m_CustomSideBc > 0) {
+            new_bc = m_CustomSideBc;
+          }
           vtkIdType quad_pts[4];
           quad_pts[0] = n1[p1];
           quad_pts[1] = n1[p2];
@@ -361,7 +367,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
           tri_pts[1] = n2[surf_pts[1]];
           tri_pts[2] = n2[surf_pts[2]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_TRIANGLE,3,tri_pts);
-          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          if (m_CustomTopBc > 0) {
+            cell_code2->SetValue(id_new_cell, m_CustomTopBc);
+          } else {
+            cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          }
           orgdir->SetValue(id_new_cell, 0);
           curdir->SetValue(id_new_cell, 0);
           voldir->SetValue(id_new_cell, 0);
@@ -391,7 +401,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
           quad_pts[2] = n2[surf_pts[2]];
           quad_pts[3] = n2[surf_pts[3]];
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_QUAD,4,quad_pts);
-          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          if (m_CustomTopBc > 0) {
+            cell_code2->SetValue(id_new_cell, m_CustomTopBc);
+          } else {
+            cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          }
           orgdir->SetValue(id_new_cell, 0);
           curdir->SetValue(id_new_cell, 0);
           voldir->SetValue(id_new_cell, 0);
@@ -446,7 +460,11 @@ void vtkEgNormalExtrusion::ExecuteEg()
             poly_pts->SetId(id, n2[surf_pts[id]]);
           }
           vtkIdType id_new_cell = m_Output->InsertNextCell(VTK_POLYGON, poly_pts);
-          cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          if (m_CustomTopBc > 0) {
+            cell_code2->SetValue(id_new_cell, m_CustomTopBc);
+          } else {
+            cell_code2->SetValue(id_new_cell, cell_code1->GetValue(cells[i_cell]));
+          }
           orgdir->SetValue(id_new_cell, 0);
           curdir->SetValue(id_new_cell, 0);
           voldir->SetValue(id_new_cell, 0);
@@ -484,6 +502,9 @@ void vtkEgNormalExtrusion::ExecuteEg()
       for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
       for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
       copyCellData(m_Input, id_cell, m_Output, id_new_cell);
+      if (m_CustomBottomBc > 0) {
+        cell_code2->SetValue(id_new_cell, m_CustomBottomBc);
+      }
     }
   }
 

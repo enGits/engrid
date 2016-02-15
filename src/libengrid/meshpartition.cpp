@@ -24,6 +24,11 @@
 
 #include <vtkKdTreePointLocator.h>
 #include <vtkClipDataSet.h>
+#include <vtkTriangleFilter.h>
+#include <vtkGeometryFilter.h>
+#include <vtkSTLWriter.h>
+
+#include <vtkEgNormalExtrusion.h>
 
 MeshPartition::MeshPartition()
 {
@@ -209,6 +214,61 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
         pnode2node[id_pnode] = N;
         ++N;
       }
+    }
+    allocateGrid(new_grid, m_Grid->GetNumberOfCells() + part.m_Cells.size(), N);
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+      new_grid->GetPoints()->SetPoint(id_node, x.data());
+      copyNodeData(m_Grid, id_node, new_grid, id_node);
+    }
+    QVector<vtkIdType> part_nodes;
+    getNodesFromCells(part.m_Cells, part_nodes, part.m_Grid);
+    foreach (vtkIdType id_pnode, part_nodes) {
+      vec3_t x;
+      part.m_Grid->GetPoint(id_pnode, x.data());
+      new_grid->GetPoints()->SetPoint(pnode2node[id_pnode], x.data());
+      copyNodeData(part.m_Grid, id_pnode, new_grid, pnode2node[id_pnode]);
+    }
+    QList<vtkIdType> new_cells;
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      vtkIdType id_new_cell = copyCell(m_Grid, id_cell, new_grid);
+      copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
+      new_cells.append(id_new_cell);
+    }
+    foreach (vtkIdType id_pcell, part.m_Cells) {
+      vtkIdType id_new_cell = copyCell(part.m_Grid, id_pcell, new_grid, pnode2node);
+      copyCellData(part.m_Grid, id_pcell, new_grid, id_new_cell);
+      new_cells.append(id_new_cell);
+    }
+    makeCopy(new_grid, m_Grid);
+  }
+}
+
+void MeshPartition::concatenatePartition(const MeshPartition& part)
+{
+  if (m_Grid == part.m_Grid) {
+    QVector<bool> cell_marked(m_Grid->GetNumberOfCells(), false);
+    foreach (vtkIdType id_cell, m_Cells) {
+      cell_marked[id_cell] = true;
+    }
+    foreach (vtkIdType id_cell, part.m_Cells) {
+      cell_marked[id_cell] = true;
+    }
+    QList<vtkIdType> new_cells;
+    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+      if (cell_marked[id_cell]) {
+        new_cells.append(id_cell);
+      }
+    }
+    setCells(new_cells);
+  } else {
+    EG_VTKSP(vtkUnstructuredGrid, new_grid);
+    QVector<vtkIdType> pnode2node(part.m_Grid->GetNumberOfPoints());
+    vtkIdType N = m_Grid->GetNumberOfPoints();
+    for (vtkIdType id_pnode = 0; id_pnode < part.m_Grid->GetNumberOfPoints(); ++id_pnode) {
+      pnode2node[id_pnode] = N;
+      ++N;
     }
     allocateGrid(new_grid, m_Grid->GetNumberOfCells() + part.m_Cells.size(), N);
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -616,4 +676,167 @@ bool MeshPartition::isConvexNode(vtkIdType id_node, QVector<int> bl_codes)
     }
   }
   return false;
+}
+
+void MeshPartition::calcPlanarSurfaceMetrics(double &Dh, double &A, double &P, vec3_t &x, vec3_t &n)
+{
+  A = 0;
+  n = vec3_t(0, 0, 0);
+  x = vec3_t(0, 0, 0);
+  P = 0;
+  foreach (vtkIdType id_cell, m_Cells) {
+    if (isSurface(id_cell, m_Grid)) {
+      vtkIdType num_pts, *pts;
+      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      QVector<vec3_t> x_pt(num_pts + 1);
+      for (int i = 0; i < num_pts; ++i) {
+        m_Grid->GetPoint(pts[i], x_pt[i].data());
+      }
+      x_pt[num_pts] = x_pt[0];
+      double a = cellVA(m_Grid, id_cell);
+      A += a;
+      x += a*cellCentre(m_Grid, id_cell);
+      n += cellNormal(m_Grid, id_cell);
+      for (int i = 0; i < num_pts; ++i) {
+        if (c2cGG(id_cell, i) == -1) {
+          P += (x_pt[i+1] - x_pt[i]).abs();
+        }
+      }
+    }
+  }
+  n.normalise();
+  x *= 1.0/A;
+  Dh = 4*A/P;
+}
+
+void MeshPartition::setBC(int bc)
+{
+  QList<vtkIdType> cls;
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (cell_code->GetValue(id_cell) == bc) {
+      cls.append(id_cell);
+    }
+  }
+  setCells(cls);
+}
+
+void MeshPartition::duplicate()
+{
+  vtkIdType old_num_cells = m_Grid->GetNumberOfCells();
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  extractToVtkGrid(new_grid);
+  MeshPartition new_part(new_grid, true);
+  concatenatePartition(new_part);
+  QList<vtkIdType> cells;
+  for (vtkIdType id_cell = old_num_cells; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    cells << id_cell;
+  }
+  setCells(cells);
+}
+
+void MeshPartition::scale(double factor, vec3_t centre)
+{
+  checkNodes();
+  foreach (vtkIdType id_node, m_Nodes) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    x -= centre;
+    x *= factor;
+    x += centre;
+    m_Grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+}
+
+void MeshPartition::translate(vec3_t v)
+{
+  checkNodes();
+  foreach (vtkIdType id_node, m_Nodes) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    x += v;
+    m_Grid->GetPoints()->SetPoint(id_node, x.data());
+  }
+}
+
+void MeshPartition::extrude(vec3_t dir, QList<double> h, BoundaryCondition extrude_bc,
+                            bool force_bottom_bc, bool force_side_bc, bool force_top_bc,
+                            BoundaryCondition bottom_bc, BoundaryCondition side_bc, BoundaryCondition top_bc)
+{
+  checkNodes();
+  if (onlySurfaceCells()) {
+    QList<vtkIdType> new_cells;
+    foreach (vtkIdType id_cell, m_Cells) {
+      new_cells << id_cell;
+    }
+    vtkIdType old_num_cells = m_Grid->GetNumberOfCells();
+    extrude_bc = GuiMainWindow::pointer()->getBC(extrude_bc);
+    EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+    foreach (vtkIdType id_cell, m_Cells) {
+      cell_code->SetValue(id_cell, extrude_bc.getCode());
+    }
+    QSet<int> bcs;
+    bcs.insert(extrude_bc.getCode());
+    EG_VTKSP(vtkEgNormalExtrusion, extr);
+    QVector<double> y(h.size() + 1);
+    {
+      y[0] = 0;
+      int i = 1;
+      foreach (double dy, h) {
+        y[i] = y[i-1] + dy;
+        ++i;
+      }
+    }
+    extr->SetLayers(y);
+    extr->SetBoundaryCodes(bcs);
+    if (force_bottom_bc) extr->SetCustomBottomBc (bottom_bc.getCode());
+    if (force_side_bc)   extr->SetCustomSideBc   (side_bc.getCode());
+    if (force_top_bc)    extr->SetCustomTopBc    (top_bc.getCode());
+    dir.normalise();
+    extr->SetNormal(dir);
+    extr->SetFixed();
+    EG_VTKSP(vtkUnstructuredGrid,ug);
+    makeCopy(m_Grid, ug);
+    extr->SetInputData(ug);
+    extr->Update();
+    makeCopy(extr->GetOutput(), m_Grid);
+    setBC(extrude_bc.getCode());
+  }
+}
+
+bool MeshPartition::onlySurfaceCells()
+{
+  foreach (vtkIdType id_cell, m_Cells) {
+    if (!isSurface(id_cell, m_Grid)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void MeshPartition::resetBC(QString bc_name, QString bc_type)
+{
+  BoundaryCondition bc = GuiMainWindow::pointer()->getBC(BoundaryCondition(bc_name, bc_type));
+  EG_VTKDCC(vtkIntArray, cell_code,   m_Grid, "cell_code");
+  foreach (vtkIdType id_cell, m_Cells) {
+    cell_code->SetValue(id_cell, bc.getCode());
+  }
+}
+
+void MeshPartition::writeSTL(QString file_name)
+{
+  if (file_name.right(4).toLower() != ".stl") {
+    file_name += ".stl";
+  }
+  EG_VTKSP(vtkUnstructuredGrid, grid);
+  extractToVtkGrid(grid);
+  EG_VTKSP(vtkGeometryFilter, geometry);
+  geometry->SetInputData(grid);
+  EG_VTKSP(vtkTriangleFilter, triangle);
+  triangle->SetInputConnection(geometry->GetOutputPort());
+  EG_VTKSP(vtkSTLWriter, stl);
+  stl->SetInputConnection(  triangle->GetOutputPort());
+  stl->SetFileName(qPrintable(file_name));
+  stl->SetFileTypeToBinary();
+  stl->Write();
 }

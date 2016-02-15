@@ -1542,3 +1542,27 @@ QString EgVtkObject::getXmlSection(QString name)
 {
   return GuiMainWindow::pointer()->getXmlSection(name);
 }
+
+void EgVtkObject::getSurfaceCells(int bc,  QVector<vtkIdType>  &cells,  vtkUnstructuredGrid *grid)
+{
+  int N = 0;
+  EG_VTKDCC(vtkIntArray, cell_code, grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      if (bc == cell_code->GetValue(id_cell)) {
+        ++N;
+      }
+    }
+  }
+  cells.resize(N);
+  N = 0;
+  for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
+    if (isSurface(id_cell, grid)) {
+      if (bc == cell_code->GetValue(id_cell)) {
+        cells[N] = id_cell;
+        ++N;
+      }
+    }
+  }
+}
+

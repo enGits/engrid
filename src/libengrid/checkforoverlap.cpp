@@ -107,7 +107,7 @@ void CheckForOverlap::operate()
     }
   }
   if (N > 0) {
-    GuiMainWindow::pointer()->addBC(bc_max + 1, BoundaryCondition("overlapping_faces", "patch"));
+    GuiMainWindow::pointer()->setBC(bc_max + 1, BoundaryCondition("overlapping_faces", "patch", bc_max + 1));
     GuiMainWindow::pointer()->updateBoundaryCodes(true);
   }
   cout << N << " overlapping or close faces found" << endl;

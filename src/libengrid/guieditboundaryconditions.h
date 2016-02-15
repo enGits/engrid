@@ -43,7 +43,7 @@ class GuiEditBoundaryConditions;
 class GuiEditBoundaryConditions : public DialogOperation<Ui::GuiEditBoundaryConditions, Operation>
 {
 
-  Q_OBJECT;
+  Q_OBJECT
 
 private: // attributes
 
@@ -102,7 +102,9 @@ protected:
   void loadPhysicalValues();
   void savePhysicalValues();
 
+
 protected slots:
+
   void addBoundaryType();
   void deleteBoundaryType();
   void changePhysicalValues();
@@ -115,6 +117,7 @@ protected:
   void setupSolvers();
   void saveSolverParameters();
 
+
 protected slots:
 
 
@@ -126,6 +129,7 @@ protected:
   void saveMpiParameters();
   QString tableToString();
   void stringToTable(QString hostfile_txt);
+
 
 protected slots:
 

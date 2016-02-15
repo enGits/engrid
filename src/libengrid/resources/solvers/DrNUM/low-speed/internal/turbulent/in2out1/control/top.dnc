@@ -1,0 +1,4 @@
+string  type		           = cyclic;
+vec3_t  shift              = (0, 0, -0.1);
+real    pressure-increment = 0;
+string  geometry	         = top.stl;

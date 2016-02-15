@@ -103,7 +103,7 @@ void MultiSolidAsciiStlReader::operate()
     GuiMainWindow::pointer()->resetXmlDoc();
     GuiMainWindow::pointer()->clearBCs();
     foreach (QString name, bc_name) {
-      GuiMainWindow::pointer()->addBC(last_bc, BoundaryCondition(name, "patch"));
+      GuiMainWindow::pointer()->setBC(last_bc, BoundaryCondition(name, "patch", last_bc));
       ++last_bc;
     }
   }

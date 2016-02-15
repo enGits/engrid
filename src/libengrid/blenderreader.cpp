@@ -194,7 +194,7 @@ void BlenderReader::operate()
         GuiMainWindow::pointer()->resetXmlDoc();
         GuiMainWindow::pointer()->clearBCs();
         for (int i_part = 0; i_part < part_name.size(); ++i_part) {
-          GuiMainWindow::pointer()->addBC(part_bc[i_part], BoundaryCondition(part_name[i_part], "patch"));
+          GuiMainWindow::pointer()->setBC(part_bc[i_part], BoundaryCondition(part_name[i_part], "patch", part_bc[i_part]));
         }
       }
 

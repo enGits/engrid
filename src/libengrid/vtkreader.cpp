@@ -72,7 +72,7 @@ void VtkReader::createBoundaryFaces()
     bc->SetValue(id_cell, 1);
   }
   makeCopy(grid, m_Grid);
-  GuiMainWindow::pointer()->addBC(1, BoundaryCondition("all_faces", "patch"));
+  GuiMainWindow::pointer()->setBC(1, BoundaryCondition("all_faces", "patch", 1));
 }
 
 void VtkReader::operate()

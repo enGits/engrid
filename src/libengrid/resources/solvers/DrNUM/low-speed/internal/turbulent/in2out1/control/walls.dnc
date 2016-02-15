@@ -1,0 +1,6 @@
+string  type		          = laminar_rot;
+string  geometry	        = walls.stl;
+real    omega             = 0.10471975512;
+vec3_t	origin		        = (0, 0, 0);
+vec3_t	axis              = (0, 0, 1);
+real    wall-temperature  = 300;

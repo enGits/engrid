@@ -287,7 +287,7 @@ void CreateHexCore::createBoundaryFaces()
   EG_VTKDCC(vtkIntArray, cell_orgdir, new_grid, "cell_orgdir");
   EG_VTKDCC(vtkIntArray, cell_curdir, new_grid, "cell_curdir");
   EG_VTKDCC(vtkIntArray, cell_voldir, new_grid, "cell_voldir");
-  GuiMainWindow::pointer()->addBC(bc_new, BoundaryCondition("HexCore", "unknown"));
+  GuiMainWindow::pointer()->setBC(bc_new, BoundaryCondition("HexCore", "unknown", bc_new));
   foreach (QVector<vtkIdType> face, new_triangles) {
     vtkIdType id_new_face;
     if (face.size() == 3) {

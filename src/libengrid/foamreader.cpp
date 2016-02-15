@@ -32,7 +32,7 @@ void FoamReader::operate()
     readInputDirectory("Select OpenFOAM case directory");
     setCaseDir(getFileName());
     if (isValid()) {
-      buildMaps();
+      buildFoamMaps();
       EG_VTKSP(vtkUnstructuredGrid, ug);
       int num_faces;
 
@@ -182,8 +182,8 @@ void FoamReader::operate()
         for (int i = 1; i <= num_patches; ++i) {
           QString name, dummy, type;
           f >> name >> dummy >> type;
-          BoundaryCondition BC(name, type);
-          GuiMainWindow::pointer()->addBC(i, BC);
+          BoundaryCondition BC(name, type, i);
+          GuiMainWindow::pointer()->setBC(i, BC);
           vtkIdType num_faces, start_face;
           f >> dummy >> num_faces;
           f >> dummy >> start_face;

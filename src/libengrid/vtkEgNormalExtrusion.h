@@ -45,6 +45,9 @@ protected: // attributes
   double m_ScaleZ;
   bool   m_RemoveInternalFaces;
   int    m_UnknownBc;
+  int    m_CustomBottomBc;
+  int    m_CustomSideBc;
+  int    m_CustomTopBc;
 
   // data for extrusion along curve
   Curve*          m_Curve1;
@@ -74,6 +77,9 @@ public: // methods
   void SetRestrictYZ() { m_ScaleX = 0; m_ScaleY = 1; m_ScaleZ = 1; }
   void SetRemoveInternalFacesOn()  { m_RemoveInternalFaces = true; }
   void SetRemoveInternalFacesOff() { m_RemoveInternalFaces = false; }
+  void SetCustomBottomBc(int bc) { m_CustomBottomBc = bc; }
+  void SetCustomSideBc(int bc) { m_CustomSideBc = bc; }
+  void SetCustomTopBc(int bc) { m_CustomTopBc = bc; }
 
 
 protected: // methods

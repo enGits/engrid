@@ -18,7 +18,7 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "openfoamtools.h"
+#include "solvertools.h"
 
 #include "guimainwindow.h"
 
@@ -32,7 +32,7 @@
 
 using namespace std;
 
-OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent) {
+SolverTools::SolverTools(QObject *parent) : QObject(parent) {
   m_SolverProcess = new QProcess(this);
   m_ToolsProcess = new QProcess(this);
 
@@ -73,11 +73,11 @@ OpenFOAMTools::OpenFOAMTools(QObject *parent) : QObject(parent) {
   m_FullCommand_Solver = "";
 }
 
-OpenFOAMTools::~OpenFOAMTools() {
+SolverTools::~SolverTools() {
   this->stopSolverProcess();
 }
 
-int OpenFOAMTools::getArguments()
+int SolverTools::getArguments()
 {
   qDebug() << "int OpenFOAMTools::getArguments() called.";
 
@@ -152,7 +152,7 @@ int OpenFOAMTools::getArguments()
 // Main slots
 //=====================================
 
-void OpenFOAMTools::runSolver()
+void SolverTools::runSolver()
 {
   if (m_SolverProcess->state() == QProcess::NotRunning) {
     if (getArguments() < 0) {
@@ -207,7 +207,7 @@ void OpenFOAMTools::runSolver()
 
 }
 
-void OpenFOAMTools::runTool(QString path, QString name, QStringList args)
+void SolverTools::runTool(QString path, QString name, QStringList args)
 {
   if (m_ToolsProcess->state() == QProcess::NotRunning) {
     args << "-case" << m_WorkingDirectory;
@@ -227,7 +227,7 @@ void OpenFOAMTools::runTool(QString path, QString name, QStringList args)
   }
 }
 
-void OpenFOAMTools::runDecomposePar()
+void SolverTools::runDecomposePar()
 {
   if (getArguments() < 0) {
     qDebug() << "Failed to run DecomposePar.";
@@ -244,7 +244,7 @@ void OpenFOAMTools::runDecomposePar()
   }
 }
 
-void OpenFOAMTools::runPostProcessingTools()
+void SolverTools::runPostProcessingTools()
 {
   qDebug() << "void OpenFOAMTools::runPostProcessingTools() called";
   if (getArguments() < 0) {
@@ -262,7 +262,7 @@ void OpenFOAMTools::runPostProcessingTools()
   qDebug() << "void OpenFOAMTools::runPostProcessingTools() DONE";
 }
 
-void OpenFOAMTools::runParaview()
+void SolverTools::runParaview()
 {
   QStringList args;
   m_ToolsProcess->start(m_ParaviewPath, args);
@@ -280,14 +280,14 @@ void OpenFOAMTools::runParaview()
   }
 }
 
-void OpenFOAMTools::stopSolverProcess()
+void SolverTools::stopSolverProcess()
 {
   if (m_SolverProcess->state() == QProcess::Running) {
     m_SolverProcess->kill();
   }
 }
 
-void OpenFOAMTools::runImportFluentCase()
+void SolverTools::runImportFluentCase()
 {
   QString fluent_file_name = QFileDialog::getOpenFileName(NULL, "import FLUENT case", GuiMainWindow::pointer()->getCwd(), "*.msh");
   if (!fluent_file_name.isNull()) {
@@ -375,7 +375,7 @@ void OpenFOAMTools::runImportFluentCase()
 // Handlers Solver
 //=====================================
 
-void OpenFOAMTools::finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus)
+void SolverTools::finishedHandler_Solver(int exitCode, QProcess::ExitStatus exitStatus)
 {
   qDebug() << "=== solver-process finished with exit-code = " << exitCode << " ===";
   if (exitStatus == QProcess::NormalExit) {
@@ -385,19 +385,19 @@ void OpenFOAMTools::finishedHandler_Solver(int exitCode, QProcess::ExitStatus ex
   }
 }
 
-void OpenFOAMTools::readFromStderr_Solver()
+void SolverTools::readFromStderr_Solver()
 {
   cout << m_SolverProcess->readAllStandardError().data();
   flush(cout);
 }
 
-void OpenFOAMTools::readFromStdout_Solver()
+void SolverTools::readFromStdout_Solver()
 {
   cout << m_SolverProcess->readAllStandardOutput().data();
   flush(cout);
 }
 
-void OpenFOAMTools::startedHandler_Solver()
+void SolverTools::startedHandler_Solver()
 {
   qDebug() << "=== started solver-process with PID = " << m_SolverProcess->pid() << "===";
   m_FullCommand_Solver = m_Program_Solver;
@@ -411,7 +411,7 @@ void OpenFOAMTools::startedHandler_Solver()
 // Handlers Tools
 //=====================================
 
-void OpenFOAMTools::finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus)
+void SolverTools::finishedHandler_Tools(int exitCode, QProcess::ExitStatus exitStatus)
 {
   qDebug() << "=== solver-process finished with exit-code = " << exitCode << " ===";
   if (exitStatus == QProcess::NormalExit) {
@@ -421,19 +421,19 @@ void OpenFOAMTools::finishedHandler_Tools(int exitCode, QProcess::ExitStatus exi
   }
 }
 
-void OpenFOAMTools::readFromStderr_Tools()
+void SolverTools::readFromStderr_Tools()
 {
   cout << m_ToolsProcess->readAllStandardError().data();
   flush(cout);
 }
 
-void OpenFOAMTools::readFromStdout_Tools()
+void SolverTools::readFromStdout_Tools()
 {
   cout << m_ToolsProcess->readAllStandardOutput().data();
   flush(cout);
 }
 
-void OpenFOAMTools::startedHandler_Tools()
+void SolverTools::startedHandler_Tools()
 {
   qDebug() << "=== started tools-process with PID = " << m_ToolsProcess->pid() << "===";
   m_FullCommand_Tools = m_Program_Tools;
@@ -443,7 +443,7 @@ void OpenFOAMTools::startedHandler_Tools()
   cout << "[" << qPrintable(m_WorkingDirectory) << "]$ " << qPrintable(m_FullCommand_Tools) << endl;
 }
 
-void OpenFOAMTools::setCaseDirectory()
+void SolverTools::setCaseDirectory()
 {
   qDebug() << "void OpenFOAMTools::setCaseDirectory()";
   m_WorkingDirectory = QFileDialog::getExistingDirectory(NULL, "select case directory", GuiMainWindow::getCwd());

@@ -127,6 +127,19 @@ public: // methods
   void setBCs(const C& bcs);
 
   /**
+   * Define the mesh partition by defining a boundary code.
+   * @param bc the boundary code of the subset
+   */
+  void setBC(int bc);
+
+  /**
+   * @brief reset all surface cells to a new boundary condition
+   * @param bc_name name of teh boundary condition
+   * @param bc_type type of the boundary condition
+   */
+  void resetBC(QString bc_name, QString bc_type);
+
+  /**
    * Define the mesh partition by defining all its cells.
    */
   void setAllCells();
@@ -171,6 +184,14 @@ public: // methods
    *        (negative values denote a relative tolerance -- relative to the smallest edge length)
    */
   void addPartition(const MeshPartition& part, double tol = -1e-3);
+
+  /**
+   * Concatenate another partition to this one (duplicate nodes will not be merged).
+   * If both partitions do not have the same underlying grid the grid will be extended in order
+   * to add the other partition.
+   * @param part the partition to add
+   */
+  void concatenatePartition(const MeshPartition& part);
 
   /**
    * compute the smallest edge length of the partition
@@ -319,6 +340,58 @@ public: // methods
   bool isFeatureEdge(vtkIdType id_node1, vtkIdType id_node2, double feature_angle);
   bool isConvexNode(vtkIdType id_node);
   bool isConvexNode(vtkIdType id_node, QVector<int> bl_codes);
+
+  /**
+   * @brief compute hyraulic diameter, perimeter, area, and normal of all surface cells in the partition.
+   * @param Dh on return Dh will contain the hydraulic diameter
+   * @param A  on return A will contain the area
+   * @param P  on return P will contain the perimeter
+   * @param x  on return n will contain the centre of gravity of the surface
+   * @param n  on return n will contain the surface normal (|n| = 1)
+   */
+  void calcPlanarSurfaceMetrics(double &Dh, double &A, double &P, vec3_t &x, vec3_t &n);
+
+  /**
+   * @brief duplicate the sub-mesh.
+   * This methods duplicates all nodes and cells which are in the mesh partition.
+   * Afterwards the mesh partition will contain the duplicated and detached mesh.
+   * The original set of nodes and cells will not be part of the mesh partition anymore.
+   */
+  void duplicate();
+
+  /**
+   * @brief scale the whole partition
+   * @param factor the scale factor
+   * @param centre (optional) the centre of the transformation
+   */
+  void scale(double factor, vec3_t centre = vec3_t(0,0,0));
+
+  /**
+   * @brief translate the whole partition
+   * @param v the translation vector
+   */
+  void translate(vec3_t v);
+
+  /**
+   * @brief extrude the whole partition (only surface cells allowed)
+   * @param dir the direction of the extrusion (vector length has no influence)
+   * @param h a list of layer heights
+   */
+  void extrude(vec3_t dir, QList<double> h, BoundaryCondition extrude_bc,
+               bool force_bottom_bc = false, bool force_side_bc = false, bool force_top_bc = false,
+               BoundaryCondition bottom_bc = BoundaryCondition(), BoundaryCondition side_bc = BoundaryCondition(), BoundaryCondition top_bc = BoundaryCondition());
+
+  /**
+   * @brief check if the partition only consists of surface cells
+   * @return true if the partition only consists of surface cells
+   */
+  bool onlySurfaceCells();
+
+  /**
+   * @brief Write the mesh partition to an STL file (only surface cells allowed).
+   * @param file_name the file name of the STL file ('.stl'will be appended if it is lot part of the file name)
+   */
+  void writeSTL(QString file_name);
 
 };
 

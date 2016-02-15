@@ -40,15 +40,20 @@ int fileTemplateTest();
 class TemplateLine
 {
   public:
+
     QString m_Type;
     QString m_Name;
     QString m_Options;
     QString m_DefaultValueEgc;
-    QString m_DefaultValueOpenFOAM;
+    QString m_DefaultValueOutput;
     int m_Position;
+
+
   public:
+
     void print();
     QString getDefaultValue();
+
 };
 
 class FileTemplate

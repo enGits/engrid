@@ -1397,11 +1397,14 @@ void PolyMesh::sortFaces()
   foreach (face_t face, m_Faces) {
     max_bc = max(max_bc, face.bc);
   }
+  if (max_bc < 0) {
+    EG_ERR_RETURN("mesh is corrupted");
+  }
   int hash_stride = 1;
   foreach (face_t face, m_Faces) {
     hash_stride = max(hash_stride, face.owner);
   }
-  QVector<QList<face_t> > sort_lists(hash_stride*(max_bc + 1));
+  QVector<QList<face_t> > sort_lists(hash_stride*(max_bc + 1) + 1);
   foreach (face_t face, m_Faces) {
     int i = face.bc*hash_stride + face.owner;
     sort_lists[i].append(face);

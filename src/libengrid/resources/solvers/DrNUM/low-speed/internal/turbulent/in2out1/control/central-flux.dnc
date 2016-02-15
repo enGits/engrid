@@ -1,0 +1,5 @@
+real Ma1    = 0.025;
+real Ma2    = 0.2;
+real amp    = 0.2;
+real amp-p  = 0.5;
+real MaBias = 0.0;

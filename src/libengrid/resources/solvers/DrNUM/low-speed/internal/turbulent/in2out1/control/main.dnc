@@ -1,0 +1,32 @@
+real    scale                   = 1.0;
+
+real    free-stream-velocity    = 0.0;
+real    reference-velocity      = 0.010471975512;
+real    pressure                = 0;
+real    temperature             = 300;
+bool    inviscid                = no;
+bool    laminar                 = yes;
+
+real    reference-length        = 0.628318530718;
+
+string  boundaries              = walls;
+
+real    write-interval          = 0.1;
+real    print-interval          = 2e-3;
+real    CFL-number              = 0.5;
+real    total-time              = 100;
+int     num-rk-steps            = 3;
+
+bool    mesh-preview            = off;
+string  restart-file            = none;
+bool    start-from-zero         = no;
+bool    inside-at-rest          = yes;
+bool    inside-random           = yes;
+real    random-strength         = 0.001;
+
+int     cuda-device             = 0;
+int     thread-limit            = 512;
+string  flux                    = Central;
+bool    file-output             = on;
+
+string  reconstruction          = 2nd-order;

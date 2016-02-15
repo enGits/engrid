@@ -22,9 +22,9 @@
 #define OPENFOAMCASE_H
 
 #include "foamwriter.h"
-#include "foamobject.h"
+#include "solverobject.h"
 
-class OpenFOAMcase : public FoamWriter, public FoamObject
+class OpenFOAMcase : public FoamWriter, public SolverObject
 {
 
   private: // attributes
