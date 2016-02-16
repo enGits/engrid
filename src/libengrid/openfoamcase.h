@@ -32,7 +32,6 @@ class OpenFOAMcase : public FoamWriter, public SolverObject
   protected: // methods
 
     void writeMpiParameters();
-    void writeSolverParameters();
     void upateVarFile(QString file_name, QString bc_txt);
     void writeBoundaryConditions();
 

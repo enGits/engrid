@@ -31,6 +31,7 @@
 #include "guicreatehexcore.h"
 #include "guiconverttopolymesh.h"
 #include "guicreatehexibmesh.h"
+#include "guiypluscalculator.h"
 
 #include "deletevolumegrid.h"
 #include "deletetetras.h"

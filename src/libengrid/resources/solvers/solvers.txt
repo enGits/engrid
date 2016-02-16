@@ -1,8 +1,8 @@
-title : DrNUM low speed turbulent internal flow (2 inlets, 1 outlet)
-section : DrNUM/low-speed/internal/turbulent/in2out1
-binary : drnumLowSpeed
-file:
-  prepare.py;
+title : standard drnumLowSpeed 1.0;
+section : DrNUM-1.0/drnumLowSpeed/standard;
+binary : drnumLowSpeed;
+files:
+  control/main.dnc;
 =
 title : standard simpleFoam 1.5;
 section : openfoam-1.5/simpleFoam/standard;

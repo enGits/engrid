@@ -19,8 +19,8 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#ifndef FOAMOBJECT_H
-#define FOAMOBJECT_H
+#ifndef SOLVEROBJECT_H
+#define SOLVEROBJECT_H
 
 #include <QString>
 #include <QVector>
@@ -41,7 +41,7 @@ private: // attributes
   int          m_FirstBoundaryFace;
   QByteArray   m_Buffer;
   QString      m_BufferedFileName;
-  QString      m_FoamVersion;
+  QString      m_SolverVersion;
 
 
 private: // methods
@@ -60,6 +60,7 @@ protected: // methods
   int surfToVol(int i) { return m_SurfToVolMap[i]; }
   int volToSurf(int i) { return m_VolToSurfMap[i]; }
   int getFirstBoundaryFace() { return m_FirstBoundaryFace; }
+  void writeSolverParameters(QString case_dir);
 
 
 public:
@@ -67,9 +68,9 @@ public:
   SolverObject();
 
   void setCaseDir (QString case_dir);
-  void setFoamVersion(QString version) { m_FoamVersion = version; }
-  QString getFoamVersion() { return m_FoamVersion; }
+  void setSolverVersion(QString version) { m_SolverVersion = version; }
+  QString getSolverVersion() { return m_SolverVersion; }
 
 };
 
-#endif // FOAMOBJECT_H
+#endif // SOLVEROBJECT_H

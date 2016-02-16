@@ -540,6 +540,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCheckForOverlap()            { EG_STDSLOT(CheckForOverlap); }
 
     void callFixCADGeometry()             { EG_STDSLOT(FixCadGeometry); }
+    void callYPlusCalculator()            { EG_STDSLOT(GuiYPlusCalculator); }
 
 };
 

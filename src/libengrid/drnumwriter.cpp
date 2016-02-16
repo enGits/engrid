@@ -55,6 +55,7 @@ void DrNumWriter::readSettings()
 
 void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance)
 {
+  bool extrude = distance > 1e-3;
   foreach (BoundaryCondition bc, bcs) {
     BoundaryCondition new_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition(bc.getName(), "level-set"));
     BoundaryCondition tmp_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition(bc.getName(), "auxilary"));
@@ -63,27 +64,20 @@ void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance
     double A, P, Dh;
     vec3_t x, n;
     part.calcPlanarSurfaceMetrics(Dh, A, P, x, n);
-    if (distance < 0) {
-      distance *= -Dh;
+    if (extrude) {
+      QList<double> h;
+      h << distance*Dh + 10*m_MaximalEdgeLength;
+      x += h.last()*n;
+      part.extrude(n, h, bc, false, false, true, BoundaryCondition(), BoundaryCondition(), tmp_bc);
+      part.setBC(tmp_bc.getCode());
     }
-    distance += 10*m_MaximalEdgeLength;
-    QList<double> h;
-    h << distance;
-    x += distance*n;
-    part.extrude(n, h, bc, false, false, true, BoundaryCondition(), BoundaryCondition(), tmp_bc);
-    part.setBC(tmp_bc.getCode());
     part.duplicate();
     part.resetBC(new_bc.getName(), new_bc.getType());
     part.setBC(new_bc.getCode());
     part.scale((Dh + 10*m_MaximalEdgeLength)/Dh, x);
-    part.translate(-10*m_MaximalEdgeLength*n);
-    /*
-    h.clear();
-    h << 20*m_MaximalEdgeLength;
-    part.extrude(n, h, new_bc, true, true, true, new_bc, new_bc, new_bc);
-    return;
-    part.setBC(new_bc.getCode());
-    */
+    if (extrude) {
+      part.translate(-10*m_MaximalEdgeLength*n);
+    }
     part.writeSTL(getFileName() + "/engrid/" + new_bc.getName() + ".stl");
     QFile info_file(getFileName() + "/engrid/" + new_bc.getName() + ".dnc");
     info_file.open(QIODevice::WriteOnly);
@@ -159,7 +153,7 @@ void DrNumWriter::operate()
       }
     }
 
-    prepareLevelSets(turb_duct_in_bcs, -3.0);
+    prepareLevelSets(turb_duct_in_bcs,  3.0);
     prepareLevelSets(lam_duct_in_bcs,   0.0);
     prepareLevelSets(lam_ext_in_bcs,    0.0);
     prepareLevelSets(out_bcs,           0.0);
@@ -170,5 +164,6 @@ void DrNumWriter::operate()
     prepareWallLevelSets(lam_wall_bcs);
     prepareWallLevelSets(slip_wall_bcs);
 
+    writeSolverParameters(getFileName());
   }
 }

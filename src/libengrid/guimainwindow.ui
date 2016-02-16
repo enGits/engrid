@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,14 +40,20 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>17</height>
+     <height>22</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="defaultUp">
     <bool>false</bool>
    </property>
    <property name="nativeMenuBar">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -198,6 +204,7 @@
     <addaction name="actionCheck_surface_integrity"/>
     <addaction name="actionCheckForOverlap"/>
     <addaction name="actionFixCADgeometry"/>
+    <addaction name="m_ActionYPlusCalculator"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -303,8 +310,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>495</height>
+          <width>246</width>
+          <height>544</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -695,8 +702,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>221</width>
-          <height>484</height>
+          <width>261</width>
+          <height>577</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1802,6 +1809,14 @@
    </property>
    <property name="toolTip">
     <string>delete volume grid</string>
+   </property>
+  </action>
+  <action name="m_ActionYPlusCalculator">
+   <property name="text">
+    <string>y+ Calculator</string>
+   </property>
+   <property name="toolTip">
+    <string>y+ Calculator</string>
    </property>
   </action>
  </widget>

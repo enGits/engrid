@@ -61,6 +61,7 @@ connect(ui.actionEditBoundaryConditions, SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionConfigure,              SIGNAL(triggered()),       this, SLOT(configure()));
 connect(ui.actionAbout,                  SIGNAL(triggered()),       this, SLOT(about()));
 connect(ui.actionStoreGeometry,          SIGNAL(triggered()),       this, SLOT(callUpdateSurfProj()));
+connect(ui.m_ActionYPlusCalculator,      SIGNAL(triggered()),       this, SLOT(callYPlusCalculator()));
 
 connect(ui.checkBox_UseVTKInteractor,    SIGNAL(stateChanged(int)), this, SLOT(setUseVTKInteractor(int)));
 

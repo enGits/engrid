@@ -68,59 +68,6 @@ void OpenFOAMcase::writeMpiParameters()
   
 }
 
-void OpenFOAMcase::writeSolverParameters()
-{
-  int idx = GuiMainWindow::pointer()->getXmlSection( "solver/general/solver_type" ).toInt();
-
-  QFileInfo solvers_fileinfo;
-  solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
-  QFile file( solvers_fileinfo.filePath() );
-  if ( !file.exists() ) {
-    qDebug() << "ERROR: " << solvers_fileinfo.filePath() << " not found.";
-    EG_BUG;
-  }
-  if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    qDebug() << "ERROR:  Failed to open file " << solvers_fileinfo.filePath();
-    EG_BUG;
-  }
-  QTextStream text_stream( &file );
-  QString intext = text_stream.readAll();
-  file.close();
-
-  QStringList page_list = intext.split( "=" );
-  QString page = page_list[idx];
-  QString title;
-  QString section;
-  QString binary;
-  QVector <QString> files;
-  QStringList variable_list = page.split( ";" );
-  foreach( QString variable, variable_list ) {
-    QStringList name_value = variable.split( ":" );
-    if ( name_value[0].trimmed() == "title" ) title = name_value[1].trimmed();
-    if ( name_value[0].trimmed() == "section" ) section = name_value[1].trimmed();
-    if ( name_value[0].trimmed() == "binary" ) binary = name_value[1].trimmed();
-    if ( name_value[0].trimmed() == "files" ) {
-      QStringList file_list = name_value[1].split( "," );
-      foreach( QString file, file_list ) {
-        files.push_back( file.trimmed() );
-      }
-    }
-    setFoamVersion(title.split(' ').last().trimmed());
-  }
-
-  for ( int i = 0; i < files.size(); i++ ) {
-    FileTemplate file_template( ":/resources/solvers/" + section + "/" + files[i], section );
-    QFileInfo fileinfo_destination( getFileName() + "/" + files[i] );
-    QDir destination_dir = fileinfo_destination.dir();
-    QString destination = destination_dir.absolutePath() + "/" + fileinfo_destination.completeBaseName();
-    if ( !destination_dir.mkpath( destination_dir.absolutePath() ) ) {
-      EG_ERR_RETURN( "ERROR: Could not create directory \n" + destination_dir.absolutePath() );
-    }
-    qDebug() << "Writing to " << destination;
-    file_template.exportToOpenFOAM( destination );
-  }
-}
-
 void OpenFOAMcase::upateVarFile(QString file_name, QString bc_txt)
 {
   QFile file(getFileName() + "/0/" + file_name);
@@ -173,13 +120,13 @@ void OpenFOAMcase::writeBoundaryConditions()
     n.normalise();
     n *= -1;
     PhysicalBoundaryCondition PBC = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(BC.getType());
-    U_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamU(getFoamVersion(), n)    + "    }\n";
-    p_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamP(getFoamVersion())       + "    }\n";
-    T_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamT(getFoamVersion())       + "    }\n";
-    k_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamK(getFoamVersion())       + "    }\n";
-    epsilon_buffer += "    " + BC.getName() + "\n    {\n" + PBC.getFoamEpsilon(getFoamVersion()) + "    }\n";
-    omega_buffer   += "    " + BC.getName() + "\n    {\n" + PBC.getFoamOmega(getFoamVersion())   + "    }\n";
-    nut_buffer     += "    " + BC.getName() + "\n    {\n" + PBC.getFoamNut(getFoamVersion())     + "    }\n";
+    U_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamU(getSolverVersion(), n)    + "    }\n";
+    p_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamP(getSolverVersion())       + "    }\n";
+    T_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamT(getSolverVersion())       + "    }\n";
+    k_buffer       += "    " + BC.getName() + "\n    {\n" + PBC.getFoamK(getSolverVersion())       + "    }\n";
+    epsilon_buffer += "    " + BC.getName() + "\n    {\n" + PBC.getFoamEpsilon(getSolverVersion()) + "    }\n";
+    omega_buffer   += "    " + BC.getName() + "\n    {\n" + PBC.getFoamOmega(getSolverVersion())   + "    }\n";
+    nut_buffer     += "    " + BC.getName() + "\n    {\n" + PBC.getFoamNut(getSolverVersion())     + "    }\n";
   }
   upateVarFile("U", U_buffer);
   upateVarFile("p", p_buffer);
@@ -197,7 +144,7 @@ void OpenFOAMcase::operate()
       readOutputDirectory();
     }
     if (isValid()) {
-      writeSolverParameters();
+      writeSolverParameters(getFileName());
       bool has_volume = false;
       for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         if (isVolume(id_cell, m_Grid)) {

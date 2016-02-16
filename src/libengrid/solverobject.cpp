@@ -23,12 +23,13 @@
 #include <iostream>
 
 #include "guimainwindow.h"
+#include "filetemplate.h"
 
 SolverObject::SolverObject()
 {
   m_CaseDir = "";
   m_BufferedFileName = "";
-  m_FoamVersion = "1.5";
+  m_SolverVersion = "1.5";
 }
 
 int SolverObject::deleteBetween(int i, QString str1, QString str2)
@@ -150,3 +151,57 @@ void SolverObject::setCaseDir(QString case_dir)
   m_CaseDir = case_dir;
   GuiMainWindow::pointer()->setXmlSection("openfoam/CaseDir",m_CaseDir);
 }
+
+void SolverObject::writeSolverParameters(QString case_dir)
+{
+  int idx = GuiMainWindow::pointer()->getXmlSection( "solver/general/solver_type" ).toInt();
+
+  QFileInfo solvers_fileinfo;
+  solvers_fileinfo.setFile( ":/resources/solvers/solvers.txt" );
+  QFile file( solvers_fileinfo.filePath() );
+  if ( !file.exists() ) {
+    qDebug() << "ERROR: " << solvers_fileinfo.filePath() << " not found.";
+    EG_BUG;
+  }
+  if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+    qDebug() << "ERROR:  Failed to open file " << solvers_fileinfo.filePath();
+    EG_BUG;
+  }
+  QTextStream text_stream( &file );
+  QString intext = text_stream.readAll();
+  file.close();
+
+  QStringList page_list = intext.split( "=" );
+  QString page = page_list[idx];
+  QString title;
+  QString section;
+  QString binary;
+  QVector <QString> files;
+  QStringList variable_list = page.split( ";" );
+  foreach( QString variable, variable_list ) {
+    QStringList name_value = variable.split( ":" );
+    if ( name_value[0].trimmed() == "title" ) title = name_value[1].trimmed();
+    if ( name_value[0].trimmed() == "section" ) section = name_value[1].trimmed();
+    if ( name_value[0].trimmed() == "binary" ) binary = name_value[1].trimmed();
+    if ( name_value[0].trimmed() == "files" ) {
+      QStringList file_list = name_value[1].split( "," );
+      foreach( QString file, file_list ) {
+        files.push_back( file.trimmed() );
+      }
+    }
+    setSolverVersion(title.split(' ').last().trimmed());
+  }
+
+  for ( int i = 0; i < files.size(); i++ ) {
+    FileTemplate file_template( ":/resources/solvers/" + section + "/" + files[i], section );
+    QFileInfo fileinfo_destination( case_dir + "/" + files[i] );
+    QDir destination_dir = fileinfo_destination.dir();
+    QString destination = case_dir + "/" + files[i];
+    if ( !destination_dir.mkpath( destination_dir.absolutePath() ) ) {
+      EG_ERR_RETURN( "ERROR: Could not create directory \n" + destination_dir.absolutePath() );
+    }
+    qDebug() << "Writing to " << destination;
+    file_template.exportToOpenFOAM( destination );
+  }
+}
+

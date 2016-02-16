@@ -102,6 +102,7 @@ SET(libengrid_HEADERS
   guisurfacemesher.h
   guitransform.h
   guivolumedelegate.h
+  guiypluscalculator.h
   insertpoints.h
   iooperation.h
   iterator.h
@@ -225,6 +226,7 @@ SET(libengrid_FORMS
   guicreatehexshell.ui
   guiconverttopolymesh.ui
   guicreatehexibmesh.ui
+  guiypluscalculator.ui
 )
 
 QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
@@ -306,6 +308,7 @@ SET(libengrid_SOURCES
   guisurfacemesher.cpp
   guitransform.cpp
   guivolumedelegate.cpp
+  guiypluscalculator.cpp
   insertpoints.cpp
   iooperation.cpp
   iterator.cpp
