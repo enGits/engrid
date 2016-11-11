@@ -33,7 +33,6 @@ connect(ui.actionExportAsciiPly,         SIGNAL(triggered()),       this, SLOT(e
 connect(ui.actionExportBinaryPly,        SIGNAL(triggered()),       this, SLOT(exportBinaryPly()));
 connect(ui.actionExportSu2,              SIGNAL(triggered()),       this, SLOT(callExportSu2()));
 connect(ui.actionExportDolfyn,           SIGNAL(triggered()),       this, SLOT(callExportDolfyn()));
-connect(ui.actionExportTau,              SIGNAL(triggered()),       this, SLOT(callExportTau()));
 connect(ui.actionExportDrNum,            SIGNAL(triggered()),       this, SLOT(callExportDrNum()));
 connect(ui.actionExit,                   SIGNAL(triggered()),       this, SLOT(exit()));
 connect(ui.actionZoomAll,                SIGNAL(triggered()),       this, SLOT(zoomAll()));
@@ -118,12 +117,8 @@ connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderR
 connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
 connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes()));
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
-connect(ui.actionSharpenEdges, SIGNAL(triggered()), this, SLOT(callSharpenEdges()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
-connect(ui.actionOptimiseOrthogonalty, SIGNAL(triggered()), this, SLOT(callOrthogonalityOptimiser()));
-connect(ui.actionImportBrlcad, SIGNAL(triggered()), this, SLOT(callBrlcadReader()));
 connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
-connect(ui.actionBooleanOperation, SIGNAL(triggered()), this, SLOT(callBooleanOperation()));
 connect(ui.actionFillPlane, SIGNAL(triggered()), this, SLOT(callFillPlane()));
 connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertToPolyMesh()));
 connect(ui.actionCreateHexShellMesh, SIGNAL(triggered()), this, SLOT(callCreateHexShellMesh()));

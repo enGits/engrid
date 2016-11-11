@@ -20,7 +20,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget" native="true">
+     <widget class="QVTKWidget" name="qvtkWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -53,7 +53,7 @@
     <bool>false</bool>
    </property>
    <property name="nativeMenuBar">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -189,7 +189,6 @@
     <addaction name="actionExportDrNum"/>
     <addaction name="actionExportDolfyn"/>
     <addaction name="actionExportSu2"/>
-    <addaction name="actionExportTau"/>
     <addaction name="actionExportCGNS"/>
     <addaction name="actionExportBlenderFile"/>
    </widget>
@@ -310,8 +309,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>246</width>
-          <height>544</height>
+          <width>221</width>
+          <height>495</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -702,8 +701,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>261</width>
-          <height>577</height>
+          <width>221</width>
+          <height>484</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1299,6 +1298,9 @@
    </property>
   </action>
   <action name="actionSimpleFoamWriter">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>OpenFOAM (grid only)</string>
    </property>
@@ -1683,14 +1685,6 @@
     <string>Mirror</string>
    </property>
   </action>
-  <action name="actionSharpenEdges">
-   <property name="text">
-    <string>Sharpen edges</string>
-   </property>
-   <property name="toolTip">
-    <string>sharpen edges (e.g. after import from snappyHexMesh)</string>
-   </property>
-  </action>
   <action name="actionCheckForOverlap">
    <property name="text">
     <string>Check for overlapping faces</string>
@@ -1705,6 +1699,9 @@
    </property>
   </action>
   <action name="actionImportBrlcad">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="engrid.qrc">
      <normaloff>:/icons/resources/icons/brlcad.png</normaloff>:/icons/resources/icons/brlcad.png</iconset>
@@ -1714,11 +1711,6 @@
    </property>
    <property name="toolTip">
     <string>import BRL-CAD (as STL)</string>
-   </property>
-  </action>
-  <action name="actionOptimiseOrthogonalty">
-   <property name="text">
-    <string>Optimise orthogonalty</string>
    </property>
   </action>
   <action name="actionCreateHexCore">
@@ -1731,25 +1723,12 @@
     <string>SU2</string>
    </property>
   </action>
-  <action name="actionBooleanOperation">
-   <property name="text">
-    <string>Boolean operation</string>
-   </property>
-  </action>
   <action name="actionExportDolfyn">
    <property name="text">
     <string>Dolfyn</string>
    </property>
    <property name="toolTip">
     <string>export to Dolfyn</string>
-   </property>
-  </action>
-  <action name="actionExportTau">
-   <property name="text">
-    <string>Tau</string>
-   </property>
-   <property name="toolTip">
-    <string>export to Tau</string>
    </property>
   </action>
   <action name="actionFillPlane">

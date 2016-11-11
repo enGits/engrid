@@ -520,16 +520,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callSeligAirfoilReader()         { EG_STDREADERSLOT( SeligAirfoilReader ); }
     void callMultiSolidAsciiStlReader()   { EG_STDREADERSLOT( MultiSolidAsciiStlReader ); }
 
-#ifdef BRLCAD_SUPPORT
-    void callBrlcadReader()               { EG_STDREADERSLOT( BrlcadReader ); }
-#endif
-
     void callExportSu2()                  { EG_STDREADERSLOT( Su2Writer ); }
     void callExportDolfyn()               { EG_STDREADERSLOT( DolfynWriter ); }
-
-#ifdef TAU_SUPPORT
-    void callExportTau()                  { EG_STDREADERSLOT( TauWriter ); }
-#endif
 
     void callExportDrNum()                { EG_STDREADERSLOT( DrNumWriter ); }
 
