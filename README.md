@@ -5,4 +5,4 @@ A [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html) created source code
 
 http://todtnau.engits.de/engrid-doc/master/html
 
-The documentation is updated automatically and should contain the correct documentatin a few hours after a commit to the **master branch**.
+The documentation is updated automatically and should contain the correct documentation latest one day after a commit to the **master branch**.
