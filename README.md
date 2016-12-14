@@ -3,6 +3,6 @@
 
 A [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html) created source code documentation can be found here:
 
-http://todtnau.engits.de/engrid/master/html
+http://todtnau.engits.de/engrid-doc/master/html
 
 The documentation is updated automatically and should contain the correct documentatin a few hours after a commit to the **master branch**.
