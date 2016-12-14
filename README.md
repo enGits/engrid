@@ -1,4 +1,4 @@
-# engrid
+# enGrid
 *enGrid* is a mesh generation software with CFD applications in mind. It supports automatic prismatic boundary layer grids for Navier-Stokes simulations and has a Qt based GUI.
 
 A [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html) created source code documentation can be found here:
