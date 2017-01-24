@@ -709,6 +709,25 @@ void MeshPartition::calcPlanarSurfaceMetrics(double &Dh, double &A, double &P, v
   Dh = 4*A/P;
 }
 
+bool MeshPartition::isPlanar(double tolerance_angle)
+{
+  foreach (vtkIdType id_cell, m_Cells) {
+    if (!isSurface(id_cell, m_Grid)) {
+      return false;
+    }
+  }
+  double Dh, A, P;
+  vec3_t x, n0;
+  calcPlanarSurfaceMetrics(Dh, A, P, n0, x);
+  foreach (vtkIdType id_cell, m_Cells) {
+    vec3_t n = cellNormal(m_Grid, id_cell);
+    if (angle(n, n0) > tolerance_angle) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void MeshPartition::setBC(int bc)
 {
   QList<vtkIdType> cls;

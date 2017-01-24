@@ -508,7 +508,7 @@ void vtkEgNormalExtrusion::ExecuteEg()
     }
   }
 
-  UpdateCellIndex(m_Output);
+  updateCellIndex(m_Output);
 }
 
 void vtkEgNormalExtrusion::SetLayers(const QVector<double> &y)

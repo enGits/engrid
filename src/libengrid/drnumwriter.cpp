@@ -22,9 +22,11 @@
 #include "drnumwriter.h"
 #include "guimainwindow.h"
 #include "vtkEgNormalExtrusion.h"
+#include "padsurface.h"
 
 DrNumWriter::DrNumWriter()
 {
+  m_BackupGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
 }
 
 QList<BoundaryCondition> DrNumWriter::getBcsOfType(QString type)
@@ -53,6 +55,34 @@ void DrNumWriter::readSettings()
   }
 }
 
+double DrNumWriter::edgeLength(QString bc_name)
+{
+  QString rules_txt = GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules");
+  rules_txt = rules_txt.replace("\n", " ");
+  rules_txt = rules_txt.trimmed();
+  QStringList rules = rules_txt.split(";", QString::SkipEmptyParts);
+  double h_min = EG_LARGE_REAL;
+  foreach (QString rule, rules) {
+    QStringList parts = rule.split("=");
+    if (parts.size() > 1) {
+      QString left  = parts[0].trimmed();
+      double h = parts[1].trimmed().toDouble();
+      QStringList or_parts = left.split("<OR>");
+      foreach (QString or_part, or_parts) {
+        or_part = or_part.trimmed();
+        QStringList and_parts = or_part.split("<AND>");
+        if (and_parts.size() == 1) {
+          QString and_part = and_parts[0].trimmed();
+          if (and_part == bc_name) {
+            h_min = min(h, h_min);
+          }
+        }
+      }
+    }
+  }
+  return h_min;
+}
+
 void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance)
 {
   bool extrude = distance > 1e-3;
@@ -61,6 +91,11 @@ void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance
     BoundaryCondition tmp_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition(bc.getName(), "auxilary"));
     MeshPartition part(m_Grid);
     part.setBC(bc.getCode());
+    if (!part.isPlanar()) {
+      PhysicalBoundaryCondition pbc = GuiMainWindow::pointer()->getPhysicalBoundaryCondition(bc.getType());
+      QString msg =  "only planar surfaces allowed for boundaries of type \"" + pbc.getType() + "\"";
+      EG_ERR_RETURN(msg);
+    }
     double A, P, Dh;
     vec3_t x, n;
     part.calcPlanarSurfaceMetrics(Dh, A, P, x, n);
@@ -73,8 +108,19 @@ void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance
     }
     part.duplicate();
     part.resetBC(new_bc.getName(), new_bc.getType());
+
+    //part.setBC(new_bc.getCode());
+    //part.scale((Dh + 10*m_MaximalEdgeLength)/Dh, x);
+
+    PadSurface pad;
+    pad.setGrid(m_Grid);
+    pad.addBC(new_bc.getCode());
+    pad.relativeOff();
+    pad.setDistance(10*m_MaximalEdgeLength);
+    pad.setNewBC(new_bc.getCode());
+    pad();
     part.setBC(new_bc.getCode());
-    part.scale((Dh + 10*m_MaximalEdgeLength)/Dh, x);
+
     if (extrude) {
       part.translate(-10*m_MaximalEdgeLength*n);
     }
@@ -96,6 +142,10 @@ void DrNumWriter::prepareLevelSets(QList<BoundaryCondition> bcs, double distance
     info << "vec3_t " + QString("normal").leftJustified(max_size) << " = (" << n[0] << ", " << n[1] << ", " << n[2] << ");\n";
     for (int i = 0; i < pbc.getNumVars(); ++i) {
       info << pbc.getVarType(i).leftJustified(7) << pbc.getVarName(i).leftJustified(max_size) << " = " << pbc.getVarValueAsString(i) << ";\n";
+    }
+    double h = edgeLength(bc.getName());
+    if (h < m_MaximalEdgeLength) {
+      info << "real   " + QString("h").leftJustified(max_size) << " = " << h << ";\n";
     }
   }
 }
@@ -119,14 +169,58 @@ void DrNumWriter::prepareWallLevelSets(QList<BoundaryCondition> bcs)
     for (int i = 0; i < pbc.getNumVars(); ++i) {
       info << pbc.getVarType(i).leftJustified(7) << pbc.getVarName(i).leftJustified(max_size) << " = " << pbc.getVarValueAsString(i) << ";\n";
     }
+    double h = edgeLength(bc.getName());
+    if (h < m_MaximalEdgeLength) {
+      info << "real   " + QString("h").leftJustified(max_size) << " = " << h << ";\n";
+    }
   }
 }
 
+void DrNumWriter::computeBBox()
+{
+  m_X1 = vec3_t(EG_LARGE_REAL, EG_LARGE_REAL, EG_LARGE_REAL);
+  m_X2 = -1*m_X1;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    for (int i = 0; i < 3; ++i) {
+      m_X1[i] = min(m_X1[i], x[i]);
+      m_X2[i] = max(m_X2[i], x[i]);
+    }
+  }
+}
+
+void DrNumWriter::writeGlobals()
+{
+  QFile info_file(getFileName() + "/engrid/global.dnc");
+  info_file.open(QIODevice::WriteOnly);
+  QTextStream info(&info_file);
+
+  info << "string name  = global;\n";
+  info << "real   h_max = " << m_MaximalEdgeLength << ";\n";
+  info << "real   gf    = " << m_GrowthFactor << ";\n";
+  info << "vector x1    = (" << m_X1[0] << ", " << m_X1[1] << ", " << m_X1[2] << ");\n";
+  info << "vector x2    = (" << m_X2[0] << ", " << m_X2[1] << ", " << m_X2[2] << ");\n";
+}
+
+void DrNumWriter::backup()
+{
+  makeCopy(m_Grid, m_BackupGrid);
+}
+
+void DrNumWriter::restore()
+{
+  makeCopy(m_BackupGrid, m_Grid);
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
+  updateNodeIndex(m_Grid);
+  updateCellIndex(m_Grid);
+}
 
 void DrNumWriter::operate()
 {
-  readOutputDirectory();
+  readOutputDirectory();  
   if (isValid()) {
+    backup();
     readSettings();
 
     QList<BoundaryCondition> turb_duct_in_bcs  = getBcsOfType("turbulent-duct-inlet");
@@ -164,6 +258,9 @@ void DrNumWriter::operate()
     prepareWallLevelSets(lam_wall_bcs);
     prepareWallLevelSets(slip_wall_bcs);
 
+    computeBBox();
+    writeGlobals();
     writeSolverParameters(getFileName());
+    restore();
   }
 }

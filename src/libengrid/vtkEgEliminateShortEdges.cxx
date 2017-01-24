@@ -195,6 +195,6 @@ void vtkEgEliminateShortEdges::ExecuteEg()
   allocateGrid(m_Output, N_new_cells, N_new_points);
   CopyPoints();
   CopyCells();
-  UpdateCellIndex(m_Output);
+  updateCellIndex(m_Output);
   N_eliminated = N;
 };

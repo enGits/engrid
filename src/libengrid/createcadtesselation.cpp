@@ -368,8 +368,8 @@ void CreateCadTesselation::operate()
   GuiMainWindow::pointer()->resetProgress(text, m_Ni*m_Nj + m_Ni*m_Nk + m_Nj*m_Nk);
   scan(true, interlaces);
 
-  UpdateNodeIndex(m_Grid);
-  UpdateCellIndex(m_Grid);
+  updateNodeIndex(m_Grid);
+  updateCellIndex(m_Grid);
   GuiMainWindow::pointer()->resetXmlDoc();
   GuiMainWindow::pointer()->clearBCs();
   GuiMainWindow::pointer()->setBC(1, BoundaryCondition("imported", "patch", 1));

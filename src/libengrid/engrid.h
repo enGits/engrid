@@ -32,6 +32,7 @@
 #include <QtDebug>
 #include <QString>
 #include <QDate>
+#include <QApplication>
 
 #include <vtkSmartPointer.h>
 #include <vtkLongArray.h>
@@ -68,6 +69,7 @@ typedef vtkLongLongArray vtkLongArray_t;
   Error err; \
   err.setText(txt); \
   err.setType(Error::ExitOperation); \
+  QApplication::restoreOverrideCursor(); \
   throw err; \
 };
 

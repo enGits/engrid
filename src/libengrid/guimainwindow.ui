@@ -179,6 +179,7 @@
      <addaction name="actionFoamWriter"/>
      <addaction name="actionFoamCaseWriter"/>
     </widget>
+    <addaction name="actionExportDrNum"/>
     <addaction name="menuGmsh"/>
     <addaction name="actionExportNeutral"/>
     <addaction name="actionExportAsciiStl"/>
@@ -186,7 +187,6 @@
     <addaction name="actionExportAsciiPly"/>
     <addaction name="actionExportBinaryPly"/>
     <addaction name="menuOpenFOAM"/>
-    <addaction name="actionExportDrNum"/>
     <addaction name="actionExportDolfyn"/>
     <addaction name="actionExportSu2"/>
     <addaction name="actionExportTau"/>

@@ -203,7 +203,7 @@ void FoamReader::operate()
       }
       makeCopy(ug, m_Grid);
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
-      UpdateCellIndex(m_Grid);
+      updateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();

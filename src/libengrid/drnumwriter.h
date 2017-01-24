@@ -40,10 +40,13 @@ protected: // data types
 
 protected: // attributes
 
-  double             m_MaximalEdgeLength;
-  double             m_MinimalEdgeLength;
-  double             m_GrowthFactor;
+  double m_MaximalEdgeLength;
+  double m_MinimalEdgeLength;
+  double m_GrowthFactor;
+  vec3_t m_X1;
+  vec3_t m_X2;
 
+  vtkSmartPointer<vtkUnstructuredGrid> m_BackupGrid;
 
 protected: // methods
 
@@ -51,6 +54,11 @@ protected: // methods
   void                     prepareLevelSets(QList<BoundaryCondition> bc, double distance);
   void                     prepareWallLevelSets(QList<BoundaryCondition> bc);
   void                     readSettings();
+  double                   edgeLength(QString bc_name);
+  void                     computeBBox();
+  void                     writeGlobals();
+  void                     backup();
+  void                     restore();
 
   virtual void operate();
 

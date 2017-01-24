@@ -31,7 +31,7 @@ void DeleteVolumeGrid::operate()
   allocateGrid(sgrid, scells.size(), snodes.size());
   makeCopy(m_Grid, sgrid, scells);
   makeCopy(sgrid, m_Grid);
-  UpdateCellIndex(m_Grid);
+  updateCellIndex(m_Grid);
   GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }
 

@@ -170,8 +170,8 @@ void BlenderReader::operate()
         makeCopy(new_grid, m_Grid);
       }
 
-      UpdateNodeIndex(m_Grid);
-      UpdateCellIndex(m_Grid);
+      updateNodeIndex(m_Grid);
+      updateCellIndex(m_Grid);
 
       // check and set the boundary names if required
       int update_required = true;

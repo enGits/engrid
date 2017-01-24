@@ -629,7 +629,7 @@ bool EgVtkObject::isSurface(vtkIdType id_cell, vtkUnstructuredGrid *grid)
   return isSurf;
 }
 
-void EgVtkObject::UpdateCellIndex(vtkUnstructuredGrid *grid)
+void EgVtkObject::updateCellIndex(vtkUnstructuredGrid *grid)
 {
   if (!grid->GetCellData()->GetArray("cell_index")) {
     EG_VTKSP(vtkLongArray_t, cell_index);
@@ -643,7 +643,7 @@ void EgVtkObject::UpdateCellIndex(vtkUnstructuredGrid *grid)
   }
 }
 
-void EgVtkObject::UpdateNodeIndex(vtkUnstructuredGrid *grid)
+void EgVtkObject::updateNodeIndex(vtkUnstructuredGrid *grid)
 {
   if (!grid->GetPointData()->GetArray("node_index")) {
     EG_VTKSP(vtkLongArray_t, node_index);
@@ -664,8 +664,8 @@ void EgVtkObject::addToPolyData
   vtkUnstructuredGrid *grid
 )
 {
-  UpdateCellIndex(grid);
-  UpdateNodeIndex(grid);
+  updateCellIndex(grid);
+  updateNodeIndex(grid);
   QVector<vtkIdType> nodes;
   QVector<int>       _nodes;
   getNodesFromCells(cells, nodes, grid);

@@ -393,6 +393,13 @@ public: // methods
    */
   void writeSTL(QString file_name);
 
+  /**
+   * @brief Check if the mesh partition represents a planar surface.
+   * @param tolerance_angle the maximally allowed angle between a face normal and the mean normal
+   * @return true if it is planar
+   */
+  bool isPlanar(double tolerance_angle = 0.0017453);
+
 };
 
 

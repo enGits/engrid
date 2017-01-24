@@ -2,7 +2,7 @@
 // +                                                                      +
 // + This file is part of enGrid.                                         +
 // +                                                                      +
-// + Copyright 2008-2014 enGits GmbH                                      +
+// + Copyright 2008-2016 enGits GmbH                                      +
 // +                                                                      +
 // + enGrid is free software: you can redistribute it and/or modify       +
 // + it under the terms of the GNU General Public License as published by +
@@ -18,40 +18,38 @@
 // + along with enGrid. If not, see <http://www.gnu.org/licenses/>.       +
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "polydatareader.h"
-#include "vtkEgPolyDataToUnstructuredGridFilter.h"
 
-#include <vtkXMLPolyDataReader.h>
+#ifndef PADSURFACE_H
+#define PADSURFACE_H
 
-#include "guimainwindow.h"
+#include "operation.h"
 
-PolyDataReader::PolyDataReader()
+class PadSurface : public Operation
 {
-  setFormat("VTK poly data files(*.vtp)");
-  setExtension(".vtp");
-}
 
-void PolyDataReader::operate()
-{
-  try {
-    QFileInfo file_info(GuiMainWindow::pointer()->getFilename());
-    readInputFileName(file_info.completeBaseName() + ".vtp");
-    if (isValid()) {
-      EG_VTKSP(vtkXMLPolyDataReader,vtp);
-      EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter,pd2ug);
-      vtp->SetFileName(qPrintable(getFileName()));
-      pd2ug->SetInputConnection(vtp->GetOutputPort());
-      pd2ug->Update();
-      m_Grid->DeepCopy(pd2ug->GetOutput());
-      createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
-      updateNodeIndex(m_Grid);
-      updateCellIndex(m_Grid);
-      EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
-      for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfPoints(); ++id_cell) {
-        bc->SetValue(id_cell,99);
-      }
-    }
-  } catch (Error err) {
-    err.display();
-  }
-}
+protected: // attributes
+
+  QSet<int> m_BCs;
+  int       m_NewBC;
+  bool      m_Relative;
+  double    m_Distance;
+
+
+protected: // methods
+
+  virtual void operate();
+
+
+public:
+
+  PadSurface();
+  void addBC(int bc) { m_BCs.insert(bc); }
+  void addBC(BoundaryCondition bc) { m_BCs.insert(bc.getCode()); }
+  void setNewBC(int bc) { m_NewBC = bc; }
+  void setDistance(double d) { m_Distance = d; }
+  void relativeOn() { m_Relative = true; }
+  void relativeOff() { m_Relative = false; }
+
+};
+
+#endif // PADSURFACE_H

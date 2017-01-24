@@ -463,7 +463,7 @@ void SeedSimplePrismaticLayer::operate()
 //   writeGrid(new_grid, "pre-createBoundaryElements");
   
   createBoundaryElements(new_grid);
-  UpdateCellIndex(new_grid);
+  updateCellIndex(new_grid);
   m_Grid->DeepCopy(new_grid);
   cout << "done." << endl;
 }

@@ -313,6 +313,6 @@ void CreateHexCore::operate()
   EG_VTKSP(vtkUnstructuredGrid, otgrid);
   transferOctreeGrid();
   createBoundaryFaces();
-  UpdateCellIndex(m_Grid);
+  updateCellIndex(m_Grid);
   GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }

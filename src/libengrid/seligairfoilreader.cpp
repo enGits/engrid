@@ -81,8 +81,8 @@ void SeligAirfoilReader::operate()
       poly2ug->SetInputConnection(tri->GetOutputPort());
       poly2ug->Update();
       makeCopy(poly2ug->GetOutput(), m_Grid);
-      UpdateNodeIndex(m_Grid);
-      UpdateCellIndex(m_Grid);
+      updateNodeIndex(m_Grid);
+      updateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();

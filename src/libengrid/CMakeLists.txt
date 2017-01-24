@@ -130,6 +130,7 @@ SET(libengrid_HEADERS
   operation.h
   optimisation.h
   optimisenormalvector.h
+  padsurface.h
   physicalboundarycondition.h
   plywriter.h
   pointfinder.h
@@ -329,6 +330,7 @@ SET(libengrid_SOURCES
   operation.cpp
   optimisation.cpp
   optimisenormalvector.cpp
+  padsurface.cpp
   physicalboundarycondition.cpp
   plywriter.cpp
   pointfinder.cpp

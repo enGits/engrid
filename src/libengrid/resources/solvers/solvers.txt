@@ -2,6 +2,7 @@ title : standard drnumLowSpeed 1.0;
 section : DrNUM-1.0/drnumLowSpeed/standard;
 binary : drnumLowSpeed;
 files:
+  preprocess.py;
   control/main.dnc;
 =
 title : standard simpleFoam 1.5;

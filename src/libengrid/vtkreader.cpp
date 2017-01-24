@@ -88,8 +88,8 @@ void VtkReader::operate()
       makeCopy(vtk->GetOutput(), m_Grid);
       createBoundaryFaces();
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
-      UpdateNodeIndex(m_Grid);
-      UpdateCellIndex(m_Grid);
+      updateNodeIndex(m_Grid);
+      updateCellIndex(m_Grid);
     }
   } catch (Error err) {
     err.display();

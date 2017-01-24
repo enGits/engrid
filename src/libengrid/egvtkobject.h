@@ -126,12 +126,12 @@ protected: // methods
   /**
    * Update the cell index array.
    */
-  void UpdateCellIndex(vtkUnstructuredGrid *grid);
+  void updateCellIndex(vtkUnstructuredGrid *grid);
   
   /**
    * Update the point index array.
    */
-  void UpdateNodeIndex(vtkUnstructuredGrid *grid);
+  void updateNodeIndex(vtkUnstructuredGrid *grid);
   
   /**
    * Compute normal vectors on nodes and cells of a subset of a grid.

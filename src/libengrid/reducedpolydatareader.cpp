@@ -288,8 +288,8 @@ void ReducedPolyDataReader::operate()
 
       makeCopy(poly2ug->GetOutput(), m_Grid);
       createBasicFields(m_Grid, m_Grid->GetNumberOfCells(), m_Grid->GetNumberOfPoints());
-      UpdateNodeIndex(m_Grid);
-      UpdateCellIndex(m_Grid);
+      updateNodeIndex(m_Grid);
+      updateCellIndex(m_Grid);
       EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
       for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         bc->SetValue(id_cell, 0);

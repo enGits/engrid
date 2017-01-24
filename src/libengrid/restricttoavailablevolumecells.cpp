@@ -89,6 +89,6 @@ void RestrictToAvailableVolumeCells::operate()
   }
   makeCopy(new_grid2, m_Grid);
   GuiMainWindow::pointer()->setBC(bc_new, BoundaryCondition("ami_blayer", "cyclic_AMI", bc_new));
-  UpdateCellIndex(m_Grid);
+  updateCellIndex(m_Grid);
   GuiMainWindow::pointer()->updateBoundaryCodes(true);
 }
