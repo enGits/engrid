@@ -27,8 +27,6 @@ SET(libengrid_HEADERS
   boundarycondition.h
   boundarylayeroperation.h
   boxselect.h
-  brlcadinterface.h
-  brlcadreader.h
   cadinterface.h
   celllayeriterator.h
   cellneighbouriterator.h
@@ -77,7 +75,6 @@ SET(libengrid_HEADERS
   gmshreader.h
   gmshwriter.h
   gridsmoother.h
-  guibrlcadimportdialogue.h
   guicreateboundarylayer.h
   guicreatehexcore.h
   guicreatesurfacemesh.h
@@ -164,7 +161,6 @@ SET(libengrid_HEADERS
   surfacenodemovementcheck.h
   surfaceoperation.h
   swaptriangles.h
-  tauwriter.h
   tetgenoperation.h
   text3d.h
   timer.h
@@ -201,7 +197,6 @@ SET(libengrid_HEADERS
 
 SET(libengrid_FORMS
   guibooleangeometryoperation.ui
-  guibrlcadimportdialogue.ui
   guicreateboundarylayer.ui
   guicreatehexcore.ui
   guicreatesurfacemesh.ui
@@ -242,8 +237,6 @@ SET(libengrid_SOURCES
   boundarycondition.cpp
   boundarylayeroperation.cpp
   boxselect.cpp
-  brlcadinterface.cpp
-  brlcadreader.cpp
   cadinterface.cpp
   celllayeriterator.cpp
   cellneighbouriterator.cpp
@@ -284,7 +277,6 @@ SET(libengrid_SOURCES
   gmshreader.cpp
   gmshwriter.cpp
   gridsmoother.cpp
-  guibrlcadimportdialogue.cpp
   guicreateboundarylayer.cpp
   guicreatehexcore.cpp
   guicreatesurfacemesh.cpp
@@ -360,7 +352,6 @@ SET(libengrid_SOURCES
   surfacenodemovementcheck.cpp
   surfaceoperation.cpp
   swaptriangles.cpp
-  tauwriter.cpp
   text3d.cpp
   tetgenoperation.cpp
   timer.cpp

@@ -102,9 +102,11 @@ GuiMainWindow::GuiMainWindow(QString file_name) : QMainWindow(NULL)
 void GuiMainWindow::setupGuiMainWindow()
 {
   //QMenuBar *menubar = new QMenuBar(0);
-  //menubar->setNativeMenuBar(true);
-  //setMenuBar(menubar);
   ui.setupUi(this);
+#ifdef __APPLE__
+  QMenuBar *menubar = ui.menubar;
+  menubar->setNativeMenuBar(true);
+#endif
   THIS = this;
 
   // restore window size
@@ -180,9 +182,7 @@ void GuiMainWindow::setupGuiMainWindow()
   getSet("General", "open last used file on startup", false, m_open_last);
 
   ui.actionMirrorMesh->setEnabled(exp_features);
-  ui.actionBooleanOperation->setEnabled(exp_features);
   ui.actionCreateHexCore->setEnabled(exp_features);
-  ui.actionOptimiseOrthogonalty->setEnabled(exp_features);
   ui.actionImportFluentCase->setEnabled(exp_features);
 
   m_ReferenceSize=0.2;
