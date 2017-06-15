@@ -99,7 +99,5 @@
         <file>resources/solvers/openfoam-2.1/simpleFoam/standard/constant/RASProperties</file>
         <file>resources/solvers/openfoam-2.1/simpleFoam/standard/system/decomposeParDict</file>
         <file>resources/solvers/openfoam-2.1/simpleFoam/standard/machines</file>
-        <file>resources/solvers/DrNUM-1.0/drnumLowSpeed/standard/control/main.dnc</file>
-        <file>resources/solvers/DrNUM-1.0/drnumLowSpeed/standard/preprocess.py</file>
     </qresource>
 </RCC>
