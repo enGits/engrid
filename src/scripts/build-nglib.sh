@@ -25,7 +25,7 @@
 # DESCRIPTION:
 
 cd netgen_svn
-wget http://engits.eu/files/netgen-4.9.13.zip
+wget https://sourceforge.net/projects/netgen-mesher/files/netgen-mesher/4.9.13/netgen-4.9.13.zip
 unzip netgen-4.9.13.zip
 rm -f netgen-4.9.13.zip
 [ -e netgen-mesher ] && rm -rf netgen-mesher
