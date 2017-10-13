@@ -1,0 +1,20 @@
+
+Master branch
+=============
+
+Currently, only the master branch version of enGrid is guaranteed to compile. The previous versions (1.2 to 1.4) are not supported anymore, and probably won't compile on newer Linux releases as the build scripts have not been updated.
+
+The current version of enGrid makes use of the CMake build system. Build instruction are simple:
+
+- mkdir build
+- cd build
+- ccmake ../src
+- press [c] to configure. If libraries are missing, cmake should issue a warning.
+- if changes in the build type/configuration are needed, they can be done by modifing the available fields.
+  The install path can be modified by changing the CMAKE_INSTALL_PREFIX value.
+- press [c] again to finalize the configuration.
+- press [g] to generate the build information. If no errors are encountered, ccmake should exit.
+- build with:
+  make -jN install, where N is the number of processor cores available.
+
+enGrid should now be ready to run.
