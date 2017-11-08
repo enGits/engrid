@@ -61,8 +61,12 @@ if("${VTK_VERSION}" VERSION_LESS 6.0)
 endif()
 
 #if("${VTK_VERSION}" VERSION_LESS 6.1)
-#  add_definitions(-DVTK_VERSION_LESS_THAN_6_1)
-#endif()
+
+if(NOT INITIAL_CONFIG)
+  set(INITIAL_CONFIG "..." CACHE INTERNAL "hidden flag...")
+  set(CMAKE_INSTALL_PREFIX $ENV{HOME}/local CACHE STRING "Install path prefix, prepended onto install directories." FORCE)
+endif()
+
 include(${VTK_USE_FILE})
 include_directories(${VTK_INCLUDE_DIRS})
 
