@@ -573,7 +573,7 @@ bool RemovePoints::isSnapPoint(vtkIdType id_node1, vtkIdType id_node2,
   for (int i = 0; i < m_Part.n2cGSize(id_node1); ++i) {
     vtkIdType id_cell = m_Part.n2cGG(id_node1, i);
 
-    EG_GET_CELL(id_cell, m_Grid);
+    EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
     if (type_cell == VTK_WEDGE) {
       EG_BUG;
     }

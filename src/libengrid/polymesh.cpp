@@ -288,7 +288,7 @@ void PolyMesh::triangulateBadFaces()
     QVector<face_t> new_faces(tri->GetOutput()->GetNumberOfCells(), face);
     for (int i = 0; i < new_faces.size(); ++i) {
       new_faces[i].node.resize(3);
-      EG_GET_CELL(i, tri->GetOutput());
+      EG_GET_CELL_AND_TYPE(i, tri->GetOutput());
       for (int j = 0; j < 3; ++j) {
         new_faces[i].node[j] = face.node[pts[j]];
       }

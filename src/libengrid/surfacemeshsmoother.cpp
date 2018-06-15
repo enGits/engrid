@@ -92,7 +92,7 @@ vec3_t SurfaceMeshSmoother::smoothNode(vtkIdType id_node)
   m_Limit.clear();
   for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
     vtkIdType id_cell = m_Part.n2cGG(id_node, i);
-    EG_GET_CELL(id_cell, m_Grid);
+    EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
     for (int j = 0; j < num_pts; ++j) {
       vtkIdType id_node1 = pts[num_pts - 1];
       vtkIdType id_node2 = pts[j];

@@ -101,6 +101,7 @@ SET(libengrid_HEADERS
   guivolumedelegate.h
   guiypluscalculator.h
   insertpoints.h
+  insertpoints3d.h
   iooperation.h
   iterator.h
   laplacesmoother.h
@@ -303,6 +304,7 @@ SET(libengrid_SOURCES
   guivolumedelegate.cpp
   guiypluscalculator.cpp
   insertpoints.cpp
+  insertpoints3d.cpp
   iooperation.cpp
   iterator.cpp
   laplacesmoother.cpp

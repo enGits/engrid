@@ -79,8 +79,8 @@ void BlenderReader::operate()
       QVector<QVector<int> > faces(rfaces.size());
       qCopy(rfaces.begin(), rfaces.end(), faces.begin());
 
-      // find smallest edge length
-      double L = 1e99;
+      // extract all edges
+      QList<QPair<int, int> > edges;
       foreach (QVector<int> face, faces) {
         for (int i = 1; i < face.size(); ++i) {
           int n1 = face[i];
@@ -88,10 +88,83 @@ void BlenderReader::operate()
           if (i < face.size() - 1) {
             n2 = face[i+1];
           }
-          double l = (nodes[n1] - nodes[n2]).abs();
+          QPair<int, int> edge;
+          if (n1 > n2) {
+            swap(n1, n2);
+          }
+          edge.first  = n1;
+          edge.second = n2;
+          edges << edge;
+        }
+      }
+
+      // find non-manifold edges
+      QList<QPair<int, int> > non_manifold_edges;
+      {
+        QHash<QPair<int, int>, int> face_count;
+        QPair<int, int> edge;
+        foreach (edge, edges) {
+          face_count[edge] = 0;
+        }
+        foreach (QVector<int> face, faces) {
+          for (int i = 1; i < face.size(); ++i) {
+            int n1 = face[i];
+            int n2 = face[1];
+            if (i < face.size() - 1) {
+              n2 = face[i+1];
+            }
+            QPair<int, int> edge;
+            if (n1 > n2) {
+              swap(n1, n2);
+            }
+            edge.first  = n1;
+            edge.second = n2;
+            ++face_count[edge];
+          }
+        }
+        foreach (edge, edges) {
+          if (face_count[edge] != 2) {
+            non_manifold_edges << edge;
+          }
+        }
+      }
+
+      //  mark nodes of non-manifold edges
+      QVector<bool> non_manifold_node(nodes.size(), false);
+      {
+        QPair<int, int> edge;
+        foreach (edge, non_manifold_edges) {
+          non_manifold_node[edge.first]  = true;
+          non_manifold_node[edge.second] = true;
+        }
+      }
+
+      // find smallest edge length
+      double L = 1e99;
+      {
+        QPair<int, int> edge;
+        foreach (edge, edges) {
+          if (edge.first == edge.second) {
+            EG_BUG;
+          }
+          double l = (nodes[edge.first] - nodes[edge.second]).abs();
+          if (l < 1e-6) {
+            cout << edge.first << ", " << edge.second << endl;
+          }
           L = min(l, L);
         }
       }
+      // foreach (QVector<int> face, faces) {
+      //   for (int i = 1; i < face.size(); ++i) {
+      //     int n1 = face[i];
+      //     int n2 = face[1];
+      //     if (i < face.size() - 1) {
+      //       n2 = face[i+1];
+      //     }
+      //     double l = (nodes[n1] - nodes[n2]).abs();
+      //     L = min(l, L);
+      //   }
+      // }
 
       cout << "smallest edge length is " << L << endl;
 
@@ -104,15 +177,17 @@ void BlenderReader::operate()
       for (int i = 0; i < nodes.size(); ++i) {
         o2n[i] = num_non_dup;
         bool dup = false;
-        QVector<int> close_points;
-        finder.getClosePoints(nodes[i], close_points);
-        foreach (int j, close_points) {
-          if (i > j) {
-            double l = (nodes[i] - nodes[j]).abs();
-            if (l < m_RelativeTolerance*L || l == 0) {
-              o2n[i] = o2n[j];
-              dup = true;
-              break;
+        if (non_manifold_node[i]) {
+          QVector<int> close_points;
+          finder.getClosePoints(nodes[i], close_points);
+          foreach (int j, close_points) {
+            if (i > j) {
+              double l = (nodes[i] - nodes[j]).abs();
+              if (l < m_RelativeTolerance*L || l == 0) {
+                o2n[i] = o2n[j];
+                dup = true;
+                break;
+              }
             }
           }
         }

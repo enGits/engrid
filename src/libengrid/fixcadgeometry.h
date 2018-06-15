@@ -22,6 +22,7 @@
 #define FIXCADGEOMETRY_H
 
 #include "surfacealgorithm.h"
+#include "cgaltricadinterface.h"
 
 class FixCadGeometry: public SurfaceAlgorithm
 {
@@ -30,6 +31,25 @@ private: // attributes
 
   int    m_NumNonManifold;
   double m_OriginalFeatureAngle;
+  double m_SnapTolerance;
+
+  CgalTriCadInterface* m_Cad;
+
+
+protected: // data types
+
+  struct cut_t
+  {
+    vec3_t x;
+    double w;
+    double R;
+    double L;
+    bool   edge_cut;
+    bool   node1_surf;
+    bool   node2_surf;
+  };
+
+
   
 protected: // methods
   
@@ -41,11 +61,20 @@ protected: // methods
   void fixNonManifold2();
   void markNonManifold();
 
+  void  computeCharLength();
+  void  createBox();
+  cut_t snapCut(vtkIdType id_node1, vtkIdType id_node2);
+  void  marchOutside();
+  void  cut();
+  void  refine();
+
   virtual void operate();
   
 public: // methods
   
   FixCadGeometry();
+
+  void setSnapTolerance(double tol) { m_SnapTolerance = tol; }
   
 };
 

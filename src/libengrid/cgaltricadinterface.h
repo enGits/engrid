@@ -69,6 +69,7 @@ private: // attributes
   MeshPartition        m_BPart;
   QVector<vtkIdType>   m_Tri2Grid;
   QVector<double>      m_Radius;      ///< Surface radius for mesh resolution.
+  vtkIdType            m_LastFaceId;
 
 
 private: // methods
@@ -87,6 +88,8 @@ public:
   virtual vec3_t snapToEdge(vec3_t x);
   virtual vec3_t snapToCorner(vec3_t x);
   virtual void computeIntersections(vec3_t x, vec3_t v, QVector<QPair<vec3_t, vtkIdType> > &intersections);
+
+  vtkIdType getLastFaceId() { return m_LastFaceId; }
 
 };
 

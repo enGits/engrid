@@ -323,7 +323,7 @@ void PolyMolecule::smooth(bool delaunay, bool write)
     }
     convex_hull.fill(QVector<vec3_t>(3), surface->GetOutput()->GetNumberOfCells());
     for (vtkIdType id_tri = 0; id_tri < surface->GetOutput()->GetNumberOfCells(); ++id_tri) {
-      EG_GET_CELL(id_tri, surface->GetOutput());
+      EG_GET_CELL_AND_TYPE(id_tri, surface->GetOutput());
       if (type_cell != VTK_TRIANGLE) {
         EG_BUG;
       }

@@ -75,7 +75,7 @@ void GuiNormalExtrusion::readCurves(QSet<int> bcs)
   EG_FORALL_CELLS(id_cell, m_Grid) {
     if (isSurface(id_cell, m_Grid)) {
       if (bcs.contains(cell_code->GetValue(id_cell))) {
-        EG_GET_CELL(id_cell, m_Grid);
+        EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
         for (int i = 0; i < num_pts; ++i) {
           vec3_t x;
           m_Grid->GetPoint(pts[i], x.data());

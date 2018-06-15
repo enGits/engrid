@@ -25,6 +25,8 @@
 #include "deletestraynodes.h"
 #include "correctsurfaceorientation.h"
 #include "swaptriangles.h"
+#include "insertpoints3d.h"
+#include "deletecells.h"
 
 #include <vtkMath.h>
 
@@ -46,6 +48,7 @@ FixCadGeometry::FixCadGeometry()
   m_AllowFeatureEdgeSwapping = false;
   m_AllowSmallAreaSwapping = true;
   m_NumDelaunaySweeps = 1;
+  m_SnapTolerance = 1e-3;
 }
 
 void FixCadGeometry::callMesher()
@@ -328,70 +331,301 @@ void FixCadGeometry::markNonManifold()
   cout << "done." << endl;
 }
 
+void FixCadGeometry::createBox()
+{
+  vec3_t x1(1e20, 1e20, 1e20);
+  vec3_t x2 = -1*x1;
+  //
+  EG_FORALL_NODES (id_node, m_Grid)
+  {
+    vec3_t x;
+    m_Grid->GetPoint(id_node, x.data());
+    for (int i = 0; i < 3; ++i) {
+      x1[i] = min(x[i], x1[i]);
+      x2[i] = max(x[i], x2[i]);
+    }
+  }
+  //
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  int num_new_cells = m_Grid->GetNumberOfCells() + 12;
+  int num_new_nodes = m_Grid->GetNumberOfPoints() + 9;
+  allocateGrid(new_grid, num_new_cells, num_new_nodes);
+  makeCopyNoAlloc(m_Grid, new_grid);
+  {
+    vec3_t x[9];
+    vec3_t dx = x2 - x1;
+    //
+    x[8] = 0.5*(x1 + x2);
+    x1   = x[8] - dx;
+    x2   = x[8] + dx;
+    x[0] = vec3_t(x1[0], x1[1], x1[2]);
+    x[1] = vec3_t(x2[0], x1[1], x1[2]);
+    x[2] = vec3_t(x2[0], x2[1], x1[2]);
+    x[3] = vec3_t(x1[0], x2[1], x1[1]);
+    x[4] = vec3_t(x1[0], x1[1], x2[2]);
+    x[5] = vec3_t(x2[0], x1[1], x2[2]);
+    x[6] = vec3_t(x2[0], x2[1], x2[2]);
+    x[7] = vec3_t(x1[0], x2[1], x2[1]);
+    //
+    EG_VTKDCN(vtkCharArray, node_type, new_grid, "node_type");
+    for (int i = 0; i < 9; ++i) {
+      vtkIdType id_node = m_Grid->GetNumberOfPoints() + i;
+      new_grid->GetPoints()->SetPoint(id_node, x[i].data());
+      if (i < 8) {
+        node_type->SetValue(id_node, EG_OUTSIDE_VERTEX);
+      } else {
+        node_type->SetValue(id_node, EG_UNKNOWN_VERTEX);
+      }
+    }
+    //
+    QVector<QVector<vtkIdType> > pts(12);
+    pts[0]  << 0 << 1 << 3 << 8;
+    pts[1]  << 1 << 2 << 3 << 8;
+    pts[2]  << 1 << 5 << 2 << 8;
+    pts[3]  << 2 << 5 << 6 << 8;
+    pts[4]  << 3 << 2 << 6 << 8;
+    pts[5]  << 3 << 6 << 7 << 8;
+    pts[6]  << 0 << 3 << 4 << 8;
+    pts[7]  << 3 << 7 << 4 << 8;
+    pts[8]  << 4 << 7 << 5 << 8;
+    pts[9]  << 7 << 6 << 5 << 8;
+    pts[10] << 0 << 4 << 1 << 8;
+    pts[11] << 1 << 4 << 5 << 8;
+    for (int i = 0; i < 12; ++i) {
+      for (int j = 0; j < 4; ++j) {
+        pts[i][j] += m_Grid->GetNumberOfPoints();
+      }
+      new_grid->InsertNextCell(VTK_TETRA, 4, pts[i].data());
+    }
+  }
+  //
+  makeCopy(new_grid, m_Grid);
+}
+
+void FixCadGeometry::computeCharLength()
+{
+  setAllCells();
+  EG_VTKDCN(vtkDoubleArray, length, m_Grid, "node_meshdensity_desired");
+  EG_FORALL_NODES (id_node, m_Grid) {
+    double L = 1e99;
+    vec3_t x1;
+    m_Grid->GetPoint(id_node, x1.data());
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vec3_t x2;
+      m_Grid->GetPoint(m_Part.n2nGG(id_node, i), x2.data());
+      L = std::min(L, (x2 - x1).abs());
+    }
+    length->SetValue(id_node, L);
+  }
+}
+
+FixCadGeometry::cut_t FixCadGeometry::snapCut(vtkIdType id_node1, vtkIdType id_node2)
+{
+  vec3_t x1, x2, n;
+  cut_t C;
+  m_Grid->GetPoint(id_node1, x1.data());
+  m_Grid->GetPoint(id_node2, x2.data());
+  //
+  // determine if the edge cuts through the geometry
+  //
+  C.edge_cut = false;
+  int count = 0;
+  vec3_t x_old = 0.5*(x1 + x2);
+  vec3_t x_snap;
+  //
+  while (!C.edge_cut) {
+    //
+    // snap and intersect
+    //
+    x_snap = m_Cad->snap(x_old, false);
+    n      = m_Cad->getLastNormal();
+    C.w    = intersection(x1, x2 - x1, x_snap, n);
+    C.x    = x1 + C.w*(x2 - x1);
+    //
+    if ((C.w > 0 && C.w < 1) && ((C.x - x1).abs() >= m_SnapTolerance && (C.x - x2).abs() >= m_SnapTolerance)) {
+      //
+      // This edge potentially cuts through the surface
+      //
+      if ((x_old - C.x).abs() < m_SnapTolerance) {
+        C.edge_cut = true;
+      }
+      ++count;
+      x_old = C.x;
+      //
+      if (count > 10) {
+        break;
+      }
+    } else {
+      break;
+    }
+  }
+  //
+  C.R = m_Cad->getLastRadius();
+  C.node1_surf = ( (x_snap - x1).abs() < m_SnapTolerance );
+  C.node2_surf = ( (x_snap - x2).abs() < m_SnapTolerance );
+  //
+  vtkIdType id_face = m_Cad->getLastFaceId();
+  EG_VTKDCN(vtkDoubleArray, length, m_Grid, "node_meshdensity_desired");
+  EG_GET_CELL(id_face, m_Grid);
+  C.L = length->GetValue(pts[0]);
+  for (int i = 1; i < num_pts; ++i) {
+    C.L = std::min(C.L, length->GetValue(pts[i]));
+  }
+  if (C.x[0] > 1.1 && C.edge_cut) {
+    cout << "Baehh!!" << endl;
+  }
+  //
+  return C;
+}
+
+void FixCadGeometry::marchOutside()
+{
+  setAllCells();
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  //
+  // mark outside nodes
+  //
+  bool changed = true;
+  cout << "marching in ..." << endl;
+  while (changed) {
+    int N_surf = 0;
+    int N_out  = 0;
+    changed = false;
+    EG_FORALL_NODES (id_node1, m_Grid) {
+      if (node_type->GetValue(id_node1) == EG_OUTSIDE_VERTEX) {
+        for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+          vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+          if (node_type->GetValue(id_node2) == EG_UNKNOWN_VERTEX) {
+            cut_t C = snapCut(id_node1, id_node2);
+            if (C.node1_surf) {
+              EG_BUG;
+            } else if (C.node2_surf) {
+              node_type->SetValue(id_node2, EG_SURFACE_VERTEX);
+              ++N_surf;
+              changed = true;
+            } else {
+              if (!C.edge_cut) {
+                node_type->SetValue(id_node2, EG_OUTSIDE_VERTEX);
+                ++N_out;
+                changed = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    cout << "  " << N_surf << " new surface nodes and " << N_out << " new outside nodes" << endl;
+  }
+  return;
+  //
+  // delete outside cells
+  //
+  DeleteCells del;
+  del.setGrid(m_Grid);
+  del.setAllVolumeCells();
+  QList<vtkIdType> del_cells;
+  EG_FORALL_CELLS (id_cell, m_Grid) {
+    if (isVolume(id_cell, m_Grid)) {
+      EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
+      if (type_cell != VTK_TETRA) {
+        EG_BUG;
+      }
+      bool outside_node = false;
+      for (int i = 0; i < num_pts; ++i) {
+        if (node_type->GetValue(pts[i]) == EG_OUTSIDE_VERTEX) {
+          outside_node = true;
+          break;
+        }
+      }
+      if (outside_node) {
+        bool edge_cut = false;
+        if (!edge_cut) edge_cut = snapCut(pts[0], pts[1]).edge_cut;
+        if (!edge_cut) edge_cut = snapCut(pts[0], pts[2]).edge_cut;
+        if (!edge_cut) edge_cut = snapCut(pts[0], pts[3]).edge_cut;
+        if (!edge_cut) edge_cut = snapCut(pts[1], pts[2]).edge_cut;
+        if (!edge_cut) edge_cut = snapCut(pts[1], pts[3]).edge_cut;
+        if (!edge_cut) edge_cut = snapCut(pts[2], pts[3]).edge_cut;
+        //
+        if (!edge_cut) {
+          del_cells << id_cell;
+        }
+      }
+    }
+  }
+  del.setCellsToDelete(del_cells);
+  del();
+}
+
+void FixCadGeometry::cut()
+{
+  setAllCells();
+  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  //
+  // mark edges to cut
+  //
+  InsertPoints3d ins;
+  ins.setGrid(m_Grid);
+  ins.setAllVolumeCells();
+  EG_FORALL_NODES (id_node1, m_Grid) {
+    if (node_type->GetValue(id_node1) == EG_OUTSIDE_VERTEX) {
+      for (int i = 0; i < m_Part.n2nGSize(id_node1); ++i) {
+        vtkIdType id_node2 = m_Part.n2nGG(id_node1, i);
+        cut_t C = snapCut(id_node1, id_node2);
+        if (C.edge_cut) {
+          ins.addEdge(id_node1, id_node2, EG_SURFACE_VERTEX, C.x);
+        }
+      }
+    }
+  }
+  ins();
+}
+
+void FixCadGeometry::refine()
+{
+
+}
+
 void FixCadGeometry::operate()
 {
   {
     DeleteStrayNodes del;
     del();
   }
-
+  //
+  GuiMainWindow::pointer()->storeCadInterfaces();
+  m_Cad = dynamic_cast<CgalTriCadInterface*>(GuiMainWindow::pointer()->getCadInterface(0));
+  if (!m_Cad) {
+    EG_BUG;
+  }
+  //
   setAllCells();
-  markNonManifold();
+  computeCharLength();
+  createBox();
 
-  if (m_NumNonManifold == 0) {
-
-    //prepare BCmap
-    EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");
-    QSet <int> bcs;
-    l2g_t cells = m_Part.getCells();
-    foreach (vtkIdType id_cell, cells) {
-      if (isSurface(id_cell, m_Grid)) {
-        bcs.insert(bc->GetValue(id_cell));
-      }
-    }
-    QMap <int,int> BCmap;
-    foreach(int bc, bcs) {
-      BCmap[bc] = 1;
-    }
-
-    //set density infinite
-    VertexMeshDensity VMD;
-    VMD.density = 1e99;
-    VMD.BCmap = BCmap;
-    qWarning()<<"VMD.BCmap="<<VMD.BCmap;
-    m_VMDvector.push_back(VMD);
-
-    customUpdateNodeInfo();
-
-    // fix non manifold edges
-    //fixNonManifold1();
-    //fixNonManifold2();
-
-    //call surface mesher
-    setGrid(m_Grid);
-    setBoundaryCodes(bcs);
-    setVertexMeshDensityVector(m_VMDvector);
-    setDesiredLength();
-
-    callMesher();
-
-    /*
-    // correct surface orientation
-    CorrectSurfaceOrientation correct;
-    correct.setGrid(m_Grid);
-    correct.setAllCells();
-    correct();
-    */
+  for (int i = 0; i < 1; ++i) {
+    marchOutside();
+    cut();
   }
+  marchOutside();
+  updateCellIndex(m_Grid);
+  updateNodeIndex(m_Grid);
 
-  // finalise  
-  m_FeatureAngle = m_OriginalFeatureAngle;
-  createIndices(m_Grid);
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
+
+  /*
+  setAllCells();
+  InsertPoints3d ins;
+  ins.setGrid(m_Grid);
+  ins.setAllVolumeCells();
+  //
+  for (int i = 0; i < m_Part.getNumberOfNodes(); ++i) {
+    vtkIdType id_node1 = m_Part.globalNode(i);
+    for (int j = 0; j < m_Part.n2nLSize(i); ++j) {
+      vtkIdType id_node2 = m_Part.n2nLG(i, j);
+      ins.addEdge(id_node1, id_node2, 0);
+    }
   }
-  updateNodeInfo();
-  setDesiredLength();
+  //
+  ins();
+  */
 }
 

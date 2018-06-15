@@ -151,7 +151,7 @@ void TetGenOperation::copyFromTetGen(tetgenio &tgio)
   {
     int i = 0;
     foreach (vtkIdType id_cell, tri_faces) {
-      EG_GET_CELL(id_cell, m_Grid);
+      EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
       vec3_t a, b, c;
       m_Grid->GetPoint(pts[0], a.data());
       m_Grid->GetPoint(pts[1], b.data());
@@ -222,7 +222,7 @@ void TetGenOperation::copyFromTetGen(tetgenio &tgio)
   MeshPartition full_part(full_grid, true);
   QList<vtkIdType> seed_cells;
   EG_FORALL_CELLS(id_cell, full_grid) {
-    EG_GET_CELL(id_cell, full_grid);
+    EG_GET_CELL_AND_TYPE(id_cell, full_grid);
     if (type_cell == VTK_TRIANGLE) {
       QVector<QSet<vtkIdType> > cells(3);
       for (int i = 0; i < 3; ++i) {

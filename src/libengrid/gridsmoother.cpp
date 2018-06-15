@@ -588,7 +588,7 @@ void GridSmoother::computeDesiredHeights()
 
 bool GridSmoother::faceFine(vtkIdType id_face, double scale)
 {
-  EG_GET_CELL(id_face, m_Grid);
+  EG_GET_CELL_AND_TYPE(id_face, m_Grid);
   if (type_cell != VTK_TRIANGLE) {
     EG_BUG;
   }

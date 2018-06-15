@@ -49,6 +49,11 @@ class BezierTriangle;
 #define EG_FEATURE_CORNER_VERTEX 3
 #define EG_FIXED_VERTEX          4
 
+#define EG_OUTSIDE_VERTEX        10
+#define EG_UNKNOWN_VERTEX        11
+#define EG_INSIDE_VERTEX         12
+#define EG_SURFACE_VERTEX        13
+
 class EgVtkObject
 {
 
@@ -873,7 +878,7 @@ template <typename C>
 void EgVtkObject::sharedNodesOfCells(vtkUnstructuredGrid* grid, vtkIdType id_cell1, vtkIdType id_cell2, C& cont)
 {
   cont.clear();
-  EG_GET_CELL(id_cell1, grid);
+  EG_GET_CELL_AND_TYPE(id_cell1, grid);
   for (int i = 0; i < num_pts; ++i) {
     if (cellContainsNode(grid, id_cell2, pts[i])) {
       cont << pts[i];

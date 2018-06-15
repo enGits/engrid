@@ -271,9 +271,21 @@ connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
   * @param ID_CELL the cell index
   * @param GRID a pointer to the vtkUnstructuredGrid
   */
-#define EG_GET_CELL(ID_CELL, GRID) \
+#define EG_GET_CELL_AND_TYPE(ID_CELL, GRID) \
   vtkIdType num_pts, *pts; \
   vtkIdType type_cell = GRID->GetCellType(ID_CELL); \
+  GRID->GetCellPoints(ID_CELL, num_pts, pts);
+
+/**
+  * Get nodes of a cell.
+  * The following variables are created:
+  * - num_pts (number of points)
+  * - pts (array with the points)
+  * @param ID_CELL the cell index
+  * @param GRID a pointer to the vtkUnstructuredGrid
+  */
+#define EG_GET_CELL(ID_CELL, GRID) \
+  vtkIdType num_pts, *pts; \
   GRID->GetCellPoints(ID_CELL, num_pts, pts);
 
 #define EG_LARGE_REAL 1e99

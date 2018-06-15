@@ -1463,7 +1463,7 @@ void EgVtkObject::createPolyDataC2C(vtkPolyData *poly_data, QVector<QVector<vtkI
   QVector<QSet<vtkIdType> > n2c;
   createPolyDataN2C(poly_data, n2c);
   EG_FORALL_CELLS(id_poly, poly_data) {
-    EG_GET_CELL(id_poly, poly_data);
+    EG_GET_CELL_AND_TYPE(id_poly, poly_data);
     QSet<vtkIdType> ids;
     for (int i = 0; i < num_pts; ++i) {
       vtkIdType p1 = pts[i];
@@ -1501,7 +1501,7 @@ void EgVtkObject::createPolyDataN2C(vtkPolyData *poly_data, QVector<QSet<vtkIdTy
   n2c.clear();
   n2c.resize(poly_data->GetNumberOfPoints());
   EG_FORALL_CELLS(id_face, poly_data) {
-    EG_GET_CELL(id_face, poly_data);
+    EG_GET_CELL_AND_TYPE(id_face, poly_data);
     for (int i = 0; i < num_pts; ++i) {
       n2c[pts[i]].insert(id_face);
     }
@@ -1513,7 +1513,7 @@ void EgVtkObject::createPolyDataN2N(vtkPolyData *poly_data, QVector<QSet<vtkIdTy
   n2n.clear();
   n2n.resize(poly_data->GetNumberOfPoints());
   EG_FORALL_CELLS(id_face, poly_data) {
-    EG_GET_CELL(id_face, poly_data);
+    EG_GET_CELL_AND_TYPE(id_face, poly_data);
     n2n[pts[0]].insert(pts[num_pts - 1]);
     n2n[pts[num_pts-1]].insert(pts[0]);
     for (int i = 1; i < num_pts; ++i) {

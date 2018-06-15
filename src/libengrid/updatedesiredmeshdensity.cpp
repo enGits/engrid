@@ -253,7 +253,7 @@ void UpdateDesiredMeshDensity::computeFeature3D(QVector<double> &cl_pre)
       double h = d_min/m_FeatureResolution3D;
       int max_topo_dist = int(ceil(m_FeatureResolution3D));
       bool topo_dist_ok = true;
-      EG_GET_CELL(id_tri_min, m_Grid);
+      EG_GET_CELL_AND_TYPE(id_tri_min, m_Grid);
       for (int i = 0; i < num_pts; ++i) {
         int topo_dist = m_Part.computeTopoDistance(pts[i], id_node, max_topo_dist, 0);
         if (topo_dist < max_topo_dist) {

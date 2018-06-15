@@ -266,7 +266,7 @@ void GuiDivideBoundaryLayer::computeMaxConvexAngles()
   EG_FORALL_CELLS (id_cell1, m_Grid) {
     if (isSurface(id_cell1, m_Grid)) {
       if (m_BoundaryCodes.contains(bc->GetValue(id_cell1))) {
-        EG_GET_CELL (id_cell1, m_Grid);
+        EG_GET_CELL_AND_TYPE (id_cell1, m_Grid);
         QVector<vec3_t> x(num_pts + 1);
         for (int i = 0; i < num_pts; ++i) {
           m_Grid->GetPoint(pts[i], x[i].data());

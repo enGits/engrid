@@ -113,7 +113,9 @@ void BoundaryLayerOperation::readSettings()
 
 void BoundaryLayerOperation::computeBoundaryLayerVectors()
 {
+  computeNodeTypes();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
   m_BoundaryLayerVectors.fill(vec3_t(0,0,0), m_Grid->GetNumberOfPoints());
   QVector<int> num_bcs(m_Grid->GetNumberOfPoints());
   QVector<OptimiseNormalVector> n_opt(m_Grid->GetNumberOfPoints(), OptimiseNormalVector(m_UseGrouping, m_GroupingAngle));
@@ -142,27 +144,49 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
         int bc = cell_code->GetValue(id_cell);
         vtkIdType N_pts, *pts;
         m_Grid->GetCellPoints(id_cell, N_pts, pts);
-        vec3_t a, b, c;
+        vec3_t A, B, C;
         for (int j = 0; j < N_pts; ++j) {
           if (pts[j] == id_node) {
-            m_Grid->GetPoint(pts[j], a.data());
+            m_Grid->GetPoint(pts[j], A.data());
             if (j > 0) {
-              m_Grid->GetPoint(pts[j-1], b.data());
+              m_Grid->GetPoint(pts[j-1], B.data());
             } else {
-              m_Grid->GetPoint(pts[N_pts-1], b.data());
+              m_Grid->GetPoint(pts[N_pts-1], B.data());
             }
             if (j < N_pts - 1) {
-              m_Grid->GetPoint(pts[j+1], c.data());
+              m_Grid->GetPoint(pts[j+1], C.data());
             } else {
-              m_Grid->GetPoint(pts[0], c.data());
+              m_Grid->GetPoint(pts[0], C.data());
             }
           }
         }
-        vec3_t u = b - a;
-        vec3_t v = c - a;
-        double alpha = GeometryTools::angle(u, v);
+        // The points A, B, and C form a triangle and the point A is the position where
+        // the boundary layer direction has to be computed.
+        //
+        vec3_t u = B - A;
+        vec3_t v = C - A;
         vec3_t n = u.cross(v);
+
         n.normalise();
+        double alpha = GeometryTools::angle(u, v);
+
+        // for nodes on edges (exactly two snap points) the normal vector will be rotated around the edge
+        //
+        if (m_SnapPoints[id_node].size() == 2) {
+          vtkIdType sp1 = m_SnapPoints[id_node].values()[0];
+          vtkIdType sp2 = m_SnapPoints[id_node].values()[1];
+          vec3_t D, E;
+          m_Grid->GetPoint(sp1, D.data());
+          m_Grid->GetPoint(sp2, E.data());
+          vec3_t ABC = (1.0/3.0)*(A + B + C);
+          vec3_t DE  = E - D;
+          n = n.cross(DE);
+          n.normalise();
+          if (n*(A - ABC) < 0) {
+            n *= -1;
+          }
+        }
+
         if (m_BoundaryLayerCodes.contains(bc)) {
           normal[bcmap[bc]] += alpha*n;
           n_opt[id_node].addFace(n);
@@ -210,7 +234,6 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
     }
   }
 
-  computeNodeTypes();
   computeLimitPlaneNormals();
   writeBoundaryLayerVectors("blayer", 1);
   smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations);
@@ -374,6 +397,8 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
+  QVector<vec3_t> original_normals = m_BoundaryLayerVectors;
+
   for (int iter = 0; iter < n_iter; ++iter) {
     QVector<vec3_t> v_new = m_BoundaryLayerVectors;
     for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -398,6 +423,8 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
           }
 
           bool smooth_node = !edge_between_corners;
+          QList<vtkIdType> snap_pts = m_SnapPoints[id_node].values();
+
           if (!smooth_node && m_SnapPoints[id_node].size() > 0) {
 
             // compute smoothed normal
@@ -424,6 +451,20 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
 
           }
 
+          // check for sharp corners in edges
+          //
+          if (smooth_node) {
+            if (snap_pts.size() == 2) {
+              vec3_t x, a, b;
+              m_Grid->GetPoint(id_node, x.data());
+              m_Grid->GetPoint(snap_pts[0], a.data());
+              m_Grid->GetPoint(snap_pts[1], b.data());
+              if (GeometryTools::angle(x-a, b-x) > GeometryTools::deg2rad(30)) {
+                smooth_node = false;
+              }
+            }
+          }
+
           if (smooth_node) {
             v_new[id_node] = vec3_t(0,0,0);
             vec3_t x_node;
@@ -448,6 +489,9 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
             }
             //v_new[id_node].normalise();
             v_new[id_node] *= 1.0/w_total;
+            while (GeometryTools::angle(v_new[id_node], original_normals[id_node]) > GeometryTools::deg2rad(45)) {
+              v_new[id_node] = 0.9*v_new[id_node] + 0.1*original_normals[id_node];
+            }
 
             // apply limit plane if required
             /*
@@ -471,6 +515,14 @@ void BoundaryLayerOperation::smoothBoundaryLayerVectors(int n_iter, double w_iso
     }
     m_BoundaryLayerVectors = v_new;
     correctBoundaryLayerVectors();
+  }
+
+  // rescale vectors to match desired height of the boundary layer mesh
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      double scale = 1.0/max(0.5, m_BoundaryLayerVectors[id_node]*original_normals[id_node]);
+      m_BoundaryLayerVectors[id_node] *= scale;
+    }
   }
 }
 
@@ -596,6 +648,13 @@ void BoundaryLayerOperation::computeDesiredHeights()
   // correct with angle between face normal and propagation direction (node normals)
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
+      m_Height[id_node] *= m_BoundaryLayerVectors[id_node].abs();
+      m_BoundaryLayerVectors[id_node].normalise();
+    }
+  }
+  /*
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
       int N = 0;
       double scale = 0;
       for (int j = 0; j < m_Part.n2cGSize(id_node); ++j) {
@@ -610,11 +669,12 @@ void BoundaryLayerOperation::computeDesiredHeights()
       }
     }
   }
+  */
 }
 
 bool BoundaryLayerOperation::faceFine(vtkIdType id_face, double scale)
 {
-  EG_GET_CELL(id_face, m_Grid);
+  EG_GET_CELL_AND_TYPE(id_face, m_Grid);
   if (type_cell != VTK_TRIANGLE) {
     EG_BUG;
   }
@@ -683,6 +743,8 @@ void BoundaryLayerOperation::computeHeights()
 
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
+
+
   smoothUsingBLVectors();
   limitHeights(1.0);
 
@@ -838,6 +900,7 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
   createSmoothShell();
 
   newHeightFromShellIntersect(1.0);
+  return;
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
@@ -1283,9 +1346,9 @@ void BoundaryLayerOperation::limitHeights(double safety_factor)
         for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
           cells_of_node.append(m_Part.n2cGG(id_node, i));
         }
-        QVector<QPair<vec3_t, vtkIdType> > intersections;
 
-        vec3_t x_start = x_old[id_node];
+        vec3_t x_start = x_old[id_node] + 0.1*h_save[id_node]*m_BoundaryLayerVectors[id_node];
+        vec3_t x_check = x_start;
         foreach (int adj_bc, m_LayerAdjacentBoundaryCodes) {
           if (m_Part.hasBC(id_node, adj_bc)) {
             int count = 0;
@@ -1303,10 +1366,12 @@ void BoundaryLayerOperation::limitHeights(double safety_factor)
               xs *= 1.0/count;
               x_start = w*xs + (1-w)*x_start;
             }
+            x_check = x_old[id_node];
             break;
           }
         }
 
+        QVector<QPair<vec3_t, vtkIdType> > intersections;
         cad.computeIntersections(x_start, m_BoundaryLayerVectors[id_node], intersections);
         for (int i = 0; i < intersections.size(); ++i) {
           QPair<vec3_t,vtkIdType> inters = intersections[i];
@@ -1320,7 +1385,7 @@ void BoundaryLayerOperation::limitHeights(double safety_factor)
               crit_angle = deg2rad(85.0); // different angle for adjacent boundaries
             }
 
-            vec3_t dx = xi - x_old[id_node];
+            vec3_t dx = xi - x_check;
             double alpha = angle(dx, cellNormal(m_Grid, id_tri));
             if (dx*m_BoundaryLayerVectors[id_node] > 0 && alpha < crit_angle) {
               double h_max = safety_factor*beta*dx.abs();

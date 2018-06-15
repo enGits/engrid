@@ -38,7 +38,7 @@ void PadSurface::operate()
   foreach (vtkIdType id_cell, part.getCells()) {
     vec3_t n = GeometryTools::cellNormal(m_Grid, id_cell);
     n.normalise();
-    EG_GET_CELL(id_cell, m_Grid);
+    EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
     QVector<vec3_t> x(num_pts + 1);
     for (int i = 0; i < num_pts; ++i) {
       m_Grid->GetPoint(pts[i], x[i].data());

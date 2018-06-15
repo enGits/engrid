@@ -46,7 +46,7 @@ CgalTriCadInterface::CgalTriCadInterface(vtkUnstructuredGrid *grid)
     m_Tri2Grid.fill(-1, tris.size());
     int i = 0;
     foreach (vtkIdType id_cell, tris) {
-      EG_GET_CELL(id_cell, m_BGrid);
+      EG_GET_CELL_AND_TYPE(id_cell, m_BGrid);
       vec3_t a, b, c;
       m_BGrid->GetPoint(pts[0], a.data());
       m_BGrid->GetPoint(pts[1], b.data());
@@ -163,7 +163,7 @@ void CgalTriCadInterface::computeSurfaceCurvature()
 
   m_Radius.fill(0, m_BGrid->GetNumberOfCells());
   EG_FORALL_CELLS(id_cell, m_BGrid) {
-    EG_GET_CELL(id_cell, m_BGrid);
+    EG_GET_CELL_AND_TYPE(id_cell, m_BGrid);
     for (int i = 0; i < num_pts; ++i) {
       m_Radius[id_cell] = max(m_Radius[id_cell], node_radius[pts[i]]);
     }
@@ -191,6 +191,7 @@ vec3_t CgalTriCadInterface::snap(vec3_t x, bool)
     m_LastNormal = GeometryTools::cellNormal(m_BGrid, id_face);
     m_LastNormal.normalise();
     m_LastRadius = m_Radius[id_face];
+    m_LastFaceId = id_face;
     x_snap = vec3_t(cp[0], cp[1], cp[2]);
   } catch (CGAL::Failure_exception) {
     x_snap = x;

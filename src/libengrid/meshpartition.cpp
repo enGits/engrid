@@ -461,7 +461,7 @@ double MeshPartition::getAverageSurfaceEdgeLength(vtkIdType id_node)
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
-      EG_GET_CELL(id_cell, m_Grid);
+      EG_GET_CELL_AND_TYPE(id_cell, m_Grid);
       for (int j = 0; j < num_pts; ++j) {
         if (pts[j] != id_node) {
           surface_neighbours.insert(pts[j]);
