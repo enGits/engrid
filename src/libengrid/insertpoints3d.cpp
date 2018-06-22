@@ -28,7 +28,7 @@ void InsertPoints3d::reset()
   m_EdgeBuffer.clear();
 }
 
-bool InsertPoints3d::markEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x)
+bool InsertPoints3d::markEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x, double cl)
 {
   stencil_t E;
   E.p1 = id_node1;
@@ -53,13 +53,14 @@ bool InsertPoints3d::markEdge(vtkIdType id_node1, vtkIdType id_node2, int type, 
   E.id_node = set2Vector(nodes, false);
   m_Edges << E;
   m_X     << x;
+  m_Cl    << cl;
   m_Type  << type;
   return true;
 }
 
-bool InsertPoints3d::addEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x)
+bool InsertPoints3d::addEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x, double cl)
 {
-  edge_t E(id_node1, id_node2, type, x);
+  edge_t E(id_node1, id_node2, type, x, cl);
   if (m_EdgeBuffer.contains(E)) {
     return false;
   }
@@ -72,7 +73,7 @@ bool InsertPoints3d::addEdge(vtkIdType id_node1, vtkIdType id_node2, int type)
   vec3_t x1, x2;
   m_Grid->GetPoint(id_node1, x1.data());
   m_Grid->GetPoint(id_node2, x2.data());
-  return addEdge(id_node1, id_node2, type, 0.5*(x1 + x2));
+  return addEdge(id_node1, id_node2, type, 0.5*(x1 + x2), 0);
 }
 
 void InsertPoints3d::getOrderedCellNodes(stencil_t E, vtkIdType id_cell, QVector<vtkIdType> &ordered_nodes)
@@ -180,11 +181,13 @@ void InsertPoints3d::splitIteration()
   // create new nodes and split cells
   //
   EG_VTKDCN(vtkCharArray, node_type, new_grid, "node_type");
+  EG_VTKDCN(vtkDoubleArray, length, new_grid, "node_meshdensity_desired");
   vtkIdType id_node = m_Grid->GetNumberOfPoints();
   for (int i = 0; i < m_Edges.size(); ++i) {
     new_grid->GetPoints()->SetPoint(id_node, m_X[i].data());
     copyNodeData(m_Grid, m_Edges[i].p1, new_grid, id_node);
     node_type->SetValue(id_node, m_Type[i]);
+    length->SetValue(id_node, m_Cl[i]);
     QVector<vtkIdType> nodes1, nodes2;
     foreach (vtkIdType id_cell, m_Edges[i].id_cell) {
       //
@@ -210,6 +213,8 @@ void InsertPoints3d::splitIteration()
 
 void InsertPoints3d::operate()
 {
+  m_ProcessedEdges.clear();
+  //
   while (m_EdgeBuffer.size() > 0) {
     //
     setAllVolumeCells();
@@ -217,15 +222,42 @@ void InsertPoints3d::operate()
     m_X.clear();
     m_Type.clear();
     m_CellMarked.fill(false, m_Part.getNumberOfCells());
+    vtkIdType id_new_node = m_Grid->GetNumberOfPoints();
     //
     QList<edge_t> rest_edges;
     foreach (edge_t E, m_EdgeBuffer) {
-      if (!markEdge(E.p1, E.p2, E.type, E.x)) {
+      if (markEdge(E.p1, E.p2, E.type, E.x, E.cl)) {
+        E.id_node = id_new_node;
+        ++id_new_node;
+        m_ProcessedEdges << E;
+      } else {
         rest_edges << E;
       }
     }
     splitIteration();
     m_EdgeBuffer = rest_edges;
-    //m_EdgeBuffer.clear();
   }
+  //
+  qSort(m_ProcessedEdges);
+}
+
+vtkIdType InsertPoints3d::getNewNodeId(vtkIdType id_node1, vtkIdType id_node2)
+{
+  edge_t E;
+  E.p1 = id_node1;
+  E.p2 = id_node2;
+  QList<edge_t>::const_iterator i = qFind(m_ProcessedEdges, E);
+  if (i == m_ProcessedEdges.end()) {
+    return -1;
+  }
+  return i->id_node;
+}
+
+QList<vtkIdType> InsertPoints3d::getAllNewNodes()
+{
+  QList<vtkIdType> new_nodes;
+  foreach (edge_t E, m_ProcessedEdges) {
+    new_nodes << E.id_node;
+  }
+  return new_nodes;
 }

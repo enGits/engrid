@@ -38,6 +38,7 @@ public: // methods
   void setType(error_t a_type);
   void setText(QString a_text);
   void display();
+  void print();
   
 private: // attributes
     

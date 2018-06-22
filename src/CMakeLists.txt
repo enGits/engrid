@@ -95,6 +95,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 option(PROFILING "add -g for profiling even in RELEASE configuration?" OFF)
 
+OPTION(EXIT_ON_BUG "Exit enGrid if EG_BUG is invoked?" OFF)
+if(EXIT_ON_BUG)
+  add_definitions(-EXIT_ON_BUG)
+endif(EXIT_ON_BUG)
+
 #if (CMAKE_BUILD_TYPE MATCHES Release)
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
   add_definitions(-DNDEBUG)

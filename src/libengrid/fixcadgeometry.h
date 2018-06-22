@@ -32,6 +32,8 @@ private: // attributes
   int    m_NumNonManifold;
   double m_OriginalFeatureAngle;
   double m_SnapTolerance;
+  double m_DiagonalLength;
+  int    m_OutputCounter;
 
   CgalTriCadInterface* m_Cad;
 
@@ -45,7 +47,6 @@ protected: // data types
     double R;
     double L;
     bool   edge_cut;
-    bool   node1_surf;
     bool   node2_surf;
   };
 
@@ -62,11 +63,15 @@ protected: // methods
   void markNonManifold();
 
   void  computeCharLength();
+  void  computeNodeTypes();
   void  createBox();
   cut_t snapCut(vtkIdType id_node1, vtkIdType id_node2);
   void  marchOutside();
-  void  cut();
-  void  refine();
+  void  deleteOutside();
+  void  extractShell();
+  int   cut();
+  int   refine();
+  void  writeDebugFile(QString base_name);
 
   virtual void operate();
   

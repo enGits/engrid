@@ -22,6 +22,8 @@
 #include <QMessageBox>
 #include <QtDebug>
 
+#include <iostream>
+
 Error::Error()
 {
   type = ExitProgram;
@@ -45,6 +47,14 @@ void Error::display()
   } else {
     QMessageBox::critical(NULL,"Error",text);
     if (type == ExitProgram) exit(EXIT_FAILURE);
+  }
+}
+
+void Error::print()
+{
+  std::cout << qPrintable(text) << std::endl;
+  if (type == ExitProgram) {
+    exit(EXIT_FAILURE);
   }
 }
 

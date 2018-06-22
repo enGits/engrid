@@ -84,7 +84,7 @@ err.setType(Error::ExitOperation); \
 err.display(); \
 };
 
-#ifdef QT_DEBUG
+#ifdef EXIT_ON_BUG
 #define EG_BUG \
 { \
   QString line; \

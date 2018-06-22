@@ -37,8 +37,11 @@ protected: // data types
     vtkIdType p1, p2;
     int       type;
     vec3_t    x;
+    double    cl;
+    vtkIdType id_node;
 
-    edge_t(vtkIdType a_p1, vtkIdType a_p2, int a_type, vec3_t an_x)
+    edge_t() {}
+    edge_t(vtkIdType a_p1, vtkIdType a_p2, int a_type, vec3_t an_x, double a_cl)
     {
       if (a_p1 > a_p2) {
         p1 = a_p2;
@@ -49,11 +52,19 @@ protected: // data types
       }
       type = a_type;
       x = an_x;
+      cl = a_cl;
     }
 
-    bool operator== (const edge_t E)
+    bool operator== (const edge_t& E) const
     {
       if (p1 == E.p1 && p2 == E.p2) return true;
+      return false;
+    }
+
+    bool operator< (const edge_t& E) const
+    {
+      if      (p1 < E.p1)               return true;
+      else if (p1 == E.p1 && p2 < E.p2) return true;
       return false;
     }
   };
@@ -61,9 +72,11 @@ protected: // data types
 
 protected: // attributes
 
+  QList<edge_t>    m_ProcessedEdges;
   QList<edge_t>    m_EdgeBuffer;
   QList<stencil_t> m_Edges;
   QList<vec3_t>    m_X;
+  QList<double>    m_Cl;
   QList<int>       m_Type;
   QVector<bool>    m_CellMarked;
 
@@ -75,7 +88,7 @@ protected: // methods
   void getOrderedCellNodes(stencil_t E, vtkIdType id_cell, QVector<vtkIdType> &ordered_nodes);
   void getSplitCellNodes  (stencil_t E, vtkIdType id_cell, vtkIdType id_new_node, QVector<vtkIdType> &nodes1, QVector<vtkIdType> &nodes2);
 
-  bool markEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x);
+  bool markEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x, double cl);
   bool cellMarked(vtkIdType id_cell);
   void splitIteration();
 
@@ -90,9 +103,10 @@ public: // methods
    * @param id_node2 second node of the edge
    * @param type the type of the new node
    * @param x coordinates of the new node
+   * @param cl the desired edge length at the new node
    * @return true if the edge has not been added before
    */
-  bool addEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x);
+  bool addEdge(vtkIdType id_node1, vtkIdType id_node2, int type, vec3_t x, double cl);
 
   /**
    * @brief Add and edge for splitting.
@@ -103,6 +117,19 @@ public: // methods
    */
   bool addEdge(vtkIdType id_node1, vtkIdType id_node2, int type);
 
+  /**
+   * @brief Get the ID of the created node for an edge
+   * @param id_node1 first node of the edge
+   * @param id_node2 second node of the edge
+   * @return the index of the new node (-1 if the edge does not match)
+   */
+  vtkIdType getNewNodeId(vtkIdType id_node1, vtkIdType id_node2);
+
+  /**
+   * @brief Get a list with the IDs of all newly created nodes.
+   * @return A QList list with the IDs of all newly created nodes.
+   */
+  QList<vtkIdType> getAllNewNodes();
 
 };
 
