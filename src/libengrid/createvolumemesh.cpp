@@ -61,11 +61,11 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
   while (!done) {
     N1 = N2;
     QString flags;
-    QString q_txt = "1.2/0";
+    QString q_txt = "1.2/18";
     if (pass > 1) {
-      q_txt = "1.2/0";
+      q_txt = "1.2/18";
     }
-    flags = QString("pq") + q_txt + "a" + V_txt;
+    flags = QString("pq") + q_txt + "a" + V_txt + "S1000000";
     if (!m_FirstCall) {
       flags += "m";
     }
