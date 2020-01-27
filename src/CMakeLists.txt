@@ -40,7 +40,7 @@ exec_program(
     ARGS "describe"
     OUTPUT_VARIABLE GIT_SHA1)
 string(REGEX MATCH "-g.*$" GIT_SHA1 ${GIT_SHA1})
-string(REGEX REPLACE "[-g]" "" GIT_SHA1 ${GIT_SHA1} )
+string(REGEX REPLACE "[-g]" "" GIT_SHA1 "${GIT_SHA1}" )
 add_definitions( -DGIT_SHA1="${GIT_SHA1}" )
 
 exec_program(
