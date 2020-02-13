@@ -129,7 +129,15 @@ void GmshReader::readAscii2(vtkUnstructuredGrid *m_Grid)
   f >> word;
   if (word != "$EndMeshFormat") EG_ERR_RETURN("$EndMeshFormat expected");
   f >> word;
-  if (word != "$Nodes") EG_ERR_RETURN("$Nodes expected");
+  if (word != "$Nodes" && word != "$PhysicalNames") EG_ERR_RETURN("$Nodes or $PhysicalNames expected");
+  if (word == "$PhysicalNames"){
+    int NC;
+    f >> NC;
+    for (int i = 0; i < NC; ++i) for (int j = 0; j < 3; ++j) f >> word;
+    f >> word;
+    if (word != "$EndPhysicalNames") EG_ERR_RETURN("$EndPhysicalNames expected");
+    f >> word;
+  }
   f >> Nnodes;
   EG_VTKSP(vtkUnstructuredGrid, ug);
   QVector<vtkIdType> idxmap(Nnodes + 1);
