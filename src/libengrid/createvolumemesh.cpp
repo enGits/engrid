@@ -61,17 +61,19 @@ void CreateVolumeMesh::createTetMesh(int max_num_passes, bool preserve_surface)
   while (!done) {
     N1 = N2;
     QString flags;
-    QString q_txt = "1.2/18";
+    QString q_txt = "1.1/0";
     if (pass > 1) {
-      q_txt = "1.2/18";
+      q_txt = "1.1/0";
     }
-    flags = QString("pq") + q_txt + "a" + V_txt + "S1000000";
+    // flags = QString("pq") + q_txt + "a" + V_txt + "S1000000";
+    flags = QString("pq") + q_txt + "O" + "8/7" + "o" + "/140" ;
     if (!m_FirstCall) {
       flags += "m";
     }
     if (preserve_surface) {
       flags += "Y";
     }
+    flags += "VVC"; // Verbose and max dihedral angle
     cout << "TetGen pass " << pass << "  flags=" << qPrintable(flags) << endl;
     if (m_FirstCall) {
       m_FirstCall = false;
@@ -106,7 +108,27 @@ void CreateVolumeMesh::operate()
     blayer();
     if (!m_Debug) {
       if (blayer.success()) {
-        createTetMesh(2, true);
+        // Re-mesh surface before volume meshing
+        SurfaceMesher *oper = NULL;
+        try{
+          oper = new SurfaceMesher();
+        } catch (Error err){
+          err.display();
+        }
+        if (oper) {
+          oper->setGrid(m_Grid);
+          oper->setAllCells();
+          oper->setMaxNumIterations(5);
+          oper->setNumDelaunaySweeps(2);
+          oper->setCorrectCurvature(false);
+          oper->setDeleteNodes(true);
+          oper->setInsertNodes(true);
+          (*oper)();
+          oper->del();
+          updateActors();
+        }
+        // Volume meshing
+        createTetMesh(1, true);
         vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
         MeshPartition prismatic_part(prismatic_grid, true);
         QVector<vtkIdType> shell_cells;
