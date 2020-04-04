@@ -599,19 +599,20 @@ void CreateBoundaryLayerShell::operate()
     surf_check();
   }
 
-  SwapTriangles swap;
-  swap.setGrid(m_Grid);
-  QSet<int> swap_codes = getAllBoundaryCodes(m_Grid);
-  swap_codes -= m_LayerAdjacentBoundaryCodes;
-  swap.setBoundaryCodes(swap_codes);
-  swap.setVerboseOff();
+  //Bug? disabled by dinlink
+  // SwapTriangles swap;
+  // swap.setGrid(m_Grid);
+  // QSet<int> swap_codes = getAllBoundaryCodes(m_Grid);
+  // swap_codes -= m_LayerAdjacentBoundaryCodes;
+  // swap.setBoundaryCodes(swap_codes);
+  // swap.setVerboseOff();
 
-  for (int iter = 0; iter < 5; ++iter) {
-    cout << "correcting adjacent boundaries\n" << "  iteration: " << iter + 1 << endl;
-    swap();
-    smoothSurface();
-    reduceSurface();
-    swap();
-  }
+  // for (int iter = 0; iter < 5; ++iter) {
+  //   cout << "correcting adjacent boundaries\n" << "  iteration: " << iter + 1 << endl;
+  //   swap();
+  //   smoothSurface();
+  //   reduceSurface();
+  //   swap();
+  // }
 }
 
