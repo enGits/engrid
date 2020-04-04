@@ -645,7 +645,7 @@ void BoundaryLayerOperation::computeHeights()
   computeDesiredHeights();
   cout << "initial boundary layer heights computed" << endl;
   // avoid collisions
-  limitHeights(1.0);
+  // limitHeights(1.0); //Bug? disabled by dinlink
 
   // limit face size and angle difference
   //limitSizeAndAngleErrors();
@@ -679,12 +679,12 @@ void BoundaryLayerOperation::computeHeights()
     }
   }
 
-  limitHeights(1.0);
+  // limitHeights(1.0); //Bug? disabled by dinlink
 
   //laplacianIntersectSmoother(on_boundary);
   //angleSmoother(on_boundary, is_convex, grid_pnts);
   smoothUsingBLVectors();
-  limitHeights(1.0);
+  // limitHeights(1.0); //Bug? disabled by dinlink
 
   // laplacian smoothing
   {
