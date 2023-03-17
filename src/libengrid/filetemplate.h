@@ -30,7 +30,14 @@
 #include <QStringList>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QFormLayout>
 #include <QPair>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QDoubleValidator>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 
 int fileTemplateTest( int argc, char ** argv );
 int fileTemplateTest();

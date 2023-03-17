@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "simplefoamwriter.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 
 #include <QFileInfo>
@@ -105,10 +106,7 @@ void SimpleFoamWriter::createFaces()
   m_Eg2Of.fill(-1,cells.size());
   int Nvol = 0;
   foreach(int i_cells, cells) {
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    m_Grid->GetCellPoints(cells[i_cells], Npts, pts);
-    vtkIdType type_cell = m_Grid->GetCellType(cells[i_cells]);
+    EG_GET_CELL(cells[i_cells], m_Grid);
     vtkIdType id_cell = cells[i_cells];
     
     // tetras

@@ -385,8 +385,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   // create prismatic cells and prepare adjacent quad faces
   //
   foreach (vtkIdType id_cell, shell_triangles) {
-    vtkIdType num_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, num_pts, pts);
+    EG_GET_CELL(id_cell, m_Grid);
     vtkIdType tri_pts[3], pri_pts[6];
     for (int i_pts = 0; i_pts < 3; ++i_pts) {
       if (m_ShellNodeMap[pts[i_pts]] < 0) {

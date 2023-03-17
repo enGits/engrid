@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "guideletebadaspecttris.h"
+#include "engrid.h"
 
 void GuiDeleteBadAspectTris::operate()
 {
@@ -29,8 +30,7 @@ void GuiDeleteBadAspectTris::operate()
     if (isVolume(id_cell,m_Grid)) EG_ERR_RETURN("The grid contains volume cells");
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     if (type_cell == VTK_TRIANGLE) {
-      vtkIdType *pts, N_pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       vec3_t x[3];
       for (int i = 0; i < 3; ++i) {
         m_Grid->GetPoint(pts[i], x[i].data());
@@ -57,10 +57,8 @@ void GuiDeleteBadAspectTris::operate()
     copyNodeData(m_Grid, id_node, new_grid, id_node);
   };
   foreach (vtkIdType id_cell, new_cells) {
-    vtkIdType *pts, N_pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    EG_GET_CELL(id_cell, m_Grid);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, ptIds);
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   };
   makeCopy(new_grid,m_Grid);

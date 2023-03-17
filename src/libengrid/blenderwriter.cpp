@@ -72,10 +72,8 @@ void BlenderWriter::operate()
         int idx = 0;
         QVector <bool> vertex_written(m_Grid->GetNumberOfPoints(), false);
         foreach (vtkIdType cellId, object_cells) {
-          vtkIdType  Npts;
-          vtkIdType *pts;
-          m_Grid->GetCellPoints(cellId, Npts, pts);
-          for (int i = 0; i < Npts; ++i) {
+          EG_GET_CELL(cellId, m_Grid);
+          for (int i = 0; i < num_pts; ++i) {
             if(!vertex_written[pts[i]]) {
               vec3_t x;
               m_Grid->GetPoints()->GetPoint(pts[i], x.data());
@@ -95,11 +93,9 @@ void BlenderWriter::operate()
         
         // write faces
         foreach (vtkIdType cellId, object_cells) {
-          vtkIdType  Npts;
-          vtkIdType *pts;
-          m_Grid->GetCellPoints(cellId, Npts, pts);
-          f << Npts;
-          for (int i = 0; i < Npts; ++i) {
+          EG_GET_CELL(cellId, m_Grid);
+          f << num_pts;
+          for (int i = 0; i < num_pts; ++i) {
             f << ' ' << offset + subvertices_idx[pts[i]];
           }
           f << '\n';

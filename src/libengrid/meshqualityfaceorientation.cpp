@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "meshqualityfaceorientation.h"
+#include "engrid.h"
 #include "geometrytools.h"
 #include "guimainwindow.h"
 
@@ -37,8 +38,7 @@ void MeshQualityFaceOrientation::operate()
         if (cad_interface->shootRayAvailable()) {
           cad_interface->project(x_face, n_face);
         } else {
-          vtkIdType num_pts, *pts;
-          m_Grid->GetCellPoints(id_cell, num_pts, pts);
+          EG_GET_CELL(id_cell, m_Grid);
           cad_interface->snapNode(pts[0], x_face);
         }
         if (cad_interface->failed()) {

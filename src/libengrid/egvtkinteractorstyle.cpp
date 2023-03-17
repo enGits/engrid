@@ -81,6 +81,10 @@ void egvtkInteractorStyle::OnMouseMove()
 //----------------------------------------------------------------------------
 void egvtkInteractorStyle::OnLeftButtonDown()
 {
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+  cout<<"You clicked at ("<<X<<","<<Y<<")"<<endl;
+
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
@@ -175,7 +179,7 @@ void egvtkInteractorStyle::OnRightButtonDown()
 {
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
-  cout<<"You clicked at ("<<X<<","<<Y<<")"<<endl;
+  //cout<<"You clicked at ("<<X<<","<<Y<<")"<<endl;
   
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
                           this->Interactor->GetEventPosition()[1]);

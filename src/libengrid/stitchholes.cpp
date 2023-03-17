@@ -152,8 +152,7 @@ void StitchHoles::stitchHole(QList<vtkIdType> loop_nodes)
 
   EG_FORALL_CELLS(id_cell, tri_grid) {
     if (cellNormal(tri_grid, id_cell)*m_N < 0) {
-      vtkIdType num_pts, *pts;
-      tri_grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, tri_grid);
       QVector<vtkIdType> nodes(num_pts);
       for (vtkIdType j = 0; j < num_pts; ++j) {
         nodes[j] = pts[j];

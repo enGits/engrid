@@ -225,9 +225,13 @@ SET(libengrid_FORMS
   guiypluscalculator.ui
 )
 
-QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
-QT4_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
-QT4_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
+# QT4_WRAP_CPP(libengrid_HEADERS_MOC ${libengrid_HEADERS})
+# QT4_WRAP_UI(libengrid_FORMS_HEADERS ${libengrid_FORMS})
+# QT4_ADD_RESOURCES(libengrid_RESOURCES_RCC engrid.qrc)
+
+qt_wrap_cpp(libengrid_HEADERS_MOC ${libengrid_HEADERS})
+qt_wrap_ui(libengrid_FORMS_HEADERS ${libengrid_FORMS})
+qt_add_resources(libengrid_RESOURCES_RCC engrid.qrc)
 
 SET(libengrid_SOURCES
   ${libengrid_HEADERS}
@@ -398,9 +402,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   target_link_libraries(libengrid tet)
   target_link_libraries(libengrid ${QT_LIBRARIES})
   target_link_libraries(libengrid ${VTK_LIBRARIES})
-  target_link_libraries(libengrid Qt4::QtCore)
-  target_link_libraries(libengrid Qt4::QtGui)
-  target_link_libraries(libengrid Qt4::QtXml)
 endif()
 
 target_link_libraries(libengrid ${VTK_LIBRARIES})

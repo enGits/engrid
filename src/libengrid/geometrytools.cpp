@@ -309,19 +309,17 @@ vec3_t quadNormal(vtkUnstructuredGrid *grid, vtkIdType p1, vtkIdType p2, vtkIdTy
 
 vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
 {
-  vtkIdType *pts;
-  vtkIdType npts;
   vec3_t n(0,0,0);
-  grid->GetCellPoints(i, npts, pts);
-  if (npts < 3) {
+  EG_GET_CELL(i, grid);
+  if (num_pts < 3) {
     EG_BUG;
-  } else if (npts == 3) {
+  } else if (num_pts == 3) {
     return triNormal(grid,pts[0],pts[1],pts[2]);
-  } else if (npts == 4) {
+  } else if (num_pts == 4) {
     return quadNormal(grid,pts[0],pts[1],pts[2],pts[3]);
   } else {
     QList<vec3_t> x;
-    for (int i = 0; i < npts; ++i) {
+    for (int i = 0; i < num_pts; ++i) {
       vec3_t xp;
       grid->GetPoint(pts[i], xp.data());
       x << xp;
@@ -334,11 +332,9 @@ vec3_t cellNormal(vtkUnstructuredGrid *grid, vtkIdType i)
 
 double cellVA(vtkUnstructuredGrid *grid, vtkIdType cellId, bool neg)
 {
-  vtkIdType *pts;
-  vtkIdType  Npts;
-  vec3_t     p[8];
-  grid->GetCellPoints(cellId, Npts, pts);
-  for (int i_pts = 0; i_pts < Npts; ++i_pts) {
+  vec3_t p[8];
+  EG_GET_CELL(cellId, grid);
+  for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
     grid->GetPoints()->GetPoint(pts[i_pts], p[i_pts].data());
   }
   vtkIdType cellType = grid->GetCellType(cellId);
@@ -398,28 +394,27 @@ double cosAngle(vtkUnstructuredGrid *grid, vtkIdType cell1, vtkIdType cell2)
 
 vec3_t getCenter(vtkUnstructuredGrid *grid, vtkIdType cellId, double& Rmin, double& Rmax)
 {
-  vtkIdType *pts, Npts;
-  grid->GetCellPoints(cellId, Npts, pts);
-  if(Npts<=0) {
-    cout<<"FATAL ERROR: Npts<=0"<<endl;
+  EG_GET_CELL(cellId, grid);
+  if (num_pts <= 0) {
+    cout<<"FATAL ERROR: num_pts <= 0"<<endl;
     abort();
   }
 
   //calculate center position
   vec3_t xc(0,0,0);
-  for (vtkIdType i = 0; i < Npts; ++i) {
+  for (vtkIdType i = 0; i < num_pts; ++i) {
     vec3_t xp;
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     xc += xp;
   }
-  xc = 1.0/(double)Npts * xc;
+  xc = 1.0/(double)num_pts * xc;
 
   //calculate Rmin+Rmax
   vec3_t xp;
   grid->GetPoints()->GetPoint(pts[0], xp.data());
   Rmin = 0.25*(xp-xc).abs();
   Rmax = 0.25*(xp-xc).abs();
-  for (vtkIdType i = 1; i < Npts; ++i) {
+  for (vtkIdType i = 1; i < num_pts; ++i) {
     grid->GetPoints()->GetPoint(pts[i], xp.data());
     Rmin = min(Rmin, 0.25*(xp-xc).abs());
     Rmax = max(Rmax, 0.25*(xp-xc).abs());
@@ -505,8 +500,7 @@ double distance2(vtkUnstructuredGrid *grid, vtkIdType id_node1, vtkIdType id_nod
 }
 
 double areaOfCircumscribedCircle(vtkUnstructuredGrid *grid, vtkIdType id_cell) {
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
+  EG_GET_CELL(id_cell, grid);
   vec3_t A,B,C;
   grid->GetPoints()->GetPoint(pts[0], A.data());
   grid->GetPoints()->GetPoint(pts[1], B.data());

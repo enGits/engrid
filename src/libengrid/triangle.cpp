@@ -54,9 +54,8 @@ Triangle::Triangle(vtkUnstructuredGrid* grid, vtkIdType id_a, vtkIdType id_b, vt
 Triangle::Triangle(vtkUnstructuredGrid* grid, vtkIdType id_cell)  : EgVtkObject()
 {
   setDefaults();
-  vtkIdType Npts, *pts;
-  grid->GetCellPoints(id_cell, Npts, pts);
-  if (Npts == 3) {
+  EG_GET_CELL(id_cell, grid);
+  if (num_pts == 3) {
     m_IdA = pts[0];
     m_IdB = pts[1];
     m_IdC = pts[2];

@@ -21,6 +21,7 @@
 #include "gmshwriter.h"
 
 #include <QFileInfo>
+#include "engrid.h"
 #include "guimainwindow.h"
 
 GmshWriter::GmshWriter()
@@ -46,44 +47,42 @@ void GmshWriter::writeAscii1(vtkUnstructuredGrid *m_Grid)
   f << m_Grid->GetNumberOfCells() << '\n';
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
-    vtkIdType  Npts;
-    vtkIdType *pts;
-    m_Grid->GetCellPoints(cellId, Npts, pts);
+    EG_GET_CELL(cellId, m_Grid);
     f << cellId+1;
     if (m_Grid->GetCellType(cellId) == VTK_TRIANGLE) {
-      f << " 2 " << cell_code->GetValue(cellId) << " 0 " << Npts;
-      for (int i = 0; i < Npts; ++i) {
+      f << " 2 " << cell_code->GetValue(cellId) << " 0 " << num_pts;
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_QUAD) {
-      f << " 3 " << cell_code->GetValue(cellId) << " 0 " << Npts;
-      for (int i = 0; i < Npts; ++i) {
+      f << " 3 " << cell_code->GetValue(cellId) << " 0 " << num_pts;
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_TETRA) {
-      f << " 4 0 0 " << Npts;
+      f << " 4 0 0 " << num_pts;
       
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
       
       //f << ' ' << pts[0]+1 << ' ' << pts[1]+1 << ' ' << pts[3]+1 << ' ' << pts[2]+1;
     } else if (m_Grid->GetCellType(cellId) == VTK_PYRAMID) {
-      f << " 7 0 0 " << Npts;
-      for (int i = 0; i < Npts; ++i) {
+      f << " 7 0 0 " << num_pts;
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_WEDGE) {
-      f << " 6 0 0 " << Npts;
-      for (int i = 3; i < Npts; ++i) {
+      f << " 6 0 0 " << num_pts;
+      for (int i = 3; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
-      for (int i = 0; i < Npts-3; ++i) {
+      for (int i = 0; i < num_pts-3; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_HEXAHEDRON) {
-      f << " 5 0 0 " << Npts;
-      for (int i = 0; i < Npts; ++i) {
+      f << " 5 0 0 " << num_pts;
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     };
@@ -110,41 +109,39 @@ void GmshWriter::writeAscii2(vtkUnstructuredGrid *m_Grid)
   f << m_Grid->GetNumberOfCells() << '\n';
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
-    vtkIdType  Npts;
-    vtkIdType *pts;
-    m_Grid->GetCellPoints(cellId, Npts, pts);
+    EG_GET_CELL(cellId, m_Grid);
     f << cellId+1;
     if (m_Grid->GetCellType(cellId) == VTK_TRIANGLE) {
       f << " 2 1 " << cell_code->GetValue(cellId);
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_QUAD) {
       f << " 3 1 " << cell_code->GetValue(cellId);
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_TETRA) {
       f << " 4 1 0 ";
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_PYRAMID) {
       f << " 7 1 0 ";
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_WEDGE) {
       f << " 6 1 0 ";
-      for (int i = 3; i < Npts; ++i) {
+      for (int i = 3; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
-      for (int i = 0; i < Npts-3; ++i) {
+      for (int i = 0; i < num_pts-3; ++i) {
         f << ' ' << pts[i]+1;
       };
     } else if (m_Grid->GetCellType(cellId) == VTK_HEXAHEDRON) {
       f << " 5 1 0 ";
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         f << ' ' << pts[i]+1;
       };
     };

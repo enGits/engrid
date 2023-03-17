@@ -420,10 +420,9 @@ inline void MeshPartition::setNodes(const C& nds)
     node_inside[id_node] = true;
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
+    EG_GET_CELL(id_cell, m_Grid);
     bool append_cell = true;
-    for (int i = 0; i < N_pts; ++i) {
+    for (int i = 0; i < num_pts; ++i) {
       if (!node_inside[pts[i]]) {
         append_cell = false;
         break;
@@ -769,8 +768,7 @@ void MeshPartition::getEdgeFaces(vtkIdType id_node1, vtkIdType id_node2, C &edge
   for (int i = 0; i < n2cGSize(id_node1); ++i) {
     vtkIdType id_cell = n2cGG(id_node1, i);
     if (isSurface(id_cell, m_Grid)) {
-      vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       for (int j = 0; j < num_pts; ++j) {
         if (pts[j] == id_node2) {
           edge_faces << id_cell;

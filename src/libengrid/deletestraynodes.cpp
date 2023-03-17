@@ -32,9 +32,8 @@ void DeleteStrayNodes::operate()
   }
   QVector<bool> active(m_Grid->GetNumberOfPoints(), false);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_cell, m_Grid);
+    for (int i = 0; i < num_pts; ++i) {
       active[pts[i]] = true;
     }
   }
@@ -70,14 +69,12 @@ void DeleteStrayNodes::operate()
     }
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts, type;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    type = m_Grid->GetCellType(id_cell);
-    QVector<vtkIdType> new_pts(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_cell, m_Grid);
+    QVector<vtkIdType> new_pts(num_pts);
+    for (int i = 0; i < num_pts; ++i) {
       new_pts[i] = pts[i] - offset[pts[i]];
     }
-    vtkIdType id_new_cell = new_grid->InsertNextCell(type, N_pts, new_pts.data());
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, num_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
   makeCopy(new_grid, m_Grid);

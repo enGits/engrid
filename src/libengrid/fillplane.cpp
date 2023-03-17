@@ -23,6 +23,7 @@
 #include <vtkGeometryFilter.h>
 #include <vtkCellArray.h>
 
+#include "engrid.h"
 #include "fillplane.h"
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 #include "guimainwindow.h"
@@ -63,9 +64,8 @@ void FillPlane::createEdgesOnPlane(vtkUnstructuredGrid *edge_grid)
 
   QVector<bool> is_edge_node(m_Grid->GetNumberOfPoints(), false);
   for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
-    vtkIdType num_pts, *pts;
     if (isSurface(id_face, m_Grid)) {
-      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      EG_GET_CELL(id_face, m_Grid);
       for (int i = 0; i < num_pts; ++i) {
         if (m_Part.c2cGG(id_face, i) == -1) {
           vtkIdType id_node1 = pts[i];
@@ -107,9 +107,8 @@ void FillPlane::createEdgesOnPlane(vtkUnstructuredGrid *edge_grid)
 
 
   for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
-    vtkIdType num_pts, *pts;
     if (isSurface(id_face, m_Grid)) {
-      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      EG_GET_CELL(id_face, m_Grid);
       for (int i = 0; i < num_pts; ++i) {
         if (m_Part.c2cGG(id_face, i) == -1) {
           vtkIdType id_node1 = pts[i];
@@ -136,8 +135,7 @@ void FillPlane::closeLoops(vtkUnstructuredGrid *edge_grid)
     QList<vtkIdType> end_nodes;
     QVector<int> count(edge_grid->GetNumberOfPoints(), 0);
     for (vtkIdType id_edge = 0; id_edge < edge_grid->GetNumberOfCells(); ++id_edge) {
-      vtkIdType num_pts, *pts;
-      edge_grid->GetCellPoints(id_edge, num_pts, pts);
+      EG_GET_CELL(id_edge, edge_grid);
       for (int i = 0; i < num_pts; ++i) {
         ++count[pts[i]];
       }
@@ -248,8 +246,7 @@ void FillPlane::order(vtkUnstructuredGrid *edge_grid, vtkPolyData *edge_pdata)
 {
   QVector<QVector<vtkIdType> > edges(edge_grid->GetNumberOfCells(), QVector<vtkIdType>(2));
   for (vtkIdType id_edge = 0; id_edge < edge_grid->GetNumberOfCells(); ++id_edge) {
-    vtkIdType num_pts, *pts;
-    edge_grid->GetCellPoints(id_edge, num_pts, pts);
+    EG_GET_CELL(id_edge, edge_grid);
     if (num_pts != 2) {
       EG_BUG;
     }

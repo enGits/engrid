@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "insertpoints.h"
 
+#include "engrid.h"
 #include "guimainwindow.h"
 
 #include <vtkCharArray.h>
@@ -67,8 +68,7 @@ int InsertPoints::insertPoints()
     if (m_BoundaryCodes.contains(cell_code->GetValue(id_cell)) && (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE)) {
       int j_split = -1;
       double L_max = 0;
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
 
       //find best side to split (longest)
       for (int j = 0; j < 3; ++j) {
@@ -85,7 +85,7 @@ int InsertPoints::insertPoints()
 
         if (selected_edge) {
           vtkIdType id_node1 = pts[j];
-          vtkIdType id_node2 = pts[(j+1)%N_pts];
+          vtkIdType id_node2 = pts[(j+1)%num_pts];
           double L  = distance(m_Grid, id_node1, id_node2);
           double L1 = characteristic_length_desired->GetValue(id_node1);
           double L2 = characteristic_length_desired->GetValue(id_node2);
@@ -168,13 +168,12 @@ int InsertPoints::insertPoints()
       QVector< QVector<vtkIdType> > pts_triangle(2*N,QVector<vtkIdType>(3));
 
       for(int i_triangle = 0; i_triangle < N; i_triangle++) {
-        vtkIdType *pts, N_pts;
-        grid_tmp->GetCellPoints(S.id_cell[i_triangle], N_pts, pts);
+        EG_GET_CELL(S.id_cell[i_triangle], grid_tmp);
 
         bool direct;
-        for(int i_pts = 0; i_pts < N_pts; i_pts++) {
+        for(int i_pts = 0; i_pts < num_pts; i_pts++) {
           if (pts[i_pts] == S.p1 ) {
-            if (pts[(i_pts+1)%N_pts] == S.p2 ) {
+            if (pts[(i_pts+1)%num_pts] == S.p2 ) {
               direct = true;
             } else {
               direct = false;
@@ -200,7 +199,9 @@ int InsertPoints::insertPoints()
         }
 
         grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle].data());
-        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N].data());
+        auto new_pts = idListFromVector(pts_triangle[i_triangle]);
+        vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE, new_pts);
+        //vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N].data());
         copyCellData(grid_tmp,S.id_cell[i_triangle],grid_tmp,newCellId);
       }
 

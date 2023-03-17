@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include <QtGui>
+#include <QComboBox>
 
 #include "vertexdelegate.h"
 #include "surfacemesher.h"

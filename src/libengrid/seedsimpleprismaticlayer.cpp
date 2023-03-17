@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "seedsimpleprismaticlayer.h"
+#include "engrid.h"
 #include <vtkIdList.h>
 
 SeedSimplePrismaticLayer::SeedSimplePrismaticLayer()
@@ -51,15 +52,12 @@ void SeedSimplePrismaticLayer::prepareLayer()
   QSet<vtkIdType> new_points;
   for (int i_layer_cell = 0; i_layer_cell < layer_cells.size(); ++i_layer_cell) {
     vtkIdType  id_cell   = layer_cells[i_layer_cell];
-    vtkIdType  type_cell = m_Grid->GetCellType(id_cell);
-    vtkIdType *pts;
-    vtkIdType  Npts;
-    m_Grid->GetCellPoints(id_cell, Npts, pts);
+    EG_GET_CELL(id_cell, m_Grid);
     if (type_cell == VTK_TRIANGLE) {
       nds->Reset();
-      faces[i_layer_cell].resize(Npts);
-      for (int i_pts = 0; i_pts < Npts; ++i_pts) {
-        faces[i_layer_cell][Npts - 1 - i_pts] = pts[i_pts];
+      faces[i_layer_cell].resize(num_pts);
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
+        faces[i_layer_cell][num_pts - 1 - i_pts] = pts[i_pts];
         nds->InsertNextId(pts[i_pts]);
         new_points.insert(pts[i_pts]);
       }
@@ -371,10 +369,9 @@ void SeedSimplePrismaticLayer::operate()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     vtkIdType type_cell = m_Grid->GetCellType(id_cell);
     if ((type_cell == VTK_TRIANGLE) || (type_cell == VTK_TETRA)) {
-      vtkIdType *pts, N_pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       bool split = false;
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         if (is_split_node[pts[i_pts]]) {
           split = true;
           if (node_layer_old->GetValue(pts[i_pts]) != old_layer) {
@@ -388,7 +385,7 @@ void SeedSimplePrismaticLayer::operate()
         } else {
           bool f = false;
           if (old_layer > 0) {
-            for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+            for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
               if (node_layer_old->GetValue(pts[i_pts]) == old_layer - 1) {
                 f = true;
               }
@@ -398,11 +395,11 @@ void SeedSimplePrismaticLayer::operate()
             needs_correction[id_cell] = true;
           } else {
             cout << "dodgy face: " << id_cell << "   ";
-            for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+            for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
               cout << "(" << pts[i_pts] << "," << node_layer_old->GetValue(pts[i_pts]) << ") ";
             }
             cout << endl;
-            for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+            for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
               if (is_split_node[pts[i_pts]]) {
                 vec3_t x;
                 m_Grid->GetPoint(pts[i_pts], x.data());
@@ -425,8 +422,8 @@ void SeedSimplePrismaticLayer::operate()
       is_in_vol_cells[id_vol_cell] = true;
       vtkIdType type_vol_cell = m_Grid->GetCellType(id_vol_cell);
       if (type_vol_cell == VTK_TETRA) {
-        vtkIdType *pts, N_pts, p[6];
-        m_Grid->GetCellPoints(id_vol_cell, N_pts, pts);
+        vtkIdType p[6];
+        EG_GET_CELL(id_vol_cell, m_Grid);
         p[0] = faces[i_faces][0];
         p[1] = faces[i_faces][1];
         p[2] = faces[i_faces][2];
@@ -448,15 +445,13 @@ void SeedSimplePrismaticLayer::operate()
   
   // copy old cells to the new grid
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType *pts, N_pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+    EG_GET_CELL(id_cell, m_Grid);
     if (needs_correction[id_cell]) {
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         pts[i_pts] = old2new[pts[i_pts]];
       }
     }
-    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, pts);
+    vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, ptIds);
     copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
   }
   

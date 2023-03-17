@@ -21,13 +21,16 @@
 #include "stlreader.h"
 #include "correctsurfaceorientation.h"
 
+#include "engrid.h"
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
+#include <vtkIdList.h>
 #include <vtkSTLReader.h>
 #include <vtkCleanPolyData.h>
 #include <vtkFeatureEdges.h>
 
 #include <QFileInfo>
 #include <QInputDialog>
+#include <vtkSmartPointer.h>
 
 #include "guimainwindow.h"
 #include "fixcadgeometry.h"
@@ -71,12 +74,11 @@ void StlReader::operate()
   poly->BuildCells();
   double L = 1e99;
   for (vtkIdType cellId = 0; cellId < poly->GetNumberOfCells(); ++cellId) {
-    vtkIdType *pts, Npts;
-    poly->GetCellPoints(cellId, Npts, pts);
-    for (int i = 0; i < Npts; ++i) {
+    EG_GET_CELL(cellId, poly);
+    for (int i = 0; i < num_pts; ++i) {
       vec3_t x1, x2;
       poly->GetPoints()->GetPoint(pts[i], x1.data());
-      if (i == Npts - 1) {
+      if (i == num_pts - 1) {
         poly->GetPoints()->GetPoint(pts[0], x2.data());
       } else {
         poly->GetPoints()->GetPoint(pts[i+1], x2.data());
@@ -128,10 +130,10 @@ void StlReader::operate()
     m_Grid->GetPoints()->SetPoint(id_node, x.data());
   }
   for (vtkIdType id_cell = 0; id_cell < poly2ugrid->GetOutput()->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
+    vtkSmartPointer<vtkIdList> pts = vtkSmartPointer<vtkIdList>::New();
     vtkIdType type_cell = poly2ugrid->GetOutput()->GetCellType(id_cell);
-    poly2ugrid->GetOutput()->GetCellPoints(id_cell, N_pts, pts);
-    m_Grid->InsertNextCell(type_cell, N_pts, pts);
+    poly2ugrid->GetOutput()->GetCellPoints(id_cell, pts);
+    m_Grid->InsertNextCell(type_cell, pts);
   }
 
   EG_VTKDCC(vtkIntArray, bc, m_Grid, "cell_code");

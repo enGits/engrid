@@ -242,10 +242,9 @@ void Operation::eliminateDuplicateCells(bool surf_only)
 
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!surf_only || isSurface(id_cell, m_Grid)) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      QVector<vtkIdType> nodes(N_pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      QVector<vtkIdType> nodes(num_pts);
+      for (int i = 0; i < num_pts; ++i) {
         nodes[i] = pts[i];
       }
       qSort(nodes);
@@ -256,9 +255,8 @@ void Operation::eliminateDuplicateCells(bool surf_only)
   for (vtkIdType id_cell1 = 0; id_cell1 < m_Grid->GetNumberOfCells(); ++id_cell1) {
     bool duplicate_cell = false;
     if (!surf_only || isSurface(id_cell1, m_Grid)) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell1, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell1, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
           vtkIdType id_cell2 = m_Part.n2cGG(pts[i], j);
           if (id_cell1 != id_cell2) {

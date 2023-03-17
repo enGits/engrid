@@ -21,6 +21,8 @@
 #include "vtkEgExtractVolumeCells.h"
 
 #include <vtkIdList.h>
+#include <vtkSmartPointer.h>
+#include <vtkType.h>
 
 vtkStandardNewMacro(vtkEgExtractVolumeCells)
 
@@ -253,43 +255,34 @@ void vtkEgExtractVolumeCells::ExecuteEg()
     m_Output->GetPoints()->SetPoint(_nodes[id_node], x.data());
   }
   foreach(vtkIdType id_cell, cells) {
-    vtkIdType num, *stream, *new_stream;
+    vtkSmartPointer<vtkIdList> stream     = vtkSmartPointer<vtkIdList>::New();
+    vtkSmartPointer<vtkIdList> new_stream = vtkSmartPointer<vtkIdList>::New();
     vtkIdType type_cell = m_Input->GetCellType(id_cell);
+    m_Input->GetFaceStream(id_cell, stream);
+    new_stream->SetNumberOfIds(stream->GetNumberOfIds());
     if (type_cell == VTK_POLYHEDRON) {
-      m_Input->GetFaceStream(id_cell, num, stream);
-      int stream_length = 0;
+      vtkIdType num = stream->GetId(0);
       {
-        vtkIdType id = 0;
+        new_stream->SetId(0, stream->GetId(0));
+        vtkIdType id = 1;
         for (int i = 0; i < num; ++i) {
-          stream_length += stream[id] + 1;
-          id += stream[id] + 1;
-        }
-      }
-      new_stream = new vtkIdType [stream_length];
-      {
-        vtkIdType id = 0;
-        for (int i = 0; i < num; ++i) {
-          vtkIdType num_pts = stream[id];
-          new_stream[id] = stream[id];
+          vtkIdType num_pts = stream->GetId(id);
+          new_stream->SetId(id, stream[id].GetId(id));
           ++id;
           for (int j = 0; j < num_pts; ++j) {
-            new_stream[id] = _nodes[stream[id]];
+            new_stream->SetId(id, _nodes[stream->GetId(id)]);
             ++id;
           }
         }
       }
     } else {
-      vtkIdType *stream;
-      m_Input->GetCellPoints(id_cell, num, stream);
-      new_stream = new vtkIdType [num];
-      for (vtkIdType i = 0; i < num; ++i) {
-        new_stream[i] = _nodes[stream[i]];
+      for (vtkIdType i = 0; i < stream->GetNumberOfIds(); ++i) {
+        new_stream->SetId(i, _nodes[stream->GetId(i)]);
       }
     }
 
-    vtkIdType id_new_cell = m_Output->InsertNextCell(type_cell, num, new_stream);
+    vtkIdType id_new_cell = m_Output->InsertNextCell(type_cell, new_stream);
     copyCellData(m_Input, id_cell, m_Output, id_new_cell);
-    delete [] new_stream;
   }
 }
 

@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "reducedpolydatareader.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 #include "octree.h"
 
@@ -47,9 +48,8 @@ void ReducedPolyDataReader::computeLevelSet(vtkUnstructuredGrid* m_Grid, vtkPoly
   poly->BuildCells();
   QVector<Triangle> triangles(poly->GetNumberOfPolys());
   for (vtkIdType id_poly = 0; id_poly < poly->GetNumberOfPolys(); ++id_poly) {
-    vtkIdType Npts, *pts;
-    poly->GetCellPoints(id_poly, Npts, pts);
-    if (Npts == 3) {
+    EG_GET_CELL(id_poly, poly);
+    if (num_pts == 3) {
       poly->GetPoint(pts[0], triangles[id_poly].a.data());
       poly->GetPoint(pts[1], triangles[id_poly].b.data());
       poly->GetPoint(pts[2], triangles[id_poly].c.data());

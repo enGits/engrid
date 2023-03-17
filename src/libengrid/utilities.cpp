@@ -187,11 +187,10 @@ int cout_grid(ostream &stream, vtkUnstructuredGrid *grid, bool npoints, bool nce
     for (vtkIdType i = 0; i < grid->GetNumberOfCells(); ++i) {
       vtkCell *C = (vtkCell *) vtkCell::New();
       C = grid->GetCell(i);
-      vtkIdType npts = C->GetNumberOfPoints();
-      vtkIdType* pts;
-      grid->GetCellPoints(i, npts, pts);
+      EG_GET_CELL(i, grid);
       stream << "Cell " << i << " = ";
-      for (int j = 0; j < npts; j++) stream << pts[j] << " ";
+      for (int j = 0; j < num_pts; j++)
+        stream << pts[j] << " ";
       stream << "boundary_code=" << cell_code->GetValue(i);
       stream << endl;
     }
@@ -217,14 +216,13 @@ int addCell(vtkUnstructuredGrid* a_grid, vtkIdType A, vtkIdType B, vtkIdType C, 
 ///////////////////////////////////////////
 
 int getShortestSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid) {
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
-  vec3_t* x = new vec3_t[N_pts];
-  for (int i = 0; i < N_pts; i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
+  EG_GET_CELL(a_id_cell, a_grid);
+  vec3_t* x = new vec3_t[num_pts];
+  for (int i = 0; i < num_pts; i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
   int id_minlen = 0;
   double minlen = (x[1] - x[0]).abs();
-  for (int i = 1; i < N_pts; i++) {
-    double len = (x[(i+1)%N_pts] - x[i]).abs();
+  for (int i = 1; i < num_pts; i++) {
+    double len = (x[(i+1)%num_pts] - x[i]).abs();
     if (len < minlen) {
       minlen = len;
       id_minlen = i;
@@ -235,15 +233,14 @@ int getShortestSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid) {
 }
 
 int getLongestSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid) {
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
-  vec3_t* x = new vec3_t[N_pts];
-  for (int i = 0; i < N_pts; i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
+  EG_GET_CELL(a_id_cell, a_grid);
+  vec3_t* x = new vec3_t[num_pts];
+  for (int i = 0; i < num_pts; i++) a_grid->GetPoints()->GetPoint(pts[i], x[i].data());
   int id_maxlen = 0;
   double maxlen = (x[1] - x[0]).abs();
   cout << "maxlen=" << maxlen << endl;
-  for (int i = 1; i < N_pts; i++) {
-    double len = (x[(i+1)%N_pts] - x[i]).abs();
+  for (int i = 1; i < num_pts; i++) {
+    double len = (x[(i+1)%num_pts] - x[i]).abs();
     cout << "len[" << i << "]=" << len << endl;
     if (len > maxlen) {
       maxlen = len;
@@ -255,12 +252,11 @@ int getLongestSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid) {
 }
 
 int getSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid, vtkIdType a_id_node1, vtkIdType a_id_node2) {
-  vtkIdType N_pts, *pts;
-  a_grid->GetCellPoints(a_id_cell, N_pts, pts);
+  EG_GET_CELL(a_id_cell, a_grid);
   QVector <vtkIdType> edge(2);
 
   int n = 0;
-  for (int i = 0; i < N_pts; i++) {
+  for (int i = 0; i < num_pts; i++) {
     if (pts[i] == a_id_node1) { edge[0] = i; n++;}
     if (pts[i] == a_id_node2) { edge[1] = i; n++;}
   }
@@ -269,7 +265,7 @@ int getSide(vtkIdType a_id_cell, vtkUnstructuredGrid* a_grid, vtkIdType a_id_nod
     return(-1);
   }
   qSort(edge.begin(), edge.end());
-  if (edge[0] == 0 && edge[1] == N_pts - 1) return(N_pts - 1);
+  if (edge[0] == 0 && edge[1] == num_pts - 1) return(num_pts - 1);
   else return(edge[0]);
 }
 ///////////////////////////////////////////
@@ -279,14 +275,13 @@ QString cell2str(vtkIdType id_cell, vtkUnstructuredGrid* grid) {
   tmp.setNum(id_cell);
   QString txt = "id_cell=" + tmp;
 
-  vtkIdType N_pts, *pts;
-  grid->GetCellPoints(id_cell, N_pts, pts);
+  EG_GET_CELL(id_cell, grid);
 
   txt += " [";
-  for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+  for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
     tmp.setNum(pts[i_pts]);
     txt += tmp;
-    if (i_pts < N_pts - 1) {
+    if (i_pts < num_pts - 1) {
       txt += ",";
     }
   }

@@ -308,7 +308,7 @@ void CreateCadTesselation::scan(bool create_grid, int interlaces)
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
     for (vtkIdType id_cell = 0; id_cell < decimate->GetOutput()->GetNumberOfPolys(); ++id_cell) {
       EG_GET_CELL(id_cell, decimate->GetOutput());
-      vtkIdType id_new_cell = m_Grid->InsertNextCell(type_cell, num_pts, pts);
+      vtkIdType id_new_cell = m_Grid->InsertNextCell(type_cell, ptIds);
       cell_code->SetValue(id_new_cell, 1);
     }
   }

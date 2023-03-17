@@ -28,11 +28,14 @@
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 
 #include <vtkDataSetSurfaceFilter.h>
+#include <vtkIdList.h>
 #include <vtkLoopSubdivisionFilter.h>
 #include <vtkLinearSubdivisionFilter.h>
 #include <vtkButterflySubdivisionFilter.h>
 #include <vtkSmoothPolyDataFilter.h>
+#include <vtkType.h>
 #include <vtkWindowedSincPolyDataFilter.h>
+#include <vtkSmartPointer.h>
 
 BoundaryLayerOperation::BoundaryLayerOperation()
 {
@@ -140,18 +143,17 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
       vtkIdType id_cell = m_Part.n2cGG(id_node, i);
       if (isSurface(id_cell, m_Grid)) {
         int bc = cell_code->GetValue(id_cell);
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        EG_GET_CELL(id_cell, m_Grid);
         vec3_t a, b, c;
-        for (int j = 0; j < N_pts; ++j) {
+        for (int j = 0; j < num_pts; ++j) {
           if (pts[j] == id_node) {
             m_Grid->GetPoint(pts[j], a.data());
             if (j > 0) {
               m_Grid->GetPoint(pts[j-1], b.data());
             } else {
-              m_Grid->GetPoint(pts[N_pts-1], b.data());
+              m_Grid->GetPoint(pts[num_pts-1], b.data());
             }
-            if (j < N_pts - 1) {
+            if (j < num_pts - 1) {
               m_Grid->GetPoint(pts[j+1], c.data());
             } else {
               m_Grid->GetPoint(pts[0], c.data());
@@ -503,17 +505,15 @@ void BoundaryLayerOperation::writeBoundaryLayerVectors(QString file_name, int co
   int N = 0;
   for (int i = 0; i < wall_part.getNumberOfCells(); ++ i) {
     vtkIdType id_cell = wall_part.globalCell(i);
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    N += 1 + N_pts;
+    EG_GET_CELL(id_cell, m_Grid);
+    N += 1 + num_pts;
   }
   f << N << "\n";
   for (int i = 0; i < wall_part.getNumberOfCells(); ++ i) {
     vtkIdType id_cell = wall_part.globalCell(i);
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    f << N_pts;
-    for (int j = 0; j < N_pts; ++j) {
+    EG_GET_CELL(id_cell, m_Grid);
+    f << num_pts;
+    for (int j = 0; j < num_pts; ++j) {
       f << " " << wall_part.localNode(pts[j]);
     }
     f << "\n";
@@ -1060,8 +1060,7 @@ void BoundaryLayerOperation::limitSizeAndAngleErrors()
     QVector<int> count(m_Grid->GetNumberOfPoints(), 1);
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (isSurface(id_cell, m_Grid)) {
-        vtkIdType num_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, num_pts, pts);
+        EG_GET_CELL(id_cell, m_Grid);
         bool check_face = true;
         for (vtkIdType i = 0; i < num_pts; ++i) {
           if (!m_BoundaryLayerNode[pts[i]]) {
@@ -1160,22 +1159,26 @@ void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, con
           // Prepare cell info
           vtkIdType id_cell_1 = edge_faces[0];
           vtkIdType id_cell_2 = edge_faces[1];
-          vtkIdType npts_c1, *pts_c1;
-          vtkIdType npts_c2, *pts_c2;
-          m_Grid->GetCellPoints(id_cell_1, npts_c1, pts_c1);
-          m_Grid->GetCellPoints(id_cell_2, npts_c2, pts_c2);
+
+          vtkSmartPointer<vtkIdList> pts_c1 = vtkSmartPointer<vtkIdList>::New();
+          vtkSmartPointer<vtkIdList> pts_c2 = vtkSmartPointer<vtkIdList>::New();
+          m_Grid->GetCellPoints(id_cell_1, pts_c1);
+          m_Grid->GetCellPoints(id_cell_2, pts_c2);
+          vtkIdType npts_c1 = pts_c1->GetNumberOfIds();
+          vtkIdType npts_c2 = pts_c2->GetNumberOfIds();
+
           if (npts_c1 != 3 || npts_c2 !=3) EG_BUG;
 
           vtkIdType id_n3_c1;
           vtkIdType id_n3_c2;
           for (int j = 0; j < npts_c1; j++) {
-            if ( pts_c1[j] != id_node && pts_c1[j] != id_neigh) {
-              id_n3_c1 = pts_c1[j];
+            if ( pts_c1->GetId(j) != id_node && pts_c1->GetId(j) != id_neigh) {
+              id_n3_c1 = pts_c1->GetId(j);
             }
           }
           for (int j = 0; j < npts_c2; j++) {
-            if ( pts_c2[j] != id_node && pts_c2[j] != id_neigh) {
-              id_n3_c2 = pts_c2[j];
+            if ( pts_c2->GetId(j) != id_node && pts_c2->GetId(j) != id_neigh) {
+              id_n3_c2 = pts_c2->GetId(j);
             }
           }
 

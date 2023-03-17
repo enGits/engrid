@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "polymesh.h"
+#include "engrid.h"
 #include "polymolecule.h"
 #include "guimainwindow.h"
 
@@ -454,8 +455,7 @@ void PolyMesh::splitConcaveFaces()
 
 void PolyMesh::getFacesOfEdgeInsideCell(vtkIdType id_cell, vtkIdType id_node1, vtkIdType id_node2, int &face1, int &face2)
 {
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints(id_cell, num_pts, pts);
+  EG_GET_CELL(id_cell, m_Grid);
   face1 = -1;
   face2 = -1;
 
@@ -712,8 +712,7 @@ void PolyMesh::createCornerFace(vtkIdType id_cell, int i_face, vtkIdType id_node
   QList<vtkIdType> edge_nodes;
   QVector<vtkIdType> face_nodes;
   getFaceOfCell(m_Grid, id_cell, i_face, face_nodes);
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints(id_cell, num_pts, pts);
+  EG_GET_CELL(id_cell, m_Grid);
   for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
     vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
     if (face_nodes.contains(id_neigh)) {
@@ -897,8 +896,7 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
   }
   foreach (vtkIdType id_face, faces) {
     node_t node;
-    vtkIdType num_pts, *pts;
-    m_Grid->GetCellPoints(id_face, num_pts, pts);
+    EG_GET_CELL(id_face, m_Grid);
     node.id.resize(num_pts);
     for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
       node.id[i_pts] = pts[i_pts];
@@ -913,8 +911,7 @@ void PolyMesh::createPointFace(vtkIdType id_node, int bc)
     vtkIdType id_face = faces.last();
     while (id_face != -1) {
       bool found = false;
-      vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      EG_GET_CELL(id_face, m_Grid);
       QList<vtkIdType> id_neigh_node;
       vtkIdType id_neigh = -1;
       for (int i = 0; i < m_Part.c2cGSize(id_face); ++i) {

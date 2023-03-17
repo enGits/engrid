@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 
 #include "tetgenoperation.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 #include "optimisenormalvector.h"
 
@@ -78,8 +79,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
       m_OrgDir = cell_orgdir->GetValue(id_cell);
       m_CurDir = cell_curdir->GetValue(id_cell);
       m_VolDir = cell_voldir->GetValue(id_cell);
-      vtkIdType num_pts, *pts;
-      grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, grid);
       tgio.facetlist[i].numberofpolygons = 1;
       tgio.facetlist[i].polygonlist = new tetgenio::polygon[1];
       tgio.facetlist[i].numberofholes = 0;
@@ -99,8 +99,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
     tgio.tetrahedronlist = new int [tetrahedra.size()*4];
     int i = 0;
     foreach (vtkIdType id_cell, tetrahedra) {
-      vtkIdType num_pts, *pts;
-      grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, grid);
       for (int j = 0; j < num_pts; ++j) {
         tgio.tetrahedronlist[i*num_pts + j] = pts[j];
       }
@@ -113,8 +112,7 @@ void TetGenOperation::copyToTetGen(tetgenio &tgio, vtkUnstructuredGrid *alt_grid
     }
     for (vtkIdType id_cell = 0; id_cell < grid->GetNumberOfCells(); ++id_cell) {
       if (isSurface(id_cell, grid)) {
-        vtkIdType num_pts, *pts;
-        grid->GetCellPoints(id_cell, num_pts, pts);
+        EG_GET_CELL(id_cell, grid);
         for (int i = 0; i < num_pts; ++i) {
           provide_mesh_resolution[pts[i]] = true;
         }

@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "fixstl.h"
 #include "deletetetras.h"
+#include "engrid.h"
 #include "uniquevector.h"
 
 #include <vtkDelaunay3D.h>
@@ -103,8 +104,7 @@ void FixSTL::operate()
   loc->BuildLocator();
   for (int i_tetras = 0; i_tetras < tetras.size(); ++i_tetras) {
     vtkIdType id_tetra = tetras[i_tetras];
-    vtkIdType *pts, N_pts;
-    tetra_grid->GetCellPoints(id_tetra, N_pts, pts);
+    EG_GET_CELL(id_tetra, m_Grid);
     // face 0
     if (t2t[i_tetras][0] < i_tetras) {
       T[0] = pts[2]; T[1] = pts[1]; T[2] = pts[0];

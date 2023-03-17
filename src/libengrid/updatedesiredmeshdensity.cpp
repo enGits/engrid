@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "updatedesiredmeshdensity.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 #include "pointfinder.h"
 #include "cgaltricadinterface.h"
@@ -45,15 +46,14 @@ UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 
 double UpdateDesiredMeshDensity::computeSearchDistance(vtkIdType id_face)
 {
-  vtkIdType N_pts, *pts;
-  m_Grid->GetCellPoints(id_face, N_pts, pts);
-  QVector<vec3_t> x(N_pts + 1);
-  for (int i = 0; i < N_pts; ++i) {
+  EG_GET_CELL(id_face, m_Grid);
+  QVector<vec3_t> x(num_pts + 1);
+  for (int i = 0; i < num_pts; ++i) {
     m_Grid->GetPoint(pts[i], x[i].data());
   }
-  x[N_pts] = x[0];
+  x[num_pts] = x[0];
   double L = 0;
-  for (int i = 0; i < N_pts; ++i) {
+  for (int i = 0; i < num_pts; ++i) {
     L = max(L, (x[i] - x[i+1]).abs());
   }
   return L;
@@ -70,16 +70,15 @@ void UpdateDesiredMeshDensity::computeExistingLengths()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (isSurface(id_cell, m_Grid)) {
       if (fixed_bcs.contains(cell_code->GetValue(id_cell))) {
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, N_pts, pts);
-        QVector<vec3_t> x(N_pts);
-        for (int i = 0; i < N_pts; ++i) {
+        EG_GET_CELL(id_cell, m_Grid);
+        QVector<vec3_t> x(num_pts);
+        for (int i = 0; i < num_pts; ++i) {
           m_Grid->GetPoint(pts[i], x[i].data());
           m_Fixed[pts[i]] = true;
         }
-        for (int i = 0; i < N_pts; ++i) {
+        for (int i = 0; i < num_pts; ++i) {
           int j = i + 1;
-          if (j >= N_pts) {
+          if (j >= num_pts) {
             j = 0;
           }
           double L = (x[i] - x[j]).abs();
@@ -179,8 +178,7 @@ void UpdateDesiredMeshDensity::computeFeature2D(QVector<double> &cl_pre)
       if (isSurface(id_face, m_Grid)) {
         if (cell_code->GetValue(id_face) == bc) {
           vec3_t xc = cellCentre(m_Grid, id_face);
-          vtkIdType num_pts, *pts;
-          m_Grid->GetCellPoints(id_face, num_pts, pts);
+          EG_GET_CELL(id_face, m_Grid);
           QVector<vec3_t> xn(num_pts + 1);
           QVector<vtkIdType> idx(num_pts + 1);
           for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
@@ -332,10 +330,9 @@ void UpdateDesiredMeshDensity::operate()
 //#pragma omp parallel for
     for (int i_cell = 0; i_cell < cells.size(); ++i_cell) {
       vtkIdType id_cell = cells[i_cell];
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       int bc = cell_code->GetValue(id_cell);
-      for (int i = 0; i < N_pts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         int i_nodes = m_Part.localNode(pts[i]);
         R[i_nodes] = min(R[i_nodes], fabs(GuiMainWindow::pointer()->getCadInterface(bc)->getRadius(pts[i])));
       }

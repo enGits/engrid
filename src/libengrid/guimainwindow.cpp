@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "guimainwindow.h"
+#include "engrid.h"
 #include "guiselectboundarycodes.h"
 #include "guiimproveaspectratio.h"
 #include "guinormalextrusion.h"
@@ -39,6 +40,7 @@
 #include "triangularcadinterface.h"
 #include "cgaltricadinterface.h"
 
+#include <qmessagebox.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkXMLUnstructuredGridWriter.h>
@@ -53,11 +55,15 @@
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
 #include <vtkFileOutputWindow.h>
+#include <QVTKInteractor.h>
 
 #include <QFileDialog>
 #include <QFileSystemWatcher>
 #include <QFileInfo>
 #include <QAction>
+#include <QStatusBar>
+#include <QInputDialog>
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -75,6 +81,8 @@ using namespace GeometryTools;
 #include "egvtkinteractorstyle.h"
 #include "showinfo.h"
 #include "engrid_version.h"
+
+#include <csignal>
 
 QString GuiMainWindow::m_cwd = ".";
 QSettings GuiMainWindow::m_qset("enGits", QString("enGrid-") + ENGRID_VERSION_STRING);
@@ -190,9 +198,9 @@ void GuiMainWindow::setupGuiMainWindow()
   ui.doubleSpinBox_HueMin->setValue(0.667);
   ui.doubleSpinBox_HueMax->setValue(0);
 
-  egvtkInteractorStyle *style = egvtkInteractorStyle::New();
-  getInteractor()->SetInteractorStyle(style);
-  style->Delete();
+  // egvtkInteractorStyle *style = egvtkInteractorStyle::New();
+  // getInteractor()->SetInteractorStyle(style);
+  // style->Delete();
 
   // initialise XML document
   m_XmlHandler = new XmlHandler("engridcase");
@@ -453,6 +461,26 @@ void GuiMainWindow::setupVtk()
   m_PickedObject = 0;
 
   viewFront();
+
+  // Create a new QVTKInteractor instance
+  //vtkSmartPointer<QVTKInteractor> interactor = vtkSmartPointer<QVTKInteractor>::New();
+
+  // Set the interactor for your QVTKOpenGLNativeWidget or QVTKOpenGLStereoWidget
+  //ui.centralwidget->GetRenderWindow()->SetInteractor(interactor);
+
+  // Initialize the interactor
+  //interactor->Initialize();
+
+  // Render the scene
+  //ui.myVtkWidget->GetRenderWindow()->Render();
+
+
+  // ui.centralwidget->setFocusPolicy(Qt::StrongFocus);
+  // vtkSmartPointer<vtkRenderWindowInteractor> interactor = ui.centralwidget->GetInteractor();
+  // interactor->Initialize();
+  //interactor->Start();
+
+
 }
 
 void GuiMainWindow::updateOutput()
@@ -476,7 +504,7 @@ void GuiMainWindow::exit()
 
 vtkRenderWindow* GuiMainWindow::getRenderWindow()
 {
-  return ui.qvtkWidget->GetRenderWindow();
+  return ui.centralwidget->GetRenderWindow();
 }
 
 vtkRenderer* GuiMainWindow::getRenderer()
@@ -486,7 +514,7 @@ vtkRenderer* GuiMainWindow::getRenderer()
 
 QVTKInteractor* GuiMainWindow::getInteractor()
 {
-  return ui.qvtkWidget->GetInteractor();
+  return ui.centralwidget->GetInteractor();
 }
 
 QString GuiMainWindow::getCwd()
@@ -814,17 +842,16 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
 bool GuiMainWindow::pickCell(vtkIdType id_cell)
 {
   if ((id_cell >= 0) && (id_cell < m_Grid->GetNumberOfCells())) {
-    vtkIdType *pts, Npts;
-    m_Grid->GetCellPoints(id_cell, Npts, pts);
+    EG_GET_CELL(id_cell, m_Grid);
     vec3_t x(0,0,0);
-    for (vtkIdType i = 0; i < Npts; ++i) {
+    for (vtkIdType i = 0; i < num_pts; ++i) {
       vec3_t xp;
       m_Grid->GetPoints()->GetPoint(pts[i], xp.data());
-      x += double(1)/Npts * xp;
+      x += double(1)/num_pts * xp;
     }
     m_PickSphere->SetCenter(x.data());
     double R = 1e99;
-    for (vtkIdType i = 0; i < Npts; ++i) {
+    for (vtkIdType i = 0; i < num_pts; ++i) {
       vec3_t xp;
       m_Grid->GetPoints()->GetPoint(pts[i], xp.data());
       R = min(R, 0.25*(xp-x).abs());
@@ -1317,7 +1344,7 @@ void GuiMainWindow::updateStatusBar()
     if (id_cell < 0 || id_cell>=m_Grid->GetNumberOfCells()) {
       pick_txt += "no cell picked";
     } else {
-      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
+      EG_GET_CELL(id_cell, m_Grid);
       if      (type_cell == VTK_TRIANGLE)   pick_txt += "tri";
       else if (type_cell == VTK_QUAD)       pick_txt += "qua";
       else if (type_cell == VTK_POLYGON)    pick_txt += "plg";
@@ -1326,14 +1353,12 @@ void GuiMainWindow::updateStatusBar()
       else if (type_cell == VTK_WEDGE)      pick_txt += "pri";
       else if (type_cell == VTK_HEXAHEDRON) pick_txt += "hex";
       else if (type_cell == VTK_POLYHEDRON) pick_txt += "pol";
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
       pick_txt += " [";
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         QString num;
         num.setNum(pts[i_pts]);
         pick_txt += num;
-        if (i_pts < N_pts-1) {
+        if (i_pts < num_pts-1) {
           pick_txt += ",";
         }
       }
@@ -1522,16 +1547,15 @@ void GuiMainWindow::viewCellIDs()
       m_CellTextFollower[id_cell]=vtkFollower::New();
       m_CellTextFollower[id_cell]->SetMapper(m_CellTextPolyDataMapper[id_cell]);
       m_CellTextFollower[id_cell]->SetScale(m_ReferenceSize, m_ReferenceSize, m_ReferenceSize);
-      vtkIdType N_pts,*pts;
-      m_Grid->GetCellPoints(id_cell,N_pts,pts);
+      EG_GET_CELL(id_cell, m_Grid);
       vec3_t Center(0,0,0);
-      for (int p = 0; p < N_pts; ++p) {
+      for (int p = 0; p < num_pts; ++p) {
         vec3_t M;
         m_Grid->GetPoint(pts[p],M.data());
         Center+=M.data();
       }
       vec3_t OffSet = m_ReferenceSize*triNormal(m_Grid, pts[0], pts[1], pts[2]).normalise();
-      Center = 1.0/(double)N_pts*Center+OffSet;
+      Center = 1.0/(double)num_pts*Center+OffSet;
       m_CellTextFollower[id_cell]->AddPosition(Center[0], Center[1], Center[2]);
       m_CellTextFollower[id_cell]->SetCamera(getRenderer()->GetActiveCamera());
       m_CellTextFollower[id_cell]->GetProperty()->SetColor(1, 0, 0);
@@ -1616,11 +1640,10 @@ vtkIdType GuiMainWindow::getPickedPoint()
 void GuiMainWindow::changeSurfaceOrientation()
 {
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
-    vtkIdType Npts, *pts;
-    m_Grid->GetCellPoints(cellId, Npts, pts);
-    QVector<vtkIdType> nodes(Npts);
-    for (vtkIdType j = 0; j < Npts; ++j) nodes[j]          = pts[j];
-    for (vtkIdType j = 0; j < Npts; ++j) pts[Npts - j - 1] = nodes[j];
+    EG_GET_CELL(cellId, m_Grid);
+    QVector<vtkIdType> nodes(num_pts);
+    for (vtkIdType j = 0; j < num_pts; ++j) nodes[j]          = pts[j];
+    for (vtkIdType j = 0; j < num_pts; ++j) pts[num_pts - j - 1] = nodes[j];
   }
   updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors
@@ -2211,14 +2234,11 @@ void GuiMainWindow::callMergeNodes()
     }
 
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      vtkIdType N_pts, *pts;
-      vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      QVector<vtkIdType> new_pts(N_pts);
-      for (int i = 0; i < N_pts; ++i) {
-        new_pts[i] = old2new_nodes[pts[i]];
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
+        ptIds->SetId(i, old2new_nodes[pts[i]]);
       }
-      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, N_pts, new_pts.data());
+      vtkIdType id_new_cell = new_grid->InsertNextCell(type_cell, ptIds);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
 

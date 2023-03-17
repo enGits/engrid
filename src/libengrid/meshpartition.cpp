@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "meshpartition.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 
 #include <vtkKdTreePointLocator.h>
@@ -304,11 +305,9 @@ double MeshPartition::getSmallestEdgeLength() const
 {
   double L = 1e99;
   foreach (vtkIdType id_cell, m_Cells) {
-    vtkIdType type_cell = m_Grid->GetCellType(id_cell);
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vec3_t> x(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_cell, m_Grid);
+    QVector<vec3_t> x(num_pts);
+    for (int i = 0; i < num_pts; ++i) {
       m_Grid->GetPoint(pts[i], x[i].data());
     }
     if        (type_cell == VTK_TRIANGLE) {
@@ -423,18 +422,17 @@ vec3_t MeshPartition::globalNormal(vtkIdType id_node)
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       vec3_t a, b, c;
-      for (int j = 0; j < N_pts; ++j) {
+      for (int j = 0; j < num_pts; ++j) {
         if (pts[j] == id_node) {
           m_Grid->GetPoint(pts[j], a.data());
           if (j > 0) {
             m_Grid->GetPoint(pts[j-1], b.data());
           } else {
-            m_Grid->GetPoint(pts[N_pts-1], b.data());
+            m_Grid->GetPoint(pts[num_pts - 1], b.data());
           }
-          if (j < N_pts - 1) {
+          if (j < num_pts - 1) {
             m_Grid->GetPoint(pts[j+1], c.data());
           } else {
             m_Grid->GetPoint(pts[0], c.data());
@@ -489,8 +487,7 @@ void MeshPartition::computeMinAndMaxSurfaceStencilEdgeLengths(vtkIdType id_node,
   for (int i = 0; i < n2cGSize(id_node); ++i) {
     vtkIdType id_cell = n2cGG(id_node, i);
     if (isSurface(id_cell, m_Grid)) {
-      vtkIdType *pts, num_pts;
-      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       vec3_t x1, x2;
       m_Grid->GetPoint(pts[num_pts - 1], x1.data());
       for (int j = 0; j < num_pts; ++j) {
@@ -582,14 +579,17 @@ void MeshPartition::getCommonNodes(vtkIdType id_cell1, vtkIdType id_cell2, QVect
 {
   common_nodes.clear();
   QSet<vtkIdType> nodes1, nodes2;
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints(id_cell1, num_pts, pts);
-  for (int i = 0; i < num_pts; ++i) {
-    nodes1.insert(pts[i]);
+  {
+    EG_GET_CELL(id_cell1, m_Grid);
+    for (int i = 0; i < num_pts; ++i) {
+      nodes1.insert(pts[i]);
+    }
   }
-  m_Grid->GetCellPoints(id_cell2, num_pts, pts);
-  for (int i = 0; i < num_pts; ++i) {
-    nodes2.insert(pts[i]);
+  {
+    EG_GET_CELL(id_cell2, m_Grid);
+    for (int i = 0; i < num_pts; ++i) {
+      nodes2.insert(pts[i]);
+    }
   }
   nodes1.intersect(nodes2);
   common_nodes.resize(nodes1.size());
@@ -686,8 +686,7 @@ void MeshPartition::calcPlanarSurfaceMetrics(double &Dh, double &A, double &P, v
   P = 0;
   foreach (vtkIdType id_cell, m_Cells) {
     if (isSurface(id_cell, m_Grid)) {
-      vtkIdType num_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, num_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       QVector<vec3_t> x_pt(num_pts + 1);
       for (int i = 0; i < num_pts; ++i) {
         m_Grid->GetPoint(pts[i], x_pt[i].data());

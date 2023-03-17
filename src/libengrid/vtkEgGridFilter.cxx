@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "vtkEgGridFilter.h"
+#include "engrid.h"
 #include "vtkInformation.h"
 
 #include "guimainwindow.h"
@@ -126,10 +127,8 @@ void vtkEgGridFilter::ExtractBoundary(QVector<vtkIdType>  &cells, QVector<vtkIdT
     if (isSurface(i, grid)) {
       if (bc.contains(cell_code->GetValue(i))) {
         ex_cells.insert(i);
-        vtkIdType *pts;
-        vtkIdType npts;
-        m_Input->GetCellPoints(i,npts,pts);
-        for (int j = 0; j < npts; ++j) {
+        EG_GET_CELL(i, m_Input);
+        for (int j = 0; j < num_pts; ++j) {
           ex_nodes.insert(pts[j]);
         }
       }

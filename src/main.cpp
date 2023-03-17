@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDate>
+#include <qglobal.h>
 
 #include "guimainwindow.h"
 #include "filetemplate.h"
@@ -150,22 +151,19 @@ void makeDistribution()
  qCritical() is used for writing critical error mesages and reporting system errors.
  qFatal() is used for writing fatal error messages shortly before exiting.
  */
-void engridMessageHandler(QtMsgType type, const char *msg)
+void engridMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-  switch (type) {
-  case QtDebugMsg:
-//     fprintf(stdout, "%s", msg);
-    cout<<msg<<endl;
-    break;
-  case QtWarningMsg:
-//     fprintf(stderr, "%s", msg);
-    cerr<<msg<<endl;
-    break;
-  case QtCriticalMsg:
-    fprintf(stderr, "Critical: %s\n", msg);
-    break;
-  case QtFatalMsg:
-    fprintf(stderr, "Fatal: %s\n", msg);
+  if (type == QtDebugMsg) {
+    fprintf(stdout, "%s", qPrintable(msg));
+  }
+  if (type == QtWarningMsg) {
+    fprintf(stderr, "%s", qPrintable(msg));
+  }
+  if (type == QtCriticalMsg) {
+    fprintf(stderr, "Critical: %s\n", qPrintable(msg));
+  }
+  if (type == QtFatalMsg) {
+    fprintf(stderr, "Fatal: %s\n", qPrintable(msg));
     abort();
   }
 }
@@ -193,7 +191,7 @@ int main( int argc, char ** argv )
 #ifdef QT_DEBUG
   //omp_set_num_threads(1);
 #endif
-  qInstallMsgHandler(engridMessageHandler);
+  qInstallMessageHandler(engridMessageHandler);
   Q_INIT_RESOURCE(engrid);
   int app_result=0;
 

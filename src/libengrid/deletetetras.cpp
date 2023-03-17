@@ -58,14 +58,13 @@ void DeleteTetras::operate()
     }
   }
   foreach (vtkIdType id_cell, cells) {
-    vtkIdType *pts, N_pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vtkIdType> new_pts(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_cell, m_Grid);
+    QVector<vtkIdType> new_pts(num_pts);
+    for (int i = 0; i < num_pts; ++i) {
       new_pts[i] = old2new[pts[i]];
     }
     vtkIdType cellType = m_Grid->GetCellType(id_cell);
-    vtkIdType id_new = new_grid->InsertNextCell(cellType, N_pts, new_pts.data());
+    vtkIdType id_new = new_grid->InsertNextCell(cellType, num_pts, new_pts.data());
     copyCellData(m_Grid, id_cell, new_grid, id_new);
   }
   makeCopy(new_grid, m_Grid);

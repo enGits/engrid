@@ -311,9 +311,8 @@ void GuiCreateBoundaryLayer::operate()
       node_layer->SetValue(id_node, -1);
     }
     foreach (vtkIdType id_cell, layer_cells) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i_pts = 0; i_pts < N_pts; ++i_pts) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
         node_layer->SetValue(pts[i_pts], 0);
       }
     }

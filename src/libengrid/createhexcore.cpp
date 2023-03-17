@@ -53,8 +53,7 @@ void CreateHexCore::refineOctree()
         } else {
           vtkIdType cell_type = m_Grid->GetCellType(id_cell);
           if (cell_type == VTK_WEDGE) {
-            vtkIdType N_pts, *pts;
-            m_Grid->GetCellPoints(id_cell, N_pts, pts);
+            EG_GET_CELL(id_cell, m_Grid);
             if      (pts[3] == id_node) id_surf = pts[0];
             else if (pts[4] == id_node) id_surf = pts[1];
             else if (pts[5] == id_node) id_surf = pts[2];

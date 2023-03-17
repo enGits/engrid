@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "dolfynwriter.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 
 DolfynWriter::DolfynWriter()
@@ -46,9 +47,7 @@ void DolfynWriter::writeElements()
   QString str;
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
-    vtkIdType  Npts;
-    vtkIdType *pts;
-    m_Grid->GetCellPoints(cellId, Npts, pts);
+    EG_GET_CELL(cellId, m_Grid);
     if (m_Grid->GetCellType(cellId) == VTK_HEXAHEDRON) {
         str.sprintf("%8d %8d %8d %8d %8d %8d %8d %8d %8d %4d %4d\n",
                     elid, 
@@ -107,8 +106,7 @@ void DolfynWriter::writeBoundaries()
       }
     }
     foreach (vtkIdType id_cell, faces) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       if (m_Grid->GetCellType(id_cell) == VTK_TRIANGLE) {
         str.sprintf("%8d %8d %8d %8d %9d %4d %4d",
                     bndid,

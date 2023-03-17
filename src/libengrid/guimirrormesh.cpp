@@ -19,7 +19,10 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "guimirrormesh.h"
+#include "engrid.h"
 #include "guimainwindow.h"
+#include <vtkIdList.h>
+#include <vtkSmartPointer.h>
 
 void GuiMirrorMesh::operate()
 {
@@ -43,37 +46,36 @@ void GuiMirrorMesh::operate()
   }
   vtkIdType id_new_cell;
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    QVector<vtkIdType> new_pts(N_pts);
-    vtkIdType cell_type = m_Grid->GetCellType(id_cell);
-    if (cell_type == VTK_TETRA) {
-      new_pts[0] = pts[0];
-      new_pts[1] = pts[1];
-      new_pts[2] = pts[3];
-      new_pts[3] = pts[2];
-      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
-    } else if (cell_type == VTK_WEDGE) {
-      new_pts[0] = pts[3];
-      new_pts[1] = pts[4];
-      new_pts[2] = pts[5];
-      new_pts[3] = pts[0];
-      new_pts[4] = pts[1];
-      new_pts[5] = pts[2];
-      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
-    } else if (cell_type == VTK_HEXAHEDRON) {
-      new_pts[0] = pts[4];
-      new_pts[1] = pts[5];
-      new_pts[2] = pts[6];
-      new_pts[3] = pts[7];
-      new_pts[4] = pts[0];
-      new_pts[5] = pts[1];
-      new_pts[6] = pts[2];
-      new_pts[7] = pts[3];
-      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
-    } else if (cell_type == VTK_PYRAMID) {
+    EG_GET_CELL(id_cell, m_Grid);
+    vtkSmartPointer<vtkIdList> new_pts = vtkSmartPointer<vtkIdList>::New();
+    new_pts->SetNumberOfIds(num_pts);
+    if (type_cell == VTK_TETRA) {
+      new_pts->SetId(0, pts[0]);
+      new_pts->SetId(1, pts[1]);
+      new_pts->SetId(2, pts[3]);
+      new_pts->SetId(3, pts[2]);
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
+    } else if (type_cell == VTK_WEDGE) {
+      new_pts->SetId(0, pts[3]);
+      new_pts->SetId(1, pts[4]);
+      new_pts->SetId(2, pts[5]);
+      new_pts->SetId(3, pts[0]);
+      new_pts->SetId(4, pts[1]);
+      new_pts->SetId(5, pts[2]);
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
+    } else if (type_cell == VTK_HEXAHEDRON) {
+      new_pts->SetId(0, pts[4]);
+      new_pts->SetId(1, pts[5]);
+      new_pts->SetId(2, pts[6]);
+      new_pts->SetId(3, pts[7]);
+      new_pts->SetId(4, pts[0]);
+      new_pts->SetId(5, pts[1]);
+      new_pts->SetId(6, pts[2]);
+      new_pts->SetId(7, pts[3]);
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
+    } else if (type_cell == VTK_PYRAMID) {
       EG_BUG;
-    } else if (cell_type == VTK_POLYHEDRON) {
+    } else if (type_cell == VTK_POLYHEDRON) {
       QVector<QVector<vtkIdType> > faces(m_Part.c2cGSize(id_cell));
       int stream_length = 1;
       for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {
@@ -94,10 +96,10 @@ void GuiMirrorMesh::operate()
       }
       id_new_cell = mirror_grid->InsertNextCell(VTK_POLYHEDRON, stream);
     } else {
-      for (int i = 0; i < N_pts; ++i) {
-        new_pts[i] = pts[N_pts - i - 1];
+      for (int i = 0; i < num_pts; ++i) {
+        new_pts->SetId(i, num_pts - i - 1);
       }
-      id_new_cell = mirror_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, new_pts.data());
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
     }
     copyCellData(m_Grid, id_cell, mirror_grid, id_new_cell);
   }

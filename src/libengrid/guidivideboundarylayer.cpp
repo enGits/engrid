@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "guidivideboundarylayer.h"
+#include "engrid.h"
 #include "math/linsolve.h"
 
 #include "volumedefinition.h"
@@ -84,8 +85,7 @@ bool GuiDivideBoundaryLayer::findBoundaryLayer()
   for (int i_cells = 0; i_cells < cells.size(); ++i_cells) {
     if (m_Grid->GetCellType(cells[i_cells]) == VTK_WEDGE) {
       ++m_NumPrisms;
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(cells[i_cells],N_pts,pts);
+      EG_GET_CELL(cells[i_cells], m_Grid);
       for (int j = 0; j < 3; ++j) {
         m_Pairs.insert(QPair<vtkIdType,vtkIdType>(pts[j],pts[j+3]));
       }
@@ -371,8 +371,7 @@ void GuiDivideBoundaryLayer::operate()
     }
     vtkIdType id_new_cell;
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
       bool insert_cell = true;
       if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
         insert_cell = false;
@@ -393,7 +392,7 @@ void GuiDivideBoundaryLayer::operate()
         curdir = old_curdir->GetValue(id_cell);
       }
       if (insert_cell) {
-        id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+        id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), ptIds);
         copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
       }
     }
@@ -403,8 +402,7 @@ void GuiDivideBoundaryLayer::operate()
     
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (m_Grid->GetCellType(id_cell) == VTK_WEDGE) {
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        EG_GET_CELL(id_cell, m_Grid);
         for (int i = 0; i < m_NumLayers; ++i) {
           vtkIdType p[6];
           p[0] = m_Edges[m_Old2Edge[pts[0]]][i];
@@ -418,8 +416,7 @@ void GuiDivideBoundaryLayer::operate()
         }
       }
       if (m_Grid->GetCellType(id_cell) == VTK_QUAD) {
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_cell, N_pts, pts);
+        EG_GET_CELL(id_cell, m_Grid);
         if ((m_Old2Edge[pts[0]] != -1) && (m_Old2Edge[pts[1]] != -1) && (m_Old2Edge[pts[2]] != -1) && (m_Old2Edge[pts[3]] != -1)) {
           for (int i = 0; i < m_NumLayers; ++i) {
             vtkIdType p[4];

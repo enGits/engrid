@@ -81,6 +81,8 @@
 #include "fixcadgeometry.h"
 #include "xmlhandler.h"
 
+#include <QVTKOpenGLNativeWidget.h>
+
 /**
  * This is the main GUI class of enGrid.
  */

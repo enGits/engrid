@@ -34,6 +34,7 @@
 #include <QDate>
 #include <QApplication>
 
+#include <vtkIdList.h>
 #include <vtkSmartPointer.h>
 #include <vtkLongArray.h>
 #include <vtkLongLongArray.h>
@@ -154,8 +155,6 @@ if (GRID->GetCellData()->GetScalars(NAME)) { \
     if (t == VTK_STRING)             msg += "VTK_STRING"; \
     if (t == VTK_LONG_LONG)          msg += "VTK_LONG_LONG"; \
     if (t == VTK_UNSIGNED_LONG_LONG) msg += "VTK_UNSIGNED_LONG_LONG"; \
-    if (t == VTK___INT64)            msg += "VTK___INT64"; \
-    if (t == VTK_UNSIGNED___INT64)   msg += "VTK_UNSIGNED___INT64"; \
     msg += ")"; \
     EG_ERR_RETURN(msg); \
   }; \
@@ -196,8 +195,6 @@ if (GRID->GetPointData()->GetScalars(NAME)) { \
     if (t == VTK_STRING)             msg += "VTK_STRING"; \
     if (t == VTK_LONG_LONG)          msg += "VTK_LONG_LONG"; \
     if (t == VTK_UNSIGNED_LONG_LONG) msg += "VTK_UNSIGNED_LONG_LONG"; \
-    if (t == VTK___INT64)            msg += "VTK___INT64"; \
-    if (t == VTK_UNSIGNED___INT64)   msg += "VTK_UNSIGNED___INT64"; \
     msg += ")"; \
     EG_ERR_RETURN(msg); \
   }; \
@@ -272,9 +269,15 @@ connect(ui.action ## OPER, SIGNAL(triggered()), this, SLOT(call ## OPER ()));
   * @param GRID a pointer to the vtkUnstructuredGrid
   */
 #define EG_GET_CELL(ID_CELL, GRID) \
-  vtkIdType num_pts, *pts; \
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New(); \
   vtkIdType type_cell = GRID->GetCellType(ID_CELL); \
-  GRID->GetCellPoints(ID_CELL, num_pts, pts);
+  GRID->GetCellPoints(ID_CELL, ptIds); \
+  vtkIdType num_pts = ptIds->GetNumberOfIds(); \
+  std::vector<vtkIdType> pts(num_pts); \
+  for (int i_pts = 0; i_pts < num_pts; ++i_pts) { \
+    pts[i_pts] = ptIds->GetId(i_pts); \
+  }
+
 
 #define EG_LARGE_REAL 1e99
 
@@ -369,6 +372,17 @@ inline uint qHash(const SortedPair<T> &P)
   uint h1 = qHash(P.v1);
   uint h2 = qHash(P.v2);
   return ((h1 << 16) | (h1 >> 16)) ^ h2;
+}
+
+template<class C>
+inline vtkSmartPointer<vtkIdList> idListFromVector(const C& c)
+{
+  vtkSmartPointer<vtkIdList> id_list = vtkSmartPointer<vtkIdList>::New();
+  id_list->SetNumberOfIds(c.size());
+  for (int i = 0; i < c.size(); ++i) {
+    id_list->SetId(i, c[i]);    
+  }
+  return id_list;
 }
 
 

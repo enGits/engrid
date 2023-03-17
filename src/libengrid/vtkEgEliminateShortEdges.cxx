@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "vtkEgEliminateShortEdges.h"
+#include "engrid.h"
 #include "geometrytools.h"
 
 vtkStandardNewMacro(vtkEgEliminateShortEdges);
@@ -37,17 +38,16 @@ void vtkEgEliminateShortEdges::CheckEdges()
   for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     int cellType = m_Input->GetCellType(cellId);
     if ((cellType == VTK_TRIANGLE) || (cellType == VTK_QUAD)) {
-      vtkIdType *pts, Npts;
-      m_Input->GetCellPoints(cellId, Npts, pts);
+      EG_GET_CELL(cellId, m_Input);
       double L_av = 0;
-      vector<vec3_t> x(Npts);
+      vector<vec3_t> x(num_pts);
       int N_del = 0;
       double Lmin = 1e99;
       int imin = 0;
-      for (int i = 0; i < Npts; ++i) {
+      for (int i = 0; i < num_pts; ++i) {
         vtkIdType p1 = pts[i];
         vtkIdType p2;
-        if (i < Npts-1) p2 = pts[i+1];
+        if (i < num_pts-1) p2 = pts[i+1];
         else            p2 = pts[0];
         if (p1 == p2) {
           EG_ERR_RETURN("bug encountered");
@@ -68,14 +68,14 @@ void vtkEgEliminateShortEdges::CheckEdges()
       };
       if (N_del == 0) {
         double A = GeometryTools::triArea(x[0],x[1],x[2]);
-        if (Npts == 4) {
+        if (num_pts == 4) {
           A = GeometryTools::quadArea(x[0],x[1],x[2],x[3]);
         };
-        L_av /= Npts;
-        for (int i = 0; i < Npts; ++i) {
+        L_av /= num_pts;
+        for (int i = 0; i < num_pts; ++i) {
           vtkIdType p1 = pts[i];
           vtkIdType p2;
-          if (i < Npts-1) p2 = pts[i+1];
+          if (i < num_pts-1) p2 = pts[i+1];
           else            p2 = pts[0];
           vec3_t x1, x2;
           m_Input->GetPoints()->GetPoint(p1, x1.data());
@@ -110,12 +110,11 @@ void vtkEgEliminateShortEdges::CheckCells()
   for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     int cellType = m_Input->GetCellType(cellId);
     if (cellType == VTK_TRIANGLE) {
-      vtkIdType *pts, Npts;
-      m_Input->GetCellPoints(cellId, Npts, pts);
-      for (int i = 0; i < Npts; ++i) {
+      EG_GET_CELL(cellId, m_Input);
+      for (int i = 0; i < num_pts; ++i) {
         vtkIdType p1 = pts[i];
         vtkIdType p2;
-        if (i < Npts-1) p2 = pts[i+1];
+        if (i < num_pts-1) p2 = pts[i+1];
         else            p2 = pts[0];
         if (p1 == p2) {
           EG_ERR_RETURN("bug encountered");
@@ -158,16 +157,14 @@ void vtkEgEliminateShortEdges::CopyCells()
 {
   for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
     if(!delete_cell[cellId]) {
-      vtkIdType *old_pts;
-      vtkIdType  Npts;
-      m_Input->GetCellPoints(cellId, Npts, old_pts);
-      vtkIdType *new_pts = new vtkIdType[Npts];
-      for (int i = 0; i < Npts; ++i) {
-        new_pts[i] = node_mapping[old_pts[i]];
+      EG_GET_CELL(cellId, m_Input);
+      std::vector<vtkIdType> new_pts(num_pts);
+      for (int i = 0; i < num_pts; ++i) {
+        new_pts[i] = node_mapping[pts[i]];
       };
-      vtkIdType newCellId = m_Output->InsertNextCell(m_Input->GetCellType(cellId), Npts, new_pts);
+      auto newPtIds = idListFromVector(new_pts);
+      vtkIdType newCellId = m_Output->InsertNextCell(m_Input->GetCellType(cellId), newPtIds);
       copyCellData(m_Input, cellId, m_Output, newCellId);
-      delete [] new_pts;
     };
   };
 };

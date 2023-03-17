@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "vtkEgBoundaryCodesFilter.h"
+#include "engrid.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkInformation.h>
@@ -45,8 +46,6 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
   
   // copy the cells and the cell/node data
   for (vtkIdType cellId = 0; cellId < m_Input->GetNumberOfCells(); ++cellId) {
-    vtkIdType *pts;
-    vtkIdType npts;
     bool add = false;
     if (!cell_code) {
       add = false;
@@ -60,10 +59,10 @@ void vtkEgBoundaryCodesFilter::ExecuteEg()
     }
     
     if (add) {
-      m_Input->GetCellPoints(cellId,npts,pts);
-      vtkIdType newCell = m_Output->InsertNextCell(m_Input->GetCellType(cellId),npts,pts);
+      EG_GET_CELL(cellId, m_Input);
+      vtkIdType newCell = m_Output->InsertNextCell(m_Input->GetCellType(cellId), ptIds);
       copyCellData(m_Input, cellId, m_Output, newCell);
-      for(int i = 0; i < npts; i++) {
+      for (int i = 0; i < num_pts; i++) {
         if (pts[i] >= m_Input->GetNumberOfPoints()) {
           EG_BUG;
         } else if (pts[i] >= m_Output->GetNumberOfPoints()) {

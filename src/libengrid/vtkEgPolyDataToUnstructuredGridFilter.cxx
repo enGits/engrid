@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
+#include "engrid.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkInformation.h>
@@ -86,15 +87,13 @@ int vtkEgPolyDataToUnstructuredGridFilter::RequestData
     input->BuildCells();
     output->Allocate(input->GetNumberOfPolys(),input->GetNumberOfPolys());
     for (vtkIdType cellId = 0; cellId < input->GetNumberOfPolys(); ++cellId) {
-      vtkIdType *pts;
-      vtkIdType npts;
-      input->GetCellPoints(cellId,npts,pts);
-      if        (npts == 3) {
-        output->InsertNextCell(VTK_TRIANGLE,3,pts);
-      } else if (npts == 4) {
-        output->InsertNextCell(VTK_QUAD,4,pts);
-      } else if (npts > 4) {
-        output->InsertNextCell(VTK_POLYGON, npts, pts);
+      EG_GET_CELL(cellId, input);
+      if (num_pts == 3) {
+        output->InsertNextCell(VTK_TRIANGLE, ptIds);
+      } else if (num_pts == 4) {
+        output->InsertNextCell(VTK_QUAD, ptIds);
+      } else if (num_pts > 4) {
+        output->InsertNextCell(VTK_POLYGON, ptIds);
       }
     }
   

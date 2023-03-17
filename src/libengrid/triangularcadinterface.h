@@ -22,6 +22,7 @@
 #define TRIANGULARCADINTERFACE_H
 
 #include "cadinterface.h"
+#include "engrid.h"
 #include "triangle.h"
 #include "facefinder.h"
 #include "surfacealgorithm.h"
@@ -100,9 +101,7 @@ void TriangularCadInterface::setBackgroundGrid(vtkUnstructuredGrid* grid, const 
     ++id_new_node;
   }
   foreach (vtkIdType id_cell, cells) {
-    vtkIdType N_pts, *pts;
-    vtkIdType type_cell = grid->GetCellType(id_cell);
-    grid->GetCellPoints(id_cell, N_pts, pts);
+    EG_GET_CELL(id_cell, grid);
     QVector<vtkIdType> new_pts(3);
     if (type_cell == VTK_TRIANGLE) {
       new_pts[0] = _nodes[pts[0]];

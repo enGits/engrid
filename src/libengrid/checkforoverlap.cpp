@@ -55,18 +55,17 @@ void CheckForOverlap::operate()
     vec3_t xc(0,0,0);
     QSet<vtkIdType> neighbours;
     {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_face1, N_pts, pts);
-      x1.resize(N_pts + 1);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_face1, m_Grid);
+      x1.resize(num_pts + 1);
+      for (int i = 0; i < num_pts; ++i) {
         m_Grid->GetPoint(pts[i], x1[i].data());
         xc += x1[i];
         for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
           neighbours.insert(m_Part.n2cGG(pts[i], j));
         }
       }
-      xc *= 1.0/N_pts;
-      x1[N_pts] = x1[0];
+      xc *= 1.0 / num_pts;
+      x1[num_pts] = x1[0];
     }
     QVector<vtkIdType> close_faces;
     find.getCloseFaces(xc, close_faces);
@@ -78,10 +77,9 @@ void CheckForOverlap::operate()
     foreach (vtkIdType id_face2, close_faces) {
       if (!neighbours.contains(id_face2)) {
         ++N_searches;
-        vtkIdType N_pts, *pts;
-        m_Grid->GetCellPoints(id_face2, N_pts, pts);
-        QVector<vec3_t> x2(N_pts);
-        for (int i = 0; i < N_pts; ++i) {
+        EG_GET_CELL(id_face2, m_Grid);
+        QVector<vec3_t> x2(num_pts);
+        for (int i = 0; i < num_pts; ++i) {
           m_Grid->GetPoint(pts[i], x2[i].data());
         }
         for (int i = 0; i < x1.size() - 1; ++i) {

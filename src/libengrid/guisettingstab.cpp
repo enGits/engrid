@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "guisettingstab.h"
 #include <typeinfo>
+
 #include <QFormLayout>
 #include <QtDebug>
 

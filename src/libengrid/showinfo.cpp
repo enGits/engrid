@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "showinfo.h"
 
+#include "engrid.h"
 #include "insertpoints.h"
 
 #include "guimainwindow.h"
@@ -57,13 +58,13 @@ void ShowInfo::operate()
       }
       
       cout<<"absolute_c2c(PickedCell)="<<absolute_c2c<<endl;
-      vtkIdType *pts, N_pts;
-      m_Grid->GetCellPoints(PickedCell, N_pts, pts);
+      EG_GET_CELL(PickedCell, m_Grid);
       cout<<"pts=";
-      for(int i=0;i<N_pts;i++) cout<<pts[i]<<" ";
+      for (int i = 0; i < num_pts; i++)
+        cout << pts[i] << " ";
       cout<<endl;
       cout<<"coords:"<<endl;
-      for(int i=0;i<N_pts;i++) {
+      for (int i = 0; i < num_pts; i++) {
         vec3_t X;
         m_Grid->GetPoint(pts[i],X.data());
         cout<<"pts["<<i<<"]="<<X<<endl;

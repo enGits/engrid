@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "fixcadgeometry.h"
+#include "engrid.h"
 #include "surfacemesher.h"
 #include "vertexmeshdensity.h"
 #include "guimainwindow.h"
@@ -129,15 +130,14 @@ void FixCadGeometry::customUpdateNodeInfo()
   }
   foreach (vtkIdType id_cell, cells) {
     if (isSurface(id_cell, m_Grid)) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      if (N_pts == 3) {
+      EG_GET_CELL(id_cell, m_Grid);
+      if (num_pts == 3) {
         vec3_t n1 = cellNormal(m_Grid, id_cell);
         QVector<int> num_bad_edges(3, 0);
-        for (int i = 0; i < N_pts; ++i) {
+        for (int i = 0; i < num_pts; ++i) {
           int i1 = i;
           int i2 = 0;
-          if (i < N_pts - 1) {
+          if (i < num_pts - 1) {
             i2= i+1;
           }
           vec3_t x1, x2;
@@ -157,7 +157,7 @@ void FixCadGeometry::customUpdateNodeInfo()
             }
           }
         }
-        for (int i = 0; i < N_pts; ++i) {
+        for (int i = 0; i < num_pts; ++i) {
           if (num_bad_edges[i] >= 2) {
             node_type->SetValue(pts[i], EG_SIMPLE_VERTEX);
           }
@@ -204,9 +204,8 @@ void FixCadGeometry::copyFaces(const QVector<bool> &copy_face)
   }
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (copy_face[id_cell]) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      vtkIdType id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+      EG_GET_CELL(id_cell, m_Grid);
+      vtkIdType id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), ptIds);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
     }
   }
@@ -235,20 +234,19 @@ void FixCadGeometry::fixNonManifold2()
   cout << "fixing non-manifold edges\n  (pass 2) ..." << endl;
   QVector<bool> copy_face(m_Grid->GetNumberOfCells(), true);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    if (N_pts < 3) {
+    EG_GET_CELL(id_cell, m_Grid);
+    if (num_pts < 3) {
       copy_face[id_cell] = false;
       break;
     }
-    QVector<QSet<vtkIdType> > n2c(N_pts);
-    for (int i = 0; i < N_pts; ++i) {
+    QVector<QSet<vtkIdType> > n2c(num_pts);
+    for (int i = 0; i < num_pts; ++i) {
       for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
         n2c[i].insert(m_Part.n2cGG(pts[i], j));
       }
     }
     QSet<vtkIdType> faces = n2c[0];
-    for (int i = 1; i < N_pts; ++i) {
+    for (int i = 1; i < num_pts; ++i) {
       faces = faces.intersect(n2c[i]);
     }
     if (faces.size() > 1) {
@@ -273,12 +271,11 @@ void FixCadGeometry::markNonManifold()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (isSurface(id_cell, m_Grid)) {
       new_bc = max(new_bc, cell_code->GetValue(id_cell));
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         QSet <vtkIdType> edge_cells;
         int N = 0;
-        if (i < N_pts - 1) {
+        if (i < num_pts - 1) {
           N = getEdgeCells(pts[i], pts[i+1], edge_cells);
         } else {
           N = getEdgeCells(pts[i], pts[0], edge_cells);
@@ -300,9 +297,8 @@ void FixCadGeometry::markNonManifold()
       for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
         if (isSurface(id_cell, m_Grid)) {
           if ((cell_code->GetValue(id_cell)) == bc && nm_face[id_cell]) {
-            vtkIdType N_pts, *pts;
-            m_Grid->GetCellPoints(id_cell, N_pts, pts);
-            for (int i = 0; i < N_pts; ++i) {
+            EG_GET_CELL(id_cell, m_Grid);
+            for (int i = 0; i < num_pts; ++i) {
               for (int j = 0; j < m_Part.n2cGSize(pts[i]); ++j) {
                 vtkIdType id_neigh = m_Part.n2cGG(pts[i], j);
                 if (cell_code->GetValue(id_neigh) == bc ) {

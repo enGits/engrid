@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "su2writer.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 
 Su2Writer::Su2Writer()
@@ -53,9 +54,8 @@ void Su2Writer::writeElements()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (isVolume(id_cell, m_Grid)) {
       f << m_Grid->GetCellType(id_cell);
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int j = 0; j < N_pts; ++j) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int j = 0; j < num_pts; ++j) {
         f << " " << pts[j];
       }
       f << " " << i << "\n";
@@ -102,9 +102,8 @@ void Su2Writer::writeBoundaries()
     f << "MARKER_ELEMS= " << faces.size() << "\n";
     foreach (vtkIdType id_cell, faces) {
       f << m_Grid->GetCellType(id_cell);
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int j = 0; j < N_pts; ++j) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int j = 0; j < num_pts; ++j) {
         f << " " << pts[j];
       }
       f << "\n";

@@ -20,6 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "surfaceoperation.h"
 
+#include "engrid.h"
 #include "guimainwindow.h"
 
 #include <vtkCharArray.h>
@@ -68,11 +69,10 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
 {
   stencil_t S;
   {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell1, N_pts, pts);
+    EG_GET_CELL(id_cell1, m_Grid);
     S.p1 = pts[j1];
     S.p2 = pts[0];
-    if (j1 < N_pts - 1) {
+    if (j1 < num_pts - 1) {
       S.p2 = pts[j1 + 1];
     }
   }
@@ -106,10 +106,9 @@ stencil_t SurfaceOperation::getStencil(vtkIdType id_cell1, int j1)
   S.id_node.resize(S.id_cell.size());
   S.type_cell.resize(S.id_cell.size());
   for (int i = 0; i < S.id_cell.size(); ++i) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(S.id_cell[i], N_pts, pts);
+    EG_GET_CELL(S.id_cell[i], m_Grid);
     S.type_cell[i] = m_Grid->GetCellType(S.id_cell[i]);
-    for (int j = 0; j < N_pts; ++j) {
+    for (int j = 0; j < num_pts; ++j) {
       if (pts[j] != S.p1 && pts[j] != S.p2) {
         S.id_node[i] = pts[j];
         break;
@@ -770,8 +769,7 @@ double SurfaceOperation::desiredEdgeLength( vtkIdType id_node )
 /// mean desired edge length for id_cell
 double SurfaceOperation::meanDesiredEdgeLength( vtkIdType id_cell )
 {
-  vtkIdType num_pts, *pts;
-  m_Grid->GetCellPoints( id_cell, num_pts, pts );
+  EG_GET_CELL(id_cell, m_Grid);
   int total = 0;
   for ( int i = 0; i < num_pts; i++ ) {
     total += desiredEdgeLength( pts[i] );
@@ -843,18 +841,17 @@ void SurfaceOperation::computeNormals()
         if (isSurface(id_cell, m_Grid)) {
           int bc = cell_code->GetValue(id_cell);
           if (m_BoundaryCodes.contains(bc)) {
-            vtkIdType N_pts, *pts;
-            m_Grid->GetCellPoints(id_cell, N_pts, pts);
+            EG_GET_CELL(id_cell, m_Grid);
             vec3_t a, b, c;
-            for (int j = 0; j < N_pts; ++j) {
+            for (int j = 0; j < num_pts; ++j) {
               if (pts[j] == id_node) {
                 m_Grid->GetPoint(pts[j], a.data());
                 if (j > 0) {
                   m_Grid->GetPoint(pts[j-1], b.data());
                 } else {
-                  m_Grid->GetPoint(pts[N_pts-1], b.data());
+                  m_Grid->GetPoint(pts[num_pts-1], b.data());
                 }
-                if (j < N_pts - 1) {
+                if (j < num_pts - 1) {
                   m_Grid->GetPoint(pts[j+1], c.data());
                 } else {
                   m_Grid->GetPoint(pts[0], c.data());

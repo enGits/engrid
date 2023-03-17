@@ -21,6 +21,7 @@
 
 #include "eliminatesmallbranches.h"
 #include "createvolumemesh.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 
 #include <QTime>
@@ -138,9 +139,8 @@ void EliminateSmallBranches::fillCraters()
   QVector<bool> is_mainvol_node(m_Grid->GetNumberOfPoints(), false);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (m_MainVolumeCell[id_cell]) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         is_mainvol_node[pts[i]] = true;
       }
     }
@@ -148,9 +148,8 @@ void EliminateSmallBranches::fillCraters()
   QVector<bool> is_mainvol_cell(m_MainVolumeCell.size(), true);
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!m_MainVolumeCell[id_cell]) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         if (!is_mainvol_node[pts[i]]) {
           is_mainvol_cell[id_cell] = false;
           break;
@@ -255,9 +254,8 @@ void EliminateSmallBranches::operate()
   m_DeleteCell.fill(false, m_Grid->GetNumberOfCells());
   m_IsSurfaceNode.fill(false, m_Grid->GetNumberOfPoints());
   foreach(vtkIdType id_face, faces) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_face, N_pts, pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_face, m_Grid);
+    for (int i = 0; i < num_pts; ++i) {
       m_IsSurfaceNode[pts[i]] = true;
     }
     m_DeleteCell[id_face] = true;
@@ -265,9 +263,8 @@ void EliminateSmallBranches::operate()
 
   cout << "marking cells to be removed" << endl;
   foreach(vtkIdType id_cell, cells) {
-    vtkIdType N_pts, *pts;
-    m_Grid->GetCellPoints(id_cell, N_pts, pts);
-    for (int i = 0; i < N_pts; ++i) {
+    EG_GET_CELL(id_cell, m_Grid);
+    for (int i = 0; i < num_pts; ++i) {
       if (needsToBeMarked(pts[i])) {
         m_DeleteCell[id_cell] = true;
         break;
@@ -319,9 +316,8 @@ void EliminateSmallBranches::operate()
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!m_DeleteCell[id_cell]) {
       ++num_new_cells;
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         if (old2new[pts[i]] == -1) {
           old2new[pts[i]] = num_new_nodes;
           ++num_new_nodes;
@@ -345,15 +341,15 @@ void EliminateSmallBranches::operate()
   EG_VTKDCC(vtkIntArray, cell_curdir, new_grid, "cell_curdir");
   for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
     if (!m_DeleteCell[id_cell]) {
-      vtkIdType N_pts, *pts;
-      m_Grid->GetCellPoints(id_cell, N_pts, pts);
-      for (int i = 0; i < N_pts; ++i) {
+      EG_GET_CELL(id_cell, m_Grid);
+      for (int i = 0; i < num_pts; ++i) {
         pts[i] = old2new[pts[i]];
         if (pts[i] == -1) {
           EG_BUG;
         }
+        ptIds->SetId(i, pts[i]);
       }
-      vtkIdType id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), N_pts, pts);
+      vtkIdType id_new_cell = new_grid->InsertNextCell(m_Grid->GetCellType(id_cell), ptIds);
       copyCellData(m_Grid, id_cell, new_grid, id_new_cell);
       if (m_Grid->GetCellType(id_cell) == VTK_TETRA) {
         for (int i = 0; i < m_Part.c2cGSize(id_cell); ++i) {

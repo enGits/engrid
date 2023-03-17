@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "facefinder.h"
+#include "engrid.h"
 #include "triangle.h"
 
 FaceFinder::FaceFinder()
@@ -118,15 +119,14 @@ double FaceFinder::calcCritLength(vtkIdType id_cell)
     return max(m_MinSize, 10*m_Triangles[id_cell].smallestLength());
   }
   QVector<vec3_t> x;
-  vtkIdType N_pts, *pts;
-  m_Grid->GetCellPoints(id_cell, N_pts, pts);
-  x.resize(N_pts + 1);
-  for (int i = 0; i < N_pts; ++i) {
+  EG_GET_CELL(id_cell, m_Grid);
+  x.resize(num_pts + 1);
+  for (int i = 0; i < num_pts; ++i) {
     m_Grid->GetPoint(pts[i], x[i].data());
   }
-  x[N_pts] = x[0];
+  x[num_pts] = x[0];
   double L = 0;
-  for (int i = 0; i < N_pts; ++i) {
+  for (int i = 0; i < num_pts; ++i) {
     L = max(L, (x[i]-x[i+1]).abs());
   }
   return L;
@@ -137,8 +137,7 @@ void FaceFinder::calcCritLengthForAllNodes()
   m_CritLengthNode.fill(EG_LARGE_REAL, m_Grid->GetNumberOfPoints());
   for (vtkIdType id_face = 0; id_face < m_Grid->GetNumberOfCells(); ++id_face) {
     double l_crit = calcCritLength(id_face);
-    vtkIdType num_pts, *pts;
-    m_Grid->GetCellPoints(id_face, num_pts, pts);
+    EG_GET_CELL(id_face, m_Grid);
     for (int i = 0; i < num_pts; ++i) {
       m_CritLengthNode[pts[i]] = min(m_CritLengthNode[pts[i]], l_crit);
     }

@@ -59,8 +59,7 @@ void NeutralWriter::operate()
       f << Nvol << "\n";
       for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
         if (!isSurface(cellId, m_Grid)) {
-          vtkIdType Npts, *pts;
-          m_Grid->GetCellPoints(cellId, Npts, pts);
+          EG_GET_CELL(cellId, m_Grid);
           f << "1 " << pts[0]+1 << " " << pts[1]+1 << " " << pts[3]+1 << " " << pts[2]+1 << "\n";
         };
       };
@@ -68,8 +67,7 @@ void NeutralWriter::operate()
       EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
       for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
         if (isSurface(cellId, m_Grid)) {
-          vtkIdType Npts, *pts;
-          m_Grid->GetCellPoints(cellId, Npts, pts);
+          EG_GET_CELL(cellId, m_Grid);
           f << 1;//cell_code->GetValue(cellId);
           f << " " << pts[2]+1 << " " << pts[1]+1 << " " << pts[0]+1 << "\n";
         };

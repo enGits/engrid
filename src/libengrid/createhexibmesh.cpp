@@ -19,6 +19,7 @@
 // +                                                                      +
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "createhexibmesh.h"
+#include "engrid.h"
 #include "guimainwindow.h"
 #include "updatedesiredmeshdensity.h"
 #include "deletevolumegrid.h"
@@ -32,8 +33,7 @@ CreateHexIbMesh::CreateHexIbMesh()
 double CreateHexIbMesh::meshSize(vtkIdType id_face)
 {
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-  vtkIdType *pts, num_pts;
-  m_Grid->GetCellPoints(id_face, num_pts, pts);
+  EG_GET_CELL(id_face, m_Grid);
   double h = 0;
   for (int i = 0; i < 3; ++i) {
     h = max(h,cl->GetValue(pts[i]));
@@ -84,8 +84,7 @@ int CreateHexIbMesh::refine()
   m_MeshSize.insert(old_num_cells, m_Octree.getNumCells() - old_num_cells, m_MaxEdgeLength);
   for (int cell = old_num_cells; cell < m_Octree.getNumCells(); ++cell) {
     foreach (vtkIdType id_face, m_Faces[m_Octree.getParent(cell)]) {
-      vtkIdType *pts, num_pts;
-      m_Grid->GetCellPoints(id_face, num_pts, pts);
+      EG_GET_CELL(id_face, m_Grid);
       if (num_pts != 3) {
         EG_BUG;
       }
@@ -147,8 +146,7 @@ void CreateHexIbMesh::findInsideCells(MeshPartition &part, QList<vtkIdType> &ins
     if (m_Octree.getLevel(cell) > 0 && !m_Octree.hasChildren(cell)) {
       m_Faces[cell].clear();
       foreach (vtkIdType id_face, m_Faces[m_Octree.getParent(cell)]) {
-        vtkIdType *pts, num_pts;
-        m_Grid->GetCellPoints(id_face, num_pts, pts);
+        EG_GET_CELL(id_face, m_Grid);
         QVector<vec3_t> tri(3);
         for (int i = 0; i < 3; ++i) {
           m_Grid->GetPoint(pts[i], tri[i].data());

@@ -20,14 +20,17 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0.2)
 
 # limit configuration types (must be done before project() statement)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited config" FORCE)
 
 project(ENGRID)
 
-set(CMAKE_VERBOSE_MAKEFILE off)
+set(CMAKE_VERBOSE_MAKEFILE no)
+
+# export build setup for development environment
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(ENGRID_MAJOR_VERSION 2)
 set(ENGRID_MINOR_VERSION 0)
@@ -55,7 +58,28 @@ if(NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-FIND_PACKAGE(VTK REQUIRED)
+if(WIN32)
+  FIND_PACKAGE(VTK REQUIRED NO_MODULE PATHS $ENV{HOME}/local $ENV{HOME}/local_new/lib/VTK HINTS ENV LD_LIBRARY_PATH)
+else(WIN32)
+  FIND_PACKAGE(VTK COMPONENTS
+    RenderingCore
+    ChartsCore
+    CommonExecutionModel
+    CommonTransforms
+    CommonColor
+    FiltersCore
+    FiltersGeneral
+    FiltersGeometry
+    FiltersSources
+    IOCore
+    IOGeometry
+    IOLegacy
+    IOPLY
+    IOXML
+    vtkGUISupportQt
+  REQUIRED NO_MODULE)
+endif(WIN32)
+
 if("${VTK_VERSION}" VERSION_LESS 6.0)
   message("The VTK version installed on the current system is too old. EnGrid requires VTK 6.0 or higher.")
 endif()
@@ -67,24 +91,20 @@ if(NOT INITIAL_CONFIG)
   set(CMAKE_INSTALL_PREFIX $ENV{HOME}/local CACHE STRING "Install path prefix, prepended onto install directories." FORCE)
 endif()
 
-include(${VTK_USE_FILE})
-include_directories(${VTK_INCLUDE_DIRS})
+# include(${VTK_USE_FILE})
+# include_directories(${VTK_INCLUDE_DIRS})
 
 FIND_PACKAGE(CGAL REQUIRED)
 include(${CGAL_USE_FILE})
 #include_directories(${VTK_INCLUDE_DIRS})
 
-# Qt4
-find_package(Qt4 COMPONENTS QtCore REQUIRED)
-find_package(Qt4 COMPONENTS QtGui REQUIRED)
-find_package(Qt4 COMPONENTS QtXml REQUIRED)
-find_package(Qt4 REQUIRED)
-
-#include(${QT_USE_FILE})
-include_directories(${QT_QTCORE_INCLUDE_DIR})
-include_directories(${QT_QTGUI_INCLUDE_DIR})
-include_directories(${QT_QTXML_INCLUDE_DIR})
-include_directories(${QT_INCLUDE_DIR})
+# Qt5
+find_package(Qt5 COMPONENTS Core Gui Widgets Network Xml REQUIRED)
+INCLUDE_DIRECTORIES(${Qt5Core_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Gui_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Widgets_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Network_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Xml_INCLUDE_DIRS})
 
 # set include directory, add src directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tetgen)
@@ -114,11 +134,12 @@ add_executable(engrid main.cpp)
 
 target_link_libraries(engrid libengrid)
 target_link_libraries(engrid tet)
-target_link_libraries(engrid ${QT_LIBRARIES})
+target_link_libraries(engrid Qt5::Core)
+target_link_libraries(engrid Qt5::Gui)
+target_link_libraries(engrid Qt5::Widgets)
+target_link_libraries(engrid Qt5::Network)
+target_link_libraries(engrid Qt5::Xml)
 target_link_libraries(engrid ${VTK_LIBRARIES})
-target_link_libraries(engrid Qt4::QtCore)
-target_link_libraries(engrid Qt4::QtGui)
-target_link_libraries(engrid Qt4::QtXml)
 
 install(TARGETS engrid DESTINATION bin)
 
@@ -129,5 +150,4 @@ install(
 )
 
 add_dependencies(engrid tetgen libengrid)
-
 

@@ -23,6 +23,7 @@
 
 #include <QDialog>
 #include <QtGui>
+#include <QTabWidget>
 
 #include "guisettingstab.h"
 
