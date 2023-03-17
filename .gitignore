@@ -31,6 +31,7 @@ callgrind*
 
 # build folder(s) and executables
 build
+build.release
 
 # generated Makefiles
 Makefile
