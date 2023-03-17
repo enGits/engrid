@@ -23,7 +23,7 @@
 #include "engrid.h"
 #include "guimainwindow.h"
 
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 #include <vtkMath.h>
 #include <vtkCellArray.h>
 #include <vtkPolygon.h>
@@ -190,7 +190,7 @@ void SurfaceOperation::updateNodeInfo()
   readVMD();
   l2g_t nodes = getPartNodes();
   computeNormals();
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
@@ -288,7 +288,7 @@ void SurfaceOperation::updateNodeInfo()
   readVMD();
   l2g_t nodes = getPartNodes();
   computeNormals();
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   EG_VTKDCN(vtkIntArray, node_type_counter, m_Grid, "node_type_counter");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 
@@ -377,7 +377,7 @@ void SurfaceOperation::updatePotentialSnapPoints()
     return;
   }
 
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
 
   foreach( vtkIdType id_node1, nodes ) {
     m_PotentialSnapPoints[id_node1].clear();
@@ -715,7 +715,7 @@ VertexMeshDensity SurfaceOperation::getVMD( vtkIdType id_node )
   l2g_t  cells = getPartCells();
   l2l_t  n2c   = getPartN2C();
 
-  EG_VTKDCN( vtkCharArray, node_type, m_Grid, "node_type" );
+  EG_VTKDCN( vtkCharArray_t, node_type, m_Grid, "node_type" );
   EG_VTKDCC( vtkIntArray, cell_code, m_Grid, "cell_code" );
 
   VertexMeshDensity VMD;
@@ -930,7 +930,7 @@ double SurfaceOperation::getSurfaceDeviation(vtkIdType id_node)
 
 bool SurfaceOperation::isFeatureNode(vtkIdType id_node)
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   char type = node_type->GetValue(id_node);
   if (type == EG_FEATURE_CORNER_VERTEX || type == EG_FEATURE_EDGE_VERTEX) {
     return true;

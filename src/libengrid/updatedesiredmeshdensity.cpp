@@ -24,7 +24,7 @@
 #include "pointfinder.h"
 #include "cgaltricadinterface.h"
 
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 UpdateDesiredMeshDensity::UpdateDesiredMeshDensity() : SurfaceOperation()
 {

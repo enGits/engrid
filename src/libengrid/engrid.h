@@ -40,6 +40,7 @@
 #include <vtkLongLongArray.h>
 #include <vtkIntArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkSignedCharArray.h>
 
 #include "error.h"
 #include "math/mathvector.h"
@@ -49,18 +50,21 @@
 
 // #include "engrid_version.h" //Moved this to the only place where it was being used for now...
 
-#ifdef WIN32
-typedef vtkLongLongArray vtkLongArray_t;
-#else
+// #ifdef WIN32
+// typedef vtkLongLongArray vtkLongArray_t;
+// #else
 
-#include <limits.h>
-#if ( __WORDSIZE == 64 )
-typedef vtkLongArray vtkLongArray_t;
-#else
-typedef vtkLongLongArray vtkLongArray_t;
-#endif
+// #include <limits.h>
+// #if ( __WORDSIZE == 64 )
+// typedef vtkLongArray vtkLongArray_t;
+// #else
+// typedef vtkLongLongArray vtkLongArray_t;
+// #endif
 
-#endif
+// #endif
+
+typedef vtkLongLongArray vtkLongArray_t;
+typedef vtkSignedCharArray vtkCharArray_t;
 
 #define EG_ERR_RETURN(TXT) \
 { \

@@ -83,7 +83,7 @@ void SurfaceAlgorithm::prepare()
   setAllCells();
   readSettings();
   
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");//node type
   
   updateNodeInfo();
 

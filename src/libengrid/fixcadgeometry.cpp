@@ -123,7 +123,7 @@ void FixCadGeometry::customUpdateNodeInfo()
 {
   cout << "updating node information ..." << endl;
   setAllCells();
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   l2g_t cells = getPartCells();
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     node_type->SetValue(id_node, EG_FIXED_VERTEX);
@@ -383,7 +383,7 @@ void FixCadGeometry::operate()
   // finalise  
   m_FeatureAngle = m_OriginalFeatureAngle;
   createIndices(m_Grid);
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
   }

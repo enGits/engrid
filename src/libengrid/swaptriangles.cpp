@@ -267,7 +267,7 @@ int SwapTriangles::swap()
   setAllSurfaceCells();
   //computeAverageSurfaceError();
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
   for (int i = 0; i < m_Part.getNumberOfCells(); ++i) {
     vtkIdType id_cell = m_Part.globalCell(i);

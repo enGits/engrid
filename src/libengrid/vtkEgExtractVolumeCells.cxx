@@ -267,7 +267,7 @@ void vtkEgExtractVolumeCells::ExecuteEg()
         vtkIdType id = 1;
         for (int i = 0; i < num; ++i) {
           vtkIdType num_pts = stream->GetId(id);
-          new_stream->SetId(id, stream[id].GetId(id));
+          new_stream->SetId(id, stream->GetId(id));
           ++id;
           for (int j = 0; j < num_pts; ++j) {
             new_stream->SetId(id, _nodes[stream->GetId(id)]);

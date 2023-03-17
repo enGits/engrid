@@ -117,7 +117,7 @@ void CreateVolumeMesh::operate()
         delete_cells();
         m_Part.addPartition(prismatic_part);
       } else {
-        cout << "An error ocuured while creating the prismatic layers!" << endl;
+        cout << "An error occurred while creating the prismatic layers!" << endl;
       }
     }
   } else {

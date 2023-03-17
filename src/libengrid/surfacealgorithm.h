@@ -23,7 +23,7 @@
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 #include <QSet>
 #include <QVector>

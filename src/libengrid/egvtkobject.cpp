@@ -28,7 +28,7 @@
 #include <vtkCellType.h>
 #include <vtkIdList.h>
 #include <vtkCell.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkType.h>
@@ -768,7 +768,7 @@ void EgVtkObject::copyNodeData
   EGVTKOBJECT_COPYNODEDATA("node_specified_density", vtkIntArray);
   EGVTKOBJECT_COPYNODEDATA("node_meshdensity_desired",  vtkDoubleArray);
   //EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
-  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray);
+  EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_pindex", vtkLongArray_t);
 }
 
@@ -837,7 +837,7 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
   EGVTKOBJECT_CREATENODEFIELD("node_index",                vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_specified_density",    vtkIntArray,    overwrite); //density index from table
   EGVTKOBJECT_CREATENODEFIELD("node_meshdensity_desired",  vtkDoubleArray, overwrite); //what we want
-  EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray,   overwrite); //node type
+  EGVTKOBJECT_CREATENODEFIELD("node_type",                 vtkCharArray_t,   overwrite); //node type
   EGVTKOBJECT_CREATENODEFIELD("node_type_counter",         vtkIntArray,    overwrite); // counter field to delay node type demotion
   EGVTKOBJECT_CREATENODEFIELD("node_pindex",               vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_mesh_quality",         vtkDoubleArray, overwrite); // generic field to store different quality measures

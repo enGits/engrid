@@ -43,7 +43,7 @@ CreateBoundaryLayerShell::DeleteBadNodes::DeleteBadNodes(QList<vtkIdType> bad_no
 
 bool CreateBoundaryLayerShell::DeleteBadNodes::checkEdge(vtkIdType id_node1, vtkIdType id_node2)
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   if (m_BadNodes.contains(id_node1) && !m_BadNodes.contains(id_node2)) {
     return true;
   }
@@ -119,7 +119,7 @@ void CreateBoundaryLayerShell::prepare()
 QList<vtkIdType> CreateBoundaryLayerShell::findBadNodes(int bc)
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   CgalTriCadInterface cad(m_ShellGrid);
   QList<vtkIdType> bad_nodes;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -153,7 +153,7 @@ QList<vtkIdType> CreateBoundaryLayerShell::correctAdjacentBC(int bc, int num_lev
   cout << "correcting boundary \"" << qPrintable(GuiMainWindow::pointer()->getBC(bc).getName()) << "\" with " << num_levels << " levels" << endl;
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   double scal_min = -1;
   int    count    = 0;
 
@@ -455,7 +455,7 @@ void CreateBoundaryLayerShell::reduceSurface()
   remove_points.setUpdatePSPOn();
   remove_points.setThreshold(3);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), false);
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     // reset all node types to EG_SIMPLE_VERTEX to trigger a recalculation of the node types
     node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
@@ -479,7 +479,7 @@ void CreateBoundaryLayerShell::smoothSurface()
   smooth.setNumberOfIterations(2);
   smooth.setBoundaryCodes(m_LayerAdjacentBoundaryCodes);
   QVector<bool> fix(m_Grid->GetNumberOfPoints(), false);
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     // reset all node types to EG_SIMPLE_VERTEX to trigger a recalculation of the node types
     node_type->SetValue(id_node, EG_SIMPLE_VERTEX);
@@ -499,6 +499,7 @@ void CreateBoundaryLayerShell::operate()
   createPrismaticGrid();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
+  return;
 
   foreach (int bc, m_LayerAdjacentBoundaryCodes) {
     QList<vtkIdType> bad_nodes;

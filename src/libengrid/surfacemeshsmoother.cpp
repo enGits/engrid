@@ -83,7 +83,7 @@ vec3_t SurfaceMeshSmoother::smoothNode(vtkIdType id_node)
 
   // only smooth simple vertices for now
   //EG_STOPDATE("2015-06-01");
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   if (node_type->GetValue(id_node) != EG_SIMPLE_VERTEX) {
     return x_old;
   }

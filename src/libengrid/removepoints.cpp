@@ -124,7 +124,7 @@ void RemovePoints::operate()
   computeNormals();
   updateNodeInfo();
 
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired");
 
@@ -520,7 +520,7 @@ bool RemovePoints::isSnapPoint(vtkIdType id_node1, vtkIdType id_node2,
                                int& num_newpoints, int& num_newcells,
                                const QVector<bool>& marked_nodes)
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   if (node_type->GetValue(id_node1) == EG_FIXED_VERTEX) {
     EG_BUG;
   }

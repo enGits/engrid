@@ -96,7 +96,7 @@ bool DeletePickedPoint::DeletePoint(vtkIdType id_node)
   
   updateNodeInfo();
   
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type" );
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type" );
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code" );
   EG_VTKDCN(vtkDoubleArray, characteristic_length_desired, m_Grid, "node_meshdensity_desired" );
   

@@ -35,6 +35,7 @@ void Error::setType(error_t a_type)
 
 void Error::setText(QString a_text)
 {
+  auto dbg_text = a_text.toStdString();
   text = a_text;
 }
 

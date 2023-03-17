@@ -25,7 +25,7 @@
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkPolyData.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 #include <QVector>
 #include <QString>

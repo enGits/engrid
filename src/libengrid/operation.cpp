@@ -37,7 +37,7 @@
 #include <vtkCellLocator.h>
 #include <vtkFloatArray.h>
 #include <vtkMath.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 #include <QApplication>
 #include <QTime>

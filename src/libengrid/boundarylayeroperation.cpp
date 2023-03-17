@@ -1620,7 +1620,7 @@ void BoundaryLayerOperation::swapEdgesToMatchShell(vtkUnstructuredGrid *shell_gr
     num_swaps = 0;
     m_Part.setAllCells();
     EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-    EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+    EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
     QVector<bool> swapped(m_Grid->GetNumberOfCells(), false);
     QVector<bool> marked(m_Grid->GetNumberOfCells(), false);
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {

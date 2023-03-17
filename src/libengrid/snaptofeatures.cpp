@@ -28,7 +28,7 @@ SnapToFeatures::SnapToFeatures()
 
 void SnapToFeatures::snapIteration()
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   QVector<bool> node_blocked = m_NodeSnapped;
   foreach (vtkIdType id_node, m_Part.getNodes()) {
     if (!node_blocked[id_node]) {

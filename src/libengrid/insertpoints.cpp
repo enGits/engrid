@@ -23,7 +23,7 @@
 #include "engrid.h"
 #include "guimainwindow.h"
 
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 #include <QTime>
 
@@ -159,7 +159,7 @@ int InsertPoints::insertPoints()
       copyNodeData(grid_tmp,S.p1,grid_tmp,id_new_node); ///\todo maybe trouble
 
       // inserted edge point = type of the edge on which it is inserted
-      EG_VTKDCN(vtkCharArray, node_type, grid_tmp, "node_type");
+      EG_VTKDCN(vtkCharArray_t, node_type, grid_tmp, "node_type");
       node_type->SetValue(id_new_node, getNewNodeType(S) );
 
       // insert new cells
@@ -199,7 +199,7 @@ int InsertPoints::insertPoints()
         }
 
         grid_tmp->ReplaceCell(S.id_cell[i_triangle] , 3, pts_triangle[i_triangle].data());
-        auto new_pts = idListFromVector(pts_triangle[i_triangle]);
+        auto new_pts = idListFromVector(pts_triangle[i_triangle+N]);
         vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE, new_pts);
         //vtkIdType newCellId = grid_tmp->InsertNextCell(VTK_TRIANGLE,3,pts_triangle[i_triangle+N].data());
         copyCellData(grid_tmp,S.id_cell[i_triangle],grid_tmp,newCellId);
@@ -221,7 +221,7 @@ char InsertPoints::getNewNodeType(stencil_t S)
   vtkIdType id_node1 = S.p1;
   vtkIdType id_node2 = S.p2;
 
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
   char type1 = node_type->GetValue(id_node1);
   char type2 = node_type->GetValue(id_node2);

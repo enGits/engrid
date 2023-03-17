@@ -20,7 +20,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "laplacesmoother.h"
 #include <vtkCellLocator.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 #include <vtkGenericCell.h>
 
 #include "guimainwindow.h"
@@ -54,7 +54,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
   vec3_t x_old;
   m_Grid->GetPoint(id_node, x_old.data());
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   bool move = true;
   if (m_NoCheck) {
     m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
@@ -82,7 +82,7 @@ bool LaplaceSmoother::setNewPosition(vtkIdType id_node, vec3_t x_new)
 
 void LaplaceSmoother::featureCorrection(vtkIdType id_node, CadInterface *cad_interface, vec3_t &x_new)
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   char type = node_type->GetValue(id_node);
   if (type == EG_FEATURE_EDGE_VERTEX || type == EG_BOUNDARY_EDGE_VERTEX) {
     x_new = cad_interface->snapToEdge(x_new);
@@ -155,7 +155,7 @@ void LaplaceSmoother::operate()
   }
   updateNodeInfo();
   EG_VTKDCC(vtkIntArray,    cell_code, m_Grid, "cell_code");
-  EG_VTKDCN(vtkCharArray,   node_type, m_Grid, "node_type" );
+  EG_VTKDCN(vtkCharArray_t,   node_type, m_Grid, "node_type" );
   EG_VTKDCN(vtkDoubleArray, cl,        m_Grid, "node_meshdensity_desired");
   QVector<vtkIdType> smooth_node(m_Grid->GetNumberOfPoints(), false);
   {

@@ -28,7 +28,7 @@
 #include "geometrytools.h"
 using namespace GeometryTools;
 
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 
 ShowInfo::ShowInfo(bool b, vtkIdType P, vtkIdType C) : SurfaceOperation()
 {
@@ -91,7 +91,7 @@ void ShowInfo::operate()
       }
       cout<<"absolute_n2c(PickedPoint)="<<absolute_n2c<<endl;
       
-      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");//node type
+      EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");//node type
       cout<<"node_type="<<VertexType2Str(node_type->GetValue(PickedPoint))<<endl;
       vec3_t X;
       m_Grid->GetPoint(PickedPoint,X.data());

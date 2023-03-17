@@ -48,7 +48,7 @@
 #include <vtkProperty.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
-#include <vtkCharArray.h>
+#include <vtkSignedCharArray.h>
 #include <vtkTextActor.h>
 #include <vtkVectorText.h>
 #include <vtkFollower.h>
@@ -1386,7 +1386,7 @@ void GuiMainWindow::updateStatusBar()
       EG_VTKDCN(vtkIntArray, node_specified_density, m_Grid, "node_specified_density");
       tmp.setNum(node_specified_density->GetValue(id_node));
       pick_txt += " node_specified_density=" + tmp;
-      EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+      EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
       pick_txt += " type=" + QString(VertexType2Str( node_type->GetValue(id_node)));
       tmp.setNum(id_node);
       pick_txt += " id_node=" + tmp;

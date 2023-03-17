@@ -517,7 +517,7 @@ double MeshPartition::getMaxSurfaceStencilEdgeLength(vtkIdType id_node)
 
 int MeshPartition::getNumberOfFeatureNeighbours(vtkIdType id_node)
 {
-  EG_VTKDCN(vtkCharArray, node_type, m_Grid, "node_type");
+  EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");
   int N = 0;
   for (int i = 0; i < n2nGSize(id_node); ++i) {
     char type = node_type->GetValue(n2nGG(id_node, i));
