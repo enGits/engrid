@@ -27,6 +27,7 @@
 #include "geometrysmoother.h"
 #include "vtkEgPolyDataToUnstructuredGridFilter.h"
 
+//#include <boost/multiprecision/cpp_int/cpp_int_config.hpp>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkIdList.h>
 #include <vtkLoopSubdivisionFilter.h>
@@ -106,6 +107,7 @@ void BoundaryLayerOperation::readSettings()
     m_UseGrouping = use_grouping;
     in >> m_GroupingAngle;
     m_GroupingAngle = deg2rad(m_GroupingAngle);
+    in >> m_NumBufferLayers;
   }
   m_ELSManagerBLayer.clear();
   m_ELSManagerBLayer.readBoundaryLayerRules(m_Grid);
@@ -216,6 +218,11 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
   computeLimitPlaneNormals();
   writeBoundaryLayerVectors("blayer", 1);
   smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations);
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      m_BoundaryLayerVectors[id_node].normalise();
+    }
+  }
   writeBoundaryLayerVectors("blayer", 2);
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -233,14 +240,16 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
         n.normalise();
         m_BoundaryLayerVectors[id_node] = n;
       }
-      if (num_bcs[id_node] > 1) {
-        m_BoundaryLayerVectors[id_node] = n_opt[id_node](m_BoundaryLayerVectors[id_node]);
-      }
-      if (!checkVector(m_BoundaryLayerVectors[id_node])) {
-        EG_ERR_RETURN("invalid layer vector computed");
-      }
     }
+    if (num_bcs[id_node] > 1) {
+      m_BoundaryLayerVectors[id_node] = n_opt[id_node](m_BoundaryLayerVectors[id_node]);
+    }
+    if (!checkVector(m_BoundaryLayerVectors[id_node])) {
+      EG_ERR_RETURN("invalid layer vector computed");
+    }
+    m_BoundaryLayerVectors[id_node].normalise();
   }
+  writeBoundaryLayerVectors("blayer", 3);
 
   computeHeights();
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
@@ -251,7 +260,7 @@ void BoundaryLayerOperation::computeBoundaryLayerVectors()
       }
     }
   }
-  writeBoundaryLayerVectors("blayer", 3);
+  writeBoundaryLayerVectors("blayer", 4);
 
 }
 
@@ -546,54 +555,64 @@ void BoundaryLayerOperation::writeBoundaryLayerVectors(QString file_name, int co
 void BoundaryLayerOperation::computeDesiredHeights()
 {
   EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
-
-  // first pass (intial height)
+  //
+  // As a hack we will take the minimal height as the height for the first prism for the whole mesh
+  // This can be improved if (and when) we decide to go ahead with improving enGrid for use with DrNUM
+  //
+  double h_min = 1e10;
+  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+    if (m_BoundaryLayerNode[id_node]) {
+      vec3_t x;
+      m_Grid->GetPoint(id_node, x.data());
+      h_min = std::min(m_ELSManagerBLayer.minEdgeLength(x), h_min);
+    }
+  }
+  //
+  // compute the heights (valid for the whole boundary layer)
+  //
+  std::vector<double> y_layer;
+  {
+    double dy     = h_min;
+    double dy_max = m_FarfieldRatio * h_min;
+    bool   done   = false;
+    //
+    y_layer.push_back(0.0);
+    y_layer.push_back(h_min);
+    //
+    while (!done) {
+      dy *= m_StretchingRatio;
+      if (dy > dy_max) {
+        dy   = dy_max;
+        done = true;
+      }
+      y_layer.push_back(y_layer.back() + dy);
+    }
+    //
+    // add buffer layers
+    //
+    for (int i = 0; i < m_NumBufferLayers; ++i) {
+      y_layer.push_back(y_layer.back() + dy);
+    }
+  }
+  m_RelativeHeights.resize(y_layer.size());
+  for (int i = 0; i < y_layer.size(); ++i) {
+    m_RelativeHeights[i] = y_layer[i]/y_layer.back();
+  }
+  //
+  // first pass (initial height)
+  //
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
   int k = 1;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      double h0 = m_ELSManagerBLayer.minEdgeLength(x);
-      double h1 = cl->GetValue(id_node)*m_FarfieldRatio;
-      k = max(k, int(logarithm(m_StretchingRatio, h1/h0)));
+      m_Height[id_node] = y_layer.back();
     }
   }
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      double h0 = m_ELSManagerBLayer.minEdgeLength(x);
-      double h1 = cl->GetValue(id_node)*m_FarfieldRatio;
-      double s  = pow(h1/h0, 1.0/k);
-      double H  = h0*(1 - pow(s, k))/(1 - s);
-      if (!checkReal(H)) {
-        EG_ERR_RETURN("floating point error while computing heights");
-      }
-      if (H < 0) {
-        EG_ERR_RETURN("negative height computed");
-      }
-      if (H > 1000*h1) {
-        cout << H << ", " << h1 << endl;
-        EG_ERR_RETURN("unrealistically large height computed");
-      }
-      if (H < 1e-3*h0) {
-        EG_ERR_RETURN("unrealistically small height computed");
-      }
-      if (h1 < h0) {
-        QString h0_txt, h1_txt, id_txt;
-        h0_txt.setNum(h0);
-        h1_txt.setNum(h1);
-        id_txt.setNum(id_node);
-        EG_ERR_RETURN("h1 < h0 (" + h1_txt + " < " + h0_txt + ", for node " + id_txt + ")");
-      }
-      m_Height[id_node] = H;
-    }
-  }
-
-  m_NumLayers = k;
-
+  //
+  m_NumLayers = y_layer.size() - 1;
+  //
   // correct with angle between face normal and propagation direction (node normals)
+  //
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
       int N = 0;
@@ -745,7 +764,7 @@ void BoundaryLayerOperation::createSmoothShell()
   EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
   smooth->SetInputConnection(subdiv->GetOutputPort());
   smooth->BoundarySmoothingOn();
-  smooth->FeatureEdgeSmoothingOn();
+  smooth->FeatureEdgeSmoothingOff();
   smooth->SetFeatureAngle(180);
   smooth->SetEdgeAngle(180);
   smooth->SetNumberOfIterations(100);
@@ -755,8 +774,20 @@ void BoundaryLayerOperation::createSmoothShell()
   smooth->SetPassBand(pb);
   smooth->Update();
 
+  /*
+  EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
+  smooth->SetInputConnection(subdiv->GetOutputPort());
+  smooth->SetNumberOfIterations(10);
+  smooth->SetRelaxationFactor(0.1);
+  smooth->FeatureEdgeSmoothingOff();
+  smooth->BoundarySmoothingOn();
+  smooth->Update();
+  */
+
+
   EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata_to_grid);
-  pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
+  //pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
+  pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
   pdata_to_grid->Update();
   makeCopy(pdata_to_grid->GetOutput(), m_ShellGrid);
 
@@ -836,8 +867,8 @@ void BoundaryLayerOperation::smoothUsingBLVectors()
 {
   // create shell
   createSmoothShell();
-
   newHeightFromShellIntersect(1.0);
+  return;
 
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
 

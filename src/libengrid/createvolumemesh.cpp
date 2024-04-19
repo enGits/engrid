@@ -22,10 +22,13 @@
 #include "createvolumemesh.h"
 #include "deletetetras.h"
 #include "deletecells.h"
+#include "engrid.h"
 #include "guimainwindow.h"
+#include "meshpartition.h"
 #include "updatedesiredmeshdensity.h"
 #include "createboundarylayershell.h"
 
+#include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
 CreateVolumeMesh::CreateVolumeMesh()
@@ -106,16 +109,43 @@ void CreateVolumeMesh::operate()
     blayer();
     if (!m_Debug) {
       if (blayer.success()) {
-        createTetMesh(2, true);
+        //createTetMesh(2, true);
+        //
         vtkUnstructuredGrid *prismatic_grid = blayer.getPrismaticGrid();
         MeshPartition prismatic_part(prismatic_grid, true);
         QVector<vtkIdType> shell_cells;
         getSurfaceCells(blayer.getBoundaryLayerCodes(), shell_cells, m_Grid);
+        MeshPartition shell_part(m_Grid);
+        shell_part.setCells(shell_cells);
+        EG_VTKSP(vtkUnstructuredGrid, shell_grid);
+        shell_part.extractToVtkGrid(shell_grid);
+        //
+        auto new_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition("transfer", "patch"));
+        {
+          EG_VTKDCC(vtkIntArray, cell_code, shell_grid, "cell_code");
+          for (vtkIdType id_cell = 0; id_cell < shell_grid->GetNumberOfCells(); ++id_cell) {
+            //
+            // set boundary code for shell cells (outside end of boundary layer mesh)
+            //
+            cell_code->SetValue(id_cell, new_bc.getCode());
+            //
+            // invert the direction of the normals of the shell cells
+            //
+            shell_grid->GetCells()->ReverseCellAtId(id_cell);
+          }
+        }
+        //
         DeleteCells delete_cells;
+        MeshPartition all(m_Grid, true);
         delete_cells.setGrid(m_Grid);
-        delete_cells.setCellsToDelete(shell_cells);
+        delete_cells.setCellsToDelete(all.getCells());
         delete_cells();
+        m_Part.setAllCells();
         m_Part.addPartition(prismatic_part);
+        //
+        MeshPartition new_shell_part(shell_grid, true);
+        m_Part.addPartition(new_shell_part);
+        //
       } else {
         cout << "An error occurred while creating the prismatic layers!" << endl;
       }
@@ -123,5 +153,6 @@ void CreateVolumeMesh::operate()
   } else {
     createTetMesh(2, true);
   }
+  m_Grid->Modified();
 }
 

@@ -22,6 +22,7 @@
 #include "createboundarylayershell.h"
 
 #include "createvolumemesh.h"
+#include "math/mathvector.h"
 #include "swaptriangles.h"
 #include "deletetetras.h"
 #include "deletecells.h"
@@ -336,14 +337,10 @@ void CreateBoundaryLayerShell::createLayerNodes(vtkIdType id_node)
   m_PrismaticGrid->GetPoints()->SetPoint(m_ShellNodeMap[id_node], x1.data());
   vec3_t x2 = x1 + m_BoundaryLayerVectors[id_node];
 
-  double H  = m_BoundaryLayerVectors[id_node].abs();
-  double h  = H*(1.0 - m_StretchingRatio)/(1.0 - pow(m_StretchingRatio, m_NumLayers));
-  vec3_t dx = (1.0/H)*m_BoundaryLayerVectors[id_node];
-  vec3_t x  = x1;
   m_PrismaticGrid->GetPoints()->SetPoint(m_ShellNodeMap[id_node], x1.data());
+  double h1 = 0;
   for (int i = 1; i < m_NumLayers; ++i) {
-    x += h*dx;
-    h *= m_StretchingRatio;
+    vec3_t x = x1 + m_RelativeHeights[i]*(x2 - x1);
     m_PrismaticGrid->GetPoints()->SetPoint(i*m_ShellPart.getNumberOfNodes() + m_ShellNodeMap[id_node], x.data());
   }
   m_PrismaticGrid->GetPoints()->SetPoint(m_NumLayers*m_ShellPart.getNumberOfNodes() + m_ShellNodeMap[id_node], x2.data());

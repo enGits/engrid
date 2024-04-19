@@ -69,6 +69,7 @@ void GuiCreateVolumeMesh::operate()
     MeshPartition rest(rest_grid, true);
     part.addPartition(rest);
   }
+  GuiMainWindow::pointer()->updateBoundaryCodes(true);
   resetOrientation(m_Grid);
   createIndices(m_Grid);
 }

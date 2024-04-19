@@ -207,9 +207,15 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
     for (vtkIdType id_pnode = 0; id_pnode < part.m_Grid->GetNumberOfPoints(); ++id_pnode) {
       vec3_t xp, x;
       part.m_Grid->GetPoint(id_pnode, xp.data());
+      bool found_match = false;
       vtkIdType id_node = loc->FindClosestPoint(xp.data());
-      m_Grid->GetPoint(id_node, x.data());
-      if ((x - xp).abs() < tol) {
+      if (id_node >= 0) {
+        m_Grid->GetPoint(id_node, x.data());
+        if ((x - xp).abs() < tol) {
+          found_match = true;
+        }
+      }
+      if (found_match) {
         pnode2node[id_pnode] = id_node;
       } else {
         pnode2node[id_pnode] = N;

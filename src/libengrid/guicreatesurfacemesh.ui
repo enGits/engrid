@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>905</width>
-    <height>875</height>
+    <width>1063</width>
+    <height>878</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -398,7 +398,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>stretching ration between layers</string>
+            <string>stretching ratio between layers</string>
            </property>
           </widget>
          </item>
@@ -438,7 +438,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_15">
            <property name="text">
-            <string>ratio between last layer and farfield</string>
+            <string>ratio between last layer and first layer</string>
            </property>
           </widget>
          </item>
@@ -471,7 +471,7 @@
             <double>0.050000000000000</double>
            </property>
            <property name="value">
-            <double>1.200000000000000</double>
+            <double>1.500000000000000</double>
            </property>
           </widget>
          </item>
@@ -558,8 +558,17 @@
          </item>
          <item row="11" column="2">
           <widget class="QLabel" name="label_22">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
             <string>   grouping angle</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -641,16 +650,16 @@
          <item row="2" column="1">
           <widget class="QDoubleSpinBox" name="m_DoubleSpinBoxBoundaryLayerFarfieldRatio">
            <property name="minimum">
-            <double>0.050000000000000</double>
-           </property>
-           <property name="maximum">
             <double>1.000000000000000</double>
            </property>
+           <property name="maximum">
+            <double>1000.000000000000000</double>
+           </property>
            <property name="singleStep">
-            <double>0.050000000000000</double>
+            <double>0.100000000000000</double>
            </property>
            <property name="value">
-            <double>0.500000000000000</double>
+            <double>10.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -783,6 +792,32 @@
            </property>
            <property name="text">
             <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QSpinBox" name="m_SpinBoxBufferLayers">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_28">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string>buffer layers</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>

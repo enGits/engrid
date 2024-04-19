@@ -97,7 +97,7 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     }
   }
   setTextFromTable();
-  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
+  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules").trimmed());
   
   connect(m_Ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
   connect(m_Ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
@@ -205,6 +205,7 @@ int GuiCreateSurfaceMesh::readSettings()
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerRadarAngle->setValue(dv);
     in >> iv; m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->setChecked(iv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->setValue(dv);
+    in >> iv; m_Ui.m_SpinBoxBufferLayers->setValue(iv); 
   }
 
   return(0);
@@ -259,6 +260,7 @@ int GuiCreateSurfaceMesh::writeSettings()
     if (m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->checkState() == Qt::Checked) out << "1\n";
     else                                                                               out << "0\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->value() << "\n";
+    out << m_Ui.m_SpinBoxBufferLayers->value() << "\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/blayer/settings", buffer);
 
@@ -289,8 +291,8 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
 void GuiCreateSurfaceMesh::setTextFromTable()
 {
   //EG_STOPDATE("2015-06-01");
-  m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules"));
-  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules"));
+  m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules").trimmed());
+  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules").trimmed());
   return;
 
   QString text = "";

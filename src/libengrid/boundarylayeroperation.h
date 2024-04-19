@@ -61,9 +61,13 @@ protected: // attributes
   int                       m_NumBoundaryLayerHeightRelaxations;
   double                    m_ShellPassBand;
   int                       m_NumLayers;
+  int                       m_NumBufferLayers;
   EdgeLengthSourceManager   m_ELSManagerBLayer;
   EdgeLengthSourceManager   m_ELSManagerSurface;
   vtkUnstructuredGrid*      m_ShellGrid;
+  std::vector<double>       m_RelativeHeights;
+
+  int m_DrnumBuffer = 4;
 
 
 protected: // methods
