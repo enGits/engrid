@@ -1640,10 +1640,11 @@ vtkIdType GuiMainWindow::getPickedPoint()
 void GuiMainWindow::changeSurfaceOrientation()
 {
   for (vtkIdType cellId = 0; cellId < m_Grid->GetNumberOfCells(); ++cellId) {
-    EG_GET_CELL(cellId, m_Grid);
-    QVector<vtkIdType> nodes(num_pts);
-    for (vtkIdType j = 0; j < num_pts; ++j) nodes[j]          = pts[j];
-    for (vtkIdType j = 0; j < num_pts; ++j) pts[num_pts - j - 1] = nodes[j];
+    m_Grid->GetCells()->ReverseCellAtId(cellId);
+    // EG_GET_CELL(cellId, m_Grid);
+    // QVector<vtkIdType> nodes(num_pts);
+    // for (vtkIdType j = 0; j < num_pts; ++j) nodes[j]          = pts[j];
+    // for (vtkIdType j = 0; j < num_pts; ++j) pts[num_pts - j - 1] = nodes[j];
   }
   updateActors();
   m_Grid->Modified();// to make sure VTK notices the changes and changes the cell colors

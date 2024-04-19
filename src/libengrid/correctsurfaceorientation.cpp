@@ -50,9 +50,10 @@ void CorrectSurfaceOrientation::pass1()
         }
       }
       if (!ok) {
-        QVector<vtkIdType> nodes(num_pts2);
-        for (vtkIdType j = 0; j < num_pts2; ++j) nodes[j] = pts2->GetId(j);
-        for (vtkIdType j = 0; j < num_pts2; ++j) pts2->SetId(num_pts2 - j - 1, nodes[j]);
+        m_Grid->GetCells()->ReverseCellAtId(pair[i].item2);
+        // QVector<vtkIdType> nodes(num_pts2);
+        // for (vtkIdType j = 0; j < num_pts2; ++j) nodes[j] = pts2->GetId(j);
+        // for (vtkIdType j = 0; j < num_pts2; ++j) pts2->SetId(num_pts2 - j - 1, nodes[j]);
       }
     }
   }
