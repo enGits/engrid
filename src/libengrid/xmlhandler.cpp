@@ -25,11 +25,56 @@
 #include <QDir>
 #include <QString>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 #include "engrid.h"
 
 #include <iostream>
 using namespace std;
+
+namespace {
+
+QString escapeXmlText(const QString &text)
+{
+  QString out = text;
+  QRegularExpression amp_re("&(?![a-zA-Z]+;|#\\d+;|#x[0-9A-Fa-f]+;)");
+  out.replace(amp_re, "&amp;");
+  out.replace("<", "&lt;");
+  out.replace(">", "&gt;");
+  return out;
+}
+
+QString escapeXmlSections(const QString &xml, const QStringList &tags)
+{
+  QString out = xml;
+  foreach (const QString &tag, tags) {
+    const QString open = "<" + tag + ">";
+    const QString close = "</" + tag + ">";
+    QString rebuilt;
+    int pos = 0;
+    while (true) {
+      int open_idx = out.indexOf(open, pos, Qt::CaseInsensitive);
+      if (open_idx < 0) {
+        rebuilt += out.mid(pos);
+        break;
+      }
+      int content_start = open_idx + open.length();
+      int close_idx = out.indexOf(close, content_start, Qt::CaseInsensitive);
+      if (close_idx < 0) {
+        rebuilt += out.mid(pos);
+        break;
+      }
+      rebuilt += out.mid(pos, content_start - pos);
+      rebuilt += escapeXmlText(out.mid(content_start, close_idx - content_start));
+      rebuilt += out.mid(close_idx, close.length());
+      pos = close_idx + close.length();
+    }
+    out = rebuilt;
+  }
+  return out;
+}
+
+} // namespace
 
 XmlHandler::XmlHandler(QString tagName, QObject *parent)
     : QObject(parent) {
@@ -51,11 +96,32 @@ bool XmlHandler::openXml(QString file_name) {
     qWarning() << error_message;
     return(false);
   }
-  if (!m_XmlDoc.setContent(&xml_file)) {
-    qWarning() << tr("Error reading XML file:\n").arg(file_name) << "\n setContent failed.";
-    return(false);
-  }
+  QString xml_text = QString::fromUtf8(xml_file.readAll());
   xml_file.close();
+
+  QString error_msg;
+  int error_line = 0;
+  int error_column = 0;
+  if (!m_XmlDoc.setContent(xml_text, false, &error_msg, &error_line, &error_column)) {
+    QString repaired_text = escapeXmlSections(xml_text, QStringList() << "rules");
+    if (repaired_text != xml_text) {
+      if (!m_XmlDoc.setContent(repaired_text, false, &error_msg, &error_line, &error_column)) {
+        qWarning() << tr("Error reading XML file:\n%1\n%2 (line %3, column %4)")
+                      .arg(file_name)
+                      .arg(error_msg)
+                      .arg(error_line)
+                      .arg(error_column);
+        return(false);
+      }
+    } else {
+      qWarning() << tr("Error reading XML file:\n%1\n%2 (line %3, column %4)")
+                    .arg(file_name)
+                    .arg(error_msg)
+                    .arg(error_line)
+                    .arg(error_column);
+      return(false);
+    }
+  }
 
   // initialize m_DomNode
   resetToTopNode();

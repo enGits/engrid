@@ -845,12 +845,10 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
 
 void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)
 {
+  grid->Reset();
   EG_VTKSP(vtkPoints, points);
   points->SetNumberOfPoints(Nnodes);
   grid->SetPoints(points);
-  grid->Allocate(0, 0);
-  grid->Squeeze();
-  grid->Reset();
   grid->Allocate(Ncells,max(vtkIdType(1),Ncells/10));
   if (create_fields) {
     createBasicFields(grid, Ncells, Nnodes, true);
@@ -1558,4 +1556,3 @@ void EgVtkObject::getSurfaceCells(int bc,  QVector<vtkIdType>  &cells,  vtkUnstr
     }
   }
 }
-

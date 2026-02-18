@@ -72,20 +72,31 @@ int vtkEgPolyDataToUnstructuredGridFilter::RequestData
     // Get input and output data
     vtkPolyData*         input  = vtkPolyData::GetData(inputVector[0]);
     vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector);
-    
+    if (!input || !output) {
+      return 1;
+    }
+
+    vtkPoints* input_points = input->GetPoints();
+    if (!input_points || input_points->GetNumberOfPoints() == 0) {
+      output->Initialize();
+      EG_VTKSP(vtkPoints, points);
+      output->SetPoints(points);
+      return 1;
+    }
+
     // the coordinates of the nodes
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-    points->SetNumberOfPoints(input->GetPoints()->GetNumberOfPoints());
-    for (vtkIdType vertId = 0; vertId < input->GetPoints()->GetNumberOfPoints(); ++vertId) {
+    points->SetNumberOfPoints(input_points->GetNumberOfPoints());
+    for (vtkIdType vertId = 0; vertId < input_points->GetNumberOfPoints(); ++vertId) {
       double x[3];
-      input->GetPoints()->GetPoint(vertId,x);
+      input_points->GetPoint(vertId, x);
       points->SetPoint(vertId,x);
     };
     output->SetPoints(points);
     
     // the cells
     input->BuildCells();
-    output->Allocate(input->GetNumberOfPolys(),input->GetNumberOfPolys());
+    output->Allocate(input->GetNumberOfPolys(), input->GetNumberOfPolys());
     for (vtkIdType cellId = 0; cellId < input->GetNumberOfPolys(); ++cellId) {
       EG_GET_CELL(cellId, input);
       if (num_pts == 3) {
@@ -104,4 +115,3 @@ int vtkEgPolyDataToUnstructuredGridFilter::RequestData
   return 1;
   
 };
-

@@ -21,6 +21,7 @@
 #include "guimirrormesh.h"
 #include "engrid.h"
 #include "guimainwindow.h"
+#include <vtkCellType.h>
 #include <vtkIdList.h>
 #include <vtkSmartPointer.h>
 
@@ -49,7 +50,18 @@ void GuiMirrorMesh::operate()
     EG_GET_CELL(id_cell, m_Grid);
     vtkSmartPointer<vtkIdList> new_pts = vtkSmartPointer<vtkIdList>::New();
     new_pts->SetNumberOfIds(num_pts);
-    if (type_cell == VTK_TETRA) {
+    if (type_cell == VTK_TRIANGLE) {
+      new_pts->SetId(0, pts[2]);
+      new_pts->SetId(1, pts[1]);
+      new_pts->SetId(2, pts[0]);
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
+    } else if (type_cell == VTK_QUAD) {
+      new_pts->SetId(0, pts[3]);
+      new_pts->SetId(1, pts[2]);
+      new_pts->SetId(2, pts[1]);
+      new_pts->SetId(3, pts[0]);
+      id_new_cell = mirror_grid->InsertNextCell(type_cell, new_pts);
+    } else if (type_cell == VTK_TETRA) {
       new_pts->SetId(0, pts[0]);
       new_pts->SetId(1, pts[1]);
       new_pts->SetId(2, pts[3]);
@@ -121,5 +133,6 @@ void GuiMirrorMesh::operate()
   } else {
     makeCopy(mirror_grid, m_Grid);
   }
+  m_Grid->Modified();
 }
 

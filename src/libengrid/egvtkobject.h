@@ -785,15 +785,21 @@ vtkIdType EgVtkObject::copyCell(vtkUnstructuredGrid *src, vtkIdType id_cell, vtk
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);
   } else {
-    src->GetCellPoints(id_cell, stream);
-    for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
-      if (src2dst[stream->GetId(i)] < 0) {
-        EG_BUG;
-      }
-      if (src2dst[stream->GetId(i)] >= dst->GetNumberOfPoints()) {
-        EG_BUG;
-      }
-      stream->SetId(i, src2dst[stream->GetId(i)]);
+    // src->GetCellPoints(id_cell, stream);
+    // for (int i = 0; i < stream->GetNumberOfIds(); ++i) {
+    //   if (src2dst[stream->GetId(i)] < 0) {
+    //     EG_BUG;
+    //   }
+    //   if (src2dst[stream->GetId(i)] >= dst->GetNumberOfPoints()) {
+    //     EG_BUG;
+    //   }
+    //   stream->SetId(i, src2dst[stream->GetId(i)]);
+    // }
+    // id_new_cell = dst->InsertNextCell(type_cell, stream);
+    EG_GET_CELL(id_cell, src);
+    stream->SetNumberOfIds(num_pts);
+    for (int i = 0; i < num_pts; ++i) {
+      stream->SetId(i, src2dst[pts[i]]);
     }
     id_new_cell = dst->InsertNextCell(type_cell, stream);
   }

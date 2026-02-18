@@ -57,6 +57,7 @@ protected: // attributes
   double                    m_FaceAngleLimit;
   bool                      m_UseGrouping;
   double                    m_GroupingAngle;
+  bool                      m_PolyhedralBoundaryLayer;
   int                       m_NumBoundaryLayerVectorRelaxations;
   int                       m_NumBoundaryLayerHeightRelaxations;
   double                    m_ShellPassBand;
@@ -112,6 +113,7 @@ public: // methods
   ~BoundaryLayerOperation();
 
   QSet<int> getLayerAdjacentBoundaryCodes();
+  bool usePolyhedralBoundaryLayer() const { return m_PolyhedralBoundaryLayer; }
 
 
 

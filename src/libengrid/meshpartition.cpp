@@ -199,8 +199,11 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
     tol = max(tol, 1e-30);
     EG_VTKSP(vtkUnstructuredGrid, new_grid);
     EG_VTKSP(vtkKdTreePointLocator,loc);
-    loc->SetDataSet(m_Grid);
-    loc->BuildLocator();
+    bool use_locator = m_Grid->GetNumberOfPoints() > 0;
+    if (use_locator) {
+      loc->SetDataSet(m_Grid);
+      loc->BuildLocator();
+    }
     QVector<vtkIdType> pnode2node(part.m_Grid->GetNumberOfPoints());
     vtkIdType N = m_Grid->GetNumberOfPoints();
     Timer T(10);
@@ -208,15 +211,18 @@ void MeshPartition::addPartition(const MeshPartition& part, double tol)
       vec3_t xp, x;
       part.m_Grid->GetPoint(id_pnode, xp.data());
       bool found_match = false;
-      vtkIdType id_node = loc->FindClosestPoint(xp.data());
-      if (id_node >= 0) {
-        m_Grid->GetPoint(id_node, x.data());
-        if ((x - xp).abs() < tol) {
-          found_match = true;
+      if (use_locator) {
+        vtkIdType id_node = loc->FindClosestPoint(xp.data());
+        if (id_node >= 0) {
+          m_Grid->GetPoint(id_node, x.data());
+          if ((x - xp).abs() < tol) {
+            found_match = true;
+            pnode2node[id_pnode] = id_node;
+          }
         }
       }
       if (found_match) {
-        pnode2node[id_pnode] = id_node;
+        continue;
       } else {
         pnode2node[id_pnode] = N;
         ++N;

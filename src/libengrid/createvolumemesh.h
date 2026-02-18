@@ -42,6 +42,7 @@ private: // attributes
 private: // methods
   
   int  numVolumeCells();
+  void triangulateBoundaryLayerInterface(vtkUnstructuredGrid *shell_grid);
   
 
 protected: // methods

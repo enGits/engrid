@@ -35,29 +35,6 @@ class GuiCreateBoundaryLayer : public DialogOperation<Ui::GuiCreateBoundaryLayer
   Q_OBJECT
   
 private: // attributes
-  
-  QVector<vtkIdType> layer_cells;
-
-  int    m_NumIterations;
-  int    m_NumPreSteps;
-  int    m_NumPostSteps;
-  bool   m_WriteDebugFile;
-  bool   m_RemovePoints;
-  double m_PostStrength;
-
-  QSet<int> m_LayerAdjacentBoundaryCodes; /// Boundary codes of the surface we want to remove points on. Normally the one next to the prismatic boundary layer.
-
-private: // methods
-  
-  void deleteTouchingPrisms(int layer, double L);
-  void dump(vtkUnstructuredGrid *grid, QString name);
-  
-protected: // methods
-  
-  void smoothSurface();
-  void reduceSurface();
-  void updateSurface();
-  void insertPoints();
 
   virtual void before();
   virtual void operate();
@@ -65,10 +42,6 @@ protected: // methods
 public: // methods
   
   GuiCreateBoundaryLayer();
-
-private slots:
-  void SelectAll_BC();
-  void ClearAll_BC();
 };
 
 #endif

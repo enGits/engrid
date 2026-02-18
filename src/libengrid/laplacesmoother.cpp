@@ -101,11 +101,13 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
 
   for (int i_relaxation = 0; i_relaxation < 10; ++i_relaxation) {
     vec3_t x_new = x_old + Dx;
+    vec3_t x_projected = x_new;
     if (m_UseProjection) {
       int i_nodes = m_Part.localNode(id_node);
       int bc = m_NodeToBc[i_nodes][0];
-      x_new = GuiMainWindow::pointer()->getCadInterface(bc)->snapNode(id_node, x_new, m_CorrectCurvature);
-      featureCorrection(id_node, GuiMainWindow::pointer()->getCadInterface(bc), x_new);
+      CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(bc);
+      x_projected = cad->snapNode(id_node, x_new, m_CorrectCurvature);
+      featureCorrection(id_node, cad, x_projected);
     }
 
     // compute the minimal length of any edge adjacent to this node
@@ -121,11 +123,48 @@ bool LaplaceSmoother::moveNode(vtkIdType id_node, vec3_t &Dx)
       L_min = min(L_min, (x_old - x_neigh).abs());
     }
 
-    if (setNewPosition(id_node, x_new)) {
-      m_Grid->GetPoints()->SetPoint(id_node, x_new.data());
+    if (setNewPosition(id_node, x_projected)) {
+      m_Grid->GetPoints()->SetPoint(id_node, x_projected.data());
       moved = true;
-      Dx = x_new - x_old;
+      Dx = x_projected - x_old;
       break;
+    }
+    if (m_UseProjection) {
+      // Retry: re-smooth from the projected point and re-snap once.
+      vec3_t x_retry = x_projected;
+      QVector<vtkIdType> snap_points = getPotentialSnapPoints(id_node);
+      if (snap_points.size() > 0) {
+        x_retry = vec3_t(0,0,0);
+        double w_tot = 0.0;
+        foreach (vtkIdType id_snap_node, snap_points) {
+          vec3_t x;
+          m_Grid->GetPoint(id_snap_node, x.data());
+          double w = 1.0;
+          w_tot += w;
+          x_retry += w*x;
+        }
+        x_retry *= 1.0/w_tot;
+      }
+      if (m_UseNormalCorrection) {
+        vec3_t dx = x_retry - x_projected;
+        double scal = dx*m_NodeNormal[id_node];
+        x_retry += scal*m_NodeNormal[id_node];
+      }
+
+      int i_nodes = m_Part.localNode(id_node);
+      int bc = m_NodeToBc[i_nodes][0];
+      CadInterface *cad = GuiMainWindow::pointer()->getCadInterface(bc);
+      vec3_t x_retry_proj = cad->snapNode(id_node, x_retry, m_CorrectCurvature);
+      featureCorrection(id_node, cad, x_retry_proj);
+
+      m_Grid->GetPoints()->SetPoint(id_node, x_projected.data());
+      if (setNewPosition(id_node, x_retry_proj)) {
+        m_Grid->GetPoints()->SetPoint(id_node, x_retry_proj.data());
+        moved = true;
+        Dx = x_retry_proj - x_old;
+        break;
+      }
+      m_Grid->GetPoints()->SetPoint(id_node, x_old.data());
     }
     Dx *= 0.5;
   }

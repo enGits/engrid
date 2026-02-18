@@ -31,6 +31,8 @@ private: // attributes
 
   QVector<vtkIdType> layer_cells;
 
+  int     m_MarchingDirection;
+  bool    m_ReverseBoundaryFaces;
   int     m_NumIterations;
   bool    m_RemovePoints;
   double  m_RelativeHeight;
@@ -55,6 +57,8 @@ private: // attributes
   QMap<int, vec3_t> m_LayerAdjacentNormals;
 
   QVector<vec3_t> m_OriginalNodeNormals;
+  QVector<int>   m_DualNodeBoundaryCode;
+  QVector<vec3_t> m_DualNodeNormals;
 
 
 private: // data types
@@ -79,9 +83,11 @@ private: // methods
 
   QList<vtkIdType> findBadNodes(int bc);
   QList<vtkIdType> correctAdjacentBC(int bc, int num_levels = 10);
+  void orientBoundaryLayerSurface();
   void prepare();
   void createLayerNodes(vtkIdType id_node);
   void createPrismaticGrid();
+  void dualiseBoundaryLayerSurface();
 
 
 protected: // methods
@@ -96,6 +102,8 @@ public: // methods
 
   CreateBoundaryLayerShell();
 
+  void setMarchingDirectionA(bool march_in_a) { m_MarchingDirection = march_in_a ? -1 : 1; }
+  void setReverseBoundaryFaces(bool reverse) { m_ReverseBoundaryFaces = reverse; }
   void setVolumeName(QString name) { m_VolumeName = name; }
   vtkUnstructuredGrid* getPrismaticGrid() { return m_PrismaticGrid; }
   QVector<int> getBoundaryLayerCodes() { return m_BoundaryLayerCodes; }

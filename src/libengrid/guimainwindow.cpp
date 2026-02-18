@@ -1174,6 +1174,7 @@ void GuiMainWindow::open(QString file_name, bool update_current_filename)
   }
   if (!no_case_file) {
     if(!m_XmlHandler->openXml(file_name)) {
+      auto _file_name = qPrintable(file_name);
       QMessageBox::critical(this, tr("Open failed"), tr("Error reading enGrid case file:\n%1").arg(file_name));
       return;
     }

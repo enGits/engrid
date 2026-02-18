@@ -136,6 +136,7 @@
     <addaction name="actionImproveAspectRatio"/>
     <addaction name="actionCreateSurfaceMesh"/>
     <addaction name="actionSurfaceMesher"/>
+    <addaction name="actionCreateBoundaryLayer"/>
     <addaction name="separator"/>
     <addaction name="actionFillPlane"/>
     <addaction name="actionTransform"/>
@@ -247,6 +248,7 @@
    <addaction name="actionSurfaceMesher"/>
    <addaction name="separator"/>
    <addaction name="actionNormalExtrusion"/>
+   <addaction name="actionCreateBoundaryLayer"/>
    <addaction name="actionCreateVolumeMesh"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">

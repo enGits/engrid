@@ -206,6 +206,12 @@ int GuiCreateSurfaceMesh::readSettings()
     in >> iv; m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->setChecked(iv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->setValue(dv);
     in >> iv; m_Ui.m_SpinBoxBufferLayers->setValue(iv); 
+    if (!in.atEnd()) {
+      in >> iv;
+      m_Ui.m_CheckBoxBoundaryLayerPolyhedral->setChecked(iv);
+    } else {
+      m_Ui.m_CheckBoxBoundaryLayerPolyhedral->setChecked(false);
+    }
   }
 
   return(0);
@@ -261,6 +267,8 @@ int GuiCreateSurfaceMesh::writeSettings()
     else                                                                               out << "0\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->value() << "\n";
     out << m_Ui.m_SpinBoxBufferLayers->value() << "\n";
+    if (m_Ui.m_CheckBoxBoundaryLayerPolyhedral->checkState() == Qt::Checked) out << "1\n";
+    else                                                                    out << "0\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/blayer/settings", buffer);
 

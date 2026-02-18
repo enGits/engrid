@@ -97,6 +97,68 @@ void CreateVolumeMesh::setBoundaryLayerOn()
   m_CreateBoundaryLayer = true;
 }
 
+void CreateVolumeMesh::triangulateBoundaryLayerInterface(vtkUnstructuredGrid *shell_grid)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, shell_grid, "cell_code");
+
+  vtkIdType num_tri_cells = 0;
+  for (vtkIdType id_cell = 0; id_cell < shell_grid->GetNumberOfCells(); ++id_cell) {
+    if (!isSurface(id_cell, shell_grid)) {
+      continue;
+    }
+    EG_GET_CELL(id_cell, shell_grid);
+    if (num_pts >= 3) {
+      if (num_pts == 3) {
+        ++num_tri_cells;
+      } else {
+        num_tri_cells += num_pts - 2;
+      }
+    }
+  }
+
+  EG_VTKSP(vtkUnstructuredGrid, tri_grid);
+  allocateGrid(tri_grid, num_tri_cells, shell_grid->GetNumberOfPoints());
+  for (vtkIdType id_node = 0; id_node < shell_grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    shell_grid->GetPoint(id_node, x.data());
+    tri_grid->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(shell_grid, id_node, tri_grid, id_node);
+  }
+
+  EG_VTKDCC(vtkIntArray, tri_cell_code, tri_grid, "cell_code");
+  for (vtkIdType id_cell = 0; id_cell < shell_grid->GetNumberOfCells(); ++id_cell) {
+    if (!isSurface(id_cell, shell_grid)) {
+      continue;
+    }
+    EG_GET_CELL(id_cell, shell_grid);
+    if (num_pts < 3) {
+      continue;
+    }
+    if (num_pts == 3) {
+      vtkIdType tri_pts[3] = { pts[0], pts[1], pts[2] };
+      vtkIdType id_new = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+      copyCellData(shell_grid, id_cell, tri_grid, id_new);
+      tri_cell_code->SetValue(id_new, cell_code->GetValue(id_cell));
+    } else {
+      QVector<vtkIdType> poly;
+      poly.resize(num_pts);
+      for (int i = 0; i < num_pts; ++i) {
+        poly[i] = pts[i];
+      }
+      QVector<QVector<vtkIdType> > triangles;
+      triangulatePolygon(shell_grid, poly, triangles);
+      for (int i = 0; i < triangles.size(); ++i) {
+        vtkIdType tri_pts[3] = { triangles[i][0], triangles[i][1], triangles[i][2] };
+        vtkIdType id_new = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new);
+        tri_cell_code->SetValue(id_new, cell_code->GetValue(id_cell));
+      }
+    }
+  }
+
+  makeCopy(tri_grid, shell_grid);
+}
+
 void CreateVolumeMesh::operate()
 {
   readSettings();
@@ -119,6 +181,9 @@ void CreateVolumeMesh::operate()
         shell_part.setCells(shell_cells);
         EG_VTKSP(vtkUnstructuredGrid, shell_grid);
         shell_part.extractToVtkGrid(shell_grid);
+        if (blayer.usePolyhedralBoundaryLayer()) {
+          triangulateBoundaryLayerInterface(shell_grid);
+        }
         //
         auto new_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition("transfer", "patch"));
         {
@@ -155,4 +220,3 @@ void CreateVolumeMesh::operate()
   }
   m_Grid->Modified();
 }
-
