@@ -60,6 +60,9 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 
   //Load settings
   readSettings();
+
+  connect(m_Ui.m_CheckBoxBoundaryLayerPolyhedral, SIGNAL(toggled(bool)), this, SLOT(updateTriangulateFarfieldState(bool)));
+  updateTriangulateFarfieldState(m_Ui.m_CheckBoxBoundaryLayerPolyhedral->isChecked());
   
   Nbc = m_Ui.listWidget-> count ();
   
@@ -128,6 +131,14 @@ void GuiCreateSurfaceMesh::displayPb(int v)
   QString num;
   num.setNum(2*pow(10.0, -3*dv));
   m_Ui.m_LabelPassBand->setText(num);
+}
+
+void GuiCreateSurfaceMesh::updateTriangulateFarfieldState(bool on)
+{
+  m_Ui.m_CheckBoxTriangulateFarfield->setEnabled(on);
+  if (!on) {
+    m_Ui.m_CheckBoxTriangulateFarfield->setChecked(false);
+  }
 }
 
 ///////////////////////////////////////////
@@ -212,6 +223,12 @@ int GuiCreateSurfaceMesh::readSettings()
     } else {
       m_Ui.m_CheckBoxBoundaryLayerPolyhedral->setChecked(false);
     }
+    if (!in.atEnd()) {
+      in >> iv;
+      m_Ui.m_CheckBoxTriangulateFarfield->setChecked(iv);
+    } else {
+      m_Ui.m_CheckBoxTriangulateFarfield->setChecked(false);
+    }
   }
 
   return(0);
@@ -269,6 +286,8 @@ int GuiCreateSurfaceMesh::writeSettings()
     out << m_Ui.m_SpinBoxBufferLayers->value() << "\n";
     if (m_Ui.m_CheckBoxBoundaryLayerPolyhedral->checkState() == Qt::Checked) out << "1\n";
     else                                                                    out << "0\n";
+    if (m_Ui.m_CheckBoxTriangulateFarfield->checkState() == Qt::Checked) out << "1\n";
+    else                                                                out << "0\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/blayer/settings", buffer);
 

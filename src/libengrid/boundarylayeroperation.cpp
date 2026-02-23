@@ -42,6 +42,7 @@ BoundaryLayerOperation::BoundaryLayerOperation()
 {
   m_ShellGrid = vtkUnstructuredGrid::New();
   m_PolyhedralBoundaryLayer = false;
+  m_TriangulateFarfield = false;
 }
 
 BoundaryLayerOperation::~BoundaryLayerOperation()
@@ -121,6 +122,11 @@ void BoundaryLayerOperation::readSettings()
       in >> use_poly_blayer;
     }
     m_PolyhedralBoundaryLayer = use_poly_blayer;
+    int use_triangulate_farfield = 0;
+    if (!in.atEnd()) {
+      in >> use_triangulate_farfield;
+    }
+    m_TriangulateFarfield = use_triangulate_farfield;
   }
   m_ELSManagerBLayer.clear();
   m_ELSManagerBLayer.readBoundaryLayerRules(m_Grid);

@@ -62,6 +62,9 @@ void GuiCreateBoundaryLayer::operate()
   shell_part.setCells(shell_cells);
   EG_VTKSP(vtkUnstructuredGrid, shell_grid);
   shell_part.extractToVtkGrid(shell_grid);
+  if (blayer.usePolyhedralBoundaryLayer() && blayer.triangulateFarfield()) {
+    blayer.triangulateFarfieldSurface(shell_grid);
+  }
 
   auto new_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition("farfield", "patch"));
   EG_VTKDCC(vtkIntArray, cell_code, shell_grid, "cell_code");

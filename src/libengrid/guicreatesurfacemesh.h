@@ -38,6 +38,7 @@ private slots:
   
   void SelectAll_BC();
   void ClearAll_BC();
+  void updateTriangulateFarfieldState(bool on);
   
 protected: // methods
   

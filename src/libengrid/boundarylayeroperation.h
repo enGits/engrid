@@ -58,6 +58,7 @@ protected: // attributes
   bool                      m_UseGrouping;
   double                    m_GroupingAngle;
   bool                      m_PolyhedralBoundaryLayer;
+  bool                      m_TriangulateFarfield;
   int                       m_NumBoundaryLayerVectorRelaxations;
   int                       m_NumBoundaryLayerHeightRelaxations;
   double                    m_ShellPassBand;
@@ -114,6 +115,7 @@ public: // methods
 
   QSet<int> getLayerAdjacentBoundaryCodes();
   bool usePolyhedralBoundaryLayer() const { return m_PolyhedralBoundaryLayer; }
+  bool triangulateFarfield() const { return m_TriangulateFarfield; }
 
 
 

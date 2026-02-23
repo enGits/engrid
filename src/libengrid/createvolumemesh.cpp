@@ -181,8 +181,8 @@ void CreateVolumeMesh::operate()
         shell_part.setCells(shell_cells);
         EG_VTKSP(vtkUnstructuredGrid, shell_grid);
         shell_part.extractToVtkGrid(shell_grid);
-        if (blayer.usePolyhedralBoundaryLayer()) {
-          triangulateBoundaryLayerInterface(shell_grid);
+        if (blayer.usePolyhedralBoundaryLayer() && blayer.triangulateFarfield()) {
+          blayer.triangulateFarfieldSurface(shell_grid);
         }
         //
         auto new_bc = GuiMainWindow::pointer()->getBC(BoundaryCondition("transfer", "patch"));

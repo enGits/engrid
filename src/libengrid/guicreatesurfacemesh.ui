@@ -838,6 +838,23 @@
            </property>
           </widget>
          </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>triangulate farfield</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="QCheckBox" name="m_CheckBoxTriangulateFarfield">
+           <property name="text">
+            <string>activate</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
       </item>
      </layout>
@@ -916,6 +933,7 @@
   <tabstop>m_CheckBoxBoundaryLayerNormalVectorGrouping</tabstop>
   <tabstop>m_DoubleSpinBoxBoundaryLayerGroupingAngle</tabstop>
   <tabstop>m_CheckBoxBoundaryLayerPolyhedral</tabstop>
+  <tabstop>m_CheckBoxTriangulateFarfield</tabstop>
   <tabstop>m_LineEditCalcH0</tabstop>
   <tabstop>m_LineEditCalcH1</tabstop>
   <tabstop>m_SpinBoxCalcNumLayers</tabstop>

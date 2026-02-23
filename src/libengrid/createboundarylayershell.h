@@ -107,6 +107,7 @@ public: // methods
   void setVolumeName(QString name) { m_VolumeName = name; }
   vtkUnstructuredGrid* getPrismaticGrid() { return m_PrismaticGrid; }
   QVector<int> getBoundaryLayerCodes() { return m_BoundaryLayerCodes; }
+  void triangulateFarfieldSurface(vtkUnstructuredGrid *shell_grid);
   bool success() { return m_Success; }
 
 };

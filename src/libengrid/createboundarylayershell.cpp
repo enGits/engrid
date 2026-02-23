@@ -37,6 +37,50 @@
 #include "geometrytools.h"
 #include <vtkIdList.h>
 
+namespace {
+
+double triangleMinAngle(const vec3_t &a, const vec3_t &b, const vec3_t &c)
+{
+  vec3_t ab = b - a;
+  vec3_t ac = c - a;
+  vec3_t bc = c - b;
+  if (ab.abs() < 1e-12 || ac.abs() < 1e-12 || bc.abs() < 1e-12) {
+    return 0.0;
+  }
+  double ang_a = GeometryTools::angle(ab, ac);
+  double ang_b = GeometryTools::angle(-1*ab, bc);
+  double ang_c = GeometryTools::angle(-1*ac, -1*bc);
+  return min(ang_a, min(ang_b, ang_c));
+}
+
+bool useQuadDiagonal02(const vec3_t &p0, const vec3_t &p1, const vec3_t &p2, const vec3_t &p3)
+{
+  double min_diag_02 = min(triangleMinAngle(p0, p1, p2), triangleMinAngle(p0, p2, p3));
+  double min_diag_13 = min(triangleMinAngle(p0, p1, p3), triangleMinAngle(p1, p2, p3));
+  return min_diag_02 >= min_diag_13;
+}
+
+void sanitizePolygonNodes(QVector<vtkIdType> &nodes)
+{
+  if (nodes.isEmpty()) {
+    return;
+  }
+  QVector<vtkIdType> cleaned;
+  cleaned.reserve(nodes.size());
+  for (int i = 0; i < nodes.size(); ++i) {
+    vtkIdType id = nodes[i];
+    if (cleaned.isEmpty() || cleaned.last() != id) {
+      cleaned.append(id);
+    }
+  }
+  if (cleaned.size() > 1 && cleaned.first() == cleaned.last()) {
+    cleaned.removeLast();
+  }
+  nodes = cleaned;
+}
+
+}
+
 
 CreateBoundaryLayerShell::DeleteBadNodes::DeleteBadNodes(QList<vtkIdType> bad_nodes)
 {
@@ -481,6 +525,10 @@ void CreateBoundaryLayerShell::dualiseBoundaryLayerSurface()
         if (poly_nodes.size() < 3) {
           continue;
         }
+        sanitizePolygonNodes(poly_nodes);
+        if (poly_nodes.size() < 3) {
+          continue;
+        }
 
         vec3_t ref(0,0,0);
         for (int i = 0; i < poly_nodes.size(); ++i) {
@@ -833,10 +881,21 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   QVector<vtkIdType> original_faces, shell_faces;
   getSurfaceCells(m_BoundaryLayerCodes, original_faces, m_OriginalGrid);
   getSurfaceCells(m_BoundaryLayerCodes, shell_faces, m_Grid);
+  vtkIdType extra_nodes = 0;
+  if (m_PolyhedralBoundaryLayer && m_TriangulateFarfield) {
+    foreach (vtkIdType id_cell, shell_faces) {
+      EG_GET_CELL(id_cell, m_Grid);
+      if (num_pts >= 5) {
+        ++extra_nodes;
+      }
+    }
+  }
   {
     MeshPartition part(m_Grid);
     part.setCells(shell_faces);
-    allocateGrid(m_PrismaticGrid, (m_NumLayers + 1)*part.getNumberOfCells(), (m_NumLayers + 1)*part.getNumberOfNodes());
+    allocateGrid(m_PrismaticGrid,
+                 (m_NumLayers + 1)*part.getNumberOfCells(),
+                 (m_NumLayers + 1)*part.getNumberOfNodes() + extra_nodes);
   }
 
   EG_VTKDCC(vtkIntArray, cell_code_pri, m_PrismaticGrid, "cell_code");
@@ -844,6 +903,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   m_ShellNodeMap.fill(-1, m_Grid->GetNumberOfPoints());
   m_ShellPart.setGrid(m_Grid);
   m_ShellPart.setCells(shell_faces);
+  vtkIdType next_extra_node = (m_NumLayers + 1)*m_ShellPart.getNumberOfNodes();
   for (int i = 0; i < m_ShellPart.getNumberOfNodes(); ++i) {
     m_ShellNodeMap[m_ShellPart.globalNode(i)] = i;
   }
@@ -866,18 +926,18 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   // create prismatic cells and prepare adjacent quad faces
   //
   auto edge_boundary_code = [&](vtkIdType n1, vtkIdType n2) -> int {
-    int bc = 0;
+    int bc1 = 0;
+    int bc2 = 0;
     if (n1 >= 0 && n1 < m_DualNodeBoundaryCode.size() && m_DualNodeBoundaryCode[n1] > 0) {
-      bc = m_DualNodeBoundaryCode[n1];
+      bc1 = m_DualNodeBoundaryCode[n1];
     }
     if (n2 >= 0 && n2 < m_DualNodeBoundaryCode.size() && m_DualNodeBoundaryCode[n2] > 0) {
-      if (bc == 0) {
-        bc = m_DualNodeBoundaryCode[n2];
-      } else if (bc != m_DualNodeBoundaryCode[n2]) {
-        bc = 0;
-      }
+      bc2 = m_DualNodeBoundaryCode[n2];
     }
-    return bc;
+    if (bc1 > 0 && bc2 > 0) {
+      return bc1 == bc2 ? bc1 : bc1;
+    }
+    return bc1 > 0 ? bc1 : bc2;
   };
 
   foreach (vtkIdType id_cell, shell_faces) {
@@ -941,7 +1001,13 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     }
 
     for (int i_layer = 0; i_layer < m_NumLayers; ++i_layer) {
-      if (num_pts == 3) {
+      bool triangulate_top = m_PolyhedralBoundaryLayer && m_TriangulateFarfield
+                             && i_layer == m_NumLayers - 1 && num_pts > 3;
+      bool make_polyhedron = num_pts > 4;
+      if (triangulate_top) {
+        make_polyhedron = true;
+      }
+      if (!make_polyhedron && num_pts == 3) {
         vtkIdType pri_pts[6];
         for (int i_pts = 0; i_pts < 3; ++i_pts) {
           pri_pts[i_pts]     = face_pts[i_pts] + i_layer*m_ShellPart.getNumberOfNodes();
@@ -949,45 +1015,105 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
         }
         vtkIdType id_pri = m_PrismaticGrid->InsertNextCell(VTK_WEDGE, 6, pri_pts);
         cell_code_pri->SetValue(id_pri, 0);
-      } else if (num_pts == 4) {
+      } else if (!make_polyhedron && num_pts == 4) {
         vtkIdType pri_pts[8];
         for (int i_pts = 0; i_pts < 4; ++i_pts) {
-          pri_pts[i_pts]     = face_pts[i_pts] + i_layer*m_ShellPart.getNumberOfNodes();
-          pri_pts[i_pts + 4] = face_pts[i_pts] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
+          pri_pts[i_pts]     = face_pts[i_pts] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
+          pri_pts[i_pts + 4] = face_pts[i_pts] + i_layer*m_ShellPart.getNumberOfNodes();
         }
         vtkIdType id_hex = m_PrismaticGrid->InsertNextCell(VTK_HEXAHEDRON, 8, pri_pts);
         cell_code_pri->SetValue(id_hex, 0);
       } else {
-        EG_VTKSP(vtkIdList, stream);
-        stream->SetNumberOfIds(1 + 2*(num_pts + 1) + num_pts*5);
-        vtkIdType id = 0;
-        stream->SetId(id++, 2 + num_pts);
+        vtkIdType bottom_offset = i_layer*m_ShellPart.getNumberOfNodes();
+        vtkIdType top_offset = (i_layer + 1)*m_ShellPart.getNumberOfNodes();
+        int top_faces = 1;
+        if (triangulate_top) {
+          if (num_pts == 4) {
+            top_faces = 2;
+          } else {
+            top_faces = num_pts;
+          }
+        }
+        int num_faces = 1 + num_pts + top_faces;
+        QVector<vtkIdType> stream_ids;
+        stream_ids.reserve(1 + num_faces*(num_pts + 2));
+        stream_ids.append(num_faces);
 
-        // bottom face
-        stream->SetId(id++, num_pts);
-        for (int i = num_pts - 1; i >= 0; --i) {
-          stream->SetId(id++, face_pts[i] + i_layer*m_ShellPart.getNumberOfNodes());
+        // bottom face (outward)
+        stream_ids.append(num_pts);
+        for (int i = 0; i < num_pts; ++i) {
+          stream_ids.append(face_pts[i] + bottom_offset);
         }
 
-        // top face
-        stream->SetId(id++, num_pts);
-        for (int i = 0; i < num_pts; ++i) {
-          stream->SetId(id++, face_pts[i] + (i_layer + 1)*m_ShellPart.getNumberOfNodes());
+        // top face(s)
+        if (!triangulate_top) {
+          stream_ids.append(num_pts);
+          for (int i = num_pts - 1; i >= 0; --i) {
+            stream_ids.append(face_pts[i] + top_offset);
+          }
+        } else if (num_pts == 4) {
+          vec3_t p[4];
+          for (int i = 0; i < 4; ++i) {
+            m_PrismaticGrid->GetPoint(face_pts[i] + top_offset, p[i].data());
+          }
+          bool use_diag_02 = useQuadDiagonal02(p[0], p[1], p[2], p[3]);
+          if (use_diag_02) {
+            stream_ids.append(3);
+            stream_ids.append(face_pts[0] + top_offset);
+            stream_ids.append(face_pts[2] + top_offset);
+            stream_ids.append(face_pts[1] + top_offset);
+            stream_ids.append(3);
+            stream_ids.append(face_pts[0] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
+            stream_ids.append(face_pts[2] + top_offset);
+          } else {
+            stream_ids.append(3);
+            stream_ids.append(face_pts[0] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
+            stream_ids.append(face_pts[1] + top_offset);
+            stream_ids.append(3);
+            stream_ids.append(face_pts[1] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
+            stream_ids.append(face_pts[2] + top_offset);
+          }
+        } else {
+          vtkIdType center_id = next_extra_node++;
+          vec3_t center(0, 0, 0);
+          for (int i = 0; i < num_pts; ++i) {
+            vec3_t x;
+            m_PrismaticGrid->GetPoint(face_pts[i] + top_offset, x.data());
+            center += x;
+          }
+          center *= (1.0/num_pts);
+          m_PrismaticGrid->GetPoints()->SetPoint(center_id, center.data());
+          for (int i = 0; i < num_pts; ++i) {
+            vtkIdType p1 = face_pts[i] + top_offset;
+            vtkIdType p2 = face_pts[(i + 1) % num_pts] + top_offset;
+            stream_ids.append(3);
+            stream_ids.append(p1);
+            stream_ids.append(center_id);
+            stream_ids.append(p2);
+          }
         }
 
         // side faces
         for (int i = 0; i < num_pts; ++i) {
-          stream->SetId(id++, 4);
-          vtkIdType p1 = face_pts[i] + i_layer*m_ShellPart.getNumberOfNodes();
-          vtkIdType p2 = face_pts[(i + 1) % num_pts] + i_layer*m_ShellPart.getNumberOfNodes();
-          vtkIdType p3 = face_pts[(i + 1) % num_pts] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
-          vtkIdType p4 = face_pts[i] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
-          stream->SetId(id++, p1);
-          stream->SetId(id++, p2);
-          stream->SetId(id++, p3);
-          stream->SetId(id++, p4);
+          stream_ids.append(4);
+          vtkIdType p1 = face_pts[i] + bottom_offset;
+          vtkIdType p2 = face_pts[(i + 1) % num_pts] + bottom_offset;
+          vtkIdType p3 = face_pts[(i + 1) % num_pts] + top_offset;
+          vtkIdType p4 = face_pts[i] + top_offset;
+          stream_ids.append(p1);
+          stream_ids.append(p4);
+          stream_ids.append(p3);
+          stream_ids.append(p2);
         }
 
+        EG_VTKSP(vtkIdList, stream);
+        stream->SetNumberOfIds(stream_ids.size());
+        for (int i = 0; i < stream_ids.size(); ++i) {
+          stream->SetId(i, stream_ids[i]);
+        }
         vtkIdType id_poly = m_PrismaticGrid->InsertNextCell(VTK_POLYHEDRON, stream);
         cell_code_pri->SetValue(id_poly, 0);
       }
@@ -1015,6 +1141,100 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       cell_code->SetValue(id_qua, edge[0]);
     }
   }
+}
+
+void CreateBoundaryLayerShell::triangulateFarfieldSurface(vtkUnstructuredGrid *shell_grid)
+{
+  if (!shell_grid || shell_grid->GetNumberOfCells() == 0) {
+    return;
+  }
+
+  vtkIdType num_tri_cells = 0;
+  vtkIdType extra_nodes = 0;
+  for (vtkIdType id_cell = 0; id_cell < shell_grid->GetNumberOfCells(); ++id_cell) {
+    if (!isSurface(id_cell, shell_grid)) {
+      continue;
+    }
+    EG_GET_CELL(id_cell, shell_grid);
+    if (num_pts < 3) {
+      continue;
+    }
+    if (num_pts == 3) {
+      ++num_tri_cells;
+    } else if (num_pts == 4) {
+      num_tri_cells += 2;
+    } else {
+      num_tri_cells += num_pts;
+      ++extra_nodes;
+    }
+  }
+
+  if (num_tri_cells == 0) {
+    return;
+  }
+
+  EG_VTKSP(vtkUnstructuredGrid, tri_grid);
+  allocateGrid(tri_grid, num_tri_cells, shell_grid->GetNumberOfPoints() + extra_nodes);
+  for (vtkIdType id_node = 0; id_node < shell_grid->GetNumberOfPoints(); ++id_node) {
+    vec3_t x;
+    shell_grid->GetPoint(id_node, x.data());
+    tri_grid->GetPoints()->SetPoint(id_node, x.data());
+    copyNodeData(shell_grid, id_node, tri_grid, id_node);
+  }
+
+  vtkIdType next_extra_node = shell_grid->GetNumberOfPoints();
+  for (vtkIdType id_cell = 0; id_cell < shell_grid->GetNumberOfCells(); ++id_cell) {
+    if (!isSurface(id_cell, shell_grid)) {
+      continue;
+    }
+    EG_GET_CELL(id_cell, shell_grid);
+    if (num_pts < 3) {
+      continue;
+    }
+    if (num_pts == 3) {
+      vtkIdType tri_pts[3] = { pts[0], pts[1], pts[2] };
+      vtkIdType id_new = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+      copyCellData(shell_grid, id_cell, tri_grid, id_new);
+    } else if (num_pts == 4) {
+      vec3_t p[4];
+      for (int i = 0; i < 4; ++i) {
+        shell_grid->GetPoint(pts[i], p[i].data());
+      }
+      bool use_diag_02 = useQuadDiagonal02(p[0], p[1], p[2], p[3]);
+      if (use_diag_02) {
+        vtkIdType tri_pts1[3] = { pts[0], pts[1], pts[2] };
+        vtkIdType tri_pts2[3] = { pts[0], pts[2], pts[3] };
+        vtkIdType id_new1 = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts1);
+        vtkIdType id_new2 = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts2);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new1);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new2);
+      } else {
+        vtkIdType tri_pts1[3] = { pts[0], pts[1], pts[3] };
+        vtkIdType tri_pts2[3] = { pts[1], pts[2], pts[3] };
+        vtkIdType id_new1 = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts1);
+        vtkIdType id_new2 = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts2);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new1);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new2);
+      }
+    } else {
+      vtkIdType center_id = next_extra_node++;
+      vec3_t center(0, 0, 0);
+      for (int i = 0; i < num_pts; ++i) {
+        vec3_t x;
+        shell_grid->GetPoint(pts[i], x.data());
+        center += x;
+      }
+      center *= (1.0/num_pts);
+      tri_grid->GetPoints()->SetPoint(center_id, center.data());
+      for (int i = 0; i < num_pts; ++i) {
+        vtkIdType tri_pts[3] = { pts[i], pts[(i + 1) % num_pts], center_id };
+        vtkIdType id_new = tri_grid->InsertNextCell(VTK_TRIANGLE, 3, tri_pts);
+        copyCellData(shell_grid, id_cell, tri_grid, id_new);
+      }
+    }
+  }
+
+  makeCopy(tri_grid, shell_grid);
 }
 
 void CreateBoundaryLayerShell::reduceSurface()
