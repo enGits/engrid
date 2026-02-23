@@ -19,8 +19,6 @@
 # +                                                                      +
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTETLIBRARY")
-
 SET(libengrid_HEADERS
   blenderreader.h
   blenderwriter.h
@@ -39,14 +37,11 @@ SET(libengrid_HEADERS
   correctsurfaceorientation.h
   createboundarylayershell.h
   createcadtesselation.h
-  createhexcore.h
-  createvolumemesh.h
   curve.h
   deletecells.h
   deletepickedcell.h
   deletepickedpoint.h
   deletestraynodes.h
-  deletetetras.h
   deletevolumegrid.h
   dialoglineedit.h
   dialogoperation.h
@@ -76,9 +71,7 @@ SET(libengrid_HEADERS
   gmshwriter.h
   gridsmoother.h
   guicreateboundarylayer.h
-  guicreatehexcore.h
   guicreatesurfacemesh.h
-  guicreatevolumemesh.h
   guideletebadaspecttris.h
   guidivideboundarylayer.h
   guiedgelengthsourcebox.h
@@ -88,7 +81,6 @@ SET(libengrid_HEADERS
   guieditboundaryconditions.h
   guiimproveaspectratio.h
   guimainwindow.h
-  guimergevolumes.h
   guimirrormesh.h
   guinormalextrusion.h
   guipick.h
@@ -161,7 +153,6 @@ SET(libengrid_HEADERS
   surfacenodemovementcheck.h
   surfaceoperation.h
   swaptriangles.h
-  tetgenoperation.h
   text3d.h
   timer.h
   triangle.h
@@ -187,20 +178,12 @@ SET(libengrid_HEADERS
   fillplane.h
   drnumwriter.h
   computemeshdensity.h
-  converttopolymesh.h
-  guicreatehexshell.h
-  guiconverttopolymesh.h
-  createhexibmesh.h
-  guicreatehexibmesh.h
-  restricttoavailablevolumecells.h
 )
 
 SET(libengrid_FORMS
   guibooleangeometryoperation.ui
   guicreateboundarylayer.ui
-  guicreatehexcore.ui
   guicreatesurfacemesh.ui
-  guicreatevolumemesh.ui
   guideletebadaspecttris.ui
   guidivideboundarylayer.ui
   guiedgelengthsourcebox.ui
@@ -210,7 +193,6 @@ SET(libengrid_FORMS
   guieditboundaryconditions.ui
   guiimproveaspectratio.ui
   guimainwindow.ui
-  guimergevolumes.ui
   guimirrormesh.ui
   guinormalextrusion.ui
   guipick.ui
@@ -219,9 +201,6 @@ SET(libengrid_FORMS
   guisurfacemesher.ui
   guitransform.ui
   guifillplane.ui
-  guicreatehexshell.ui
-  guiconverttopolymesh.ui
-  guicreatehexibmesh.ui
   guiypluscalculator.ui
 )
 
@@ -251,14 +230,11 @@ SET(libengrid_SOURCES
   correctsurfaceorientation.cpp
   createboundarylayershell.cpp
   createcadtesselation.cpp
-  createhexcore.cpp
-  createvolumemesh.cpp
   curve.cpp
   deletecells.cpp
   deletepickedcell.cpp
   deletepickedpoint.cpp
   deletestraynodes.cpp
-  deletetetras.cpp
   deletevolumegrid.cpp
   dialoglineedit.cpp
   dolfynwriter.cpp
@@ -282,9 +258,7 @@ SET(libengrid_SOURCES
   gmshwriter.cpp
   gridsmoother.cpp
   guicreateboundarylayer.cpp
-  guicreatehexcore.cpp
   guicreatesurfacemesh.cpp
-  guicreatevolumemesh.cpp
   guideletebadaspecttris.cpp
   guidivideboundarylayer.cpp
   guiedgelengthsourcebox.cpp
@@ -294,7 +268,6 @@ SET(libengrid_SOURCES
   guieditboundaryconditions.cpp
   guiimproveaspectratio.cpp
   guimainwindow.cpp
-  guimergevolumes.cpp
   guimirrormesh.cpp
   guinormalextrusion.cpp
   guipick.cpp
@@ -357,7 +330,6 @@ SET(libengrid_SOURCES
   surfaceoperation.cpp
   swaptriangles.cpp
   text3d.cpp
-  tetgenoperation.cpp
   timer.cpp
   triangle.cpp
   triangularcadinterface.cpp
@@ -380,12 +352,6 @@ SET(libengrid_SOURCES
   fillplane.cpp
   drnumwriter.cpp
   computemeshdensity.cpp
-  converttopolymesh.cpp
-  guicreatehexshell.cpp
-  guiconverttopolymesh.cpp
-  createhexibmesh.cpp
-  guicreatehexibmesh.cpp
-  restricttoavailablevolumecells.cpp
 )
 
 

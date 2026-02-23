@@ -21,10 +21,8 @@
 
 #include "createboundarylayershell.h"
 
-#include "createvolumemesh.h"
 #include "math/mathvector.h"
 #include "swaptriangles.h"
-#include "deletetetras.h"
 #include "deletecells.h"
 #include "meshpartition.h"
 #include "deletevolumegrid.h"

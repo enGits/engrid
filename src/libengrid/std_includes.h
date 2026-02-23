@@ -21,21 +21,13 @@
 
 #include "guicreatesurfacemesh.h"
 #include "guicreateboundarylayer.h"
-#include "guicreatevolumemesh.h"
 #include "guidivideboundarylayer.h"
 #include "guisetboundarycode.h"
 #include "guideletebadaspecttris.h"
 #include "guipick.h"
-#include "guimergevolumes.h"
 #include "guimirrormesh.h"
-#include "guicreatehexcore.h"
-#include "guiconverttopolymesh.h"
-#include "guicreatehexibmesh.h"
 #include "guiypluscalculator.h"
 
-#include "deletevolumegrid.h"
-#include "deletetetras.h"
-#include "createvolumemesh.h"
 #include "gridsmoother.h"
 #include "foamreader.h"
 #include "vtkreader.h"
@@ -67,9 +59,6 @@
 #include "dolfynwriter.h"
 #include "guifillplane.h"
 #include "drnumwriter.h"
-#include "converttopolymesh.h"
-#include "guicreatehexshell.h"
-#include "restricttoavailablevolumecells.h"
 #include "multisolidasciistlreader.h"
 
 // -------------------------------------------

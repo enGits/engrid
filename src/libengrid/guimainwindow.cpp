@@ -190,7 +190,6 @@ void GuiMainWindow::setupGuiMainWindow()
   getSet("General", "open last used file on startup", false, m_open_last);
 
   ui.actionMirrorMesh->setEnabled(exp_features);
-  ui.actionCreateHexCore->setEnabled(exp_features);
   ui.actionImportFluentCase->setEnabled(exp_features);
 
   m_ReferenceSize=0.2;

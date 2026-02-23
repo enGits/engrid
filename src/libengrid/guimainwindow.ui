@@ -143,12 +143,6 @@
     <addaction name="actionNormalExtrusion"/>
     <addaction name="actionMirrorMesh"/>
     <addaction name="actionFixSTL"/>
-    <addaction name="actionCreateVolumeMesh"/>
-    <addaction name="actionConvertToPolyMesh"/>
-    <addaction name="actionDeleteTetraVolumeGrid"/>
-    <addaction name="actionDeleteVolumeGrid"/>
-    <addaction name="actionMergeVolumes"/>
-    <addaction name="actionRestrictToAvailableVolumeCells"/>
     <addaction name="separator"/>
     <addaction name="actionStoreGeometry"/>
    </widget>
@@ -249,7 +243,6 @@
    <addaction name="separator"/>
    <addaction name="actionNormalExtrusion"/>
    <addaction name="actionCreateBoundaryLayer"/>
-   <addaction name="actionCreateVolumeMesh"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_DisplayOptions">
    <property name="sizePolicy">
@@ -1089,15 +1082,6 @@
     <string>Delete bad aspect ratio cells</string>
    </property>
   </action>
-  <action name="actionCreateVolumeMesh">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/createvol.png</normaloff>:/icons/resources/icons/createvol.png</iconset>
-   </property>
-   <property name="text">
-    <string>Create/improve volume mesh</string>
-   </property>
-  </action>
   <action name="actionCreateSurfaceMesh">
    <property name="icon">
     <iconset resource="engrid.qrc">
@@ -1146,18 +1130,6 @@
     <string>STL (binary)</string>
    </property>
   </action>
-  <action name="actionDeleteTetraVolumeGrid">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete tetras</string>
-   </property>
-   <property name="toolTip">
-    <string>delete tetras</string>
-   </property>
-  </action>
   <action name="actionDivideBoundaryLayer">
    <property name="icon">
     <iconset resource="engrid.qrc">
@@ -1173,15 +1145,6 @@
    </property>
    <property name="menuRole">
     <enum>QAction::PreferencesRole</enum>
-   </property>
-  </action>
-  <action name="actionSmoothVolumeGrid">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/smoothvol.png</normaloff>:/icons/resources/icons/smoothvol.png</iconset>
-   </property>
-   <property name="text">
-    <string>Smooth volume grid</string>
    </property>
   </action>
   <action name="actionClearOutputWindow">
@@ -1666,11 +1629,6 @@
     <string>Set case directory</string>
    </property>
   </action>
-  <action name="actionMergeVolumes">
-   <property name="text">
-    <string>Merge volumes</string>
-   </property>
-  </action>
   <action name="actionMirrorMesh">
    <property name="enabled">
     <bool>true</bool>
@@ -1707,11 +1665,6 @@
     <string>import BRL-CAD (as STL)</string>
    </property>
   </action>
-  <action name="actionCreateHexCore">
-   <property name="text">
-    <string>Create hex core mesh</string>
-   </property>
-  </action>
   <action name="actionExportSu2">
    <property name="text">
     <string>SU2</string>
@@ -1741,47 +1694,9 @@
     <string>export as DrNUM case</string>
    </property>
   </action>
-  <action name="actionConvertToPolyMesh">
-   <property name="text">
-    <string>Convert to poly mesh</string>
-   </property>
-   <property name="toolTip">
-    <string>convert to poly mesh</string>
-   </property>
-  </action>
-  <action name="actionCreateHexShellMesh">
-   <property name="text">
-    <string>Create hex shell mesh</string>
-   </property>
-   <property name="toolTip">
-    <string>create hex shell mesh</string>
-   </property>
-  </action>
-  <action name="actionCreateHexIbMesh">
-   <property name="text">
-    <string>Create hex mesh for immersed boundaries</string>
-   </property>
-  </action>
-  <action name="actionRestrictToAvailableVolumeCells">
-   <property name="text">
-    <string>Restrict mesh to available volume cells</string>
-   </property>
-  </action>
   <action name="actionMultiSolidAsciiStlReader">
    <property name="text">
     <string>STL (multi solid ascii)</string>
-   </property>
-  </action>
-  <action name="actionDeleteVolumeGrid">
-   <property name="icon">
-    <iconset resource="engrid.qrc">
-     <normaloff>:/icons/resources/icons/deletevol.png</normaloff>:/icons/resources/icons/deletevol.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete Volume Grid</string>
-   </property>
-   <property name="toolTip">
-    <string>delete volume grid</string>
    </property>
   </action>
   <action name="m_ActionYPlusCalculator">

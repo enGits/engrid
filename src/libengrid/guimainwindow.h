@@ -483,10 +483,6 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callCreateSurfaceMesh() { EG_STDINTERSLOT( GuiCreateSurfaceMesh ); }
     void callCreateBoundaryLayer() { EG_STDSLOT( GuiCreateBoundaryLayer ); }
     void callDivideBoundaryLayer() { EG_STDSLOT( GuiDivideBoundaryLayer ); }
-    void callDeleteVolumeGrid() { EG_STDINTERSLOT( DeleteVolumeGrid ); }
-    void callDeleteTetras() { EG_STDSLOT( DeleteTetras ); }
-    void callCreateVolumeMesh() { EG_STDSLOT( GuiCreateVolumeMesh ); }
-    void callSmoothVolumeGrid() { EG_STDSLOT( SmoothVolumeGrid ); }
     void callSetBoundaryCode()  { EG_STDINTERSLOT( GuiSetBoundaryCode ); }
     void callDeleteBadAspectTris() { EG_STDINTERSLOT( GuiDeleteBadAspectTris ); }
     void callDeletePickedCell() { EG_STDSLOT( DeletePickedCell ); }
@@ -499,14 +495,8 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void callTransform() { EG_STDINTERSLOT( GuiTransform ); }
     void callUpdateSurfProj() { EG_STDINTERSLOT( UpdateSurfProj ); }
     void callImportOpenFoamCase() { EG_STDREADERSLOT(FoamReader); }
-    void callMergeVolumes() { EG_STDSLOT(GuiMergeVolumes); }
     void callMirrorMesh() { EG_STDSLOT(GuiMirrorMesh); }
-    void callCreateHexCore() { EG_STDSLOT( GuiCreateHexCore ); }
-    void callCreateHexIbMesh() { EG_STDSLOT( GuiCreateHexIbMesh ); }
     void callFillPlane() { EG_STDSLOT( GuiFillPlane ); }
-    void callConvertToPolyMesh() { EG_STDSLOT(GuiConvertToPolyMesh); }
-    void callCreateHexShellMesh() { EG_STDSLOT(GuiCreateHexShell); }
-    void callRestrictToAvailableVolumeCells() { EG_STDSLOT(RestrictToAvailableVolumeCells); }
 
     void callFixSTL();
 

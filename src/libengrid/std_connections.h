@@ -83,11 +83,7 @@ connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine(
 connect(ui.actionCreateSurfaceMesh, SIGNAL(triggered()), this, SLOT(callCreateSurfaceMesh()));
 connect(ui.actionCreateBoundaryLayer, SIGNAL(triggered()), this, SLOT(callCreateBoundaryLayer()));
 connect(ui.actionDivideBoundaryLayer, SIGNAL(triggered()), this, SLOT(callDivideBoundaryLayer()));
-connect(ui.actionDeleteTetraVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteTetras()));
-connect(ui.actionDeleteVolumeGrid, SIGNAL(triggered()), this, SLOT(callDeleteVolumeGrid()));
 connect(ui.actionFixSTL, SIGNAL(triggered()), this, SLOT(callFixSTL()));
-connect(ui.actionCreateVolumeMesh, SIGNAL(triggered()), this, SLOT(callCreateVolumeMesh()));
-connect(ui.actionSmoothVolumeGrid, SIGNAL(triggered()), this, SLOT(callSmoothVolumeGrid()));
 connect(ui.actionVtkReader, SIGNAL(triggered()), this, SLOT(callVtkReader()));
 connect(ui.actionPolyDataReader, SIGNAL(triggered()), this, SLOT(callPolyDataReader()));
 connect(ui.actionSetBoundaryCode, SIGNAL(triggered()), this, SLOT(callSetBoundaryCode()));
@@ -115,15 +111,9 @@ connect(ui.actionSmoothAndSwapSurface, SIGNAL(triggered()), this, SLOT(callSmoot
 connect(ui.actionImportSeligAirfoil, SIGNAL(triggered()), this, SLOT(callSeligAirfoilReader()));
 connect(ui.actionImportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderReader()));
 connect(ui.actionExportBlenderFile, SIGNAL(triggered()), this, SLOT(callBlenderWriter()));
-connect(ui.actionMergeVolumes, SIGNAL(triggered()), this, SLOT(callMergeVolumes()));
 connect(ui.actionMirrorMesh, SIGNAL(triggered()), this, SLOT(callMirrorMesh()));
 connect(ui.actionCheckForOverlap, SIGNAL(triggered()), this, SLOT(callCheckForOverlap()));
-connect(ui.actionCreateHexCore, SIGNAL(triggered()), this, SLOT(callCreateHexCore()));
 connect(ui.actionFillPlane, SIGNAL(triggered()), this, SLOT(callFillPlane()));
-connect(ui.actionConvertToPolyMesh, SIGNAL(triggered()), this, SLOT(callConvertToPolyMesh()));
-connect(ui.actionCreateHexShellMesh, SIGNAL(triggered()), this, SLOT(callCreateHexShellMesh()));
-connect(ui.actionCreateHexIbMesh, SIGNAL(triggered()), this, SLOT(callCreateHexIbMesh()));
-connect(ui.actionRestrictToAvailableVolumeCells, SIGNAL(triggered()), this, SLOT(callRestrictToAvailableVolumeCells()));
 connect(ui.actionMultiSolidAsciiStlReader, SIGNAL(triggered()), this, SLOT(callMultiSolidAsciiStlReader()));
 
 connect(ui.actionFixCADgeometry, SIGNAL(triggered()), this, SLOT(callFixCADGeometry()));
