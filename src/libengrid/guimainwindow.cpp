@@ -459,6 +459,13 @@ void GuiMainWindow::setupVtk()
   m_PointPicker->AddObserver(vtkCommand::EndPickEvent, cbc);
   m_PickedObject = 0;
 
+  // 'n' key: pick nearest node and print diagnostic info
+  vtkCallbackCommand *nkc = vtkCallbackCommand::New();
+  nkc->SetCallback(nodeKeyCallBack);
+  nkc->SetClientData(this);
+  getInteractor()->AddObserver(vtkCommand::CharEvent, nkc, 0.5);
+  nkc->Delete();
+
   viewFront();
 
   // Create a new QVTKInteractor instance
@@ -826,6 +833,25 @@ bool GuiMainWindow::pickPoint(vtkIdType id_node)
     vec3_t x(0,0,0);
     m_Grid->GetPoints()->GetPoint(id_node, x.data());
     m_PickSphere->SetCenter(x.data());
+    // Compute sphere radius as 1/4 of average adjacent edge length
+    vtkSmartPointer<vtkIdList> cell_ids = vtkSmartPointer<vtkIdList>::New();
+    m_Grid->GetPointCells(id_node, cell_ids);
+    double R = 0;
+    int count = 0;
+    for (vtkIdType i = 0; i < cell_ids->GetNumberOfIds(); ++i) {
+      EG_GET_CELL(cell_ids->GetId(i), m_Grid);
+      for (int j = 0; j < num_pts; ++j) {
+        if (pts[j] != id_node) {
+          vec3_t xp(0,0,0);
+          m_Grid->GetPoints()->GetPoint(pts[j], xp.data());
+          R += (xp - x).abs();
+          ++count;
+        }
+      }
+    }
+    R = (count > 0) ? (R / count) * 0.25 : m_ReferenceSize;
+    m_ReferenceSize = R;
+    m_PickSphere->SetRadius(R);
     m_PickedPoint = id_node;
     m_PickActor->GetProperty()->SetColor(0,0,1);
     m_PickActor->VisibilityOn();
@@ -1593,6 +1619,30 @@ void GuiMainWindow::pickCallBack
   THIS->updateStatusBar();
 }
 
+void GuiMainWindow::nodeKeyCallBack
+(
+  vtkObject *caller,
+  unsigned long int eid,
+  void *clientdata,
+  void *calldata
+)
+{
+  eid = eid; calldata = calldata;
+  vtkRenderWindowInteractor *rwi = static_cast<vtkRenderWindowInteractor*>(caller);
+  if (!rwi || rwi->GetKeyCode() != 'n') return;
+  GuiMainWindow *gmw = static_cast<GuiMainWindow*>(clientdata);
+  int x = rwi->GetEventPosition()[0];
+  int y = rwi->GetEventPosition()[1];
+  vtkIdType id_node = gmw->pickNearestNode(x, y, gmw->getRenderer());
+  if (id_node >= 0) {
+    gmw->pickPoint(id_node);
+    gmw->getRenderWindow()->Render();
+    gmw->infoPoint(id_node);
+  } else {
+    cout << "no node found near cursor" << endl;
+  }
+}
+
 vtkIdType GuiMainWindow::getPickedCell()
 {
   if(!ui.radioButton_CellPicker->isChecked()) return(-1);
@@ -1635,6 +1685,60 @@ vtkIdType GuiMainWindow::getPickedPoint()
     }
   }
   return picked_point;
+}
+
+vtkIdType GuiMainWindow::pickNearestNode(int x, int y, vtkRenderer *ren)
+{
+  m_BCodesFilter->Update();
+  if (m_BCodesFilter->GetOutput()->GetNumberOfCells() == 0) return -1;
+  // Use CellPicker: correctly handles occlusion and picks only visible surface
+  if (!m_CellPicker->Pick(x, y, 0, ren)) return -1;
+  vtkIdType id_pick = m_CellPicker->GetCellId();
+  if (id_pick < 0) return -1;
+  // Map filtered output cell index to grid cell index
+  vtkLongArray_t *cell_index = dynamic_cast<vtkLongArray_t*>(
+    m_BCodesFilter->GetOutput()->GetCellData()->GetArray("cell_index"));
+  if (!cell_index || id_pick >= cell_index->GetNumberOfTuples()) return -1;
+  vtkIdType id_cell = cell_index->GetValue(id_pick);
+  // Find the vertex in the picked cell closest to the 3D pick position
+  double pick_pos[3];
+  m_CellPicker->GetPickPosition(pick_pos);
+  EG_GET_CELL(id_cell, m_Grid);
+  vtkIdType id_closest = -1;
+  double min_dist2 = 1e99;
+  for (int i = 0; i < num_pts; ++i) {
+    double xp[3];
+    m_Grid->GetPoint(pts[i], xp);
+    double d2 = 0;
+    for (int k = 0; k < 3; ++k) { double d = xp[k] - pick_pos[k]; d2 += d*d; }
+    if (d2 < min_dist2) { min_dist2 = d2; id_closest = pts[i]; }
+  }
+  return id_closest;
+}
+
+void GuiMainWindow::infoPoint(vtkIdType id_node)
+{
+  ShowInfo info(false, id_node, m_PickedCell);
+  info();
+}
+
+vtkIdType GuiMainWindow::pickNearestCell(int x, int y, vtkRenderer *ren)
+{
+  m_BCodesFilter->Update();
+  if (m_BCodesFilter->GetOutput()->GetNumberOfCells() == 0) return -1;
+  if (!m_CellPicker->Pick(x, y, 0, ren)) return -1;
+  vtkIdType id_pick = m_CellPicker->GetCellId();
+  if (id_pick < 0) return -1;
+  vtkLongArray_t *cell_index = dynamic_cast<vtkLongArray_t*>(
+    m_BCodesFilter->GetOutput()->GetCellData()->GetArray("cell_index"));
+  if (!cell_index || id_pick >= cell_index->GetNumberOfTuples()) return -1;
+  return cell_index->GetValue(id_pick);
+}
+
+void GuiMainWindow::infoCell(vtkIdType id_cell)
+{
+  ShowInfo info(true, m_PickedPoint, id_cell);
+  info();
 }
 
 void GuiMainWindow::changeSurfaceOrientation()

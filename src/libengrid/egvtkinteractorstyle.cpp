@@ -23,6 +23,7 @@
 #include "deletepickedpoint.h"
 #include "egvtkobject.h"
 #include "operation.h"
+#include "guimainwindow.h"
 
 #include "vtkInteractorStyleUser.h"
 #include "vtkMath.h"
@@ -432,8 +433,39 @@ void egvtkInteractorStyle::OnChar()
   }*/
   
   else if(key=='c') {
-    cout<<"pick cell by mouse"<<endl;
+    int x = rwi->GetEventPosition()[0];
+    int y = rwi->GetEventPosition()[1];
+    this->FindPokedRenderer(x, y);
+    if (this->CurrentRenderer) {
+      GuiMainWindow *gmw = GuiMainWindow::pointer();
+      vtkIdType id_cell = gmw->pickNearestCell(x, y, this->CurrentRenderer);
+      if (id_cell >= 0) {
+        gmw->pickCell(id_cell);
+        gmw->getRenderWindow()->Render();
+        gmw->infoCell(id_cell);
+      } else {
+        cout << "no cell found at (" << x << "," << y << ")" << endl;
+      }
+    }
   }
+
+  else if(key=='p') {
+    int x = rwi->GetEventPosition()[0];
+    int y = rwi->GetEventPosition()[1];
+    this->FindPokedRenderer(x, y);
+    if (this->CurrentRenderer) {
+      GuiMainWindow *gmw = GuiMainWindow::pointer();
+      vtkIdType id_node = gmw->pickNearestNode(x, y, this->CurrentRenderer);
+      if (id_node >= 0) {
+        gmw->pickPoint(id_node);
+        gmw->getRenderWindow()->Render();
+        gmw->infoPoint(id_node);
+      } else {
+        cout << "no node found at (" << x << "," << y << ")" << endl;
+      }
+    }
+  }
+
 /*  else if(key=='C') {
     cout<<"pick cell by ID"<<endl;
   }*/

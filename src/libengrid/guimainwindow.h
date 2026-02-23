@@ -236,6 +236,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
 
     void        setupVtk();
     static void pickCallBack( vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata );
+    static void nodeKeyCallBack( vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata );
     void        updateSurfaceActors( bool forced );
     void        updateVolumeActors( bool forced );
 
@@ -375,9 +376,14 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     QSet<int> getAllBoundaryCodes();
     void getDisplayBoundaryCodes(QSet<int> &bcs);
     vtkPointPicker* getPointPicker() { return ( m_PointPicker );}
+    vtkCellPicker*  getCellPicker()  { return ( m_CellPicker  );}
     vtkSphereSource* getPickSphere() { return ( m_PickSphere );}
     bool pickPoint( vtkIdType id_point );
     bool pickCell( vtkIdType id_cell );
+    vtkIdType pickNearestNode(int x, int y, vtkRenderer *ren);
+    vtkIdType pickNearestCell(int x, int y, vtkRenderer *ren);
+    void infoPoint(vtkIdType id_node);
+    void infoCell(vtkIdType id_cell);
 
     QString getFilename() { return( m_CurrentFilename ); }
     void setFilename(QString filename) { m_CurrentFilename = filename; }
