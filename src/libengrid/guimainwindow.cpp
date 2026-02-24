@@ -470,6 +470,16 @@ void GuiMainWindow::setupVtk()
   getInteractor()->AddObserver(vtkCommand::CharEvent, nkc, 0.5);
   nkc->Delete();
 
+  // orientation axes marker (bottom-left corner)
+  vtkAxesActor* axesActor = vtkAxesActor::New();
+  m_OrientationWidget = vtkOrientationMarkerWidget::New();
+  m_OrientationWidget->SetOrientationMarker(axesActor);
+  m_OrientationWidget->SetInteractor(getInteractor());
+  m_OrientationWidget->SetViewport(0.0, 0.0, 0.15, 0.15);
+  m_OrientationWidget->SetEnabled(1);
+  m_OrientationWidget->InteractiveOff();
+  axesActor->Delete();
+
   viewFront();
 
   // Create a new QVTKInteractor instance
@@ -713,19 +723,8 @@ void GuiMainWindow::setClipOffsetFromSlider(int sliderValue)
   double offset = (sliderValue / 100.0) * m_ClipAxisExtent;
   vec3_t origin = m_ClipBBoxCentre + offset * m_ClipNormal;
 
-  ui.lineEditClipX->blockSignals(true);
-  ui.lineEditClipY->blockSignals(true);
-  ui.lineEditClipZ->blockSignals(true);
   ui.lineEditOffset->blockSignals(true);
-
-  ui.lineEditClipX->setText(QString::number(origin[0]));
-  ui.lineEditClipY->setText(QString::number(origin[1]));
-  ui.lineEditClipZ->setText(QString::number(origin[2]));
   ui.lineEditOffset->setText(QString::number(offset));
-
-  ui.lineEditClipX->blockSignals(false);
-  ui.lineEditClipY->blockSignals(false);
-  ui.lineEditClipZ->blockSignals(false);
   ui.lineEditOffset->blockSignals(false);
 
   m_ExtrTetras->Setx(origin[0]);
@@ -761,24 +760,12 @@ void GuiMainWindow::setClipOffsetFromText(const QString &txt)
 
   vec3_t origin = m_ClipBBoxCentre + offset * m_ClipNormal;
 
-  ui.lineEditClipX->blockSignals(true);
-  ui.lineEditClipY->blockSignals(true);
-  ui.lineEditClipZ->blockSignals(true);
   ui.horizontalSliderClipOffset->blockSignals(true);
-
-  ui.lineEditClipX->setText(QString::number(origin[0]));
-  ui.lineEditClipY->setText(QString::number(origin[1]));
-  ui.lineEditClipZ->setText(QString::number(origin[2]));
-
   int sliderVal = 0;
   if (m_ClipAxisExtent > 1e-10) {
     sliderVal = qBound(-100, int(offset / m_ClipAxisExtent * 100.0), 100);
   }
   ui.horizontalSliderClipOffset->setValue(sliderVal);
-
-  ui.lineEditClipX->blockSignals(false);
-  ui.lineEditClipY->blockSignals(false);
-  ui.lineEditClipZ->blockSignals(false);
   ui.horizontalSliderClipOffset->blockSignals(false);
 
   m_ExtrTetras->Setx(origin[0]);
