@@ -232,6 +232,10 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     /** a static this pointer (somewhat ugly, but there is only one MainWindow) */
     static GuiMainWindow* THIS;
 
+    vec3_t m_ClipBBoxCentre;
+    vec3_t m_ClipNormal;
+    double m_ClipAxisExtent;
+
   private: // methods
 
     void        setupVtk();
@@ -239,6 +243,7 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     static void nodeKeyCallBack( vtkObject *caller, unsigned long int eid, void *clientdata, void *calldata );
     void        updateSurfaceActors( bool forced );
     void        updateVolumeActors( bool forced );
+    void        applyQuickClip(vec3_t normal);
 
   private slots:
 
@@ -248,6 +253,15 @@ class CLASS_LIBENGRID_DLL GuiMainWindow : public QMainWindow, public EgVtkObject
     void setClipNX( const QString &txt );
     void setClipNY( const QString &txt );
     void setClipNZ( const QString &txt );
+
+    void clipPosX();
+    void clipNegX();
+    void clipPosY();
+    void clipNegY();
+    void clipPosZ();
+    void clipNegZ();
+    void setClipOffsetFromSlider(int sliderValue);
+    void setClipOffsetFromText(const QString &txt);
 
     void openBC();
     void saveBC();

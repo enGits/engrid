@@ -174,6 +174,10 @@ void GuiMainWindow::setupGuiMainWindow()
   m_PickedPoint = -1;
   m_PickedCell = -1;
 
+  m_ClipBBoxCentre = vec3_t(0, 0, 0);
+  m_ClipNormal     = vec3_t(1, 0, 0);
+  m_ClipAxisExtent = 1.0;
+
   updateStatusBar();
 
   connect(&m_GarbageTimer, SIGNAL(timeout()), this, SLOT(periodicUpdate()));
@@ -610,6 +614,194 @@ void GuiMainWindow::setClipNZ(const QString &txt)
   m_ExtrWedges->Setnz(txt.toDouble());
   m_ExtrHexes->Setnz(txt.toDouble());
   m_ExtrPolyhedra->Setnz(txt.toDouble());
+}
+
+void GuiMainWindow::applyQuickClip(vec3_t normal)
+{
+  if (m_Grid->GetNumberOfPoints() == 0) {
+    return;
+  }
+
+  double bounds[6];
+  m_Grid->GetBounds(bounds);
+  m_ClipBBoxCentre = vec3_t(0.5*(bounds[0]+bounds[1]), 0.5*(bounds[2]+bounds[3]), 0.5*(bounds[4]+bounds[5]));
+  m_ClipNormal = normal;
+
+  // compute half-extent along the chosen axis
+  double dx = fabs(normal[0]) * 0.5*(bounds[1] - bounds[0]);
+  double dy = fabs(normal[1]) * 0.5*(bounds[3] - bounds[2]);
+  double dz = fabs(normal[2]) * 0.5*(bounds[5] - bounds[4]);
+  m_ClipAxisExtent = dx + dy + dz;
+
+  // block signals on lineEdits to avoid recursive updates
+  ui.lineEditClipX->blockSignals(true);
+  ui.lineEditClipY->blockSignals(true);
+  ui.lineEditClipZ->blockSignals(true);
+  ui.lineEditClipNX->blockSignals(true);
+  ui.lineEditClipNY->blockSignals(true);
+  ui.lineEditClipNZ->blockSignals(true);
+  ui.lineEditOffset->blockSignals(true);
+  ui.horizontalSliderClipOffset->blockSignals(true);
+
+  ui.lineEditClipX->setText(QString::number(m_ClipBBoxCentre[0]));
+  ui.lineEditClipY->setText(QString::number(m_ClipBBoxCentre[1]));
+  ui.lineEditClipZ->setText(QString::number(m_ClipBBoxCentre[2]));
+  ui.lineEditClipNX->setText(QString::number(m_ClipNormal[0]));
+  ui.lineEditClipNY->setText(QString::number(m_ClipNormal[1]));
+  ui.lineEditClipNZ->setText(QString::number(m_ClipNormal[2]));
+  ui.lineEditOffset->setText("0");
+  ui.horizontalSliderClipOffset->setValue(0);
+
+  ui.lineEditClipX->blockSignals(false);
+  ui.lineEditClipY->blockSignals(false);
+  ui.lineEditClipZ->blockSignals(false);
+  ui.lineEditClipNX->blockSignals(false);
+  ui.lineEditClipNY->blockSignals(false);
+  ui.lineEditClipNZ->blockSignals(false);
+  ui.lineEditOffset->blockSignals(false);
+  ui.horizontalSliderClipOffset->blockSignals(false);
+
+  // apply to all extractors
+  m_ExtrTetras->Setx(m_ClipBBoxCentre[0]);
+  m_ExtrTetras->Sety(m_ClipBBoxCentre[1]);
+  m_ExtrTetras->Setz(m_ClipBBoxCentre[2]);
+  m_ExtrTetras->Setnx(m_ClipNormal[0]);
+  m_ExtrTetras->Setny(m_ClipNormal[1]);
+  m_ExtrTetras->Setnz(m_ClipNormal[2]);
+
+  m_ExtrPyramids->Setx(m_ClipBBoxCentre[0]);
+  m_ExtrPyramids->Sety(m_ClipBBoxCentre[1]);
+  m_ExtrPyramids->Setz(m_ClipBBoxCentre[2]);
+  m_ExtrPyramids->Setnx(m_ClipNormal[0]);
+  m_ExtrPyramids->Setny(m_ClipNormal[1]);
+  m_ExtrPyramids->Setnz(m_ClipNormal[2]);
+
+  m_ExtrWedges->Setx(m_ClipBBoxCentre[0]);
+  m_ExtrWedges->Sety(m_ClipBBoxCentre[1]);
+  m_ExtrWedges->Setz(m_ClipBBoxCentre[2]);
+  m_ExtrWedges->Setnx(m_ClipNormal[0]);
+  m_ExtrWedges->Setny(m_ClipNormal[1]);
+  m_ExtrWedges->Setnz(m_ClipNormal[2]);
+
+  m_ExtrHexes->Setx(m_ClipBBoxCentre[0]);
+  m_ExtrHexes->Sety(m_ClipBBoxCentre[1]);
+  m_ExtrHexes->Setz(m_ClipBBoxCentre[2]);
+  m_ExtrHexes->Setnx(m_ClipNormal[0]);
+  m_ExtrHexes->Setny(m_ClipNormal[1]);
+  m_ExtrHexes->Setnz(m_ClipNormal[2]);
+
+  m_ExtrPolyhedra->Setx(m_ClipBBoxCentre[0]);
+  m_ExtrPolyhedra->Sety(m_ClipBBoxCentre[1]);
+  m_ExtrPolyhedra->Setz(m_ClipBBoxCentre[2]);
+  m_ExtrPolyhedra->Setnx(m_ClipNormal[0]);
+  m_ExtrPolyhedra->Setny(m_ClipNormal[1]);
+  m_ExtrPolyhedra->Setnz(m_ClipNormal[2]);
+
+  ui.checkBoxClip->setChecked(true);
+  forceUpdateActors();
+}
+
+void GuiMainWindow::clipPosX() { applyQuickClip(vec3_t( 1, 0, 0)); }
+void GuiMainWindow::clipNegX() { applyQuickClip(vec3_t(-1, 0, 0)); }
+void GuiMainWindow::clipPosY() { applyQuickClip(vec3_t( 0, 1, 0)); }
+void GuiMainWindow::clipNegY() { applyQuickClip(vec3_t( 0,-1, 0)); }
+void GuiMainWindow::clipPosZ() { applyQuickClip(vec3_t( 0, 0, 1)); }
+void GuiMainWindow::clipNegZ() { applyQuickClip(vec3_t( 0, 0,-1)); }
+
+void GuiMainWindow::setClipOffsetFromSlider(int sliderValue)
+{
+  double offset = (sliderValue / 100.0) * m_ClipAxisExtent;
+  vec3_t origin = m_ClipBBoxCentre + offset * m_ClipNormal;
+
+  ui.lineEditClipX->blockSignals(true);
+  ui.lineEditClipY->blockSignals(true);
+  ui.lineEditClipZ->blockSignals(true);
+  ui.lineEditOffset->blockSignals(true);
+
+  ui.lineEditClipX->setText(QString::number(origin[0]));
+  ui.lineEditClipY->setText(QString::number(origin[1]));
+  ui.lineEditClipZ->setText(QString::number(origin[2]));
+  ui.lineEditOffset->setText(QString::number(offset));
+
+  ui.lineEditClipX->blockSignals(false);
+  ui.lineEditClipY->blockSignals(false);
+  ui.lineEditClipZ->blockSignals(false);
+  ui.lineEditOffset->blockSignals(false);
+
+  m_ExtrTetras->Setx(origin[0]);
+  m_ExtrTetras->Sety(origin[1]);
+  m_ExtrTetras->Setz(origin[2]);
+
+  m_ExtrPyramids->Setx(origin[0]);
+  m_ExtrPyramids->Sety(origin[1]);
+  m_ExtrPyramids->Setz(origin[2]);
+
+  m_ExtrWedges->Setx(origin[0]);
+  m_ExtrWedges->Sety(origin[1]);
+  m_ExtrWedges->Setz(origin[2]);
+
+  m_ExtrHexes->Setx(origin[0]);
+  m_ExtrHexes->Sety(origin[1]);
+  m_ExtrHexes->Setz(origin[2]);
+
+  m_ExtrPolyhedra->Setx(origin[0]);
+  m_ExtrPolyhedra->Sety(origin[1]);
+  m_ExtrPolyhedra->Setz(origin[2]);
+
+  forceUpdateActors();
+}
+
+void GuiMainWindow::setClipOffsetFromText(const QString &txt)
+{
+  bool ok;
+  double offset = txt.toDouble(&ok);
+  if (!ok) {
+    return;
+  }
+
+  vec3_t origin = m_ClipBBoxCentre + offset * m_ClipNormal;
+
+  ui.lineEditClipX->blockSignals(true);
+  ui.lineEditClipY->blockSignals(true);
+  ui.lineEditClipZ->blockSignals(true);
+  ui.horizontalSliderClipOffset->blockSignals(true);
+
+  ui.lineEditClipX->setText(QString::number(origin[0]));
+  ui.lineEditClipY->setText(QString::number(origin[1]));
+  ui.lineEditClipZ->setText(QString::number(origin[2]));
+
+  int sliderVal = 0;
+  if (m_ClipAxisExtent > 1e-10) {
+    sliderVal = qBound(-100, int(offset / m_ClipAxisExtent * 100.0), 100);
+  }
+  ui.horizontalSliderClipOffset->setValue(sliderVal);
+
+  ui.lineEditClipX->blockSignals(false);
+  ui.lineEditClipY->blockSignals(false);
+  ui.lineEditClipZ->blockSignals(false);
+  ui.horizontalSliderClipOffset->blockSignals(false);
+
+  m_ExtrTetras->Setx(origin[0]);
+  m_ExtrTetras->Sety(origin[1]);
+  m_ExtrTetras->Setz(origin[2]);
+
+  m_ExtrPyramids->Setx(origin[0]);
+  m_ExtrPyramids->Sety(origin[1]);
+  m_ExtrPyramids->Setz(origin[2]);
+
+  m_ExtrWedges->Setx(origin[0]);
+  m_ExtrWedges->Sety(origin[1]);
+  m_ExtrWedges->Setz(origin[2]);
+
+  m_ExtrHexes->Setx(origin[0]);
+  m_ExtrHexes->Sety(origin[1]);
+  m_ExtrHexes->Setz(origin[2]);
+
+  m_ExtrPolyhedra->Setx(origin[0]);
+  m_ExtrPolyhedra->Sety(origin[1]);
+  m_ExtrPolyhedra->Setz(origin[2]);
+
+  forceUpdateActors();
 }
 
 void GuiMainWindow::updateSurfaceActors(bool forced)

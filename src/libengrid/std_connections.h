@@ -78,6 +78,15 @@ connect(ui.lineEditClipNX, SIGNAL(textChanged(QString)), this, SLOT(setClipNX(QS
 connect(ui.lineEditClipNY, SIGNAL(textChanged(QString)), this, SLOT(setClipNY(QString)));
 connect(ui.lineEditClipNZ, SIGNAL(textChanged(QString)), this, SLOT(setClipNZ(QString)));
 
+connect(ui.pushButtonClipPosX, SIGNAL(clicked()), this, SLOT(clipPosX()));
+connect(ui.pushButtonClipNegX, SIGNAL(clicked()), this, SLOT(clipNegX()));
+connect(ui.pushButtonClipPosY, SIGNAL(clicked()), this, SLOT(clipPosY()));
+connect(ui.pushButtonClipNegY, SIGNAL(clicked()), this, SLOT(clipNegY()));
+connect(ui.pushButtonClipPosZ, SIGNAL(clicked()), this, SLOT(clipPosZ()));
+connect(ui.pushButtonClipNegZ, SIGNAL(clicked()), this, SLOT(clipNegZ()));
+connect(ui.horizontalSliderClipOffset, SIGNAL(valueChanged(int)), this, SLOT(setClipOffsetFromSlider(int)));
+connect(ui.lineEditOffset, SIGNAL(textChanged(QString)), this, SLOT(setClipOffsetFromText(QString)));
+
 connect(ui.pushButtonMarkPosition, SIGNAL(clicked()), this, SLOT(markOutputLine()));
 
 connect(ui.actionCreateSurfaceMesh, SIGNAL(triggered()), this, SLOT(callCreateSurfaceMesh()));

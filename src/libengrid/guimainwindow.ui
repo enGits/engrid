@@ -307,7 +307,150 @@
             <string>clipping</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="pushButtonClipPosX">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>+X</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
+             <widget class="QPushButton" name="pushButtonClipPosY">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>+Y</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="pushButtonClipPosZ">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>+Z</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="pushButtonClipNegX">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>-X</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="pushButtonClipNegY">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>-Y</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="pushButtonClipNegZ">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>75</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>-Z</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <widget class="QSlider" name="horizontalSliderClipOffset">
+              <property name="minimum">
+               <number>-100</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksBelow</enum>
+              </property>
+              <property name="tickInterval">
+               <number>25</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="3">
+             <widget class="Line" name="lineClipSeparator">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
              <widget class="QLineEdit" name="lineEditClipX">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -329,14 +472,14 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="5" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
                <string>centre</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="5" column="1">
              <widget class="QLineEdit" name="lineEditClipY">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -358,7 +501,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="6" column="1">
              <widget class="QLineEdit" name="lineEditClipZ">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -380,7 +523,7 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
+            <item row="7" column="1">
              <widget class="Line" name="line">
               <property name="lineWidth">
                <number>0</number>
@@ -390,7 +533,7 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="8" column="1">
              <widget class="QLineEdit" name="lineEditClipNX">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -412,14 +555,14 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
+            <item row="9" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
                <string>normal</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
+            <item row="9" column="1">
              <widget class="QLineEdit" name="lineEditClipNY">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -441,7 +584,7 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
+            <item row="10" column="1">
              <widget class="QLineEdit" name="lineEditClipNZ">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -463,14 +606,14 @@
               </property>
              </widget>
             </item>
-            <item row="8" column="0">
+            <item row="12" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>offset</string>
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
+            <item row="11" column="1">
              <widget class="Line" name="line_2">
               <property name="lineWidth">
                <number>0</number>
@@ -480,7 +623,7 @@
               </property>
              </widget>
             </item>
-            <item row="8" column="1">
+            <item row="12" column="1">
              <widget class="QLineEdit" name="lineEditOffset">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -502,7 +645,7 @@
               </property>
              </widget>
             </item>
-            <item row="9" column="1">
+            <item row="13" column="1">
              <widget class="QCheckBox" name="checkBoxClip">
               <property name="text">
                <string>enable</string>
