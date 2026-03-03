@@ -315,6 +315,8 @@ void CreateBoundaryLayerShell::dualiseBoundaryLayerSurface()
   };
 
   QVector<poly_t> polys;
+  QVector<vtkIdType> poly_source_nodes;
+  QVector<int> poly_bcs;
 
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (!m_BoundaryLayerNode[id_node]) {
@@ -551,6 +553,8 @@ void CreateBoundaryLayerShell::dualiseBoundaryLayerSurface()
         poly.nodes = poly_nodes;
         poly.bc = bc;
         polys.append(poly);
+        poly_source_nodes.append(id_node);
+        poly_bcs.append(bc);
       }
     }
   }
@@ -598,6 +602,113 @@ void CreateBoundaryLayerShell::dualiseBoundaryLayerSurface()
   }
 
   m_Part.trackGrid(m_Grid);
+
+  m_DualCellSourceNode = poly_source_nodes;
+  m_DualCellBC = poly_bcs;
+  m_MergedTopPolygons.clear();
+
+  if (m_MergeTopLayer) {
+    // Group polys by source node
+    QMap<vtkIdType, QVector<int>> node_poly_groups;
+    for (int i = 0; i < poly_source_nodes.size(); ++i) {
+      node_poly_groups[poly_source_nodes[i]].append(i);
+    }
+
+    for (auto it = node_poly_groups.begin(); it != node_poly_groups.end(); ++it) {
+      if (it.value().size() <= 1) continue;
+      QVector<QVector<vtkIdType>> poly_node_lists;
+      for (int i = 0; i < it.value().size(); ++i) {
+        poly_node_lists.append(polys[it.value()[i]].nodes);
+      }
+      QVector<vtkIdType> merged = chainSplitPolygons(poly_node_lists, it.value());
+      if (merged.size() >= 3) {
+        m_MergedTopPolygons[it.key()] = merged;
+      }
+    }
+  }
+}
+
+QVector<vtkIdType> CreateBoundaryLayerShell::chainSplitPolygons(const QVector<QVector<vtkIdType>> &polys, const QVector<int> &indices)
+{
+  Q_UNUSED(indices);
+
+  if (polys.size() <= 1) {
+    return polys.isEmpty() ? QVector<vtkIdType>() : polys[0];
+  }
+
+  // Each split polygon is an open chain: [em_start, c1, ..., ck, em_end]
+  // Shared edge midpoints connect the chains.
+  // Build map: endpoint_node -> (poly_index, is_start)
+  QMap<vtkIdType, QPair<int, bool>> endpoint_map;
+  for (int i = 0; i < polys.size(); ++i) {
+    const QVector<vtkIdType> &poly = polys[i];
+    if (poly.size() < 2) continue;
+    vtkIdType first = poly.first();
+    vtkIdType last = poly.last();
+    // Map: last node of this chain -> (index, false=is_end)
+    // Map: first node of this chain -> (index, true=is_start)
+    endpoint_map[first] = QPair<int, bool>(i, true);
+    // We store the end separately for lookup
+    Q_UNUSED(last);
+  }
+
+  // Build adjacency: for each chain, its last node should match the first node of the next chain
+  QMap<vtkIdType, int> start_by_first; // first node -> poly index
+  QMap<int, vtkIdType> last_of_poly;   // poly index -> last node
+  for (int i = 0; i < polys.size(); ++i) {
+    if (polys[i].size() < 2) continue;
+    start_by_first[polys[i].first()] = i;
+    last_of_poly[i] = polys[i].last();
+  }
+
+  // Find a starting chain: one whose first node is NOT the last node of any other chain
+  QSet<vtkIdType> all_last_nodes;
+  for (int i = 0; i < polys.size(); ++i) {
+    if (polys[i].size() >= 2) {
+      all_last_nodes.insert(polys[i].last());
+    }
+  }
+
+  int start_chain = -1;
+  for (int i = 0; i < polys.size(); ++i) {
+    if (polys[i].size() < 2) continue;
+    if (!all_last_nodes.contains(polys[i].first())) {
+      start_chain = i;
+      break;
+    }
+  }
+  if (start_chain < 0) {
+    start_chain = 0; // loop case
+  }
+
+  // Chain the polygons together
+  QVector<vtkIdType> merged;
+  QSet<int> visited;
+  int current = start_chain;
+  while (current >= 0 && !visited.contains(current)) {
+    visited.insert(current);
+    const QVector<vtkIdType> &poly = polys[current];
+    // Append all nodes except the last (which is the shared midpoint with the next chain)
+    for (int i = 0; i < poly.size() - 1; ++i) {
+      merged.append(poly[i]);
+    }
+    // Find next chain: whose first node equals this chain's last node
+    vtkIdType last_node = poly.last();
+    if (start_by_first.contains(last_node) && !visited.contains(start_by_first[last_node])) {
+      current = start_by_first[last_node];
+    } else {
+      // End of chain: append the last node
+      merged.append(last_node);
+      current = -1;
+    }
+  }
+
+  // Remove trailing duplicate in the loop case
+  if (merged.size() > 1 && merged.first() == merged.last()) {
+    merged.removeLast();
+  }
+
+  return merged;
 }
 
 void CreateBoundaryLayerShell::orientBoundaryLayerSurface()
@@ -879,11 +990,43 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
   QVector<vtkIdType> original_faces, shell_faces;
   getSurfaceCells(m_BoundaryLayerCodes, original_faces, m_OriginalGrid);
   getSurfaceCells(m_BoundaryLayerCodes, shell_faces, m_Grid);
+  // Build merge groups for outermost layer
+  QMap<vtkIdType, QVector<int>> node_cell_groups;
+  QSet<int> merged_cell_indices;
+  if (m_MergeTopLayer && m_PolyhedralBoundaryLayer) {
+    for (int i = 0; i < shell_faces.size(); ++i) {
+      if (i < m_DualCellSourceNode.size()) {
+        vtkIdType src = m_DualCellSourceNode[i];
+        if (m_MergedTopPolygons.contains(src)) {
+          node_cell_groups[src].append(i);
+          merged_cell_indices.insert(i);
+        }
+      }
+    }
+  }
+
+  int merge_reduction = 0;
+  for (auto it = node_cell_groups.begin(); it != node_cell_groups.end(); ++it) {
+    merge_reduction += it.value().size() - 1;
+  }
+
   vtkIdType extra_nodes = 0;
   if (m_PolyhedralBoundaryLayer && m_TriangulateFarfield) {
-    foreach (vtkIdType id_cell, shell_faces) {
+    for (int i = 0; i < shell_faces.size(); ++i) {
+      vtkIdType id_cell = shell_faces[i];
       EG_GET_CELL(id_cell, m_Grid);
       if (num_pts >= 5) {
+        // If this cell is part of a merge group on the outermost layer,
+        // don't count it for extra nodes (the merge group gets one center node)
+        if (!merged_cell_indices.contains(i)) {
+          ++extra_nodes;
+        }
+      }
+    }
+    // Each merge group with triangulated farfield needs one center node
+    for (auto it = node_cell_groups.begin(); it != node_cell_groups.end(); ++it) {
+      vtkIdType src = it.key();
+      if (m_MergedTopPolygons.contains(src) && m_MergedTopPolygons[src].size() >= 5) {
         ++extra_nodes;
       }
     }
@@ -892,7 +1035,7 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     MeshPartition part(m_Grid);
     part.setCells(shell_faces);
     allocateGrid(m_PrismaticGrid,
-                 (m_NumLayers + 1)*part.getNumberOfCells(),
+                 (m_NumLayers + 1)*part.getNumberOfCells() - merge_reduction,
                  (m_NumLayers + 1)*part.getNumberOfNodes() + extra_nodes);
   }
 
@@ -919,6 +1062,37 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     }
   }
 
+  // Populate base_node_id: every layer node stores the wall node's node_index
+  // so spikes can be traced back to their originating wall node in ParaView.
+  // NOTE: m_Grid nodes are also set because those nodes are later extracted as
+  // the outer shell surface and added via addPartition, which would otherwise
+  // overwrite the correctly-set values in m_PrismaticGrid with zeros.
+  {
+    EG_VTKDCN(vtkLongArray_t, wall_node_index, m_Grid, "node_index");
+    // m_Grid may not have base_node_id if loaded from a file predating this field
+    if (!m_Grid->GetPointData()->GetArray("base_node_id")) {
+      EG_VTKSP(vtkLongArray_t, arr);
+      arr->SetName("base_node_id");
+      arr->SetNumberOfValues(m_Grid->GetNumberOfPoints());
+      for (vtkIdType i = 0; i < m_Grid->GetNumberOfPoints(); ++i) arr->SetValue(i, 0);
+      m_Grid->GetPointData()->AddArray(arr);
+    }
+    EG_VTKDCN(vtkLongArray_t, base_node_id_wall, m_Grid,          "base_node_id");
+    EG_VTKDCN(vtkLongArray_t, base_node_id_pri,  m_PrismaticGrid, "base_node_id");
+    vtkIdType num_shell_nodes = m_ShellPart.getNumberOfNodes();
+    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
+      if (m_ShellNodeMap[id_node] == -1) continue;
+      long base_id = wall_node_index->GetValue(id_node);
+      // set on m_Grid so the outer shell surface carries the value after extraction
+      base_node_id_wall->SetValue(id_node, base_id);
+      // set on all prismatic layers
+      for (int layer = 0; layer <= m_NumLayers; ++layer) {
+        vtkIdType pri_id = layer * num_shell_nodes + m_ShellNodeMap[id_node];
+        base_node_id_pri->SetValue(pri_id, base_id);
+      }
+    }
+  }
+
   QList<QVector<vtkIdType> > adjacent_edges;
 
   // create prismatic cells and prepare adjacent quad faces
@@ -938,7 +1112,22 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     return bc1 > 0 ? bc1 : bc2;
   };
 
-  foreach (vtkIdType id_cell, shell_faces) {
+  // Build a reverse map: shell face index -> source node -> first index in group
+  QMap<int, vtkIdType> cell_index_to_source;
+  QMap<vtkIdType, int> merge_group_first;
+  for (auto it = node_cell_groups.begin(); it != node_cell_groups.end(); ++it) {
+    bool first = true;
+    foreach (int idx, it.value()) {
+      cell_index_to_source[idx] = it.key();
+      if (first) {
+        merge_group_first[it.key()] = idx;
+        first = false;
+      }
+    }
+  }
+
+  for (int i_shell = 0; i_shell < shell_faces.size(); ++i_shell) {
+    vtkIdType id_cell = shell_faces[i_shell];
     EG_GET_CELL(id_cell, m_Grid);
     QVector<vtkIdType> face_pts(num_pts);
     for (int i_pts = 0; i_pts < num_pts; ++i_pts) {
@@ -999,6 +1188,135 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
     }
 
     for (int i_layer = 0; i_layer < m_NumLayers; ++i_layer) {
+
+      // Check if this is the outermost layer and this cell is part of a merge group
+      bool is_outermost = (i_layer == m_NumLayers - 1);
+      bool is_merged_cell = is_outermost && merged_cell_indices.contains(i_shell);
+
+      if (is_merged_cell) {
+        vtkIdType src = cell_index_to_source[i_shell];
+        bool is_first_in_group = (merge_group_first[src] == i_shell);
+        if (!is_first_in_group) {
+          // Skip: this cell is merged into the first cell of the group
+          continue;
+        }
+
+        // Create merged polyhedron for the outermost layer
+        const QVector<int> &group = node_cell_groups[src];
+        const QVector<vtkIdType> &merged_poly = m_MergedTopPolygons[src];
+        int M = merged_poly.size();
+
+        vtkIdType bottom_offset = i_layer * m_ShellPart.getNumberOfNodes();
+        vtkIdType top_offset = (i_layer + 1) * m_ShellPart.getNumberOfNodes();
+
+        bool triangulate_top = m_PolyhedralBoundaryLayer && m_TriangulateFarfield && M > 3;
+        int top_face_count = 1;
+        if (triangulate_top) {
+          if (M == 4) {
+            top_face_count = 2;
+          } else {
+            top_face_count = M;
+          }
+        }
+
+        // Count total bottom faces (one per split polygon in the group)
+        int num_bottom_faces = group.size();
+        int num_side_faces = M;
+        int total_faces = num_bottom_faces + top_face_count + num_side_faces;
+
+        QVector<vtkIdType> stream_ids;
+        stream_ids.append(total_faces);
+
+        // Bottom faces: each split polygon reversed at layer N-1
+        for (int g = 0; g < group.size(); ++g) {
+          int shell_idx = group[g];
+          vtkIdType gid_cell = shell_faces[shell_idx];
+          EG_GET_CELL(gid_cell, m_Grid);
+          QVector<vtkIdType> gface_pts(num_pts);
+          for (int k = 0; k < num_pts; ++k) {
+            gface_pts[k] = m_ShellNodeMap[pts[k]];
+          }
+          stream_ids.append(num_pts);
+          for (int k = num_pts - 1; k >= 0; --k) {
+            stream_ids.append(gface_pts[k] + bottom_offset);
+          }
+        }
+
+        // Top face(s): merged polygon at outermost layer
+        if (!triangulate_top) {
+          stream_ids.append(M);
+          for (int k = 0; k < M; ++k) {
+            stream_ids.append(m_ShellNodeMap[merged_poly[k]] + top_offset);
+          }
+        } else if (M == 4) {
+          vec3_t p[4];
+          for (int k = 0; k < 4; ++k) {
+            m_PrismaticGrid->GetPoint(m_ShellNodeMap[merged_poly[k]] + top_offset, p[k].data());
+          }
+          bool use_diag_02 = useQuadDiagonal02(p[0], p[1], p[2], p[3]);
+          if (use_diag_02) {
+            stream_ids.append(3);
+            stream_ids.append(m_ShellNodeMap[merged_poly[0]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[1]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[2]] + top_offset);
+            stream_ids.append(3);
+            stream_ids.append(m_ShellNodeMap[merged_poly[0]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[2]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[3]] + top_offset);
+          } else {
+            stream_ids.append(3);
+            stream_ids.append(m_ShellNodeMap[merged_poly[0]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[1]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[3]] + top_offset);
+            stream_ids.append(3);
+            stream_ids.append(m_ShellNodeMap[merged_poly[1]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[2]] + top_offset);
+            stream_ids.append(m_ShellNodeMap[merged_poly[3]] + top_offset);
+          }
+        } else {
+          vtkIdType center_id = next_extra_node++;
+          vec3_t center(0, 0, 0);
+          for (int k = 0; k < M; ++k) {
+            vec3_t x;
+            m_PrismaticGrid->GetPoint(m_ShellNodeMap[merged_poly[k]] + top_offset, x.data());
+            center += x;
+          }
+          center *= (1.0 / M);
+          m_PrismaticGrid->GetPoints()->SetPoint(center_id, center.data());
+          for (int k = 0; k < M; ++k) {
+            vtkIdType p1 = m_ShellNodeMap[merged_poly[k]] + top_offset;
+            vtkIdType p2 = m_ShellNodeMap[merged_poly[(k + 1) % M]] + top_offset;
+            stream_ids.append(3);
+            stream_ids.append(p1);
+            stream_ids.append(p2);
+            stream_ids.append(center_id);
+          }
+        }
+
+        // Side faces: quads from merged polygon edges
+        for (int k = 0; k < M; ++k) {
+          stream_ids.append(4);
+          vtkIdType p1 = m_ShellNodeMap[merged_poly[k]] + bottom_offset;
+          vtkIdType p2 = m_ShellNodeMap[merged_poly[(k + 1) % M]] + bottom_offset;
+          vtkIdType p3 = m_ShellNodeMap[merged_poly[(k + 1) % M]] + top_offset;
+          vtkIdType p4 = m_ShellNodeMap[merged_poly[k]] + top_offset;
+          stream_ids.append(p1);
+          stream_ids.append(p2);
+          stream_ids.append(p3);
+          stream_ids.append(p4);
+        }
+
+        EG_VTKSP(vtkIdList, stream);
+        stream->SetNumberOfIds(stream_ids.size());
+        for (int k = 0; k < stream_ids.size(); ++k) {
+          stream->SetId(k, stream_ids[k]);
+        }
+        vtkIdType id_poly = m_PrismaticGrid->InsertNextCell(VTK_POLYHEDRON, stream);
+        cell_code_pri->SetValue(id_poly, 0);
+        continue;
+      }
+
+      // Normal (non-merged) cell creation
       bool triangulate_top = m_PolyhedralBoundaryLayer && m_TriangulateFarfield
                              && i_layer == m_NumLayers - 1 && num_pts > 3;
       bool make_polyhedron = num_pts > 4;
@@ -1016,8 +1334,8 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
       } else if (!make_polyhedron && num_pts == 4) {
         vtkIdType pri_pts[8];
         for (int i_pts = 0; i_pts < 4; ++i_pts) {
-          pri_pts[i_pts]     = face_pts[i_pts] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
-          pri_pts[i_pts + 4] = face_pts[i_pts] + i_layer*m_ShellPart.getNumberOfNodes();
+          pri_pts[i_pts]     = face_pts[i_pts] + i_layer*m_ShellPart.getNumberOfNodes();
+          pri_pts[i_pts + 4] = face_pts[i_pts] + (i_layer + 1)*m_ShellPart.getNumberOfNodes();
         }
         vtkIdType id_hex = m_PrismaticGrid->InsertNextCell(VTK_HEXAHEDRON, 8, pri_pts);
         cell_code_pri->SetValue(id_hex, 0);
@@ -1037,16 +1355,16 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
         stream_ids.reserve(1 + num_faces*(num_pts + 2));
         stream_ids.append(num_faces);
 
-        // bottom face (outward)
+        // bottom face: reversed so normal points toward wall (outward from cell)
         stream_ids.append(num_pts);
-        for (int i = 0; i < num_pts; ++i) {
+        for (int i = num_pts - 1; i >= 0; --i) {
           stream_ids.append(face_pts[i] + bottom_offset);
         }
 
-        // top face(s)
+        // top face(s): forward so normal points away from wall (outward from cell)
         if (!triangulate_top) {
           stream_ids.append(num_pts);
-          for (int i = num_pts - 1; i >= 0; --i) {
+          for (int i = 0; i < num_pts; ++i) {
             stream_ids.append(face_pts[i] + top_offset);
           }
         } else if (num_pts == 4) {
@@ -1058,21 +1376,21 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
           if (use_diag_02) {
             stream_ids.append(3);
             stream_ids.append(face_pts[0] + top_offset);
-            stream_ids.append(face_pts[2] + top_offset);
             stream_ids.append(face_pts[1] + top_offset);
+            stream_ids.append(face_pts[2] + top_offset);
             stream_ids.append(3);
             stream_ids.append(face_pts[0] + top_offset);
-            stream_ids.append(face_pts[3] + top_offset);
             stream_ids.append(face_pts[2] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
           } else {
             stream_ids.append(3);
             stream_ids.append(face_pts[0] + top_offset);
-            stream_ids.append(face_pts[3] + top_offset);
             stream_ids.append(face_pts[1] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
             stream_ids.append(3);
             stream_ids.append(face_pts[1] + top_offset);
-            stream_ids.append(face_pts[3] + top_offset);
             stream_ids.append(face_pts[2] + top_offset);
+            stream_ids.append(face_pts[3] + top_offset);
           }
         } else {
           vtkIdType center_id = next_extra_node++;
@@ -1089,12 +1407,12 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
             vtkIdType p2 = face_pts[(i + 1) % num_pts] + top_offset;
             stream_ids.append(3);
             stream_ids.append(p1);
-            stream_ids.append(center_id);
             stream_ids.append(p2);
+            stream_ids.append(center_id);
           }
         }
 
-        // side faces
+        // side faces: [wall-i, wall-(i+1), farfield-(i+1), farfield-i] gives outward normal
         for (int i = 0; i < num_pts; ++i) {
           stream_ids.append(4);
           vtkIdType p1 = face_pts[i] + bottom_offset;
@@ -1102,9 +1420,9 @@ void CreateBoundaryLayerShell::createPrismaticGrid()
           vtkIdType p3 = face_pts[(i + 1) % num_pts] + top_offset;
           vtkIdType p4 = face_pts[i] + top_offset;
           stream_ids.append(p1);
-          stream_ids.append(p4);
-          stream_ids.append(p3);
           stream_ids.append(p2);
+          stream_ids.append(p3);
+          stream_ids.append(p4);
         }
 
         EG_VTKSP(vtkIdList, stream);
@@ -1235,6 +1553,122 @@ void CreateBoundaryLayerShell::triangulateFarfieldSurface(vtkUnstructuredGrid *s
   makeCopy(tri_grid, shell_grid);
 }
 
+void CreateBoundaryLayerShell::mergeFarfieldFaces()
+{
+  if (!m_MergeTopLayer || !m_PolyhedralBoundaryLayer || m_MergedTopPolygons.isEmpty()) {
+    return;
+  }
+
+  QVector<vtkIdType> shell_faces;
+  getSurfaceCells(m_BoundaryLayerCodes, shell_faces, m_Grid);
+
+  // Build set of cells to replace (all cells in any merge group)
+  QSet<vtkIdType> cells_to_remove;
+  QMap<vtkIdType, QVector<vtkIdType>> group_cells; // source node -> cell IDs in m_Grid
+
+  for (int i = 0; i < shell_faces.size(); ++i) {
+    if (i < m_DualCellSourceNode.size()) {
+      vtkIdType src = m_DualCellSourceNode[i];
+      if (m_MergedTopPolygons.contains(src)) {
+        cells_to_remove.insert(shell_faces[i]);
+        group_cells[src].append(shell_faces[i]);
+      }
+    }
+  }
+
+  if (cells_to_remove.isEmpty()) {
+    return;
+  }
+
+  int new_cell_count = m_Grid->GetNumberOfCells()
+                     - cells_to_remove.size()
+                     + m_MergedTopPolygons.size();
+
+  EG_VTKSP(vtkUnstructuredGrid, new_grid);
+  allocateGrid(new_grid, new_cell_count, m_Grid->GetNumberOfPoints());
+
+  // Copy all nodes
+  for (vtkIdType i = 0; i < m_Grid->GetNumberOfPoints(); ++i) {
+    vec3_t x;
+    m_Grid->GetPoint(i, x.data());
+    new_grid->GetPoints()->SetPoint(i, x.data());
+    copyNodeData(m_Grid, i, new_grid, i);
+  }
+
+  // Copy non-removed cells
+  for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
+    if (!cells_to_remove.contains(id_cell)) {
+      EG_GET_CELL(id_cell, m_Grid);
+      EG_VTKSP(vtkIdList, id_list);
+      id_list->SetNumberOfIds(num_pts);
+      for (int j = 0; j < num_pts; ++j) {
+        id_list->SetId(j, pts[j]);
+      }
+      vtkIdType id_new = new_grid->InsertNextCell(type_cell, id_list);
+      copyCellData(m_Grid, id_cell, new_grid, id_new);
+    }
+  }
+
+  // Add merged polygon cells
+  EG_VTKDCC(vtkIntArray, cell_code_src, m_Grid, "cell_code");
+  for (auto it = m_MergedTopPolygons.begin(); it != m_MergedTopPolygons.end(); ++it) {
+    vtkIdType src = it.key();
+    const QVector<vtkIdType> &merged_nodes = it.value();
+
+    // Compute reference normal from a replaced cell
+    vec3_t ref_normal(0, 0, 0);
+    int bc = 0;
+    vtkIdType rep_cell = -1;
+    if (group_cells.contains(src) && !group_cells[src].isEmpty()) {
+      rep_cell = group_cells[src].first();
+      ref_normal = cellNormal(m_Grid, rep_cell);
+      bc = cell_code_src->GetValue(rep_cell);
+    }
+
+    // Compute merged polygon normal and flip if needed
+    QVector<vtkIdType> ordered_nodes = merged_nodes;
+    if (ref_normal.abs() > 1e-12 && ordered_nodes.size() >= 3) {
+      vec3_t xc(0, 0, 0);
+      for (int j = 0; j < ordered_nodes.size(); ++j) {
+        vec3_t x;
+        m_Grid->GetPoint(ordered_nodes[j], x.data());
+        xc += x;
+      }
+      xc *= 1.0 / ordered_nodes.size();
+      vec3_t merged_normal(0, 0, 0);
+      for (int j = 0; j < ordered_nodes.size(); ++j) {
+        vec3_t x1, x2;
+        m_Grid->GetPoint(ordered_nodes[j], x1.data());
+        m_Grid->GetPoint(ordered_nodes[(j + 1) % ordered_nodes.size()], x2.data());
+        vec3_t u = x1 - xc;
+        vec3_t v = x2 - xc;
+        merged_normal += 0.5 * u.cross(v);
+      }
+      if (merged_normal * ref_normal < 0) {
+        std::reverse(ordered_nodes.begin(), ordered_nodes.end());
+      }
+    }
+
+    EG_VTKSP(vtkIdList, poly_pts);
+    poly_pts->SetNumberOfIds(ordered_nodes.size());
+    for (int j = 0; j < ordered_nodes.size(); ++j) {
+      poly_pts->SetId(j, ordered_nodes[j]);
+    }
+    vtkIdType id_new = new_grid->InsertNextCell(VTK_POLYGON, poly_pts);
+
+    // Copy cell data from representative cell, then override BC
+    if (rep_cell >= 0) {
+      copyCellData(m_Grid, rep_cell, new_grid, id_new);
+    }
+    EG_VTKDCC(vtkIntArray, cell_code_new, new_grid, "cell_code");
+    cell_code_new->SetValue(id_new, bc);
+  }
+
+  makeCopy(new_grid, m_Grid);
+  m_Grid->Modified();
+  updateCellIndex(m_Grid);
+}
+
 void CreateBoundaryLayerShell::reduceSurface()
 {
   RemovePoints remove_points;
@@ -1288,6 +1722,7 @@ void CreateBoundaryLayerShell::operate()
 {
   prepare();
   createPrismaticGrid();
+  mergeFarfieldFaces();
   m_Success = true;
   m_Part.trackGrid(m_Grid);
   return;

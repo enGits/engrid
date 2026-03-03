@@ -22,6 +22,7 @@
 #include <QtGui>
 #include <QApplication>
 #include <QFile>
+#include <QLocale>
 #include <QTextStream>
 #include <QDate>
 #include <qglobal.h>
@@ -187,6 +188,7 @@ double getNumber(QString text)
 
 int main( int argc, char ** argv )
 {
+  QLocale::setDefault(QLocale::C);
 
 #ifdef QT_DEBUG
   //omp_set_num_threads(1);

@@ -50,6 +50,8 @@ protected: // attributes
   double                    m_FeatureAngle;
   double                    m_StretchingRatio;
   double                    m_FarfieldRatio;
+  double                    m_FirstLayerHeight;
+  int                       m_NumDesiredLayers;
   double                    m_RadarAngle;
   double                    m_MaxHeightInGaps;
   double                    m_FaceSizeLowerLimit;
@@ -59,9 +61,15 @@ protected: // attributes
   double                    m_GroupingAngle;
   bool                      m_PolyhedralBoundaryLayer;
   bool                      m_TriangulateFarfield;
+  bool                      m_MergeTopLayer;
+  double                    m_MaxShellAngle;
+  double                    m_SmoothShellLowerFraction;
+  double                    m_SmoothShellUpperFactor;
+  int                       m_SmoothShellIterations;
+  int                       m_LaplaceShellSweeps;
+  double                    m_LaplaceShellOmega;
   int                       m_NumBoundaryLayerVectorRelaxations;
   int                       m_NumBoundaryLayerHeightRelaxations;
-  double                    m_ShellPassBand;
   int                       m_NumLayers;
   int                       m_NumBufferLayers;
   EdgeLengthSourceManager   m_ELSManagerBLayer;
@@ -86,10 +94,8 @@ protected: // methods
   bool faceFine(vtkIdType id_face, double scale);
   void computeHeights();
 
-  void   createSmoothShell();
   void   fixBoundaryLayerVectors(const QList<vtkIdType> &bad_cells, int num_smooth_iter);
   double largestAngle(vtkIdType id_node1, vtkIdType id_node2);
-  void   smoothUsingBLVectors();
   void   writeWallGrid(QString file_name, int counter = -1);
 
   void   laplacianIntersectSmoother(const QVector<bool>& on_boundary);
@@ -102,8 +108,9 @@ protected: // methods
   bool   checkVectorForNode(vec3_t v, vtkIdType id_node);
   vec3_t snapToShell(CadInterface *cad, vtkIdType id_node);
   void   snapAllVectorsToShell(vtkUnstructuredGrid* shell_grid);
-  void   newHeightFromShellIntersect(double relax);
   void   limitSizeAndAngleErrors();
+  void   smoothShellHeights();
+  double maxAllowedHeightForNode(vtkIdType id_node, double h_lo, double h_hi);
   bool   swapRequired(stencil_t stencil, CadInterface *cad, double threshold_angle);
   void   swapEdgesToMatchShell(vtkUnstructuredGrid *shell_grid, double threshold_angle);
 
@@ -116,6 +123,7 @@ public: // methods
   QSet<int> getLayerAdjacentBoundaryCodes();
   bool usePolyhedralBoundaryLayer() const { return m_PolyhedralBoundaryLayer; }
   bool triangulateFarfield() const { return m_TriangulateFarfield; }
+  bool mergeTopLayer() const { return m_MergeTopLayer; }
 
 
 

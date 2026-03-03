@@ -51,7 +51,7 @@
 GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 {
   EG_TYPENAME;
-  
+
   setQuickSave(true);
 
   populateBoundaryCodes(m_Ui.listWidget);
@@ -63,9 +63,9 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 
   connect(m_Ui.m_CheckBoxBoundaryLayerPolyhedral, SIGNAL(toggled(bool)), this, SLOT(updateTriangulateFarfieldState(bool)));
   updateTriangulateFarfieldState(m_Ui.m_CheckBoxBoundaryLayerPolyhedral->isChecked());
-  
+
   Nbc = m_Ui.listWidget-> count ();
-  
+
   current_filename= GuiMainWindow::pointer()->getFilename();
 
   {
@@ -78,9 +78,6 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
 
     if (m_NumRows == 0) {
       m_NumCols = Nbc + 3;
-    }
-    if(m_NumCols != Nbc + 3) {
-      //m_NumCols = Nbc + 3;
     }
 
     int row, column;
@@ -100,10 +97,11 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
     }
   }
   setTextFromTable();
-  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules").trimmed());
-  
-  connect(m_Ui.pushButton_SelectAll_BC, SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
-  connect(m_Ui.pushButton_ClearAll_BC, SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+
+  connect(m_Ui.pushButton_SelectAll_BC,   SIGNAL(clicked()), this, SLOT(SelectAll_BC()));
+  connect(m_Ui.pushButton_ClearAll_BC,    SIGNAL(clicked()), this, SLOT(ClearAll_BC()));
+  connect(m_Ui.pushButton_SelectAll_BC_2, SIGNAL(clicked()), this, SLOT(SelectAll_BLayer()));
+  connect(m_Ui.pushButton_ClearAll_BC_2,  SIGNAL(clicked()), this, SLOT(ClearAll_BLayer()));
 
   m_ELSManager.setListWidget(m_Ui.listWidgetSources);
   m_ELSManager.read();
@@ -116,28 +114,16 @@ GuiCreateSurfaceMesh::GuiCreateSurfaceMesh()
   connect(m_Ui.pushButtonEditSource,   SIGNAL(clicked()), this, SLOT(edit()));
   connect(m_Ui.pushButtonDeleteSource, SIGNAL(clicked()), this, SLOT(remove()));
 
-  connect(m_Ui.m_PushButtonCalc1, SIGNAL(clicked()), this, SLOT(calc1()));
-  connect(m_Ui.m_PushButtonCalc2, SIGNAL(clicked()), this, SLOT(calc2()));
-  connect(m_Ui.m_PushButtonCalc3, SIGNAL(clicked()), this, SLOT(calc3()));
-
-  connect(m_Ui.m_PassBandSlider, SIGNAL(valueChanged(int)), this, SLOT(displayPb(int)));
-
 }
 
-
-void GuiCreateSurfaceMesh::displayPb(int v)
-{
-  double dv = 1e-3*v;
-  QString num;
-  num.setNum(2*pow(10.0, -3*dv));
-  m_Ui.m_LabelPassBand->setText(num);
-}
 
 void GuiCreateSurfaceMesh::updateTriangulateFarfieldState(bool on)
 {
   m_Ui.m_CheckBoxTriangulateFarfield->setEnabled(on);
+  m_Ui.m_CheckBoxMergeTopLayer->setEnabled(on);
   if (!on) {
     m_Ui.m_CheckBoxTriangulateFarfield->setChecked(false);
+    m_Ui.m_CheckBoxMergeTopLayer->setChecked(false);
   }
 }
 
@@ -145,69 +131,126 @@ void GuiCreateSurfaceMesh::updateTriangulateFarfieldState(bool on)
 
 int GuiCreateSurfaceMesh::readSettings()
 {
+  // Surface settings
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings");
-  if(!buffer.isEmpty()) {
+  if (!buffer.isEmpty()) {
     QTextStream in(&buffer, QIODevice::ReadOnly);
-    QString str;
-    in >> str;
-    m_Ui.lineEditMaximalEdgeLength->setText(str);
-    in >> str;
-    m_Ui.lineEditMinimalEdgeLength->setText(str);
-    in >> str;
-    m_Ui.lineEditGrowthFactor->setText(str);
+    QString first_token;
+    in >> first_token;
+    bool new_format = (first_token == "v2");
+
+    QString max_edge, min_edge, growth;
     double nodes_per_quarter_circle;
-    in >> nodes_per_quarter_circle;
+    double feat2d, feat3d;
+
+    if (new_format) {
+      in >> max_edge >> min_edge >> growth >> nodes_per_quarter_circle;
+    } else {
+      // old format: first_token is max_edge
+      max_edge = first_token;
+      in >> min_edge >> growth >> nodes_per_quarter_circle;
+    }
+    m_Ui.lineEditMaximalEdgeLength->setText(max_edge);
+    m_Ui.lineEditMinimalEdgeLength->setText(min_edge);
+    m_Ui.lineEditGrowthFactor->setText(growth);
     m_Ui.doubleSpinBoxCurvature->setValue(nodes_per_quarter_circle);
+
     int num_bcs;
     in >> num_bcs;
-    if (num_bcs == m_Ui.listWidget->count()) {
-      int check_state;
+    if (new_format) {
+      // New format: each line is "bc_code state"
+      QMap<int, int> bc_state_map;
+      for (int i = 0; i < num_bcs; ++i) {
+        int code, state;
+        in >> code >> state;
+        bc_state_map[code] = state;
+      }
       for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
-        in >> check_state;
-        if (check_state == 1) {
-          m_Ui.listWidget->item(i)->setCheckState(Qt::Checked);
-        } else {
-          m_Ui.listWidget->item(i)->setCheckState(Qt::Unchecked);
+        int bc = m_Ui.listWidget->item(i)->text().split(" ")[0].toInt();
+        if (bc_state_map.contains(bc)) {
+          m_Ui.listWidget->item(i)->setCheckState(bc_state_map[bc] ? Qt::Checked : Qt::Unchecked);
+        }
+      }
+    } else {
+      // Old format: states in order, only restore if count matches
+      if (num_bcs == m_Ui.listWidget->count()) {
+        for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
+          int check_state;
+          in >> check_state;
+          m_Ui.listWidget->item(i)->setCheckState(check_state ? Qt::Checked : Qt::Unchecked);
         }
       }
     }
-    double v;
-    in >> v;
-    m_Ui.doubleSpinBox2DFeature->setValue(v);
-    in >> v;
-    m_Ui.m_DoubleSpinBox3DFeature->setValue(v);
+    in >> feat2d;
+    in >> feat3d;
+    m_Ui.doubleSpinBox2DFeature->setValue(feat2d);
+    m_Ui.m_DoubleSpinBox3DFeature->setValue(feat3d);
   }
 
   m_ELSManager.read();
 
+  // Boundary layer settings
   buffer = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/settings");
-  if(!buffer.isEmpty()) {
+  if (!buffer.isEmpty()) {
     QTextStream in(&buffer, QIODevice::ReadOnly);
+    QString first_token;
+    in >> first_token;
+    bool new_format = (first_token == "v2");
+
     int num_bcs;
-    in >> num_bcs;
-    if (num_bcs == m_Ui.m_ListWidgetPrismaticLayers->count()) {
-      int check_state;
+    if (new_format) {
+      in >> num_bcs;
+    } else {
+      num_bcs = first_token.toInt();
+    }
+
+    if (new_format) {
+      // New format: each line is "bc_code state"
+      QMap<int, int> bc_state_map;
+      for (int i = 0; i < num_bcs; ++i) {
+        int code, state;
+        in >> code >> state;
+        bc_state_map[code] = state;
+      }
       for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
-        in >> check_state;
-        if (check_state == 1) {
-          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Checked);
-        } else {
-          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Unchecked);
+        int bc = m_Ui.m_ListWidgetPrismaticLayers->item(i)->text().split(" ")[0].toInt();
+        if (bc_state_map.contains(bc)) {
+          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(bc_state_map[bc] ? Qt::Checked : Qt::Unchecked);
+        }
+      }
+    } else {
+      // Old format: states in order
+      if (num_bcs == m_Ui.m_ListWidgetPrismaticLayers->count()) {
+        for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
+          int check_state;
+          in >> check_state;
+          m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(check_state ? Qt::Checked : Qt::Unchecked);
         }
       }
     }
+
     double dv;
     int iv;
-    QString num;
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFeatureAngle->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->setValue(dv);
-    in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->setValue(dv);
+
+    if (new_format) {
+      // New params: first layer height and number of layers
+      QString h0_str;
+      in >> h0_str;
+      m_Ui.m_LineEditFirstLayerHeight->setText(h0_str);
+      in >> iv; m_Ui.m_SpinBoxNumLayers->setValue(iv);
+    } else {
+      // Old format had farfield ratio here — skip it, use defaults
+      double farfield_ratio;
+      in >> farfield_ratio;
+      // Leave first layer height and num layers at UI defaults
+    }
+
     in >> iv; m_Ui.m_SpinBoxNormalRelaxationIterations->setValue(iv);
     in >> iv; m_Ui.m_SpinBoxHeightRelaxationIterations->setValue(iv);
 
-    in >> dv; m_Ui.m_PassBandSlider->setValue(int(1000*dv));
-    num.setNum(2*pow(10.0, -3*dv));
-    m_Ui.m_LabelPassBand->setText(num);
+    { double passband_dummy; in >> passband_dummy; } // passband no longer used
 
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->setValue(dv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->setValue(dv);
@@ -216,7 +259,7 @@ int GuiCreateSurfaceMesh::readSettings()
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerRadarAngle->setValue(dv);
     in >> iv; m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->setChecked(iv);
     in >> dv; m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->setValue(dv);
-    in >> iv; m_Ui.m_SpinBoxBufferLayers->setValue(iv); 
+    in >> iv; m_Ui.m_SpinBoxBufferLayers->setValue(iv);
     if (!in.atEnd()) {
       in >> iv;
       m_Ui.m_CheckBoxBoundaryLayerPolyhedral->setChecked(iv);
@@ -229,6 +272,50 @@ int GuiCreateSurfaceMesh::readSettings()
     } else {
       m_Ui.m_CheckBoxTriangulateFarfield->setChecked(false);
     }
+    if (!in.atEnd()) {
+      in >> iv;
+      m_Ui.m_CheckBoxMergeTopLayer->setChecked(iv);
+    } else {
+      m_Ui.m_CheckBoxMergeTopLayer->setChecked(false);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_DoubleSpinBoxMaxShellAngle->setValue(dv);
+    } else {
+      m_Ui.m_DoubleSpinBoxMaxShellAngle->setValue(60.0);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_DoubleSpinBoxSmoothShellA->setValue(dv);
+    } else {
+      m_Ui.m_DoubleSpinBoxSmoothShellA->setValue(0.5);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_DoubleSpinBoxSmoothShellB->setValue(dv);
+    } else {
+      m_Ui.m_DoubleSpinBoxSmoothShellB->setValue(2.0);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_SpinBoxSmoothShellIter->setValue(static_cast<int>(dv));
+    } else {
+      m_Ui.m_SpinBoxSmoothShellIter->setValue(50);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_SpinBoxLaplaceShellSweeps->setValue(static_cast<int>(dv));
+    } else {
+      m_Ui.m_SpinBoxLaplaceShellSweeps->setValue(20);
+    }
+    if (!in.atEnd()) {
+      in >> dv;
+      m_Ui.m_DoubleSpinBoxLaplaceShellOmega->setValue(dv);
+    } else {
+      m_Ui.m_DoubleSpinBoxLaplaceShellOmega->setValue(0.5);
+    }
+    // Optional trailing fields are ignored if present
+    while (!in.atEnd()) { double dummy; in >> dummy; }
   }
 
   return(0);
@@ -236,65 +323,67 @@ int GuiCreateSurfaceMesh::readSettings()
 
 int GuiCreateSurfaceMesh::writeSettings()
 {
+  // Surface settings — new format v2 with BC codes
   QString buffer = "";
   {
     QTextStream out(&buffer, QIODevice::WriteOnly);
-    out << "\n";
+    out << "v2\n";
     out << m_Ui.lineEditMaximalEdgeLength->text() << "\n";
     out << m_Ui.lineEditMinimalEdgeLength->text() << "\n";
     out << m_Ui.lineEditGrowthFactor->text() << "\n";
     out << m_Ui.doubleSpinBoxCurvature->value() << "\n";
     out << m_Ui.listWidget->count() << "\n";
     for (int i = 0; i < m_Ui.listWidget->count(); ++i) {
-      if (m_Ui.listWidget->item(i)->checkState() == Qt::Checked) {
-        out << "1 \n";
-      } else {
-        out << "0 \n";
-      }
+      int bc = m_Ui.listWidget->item(i)->text().split(" ")[0].toInt();
+      int state = (m_Ui.listWidget->item(i)->checkState() == Qt::Checked) ? 1 : 0;
+      out << bc << " " << state << "\n";
     }
     out << m_Ui.doubleSpinBox2DFeature->value() << "\n";
     out << m_Ui.m_DoubleSpinBox3DFeature->value() << "\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/settings", buffer);
 
+  // Boundary layer settings — new format v2
   buffer = "";
   {
     QTextStream out(&buffer, QIODevice::WriteOnly);
-    out << "\n";
+    out << "v2\n";
     out << m_Ui.m_ListWidgetPrismaticLayers->count() << "\n";
     for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
-      if (m_Ui.m_ListWidgetPrismaticLayers->item(i)->checkState() == Qt::Checked) {
-        out << "1 \n";
-      } else {
-        out << "0 \n";
-      }
+      int bc = m_Ui.m_ListWidgetPrismaticLayers->item(i)->text().split(" ")[0].toInt();
+      int state = (m_Ui.m_ListWidgetPrismaticLayers->item(i)->checkState() == Qt::Checked) ? 1 : 0;
+      out << bc << " " << state << "\n";
     }
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFeatureAngle->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value() << "\n";
-    out << m_Ui.m_DoubleSpinBoxBoundaryLayerFarfieldRatio->value() << "\n";
+    out << m_Ui.m_LineEditFirstLayerHeight->text() << "\n";
+    out << m_Ui.m_SpinBoxNumLayers->value() << "\n";
     out << m_Ui.m_SpinBoxNormalRelaxationIterations->value() << "\n";
     out << m_Ui.m_SpinBoxHeightRelaxationIterations->value() << "\n";
-    out << 1e-3*m_Ui.m_PassBandSlider->value() << "\n";
+    out << 0.0 << "\n"; // passband placeholder (field kept for file format compatibility)
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerLowerFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerUpperFaceLimit->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerFaceAngle->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerGapHeight->value() << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerRadarAngle->value() << "\n";
-    if (m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->checkState() == Qt::Checked) out << "1\n";
-    else                                                                               out << "0\n";
+    out << (m_Ui.m_CheckBoxBoundaryLayerNormalVectorGrouping->checkState() == Qt::Checked ? 1 : 0) << "\n";
     out << m_Ui.m_DoubleSpinBoxBoundaryLayerGroupingAngle->value() << "\n";
     out << m_Ui.m_SpinBoxBufferLayers->value() << "\n";
-    if (m_Ui.m_CheckBoxBoundaryLayerPolyhedral->checkState() == Qt::Checked) out << "1\n";
-    else                                                                    out << "0\n";
-    if (m_Ui.m_CheckBoxTriangulateFarfield->checkState() == Qt::Checked) out << "1\n";
-    else                                                                out << "0\n";
+    out << (m_Ui.m_CheckBoxBoundaryLayerPolyhedral->checkState() == Qt::Checked ? 1 : 0) << "\n";
+    out << (m_Ui.m_CheckBoxTriangulateFarfield->checkState() == Qt::Checked ? 1 : 0) << "\n";
+    out << (m_Ui.m_CheckBoxMergeTopLayer->checkState() == Qt::Checked ? 1 : 0) << "\n";
+    out << m_Ui.m_DoubleSpinBoxMaxShellAngle->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxSmoothShellA->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxSmoothShellB->value() << "\n";
+    out << m_Ui.m_SpinBoxSmoothShellIter->value() << "\n";
+    out << m_Ui.m_SpinBoxLaplaceShellSweeps->value() << "\n";
+    out << m_Ui.m_DoubleSpinBoxLaplaceShellOmega->value() << "\n";
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/blayer/settings", buffer);
 
   m_ELSManager.write();
 
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/rules", m_Ui.textEdit->toPlainText());
-  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.m_TextEditPrismaticLayers->toPlainText());
 
   return(0);
 }
@@ -315,11 +404,23 @@ void GuiCreateSurfaceMesh::ClearAll_BC()
   }
 }
 
+void GuiCreateSurfaceMesh::SelectAll_BLayer()
+{
+  for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
+    m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Checked);
+  }
+}
+
+void GuiCreateSurfaceMesh::ClearAll_BLayer()
+{
+  for (int i = 0; i < m_Ui.m_ListWidgetPrismaticLayers->count(); ++i) {
+    m_Ui.m_ListWidgetPrismaticLayers->item(i)->setCheckState(Qt::Unchecked);
+  }
+}
+
 void GuiCreateSurfaceMesh::setTextFromTable()
 {
-  //EG_STOPDATE("2015-06-01");
   m_Ui.textEdit->setText(GuiMainWindow::pointer()->getXmlSection("engrid/surface/rules").trimmed());
-  m_Ui.m_TextEditPrismaticLayers->setText(GuiMainWindow::pointer()->getXmlSection("engrid/blayer/rules").trimmed());
   return;
 
   QString text = "";
@@ -419,47 +520,4 @@ void GuiCreateSurfaceMesh::operate()
     }
   }
   GuiMainWindow::pointer()->setXmlSection("engrid/surface/table", buffer);
-  GuiMainWindow::pointer()->setXmlSection("engrid/blayer/rules", m_Ui.m_TextEditPrismaticLayers->toPlainText());
-}
-
-void GuiCreateSurfaceMesh::calc1()
-{
-  // from number of layers
-  double h0 = m_Ui.m_LineEditCalcH0->text().toDouble();
-  int    N  = m_Ui.m_SpinBoxCalcNumLayers->value();
-  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
-  double h1 = h0*pow(s, double(N));
-  double H  = h0*(1.0 - pow(s, double(N)))/(1.0 - s);
-  QString num;
-  num.setNum(H);
-  m_Ui.m_LineEditCalcTotalH->setText(num);
-  num.setNum(h1);
-  m_Ui.m_LineEditCalcH1->setText(num);
-}
-
-void GuiCreateSurfaceMesh::calc2()
-{
-  double h0 = m_Ui.m_LineEditCalcH0->text().toDouble();
-  double h1 = m_Ui.m_LineEditCalcH1->text().toDouble();
-  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
-  int    N  = max(1, int(logarithm(s, h1/h0)));
-  double H  = h0*(1.0 - pow(s, double(N)))/(1.0 - s);
-  QString num;
-  num.setNum(H);
-  m_Ui.m_LineEditCalcTotalH->setText(num);
-  m_Ui.m_SpinBoxCalcNumLayers->setValue(N);
-}
-
-void GuiCreateSurfaceMesh::calc3()
-{
-  double H  = m_Ui.m_LineEditCalcTotalH->text().toDouble();
-  int    N  = m_Ui.m_SpinBoxCalcNumLayers->value();
-  double s  = m_Ui.m_DoubleSpinBoxBoundaryLayerStretchingRatio->value();
-  double h0 = H*(1.0 - s)/(1.0 - pow(s, double(N)));
-  double h1 = h0*pow(s, double(N));
-  QString num;
-  num.setNum(h0);
-  m_Ui.m_LineEditCalcH0->setText(num);
-  num.setNum(h1);
-  m_Ui.m_LineEditCalcH1->setText(num);
 }

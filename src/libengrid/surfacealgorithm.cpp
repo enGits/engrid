@@ -54,7 +54,14 @@ void SurfaceAlgorithm::readSettings()
 {
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/surface/settings").replace("\n", " ");
   QTextStream in(&buffer, QIODevice::ReadOnly);
-  in >> m_MaxEdgeLength;
+  QString first_token;
+  in >> first_token;
+  bool new_format = (first_token == "v2");
+  if (new_format) {
+    in >> m_MaxEdgeLength;
+  } else {
+    m_MaxEdgeLength = first_token.toDouble();
+  }
   in >> m_MinEdgeLength;
   in >> m_GrowthFactor;
   in >> m_NodesPerQuarterCircle;
@@ -63,12 +70,26 @@ void SurfaceAlgorithm::readSettings()
   QVector<int> tmp_bcs;
   GuiMainWindow::pointer()->getAllBoundaryCodes(tmp_bcs);
   m_BoundaryCodes.clear();
-  if (num_bcs == tmp_bcs.size()) {
+  if (new_format) {
+    QMap<int,int> bc_state_map;
+    for (int i = 0; i < num_bcs; ++i) {
+      int code, state;
+      in >> code >> state;
+      bc_state_map[code] = state;
+    }
     foreach (int bc, tmp_bcs) {
-      int check_state;
-      in >> check_state;
-      if (check_state == 1) {
+      if (bc_state_map.value(bc, 0)) {
         m_BoundaryCodes.insert(bc);
+      }
+    }
+  } else {
+    if (num_bcs == tmp_bcs.size()) {
+      foreach (int bc, tmp_bcs) {
+        int check_state;
+        in >> check_state;
+        if (check_state == 1) {
+          m_BoundaryCodes.insert(bc);
+        }
       }
     }
   }
@@ -82,9 +103,9 @@ void SurfaceAlgorithm::prepare()
 {
   setAllCells();
   readSettings();
-  
+
   EG_VTKDCN(vtkCharArray_t, node_type, m_Grid, "node_type");//node type
-  
+
   updateNodeInfo();
 
 }

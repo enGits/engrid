@@ -60,6 +60,10 @@ private: // attributes
   QVector<int>   m_DualNodeBoundaryCode;
   QVector<vec3_t> m_DualNodeNormals;
 
+  QVector<vtkIdType>                     m_DualCellSourceNode;
+  QVector<int>                           m_DualCellBC;
+  QMap<vtkIdType, QVector<vtkIdType>>    m_MergedTopPolygons;
+
 
 private: // data types
 
@@ -88,6 +92,8 @@ private: // methods
   void createLayerNodes(vtkIdType id_node);
   void createPrismaticGrid();
   void dualiseBoundaryLayerSurface();
+  QVector<vtkIdType> chainSplitPolygons(const QVector<QVector<vtkIdType>> &polys, const QVector<int> &indices);
+  void mergeFarfieldFaces();
 
 
 protected: // methods

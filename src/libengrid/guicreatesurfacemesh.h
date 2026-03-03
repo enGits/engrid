@@ -31,17 +31,19 @@
 
 class GuiCreateSurfaceMesh : public DialogOperation<Ui::GuiCreateSurfaceMesh, SurfaceOperation>
 {
-  
+
   Q_OBJECT;
-  
+
 private slots:
-  
+
   void SelectAll_BC();
   void ClearAll_BC();
+  void SelectAll_BLayer();
+  void ClearAll_BLayer();
   void updateTriangulateFarfieldState(bool on);
-  
+
 protected: // methods
-  
+
   virtual void operate();
 
 private:
@@ -53,13 +55,13 @@ private:
   QVector<QVector<QString> > m_Table;
   void setTextFromTable();
   void getTableFromText();
-  
+
 public:
 
   GuiCreateSurfaceMesh();
-  
+
   QString current_filename;
-  
+
 public slots:
 
   int  readSettings();
@@ -73,11 +75,6 @@ public slots:
   void addBox()    { m_ELSManager.addBox(); }
   void addPipe()   { m_ELSManager.addPipe(); }
 
-  void calc1();
-  void calc2();
-  void calc3();
-
-  void displayPb(int v);
 
 };
 

@@ -38,11 +38,16 @@
 #include <vtkWindowedSincPolyDataFilter.h>
 #include <vtkSmartPointer.h>
 
+#include <array>
+#include <cmath>
+
 BoundaryLayerOperation::BoundaryLayerOperation()
 {
   m_ShellGrid = vtkUnstructuredGrid::New();
   m_PolyhedralBoundaryLayer = false;
   m_TriangulateFarfield = false;
+  m_MergeTopLayer = false;
+  m_MaxShellAngle = deg2rad(60.0);
 }
 
 BoundaryLayerOperation::~BoundaryLayerOperation()
@@ -53,37 +58,80 @@ BoundaryLayerOperation::~BoundaryLayerOperation()
 void BoundaryLayerOperation::readSettings()
 {
   EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  // Set defaults for new parameters
+  m_FirstLayerHeight         = 0.001;
+  m_NumDesiredLayers         = 10;
+  m_SmoothShellLowerFraction = 0.5;   // h_lo = LowerFraction * h_start
+  m_SmoothShellUpperFactor   = 2.0;   // h_hi = UpperFactor * h_start
+  m_SmoothShellIterations    = 50;
+  m_LaplaceShellSweeps       = 20;
+  m_LaplaceShellOmega        = 0.5;
+
   QString buffer = GuiMainWindow::pointer()->getXmlSection("engrid/blayer/settings");
   if(!buffer.isEmpty()) {
     QTextStream in(&buffer, QIODevice::ReadOnly);
+
+    // Detect format: new format starts with "v2", old format starts with num_bcs integer
+    QString first_token;
+    in >> first_token;
+    bool new_format = (first_token == "v2");
+
     int num_bcs;
-    in >> num_bcs;
-    QVector<bool> use_bc(num_bcs);
-    int N = 0;
-    for (int i = 0; i < num_bcs; ++i) {
-      int state;
-      in >> state;
-      use_bc[i] = bool(state);
-      if (use_bc[i]) {
-        ++N;
-      }
+    if (new_format) {
+      in >> num_bcs;
+    } else {
+      num_bcs = first_token.toInt();
     }
-    m_BoundaryLayerCodes.resize(N);
+
     QVector<int> bcs;
     mainWindow()->getAllBoundaryCodes(bcs);
-    if (use_bc.size() < bcs.size()) {
-      int old_size = use_bc.size();
-      use_bc.resize(bcs.size());
-      for (int i = old_size; i < use_bc.size(); ++i) {
-        use_bc[i] = false;
+
+    if (new_format) {
+      // New format: "bc_code state" pairs — match by code for robustness
+      QMap<int, bool> use_bc_map;
+      for (int i = 0; i < num_bcs; ++i) {
+        int code, state;
+        in >> code >> state;
+        use_bc_map[code] = bool(state);
+      }
+      int N = 0;
+      foreach (int bc, bcs) {
+        if (use_bc_map.value(bc, false)) ++N;
+      }
+      m_BoundaryLayerCodes.resize(N);
+      int j = 0;
+      foreach (int bc, bcs) {
+        if (use_bc_map.value(bc, false)) {
+          m_BoundaryLayerCodes[j++] = bc;
+        }
+      }
+    } else {
+      // Old format: states in order by position
+      QVector<bool> use_bc(num_bcs);
+      int N = 0;
+      for (int i = 0; i < num_bcs; ++i) {
+        int state;
+        in >> state;
+        use_bc[i] = bool(state);
+        if (use_bc[i]) ++N;
+      }
+      m_BoundaryLayerCodes.resize(N);
+      if (use_bc.size() < bcs.size()) {
+        int old_size = use_bc.size();
+        use_bc.resize(bcs.size());
+        for (int i = old_size; i < use_bc.size(); ++i) {
+          use_bc[i] = false;
+        }
+      }
+      int j = 0;
+      for (int i = 0; i < bcs.size(); ++i) {
+        if (i < use_bc.size() && use_bc[i]) {
+          m_BoundaryLayerCodes[j++] = bcs[i];
+        }
       }
     }
-    int j = 0;
-    for (int i = 0; i < bcs.size(); ++i) {
-      if (i < use_bc.size() && use_bc[i]) {
-        m_BoundaryLayerCodes[j++] = bcs[i];
-      }
-    }
+
     m_LayerAdjacentBoundaryCodes.clear();
     for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
       if (isSurface(id_cell, m_Grid)) {
@@ -97,14 +145,23 @@ void BoundaryLayerOperation::readSettings()
         }
       }
     }
+
     in >> m_FeatureAngle;
     m_FeatureAngle = deg2rad(m_FeatureAngle);
     in >> m_StretchingRatio;
-    in >> m_FarfieldRatio;
+
+    if (new_format) {
+      // New params: first layer height (absolute) and number of layers
+      in >> m_FirstLayerHeight;
+      in >> m_NumDesiredLayers;
+    } else {
+      // Old format had farfield ratio — skip and keep defaults
+      in >> m_FarfieldRatio;
+    }
+
     in >> m_NumBoundaryLayerVectorRelaxations;
     in >> m_NumBoundaryLayerHeightRelaxations;
-    in >> m_ShellPassBand;
-    m_ShellPassBand = 2*pow(10.0, -3*m_ShellPassBand);
+    { double passband_dummy; in >> passband_dummy; } // passband no longer used
     in >> m_FaceSizeLowerLimit;
     in >> m_FaceSizeUpperLimit;
     in >> m_FaceAngleLimit;
@@ -127,9 +184,24 @@ void BoundaryLayerOperation::readSettings()
       in >> use_triangulate_farfield;
     }
     m_TriangulateFarfield = use_triangulate_farfield;
+    int use_merge_top = 0;
+    if (!in.atEnd()) {
+      in >> use_merge_top;
+    }
+    m_MergeTopLayer = use_merge_top;
+    double max_shell_angle_deg = 60.0;
+    if (!in.atEnd()) {
+      in >> max_shell_angle_deg;
+    }
+    m_MaxShellAngle = deg2rad(max_shell_angle_deg);
+    if (!in.atEnd()) { in >> m_SmoothShellLowerFraction; } else { m_SmoothShellLowerFraction = 0.5; }
+    if (!in.atEnd()) { in >> m_SmoothShellUpperFactor;   } else { m_SmoothShellUpperFactor   = 2.0; }
+    if (!in.atEnd()) { in >> m_SmoothShellIterations; } else { m_SmoothShellIterations = 50; }
+    if (!in.atEnd()) { in >> m_LaplaceShellSweeps; } else { m_LaplaceShellSweeps = 20; }
+    if (!in.atEnd()) { in >> m_LaplaceShellOmega;  } else { m_LaplaceShellOmega  = 0.5; }
+    // Optional trailing fields are ignored if present
+    while (!in.atEnd()) { double dummy; in >> dummy; }
   }
-  m_ELSManagerBLayer.clear();
-  m_ELSManagerBLayer.readBoundaryLayerRules(m_Grid);
   m_ELSManagerSurface.clear();
   m_ELSManagerSurface.read();
   m_ELSManagerSurface.readRules(m_Grid);
@@ -612,41 +684,21 @@ void BoundaryLayerOperation::writeBoundaryLayerVectors(QString file_name, int co
 
 void BoundaryLayerOperation::computeDesiredHeights()
 {
-  EG_VTKDCN(vtkDoubleArray, cl, m_Grid, "node_meshdensity_desired");
   //
-  // As a hack we will take the minimal height as the height for the first prism for the whole mesh
-  // This can be improved if (and when) we decide to go ahead with improving enGrid for use with DrNUM
-  //
-  double h_min = 1e10;
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      h_min = std::min(m_ELSManagerBLayer.minEdgeLength(x), h_min);
-    }
-  }
-  //
-  // compute the heights (valid for the whole boundary layer)
+  // Build the layer height profile from the user-specified first layer height,
+  // stretching ratio and number of layers.
   //
   std::vector<double> y_layer;
   {
-    double dy     = h_min;
-    double dy_max = m_FarfieldRatio * h_min;
-    bool   done   = false;
-    //
+    double dy = m_FirstLayerHeight;
     y_layer.push_back(0.0);
-    y_layer.push_back(h_min);
-    //
-    while (!done) {
+    y_layer.push_back(dy);
+    for (int i = 1; i < m_NumDesiredLayers; ++i) {
       dy *= m_StretchingRatio;
-      if (dy > dy_max) {
-        dy   = dy_max;
-        done = true;
-      }
       y_layer.push_back(y_layer.back() + dy);
     }
     //
-    // add buffer layers
+    // add buffer layers at the last growth ratio
     //
     for (int i = 0; i < m_NumBufferLayers; ++i) {
       y_layer.push_back(y_layer.back() + dy);
@@ -660,7 +712,6 @@ void BoundaryLayerOperation::computeDesiredHeights()
   // first pass (initial height)
   //
   m_Height.fill(0, m_Grid->GetNumberOfPoints());
-  int k = 1;
   for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
     if (m_BoundaryLayerNode[id_node]) {
       m_Height[id_node] = y_layer.back();
@@ -748,9 +799,6 @@ void BoundaryLayerOperation::computeHeights()
   // avoid collisions
   limitHeights(1.0);
 
-  // limit face size and angle difference
-  //limitSizeAndAngleErrors();
-
 
   // The mesh smoothing methods start here
   // General variables kind of useful for push out, smoothing, etc
@@ -781,13 +829,9 @@ void BoundaryLayerOperation::computeHeights()
   }
 
   limitHeights(1.0);
+  limitSizeAndAngleErrors();  // clip to face-quality limits (area ratio, top/bottom angle)
 
-  //laplacianIntersectSmoother(on_boundary);
-  //angleSmoother(on_boundary, is_convex, grid_pnts);
-  smoothUsingBLVectors();
-  limitHeights(1.0);
-
-  // laplacian smoothing
+  // laplacian smoothing (warm-start for gradient descent)
   {
     QVector<double> h_safe = m_Height;
     for (int iter = 0; iter < m_NumBoundaryLayerHeightRelaxations; ++iter) {
@@ -813,85 +857,9 @@ void BoundaryLayerOperation::computeHeights()
     }
   }
 
-  //limitHeights(1.0);
+  smoothShellHeights();   // snapshots m_Height internally as h_start
 
   cout << "heights computed" << endl;
-}
-
-void BoundaryLayerOperation::createSmoothShell()
-{
-  // Set grid to normal*height
-  QVector<vec3_t> x_org(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  QVector<vec3_t> x_new(m_Grid->GetNumberOfPoints(), vec3_t(0,0,0));
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    vec3_t x(0,0,0);
-    m_Grid->GetPoint(id_node, x_org[id_node].data());
-    x_new[id_node] = x_org[id_node] + m_Height[id_node]*m_BoundaryLayerVectors[id_node];
-    m_Grid->GetPoints()->SetPoint(id_node, x_new[id_node].data());
-  }
-
-  // extract wall boundaries to a separate grid
-  EG_VTKSP(vtkEgBoundaryCodesFilter, extract_wall);
-  EG_VTKSP(vtkUnstructuredGrid, wall_grid);
-  extract_wall->SetInputData(m_Grid);
-  extract_wall->SetBoundaryCodes(m_BoundaryLayerCodes);
-  extract_wall->Update();
-  if (!extract_wall->GetOutput() ||
-      extract_wall->GetOutput()->GetNumberOfCells() == 0 ||
-      extract_wall->GetOutput()->GetNumberOfPoints() == 0) {
-    allocateGrid(m_ShellGrid, 0, 0);
-    for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-      if (m_BoundaryLayerNode[id_node]) {
-        m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
-      }
-    }
-    return;
-  }
-
-  EG_VTKSP(vtkDataSetSurfaceFilter, grid_to_pdata);
-  grid_to_pdata->SetInputConnection(extract_wall->GetOutputPort());
-  EG_VTKSP(vtkLinearSubdivisionFilter, subdiv);
-  subdiv->SetInputConnection(grid_to_pdata->GetOutputPort());
-  subdiv->SetNumberOfSubdivisions(1);
-
-  EG_VTKSP(vtkWindowedSincPolyDataFilter, smooth);
-  smooth->SetInputConnection(subdiv->GetOutputPort());
-  smooth->BoundarySmoothingOn();
-  smooth->FeatureEdgeSmoothingOff();
-  smooth->SetFeatureAngle(180);
-  smooth->SetEdgeAngle(180);
-  smooth->SetNumberOfIterations(100);
-  smooth->NormalizeCoordinatesOn();
-  double pb = m_ShellPassBand;
-  cout << "pass-band = " << pb << endl;
-  smooth->SetPassBand(pb);
-  smooth->Update();
-
-  /*
-  EG_VTKSP(vtkSmoothPolyDataFilter, smooth);
-  smooth->SetInputConnection(subdiv->GetOutputPort());
-  smooth->SetNumberOfIterations(10);
-  smooth->SetRelaxationFactor(0.1);
-  smooth->FeatureEdgeSmoothingOff();
-  smooth->BoundarySmoothingOn();
-  smooth->Update();
-  */
-
-
-  EG_VTKSP(vtkEgPolyDataToUnstructuredGridFilter, pdata_to_grid);
-  //pdata_to_grid->SetInputConnection(smooth->GetOutputPort());
-  pdata_to_grid->SetInputConnection(subdiv->GetOutputPort());
-  pdata_to_grid->Update();
-  makeCopy(pdata_to_grid->GetOutput(), m_ShellGrid);
-
-  writeGrid(m_ShellGrid, "shell");
-
-  // reset grid to original points
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      m_Grid->GetPoints()->SetPoint(id_node, x_org[id_node].data());
-    }
-  }
 }
 
 double BoundaryLayerOperation::largestAngle(vtkIdType id_node1, vtkIdType id_node2)
@@ -954,88 +922,6 @@ void BoundaryLayerOperation::writeWallGrid(QString file_name, int counter)
   EG_VTKSP(vtkUnstructuredGrid, wall_grid);
   wall_part.extractToVtkGrid(wall_grid);
   writeGrid(wall_grid, file_name);
-}
-
-void BoundaryLayerOperation::smoothUsingBLVectors()
-{
-  // create shell
-  createSmoothShell();
-  newHeightFromShellIntersect(1.0);
-  return;
-
-  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
-
-  QList<vtkIdType> bad_cells;
-
-  double w_iso = 1.0;
-  double w_dir = 0.0;
-  double dw    = 0.01;
-
-  int iter = 0;
-
-  int last_num_bad = m_Grid->GetNumberOfCells();
-
-  //snapAllVectorsToShell(m_ShellGrid);
-  //return;
-
-  smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations, w_iso, w_dir);
-
-  QVector<vec3_t> old_vecs = m_BoundaryLayerVectors;
-  QVector<double> old_height = m_Height;
-
-  do {
-    bad_cells.clear();
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
-        if (!faceFine(id_cell, 1.0)) {
-          bad_cells.append(id_cell);
-        }
-      }
-    }
-    cout << "found " << bad_cells.size() << " distorted faces" << endl;
-
-    if (bad_cells.size() > 0) {
-      if (bad_cells.size() < last_num_bad) {
-        last_num_bad = bad_cells.size();
-        old_vecs = m_BoundaryLayerVectors;
-        old_height = m_Height;
-        smoothBoundaryLayerVectors(m_NumBoundaryLayerVectorRelaxations, w_iso, w_dir);
-        newHeightFromShellIntersect(1.0);
-      } else {
-        cout << "cannot fix completely -- terminating the loop!" << endl;
-        //cout << "moving to global under relaxation now ..." << endl;
-        m_BoundaryLayerVectors = old_vecs;
-        m_Height = old_height;
-        break;
-      }
-    }
-    w_iso -= dw;
-    w_dir += dw;
-    ++iter;
-  } while (bad_cells.size() > 0 && w_iso >= 0.0);
-
-  /*
-  double relax = 0.95;
-
-  do {
-
-    cout << "relaxation factor: " << relax << endl;
-    newHeightFromShellIntersect(shell_grid, relax);
-
-    bad_cells.clear();
-    for (vtkIdType id_cell = 0; id_cell < m_Grid->GetNumberOfCells(); ++id_cell) {
-      if (m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
-        if (!faceFine(id_cell, 1.0)) {
-          bad_cells.append(id_cell);
-        }
-      }
-    }
-    cout << "found " << bad_cells.size() << " distorted faces" << endl;
-    relax -= 0.05;
-  } while (bad_cells.size() > 0 && relax >= 0.25);
-  */
-
-  //swapEdgesToMatchShell(shell_grid, deg2rad(5.0));
 }
 
 bool BoundaryLayerOperation::checkVectorForNode(vec3_t v, vtkIdType id_node)
@@ -1140,43 +1026,6 @@ void BoundaryLayerOperation::snapAllVectorsToShell(vtkUnstructuredGrid *shell_gr
   correctBoundaryLayerVectors();
 }
 
-// Compute intersection points with a shell following m_BoundaryLayerVector
-// Updates m_Height
-void BoundaryLayerOperation::newHeightFromShellIntersect(double relax)
-{
-  if (!m_ShellGrid || m_ShellGrid->GetNumberOfCells() == 0 || m_ShellGrid->GetNumberOfPoints() == 0) {
-    return;
-  }
-  CgalTriCadInterface cad(m_ShellGrid);
-  for (vtkIdType id_node = 0; id_node < m_Grid->GetNumberOfPoints(); ++id_node) {
-    if (m_BoundaryLayerNode[id_node]) {
-      vec3_t x;
-      m_Grid->GetPoint(id_node, x.data());
-      QVector<QPair<vec3_t, vtkIdType> > intersections;
-      cad.computeIntersections(x, m_BoundaryLayerVectors[id_node], intersections);
-      double h = 2*m_Height[id_node];
-      bool found = false;
-      vec3_t layer_vector = m_BoundaryLayerVectors[id_node];
-      for (int i = 0; i < intersections.size(); ++i) {
-        vec3_t xi = intersections[i].first;
-        vec3_t vi = xi - x;
-        if (vi*m_BoundaryLayerVectors[id_node] > 0) {
-          double hi = vi.abs();
-          if (hi < h) {
-            h = hi;
-            layer_vector = vi.normalise();
-            found = true;
-          }
-        }
-      }
-      if (found) {
-        m_Height[id_node] = relax*h;
-        m_BoundaryLayerVectors[id_node] = layer_vector;
-      }
-    }
-  }
-}
-
 void BoundaryLayerOperation::limitSizeAndAngleErrors()
 {
   bool done;
@@ -1242,6 +1091,367 @@ void BoundaryLayerOperation::limitSizeAndAngleErrors()
   } while (!done);
 }
 
+
+void BoundaryLayerOperation::smoothShellHeights()
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+
+  vtkIdType num_nodes = m_Grid->GetNumberOfPoints();
+
+  // snapshot heights at smoother entry — used for per-node bounds
+  const QVector<double> h_start = m_Height;
+
+  // --- Pre-computation: is_fixed, wall/shell positions ---
+
+  QVector<bool> is_fixed(num_nodes, false);
+  for (vtkIdType id_node = 0; id_node < num_nodes; ++id_node) {
+    if (!m_BoundaryLayerNode[id_node]) {
+      is_fixed[id_node] = true;
+      continue;
+    }
+    if (m_NodeTypes[id_node] == CornerNode) {
+      is_fixed[id_node] = true;
+      continue;
+    }
+    for (int i = 0; i < m_Part.n2cGSize(id_node); ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (isSurface(id_cell, m_Grid) && !m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) {
+        is_fixed[id_node] = true;
+        break;
+      }
+    }
+  }
+
+  QVector<vec3_t> x_wall(num_nodes);
+  QVector<vec3_t> x_shell(num_nodes);
+  for (vtkIdType i = 0; i < num_nodes; ++i) {
+    m_Grid->GetPoint(i, x_wall[i].data());
+    if (m_BoundaryLayerNode[i]) {
+      x_shell[i] = x_wall[i] + m_Height[i] * m_BoundaryLayerVectors[i];
+    } else {
+      x_shell[i] = x_wall[i];
+    }
+  }
+
+  // --- Pre-compute edge topology ---
+  // Per node: edges with (face1, face2) vertex triples for error evaluation
+  // Global: all unique BL edges for convergence check
+
+  struct EdgeInfo {
+    std::array<vtkIdType, 3> face1;
+    std::array<vtkIdType, 3> face2;
+  };
+
+  QVector<QVector<EdgeInfo>> node_edges(num_nodes);
+  QVector<EdgeInfo> all_bl_edges;
+  vtkSmartPointer<vtkIdList> face_pts = vtkSmartPointer<vtkIdList>::New();
+
+  for (vtkIdType id_node = 0; id_node < num_nodes; ++id_node) {
+    if (!m_BoundaryLayerNode[id_node]) continue;
+
+    for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+      vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+      if (!m_BoundaryLayerNode[id_neigh]) continue;
+
+      QVector<vtkIdType> edge_faces;
+      m_Part.getEdgeFaces(id_node, id_neigh, edge_faces);
+      if (edge_faces.size() != 2) continue;
+
+      bool both_bl = true;
+      for (int j = 0; j < 2; ++j) {
+        if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(edge_faces[j]))) {
+          both_bl = false;
+          break;
+        }
+      }
+      if (!both_bl) continue;
+
+      m_Grid->GetCellPoints(edge_faces[0], face_pts);
+      if (face_pts->GetNumberOfIds() != 3) continue;
+      EdgeInfo ei;
+      for (int k = 0; k < 3; ++k) ei.face1[k] = face_pts->GetId(k);
+
+      m_Grid->GetCellPoints(edge_faces[1], face_pts);
+      if (face_pts->GetNumberOfIds() != 3) continue;
+      for (int k = 0; k < 3; ++k) ei.face2[k] = face_pts->GetId(k);
+
+      if (!is_fixed[id_node]) {
+        node_edges[id_node].append(ei);
+      }
+      if (id_neigh > id_node) {
+        all_bl_edges.append(ei);
+      }
+    }
+  }
+
+  // --- Cross-edges: for each BL triangle (id_node, A, B), also add the dihedral at
+  // edge (A, B) to node_edges[id_node].  Moving id_node changes the normal of triangle
+  // (id_node, A, B) and thus the dihedral at (A, B), but that change is invisible to
+  // evalError unless we include the cross-edge.  The evalError lambda already substitutes
+  // x_trial for any vertex == id_node, so no change to the lambda is required.
+
+  for (vtkIdType id_node = 0; id_node < num_nodes; ++id_node) {
+    if (is_fixed[id_node] || !m_BoundaryLayerNode[id_node]) continue;
+
+    for (int ci = 0; ci < m_Part.n2cGSize(id_node); ++ci) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, ci);
+      if (!isSurface(id_cell, m_Grid)) continue;
+      if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) continue;
+
+      m_Grid->GetCellPoints(id_cell, face_pts);
+      if (face_pts->GetNumberOfIds() != 3) continue;
+
+      // find the two neighbours (not id_node) — these form the cross-edge
+      vtkIdType A = -1, B = -1;
+      for (int k = 0; k < 3; ++k) {
+        vtkIdType pt = face_pts->GetId(k);
+        if (pt != id_node) { if (A == -1) A = pt; else B = pt; }
+      }
+      if (!m_BoundaryLayerNode[A] || !m_BoundaryLayerNode[B]) continue;
+
+      // get the two faces sharing cross-edge (A, B)
+      QVector<vtkIdType> cross_faces;
+      m_Part.getEdgeFaces(A, B, cross_faces);
+      if (cross_faces.size() != 2) continue;
+
+      bool both_bl = true;
+      for (int j = 0; j < 2; ++j) {
+        if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(cross_faces[j]))) {
+          both_bl = false; break;
+        }
+      }
+      if (!both_bl) continue;
+
+      // confirm id_cell is one of the two cross_faces (id_node is a vertex of a face
+      // adjacent to cross-edge (A, B))
+      if (cross_faces[0] != id_cell && cross_faces[1] != id_cell) continue;
+
+      EdgeInfo cross_ei;
+      m_Grid->GetCellPoints(cross_faces[0], face_pts);
+      if (face_pts->GetNumberOfIds() != 3) continue;
+      for (int k = 0; k < 3; ++k) cross_ei.face1[k] = face_pts->GetId(k);
+      m_Grid->GetCellPoints(cross_faces[1], face_pts);
+      if (face_pts->GetNumberOfIds() != 3) continue;
+      for (int k = 0; k < 3; ++k) cross_ei.face2[k] = face_pts->GetId(k);
+
+      node_edges[id_node].append(cross_ei);
+    }
+  }
+
+  // --- Error evaluation: worst (1 - cos(α - θ_max)) across incident shell edges above threshold ---
+  // Pure minimax angle — no height-deviation penalty.
+  // Shell collapse is prevented by constraining the search range to [LowerFraction·h_start, UpperFactor·h_start].
+
+  const double cos_threshold = cos(m_MaxShellAngle);
+  const double sin_threshold = sin(m_MaxShellAngle);
+
+  auto evalError = [&](vtkIdType id_node, double h_trial) -> double {
+    double f1_max = 0;
+    vec3_t x_trial = x_wall[id_node] + h_trial * m_BoundaryLayerVectors[id_node];
+    for (const auto& ei : node_edges[id_node]) {
+      vec3_t p0 = (ei.face1[0] == id_node) ? x_trial : x_shell[ei.face1[0]];
+      vec3_t p1 = (ei.face1[1] == id_node) ? x_trial : x_shell[ei.face1[1]];
+      vec3_t p2 = (ei.face1[2] == id_node) ? x_trial : x_shell[ei.face1[2]];
+      vec3_t n1 = GeometryTools::triNormal(p0, p1, p2);
+
+      vec3_t q0 = (ei.face2[0] == id_node) ? x_trial : x_shell[ei.face2[0]];
+      vec3_t q1 = (ei.face2[1] == id_node) ? x_trial : x_shell[ei.face2[1]];
+      vec3_t q2 = (ei.face2[2] == id_node) ? x_trial : x_shell[ei.face2[2]];
+      vec3_t n2 = GeometryTools::triNormal(q0, q1, q2);
+
+      if (n1.abs() < 1e-20 || n2.abs() < 1e-20) continue;
+      n1.normalise();
+      n2.normalise();
+
+      double cos_alpha = n1 * n2;
+      cos_alpha = max(-1.0, min(1.0, cos_alpha));
+      // only count angles that exceed the convergence threshold;
+      // use 1 - cos(α - θ_max) so the error starts at 0 right at the threshold
+      if (cos_alpha < cos_threshold) {
+        double sin_alpha  = sqrt(max(0.0, 1.0 - cos_alpha * cos_alpha));
+        double cos_excess = cos_alpha * cos_threshold + sin_alpha * sin_threshold;
+        f1_max = max(f1_max, 1.0 - cos_excess);
+      }
+    }
+    return f1_max;
+  };
+
+  // --- Gauss-Seidel sweeps: golden section search per node ---
+  // m_SmoothShellLowerFraction : lower height fraction (e.g. 0.5 → never below 50% of h_start)
+  // m_SmoothShellUpperFactor   : upper height factor  (e.g. 2.0 → never above 200% of h_start)
+  // Each node is minimised to ~1e-6 relative precision per sweep via golden section search.
+
+  const int    max_sweeps = m_SmoothShellIterations;
+  const double phi        = 0.6180339887498949;  // (√5 - 1) / 2
+  const int    gs_iters   = 30;                  // φ^30 ≈ 1e-6 relative precision
+
+  EG_VTKDCN(vtkLongArray_t, dbg_node_index, m_Grid, "node_index");
+
+  int    sweep;
+  double max_angle = 0;
+
+  for (sweep = 0; sweep < max_sweeps; ++sweep) {
+
+    for (vtkIdType id_node = 0; id_node < num_nodes; ++id_node) {
+      if (is_fixed[id_node] || !m_BoundaryLayerNode[id_node]) continue;
+      if (node_edges[id_node].isEmpty()) continue;
+      if (h_start[id_node] < 1e-20) continue;
+      if (dbg_node_index->GetValue(id_node) == 1257) {
+        int debug_nop = 0;
+      }
+
+      double h_lo  = m_SmoothShellLowerFraction * h_start[id_node];
+      double h_hi  = m_SmoothShellUpperFactor   * h_start[id_node];
+      if (h_lo >= h_hi) h_lo = 0.5 * h_hi;
+
+      double h_cur = m_Height[id_node];
+      double e_cur = evalError(id_node, h_cur);  // baseline cost at current height
+
+      // Golden section search for minimum of evalError over [h_lo, h_hi]
+      double a = h_lo, b = h_hi;
+      double c = b - phi * (b - a);
+      double d = a + phi * (b - a);
+      double fc = evalError(id_node, c);
+      double fd = evalError(id_node, d);
+      for (int k = 0; k < gs_iters; ++k) {
+        if (fc < fd) {
+          b = d;  d = c;  fd = fc;
+          c = b - phi * (b - a);
+          fc = evalError(id_node, c);
+        } else {
+          a = c;  c = d;  fc = fd;
+          d = a + phi * (b - a);
+          fd = evalError(id_node, d);
+        }
+      }
+      double h_new = 0.5 * (a + b);
+      double e_new = min(fc, fd);  // fc ≈ fd ≈ evalError(h_new) after convergence
+
+      // only apply if there is a genuine improvement; this prevents the flat-region
+      // tie-breaking bug where evalError=0 everywhere causes golden section to converge
+      // to h_hi (= UpperFactor × h_start), creating spikes in locally flat areas
+      if (e_new < e_cur) {
+        // face-quality guard: if moving upward, cap at max face-quality-safe height
+        if (h_new > h_cur) {
+          h_new = maxAllowedHeightForNode(id_node, h_cur, h_new);
+        }
+        m_Height[id_node] = h_new;
+        x_shell[id_node] = x_wall[id_node] + h_new * m_BoundaryLayerVectors[id_node];
+      }
+      // else: no improvement (flat region / zero-error plateau) → keep current height
+    }
+
+    // --- Convergence check: max dihedral angle across all BL shell edges ---
+
+    max_angle = 0;
+    for (const auto& e : all_bl_edges) {
+      vec3_t n1 = GeometryTools::triNormal(x_shell[e.face1[0]], x_shell[e.face1[1]], x_shell[e.face1[2]]);
+      vec3_t n2 = GeometryTools::triNormal(x_shell[e.face2[0]], x_shell[e.face2[1]], x_shell[e.face2[2]]);
+      if (n1.abs() < 1e-20 || n2.abs() < 1e-20) continue;
+      max_angle = max(max_angle, GeometryTools::angle(n1, n2));
+    }
+
+    if (max_angle <= m_MaxShellAngle) break;
+  }
+
+  cout << "smoothShellHeights: " << sweep << " iterations, final max shell edge angle = " << GeometryTools::rad2deg(max_angle) << " deg" << endl;
+
+  // --- Post-processing: 3D Laplacian smoothing of the outer shell surface ---
+  // Moves each shell node toward the mean of its BL neighbours' shell positions in 3D,
+  // then updates both m_Height and m_BoundaryLayerVectors to reflect the new position.
+  // This removes residual positional noise that the angle optimizer leaves untouched
+  // (e.g. nodes where all dihedrals are already below threshold and e_cur = 0).
+  // Projecting back onto the existing BL vector would be wrong on curved surfaces
+  // where neighbours have different BL directions; a full 3D update is correct.
+  // Safety: h_lo/h_hi clamp + faceFine check (prism quality) + evalError guard (angles).
+
+  const int    laplacian_sweeps = m_LaplaceShellSweeps;
+  const double laplacian_omega  = m_LaplaceShellOmega;
+
+  for (int ls = 0; ls < laplacian_sweeps; ++ls) {
+    for (vtkIdType id_node = 0; id_node < num_nodes; ++id_node) {
+      if (is_fixed[id_node] || !m_BoundaryLayerNode[id_node]) continue;
+      if (h_start[id_node] < 1e-20) continue;
+
+      // 3D mean of BL-neighbour shell positions
+      vec3_t x_lap(0, 0, 0);
+      int    nb_count = 0;
+      for (int i = 0; i < m_Part.n2nGSize(id_node); ++i) {
+        vtkIdType id_neigh = m_Part.n2nGG(id_node, i);
+        if (!m_BoundaryLayerNode[id_neigh]) continue;
+        x_lap += x_shell[id_neigh];
+        ++nb_count;
+      }
+      if (nb_count == 0) continue;
+      x_lap *= (1.0 / nb_count);
+
+      // blend toward Laplacian target
+      vec3_t x_new = (1.0 - laplacian_omega) * x_shell[id_node]
+                   +        laplacian_omega   * x_lap;
+
+      // decompose into new height + new unit direction
+      vec3_t delta = x_new - x_wall[id_node];
+      double h_new = delta.abs();
+      if (h_new < 1e-20) continue;
+      vec3_t bl_new = (1.0 / h_new) * delta;
+
+      // clamp height to safety bounds, re-sync position
+      double h_lo = m_SmoothShellLowerFraction * h_start[id_node];
+      double h_hi = m_SmoothShellUpperFactor   * h_start[id_node];
+      h_new = max(h_lo, min(h_new, h_hi));
+      x_new = x_wall[id_node] + h_new * bl_new;
+
+      // save old state and evaluate baseline error (uses old bl_vec)
+      double h_old  = m_Height[id_node];
+      vec3_t bl_old = m_BoundaryLayerVectors[id_node];
+      vec3_t xs_old = x_shell[id_node];
+      double e_cur  = evalError(id_node, h_old);
+
+      // temporarily apply new state so health checks use it
+      m_Height[id_node]               = h_new;
+      m_BoundaryLayerVectors[id_node] = bl_new;
+      x_shell[id_node]                = x_new;
+
+      // dihedral angle guard (evalError now resolves x_trial via the new bl_vec)
+      bool ok = (evalError(id_node, h_new) <= e_cur);
+
+      // prism face-quality guard (faceFine reads m_Height and m_BoundaryLayerVectors)
+      for (int ci = 0; ci < m_Part.n2cGSize(id_node) && ok; ++ci) {
+        vtkIdType id_cell = m_Part.n2cGG(id_node, ci);
+        if (!isSurface(id_cell, m_Grid)) continue;
+        if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) continue;
+        if (!faceFine(id_cell, 1.0)) ok = false;
+      }
+
+      if (!ok) {
+        // revert — keep both h and bl_vec in sync
+        m_Height[id_node]               = h_old;
+        m_BoundaryLayerVectors[id_node] = bl_old;
+        x_shell[id_node]                = xs_old;
+      }
+    }
+  }
+}
+
+double BoundaryLayerOperation::maxAllowedHeightForNode(vtkIdType id_node, double h_lo, double h_hi)
+{
+  EG_VTKDCC(vtkIntArray, cell_code, m_Grid, "cell_code");
+  double h_saved = m_Height[id_node];
+  for (int k = 0; k < 20; ++k) {
+    double h_mid = 0.5 * (h_lo + h_hi);
+    m_Height[id_node] = h_mid;
+    bool passes = true;
+    for (int i = 0; i < m_Part.n2cGSize(id_node) && passes; ++i) {
+      vtkIdType id_cell = m_Part.n2cGG(id_node, i);
+      if (!isSurface(id_cell, m_Grid)) continue;
+      if (!m_BoundaryLayerCodes.contains(cell_code->GetValue(id_cell))) continue;
+      if (!faceFine(id_cell, 1.0)) passes = false;
+    }
+    if (passes) h_lo = h_mid; else h_hi = h_mid;
+  }
+  m_Height[id_node] = h_saved;
+  return h_lo;
+}
 
 void BoundaryLayerOperation::angleSmoother(const QVector<bool>& on_boundary, const QVector<bool>& is_convex, QVector<vec3_t>& grid_pnts)
 {

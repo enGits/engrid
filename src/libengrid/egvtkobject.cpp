@@ -770,6 +770,7 @@ void EgVtkObject::copyNodeData
   //EGVTKOBJECT_COPYNODEDATA("node_meshdensity_current",  vtkDoubleArray);
   EGVTKOBJECT_COPYNODEDATA("node_type",  vtkCharArray_t);
   EGVTKOBJECT_COPYNODEDATA("node_pindex", vtkLongArray_t);
+  EGVTKOBJECT_COPYNODEDATA("base_node_id", vtkLongArray_t);
 }
 
 #define EGVTKOBJECT_CREATECELLFIELD(FIELD,TYPE,OW) \
@@ -841,6 +842,7 @@ void EgVtkObject::createBasicNodeFields(vtkUnstructuredGrid *grid, vtkIdType Nno
   EGVTKOBJECT_CREATENODEFIELD("node_type_counter",         vtkIntArray,    overwrite); // counter field to delay node type demotion
   EGVTKOBJECT_CREATENODEFIELD("node_pindex",               vtkLongArray_t, overwrite);
   EGVTKOBJECT_CREATENODEFIELD("node_mesh_quality",         vtkDoubleArray, overwrite); // generic field to store different quality measures
+  EGVTKOBJECT_CREATENODEFIELD("base_node_id",              vtkLongArray_t, overwrite); // wall node index for extruded BL nodes (debug)
 }
 
 void EgVtkObject::allocateGrid(vtkUnstructuredGrid *grid, vtkIdType Ncells, vtkIdType Nnodes, bool create_fields)
