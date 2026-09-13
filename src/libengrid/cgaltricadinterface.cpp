@@ -215,8 +215,8 @@ vec3_t CgalTriCadInterface::snapWithNormal(vec3_t x, vec3_t n_surf, bool correct
         vec3_t n = GeometryTools::cellNormal(m_BGrid, id_face);
         n.normalise();
         if (n*n_surf > 0) {
-          if (i->first.type() == typeid(Point)) {
-            Point p = boost::get<Point>(i->first);
+          if (std::holds_alternative<Point>(i->first)) {
+            Point p = std::get<Point>(i->first);
             vec3_t xs(p[0], p[1], p[2]);
             double dist = (x - xs).abs();
             if (dist < dist_min) {
@@ -253,8 +253,8 @@ vec3_t CgalTriCadInterface::snapNode(vtkIdType id_node, vec3_t x, bool correct_c
         vec3_t n = GeometryTools::cellNormal(m_BGrid, id_face);
         n.normalise();
         if (n*n_node > 0) {
-          if (i->first.type() == typeid(Point)) {
-            Point p = boost::get<Point>(i->first);
+          if (std::holds_alternative<Point>(i->first)) {
+            Point p = std::get<Point>(i->first);
             vec3_t xs(p[0], p[1], p[2]);
             double dist = (x - xs).abs();
             if (dist < dist_min) {
@@ -306,7 +306,7 @@ void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair
     m_TriangleTree.all_intersections(ray, std::back_inserter(inters));
     int i_intersections = 0;
     for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
-      if (i->first.type() == typeid(Point)) {
+      if (std::holds_alternative<Point>(i->first)) {
         ++i_intersections;
       }
     }
@@ -314,9 +314,9 @@ void CgalTriCadInterface::computeIntersections(vec3_t x, vec3_t v, QVector<QPair
     i_intersections = 0;
     for (std::list<Intersection>::iterator i = inters.begin(); i != inters.end(); ++i) {
       int id = (i->second - m_Triangles.begin());
-      if (i->first.type() == typeid(Point)) {
+      if (std::holds_alternative<Point>(i->first)) {
         intersections[i_intersections].second = m_Tri2Grid[id];
-        Point p = boost::get<Point>(i->first);
+        Point p = std::get<Point>(i->first);
         vec3_t xs(p[0], p[1], p[2]);
         intersections[i_intersections].first = xs;
         ++i_intersections;

@@ -504,7 +504,7 @@ void GuiMainWindow::exit()
 
 vtkRenderWindow* GuiMainWindow::getRenderWindow()
 {
-  return ui.centralwidget->GetRenderWindow();
+  return ui.centralwidget->renderWindow();
 }
 
 vtkRenderer* GuiMainWindow::getRenderer()
@@ -514,7 +514,7 @@ vtkRenderer* GuiMainWindow::getRenderer()
 
 QVTKInteractor* GuiMainWindow::getInteractor()
 {
-  return ui.centralwidget->GetInteractor();
+  return ui.centralwidget->interactor();
 }
 
 QString GuiMainWindow::getCwd()

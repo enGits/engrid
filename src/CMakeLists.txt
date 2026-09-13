@@ -95,7 +95,7 @@ endif()
 # include_directories(${VTK_INCLUDE_DIRS})
 
 FIND_PACKAGE(CGAL REQUIRED)
-include(${CGAL_USE_FILE})
+#include(${CGAL_USE_FILE})
 #include_directories(${VTK_INCLUDE_DIRS})
 
 # Qt5
@@ -140,6 +140,7 @@ target_link_libraries(engrid Qt5::Widgets)
 target_link_libraries(engrid Qt5::Network)
 target_link_libraries(engrid Qt5::Xml)
 target_link_libraries(engrid ${VTK_LIBRARIES})
+target_link_libraries(engrid CGAL::CGAL)
 
 install(TARGETS engrid DESTINATION bin)
 
